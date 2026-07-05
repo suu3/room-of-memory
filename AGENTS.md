@@ -19,11 +19,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Commands
 
-- `npm run dev` — dev 서버
-- `npm run build` — 프로덕션 빌드 (머지 전 필수 통과)
-- `npm run lint` / `npm run lint:fix` — Biome 검사/자동수정
-- `npm run typecheck` — tsc --noEmit
-- `npm run design:lint` — DESIGN.md 토큰 검증
+- `pnpm dev` — dev 서버
+- `pnpm build` — 프로덕션 빌드 (머지 전 필수 통과)
+- `pnpm lint` / `pnpm lint:fix` — Biome 검사/자동수정
+- `pnpm typecheck` — tsc --noEmit
+- `pnpm design:lint` — DESIGN.md 토큰 검증
 
 Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차단, pre-push = typecheck + build. 훅을 우회(`--no-verify`)하지 않는다.
 
@@ -40,7 +40,7 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 
 ## Design system
 
-시각 디자인의 단일 소스는 루트의 **`DESIGN.md`** (google-labs-code/design.md 포맷). UI 색상·타이포·간격은 반드시 DESIGN.md 토큰에서 가져오고, 하드코딩된 hex 값을 새로 만들지 말 것. 토큰 변경 후 `npm run design:lint`로 검증.
+시각 디자인의 단일 소스는 루트의 **`DESIGN.md`** (google-labs-code/design.md 포맷). UI 색상·타이포·간격은 반드시 DESIGN.md 토큰에서 가져오고, 하드코딩된 hex 값을 새로 만들지 말 것. 토큰 변경 후 `pnpm design:lint`로 검증.
 
 ## Rules
 

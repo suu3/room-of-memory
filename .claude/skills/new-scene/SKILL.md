@@ -18,7 +18,7 @@ description: 새 챕터(3D 씬 + 시나리오 데이터 + 씬 레지스트리 �
    - `Chapter` 타입 만족, `scene` 키는 2번에서 등록한 이름
    - `start` 노드 + 종착 노드 포함한 최소 그래프 (본문은 플레이스홀더 한국어)
 4. 씬 레지스트리에 등록.
-5. `npm run typecheck && npm run lint` 통과 확인.
+5. `pnpm typecheck && pnpm lint` 통과 확인.
 
 ## 규칙
 

@@ -15,7 +15,7 @@
 
 - 절대 한도: **단일 파일 25MB** (초과 시 커밋 금지 — 압축하거나 분할). GitHub 100MB 하드리밋에 근접하는 파일은 애초에 만들지 않는다.
 - 압축되지 않은 `.gltf`+`.bin`+텍스처 낱개 커밋 금지. 항상 단일 `.glb`로 패킹.
-- 압축 명령은 `/optimize-asset` 스킬 참고 (`npx @gltf-transform/cli`).
+- 압축 명령은 `/optimize-asset` 스킬 참고 (`pnpm dlx @gltf-transform/cli`).
 
 ## 네이밍
 

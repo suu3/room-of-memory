@@ -1,14 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run lint:*)",
-      "Bash(npm run typecheck:*)",
-      "Bash(npm run format:*)",
-      "Bash(npm run build:*)",
-      "Bash(npm run design:lint:*)",
-      "Bash(npx @google/design.md *)",
-      "Bash(npx @gltf-transform/cli *)",
-      "Bash(npx tsc *)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm format:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm design:lint:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm exec biome *)",
+      "Bash(pnpm dlx @google/design.md *)",
+      "Bash(pnpm dlx @gltf-transform/cli *)",
+      "Bash(pnpm exec tsc *)",
       "Bash(du:*)",
       "Bash(find public/assets:*)"
     ],

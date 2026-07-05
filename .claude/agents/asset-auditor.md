@@ -11,7 +11,7 @@ tools: Bash, Read, Glob, Grep
 2. 규칙 위반을 찾는다:
    - 용량 한도 초과 (종류별 한도는 assets.md 표 기준, 절대 한도 25MB)
    - 금지 포맷: `.gltf`/`.bin` 낱개, `.png`/`.jpg`(webp로 변환 대상), `.wav`(bgm/sfx), `.ttf`/`.otf`(woff2 변환 대상)
-   - `.glb`는 압축 여부 확인: `npx @gltf-transform/cli inspect <file>`로 Draco/Meshopt 확장 사용 여부를 본다
+   - `.glb`는 압축 여부 확인: `pnpm dlx @gltf-transform/cli inspect <file>`로 Draco/Meshopt 확장 사용 여부를 본다
    - 네이밍: kebab-case 및 챕터/용도 접두사 위반
 3. 코드에서 참조되지 않는 고아 에셋을 찾는다: 파일명으로 `src/`를 grep.
 4. `public/assets/CREDITS.md`에 출처 미기재 에셋이 있는지 확인.

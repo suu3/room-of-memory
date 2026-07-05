@@ -11,11 +11,11 @@ description: 3D 모델(glb)·텍스처·오디오 에셋을 프로젝트 용량 
 
 ```bash
 # 검사
-npx @gltf-transform/cli inspect <file.glb>
+pnpm dlx @gltf-transform/cli inspect <file.glb>
 # 최적화 (draco + 텍스처 webp 변환 + prune/dedup 일괄)
-npx @gltf-transform/cli optimize <in.glb> <out.glb> --compress draco --texture-compress webp
+pnpm dlx @gltf-transform/cli optimize <in.glb> <out.glb> --compress draco --texture-compress webp
 # 텍스처가 큰 경우 해상도 제한
-npx @gltf-transform/cli resize <in.glb> <out.glb> --width 2048 --height 2048
+pnpm dlx @gltf-transform/cli resize <in.glb> <out.glb> --width 2048 --height 2048
 ```
 
 - 최적화 전후 용량과 `inspect` 결과(드로우콜 수, 버텍스 수)를 비교해 보고한다.
@@ -24,7 +24,7 @@ npx @gltf-transform/cli resize <in.glb> <out.glb> --width 2048 --height 2048
 ## 텍스처 단독 파일
 
 ```bash
-npx sharp-cli -i <in.png> -o <out.webp> --format webp -q 82
+pnpm dlx sharp-cli -i <in.png> -o <out.webp> --format webp -q 82
 ```
 
 2의 제곱 크기(512/1024/2048)로 리사이즈. 노멀맵은 품질 90 이상 유지.

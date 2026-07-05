@@ -8,7 +8,7 @@ description: DESIGN.md 토큰을 검증하고, UI 코드가 디자인 토큰을 
 ## 1. DESIGN.md 자체 검증
 
 ```bash
-npx @google/design.md lint DESIGN.md
+pnpm dlx @google/design.md lint DESIGN.md
 ```
 
 JSON 결과의 findings를 해석해 보고한다 (끊긴 토큰 참조, WCAG 대비 미달 등).
@@ -25,7 +25,7 @@ JSON 결과의 findings를 해석해 보고한다 (끊긴 토큰 참조, WCAG �
 DESIGN.md 토큰을 바꿨다면 `globals.css`의 `@theme` 값도 함께 갱신하고, 필요하면 export를 활용한다:
 
 ```bash
-npx @google/design.md export --format json-tailwind DESIGN.md
+pnpm dlx @google/design.md export --format json-tailwind DESIGN.md
 ```
 
 보고: 위반 목록(파일:라인, 현재 값, 제안 토큰)과 lint 결과 요약.

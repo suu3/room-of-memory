@@ -15,4 +15,4 @@ if [ -n "$oversized" ]; then
 fi
 
 # 2) 스테이징된 파일만 Biome 검사
-npx biome check --staged --no-errors-on-unmatched
+pnpm exec biome check --staged --no-errors-on-unmatched

@@ -17,4 +17,4 @@ description: 새 미니게임(컴포넌트 + 레지스트리 등록 + 시나리�
    - 게임 로직은 플레이스홀더 수준이라도 clear/fail 두 경로가 실제로 동작해야 한다.
 3. `src/minigames/index.ts` 레지스트리에 `MinigameDefinition` 등록 (lazy import).
 4. 요청에 연결할 시나리오가 명시됐으면 해당 노드에 `MinigameGate`를 추가하고 `onClear`/`onFail` 노드가 존재하는지 확인.
-5. `npm run typecheck && npm run lint` 통과 확인 후, dev 서버로 clear/fail/skip 세 경로를 확인한다.
+5. `pnpm typecheck && pnpm lint` 통과 확인 후, dev 서버로 clear/fail/skip 세 경로를 확인한다.
