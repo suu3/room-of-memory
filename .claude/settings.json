@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run design:lint:*)",
+      "Bash(npx @google/design.md *)",
+      "Bash(npx @gltf-transform/cli *)",
+      "Bash(npx tsc *)",
+      "Bash(du:*)",
+      "Bash(find public/assets:*)"
+    ],
+    "deny": []
+  }
+}

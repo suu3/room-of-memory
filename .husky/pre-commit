@@ -1,0 +1,18 @@
+# 1) 25MB 초과 파일 차단 (.claude/rules/assets.md 절대 한도)
+limit=26214400
+oversized=""
+for f in $(git diff --cached --name-only --diff-filter=AM); do
+  if [ -f "$f" ]; then
+    size=$(wc -c < "$f" | tr -d ' ')
+    if [ "$size" -gt "$limit" ]; then
+      oversized="$oversized\n  $f ($((size / 1048576))MB)"
+    fi
+  fi
+done
+if [ -n "$oversized" ]; then
+  printf "✖ 25MB 초과 파일이 스테이징되어 있습니다. 압축 후 커밋하세요 (/optimize-asset 참고):$oversized\n"
+  exit 1
+fi
+
+# 2) 스테이징된 파일만 Biome 검사
+npx biome check --staged --no-errors-on-unmatched
