@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL } from "@/data/memory-room";
 import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
 
 export function MemoryPanel() {
+  const { t } = useTranslation();
+  const { t: tRoom } = useTranslation("memoryRoom");
   const [open, setOpen] = useState(true);
   const collected = useMemoryRoomStore(selectCollected);
   const count = collected.length;
@@ -20,11 +23,11 @@ export function MemoryPanel() {
           type="button"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
-          aria-label={open ? "기억 수집 패널 닫기" : "기억 수집 패널 열기"}
+          aria-label={open ? t("panel.close") : t("panel.open")}
           className="absolute -left-9 top-1/2 flex h-30 w-9 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-2 rounded-l-sm border border-r-0 border-bone/15 bg-ink/90"
         >
           <span className="text-xs font-bold tracking-widest text-bone [writing-mode:vertical-rl]">
-            기억 수집
+            {t("panel.title")}
           </span>
           <span className="grid h-4 min-w-4 place-items-center rounded-full bg-memory px-1 text-xs font-bold text-scene-navy">
             {count}
@@ -33,7 +36,7 @@ export function MemoryPanel() {
 
         <div className="px-4 pb-2.5 pt-4">
           <div className="flex items-baseline justify-between">
-            <span className="text-sm font-bold tracking-wide text-bone">기억 수집</span>
+            <span className="text-sm font-bold tracking-wide text-bone">{t("panel.title")}</span>
             <span className="text-xs text-fog">
               {count} / {MEMORY_GOAL}
             </span>
@@ -77,10 +80,10 @@ export function MemoryPanel() {
                   <span
                     className={`text-sm font-bold tracking-wide ${done ? "text-memory" : "text-bone/50"}`}
                   >
-                    {done ? memory.name : "? ? ?"}
+                    {done ? tRoom(`memories.${memory.id}.name`) : t("panel.unknownName")}
                   </span>
                   <span className="truncate font-hand text-base text-fog">
-                    {done ? memory.summary : "미수집 · 방 안 어딘가"}
+                    {done ? tRoom(`memories.${memory.id}.summary`) : t("panel.unknownSummary")}
                   </span>
                 </span>
               </li>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL, ROOM_STAGES, stageIndexFromCount } from "@/data/memory-room";
 import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
 import { DialogueBox } from "./DialogueBox";
@@ -12,25 +13,24 @@ const DOOR_VARIANTS = [
     frame: "border-bone/25 bg-scene-deep/60",
     knob: "bg-bone/25",
     chip: "border-bone/25 bg-scene-deep/60 text-bone/40",
-    label: "잠긴 문",
   },
   {
     wrap: "opacity-60",
     frame: "border-bone/35 bg-scene-navy/60",
     knob: "bg-bone/35",
     chip: "border-bone/35 bg-scene-navy/70 text-bone/60",
-    label: "잠긴 문",
   },
   {
     wrap: "opacity-100",
     frame: "border-memory bg-memory/15 shadow-door-glow",
     knob: "bg-memory",
     chip: "border-memory bg-memory text-scene-navy",
-    label: "나가기 →",
   },
 ];
 
 export function MemoryRoom() {
+  const { t } = useTranslation();
+  const { t: tRoom } = useTranslation("memoryRoom");
   const collected = useMemoryRoomStore(selectCollected);
   const count = collected.length;
   const stageIndex = stageIndexFromCount(count);
@@ -86,7 +86,7 @@ export function MemoryRoom() {
       <div className="pointer-events-none absolute left-1/2 top-[45%] grid h-75 w-140 max-w-[80vw] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-sm border border-dashed border-bone/20">
         <div className="text-center text-bone/45">
           <div className="font-mono text-xs tracking-widest">{"<Canvas /> · THREE.JS DIORAMA"}</div>
-          <div className="mt-1.5 text-xs opacity-80">어두운 3D 방 씬 (placeholder)</div>
+          <div className="mt-1.5 text-xs opacity-80">{t("canvas.placeholder")}</div>
         </div>
       </div>
 
@@ -110,7 +110,7 @@ export function MemoryRoom() {
         <span
           className={`rounded-full border px-3 py-1 text-xs font-bold tracking-widest transition-colors duration-1000 ${door.chip}`}
         >
-          {door.label}
+          {stageIndex === 2 ? t("door.exit") : t("door.locked")}
         </span>
       </div>
 
@@ -130,24 +130,25 @@ export function MemoryRoom() {
       <header className="absolute left-6 top-6 flex flex-col gap-1.5">
         <div className="flex items-center gap-2.5">
           <div aria-hidden className="w-6 border-t-2 border-dashed border-ember" />
-          <h1 className="text-lg font-bold text-bone">기억의 방</h1>
+          <h1 className="text-lg font-bold text-bone">{t("title")}</h1>
         </div>
         <p className="pl-9 text-xs tracking-widest text-fog">
-          방 안에 흩어진 기억 · {count} / {MEMORY_GOAL}
+          {t("hud.scattered")} · {count} / {MEMORY_GOAL}
         </p>
       </header>
 
       {/* 혼잣말 */}
       <div className="pointer-events-none absolute left-1/2 top-16 w-full max-w-2xl -translate-x-1/2 text-center">
         <p key={stage.id} className="animate-fade-rise font-hand text-2xl text-fog">
-          「 {stage.monologue} 」
+          「 {tRoom(`stages.${stage.id}.monologue`)} 」
         </p>
       </div>
 
       {/* 진행 도트 */}
       <div className="absolute bottom-6 left-6 flex items-center gap-3">
         <p className="text-xs tracking-wider text-fog">
-          기억 <span className="font-bold text-memory">{count}</span> / {MEMORY_GOAL}
+          {t("hud.memoryCount")} <span className="font-bold text-memory">{count}</span> /{" "}
+          {MEMORY_GOAL}
         </p>
         <div className="flex gap-1.5">
           {MEMORIES.map((memory) => (
@@ -162,7 +163,7 @@ export function MemoryRoom() {
         </div>
       </div>
 
-      <DialogueBox line={stage.dialogueLine} />
+      <DialogueBox stageId={stage.id} />
       <MemoryPanel />
     </div>
   );

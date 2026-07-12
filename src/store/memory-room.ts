@@ -1,8 +1,9 @@
 import { create } from "zustand";
+import type { MemoryId } from "@/data/memory-room";
 
 interface MemoryRoomState {
-  collected: string[];
-  collect: (id: string) => void;
+  collected: MemoryId[];
+  collect: (id: MemoryId) => void;
   reset: () => void;
 }
 
