@@ -175,7 +175,7 @@ export function MemoryRoom() {
         </div>
       </div>
 
-      <DialogueBox stageId={stage.id} />
+      <DialogueBox />
       <MemoryPanel />
       <MinigameHost />
     </div>
