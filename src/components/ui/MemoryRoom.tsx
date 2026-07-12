@@ -2,11 +2,12 @@
 
 import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL, ROOM_STAGES, stageIndexFromCount } from "@/data/memory-room";
-import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
+import { selectCollected, selectEndingReady, useMemoryRoomStore } from "@/store/memory-room";
 import { DialogueBox } from "./DialogueBox";
 import { LanguageToggle } from "./LanguageToggle";
 import { MemoryHotspot } from "./MemoryHotspot";
 import { MemoryPanel } from "./MemoryPanel";
+import { MinigameHost } from "./MinigameHost";
 
 const DOOR_VARIANTS = [
   {
@@ -36,7 +37,9 @@ export function MemoryRoom() {
   const count = collected.length;
   const stageIndex = stageIndexFromCount(count);
   const stage = ROOM_STAGES[stageIndex];
-  const door = DOOR_VARIANTS[stageIndex];
+  const isEndingReady = useMemoryRoomStore(selectEndingReady);
+  const doorIndex = isEndingReady ? 2 : Math.min(stageIndex, 1);
+  const door = DOOR_VARIANTS[doorIndex];
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-night">
@@ -111,7 +114,7 @@ export function MemoryRoom() {
         <span
           className={`rounded-full border px-3 py-1 text-xs font-bold tracking-widest transition-colors duration-1000 ${door.chip}`}
         >
-          {stageIndex === 2 ? t("door.exit") : t("door.locked")}
+          {isEndingReady ? t("door.exit") : t("door.locked")}
         </span>
       </div>
 
@@ -171,6 +174,7 @@ export function MemoryRoom() {
 
       <DialogueBox stageId={stage.id} />
       <MemoryPanel />
+      <MinigameHost />
     </div>
   );
 }

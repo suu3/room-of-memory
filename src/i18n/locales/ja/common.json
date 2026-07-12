@@ -17,7 +17,9 @@
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 収集した記憶",
-    "collectLabel": "{{name}} — 記憶を収集する"
+    "collectLabel": "{{name}} — 記憶を収集する",
+    "lockedLabel": "{{name}} — まだ開けない記憶",
+    "revisitLabel": "{{name}} — 記憶をもう一度調べる"
   },
   "dialogue": {
     "advance": "次のセリフ"

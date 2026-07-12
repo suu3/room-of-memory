@@ -17,7 +17,9 @@
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 수집한 기억",
-    "collectLabel": "{{name}} — 기억 수집하기"
+    "collectLabel": "{{name}} — 기억 수집하기",
+    "lockedLabel": "{{name}} — 아직 열 수 없는 기억",
+    "revisitLabel": "{{name}} — 기억 다시 살펴보기"
   },
   "dialogue": {
     "advance": "다음 대사"

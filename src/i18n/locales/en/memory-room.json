@@ -31,6 +31,8 @@
     "bat-intro": {
       "line1": "Dialogue placeholder goes here (1/2)",
       "line2": "Dialogue placeholder goes here (2/2)"
-    }
+    },
+    "bat-echo": { "line1": "Phase 2 dialogue placeholder goes here (bat)" },
+    "radio-echo": { "line1": "Phase 2 dialogue placeholder goes here (radio)" }
   }
 }

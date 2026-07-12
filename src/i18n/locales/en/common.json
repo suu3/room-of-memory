@@ -17,7 +17,9 @@
   },
   "hotspot": {
     "collectedLabel": "{{name}} — collected memory",
-    "collectLabel": "{{name}} — collect this memory"
+    "collectLabel": "{{name}} — collect this memory",
+    "lockedLabel": "{{name}} — memory not yet reachable",
+    "revisitLabel": "{{name}} — revisit this memory"
   },
   "dialogue": {
     "advance": "Next line"
