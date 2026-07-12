@@ -43,7 +43,7 @@ export function DialogueBox({ stageId }: { stageId: StageId }) {
             className="absolute right-5 top-3 w-13 border-t-2 border-dashed border-ember opacity-50"
           />
           <p
-            key={text}
+            key={active ? `${active.memoryId}-${active.lineIndex}` : stageId}
             className="min-h-14 animate-fade-rise text-pretty text-lg leading-dialogue text-bone"
           >
             {text}

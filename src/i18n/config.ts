@@ -17,10 +17,6 @@ export const resources = {
   ja: { common: jaCommon, memoryRoom: jaMemoryRoom },
 } as const;
 
-export function isLocale(value: string): value is Locale {
-  return (SUPPORTED_LOCALES as readonly string[]).includes(value);
-}
-
 if (!i18n.isInitialized) {
   void i18n.use(initReactI18next).init({
     resources,

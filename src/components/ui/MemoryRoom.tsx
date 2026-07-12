@@ -143,7 +143,8 @@ export function MemoryRoom() {
       </header>
 
       {/* HUD 액션 그룹 — 언어 토글 · Contact · 리셋 (사운드 버튼 예정 자리) */}
-      <div className="absolute right-6 top-6 flex items-center gap-3">
+      {/* 레이어링 순서: 대사(z-10) < 미니게임(z-20) < HUD·모달(z-30) */}
+      <div className="absolute right-6 top-6 z-30 flex items-center gap-3">
         <LanguageToggle />
         <HudActions />
       </div>

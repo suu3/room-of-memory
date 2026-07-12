@@ -46,7 +46,11 @@ export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus
   return unlockAfter.every((dep) => state.revisited.includes(dep)) ? "available" : "locked";
 }
 
-/** 엔딩(문 열림) 조건: Phase 2 대상 전원이 revisited에 있다. */
+/**
+ * phase2 대상이 하나도 없으면 6/6 수집 즉시 문이 열린다(수집-완료-즉시-엔딩으로
+ * 자연 퇴화) — 데이터 작성 시 인지할 것.
+ * 엔딩(문 열림) 조건: Phase 2 대상 전원이 revisited에 있다.
+ */
 export function endingReady(state: StateSnapshot): boolean {
   return (
     gamePhaseOf(state) === 2 &&
@@ -113,7 +117,6 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
 }));
 
 export const selectCollected = (state: MemoryRoomState) => state.collected;
-export const selectCount = (state: MemoryRoomState) => state.collected.length;
 export const selectActiveInteraction = (state: MemoryRoomState) => state.activeInteraction;
 export const selectGamePhase = (state: MemoryRoomState) => gamePhaseOf(state);
 export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
