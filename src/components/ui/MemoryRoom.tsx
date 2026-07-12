@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL, ROOM_STAGES, stageIndexFromCount } from "@/data/memory-room";
 import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
 import { DialogueBox } from "./DialogueBox";
+import { LanguageToggle } from "./LanguageToggle";
 import { MemoryHotspot } from "./MemoryHotspot";
 import { MemoryPanel } from "./MemoryPanel";
 
@@ -136,6 +137,11 @@ export function MemoryRoom() {
           {t("hud.scattered")} · {count} / {MEMORY_GOAL}
         </p>
       </header>
+
+      {/* 언어 토글 */}
+      <div className="absolute right-6 top-6">
+        <LanguageToggle />
+      </div>
 
       {/* 혼잣말 */}
       <div className="pointer-events-none absolute left-1/2 top-16 w-full max-w-2xl -translate-x-1/2 text-center">

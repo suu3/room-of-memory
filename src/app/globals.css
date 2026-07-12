@@ -22,8 +22,8 @@
   --color-scene-navy: #161f28;
   --color-scene-void: #060a10;
 
-  --font-sans: var(--font-pretendard), "Pretendard", sans-serif;
-  --font-hand: var(--font-nanum-pen), "Nanum Pen Script", cursive;
+  --font-sans: var(--font-pretendard), "Pretendard", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-hand: var(--font-nanum-pen), "Nanum Pen Script", "Hiragino Sans", cursive;
 
   --radius-sm: 6px;
   --radius-md: 12px;
