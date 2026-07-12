@@ -2,7 +2,9 @@
   "title": "記憶の部屋",
   "hud": {
     "scattered": "部屋に散らばった記憶",
-    "memoryCount": "記憶"
+    "memoryCount": "記憶",
+    "contact": "Contact",
+    "reset": "リセット"
   },
   "door": {
     "locked": "鍵のかかった扉",
@@ -29,5 +31,16 @@
   },
   "canvas": {
     "placeholder": "暗い3D部屋シーン (placeholder)"
+  },
+  "reset": {
+    "title": "すべての進行をリセットしますか？",
+    "body": "収集した記憶と進行状況がすべて失われます。言語設定は維持されます。",
+    "confirm": "リセット",
+    "cancel": "キャンセル"
+  },
+  "contact": {
+    "title": "Contact Me",
+    "body": "ここに連絡先の紹介が入ります",
+    "back": "部屋に戻る"
   }
 }

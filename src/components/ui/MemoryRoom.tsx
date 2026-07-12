@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL, ROOM_STAGES, stageIndexFromCount } from "@/data/memory-room";
 import { selectCollected, selectEndingReady, useMemoryRoomStore } from "@/store/memory-room";
 import { DialogueBox } from "./DialogueBox";
+import { HudActions } from "./HudActions";
 import { LanguageToggle } from "./LanguageToggle";
 import { MemoryHotspot } from "./MemoryHotspot";
 import { MemoryPanel } from "./MemoryPanel";
@@ -141,14 +142,15 @@ export function MemoryRoom() {
         </p>
       </header>
 
-      {/* 언어 토글 */}
-      <div className="absolute right-6 top-6">
+      {/* HUD 액션 그룹 — 언어 토글 · Contact · 리셋 (사운드 버튼 예정 자리) */}
+      <div className="absolute right-6 top-6 flex items-center gap-3">
         <LanguageToggle />
+        <HudActions />
       </div>
 
       {/* 혼잣말 */}
       <div className="pointer-events-none absolute left-1/2 top-16 w-full max-w-2xl -translate-x-1/2 text-center">
-        <p key={stage.id} className="animate-fade-rise font-hand text-2xl text-fog">
+        <p key={stage.id} className="animate-fade-rise text-2xl text-fog">
           「 {tRoom(`stages.${stage.id}.monologue`)} 」
         </p>
       </div>

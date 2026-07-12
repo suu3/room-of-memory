@@ -2,7 +2,9 @@
   "title": "기억의 방",
   "hud": {
     "scattered": "방 안에 흩어진 기억",
-    "memoryCount": "기억"
+    "memoryCount": "기억",
+    "contact": "Contact",
+    "reset": "리셋"
   },
   "door": {
     "locked": "잠긴 문",
@@ -29,5 +31,16 @@
   },
   "canvas": {
     "placeholder": "어두운 3D 방 씬 (placeholder)"
+  },
+  "reset": {
+    "title": "모든 진행을 초기화할까요?",
+    "body": "수집한 기억과 진행 상황이 모두 사라집니다. 언어 설정은 유지됩니다.",
+    "confirm": "초기화",
+    "cancel": "취소"
+  },
+  "contact": {
+    "title": "Contact Me",
+    "body": "여기에 연락처 소개가 들어갑니다",
+    "back": "방으로 돌아가기"
   }
 }

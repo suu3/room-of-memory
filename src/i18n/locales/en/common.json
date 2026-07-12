@@ -2,7 +2,9 @@
   "title": "Room of Memory",
   "hud": {
     "scattered": "Memories scattered around the room",
-    "memoryCount": "Memories"
+    "memoryCount": "Memories",
+    "contact": "Contact",
+    "reset": "Reset"
   },
   "door": {
     "locked": "Locked Door",
@@ -29,5 +31,16 @@
   },
   "canvas": {
     "placeholder": "Dark 3D room scene (placeholder)"
+  },
+  "reset": {
+    "title": "Reset all progress?",
+    "body": "All collected memories and progress will be lost. Your language setting is kept.",
+    "confirm": "Reset",
+    "cancel": "Cancel"
+  },
+  "contact": {
+    "title": "Contact Me",
+    "body": "Contact introduction placeholder goes here",
+    "back": "Back to the room"
   }
 }

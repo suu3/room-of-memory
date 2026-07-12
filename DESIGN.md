@@ -31,6 +31,10 @@ typography:
     fontSize: 0.75rem
     fontWeight: 500
     letterSpacing: 0.1em
+  monologue:
+    fontFamily: Pretendard
+    fontSize: 1.5rem
+    fontWeight: 400
   handwriting:
     fontFamily: Nanum Pen Script
     fontSize: 1.5rem
@@ -59,7 +63,7 @@ components:
     rounded: "{rounded.sm}"
   monologue:
     textColor: "{colors.fog}"
-    typography: "{typography.handwriting}"
+    typography: "{typography.monologue}"
   choice-button:
     backgroundColor: "{colors.ink}"
     textColor: "{colors.bone}"
@@ -111,8 +115,9 @@ Room of Memory는 3D 공간을 돌아다니며 기억의 조각을 마주하는 
 본문 서체는 Pretendard(셀프호스팅 가변폰트), 손글씨는 Nanum Pen Script(next/font/google 셀프호스팅) 두 개로 통일한다.
 
 - **dialogue** — 대사 본문. 행간 1.8은 읽는 속도를 늦추기 위한 의도적 선택이므로 줄이지 않는다.
+- **monologue** — 화면 상단 혼잣말. 본문과 같은 Pretendard, 대사보다 큰 1.5rem.
 - **speaker** — 화자 이름. ember 칩 위에 얹는다.
-- **handwriting** — 혼잣말, 기억 항목의 한 줄 요약, 메모. 도현의 육필이라는 설정이므로 시스템 메시지에는 쓰지 않는다.
+- **handwriting** — 기억 항목의 한 줄 요약, 메모. 도현의 육필이라는 설정이므로 시스템 메시지에는 쓰지 않는다.
 - **ui** — HUD 라벨. 자간을 넓혀(0.1em+) 라벨임을 드러낸다.
 - **display** — 챕터 타이틀, 엔딩 카드 등 큰 화면 전환에만.
 
