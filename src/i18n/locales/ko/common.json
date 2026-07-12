@@ -42,5 +42,28 @@
     "title": "Contact Me",
     "body": "여기에 연락처 소개가 들어갑니다",
     "back": "방으로 돌아가기"
+  },
+  "minigame": {
+    "skip": "건너뛰기",
+    "successCount": "성공 {{value}} / {{goal}}",
+    "missCount": "실패 {{value}} / {{max}}",
+    "timeLeft": "남은 시간 {{seconds}}초",
+    "clarity": "선명도 {{percent}}%",
+    "feedback": {
+      "hit": "성공!",
+      "miss": "놓쳤다…"
+    },
+    "frequencyTune": {
+      "title": "주파수 맞추기",
+      "help": "바늘이 밝은 구간을 지나는 순간 Space (클릭도 가능)"
+    },
+    "photoWipe": {
+      "title": "사진 닦기",
+      "help": "마우스로 드래그하거나, 방향키로 헝겊을 옮기고 Space로 닦으세요"
+    },
+    "ballCatch": {
+      "title": "공 받기",
+      "help": "공이 점선 링에 겹치는 순간 Space (클릭도 가능)"
+    }
   }
 }

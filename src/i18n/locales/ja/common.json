@@ -42,5 +42,28 @@
     "title": "Contact Me",
     "body": "ここに連絡先の紹介が入ります",
     "back": "部屋に戻る"
+  },
+  "minigame": {
+    "skip": "スキップ",
+    "successCount": "成功 {{value}} / {{goal}}",
+    "missCount": "ミス {{value}} / {{max}}",
+    "timeLeft": "残り {{seconds}}秒",
+    "clarity": "鮮明度 {{percent}}%",
+    "feedback": {
+      "hit": "ナイス！",
+      "miss": "逃した…"
+    },
+    "frequencyTune": {
+      "title": "周波数を合わせる",
+      "help": "針が明るい帯を通る瞬間にSpace（クリックも可）"
+    },
+    "photoWipe": {
+      "title": "写真を拭く",
+      "help": "マウスでドラッグ、または方向キーで布を動かしSpaceで拭く"
+    },
+    "ballCatch": {
+      "title": "ボールキャッチ",
+      "help": "ボールが点線リングに重なる瞬間にSpace（クリックも可）"
+    }
   }
 }

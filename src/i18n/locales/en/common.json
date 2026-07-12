@@ -42,5 +42,28 @@
     "title": "Contact Me",
     "body": "Contact introduction placeholder goes here",
     "back": "Back to the room"
+  },
+  "minigame": {
+    "skip": "Skip",
+    "successCount": "Success {{value}} / {{goal}}",
+    "missCount": "Misses {{value}} / {{max}}",
+    "timeLeft": "{{seconds}}s left",
+    "clarity": "Clarity {{percent}}%",
+    "feedback": {
+      "hit": "Nice!",
+      "miss": "Missed…"
+    },
+    "frequencyTune": {
+      "title": "Tune the Frequency",
+      "help": "Press Space the moment the needle crosses the bright band (click works too)"
+    },
+    "photoWipe": {
+      "title": "Wipe the Photo",
+      "help": "Drag with the mouse, or move the cloth with arrow keys and press Space"
+    },
+    "ballCatch": {
+      "title": "Catch the Ball",
+      "help": "Press Space the moment the ball overlaps the dashed ring (click works too)"
+    }
   }
 }

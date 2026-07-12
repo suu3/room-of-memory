@@ -1,18 +1,30 @@
+import { lazy } from "react";
 import type { MinigameDefinition } from "@/types/minigame";
 
 /**
  * 미니게임 레지스트리. 새 미니게임은 src/minigames/<id>/index.tsx로 만들고
- * lazy import로 등록한다 (게이트 도달 직전 로드 — .claude/rules/minigames.md):
- *
- *   "lock-pick": {
- *     id: "lock-pick",
- *     mode: "overlay",
- *     component: lazy(() =>
- *       import("./lock-pick").then((m) => ({ default: m.LockPickMinigame })),
- *     ),
- *   },
+ * lazy import로 등록한다 (게이트 도달 직전 로드 — .claude/rules/minigames.md).
+ * 부착은 src/data/memory-room.ts의 phase 설정에 `interaction: { minigameId }`로.
  */
-export const MINIGAMES: Record<string, MinigameDefinition> = {};
+export const MINIGAMES: Record<string, MinigameDefinition> = {
+  "frequency-tune": {
+    id: "frequency-tune",
+    mode: "overlay",
+    component: lazy(() =>
+      import("./frequency-tune").then((m) => ({ default: m.FrequencyTuneMinigame })),
+    ),
+  },
+  "photo-wipe": {
+    id: "photo-wipe",
+    mode: "overlay",
+    component: lazy(() => import("./photo-wipe").then((m) => ({ default: m.PhotoWipeMinigame }))),
+  },
+  "ball-catch": {
+    id: "ball-catch",
+    mode: "overlay",
+    component: lazy(() => import("./ball-catch").then((m) => ({ default: m.BallCatchMinigame }))),
+  },
+};
 
 export function getMinigame(id: string): MinigameDefinition | undefined {
   return MINIGAMES[id];
