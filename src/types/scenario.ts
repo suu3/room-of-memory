@@ -23,14 +23,15 @@ export interface StageDirection {
 export interface Line {
   id: string;
   speaker: CharacterId;
-  /** Body text. Korean copy lives here; keep markup out of it. */
-  text: string;
+  /** i18n key into the chapter's namespace. Body copy lives in src/i18n/locales. */
+  textKey: string;
   direction?: StageDirection;
 }
 
 /** A player choice branching to another node. */
 export interface Choice {
-  text: string;
+  /** i18n key for the choice label. */
+  textKey: string;
   /** Target node id within the same chapter. */
   next: string;
   /** Optional flag set when chosen, readable via game store. */
@@ -64,7 +65,8 @@ export interface ScenarioNode {
 /** A chapter binds a 3D scene to a scenario graph. */
 export interface Chapter {
   id: string;
-  title: string;
+  /** i18n key for the chapter title. */
+  titleKey: string;
   /** Scene component key registered in src/scenes. */
   scene: string;
   /** Entry node id. */
