@@ -91,7 +91,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   advanceDialogue: () =>
     set((state) => {
       const active = state.activeInteraction;
-      if (!active || active.phase !== "dialogue") return state;
+      if (active?.phase !== "dialogue") return state;
       const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
       const script = interaction?.scriptId ? SCRIPTS[interaction.scriptId] : undefined;
       if (script && active.lineIndex + 1 < script.lines.length) {
@@ -105,7 +105,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   finishMinigame: () =>
     set((state) => {
       const active = state.activeInteraction;
-      if (!active || active.phase !== "minigame") return state;
+      if (active?.phase !== "minigame") return state;
       // 실패도 유효한 결말 — 결과와 무관하게 완료. 플래그/분기는 추후 확장.
       return complete(state, active.memoryId, active.gamePhase);
     }),
