@@ -1,0 +1,31 @@
+{
+  "title": "Room of Memory",
+  "hud": {
+    "scattered": "Memories scattered around the room",
+    "memoryCount": "Memories"
+  },
+  "door": {
+    "locked": "Locked Door",
+    "exit": "Leave →"
+  },
+  "panel": {
+    "title": "Collected Memories",
+    "open": "Open the memory collection panel",
+    "close": "Close the memory collection panel",
+    "unknownName": "? ? ?",
+    "unknownSummary": "Not collected · somewhere in the room"
+  },
+  "hotspot": {
+    "collectedLabel": "{{name}} — collected memory",
+    "collectLabel": "{{name}} — collect this memory"
+  },
+  "dialogue": {
+    "advance": "Next line"
+  },
+  "language": {
+    "label": "Select language"
+  },
+  "canvas": {
+    "placeholder": "Dark 3D room scene (placeholder)"
+  }
+}

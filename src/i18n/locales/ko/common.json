@@ -1,0 +1,31 @@
+{
+  "title": "기억의 방",
+  "hud": {
+    "scattered": "방 안에 흩어진 기억",
+    "memoryCount": "기억"
+  },
+  "door": {
+    "locked": "잠긴 문",
+    "exit": "나가기 →"
+  },
+  "panel": {
+    "title": "기억 수집",
+    "open": "기억 수집 패널 열기",
+    "close": "기억 수집 패널 닫기",
+    "unknownName": "? ? ?",
+    "unknownSummary": "미수집 · 방 안 어딘가"
+  },
+  "hotspot": {
+    "collectedLabel": "{{name}} — 수집한 기억",
+    "collectLabel": "{{name}} — 기억 수집하기"
+  },
+  "dialogue": {
+    "advance": "다음 대사"
+  },
+  "language": {
+    "label": "언어 선택"
+  },
+  "canvas": {
+    "placeholder": "어두운 3D 방 씬 (placeholder)"
+  }
+}

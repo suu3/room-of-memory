@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nanum_Pen_Script } from "next/font/google";
 import localFont from "next/font/local";
+import { I18nProvider } from "@/i18n/I18nProvider";
 import "./globals.css";
 
 const pretendard = localFont({
@@ -29,7 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} ${nanumPen.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        <I18nProvider>{children}</I18nProvider>
+      </body>
     </html>
   );
 }

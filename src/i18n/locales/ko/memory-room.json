@@ -1,0 +1,27 @@
+{
+  "characters": {
+    "hero": {
+      "name": "화자 이름",
+      "tag": "화자 소개가 들어갑니다"
+    }
+  },
+  "memories": {
+    "bat": { "name": "배트", "summary": "여기에 기억 요약이 들어갑니다" },
+    "window": { "name": "창문", "summary": "여기에 기억 요약이 들어갑니다" },
+    "radio": { "name": "라디오", "summary": "여기에 기억 요약이 들어갑니다" },
+    "phone": { "name": "스마트폰", "summary": "여기에 기억 요약이 들어갑니다" },
+    "calendar": { "name": "달력", "summary": "여기에 기억 요약이 들어갑니다" },
+    "ball": { "name": "사인볼", "summary": "여기에 기억 요약이 들어갑니다" }
+  },
+  "stages": {
+    "dark": { "monologue": "여기에 혼잣말이 들어갑니다", "dialogue": "여기에 대사가 들어갑니다" },
+    "dim": { "monologue": "여기에 혼잣말이 들어갑니다", "dialogue": "여기에 대사가 들어갑니다" },
+    "gold": { "monologue": "여기에 혼잣말이 들어갑니다", "dialogue": "여기에 대사가 들어갑니다" }
+  },
+  "scripts": {
+    "bat-intro": {
+      "line1": "여기에 대사가 들어갑니다 (1/2)",
+      "line2": "여기에 대사가 들어갑니다 (2/2)"
+    }
+  }
+}

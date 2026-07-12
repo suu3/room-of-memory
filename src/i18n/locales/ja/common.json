@@ -1,0 +1,31 @@
+{
+  "title": "記憶の部屋",
+  "hud": {
+    "scattered": "部屋に散らばった記憶",
+    "memoryCount": "記憶"
+  },
+  "door": {
+    "locked": "鍵のかかった扉",
+    "exit": "外へ →"
+  },
+  "panel": {
+    "title": "記憶コレクション",
+    "open": "記憶コレクションパネルを開く",
+    "close": "記憶コレクションパネルを閉じる",
+    "unknownName": "? ? ?",
+    "unknownSummary": "未収集 · 部屋のどこか"
+  },
+  "hotspot": {
+    "collectedLabel": "{{name}} — 収集した記憶",
+    "collectLabel": "{{name}} — 記憶を収集する"
+  },
+  "dialogue": {
+    "advance": "次のセリフ"
+  },
+  "language": {
+    "label": "言語を選択"
+  },
+  "canvas": {
+    "placeholder": "暗い3D部屋シーン (placeholder)"
+  }
+}

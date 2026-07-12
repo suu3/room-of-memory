@@ -1,0 +1,36 @@
+{
+  "characters": {
+    "hero": {
+      "name": "Speaker Name",
+      "tag": "Speaker tagline placeholder"
+    }
+  },
+  "memories": {
+    "bat": { "name": "Bat", "summary": "Memory summary placeholder goes here" },
+    "window": { "name": "Window", "summary": "Memory summary placeholder goes here" },
+    "radio": { "name": "Radio", "summary": "Memory summary placeholder goes here" },
+    "phone": { "name": "Smartphone", "summary": "Memory summary placeholder goes here" },
+    "calendar": { "name": "Calendar", "summary": "Memory summary placeholder goes here" },
+    "ball": { "name": "Signed Ball", "summary": "Memory summary placeholder goes here" }
+  },
+  "stages": {
+    "dark": {
+      "monologue": "Monologue placeholder goes here",
+      "dialogue": "Dialogue placeholder goes here"
+    },
+    "dim": {
+      "monologue": "Monologue placeholder goes here",
+      "dialogue": "Dialogue placeholder goes here"
+    },
+    "gold": {
+      "monologue": "Monologue placeholder goes here",
+      "dialogue": "Dialogue placeholder goes here"
+    }
+  },
+  "scripts": {
+    "bat-intro": {
+      "line1": "Dialogue placeholder goes here (1/2)",
+      "line2": "Dialogue placeholder goes here (2/2)"
+    }
+  }
+}

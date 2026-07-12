@@ -1,0 +1,27 @@
+{
+  "characters": {
+    "hero": {
+      "name": "話者名",
+      "tag": "話者の紹介が入ります"
+    }
+  },
+  "memories": {
+    "bat": { "name": "バット", "summary": "ここに記憶の要約が入ります" },
+    "window": { "name": "窓", "summary": "ここに記憶の要約が入ります" },
+    "radio": { "name": "ラジオ", "summary": "ここに記憶の要約が入ります" },
+    "phone": { "name": "スマートフォン", "summary": "ここに記憶の要約が入ります" },
+    "calendar": { "name": "カレンダー", "summary": "ここに記憶の要約が入ります" },
+    "ball": { "name": "サインボール", "summary": "ここに記憶の要約が入ります" }
+  },
+  "stages": {
+    "dark": { "monologue": "ここに独り言が入ります", "dialogue": "ここにセリフが入ります" },
+    "dim": { "monologue": "ここに独り言が入ります", "dialogue": "ここにセリフが入ります" },
+    "gold": { "monologue": "ここに独り言が入ります", "dialogue": "ここにセリフが入ります" }
+  },
+  "scripts": {
+    "bat-intro": {
+      "line1": "ここにセリフが入ります (1/2)",
+      "line2": "ここにセリフが入ります (2/2)"
+    }
+  }
+}
