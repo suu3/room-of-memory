@@ -8,7 +8,8 @@ import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
 export function MemoryPanel() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
-  const [open, setOpen] = useState(true);
+  // 기본 닫힘 — 열린 드로어가 씬의 핫스팟(창문 등)을 가리지 않게 한다
+  const [open, setOpen] = useState(false);
   const collected = useMemoryRoomStore(selectCollected);
   const count = collected.length;
 

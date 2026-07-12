@@ -96,9 +96,9 @@ export function MemoryRoom() {
         <MemoryHotspot key={memory.id} memory={memory} />
       ))}
 
-      {/* 문 — 기억을 모두 모으면 열린다 */}
+      {/* 문 — 기억을 모두 모으면 열린다. 아직 장식 요소라 핫스팟 클릭을 가로채지 않게 한다 */}
       <div
-        className={`absolute bottom-[16%] left-[4.5%] flex flex-col items-center gap-2.5 transition-all duration-1000 ${door.wrap}`}
+        className={`pointer-events-none absolute bottom-[16%] left-[4.5%] flex flex-col items-center gap-2.5 transition-all duration-1000 ${door.wrap}`}
       >
         <div
           className={`relative h-40 w-18 rounded-t-sm border-2 transition-colors duration-1000 ${door.frame}`}
