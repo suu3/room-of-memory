@@ -1,22 +1,92 @@
 @import "tailwindcss";
 
-/* Tokens mirror DESIGN.md — change there first, then here (npm run design:lint). */
+/* Tokens mirror DESIGN.md — change there first, then here (pnpm design:lint). */
 @theme {
-  --color-ink: #1a1721;
-  --color-paper: #f2ede4;
-  --color-memory: #8c7aa9;
-  --color-ember: #c96f4a;
-  --color-fog: #9a94a3;
-  --color-night: #0c0a12;
+  --color-ink: #20222a;
+  --color-night: #0b111a;
+  --color-paper: #efe7d6;
+  --color-bone: #d8d0c2;
+  --color-memory: #b89a5e;
+  --color-ember: #9e5244;
+  --color-fog: #9a8b72;
+
+  /* 씬 라이팅 램프 — DESIGN.md > Colors > 씬 라이팅 램프 */
+  --color-scene-slate: #1c2a38;
+  --color-scene-mist: #16212c;
+  --color-scene-deep: #0f181e;
+  --color-scene-storm: #2a3d48;
+  --color-scene-abyss: #121c24;
+  --color-scene-olive: #4a4436;
+  --color-scene-dusk: #2e3540;
+  --color-scene-coal: #17202a;
+  --color-scene-navy: #161f28;
+  --color-scene-void: #060a10;
 
   --font-sans: var(--font-pretendard), "Pretendard", sans-serif;
+  --font-hand: var(--font-nanum-pen), "Nanum Pen Script", cursive;
 
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
+
+  --shadow-chip: 0 4px 12px rgb(6 10 16 / 0.5);
+  --shadow-overlay: 0 14px 34px rgb(4 7 12 / 0.55);
+  --shadow-panel: 0 16px 40px rgb(4 7 12 / 0.5);
+  --shadow-door-glow: 0 0 26px
+      color-mix(in srgb, var(--color-memory) 45%, transparent),
+    inset 0 0 18px color-mix(in srgb, var(--color-memory) 20%, transparent);
+  --shadow-slot-glow: 0 0 12px color-mix(in srgb, var(--color-memory) 25%, transparent);
+
+  --leading-dialogue: 1.8;
+
+  --animate-hotspot-glow: hotspot-glow 2.4s ease-in-out infinite;
+  --animate-bob-arrow: bob-arrow 1.3s ease-in-out infinite;
+  --animate-fade-rise: fade-rise 0.3s ease-out both;
+
+  @keyframes hotspot-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 0 6px color-mix(in srgb, var(--color-memory) 50%, transparent),
+        0 0 0 0 color-mix(in srgb, var(--color-memory) 35%, transparent);
+    }
+    50% {
+      box-shadow:
+        0 0 14px color-mix(in srgb, var(--color-memory) 85%, transparent),
+        0 0 0 7px transparent;
+    }
+  }
+
+  @keyframes bob-arrow {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(4px);
+    }
+  }
+
+  @keyframes fade-rise {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 body {
   background: var(--color-night);
-  color: var(--color-paper);
+  color: var(--color-bone);
+}
+
+/* 필름 그레인 오버레이 — DESIGN.md > Texture */
+.film-grain {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.55'/></svg>");
+  mix-blend-mode: overlay;
+  opacity: 0.13;
 }

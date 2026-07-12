@@ -1,0 +1,93 @@
+"use client";
+
+import { useState } from "react";
+import { MEMORIES, MEMORY_GOAL } from "@/data/memory-room";
+import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
+
+export function MemoryPanel() {
+  const [open, setOpen] = useState(true);
+  const collected = useMemoryRoomStore(selectCollected);
+  const count = collected.length;
+
+  return (
+    <aside
+      className={`absolute right-4 top-1/2 w-72 -translate-y-1/2 transition-transform duration-300 ${
+        open ? "translate-x-0" : "translate-x-76"
+      }`}
+    >
+      <div className="relative rounded-md border border-bone/15 bg-ink/90 shadow-panel backdrop-blur-sm">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          aria-expanded={open}
+          aria-label={open ? "기억 수집 패널 닫기" : "기억 수집 패널 열기"}
+          className="absolute -left-9 top-1/2 flex h-30 w-9 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-2 rounded-l-sm border border-r-0 border-bone/15 bg-ink/90"
+        >
+          <span className="text-xs font-bold tracking-widest text-bone [writing-mode:vertical-rl]">
+            기억 수집
+          </span>
+          <span className="grid h-4 min-w-4 place-items-center rounded-full bg-memory px-1 text-xs font-bold text-scene-navy">
+            {count}
+          </span>
+        </button>
+
+        <div className="px-4 pb-2.5 pt-4">
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm font-bold tracking-wide text-bone">기억 수집</span>
+            <span className="text-xs text-fog">
+              {count} / {MEMORY_GOAL}
+            </span>
+          </div>
+          <div className="mt-2.5 border-t-2 border-dashed border-memory/35" />
+        </div>
+
+        <ul className="flex flex-col px-3 pb-3">
+          {MEMORIES.map((memory) => {
+            const done = collected.includes(memory.id);
+            return (
+              <li
+                key={memory.id}
+                className={`flex items-center gap-3 border-b border-dashed border-bone/10 px-2 py-2 last:border-b-0 ${
+                  done ? "" : "opacity-60"
+                }`}
+              >
+                <span
+                  className={`grid size-11 flex-none place-items-center rounded-sm border transition-colors duration-500 ${
+                    done
+                      ? "border-memory/55 bg-memory/10 text-memory shadow-slot-glow"
+                      : "border-bone/15 bg-scene-deep/50 text-bone/25"
+                  }`}
+                >
+                  <svg
+                    aria-hidden="true"
+                    role="presentation"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d={memory.iconPath} />
+                  </svg>
+                </span>
+                <span className="flex min-w-0 flex-col">
+                  <span
+                    className={`text-sm font-bold tracking-wide ${done ? "text-memory" : "text-bone/50"}`}
+                  >
+                    {done ? memory.name : "? ? ?"}
+                  </span>
+                  <span className="truncate font-hand text-base text-fog">
+                    {done ? memory.summary : "미수집 · 방 안 어딘가"}
+                  </span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </aside>
+  );
+}

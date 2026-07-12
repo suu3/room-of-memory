@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Nanum_Pen_Script } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -6,6 +7,13 @@ const pretendard = localFont({
   src: "../../public/assets/fonts/PretendardVariable.woff2",
   variable: "--font-pretendard",
   weight: "45 920",
+  display: "swap",
+});
+
+const nanumPen = Nanum_Pen_Script({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-nanum-pen",
   display: "swap",
 });
 
@@ -20,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${pretendard.variable} h-full antialiased`}>
+    <html lang="ko" className={`${pretendard.variable} ${nanumPen.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
