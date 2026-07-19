@@ -86,7 +86,11 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
           <span>{t("minigame.successCount", { value: hits, goal: GOAL_HITS })}</span>
           <span>{t("minigame.missCount", { value: misses, max: MAX_MISSES })}</span>
           {flash && (
-            <span className={flash === "hit" ? "font-bold text-memory" : "font-bold text-ember"}>
+            <span
+              className={`rounded-full px-2 py-0.5 font-bold ${
+                flash === "hit" ? "bg-memory text-night" : "bg-ember text-paper"
+              }`}
+            >
               {t(flash === "hit" ? "minigame.feedback.hit" : "minigame.feedback.miss")}
             </span>
           )}
@@ -99,13 +103,13 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
         type="button"
         onPointerDown={() => attemptRef.current()}
         aria-label={t("minigame.frequencyTune.help")}
-        className={`relative block h-24 w-full cursor-pointer overflow-hidden rounded-sm border bg-scene-deep/80 transition-colors duration-300 ${
-          flash === "hit" ? "border-memory" : flash === "miss" ? "border-ember" : "border-bone/15"
+        className={`relative block h-24 w-full cursor-pointer overflow-hidden rounded-md border-2 bg-scene-storm transition-colors duration-300 ${
+          flash === "hit" ? "border-memory" : flash === "miss" ? "border-ember" : "border-ink/15"
         }`}
       >
         <div
           aria-hidden
-          className="absolute inset-x-3 top-2 flex justify-between font-mono text-xs text-bone/40"
+          className="absolute inset-x-3 top-2 flex justify-between font-mono text-xs text-bone/55"
         >
           <span>88.0</span>
           <span>92.0</span>
@@ -115,7 +119,7 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
         </div>
         <div
           aria-hidden
-          className="absolute bottom-0 top-8 rounded-sm bg-memory/25 transition-all duration-300"
+          className="absolute bottom-0 top-8 rounded-sm bg-memory/45 shadow-slot-glow transition-all duration-300"
           style={{ left: `${bandLeft}%`, width: `${BAND_WIDTH}%` }}
         />
         <div

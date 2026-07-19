@@ -31,7 +31,7 @@ export function MinigameHost() {
 
   const Minigame = hosted.component;
   return (
-    <div className="absolute inset-0 z-20 grid place-items-center bg-scene-void/70 backdrop-blur-sm">
+    <div className="absolute inset-0 z-20 grid place-items-center bg-scene-void/40 backdrop-blur-sm">
       <Suspense fallback={null}>
         <Minigame onComplete={finishMinigame} />
       </Suspense>

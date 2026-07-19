@@ -8,6 +8,7 @@
   "memories": {
     "bat": { "name": "배트", "summary": "여기에 기억 요약이 들어갑니다" },
     "window": { "name": "창문", "summary": "여기에 기억 요약이 들어갑니다" },
+    "frame": { "name": "액자", "summary": "여기에 기억 요약이 들어갑니다" },
     "radio": { "name": "라디오", "summary": "여기에 기억 요약이 들어갑니다" },
     "phone": { "name": "스마트폰", "summary": "여기에 기억 요약이 들어갑니다" },
     "calendar": { "name": "달력", "summary": "여기에 기억 요약이 들어갑니다" },

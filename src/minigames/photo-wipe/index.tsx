@@ -35,11 +35,11 @@ export function PhotoWipeMinigame({ onComplete }: MinigameProps) {
   useEffect(() => {
     const context = canvasRef.current?.getContext("2d");
     if (!context) return;
-    const mist = tokenColor("--color-scene-mist");
+    const bone = tokenColor("--color-bone");
     const storm = tokenColor("--color-scene-storm");
     const olive = tokenColor("--color-scene-olive");
     const memory = tokenColor("--color-memory");
-    context.fillStyle = mist;
+    context.fillStyle = storm;
     context.fillRect(0, 0, CANVAS_W, CANVAS_H);
     context.filter = "blur(14px)";
     context.fillStyle = storm;
@@ -51,7 +51,8 @@ export function PhotoWipeMinigame({ onComplete }: MinigameProps) {
     context.arc(CANVAS_W * 0.78, CANVAS_H * 0.24, 26, 0, Math.PI * 2);
     context.fill();
     context.filter = "none";
-    context.fillStyle = `color-mix(in srgb, ${mist} 55%, transparent)`;
+    // 어두운 안개 대신 뽀얀 먼지 막 — 닦기 전에도 사진이 희미하게 비친다
+    context.fillStyle = `color-mix(in srgb, ${bone} 32%, transparent)`;
     context.fillRect(0, 0, CANVAS_W, CANVAS_H);
   }, []);
 

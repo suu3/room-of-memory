@@ -8,6 +8,7 @@
   "memories": {
     "bat": { "name": "バット", "summary": "ここに記憶の要約が入ります" },
     "window": { "name": "窓", "summary": "ここに記憶の要約が入ります" },
+    "frame": { "name": "写真立て", "summary": "ここに記憶の要約が入ります" },
     "radio": { "name": "ラジオ", "summary": "ここに記憶の要約が入ります" },
     "phone": { "name": "スマートフォン", "summary": "ここに記憶の要約が入ります" },
     "calendar": { "name": "カレンダー", "summary": "ここに記憶の要約が入ります" },

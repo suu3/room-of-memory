@@ -29,6 +29,10 @@
   "language": {
     "label": "언어 선택"
   },
+  "menu": {
+    "open": "메뉴 열기",
+    "close": "메뉴 닫기"
+  },
   "canvas": {
     "placeholder": "어두운 3D 방 씬 (placeholder)"
   },

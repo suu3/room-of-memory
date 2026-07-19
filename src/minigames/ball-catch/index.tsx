@@ -132,7 +132,11 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
           <span>{t("minigame.successCount", { value: catches, goal: GOAL_CATCHES })}</span>
           <span>{t("minigame.missCount", { value: misses, max: MAX_MISSES })}</span>
           {flash && (
-            <span className={flash === "hit" ? "font-bold text-memory" : "font-bold text-ember"}>
+            <span
+              className={`rounded-full px-2 py-0.5 font-bold ${
+                flash === "hit" ? "bg-memory text-night" : "bg-ember text-paper"
+              }`}
+            >
               {t(flash === "hit" ? "minigame.feedback.hit" : "minigame.feedback.miss")}
             </span>
           )}
@@ -145,8 +149,8 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
         type="button"
         onPointerDown={() => attemptRef.current()}
         aria-label={t("minigame.ballCatch.help")}
-        className={`relative block h-52 w-full cursor-pointer overflow-hidden rounded-sm border bg-scene-deep/80 transition-colors duration-300 ${
-          flash === "hit" ? "border-memory" : flash === "miss" ? "border-ember" : "border-bone/15"
+        className={`relative block h-52 w-full cursor-pointer overflow-hidden rounded-md border-2 bg-scene-storm transition-colors duration-300 ${
+          flash === "hit" ? "border-memory" : flash === "miss" ? "border-ember" : "border-ink/15"
         }`}
       >
         {/* 지평선 */}

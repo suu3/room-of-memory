@@ -29,6 +29,10 @@
   "language": {
     "label": "Select language"
   },
+  "menu": {
+    "open": "Open menu",
+    "close": "Close menu"
+  },
   "canvas": {
     "placeholder": "Dark 3D room scene (placeholder)"
   },

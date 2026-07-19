@@ -37,7 +37,7 @@ export function MemoryHotspot({ memory }: { memory: MemoryItem }) {
           status === "available" ? "animate-hotspot-glow bg-memory/10" : "bg-memory"
         } ${status === "locked" ? "opacity-40" : ""}`}
       />
-      <span className="whitespace-nowrap rounded-full border border-memory/30 bg-scene-deep/65 px-2 py-0.5 text-xs font-medium tracking-wide text-bone transition-colors group-hover:border-memory group-hover:text-memory group-focus-visible:border-memory group-focus-visible:text-memory">
+      <span className="whitespace-nowrap rounded-full border-2 border-bone bg-paper px-2.5 py-0.5 text-xs font-bold tracking-wide text-ink shadow-chip transition-all group-hover:-translate-y-0.5 group-hover:border-memory group-focus-visible:-translate-y-0.5 group-focus-visible:border-memory">
         {status === "done" ? `✓ ${name}` : status === "locked" ? t("panel.unknownName") : name}
       </span>
     </button>

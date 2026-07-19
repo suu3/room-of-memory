@@ -8,6 +8,7 @@
   "memories": {
     "bat": { "name": "Bat", "summary": "Memory summary placeholder goes here" },
     "window": { "name": "Window", "summary": "Memory summary placeholder goes here" },
+    "frame": { "name": "Photo Frame", "summary": "Memory summary placeholder goes here" },
     "radio": { "name": "Radio", "summary": "Memory summary placeholder goes here" },
     "phone": { "name": "Smartphone", "summary": "Memory summary placeholder goes here" },
     "calendar": { "name": "Calendar", "summary": "Memory summary placeholder goes here" },

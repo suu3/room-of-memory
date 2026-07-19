@@ -29,6 +29,10 @@
   "language": {
     "label": "言語を選択"
   },
+  "menu": {
+    "open": "メニューを開く",
+    "close": "メニューを閉じる"
+  },
   "canvas": {
     "placeholder": "暗い3D部屋シーン (placeholder)"
   },

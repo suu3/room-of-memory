@@ -46,21 +46,24 @@ export function MinigameShell({
   const { t } = useTranslation();
 
   return (
-    <div className="w-[30rem] max-w-[94vw] animate-fade-rise rounded-md border border-bone/15 bg-ink/95 p-5 shadow-panel">
+    <div className="w-[30rem] max-w-[94vw] -rotate-1 animate-fade-rise rounded-lg border-2 border-bone bg-paper p-5 shadow-panel">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-sm font-bold tracking-wide text-bone">{title}</h2>
+        <h2 className="flex items-center gap-2 text-sm font-bold tracking-wide text-ink">
+          <span aria-hidden className="w-4 border-t-2 border-dashed border-ember" />
+          {title}
+        </h2>
         {skipVisible && (
           <button
             type="button"
             onClick={onSkip}
-            className="cursor-pointer rounded-full border border-bone/25 px-2.5 py-0.5 text-xs font-bold tracking-widest text-bone/60 transition-colors hover:border-bone/60 hover:text-bone"
+            className="cursor-pointer rounded-full border-2 border-ink/20 px-2.5 py-0.5 text-xs font-bold tracking-widest text-ink/60 transition-colors hover:border-ink/50 hover:text-ink"
           >
             {t("minigame.skip")}
           </button>
         )}
       </div>
-      <p className="mt-1 text-xs leading-relaxed text-fog">{help}</p>
-      {stats && <div className="mt-3 flex items-center gap-4 text-xs text-fog">{stats}</div>}
+      <p className="mt-1 text-xs leading-relaxed text-ink/70">{help}</p>
+      {stats && <div className="mt-3 flex items-center gap-4 text-xs text-ink/60">{stats}</div>}
       <div className="mt-3">{children}</div>
     </div>
   );

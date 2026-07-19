@@ -1,5 +1,6 @@
 "use client";
 
+import { CaretDown } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { useTranslation } from "react-i18next";
 import { phaseConfigOf, SCRIPTS } from "@/data/memory-room";
@@ -33,21 +34,21 @@ export function DialogueBox() {
           type="button"
           onClick={advanceDialogue}
           aria-label={t("dialogue.advance")}
-          className="relative block w-full cursor-pointer rounded-sm border border-bone/15 bg-ink/90 px-6 pb-4 pt-7 text-left shadow-overlay backdrop-blur-sm"
+          className="relative block w-full cursor-pointer rounded-lg border-2 border-bone bg-paper px-6 pb-4 pt-7 text-left shadow-overlay"
         >
           <div
             aria-hidden
-            className="absolute right-5 top-3 w-13 border-t-2 border-dashed border-ember opacity-50"
+            className="absolute right-5 top-3 w-13 border-t-2 border-dashed border-ember opacity-60"
           />
           <p
             key={`${active.memoryId}-${active.lineIndex}`}
-            className="min-h-14 animate-fade-rise text-pretty text-lg leading-dialogue text-bone"
+            className="min-h-14 animate-fade-rise text-pretty text-lg leading-dialogue text-ink"
           >
             {text}
           </p>
           <div className="flex justify-end">
-            <div aria-hidden className="animate-bob-arrow text-sm text-ember">
-              ▼
+            <div aria-hidden className="animate-bob-arrow text-ember">
+              <CaretDown size={16} weight="fill" />
             </div>
           </div>
         </button>

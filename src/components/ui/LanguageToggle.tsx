@@ -20,10 +20,10 @@ export function LanguageToggle() {
           type="button"
           onClick={() => setLocale(code)}
           aria-pressed={locale === code}
-          className={`cursor-pointer rounded-full border px-2.5 py-0.5 text-xs font-bold tracking-widest transition-colors ${
+          className={`cursor-pointer rounded-full border-2 px-2.5 py-0.5 text-xs font-bold tracking-widest transition-colors ${
             locale === code
-              ? "border-memory bg-memory/15 text-memory"
-              : "border-bone/25 text-bone/60 hover:border-bone/60 hover:text-bone"
+              ? "border-ember bg-ember text-paper"
+              : "border-ink/20 text-ink/60 hover:border-ink/50 hover:text-ink"
           }`}
         >
           {LOCALE_LABELS[code]}

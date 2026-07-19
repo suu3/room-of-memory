@@ -1,6 +1,15 @@
+import {
+  Baseball,
+  CalendarHeart,
+  DeviceMobile,
+  GridFour,
+  ImageSquare,
+  Radio,
+} from "@phosphor-icons/react";
+import { BatIcon, type MemoryIcon } from "@/components/ui/icons";
 import type { DialogueScript, MemoryPhaseConfig } from "@/types/interaction";
 
-export const MEMORY_IDS = ["bat", "window", "radio", "phone", "calendar", "ball"] as const;
+export const MEMORY_IDS = ["bat", "window", "frame", "radio", "phone", "calendar", "ball"] as const;
 export type MemoryId = (typeof MEMORY_IDS)[number];
 
 export interface MemoryItem {
@@ -8,8 +17,8 @@ export interface MemoryItem {
   /** 씬 프레임 기준 핫스팟 위치 (%) */
   x: string;
   y: string;
-  /** 24x24 stroke 아이콘의 path d */
-  iconPath: string;
+  /** 수집 패널에 표시할 아이콘 (Phosphor 또는 호환 커스텀) */
+  icon: MemoryIcon;
   /** Phase 1: 최초 수집 클릭. 모든 아이템 필수. */
   phase1: MemoryPhaseConfig;
   /** Phase 2: 전원 수집 후 재클릭. 있는 아이템만 재클릭 대상. */
@@ -21,7 +30,7 @@ export const MEMORIES: MemoryItem[] = [
     id: "bat",
     x: "13%",
     y: "72%",
-    iconPath: "M4.5 19.5 14.5 9.5M14.5 9.5 19 3.8 20.4 5.2 14.5 9.5M3.6 17.2 6.8 20.4",
+    icon: BatIcon,
     phase1: { interaction: { scriptId: "bat-intro" } },
     phase2: { interaction: { scriptId: "bat-echo" } },
   },
@@ -29,41 +38,44 @@ export const MEMORIES: MemoryItem[] = [
     id: "window",
     x: "80%",
     y: "30%",
-    iconPath: "M4.8 3.8h14.4v16.4H4.8zM12 3.8v16.4M4.8 12h14.4",
+    icon: GridFour,
     phase1: {},
+  },
+  {
+    id: "frame",
+    x: "34%",
+    y: "32%",
+    icon: ImageSquare,
+    phase1: { interaction: { minigameId: "photo-wipe" } },
   },
   {
     id: "radio",
     x: "64%",
     y: "58%",
-    iconPath:
-      "M3.6 9.4h16.8a1 1 0 0 1 1 1v8.2a1 1 0 0 1-1 1H3.6a1 1 0 0 1-1-1v-8.2a1 1 0 0 1 1-1zM6.4 9.4 17 4.2M11.8 14.5a2.4 2.4 0 1 1-4.8 0 2.4 2.4 0 0 1 4.8 0M14.8 12.8h3.6M14.8 16h3.6",
-    phase1: {},
+    icon: Radio,
+    phase1: { interaction: { minigameId: "frequency-tune" } },
     phase2: { interaction: { scriptId: "radio-echo" }, unlockAfter: ["bat"] },
   },
   {
     id: "phone",
     x: "44%",
     y: "69%",
-    iconPath:
-      "M8 2.8h8a1.4 1.4 0 0 1 1.4 1.4v15.6A1.4 1.4 0 0 1 16 21.2H8a1.4 1.4 0 0 1-1.4-1.4V4.2A1.4 1.4 0 0 1 8 2.8zM10.6 18.2h2.8",
+    icon: DeviceMobile,
     phase1: {},
   },
   {
     id: "calendar",
     x: "55%",
     y: "22%",
-    iconPath:
-      "M5 5.6h14a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6.6a1 1 0 0 1 1-1zM4 10h16M8.4 3.2v4M15.6 3.2v4M16.1 14.4a1.9 1.9 0 1 1-3.8 0 1.9 1.9 0 0 1 3.8 0",
+    icon: CalendarHeart,
     phase1: { unlockAfter: ["phone"] },
   },
   {
     id: "ball",
     x: "28%",
     y: "58%",
-    iconPath:
-      "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M7.2 5.4c2.4 2.6 2.4 10.6 0 13.2M16.8 5.4c-2.4 2.6-2.4 10.6 0 13.2",
-    phase1: {},
+    icon: Baseball,
+    phase1: { interaction: { minigameId: "ball-catch" } },
   },
 ];
 
@@ -76,9 +88,10 @@ export interface RoomStage {
   id: StageId;
   /** 방 배경 라디얼 그라디언트 (씬 라이팅 램프 토큰만 사용) */
   background: string;
-  beamWidth: number;
-  beamOpacity: number;
-  washOpacity: number;
+  /** 창가에서 스며드는 금빛 산광 강도 */
+  glowOpacity: number;
+  /** 방 곳곳에 흩뿌려진 금빛 산란 강도 */
+  scatterOpacity: number;
   vignetteOpacity: number;
 }
 
@@ -87,29 +100,26 @@ export const ROOM_STAGES: RoomStage[] = [
   {
     id: "dark",
     background:
-      "radial-gradient(120% 90% at 50% 34%, var(--color-scene-slate) 0%, var(--color-scene-mist) 45%, var(--color-scene-deep) 100%)",
-    beamWidth: 54,
-    beamOpacity: 0.5,
-    washOpacity: 0,
-    vignetteOpacity: 0.75,
+      "radial-gradient(120% 90% at 50% 34%, var(--color-scene-storm) 0%, var(--color-scene-slate) 48%, var(--color-scene-abyss) 100%)",
+    glowOpacity: 0.5,
+    scatterOpacity: 0.3,
+    vignetteOpacity: 0.55,
   },
   {
     id: "dim",
     background:
-      "radial-gradient(120% 90% at 55% 32%, var(--color-scene-storm) 0%, var(--color-scene-slate) 48%, var(--color-scene-abyss) 100%)",
-    beamWidth: 150,
-    beamOpacity: 0.7,
-    washOpacity: 0.35,
-    vignetteOpacity: 0.6,
+      "radial-gradient(120% 90% at 55% 32%, var(--color-scene-storm) 0%, var(--color-scene-dusk) 48%, var(--color-scene-slate) 100%)",
+    glowOpacity: 0.68,
+    scatterOpacity: 0.6,
+    vignetteOpacity: 0.42,
   },
   {
     id: "gold",
     background:
       "radial-gradient(120% 95% at 58% 30%, var(--color-scene-olive) 0%, var(--color-scene-dusk) 46%, var(--color-scene-coal) 100%)",
-    beamWidth: 260,
-    beamOpacity: 0.9,
-    washOpacity: 1,
-    vignetteOpacity: 0.42,
+    glowOpacity: 0.9,
+    scatterOpacity: 1,
+    vignetteOpacity: 0.3,
   },
 ];
 
