@@ -5,4 +5,4 @@
 | 파일 | 출처 (URL) | 제작자 | 라이선스 |
 |---|---|---|---|
 | fonts/PretendardVariable.woff2 | https://github.com/orioncactus/pretendard (v1.3.9) | 길형진 (orioncactus) | SIL OFL 1.1 |
-| Nanum Pen Script (next/font/google 셀프호스팅, 빌드 시 번들) | https://fonts.google.com/specimen/Nanum+Pen+Script | NAVER | SIL OFL 1.1 |
+| fonts/Galmuri14.woff2 | https://quiple.dev/galmuri (눈누 웹폰트 빌드 https://noonnu.cc/font_page/1610) | Lee Minseo (quiple) | SIL OFL 1.1 |

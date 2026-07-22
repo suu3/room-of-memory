@@ -148,14 +148,14 @@ export function MemoryRoom() {
       </header>
 
       {/* HUD 햄버거 메뉴 — 언어 토글 · Contact · 리셋 (사운드 버튼 예정 자리) */}
-      {/* 레이어링 순서: 대사(z-10) < 미니게임(z-20) < HUD·모달(z-30) */}
+      {/* 레이어링 순서: 대사(z-10) < HUD·모달(z-30) < 미니게임(z-40, HUD를 덮는다) < 성공 파티클(z-50) */}
       <div className="absolute right-6 top-6 z-30">
         <HudMenu />
       </div>
 
       {/* 혼잣말 */}
       <div className="pointer-events-none absolute left-1/2 top-24 w-full max-w-2xl -translate-x-1/2 text-center md:top-16">
-        <p key={stage.id} className="animate-fade-rise text-2xl text-fog">
+        <p key={stage.id} className="animate-fade-rise font-pixel text-2xl text-fog">
           「 {monologue} 」
         </p>
       </div>

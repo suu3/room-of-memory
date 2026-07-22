@@ -75,7 +75,7 @@ export const MEMORIES: MemoryItem[] = [
     x: "28%",
     y: "58%",
     icon: Baseball,
-    phase1: { interaction: { minigameId: "ball-catch" } },
+    phase1: { interaction: { scriptId: "ball-intro", minigameId: "ball-catch" } },
   },
 ];
 
@@ -155,5 +155,12 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   "radio-echo": {
     id: "radio-echo",
     lines: [{ speaker: "hero", textKey: "scripts.radio-echo.line1" }],
+  },
+  "ball-intro": {
+    id: "ball-intro",
+    lines: [
+      { speaker: "hero", textKey: "scripts.ball-intro.line1" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line2" },
+    ],
   },
 };

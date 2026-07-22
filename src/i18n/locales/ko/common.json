@@ -48,6 +48,7 @@
     "back": "방으로 돌아가기"
   },
   "minigame": {
+    "start": "시작",
     "skip": "건너뛰기",
     "successCount": "성공 {{value}} / {{goal}}",
     "missCount": "실패 {{value}} / {{max}}",
@@ -66,8 +67,8 @@
       "help": "마우스로 드래그하거나, 방향키로 헝겊을 옮기고 Space로 닦으세요"
     },
     "ballCatch": {
-      "title": "공 받기",
-      "help": "공이 점선 링에 겹치는 순간 Space (클릭도 가능)"
+      "title": "스윙!",
+      "help": "공이 점선 링에 들어오는 순간 Space로 배트를 휘두르세요 (클릭도 가능)"
     }
   }
 }

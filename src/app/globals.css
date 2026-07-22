@@ -23,7 +23,7 @@
   --color-scene-void: #060a10;
 
   --font-sans: var(--font-pretendard), "Pretendard", "Hiragino Sans", "Yu Gothic", sans-serif;
-  --font-hand: var(--font-nanum-pen), "Nanum Pen Script", "Hiragino Sans", cursive;
+  --font-pixel: var(--font-galmuri), "Galmuri14", "Hiragino Sans", sans-serif;
 
   --radius-sm: 6px;
   --radius-md: 12px;
@@ -42,6 +42,7 @@
   --animate-hotspot-glow: hotspot-glow 2.4s ease-in-out infinite;
   --animate-bob-arrow: bob-arrow 1.3s ease-in-out infinite;
   --animate-fade-rise: fade-rise 0.3s ease-out both;
+  --animate-bat-swing: bat-swing 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both;
 
   @keyframes hotspot-glow {
     0%,
@@ -64,6 +65,21 @@
     }
     50% {
       transform: translateY(4px);
+    }
+  }
+
+  @keyframes bat-swing {
+    0% {
+      transform: rotate(34deg);
+    }
+    35% {
+      transform: rotate(-128deg);
+    }
+    55% {
+      transform: rotate(-112deg);
+    }
+    100% {
+      transform: rotate(34deg);
     }
   }
 

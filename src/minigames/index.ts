@@ -13,16 +13,22 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     component: lazy(() =>
       import("./frequency-tune").then((m) => ({ default: m.FrequencyTuneMinigame })),
     ),
+    titleKey: "minigame.frequencyTune.title",
+    helpKey: "minigame.frequencyTune.help",
   },
   "photo-wipe": {
     id: "photo-wipe",
     mode: "overlay",
     component: lazy(() => import("./photo-wipe").then((m) => ({ default: m.PhotoWipeMinigame }))),
+    titleKey: "minigame.photoWipe.title",
+    helpKey: "minigame.photoWipe.help",
   },
   "ball-catch": {
     id: "ball-catch",
     mode: "overlay",
     component: lazy(() => import("./ball-catch").then((m) => ({ default: m.BallCatchMinigame }))),
+    titleKey: "minigame.ballCatch.title",
+    helpKey: "minigame.ballCatch.help",
   },
 };
 

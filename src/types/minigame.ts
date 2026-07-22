@@ -4,6 +4,11 @@
  * decides what the result means: which node comes next, which flags get set.
  */
 
+import type { ParseKeys } from "i18next";
+
+/** common 네임스페이스에서 유효한 번역 키만 허용. */
+export type CommonTextKey = ParseKeys<"common">;
+
 export interface MinigameResult {
   /** Did the player clear it? Failure is a valid outcome, not an error. */
   cleared: boolean;
@@ -33,4 +38,7 @@ export interface MinigameDefinition {
   mode: MinigameMode;
   /** Component registered in src/minigames/index.ts. */
   component: React.ComponentType<MinigameProps>;
+  /** 시작 카드(게임 마운트 전)에 보여줄 제목/조작법 키. */
+  titleKey: CommonTextKey;
+  helpKey: CommonTextKey;
 }

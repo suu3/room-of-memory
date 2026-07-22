@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Nanum_Pen_Script } from "next/font/google";
 import localFont from "next/font/local";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import "./globals.css";
@@ -11,10 +10,10 @@ const pretendard = localFont({
   display: "swap",
 });
 
-const nanumPen = Nanum_Pen_Script({
+const galmuri = localFont({
+  src: "../../public/assets/fonts/Galmuri14.woff2",
+  variable: "--font-galmuri",
   weight: "400",
-  subsets: ["latin"],
-  variable: "--font-nanum-pen",
   display: "swap",
 });
 
@@ -29,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${pretendard.variable} ${nanumPen.variable} h-full antialiased`}>
+    <html lang="ko" className={`${pretendard.variable} ${galmuri.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
         <I18nProvider>{children}</I18nProvider>
       </body>

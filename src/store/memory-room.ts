@@ -24,6 +24,8 @@ interface MemoryRoomState {
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   finishMinigame: (result: MinigameResult) => void;
+  /** 미니게임을 완료 처리 없이 중단한다 (모달 닫기) — 핫스팟은 다시 클릭 가능. */
+  cancelMinigame: () => void;
   reset: () => void;
 }
 
@@ -113,6 +115,10 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
       // 실패도 유효한 결말 — 결과와 무관하게 완료. 플래그/분기는 추후 확장.
       return complete(state, active.memoryId, active.gamePhase);
     }),
+  cancelMinigame: () =>
+    set((state) =>
+      state.activeInteraction?.phase === "minigame" ? { activeInteraction: null } : state,
+    ),
   reset: () => set({ collected: [], revisited: [], activeInteraction: null }),
 }));
 

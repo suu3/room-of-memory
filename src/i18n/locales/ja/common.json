@@ -48,6 +48,7 @@
     "back": "部屋に戻る"
   },
   "minigame": {
+    "start": "スタート",
     "skip": "スキップ",
     "successCount": "成功 {{value}} / {{goal}}",
     "missCount": "ミス {{value}} / {{max}}",
@@ -66,8 +67,8 @@
       "help": "マウスでドラッグ、または方向キーで布を動かしSpaceで拭く"
     },
     "ballCatch": {
-      "title": "ボールキャッチ",
-      "help": "ボールが点線リングに重なる瞬間にSpace（クリックも可）"
+      "title": "スイング！",
+      "help": "ボールが点線リングに入った瞬間にSpaceでバットを振ろう（クリックも可）"
     }
   }
 }

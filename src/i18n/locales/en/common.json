@@ -48,6 +48,7 @@
     "back": "Back to the room"
   },
   "minigame": {
+    "start": "Start",
     "skip": "Skip",
     "successCount": "Success {{value}} / {{goal}}",
     "missCount": "Misses {{value}} / {{max}}",
@@ -66,8 +67,8 @@
       "help": "Drag with the mouse, or move the cloth with arrow keys and press Space"
     },
     "ballCatch": {
-      "title": "Catch the Ball",
-      "help": "Press Space the moment the ball overlaps the dashed ring (click works too)"
+      "title": "Swing!",
+      "help": "Press Space to swing the bat the moment the ball enters the dashed ring (click works too)"
     }
   }
 }

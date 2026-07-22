@@ -34,6 +34,7 @@ export function MinigameShell({
   stats,
   skipVisible,
   onSkip,
+  size = "md",
   children,
 }: {
   title: string;
@@ -41,12 +42,16 @@ export function MinigameShell({
   stats?: React.ReactNode;
   skipVisible: boolean;
   onSkip: () => void;
+  /** 패널 폭 — 플레이 필드가 넓어야 하는 게임은 "lg". */
+  size?: "md" | "lg";
   children: React.ReactNode;
 }) {
   const { t } = useTranslation();
 
   return (
-    <div className="w-[30rem] max-w-[94vw] -rotate-1 animate-fade-rise rounded-lg border-2 border-bone bg-paper p-5 shadow-panel">
+    <div
+      className={`${size === "lg" ? "w-[44rem]" : "w-[30rem]"} max-w-[94vw] -rotate-1 animate-fade-rise rounded-lg border-2 border-bone bg-paper p-5 shadow-panel`}
+    >
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="flex items-center gap-2 text-sm font-bold tracking-wide text-ink">
           <span aria-hidden className="w-4 border-t-2 border-dashed border-ember" />

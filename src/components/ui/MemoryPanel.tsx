@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL } from "@/data/memory-room";
 import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
@@ -10,11 +10,23 @@ export function MemoryPanel() {
   const { t: tRoom } = useTranslation("memoryRoom");
   // 기본 닫힘 — 열린 드로어가 씬의 핫스팟(창문 등)을 가리지 않게 한다
   const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLElement>(null);
   const collected = useMemoryRoomStore(selectCollected);
   const count = collected.length;
 
+  // 드로어 바깥을 클릭하면 닫는다
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!panelRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
   return (
     <aside
+      ref={panelRef}
       className={`absolute right-4 top-1/2 w-72 -translate-y-1/2 transition-transform duration-300 ${
         open ? "translate-x-0" : "translate-x-76"
       }`}
@@ -70,7 +82,7 @@ export function MemoryPanel() {
                   >
                     {done ? tRoom(`memories.${memory.id}.name`) : t("panel.unknownName")}
                   </span>
-                  <span className="truncate font-hand text-base text-ink/75">
+                  <span className="truncate font-pixel text-xs text-ink/75">
                     {done ? tRoom(`memories.${memory.id}.summary`) : t("panel.unknownSummary")}
                   </span>
                 </span>

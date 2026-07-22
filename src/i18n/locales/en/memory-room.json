@@ -34,6 +34,10 @@
       "line2": "Dialogue placeholder goes here (2/2)"
     },
     "bat-echo": { "line1": "Phase 2 dialogue placeholder goes here (bat)" },
-    "radio-echo": { "line1": "Phase 2 dialogue placeholder goes here (radio)" }
+    "radio-echo": { "line1": "Phase 2 dialogue placeholder goes here (radio)" },
+    "ball-intro": {
+      "line1": "That game that day... it was incredible.",
+      "line2": "I feel like I'm forgetting how a swing feels…"
+    }
   }
 }
