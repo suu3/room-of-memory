@@ -43,6 +43,10 @@
   --animate-bob-arrow: bob-arrow 1.3s ease-in-out infinite;
   --animate-fade-rise: fade-rise 0.3s ease-out both;
   --animate-bat-swing: bat-swing 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  --animate-bat-swing-image: bat-swing-image 0.42s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  --animate-batting-impact: batting-impact 0.35s ease-out both;
+  --animate-batting-field-shake: batting-field-shake 0.28s ease-out both;
+  --animate-batting-feedback: batting-feedback 0.35s ease-out both;
 
   @keyframes hotspot-glow {
     0%,
@@ -93,6 +97,58 @@
       transform: translateY(0);
     }
   }
+
+  @keyframes bat-swing-image {
+    0% {
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    55% {
+      transform: translate3d(-42%, -18%, 0) rotate(-68deg);
+    }
+    100% {
+      transform: translate3d(-54%, -24%, 0) rotate(-82deg);
+    }
+  }
+
+  @keyframes batting-impact {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.45);
+    }
+    35% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.35);
+    }
+  }
+
+  @keyframes batting-field-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    35% {
+      transform: translateX(calc(var(--spacing) * -1));
+    }
+    70% {
+      transform: translateX(var(--spacing));
+    }
+  }
+
+  @keyframes batting-feedback {
+    0% {
+      opacity: 0;
+    }
+    25%,
+    75% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
 }
 
 body {
@@ -105,4 +161,37 @@ body {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.55'/></svg>");
   mix-blend-mode: overlay;
   opacity: 0.13;
+}
+
+.animate-bat-swing-image {
+  transform-origin: 88% 82%;
+}
+
+@keyframes bat-swing-image-reduced {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-batting-field-shake {
+    animation: none;
+  }
+
+  .animate-bat-swing-image {
+    animation: bat-swing-image-reduced 0.18s ease-out both;
+  }
+
+  .animate-batting-feedback {
+    animation: none;
+  }
+
+  .animate-batting-impact {
+    animation: none;
+    opacity: 0;
+  }
 }
