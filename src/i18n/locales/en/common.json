@@ -68,7 +68,12 @@
     },
     "ballCatch": {
       "title": "Swing!",
-      "help": "Press Space to swing the bat the moment the ball enters the dashed ring (click works too)"
+      "help": "Press Space to swing the bat the moment the ball enters the dashed ring (click works too)",
+      "prompt": "SPACE / CLICK TO SWING",
+      "early": "EARLY",
+      "late": "LATE",
+      "hits": "HITS {{value}} / {{goal}}",
+      "chances": "Chances left"
     }
   }
 }
