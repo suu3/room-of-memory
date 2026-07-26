@@ -26,6 +26,8 @@ const SPIN_DEG = 270;
 const HIT_FLY_MS = 380;
 /** 마지막 타격 연출을 보여주고 나서 완료 보고까지의 지연 (ms) */
 const CLEAR_DELAY_MS = 550;
+const INTERACTIVE_TARGET_SELECTOR =
+  "button, a, input, select, textarea, [contenteditable]:not([contenteditable='false'])";
 
 interface Round {
   start: number;
@@ -38,6 +40,10 @@ interface Round {
 
 function newRound(duration: number): Round {
   return { start: performance.now(), duration, startX: 46 + Math.random() * 8, resolved: false };
+}
+
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest(INTERACTIVE_TARGET_SELECTOR) !== null;
 }
 
 /** 멀리서 날아와 커지는 공이 점선 링에 겹치는 순간 Space로 배트를 휘두른다 — 3회 맞히면 클리어. */
@@ -53,7 +59,16 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
   const ballRef = useRef<HTMLDivElement>(null);
   const shadowRef = useRef<HTMLDivElement>(null);
   const roundRef = useRef<Round>(newRound(ROUND_MS_START));
+  const pendingTimeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
+
+  const schedulePendingTimeout = (callback: () => void, delay: number) => {
+    const timeout = setTimeout(() => {
+      pendingTimeoutsRef.current.delete(timeout);
+      callback();
+    }, delay);
+    pendingTimeoutsRef.current.add(timeout);
+  };
 
   const missRef = useRef((_result: SwingResult) => {});
   missRef.current = (result) => {
@@ -66,18 +81,18 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
   const scheduleNextRef = useRef(() => {});
   scheduleNextRef.current = () => {
     const duration = Math.max(ROUND_MS_MIN, ROUND_MS_START - catches * ROUND_MS_STEP);
-    setTimeout(() => {
+    schedulePendingTimeout(() => {
       roundRef.current = newRound(duration);
     }, ROUND_GAP_MS);
   };
 
   const attemptRef = useRef(() => {});
   attemptRef.current = () => {
-    setSwingId((id) => id + 1); // 헛스윙이어도 배트는 휘두른다
-    setShowPrompt(false);
     const round = roundRef.current;
     if (round.resolved) return;
     round.resolved = true;
+    setSwingId((id) => id + 1); // 헛스윙이어도 배트는 휘두른다
+    setShowPrompt(false);
     const progress = (performance.now() - round.start) / round.duration;
     const result = classifySwing(progress, CATCH_WINDOW);
     setFeedback(result);
@@ -88,7 +103,7 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
       setCatches(next);
       if (next >= GOAL_CATCHES) {
         // 마지막 타구가 날아가는 걸 보여준 뒤 완료
-        setTimeout(() => complete({ cleared: true, score: next }), CLEAR_DELAY_MS);
+        schedulePendingTimeout(() => complete({ cleared: true, score: next }), CLEAR_DELAY_MS);
         return;
       }
     } else {
@@ -100,6 +115,12 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
   // 공 비행 애니메이션 — setState 대신 ref 직접 변이 (60fps)
   useEffect(() => {
     let frame = 0;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let reduceMotion = motionPreference.matches;
+    const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
+      reduceMotion = event.matches;
+    };
+    motionPreference.addEventListener("change", onMotionPreferenceChange);
     const loop = (now: number) => {
       const round = roundRef.current;
       const progress = (now - round.start) / round.duration;
@@ -111,10 +132,17 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
           // 타격! 공이 우상단으로 빠르게 날아간다
           const fly = (now - round.hitAt) / HIT_FLY_MS;
           if (fly < 1) {
-            ball.style.opacity = `${1 - fly * 0.35}`;
-            ball.style.left = `${50 + 42 * fly}%`;
-            ball.style.top = `${68 - 80 * fly}%`;
-            ball.style.transform = `translate(-50%, -50%) scale(${1.3 - 0.75 * fly}) rotate(${SPIN_DEG + fly * 420}deg)`;
+            if (reduceMotion) {
+              ball.style.opacity = `${1 - fly}`;
+              ball.style.left = "50%";
+              ball.style.top = "68%";
+              ball.style.transform = "translate(-50%, -50%) scale(1.3) rotate(270deg)";
+            } else {
+              ball.style.opacity = `${1 - fly * 0.35}`;
+              ball.style.left = `${50 + 42 * fly}%`;
+              ball.style.top = `${68 - 80 * fly}%`;
+              ball.style.transform = `translate(-50%, -50%) scale(${1.3 - 0.75 * fly}) rotate(${SPIN_DEG + fly * 420}deg)`;
+            }
           } else {
             ball.style.opacity = "0";
           }
@@ -125,10 +153,17 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
           const y = 35 + 33 * clamped;
           // 크기는 ease-in — 멀리서 날아오다 가까워질수록 훅 커지는 원근감
           const scale = 0.25 + 1.05 * clamped ** 1.6;
-          ball.style.opacity = "1";
-          ball.style.left = `${x}%`;
-          ball.style.top = `${y}%`;
-          ball.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${clamped * SPIN_DEG}deg)`;
+          if (reduceMotion) {
+            ball.style.opacity = `${0.55 + 0.45 * clamped}`;
+            ball.style.left = `${x}%`;
+            ball.style.top = `${56 + 12 * clamped}%`;
+            ball.style.transform = `translate(-50%, -50%) scale(${0.85 + 0.45 * clamped}) rotate(0deg)`;
+          } else {
+            ball.style.opacity = "1";
+            ball.style.left = `${x}%`;
+            ball.style.top = `${y}%`;
+            ball.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${clamped * SPIN_DEG}deg)`;
+          }
         }
       }
       // 착지 그림자 — 공이 가까워질수록 링 자리에서 진하고 크게
@@ -146,18 +181,29 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      motionPreference.removeEventListener("change", onMotionPreferenceChange);
+    };
   }, []);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.code !== "Space" || event.repeat) return;
+      if (event.code !== "Space" || event.repeat || isInteractiveTarget(event.target)) return;
       event.preventDefault();
       attemptRef.current();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  useEffect(
+    () => () => {
+      for (const timeout of pendingTimeoutsRef.current) clearTimeout(timeout);
+      pendingTimeoutsRef.current.clear();
+    },
+    [],
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => setShowPrompt(false), 2400);

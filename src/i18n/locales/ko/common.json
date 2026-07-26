@@ -70,7 +70,7 @@
       "title": "스윙!",
       "help": "공이 점선 링에 들어오는 순간 Space로 배트를 휘두르세요 (클릭도 가능)",
       "prompt": "SPACE / 클릭으로 스윙",
-      "early": "빗맞어",
+      "early": "빨랐어",
       "late": "늦었어",
       "hits": "안타 {{value}} / {{goal}}",
       "chances": "남은 기회"
