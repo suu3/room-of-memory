@@ -1,34 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <circle cx="256" cy="256" r="236" fill="#f7f1e5"/>
-  <path fill-rule="evenodd" fill="#e9e0cd" d="M 26 256 a 230 230 0 1 0 460 0 a 230 230 0 1 0 -460 0 Z M 10 236 a 230 230 0 1 0 460 0 a 230 230 0 1 0 -460 0 Z"/>
-  <ellipse cx="192" cy="102" rx="54" ry="24" fill="#ffffff" transform="rotate(-28 192 102)"/>
-  <path d="M 142 66 Q 214 256 122 440" fill="none" stroke="#d23a2e" stroke-width="10" stroke-linecap="round"/>
-  <line x1="148.8" y1="85.0" x2="123.1" y2="80.7" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="157.4" y1="113.4" x2="176.4" y2="95.6" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="164.2" y1="141.8" x2="139.3" y2="134.5" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="169.2" y1="170.0" x2="190.2" y2="154.7" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="172.3" y1="198.3" x2="148.5" y2="187.9" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="173.6" y1="226.4" x2="196.4" y2="213.9" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="173.0" y1="254.5" x2="150.7" y2="241.1" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="170.6" y1="282.5" x2="194.8" y2="273.1" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="166.3" y1="310.5" x2="146.0" y2="294.3" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="160.2" y1="338.3" x2="185.4" y2="332.1" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="152.2" y1="366.2" x2="134.1" y2="347.5" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="142.4" y1="393.9" x2="168.3" y2="390.8" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="130.8" y1="421.6" x2="114.9" y2="401.0" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <path d="M 370 66 Q 298 256 390 440" fill="none" stroke="#d23a2e" stroke-width="10" stroke-linecap="round"/>
-  <line x1="363.2" y1="85.0" x2="388.9" y2="80.7" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="354.6" y1="113.4" x2="335.6" y2="95.6" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="347.8" y1="141.8" x2="372.7" y2="134.5" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="342.8" y1="170.0" x2="321.8" y2="154.7" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="339.7" y1="198.3" x2="363.5" y2="187.9" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="338.4" y1="226.4" x2="315.6" y2="213.9" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="339.0" y1="254.5" x2="361.3" y2="241.1" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="341.4" y1="282.5" x2="317.2" y2="273.1" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="345.7" y1="310.5" x2="366.0" y2="294.3" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="351.8" y1="338.3" x2="326.6" y2="332.1" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="359.8" y1="366.2" x2="377.9" y2="347.5" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="369.6" y1="393.9" x2="343.7" y2="390.8" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <line x1="381.2" y1="421.6" x2="397.1" y2="401.0" stroke="#d23a2e" stroke-width="9" stroke-linecap="round"/>
-  <circle cx="256" cy="256" r="236" fill="none" stroke="#2f2427" stroke-width="13"/>
+  <circle cx="256" cy="256" r="232" fill="#EFE7D6" stroke="#20222A" stroke-width="12"/>
+  <g fill="none" stroke="#9E5244" stroke-linecap="round">
+    <path d="M166 78C213 178 213 334 166 434" stroke-width="10"/>
+    <path d="M346 78C299 178 299 334 346 434" stroke-width="10"/>
+    <g stroke-width="7">
+      <path d="M164 108L185 118"/>
+      <path d="M176 155L198 164"/>
+      <path d="M184 205L207 211"/>
+      <path d="M188 256H212"/>
+      <path d="M184 307L207 301"/>
+      <path d="M176 357L198 348"/>
+      <path d="M164 404L185 394"/>
+      <path d="M348 108L327 118"/>
+      <path d="M336 155L314 164"/>
+      <path d="M328 205L305 211"/>
+      <path d="M324 256H300"/>
+      <path d="M328 307L305 301"/>
+      <path d="M336 357L314 348"/>
+      <path d="M348 404L327 394"/>
+    </g>
+  </g>
 </svg>
