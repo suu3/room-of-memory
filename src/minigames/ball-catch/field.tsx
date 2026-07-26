@@ -5,8 +5,6 @@ import type { SwingResult } from "./timing";
 export interface BallCatchFieldProps {
   ballRef: React.RefObject<HTMLDivElement | null>;
   shadowRef: React.RefObject<HTMLDivElement | null>;
-  hitCount: number;
-  goalHits: number;
   remainingMisses: number;
   maxMisses: number;
   feedback: SwingResult | null;
@@ -33,8 +31,6 @@ const feedbackTone: Record<SwingResult, string> = {
 export function BallCatchField({
   ballRef,
   shadowRef,
-  hitCount,
-  goalHits,
   remainingMisses,
   maxMisses,
   feedback,
@@ -106,10 +102,7 @@ export function BallCatchField({
       />
 
       <div className="absolute left-4 top-4 text-left font-pixel text-xs tracking-widest text-paper">
-        <span>{labels.hits}</span>
-        <strong className="ml-2 text-memory">
-          {hitCount} / {goalHits}
-        </strong>
+        <strong className="text-memory">{labels.hits}</strong>
       </div>
 
       <div className="absolute right-4 top-4 text-right font-pixel text-xs tracking-widest text-paper">
@@ -159,7 +152,7 @@ export function BallCatchField({
         />
       )}
 
-      <div className="absolute -bottom-[14%] -right-[8%] w-[62%] max-w-md" aria-hidden>
+      <div className="absolute -bottom-[14%] -right-[14%] w-[62%] max-w-md" aria-hidden>
         {/* biome-ignore lint/performance/noImgElement: The bat sprite needs a keyed native element to restart its CSS animation. */}
         <img
           key={swingId}

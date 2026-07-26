@@ -10,8 +10,6 @@ describe("BallCatchField", () => {
       <BallCatchField
         ballRef={createRef<HTMLDivElement>()}
         shadowRef={createRef<HTMLDivElement>()}
-        hitCount={2}
-        goalHits={3}
         remainingMisses={2}
         maxMisses={5}
         feedback="hit"
@@ -20,7 +18,7 @@ describe("BallCatchField", () => {
         onSwing={() => {}}
         labels={{
           aria: "Swing the bat",
-          hits: "Hits",
+          hits: "Hits 2 / 3",
           chances: "Chances",
           prompt: "Press Space",
           hit: "Perfect hit",

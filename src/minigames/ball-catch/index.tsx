@@ -181,8 +181,6 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
       <BallCatchField
         ballRef={ballRef}
         shadowRef={shadowRef}
-        hitCount={catches}
-        goalHits={GOAL_CATCHES}
         remainingMisses={remainingChances(misses, MAX_MISSES)}
         maxMisses={MAX_MISSES}
         feedback={feedback}

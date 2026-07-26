@@ -19,4 +19,10 @@ describe("BallCatchMinigame", () => {
     expect(html).toContain("5 / 5");
     expect(html).toContain("SPACE / CLICK TO SWING");
   });
+
+  it("renders the localized hit progress only once", () => {
+    const html = renderToStaticMarkup(<BallCatchMinigame onComplete={() => {}} />);
+
+    expect(html.match(/0 \/ 3/g)).toHaveLength(1);
+  });
 });
