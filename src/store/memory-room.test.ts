@@ -13,4 +13,19 @@ describe("scene input locks", () => {
     store.setUiLock("memory-panel", false);
     expect(selectSceneInputLocked(useMemoryRoomStore.getState())).toBe(false);
   });
+
+  it("locks scene input for an active interaction without UI locks", () => {
+    useMemoryRoomStore.getState().beginInteraction("bat");
+
+    expect(selectSceneInputLocked(useMemoryRoomStore.getState())).toBe(true);
+  });
+
+  it("clears UI locks when gameplay progress resets", () => {
+    const store = useMemoryRoomStore.getState();
+    store.setUiLock("hud-menu", true);
+    store.reset();
+
+    expect(selectSceneInputLocked(useMemoryRoomStore.getState())).toBe(false);
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
+  });
 });
