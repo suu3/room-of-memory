@@ -7,6 +7,7 @@ import { ASSETS } from "@/lib/assets";
 import { hotspotStatus, useMemoryRoomStore } from "@/store/memory-room";
 import { MEMORY_PLACEMENTS } from "./layout";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
+import { MemoryStatusEffect } from "./MemoryStatusEffect";
 import type { RoomPalette } from "./palette";
 import { shouldHighlightMemory } from "./visual-state";
 
@@ -285,37 +286,6 @@ function MemoryVisual({
   );
 }
 
-function StatusEffect({
-  status,
-  highlighted,
-  palette,
-  interactionRadius,
-}: {
-  status: ReturnType<typeof hotspotStatus>;
-  highlighted: boolean;
-  palette: RoomPalette;
-  interactionRadius: number;
-}) {
-  if (status === "available" && highlighted) {
-    return <pointLight color={palette.memory} intensity={1.4} distance={2.6} decay={2} />;
-  }
-  if (status === "done") {
-    return (
-      <mesh>
-        <torusGeometry args={[interactionRadius * 0.52, 0.025, 8, 32]} />
-        <meshStandardMaterial
-          color={palette.memory}
-          emissive={palette.memory}
-          emissiveIntensity={0.2}
-          opacity={0.62}
-          transparent
-        />
-      </mesh>
-    );
-  }
-  return null;
-}
-
 function InteractiveMemory({
   id,
   palette,
@@ -359,10 +329,9 @@ function InteractiveMemory({
         }
         helpers={
           <>
-            <StatusEffect
+            <MemoryStatusEffect
               status={status}
-              highlighted={highlighted}
-              palette={palette}
+              memoryColor={palette.memory}
               interactionRadius={placement.interactionRadius}
             />
             <mesh name={`memory-hit-${id}`}>

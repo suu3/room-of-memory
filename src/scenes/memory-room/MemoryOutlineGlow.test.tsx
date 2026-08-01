@@ -1,5 +1,5 @@
 import ReactThreeTestRenderer, { waitFor } from "@react-three/test-renderer";
-import { type Mesh, type Object3D, WebGLRenderer } from "three";
+import { Color, type Mesh, type Object3D, WebGLRenderer } from "three";
 import { describe, expect, it } from "vitest";
 import { createMemoryOutlineSettings, MemoryGlowLayers, MemoryGlowRoot } from "./MemoryOutlineGlow";
 
@@ -67,11 +67,22 @@ function hasLegacyBorderMaterial(mesh: Mesh) {
 describe("memory outline glow", () => {
   it("derives an occluded crisp-inner and soft-outer glow from the memory color", () => {
     const settings = createMemoryOutlineSettings("#b89a5e");
+    const sourceLightness = new Color("#b89a5e").getHSL({ h: 0, s: 0, l: 0 }).l;
+    const edgeLightness = new Color(settings.edgeColor).getHSL({ h: 0, s: 0, l: 0 }).l;
 
-    expect(settings.edgeColor).toBe(0xb89a5e);
-    expect(settings.inner).toMatchObject({ blur: false, resolutionScale: 1, xRay: false });
-    expect(settings.outer).toMatchObject({ blur: true, resolutionScale: 0.5, xRay: false });
-    expect(settings.outer.edgeStrength).toBeGreaterThan(settings.inner.edgeStrength);
+    expect(edgeLightness).toBeGreaterThan(sourceLightness);
+    expect(settings.inner).toMatchObject({
+      blur: false,
+      edgeStrength: 1.2,
+      resolutionScale: 1,
+      xRay: false,
+    });
+    expect(settings.outer).toMatchObject({
+      blur: true,
+      edgeStrength: 2.4,
+      resolutionScale: 0.75,
+      xRay: false,
+    });
     expect(settings).toHaveProperty("composer.autoClear", false);
     expect(settings).toHaveProperty("composer.multisampling", 2);
   });

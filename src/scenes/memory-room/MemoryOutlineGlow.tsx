@@ -95,11 +95,13 @@ function selectedMeshes(group: Group | null) {
 }
 
 export function createMemoryOutlineSettings(color: string) {
+  const edgeColor = new Color(color).offsetHSL(0, -0.08, 0.16).getHex();
+
   return {
     composer: { autoClear: false, multisampling: 2 },
-    edgeColor: new Color(color).getHex(),
-    inner: { blur: false, edgeStrength: 2.5, resolutionScale: 1, xRay: false },
-    outer: { blur: true, edgeStrength: 6, resolutionScale: 0.5, xRay: false },
+    edgeColor,
+    inner: { blur: false, edgeStrength: 1.2, resolutionScale: 1, xRay: false },
+    outer: { blur: true, edgeStrength: 2.4, resolutionScale: 0.75, xRay: false },
   } as const;
 }
 
