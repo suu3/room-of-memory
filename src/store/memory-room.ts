@@ -24,6 +24,8 @@ interface MemoryRoomState {
   activeInteraction: ActiveInteraction | null;
   /** DOM overlay sources currently blocking scene controls. */
   uiLocks: UiLockId[];
+  /** Monotonic signal for local UI state that must close when progress resets. */
+  resetRevision: number;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   finishMinigame: (result: MinigameResult) => void;
@@ -82,6 +84,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   revisited: [],
   activeInteraction: null,
   uiLocks: [],
+  resetRevision: 0,
   beginInteraction: (id) =>
     set((state) => {
       if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
@@ -132,7 +135,14 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
         uiLocks: locked ? [...state.uiLocks, id] : state.uiLocks.filter((lock) => lock !== id),
       };
     }),
-  reset: () => set({ collected: [], revisited: [], activeInteraction: null, uiLocks: [] }),
+  reset: () =>
+    set((state) => ({
+      collected: [],
+      revisited: [],
+      activeInteraction: null,
+      uiLocks: [],
+      resetRevision: state.resetRevision + 1,
+    })),
 }));
 
 export const selectCollected = (state: MemoryRoomState) => state.collected;

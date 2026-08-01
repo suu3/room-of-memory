@@ -9,10 +9,12 @@ export function MemoryPanel() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
   // 기본 닫힘 — 열린 드로어가 씬의 핫스팟(창문 등)을 가리지 않게 한다
-  const [open, setOpen] = useState(false);
+  const [openedAtResetRevision, setOpenedAtResetRevision] = useState<number | null>(null);
   const panelRef = useRef<HTMLElement>(null);
   const collected = useMemoryRoomStore(selectCollected);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
+  const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
+  const open = openedAtResetRevision === resetRevision;
   const count = collected.length;
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export function MemoryPanel() {
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!panelRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!panelRef.current?.contains(event.target as Node)) setOpenedAtResetRevision(null);
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
@@ -40,7 +42,7 @@ export function MemoryPanel() {
       <div className="relative rounded-lg border-2 border-bone bg-paper shadow-panel">
         <button
           type="button"
-          onClick={() => setOpen(!open)}
+          onClick={() => setOpenedAtResetRevision(open ? null : resetRevision)}
           aria-expanded={open}
           aria-label={open ? t("panel.close") : t("panel.open")}
           className="absolute -left-9 top-1/2 flex h-30 w-9 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-2 rounded-l-lg border-2 border-r-0 border-bone bg-paper"

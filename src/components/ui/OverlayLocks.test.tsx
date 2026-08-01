@@ -52,4 +52,26 @@ describe("room overlay input locks", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
   });
+
+  it("closes an open memory panel when reset is confirmed from the menu", () => {
+    render(
+      <>
+        <HudMenu />
+        <MemoryPanel />
+      </>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open the memory collection panel" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["memory-panel", "hud-menu"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+
+    const panelButton = screen.getByRole("button", {
+      name: "Open the memory collection panel",
+    });
+    expect(panelButton.getAttribute("aria-expanded")).toBe("false");
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
+  });
 });
