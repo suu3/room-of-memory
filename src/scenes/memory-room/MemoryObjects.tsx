@@ -286,7 +286,7 @@ function MemoryVisual({
   );
 }
 
-function InteractiveMemory({
+export function InteractiveMemory({
   id,
   palette,
   nearbyMemoryId,

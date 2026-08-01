@@ -1,13 +1,29 @@
 import ReactThreeTestRenderer, { waitFor } from "@react-three/test-renderer";
 import { Color, type Mesh, type Object3D, WebGLRenderer } from "three";
 import { describe, expect, it } from "vitest";
+import { InteractiveMemory } from "./MemoryObjects";
 import { createMemoryOutlineSettings, MemoryGlowLayers, MemoryGlowRoot } from "./MemoryOutlineGlow";
+import type { RoomPalette } from "./palette";
 
 type MemoryId = "bat" | "ball";
 
 type OutlineEffectInstance = Object3D & {
   selection: Set<Object3D>;
 };
+
+const TEST_PALETTE = {
+  ink: "#171717",
+  paper: "#e8e1d1",
+  bone: "#c8bda5",
+  memory: "#b89a5e",
+  ember: "#8a4935",
+  slate: "#30343b",
+  mist: "#a8afb4",
+  deep: "#11141a",
+  dusk: "#3f3a43",
+  navy: "#27313d",
+  olive: "#55533d",
+} satisfies RoomPalette;
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -108,11 +124,6 @@ describe("memory outline glow", () => {
       "memory-hit-ball",
       "memory-hit-bat",
     ]);
-    expect(
-      renderedMeshes.some(
-        (mesh) => mesh.geometry.type === "BoxGeometry" || hasLegacyBorderMaterial(mesh),
-      ),
-    ).toBe(false);
 
     await renderer.update(<MemorySelectionScene active="ball" />);
     await waitFor(() =>
@@ -136,6 +147,46 @@ describe("memory outline glow", () => {
         (effect) => ![...effect.selection].some(({ name }) => name === "bat-visual"),
       ),
     ).toBe(true);
+
+    await renderer.unmount();
+  });
+
+  it("keeps the selected production memory free of the legacy box border", async () => {
+    const renderer = await ReactThreeTestRenderer.create(
+      <MemoryGlowRoot color={TEST_PALETTE.memory}>
+        <InteractiveMemory
+          id="window"
+          palette={TEST_PALETTE}
+          nearbyMemoryId="window"
+          onInteract={() => undefined}
+        />
+      </MemoryGlowRoot>,
+      { gl: createTestWebGlRenderer },
+    );
+
+    const effects = outlineEffects(renderer);
+    const selectedMeshes = effects.map((effect) => [...effect.selection] as Mesh[]);
+    expect(selectedMeshes.map((selection) => selection.map((mesh) => mesh.geometry.type))).toEqual([
+      ["PlaneGeometry"],
+      ["PlaneGeometry"],
+    ]);
+    expect(
+      selectedMeshes.some((selection) =>
+        selection.some(
+          (mesh) => mesh.geometry.type === "BoxGeometry" || hasLegacyBorderMaterial(mesh),
+        ),
+      ),
+    ).toBe(false);
+
+    const renderedMeshes = renderer.scene
+      .findAllByType("Mesh")
+      .map((node) => node.instance as Mesh);
+    expect(
+      renderedMeshes.some(
+        (mesh) => mesh.geometry.type === "BoxGeometry" || hasLegacyBorderMaterial(mesh),
+      ),
+    ).toBe(false);
+    expect(renderedMeshes.find((mesh) => mesh.name === "memory-hit-window")).toBeDefined();
 
     await renderer.unmount();
   });
