@@ -12,7 +12,13 @@ export function MemoryPanel() {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLElement>(null);
   const collected = useMemoryRoomStore(selectCollected);
+  const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const count = collected.length;
+
+  useEffect(() => {
+    setUiLock("memory-panel", open);
+    return () => setUiLock("memory-panel", false);
+  }, [open, setUiLock]);
 
   // 드로어 바깥을 클릭하면 닫는다
   useEffect(() => {
@@ -27,7 +33,7 @@ export function MemoryPanel() {
   return (
     <aside
       ref={panelRef}
-      className={`absolute right-4 top-1/2 w-72 -translate-y-1/2 transition-transform duration-300 ${
+      className={`absolute right-4 top-1/2 z-30 w-72 -translate-y-1/2 transition-transform duration-300 ${
         open ? "translate-x-0" : "translate-x-76"
       }`}
     >

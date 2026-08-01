@@ -16,9 +16,15 @@ const CHIP_CLASS =
 export function HudMenu() {
   const { t } = useTranslation();
   const reset = useMemoryRoomStore((state) => state.reset);
+  const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setUiLock("hud-menu", open || confirming);
+    return () => setUiLock("hud-menu", false);
+  }, [open, confirming, setUiLock]);
 
   useEffect(() => {
     if (!open) return;

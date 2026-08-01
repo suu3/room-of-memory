@@ -1,14 +1,31 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL, ROOM_STAGES, stageIndexFromCount } from "@/data/memory-room";
 import { useTypewriter } from "@/lib/use-typewriter";
 import { selectCollected, selectEndingReady, useMemoryRoomStore } from "@/store/memory-room";
 import { DialogueBox } from "./DialogueBox";
 import { HudMenu } from "./HudMenu";
-import { MemoryHotspot } from "./MemoryHotspot";
 import { MemoryPanel } from "./MemoryPanel";
 import { MinigameHost } from "./MinigameHost";
+
+function CanvasLoading() {
+  const { t } = useTranslation();
+  return (
+    <div className="absolute inset-0 grid place-items-center text-xs text-fog">
+      {t("scene.loading")}
+    </div>
+  );
+}
+
+const RoomCanvas = dynamic(
+  () => import("@/components/canvas/RoomCanvas").then((module) => module.RoomCanvas),
+  {
+    ssr: false,
+    loading: () => <CanvasLoading />,
+  },
+);
 
 const DOOR_VARIANTS = [
   {
@@ -45,68 +62,12 @@ export function MemoryRoom() {
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-night">
-      {/* 방 배경 — 단계 간 느린 크로스페이드 (DESIGN.md > Motion) */}
-      {ROOM_STAGES.map((roomStage, index) => (
-        <div
-          key={roomStage.id}
-          aria-hidden
-          className="absolute inset-0 transition-opacity duration-1000"
-          style={{ background: roomStage.background, opacity: index === stageIndex ? 1 : 0 }}
-        />
-      ))}
-
-      {/* 바닥 */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 h-[30%]"
-        style={{
-          background:
-            "linear-gradient(180deg, transparent 0%, var(--color-scene-navy) 55%, var(--color-scene-deep) 100%)",
-        }}
-      />
-
-      {/* 커튼 틈의 빛 — 창가(우상단)에서 부드럽게 스며드는 산광 */}
-      <div
-        aria-hidden
-        className="absolute inset-0 transition-opacity duration-1000"
-        style={{
-          opacity: stage.glowOpacity,
-          background:
-            "radial-gradient(58% 68% at 82% 22%, color-mix(in srgb, var(--color-memory) 36%, transparent) 0%, color-mix(in srgb, var(--color-memory) 13%, transparent) 46%, transparent 74%)",
-        }}
-      />
-
-      {/* 금빛 산란 — 방 곳곳에 낮게 흩뿌려진 빛 웅덩이. 기억이 모일수록 짙어진다 */}
-      <div
-        aria-hidden
-        className="absolute inset-0 transition-opacity duration-1000"
-        style={{
-          opacity: stage.scatterOpacity,
-          background: [
-            "radial-gradient(30% 26% at 28% 64%, color-mix(in srgb, var(--color-memory) 13%, transparent) 0%, transparent 70%)",
-            "radial-gradient(26% 22% at 58% 42%, color-mix(in srgb, var(--color-memory) 10%, transparent) 0%, transparent 70%)",
-            "radial-gradient(32% 26% at 12% 28%, color-mix(in srgb, var(--color-memory) 7%, transparent) 0%, transparent 72%)",
-            "radial-gradient(44% 32% at 70% 82%, color-mix(in srgb, var(--color-memory) 12%, transparent) 0%, transparent 74%)",
-          ].join(", "),
-        }}
-      />
-
-      {/* three.js 디오라마 자리 — 씬 구현 시 Canvas로 교체. 화면을 거의 꽉 채운다 */}
-      <div className="pointer-events-none absolute inset-3 grid place-items-center rounded-md border border-dashed border-bone/15 md:inset-4">
-        <div className="text-center text-bone/45">
-          <div className="font-mono text-xs tracking-widest">{"<Canvas /> · THREE.JS DIORAMA"}</div>
-          <div className="mt-1.5 text-xs opacity-80">{t("canvas.placeholder")}</div>
-        </div>
-      </div>
-
-      {/* 기억 핫스팟 */}
-      {MEMORIES.map((memory) => (
-        <MemoryHotspot key={memory.id} memory={memory} />
-      ))}
+      {/* 플레이 가능한 3D 방 */}
+      <RoomCanvas />
 
       {/* 문 — 기억을 모두 모으면 열린다. 아직 장식 요소라 핫스팟 클릭을 가로채지 않게 한다 */}
       <div
-        className={`pointer-events-none absolute bottom-[16%] left-[4.5%] flex flex-col items-center gap-2.5 transition-all duration-1000 ${door.wrap}`}
+        className={`pointer-events-none absolute bottom-[16%] left-[4.5%] z-10 flex flex-col items-center gap-2.5 transition-all duration-1000 ${door.wrap}`}
       >
         <div
           className={`relative h-40 w-18 rounded-t-sm border-2 transition-colors duration-1000 ${door.frame}`}
@@ -136,7 +97,7 @@ export function MemoryRoom() {
       <div aria-hidden className="film-grain pointer-events-none absolute inset-0" />
 
       {/* 타이틀 HUD — 종이 리본 스티커 */}
-      <header className="absolute left-6 top-6 flex flex-col gap-2">
+      <header className="absolute left-6 top-6 z-10 flex flex-col gap-2">
         <div className="flex w-fit -rotate-1 items-center gap-2.5 rounded-lg border-2 border-bone bg-paper px-4 py-1.5 shadow-chip">
           <div aria-hidden className="w-5 border-t-2 border-dashed border-ember" />
           <h1 className="text-lg font-bold text-ink">{t("title")}</h1>
@@ -154,14 +115,14 @@ export function MemoryRoom() {
       </div>
 
       {/* 혼잣말 */}
-      <div className="pointer-events-none absolute left-1/2 top-24 w-full max-w-2xl -translate-x-1/2 text-center md:top-16">
+      <div className="pointer-events-none absolute left-1/2 top-24 z-10 w-full max-w-2xl -translate-x-1/2 text-center md:top-16">
         <p key={stage.id} className="animate-fade-rise font-pixel text-2xl text-fog">
           「 {monologue} 」
         </p>
       </div>
 
       {/* 진행 도트 — 종이 칩 */}
-      <div className="absolute bottom-6 left-6 flex rotate-1 items-center gap-3 rounded-full border-2 border-bone bg-paper px-4 py-1.5 shadow-chip">
+      <div className="absolute bottom-6 left-6 z-10 flex rotate-1 items-center gap-3 rounded-full border-2 border-bone bg-paper px-4 py-1.5 shadow-chip">
         <p className="text-xs tracking-wider text-ink/70">
           {t("hud.memoryCount")} <span className="font-bold text-ember">{count}</span> /{" "}
           {MEMORY_GOAL}

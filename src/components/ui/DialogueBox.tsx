@@ -24,7 +24,7 @@ export function DialogueBox() {
   const speakerTag = tRoom(`characters.${scriptLine.speaker}.tag` as ParseKeys<"memoryRoom">);
 
   return (
-    <div className="absolute bottom-7 left-1/2 w-full max-w-2xl -translate-x-1/2 animate-fade-rise px-4">
+    <div className="absolute bottom-7 left-1/2 z-10 w-full max-w-2xl -translate-x-1/2 animate-fade-rise px-4">
       <div className="relative">
         <div className="absolute -top-4 left-4 z-10 flex -skew-x-6 items-baseline gap-2 rounded-sm bg-ember px-4 py-1 text-paper shadow-chip">
           <span className="skew-x-6 text-sm font-bold tracking-wide">{speakerName}</span>
