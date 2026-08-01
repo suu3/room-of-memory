@@ -32,8 +32,8 @@ export const ROOM_COLLIDERS = [
 export const MEMORY_PLACEMENTS = {
   bat: {
     id: "bat",
-    position: [-5.25, 0.55, 2.85],
-    rotation: [0, 0, -0.32],
+    position: [-5.25, 1.48, 4.15],
+    rotation: [0, 0, Math.PI - 0.22],
     scale: 1.6,
     interactionRadius: 1.35,
   },
@@ -83,7 +83,7 @@ export const MEMORY_PLACEMENTS = {
 
 export const CAMERA_PRESETS = {
   room: { position: [14.2, 10.4, 15.4], target: [0.8, 1.2, 1.2] },
-  bat: { position: [-1.4, 3.0, 6.7], target: [-5.1, 0.7, 2.85] },
+  bat: { position: [-1.4, 3.0, 6.7], target: [-5.25, 0.8, 4.15] },
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
   frame: { position: [4.8, 2.6, 0.7], target: [2.15, 1.3, -2.55] },
   radio: { position: [-1.1, 2.5, 2.1], target: [-4.4, 1.25, -0.5] },

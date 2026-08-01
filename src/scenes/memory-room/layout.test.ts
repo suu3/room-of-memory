@@ -94,6 +94,28 @@ describe("memory-room layout", () => {
     expect(MEMORY_PLACEMENTS.frame.rotation[1]).toBeCloseTo(-0.3);
   });
 
+  it("rests the bat barrel-down in the clear strip beside the door", () => {
+    const bat = MEMORY_PLACEMENTS.bat;
+    const modelLength = 0.864 * bat.scale;
+    const barrelY = bat.position[1] + Math.cos(bat.rotation[2]) * modelLength;
+    const doorGap = ROOM_DOOR_POSITION[2] - bat.position[2];
+    const wallGap = bat.position[0] - ROOM_SHELL_BOUNDS.minX;
+
+    expect(barrelY).toBeGreaterThan(0.05);
+    expect(barrelY).toBeLessThan(0.25);
+    expect(barrelY).toBeLessThan(bat.position[1]);
+    expect(doorGap).toBeGreaterThan(0.82);
+    expect(doorGap).toBeLessThan(1.3);
+    expect(wallGap).toBeGreaterThan(0.5);
+    expect(wallGap).toBeLessThan(0.9);
+    expect(
+      Math.hypot(
+        CAMERA_PRESETS.bat.target[0] - bat.position[0],
+        CAMERA_PRESETS.bat.target[2] - bat.position[2],
+      ),
+    ).toBeLessThan(0.35);
+  });
+
   it("matches the reference diorama shell", () => {
     expect(REFERENCE_ROOM_LAYOUT.openEdge).toBe("front");
     expect(REFERENCE_ROOM_LAYOUT.hasVisibleWallDoor).toBe(true);
