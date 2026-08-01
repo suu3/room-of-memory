@@ -140,8 +140,9 @@ function MemoryGlowVisualSelection({
   const updateSelection = useContext(MemoryGlowSelectionContext);
 
   useLayoutEffect(() => {
-    const hasVisibleVisual = selectionVersion >= 0;
-    if (!enabled || !hasVisibleVisual || updateSelection === null) return;
+    // This value is a refresh token: replacements re-traverse the mounted visual without gating it.
+    void selectionVersion;
+    if (!enabled || updateSelection === null) return;
     updateSelection(selectedMeshes(groupRef.current));
     return () => updateSelection([]);
   }, [enabled, selectionVersion, updateSelection]);
