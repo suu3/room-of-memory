@@ -1,8 +1,19 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import type { MemoryItem } from "@/data/memory-room";
+import type { MemoryId, MemoryItem } from "@/data/memory-room";
 import { hotspotStatus, selectGamePhase, useMemoryRoomStore } from "@/store/memory-room";
+
+// Temporary DOM bridge removed together with MemoryHotspot when Task 7 installs the Canvas UI.
+const LEGACY_HOTSPOT_POSITIONS = {
+  bat: { left: "13%", top: "72%" },
+  window: { left: "80%", top: "30%" },
+  frame: { left: "34%", top: "32%" },
+  radio: { left: "64%", top: "58%" },
+  phone: { left: "44%", top: "69%" },
+  calendar: { left: "55%", top: "22%" },
+  ball: { left: "28%", top: "58%" },
+} as const satisfies Record<MemoryId, { left: string; top: string }>;
 
 export function MemoryHotspot({ memory }: { memory: MemoryItem }) {
   const { t } = useTranslation();
@@ -29,6 +40,7 @@ export function MemoryHotspot({ memory }: { memory: MemoryItem }) {
       disabled={status !== "available" || inputLocked}
       aria-label={ariaLabel}
       className="group absolute flex -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center gap-2 transition-opacity duration-500 disabled:cursor-default disabled:opacity-35"
+      style={LEGACY_HOTSPOT_POSITIONS[memory.id]}
     >
       <span
         aria-hidden
