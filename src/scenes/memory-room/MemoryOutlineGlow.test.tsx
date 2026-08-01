@@ -1,14 +1,6 @@
 import type { ReactNode } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
-import { createMemoryOutlineSettings, MemoryGlowLayers, MemoryGlowRoot } from "./MemoryOutlineGlow";
-
-vi.mock("@react-three/postprocessing", () => ({
-  EffectComposer: ({ autoClear, children }: { autoClear?: boolean; children: ReactNode }) => (
-    <div data-auto-clear={String(autoClear)}>{children}</div>
-  ),
-  Outline: () => null,
-}));
+import { describe, expect, it } from "vitest";
+import { createMemoryOutlineSettings, MemoryGlowLayers } from "./MemoryOutlineGlow";
 
 describe("memory outline glow", () => {
   it("derives an occluded crisp-inner and soft-outer glow from the memory color", () => {
@@ -18,6 +10,8 @@ describe("memory outline glow", () => {
     expect(settings.inner).toMatchObject({ blur: false, resolutionScale: 1, xRay: false });
     expect(settings.outer).toMatchObject({ blur: true, resolutionScale: 0.5, xRay: false });
     expect(settings.outer.edgeStrength).toBeGreaterThan(settings.inner.edgeStrength);
+    expect(settings).toHaveProperty("composer.autoClear", false);
+    expect(settings).toHaveProperty("composer.multisampling", 2);
   });
 
   it("isolates the selected visual from helper geometry", () => {
@@ -30,11 +24,5 @@ describe("memory outline glow", () => {
     expect(layer.props.children[0].props.selectionVersion).toBe(1);
     expect(layer.props.children[0].props.children).toBe(visual);
     expect(layer.props.children[1]).toBe(helpers);
-  });
-
-  it("preserves the outline mask clear before rendering the selected geometry", () => {
-    const markup = renderToStaticMarkup(<MemoryGlowRoot color="#b89a5e" />);
-
-    expect(markup).toContain('data-auto-clear="false"');
   });
 });

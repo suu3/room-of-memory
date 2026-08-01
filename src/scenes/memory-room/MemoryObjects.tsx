@@ -1,22 +1,12 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
-import {
-  Component,
-  type PropsWithChildren,
-  type ReactNode,
-  Suspense,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import { type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import type { Material, Mesh } from "three";
 import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { ASSETS } from "@/lib/assets";
 import { hotspotStatus, useMemoryRoomStore } from "@/store/memory-room";
 import { MEMORY_PLACEMENTS } from "./layout";
-import { MemoryGlowLayers } from "./MemoryOutlineGlow";
+import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { shouldHighlightMemory } from "./visual-state";
 
@@ -31,25 +21,6 @@ for (const path of Object.values(MODEL_PATHS)) {
   useGLTF.preload(path, true, true);
 }
 
-interface ModelErrorBoundaryState {
-  failed: boolean;
-}
-
-class ModelErrorBoundary extends Component<
-  PropsWithChildren<{ fallback: ReactNode }>,
-  ModelErrorBoundaryState
-> {
-  state = { failed: false };
-
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-
-  render() {
-    return this.state.failed ? this.props.fallback : this.props.children;
-  }
-}
-
 function setMaterialOpacity(material: Material, opacity: number) {
   material.opacity = opacity;
   material.transparent = opacity < 1;
@@ -57,15 +28,7 @@ function setMaterialOpacity(material: Material, opacity: number) {
   material.needsUpdate = true;
 }
 
-function LoadedGlb({
-  path,
-  opacity,
-  onReady,
-}: {
-  path: string;
-  opacity: number;
-  onReady: () => void;
-}) {
+function LoadedGlb({ path, opacity }: { path: string; opacity: number }) {
   // The third argument explicitly enables the MeshoptDecoder configured by Drei's useGLTF.
   const { scene } = useGLTF(path, true, true);
   const cloned = useMemo(() => {
@@ -89,8 +52,6 @@ function LoadedGlb({
       for (const material of materials) setMaterialOpacity(material, opacity);
     });
   }, [cloned, opacity]);
-
-  useEffect(onReady, [onReady]);
 
   useEffect(
     () => () => {
@@ -119,11 +80,9 @@ function GlbMemoryModel({
   onReady: () => void;
 }) {
   return (
-    <ModelErrorBoundary fallback={fallback}>
-      <Suspense fallback={fallback}>
-        <LoadedGlb path={path} opacity={opacity} onReady={onReady} />
-      </Suspense>
-    </ModelErrorBoundary>
+    <MemoryGlowVisualBoundary fallback={fallback} onVisible={onReady}>
+      <LoadedGlb path={path} opacity={opacity} />
+    </MemoryGlowVisualBoundary>
   );
 }
 

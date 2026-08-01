@@ -2,9 +2,11 @@
 
 import { EffectComposer, Outline } from "@react-three/postprocessing";
 import {
+  Component,
   createContext,
   type PropsWithChildren,
   type ReactNode,
+  Suspense,
   useCallback,
   useContext,
   useLayoutEffect,
@@ -17,6 +19,66 @@ import { Color, type Group, type Mesh, type Object3D } from "three";
 type SelectionUpdater = (selection: Object3D[]) => void;
 
 const MemoryGlowSelectionContext = createContext<SelectionUpdater | null>(null);
+
+export type MemoryGlowContentKind = "suspense-fallback" | "error-fallback" | "model";
+
+type MemoryGlowVisibleContentProps = PropsWithChildren<{
+  kind: MemoryGlowContentKind;
+  onVisible: (kind: MemoryGlowContentKind) => void;
+}>;
+
+function MemoryGlowVisibleContent({ kind, onVisible, children }: MemoryGlowVisibleContentProps) {
+  useLayoutEffect(() => {
+    onVisible(kind);
+  }, [kind, onVisible]);
+  return children;
+}
+
+class MemoryGlowErrorBoundary extends Component<
+  PropsWithChildren<{ fallback: ReactNode }>,
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
+
+export function MemoryGlowVisualBoundary({
+  fallback,
+  onVisible,
+  children,
+}: PropsWithChildren<{
+  fallback: ReactNode;
+  onVisible: (kind: MemoryGlowContentKind) => void;
+}>) {
+  return (
+    <MemoryGlowErrorBoundary
+      fallback={
+        <MemoryGlowVisibleContent kind="error-fallback" onVisible={onVisible}>
+          {fallback}
+        </MemoryGlowVisibleContent>
+      }
+    >
+      <Suspense
+        fallback={
+          <MemoryGlowVisibleContent kind="suspense-fallback" onVisible={onVisible}>
+            {fallback}
+          </MemoryGlowVisibleContent>
+        }
+      >
+        <MemoryGlowVisibleContent kind="model" onVisible={onVisible}>
+          {children}
+        </MemoryGlowVisibleContent>
+      </Suspense>
+    </MemoryGlowErrorBoundary>
+  );
+}
 
 function hasSameSelection(previous: Object3D[], next: Object3D[]) {
   return (
@@ -34,6 +96,7 @@ function selectedMeshes(group: Group | null) {
 
 export function createMemoryOutlineSettings(color: string) {
   return {
+    composer: { autoClear: false, multisampling: 2 },
     edgeColor: new Color(color).getHex(),
     inner: { blur: false, edgeStrength: 2.5, resolutionScale: 1, xRay: false },
     outer: { blur: true, edgeStrength: 6, resolutionScale: 0.5, xRay: false },
@@ -50,7 +113,7 @@ export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: s
   return (
     <MemoryGlowSelectionContext.Provider value={updateSelection}>
       {children}
-      <EffectComposer autoClear={false} multisampling={2}>
+      <EffectComposer {...settings.composer}>
         <Outline
           selection={selection}
           visibleEdgeColor={settings.edgeColor}
