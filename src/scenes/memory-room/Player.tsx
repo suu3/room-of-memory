@@ -6,22 +6,13 @@ import { type Group, Vector3 } from "three";
 import { selectSceneInputLocked, useMemoryRoomStore } from "@/store/memory-room";
 import { ROOM_BOUNDS, ROOM_COLLIDERS } from "./layout";
 import { resolveRoomPalette } from "./palette";
+import { captureMovementKeyDown, MOVEMENT_KEYS } from "./player-input";
 import { moveCircle, type Vec2 } from "./spatial";
 
 const PLAYER_START = new Vector3(0, 0.45, 2.35);
 const PLAYER_RADIUS = 0.38;
 const PLAYER_SPEED = 2.35;
 const MAX_FRAME_DELTA = 0.05;
-const MOVEMENT_KEYS = new Set([
-  "KeyW",
-  "KeyA",
-  "KeyS",
-  "KeyD",
-  "ArrowUp",
-  "ArrowLeft",
-  "ArrowDown",
-  "ArrowRight",
-]);
 const cameraForward = new Vector3();
 const cameraRight = new Vector3();
 
@@ -46,12 +37,7 @@ export function Player({ positionRef }: { positionRef: MutableRefObject<Vector3>
     const keys = keysRef.current;
     const clearKeys = () => keys.clear();
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!MOVEMENT_KEYS.has(event.code)) return;
-      event.preventDefault();
-      if (event.repeat || selectSceneInputLocked(useMemoryRoomStore.getState())) {
-        return;
-      }
-      keys.add(event.code);
+      captureMovementKeyDown(event, keys, selectSceneInputLocked(useMemoryRoomStore.getState()));
     };
     const handleKeyUp = (event: KeyboardEvent) => {
       if (MOVEMENT_KEYS.has(event.code)) keys.delete(event.code);
