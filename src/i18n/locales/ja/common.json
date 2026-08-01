@@ -36,6 +36,12 @@
   "canvas": {
     "placeholder": "暗い3D部屋シーン (placeholder)"
   },
+  "scene": {
+    "loading": "部屋を読み込み中…",
+    "webglFallback": "この端末では3Dの部屋を表示できません。",
+    "moveHint": "WASD / 矢印キーで移動",
+    "interactHint": "{{name}}を調べる · E / Enter"
+  },
   "reset": {
     "title": "すべての進行をリセットしますか？",
     "body": "収集した記憶と進行状況がすべて失われます。言語設定は維持されます。",

@@ -36,6 +36,12 @@
   "canvas": {
     "placeholder": "Dark 3D room scene (placeholder)"
   },
+  "scene": {
+    "loading": "Loading the room…",
+    "webglFallback": "The 3D room cannot be displayed on this device.",
+    "moveHint": "Move with WASD / arrow keys",
+    "interactHint": "Examine {{name}} · E / Enter"
+  },
   "reset": {
     "title": "Reset all progress?",
     "body": "All collected memories and progress will be lost. Your language setting is kept.",
