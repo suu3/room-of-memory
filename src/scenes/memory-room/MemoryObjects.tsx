@@ -5,9 +5,11 @@ import {
   type PropsWithChildren,
   type ReactNode,
   Suspense,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
+  useState,
 } from "react";
 import type { Material, Mesh } from "three";
 import { MEMORIES, type MemoryId } from "@/data/memory-room";
@@ -55,7 +57,15 @@ function setMaterialOpacity(material: Material, opacity: number) {
   material.needsUpdate = true;
 }
 
-function LoadedGlb({ path, opacity }: { path: string; opacity: number }) {
+function LoadedGlb({
+  path,
+  opacity,
+  onReady,
+}: {
+  path: string;
+  opacity: number;
+  onReady: () => void;
+}) {
   // The third argument explicitly enables the MeshoptDecoder configured by Drei's useGLTF.
   const { scene } = useGLTF(path, true, true);
   const cloned = useMemo(() => {
@@ -80,6 +90,8 @@ function LoadedGlb({ path, opacity }: { path: string; opacity: number }) {
     });
   }, [cloned, opacity]);
 
+  useEffect(onReady, [onReady]);
+
   useEffect(
     () => () => {
       cloned.traverse((object) => {
@@ -99,15 +111,17 @@ function GlbMemoryModel({
   path,
   fallback,
   opacity,
+  onReady,
 }: {
   path: string;
   fallback: ReactNode;
   opacity: number;
+  onReady: () => void;
 }) {
   return (
     <ModelErrorBoundary fallback={fallback}>
       <Suspense fallback={fallback}>
-        <LoadedGlb path={path} opacity={opacity} />
+        <LoadedGlb path={path} opacity={opacity} onReady={onReady} />
       </Suspense>
     </ModelErrorBoundary>
   );
@@ -289,12 +303,22 @@ function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId 
   }
 }
 
-function MemoryVisual({ id, palette, opacity }: VisualProps & { id: MemoryId }) {
+function MemoryVisual({
+  id,
+  palette,
+  opacity,
+  onModelReady,
+}: VisualProps & { id: MemoryId; onModelReady: () => void }) {
   const fallback = <PrimitiveVisual id={id} palette={palette} opacity={opacity} />;
   const modelPath = MODEL_PATHS[id as keyof typeof MODEL_PATHS];
   return modelPath ? (
     <group>
-      <GlbMemoryModel path={modelPath} fallback={fallback} opacity={opacity} />
+      <GlbMemoryModel
+        path={modelPath}
+        fallback={fallback}
+        opacity={opacity}
+        onReady={onModelReady}
+      />
       {id === "frame" ? <FramePhotoFace palette={palette} opacity={opacity} /> : null}
     </group>
   ) : (
@@ -348,6 +372,8 @@ function InteractiveMemory({
   const placement = MEMORY_PLACEMENTS[id];
   const opacity = status === "locked" ? 0.45 : 1;
   const highlighted = shouldHighlightMemory(status, id, nearbyMemoryId);
+  const [selectionVersion, setSelectionVersion] = useState(0);
+  const refreshSelection = useCallback(() => setSelectionVersion((version) => version + 1), []);
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: R3F group is a Canvas pointer target, not a DOM element.
@@ -361,9 +387,15 @@ function InteractiveMemory({
     >
       <MemoryGlowLayers
         enabled={highlighted}
+        selectionVersion={selectionVersion}
         visual={
           <group rotation={placement.rotation} scale={placement.scale}>
-            <MemoryVisual id={id} palette={palette} opacity={opacity} />
+            <MemoryVisual
+              id={id}
+              palette={palette}
+              opacity={opacity}
+              onModelReady={refreshSelection}
+            />
           </group>
         }
         helpers={
