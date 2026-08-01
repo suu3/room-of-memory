@@ -2,7 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
-import { MathUtils, Vector3 } from "three";
+import { MathUtils, type OrthographicCamera, Vector3 } from "three";
 import type { MemoryId } from "@/data/memory-room";
 import { CAMERA_PRESETS } from "./layout";
 
@@ -10,7 +10,13 @@ const cameraPositionGoal = new Vector3();
 const cameraTargetGoal = new Vector3();
 const roomTarget = CAMERA_PRESETS.room.target;
 
-export function CameraRig({ focusMemoryId }: { focusMemoryId: MemoryId | null }) {
+export function CameraRig({
+  focusMemoryId,
+  roomZoom,
+}: {
+  focusMemoryId: MemoryId | null;
+  roomZoom: number;
+}) {
   const targetRef = useRef(new Vector3(...roomTarget));
   const reducedMotion = useMemo(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -26,6 +32,12 @@ export function CameraRig({ focusMemoryId }: { focusMemoryId: MemoryId | null })
     camera.position.x = MathUtils.damp(camera.position.x, cameraPositionGoal.x, lambda, delta);
     camera.position.y = MathUtils.damp(camera.position.y, cameraPositionGoal.y, lambda, delta);
     camera.position.z = MathUtils.damp(camera.position.z, cameraPositionGoal.z, lambda, delta);
+
+    if ("isOrthographicCamera" in camera && camera.isOrthographicCamera) {
+      const orthographicCamera = camera as OrthographicCamera;
+      orthographicCamera.zoom = MathUtils.damp(orthographicCamera.zoom, roomZoom, lambda, delta);
+      orthographicCamera.updateProjectionMatrix();
+    }
 
     const target = targetRef.current;
     target.x = MathUtils.damp(target.x, cameraTargetGoal.x, lambda, delta);

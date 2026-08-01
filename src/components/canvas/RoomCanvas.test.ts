@@ -7,7 +7,20 @@ import {
   canInitializeWebGL,
   dispatchMemoryInteraction,
   handleRoomInteractionKeyDown,
+  roomZoomForViewport,
 } from "./room-canvas-runtime";
+
+describe("roomZoomForViewport", () => {
+  it("keeps the desktop framing and zooms out on narrow screens", () => {
+    expect(roomZoomForViewport(1440, 900)).toBeCloseTo(64);
+    expect(roomZoomForViewport(390, 844)).toBeLessThan(30);
+    expect(roomZoomForViewport(390, 844)).toBeLessThan(roomZoomForViewport(1024, 768));
+  });
+
+  it("uses height as the limiting axis after a landscape resize", () => {
+    expect(roomZoomForViewport(844, 390)).toBeCloseTo(27.73, 1);
+  });
+});
 
 describe("canInitializeWebGL", () => {
   it("accepts a canvas when either WebGL context can be created", () => {
@@ -81,5 +94,36 @@ describe("room interaction keyboard dispatch", () => {
     expect(handled).toBe(true);
     expect(event.defaultPrevented).toBe(true);
     expect(dispatched).toEqual(["bat"]);
+  });
+
+  it("opens closed curtains before dispatching the window memory", () => {
+    let opened = false;
+    const dispatched: MemoryId[] = [];
+
+    const firstHandled = dispatchMemoryInteraction(
+      useMemoryRoomStore.getState(),
+      "window",
+      (id) => dispatched.push(id),
+      {
+        curtainsOpen: false,
+        openCurtains: () => {
+          opened = true;
+        },
+      },
+    );
+
+    expect(firstHandled).toBe(true);
+    expect(opened).toBe(true);
+    expect(dispatched).toEqual([]);
+
+    const secondHandled = dispatchMemoryInteraction(
+      useMemoryRoomStore.getState(),
+      "window",
+      (id) => dispatched.push(id),
+      { curtainsOpen: true, openCurtains: () => undefined },
+    );
+
+    expect(secondHandled).toBe(true);
+    expect(dispatched).toEqual(["window"]);
   });
 });

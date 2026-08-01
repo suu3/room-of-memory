@@ -45,7 +45,7 @@ export function MemoryPanel() {
           onClick={() => setOpenedAtResetRevision(open ? null : resetRevision)}
           aria-expanded={open}
           aria-label={open ? t("panel.close") : t("panel.open")}
-          className="absolute -left-9 top-1/2 flex h-30 w-9 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-2 rounded-l-lg border-2 border-r-0 border-bone bg-paper"
+          className="absolute -left-9.5 top-1/2 flex h-30 w-9 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-2 rounded-l-lg border-2 border-r-0 border-bone bg-paper"
         >
           <span className="text-xs font-bold tracking-widest text-ink [writing-mode:vertical-rl]">
             {t("panel.title")}

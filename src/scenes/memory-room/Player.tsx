@@ -4,9 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { type Group, Vector3 } from "three";
 import { selectSceneInputLocked, useMemoryRoomStore } from "@/store/memory-room";
+import type { MovementAxes } from "@/types/movement";
 import { ROOM_BOUNDS, ROOM_COLLIDERS } from "./layout";
 import { resolveRoomPalette } from "./palette";
-import { captureMovementKeyDown, MOVEMENT_KEYS } from "./player-input";
+import { captureMovementKeyDown, MOVEMENT_KEYS, resolveMovementInput } from "./player-input";
 import { moveCircle, type Vec2 } from "./spatial";
 
 const PLAYER_START = new Vector3(0, 0.45, 2.35);
@@ -16,16 +17,19 @@ const MAX_FRAME_DELTA = 0.05;
 const cameraForward = new Vector3();
 const cameraRight = new Vector3();
 
-function isPressed(keys: Set<string>, primary: string, alternate: string) {
-  return keys.has(primary) || keys.has(alternate);
-}
-
-export function Player({ positionRef }: { positionRef: MutableRefObject<Vector3> }) {
+export function Player({
+  positionRef,
+  movementInputRef,
+}: {
+  positionRef: MutableRefObject<Vector3>;
+  movementInputRef: MutableRefObject<MovementAxes>;
+}) {
   const groupRef = useRef<Group>(null);
   const keysRef = useRef(new Set<string>());
   const originRef = useRef<Vec2>({ x: PLAYER_START.x, z: PLAYER_START.z });
   const deltaRef = useRef<Vec2>({ x: 0, z: 0 });
   const resultRef = useRef<Vec2>({ x: PLAYER_START.x, z: PLAYER_START.z });
+  const resolvedInputRef = useRef<MovementAxes>({ horizontal: 0, vertical: 0 });
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
   const palette = useMemo(resolveRoomPalette, []);
 
@@ -35,7 +39,11 @@ export function Player({ positionRef }: { positionRef: MutableRefObject<Vector3>
 
   useEffect(() => {
     const keys = keysRef.current;
-    const clearKeys = () => keys.clear();
+    const clearInputs = () => {
+      keys.clear();
+      movementInputRef.current.horizontal = 0;
+      movementInputRef.current.vertical = 0;
+    };
     const handleKeyDown = (event: KeyboardEvent) => {
       captureMovementKeyDown(event, keys, selectSceneInputLocked(useMemoryRoomStore.getState()));
     };
@@ -45,36 +53,37 @@ export function Player({ positionRef }: { positionRef: MutableRefObject<Vector3>
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("blur", clearKeys);
-    document.addEventListener("visibilitychange", clearKeys);
+    window.addEventListener("blur", clearInputs);
+    document.addEventListener("visibilitychange", clearInputs);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("blur", clearKeys);
-      document.removeEventListener("visibilitychange", clearKeys);
-      clearKeys();
+      window.removeEventListener("blur", clearInputs);
+      document.removeEventListener("visibilitychange", clearInputs);
+      clearInputs();
     };
-  }, []);
+  }, [movementInputRef]);
 
   useEffect(() => {
-    if (inputLocked) keysRef.current.clear();
-  }, [inputLocked]);
+    if (!inputLocked) return;
+    keysRef.current.clear();
+    movementInputRef.current.horizontal = 0;
+    movementInputRef.current.vertical = 0;
+  }, [inputLocked, movementInputRef]);
 
   useFrame(({ camera }, delta) => {
     const group = groupRef.current;
     if (!group || selectSceneInputLocked(useMemoryRoomStore.getState())) return;
 
-    const keys = keysRef.current;
-    let horizontal =
-      Number(isPressed(keys, "KeyD", "ArrowRight")) - Number(isPressed(keys, "KeyA", "ArrowLeft"));
-    let vertical =
-      Number(isPressed(keys, "KeyW", "ArrowUp")) - Number(isPressed(keys, "KeyS", "ArrowDown"));
+    const input = resolveMovementInput(
+      keysRef.current,
+      movementInputRef.current,
+      resolvedInputRef.current,
+    );
+    const horizontal = input.horizontal;
+    const vertical = input.vertical;
     if (horizontal === 0 && vertical === 0) return;
-
-    const inputLength = Math.hypot(horizontal, vertical);
-    horizontal /= inputLength;
-    vertical /= inputLength;
 
     camera.getWorldDirection(cameraForward);
     cameraForward.y = 0;

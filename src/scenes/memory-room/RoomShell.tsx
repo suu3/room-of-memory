@@ -1,5 +1,10 @@
 import type {} from "@react-three/fiber";
-
+import {
+  ROOM_DOOR_POSITION,
+  ROOM_DOOR_ROTATION,
+  ROOM_SHELL_BOUNDS,
+  ROOM_SHELL_CENTER,
+} from "./layout";
 import type { RoomPalette } from "./palette";
 import type { EulerTuple, Vec3Tuple } from "./types";
 
@@ -52,10 +57,23 @@ function ShellPlane({ size, position, rotation = [0, 0, 0], color, opacity = 1 }
   );
 }
 
+const SHELL_WIDTH = ROOM_SHELL_BOUNDS.maxX - ROOM_SHELL_BOUNDS.minX;
+const SHELL_DEPTH = ROOM_SHELL_BOUNDS.maxZ - ROOM_SHELL_BOUNDS.minZ;
+const [SHELL_CENTER_X, SHELL_CENTER_Z] = ROOM_SHELL_CENTER;
+
 const SHELL = {
-  floor: { size: [12, 0.22, 8], position: [0, -0.12, 0] },
-  backWall: { size: [12, 4.8, 0.18], position: [0, 2.3, -4] },
-  rightWall: { size: [0.18, 4.8, 8], position: [6, 2.3, 0] },
+  floor: {
+    size: [SHELL_WIDTH, 0.22, SHELL_DEPTH],
+    position: [SHELL_CENTER_X, -0.12, SHELL_CENTER_Z],
+  },
+  backWall: {
+    size: [SHELL_WIDTH, 4.8, 0.18],
+    position: [SHELL_CENTER_X, 2.3, ROOM_SHELL_BOUNDS.minZ],
+  },
+  leftWall: {
+    size: [0.18, 4.8, SHELL_DEPTH],
+    position: [ROOM_SHELL_BOUNDS.minX, 2.3, SHELL_CENTER_Z],
+  },
 } as const satisfies Record<string, { size: Vec3Tuple; position: Vec3Tuple }>;
 
 const WINDOW_FRAME = [
@@ -73,18 +91,30 @@ const DOOR_FRAME = [
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
 const FLOOR_RIM = [
-  { size: [12.3, 0.12, 0.14], position: [0, 0.01, -4.06] },
-  { size: [12.3, 0.12, 0.14], position: [0, 0.01, 4.06] },
-  { size: [0.14, 0.12, 8], position: [-6.08, 0.01, 0] },
-  { size: [0.14, 0.12, 8], position: [6.08, 0.01, 0] },
+  {
+    size: [SHELL_WIDTH, 0.12, 0.14],
+    position: [SHELL_CENTER_X, 0.01, ROOM_SHELL_BOUNDS.minZ],
+  },
+  {
+    size: [SHELL_WIDTH, 0.12, 0.14],
+    position: [SHELL_CENTER_X, 0.01, ROOM_SHELL_BOUNDS.maxZ],
+  },
+  {
+    size: [0.14, 0.12, SHELL_DEPTH],
+    position: [ROOM_SHELL_BOUNDS.minX, 0.01, SHELL_CENTER_Z],
+  },
+  {
+    size: [0.14, 0.12, SHELL_DEPTH],
+    position: [ROOM_SHELL_BOUNDS.maxX, 0.01, SHELL_CENTER_Z],
+  },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
 export function RoomShell({ palette, doorReady }: { palette: RoomPalette; doorReady: boolean }) {
   return (
     <group name="room-shell">
-      <ShellBox {...SHELL.floor} color={palette.deep} receiveShadow />
-      <ShellBox {...SHELL.backWall} color={palette.mist} receiveShadow />
-      <ShellBox {...SHELL.rightWall} color={palette.slate} receiveShadow />
+      <ShellBox {...SHELL.floor} color={palette.mist} receiveShadow />
+      <ShellBox {...SHELL.backWall} color={palette.slate} receiveShadow />
+      <ShellBox {...SHELL.leftWall} color={palette.slate} receiveShadow />
 
       <group position={[1.15, 2.55, -3.88]}>
         <ShellPlane size={[2.84, 2.4]} position={[0, 0, 0]} color={palette.dusk} opacity={0.72} />
@@ -93,7 +123,7 @@ export function RoomShell({ palette, doorReady }: { palette: RoomPalette; doorRe
         ))}
       </group>
 
-      <group position={[-5, 1.7, -3.86]}>
+      <group position={ROOM_DOOR_POSITION} rotation={ROOM_DOOR_ROTATION}>
         <ShellBox
           size={[1.45, 3.4, 0.12]}
           position={[0, 0, 0]}
@@ -109,15 +139,15 @@ export function RoomShell({ palette, doorReady }: { palette: RoomPalette; doorRe
       </group>
 
       <ShellBox
-        size={[10, 0.3, 0.14]}
-        position={[0.91, 0.15, -3.84]}
+        size={[SHELL_WIDTH - 0.32, 0.3, 0.14]}
+        position={[SHELL_CENTER_X, 0.15, ROOM_SHELL_BOUNDS.minZ + 0.16]}
         color={palette.bone}
         castShadow
         receiveShadow
       />
       <ShellBox
-        size={[0.14, 0.3, 7.68]}
-        position={[5.84, 0.15, 0.08]}
+        size={[0.14, 0.3, SHELL_DEPTH - 0.32]}
+        position={[ROOM_SHELL_BOUNDS.minX + 0.16, 0.15, SHELL_CENTER_Z]}
         color={palette.bone}
         castShadow
         receiveShadow

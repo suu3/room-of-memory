@@ -1,6 +1,53 @@
 import { describe, expect, it } from "vitest";
 import { MEMORY_IDS } from "@/data/memory-room";
-import { CAMERA_PRESETS, MEMORY_PLACEMENTS, ROOM_BOUNDS, ROOM_COLLIDERS } from "./layout";
+import {
+  CAMERA_PRESETS,
+  CHAIR_POSITION,
+  DESK_ROTATION,
+  MEMORY_PLACEMENTS,
+  REFERENCE_ROOM_LAYOUT,
+  ROOM_BOUNDS,
+  ROOM_COLLIDERS,
+  ROOM_DOOR_POSITION,
+  ROOM_DOOR_ROTATION,
+  ROOM_SHELL_BOUNDS,
+  ROOM_SHELL_CENTER,
+} from "./layout";
+
+const PLAYER_RADIUS = 0.38;
+const REACHABILITY_STEP = 0.05;
+
+function isWalkable(x: number, z: number) {
+  return ROOM_COLLIDERS.every((box) => {
+    const closestX = Math.max(box.minX, Math.min(x, box.maxX));
+    const closestZ = Math.max(box.minZ, Math.min(z, box.maxZ));
+    return (x - closestX) ** 2 + (z - closestZ) ** 2 >= PLAYER_RADIUS ** 2;
+  });
+}
+
+function hasReachableInteractionPoint(id: (typeof MEMORY_IDS)[number]) {
+  const placement = MEMORY_PLACEMENTS[id];
+  for (
+    let x = ROOM_BOUNDS.minX + PLAYER_RADIUS;
+    x <= ROOM_BOUNDS.maxX - PLAYER_RADIUS;
+    x += REACHABILITY_STEP
+  ) {
+    for (
+      let z = ROOM_BOUNDS.minZ + PLAYER_RADIUS;
+      z <= ROOM_BOUNDS.maxZ - PLAYER_RADIUS;
+      z += REACHABILITY_STEP
+    ) {
+      if (!isWalkable(x, z)) continue;
+      if (
+        Math.hypot(x - placement.position[0], z - placement.position[2]) <=
+        placement.interactionRadius
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 describe("memory-room layout", () => {
   it("places every memory exactly once and gives it a camera preset", () => {
@@ -17,5 +64,64 @@ describe("memory-room layout", () => {
       expect(bounds.minX).toBeLessThan(bounds.maxX);
       expect(bounds.minZ).toBeLessThan(bounds.maxZ);
     }
+  });
+
+  it("uses the reference camera with the short wall on the left", () => {
+    expect(CAMERA_PRESETS.room.position[0]).toBeGreaterThan(0);
+    expect(CAMERA_PRESETS.room.position[0]).toBeGreaterThan(13);
+    expect(CAMERA_PRESETS.room.target).toEqual([0.8, 1.2, 1.2]);
+  });
+
+  it("makes the window wall longer than the left side wall", () => {
+    const backWallLength = ROOM_SHELL_BOUNDS.maxX - ROOM_SHELL_BOUNDS.minX;
+    const sideWallLength = ROOM_SHELL_BOUNDS.maxZ - ROOM_SHELL_BOUNDS.minZ;
+
+    expect(backWallLength).toBeGreaterThan(sideWallLength);
+    expect(ROOM_BOUNDS.maxX).toBeLessThan(ROOM_SHELL_BOUNDS.maxX);
+    expect(ROOM_BOUNDS.minX).toBeGreaterThan(ROOM_SHELL_BOUNDS.minX);
+    expect(ROOM_BOUNDS.maxZ).toBeLessThan(ROOM_SHELL_BOUNDS.maxZ);
+    expect(ROOM_SHELL_CENTER).toEqual([1, 1.25]);
+  });
+
+  it("places memories on the same room zones as the reference", () => {
+    expect(MEMORY_PLACEMENTS.calendar.position[0]).toBeLessThan(-5.4);
+    expect(MEMORY_PLACEMENTS.calendar.position[2]).toBeGreaterThan(-3);
+    expect(MEMORY_PLACEMENTS.bat.position[0]).toBeLessThan(-5);
+    expect(MEMORY_PLACEMENTS.ball.position[0]).toBeLessThan(-4.8);
+    expect(MEMORY_PLACEMENTS.frame.position[0]).toBeGreaterThan(0);
+    expect(MEMORY_PLACEMENTS.frame.position[2]).toBeLessThan(-2.5);
+    expect(MEMORY_PLACEMENTS.bat.scale).toBeGreaterThanOrEqual(1.5);
+    expect(MEMORY_PLACEMENTS.frame.rotation[1]).toBeCloseTo(-0.3);
+  });
+
+  it("matches the reference diorama shell", () => {
+    expect(REFERENCE_ROOM_LAYOUT.openEdge).toBe("front");
+    expect(REFERENCE_ROOM_LAYOUT.hasVisibleWallDoor).toBe(true);
+    expect(REFERENCE_ROOM_LAYOUT.doorSide).toBe("left");
+    expect(REFERENCE_ROOM_LAYOUT.deskSide).toBe("left");
+    expect(REFERENCE_ROOM_LAYOUT.bedSide).toBe("right");
+    expect(ROOM_DOOR_POSITION[0]).toBeCloseTo(ROOM_SHELL_BOUNDS.minX + 0.14);
+    expect(ROOM_DOOR_POSITION[2]).toBeGreaterThan(5);
+    expect(ROOM_DOOR_ROTATION[1]).toBeCloseTo(Math.PI / 2);
+  });
+
+  it("gives the bed the larger reference footprint", () => {
+    const bed = ROOM_COLLIDERS[1];
+    expect(bed.maxX - bed.minX).toBeGreaterThanOrEqual(3.2);
+    expect(bed.maxZ - bed.minZ).toBeGreaterThanOrEqual(5.4);
+  });
+
+  it("rotates the desk along the left wall and tucks in the chair", () => {
+    const desk = ROOM_COLLIDERS[0];
+    expect(DESK_ROTATION[1]).toBeCloseTo(Math.PI / 2);
+    expect(desk.maxZ - desk.minZ).toBeGreaterThan(desk.maxX - desk.minX);
+    expect(CHAIR_POSITION[0]).toBeGreaterThan(desk.maxX);
+    expect(CHAIR_POSITION[0] - desk.maxX).toBeLessThan(0.7);
+    expect(CHAIR_POSITION[2]).toBeGreaterThan(desk.minZ);
+    expect(CHAIR_POSITION[2]).toBeLessThan(desk.maxZ);
+  });
+
+  it("keeps every memory reachable without entering furniture", () => {
+    expect(MEMORY_IDS.filter((id) => !hasReachableInteractionPoint(id))).toEqual([]);
   });
 });

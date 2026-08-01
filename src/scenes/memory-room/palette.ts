@@ -9,6 +9,7 @@ export interface RoomPalette {
   deep: string;
   dusk: string;
   navy: string;
+  olive: string;
 }
 
 const TOKEN_BY_KEY = {
@@ -22,6 +23,7 @@ const TOKEN_BY_KEY = {
   deep: "--color-scene-deep",
   dusk: "--color-scene-dusk",
   navy: "--color-scene-navy",
+  olive: "--color-scene-olive",
 } as const;
 
 export function resolveRoomPalette(): RoomPalette {
@@ -40,5 +42,6 @@ export function resolveRoomPalette(): RoomPalette {
     deep: read(TOKEN_BY_KEY.deep),
     dusk: read(TOKEN_BY_KEY.dusk),
     navy: read(TOKEN_BY_KEY.navy),
+    olive: read(TOKEN_BY_KEY.olive),
   };
 }

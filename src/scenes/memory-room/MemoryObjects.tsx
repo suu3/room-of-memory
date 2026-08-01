@@ -1,4 +1,4 @@
-import { useGLTF } from "@react-three/drei";
+import { Edges, useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import {
   Component,
@@ -9,18 +9,54 @@ import {
   useLayoutEffect,
   useMemo,
 } from "react";
-import type { Material, Mesh } from "three";
+import { AdditiveBlending, Color, type Material, type Mesh } from "three";
 import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { ASSETS } from "@/lib/assets";
 import { hotspotStatus, useMemoryRoomStore } from "@/store/memory-room";
 import { MEMORY_PLACEMENTS } from "./layout";
 import type { RoomPalette } from "./palette";
+import { shouldHighlightMemory } from "./visual-state";
 
 const MODEL_PATHS = {
   bat: ASSETS.models.baseballBat,
   ball: ASSETS.models.baseball,
   frame: ASSETS.models.photoFrame,
 } as const satisfies Partial<Record<MemoryId, string>>;
+
+const HIGHLIGHT_BOUNDS = {
+  bat: [0.42, 1.25, 0.42],
+  window: [2.68, 2.22, 0.16],
+  frame: [1.22, 0.72, 0.88],
+  radio: [1.08, 0.95, 0.58],
+  phone: [0.66, 0.92, 0.34],
+  calendar: [0.98, 1.16, 0.14],
+  ball: [2.18, 2.18, 2.18],
+} as const satisfies Record<MemoryId, readonly [number, number, number]>;
+
+const GLOW_VERTEX_SHADER = `
+  varying vec3 vNormal;
+  varying vec3 vViewDirection;
+
+  void main() {
+    vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+    vNormal = normalize(normalMatrix * normal);
+    vViewDirection = normalize(-viewPosition.xyz);
+    gl_Position = projectionMatrix * viewPosition;
+  }
+`;
+
+const GLOW_FRAGMENT_SHADER = `
+  uniform vec3 glowColor;
+  varying vec3 vNormal;
+  varying vec3 vViewDirection;
+
+  void main() {
+    float facing = max(dot(normalize(vNormal), normalize(vViewDirection)), 0.0);
+    float rim = pow(1.0 - facing, 2.2);
+    float softGlow = smoothstep(0.05, 1.0, rim);
+    gl_FragColor = vec4(glowColor, softGlow * 0.5);
+  }
+`;
 
 for (const path of Object.values(MODEL_PATHS)) {
   // Drei enables Meshopt by default; passing `true` keeps that decoder requirement explicit.
@@ -146,6 +182,22 @@ function Frame({ palette, opacity }: VisualProps) {
         <meshStandardMaterial color={palette.paper} roughness={0.9} opacity={opacity} transparent />
       </mesh>
     </group>
+  );
+}
+
+function FramePhotoFace({ palette, opacity }: VisualProps) {
+  return (
+    <mesh position={[-0.56, 0.38, 0.47]}>
+      <planeGeometry args={[0.94, 0.46]} />
+      <meshStandardMaterial
+        color={palette.paper}
+        emissive={palette.paper}
+        emissiveIntensity={0.08}
+        roughness={0.82}
+        opacity={opacity}
+        transparent
+      />
+    </mesh>
   );
 }
 
@@ -275,23 +327,55 @@ function MemoryVisual({ id, palette, opacity }: VisualProps & { id: MemoryId }) 
   const fallback = <PrimitiveVisual id={id} palette={palette} opacity={opacity} />;
   const modelPath = MODEL_PATHS[id as keyof typeof MODEL_PATHS];
   return modelPath ? (
-    <GlbMemoryModel path={modelPath} fallback={fallback} opacity={opacity} />
+    <group>
+      <GlbMemoryModel path={modelPath} fallback={fallback} opacity={opacity} />
+      {id === "frame" ? <FramePhotoFace palette={palette} opacity={opacity} /> : null}
+    </group>
   ) : (
     fallback
   );
 }
 
+function ActiveBorder({ id, color }: { id: MemoryId; color: string }) {
+  const uniforms = useMemo(
+    () => ({
+      glowColor: { value: new Color(color) },
+    }),
+    [color],
+  );
+
+  return (
+    <mesh scale={1.08}>
+      <boxGeometry args={HIGHLIGHT_BOUNDS[id]} />
+      <shaderMaterial
+        uniforms={uniforms}
+        vertexShader={GLOW_VERTEX_SHADER}
+        fragmentShader={GLOW_FRAGMENT_SHADER}
+        transparent
+        depthWrite={false}
+        toneMapped={false}
+        blending={AdditiveBlending}
+      />
+      <Edges scale={1.01} color={color} lineWidth={1.6} transparent opacity={0.95} />
+      <Edges scale={1.075} color={color} lineWidth={2.2} transparent opacity={0.32} />
+      <Edges scale={1.15} color={color} lineWidth={2.8} transparent opacity={0.1} />
+    </mesh>
+  );
+}
+
 function StatusEffect({
   status,
+  highlighted,
   palette,
   interactionRadius,
 }: {
   status: ReturnType<typeof hotspotStatus>;
+  highlighted: boolean;
   palette: RoomPalette;
   interactionRadius: number;
 }) {
-  if (status === "available") {
-    return <pointLight color={palette.memory} intensity={1.15} distance={2.4} decay={2} />;
+  if (status === "available" && highlighted) {
+    return <pointLight color={palette.memory} intensity={3.2} distance={3.4} decay={2} />;
   }
   if (status === "done") {
     return (
@@ -313,15 +397,18 @@ function StatusEffect({
 function InteractiveMemory({
   id,
   palette,
+  nearbyMemoryId,
   onInteract,
 }: {
   id: MemoryId;
   palette: RoomPalette;
+  nearbyMemoryId: MemoryId | null;
   onInteract: (id: MemoryId) => void;
 }) {
   const status = useMemoryRoomStore((state) => hotspotStatus(state, id));
   const placement = MEMORY_PLACEMENTS[id];
   const opacity = status === "locked" ? 0.45 : 1;
+  const highlighted = shouldHighlightMemory(status, id, nearbyMemoryId);
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: R3F group is a Canvas pointer target, not a DOM element.
@@ -335,9 +422,11 @@ function InteractiveMemory({
     >
       <group rotation={placement.rotation} scale={placement.scale}>
         <MemoryVisual id={id} palette={palette} opacity={opacity} />
+        {highlighted ? <ActiveBorder id={id} color={palette.memory} /> : null}
       </group>
       <StatusEffect
         status={status}
+        highlighted={highlighted}
         palette={palette}
         interactionRadius={placement.interactionRadius}
       />
@@ -351,9 +440,11 @@ function InteractiveMemory({
 
 export function MemoryObjects({
   palette,
+  nearbyMemoryId,
   onInteract,
 }: {
   palette: RoomPalette;
+  nearbyMemoryId: MemoryId | null;
   onInteract: (id: MemoryId) => void;
 }) {
   return (
@@ -363,6 +454,7 @@ export function MemoryObjects({
           key={memory.id}
           id={memory.id}
           palette={palette}
+          nearbyMemoryId={nearbyMemoryId}
           onInteract={onInteract}
         />
       ))}

@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 
 import { describe, expect, it } from "vitest";
-import { captureMovementKeyDown } from "./player-input";
+import { captureMovementKeyDown, resolveMovementInput } from "./player-input";
 
 function createMovementKey(code: string, repeat = false) {
   return new KeyboardEvent("keydown", {
@@ -31,5 +31,20 @@ describe("Player keyboard capture", () => {
     expect(captureMovementKeyDown(locked, keys, true)).toBe(false);
     expect(locked.defaultPrevented).toBe(false);
     expect(keys.size).toBe(0);
+  });
+
+  it("combines keyboard and joystick axes without exceeding unit speed", () => {
+    const target = { horizontal: 0, vertical: 0 };
+
+    resolveMovementInput(new Set(), { horizontal: 0.75, vertical: 0 }, target);
+    expect(target).toEqual({ horizontal: 0.75, vertical: 0 });
+
+    resolveMovementInput(
+      new Set(["ArrowRight", "ArrowUp"]),
+      { horizontal: 0.5, vertical: 0 },
+      target,
+    );
+    expect(Math.hypot(target.horizontal, target.vertical)).toBeCloseTo(1);
+    expect(target.horizontal).toBeGreaterThan(target.vertical);
   });
 });

@@ -22,6 +22,24 @@ interface WebGLProbeCanvas {
 
 type WebGLProbeCanvasFactory = () => WebGLProbeCanvas;
 
+const ROOM_REFERENCE_WIDTH = 22.5;
+const ROOM_REFERENCE_HEIGHT = 14.0625;
+const MIN_ROOM_ZOOM = 18;
+const MAX_ROOM_ZOOM = 68;
+
+export function roomZoomForViewport(width: number, height: number): number {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    return 64;
+  }
+
+  const widthLimitedZoom = width / ROOM_REFERENCE_WIDTH;
+  const heightLimitedZoom = height / ROOM_REFERENCE_HEIGHT;
+  return Math.min(
+    MAX_ROOM_ZOOM,
+    Math.max(MIN_ROOM_ZOOM, Math.min(widthLimitedZoom, heightLimitedZoom)),
+  );
+}
+
 function createBrowserProbeCanvas(): WebGLProbeCanvas {
   return document.createElement("canvas") as unknown as WebGLProbeCanvas;
 }
@@ -49,8 +67,17 @@ export function dispatchMemoryInteraction(
   state: MemoryRoomState,
   id: MemoryId,
   dispatch: (id: MemoryId) => void,
+  curtain?: {
+    curtainsOpen: boolean;
+    openCurtains: () => void;
+  },
 ): boolean {
   if (selectSceneInputLocked(state) || hotspotStatus(state, id) !== "available") return false;
+
+  if (id === "window" && curtain && !curtain.curtainsOpen) {
+    curtain.openCurtains();
+    return true;
+  }
 
   dispatch(id);
   return true;

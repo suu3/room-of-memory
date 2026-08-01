@@ -13,6 +13,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { Vector3 } from "three";
+import { MovementJoystick } from "@/components/ui/MovementJoystick";
 import { RoomInteractionPrompt } from "@/components/ui/RoomInteractionPrompt";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
@@ -24,10 +25,12 @@ import {
   selectSceneInputLocked,
   useMemoryRoomStore,
 } from "@/store/memory-room";
+import type { MovementAxes } from "@/types/movement";
 import {
   canInitializeWebGL,
   dispatchMemoryInteraction,
   handleRoomInteractionKeyDown,
+  roomZoomForViewport,
 } from "./room-canvas-runtime";
 
 const PROXIMITY_POLL_MS = 100;
@@ -75,6 +78,7 @@ export function RoomCanvas() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
   const playerPositionRef = useRef(new Vector3(0, 0.45, 2.35));
+  const movementInputRef = useRef<MovementAxes>({ horizontal: 0, vertical: 0 });
   const nearbyMemoryIdRef = useRef<MemoryId | null>(null);
   const directFocusTimer = useRef<number | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
@@ -82,10 +86,15 @@ export function RoomCanvas() {
   const [webGLFailed, setWebGLFailed] = useState(() => !canInitializeWebGL());
   const [nearbyMemoryId, setNearbyMemoryId] = useState<MemoryId | null>(null);
   const [focusMemoryId, setFocusMemoryId] = useState<MemoryId | null>(null);
+  const [roomZoom, setRoomZoom] = useState(64);
+  const [curtainsOpenedAtRevision, setCurtainsOpenedAtRevision] = useState<number | null>(null);
   const activeInteraction = useMemoryRoomStore(selectActiveInteraction);
+  const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const beginInteraction = useMemoryRoomStore((state) => state.beginInteraction);
+  const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
+  const curtainsOpen = curtainsOpenedAtRevision === resetRevision;
 
   const handleWebGLFailure = useCallback((event: Event) => {
     if (event.cancelable) event.preventDefault();
@@ -136,18 +145,26 @@ export function RoomCanvas() {
 
   const interact = useCallback(
     (id: MemoryId) =>
-      dispatchMemoryInteraction(useMemoryRoomStore.getState(), id, () => {
-        setFocusMemoryId(id);
-        beginInteraction(id);
-        clearDirectFocusTimer();
-        if (useMemoryRoomStore.getState().activeInteraction === null) {
-          directFocusTimer.current = window.setTimeout(
-            () => setFocusMemoryId(null),
-            DIRECT_FOCUS_MS,
-          );
-        }
-      }),
-    [beginInteraction, clearDirectFocusTimer],
+      dispatchMemoryInteraction(
+        useMemoryRoomStore.getState(),
+        id,
+        () => {
+          setFocusMemoryId(id);
+          beginInteraction(id);
+          clearDirectFocusTimer();
+          if (useMemoryRoomStore.getState().activeInteraction === null) {
+            directFocusTimer.current = window.setTimeout(
+              () => setFocusMemoryId(null),
+              DIRECT_FOCUS_MS,
+            );
+          }
+        },
+        {
+          curtainsOpen,
+          openCurtains: () => setCurtainsOpenedAtRevision(resetRevision),
+        },
+      ),
+    [beginInteraction, clearDirectFocusTimer, curtainsOpen, resetRevision],
   );
 
   useEffect(() => {
@@ -161,6 +178,25 @@ export function RoomCanvas() {
   }, [activeInteraction, clearDirectFocusTimer]);
 
   useEffect(() => clearDirectFocusTimer, [clearDirectFocusTimer]);
+
+  useEffect(() => {
+    let animationFrame: number | null = null;
+    const applyViewportZoom = () => {
+      animationFrame = null;
+      setRoomZoom(roomZoomForViewport(window.innerWidth, window.innerHeight));
+    };
+    const handleResize = () => {
+      if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(applyViewportZoom);
+    };
+
+    applyViewportZoom();
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
+    };
+  }, []);
 
   useEffect(() => {
     const updateNearbyMemory = () => {
@@ -212,7 +248,7 @@ export function RoomCanvas() {
             dpr={[1, 1.5]}
             camera={{
               position: [...CAMERA_PRESETS.room.position],
-              zoom: 72,
+              zoom: roomZoom,
               near: 0.1,
               far: 60,
             }}
@@ -220,7 +256,11 @@ export function RoomCanvas() {
           >
             <MemoryRoomScene
               playerPositionRef={playerPositionRef}
+              movementInputRef={movementInputRef}
               focusMemoryId={focusMemoryId}
+              nearbyMemoryId={nearbyMemoryId}
+              curtainsOpen={curtainsOpen}
+              roomZoom={roomZoom}
               onInteract={interact}
             />
           </Canvas>
@@ -233,6 +273,11 @@ export function RoomCanvas() {
         labels={labels}
         availableIds={availableIds}
         onInteract={interact}
+      />
+      <MovementJoystick
+        inputRef={movementInputRef}
+        disabled={inputLocked}
+        label={t("scene.moveHint")}
       />
     </div>
   );

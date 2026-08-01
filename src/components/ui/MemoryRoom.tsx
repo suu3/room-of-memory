@@ -27,27 +27,6 @@ const RoomCanvas = dynamic(
   },
 );
 
-const DOOR_VARIANTS = [
-  {
-    wrap: "opacity-35",
-    frame: "border-bone/25 bg-scene-deep/60",
-    knob: "bg-bone/25",
-    chip: "border-bone/25 bg-scene-deep/60 text-bone/40",
-  },
-  {
-    wrap: "opacity-60",
-    frame: "border-bone/35 bg-scene-navy/60",
-    knob: "bg-bone/35",
-    chip: "border-bone/35 bg-scene-navy/70 text-bone/60",
-  },
-  {
-    wrap: "opacity-100",
-    frame: "border-memory bg-memory/15 shadow-door-glow",
-    knob: "bg-memory",
-    chip: "border-memory bg-memory text-scene-navy",
-  },
-];
-
 export function MemoryRoom() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
@@ -56,8 +35,6 @@ export function MemoryRoom() {
   const stageIndex = stageIndexFromCount(count);
   const stage = ROOM_STAGES[stageIndex];
   const isEndingReady = useMemoryRoomStore(selectEndingReady);
-  const doorIndex = isEndingReady ? 2 : Math.min(stageIndex, 1);
-  const door = DOOR_VARIANTS[doorIndex];
   const monologue = useTypewriter(tRoom(`stages.${stage.id}.monologue`));
 
   return (
@@ -66,23 +43,16 @@ export function MemoryRoom() {
       <RoomCanvas />
 
       {/* 문 — 기억을 모두 모으면 열린다. 아직 장식 요소라 핫스팟 클릭을 가로채지 않게 한다 */}
-      <div
-        className={`pointer-events-none absolute bottom-[16%] left-[4.5%] z-10 flex flex-col items-center gap-2.5 transition-all duration-1000 ${door.wrap}`}
-      >
-        <div
-          className={`relative h-40 w-18 rounded-t-sm border-2 transition-colors duration-1000 ${door.frame}`}
-        >
-          <span
-            aria-hidden
-            className={`absolute right-2 top-18 size-2 rounded-full ${door.knob}`}
-          />
+      {isEndingReady ? (
+        <div className="pointer-events-none absolute bottom-[16%] left-[4.5%] z-10 flex flex-col items-center gap-2.5 opacity-100 transition-all duration-1000">
+          <div className="relative h-40 w-18 rounded-t-sm border-2 border-memory bg-memory/15 shadow-door-glow transition-colors duration-1000">
+            <span aria-hidden className="absolute right-2 top-18 size-2 rounded-full bg-memory" />
+          </div>
+          <span className="rounded-full border border-memory bg-memory px-3 py-1 text-xs font-bold tracking-widest text-scene-navy transition-colors duration-1000">
+            {t("door.exit")}
+          </span>
         </div>
-        <span
-          className={`rounded-full border px-3 py-1 text-xs font-bold tracking-widest transition-colors duration-1000 ${door.chip}`}
-        >
-          {isEndingReady ? t("door.exit") : t("door.locked")}
-        </span>
-      </div>
+      ) : null}
 
       {/* 비네트 + 필름 그레인 */}
       <div
