@@ -24,11 +24,14 @@ import {
   selectSceneInputLocked,
   useMemoryRoomStore,
 } from "@/store/memory-room";
+import {
+  canInitializeWebGL,
+  dispatchMemoryInteraction,
+  handleRoomInteractionKeyDown,
+} from "./room-canvas-runtime";
 
 const PROXIMITY_POLL_MS = 100;
 const DIRECT_FOCUS_MS = 900;
-const INTERACTIVE_TARGET_SELECTOR =
-  "button, a, input, select, textarea, summary, [contenteditable]:not([contenteditable='false']), [role='button'], [role='link']";
 const MEMORY_TARGETS = Object.values(MEMORY_PLACEMENTS);
 
 interface CanvasErrorBoundaryProps {
@@ -38,6 +41,14 @@ interface CanvasErrorBoundaryProps {
 
 interface CanvasErrorBoundaryState {
   hasError: boolean;
+}
+
+function WebGLFallback({ children }: { children: ReactNode }) {
+  return (
+    <div className="absolute inset-0 grid place-items-center px-4 text-center text-xs text-fog">
+      {children}
+    </div>
+  );
 }
 
 class CanvasErrorBoundary extends Component<CanvasErrorBoundaryProps, CanvasErrorBoundaryState> {
@@ -53,19 +64,11 @@ class CanvasErrorBoundary extends Component<CanvasErrorBoundaryProps, CanvasErro
 
   render() {
     if (this.state.hasError) {
-      return (
-        <div className="absolute inset-0 grid place-items-center px-4 text-center text-xs text-fog">
-          {this.props.fallbackText}
-        </div>
-      );
+      return <WebGLFallback>{this.props.fallbackText}</WebGLFallback>;
     }
 
     return this.props.children;
   }
-}
-
-function isInteractiveTarget(target: EventTarget | null): boolean {
-  return target instanceof Element && target.closest(INTERACTIVE_TARGET_SELECTOR) !== null;
 }
 
 export function RoomCanvas() {
@@ -74,13 +77,38 @@ export function RoomCanvas() {
   const playerPositionRef = useRef(new Vector3(0, 0.45, 2.35));
   const nearbyMemoryIdRef = useRef<MemoryId | null>(null);
   const directFocusTimer = useRef<number | null>(null);
+  const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
   const hadActiveInteraction = useRef(false);
+  const [webGLFailed, setWebGLFailed] = useState(() => !canInitializeWebGL());
   const [nearbyMemoryId, setNearbyMemoryId] = useState<MemoryId | null>(null);
   const [focusMemoryId, setFocusMemoryId] = useState<MemoryId | null>(null);
   const activeInteraction = useMemoryRoomStore(selectActiveInteraction);
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const beginInteraction = useMemoryRoomStore((state) => state.beginInteraction);
+
+  const handleWebGLFailure = useCallback((event: Event) => {
+    if (event.cancelable) event.preventDefault();
+    setWebGLFailed(true);
+  }, []);
+
+  const attachCanvasRef = useCallback(
+    (canvas: HTMLCanvasElement | null) => {
+      const previousCanvas = canvasElementRef.current;
+      if (previousCanvas === canvas) return;
+      if (previousCanvas) {
+        previousCanvas.removeEventListener("webglcontextcreationerror", handleWebGLFailure);
+        previousCanvas.removeEventListener("webglcontextlost", handleWebGLFailure);
+      }
+
+      canvasElementRef.current = canvas;
+      if (canvas) {
+        canvas.addEventListener("webglcontextcreationerror", handleWebGLFailure);
+        canvas.addEventListener("webglcontextlost", handleWebGLFailure);
+      }
+    },
+    [handleWebGLFailure],
+  );
 
   const labels = useMemo<Record<MemoryId, string>>(
     () => ({
@@ -107,17 +135,18 @@ export function RoomCanvas() {
   }, []);
 
   const interact = useCallback(
-    (id: MemoryId) => {
-      const state = useMemoryRoomStore.getState();
-      if (selectSceneInputLocked(state) || hotspotStatus(state, id) !== "available") return;
-
-      setFocusMemoryId(id);
-      beginInteraction(id);
-      clearDirectFocusTimer();
-      if (useMemoryRoomStore.getState().activeInteraction === null) {
-        directFocusTimer.current = window.setTimeout(() => setFocusMemoryId(null), DIRECT_FOCUS_MS);
-      }
-    },
+    (id: MemoryId) =>
+      dispatchMemoryInteraction(useMemoryRoomStore.getState(), id, () => {
+        setFocusMemoryId(id);
+        beginInteraction(id);
+        clearDirectFocusTimer();
+        if (useMemoryRoomStore.getState().activeInteraction === null) {
+          directFocusTimer.current = window.setTimeout(
+            () => setFocusMemoryId(null),
+            DIRECT_FOCUS_MS,
+          );
+        }
+      }),
     [beginInteraction, clearDirectFocusTimer],
   );
 
@@ -154,19 +183,11 @@ export function RoomCanvas() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code !== "KeyE" && event.key !== "Enter") return;
-      if (
-        event.repeat ||
-        isInteractiveTarget(event.target) ||
-        selectSceneInputLocked(useMemoryRoomStore.getState())
-      ) {
-        return;
-      }
-
-      const id = nearbyMemoryIdRef.current;
-      if (!id) return;
-      event.preventDefault();
-      interact(id);
+      handleRoomInteractionKeyDown(event, {
+        nearbyMemoryId: nearbyMemoryIdRef.current,
+        inputLocked: selectSceneInputLocked(useMemoryRoomStore.getState()),
+        interact,
+      });
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -179,27 +200,32 @@ export function RoomCanvas() {
 
   return (
     <div className="absolute inset-0">
-      <CanvasErrorBoundary fallbackText={t("scene.webglFallback")}>
-        <Canvas
-          className="absolute inset-0 z-0"
-          orthographic
-          shadows
-          dpr={[1, 1.5]}
-          camera={{
-            position: [...CAMERA_PRESETS.room.position],
-            zoom: 72,
-            near: 0.1,
-            far: 60,
-          }}
-          gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-        >
-          <MemoryRoomScene
-            playerPositionRef={playerPositionRef}
-            focusMemoryId={focusMemoryId}
-            onInteract={interact}
-          />
-        </Canvas>
-      </CanvasErrorBoundary>
+      {webGLFailed ? (
+        <WebGLFallback>{t("scene.webglFallback")}</WebGLFallback>
+      ) : (
+        <CanvasErrorBoundary fallbackText={t("scene.webglFallback")}>
+          <Canvas
+            ref={attachCanvasRef}
+            className="absolute inset-0 z-0"
+            orthographic
+            shadows
+            dpr={[1, 1.5]}
+            camera={{
+              position: [...CAMERA_PRESETS.room.position],
+              zoom: 72,
+              near: 0.1,
+              far: 60,
+            }}
+            gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
+          >
+            <MemoryRoomScene
+              playerPositionRef={playerPositionRef}
+              focusMemoryId={focusMemoryId}
+              onInteract={interact}
+            />
+          </Canvas>
+        </CanvasErrorBoundary>
+      )}
 
       <RoomInteractionPrompt
         nearbyMemoryId={nearbyMemoryId}
