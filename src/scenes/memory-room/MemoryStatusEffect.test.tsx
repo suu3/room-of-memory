@@ -1,4 +1,5 @@
 import ReactThreeTestRenderer from "@react-three/test-renderer";
+import type { Mesh } from "three";
 import { describe, expect, it } from "vitest";
 import { MemoryStatusEffect } from "./MemoryStatusEffect";
 
@@ -20,7 +21,8 @@ describe("memory status effect", () => {
     );
 
     expect(renderer.scene.findAllByType("Mesh")).toHaveLength(1);
-    expect(renderer.scene.findAllByType("Mesh")[0]?.instance.geometry.type).toBe("TorusGeometry");
+    const completedRing = renderer.scene.findAllByType("Mesh")[0]?.instance as Mesh | undefined;
+    expect(completedRing?.geometry.type).toBe("TorusGeometry");
     await renderer.unmount();
   });
 });
