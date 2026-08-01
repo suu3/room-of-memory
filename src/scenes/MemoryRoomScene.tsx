@@ -14,6 +14,7 @@ import { selectCollected, selectEndingReady, useMemoryRoomStore } from "@/store/
 import type { MovementAxes } from "@/types/movement";
 import { CameraRig } from "./memory-room/CameraRig";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
+import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
 import { Player } from "./memory-room/Player";
 import { resolveRoomPalette } from "./memory-room/palette";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
@@ -129,7 +130,9 @@ export function MemoryRoomScene({
         curtainsOpen={curtainsOpen}
         onCurtainInteract={() => onInteract("window")}
       />
-      <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
+      <MemoryGlowRoot color={palette.memory}>
+        <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
+      </MemoryGlowRoot>
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
       <CameraRig focusMemoryId={focusMemoryId} roomZoom={roomZoom} />
     </>
