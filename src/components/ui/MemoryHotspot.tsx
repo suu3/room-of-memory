@@ -29,7 +29,6 @@ export function MemoryHotspot({ memory }: { memory: MemoryItem }) {
       disabled={status !== "available" || inputLocked}
       aria-label={ariaLabel}
       className="group absolute flex -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center gap-2 transition-opacity duration-500 disabled:cursor-default disabled:opacity-35"
-      style={{ left: memory.x, top: memory.y }}
     >
       <span
         aria-hidden

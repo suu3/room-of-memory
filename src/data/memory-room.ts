@@ -14,9 +14,6 @@ export type MemoryId = (typeof MEMORY_IDS)[number];
 
 export interface MemoryItem {
   id: MemoryId;
-  /** 씬 프레임 기준 핫스팟 위치 (%) */
-  x: string;
-  y: string;
   /** 수집 패널에 표시할 아이콘 (Phosphor 또는 호환 커스텀) */
   icon: MemoryIcon;
   /** Phase 1: 최초 수집 클릭. 모든 아이템 필수. */
@@ -28,52 +25,38 @@ export interface MemoryItem {
 export const MEMORIES: MemoryItem[] = [
   {
     id: "bat",
-    x: "13%",
-    y: "72%",
     icon: BatIcon,
     phase1: { interaction: { scriptId: "bat-intro" } },
     phase2: { interaction: { scriptId: "bat-echo" } },
   },
   {
     id: "window",
-    x: "80%",
-    y: "30%",
     icon: GridFour,
     phase1: {},
   },
   {
     id: "frame",
-    x: "34%",
-    y: "32%",
     icon: ImageSquare,
     phase1: { interaction: { minigameId: "photo-wipe" } },
   },
   {
     id: "radio",
-    x: "64%",
-    y: "58%",
     icon: Radio,
     phase1: { interaction: { minigameId: "frequency-tune" } },
     phase2: { interaction: { scriptId: "radio-echo" }, unlockAfter: ["bat"] },
   },
   {
     id: "phone",
-    x: "44%",
-    y: "69%",
     icon: DeviceMobile,
     phase1: {},
   },
   {
     id: "calendar",
-    x: "55%",
-    y: "22%",
     icon: CalendarHeart,
     phase1: { unlockAfter: ["phone"] },
   },
   {
     id: "ball",
-    x: "28%",
-    y: "58%",
     icon: Baseball,
     phase1: { interaction: { scriptId: "ball-intro", minigameId: "ball-catch" } },
   },
