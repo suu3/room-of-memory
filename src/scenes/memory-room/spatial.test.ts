@@ -24,6 +24,15 @@ describe("moveCircle", () => {
       z: 0.4,
     });
   });
+
+  it("writes into a reusable output object for allocation-free frame loops", () => {
+    const output = { x: 0, z: 0 };
+
+    const result = moveCircle({ x: 0, z: 0 }, { x: -0.6, z: 0.4 }, 0.2, room, [], output);
+
+    expect(result).toBe(output);
+    expect(output).toEqual({ x: -0.6, z: 0.4 });
+  });
 });
 
 describe("findNearestMemory", () => {

@@ -12,10 +12,22 @@ export interface ProximityTarget {
   interactionRadius: number;
 }
 
-function intersects(center: Vec2, radius: number, box: Aabb2): boolean {
-  const closestX = Math.max(box.minX, Math.min(center.x, box.maxX));
-  const closestZ = Math.max(box.minZ, Math.min(center.z, box.maxZ));
-  return (center.x - closestX) ** 2 + (center.z - closestZ) ** 2 < radius ** 2;
+function intersects(x: number, z: number, radius: number, box: Aabb2): boolean {
+  const closestX = Math.max(box.minX, Math.min(x, box.maxX));
+  const closestZ = Math.max(box.minZ, Math.min(z, box.maxZ));
+  return (x - closestX) ** 2 + (z - closestZ) ** 2 < radius ** 2;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(value, max));
+}
+
+function collides(x: number, z: number, radius: number, obstacles: readonly Aabb2[]): boolean {
+  for (let index = 0; index < obstacles.length; index += 1) {
+    const box = obstacles[index];
+    if (intersects(x, z, radius, box)) return true;
+  }
+  return false;
 }
 
 export function normalizeMovement(input: Vec2): Vec2 {
@@ -33,18 +45,16 @@ export function moveCircle(
   radius: number,
   bounds: Aabb2,
   obstacles: readonly Aabb2[],
+  output?: Vec2,
 ): Vec2 {
-  const clamped = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
-  const nextX = {
-    x: clamped(origin.x + delta.x, bounds.minX + radius, bounds.maxX - radius),
-    z: origin.z,
-  };
-  const afterX = obstacles.some((box) => intersects(nextX, radius, box)) ? origin : nextX;
-  const nextZ = {
-    x: afterX.x,
-    z: clamped(origin.z + delta.z, bounds.minZ + radius, bounds.maxZ - radius),
-  };
-  return obstacles.some((box) => intersects(nextZ, radius, box)) ? afterX : nextZ;
+  const nextX = clamp(origin.x + delta.x, bounds.minX + radius, bounds.maxX - radius);
+  const afterX = collides(nextX, origin.z, radius, obstacles) ? origin.x : nextX;
+  const nextZ = clamp(origin.z + delta.z, bounds.minZ + radius, bounds.maxZ - radius);
+  const afterZ = collides(afterX, nextZ, radius, obstacles) ? origin.z : nextZ;
+  const result = output ?? { x: 0, z: 0 };
+  result.x = afterX;
+  result.z = afterZ;
+  return result;
 }
 
 export function findNearestMemory(
