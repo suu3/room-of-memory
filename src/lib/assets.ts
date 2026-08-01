@@ -1,5 +1,10 @@
 /** 에셋 경로 상수 — 코드 곳곳에 경로 문자열을 산재시키지 않는다 (.claude/rules/assets.md). */
 export const ASSETS = {
+  models: {
+    baseballBat: "/assets/models/ch1-baseball-bat.glb",
+    baseball: "/assets/models/ch1-baseball.glb",
+    photoFrame: "/assets/models/ch1-photo-frame.glb",
+  },
   images: {
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp",
