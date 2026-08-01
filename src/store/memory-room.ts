@@ -5,6 +5,7 @@ import type { MinigameResult } from "@/types/minigame";
 export type GamePhase = 1 | 2;
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
+export type UiLockId = "hud-menu" | "memory-panel";
 
 export interface ActiveInteraction {
   memoryId: MemoryId;
@@ -21,11 +22,14 @@ interface MemoryRoomState {
   revisited: MemoryId[];
   /** 진행 중인 인터랙션. 활성이면 다른 핫스팟 입력은 잠긴다. */
   activeInteraction: ActiveInteraction | null;
+  /** DOM overlay sources currently blocking scene controls. */
+  uiLocks: UiLockId[];
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   finishMinigame: (result: MinigameResult) => void;
   /** 미니게임을 완료 처리 없이 중단한다 (모달 닫기) — 핫스팟은 다시 클릭 가능. */
   cancelMinigame: () => void;
+  setUiLock: (id: UiLockId, locked: boolean) => void;
   reset: () => void;
 }
 
@@ -77,6 +81,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   collected: [],
   revisited: [],
   activeInteraction: null,
+  uiLocks: [],
   beginInteraction: (id) =>
     set((state) => {
       if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
@@ -119,10 +124,20 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
     set((state) =>
       state.activeInteraction?.phase === "minigame" ? { activeInteraction: null } : state,
     ),
-  reset: () => set({ collected: [], revisited: [], activeInteraction: null }),
+  setUiLock: (id, locked) =>
+    set((state) => {
+      const present = state.uiLocks.includes(id);
+      if (present === locked) return state;
+      return {
+        uiLocks: locked ? [...state.uiLocks, id] : state.uiLocks.filter((lock) => lock !== id),
+      };
+    }),
+  reset: () => set({ collected: [], revisited: [], activeInteraction: null, uiLocks: [] }),
 }));
 
 export const selectCollected = (state: MemoryRoomState) => state.collected;
 export const selectActiveInteraction = (state: MemoryRoomState) => state.activeInteraction;
 export const selectGamePhase = (state: MemoryRoomState) => gamePhaseOf(state);
 export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
+export const selectSceneInputLocked = (state: MemoryRoomState) =>
+  state.activeInteraction !== null || state.uiLocks.length > 0;
