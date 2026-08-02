@@ -366,6 +366,8 @@ export function RoomCanvas() {
 
   return (
     <div ref={containerRef} className="absolute inset-0">
+      {/* 창밖으로 새어나가는 빛 — 캔버스보다 아래라 방을 절대 덮지 않는다 */}
+      <div aria-hidden className="room-backdrop pointer-events-none absolute inset-0" />
       {webGLFailed ? (
         <WebGLFallback>{t("scene.webglFallback")}</WebGLFallback>
       ) : (
@@ -383,7 +385,9 @@ export function RoomCanvas() {
               near: 0.1,
               far: 60,
             }}
-            gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
+            // alpha: true — 캔버스 뒤 DOM 워시가 비쳐야 한다 (창밖 번짐을 3D에 두면
+            // three가 투명 오브젝트를 항상 불투명 뒤에 그려서 벽을 뚫고 덧칠된다)
+            gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
           >
             <MemoryRoomScene
               playerPositionRef={playerPositionRef}
@@ -410,6 +414,7 @@ export function RoomCanvas() {
         inputRef={movementInputRef}
         disabled={inputLocked}
         label={t("scene.moveHint")}
+        caption={t("scene.moveCaption")}
       />
     </div>
   );

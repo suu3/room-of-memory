@@ -1,6 +1,6 @@
 ---
 name: Room of Memory
-version: 0.2.0
+version: 0.3.0
 colors:
   primary: "#B89A5E"
   memory: "#B89A5E"
@@ -60,11 +60,9 @@ components:
     backgroundColor: "{colors.bone}"
     textColor: "{colors.ink}"
     rounded: "{rounded.md}"
-  speaker-chip:
-    backgroundColor: "{colors.ember}"
-    textColor: "{colors.paper}"
+  speaker-label:
+    textColor: "{colors.ink}"
     typography: "{typography.speaker}"
-    rounded: "{rounded.sm}"
   monologue:
     textColor: "{colors.fog}"
     typography: "{typography.monologue}"
@@ -78,7 +76,7 @@ components:
     backgroundColor: "{colors.memory}"
     textColor: "{colors.night}"
   progress-count:
-    textColor: "{colors.ember}"
+    textColor: "{colors.memory}"
     typography: "{typography.ui}"
 ---
 
@@ -86,14 +84,16 @@ components:
 
 Room of Memory는 3D 공간을 돌아다니며 기억의 조각을 마주하는 짧은 비주얼 노벨이다. 좀비 사태로 무너진 세계, 자기 방에 오래 고립된 야구부 고등학생 '도현'의 방이 무대다. 화면의 대부분은 3D 씬이 차지하고, UI는 도현의 수첩에서 뜯어낸 종이 조각처럼 어두운 씬 위에 붙는다(스크랩북 메타포) — 항상 씬이 주인공이다.
 
-UI 패널·칩은 밝은 크림 종이(paper) 바탕에 잉크(ink) 텍스트, 통통한 라운드({rounded.lg}), 두꺼운 bone 테두리(2px)를 기본으로 한다. 스티커처럼 미세하게 기울여 붙이는 것(±1°)을 허용한다 — 손으로 붙인 느낌. 어둡고 무거운 오버레이는 쓰지 않는다: 귀엽고 따뜻한 종이 UI와 쓸쓸한 씬의 대비가 이 게임의 정서다.
+UI 패널은 밝은 크림 종이(paper) 바탕에 잉크(ink) 텍스트, 라운드({rounded.md}~{rounded.lg}), **1px bone 헤어라인**을 기본으로 한다. 분리감은 테두리 두께가 아니라 그림자로 만든다. 어둡고 무거운 오버레이는 쓰지 않는다: 따뜻한 종이 UI와 쓸쓸한 씬의 대비가 이 게임의 정서다.
 
-무드: 따뜻했던 일상이 바랜 느낌. 색 바랜 크림/세피아 톤과 어두운 네이비 그림자, 포인트는 야구공 실밥을 상징하는 레드 스티치 하나만 소량. 종이 질감·필름 그레인·손글씨 디테일. 공포가 아니라 쓸쓸함과 그리움.
+금지: **점선(dashed) 테두리**, **패널 기울이기(rotate/skew)**, **2px 이상 테두리**. 손으로 붙인 스티커 흉내는 화면을 산만하게 만든다 — 정렬된 종이 패널이 기본이다.
+
+무드: 따뜻했던 일상이 바랜 느낌. 색 바랜 크림/세피아 톤과 어두운 네이비 그림자, 포인트는 금빛 하나. 종이 질감·필름 그레인. 공포가 아니라 쓸쓸함과 그리움.
 
 ## Colors
 
 - **primary / memory** — 같은 값(금빛). 이 게임의 시그니처 컬러. 기억(수집 대상), 커튼 틈의 빛, 인터랙션 가능한 대상에만 쓴다. 기억을 모을수록 화면에서 이 색의 비중이 늘어나는 것이 핵심 연출이므로, 장식으로 남용하면 연출이 죽는다.
-- **ember** — 레드 스티치. 화자 칩, 대사창의 스티치 라인, 진행 화살표 등 "도현"의 흔적에만 쓴다. 원 목업 값은 #A85B4E이나, paper 텍스트와의 대비를 WCAG AA(4.5:1)로 맞추기 위해 #9E5244로 조정했다.
+- **ember** — 벽돌빛. **UI 구조(테두리·구분선·버튼·카운트)에는 쓰지 않는다.** 화면 하나에 한 곳 이하로, 3D 씬 소품(액자 사진, 달력 표시 등)의 액센트로만 남긴다. 예외는 **되돌릴 수 없는 동작의 경고**(리셋 확인 등) — 경고에는 경고색이 필요하고, 팔레트에서 그 역할을 할 수 있는 유일한 토큰이다. 버튼·테두리·구분선·카운트에 쓰던 자리는 ink(구조)와 memory(진행)가 대신한다. 원 목업 값은 #A85B4E이나, paper 텍스트와의 대비를 WCAG AA(4.5:1)로 맞추기 위해 #9E5244로 조정했다.
 - **ink** — 종이 패널 위 본문 텍스트(펜 잉크). 옅은 보조 텍스트는 ink의 60~75% 불투명으로.
 - **night** — 페이지 바탕. 순수 검정 대신 이 값으로 3D 씬의 어둠과 톤을 맞춘다.
 - **paper / bone** — 종이 패널 바탕(paper)과 그 테두리·바랜 크림(bone) 쌍. 어두운 씬 위에 직접 얹는 텍스트(혼잣말 등)에도 bone을 쓴다.
@@ -130,7 +130,7 @@ UI 패널·칩은 밝은 크림 종이(paper) 바탕에 잉크(ink) 텍스트, �
 ## Texture
 
 - **필름 그레인** — SVG feTurbulence 노이즈를 `mix-blend-mode: overlay`, opacity 0.13으로 씬 전체에 1장. UI 패널 위에는 얹지 않는다.
-- **레드 스티치** — 2px대 dashed border(ember)를 타이틀 앞, 대사창 모서리 등에 짧게. 야구공 실밥의 인용이므로 길게 두르지 않는다.
+- **헤어라인** — 구분선은 1px 실선(`ink/10`)만 쓴다. 점선은 쓰지 않는다.
 - **비네트** — scene-void 라디얼. 기억을 모을수록 옅어진다 (0.55 → 0.3). 1단계도 "밝았던 방이 바랜" 정도로만 어둡게 — 완전한 암전은 쓰지 않는다.
 
 ## Motion

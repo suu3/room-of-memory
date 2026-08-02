@@ -39,18 +39,18 @@ export function MemoryPanel() {
         open ? "translate-x-0" : "translate-x-76"
       }`}
     >
-      <div className="relative rounded-lg border-2 border-bone bg-paper shadow-panel">
+      <div className="relative rounded-xl border border-bone bg-paper shadow-panel">
         <button
           type="button"
           onClick={() => setOpenedAtResetRevision(open ? null : resetRevision)}
           aria-expanded={open}
           aria-label={open ? t("panel.close") : t("panel.open")}
-          className="absolute -left-9.5 top-1/2 flex h-30 w-9 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-2 rounded-l-lg border-2 border-r-0 border-bone bg-paper"
+          className="absolute -left-9.5 top-1/2 flex h-30 w-9 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-2 rounded-l-lg border border-r-0 border-bone bg-paper"
         >
           <span className="text-xs font-bold tracking-widest text-ink [writing-mode:vertical-rl]">
             {t("panel.title")}
           </span>
-          <span className="grid h-4 min-w-4 place-items-center rounded-full bg-ember px-1 text-xs font-bold text-paper">
+          <span className="grid h-4 min-w-4 place-items-center rounded-full bg-memory px-1 text-xs font-bold text-night">
             {count}
           </span>
         </button>
@@ -62,7 +62,7 @@ export function MemoryPanel() {
               {count} / {MEMORY_GOAL}
             </span>
           </div>
-          <div className="mt-2.5 border-t-2 border-dashed border-ember/40" />
+          <div className="mt-2.5 h-px bg-ink/10" />
         </div>
 
         <ul className="flex flex-col px-3 pb-3">
@@ -71,28 +71,29 @@ export function MemoryPanel() {
             return (
               <li
                 key={memory.id}
-                className={`flex items-center gap-3 border-b border-dashed border-ink/10 px-2 py-2 last:border-b-0 ${
+                className={`flex items-center gap-3 border-b border-ink/8 px-2 py-2 last:border-b-0 ${
                   done ? "" : "opacity-55"
                 }`}
               >
                 <span
                   className={`grid size-11 flex-none place-items-center rounded-md border-2 transition-colors duration-500 ${
                     done
-                      ? "border-memory bg-memory/20 text-ember shadow-slot-glow"
+                      ? "border-memory bg-memory/20 text-memory shadow-slot-glow"
                       : "border-ink/15 bg-bone/40 text-ink/30"
                   }`}
                 >
                   <memory.icon size={22} weight={done ? "duotone" : "regular"} />
                 </span>
-                <span className="flex min-w-0 flex-col">
-                  <span
-                    className={`text-sm font-bold tracking-wide ${done ? "text-ember" : "text-ink/50"}`}
-                  >
-                    {done ? tRoom(`memories.${memory.id}.name`) : t("panel.unknownName")}
-                  </span>
-                  <span className="truncate font-pixel text-xs text-ink/75">
-                    {done ? tRoom(`memories.${memory.id}.summary`) : t("panel.unknownSummary")}
-                  </span>
+                {/*
+                  이름만 — 한 줄 요약은 캐릭터 시트의 "기록"과 하는 말이 겹쳤다.
+                  이 패널은 진행 추적기(몇 개 남았나), 내용물은 기록 탭이 맡는다.
+                */}
+                <span
+                  className={`min-w-0 truncate text-sm font-bold tracking-wide ${
+                    done ? "text-ink" : "text-ink/45"
+                  }`}
+                >
+                  {done ? tRoom(`memories.${memory.id}.name`) : t("panel.unknownName")}
                 </span>
               </li>
             );

@@ -167,6 +167,68 @@ body {
   color: var(--color-bone);
 }
 
+/*
+ * 스크롤바 — 기본은 어두운 씬 위(bone 계열), 종이 패널 안에서는 `.scroll-paper`로
+ * 잉크 계열로 뒤집는다. 색은 변수 하나로만 바꾸므로 규칙은 한 벌이면 된다.
+ */
+:root {
+  --scrollbar-thumb: color-mix(in srgb, var(--color-bone) 26%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--color-bone) 46%, transparent);
+}
+
+.scroll-paper {
+  --scrollbar-thumb: color-mix(in srgb, var(--color-ink) 20%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--color-ink) 38%, transparent);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  /* content-box 클립 — 투명 테두리만큼 안쪽으로 들어가 얇은 알약 모양이 된다 */
+  background-clip: content-box;
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* 캔버스 아래 깔리는 방 바깥 배경 — 창 쪽에서 번지는 빛.
+   3D 스프라이트로 두면 three가 투명 오브젝트를 불투명 뒤에 그려서 벽을 뚫는다. */
+.room-backdrop {
+  background:
+    radial-gradient(
+      78% 62% at 64% 28%,
+      color-mix(in srgb, var(--color-memory) 34%, transparent) 0%,
+      color-mix(in srgb, var(--color-memory) 14%, transparent) 38%,
+      transparent 78%
+    ),
+    radial-gradient(
+      130% 110% at 50% 42%,
+      var(--color-scene-slate) 0%,
+      var(--color-scene-deep) 55%,
+      var(--color-night) 100%
+    );
+}
+
 /* 필름 그레인 오버레이 — DESIGN.md > Texture */
 .film-grain {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.55'/></svg>");

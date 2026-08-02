@@ -9,8 +9,15 @@ import {
   type PointLight,
   type Vector3,
 } from "three";
-import { type MemoryId, stageIndexFromCount } from "@/data/memory-room";
-import { selectCollected, selectEndingReady, useMemoryRoomStore } from "@/store/memory-room";
+import type { MemoryId } from "@/data/memory-room";
+import {
+  MEMORY_TOTAL,
+  REVISIT_TOTAL,
+  selectCollectedCount,
+  selectEndingReady,
+  selectRevisitedCount,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
 import { CameraRig } from "./memory-room/CameraRig";
 import { DustMotes } from "./memory-room/DustMotes";
@@ -20,15 +27,22 @@ import { Player } from "./memory-room/Player";
 import { resolveRoomPalette } from "./memory-room/palette";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
-import { ROOM_LIGHTING } from "./memory-room/visual-state";
+import {
+  ROOM_LIGHT_RAMP,
+  ROOM_LIGHTING,
+  roomLightLevel,
+  roomLightValue,
+} from "./memory-room/visual-state";
+import { WindowLight } from "./memory-room/WindowLight";
 
 function StageLighting({
-  stageIndex,
+  lightLevel,
   memoryColor,
   fillColor,
   groundColor,
 }: {
-  stageIndex: number;
+  /** 0=바닥, 1=완성. 1바퀴는 깎이고 2바퀴는 채워진다. */
+  lightLevel: number;
   memoryColor: string;
   fillColor: string;
   groundColor: string;
@@ -36,7 +50,7 @@ function StageLighting({
   const ambientRef = useRef<AmbientLight>(null);
   const keyRef = useRef<DirectionalLight>(null);
   const windowGlowRef = useRef<PointLight>(null);
-  const initialStageIndex = useRef(stageIndex).current;
+  const initialLevel = useRef(lightLevel).current;
 
   useFrame((_, delta) => {
     const ambient = ambientRef.current;
@@ -46,14 +60,19 @@ function StageLighting({
 
     ambient.intensity = MathUtils.damp(
       ambient.intensity,
-      ROOM_LIGHTING.ambient[stageIndex],
+      roomLightValue(ROOM_LIGHT_RAMP.ambient, lightLevel),
       4,
       delta,
     );
-    key.intensity = MathUtils.damp(key.intensity, ROOM_LIGHTING.key[stageIndex], 4, delta);
+    key.intensity = MathUtils.damp(
+      key.intensity,
+      roomLightValue(ROOM_LIGHT_RAMP.key, lightLevel),
+      4,
+      delta,
+    );
     windowGlow.intensity = MathUtils.damp(
       windowGlow.intensity,
-      ROOM_LIGHTING.windowGlow[stageIndex],
+      roomLightValue(ROOM_LIGHT_RAMP.windowGlow, lightLevel),
       4,
       delta,
     );
@@ -61,7 +80,10 @@ function StageLighting({
 
   return (
     <>
-      <ambientLight ref={ambientRef} intensity={ROOM_LIGHTING.ambient[initialStageIndex]} />
+      <ambientLight
+        ref={ambientRef}
+        intensity={roomLightValue(ROOM_LIGHT_RAMP.ambient, initialLevel)}
+      />
       <hemisphereLight
         color={fillColor}
         groundColor={groundColor}
@@ -70,7 +92,7 @@ function StageLighting({
       <directionalLight
         ref={keyRef}
         position={[3, 8, 5]}
-        intensity={ROOM_LIGHTING.key[initialStageIndex]}
+        intensity={roomLightValue(ROOM_LIGHT_RAMP.key, initialLevel)}
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
@@ -79,7 +101,7 @@ function StageLighting({
         ref={windowGlowRef}
         position={[1.2, 3.1, -3.2]}
         color={memoryColor}
-        intensity={ROOM_LIGHTING.windowGlow[initialStageIndex]}
+        intensity={roomLightValue(ROOM_LIGHT_RAMP.windowGlow, initialLevel)}
         distance={8}
         decay={2}
       />
@@ -114,15 +136,20 @@ export function MemoryRoomScene({
   onInteract: (id: MemoryId) => void;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
-  const collectedCount = useMemoryRoomStore(selectCollected).length;
   const isEndingReady = useMemoryRoomStore(selectEndingReady);
-  const stageIndex = stageIndexFromCount(collectedCount);
+  const collectedCount = useMemoryRoomStore(selectCollectedCount);
+  const revisitedCount = useMemoryRoomStore(selectRevisitedCount);
+  const lightLevel = roomLightLevel({
+    collected: collectedCount,
+    memoryTotal: MEMORY_TOTAL,
+    revisited: revisitedCount,
+    revisitTotal: REVISIT_TOTAL,
+  });
 
   return (
     <>
-      <color attach="background" args={[palette.deep]} />
       <StageLighting
-        stageIndex={stageIndex}
+        lightLevel={lightLevel}
         memoryColor={palette.memory}
         fillColor={palette.paper}
         groundColor={palette.deep}
@@ -137,8 +164,17 @@ export function MemoryRoomScene({
         />
         <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
       </MemoryGlowRoot>
-      {/* 글로우 루트 밖 — 먼지는 아웃라인 선택 대상이 아니다 */}
-      <DustMotes color={palette.memory} opacity={ROOM_LIGHTING.dust[stageIndex]} />
+      {/* 글로우 루트 밖 — 빛·먼지는 아웃라인 선택 대상이 아니다 */}
+      <WindowLight
+        color={palette.memory}
+        intensity={roomLightValue(ROOM_LIGHT_RAMP.windowLight, lightLevel)}
+        curtainsOpen={curtainsOpen}
+      />
+      {/* 먼지는 빛줄기 안의 반짝임이라 커튼이 닫히면 같이 사라져야 한다 */}
+      <DustMotes
+        color={palette.memory}
+        opacity={curtainsOpen ? roomLightValue(ROOM_LIGHT_RAMP.dust, lightLevel) : 0}
+      />
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
       <CameraRig focusMemoryId={focusMemoryId} roomZoom={roomZoom} orbitAzimuth={orbitAzimuth} />
     </>
