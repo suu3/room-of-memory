@@ -69,7 +69,9 @@ describe("memory-room layout", () => {
   it("uses the reference camera with the short wall on the left", () => {
     expect(CAMERA_PRESETS.room.position[0]).toBeGreaterThan(0);
     expect(CAMERA_PRESETS.room.position[0]).toBeGreaterThan(13);
-    expect(CAMERA_PRESETS.room.target).toEqual([0.8, 1.2, 1.2]);
+    // 시선 중심이 방 상단을 향해야 다이오라마가 화면 위쪽에 붙지 않는다
+    expect(CAMERA_PRESETS.room.target[1]).toBeGreaterThan(2);
+    expect(CAMERA_PRESETS.room.target).toEqual([0.8, 2.35, 1.2]);
   });
 
   it("makes the window wall longer than the left side wall", () => {
@@ -141,6 +143,24 @@ describe("memory-room layout", () => {
     expect(CHAIR_POSITION[0] - desk.maxX).toBeLessThan(0.7);
     expect(CHAIR_POSITION[2]).toBeGreaterThan(desk.minZ);
     expect(CHAIR_POSITION[2]).toBeLessThan(desk.maxZ);
+  });
+
+  it("blocks the player from walking through the chair", () => {
+    const chair = ROOM_COLLIDERS.find(
+      (box) =>
+        CHAIR_POSITION[0] > box.minX &&
+        CHAIR_POSITION[0] < box.maxX &&
+        CHAIR_POSITION[2] > box.minZ &&
+        CHAIR_POSITION[2] < box.maxZ,
+    );
+
+    expect(chair).toBeDefined();
+    expect(isWalkable(CHAIR_POSITION[0], CHAIR_POSITION[2])).toBe(false);
+    // 좌석 발자국(±0.525)을 실제로 덮되 통로를 다 막을 만큼 부풀지 않는다
+    expect(chair?.maxX ?? 0).toBeGreaterThan(CHAIR_POSITION[0] + 0.4);
+    expect(chair?.minX ?? 0).toBeLessThan(CHAIR_POSITION[0] - 0.4);
+    expect(chair?.maxZ ?? 0).toBeGreaterThan(CHAIR_POSITION[2] + 0.4);
+    expect(chair?.minZ ?? 0).toBeLessThan(CHAIR_POSITION[2] - 0.4);
   });
 
   it("keeps every memory reachable without entering furniture", () => {

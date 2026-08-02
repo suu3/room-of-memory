@@ -244,7 +244,8 @@ export function RoomCanvas() {
             ref={attachCanvasRef}
             className="absolute inset-0 z-0"
             orthographic
-            shadows
+            // three r185에서 PCFSoftShadowMap(= shadows 기본값)이 deprecated라 PCF로 명시한다
+            shadows="percentage"
             dpr={[1, 1.5]}
             camera={{
               position: [...CAMERA_PRESETS.room.position],
