@@ -13,6 +13,10 @@ export const ASSETS = {
     mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.png",
     mgBallCatchBat: "/assets/images/mg-ball-catch-bat.png",
     mgBallCatchImpact: "/assets/images/mg-ball-catch-impact.png",
+    /** 액자 사진 1차 — 부모 얼굴이 그늘에 묻힌 버전. Phase 1의 바탕, Phase 2의 덮개. */
+    mgPhotoWipePhase1: "/assets/images/mg-photo-wipe-phase-1.webp",
+    /** 액자 사진 2차 — 가족 얼굴이 드러난 버전. Phase 2에서 닦아내면 나온다. */
+    mgPhotoWipePhase2: "/assets/images/mg-photo-wipe-phase-2.webp",
     /** 대사창 초상. 세 장 모두 같은 크롭이라 겹쳐서 opacity만 토글하면 정렬이 맞는다. */
     characterHeroNeutral: "/assets/images/character-hero-neutral.webp",
     characterHeroSmile: "/assets/images/character-hero-smile.webp",

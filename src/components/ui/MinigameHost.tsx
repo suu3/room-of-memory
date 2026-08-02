@@ -25,8 +25,10 @@ export function MinigameHost() {
   const [burstId, setBurstId] = useState(0);
   const startButtonRef = useRef<HTMLButtonElement>(null);
 
+  /** 결과 대사 단계 — 미니게임 화면은 남기고 대사창이 그 위에 뜬다. */
+  const resultStage = active?.phase === "dialogue" && active.keepMinigame === true;
   const minigameId =
-    active?.phase === "minigame"
+    active?.phase === "minigame" || resultStage
       ? phaseConfigOf(active.memoryId, active.gamePhase)?.interaction?.minigameId
       : undefined;
   const definition = minigameId ? getMinigame(minigameId) : undefined;
@@ -46,50 +48,50 @@ export function MinigameHost() {
     if (hosted && !started) startButtonRef.current?.focus();
   }, [hosted, started]);
 
-  // Esc = 바깥 클릭과 같은 닫기 (키보드 접근성)
+  // Esc = 바깥 클릭과 같은 닫기 (키보드 접근성). 결과 대사 중에는 대사창이 닫기를 맡는다
   useEffect(() => {
-    if (!hosted) return;
+    if (!hosted || resultStage) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.code === "Escape") cancelMinigame();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [hosted, cancelMinigame]);
+  }, [hosted, resultStage, cancelMinigame]);
 
   const Minigame = hosted?.component;
   return (
     <>
       {burstId > 0 && <SuccessBurst key={burstId} onDone={() => setBurstId(0)} />}
-      {active?.phase === "minigame" && hosted && Minigame && (
+      {(active?.phase === "minigame" || resultStage) && hosted && Minigame && (
         // 바깥(백드롭) 클릭 시 완료 처리 없이 닫는다 — 핫스팟은 다시 클릭 가능
+        // 결과 대사 중에는 화면을 더 어둡게 깔고, 아래쪽을 대사창 자리로 비워둔다
         <div
-          className="absolute inset-0 z-40 grid place-items-center bg-scene-void/40 backdrop-blur-sm"
+          className={`absolute inset-0 z-40 grid place-items-center backdrop-blur-sm ${
+            resultStage ? "bg-scene-void/75 pb-56" : "bg-scene-void/40"
+          }`}
           onPointerDown={(event) => {
-            if (event.target === event.currentTarget) cancelMinigame();
+            if (event.target === event.currentTarget && !resultStage) cancelMinigame();
           }}
         >
           {started ? (
             <Suspense fallback={null}>
               <Minigame
+                gamePhase={active.gamePhase}
                 onComplete={(result) => {
-                  if (result.cleared) setBurstId((id) => id + 1);
+                  if (result.cleared && !result.celebrated) setBurstId((id) => id + 1);
                   finishMinigame(result);
                 }}
               />
             </Suspense>
           ) : (
-            <div className="w-[30rem] max-w-[94vw] rotate-1 animate-fade-rise rounded-lg border-2 border-bone bg-paper p-6 text-center shadow-panel">
-              <h2 className="flex items-center justify-center gap-2 text-sm font-bold tracking-wide text-ink">
-                <span aria-hidden className="w-4 border-t-2 border-dashed border-ember" />
-                {t(hosted.titleKey)}
-                <span aria-hidden className="w-4 border-t-2 border-dashed border-ember" />
-              </h2>
-              <p className="mt-2 text-xs leading-relaxed text-ink/70">{t(hosted.helpKey)}</p>
+            <div className="w-[38rem] max-w-[94vw] animate-fade-rise rounded-xl border border-bone bg-paper p-8 text-center shadow-panel">
+              <h2 className="text-2xl font-bold tracking-tight text-ink">{t(hosted.titleKey)}</h2>
+              <p className="mt-3 text-base leading-relaxed text-ink/70">{t(hosted.helpKey)}</p>
               <button
                 ref={startButtonRef}
                 type="button"
                 onClick={() => setStartedKey(activeKey)}
-                className="mt-4 cursor-pointer rounded-full border-2 border-ember bg-ember px-7 py-1.5 text-sm font-bold tracking-widest text-paper transition-colors hover:bg-ember/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+                className="mt-7 cursor-pointer rounded-full bg-ink px-10 py-2.5 text-base font-bold tracking-widest text-paper transition-colors hover:bg-ink/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
               >
                 {t("minigame.start")}
               </button>

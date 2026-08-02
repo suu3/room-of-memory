@@ -15,8 +15,7 @@
     "title": "기억 수집",
     "open": "기억 수집 패널 열기",
     "close": "기억 수집 패널 닫기",
-    "unknownName": "? ? ?",
-    "unknownSummary": "미수집 · 방 안 어딘가"
+    "unknownName": "? ? ?"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 수집한 기억",
@@ -42,7 +41,8 @@
     "loading": "방을 불러오는 중…",
     "webglFallback": "이 기기에서는 3D 방을 표시할 수 없습니다.",
     "moveHint": "WASD / 방향키로 이동",
-    "interactHint": "{{name}} 조사 · E / Enter"
+    "interactHint": "{{name}} 조사 · E / Enter",
+    "moveCaption": "이동"
   },
   "reset": {
     "title": "모든 진행을 초기화할까요?",
@@ -52,8 +52,8 @@
   },
   "contact": {
     "title": "Contact Me",
-    "body": "여기에 연락처 소개가 들어갑니다",
-    "back": "방으로 돌아가기"
+    "back": "방으로 돌아가기",
+    "close": "연락처 닫기"
   },
   "minigame": {
     "start": "시작",
@@ -87,6 +87,16 @@
   "characterSheet": {
     "title": "캐릭터 시트",
     "close": "캐릭터 시트 닫기",
-    "alt": "주인공 캐릭터 설정 시트"
+    "alt": "주인공 캐릭터 설정 시트",
+    "locked": "아직 열리지 않은 항목 — 기억을 더 모으면 드러난다",
+    "tabProfile": "프로필",
+    "tabLore": "기록",
+    "loreLocked": "아직 조사하지 않은 기록",
+    "lockedHint": "수집 시 열립니다"
+  },
+  "titleScreen": {
+    "eyebrow": "A SHORT VISUAL NOVEL",
+    "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
+    "start": "시작하기"
   }
 }

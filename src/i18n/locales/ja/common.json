@@ -15,8 +15,7 @@
     "title": "記憶コレクション",
     "open": "記憶コレクションパネルを開く",
     "close": "記憶コレクションパネルを閉じる",
-    "unknownName": "? ? ?",
-    "unknownSummary": "未収集 · 部屋のどこか"
+    "unknownName": "? ? ?"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 収集した記憶",
@@ -42,7 +41,8 @@
     "loading": "部屋を読み込み中…",
     "webglFallback": "この端末では3Dの部屋を表示できません。",
     "moveHint": "WASD / 矢印キーで移動",
-    "interactHint": "{{name}}を調べる · E / Enter"
+    "interactHint": "{{name}}を調べる · E / Enter",
+    "moveCaption": "移動"
   },
   "reset": {
     "title": "すべての進行をリセットしますか？",
@@ -52,8 +52,8 @@
   },
   "contact": {
     "title": "Contact Me",
-    "body": "ここに連絡先の紹介が入ります",
-    "back": "部屋に戻る"
+    "back": "部屋に戻る",
+    "close": "連絡先を閉じる"
   },
   "minigame": {
     "start": "スタート",
@@ -87,6 +87,16 @@
   "characterSheet": {
     "title": "キャラクターシート",
     "close": "キャラクターシートを閉じる",
-    "alt": "主人公のキャラクター設定シート"
+    "alt": "主人公のキャラクター設定シート",
+    "locked": "まだ明かされていない項目 — 記憶を集めると現れる",
+    "tabProfile": "プロフィール",
+    "tabLore": "記録",
+    "loreLocked": "まだ調べていない記録",
+    "lockedHint": "収集すると開きます"
+  },
+  "titleScreen": {
+    "eyebrow": "A SHORT VISUAL NOVEL",
+    "tagline": "閉じた部屋に散らばった記憶を、ひとつずつ取り戻す物語。",
+    "start": "はじめる"
   }
 }

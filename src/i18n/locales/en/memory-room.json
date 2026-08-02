@@ -1,18 +1,49 @@
 {
   "characters": {
     "hero": {
-      "name": "Speaker Name",
-      "tag": "Speaker tagline placeholder"
+      "name": "Han Do-hae",
+      "profile": [
+        {
+          "label": "Age",
+          "value": "19 · Final year of high school"
+        },
+        {
+          "label": "Club",
+          "value": "Baseball, second base — a bunt-and-steal hitter"
+        },
+        {
+          "label": "Likes",
+          "value": "Baseball · Late-night radio · Convenience store snacks"
+        },
+        {
+          "label": "Habits",
+          "value": "Bounces a ball off the wall while thinking · Keeps a fixed pre-game routine"
+        }
+      ]
     }
   },
   "memories": {
-    "bat": { "name": "Bat", "summary": "Memory summary placeholder goes here" },
-    "window": { "name": "Window", "summary": "Memory summary placeholder goes here" },
-    "frame": { "name": "Photo Frame", "summary": "Memory summary placeholder goes here" },
-    "radio": { "name": "Radio", "summary": "Memory summary placeholder goes here" },
-    "phone": { "name": "Smartphone", "summary": "Memory summary placeholder goes here" },
-    "calendar": { "name": "Calendar", "summary": "Memory summary placeholder goes here" },
-    "ball": { "name": "Signed Ball", "summary": "Memory summary placeholder goes here" }
+    "bat": {
+      "name": "Bat"
+    },
+    "window": {
+      "name": "Window"
+    },
+    "frame": {
+      "name": "Photo Frame"
+    },
+    "radio": {
+      "name": "Radio"
+    },
+    "phone": {
+      "name": "Smartphone"
+    },
+    "calendar": {
+      "name": "Calendar"
+    },
+    "ball": {
+      "name": "Signed Ball"
+    }
   },
   "stages": {
     "dark": {
@@ -33,11 +64,55 @@
       "line1": "Dialogue placeholder goes here (1/2)",
       "line2": "Dialogue placeholder goes here (2/2)"
     },
-    "bat-echo": { "line1": "Phase 2 dialogue placeholder goes here (bat)" },
-    "radio-echo": { "line1": "Phase 2 dialogue placeholder goes here (radio)" },
+    "bat-echo": {
+      "line1": "Phase 2 dialogue placeholder goes here (bat)"
+    },
+    "radio-echo": {
+      "line1": "Phase 2 dialogue placeholder goes here (radio)"
+    },
     "ball-intro": {
       "line1": "That game that day... it was incredible.",
       "line2": "I feel like I'm forgetting how a swing feels…"
+    },
+    "frame-photo": {
+      "line1": "This is from the youth baseball tournament, the day I placed.",
+      "line2": "…Where are they right now?"
+    },
+    "frame-photo-echo": {
+      "line1": "…Their faces. I can finally see them properly.",
+      "line2": "When I find them, I'll start with this photo."
+    }
+  },
+  "lore": {
+    "ball": {
+      "title": "Catch, Alone",
+      "phase1": "Throw it at the wall and it comes back. That is all. I keep forgetting there is no one to catch it."
+    },
+    "calendar": {
+      "title": "October 19",
+      "phase1": "The numbers stopped on that day. After that I stopped writing dates and only made tally marks."
+    },
+    "phone": {
+      "title": "The Silence",
+      "phase1": "The group chat has been quiet since that day. Every missed call is one I made."
+    },
+    "window": {
+      "title": "Outside",
+      "phase1": "I opened the curtain. Broken glass, a crushed car, stains that will not wash off. I closed it again."
+    },
+    "frame": {
+      "title": "Them",
+      "phase1": "Dust on the glass hides their faces. Even wiped clean, only the two of them stay blurred."
+    },
+    "radio": {
+      "title": "That Broadcast",
+      "phase1": "They said it had reached Busan. I cannot pretend not to know anymore.",
+      "phase2": "A human voice came through the noise. “Hey, is anyone there?” I am not the only one."
+    },
+    "bat": {
+      "title": "The Bat by the Door",
+      "phase1": "I stood it beside the door, hoping I would never need it.",
+      "phase2": "It is lighter than I remembered. I think I can still swing it."
     }
   }
 }

@@ -50,25 +50,24 @@ export function MinigameShell({
 
   return (
     <div
-      className={`${size === "lg" ? "w-[44rem]" : "w-[30rem]"} max-w-[94vw] -rotate-1 animate-fade-rise rounded-lg border-2 border-bone bg-paper p-5 shadow-panel`}
+      className={`${size === "lg" ? "w-[54rem]" : "w-[38rem]"} max-w-[94vw] animate-fade-rise rounded-xl border border-bone bg-paper p-7 shadow-panel`}
     >
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-sm font-bold tracking-wide text-ink">
-          <span aria-hidden className="w-4 border-t-2 border-dashed border-ember" />
-          {title}
-        </h2>
+        <h2 className="text-2xl font-bold tracking-tight text-ink">{title}</h2>
         {skipVisible && (
           <button
             type="button"
             onClick={onSkip}
-            className="cursor-pointer rounded-full border-2 border-ink/20 px-2.5 py-0.5 text-xs font-bold tracking-widest text-ink/60 transition-colors hover:border-ink/50 hover:text-ink"
+            className="cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-sm font-bold tracking-widest text-ink/60 transition-colors hover:border-ink/40 hover:text-ink"
           >
             {t("minigame.skip")}
           </button>
         )}
       </div>
-      <p className="mt-1 text-xs leading-relaxed text-ink/70">{help}</p>
-      {stats && <div className="mt-3 flex items-center gap-4 text-xs text-ink/60">{stats}</div>}
+      <p className="mt-2.5 text-base leading-relaxed text-ink/70">{help}</p>
+      {stats && (
+        <div className="mt-3 flex items-center gap-5 text-base font-bold text-ink/70">{stats}</div>
+      )}
       <div className="mt-3">{children}</div>
     </div>
   );

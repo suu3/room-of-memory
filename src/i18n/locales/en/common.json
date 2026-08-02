@@ -15,8 +15,7 @@
     "title": "Collected Memories",
     "open": "Open the memory collection panel",
     "close": "Close the memory collection panel",
-    "unknownName": "? ? ?",
-    "unknownSummary": "Not collected · somewhere in the room"
+    "unknownName": "? ? ?"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — collected memory",
@@ -42,7 +41,8 @@
     "loading": "Loading the room…",
     "webglFallback": "The 3D room cannot be displayed on this device.",
     "moveHint": "Move with WASD / arrow keys",
-    "interactHint": "Examine {{name}} · E / Enter"
+    "interactHint": "Examine {{name}} · E / Enter",
+    "moveCaption": "MOVE"
   },
   "reset": {
     "title": "Reset all progress?",
@@ -52,8 +52,8 @@
   },
   "contact": {
     "title": "Contact Me",
-    "body": "Contact introduction placeholder goes here",
-    "back": "Back to the room"
+    "back": "Back to the room",
+    "close": "Close contact"
   },
   "minigame": {
     "start": "Start",
@@ -87,6 +87,16 @@
   "characterSheet": {
     "title": "Character Sheet",
     "close": "Close character sheet",
-    "alt": "Character design sheet for the protagonist"
+    "alt": "Character design sheet for the protagonist",
+    "locked": "Not yet revealed — gather more memories",
+    "tabProfile": "Profile",
+    "tabLore": "Notes",
+    "loreLocked": "An entry you have not uncovered yet",
+    "lockedHint": "Unlocks when collected"
+  },
+  "titleScreen": {
+    "eyebrow": "A SHORT VISUAL NOVEL",
+    "tagline": "Gather the memories scattered across a room that never opened.",
+    "start": "START"
   }
 }

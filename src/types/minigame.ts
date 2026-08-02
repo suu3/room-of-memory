@@ -14,11 +14,23 @@ export interface MinigameResult {
   cleared: boolean;
   /** Optional score for minigames with gradations. */
   score?: number;
+  /**
+   * 미니게임이 자기 화면에서 성공 연출(파티클·결과 대사)을 이미 보여줬다는 표시.
+   * 호스트는 파티클을 한 번 더 터뜨리지 않는다.
+   */
+  celebrated?: boolean;
 }
 
 export interface MinigameProps {
   /** Call exactly once when the minigame ends (clear, fail, or skip). */
   onComplete: (result: MinigameResult) => void;
+  /**
+   * 인터랙션이 시작된 게임 페이즈. 1차/2차 조사에서 같은 미니게임을 다르게
+   * 연출할 때만 쓴다 (액자는 2차에서 그늘이 걷힌 사진이 나온다).
+   * 스토어의 GamePhase와 같은 값이지만, 미니게임이 스토어에 의존하지 않도록
+   * 호스트가 props로 내려준다. 기본값은 1.
+   */
+  gamePhase?: 1 | 2;
   /**
    * Player asked to skip (accessibility requirement — every minigame must
    * call onComplete({ cleared: true }) when skipped).

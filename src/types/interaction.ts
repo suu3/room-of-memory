@@ -21,11 +21,19 @@ export interface DialogueScript {
   lines: DialogueScriptLine[];
 }
 
-/** 핫스팟 클릭 시 실행할 인터랙션. 대사(scriptId) → 미니게임(minigameId) → 완료 순. */
+/**
+ * 핫스팟 클릭 시 실행할 인터랙션.
+ * 대사(scriptId) → 미니게임(minigameId) → 결과 대사(resultScriptId) → 완료 순.
+ */
 export interface MemoryInteraction {
   scriptId?: string;
   /** src/minigames/index.ts 레지스트리의 미니게임 id. */
   minigameId?: string;
+  /**
+   * 미니게임 클리어 뒤에 재생할 결과 대사 (기획서 5-1 ③).
+   * 이 대사 동안 미니게임 화면은 뒤에 남는다 — 방금 드러난 장면을 보며 듣는다.
+   */
+  resultScriptId?: string;
 }
 
 /**

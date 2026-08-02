@@ -37,7 +37,9 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "frame",
     icon: ImageSquare,
-    phase1: { interaction: { minigameId: "photo-wipe" } },
+    phase1: { interaction: { minigameId: "photo-wipe", resultScriptId: "frame-photo" } },
+    /** 2차 조사: 같은 액자를 다시 닦으면 그늘에 묻혔던 가족 얼굴이 드러난다. */
+    phase2: { interaction: { minigameId: "photo-wipe", resultScriptId: "frame-photo-echo" } },
   },
   {
     id: "radio",
@@ -138,6 +140,22 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   "radio-echo": {
     id: "radio-echo",
     lines: [{ speaker: "hero", textKey: "scripts.radio-echo.line1" }],
+  },
+  /** 액자를 다 닦은 뒤의 결과 대사 (1차). */
+  "frame-photo": {
+    id: "frame-photo",
+    lines: [
+      { speaker: "hero", textKey: "scripts.frame-photo.line1", expression: "smile" },
+      { speaker: "hero", textKey: "scripts.frame-photo.line2" },
+    ],
+  },
+  /** 2차 조사에서 가족 얼굴이 드러난 뒤의 결과 대사. */
+  "frame-photo-echo": {
+    id: "frame-photo-echo",
+    lines: [
+      { speaker: "hero", textKey: "scripts.frame-photo-echo.line1", expression: "surprised" },
+      { speaker: "hero", textKey: "scripts.frame-photo-echo.line2", expression: "smile" },
+    ],
   },
   "ball-intro": {
     id: "ball-intro",

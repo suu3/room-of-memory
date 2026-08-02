@@ -2,10 +2,10 @@
 
 import { useEffect, useRef } from "react";
 
-const PARTICLE_COUNT = 90;
-const DURATION_MS = 1400;
+const PARTICLE_COUNT = 260;
+const DURATION_MS = 1800;
 /** 중력 (px/s²) — 튀어오른 조각이 포물선을 그리며 떨어진다 */
-const GRAVITY = 1500;
+const GRAVITY = 1100;
 
 interface Particle {
   vx: number;
@@ -56,20 +56,21 @@ export function SuccessBurst({ onDone }: { onDone: () => void }) {
       tokenColor("--color-ember"),
     ];
     const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, () => {
-      const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.9; // 위쪽 부채꼴
-      const speed = 360 + Math.random() * 540;
+      // 사방으로 터진다. 위쪽으로 살짝 치우쳐야 떨어지는 맛이 산다
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 420 + Math.random() * 980;
       return {
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: 4 + Math.random() * 6,
+        vy: Math.sin(angle) * speed - 220,
+        size: 5 + Math.random() * 10,
         color: palette[Math.floor(Math.random() * palette.length)],
-        spin: (Math.random() - 0.5) * 14,
+        spin: (Math.random() - 0.5) * 18,
         isRect: Math.random() < 0.6,
       };
     });
 
     const originX = width / 2;
-    const originY = height * 0.55;
+    const originY = height * 0.5;
     let start = 0;
     let frame = 0;
     const loop = (now: number) => {

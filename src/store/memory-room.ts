@@ -5,13 +5,17 @@ import type { MinigameResult } from "@/types/minigame";
 export type GamePhase = 1 | 2;
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
-export type UiLockId = "hud-menu" | "memory-panel" | "character-sheet";
+export type UiLockId = "hud-menu" | "memory-panel" | "character-sheet" | "title" | "contact";
 
 export interface ActiveInteraction {
   memoryId: MemoryId;
   /** 인터랙션이 시작된 시점의 게임 페이즈 (완료 기록이 이 값을 따른다) */
   gamePhase: GamePhase;
   phase: InteractionPhase;
+  /** 재생 중인 대사 스크립트. 인트로 대사와 미니게임 결과 대사가 같은 대사창을 쓴다. */
+  scriptId?: string;
+  /** 결과 대사 단계 — 대사창 뒤로 미니게임 화면이 그대로 남는다. */
+  keepMinigame?: boolean;
   lineIndex: number;
 }
 
@@ -26,6 +30,10 @@ interface MemoryRoomState {
   uiLocks: UiLockId[];
   /** 캐릭터 시트 모달 — HUD 메뉴와 대사창 초상 두 곳에서 열리므로 스토어가 소유한다. */
   characterSheetOpen: boolean;
+  /** 타이틀 화면을 지나 방에 들어왔는지. 리셋하면 다시 타이틀로 돌아간다. */
+  started: boolean;
+  /** 연락처 모달. HUD 메뉴와 타이틀 화면 두 곳에서 열린다. */
+  contactOpen: boolean;
   /** Monotonic signal for local UI state that must close when progress resets. */
   resetRevision: number;
   beginInteraction: (id: MemoryId) => void;
@@ -35,6 +43,8 @@ interface MemoryRoomState {
   cancelMinigame: () => void;
   setUiLock: (id: UiLockId, locked: boolean) => void;
   setCharacterSheetOpen: (open: boolean) => void;
+  setContactOpen: (open: boolean) => void;
+  startGame: () => void;
   reset: () => void;
 }
 
@@ -88,6 +98,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   activeInteraction: null,
   uiLocks: [],
   characterSheetOpen: false,
+  contactOpen: false,
+  started: false,
   resetRevision: 0,
   beginInteraction: (id) =>
     set((state) => {
@@ -96,7 +108,13 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
       const interaction = phaseConfigOf(id, gamePhase)?.interaction;
       if (interaction?.scriptId) {
         return {
-          activeInteraction: { memoryId: id, gamePhase, phase: "dialogue" as const, lineIndex: 0 },
+          activeInteraction: {
+            memoryId: id,
+            gamePhase,
+            phase: "dialogue" as const,
+            scriptId: interaction.scriptId,
+            lineIndex: 0,
+          },
         };
       }
       if (interaction?.minigameId) {
@@ -111,19 +129,35 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
       const active = state.activeInteraction;
       if (active?.phase !== "dialogue") return state;
       const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
-      const script = interaction?.scriptId ? SCRIPTS[interaction.scriptId] : undefined;
+      const script = active.scriptId ? SCRIPTS[active.scriptId] : undefined;
       if (script && active.lineIndex + 1 < script.lines.length) {
         return { activeInteraction: { ...active, lineIndex: active.lineIndex + 1 } };
       }
-      if (interaction?.minigameId) {
-        return { activeInteraction: { ...active, phase: "minigame" as const } };
+      // 결과 대사는 미니게임 뒤에 오므로 다시 미니게임으로 돌아가지 않는다
+      if (!active.keepMinigame && interaction?.minigameId) {
+        return {
+          activeInteraction: { ...active, phase: "minigame" as const, scriptId: undefined },
+        };
       }
       return complete(state, active.memoryId, active.gamePhase);
     }),
-  finishMinigame: () =>
+  finishMinigame: (result) =>
     set((state) => {
       const active = state.activeInteraction;
       if (active?.phase !== "minigame") return state;
+      const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
+      // 클리어했으면 결과 대사로 — 미니게임 화면을 뒤에 남긴 채 대사창이 뜬다
+      if (result.cleared && interaction?.resultScriptId) {
+        return {
+          activeInteraction: {
+            ...active,
+            phase: "dialogue" as const,
+            scriptId: interaction.resultScriptId,
+            keepMinigame: true,
+            lineIndex: 0,
+          },
+        };
+      }
       // 실패도 유효한 결말 — 결과와 무관하게 완료. 플래그/분기는 추후 확장.
       return complete(state, active.memoryId, active.gamePhase);
     }),
@@ -140,6 +174,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
       };
     }),
   setCharacterSheetOpen: (open) => set({ characterSheetOpen: open }),
+  setContactOpen: (open) => set({ contactOpen: open }),
+  startGame: () => set({ started: true }),
   reset: () =>
     set((state) => ({
       collected: [],
@@ -147,6 +183,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
       activeInteraction: null,
       uiLocks: [],
       characterSheetOpen: false,
+      contactOpen: false,
+      started: false,
       resetRevision: state.resetRevision + 1,
     })),
 }));
@@ -157,3 +195,16 @@ export const selectGamePhase = (state: MemoryRoomState) => gamePhaseOf(state);
 export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
 export const selectSceneInputLocked = (state: MemoryRoomState) =>
   state.activeInteraction !== null || state.uiLocks.length > 0;
+
+/** 2바퀴 재조사 대상 수. 밝기 상승 구간의 분모다. */
+export const REVISIT_TOTAL = MEMORIES.filter((memory) => memory.phase2).length;
+
+/** 전체 기억 수. 밝기 하강 구간의 분모다. */
+export const MEMORY_TOTAL = MEMORIES.length;
+
+/*
+ * 밝기 입력은 원시값으로만 노출한다. 객체를 새로 만들어 돌려주면 zustand가
+ * 매 렌더 새 스냅샷으로 보고 무한 루프에 빠진다 (getServerSnapshot 경고).
+ */
+export const selectCollectedCount = (state: MemoryRoomState) => state.collected.length;
+export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.length;
