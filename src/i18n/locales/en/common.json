@@ -15,7 +15,8 @@
     "title": "Collected Memories",
     "open": "Open the memory collection panel",
     "close": "Close the memory collection panel",
-    "unknownName": "? ? ?"
+    "unknownName": "? ? ?",
+    "replay": "Replay {{name}}"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — collected memory",
@@ -82,7 +83,11 @@
       "late": "LATE",
       "hits": "HITS {{value}} / {{goal}}",
       "chances": "Chances left"
-    }
+    },
+    "labelSuccess": "HITS",
+    "labelMiss": "MISS",
+    "labelClarity": "Clarity",
+    "labelTime": "Time left"
   },
   "characterSheet": {
     "title": "Character Sheet",
@@ -97,6 +102,7 @@
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "Gather the memories scattered across a room that never opened.",
-    "start": "START"
+    "start": "START",
+    "playtime": "About 15 minutes"
   }
 }

@@ -5,7 +5,9 @@ import { useTranslation } from "react-i18next";
 import { SuccessBurst } from "@/components/ui/SuccessBurst";
 import { ASSETS } from "@/lib/assets";
 import type { MinigameProps } from "@/types/minigame";
-import { MinigameShell, useOnceCompleter, useSkipEligible } from "../shell";
+import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
+import { CLOTH_CURSOR, ClothSprite } from "./cloth";
+import { PhotoFrame } from "./frame";
 import { createWipeGrid, wipeCircle } from "./wipe-grid";
 
 const CLEAR_RATIO = 0.7;
@@ -189,14 +191,16 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
   if (revealed) {
     return (
       <>
-        <div className="relative animate-fade-rise rounded-sm border-8 border-scene-olive bg-scene-deep shadow-panel">
-          {/* biome-ignore lint/performance/noImgElement: 미니게임 전용 에셋이라 next/image 래퍼가 필요 없다. */}
-          <img
-            src={photo.src}
-            alt=""
-            aria-hidden="true"
-            className="block max-h-[58vh] w-auto max-w-[86vw]"
-          />
+        <div className="animate-fade-rise">
+          <PhotoFrame>
+            {/* biome-ignore lint/performance/noImgElement: 미니게임 전용 에셋이라 next/image 래퍼가 필요 없다. */}
+            <img
+              src={photo.src}
+              alt=""
+              aria-hidden="true"
+              className="block max-h-[58vh] w-auto max-w-[86vw]"
+            />
+          </PhotoFrame>
         </div>
         {/* 파티클은 액자 밖으로도 튀어야 하니 화면 전체를 덮는 레이어에서 터뜨린다 */}
         {!burstDone && (
@@ -215,14 +219,21 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
       help={t("minigame.photoWipe.help")}
       stats={
         <>
-          <span>{t("minigame.clarity", { percent: Math.round(progress * 100) })}</span>
-          <span>{t("minigame.timeLeft", { seconds: secondsLeft })}</span>
+          <MinigameStat
+            label={t("minigame.labelClarity")}
+            value={`${Math.round(progress * 100)}%`}
+          />
+          <MinigameStat
+            label={t("minigame.labelTime")}
+            value={secondsLeft}
+            tone={secondsLeft <= 10 ? "warning" : "progress"}
+          />
         </>
       }
       skipVisible={skipEligible}
       onSkip={() => revealRef.current()}
     >
-      <div className="relative mx-auto w-fit rounded-sm border-8 border-scene-olive bg-scene-deep shadow-panel">
+      <PhotoFrame>
         {/* 원본 사진 (선명) — 닦인 영역으로 드러난다 */}
         {/* biome-ignore lint/performance/noImgElement: 캔버스와 픽셀 정렬이 필요해 next/image의 래퍼를 쓰지 않는다. */}
         <img
@@ -233,22 +244,19 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
           height={photo.height}
           className="block"
         />
-        {/* 프로스트 레이어 — 닦아서 지운다 */}
+        {/* 프로스트 레이어 — 닦아서 지운다. 커서가 곧 행주다 */}
         <canvas
           ref={canvasRef}
           width={photo.width}
           height={photo.height}
           onPointerDown={pointerWipe}
           onPointerMove={pointerWipe}
-          className="absolute inset-0 cursor-crosshair touch-none"
+          className="absolute inset-0 touch-none"
+          style={{ cursor: CLOTH_CURSOR }}
         />
-        {/* 헝겊 커서 (키보드 조작 표시) */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute size-12 -translate-x-1/2 -translate-y-1/2 rounded-sm border-2 border-dashed border-memory/80"
-          style={{ left: cloth.x, top: cloth.y }}
-        />
-      </div>
+        {/* 키보드로 옮기는 행주 — 커서와 같은 그림 */}
+        <ClothSprite style={{ left: cloth.x, top: cloth.y }} />
+      </PhotoFrame>
     </MinigameShell>
   );
 }

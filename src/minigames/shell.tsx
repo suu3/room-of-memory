@@ -27,6 +27,35 @@ export function useSkipEligible(ms: number): boolean {
   return eligible;
 }
 
+/**
+ * 미니게임 상태 한 칸.
+ *
+ * 색으로 뜻을 나눈다 — 진행은 금빛(이 게임에서 금빛 = 기억을 되찾는 중),
+ * 실패·시간압박은 벽돌빛. 진행까지 빨갛게 하면 잘 하고 있는데도 경고처럼 읽힌다.
+ */
+export function MinigameStat({
+  label,
+  value,
+  tone = "progress",
+}: {
+  label: string;
+  value: string | number;
+  tone?: "progress" | "warning";
+}) {
+  return (
+    <span className="flex items-baseline gap-1.5">
+      <span className="text-sm font-bold tracking-wide text-ink/50">{label}</span>
+      <span
+        className={`text-xl font-bold tabular-nums ${
+          tone === "warning" ? "text-ember" : "text-memory"
+        }`}
+      >
+        {value}
+      </span>
+    </span>
+  );
+}
+
 /** 미니게임 공통 프레임: 제목 · 조작법 · 상태 표시 · 스킵 버튼. */
 export function MinigameShell({
   title,
@@ -58,7 +87,7 @@ export function MinigameShell({
           <button
             type="button"
             onClick={onSkip}
-            className="cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-sm font-bold tracking-widest text-ink/60 transition-colors hover:border-ink/40 hover:text-ink"
+            className="cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-sm font-bold tracking-widest text-ink/60 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5"
           >
             {t("minigame.skip")}
           </button>

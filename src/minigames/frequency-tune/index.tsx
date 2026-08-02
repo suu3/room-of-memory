@@ -4,7 +4,7 @@ import { Star } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { MinigameProps } from "@/types/minigame";
-import { MinigameShell, useOnceCompleter, useSkipEligible } from "../shell";
+import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 
 const GOAL_HITS = 3;
 const MAX_MISSES = 5;
@@ -112,8 +112,12 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
       help={t("minigame.frequencyTune.help")}
       stats={
         <>
-          <span>{t("minigame.successCount", { value: hits, goal: GOAL_HITS })}</span>
-          <span>{t("minigame.missCount", { value: misses, max: MAX_MISSES })}</span>
+          <MinigameStat label={t("minigame.labelSuccess")} value={`${hits} / ${GOAL_HITS}`} />
+          <MinigameStat
+            label={t("minigame.labelMiss")}
+            value={`${misses} / ${MAX_MISSES}`}
+            tone="warning"
+          />
           {flash && (
             <span
               className={`rounded-full px-2 py-0.5 font-bold ${

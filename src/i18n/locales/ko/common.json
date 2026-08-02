@@ -15,7 +15,8 @@
     "title": "기억 수집",
     "open": "기억 수집 패널 열기",
     "close": "기억 수집 패널 닫기",
-    "unknownName": "? ? ?"
+    "unknownName": "? ? ?",
+    "replay": "{{name}} 다시 보기"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 수집한 기억",
@@ -82,7 +83,11 @@
       "late": "늦었어",
       "hits": "안타 {{value}} / {{goal}}",
       "chances": "남은 기회"
-    }
+    },
+    "labelSuccess": "성공",
+    "labelMiss": "실패",
+    "labelClarity": "선명도",
+    "labelTime": "남은 시간"
   },
   "characterSheet": {
     "title": "캐릭터 시트",
@@ -97,6 +102,7 @@
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
-    "start": "시작하기"
+    "start": "시작하기",
+    "playtime": "플레이타임 약 15분"
   }
 }

@@ -15,7 +15,8 @@
     "title": "記憶コレクション",
     "open": "記憶コレクションパネルを開く",
     "close": "記憶コレクションパネルを閉じる",
-    "unknownName": "? ? ?"
+    "unknownName": "? ? ?",
+    "replay": "{{name}} をもう一度見る"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 収集した記憶",
@@ -82,7 +83,11 @@
       "late": "遅い",
       "hits": "ヒット {{value}} / {{goal}}",
       "chances": "残り"
-    }
+    },
+    "labelSuccess": "成功",
+    "labelMiss": "失敗",
+    "labelClarity": "鮮明度",
+    "labelTime": "残り時間"
   },
   "characterSheet": {
     "title": "キャラクターシート",
@@ -97,6 +102,7 @@
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "閉じた部屋に散らばった記憶を、ひとつずつ取り戻す物語。",
-    "start": "はじめる"
+    "start": "はじめる",
+    "playtime": "プレイ時間 約15分"
   }
 }
