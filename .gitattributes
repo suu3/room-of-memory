@@ -1,0 +1,11 @@
+# 줄바꿈은 리포가 결정한다. core.autocrlf(이 머신은 system 레벨에서 true)보다
+# 우선하므로, 어느 머신에서 클론하든 워킹트리가 LF로 떨어진다 — Biome이 LF를 기대한다.
+* text=auto eol=lf
+
+# 바이너리는 git이 절대 변환하지 않게 명시한다. text=auto가 자동 감지하긴 하지만
+# 에셋이 손상되면 원인을 찾기 어려우므로 확장자를 못박아 둔다.
+*.glb   binary
+*.png   binary
+*.webp  binary
+*.woff2 binary
+*.ico   binary
