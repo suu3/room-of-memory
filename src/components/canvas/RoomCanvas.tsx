@@ -30,7 +30,10 @@ import {
   canInitializeWebGL,
   dispatchMemoryInteraction,
   handleRoomInteractionKeyDown,
+  handleRoomZoomKeyDown,
   roomZoomForViewport,
+  roomZoomScaleFromPinch,
+  roomZoomScaleFromWheel,
 } from "./room-canvas-runtime";
 
 const PROXIMITY_POLL_MS = 100;
@@ -82,11 +85,14 @@ export function RoomCanvas() {
   const nearbyMemoryIdRef = useRef<MemoryId | null>(null);
   const directFocusTimer = useRef<number | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const hadActiveInteraction = useRef(false);
+  const zoomScaleRef = useRef(1);
   const [webGLFailed, setWebGLFailed] = useState(() => !canInitializeWebGL());
   const [nearbyMemoryId, setNearbyMemoryId] = useState<MemoryId | null>(null);
   const [focusMemoryId, setFocusMemoryId] = useState<MemoryId | null>(null);
   const [roomZoom, setRoomZoom] = useState(64);
+  const [zoomScale, setZoomScale] = useState(1);
   const [curtainsOpenedAtRevision, setCurtainsOpenedAtRevision] = useState<number | null>(null);
   const activeInteraction = useMemoryRoomStore(selectActiveInteraction);
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
@@ -230,12 +236,77 @@ export function RoomCanvas() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [interact]);
 
+  // 포커스 연출·대사·미니게임 중에는 프레이밍이 깨지지 않게 배율을 되돌리고 입력을 잠근다.
+  const zoomLocked = inputLocked || focusMemoryId !== null;
+
+  const applyZoomScale = useCallback((next: number) => {
+    if (zoomScaleRef.current === next) return;
+    zoomScaleRef.current = next;
+    setZoomScale(next);
+  }, []);
+
+  useEffect(() => {
+    if (zoomLocked) applyZoomScale(1);
+  }, [zoomLocked, applyZoomScale]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || zoomLocked) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      applyZoomScale(roomZoomScaleFromWheel(zoomScaleRef.current, event.deltaY));
+    };
+
+    let pinch: { distance: number; scale: number } | null = null;
+    const pinchDistance = (touches: TouchList) =>
+      Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+    const handleTouchStart = (event: TouchEvent) => {
+      pinch =
+        event.touches.length === 2
+          ? { distance: pinchDistance(event.touches), scale: zoomScaleRef.current }
+          : null;
+    };
+    const handleTouchMove = (event: TouchEvent) => {
+      if (!pinch || event.touches.length !== 2) return;
+      event.preventDefault();
+      applyZoomScale(
+        roomZoomScaleFromPinch(pinch.scale, pinch.distance, pinchDistance(event.touches)),
+      );
+    };
+    const endPinch = () => {
+      pinch = null;
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      handleRoomZoomKeyDown(event, {
+        locked: false,
+        scale: zoomScaleRef.current,
+        apply: applyZoomScale,
+      });
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    container.addEventListener("touchmove", handleTouchMove, { passive: false });
+    container.addEventListener("touchend", endPinch, { passive: true });
+    container.addEventListener("touchcancel", endPinch, { passive: true });
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
+      container.removeEventListener("touchend", endPinch);
+      container.removeEventListener("touchcancel", endPinch);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [applyZoomScale, zoomLocked]);
+
   const nearbyLabel = nearbyMemoryId
     ? t("scene.interactHint", { name: labels[nearbyMemoryId] })
     : "";
 
   return (
-    <div className="absolute inset-0">
+    <div ref={containerRef} className="absolute inset-0">
       {webGLFailed ? (
         <WebGLFallback>{t("scene.webglFallback")}</WebGLFallback>
       ) : (
@@ -261,7 +332,7 @@ export function RoomCanvas() {
               focusMemoryId={focusMemoryId}
               nearbyMemoryId={nearbyMemoryId}
               curtainsOpen={curtainsOpen}
-              roomZoom={roomZoom}
+              roomZoom={roomZoom * zoomScale}
               onInteract={interact}
             />
           </Canvas>
