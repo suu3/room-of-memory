@@ -7,7 +7,6 @@ import { ASSETS } from "@/lib/assets";
 import { hotspotStatus, useMemoryRoomStore } from "@/store/memory-room";
 import { MEMORY_PLACEMENTS } from "./layout";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
-import { MemoryStatusEffect } from "./MemoryStatusEffect";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
@@ -369,17 +368,11 @@ export function InteractiveMemory({
           </group>
         }
         helpers={
-          <>
-            <MemoryStatusEffect
-              status={status}
-              memoryColor={palette.memory}
-              interactionRadius={placement.interactionRadius}
-            />
-            <mesh name={`memory-hit-${id}`}>
-              <sphereGeometry args={[placement.interactionRadius, 12, 8]} />
-              <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-            </mesh>
-          </>
+          // 수집 완료 표시는 3D에 그리지 않는다 — 우측 "기억 수집" 패널이 담당한다.
+          <mesh name={`memory-hit-${id}`}>
+            <sphereGeometry args={[placement.interactionRadius, 12, 8]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
         }
       />
     </group>
