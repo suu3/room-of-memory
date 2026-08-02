@@ -36,36 +36,46 @@ const BED_PARTS = [
   { size: [2.35, 0.24, 1.25], position: [4.65, 0.9, 1.5], color: "paper" },
 ] as const satisfies readonly BoxPart[];
 
+/*
+ * z-fighting 방지 원칙: 맞닿는 두 박스의 면이 같은 좌표에 놓이면 깊이값이 같아져
+ * 프레임마다 어느 쪽이 앞인지 뒤집히며 깜빡인다. 겹치는 부품은 항상
+ * (1) 상대 안으로 파고들게 하거나 (2) 눈에 안 띄는 간격을 두어 면을 어긋나게 한다.
+ */
+
+// 상판 윗면 y=1.11. 다리는 상판 안으로 0.06 파고든다.
 const DESK_PARTS = [
-  { size: [3.5, 0.18, 1.35], position: [0, 1.01, 0], color: "dusk" },
-  { size: [0.2, 0.92, 0.2], position: [-1.57, 0.46, -0.49], color: "ink" },
-  { size: [0.2, 0.92, 0.2], position: [1.57, 0.46, -0.49], color: "ink" },
-  { size: [0.2, 0.92, 0.2], position: [-1.57, 0.46, 0.49], color: "ink" },
-  { size: [0.2, 0.92, 0.2], position: [1.57, 0.46, 0.49], color: "ink" },
-  { size: [1.18, 0.42, 1.18], position: [-0.88, 0.72, 0], color: "slate" },
+  { size: [4.1, 0.2, 1.6], position: [0, 1.01, 0], color: "dusk" },
+  { size: [0.22, 0.98, 0.22], position: [-1.87, 0.49, -0.6], color: "ink" },
+  { size: [0.22, 0.98, 0.22], position: [1.87, 0.49, -0.6], color: "ink" },
+  { size: [0.22, 0.98, 0.22], position: [-1.87, 0.49, 0.6], color: "ink" },
+  { size: [0.22, 0.98, 0.22], position: [1.87, 0.49, 0.6], color: "ink" },
+  { size: [1.3, 0.46, 1.4], position: [-1.05, 0.7, 0], color: "slate" },
 ] as const satisfies readonly BoxPart[];
 
+// 다리는 좌석 안으로, 등받이는 좌석 안으로 각각 파고든다.
 const CHAIR_PARTS = [
   { size: [1.05, 0.16, 1.05], position: [0, 0.67, 0], color: "ink" },
-  { size: [0.14, 0.585, 0.14], position: [-0.41, 0.2975, -0.41], color: "slate" },
-  { size: [0.14, 0.585, 0.14], position: [0.41, 0.2975, -0.41], color: "slate" },
-  { size: [0.14, 0.585, 0.14], position: [-0.41, 0.2975, 0.41], color: "slate" },
-  { size: [0.14, 0.585, 0.14], position: [0.41, 0.2975, 0.41], color: "slate" },
-  { size: [1.05, 0.705, 0.16], position: [0, 1.1025, 0.445], color: "dusk" },
+  { size: [0.14, 0.64, 0.14], position: [-0.41, 0.32, -0.41], color: "slate" },
+  { size: [0.14, 0.64, 0.14], position: [0.41, 0.32, -0.41], color: "slate" },
+  { size: [0.14, 0.64, 0.14], position: [-0.41, 0.32, 0.41], color: "slate" },
+  { size: [0.14, 0.64, 0.14], position: [0.41, 0.32, 0.41], color: "slate" },
+  { size: [1.05, 0.79, 0.16], position: [0, 1.06, 0.445], color: "dusk" },
 ] as const satisfies readonly BoxPart[];
 
+// 몸통 앞면 z=-2.53. 서랍판은 그 면을 물고, 손잡이는 서랍판 앞에 0.015 띄운다.
 const CABINET_PARTS = [
   { size: [4.4, 1.15, 0.72], position: [2.35, 0.58, -2.89], color: "dusk" },
-  { size: [2.08, 0.92, 0.08], position: [1.23, 0.58, -2.49], color: "slate" },
-  { size: [2.08, 0.92, 0.08], position: [3.47, 0.58, -2.49], color: "slate" },
-  { size: [0.12, 0.12, 0.08], position: [2.14, 0.58, -2.49], color: "bone" },
-  { size: [0.12, 0.12, 0.08], position: [2.56, 0.58, -2.49], color: "bone" },
+  { size: [2.08, 0.92, 0.06], position: [1.23, 0.58, -2.53], color: "slate" },
+  { size: [2.08, 0.92, 0.06], position: [3.47, 0.58, -2.53], color: "slate" },
+  { size: [0.12, 0.12, 0.05], position: [2.14, 0.58, -2.46], color: "bone" },
+  { size: [0.12, 0.12, 0.05], position: [2.56, 0.58, -2.46], color: "bone" },
 ] as const satisfies readonly BoxPart[];
 
+// 몸통 앞면 z=1.16. 캐비닛과 같은 규칙.
 const NIGHTSTAND_PARTS = [
   { size: [0.9, 0.95, 0.82], position: [6.8, 0.48, 0.75], color: "dusk" },
-  { size: [0.72, 0.28, 0.08], position: [6.8, 0.72, 1.2], color: "slate" },
-  { size: [0.16, 0.08, 0.06], position: [6.8, 0.72, 1.21], color: "bone" },
+  { size: [0.72, 0.28, 0.06], position: [6.8, 0.72, 1.16], color: "slate" },
+  { size: [0.16, 0.08, 0.05], position: [6.8, 0.72, 1.225], color: "bone" },
 ] as const satisfies readonly BoxPart[];
 
 const SHELF_PARTS = [

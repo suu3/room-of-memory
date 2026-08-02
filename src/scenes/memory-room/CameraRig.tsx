@@ -3,6 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { MathUtils, type OrthographicCamera, Vector3 } from "three";
+import { focusZoomFor } from "@/components/canvas/room-canvas-runtime";
 import type { MemoryId } from "@/data/memory-room";
 import { CAMERA_PRESETS } from "./layout";
 
@@ -28,6 +29,7 @@ export function CameraRig({
   );
   const preset = CAMERA_PRESETS[focusMemoryId ?? "room"];
   const lambda = reducedMotion ? 18 : 7;
+  const zoomGoal = focusZoomFor(roomZoom, focusMemoryId !== null);
 
   useFrame(({ camera }, delta) => {
     cameraTargetGoal.set(preset.target[0], preset.target[1], preset.target[2]);
@@ -47,7 +49,7 @@ export function CameraRig({
 
     if ("isOrthographicCamera" in camera && camera.isOrthographicCamera) {
       const orthographicCamera = camera as OrthographicCamera;
-      orthographicCamera.zoom = MathUtils.damp(orthographicCamera.zoom, roomZoom, lambda, delta);
+      orthographicCamera.zoom = MathUtils.damp(orthographicCamera.zoom, zoomGoal, lambda, delta);
       orthographicCamera.updateProjectionMatrix();
     }
 

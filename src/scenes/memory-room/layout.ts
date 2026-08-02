@@ -17,18 +17,19 @@ export const ROOM_DOOR_POSITION = [ROOM_SHELL_BOUNDS.minX + 0.14, 1.7, 5.35] as 
 export const ROOM_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
 export const DESK_POSITION = [-4.6, 0, -1.2] as const;
 export const DESK_ROTATION = [0, Math.PI / 2, 0] as const;
-export const CHAIR_POSITION = [-3.45, 0, -1.2] as const;
+// 책상이 커지면서 다리가 x=-4.0까지 나온다 — 의자를 그만큼 안쪽으로 물린다.
+export const CHAIR_POSITION = [-3.3, 0, -1.2] as const;
 export const CHAIR_ROTATION = [0, Math.PI / 2, 0] as const;
 
 export const ROOM_BOUNDS: Aabb2 = { minX: -5.55, maxX: 7.55, minZ: -3.55, maxZ: 6.05 };
 
 export const ROOM_COLLIDERS = [
-  { minX: -5.35, maxX: -3.85, minZ: -3.05, maxZ: 0.65 }, // desk
+  { minX: -5.48, maxX: -3.72, minZ: -3.35, maxZ: 0.95 }, // desk
   { minX: 3, maxX: 6.3, minZ: 0.1, maxZ: 5.6 }, // bed
   { minX: 0.15, maxX: 4.7, minZ: -3.35, maxZ: -2.25 }, // cabinet
   { minX: 6.3, maxX: 7.25, minZ: 0.3, maxZ: 1.2 }, // nightstand
   // 의자 — CHAIR_POSITION의 좌석/등받이 발자국(±0.525)에서 살짝 안쪽으로 잡는다
-  { minX: -3.93, maxX: -2.97, minZ: -1.68, maxZ: -0.72 }, // chair
+  { minX: -3.78, maxX: -2.82, minZ: -1.68, maxZ: -0.72 }, // chair
 ] as const satisfies readonly Aabb2[];
 
 export const MEMORY_PLACEMENTS = {
@@ -55,9 +56,12 @@ export const MEMORY_PLACEMENTS = {
   },
   radio: {
     id: "radio",
-    position: [-4.4, 1.28, -0.5],
+    // y는 책상 상판 윗면(1.11) — 라디오 로컬 원점이 밑면이라 그대로 얹힌다.
+    // 넓어진 책상 한가운데에 두면 플레이어가 반경 안으로 들어올 수 없다.
+    // 통로 쪽(+X) 모서리로, 의자를 피해 앞쪽(+Z)에 얹는다.
+    position: [-4.05, 1.11, 0.1],
     rotation: [0, Math.PI / 2 + 0.2, 0],
-    scale: 1,
+    scale: 0.72,
     interactionRadius: 1.05,
   },
   phone: {
@@ -90,7 +94,7 @@ export const CAMERA_PRESETS = {
   bat: { position: [-1.4, 3.0, 6.7], target: [-5.25, 0.8, 4.15] },
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
   frame: { position: [4.8, 2.6, 0.7], target: [2.15, 1.36, -2.55] },
-  radio: { position: [-1.1, 2.5, 2.1], target: [-4.4, 1.25, -0.5] },
+  radio: { position: [-1.1, 2.5, 2.1], target: [-4.05, 1.31, 0.1] },
   phone: { position: [6.2, 2.6, 1.3], target: [3.45, 1.0, -2.25] },
   calendar: { position: [-1.1, 3.6, 3.2], target: [-5.75, 2.5, 0.9] },
   ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },

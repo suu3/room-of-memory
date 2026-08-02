@@ -47,6 +47,17 @@ export function roomZoomForViewport(width: number, height: number): number {
   );
 }
 
+/**
+ * 오브젝트를 조사할 때 얼마나 더 당길지. 카메라가 직교(orthographic)라
+ * 위치를 타깃 쪽으로 옮겨도 크기는 그대로다 — 확대는 zoom으로만 된다.
+ */
+export const FOCUS_ZOOM_SCALE = 2.1;
+
+export function focusZoomFor(baseZoom: number, focused: boolean): number {
+  if (!Number.isFinite(baseZoom)) return baseZoom;
+  return focused ? baseZoom * FOCUS_ZOOM_SCALE : baseZoom;
+}
+
 export function clampRoomZoomScale(scale: number): number {
   if (!Number.isFinite(scale)) return 1;
   return Math.min(MAX_ROOM_ZOOM_SCALE, Math.max(MIN_ROOM_ZOOM_SCALE, scale));

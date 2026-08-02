@@ -1,7 +1,15 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
-import { type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import type { Material, Mesh } from "three";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import type { Color, Group, Material, Mesh } from "three";
 import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { ASSETS } from "@/lib/assets";
 import { hotspotStatus, useMemoryRoomStore } from "@/store/memory-room";
@@ -22,6 +30,46 @@ const MODEL_PATHS = {
 for (const path of Object.values(MODEL_PATHS)) {
   // Drei enables Meshopt by default; passing `true` keeps that decoder requirement explicit.
   useGLTF.preload(path, true, true);
+}
+
+/**
+ * 조사 완료 표시 — 회색으로 죽이는 대신 금빛을 켜 둔다.
+ * DESIGN.md의 핵심 연출이 "기억을 모을수록 화면에서 금빛 비중이 늘어나는 것"이라,
+ * 수집한 오브젝트에서 색을 빼면 연출이 정반대로 간다.
+ */
+const COLLECTED_EMISSIVE_INTENSITY = 0.42;
+
+interface EmissiveBaseline {
+  color: number;
+  intensity: number;
+}
+
+/** 원래 이미시브 값을 재질별로 기억해 둔다 — 해제할 때 그대로 되돌리기 위해서. */
+const emissiveBaselines = new WeakMap<Material, EmissiveBaseline>();
+
+type EmissiveMaterial = Material & {
+  emissive?: Color;
+  emissiveIntensity?: number;
+};
+
+function setMaterialCollected(material: Material, collected: boolean, memoryColor: string) {
+  const target = material as EmissiveMaterial;
+  if (!target.emissive) return;
+
+  let baseline = emissiveBaselines.get(material);
+  if (!baseline) {
+    baseline = { color: target.emissive.getHex(), intensity: target.emissiveIntensity ?? 0 };
+    emissiveBaselines.set(material, baseline);
+  }
+
+  if (collected) {
+    target.emissive.set(memoryColor);
+    target.emissiveIntensity = COLLECTED_EMISSIVE_INTENSITY;
+  } else {
+    target.emissive.setHex(baseline.color);
+    target.emissiveIntensity = baseline.intensity;
+  }
+  material.needsUpdate = true;
 }
 
 function setMaterialOpacity(material: Material, opacity: number) {
@@ -323,6 +371,39 @@ function MemoryVisual({
   );
 }
 
+/**
+ * 자식 메쉬 전체에 수집 완료 톤을 입힌다. 프리미티브든 glb든 결국 three 재질이라
+ * 트래버스 한 번으로 처리된다 — 시각 요소마다 emissive prop을 뿌리지 않는다.
+ */
+function CollectedTint({
+  collected,
+  memoryColor,
+  revision,
+  children,
+}: {
+  collected: boolean;
+  memoryColor: string;
+  /** glb는 늦게 붙는다 — 로드 완료 때 값이 바뀌면서 다시 칠하게 하는 신호. */
+  revision: number;
+  children: ReactNode;
+}) {
+  const groupRef = useRef<Group>(null);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: revision은 본문에서 읽지 않고 재실행 신호로만 쓴다 — glb가 늦게 붙으면 그때 다시 칠해야 한다.
+  useLayoutEffect(() => {
+    const group = groupRef.current;
+    if (!group) return;
+    group.traverse((object) => {
+      const mesh = object as Mesh;
+      if (!mesh.isMesh) return;
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const material of materials) setMaterialCollected(material, collected, memoryColor);
+    });
+  }, [collected, memoryColor, revision]);
+
+  return <group ref={groupRef}>{children}</group>;
+}
+
 export function InteractiveMemory({
   id,
   palette,
@@ -359,12 +440,18 @@ export function InteractiveMemory({
         visual={
           // 호버 판정은 실제 모델에만 건다 — 아래 memory-hit 구는 반경이 커서 호버 대상이 되면 안 된다.
           <group rotation={placement.rotation} scale={placement.scale} {...handlers}>
-            <MemoryVisual
-              id={id}
-              palette={palette}
-              opacity={opacity}
-              onModelReady={refreshSelection}
-            />
+            <CollectedTint
+              collected={status === "done"}
+              memoryColor={palette.memory}
+              revision={selectionVersion}
+            >
+              <MemoryVisual
+                id={id}
+                palette={palette}
+                opacity={opacity}
+                onModelReady={refreshSelection}
+              />
+            </CollectedTint>
           </group>
         }
         helpers={

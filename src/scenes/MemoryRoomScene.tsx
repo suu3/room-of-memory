@@ -13,6 +13,7 @@ import { type MemoryId, stageIndexFromCount } from "@/data/memory-room";
 import { selectCollected, selectEndingReady, useMemoryRoomStore } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
 import { CameraRig } from "./memory-room/CameraRig";
+import { DustMotes } from "./memory-room/DustMotes";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
 import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
 import { Player } from "./memory-room/Player";
@@ -136,6 +137,8 @@ export function MemoryRoomScene({
         />
         <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
       </MemoryGlowRoot>
+      {/* 글로우 루트 밖 — 먼지는 아웃라인 선택 대상이 아니다 */}
+      <DustMotes color={palette.memory} opacity={ROOM_LIGHTING.dust[stageIndex]} />
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
       <CameraRig focusMemoryId={focusMemoryId} roomZoom={roomZoom} orbitAzimuth={orbitAzimuth} />
     </>
