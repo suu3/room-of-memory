@@ -9,12 +9,14 @@ import { MEMORY_PLACEMENTS } from "./layout";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
 import { MemoryStatusEffect } from "./MemoryStatusEffect";
 import type { RoomPalette } from "./palette";
+import type { Vec3Tuple } from "./types";
 import { shouldHighlightMemory } from "./visual-state";
 
+// ASSETS.models.photoFrame은 액자가 아니라 납작한 오각형 판때기라 여기서 쓰지 않는다.
+// 제대로 된 액자 glb가 들어오면 frame 키를 다시 추가할 것.
 const MODEL_PATHS = {
   bat: ASSETS.models.baseballBat,
   ball: ASSETS.models.baseball,
-  frame: ASSETS.models.photoFrame,
 } as const satisfies Partial<Record<MemoryId, string>>;
 
 for (const path of Object.values(MODEL_PATHS)) {
@@ -110,34 +112,77 @@ function Ball({ palette, opacity }: VisualProps) {
   );
 }
 
+/** 캐비닛 위에 세워두는 탁상 액자. 원점이 액자 중앙, 아랫변이 -FRAME_HEIGHT/2에 온다. */
+const FRAME_WIDTH = 0.52;
+const FRAME_HEIGHT = 0.4;
+const FRAME_BORDER = 0.045;
+const FRAME_DEPTH = 0.035;
+const FRAME_OPENING_WIDTH = FRAME_WIDTH - FRAME_BORDER * 2;
+const FRAME_OPENING_HEIGHT = FRAME_HEIGHT - FRAME_BORDER * 2;
+
+const FRAME_BARS = [
+  {
+    size: [FRAME_WIDTH, FRAME_BORDER, FRAME_DEPTH],
+    position: [0, (FRAME_HEIGHT - FRAME_BORDER) / 2, 0],
+  },
+  {
+    size: [FRAME_WIDTH, FRAME_BORDER, FRAME_DEPTH],
+    position: [0, -(FRAME_HEIGHT - FRAME_BORDER) / 2, 0],
+  },
+  {
+    size: [FRAME_BORDER, FRAME_OPENING_HEIGHT, FRAME_DEPTH],
+    position: [-(FRAME_WIDTH - FRAME_BORDER) / 2, 0, 0],
+  },
+  {
+    size: [FRAME_BORDER, FRAME_OPENING_HEIGHT, FRAME_DEPTH],
+    position: [(FRAME_WIDTH - FRAME_BORDER) / 2, 0, 0],
+  },
+] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
+
 function Frame({ palette, opacity }: VisualProps) {
   return (
-    <group>
-      <mesh position={[0, 0.04, 0]} castShadow>
-        <boxGeometry args={[1.05, 0.08, 0.72]} />
-        <meshStandardMaterial color={palette.ink} roughness={0.7} opacity={opacity} transparent />
+    <group rotation={[-0.12, 0, 0]}>
+      {FRAME_BARS.map((bar) => (
+        <mesh key={bar.position.join(":")} position={bar.position} castShadow>
+          <boxGeometry args={bar.size} />
+          <meshStandardMaterial
+            color={palette.bone}
+            roughness={0.62}
+            opacity={opacity}
+            transparent
+          />
+        </mesh>
+      ))}
+      <mesh position={[0, 0, -FRAME_DEPTH / 2]} castShadow>
+        <boxGeometry args={[FRAME_WIDTH, FRAME_HEIGHT, 0.012]} />
+        <meshStandardMaterial color={palette.ink} roughness={0.75} opacity={opacity} transparent />
       </mesh>
-      <mesh position={[0, 0.085, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.85, 0.54]} />
-        <meshStandardMaterial color={palette.paper} roughness={0.9} opacity={opacity} transparent />
+      <mesh position={[0, 0, 0.004]}>
+        <planeGeometry args={[FRAME_OPENING_WIDTH, FRAME_OPENING_HEIGHT]} />
+        <meshStandardMaterial
+          color={palette.paper}
+          emissive={palette.memory}
+          emissiveIntensity={0.1}
+          roughness={0.85}
+          opacity={opacity}
+          transparent
+        />
+      </mesh>
+      <mesh position={[0, -FRAME_OPENING_HEIGHT * 0.28, 0.006]}>
+        <planeGeometry args={[FRAME_OPENING_WIDTH, FRAME_OPENING_HEIGHT * 0.34]} />
+        <meshStandardMaterial
+          color={palette.ember}
+          roughness={0.88}
+          opacity={0.55 * opacity}
+          transparent
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh position={[0, -FRAME_HEIGHT * 0.2, -0.085]} rotation={[0.38, 0, 0]} castShadow>
+        <boxGeometry args={[0.11, FRAME_HEIGHT * 0.68, 0.014]} />
+        <meshStandardMaterial color={palette.ink} roughness={0.8} opacity={opacity} transparent />
       </mesh>
     </group>
-  );
-}
-
-function FramePhotoFace({ palette, opacity }: VisualProps) {
-  return (
-    <mesh position={[-0.56, 0.38, 0.47]}>
-      <planeGeometry args={[0.94, 0.46]} />
-      <meshStandardMaterial
-        color={palette.paper}
-        emissive={palette.paper}
-        emissiveIntensity={0.08}
-        roughness={0.82}
-        opacity={opacity}
-        transparent
-      />
-    </mesh>
   );
 }
 
@@ -272,15 +317,7 @@ function MemoryVisual({
   const fallback = <PrimitiveVisual id={id} palette={palette} opacity={opacity} />;
   const modelPath = MODEL_PATHS[id as keyof typeof MODEL_PATHS];
   return modelPath ? (
-    <group>
-      <GlbMemoryModel
-        path={modelPath}
-        fallback={fallback}
-        opacity={opacity}
-        onReady={onModelReady}
-      />
-      {id === "frame" ? <FramePhotoFace palette={palette} opacity={opacity} /> : null}
-    </group>
+    <GlbMemoryModel path={modelPath} fallback={fallback} opacity={opacity} onReady={onModelReady} />
   ) : (
     fallback
   );

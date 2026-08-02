@@ -27,6 +27,8 @@ export const ROOM_COLLIDERS = [
   { minX: 3, maxX: 6.3, minZ: 0.1, maxZ: 5.6 }, // bed
   { minX: 0.15, maxX: 4.7, minZ: -3.35, maxZ: -2.25 }, // cabinet
   { minX: 6.3, maxX: 7.25, minZ: 0.3, maxZ: 1.2 }, // nightstand
+  // 의자 — CHAIR_POSITION의 좌석/등받이 발자국(±0.525)에서 살짝 안쪽으로 잡는다
+  { minX: -3.93, maxX: -2.97, minZ: -1.68, maxZ: -0.72 }, // chair
 ] as const satisfies readonly Aabb2[];
 
 export const MEMORY_PLACEMENTS = {
@@ -46,9 +48,9 @@ export const MEMORY_PLACEMENTS = {
   },
   frame: {
     id: "frame",
-    position: [2.15, 1.33, -2.72],
+    position: [2.15, 1.36, -2.72],
     rotation: [0, -0.3, 0],
-    scale: 0.55,
+    scale: 1,
     interactionRadius: 1.05,
   },
   radio: {
@@ -74,20 +76,22 @@ export const MEMORY_PLACEMENTS = {
   },
   ball: {
     id: "ball",
-    position: [-5.1, 0.24, 3.75],
+    // glb는 반지름 1 구 — scale이 곧 반지름이라 y도 같은 값이어야 바닥에 닿는다
+    position: [-5.1, 0.19, 3.75],
     rotation: [0, 0, 0],
-    scale: 0.38,
+    scale: 0.19,
     interactionRadius: 1.05,
   },
 } as const satisfies Record<MemoryId, MemoryPlacement>;
 
 export const CAMERA_PRESETS = {
-  room: { position: [14.2, 10.4, 15.4], target: [0.8, 1.2, 1.2] },
+  // room.target.y를 올리면 시선 중심이 위로 가면서 방이 화면 아래쪽으로 내려온다
+  room: { position: [14.2, 10.4, 15.4], target: [0.8, 2.35, 1.2] },
   bat: { position: [-1.4, 3.0, 6.7], target: [-5.25, 0.8, 4.15] },
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
-  frame: { position: [4.8, 2.6, 0.7], target: [2.15, 1.3, -2.55] },
+  frame: { position: [4.8, 2.6, 0.7], target: [2.15, 1.36, -2.55] },
   radio: { position: [-1.1, 2.5, 2.1], target: [-4.4, 1.25, -0.5] },
   phone: { position: [6.2, 2.6, 1.3], target: [3.45, 1.0, -2.25] },
   calendar: { position: [-1.1, 3.6, 3.2], target: [-5.75, 2.5, 0.9] },
-  ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.3, 3.75] },
+  ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },
 } as const satisfies Record<"room" | MemoryId, CameraPreset>;
