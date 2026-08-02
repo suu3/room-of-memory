@@ -60,3 +60,60 @@ describe("minigame result dialogue", () => {
     expect(useMemoryRoomStore.getState().collected).toEqual(["frame"]);
   });
 });
+
+describe("replaying a collected memory", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  /** bat은 대사만 있는 기억이라 재생 경로를 가장 짧게 확인할 수 있다. */
+  function collectBat() {
+    const store = useMemoryRoomStore.getState();
+    store.beginInteraction("bat");
+    while (useMemoryRoomStore.getState().activeInteraction) {
+      useMemoryRoomStore.getState().advanceDialogue();
+    }
+  }
+
+  it("아직 수집하지 않은 기억은 재생되지 않는다", () => {
+    useMemoryRoomStore.getState().replayMemory("bat");
+
+    expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
+  });
+
+  it("수집한 기억은 처음 봤던 대사를 다시 재생한다", () => {
+    collectBat();
+    useMemoryRoomStore.getState().replayMemory("bat");
+
+    const active = useMemoryRoomStore.getState().activeInteraction;
+    expect(active?.memoryId).toBe("bat");
+    expect(active?.phase).toBe("dialogue");
+    expect(active?.replaying).toBe(true);
+    expect(active?.lineIndex).toBe(0);
+  });
+
+  it("재생이 끝나도 수집·재조사 기록이 늘지 않는다", () => {
+    collectBat();
+    const before = useMemoryRoomStore.getState();
+    const collected = [...before.collected];
+    const revisited = [...before.revisited];
+
+    useMemoryRoomStore.getState().replayMemory("bat");
+    while (useMemoryRoomStore.getState().activeInteraction) {
+      useMemoryRoomStore.getState().advanceDialogue();
+    }
+
+    const after = useMemoryRoomStore.getState();
+    expect(after.collected).toEqual(collected);
+    expect(after.revisited).toEqual(revisited);
+    expect(after.activeInteraction).toBeNull();
+  });
+
+  it("다른 인터랙션이 진행 중이면 재생을 시작하지 않는다", () => {
+    collectBat();
+    useMemoryRoomStore.getState().beginInteraction("ball");
+    const active = useMemoryRoomStore.getState().activeInteraction;
+
+    useMemoryRoomStore.getState().replayMemory("bat");
+
+    expect(useMemoryRoomStore.getState().activeInteraction).toBe(active);
+  });
+});

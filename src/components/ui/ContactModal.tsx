@@ -21,7 +21,7 @@ export function ContactLinks() {
             href={link.href}
             target={link.href.startsWith("http") ? "_blank" : undefined}
             rel="noreferrer"
-            className="group flex items-center justify-between gap-4 py-4"
+            className="group flex items-center justify-between gap-4 py-4 transition-colors active:bg-ink/5"
           >
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-ink/45">
               {link.label}
@@ -88,7 +88,7 @@ export function ContactModal() {
             type="button"
             onClick={() => setOpen(false)}
             aria-label={t("contact.close")}
-            className="cursor-pointer text-ink/60 transition-colors hover:text-ink"
+            className="cursor-pointer text-ink/60 transition-colors hover:text-ink active:text-ink/80"
           >
             <X size={18} weight="bold" />
           </button>

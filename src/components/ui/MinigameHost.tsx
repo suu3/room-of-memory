@@ -91,7 +91,7 @@ export function MinigameHost() {
                 ref={startButtonRef}
                 type="button"
                 onClick={() => setStartedKey(activeKey)}
-                className="mt-7 cursor-pointer rounded-full bg-ink px-10 py-2.5 text-base font-bold tracking-widest text-paper transition-colors hover:bg-ink/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+                className="mt-7 cursor-pointer rounded-full bg-ink px-10 py-2.5 text-base font-bold tracking-widest text-paper transition-all hover:bg-ink/85 active:translate-y-px active:bg-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
               >
                 {t("minigame.start")}
               </button>

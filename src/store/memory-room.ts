@@ -16,6 +16,8 @@ export interface ActiveInteraction {
   scriptId?: string;
   /** 결과 대사 단계 — 대사창 뒤로 미니게임 화면이 그대로 남는다. */
   keepMinigame?: boolean;
+  /** 이미 본 기억을 다시 재생하는 중. 끝나도 수집 상태를 건드리지 않는다. */
+  replaying?: boolean;
   lineIndex: number;
 }
 
@@ -41,6 +43,8 @@ interface MemoryRoomState {
   finishMinigame: (result: MinigameResult) => void;
   /** 미니게임을 완료 처리 없이 중단한다 (모달 닫기) — 핫스팟은 다시 클릭 가능. */
   cancelMinigame: () => void;
+  /** 수집한 기억을 다시 재생한다 (수집 상태는 그대로). */
+  replayMemory: (id: MemoryId) => void;
   setUiLock: (id: UiLockId, locked: boolean) => void;
   setCharacterSheetOpen: (open: boolean) => void;
   setContactOpen: (open: boolean) => void;
@@ -77,6 +81,15 @@ export function endingReady(state: StateSnapshot): boolean {
     gamePhaseOf(state) === 2 &&
     MEMORIES.every((memory) => !memory.phase2 || state.revisited.includes(memory.id))
   );
+}
+
+/**
+ * 인터랙션을 닫는다. 다시보기는 이미 본 것을 되짚는 것뿐이라 수집·재조사 기록을
+ * 남기지 않는다 — 남기면 2바퀴 진행도와 방 밝기가 멋대로 올라간다.
+ */
+function finishInteraction(state: MemoryRoomState, active: ActiveInteraction) {
+  if (active.replaying) return { activeInteraction: null };
+  return complete(state, active.memoryId, active.gamePhase);
 }
 
 function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
@@ -139,7 +152,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
           activeInteraction: { ...active, phase: "minigame" as const, scriptId: undefined },
         };
       }
-      return complete(state, active.memoryId, active.gamePhase);
+      return finishInteraction(state, active);
     }),
   finishMinigame: (result) =>
     set((state) => {
@@ -159,12 +172,37 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
         };
       }
       // 실패도 유효한 결말 — 결과와 무관하게 완료. 플래그/분기는 추후 확장.
-      return complete(state, active.memoryId, active.gamePhase);
+      return finishInteraction(state, active);
     }),
   cancelMinigame: () =>
     set((state) =>
       state.activeInteraction?.phase === "minigame" ? { activeInteraction: null } : state,
     ),
+  replayMemory: (id) =>
+    set((state) => {
+      // 이미 본 것만 되짚을 수 있다. beginInteraction은 available일 때만 돌아서 쓸 수 없다.
+      if (state.activeInteraction || !state.collected.includes(id)) return state;
+      // 2바퀴까지 본 기억이면 마지막으로 본 쪽(phase2)을 되돌려준다
+      const item = MEMORY_BY_ID[id];
+      const gamePhase: GamePhase = state.revisited.includes(id) && item.phase2 ? 2 : 1;
+      const interaction = phaseConfigOf(id, gamePhase)?.interaction;
+      if (!interaction) return state;
+
+      const base = { memoryId: id, gamePhase, replaying: true, lineIndex: 0 } as const;
+      if (interaction.scriptId) {
+        return {
+          activeInteraction: {
+            ...base,
+            phase: "dialogue" as const,
+            scriptId: interaction.scriptId,
+          },
+        };
+      }
+      if (interaction.minigameId) {
+        return { activeInteraction: { ...base, phase: "minigame" as const } };
+      }
+      return state;
+    }),
   setUiLock: (id, locked) =>
     set((state) => {
       const present = state.uiLocks.includes(id);

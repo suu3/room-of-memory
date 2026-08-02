@@ -7,10 +7,10 @@ import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
 
 const ITEM_CLASS =
-  "block w-full cursor-pointer rounded-md px-2.5 py-2 text-left text-xs font-bold tracking-widest text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink";
+  "block w-full cursor-pointer rounded-md px-2.5 py-2 text-left text-xs font-bold tracking-widest text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink active:bg-ink/10";
 
 const CHIP_CLASS =
-  "cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-xs font-bold tracking-widest text-ink/60 transition-colors hover:border-ink/40 hover:text-ink";
+  "cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-xs font-bold tracking-widest text-ink/60 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5";
 
 export function HudMenu() {
   const { t } = useTranslation();
@@ -50,7 +50,7 @@ export function HudMenu() {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label={open ? t("menu.close") : t("menu.open")}
-        className="grid size-10 cursor-pointer place-items-center rounded-full border border-bone bg-paper text-ink/80 shadow-chip transition-all hover:-translate-y-0.5 hover:border-memory hover:text-ink"
+        className="grid size-10 cursor-pointer place-items-center rounded-full border border-bone bg-paper text-ink/80 shadow-chip transition-all hover:-translate-y-0.5 hover:border-memory hover:text-ink active:translate-y-0 active:scale-95"
       >
         {open ? <X size={18} weight="bold" /> : <List size={18} weight="bold" />}
       </button>
@@ -130,7 +130,7 @@ export function HudMenu() {
                   reset();
                   setConfirming(false);
                 }}
-                className="cursor-pointer rounded-full bg-ink px-4 py-1.5 text-xs font-bold tracking-widest text-paper transition-colors hover:bg-ink/85"
+                className="cursor-pointer rounded-full bg-ink px-4 py-1.5 text-xs font-bold tracking-widest text-paper transition-all hover:bg-ink/85 active:translate-y-px active:bg-ink"
               >
                 {t("reset.confirm")}
               </button>

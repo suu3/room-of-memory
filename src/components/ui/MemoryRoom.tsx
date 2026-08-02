@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL, ROOM_STAGES } from "@/data/memory-room";
-import { useTypewriter } from "@/lib/use-typewriter";
 import {
   ROOM_LIGHT_RAMP,
   roomLightLevel,
@@ -25,6 +24,7 @@ import { HudMenu } from "./HudMenu";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { MemoryPanel } from "./MemoryPanel";
 import { MinigameHost } from "./MinigameHost";
+import { Monologue } from "./Monologue";
 import { TitleScreen } from "./TitleScreen";
 
 function CanvasLoading() {
@@ -42,7 +42,6 @@ const RoomCanvas = dynamic(
 
 export function MemoryRoom() {
   const { t } = useTranslation();
-  const { t: tRoom } = useTranslation("memoryRoom");
   const collected = useMemoryRoomStore(selectCollected);
   const count = collected.length;
   // 밝기는 V자 — 1바퀴는 어두워지고 2바퀴에 되밝아진다 (기획안 3장)
@@ -58,7 +57,6 @@ export function MemoryRoom() {
   const isEndingReady = useMemoryRoomStore(selectEndingReady);
   // 타이틀 화면이 떠 있는 동안에는 인게임 HUD를 아예 렌더하지 않는다 — 블러 너머로 비친다.
   const started = useMemoryRoomStore((state) => state.started);
-  const monologue = useTypewriter(tRoom(`stages.${stage.id}.monologue`));
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-night">
@@ -96,13 +94,14 @@ export function MemoryRoom() {
             <h1 className="text-lg font-bold tracking-tight text-ink">{t("title")}</h1>
           </div>
           <div className="flex flex-col gap-2 pl-1">
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-baseline gap-2.5">
               <span className="text-[0.625rem] font-bold uppercase tracking-[0.22em] text-fog">
                 {t("hud.scattered")}
               </span>
-              <span className="font-pixel text-sm text-bone">
-                <span className="text-memory">{count}</span>
-                <span className="text-bone/45"> / {MEMORY_GOAL}</span>
+              {/* 모은 개수가 이 화면의 유일한 진행 지표다 — 라벨보다 확실히 앞으로 나와야 한다 */}
+              <span className="font-pixel text-bone/40">
+                <span className="text-xl font-bold text-memory">{count}</span>
+                <span className="text-sm"> / {MEMORY_GOAL}</span>
               </span>
             </div>
             {/* 기억 하나당 한 칸 — 모을수록 금빛이 왼쪽부터 찬다 */}
@@ -131,12 +130,8 @@ export function MemoryRoom() {
 
       {started && (
         <>
-          {/* 혼잣말 — 좁은 화면에서는 좌상단 진행 표시 아래로 내린다 (헤더 하단 ≈ 115px) */}
-          <div className="pointer-events-none absolute left-1/2 top-32 z-10 w-full max-w-2xl -translate-x-1/2 px-4 text-center md:top-16">
-            <p key={stage.id} className="animate-fade-rise font-pixel text-2xl text-fog">
-              「 {monologue} 」
-            </p>
-          </div>
+          {/* 혼잣말 — key로 단계가 바뀔 때마다 다시 마운트해 처음부터 찍는다 */}
+          <Monologue key={stage.id} stageId={stage.id} />
 
           <DialogueBox />
           <MemoryPanel />

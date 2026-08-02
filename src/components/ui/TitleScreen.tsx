@@ -55,10 +55,15 @@ export function TitleScreen() {
           setEntering(true);
           window.setTimeout(startGame, ENTER_DELAY_MS);
         }}
-        className="cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
+        className="cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
       >
         {t("titleScreen.start")}
       </button>
+
+      {/* 짧은 게임이라는 걸 미리 알려주면 진입 문턱이 낮아진다 */}
+      <p className="-mt-5 text-[0.6875rem] font-bold tracking-[0.18em] text-bone/40">
+        {t("titleScreen.playtime")}
+      </p>
 
       <div className="flex flex-col items-center gap-4">
         {/* 언어 토글은 종이 패널 위에 놓이도록 설계됐다 — 어두운 배경에 직접 두면 글씨가 안 보인다 */}
@@ -68,7 +73,7 @@ export function TitleScreen() {
         <button
           type="button"
           onClick={() => setContactOpen(true)}
-          className="cursor-pointer text-xs font-bold tracking-widest text-bone/45 transition-colors hover:text-bone"
+          className="cursor-pointer text-xs font-bold tracking-widest text-bone/45 transition-colors hover:text-bone active:text-bone/70"
         >
           {t("hud.contact")}
         </button>

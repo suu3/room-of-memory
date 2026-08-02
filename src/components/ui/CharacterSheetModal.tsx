@@ -82,7 +82,7 @@ export function CharacterSheetModal() {
                   aria-selected={tab === id}
                   onClick={() => setTab(id)}
                   className={`cursor-pointer rounded-full px-3 py-1 text-xs font-bold tracking-widest transition-colors ${
-                    tab === id ? "bg-ink text-paper" : "text-ink/45 hover:text-ink"
+                    tab === id ? "bg-ink text-paper" : "text-ink/45 hover:text-ink active:bg-ink/8"
                   }`}
                 >
                   {t(id === "profile" ? "characterSheet.tabProfile" : "characterSheet.tabLore")}
@@ -94,7 +94,7 @@ export function CharacterSheetModal() {
             type="button"
             onClick={() => setOpen(false)}
             aria-label={t("characterSheet.close")}
-            className="cursor-pointer text-ink/60 transition-colors hover:text-ink"
+            className="cursor-pointer text-ink/60 transition-colors hover:text-ink active:text-ink/80"
           >
             <X size={18} weight="bold" />
           </button>

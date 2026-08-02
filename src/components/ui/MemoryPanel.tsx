@@ -1,9 +1,38 @@
 "use client";
 
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL } from "@/data/memory-room";
 import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
+
+/** 수집 여부에 따라 버튼이 되기도, 그냥 줄이 되기도 한다. */
+function Row({
+  as,
+  onClick,
+  label,
+  done,
+  children,
+}: {
+  as: "button" | "div";
+  onClick?: () => void;
+  label?: string;
+  done: boolean;
+  children: React.ReactNode;
+}) {
+  const className = `group flex w-full items-center gap-3 px-2 py-2 text-left transition-colors ${
+    done ? "cursor-pointer hover:bg-ink/5 active:bg-ink/10" : "opacity-55"
+  }`;
+
+  if (as === "div") {
+    return <div className={className}>{children}</div>;
+  }
+  return (
+    <button type="button" onClick={onClick} aria-label={label} className={className}>
+      {children}
+    </button>
+  );
+}
 
 export function MemoryPanel() {
   const { t } = useTranslation();
@@ -13,6 +42,7 @@ export function MemoryPanel() {
   const panelRef = useRef<HTMLElement>(null);
   const collected = useMemoryRoomStore(selectCollected);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
+  const replayMemory = useMemoryRoomStore((state) => state.replayMemory);
   const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
   const open = openedAtResetRevision === resetRevision;
   const count = collected.length;
@@ -69,32 +99,54 @@ export function MemoryPanel() {
           {MEMORIES.map((memory) => {
             const done = collected.includes(memory.id);
             return (
-              <li
-                key={memory.id}
-                className={`flex items-center gap-3 border-b border-ink/8 px-2 py-2 last:border-b-0 ${
-                  done ? "" : "opacity-55"
-                }`}
-              >
-                <span
-                  className={`grid size-11 flex-none place-items-center rounded-md border-2 transition-colors duration-500 ${
+              <li key={memory.id} className="border-b border-ink/8 last:border-b-0">
+                {/* 수집한 기억은 눌러서 다시 볼 수 있다 — 미수집은 누를 게 없으므로 버튼이 아니다 */}
+                <Row
+                  as={done ? "button" : "div"}
+                  onClick={
                     done
-                      ? "border-memory bg-memory/20 text-memory shadow-slot-glow"
-                      : "border-ink/15 bg-bone/40 text-ink/30"
-                  }`}
+                      ? () => {
+                          setOpenedAtResetRevision(null);
+                          replayMemory(memory.id);
+                        }
+                      : undefined
+                  }
+                  label={
+                    done
+                      ? t("panel.replay", { name: tRoom(`memories.${memory.id}.name`) })
+                      : undefined
+                  }
+                  done={done}
                 >
-                  <memory.icon size={22} weight={done ? "duotone" : "regular"} />
-                </span>
-                {/*
-                  이름만 — 한 줄 요약은 캐릭터 시트의 "기록"과 하는 말이 겹쳤다.
-                  이 패널은 진행 추적기(몇 개 남았나), 내용물은 기록 탭이 맡는다.
-                */}
-                <span
-                  className={`min-w-0 truncate text-sm font-bold tracking-wide ${
-                    done ? "text-ink" : "text-ink/45"
-                  }`}
-                >
-                  {done ? tRoom(`memories.${memory.id}.name`) : t("panel.unknownName")}
-                </span>
+                  <span
+                    className={`grid size-11 flex-none place-items-center rounded-md border-2 transition-colors duration-500 ${
+                      done
+                        ? "border-memory bg-memory/20 text-memory shadow-slot-glow"
+                        : "border-ink/15 bg-bone/40 text-ink/30"
+                    }`}
+                  >
+                    <memory.icon size={22} weight={done ? "duotone" : "regular"} />
+                  </span>
+                  {/*
+                    이름만 — 한 줄 요약은 캐릭터 시트의 "기록"과 하는 말이 겹쳤다.
+                    이 패널은 진행 추적기(몇 개 남았나), 내용물은 기록 탭이 맡는다.
+                  */}
+                  <span
+                    className={`min-w-0 truncate text-sm font-bold tracking-wide ${
+                      done ? "text-ink" : "text-ink/45"
+                    }`}
+                  >
+                    {done ? tRoom(`memories.${memory.id}.name`) : t("panel.unknownName")}
+                  </span>
+                  {done && (
+                    <ArrowCounterClockwise
+                      size={15}
+                      weight="bold"
+                      aria-hidden
+                      className="ml-auto flex-none text-ink/25 transition-colors group-hover:text-memory"
+                    />
+                  )}
+                </Row>
               </li>
             );
           })}

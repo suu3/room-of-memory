@@ -23,7 +23,7 @@ export function LanguageToggle() {
           className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-bold tracking-widest transition-colors ${
             locale === code
               ? "border-ink bg-ink text-paper"
-              : "border-ink/15 text-ink/60 hover:border-ink/40 hover:text-ink"
+              : "border-ink/15 text-ink/60 hover:border-ink/40 hover:text-ink active:bg-ink/5"
           }`}
         >
           {LOCALE_LABELS[code]}
