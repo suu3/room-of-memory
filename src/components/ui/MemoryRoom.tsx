@@ -7,16 +7,13 @@ import { useTypewriter } from "@/lib/use-typewriter";
 import { selectCollected, selectEndingReady, useMemoryRoomStore } from "@/store/memory-room";
 import { DialogueBox } from "./DialogueBox";
 import { HudMenu } from "./HudMenu";
+import { LoadingOverlay } from "./LoadingOverlay";
 import { MemoryPanel } from "./MemoryPanel";
 import { MinigameHost } from "./MinigameHost";
 
 function CanvasLoading() {
   const { t } = useTranslation();
-  return (
-    <div className="absolute inset-0 grid place-items-center text-xs text-fog">
-      {t("scene.loading")}
-    </div>
-  );
+  return <LoadingOverlay label={t("scene.loading")} />;
 }
 
 const RoomCanvas = dynamic(

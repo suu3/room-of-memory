@@ -6,6 +6,8 @@ export const ASSETS = {
     photoFrame: "/assets/models/ch1-photo-frame.glb",
   },
   images: {
+    /** 로딩 스피너. 애니메이션 gif로 교체하려면 이 경로만 바꾸면 된다. */
+    uiLoading: "/assets/images/ui-loading.svg",
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp",
     mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.png",
