@@ -90,6 +90,19 @@ const DOOR_FRAME = [
   { size: [1.82, 0.18, 0.18], position: [0, 1.81, 0] },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
+// 왼쪽 벽 걸레받이는 문 앞에서 끊어야 한다 — 그대로 이으면 문짝 아랫부분을 가로지른다.
+const DOOR_OUTER_WIDTH = 1.82;
+/** 문틀 바깥까지 포함한 문의 z 범위. 문은 Y 90° 회전이라 폭이 z축을 따라 놓인다. */
+export const DOOR_OPENING_Z = {
+  min: ROOM_DOOR_POSITION[2] - DOOR_OUTER_WIDTH / 2,
+  max: ROOM_DOOR_POSITION[2] + DOOR_OUTER_WIDTH / 2,
+} as const;
+const SKIRTING_START_Z = ROOM_SHELL_BOUNDS.minZ + 0.16;
+export const LEFT_SKIRTING = {
+  size: [0.14, 0.3, DOOR_OPENING_Z.min - SKIRTING_START_Z],
+  position: [ROOM_SHELL_BOUNDS.minX + 0.16, 0.15, (SKIRTING_START_Z + DOOR_OPENING_Z.min) / 2],
+} as const satisfies { size: Vec3Tuple; position: Vec3Tuple };
+
 const FLOOR_RIM = [
   {
     size: [SHELL_WIDTH, 0.12, 0.14],
@@ -145,13 +158,7 @@ export function RoomShell({ palette, doorReady }: { palette: RoomPalette; doorRe
         castShadow
         receiveShadow
       />
-      <ShellBox
-        size={[0.14, 0.3, SHELL_DEPTH - 0.32]}
-        position={[ROOM_SHELL_BOUNDS.minX + 0.16, 0.15, SHELL_CENTER_Z]}
-        color={palette.bone}
-        castShadow
-        receiveShadow
-      />
+      <ShellBox {...LEFT_SKIRTING} color={palette.bone} castShadow receiveShadow />
 
       {FLOOR_RIM.map((part) => (
         <ShellBox key={part.position.join(":")} {...part} color={palette.ink} receiveShadow />
