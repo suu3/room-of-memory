@@ -100,6 +100,7 @@ export function MemoryRoomScene({
   nearbyMemoryId,
   curtainsOpen,
   roomZoom,
+  orbitAzimuth,
   onInteract,
 }: {
   playerPositionRef: MutableRefObject<Vector3>;
@@ -108,6 +109,7 @@ export function MemoryRoomScene({
   nearbyMemoryId: MemoryId | null;
   curtainsOpen: boolean;
   roomZoom: number;
+  orbitAzimuth: number;
   onInteract: (id: MemoryId) => void;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
@@ -135,7 +137,7 @@ export function MemoryRoomScene({
         <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
       </MemoryGlowRoot>
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
-      <CameraRig focusMemoryId={focusMemoryId} roomZoom={roomZoom} />
+      <CameraRig focusMemoryId={focusMemoryId} roomZoom={roomZoom} orbitAzimuth={orbitAzimuth} />
     </>
   );
 }

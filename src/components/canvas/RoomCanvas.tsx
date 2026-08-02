@@ -30,7 +30,11 @@ import {
   canInitializeWebGL,
   dispatchMemoryInteraction,
   handleRoomInteractionKeyDown,
+  handleRoomOrbitKeyDown,
   handleRoomZoomKeyDown,
+  isInteractiveTarget,
+  ORBIT_DRAG_THRESHOLD,
+  roomOrbitFromDrag,
   roomZoomForViewport,
   roomZoomScaleFromPinch,
   roomZoomScaleFromWheel,
@@ -88,11 +92,13 @@ export function RoomCanvas() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hadActiveInteraction = useRef(false);
   const zoomScaleRef = useRef(1);
+  const orbitRef = useRef(0);
   const [webGLFailed, setWebGLFailed] = useState(() => !canInitializeWebGL());
   const [nearbyMemoryId, setNearbyMemoryId] = useState<MemoryId | null>(null);
   const [focusMemoryId, setFocusMemoryId] = useState<MemoryId | null>(null);
   const [roomZoom, setRoomZoom] = useState(64);
   const [zoomScale, setZoomScale] = useState(1);
+  const [orbitAzimuth, setOrbitAzimuth] = useState(0);
   const [curtainsOpenedAtRevision, setCurtainsOpenedAtRevision] = useState<number | null>(null);
   const activeInteraction = useMemoryRoomStore(selectActiveInteraction);
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
@@ -236,8 +242,8 @@ export function RoomCanvas() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [interact]);
 
-  // 포커스 연출·대사·미니게임 중에는 프레이밍이 깨지지 않게 배율을 되돌리고 입력을 잠근다.
-  const zoomLocked = inputLocked || focusMemoryId !== null;
+  // 포커스 연출·대사·미니게임 중에는 구도가 깨지지 않게 뷰를 되돌리고 입력을 잠근다.
+  const viewLocked = inputLocked || focusMemoryId !== null;
 
   const applyZoomScale = useCallback((next: number) => {
     if (zoomScaleRef.current === next) return;
@@ -245,17 +251,54 @@ export function RoomCanvas() {
     setZoomScale(next);
   }, []);
 
+  const applyOrbit = useCallback((next: number) => {
+    if (orbitRef.current === next) return;
+    orbitRef.current = next;
+    setOrbitAzimuth(next);
+  }, []);
+
   useEffect(() => {
-    if (zoomLocked) applyZoomScale(1);
-  }, [zoomLocked, applyZoomScale]);
+    if (!viewLocked) return;
+    applyZoomScale(1);
+    applyOrbit(0);
+  }, [viewLocked, applyZoomScale, applyOrbit]);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || zoomLocked) return;
+    if (!container || viewLocked) return;
 
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
       applyZoomScale(roomZoomScaleFromWheel(zoomScaleRef.current, event.deltaY));
+    };
+
+    // 좌클릭 드래그로 회전. 임계값을 넘긴 드래그는 뒤따르는 click을 캡처 단계에서 삼켜
+    // 오브젝트가 잘못 선택되지 않게 한다.
+    let drag: { pointerId: number; x: number; angle: number } | null = null;
+    let swallowClick = false;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (drag !== null || event.button !== 0 || isInteractiveTarget(event.target)) {
+        drag = null;
+        return;
+      }
+      drag = { pointerId: event.pointerId, x: event.clientX, angle: orbitRef.current };
+    };
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      const travel = event.clientX - drag.x;
+      if (!swallowClick && Math.abs(travel) < ORBIT_DRAG_THRESHOLD) return;
+      swallowClick = true;
+      applyOrbit(roomOrbitFromDrag(drag.angle, travel));
+    };
+    const endDrag = (event: PointerEvent) => {
+      if (drag && event.pointerId !== drag.pointerId) return;
+      drag = null;
+    };
+    const handleClickCapture = (event: MouseEvent) => {
+      if (!swallowClick) return;
+      swallowClick = false;
+      event.stopPropagation();
+      event.preventDefault();
     };
 
     let pinch: { distance: number; scale: number } | null = null;
@@ -276,6 +319,7 @@ export function RoomCanvas() {
     };
     const endPinch = () => {
       pinch = null;
+      drag = null;
     };
     const handleKeyDown = (event: KeyboardEvent) => {
       handleRoomZoomKeyDown(event, {
@@ -283,9 +327,19 @@ export function RoomCanvas() {
         scale: zoomScaleRef.current,
         apply: applyZoomScale,
       });
+      handleRoomOrbitKeyDown(event, {
+        locked: false,
+        angle: orbitRef.current,
+        apply: applyOrbit,
+      });
     };
 
     container.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("pointerdown", handlePointerDown);
+    container.addEventListener("pointermove", handlePointerMove);
+    container.addEventListener("pointerup", endDrag);
+    container.addEventListener("pointercancel", endDrag);
+    container.addEventListener("click", handleClickCapture, { capture: true });
     container.addEventListener("touchstart", handleTouchStart, { passive: true });
     container.addEventListener("touchmove", handleTouchMove, { passive: false });
     container.addEventListener("touchend", endPinch, { passive: true });
@@ -293,13 +347,18 @@ export function RoomCanvas() {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("pointerdown", handlePointerDown);
+      container.removeEventListener("pointermove", handlePointerMove);
+      container.removeEventListener("pointerup", endDrag);
+      container.removeEventListener("pointercancel", endDrag);
+      container.removeEventListener("click", handleClickCapture, { capture: true });
       container.removeEventListener("touchstart", handleTouchStart);
       container.removeEventListener("touchmove", handleTouchMove);
       container.removeEventListener("touchend", endPinch);
       container.removeEventListener("touchcancel", endPinch);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [applyZoomScale, zoomLocked]);
+  }, [applyZoomScale, applyOrbit, viewLocked]);
 
   const nearbyLabel = nearbyMemoryId
     ? t("scene.interactHint", { name: labels[nearbyMemoryId] })
@@ -333,6 +392,7 @@ export function RoomCanvas() {
               nearbyMemoryId={nearbyMemoryId}
               curtainsOpen={curtainsOpen}
               roomZoom={roomZoom * zoomScale}
+              orbitAzimuth={orbitAzimuth}
               onInteract={interact}
             />
           </Canvas>

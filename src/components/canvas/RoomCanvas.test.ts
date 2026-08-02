@@ -5,12 +5,16 @@ import type { MemoryId } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import {
   canInitializeWebGL,
+  clampRoomOrbit,
   clampRoomZoomScale,
   dispatchMemoryInteraction,
   handleRoomInteractionKeyDown,
+  handleRoomOrbitKeyDown,
   handleRoomZoomKeyDown,
+  MAX_ROOM_ORBIT,
   MAX_ROOM_ZOOM_SCALE,
   MIN_ROOM_ZOOM_SCALE,
+  roomOrbitFromDrag,
   roomZoomForViewport,
   roomZoomScaleFromPinch,
   roomZoomScaleFromWheel,
@@ -97,6 +101,61 @@ describe("room zoom keyboard", () => {
   it("leaves unrelated keys alone", () => {
     const event = zoomKey("a");
     expect(handleRoomZoomKeyDown(event, { locked: false, scale: 1, apply: () => undefined })).toBe(
+      false,
+    );
+    expect(event.defaultPrevented).toBe(false);
+  });
+});
+
+describe("room orbit", () => {
+  // 기준 방위각 43.4°에서 벗어나도 카메라는 +X/+Z 사분면(0~90°) 안에 있어야 한다.
+  // 그 밖으로 나가면 벽이 없는 앞/오른쪽 면이 "먼 쪽 벽"이 되어 방이 뚫려 보인다.
+  const BASE_AZIMUTH = Math.atan2(14.2 - 0.8, 15.4 - 1.2);
+
+  it("keeps the camera inside the walled quadrant at both extremes", () => {
+    expect(BASE_AZIMUTH - MAX_ROOM_ORBIT).toBeGreaterThan(0);
+    expect(BASE_AZIMUTH + MAX_ROOM_ORBIT).toBeLessThan(Math.PI / 2);
+    // "살짝" 회전이어야 한다 — 25도를 넘기면 열린 면이 눈에 띄기 시작한다
+    expect(MAX_ROOM_ORBIT).toBeLessThan(0.44);
+    expect(MAX_ROOM_ORBIT).toBeGreaterThan(0.1);
+  });
+
+  it("clamps the orbit and follows the drag direction", () => {
+    expect(clampRoomOrbit(0)).toBe(0);
+    expect(clampRoomOrbit(5)).toBe(MAX_ROOM_ORBIT);
+    expect(clampRoomOrbit(-5)).toBe(-MAX_ROOM_ORBIT);
+    expect(clampRoomOrbit(Number.NaN)).toBe(0);
+
+    expect(roomOrbitFromDrag(0, 50)).toBeLessThan(0);
+    expect(roomOrbitFromDrag(0, -50)).toBeGreaterThan(0);
+    expect(roomOrbitFromDrag(0, 100000)).toBe(-MAX_ROOM_ORBIT);
+    expect(roomOrbitFromDrag(0, Number.NaN)).toBe(0);
+  });
+
+  it("steps with , and . and resets with 0", () => {
+    const applied: number[] = [];
+    const apply = (next: number) => applied.push(next);
+    const orbitKey = (key: string) => new KeyboardEvent("keydown", { key, cancelable: true });
+
+    expect(handleRoomOrbitKeyDown(orbitKey(","), { locked: false, angle: 0, apply })).toBe(true);
+    expect(handleRoomOrbitKeyDown(orbitKey("."), { locked: false, angle: 0, apply })).toBe(true);
+    expect(handleRoomOrbitKeyDown(orbitKey("0"), { locked: false, angle: 0.3, apply })).toBe(true);
+
+    expect(applied[0]).toBeGreaterThan(0);
+    expect(applied[1]).toBeLessThan(0);
+    expect(applied[2]).toBe(0);
+
+    // 이동(WASD·화살표)과 상호작용(E) 키를 건드리지 않는다
+    for (const key of ["w", "a", "s", "d", "e", "ArrowLeft", "ArrowRight"]) {
+      expect(
+        handleRoomOrbitKeyDown(orbitKey(key), { locked: false, angle: 0, apply: () => undefined }),
+      ).toBe(false);
+    }
+  });
+
+  it("ignores orbit keys while the scene input is locked", () => {
+    const event = new KeyboardEvent("keydown", { key: ",", cancelable: true });
+    expect(handleRoomOrbitKeyDown(event, { locked: true, angle: 0, apply: () => undefined })).toBe(
       false,
     );
     expect(event.defaultPrevented).toBe(false);

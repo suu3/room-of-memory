@@ -73,6 +73,52 @@ export function roomZoomScaleFromPinch(
   return clampRoomZoomScale(startScale * (distance / startDistance));
 }
 
+/**
+ * 기준 방위각에서 좌우로 돌릴 수 있는 최대 각도.
+ * 카메라는 +X/+Z 사분면(기준 약 43.4°) 안에 머물러야 한다 — 그 밖으로 나가면
+ * 벽이 없는 앞/오른쪽 면이 "먼 쪽 벽"이 되면서 방이 뚫려 보인다.
+ */
+export const MAX_ROOM_ORBIT = 0.32;
+const ORBIT_DRAG_SENSITIVITY = 0.004;
+const ORBIT_KEY_STEP = 0.08;
+/** 이 픽셀 이상 끌면 회전으로 보고, 그 포인터의 클릭은 삼킨다. */
+export const ORBIT_DRAG_THRESHOLD = 6;
+
+export function clampRoomOrbit(angle: number): number {
+  if (!Number.isFinite(angle)) return 0;
+  return Math.min(MAX_ROOM_ORBIT, Math.max(-MAX_ROOM_ORBIT, angle));
+}
+
+/** 오른쪽으로 끌면 방도 오른쪽으로 도는 방향(카메라는 반대로). */
+export function roomOrbitFromDrag(startAngle: number, deltaX: number): number {
+  if (!Number.isFinite(deltaX)) return clampRoomOrbit(startAngle);
+  return clampRoomOrbit(startAngle - deltaX * ORBIT_DRAG_SENSITIVITY);
+}
+
+interface RoomOrbitKeyOptions {
+  locked: boolean;
+  angle: number;
+  apply: (next: number) => void;
+}
+
+/** `,`/`.`로 좌우 회전. 이동(WASD·화살표)과 상호작용(E) 키를 피한 배치다. */
+export function handleRoomOrbitKeyDown(
+  event: KeyboardEvent,
+  { locked, angle, apply }: RoomOrbitKeyOptions,
+): boolean {
+  if (locked || event.repeat || isInteractiveTarget(event.target)) return false;
+
+  let next: number | null = null;
+  if (event.key === "," || event.key === "<") next = angle + ORBIT_KEY_STEP;
+  else if (event.key === "." || event.key === ">") next = angle - ORBIT_KEY_STEP;
+  else if (event.key === "0") next = 0;
+  if (next === null) return false;
+
+  apply(clampRoomOrbit(next));
+  event.preventDefault();
+  return true;
+}
+
 function createBrowserProbeCanvas(): WebGLProbeCanvas {
   return document.createElement("canvas") as unknown as WebGLProbeCanvas;
 }
@@ -122,7 +168,7 @@ interface RoomInteractionKeyOptions {
   interact: (id: MemoryId) => boolean;
 }
 
-function isInteractiveTarget(target: EventTarget | null): boolean {
+export function isInteractiveTarget(target: EventTarget | null): boolean {
   return target instanceof Element && target.closest(INTERACTIVE_TARGET_SELECTOR) !== null;
 }
 
