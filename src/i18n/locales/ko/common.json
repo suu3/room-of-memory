@@ -4,7 +4,8 @@
     "scattered": "방 안에 흩어진 기억",
     "memoryCount": "기억",
     "contact": "Contact",
-    "reset": "리셋"
+    "reset": "리셋",
+    "characterSheet": "캐릭터 시트"
   },
   "door": {
     "locked": "잠긴 문",
@@ -24,7 +25,8 @@
     "revisitLabel": "{{name}} — 기억 다시 살펴보기"
   },
   "dialogue": {
-    "advance": "다음 대사"
+    "advance": "다음 대사",
+    "skipTyping": "대사 모두 표시"
   },
   "language": {
     "label": "언어 선택"
@@ -81,5 +83,10 @@
       "hits": "안타 {{value}} / {{goal}}",
       "chances": "남은 기회"
     }
+  },
+  "characterSheet": {
+    "title": "캐릭터 시트",
+    "close": "캐릭터 시트 닫기",
+    "alt": "주인공 캐릭터 설정 시트"
   }
 }

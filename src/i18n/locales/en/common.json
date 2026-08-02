@@ -4,7 +4,8 @@
     "scattered": "Memories scattered around the room",
     "memoryCount": "Memories",
     "contact": "Contact",
-    "reset": "Reset"
+    "reset": "Reset",
+    "characterSheet": "Character Sheet"
   },
   "door": {
     "locked": "Locked Door",
@@ -24,7 +25,8 @@
     "revisitLabel": "{{name}} — revisit this memory"
   },
   "dialogue": {
-    "advance": "Next line"
+    "advance": "Next line",
+    "skipTyping": "Reveal the full line"
   },
   "language": {
     "label": "Select language"
@@ -81,5 +83,10 @@
       "hits": "HITS {{value}} / {{goal}}",
       "chances": "Chances left"
     }
+  },
+  "characterSheet": {
+    "title": "Character Sheet",
+    "close": "Close character sheet",
+    "alt": "Character design sheet for the protagonist"
   }
 }

@@ -17,6 +17,7 @@ export function HudMenu() {
   const { t } = useTranslation();
   const reset = useMemoryRoomStore((state) => state.reset);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
+  const setCharacterSheetOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -63,6 +64,16 @@ export function HudMenu() {
             <LanguageToggle />
           </div>
           <div className="my-3 border-t-2 border-dashed border-ink/10" />
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              setCharacterSheetOpen(true);
+            }}
+            className={ITEM_CLASS}
+          >
+            {t("hud.characterSheet")}
+          </button>
           <Link href="/contact" onClick={() => setOpen(false)} className={ITEM_CLASS}>
             {t("hud.contact")}
           </Link>

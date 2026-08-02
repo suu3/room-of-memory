@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL, ROOM_STAGES, stageIndexFromCount } from "@/data/memory-room";
 import { useTypewriter } from "@/lib/use-typewriter";
 import { selectCollected, selectEndingReady, useMemoryRoomStore } from "@/store/memory-room";
+import { CharacterSheetModal } from "./CharacterSheetModal";
 import { DialogueBox } from "./DialogueBox";
 import { HudMenu } from "./HudMenu";
 import { LoadingOverlay } from "./LoadingOverlay";
@@ -109,6 +110,7 @@ export function MemoryRoom() {
 
       <DialogueBox />
       <MemoryPanel />
+      <CharacterSheetModal />
       <MinigameHost />
     </div>
   );

@@ -5,7 +5,7 @@ import type { MinigameResult } from "@/types/minigame";
 export type GamePhase = 1 | 2;
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
-export type UiLockId = "hud-menu" | "memory-panel";
+export type UiLockId = "hud-menu" | "memory-panel" | "character-sheet";
 
 export interface ActiveInteraction {
   memoryId: MemoryId;
@@ -24,6 +24,8 @@ interface MemoryRoomState {
   activeInteraction: ActiveInteraction | null;
   /** DOM overlay sources currently blocking scene controls. */
   uiLocks: UiLockId[];
+  /** 캐릭터 시트 모달 — HUD 메뉴와 대사창 초상 두 곳에서 열리므로 스토어가 소유한다. */
+  characterSheetOpen: boolean;
   /** Monotonic signal for local UI state that must close when progress resets. */
   resetRevision: number;
   beginInteraction: (id: MemoryId) => void;
@@ -32,6 +34,7 @@ interface MemoryRoomState {
   /** 미니게임을 완료 처리 없이 중단한다 (모달 닫기) — 핫스팟은 다시 클릭 가능. */
   cancelMinigame: () => void;
   setUiLock: (id: UiLockId, locked: boolean) => void;
+  setCharacterSheetOpen: (open: boolean) => void;
   reset: () => void;
 }
 
@@ -84,6 +87,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   revisited: [],
   activeInteraction: null,
   uiLocks: [],
+  characterSheetOpen: false,
   resetRevision: 0,
   beginInteraction: (id) =>
     set((state) => {
@@ -135,12 +139,14 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
         uiLocks: locked ? [...state.uiLocks, id] : state.uiLocks.filter((lock) => lock !== id),
       };
     }),
+  setCharacterSheetOpen: (open) => set({ characterSheetOpen: open }),
   reset: () =>
     set((state) => ({
       collected: [],
       revisited: [],
       activeInteraction: null,
       uiLocks: [],
+      characterSheetOpen: false,
       resetRevision: state.resetRevision + 1,
     })),
 }));

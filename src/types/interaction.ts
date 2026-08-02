@@ -5,9 +5,14 @@ import type { CharacterId } from "./scenario";
 /** memoryRoom 네임스페이스에서 유효한 번역 키만 허용. */
 export type MemoryRoomTextKey = ParseKeys<"memoryRoom">;
 
+/** 초상 프레임. 대사가 다 찍히면 이 표정으로 돌아온다 (타이핑 중에는 입 열린 프레임). */
+export type CharacterExpression = "neutral" | "smile" | "surprised";
+
 export interface DialogueScriptLine {
   speaker: CharacterId;
   textKey: MemoryRoomTextKey;
+  /** 생략하면 "neutral". */
+  expression?: CharacterExpression;
 }
 
 /** 재사용 가능한 대사 스크립트. SCRIPTS 레지스트리(src/data)에 id로 등록. */
