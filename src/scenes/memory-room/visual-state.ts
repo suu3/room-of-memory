@@ -10,10 +10,12 @@ export const ROOM_LIGHTING = {
   hemisphereFill: 1.25,
 } as const;
 
+/** 클릭 가능한(=available) 기억은 플레이어가 가까이 있거나 마우스를 올렸을 때 빛난다. */
 export function shouldHighlightMemory(
   status: HighlightableStatus,
   id: MemoryId,
   nearbyMemoryId: MemoryId | null,
+  hovered = false,
 ) {
-  return status === "available" && nearbyMemoryId === id;
+  return status === "available" && (hovered || nearbyMemoryId === id);
 }

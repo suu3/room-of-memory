@@ -16,7 +16,8 @@ import {
 } from "react";
 import { Color, type Group, type Mesh, type Object3D } from "three";
 
-type SelectionUpdater = (selection: Object3D[]) => void;
+/** 여러 오브젝트가 동시에 빛날 수 있으므로 선택은 키별로 등록하고 루트가 합친다. */
+type SelectionUpdater = (key: string, selection: Object3D[] | null) => void;
 
 const MemoryGlowSelectionContext = createContext<SelectionUpdater | null>(null);
 
@@ -130,9 +131,17 @@ export function createMemoryOutlineSettings(color: string) {
 
 export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: string }>) {
   const settings = useMemo(() => createMemoryOutlineSettings(color), [color]);
+  const groupsRef = useRef(new Map<string, Object3D[]>());
   const [selection, setSelection] = useState<Object3D[]>([]);
-  const updateSelection = useCallback<SelectionUpdater>((next) => {
-    setSelection((previous) => (hasSameSelection(previous, next) ? previous : next));
+  const updateSelection = useCallback<SelectionUpdater>((key, next) => {
+    const groups = groupsRef.current;
+    if (next === null || next.length === 0) {
+      if (!groups.delete(key)) return;
+    } else {
+      groups.set(key, next);
+    }
+    const merged = [...groups.values()].flat();
+    setSelection((previous) => (hasSameSelection(previous, merged) ? previous : merged));
   }, []);
 
   return (
@@ -156,11 +165,16 @@ export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: s
   );
 }
 
-function MemoryGlowVisualSelection({
+/**
+ * 안쪽 메시들을 아웃라인 글로우 선택 대상으로 등록한다.
+ * 클릭 가능한 오브젝트면 기억이든 가구든 전부 이걸로 같은 이펙트를 받는다.
+ */
+export function MemoryGlowSelection({
+  selectionKey,
   enabled,
-  selectionVersion,
+  selectionVersion = 0,
   children,
-}: PropsWithChildren<{ enabled: boolean; selectionVersion: number }>) {
+}: PropsWithChildren<{ selectionKey: string; enabled: boolean; selectionVersion?: number }>) {
   const groupRef = useRef<Group>(null);
   const updateSelection = useContext(MemoryGlowSelectionContext);
 
@@ -168,19 +182,21 @@ function MemoryGlowVisualSelection({
     // This value is a refresh token: replacements re-traverse the mounted visual without gating it.
     void selectionVersion;
     if (!enabled || updateSelection === null) return;
-    updateSelection(selectedMeshes(groupRef.current));
-    return () => updateSelection([]);
-  }, [enabled, selectionVersion, updateSelection]);
+    updateSelection(selectionKey, selectedMeshes(groupRef.current));
+    return () => updateSelection(selectionKey, null);
+  }, [enabled, selectionKey, selectionVersion, updateSelection]);
 
   return <group ref={groupRef}>{children}</group>;
 }
 
 export function MemoryGlowLayers({
+  selectionKey,
   enabled,
   selectionVersion,
   visual,
   helpers,
 }: {
+  selectionKey: string;
   enabled: boolean;
   selectionVersion: number;
   visual: ReactNode;
@@ -188,9 +204,13 @@ export function MemoryGlowLayers({
 }) {
   return (
     <group>
-      <MemoryGlowVisualSelection enabled={enabled} selectionVersion={selectionVersion}>
+      <MemoryGlowSelection
+        selectionKey={selectionKey}
+        enabled={enabled}
+        selectionVersion={selectionVersion}
+      >
         {visual}
-      </MemoryGlowVisualSelection>
+      </MemoryGlowSelection>
       {helpers}
     </group>
   );

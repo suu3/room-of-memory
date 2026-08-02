@@ -10,6 +10,7 @@ import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow"
 import { MemoryStatusEffect } from "./MemoryStatusEffect";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
+import { useGlowHover } from "./use-glow-hover";
 import { shouldHighlightMemory } from "./visual-state";
 
 // ASSETS.models.photoFrame은 액자가 아니라 납작한 오각형 판때기라 여기서 쓰지 않는다.
@@ -337,7 +338,8 @@ export function InteractiveMemory({
   const status = useMemoryRoomStore((state) => hotspotStatus(state, id));
   const placement = MEMORY_PLACEMENTS[id];
   const opacity = status === "locked" ? 0.45 : 1;
-  const highlighted = shouldHighlightMemory(status, id, nearbyMemoryId);
+  const { hovered, handlers } = useGlowHover(status === "available");
+  const highlighted = shouldHighlightMemory(status, id, nearbyMemoryId, hovered);
   const [selectionVersion, setSelectionVersion] = useState(0);
   const refreshSelection = useCallback(() => setSelectionVersion((version) => version + 1), []);
 
@@ -352,10 +354,12 @@ export function InteractiveMemory({
       }}
     >
       <MemoryGlowLayers
+        selectionKey={`memory-${id}`}
         enabled={highlighted}
         selectionVersion={selectionVersion}
         visual={
-          <group rotation={placement.rotation} scale={placement.scale}>
+          // 호버 판정은 실제 모델에만 건다 — 아래 memory-hit 구는 반경이 커서 호버 대상이 되면 안 된다.
+          <group rotation={placement.rotation} scale={placement.scale} {...handlers}>
             <MemoryVisual
               id={id}
               palette={palette}

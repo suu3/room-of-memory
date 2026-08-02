@@ -1,13 +1,14 @@
-import { Edges } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import { type Group, MathUtils } from "three";
 
 import { type CurtainSide, curtainTargetX } from "./curtain-motion";
 import { CHAIR_POSITION, CHAIR_ROTATION, DESK_POSITION, DESK_ROTATION } from "./layout";
+import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
+import { useGlowHover } from "./use-glow-hover";
 
 interface BoxPart {
   size: Vec3Tuple;
@@ -240,7 +241,7 @@ function Curtain({
   onOpen: () => void;
 }) {
   const groupRef = useRef<Group>(null);
-  const [hovered, setHovered] = useState(false);
+  const { hovered, handlers } = useGlowHover(!open);
   const reducedMotion = useMemo(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     [],
@@ -268,20 +269,11 @@ function Curtain({
         event.stopPropagation();
         if (!open) onOpen();
       }}
-      onPointerOver={(event) => {
-        event.stopPropagation();
-        if (!open) setHovered(true);
-      }}
-      onPointerOut={() => setHovered(false)}
+      {...handlers}
     >
-      <BoxParts parts={CURTAIN_FOLD_PARTS} palette={palette} />
-      {hovered && !open ? (
-        <mesh>
-          <boxGeometry args={[1.9, 3, 0.26]} />
-          <meshBasicMaterial transparent opacity={0.04} depthWrite={false} />
-          <Edges scale={1.025} color={palette.memory} />
-        </mesh>
-      ) : null}
+      <MemoryGlowSelection selectionKey={`curtain-${side}`} enabled={hovered}>
+        <BoxParts parts={CURTAIN_FOLD_PARTS} palette={palette} />
+      </MemoryGlowSelection>
     </group>
   );
 }

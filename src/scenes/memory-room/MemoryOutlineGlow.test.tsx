@@ -2,7 +2,12 @@ import ReactThreeTestRenderer, { waitFor } from "@react-three/test-renderer";
 import { Color, type Mesh, type Object3D, WebGLRenderer } from "three";
 import { describe, expect, it } from "vitest";
 import { InteractiveMemory } from "./MemoryObjects";
-import { createMemoryOutlineSettings, MemoryGlowLayers, MemoryGlowRoot } from "./MemoryOutlineGlow";
+import {
+  createMemoryOutlineSettings,
+  MemoryGlowLayers,
+  MemoryGlowRoot,
+  MemoryGlowSelection,
+} from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 
 type MemoryId = "bat" | "ball";
@@ -33,12 +38,28 @@ function createTestWebGlRenderer(defaultProps: ConstructorParameters<typeof WebG
   return renderer;
 }
 
+function MultiSelectionScene({ active }: { active: readonly MemoryId[] }) {
+  return (
+    <MemoryGlowRoot color="#b89a5e">
+      {(["bat", "ball"] as const).map((id) => (
+        <MemoryGlowSelection key={id} selectionKey={id} enabled={active.includes(id)}>
+          <mesh name={`${id}-visual`}>
+            <sphereGeometry args={[0.5, 8, 6]} />
+            <meshStandardMaterial />
+          </mesh>
+        </MemoryGlowSelection>
+      ))}
+    </MemoryGlowRoot>
+  );
+}
+
 function MemorySelectionScene({ active }: { active: MemoryId }) {
   return (
     <MemoryGlowRoot color="#b89a5e">
       {(["bat", "ball"] as const).map((id) => (
         <MemoryGlowLayers
           key={id}
+          selectionKey={id}
           enabled={active === id}
           selectionVersion={-1}
           visual={
@@ -149,6 +170,29 @@ describe("memory outline glow", () => {
         (effect) => ![...effect.selection].some(({ name }) => name === "bat-visual"),
       ),
     ).toBe(true);
+
+    await renderer.unmount();
+  });
+
+  it("glows every registered object at once and releases them independently", async () => {
+    const renderer = await ReactThreeTestRenderer.create(
+      <MultiSelectionScene active={["bat", "ball"]} />,
+      { gl: createTestWebGlRenderer },
+    );
+
+    // 근접한 기억과 마우스를 올린 커튼이 동시에 빛날 수 있어야 한다
+    await waitFor(() => outlineEffects(renderer).every((effect) => effect.selection.size === 2));
+    expect(selectedNames(outlineEffects(renderer)).map((names) => [...names].sort())).toEqual([
+      ["ball-visual", "bat-visual"],
+      ["ball-visual", "bat-visual"],
+    ]);
+
+    await renderer.update(<MultiSelectionScene active={["ball"]} />);
+    await waitFor(() => outlineEffects(renderer).every((effect) => effect.selection.size === 1));
+    expect(selectedNames(outlineEffects(renderer))).toEqual([["ball-visual"], ["ball-visual"]]);
+
+    await renderer.update(<MultiSelectionScene active={[]} />);
+    await waitFor(() => outlineEffects(renderer).every((effect) => effect.selection.size === 0));
 
     await renderer.unmount();
   });

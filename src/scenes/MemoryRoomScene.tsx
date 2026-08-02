@@ -125,12 +125,13 @@ export function MemoryRoomScene({
         groundColor={palette.deep}
       />
       <RoomShell palette={palette} doorReady={isEndingReady} />
-      <RoomFurniture
-        palette={palette}
-        curtainsOpen={curtainsOpen}
-        onCurtainInteract={() => onInteract("window")}
-      />
+      {/* 커튼도 클릭 가능한 오브젝트라 기억들과 같은 아웃라인 글로우를 쓴다 — 같은 루트 안에 있어야 한다 */}
       <MemoryGlowRoot color={palette.memory}>
+        <RoomFurniture
+          palette={palette}
+          curtainsOpen={curtainsOpen}
+          onCurtainInteract={() => onInteract("window")}
+        />
         <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
       </MemoryGlowRoot>
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
