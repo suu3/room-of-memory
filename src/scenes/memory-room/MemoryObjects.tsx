@@ -20,7 +20,7 @@ import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { shouldHighlightMemory } from "./visual-state";
 
-// ASSETS.models.photoFrame은 액자가 아니라 납작한 오각형 판때기라 여기서 쓰지 않는다.
+// 액자 glb(ch1-photo-frame)는 액자가 아니라 납작한 오각형 판때기라 지웠다.
 // 제대로 된 액자 glb가 들어오면 frame 키를 다시 추가할 것.
 const MODEL_PATHS = {
   bat: ASSETS.models.baseballBat,

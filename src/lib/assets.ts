@@ -3,7 +3,6 @@ export const ASSETS = {
   models: {
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
-    photoFrame: "/assets/models/ch1-photo-frame.glb",
   },
   images: {
     /** 로딩 애니메이션 (420x400, 5프레임 gif). */
