@@ -73,7 +73,7 @@
     },
     "photoWipe": {
       "title": "Wipe the Photo",
-      "help": "Drag with the mouse, or move the cloth with arrow keys and press Space"
+      "help": "Drag with the mouse or swipe with a finger to wipe the dust away"
     },
     "ballCatch": {
       "title": "Swing!",

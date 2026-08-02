@@ -1,6 +1,5 @@
 /**
- * 닦는 행주 스프라이트. 커서(CSS url)와 키보드 조작 표시가 같은 그림을 써야
- * 마우스/키보드 어느 쪽으로 해도 같은 물건을 쥔 느낌이 든다.
+ * 사진을 닦는 행주 커서. 커서 자체가 행주라서 별도 스프라이트를 겹치지 않는다.
  * 색은 DESIGN.md 팔레트(scene-storm / memory / bone / night)에서 그대로 가져왔다 —
  * 커서는 CSS 변수를 못 읽어서 데이터 URI 안에 값이 박혀야 한다.
  */
@@ -19,19 +18,3 @@ const CLOTH_DATA_URI = `data:image/svg+xml,${encodeURIComponent(CLOTH_SVG)}`;
 
 /** 캔버스 위 커서. 핫스팟은 행주 한가운데 — 닦이는 원의 중심과 맞춘다. */
 export const CLOTH_CURSOR = `url("${CLOTH_DATA_URI}") 24 24, crosshair`;
-
-/** 키보드로 옮기는 행주 표시. 커서와 같은 그림. */
-export function ClothSprite({ style }: { style?: React.CSSProperties }) {
-  return (
-    // biome-ignore lint/performance/noImgElement: 데이터 URI 인라인 SVG라 최적화 대상이 아니다.
-    <img
-      src={CLOTH_DATA_URI}
-      alt=""
-      aria-hidden="true"
-      width={48}
-      height={48}
-      className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 drop-shadow-md"
-      style={style}
-    />
-  );
-}

@@ -6,7 +6,7 @@ import { SuccessBurst } from "@/components/ui/SuccessBurst";
 import { ASSETS } from "@/lib/assets";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
-import { CLOTH_CURSOR, ClothSprite } from "./cloth";
+import { CLOTH_CURSOR } from "./cloth";
 import { PhotoFrame } from "./frame";
 import { createWipeGrid, wipeCircle } from "./wipe-grid";
 
@@ -17,7 +17,6 @@ const SKIP_AFTER_MS = 15_000;
 const BURST_FALLBACK_MS = 2_000;
 /** 사진이 커진 만큼 헝겊도 키운다 — 한 번에 닦이는 비율은 그대로. */
 const WIPE_RADIUS = 42;
-const CLOTH_STEP = 24;
 /** 격자 한 칸의 목표 크기(px). 사진 비율이 달라도 셀 밀도가 비슷하게 유지된다. */
 const CELL_PX = 16;
 
@@ -41,7 +40,6 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
   const complete = useOnceCompleter(onComplete);
   const [progress, setProgress] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(TIME_LIMIT_S);
-  const [cloth, setCloth] = useState({ x: photo.width / 2, y: photo.height / 2 });
   /** 프로스트 레이어를 그린 뒤에야 타이머가 돈다 — 로딩 시간을 플레이 시간에서 깎지 않는다. */
   const [ready, setReady] = useState(false);
   /** 성공 직후 단계: 사진이 완전히 드러나고 결과 대사가 뜬다. 닫는 건 플레이어 몫. */
@@ -147,44 +145,16 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
     return () => clearTimeout(fallback);
   }, [burstDone, complete, revealed]);
 
-  // 키보드: 방향키로 헝겊 이동, Space로 닦기
-  useEffect(() => {
-    // 결과 대사 단계에서는 Space/방향키를 대사창에 넘긴다
-    if (revealed) return;
-    const onKey = (event: KeyboardEvent) => {
-      const moves: Record<string, [number, number]> = {
-        ArrowLeft: [-CLOTH_STEP, 0],
-        ArrowRight: [CLOTH_STEP, 0],
-        ArrowUp: [0, -CLOTH_STEP],
-        ArrowDown: [0, CLOTH_STEP],
-      };
-      if (event.code === "Space") {
-        event.preventDefault();
-        setCloth((position) => {
-          wipeAtRef.current(position.x, position.y);
-          return position;
-        });
-        return;
-      }
-      const move = moves[event.code];
-      if (!move) return;
-      event.preventDefault();
-      setCloth((position) => ({
-        x: Math.min(photo.width, Math.max(0, position.x + move[0])),
-        y: Math.min(photo.height, Math.max(0, position.y + move[1])),
-      }));
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [photo, revealed]);
-
+  /**
+   * 손으로 문지르는 동작이라 마우스·터치 전용이다. 방향키로 헝겊을 옮기는 건
+   * "닦는다"는 감각과 맞지 않아서 뺐다 — 키보드 사용자는 스킵 버튼으로 넘어간다.
+   */
   const pointerWipe = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (event.type === "pointermove" && (event.buttons & 1) === 0) return;
     const rect = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * photo.width;
     const y = ((event.clientY - rect.top) / rect.height) * photo.height;
     wipeAtRef.current(x, y);
-    setCloth({ x, y });
   };
 
   // 성공 뒤: 패널 껍데기를 걷고 사진만 크게 남긴다. 결과 대사는 방의 대사창이 맡는다
@@ -254,8 +224,6 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
           className="absolute inset-0 touch-none"
           style={{ cursor: CLOTH_CURSOR }}
         />
-        {/* 키보드로 옮기는 행주 — 커서와 같은 그림 */}
-        <ClothSprite style={{ left: cloth.x, top: cloth.y }} />
       </PhotoFrame>
     </MinigameShell>
   );
