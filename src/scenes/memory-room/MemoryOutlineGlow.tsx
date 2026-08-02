@@ -94,14 +94,37 @@ function selectedMeshes(group: Group | null) {
   return meshes;
 }
 
+/** postprocessing의 KernelSize 열거값. 패키지가 직접 의존성이 아니라 숫자로 고정한다. */
+const KERNEL_SIZE_SMALL = 1;
+const KERNEL_SIZE_VERY_LARGE = 4;
+
 export function createMemoryOutlineSettings(color: string) {
   const edgeColor = new Color(color).offsetHSL(0, -0.08, 0.16).getHex();
+  // 가려진 쪽 테두리는 한 단계 어둡게 — 벽 너머까지 같은 밝기로 타오르지 않게 한다.
+  const hiddenEdgeColor = new Color(color).offsetHSL(0, -0.12, -0.12).getHex();
 
   return {
     composer: { autoClear: false, multisampling: 2 },
     edgeColor,
-    inner: { blur: false, edgeStrength: 1.2, resolutionScale: 1, xRay: false },
-    outer: { blur: true, edgeStrength: 2.4, resolutionScale: 0.75, xRay: false },
+    hiddenEdgeColor,
+    // inner는 윤곽선, outer는 그 바깥으로 번지는 숨쉬는 광량 — 둘 다 약하면 화면에서 안 보인다.
+    inner: {
+      blur: false,
+      edgeStrength: 5,
+      kernelSize: KERNEL_SIZE_SMALL,
+      pulseSpeed: 0,
+      resolutionScale: 1,
+      xRay: false,
+    },
+    // xRay는 가구에 가려진 오브젝트도 은은하게 비쳐 보이게 해 근접 활성화를 읽히게 한다.
+    outer: {
+      blur: true,
+      edgeStrength: 11,
+      kernelSize: KERNEL_SIZE_VERY_LARGE,
+      pulseSpeed: 0.45,
+      resolutionScale: 0.5,
+      xRay: true,
+    },
   } as const;
 }
 
@@ -119,13 +142,13 @@ export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: s
         <Outline
           selection={selection}
           visibleEdgeColor={settings.edgeColor}
-          hiddenEdgeColor={settings.edgeColor}
+          hiddenEdgeColor={settings.hiddenEdgeColor}
           {...settings.inner}
         />
         <Outline
           selection={selection}
           visibleEdgeColor={settings.edgeColor}
-          hiddenEdgeColor={settings.edgeColor}
+          hiddenEdgeColor={settings.hiddenEdgeColor}
           {...settings.outer}
         />
       </EffectComposer>

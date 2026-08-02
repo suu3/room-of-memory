@@ -85,20 +85,22 @@ describe("memory outline glow", () => {
     const settings = createMemoryOutlineSettings("#b89a5e");
     const sourceLightness = new Color("#b89a5e").getHSL({ h: 0, s: 0, l: 0 }).l;
     const edgeLightness = new Color(settings.edgeColor).getHSL({ h: 0, s: 0, l: 0 }).l;
+    const hiddenLightness = new Color(settings.hiddenEdgeColor).getHSL({ h: 0, s: 0, l: 0 }).l;
 
     expect(edgeLightness).toBeGreaterThan(sourceLightness);
+    expect(hiddenLightness).toBeLessThan(edgeLightness);
     expect(settings.inner).toMatchObject({
       blur: false,
-      edgeStrength: 1.2,
+      pulseSpeed: 0,
       resolutionScale: 1,
       xRay: false,
     });
-    expect(settings.outer).toMatchObject({
-      blur: true,
-      edgeStrength: 2.4,
-      resolutionScale: 0.75,
-      xRay: false,
-    });
+    expect(settings.outer).toMatchObject({ blur: true, resolutionScale: 0.5, xRay: true });
+    // 근접 활성화가 화면에서 읽히려면 outer가 inner보다 세고, 둘 다 기본값(1)보다 세야 한다.
+    expect(settings.inner.edgeStrength).toBeGreaterThan(1);
+    expect(settings.outer.edgeStrength).toBeGreaterThan(settings.inner.edgeStrength);
+    expect(settings.outer.kernelSize).toBeGreaterThan(settings.inner.kernelSize);
+    expect(settings.outer.pulseSpeed).toBeGreaterThan(0);
     expect(settings).toHaveProperty("composer.autoClear", false);
     expect(settings).toHaveProperty("composer.multisampling", 2);
   });
