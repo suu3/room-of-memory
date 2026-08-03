@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
@@ -18,6 +19,15 @@ import {
   resolveRound,
 } from "./duel";
 import { Fighter, type Pose } from "./Fighter";
+import { preloadSpriteSheet } from "./sprites";
+
+/*
+ * 시트가 있는지 없는지를 첫 라운드 전에 미리 확인해 둔다. 게임이 뜬 뒤에 알아보면
+ * 블록 캐릭터가 한 프레임 비쳤다가 스프라이트로 바뀌는 게 보인다.
+ * 이 모듈 자체가 게이트 도달 직전에 lazy로 로드되므로 여기가 가장 이른 시점이다.
+ */
+preloadSpriteSheet(ASSETS.images.mgFighterDuelHero);
+preloadSpriteSheet(ASSETS.images.mgFighterDuelRival);
 
 /** 예고를 보고 받아칠 시간. 짧으면 반사신경 게임이 되고, 길면 긴장이 없다. */
 const TELL_MS = 1600;
@@ -165,10 +175,11 @@ export function FighterDuelMinigame({ onComplete }: MinigameProps) {
     >
       <div className="overflow-hidden rounded-md border-2 border-night bg-scene-abyss">
         <div
-          className="relative flex h-64 items-end justify-between px-10 pb-6"
+          className="relative flex h-64 items-end justify-between bg-cover bg-center px-10 pb-6"
           style={{
-            backgroundImage:
-              "linear-gradient(var(--color-scene-storm), var(--color-scene-abyss) 78%)",
+            // 무대 그림이 리포에 없으면 그 레이어만 못 그리고 아래 그라디언트가 남는다 —
+            // 배경은 이 폴백만으로도 충분해서 존재 확인을 따로 하지 않는다.
+            backgroundImage: `url(${ASSETS.images.mgFighterDuelStage}), linear-gradient(var(--color-scene-storm), var(--color-scene-abyss) 78%)`,
           }}
         >
           <span className="absolute inset-x-0 bottom-0 h-6 bg-night/50" aria-hidden />
@@ -177,6 +188,7 @@ export function FighterDuelMinigame({ onComplete }: MinigameProps) {
               pose={playerPose(resolved)}
               tone="memory"
               facing="right"
+              sprite={ASSETS.images.mgFighterDuelHero}
               shake={resolved?.outcome === "lose"}
             />
           </div>
@@ -210,6 +222,7 @@ export function FighterDuelMinigame({ onComplete }: MinigameProps) {
               pose={opponentPose(resolved, tell)}
               tone="bone"
               facing="left"
+              sprite={ASSETS.images.mgFighterDuelRival}
               shake={resolved?.outcome === "win"}
             />
           </div>

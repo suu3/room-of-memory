@@ -42,13 +42,13 @@ function Bubble({
   return (
     <li className={`flex animate-fade-rise flex-col ${mine ? "items-end" : "items-start"}`}>
       {!mine && label ? (
-        <span className="mb-1 px-1 text-[0.5625rem] font-bold tracking-wider text-bone/45">
+        <span className="mb-1 px-1 text-[0.6875rem] font-bold tracking-wider text-bone/45">
           {label}
         </span>
       ) : null}
-      <div className={`flex max-w-[82%] items-end gap-1 ${mine ? "flex-row-reverse" : ""}`}>
+      <div className={`flex max-w-[82%] items-end gap-1.5 ${mine ? "flex-row-reverse" : ""}`}>
         <p
-          className={`rounded-2xl px-2.5 py-1.5 text-[0.75rem] leading-relaxed ${
+          className={`rounded-2xl px-3 py-2 text-[0.875rem] leading-relaxed ${
             mine
               ? "rounded-br-sm bg-memory text-scene-navy"
               : "rounded-bl-sm bg-scene-dusk text-paper"
@@ -56,7 +56,7 @@ function Bubble({
         >
           {text}
         </p>
-        <span className="shrink-0 pb-0.5 text-[0.5rem] tabular-nums text-bone/35">
+        <span className="shrink-0 pb-1 text-[0.625rem] tabular-nums text-bone/35">
           {message.time}
         </span>
       </div>
@@ -153,15 +153,15 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
             onWheel={(event) => {
               if (event.deltaY < 0) scrollBack();
             }}
-            className="h-80 overflow-y-auto bg-scene-navy px-2.5 py-3 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-memory"
+            className="size-full overflow-y-auto bg-scene-navy px-3 py-3.5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-memory"
           >
             {/* 위로 더 있으면 그렇게 알려주고, 다 올라오면 날짜가 대화의 머리로 남는다 */}
-            <p className="pb-3 text-center text-[0.5625rem] tracking-wider text-bone/35">
+            <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
               {hasEarlier(revealed)
                 ? t("minigame.phoneChat.olderAbove")
                 : t("minigame.phoneChat.date")}
             </p>
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col gap-2.5">
               {visibleMessages(revealed).map((message) => (
                 <Bubble
                   key={message.id}
@@ -173,21 +173,21 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
             </ul>
           </div>
         ) : (
-          <div className="h-80 overflow-y-auto bg-scene-navy px-2.5 py-2">
+          <div className="size-full overflow-y-auto bg-scene-navy px-3 py-2">
             <ul className="flex flex-col">
               {MISSED_CALLS.map((call) => (
                 <li
                   key={call.id}
-                  className="flex animate-fade-rise items-center gap-2.5 border-b border-bone/8 px-1.5 py-2.5 last:border-b-0"
+                  className="flex animate-fade-rise items-center gap-3 border-b border-bone/8 px-1.5 py-3 last:border-b-0"
                 >
-                  <PhoneDisconnect size={16} weight="fill" className="shrink-0 text-ember" />
-                  <span className="min-w-0 flex-1 truncate text-[0.8125rem] font-bold text-ember">
+                  <PhoneDisconnect size={18} weight="fill" className="shrink-0 text-ember" />
+                  <span className="min-w-0 flex-1 truncate text-[0.9375rem] font-bold text-ember">
                     {t(call.fromKey)}
                     {call.count > 1 ? (
                       <span className="ml-1 font-normal text-ember/65">({call.count})</span>
                     ) : null}
                   </span>
-                  <span className="shrink-0 text-[0.6875rem] tabular-nums text-bone/40">
+                  <span className="shrink-0 text-[0.75rem] tabular-nums text-bone/40">
                     {call.time}
                   </span>
                 </li>
@@ -199,18 +199,18 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
 
       {/* 다 읽었을 때만 닫는 버튼이 뜬다. 그 전에 닫으면(바깥 클릭·Esc) 아무 일도
           없었던 것처럼 다시 열 수 있다 — 방탈출 탐색이라 되돌아올 수 있어야 한다. */}
-      <div className="flex h-8 items-center gap-3">
+      <div className="flex h-9 items-center gap-3">
         {done ? (
           <button
             type="button"
             onClick={() => complete({ cleared: true })}
-            className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-5 py-1.5 text-xs font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-6 py-2 text-sm font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
-            <X size={13} weight="bold" />
+            <X size={15} weight="bold" />
             {t("minigame.phoneChat.close")}
           </button>
         ) : (
-          <p className="text-xs tracking-widest text-bone/50">
+          <p className="px-4 text-center text-sm tracking-widest text-bone/50">
             {t(phoneHelpKey(tab, chatDone, seenCalls))}
           </p>
         )}

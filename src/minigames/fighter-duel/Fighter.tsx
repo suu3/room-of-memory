@@ -1,8 +1,16 @@
+"use client";
+
 import type { Move } from "./duel";
+import { frameBackgroundSize, framePosition, useSpriteSheet } from "./sprites";
 
 /**
- * 격투 게임 화면의 도트 캐릭터. 이미지 에셋 없이 블록 몇 개로 자세만 만든다 —
- * 플레이어가 읽어야 하는 건 얼굴이 아니라 "팔이 어디 있는가"다.
+ * 격투 게임 화면의 캐릭터.
+ *
+ * 스프라이트 시트(`sprite`)가 리포에 있으면 그걸 그리고, 없으면 블록 몇 개로
+ * 자세만 만든다. 에셋이 없어도 게임이 돌아야 하고, 넣으면 코드를 안 고치고도
+ * 바로 바뀌어야 한다 — 시트 규격은 ./sprites.ts 주석에 적어 뒀다.
+ *
+ * 어느 쪽이든 플레이어가 읽어야 하는 건 얼굴이 아니라 "팔이 어디 있는가"다.
  */
 export type Pose = Move | "idle" | "hurt";
 
@@ -25,22 +33,75 @@ const ARMS: Record<Pose, { front: number; back: number }> = {
 
 const ARM_CLASS = "absolute top-[36%] h-2.5 w-10 origin-left rounded-sm transition-transform";
 
+/** 에셋 없이 버티는 쪽. 여기가 기준이고 스프라이트는 그 위에 얹는 선택지다. */
+function BlockFighter({ pose, tone }: { pose: Pose; tone: "memory" | "bone" }) {
+  const arms = ARMS[pose];
+  const body = tone === "memory" ? "bg-memory" : "bg-bone";
+  const dark = tone === "memory" ? "bg-memory/55" : "bg-bone/50";
+  const lean = pose === "hurt" ? -14 : pose === "strike" ? 8 : 0;
+
+  return (
+    <div
+      className="absolute inset-0 origin-bottom transition-transform duration-200"
+      style={{ transform: `rotate(${lean}deg)` }}
+    >
+      {/* 뒷팔 — 몸통 뒤라 한 톤 어둡게. 어깨는 몸통 안쪽에 둔다 */}
+      <div
+        className={`${ARM_CLASS} ${dark} left-[calc(50%-6px)] duration-200`}
+        style={{ transform: `rotate(${arms.back}deg)` }}
+      />
+      {/* 머리 */}
+      <div className={`absolute left-1/2 top-[6%] size-9 -translate-x-1/2 rounded-sm ${body}`} />
+      {/* 몸통 */}
+      <div
+        className={`absolute left-1/2 top-[32%] h-14 w-12 -translate-x-1/2 rounded-sm ${body}`}
+      />
+      {/* 다리 */}
+      <div className={`absolute bottom-0 left-[26%] h-12 w-3.5 rounded-sm ${body}`} />
+      <div className={`absolute bottom-0 right-[26%] h-12 w-3.5 rounded-sm ${dark}`} />
+      {/* 앞팔 — 어깨가 몸통 바깥 모서리라 뻗으면 실루엣이 확실히 바뀐다 */}
+      <div
+        className={`${ARM_CLASS} ${body} left-[calc(50%+14px)] duration-200`}
+        style={{ transform: `rotate(${arms.front}deg)` }}
+      />
+    </div>
+  );
+}
+
+/**
+ * 시트에서 해당 자세 프레임 한 칸만 잘라 보여준다.
+ * 시트를 프레임 수만큼 늘려 깔고 background-position으로 칸을 옮기는 방식이라,
+ * 프레임이 바뀌어도 새 요청이 나가지 않는다 (한 장을 계속 재사용).
+ */
+function SpriteFighter({ pose, sprite }: { pose: Pose; sprite: string }) {
+  return (
+    <div
+      className="absolute inset-0 bg-no-repeat [image-rendering:pixelated]"
+      style={{
+        backgroundImage: `url(${sprite})`,
+        backgroundSize: frameBackgroundSize,
+        backgroundPosition: framePosition(pose),
+      }}
+    />
+  );
+}
+
 export function Fighter({
   pose,
   tone,
   facing,
   shake,
+  sprite,
 }: {
   pose: Pose;
-  /** 도트 색 — 플레이어는 금빛, 상대는 바랜 크림. */
+  /** 블록 캐릭터일 때의 도트 색 — 플레이어는 금빛, 상대는 바랜 크림. */
   tone: "memory" | "bone";
   facing: "right" | "left";
   shake?: boolean;
+  /** 스프라이트 시트 경로. 파일이 없으면 자동으로 블록 캐릭터가 나온다. */
+  sprite: string;
 }) {
-  const arms = ARMS[pose];
-  const body = tone === "memory" ? "bg-memory" : "bg-bone";
-  const dark = tone === "memory" ? "bg-memory/55" : "bg-bone/50";
-  const lean = pose === "hurt" ? -14 : pose === "strike" ? 8 : 0;
+  const sheet = useSpriteSheet(sprite);
 
   return (
     <div
@@ -49,30 +110,11 @@ export function Fighter({
         shake ? "animate-batting-field-shake" : ""
       }`}
     >
-      <div
-        className="absolute inset-0 origin-bottom transition-transform duration-200"
-        style={{ transform: `rotate(${lean}deg)` }}
-      >
-        {/* 뒷팔 — 몸통 뒤라 한 톤 어둡게. 어깨는 몸통 안쪽에 둔다 */}
-        <div
-          className={`${ARM_CLASS} ${dark} left-[calc(50%-6px)] duration-200`}
-          style={{ transform: `rotate(${arms.back}deg)` }}
-        />
-        {/* 머리 */}
-        <div className={`absolute left-1/2 top-[6%] size-9 -translate-x-1/2 rounded-sm ${body}`} />
-        {/* 몸통 */}
-        <div
-          className={`absolute left-1/2 top-[32%] h-14 w-12 -translate-x-1/2 rounded-sm ${body}`}
-        />
-        {/* 다리 */}
-        <div className={`absolute bottom-0 left-[26%] h-12 w-3.5 rounded-sm ${body}`} />
-        <div className={`absolute bottom-0 right-[26%] h-12 w-3.5 rounded-sm ${dark}`} />
-        {/* 앞팔 — 어깨가 몸통 바깥 모서리라 뻗으면 실루엣이 확실히 바뀐다 */}
-        <div
-          className={`${ARM_CLASS} ${body} left-[calc(50%+14px)] duration-200`}
-          style={{ transform: `rotate(${arms.front}deg)` }}
-        />
-      </div>
+      {sheet === "ready" ? (
+        <SpriteFighter pose={pose} sprite={sprite} />
+      ) : (
+        <BlockFighter pose={pose} tone={tone} />
+      )}
     </div>
   );
 }

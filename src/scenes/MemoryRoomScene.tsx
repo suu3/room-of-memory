@@ -28,6 +28,7 @@ import { MemoryObjects } from "./memory-room/MemoryObjects";
 import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
 import { Player } from "./memory-room/Player";
 import { resolveRoomPalette } from "./memory-room/palette";
+import { RoomDecor } from "./memory-room/RoomDecor";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
 import {
@@ -131,6 +132,7 @@ export function MemoryRoomScene({
   onCurtainRelease,
   roomZoom,
   orbitAzimuth,
+  following,
   onInteract,
 }: {
   playerPositionRef: MutableRefObject<Vector3>;
@@ -143,6 +145,8 @@ export function MemoryRoomScene({
   onCurtainRelease: (side: CurtainSide) => void;
   roomZoom: number;
   orbitAzimuth: number;
+  /** 게임이 시작됐는가 — 타이틀 구도(방 모형 전체)와 플레이 구도(플레이어 추적)를 가른다. */
+  following: boolean;
   onInteract: (id: MemoryId) => void;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
@@ -176,6 +180,8 @@ export function MemoryRoomScene({
           phase: gamePhase,
         })}
       />
+      {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없으니 글로우 루트 밖이다 */}
+      <RoomDecor palette={palette} />
       {/* 커튼도 클릭 가능한 오브젝트라 기억들과 같은 아웃라인 글로우를 쓴다 — 같은 루트 안에 있어야 한다 */}
       <MemoryGlowRoot color={palette.memory}>
         <RoomFurniture
@@ -205,6 +211,8 @@ export function MemoryRoomScene({
         focusId={endingStarted ? "ending" : focusMemoryId}
         roomZoom={roomZoom}
         orbitAzimuth={orbitAzimuth}
+        following={following}
+        playerPositionRef={playerPositionRef}
       />
     </>
   );

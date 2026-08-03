@@ -1,4 +1,6 @@
-import type {} from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
+import { type ReactNode, useLayoutEffect, useRef } from "react";
+import { type Group, MathUtils, type Mesh, type MeshStandardMaterial } from "three";
 import {
   ROOM_DOOR_POSITION,
   ROOM_DOOR_ROTATION,
@@ -8,6 +10,7 @@ import {
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 import { WindowView } from "./WindowView";
+import { type WallSide, wallOpacity } from "./wall-culling";
 
 interface ShellBoxProps {
   size: Vec3Tuple;
@@ -41,6 +44,59 @@ function ShellBox({
   );
 }
 
+/** 굽도리보다 위 — 카메라가 이쪽에 있으면 스러진다. */
+function CulledWall({ side, children }: { side: WallSide; children: ReactNode }) {
+  const groupRef = useRef<Group>(null);
+  const materialsRef = useRef<MeshStandardMaterial[]>([]);
+  const opacityRef = useRef(1);
+
+  // 자식 머티리얼을 한 번만 모아 둔다. transparent는 프로그램 재컴파일을 부르므로
+  // 여기서 한 번 켜고, 이후 프레임에서는 opacity 숫자만 민다.
+  useLayoutEffect(() => {
+    const group = groupRef.current;
+    if (!group) return;
+
+    const collected: MeshStandardMaterial[] = [];
+    group.traverse((object) => {
+      const mesh = object as Mesh;
+      if (!mesh.isMesh) return;
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const material of materials) {
+        const standard = material as MeshStandardMaterial;
+        standard.transparent = true;
+        standard.needsUpdate = true;
+        collected.push(standard);
+      }
+    });
+    materialsRef.current = collected;
+  }, []);
+
+  useFrame(({ camera }, delta) => {
+    const group = groupRef.current;
+    if (!group) return;
+
+    const goal = wallOpacity(
+      side,
+      camera.position.x - SHELL_CENTER_X,
+      camera.position.z - SHELL_CENTER_Z,
+    );
+    const next = MathUtils.damp(opacityRef.current, goal, 9, delta);
+    opacityRef.current = next;
+
+    // 완전히 투명해지면 아예 그리지 않는다 — 투명 패스 정렬 비용과
+    // 그림자 캐스팅을 같이 덜어낸다.
+    group.visible = next > 0.02;
+    if (!group.visible) return;
+    for (const material of materialsRef.current) material.opacity = next;
+  });
+
+  return (
+    <group ref={groupRef} name={`wall-${side}-upper`}>
+      {children}
+    </group>
+  );
+}
+
 const SHELL_WIDTH = ROOM_SHELL_BOUNDS.maxX - ROOM_SHELL_BOUNDS.minX;
 const SHELL_DEPTH = ROOM_SHELL_BOUNDS.maxZ - ROOM_SHELL_BOUNDS.minZ;
 const [SHELL_CENTER_X, SHELL_CENTER_Z] = ROOM_SHELL_CENTER;
@@ -54,11 +110,34 @@ const SHELL = {
     size: [SHELL_WIDTH, 0.22, SHELL_DEPTH],
     position: [SHELL_CENTER_X, -0.12, SHELL_CENTER_Z],
   },
-  leftWall: {
-    size: [WALL_THICKNESS, WALL_HEIGHT, SHELL_DEPTH],
-    position: [ROOM_SHELL_BOUNDS.minX, WALL_CENTER_Y, SHELL_CENTER_Z],
-  },
 } as const satisfies Record<string, { size: Vec3Tuple; position: Vec3Tuple }>;
+
+/**
+ * 벽을 굽도리와 윗부분으로 가르는 높이. 카메라 쪽 벽은 윗부분만 스러지고
+ * 굽도리는 남는다 (wall-culling.ts 참고).
+ */
+const WALL_STUB_TOP_Y = 0.55;
+
+interface WallBox {
+  size: Vec3Tuple;
+  position: Vec3Tuple;
+}
+
+/** x축을 보고 선 벽(왼쪽·오른쪽) 한 조각. */
+function sideWall(x: number, minY: number, maxY: number): WallBox {
+  return {
+    size: [WALL_THICKNESS, maxY - minY, SHELL_DEPTH],
+    position: [x, (minY + maxY) / 2, SHELL_CENTER_Z],
+  };
+}
+
+/** z축을 보고 선 벽(앞) 한 조각. 뒷벽은 창 구멍 때문에 wallSegment가 따로 짠다. */
+function endWall(z: number, minY: number, maxY: number): WallBox {
+  return {
+    size: [SHELL_WIDTH, maxY - minY, WALL_THICKNESS],
+    position: [SHELL_CENTER_X, (minY + maxY) / 2, z],
+  };
+}
 
 /** 창의 중심과 유리 크기. 뒷벽 개구부와 창밖 풍경이 모두 이 값을 기준으로 잡힌다. */
 export const WINDOW_CENTER = [1.15, 2.55, -3.88] as const satisfies Vec3Tuple;
@@ -86,15 +165,33 @@ function wallSegment(
 }
 
 /**
- * 뒷벽. 통짜 상자 하나였는데, 그러면 창이 벽에 그려진 그림일 뿐이라 밖이 안 보인다.
+ * 뒷벽 윗부분. 통짜 상자 하나였는데, 그러면 창이 벽에 그려진 그림일 뿐이라 밖이 안 보인다.
  * 창 개구부를 비워둔 네 조각으로 쪼개 진짜 구멍을 낸다.
+ * 아래 끝은 굽도리 높이 — 그 아래는 BASE_WALLS가 통짜로 잇는다.
  */
+const UPPER_Y = { min: WALL_STUB_TOP_Y, max: WALL_Y.max };
 const BACK_WALL_SEGMENTS = [
-  wallSegment({ min: WALL_X.min, max: OPENING_X.min }, WALL_Y),
-  wallSegment({ min: OPENING_X.max, max: WALL_X.max }, WALL_Y),
+  wallSegment({ min: WALL_X.min, max: OPENING_X.min }, UPPER_Y),
+  wallSegment({ min: OPENING_X.max, max: WALL_X.max }, UPPER_Y),
   wallSegment(OPENING_X, { min: OPENING_Y.max, max: WALL_Y.max }),
-  wallSegment(OPENING_X, { min: WALL_Y.min, max: OPENING_Y.min }),
-] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
+  wallSegment(OPENING_X, { min: UPPER_Y.min, max: OPENING_Y.min }),
+] as const satisfies readonly WallBox[];
+
+/**
+ * 네 면의 굽도리. 카메라가 어느 쪽에 있든 남아서 바닥의 테두리를 이룬다 —
+ * 이게 없으면 카메라 쪽 벽이 스러진 자리에서 바닥이 허공에 뜬 판으로 보인다.
+ */
+const BASE_WALLS = [
+  endWall(ROOM_SHELL_BOUNDS.minZ, WALL_Y.min, WALL_STUB_TOP_Y),
+  endWall(ROOM_SHELL_BOUNDS.maxZ, WALL_Y.min, WALL_STUB_TOP_Y),
+  sideWall(ROOM_SHELL_BOUNDS.minX, WALL_Y.min, WALL_STUB_TOP_Y),
+  sideWall(ROOM_SHELL_BOUNDS.maxX, WALL_Y.min, WALL_STUB_TOP_Y),
+] as const satisfies readonly WallBox[];
+
+/** 굽도리 위로 서는 나머지 세 면 (뒷벽은 창 때문에 위에서 따로 짰다). */
+const LEFT_WALL_UPPER = sideWall(ROOM_SHELL_BOUNDS.minX, WALL_STUB_TOP_Y, WALL_Y.max);
+const RIGHT_WALL_UPPER = sideWall(ROOM_SHELL_BOUNDS.maxX, WALL_STUB_TOP_Y, WALL_Y.max);
+const FRONT_WALL_UPPER = endWall(ROOM_SHELL_BOUNDS.maxZ, WALL_STUB_TOP_Y, WALL_Y.max);
 
 /** 디오라마 받침. 방이 허공에 떠 있으면 모형이라는 인상이 안 산다. */
 const PLINTH = [
@@ -181,25 +278,40 @@ export function RoomShell({
       ))}
 
       <ShellBox {...SHELL.floor} color={palette.mist} receiveShadow />
-      {BACK_WALL_SEGMENTS.map((part) => (
+
+      {/* 네 면의 굽도리 — 늘 남는다 */}
+      {BASE_WALLS.map((part) => (
         <ShellBox key={part.position.join(":")} {...part} color={palette.slate} receiveShadow />
       ))}
-      <ShellBox {...SHELL.leftWall} color={palette.slate} receiveShadow />
 
-      {/* 벽 뒤 — 개구부를 통해서만 보인다 */}
-      <WindowView
-        palette={palette}
-        decay={outsideDecay}
-        center={WINDOW_CENTER}
-        width={WINDOW_OPENING.width}
-        height={WINDOW_OPENING.height}
-      />
-
-      <group position={WINDOW_CENTER}>
-        {WINDOW_FRAME.map((part) => (
-          <ShellBox key={part.position.join(":")} {...part} color={palette.bone} castShadow />
+      <CulledWall side="back">
+        {BACK_WALL_SEGMENTS.map((part) => (
+          <ShellBox key={part.position.join(":")} {...part} color={palette.slate} receiveShadow />
         ))}
-      </group>
+        {/* 창밖 풍경도 뒷벽에 속한다 — 벽이 스러졌는데 풍경만 남으면 허공에 뜬 판이 된다 */}
+        <WindowView
+          palette={palette}
+          decay={outsideDecay}
+          center={WINDOW_CENTER}
+          width={WINDOW_OPENING.width}
+          height={WINDOW_OPENING.height}
+        />
+        <group position={WINDOW_CENTER}>
+          {WINDOW_FRAME.map((part) => (
+            <ShellBox key={part.position.join(":")} {...part} color={palette.bone} castShadow />
+          ))}
+        </group>
+      </CulledWall>
+
+      <CulledWall side="left">
+        <ShellBox {...LEFT_WALL_UPPER} color={palette.slate} receiveShadow />
+      </CulledWall>
+      <CulledWall side="front">
+        <ShellBox {...FRONT_WALL_UPPER} color={palette.slate} receiveShadow />
+      </CulledWall>
+      <CulledWall side="right">
+        <ShellBox {...RIGHT_WALL_UPPER} color={palette.slate} receiveShadow />
+      </CulledWall>
 
       <group position={ROOM_DOOR_POSITION} rotation={ROOM_DOOR_ROTATION}>
         {/* 문짝만 경첩(왼쪽 문틀)을 축으로 열린다. 문틀·손잡이는 제자리에 남는다. */}

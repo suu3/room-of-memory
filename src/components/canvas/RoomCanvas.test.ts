@@ -15,23 +15,72 @@ import {
   MAX_ROOM_ZOOM_SCALE,
   MIN_ROOM_ZOOM_SCALE,
   roomOrbitFromDrag,
+  roomOverviewZoomForViewport,
   roomZoomForViewport,
   roomZoomScaleFromPinch,
   roomZoomScaleFromWheel,
 } from "./room-canvas-runtime";
 
+/** 플레이어 키(월드 유닛). 화면에서 몇 px이 되는지가 곧 "쪼끄맣냐"의 척도다. */
+const PLAYER_HEIGHT_UNITS = 1.1;
+
 describe("roomZoomForViewport", () => {
-  it("keeps the desktop framing and zooms out on narrow screens", () => {
-    // 방 셸의 화면 바운딩(약 17.4 x 11.0)을 여백 10% 안쪽으로 채운다
-    expect(roomZoomForViewport(1440, 900)).toBeCloseTo(73.17, 1);
-    expect(900 / roomZoomForViewport(1440, 900)).toBeLessThan(12.4);
-    expect(900 / roomZoomForViewport(1440, 900)).toBeGreaterThan(11.0);
-    expect(roomZoomForViewport(390, 844)).toBeLessThan(30);
-    expect(roomZoomForViewport(390, 844)).toBeLessThan(roomZoomForViewport(1024, 768));
+  it("frames a fixed slice of the world instead of the whole room", () => {
+    // 세로 7.6유닛을 담는다 — 방 전체(12.3)를 담던 예전 구도의 1.6배
+    expect(roomZoomForViewport(1440, 900)).toBeCloseTo(118.42, 1);
+    expect(900 / roomZoomForViewport(1440, 900)).toBeCloseTo(7.6, 1);
   });
 
-  it("uses height as the limiting axis after a landscape resize", () => {
-    expect(roomZoomForViewport(844, 390)).toBeCloseTo(31.71, 1);
+  it("makes the character big enough to read on a phone", () => {
+    const phone = roomZoomForViewport(390, 844);
+    // 예전 구도에서는 폭에 맞추느라 zoom 20 → 캐릭터가 22px이었다
+    expect(phone * PLAYER_HEIGHT_UNITS).toBeGreaterThan(80);
+    // 세로로 빈 배경이 남지 않게 세로 시야를 되잡는다
+    expect(844 / phone).toBeLessThanOrEqual(11);
+  });
+
+  it("uses height as the limiting axis when width is comfortable", () => {
+    expect(roomZoomForViewport(1440, 900)).toBe(900 / 7.6);
+    expect(roomZoomForViewport(1024, 768)).toBe(768 / 7.6);
+  });
+
+  it("never shows less than the minimum width on a landscape phone", () => {
+    // 가로가 짧은 화면에서는 가로 하한이 구도를 정한다 (세로는 넘칠 일이 없다)
+    expect(844 / roomZoomForViewport(844, 390)).toBeGreaterThanOrEqual(6.5);
+  });
+
+  it("still lets the player pull back to an overview of the whole room", () => {
+    // 축소 하한까지 당기면 방 전체(가로 17.4유닛)가 거의 다 들어온다
+    const pulledBack = roomZoomForViewport(1440, 900) * MIN_ROOM_ZOOM_SCALE;
+    expect(1440 / pulledBack).toBeGreaterThan(17.4);
+  });
+});
+
+describe("roomOverviewZoomForViewport", () => {
+  it("fits the whole diorama for the title screen", () => {
+    // 방 셸의 화면 바운딩(약 17.4 x 11.0)이 통째로 들어간다
+    for (const [width, height] of [
+      [1440, 900],
+      [1024, 768],
+      [390, 844],
+    ]) {
+      const zoom = roomOverviewZoomForViewport(width, height);
+      expect(width / zoom).toBeGreaterThanOrEqual(17.4);
+      expect(height / zoom).toBeGreaterThanOrEqual(11.0);
+    }
+  });
+
+  it("always pulls further back than the play framing", () => {
+    // 시작 버튼을 누르면 카메라가 들어가야 한다 — 반대로 가면 연출이 죽는다
+    for (const [width, height] of [
+      [1440, 900],
+      [1024, 768],
+      [390, 844],
+    ]) {
+      expect(roomOverviewZoomForViewport(width, height)).toBeLessThan(
+        roomZoomForViewport(width, height),
+      );
+    }
   });
 });
 
@@ -41,8 +90,8 @@ describe("room zoom scale", () => {
     expect(clampRoomZoomScale(0.1)).toBe(MIN_ROOM_ZOOM_SCALE);
     expect(clampRoomZoomScale(9)).toBe(MAX_ROOM_ZOOM_SCALE);
     expect(clampRoomZoomScale(Number.NaN)).toBe(1);
-    // 축소 하한에서도 벽 없는 열린 면이 화면을 지배하지 않아야 한다
-    expect(MIN_ROOM_ZOOM_SCALE).toBeGreaterThanOrEqual(0.8);
+    // 사면벽이 되면서 축소해도 방이 뚫려 보이지 않는다 — 전체 조망까지 당길 수 있어야 한다
+    expect(MIN_ROOM_ZOOM_SCALE).toBeLessThan(0.6);
   });
 
   it("zooms in on a wheel-up and back out on a wheel-down", () => {
@@ -63,8 +112,10 @@ describe("room zoom scale", () => {
     for (let step = 0; step < 60; step += 1) scale = roomZoomScaleFromWheel(scale, 120);
     expect(scale).toBe(MIN_ROOM_ZOOM_SCALE);
 
-    expect(roomZoomScaleFromPinch(1, 100, 200)).toBeCloseTo(1.7);
-    expect(roomZoomScaleFromPinch(1, 100, 50)).toBe(MIN_ROOM_ZOOM_SCALE);
+    expect(roomZoomScaleFromPinch(1, 100, 200)).toBe(MAX_ROOM_ZOOM_SCALE);
+    // 손가락을 절반으로 좁히는 정도(0.5배)는 이제 하한 안쪽이라 그대로 통과한다
+    expect(roomZoomScaleFromPinch(1, 100, 50)).toBeCloseTo(0.5);
+    expect(roomZoomScaleFromPinch(1, 100, 20)).toBe(MIN_ROOM_ZOOM_SCALE);
     expect(roomZoomScaleFromPinch(1, 0, 50)).toBe(1);
   });
 });

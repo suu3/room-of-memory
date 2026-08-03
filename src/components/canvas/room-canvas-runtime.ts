@@ -22,28 +22,74 @@ interface WebGLProbeCanvas {
 
 type WebGLProbeCanvasFactory = () => WebGLProbeCanvas;
 
-// 방 셸의 화면상 바운딩은 약 17.4 x 11.0 월드 유닛이다. 레퍼런스를 그보다 조금만
-// 크게 잡아 여백을 줄인다 — 전체 뷰가 화면을 더 꽉 채운다.
-const ROOM_REFERENCE_WIDTH = 19.4;
-const ROOM_REFERENCE_HEIGHT = 12.3;
-const MIN_ROOM_ZOOM = 18;
-const MAX_ROOM_ZOOM = 84;
+/*
+ * 방 전체를 화면에 다 담던 구도(레퍼런스 19.4 x 12.3)를 버렸다.
+ * 그 구도에서는 1440x900에서도 캐릭터 키가 80px밖에 안 돼서 방이 통째로 작아 보였다.
+ * 이제는 "화면에 월드 유닛 몇 개를 담을지"로 잡고, 카메라가 플레이어를 따라간다.
+ */
 
-/** 휠/핀치로 조절하는 사용자 배율. 하한은 열린 면이 크게 드러나지 않는 선. */
-export const MIN_ROOM_ZOOM_SCALE = 0.85;
-export const MAX_ROOM_ZOOM_SCALE = 1.7;
+/** 화면 세로에 담을 월드 유닛. 캐릭터 키가 1.1이라 이 값이 곧 캐릭터의 화면 비중이다. */
+const VIEW_HEIGHT_UNITS = 7.6;
+/** 아무리 좁은 화면이라도 가로로 이만큼은 보인다 — 세로로 긴 폰에서 시야가 바늘구멍이 되는 걸 막는다. */
+const MIN_VIEW_WIDTH_UNITS = 6.5;
+/**
+ * 반대로 세로로는 이보다 더 담지 않는다.
+ *
+ * 세로로 긴 폰에서는 가로 하한이 구도를 정하는데, 그러면 세로로 14유닛이 잡혀서
+ * 방(높이 약 11유닛)을 다 담고도 화면 아래쪽이 받침과 배경으로 남는다.
+ * 세로를 되잡아 주면 캐릭터는 더 커지고 빈 배경은 줄어든다.
+ */
+const MAX_VIEW_HEIGHT_UNITS = 11;
+const MIN_ROOM_ZOOM = 34;
+const MAX_ROOM_ZOOM = 170;
+const FALLBACK_ROOM_ZOOM = 96;
+
+/**
+ * 휠/핀치로 조절하는 사용자 배율.
+ * 하한을 크게 열어 뒀다 — 축소하면 예전처럼 방 전체를 내려다보는 구도가 된다.
+ */
+export const MIN_ROOM_ZOOM_SCALE = 0.45;
+export const MAX_ROOM_ZOOM_SCALE = 1.8;
 const WHEEL_ZOOM_SENSITIVITY = 0.0016;
 
 export function roomZoomForViewport(width: number, height: number): number {
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    return FALLBACK_ROOM_ZOOM;
+  }
+
+  const heightLimitedZoom = height / VIEW_HEIGHT_UNITS;
+  const widthLimitedZoom = width / MIN_VIEW_WIDTH_UNITS;
+  const tallScreenFloor = height / MAX_VIEW_HEIGHT_UNITS;
+  const framed = Math.max(tallScreenFloor, Math.min(heightLimitedZoom, widthLimitedZoom));
+  return Math.min(MAX_ROOM_ZOOM, Math.max(MIN_ROOM_ZOOM, framed));
+}
+
+/*
+ * 타이틀 화면 구도 — 방 하나가 통째로 보이는 디오라마.
+ *
+ * 플레이 구도로 바로 시작하면 이 게임이 "방 모형"이라는 인상을 줄 기회가 없다.
+ * 타이틀에서는 모형 전체를 보여주고, 시작 버튼을 누르면 카메라가 그 안으로 내려앉는다
+ * (전환은 CameraRig의 damp가 알아서 한다 — 목표값만 바뀌면 된다).
+ *
+ * 방 셸의 화면상 바운딩은 약 17.4 x 11.0 월드 유닛이다. 레퍼런스를 그보다 조금만
+ * 크게 잡아 여백을 줄인다.
+ */
+const OVERVIEW_REFERENCE_WIDTH = 19.4;
+const OVERVIEW_REFERENCE_HEIGHT = 12.3;
+const MIN_OVERVIEW_ZOOM = 18;
+const MAX_OVERVIEW_ZOOM = 84;
+
+export function roomOverviewZoomForViewport(width: number, height: number): number {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
     return 64;
   }
 
-  const widthLimitedZoom = width / ROOM_REFERENCE_WIDTH;
-  const heightLimitedZoom = height / ROOM_REFERENCE_HEIGHT;
   return Math.min(
-    MAX_ROOM_ZOOM,
-    Math.max(MIN_ROOM_ZOOM, Math.min(widthLimitedZoom, heightLimitedZoom)),
+    MAX_OVERVIEW_ZOOM,
+    Math.max(
+      MIN_OVERVIEW_ZOOM,
+      Math.min(width / OVERVIEW_REFERENCE_WIDTH, height / OVERVIEW_REFERENCE_HEIGHT),
+    ),
   );
 }
 
@@ -51,7 +97,7 @@ export function roomZoomForViewport(width: number, height: number): number {
  * 오브젝트를 조사할 때 얼마나 더 당길지. 카메라가 직교(orthographic)라
  * 위치를 타깃 쪽으로 옮겨도 크기는 그대로다 — 확대는 zoom으로만 된다.
  */
-export const FOCUS_ZOOM_SCALE = 2.1;
+export const FOCUS_ZOOM_SCALE = 1.45;
 
 export function focusZoomFor(baseZoom: number, focused: boolean): number {
   if (!Number.isFinite(baseZoom)) return baseZoom;

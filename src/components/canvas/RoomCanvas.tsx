@@ -43,6 +43,7 @@ import {
   isInteractiveTarget,
   ORBIT_DRAG_THRESHOLD,
   roomOrbitFromDrag,
+  roomOverviewZoomForViewport,
   roomZoomForViewport,
   roomZoomScaleFromPinch,
   roomZoomScaleFromWheel,
@@ -104,7 +105,8 @@ export function RoomCanvas() {
   const [webGLFailed, setWebGLFailed] = useState(() => !canInitializeWebGL());
   const [nearbyMemoryId, setNearbyMemoryId] = useState<MemoryId | null>(null);
   const [focusMemoryId, setFocusMemoryId] = useState<MemoryId | null>(null);
-  const [roomZoom, setRoomZoom] = useState(64);
+  /** 타이틀 구도(디오라마 전체)와 플레이 구도(플레이어 추적) 두 가지. */
+  const [zoomByFraming, setZoomByFraming] = useState({ overview: 64, play: 96 });
   const [zoomScale, setZoomScale] = useState(1);
   const [orbitAzimuth, setOrbitAzimuth] = useState(0);
   /** 커튼은 쪽마다 따로 젖혀진다. 리셋하면 리비전이 어긋나 자동으로 닫힌 상태가 된다. */
@@ -113,6 +115,25 @@ export function RoomCanvas() {
   );
   const activeInteraction = useMemoryRoomStore(selectActiveInteraction);
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
+  /** 시작 전에는 방 모형 전체를 보여주고, 시작하면 그 안으로 내려앉는다. */
+  const started = useMemoryRoomStore((state) => state.started);
+  const roomZoom = started ? zoomByFraming.play : zoomByFraming.overview;
+
+  /*
+   * Canvas의 camera 프롭은 마운트 때 한 번만 쓴다. 여기에 살아 있는 zoom을 물리면
+   * r3f가 프롭이 바뀔 때마다 camera.zoom을 즉시 덮어써서, CameraRig의 damp가
+   * 시작하기도 전에 목표값에 도달해 버린다 (타이틀→플레이 줌인이 통째로 사라졌다).
+   * 이후 zoom은 CameraRig 혼자 굴린다.
+   */
+  const initialCamera = useMemo(
+    () => ({
+      position: [...CAMERA_PRESETS.room.position] as [number, number, number],
+      zoom: roomOverviewZoomForViewport(window.innerWidth, window.innerHeight),
+      near: 0.1,
+      far: 60,
+    }),
+    [],
+  );
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const beginInteraction = useMemoryRoomStore((state) => state.beginInteraction);
@@ -237,7 +258,10 @@ export function RoomCanvas() {
     let animationFrame: number | null = null;
     const applyViewportZoom = () => {
       animationFrame = null;
-      setRoomZoom(roomZoomForViewport(window.innerWidth, window.innerHeight));
+      setZoomByFraming({
+        overview: roomOverviewZoomForViewport(window.innerWidth, window.innerHeight),
+        play: roomZoomForViewport(window.innerWidth, window.innerHeight),
+      });
     };
     const handleResize = () => {
       if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
@@ -421,12 +445,7 @@ export function RoomCanvas() {
             // three r185에서 PCFSoftShadowMap(= shadows 기본값)이 deprecated라 PCF로 명시한다
             shadows="percentage"
             dpr={[1, 1.5]}
-            camera={{
-              position: [...CAMERA_PRESETS.room.position],
-              zoom: roomZoom,
-              near: 0.1,
-              far: 60,
-            }}
+            camera={initialCamera}
             // alpha: true — 캔버스 뒤 DOM 워시가 비쳐야 한다 (창밖 번짐을 3D에 두면
             // three가 투명 오브젝트를 항상 불투명 뒤에 그려서 벽을 뚫고 덧칠된다)
             gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
@@ -442,6 +461,7 @@ export function RoomCanvas() {
               onCurtainRelease={handleCurtainRelease}
               roomZoom={roomZoom * zoomScale}
               orbitAzimuth={orbitAzimuth}
+              following={started}
               onInteract={interact}
             />
           </Canvas>

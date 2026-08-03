@@ -24,6 +24,15 @@ export const ASSETS = {
     mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.png",
     mgBallCatchBat: "/assets/images/mg-ball-catch-bat.png",
     mgBallCatchImpact: "/assets/images/mg-ball-catch-impact.png",
+    /*
+     * 격투 미니게임 스프라이트. 아직 리포에 없어도 된다 — 파일이 없으면
+     * 블록 캐릭터/그라디언트 배경으로 떨어진다. 시트 규격은
+     * src/minigames/fighter-duel/sprites.ts 주석 참고 (5프레임 가로 시트, 1120×320).
+     */
+    mgFighterDuelHero: "/assets/images/mg-fighter-duel-hero.webp",
+    mgFighterDuelRival: "/assets/images/mg-fighter-duel-rival.webp",
+    /** 격투 미니게임 무대 배경 (960×256). 없으면 CSS 그라디언트가 그대로 보인다. */
+    mgFighterDuelStage: "/assets/images/mg-fighter-duel-stage.webp",
     /** 액자 사진 1차 — 부모 얼굴이 그늘에 묻힌 버전. Phase 1의 바탕, Phase 2의 덮개. */
     mgPhotoWipePhase1: "/assets/images/mg-photo-wipe-phase-1.webp",
     /** 액자 사진 2차 — 가족 얼굴이 드러난 버전. Phase 2에서 닦아내면 나온다. */

@@ -223,14 +223,20 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
           className="block h-auto max-w-full"
           style={{ width: photo.width }}
         />
-        {/* 프로스트 레이어 — 닦아서 지운다. 커서가 곧 행주다 */}
+        {/*
+          프로스트 레이어 — 닦아서 지운다. 커서가 곧 행주다.
+          size-full이 없으면 안 된다: 절대 배치된 <canvas>는 replaced element라
+          width가 auto일 때 CSS가 intrinsic 크기(width 속성값 620px)를 그대로 쓴다.
+          inset-0은 그걸 못 이겨서, 사진이 좁은 화면에 맞춰 줄어들어도 캔버스만
+          원본 폭으로 남아 액자 밖으로 삐져나갔다 (모바일 블러 오버플로우).
+        */}
         <canvas
           ref={canvasRef}
           width={photo.width}
           height={photo.height}
           onPointerDown={pointerWipe}
           onPointerMove={pointerWipe}
-          className="absolute inset-0 touch-none"
+          className="absolute inset-0 size-full touch-none"
           style={{ cursor: CLOTH_CURSOR }}
         />
       </PhotoFrame>
