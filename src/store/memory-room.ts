@@ -261,6 +261,18 @@ export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
 export const selectSceneInputLocked = (state: MemoryRoomState) =>
   state.activeInteraction !== null || state.uiLocks.length > 0;
 
+/**
+ * BGM이 뒤로 물러나야 하는 정도를 정하는 축. 미니게임은 효과음이, 대사는 글이
+ * 주인공이라 눌러야 하는 깊이가 다르다 (lib/audio의 useRoomMusic).
+ *
+ * 원시 문자열로 돌려준다 — 객체를 새로 만들면 zustand가 매 렌더 새 스냅샷으로 본다.
+ */
+export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogue" | "minigame" => {
+  if (state.activeInteraction?.phase === "minigame") return "minigame";
+  if (state.activeInteraction !== null || state.uiLocks.length > 0) return "dialogue";
+  return "room";
+};
+
 /** 2바퀴 재조사 대상 수. 밝기 상승 구간의 분모다. */
 export const REVISIT_TOTAL = MEMORIES.filter((memory) => memory.phase2).length;
 

@@ -16,8 +16,8 @@ import {
   REVISIT_TOTAL,
   selectCollected,
   selectEndingReady,
+  selectMusicForeground,
   selectRevisitedCount,
-  selectSceneInputLocked,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { CharacterSheetModal } from "./CharacterSheetModal";
@@ -66,11 +66,16 @@ export function MemoryRoom() {
   const started = useMemoryRoomStore((state) => state.started);
   // BGM은 밝기와 같은 값을 먹는다 — 방이 어두워지면 곡도 벽 너머로 물러난다.
   // 인터랙션 중에는 눌러둔다: 미니게임은 효과음이, 대사는 글이 주인공이다.
-  const interacting = useMemoryRoomStore(selectSceneInputLocked);
+  // 미니게임은 효과음이, 대사는 글이 주인공이다 — 눌러야 하는 깊이가 다르다
+  const musicForeground = useMemoryRoomStore(selectMusicForeground);
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
   // 불을 끄면 곡도 같이 물러난다 — 밝기와 음색을 한 축으로 묶어 둔 이득이다
   const heardLevel = lampScaled(lightLevel, lightsOn);
-  useRoomMusic({ playing: started && !endingStarted, level: heardLevel, ducked: interacting });
+  useRoomMusic({
+    playing: started && !endingStarted,
+    level: heardLevel,
+    foreground: musicForeground,
+  });
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-night">

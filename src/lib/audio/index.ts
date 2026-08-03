@@ -53,11 +53,15 @@ export function useAudioRuntime() {
 }
 
 /**
- * 미니게임·대사 중 BGM을 눌러두는 정도. 0이면 무음, 1이면 평소.
- * VN이라 대사창이 떠 있는 시간이 길다 — 0.45로 깊게 눌렀더니 대부분의 시간 동안
- * BGM이 사라진 것처럼 들렸다. 비켜서기만 할 만큼만 누른다.
+ * BGM을 눌러두는 정도. 0이면 무음, 1이면 평소.
+ *
+ * 대사와 미니게임은 눌러야 하는 깊이가 다르다. VN이라 대사창이 떠 있는 시간이
+ * 길어서, 대사에서 깊게 누르면 게임 대부분의 시간 동안 BGM이 사라진 것처럼 들린다
+ * — 비켜서기만 할 만큼만 누른다. 반대로 미니게임은 효과음이 주인공인 구간이라
+ * 거의 비운다. 끝나고 방으로 돌아올 때 음악이 다시 드는 것이 곧 연출이 된다.
  */
-const INTERACTION_DUCK = 0.72;
+const DIALOGUE_DUCK = 0.72;
+const MINIGAME_DUCK = 0.18;
 
 /**
  * 방 BGM을 방 밝기에 물린다. 곡은 하나뿐이고, V자 감정선은 로우패스가 닫혔다
@@ -69,11 +73,12 @@ const INTERACTION_DUCK = 0.72;
 export function useRoomMusic({
   playing,
   level,
-  ducked,
+  foreground,
 }: {
   playing: boolean;
   level: number;
-  ducked: boolean;
+  /** 지금 화면의 주인공. BGM은 그 뒤로 물러난다. */
+  foreground: "room" | "dialogue" | "minigame";
 }) {
   useEffect(() => {
     if (!playing) {
@@ -88,8 +93,10 @@ export function useRoomMusic({
   }, [level]);
 
   useEffect(() => {
-    setMusicDuck(ducked ? INTERACTION_DUCK : 1);
-  }, [ducked]);
+    if (foreground === "minigame") setMusicDuck(MINIGAME_DUCK);
+    else if (foreground === "dialogue") setMusicDuck(DIALOGUE_DUCK);
+    else setMusicDuck(1);
+  }, [foreground]);
 }
 
 /** 이벤트 핸들러에서 부르기 좋은 형태 — `onClick={playing("select")}`. */
