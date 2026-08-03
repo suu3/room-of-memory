@@ -2,6 +2,7 @@
 
 import { CaretDown } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { SCRIPTS } from "@/data/memory-room";
 import { useTypewriterState } from "@/lib/use-typewriter";
@@ -22,8 +23,33 @@ export function DialogueBox() {
   // 훅은 조건부로 호출할 수 없으므로 대사가 없을 때도 빈 문자열로 돌린다
   const text = scriptLine ? tRoom(scriptLine.textKey) : "";
   const { typed, done, skip } = useTypewriterState(text);
+  const open = active?.phase === "dialogue" && scriptLine !== undefined;
 
-  if (active?.phase !== "dialogue" || !scriptLine) return null;
+  /** 지금 Enter가 해야 할 일. 타자 연출 중이면 먼저 다 채우고, 다 찼으면 다음 줄로. */
+  const advanceRef = useRef(() => {});
+  advanceRef.current = done ? advanceDialogue : skip;
+
+  /*
+   * 화면 아무 데나 클릭하는 것 말고 Enter로도 넘어간다.
+   *
+   * 창 전역에서 캡처 단계로 받는다. 결과 대사 단계에서는 미니게임이 대사창 아래
+   * 그대로 살아 있어서(MinigameHost의 resultStage), 버블 단계까지 흘려보내면 같은
+   * Enter가 대사와 미니게임을 동시에 움직인다. preventDefault는 포커스가 잡힌
+   * 버튼이 Enter로 한 번 더 눌리는 것도 같이 막는다.
+   */
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Enter" || event.repeat) return;
+      event.preventDefault();
+      event.stopPropagation();
+      advanceRef.current();
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [open]);
+
+  if (!open || active?.phase !== "dialogue" || !scriptLine) return null;
 
   const speakerName = tRoom(`characters.${scriptLine.speaker}.name` as ParseKeys<"memoryRoom">);
 
