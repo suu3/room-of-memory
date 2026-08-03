@@ -229,6 +229,83 @@ function DeskAccessories(_: FurnitureProps) {
 // 구간이라 한곳에서 관리한다. 도형 크기를 바꾸면 거기 halfWidth도 같이 고칠 것.
 const { plant, storageBox, clock } = CABINET_TOP_PROPS;
 
+/**
+ * 캐비닛 위 탁상시계.
+ *
+ * 원통 하나에 종이색 원판을 덧댄 게 전부였는데, 그 원판이 원통과 같은 rotation을
+ * 받는 바람에 바닥을 보고 서 있었다 — 방에서 보이는 건 아무것도 안 적힌 민짜
+ * 원반뿐이라 정체를 알 수 없는 물건이 됐다. 문자판을 방 쪽으로 돌리고 바늘을 단다.
+ *
+ * 원통 몸통 두께가 0.1이므로 앞면은 중심에서 0.05 앞이다. 문자판·바늘·축은 그 앞으로
+ * 조금씩 띄워 쌓는다 — 같은 z에 놓으면 면이 겹쳐 깜빡인다.
+ */
+const CLOCK_CENTER: Vec3Tuple = [clock.x, 1.43, -2.48];
+const CLOCK_FACE_Z = 0.055;
+/** 멈춰 선 시각. 폰 잠금화면과 같은 20:47이다 — 방 안의 두 시계가 어긋나면 안 된다. */
+const CLOCK_HOUR = 20;
+const CLOCK_MINUTE = 47;
+/** 12시 방향에서 시계방향으로 도는 각. three의 +Z 회전은 반시계라 부호가 뒤집힌다. */
+const MINUTE_ANGLE = -(CLOCK_MINUTE / 60) * Math.PI * 2;
+const HOUR_ANGLE = -(((CLOCK_HOUR % 12) + CLOCK_MINUTE / 60) / 12) * Math.PI * 2;
+
+function ClockHand({
+  angle,
+  length,
+  width,
+  z,
+  color,
+}: {
+  angle: number;
+  length: number;
+  width: number;
+  z: number;
+  color: string;
+}) {
+  return (
+    // 바늘은 축을 중심으로 돈다 — 회전은 그룹이 맡고 막대는 그 안에서 길이의 절반만큼 올라간다
+    <group position={[0, 0, z]} rotation={[0, 0, angle]}>
+      <mesh position={[0, length / 2, 0]}>
+        <boxGeometry args={[width, length, 0.012]} />
+        <meshStandardMaterial color={color} roughness={0.7} />
+      </mesh>
+    </group>
+  );
+}
+
+function DeskClock({ palette }: FurnitureProps) {
+  return (
+    <group name="desk-clock" position={CLOCK_CENTER}>
+      <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.28, 0.28, 0.1, 24]} />
+        <meshStandardMaterial color={palette.bone} roughness={0.72} />
+      </mesh>
+      <mesh position={[0, 0, CLOCK_FACE_Z]}>
+        <circleGeometry args={[0.2, 24]} />
+        <meshStandardMaterial color={palette.paper} roughness={0.8} />
+      </mesh>
+      <ClockHand
+        angle={HOUR_ANGLE}
+        length={0.11}
+        width={0.022}
+        z={CLOCK_FACE_Z + 0.008}
+        color={palette.ink}
+      />
+      <ClockHand
+        angle={MINUTE_ANGLE}
+        length={0.16}
+        width={0.016}
+        z={CLOCK_FACE_Z + 0.014}
+        color={palette.ink}
+      />
+      {/* 바늘이 만나는 축 — 두 바늘이 그냥 겹쳐 있으면 십자 무늬로 보인다 */}
+      <mesh position={[0, 0, CLOCK_FACE_Z + 0.022]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.018, 0.018, 0.01, 10]} />
+        <meshStandardMaterial color={palette.ember} roughness={0.6} />
+      </mesh>
+    </group>
+  );
+}
+
 function CabinetAccessories({ palette }: FurnitureProps) {
   return (
     <group name="cabinet-accessories">
@@ -245,14 +322,7 @@ function CabinetAccessories({ palette }: FurnitureProps) {
         part={{ size: [0.22, 0.22, 0.04], position: [storageBox.x, 1.56, -2.79], color: "paper" }}
         palette={palette}
       />
-      <mesh position={[clock.x, 1.43, -2.48]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.28, 0.28, 0.1, 24]} />
-        <meshStandardMaterial color={palette.bone} roughness={0.72} />
-      </mesh>
-      <mesh position={[clock.x, 1.43, -2.42]} rotation={[Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.2, 24]} />
-        <meshStandardMaterial color={palette.paper} roughness={0.8} />
-      </mesh>
+      <DeskClock palette={palette} />
     </group>
   );
 }

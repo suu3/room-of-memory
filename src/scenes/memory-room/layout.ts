@@ -112,12 +112,22 @@ export const MEMORY_PLACEMENTS = {
   },
   phone: {
     id: "phone",
-    // 예전 좌표는 캐비닛 앞면(z=-2.53) 바깥으로 떠 있으면서 동시에 상판을 0.14 뚫고
-    // 내려가 있었다. 수납상자(x≤2.61)와 탁상시계(x≥3.64) 사이, 상판 위로 옮긴다.
-    position: [3.05, 1.185, -2.8],
-    rotation: [0, -0.2, 0],
-    scale: 1,
-    interactionRadius: 1.05,
+    /*
+     * 침대에 던져둔 폰. 매트리스 윗면은 y=0.81이고, 눕히면 두께의 절반(0.04)만큼
+     * 떠야 하므로 원점은 0.86이다.
+     *
+     * x는 침대 왼쪽 변(3.14)에 붙인다 — 침대는 통째로 콜라이더라 위로 올라갈 수 없고,
+     * 안쪽에 두면 콜라이더 밖에서 닿을 수 있는 가장 가까운 자리(x=2.62)에서
+     * 상호작용 반경 밖으로 밀려난다. z는 베개(z≤2.13)를 피해 발치 쪽으로.
+     *
+     * 회전의 X는 -π/2 + 0.18 — 뒤쪽 0.18은 PhoneMemory가 세워 든 자세로 갖고 있는
+     * 기울기를 상쇄하는 몫이라, 합치면 정확히 화면이 천장을 보고 눕는다.
+     */
+    position: [3.55, 0.86, 2.9],
+    rotation: [-Math.PI / 2 + 0.18, 0, 0.42],
+    // 손에 쥐는 물건 치고 너무 컸다 — 게임기(가로 0.46)보다 작아야 폰으로 읽힌다
+    scale: 0.5,
+    interactionRadius: 1.25,
   },
   calendar: {
     id: "calendar",
@@ -145,7 +155,7 @@ export const CAMERA_PRESETS = {
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
   frame: { position: [4.05, 2.6, 0.75], target: [1.42, 1.4, -2.7] },
   radio: { position: [-1.1, 2.5, 2.1], target: [-4.05, 1.31, 0.1] },
-  phone: { position: [5.7, 2.6, 1.1], target: [3.05, 1.45, -2.72] },
+  phone: { position: [6.75, 2.65, 6.25], target: [3.55, 0.95, 2.75] },
   calendar: { position: [-1.1, 3.6, 3.2], target: [-5.75, 2.5, 0.9] },
   ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },
 } as const satisfies Record<"room" | "ending" | MemoryId, CameraPreset>;

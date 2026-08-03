@@ -172,15 +172,13 @@ describe("memory-room layout", () => {
   });
 
   /*
-   * 액자와 스마트폰은 캐비닛 상판에 얹는 물건이다. 예전 좌표는 스마트폰을 상판 아래로
-   * 0.14 밀어 넣으면서 동시에 캐비닛 앞면 바깥으로 띄웠고, 액자는 상판 위 수납상자
+   * 액자는 캐비닛 상판에 얹는 물건이다. 예전 좌표는 액자를 상판 위 수납상자
    * (x 1.89~2.61) 속에 통째로 파묻었다. 아래 값은 MemoryObjects.tsx의 시각 요소 크기다.
+   * (스마트폰도 여기 있었지만 침대로 옮겼다 — 아래 매트리스 테스트가 맡는다.)
    */
   const CABINET_TOP_MEMORIES = [
     // 액자: 폭 0.52, 받침까지 합친 최저점이 로컬 y = -0.2244
     { id: "frame", halfWidth: 0.26, halfDepth: 0.09, lowestLocalY: -0.2244 },
-    // 스마트폰: 폭 0.48, 기울인 뒤 본체 최저점이 로컬 y = -0.034
-    { id: "phone", halfWidth: 0.24, halfDepth: 0.13, lowestLocalY: -0.034 },
   ] as const;
 
   function footprint(entry: (typeof CABINET_TOP_MEMORIES)[number]) {
@@ -214,17 +212,44 @@ describe("memory-room layout", () => {
     }
   });
 
-  it("keeps the cabinet-top memories from overlapping each other or the props", () => {
-    const boxes = CABINET_TOP_MEMORIES.map(footprint);
-    const [frame, phone] = boxes;
-    expect(frame.maxX < phone.minX || phone.maxX < frame.minX).toBe(true);
-
-    for (const box of boxes) {
+  it("keeps the cabinet-top memories out of the props already up there", () => {
+    for (const box of CABINET_TOP_MEMORIES.map(footprint)) {
       for (const prop of Object.values(CABINET_TOP_PROPS)) {
         const propMinX = prop.x - prop.halfWidth;
         const propMaxX = prop.x + prop.halfWidth;
         expect(box.maxX < propMinX || propMaxX < box.minX).toBe(true);
       }
     }
+  });
+
+  /*
+   * 스마트폰은 침대에 던져둔 물건이다. 매트리스 판은 RoomFurniture의 BED_PARTS —
+   * 중심 [4.65, 0.6, 2.86], 크기 3.02 x 0.42 x 5.05라 윗면이 y=0.81이다.
+   */
+  const MATTRESS = { minX: 3.14, maxX: 6.16, minZ: 0.335, maxZ: 5.385, topY: 0.81 } as const;
+  /** 눕힌 폰이 원점에서 뻗는 최대 거리 — 본체 길이의 절반(0.18)에 중심 오프셋(0.17)을 더한 값. */
+  const PHONE_REACH = 0.36;
+  /** 눕힌 폰의 두께 절반 (본체 0.16에 scale 0.5). */
+  const PHONE_HALF_THICKNESS = 0.04;
+  /** PhoneMemory가 시각 요소 안에 갖고 있는 기울기. 배치 회전과 합쳐져야 정확히 눕는다. */
+  const PHONE_VISUAL_TILT = -0.18;
+
+  it("lays the phone flat on the mattress", () => {
+    const phone = MEMORY_PLACEMENTS.phone;
+
+    expect(phone.position[0] - PHONE_REACH).toBeGreaterThan(MATTRESS.minX);
+    expect(phone.position[0] + PHONE_REACH).toBeLessThan(MATTRESS.maxX);
+    expect(phone.position[2] - PHONE_REACH).toBeGreaterThan(MATTRESS.minZ);
+    expect(phone.position[2] + PHONE_REACH).toBeLessThan(MATTRESS.maxZ);
+
+    // 매트리스 위에 놓이되 눈에 띄게 뜨지는 않는다
+    const baseY = phone.position[1] - PHONE_HALF_THICKNESS;
+    expect(baseY).toBeGreaterThanOrEqual(MATTRESS.topY);
+    expect(baseY - MATTRESS.topY).toBeLessThan(0.05);
+
+    // 화면이 천장을 본다 — 세워 든 자세로 침대에 서 있으면 안 된다
+    expect(phone.rotation[0] + PHONE_VISUAL_TILT).toBeCloseTo(-Math.PI / 2, 5);
+    // 손에 쥐는 물건이다. 게임기(가로 0.46)보다 커 보이면 폰으로 안 읽힌다
+    expect(phone.scale * 0.48).toBeLessThan(0.46);
   });
 });
