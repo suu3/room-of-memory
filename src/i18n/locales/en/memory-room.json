@@ -23,9 +23,6 @@
     }
   },
   "memories": {
-    "bat": {
-      "name": "Bat"
-    },
     "window": {
       "name": "Window"
     },
@@ -43,6 +40,9 @@
     },
     "ball": {
       "name": "Signed Ball"
+    },
+    "console": {
+      "name": "Console"
     }
   },
   "stages": {
@@ -60,13 +60,6 @@
     }
   },
   "scripts": {
-    "bat-intro": {
-      "line1": "Dialogue placeholder goes here (1/2)",
-      "line2": "Dialogue placeholder goes here (2/2)"
-    },
-    "bat-echo": {
-      "line1": "Phase 2 dialogue placeholder goes here (bat)"
-    },
     "radio-echo": {
       "line1": "Phase 2 dialogue placeholder goes here (radio)"
     },
@@ -81,6 +74,9 @@
     "frame-photo-echo": {
       "line1": "…Their faces. I can finally see them properly.",
       "line2": "When I find them, I'll start with this photo."
+    },
+    "console-echo": {
+      "line1": "When I get out, we're playing a round."
     }
   },
   "lore": {
@@ -109,10 +105,10 @@
       "phase1": "They said it had reached Busan. I cannot pretend not to know anymore.",
       "phase2": "A human voice came through the noise. “Hey, is anyone there?” I am not the only one."
     },
-    "bat": {
-      "title": "The Bat by the Door",
-      "phase1": "I stood it beside the door, hoping I would never need it.",
-      "phase2": "It is lighter than I remembered. I think I can still swing it."
+    "console": {
+      "title": "Not fun anymore",
+      "phase1": "Alone, winning and losing feel the same.",
+      "phase2": "Maybe it gets fun again with two."
     }
   }
 }

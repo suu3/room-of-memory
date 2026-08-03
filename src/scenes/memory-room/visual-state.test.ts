@@ -16,19 +16,19 @@ const atRevisited = (revisited: number) => ({ ...FULL_RUN, collected: 7, revisit
 
 describe("memory-room visual state", () => {
   it("highlights only an available memory within the player's interaction range", () => {
-    expect(shouldHighlightMemory("available", "bat", "bat")).toBe(true);
-    expect(shouldHighlightMemory("available", "bat", null)).toBe(false);
-    expect(shouldHighlightMemory("available", "bat", "ball")).toBe(false);
-    expect(shouldHighlightMemory("locked", "bat", "bat")).toBe(false);
-    expect(shouldHighlightMemory("done", "bat", "bat")).toBe(false);
+    expect(shouldHighlightMemory("available", "console", "console")).toBe(true);
+    expect(shouldHighlightMemory("available", "console", null)).toBe(false);
+    expect(shouldHighlightMemory("available", "console", "ball")).toBe(false);
+    expect(shouldHighlightMemory("locked", "console", "console")).toBe(false);
+    expect(shouldHighlightMemory("done", "console", "console")).toBe(false);
   });
 
   it("also highlights an available memory the mouse is hovering from anywhere", () => {
-    expect(shouldHighlightMemory("available", "bat", null, true)).toBe(true);
-    expect(shouldHighlightMemory("available", "bat", "ball", true)).toBe(true);
+    expect(shouldHighlightMemory("available", "console", null, true)).toBe(true);
+    expect(shouldHighlightMemory("available", "console", "ball", true)).toBe(true);
     // 클릭할 수 없는 기억은 호버해도 빛나지 않는다
-    expect(shouldHighlightMemory("locked", "bat", null, true)).toBe(false);
-    expect(shouldHighlightMemory("done", "bat", null, true)).toBe(false);
+    expect(shouldHighlightMemory("locked", "console", null, true)).toBe(false);
+    expect(shouldHighlightMemory("done", "console", null, true)).toBe(false);
   });
 
   it("어둡지 않은 평범한 밝기로 시작한다 (기획안: 진입은 낮의 남고생 방)", () => {

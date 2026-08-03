@@ -62,13 +62,25 @@ export const ROOM_COLLIDERS = [
   { minX: -3.78, maxX: -2.82, minZ: -1.68, maxZ: -0.72 }, // chair
 ] as const satisfies readonly Aabb2[];
 
+/**
+ * 문 옆에 세워둔 배트. 수집 대상이 아니라 2바퀴를 다 돌면 켜지는 엔딩 트리거라
+ * MEMORY_PLACEMENTS와 따로 둔다.
+ */
+export const BAT_PLACEMENT = {
+  position: [-5.25, 1.48, 4.15],
+  rotation: [0, 0, Math.PI - 0.22],
+  scale: 1.6,
+  interactionRadius: 1.35,
+} as const satisfies Omit<MemoryPlacement, "id">;
+
 export const MEMORY_PLACEMENTS = {
-  bat: {
-    id: "bat",
-    position: [-5.25, 1.48, 4.15],
-    rotation: [0, 0, Math.PI - 0.22],
-    scale: 1.6,
-    interactionRadius: 1.35,
+  console: {
+    id: "console",
+    // 러그 위에 던져둔 휴대용 게임기. 사방이 트여 있어 다가가기 쉽다.
+    position: [1.05, 0.03, 4.05],
+    rotation: [0, -0.55, 0],
+    scale: 1,
+    interactionRadius: 1.05,
   },
   window: {
     id: "window",
@@ -127,11 +139,13 @@ export const MEMORY_PLACEMENTS = {
 export const CAMERA_PRESETS = {
   // room.target.y를 올리면 시선 중심이 위로 가면서 방이 화면 아래쪽으로 내려온다
   room: { position: [14.2, 10.4, 15.4], target: [0.8, 2.35, 1.2] },
-  bat: { position: [-1.4, 3.0, 6.7], target: [-5.25, 0.8, 4.15] },
+  /** 엔딩 — 문 옆 배트를 잡을 때. */
+  ending: { position: [-1.4, 3.0, 6.7], target: [-5.25, 0.8, 4.15] },
+  console: { position: [4.4, 2.4, 6.9], target: [1.05, 0.35, 4.05] },
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
   frame: { position: [4.05, 2.6, 0.75], target: [1.42, 1.4, -2.7] },
   radio: { position: [-1.1, 2.5, 2.1], target: [-4.05, 1.31, 0.1] },
   phone: { position: [5.7, 2.6, 1.1], target: [3.05, 1.45, -2.72] },
   calendar: { position: [-1.1, 3.6, 3.2], target: [-5.75, 2.5, 0.9] },
   ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },
-} as const satisfies Record<"room" | MemoryId, CameraPreset>;
+} as const satisfies Record<"room" | "ending" | MemoryId, CameraPreset>;

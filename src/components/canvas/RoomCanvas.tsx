@@ -169,7 +169,7 @@ export function RoomCanvas() {
 
   const labels = useMemo<Record<MemoryId, string>>(
     () => ({
-      bat: tRoom("memories.bat.name"),
+      console: tRoom("memories.console.name"),
       window: tRoom("memories.window.name"),
       frame: tRoom("memories.frame.name"),
       radio: tRoom("memories.radio.name"),

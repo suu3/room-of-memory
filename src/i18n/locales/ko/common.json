@@ -11,7 +11,8 @@
   },
   "door": {
     "locked": "잠긴 문",
-    "exit": "나가기 →"
+    "exit": "나가기 →",
+    "ready": "문 옆의 배트가 빛난다"
   },
   "panel": {
     "title": "기억 수집",
@@ -85,6 +86,29 @@
       "late": "늦었어",
       "hits": "안타 {{value}} / {{goal}}",
       "chances": "남은 기회"
+    },
+    "fighterDuel": {
+      "title": "격투 게임",
+      "help": "상대 자세를 보고 받아치세요 — 1 때리기 · 2 막기 · 3 잡기",
+      "hint": "때리기는 잡기를, 잡기는 막기를, 막기는 때리기를 이긴다",
+      "labelWins": "따낸 판",
+      "labelLosses": "맞은 판",
+      "move": {
+        "strike": "때리기",
+        "guard": "막기",
+        "throw": "잡기"
+      },
+      "tell": {
+        "strike": "상대가 어깨를 뒤로 뺀다",
+        "guard": "상대가 팔을 얼굴 앞으로 올린다",
+        "throw": "상대가 두 팔을 앞으로 뻗는다"
+      },
+      "outcome": {
+        "win": "한 방!",
+        "lose": "맞았다…",
+        "draw": "부딪혔다",
+        "late": "늦었다…"
+      }
     },
     "labelSuccess": "성공",
     "labelMiss": "실패",
@@ -160,5 +184,11 @@
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
     "start": "시작하기",
     "playtime": "플레이타임 약 15분"
+  },
+  "ending": {
+    "eyebrow": "THE DOOR OPENS",
+    "line": "문을 열고, 밖으로 나간다.",
+    "note": "여기에 엔딩 영상이 들어갑니다. 마지막 컷은 방금 그 동작 — 배트를 쥐고 문을 여는 장면으로 이어집니다.",
+    "again": "다시 시작"
   }
 }

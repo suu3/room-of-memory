@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MEMORY_IDS } from "@/data/memory-room";
 import {
+  BAT_PLACEMENT,
   CABINET_TOP_BOUNDS,
   CABINET_TOP_PROPS,
   CABINET_TOP_Y,
@@ -91,16 +92,16 @@ describe("memory-room layout", () => {
   it("places memories on the same room zones as the reference", () => {
     expect(MEMORY_PLACEMENTS.calendar.position[0]).toBeLessThan(-5.4);
     expect(MEMORY_PLACEMENTS.calendar.position[2]).toBeGreaterThan(-3);
-    expect(MEMORY_PLACEMENTS.bat.position[0]).toBeLessThan(-5);
+    expect(MEMORY_PLACEMENTS.console.position[2]).toBeGreaterThan(3);
     expect(MEMORY_PLACEMENTS.ball.position[0]).toBeLessThan(-4.8);
     expect(MEMORY_PLACEMENTS.frame.position[0]).toBeGreaterThan(0);
     expect(MEMORY_PLACEMENTS.frame.position[2]).toBeLessThan(-2.5);
-    expect(MEMORY_PLACEMENTS.bat.scale).toBeGreaterThanOrEqual(1.5);
+    expect(BAT_PLACEMENT.scale).toBeGreaterThanOrEqual(1.5);
     expect(MEMORY_PLACEMENTS.frame.rotation[1]).toBeCloseTo(-0.3);
   });
 
   it("rests the bat barrel-down in the clear strip beside the door", () => {
-    const bat = MEMORY_PLACEMENTS.bat;
+    const bat = BAT_PLACEMENT;
     const modelLength = 0.864 * bat.scale;
     const barrelY = bat.position[1] + Math.cos(bat.rotation[2]) * modelLength;
     const doorGap = ROOM_DOOR_POSITION[2] - bat.position[2];
@@ -115,8 +116,8 @@ describe("memory-room layout", () => {
     expect(wallGap).toBeLessThan(0.9);
     expect(
       Math.hypot(
-        CAMERA_PRESETS.bat.target[0] - bat.position[0],
-        CAMERA_PRESETS.bat.target[2] - bat.position[2],
+        CAMERA_PRESETS.ending.target[0] - bat.position[0],
+        CAMERA_PRESETS.ending.target[2] - bat.position[2],
       ),
     ).toBeLessThan(0.35);
   });

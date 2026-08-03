@@ -2,14 +2,27 @@ import {
   Baseball,
   CalendarHeart,
   DeviceMobile,
+  GameController,
   GridFour,
   ImageSquare,
   Radio,
 } from "@phosphor-icons/react";
-import { BatIcon, type MemoryIcon } from "@/components/ui/icons";
+import type { MemoryIcon } from "@/components/ui/icons";
 import type { DialogueScript, MemoryPhaseConfig } from "@/types/interaction";
 
-export const MEMORY_IDS = ["bat", "window", "frame", "radio", "phone", "calendar", "ball"] as const;
+/**
+ * 수집 대상. 배트는 여기 없다 — 문 옆의 배트는 모으는 물건이 아니라 2바퀴를 다
+ * 돌았을 때 켜지는 엔딩 트리거다 (layout의 BAT_PLACEMENT, scenes의 EndingTrigger).
+ */
+export const MEMORY_IDS = [
+  "console",
+  "window",
+  "frame",
+  "radio",
+  "phone",
+  "calendar",
+  "ball",
+] as const;
 export type MemoryId = (typeof MEMORY_IDS)[number];
 
 export interface MemoryItem {
@@ -24,10 +37,10 @@ export interface MemoryItem {
 
 export const MEMORIES: MemoryItem[] = [
   {
-    id: "bat",
-    icon: BatIcon,
-    phase1: { interaction: { scriptId: "bat-intro" } },
-    phase2: { interaction: { scriptId: "bat-echo" } },
+    id: "console",
+    icon: GameController,
+    phase1: { interaction: { minigameId: "fighter-duel" } },
+    phase2: { interaction: { scriptId: "console-echo" } },
   },
   {
     id: "window",
@@ -45,7 +58,7 @@ export const MEMORIES: MemoryItem[] = [
     id: "radio",
     icon: Radio,
     phase1: { interaction: { minigameId: "frequency-tune" } },
-    phase2: { interaction: { scriptId: "radio-echo" }, unlockAfter: ["bat"] },
+    phase2: { interaction: { scriptId: "radio-echo" }, unlockAfter: ["console"] },
   },
   {
     id: "phone",
@@ -126,16 +139,9 @@ export function phaseConfigOf(id: MemoryId, gamePhase: 1 | 2): MemoryPhaseConfig
 
 /** 대사 스크립트 레지스트리 — 본문은 i18n 리소스(memoryRoom.scripts.*)에 있다. */
 export const SCRIPTS: Record<string, DialogueScript> = {
-  "bat-intro": {
-    id: "bat-intro",
-    lines: [
-      { speaker: "hero", textKey: "scripts.bat-intro.line1" },
-      { speaker: "hero", textKey: "scripts.bat-intro.line2" },
-    ],
-  },
-  "bat-echo": {
-    id: "bat-echo",
-    lines: [{ speaker: "hero", textKey: "scripts.bat-echo.line1" }],
+  "console-echo": {
+    id: "console-echo",
+    lines: [{ speaker: "hero", textKey: "scripts.console-echo.line1", expression: "smile" }],
   },
   "radio-echo": {
     id: "radio-echo",

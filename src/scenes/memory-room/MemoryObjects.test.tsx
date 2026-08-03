@@ -25,10 +25,10 @@ const TEST_PALETTE = {
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
-async function renderBat() {
+async function renderConsole() {
   return ReactThreeTestRenderer.create(
     <InteractiveMemory
-      id="bat"
+      id="console"
       palette={TEST_PALETTE}
       nearbyMemoryId={null}
       onInteract={() => undefined}
@@ -42,8 +42,8 @@ describe("interactive memory helpers", () => {
   });
 
   it("수집을 마친 기억에도 방 안에 링을 그리지 않는다", async () => {
-    useMemoryRoomStore.setState({ collected: ["bat"] });
-    const renderer = await renderBat();
+    useMemoryRoomStore.setState({ collected: ["console"] });
+    const renderer = await renderConsole();
 
     const geometries = renderer.scene
       .findAllByType("Mesh")
@@ -55,9 +55,9 @@ describe("interactive memory helpers", () => {
   it("가까이 간 기억이 방을 밝히지 않는다", async () => {
     const renderer = await ReactThreeTestRenderer.create(
       <InteractiveMemory
-        id="bat"
+        id="console"
         palette={TEST_PALETTE}
-        nearbyMemoryId="bat"
+        nearbyMemoryId="console"
         onInteract={() => undefined}
       />,
     );
@@ -67,9 +67,9 @@ describe("interactive memory helpers", () => {
   });
 
   it("클릭 판정용 히트 구는 그대로 남는다", async () => {
-    const renderer = await renderBat();
+    const renderer = await renderConsole();
 
-    const hit = renderer.scene.findAll((node) => node.props.name === "memory-hit-bat");
+    const hit = renderer.scene.findAll((node) => node.props.name === "memory-hit-console");
     expect(hit).toHaveLength(1);
     await renderer.unmount();
   });

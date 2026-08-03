@@ -38,7 +38,7 @@ describe("moveCircle", () => {
 describe("findNearestMemory", () => {
   it("ignores locked and out-of-range targets", () => {
     const targets = [
-      { id: "bat" as const, position: [0, 0, 0] as const, interactionRadius: 1 },
+      { id: "console" as const, position: [0, 0, 0] as const, interactionRadius: 1 },
       { id: "ball" as const, position: [0.5, 0, 0] as const, interactionRadius: 1 },
     ];
     expect(findNearestMemory({ x: 0, z: 0 }, targets, (id) => id === "ball")).toBe("ball");

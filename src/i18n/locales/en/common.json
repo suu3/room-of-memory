@@ -11,7 +11,8 @@
   },
   "door": {
     "locked": "Locked Door",
-    "exit": "Leave →"
+    "exit": "Leave →",
+    "ready": "The bat by the door is glowing"
   },
   "panel": {
     "title": "Collected Memories",
@@ -85,6 +86,29 @@
       "late": "LATE",
       "hits": "HITS {{value}} / {{goal}}",
       "chances": "Chances left"
+    },
+    "fighterDuel": {
+      "title": "Fighting Game",
+      "help": "Read the stance and counter it — 1 Strike · 2 Guard · 3 Throw",
+      "hint": "Strike beats throw, throw beats guard, guard beats strike",
+      "labelWins": "Rounds won",
+      "labelLosses": "Rounds lost",
+      "move": {
+        "strike": "Strike",
+        "guard": "Guard",
+        "throw": "Throw"
+      },
+      "tell": {
+        "strike": "They pull a shoulder back",
+        "guard": "They raise both arms to their face",
+        "throw": "They reach both arms forward"
+      },
+      "outcome": {
+        "win": "Clean hit!",
+        "lose": "Took it…",
+        "draw": "Clashed",
+        "late": "Too slow…"
+      }
     },
     "labelSuccess": "HITS",
     "labelMiss": "MISS",
@@ -160,5 +184,11 @@
     "tagline": "Gather the memories scattered across a room that never opened.",
     "start": "START",
     "playtime": "About 15 minutes"
+  },
+  "ending": {
+    "eyebrow": "THE DOOR OPENS",
+    "line": "He opens the door and steps outside.",
+    "note": "The ending film goes here. Its last shot picks up exactly where you left off — bat in hand, door swinging open.",
+    "again": "Start again"
   }
 }

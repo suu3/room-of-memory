@@ -6,7 +6,7 @@ import type { MemoryId } from "@/data/memory-room";
 import { RoomInteractionPrompt } from "./RoomInteractionPrompt";
 
 const labels = {
-  bat: "Bat",
+  console: "Console",
   window: "Window",
   frame: "Frame",
   radio: "Radio",
@@ -20,8 +20,8 @@ afterEach(cleanup);
 function renderPrompt(availableIds: readonly MemoryId[], onInteract: (id: MemoryId) => void) {
   render(
     <RoomInteractionPrompt
-      nearbyMemoryId="bat"
-      nearbyLabel="Baseball bat · E / Enter"
+      nearbyMemoryId="console"
+      nearbyLabel="Console · E / Enter"
       labels={labels}
       availableIds={availableIds}
       onInteract={onInteract}
@@ -31,11 +31,11 @@ function renderPrompt(availableIds: readonly MemoryId[], onInteract: (id: Memory
 
 describe("RoomInteractionPrompt", () => {
   it("renders the nearby prompt and seven translated accessible button names", () => {
-    renderPrompt(["bat"], () => {});
+    renderPrompt(["console"], () => {});
 
-    expect(screen.getByText("Baseball bat · E / Enter")).toBeTruthy();
+    expect(screen.getByText("Console · E / Enter")).toBeTruthy();
     expect(screen.getAllByRole("button")).toHaveLength(7);
-    expect(screen.getByRole("button", { name: "Bat" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Console" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Window" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Frame" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Radio" })).toBeTruthy();
@@ -45,9 +45,11 @@ describe("RoomInteractionPrompt", () => {
   });
 
   it("enables available memories and disables unavailable memories", () => {
-    renderPrompt(["bat", "radio"], () => {});
+    renderPrompt(["console", "radio"], () => {});
 
-    expect((screen.getByRole("button", { name: "Bat" }) as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByRole("button", { name: "Console" }) as HTMLButtonElement).disabled).toBe(
+      false,
+    );
     expect((screen.getByRole("button", { name: "Radio" }) as HTMLButtonElement).disabled).toBe(
       false,
     );
@@ -58,16 +60,16 @@ describe("RoomInteractionPrompt", () => {
 
   it("dispatches the available button's MemoryId", () => {
     const interacted: MemoryId[] = [];
-    renderPrompt(["bat"], (id) => interacted.push(id));
+    renderPrompt(["console"], (id) => interacted.push(id));
 
-    fireEvent.click(screen.getByRole("button", { name: "Bat" }));
+    fireEvent.click(screen.getByRole("button", { name: "Console" }));
 
-    expect(interacted).toEqual(["bat"]);
+    expect(interacted).toEqual(["console"]);
   });
 
   it("does not dispatch a disabled memory button", () => {
     const interacted: MemoryId[] = [];
-    renderPrompt(["bat"], (id) => interacted.push(id));
+    renderPrompt(["console"], (id) => interacted.push(id));
 
     fireEvent.click(screen.getByRole("button", { name: "Window" }));
 

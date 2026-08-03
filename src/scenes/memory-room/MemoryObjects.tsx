@@ -33,7 +33,6 @@ import { shouldHighlightMemory } from "./visual-state";
 // 액자 glb(ch1-photo-frame)는 액자가 아니라 납작한 오각형 판때기라 지웠다.
 // 제대로 된 액자 glb가 들어오면 frame 키를 다시 추가할 것.
 const MODEL_PATHS = {
-  bat: ASSETS.models.baseballBat,
   ball: ASSETS.models.baseball,
   radio: ASSETS.models.radio,
 } as const satisfies Partial<Record<MemoryId, string>>;
@@ -154,17 +153,56 @@ interface VisualProps {
   opacity: number;
 }
 
-function Bat({ palette, opacity }: VisualProps) {
+/**
+ * 러그 위에 던져둔 휴대용 게임기. 몸통 · 화면 · 십자키 · 버튼 두 개.
+ * 방의 다른 소품과 같은 박스 조형으로 짜서 따로 놀지 않게 했다.
+ */
+function Console({ palette, opacity }: VisualProps) {
+  const transparent = opacity < 1;
   return (
-    <mesh position={[0, 0.45, 0]} castShadow>
-      <boxGeometry args={[0.1, 0.9, 0.1]} />
-      <meshStandardMaterial
-        color={palette.bone}
-        roughness={0.72}
-        opacity={opacity}
-        transparent={opacity < 1}
-      />
-    </mesh>
+    <group rotation={[-Math.PI / 2 + 0.16, 0, 0]}>
+      <mesh castShadow>
+        <boxGeometry args={[0.46, 0.26, 0.05]} />
+        <meshStandardMaterial
+          color={palette.slate}
+          roughness={0.5}
+          opacity={opacity}
+          transparent={transparent}
+        />
+      </mesh>
+      {/* 켜진 화면 — 어두운 방에서 이 물건만 작게 빛난다 */}
+      <mesh position={[0, 0, 0.027]}>
+        <planeGeometry args={[0.24, 0.17]} />
+        <meshStandardMaterial
+          color={palette.paper}
+          emissive={palette.memory}
+          emissiveIntensity={0.35}
+          roughness={0.4}
+          opacity={opacity}
+          transparent={transparent}
+        />
+      </mesh>
+      <mesh position={[-0.16, 0, 0.028]}>
+        <boxGeometry args={[0.075, 0.075, 0.012]} />
+        <meshStandardMaterial
+          color={palette.ink}
+          roughness={0.6}
+          opacity={opacity}
+          transparent={transparent}
+        />
+      </mesh>
+      {[-0.03, 0.03].map((offset) => (
+        <mesh key={offset} position={[0.16, offset, 0.028]}>
+          <cylinderGeometry args={[0.022, 0.022, 0.012, 10]} />
+          <meshStandardMaterial
+            color={palette.ember}
+            roughness={0.55}
+            opacity={opacity}
+            transparent={transparent}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
@@ -445,8 +483,8 @@ const CALENDAR_DOTS = Array.from({ length: 16 }, (_, index) => ({
 
 function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId }) {
   switch (id) {
-    case "bat":
-      return <Bat palette={palette} opacity={opacity} />;
+    case "console":
+      return <Console palette={palette} opacity={opacity} />;
     case "ball":
       return <Ball palette={palette} opacity={opacity} />;
     case "frame":
