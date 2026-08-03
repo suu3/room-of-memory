@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SuccessBurst } from "@/components/ui/SuccessBurst";
 import { ASSETS } from "@/lib/assets";
+import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 import { CLOTH_CURSOR } from "./cloth";
@@ -111,6 +112,8 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
 
     const wiped = wipeCircle(gridRef.current, photo, x, y, WIPE_RADIUS);
     if (wiped - progressRef.current >= 0.01 || wiped >= CLEAR_RATIO) {
+      // 문지를 때마다 울리면 시끄럽다 — 10% 구간을 넘길 때만 한 번씩.
+      if (Math.floor(wiped * 10) > Math.floor(progressRef.current * 10)) playSound("flip");
       progressRef.current = wiped;
       setProgress(wiped);
       if (wiped >= CLEAR_RATIO) revealRef.current();
@@ -204,7 +207,12 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
       onSkip={() => revealRef.current()}
     >
       <PhotoFrame>
-        {/* 원본 사진 (선명) — 닦인 영역으로 드러난다 */}
+        {/*
+          원본 사진 (선명) — 닦인 영역으로 드러난다.
+          원본 폭을 기본값으로 두되 좁은 화면에서는 줄어들게 한다. 캔버스는 이 이미지 위에
+          absolute inset-0으로 겹치고, 닦기 좌표는 getBoundingClientRect 비율로 환산하므로
+          표시 크기가 줄어도 판정은 그대로다.
+        */}
         {/* biome-ignore lint/performance/noImgElement: 캔버스와 픽셀 정렬이 필요해 next/image의 래퍼를 쓰지 않는다. */}
         <img
           src={photo.src}
@@ -212,7 +220,8 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
           aria-hidden="true"
           width={photo.width}
           height={photo.height}
-          className="block"
+          className="block h-auto max-w-full"
+          style={{ width: photo.width }}
         />
         {/* 프로스트 레이어 — 닦아서 지운다. 커서가 곧 행주다 */}
         <canvas

@@ -3,6 +3,18 @@ export const ASSETS = {
   models: {
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
+    radio: "/assets/models/ch1-radio.glb",
+    /** 플레이어 아바타. 스켈레톤 없이 파트가 나뉘어 있어 모션은 코드가 만든다. */
+    playerBlocky: "/assets/models/player-blocky.glb",
+    /** 방 소품 (가구 모델). 전부 밑면이 y=0에 정렬돼 있다. */
+    computerScreen: "/assets/models/room-computer-screen.glb",
+    computerKeyboard: "/assets/models/room-computer-keyboard.glb",
+    computerMouse: "/assets/models/room-computer-mouse.glb",
+    deskLamp: "/assets/models/room-desk-lamp.glb",
+    books: "/assets/models/room-books.glb",
+    rug: "/assets/models/room-rug.glb",
+    pottedPlant: "/assets/models/room-potted-plant.glb",
+    pillow: "/assets/models/room-pillow.glb",
   },
   images: {
     /** 로딩 애니메이션 (420x400, 5프레임 gif). */

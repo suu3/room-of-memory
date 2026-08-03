@@ -2,6 +2,7 @@
 
 import type { ThreeEvent } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { playSound } from "@/lib/audio";
 
 /**
  * 클릭 가능한 3D 오브젝트의 마우스 호버 상태 + 포인터 커서.
@@ -11,8 +12,10 @@ export function useGlowHover(clickable: boolean) {
   const [pointerInside, setPointerInside] = useState(false);
   const hovered = pointerInside && clickable;
 
+  // 호버가 켜지는 순간에만 소리 — 커서가 오브젝트 위에서 떨어도 다시 울리지 않는다
   useEffect(() => {
     if (!hovered) return;
+    playSound("hover");
     const previous = document.body.style.cursor;
     document.body.style.cursor = "pointer";
     return () => {

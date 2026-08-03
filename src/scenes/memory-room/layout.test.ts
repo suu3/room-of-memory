@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { MEMORY_IDS } from "@/data/memory-room";
 import {
+  CABINET_TOP_BOUNDS,
+  CABINET_TOP_PROPS,
+  CABINET_TOP_Y,
   CAMERA_PRESETS,
   CHAIR_POSITION,
   DESK_ROTATION,
@@ -165,5 +168,62 @@ describe("memory-room layout", () => {
 
   it("keeps every memory reachable without entering furniture", () => {
     expect(MEMORY_IDS.filter((id) => !hasReachableInteractionPoint(id))).toEqual([]);
+  });
+
+  /*
+   * 액자와 스마트폰은 캐비닛 상판에 얹는 물건이다. 예전 좌표는 스마트폰을 상판 아래로
+   * 0.14 밀어 넣으면서 동시에 캐비닛 앞면 바깥으로 띄웠고, 액자는 상판 위 수납상자
+   * (x 1.89~2.61) 속에 통째로 파묻었다. 아래 값은 MemoryObjects.tsx의 시각 요소 크기다.
+   */
+  const CABINET_TOP_MEMORIES = [
+    // 액자: 폭 0.52, 받침까지 합친 최저점이 로컬 y = -0.2244
+    { id: "frame", halfWidth: 0.26, halfDepth: 0.09, lowestLocalY: -0.2244 },
+    // 스마트폰: 폭 0.48, 기울인 뒤 본체 최저점이 로컬 y = -0.034
+    { id: "phone", halfWidth: 0.24, halfDepth: 0.13, lowestLocalY: -0.034 },
+  ] as const;
+
+  function footprint(entry: (typeof CABINET_TOP_MEMORIES)[number]) {
+    const placement = MEMORY_PLACEMENTS[entry.id];
+    const yaw = Math.abs(placement.rotation[1]);
+    const spreadX = entry.halfWidth * Math.cos(yaw) + entry.halfDepth * Math.sin(yaw);
+    const spreadZ = entry.halfWidth * Math.sin(yaw) + entry.halfDepth * Math.cos(yaw);
+    return {
+      minX: placement.position[0] - spreadX,
+      maxX: placement.position[0] + spreadX,
+      minZ: placement.position[2] - spreadZ,
+      maxZ: placement.position[2] + spreadZ,
+      baseY: placement.position[1] + entry.lowestLocalY,
+    };
+  }
+
+  it("rests the cabinet-top memories on the surface instead of through or in front of it", () => {
+    for (const entry of CABINET_TOP_MEMORIES) {
+      const box = footprint(entry);
+
+      // 상판 바깥으로 삐져나가면 허공에 뜬다
+      expect(box.minX).toBeGreaterThan(CABINET_TOP_BOUNDS.minX);
+      expect(box.maxX).toBeLessThan(CABINET_TOP_BOUNDS.maxX);
+      expect(box.minZ).toBeGreaterThan(CABINET_TOP_BOUNDS.minZ);
+      expect(box.maxZ).toBeLessThan(CABINET_TOP_BOUNDS.maxZ);
+
+      // 밑면은 상판을 아주 살짝만 파고든다 — 딱 맞추면 면이 겹쳐 깜빡이고,
+      // 많이 파고들면 물건이 상판을 뚫고 내려간 것처럼 보인다.
+      expect(box.baseY).toBeLessThan(CABINET_TOP_Y);
+      expect(CABINET_TOP_Y - box.baseY).toBeLessThan(0.05);
+    }
+  });
+
+  it("keeps the cabinet-top memories from overlapping each other or the props", () => {
+    const boxes = CABINET_TOP_MEMORIES.map(footprint);
+    const [frame, phone] = boxes;
+    expect(frame.maxX < phone.minX || phone.maxX < frame.minX).toBe(true);
+
+    for (const box of boxes) {
+      for (const prop of Object.values(CABINET_TOP_PROPS)) {
+        const propMinX = prop.x - prop.halfWidth;
+        const propMaxX = prop.x + prop.halfWidth;
+        expect(box.maxX < propMinX || propMaxX < box.minX).toBe(true);
+      }
+    }
   });
 });

@@ -6,7 +6,8 @@ import {
   ROOM_SHELL_CENTER,
 } from "./layout";
 import type { RoomPalette } from "./palette";
-import type { EulerTuple, Vec3Tuple } from "./types";
+import type { Vec3Tuple } from "./types";
+import { WindowView } from "./WindowView";
 
 interface ShellBoxProps {
   size: Vec3Tuple;
@@ -40,41 +41,72 @@ function ShellBox({
   );
 }
 
-interface ShellPlaneProps {
-  size: readonly [width: number, height: number];
-  position: Vec3Tuple;
-  rotation?: EulerTuple;
-  color: string;
-  opacity?: number;
-}
-
-function ShellPlane({ size, position, rotation = [0, 0, 0], color, opacity = 1 }: ShellPlaneProps) {
-  return (
-    <mesh position={position} rotation={rotation} receiveShadow>
-      <planeGeometry args={size} />
-      <meshStandardMaterial color={color} opacity={opacity} transparent={opacity < 1} />
-    </mesh>
-  );
-}
-
 const SHELL_WIDTH = ROOM_SHELL_BOUNDS.maxX - ROOM_SHELL_BOUNDS.minX;
 const SHELL_DEPTH = ROOM_SHELL_BOUNDS.maxZ - ROOM_SHELL_BOUNDS.minZ;
 const [SHELL_CENTER_X, SHELL_CENTER_Z] = ROOM_SHELL_CENTER;
+
+const WALL_HEIGHT = 4.8;
+const WALL_THICKNESS = 0.18;
+const WALL_CENTER_Y = 2.3;
 
 const SHELL = {
   floor: {
     size: [SHELL_WIDTH, 0.22, SHELL_DEPTH],
     position: [SHELL_CENTER_X, -0.12, SHELL_CENTER_Z],
   },
-  backWall: {
-    size: [SHELL_WIDTH, 4.8, 0.18],
-    position: [SHELL_CENTER_X, 2.3, ROOM_SHELL_BOUNDS.minZ],
-  },
   leftWall: {
-    size: [0.18, 4.8, SHELL_DEPTH],
-    position: [ROOM_SHELL_BOUNDS.minX, 2.3, SHELL_CENTER_Z],
+    size: [WALL_THICKNESS, WALL_HEIGHT, SHELL_DEPTH],
+    position: [ROOM_SHELL_BOUNDS.minX, WALL_CENTER_Y, SHELL_CENTER_Z],
   },
 } as const satisfies Record<string, { size: Vec3Tuple; position: Vec3Tuple }>;
+
+/** 창의 중심과 유리 크기. 뒷벽 개구부와 창밖 풍경이 모두 이 값을 기준으로 잡힌다. */
+export const WINDOW_CENTER = [1.15, 2.55, -3.88] as const satisfies Vec3Tuple;
+export const WINDOW_OPENING = { width: 2.84, height: 2.4 } as const;
+
+const WALL_X = { min: SHELL_CENTER_X - SHELL_WIDTH / 2, max: SHELL_CENTER_X + SHELL_WIDTH / 2 };
+const WALL_Y = { min: WALL_CENTER_Y - WALL_HEIGHT / 2, max: WALL_CENTER_Y + WALL_HEIGHT / 2 };
+const OPENING_X = {
+  min: WINDOW_CENTER[0] - WINDOW_OPENING.width / 2,
+  max: WINDOW_CENTER[0] + WINDOW_OPENING.width / 2,
+};
+const OPENING_Y = {
+  min: WINDOW_CENTER[1] - WINDOW_OPENING.height / 2,
+  max: WINDOW_CENTER[1] + WINDOW_OPENING.height / 2,
+};
+
+function wallSegment(
+  x: { min: number; max: number },
+  y: { min: number; max: number },
+): { size: Vec3Tuple; position: Vec3Tuple } {
+  return {
+    size: [x.max - x.min, y.max - y.min, WALL_THICKNESS],
+    position: [(x.min + x.max) / 2, (y.min + y.max) / 2, ROOM_SHELL_BOUNDS.minZ],
+  };
+}
+
+/**
+ * 뒷벽. 통짜 상자 하나였는데, 그러면 창이 벽에 그려진 그림일 뿐이라 밖이 안 보인다.
+ * 창 개구부를 비워둔 네 조각으로 쪼개 진짜 구멍을 낸다.
+ */
+const BACK_WALL_SEGMENTS = [
+  wallSegment({ min: WALL_X.min, max: OPENING_X.min }, WALL_Y),
+  wallSegment({ min: OPENING_X.max, max: WALL_X.max }, WALL_Y),
+  wallSegment(OPENING_X, { min: OPENING_Y.max, max: WALL_Y.max }),
+  wallSegment(OPENING_X, { min: WALL_Y.min, max: OPENING_Y.min }),
+] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
+
+/** 디오라마 받침. 방이 허공에 떠 있으면 모형이라는 인상이 안 산다. */
+const PLINTH = [
+  {
+    size: [SHELL_WIDTH + 0.5, 0.14, SHELL_DEPTH + 0.5],
+    position: [SHELL_CENTER_X, -0.28, SHELL_CENTER_Z],
+  },
+  {
+    size: [SHELL_WIDTH + 0.14, 0.55, SHELL_DEPTH + 0.14],
+    position: [SHELL_CENTER_X, -0.6, SHELL_CENTER_Z],
+  },
+] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
 const WINDOW_FRAME = [
   { size: [3.1, 0.16, 0.16], position: [0, 1.28, 0] },
@@ -122,15 +154,42 @@ const FLOOR_RIM = [
   },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
-export function RoomShell({ palette, doorReady }: { palette: RoomPalette; doorReady: boolean }) {
+export function RoomShell({
+  palette,
+  doorReady,
+  outsideDecay,
+}: {
+  palette: RoomPalette;
+  doorReady: boolean;
+  /** 창밖이 얼마나 무너져 보이는지 (0=평범한 야경, 1=사태 이후). */
+  outsideDecay: number;
+}) {
   return (
     <group name="room-shell">
+      {PLINTH.map((part, index) => (
+        <ShellBox
+          key={part.position.join(":")}
+          {...part}
+          color={index === 0 ? palette.ink : palette.void}
+        />
+      ))}
+
       <ShellBox {...SHELL.floor} color={palette.mist} receiveShadow />
-      <ShellBox {...SHELL.backWall} color={palette.slate} receiveShadow />
+      {BACK_WALL_SEGMENTS.map((part) => (
+        <ShellBox key={part.position.join(":")} {...part} color={palette.slate} receiveShadow />
+      ))}
       <ShellBox {...SHELL.leftWall} color={palette.slate} receiveShadow />
 
-      <group position={[1.15, 2.55, -3.88]}>
-        <ShellPlane size={[2.84, 2.4]} position={[0, 0, 0]} color={palette.dusk} opacity={0.72} />
+      {/* 벽 뒤 — 개구부를 통해서만 보인다 */}
+      <WindowView
+        palette={palette}
+        decay={outsideDecay}
+        center={WINDOW_CENTER}
+        width={WINDOW_OPENING.width}
+        height={WINDOW_OPENING.height}
+      />
+
+      <group position={WINDOW_CENTER}>
         {WINDOW_FRAME.map((part) => (
           <ShellBox key={part.position.join(":")} {...part} color={palette.bone} castShadow />
         ))}
@@ -149,6 +208,15 @@ export function RoomShell({ palette, doorReady }: { palette: RoomPalette; doorRe
           <ShellBox key={part.position.join(":")} {...part} color={palette.ink} castShadow />
         ))}
         <ShellBox size={[0.11, 0.11, 0.1]} position={[0.48, 0, 0.1]} color={palette.ember} />
+        {/* 문틈으로 새는 빛 — 문 밖에도 뭔가 있다는 유일한 단서다. doorReady 금빛과
+            헷갈리지 않게 세기를 낮게 잡는다. */}
+        <ShellBox
+          size={[1.3, 0.045, 0.05]}
+          position={[0, -1.71, 0.08]}
+          color={palette.memory}
+          emissive={palette.memory}
+          emissiveIntensity={0.9}
+        />
       </group>
 
       <ShellBox

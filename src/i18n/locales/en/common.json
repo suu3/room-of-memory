@@ -5,7 +5,9 @@
     "memoryCount": "Memories",
     "contact": "Contact",
     "reset": "Reset",
-    "characterSheet": "Character Sheet"
+    "characterSheet": "Character Sheet",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off"
   },
   "door": {
     "locked": "Locked Door",
@@ -87,7 +89,61 @@
     "labelSuccess": "HITS",
     "labelMiss": "MISS",
     "labelClarity": "Clarity",
-    "labelTime": "Time left"
+    "labelTime": "Time left",
+    "calendarFlip": {
+      "title": "Flipping the calendar",
+      "help": "Flip the pages with ← →",
+      "month": "{{value}}",
+      "prev": "Previous month",
+      "next": "Next month",
+      "weekday": {
+        "sun": "S",
+        "mon": "M",
+        "tue": "T",
+        "wed": "W",
+        "thu": "T",
+        "fri": "F",
+        "sat": "S"
+      },
+      "survived": "{{value}} days survived",
+      "pageOf": "{{value}} / {{total}}",
+      "close": "Put the calendar down"
+    },
+    "phoneChat": {
+      "title": "The phone",
+      "help": "Scroll up or press Space to read back through the thread",
+      "helpCalls": "Open the missed calls tab too",
+      "date": "July 14",
+      "close": "Turn the screen off",
+      "next": "Next",
+      "openCalls": "See missed calls",
+      "tab": {
+        "chat": "Group chat",
+        "calls": "Missed"
+      },
+      "caller": {
+        "mom": "Mom",
+        "dad": "Dad"
+      },
+      "chat": {
+        "room": "The three of us",
+        "jinho": "Jinho",
+        "sena": "Sena",
+        "m1": "hey what time are we meeting",
+        "m2": "i can get there around six",
+        "m3": "i'll head out around then too",
+        "m4": "ok see you in front of school",
+        "m5": "...you're not coming?",
+        "m6": "you didn't pick up. asleep?",
+        "m7": "is something wrong? answer me",
+        "m8": "see you at school tomorrow. i'm worried",
+        "members": "Jinho, Sena, me"
+      },
+      "callsSubtitle": "Missed calls",
+      "callsTitle": "Recents",
+      "helpCallsTab": "See how many times they called",
+      "olderAbove": "More above — scroll up"
+    }
   },
   "characterSheet": {
     "title": "Character Sheet",

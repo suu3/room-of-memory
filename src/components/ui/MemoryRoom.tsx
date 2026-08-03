@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL, ROOM_STAGES } from "@/data/memory-room";
+import { useAudioRuntime } from "@/lib/audio";
 import {
   ROOM_LIGHT_RAMP,
   roomLightLevel,
@@ -42,6 +43,8 @@ const RoomCanvas = dynamic(
 
 export function MemoryRoom() {
   const { t } = useTranslation();
+  // 스토어의 음소거 설정을 오디오 엔진에 잇고 첫 제스처에서 AudioContext를 깨운다
+  useAudioRuntime();
   const collected = useMemoryRoomStore(selectCollected);
   const count = collected.length;
   // 밝기는 V자 — 1바퀴는 어두워지고 2바퀴에 되밝아진다 (기획안 3장)

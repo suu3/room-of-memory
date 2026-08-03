@@ -5,7 +5,9 @@
     "memoryCount": "記憶",
     "contact": "Contact",
     "reset": "リセット",
-    "characterSheet": "キャラクターシート"
+    "characterSheet": "キャラクターシート",
+    "soundOn": "サウンド オン",
+    "soundOff": "サウンド オフ"
   },
   "door": {
     "locked": "鍵のかかった扉",
@@ -87,7 +89,61 @@
     "labelSuccess": "成功",
     "labelMiss": "失敗",
     "labelClarity": "鮮明度",
-    "labelTime": "残り時間"
+    "labelTime": "残り時間",
+    "calendarFlip": {
+      "title": "カレンダーをめくる",
+      "help": "← → でページをめくってください",
+      "month": "{{value}}月",
+      "prev": "前の月",
+      "next": "次の月",
+      "weekday": {
+        "sun": "日",
+        "mon": "月",
+        "tue": "火",
+        "wed": "水",
+        "thu": "木",
+        "fri": "金",
+        "sat": "土"
+      },
+      "survived": "{{value}}日 生き延びた",
+      "pageOf": "{{value}} / {{total}}",
+      "close": "カレンダーを置く"
+    },
+    "phoneChat": {
+      "title": "スマートフォン",
+      "help": "上にスクロールするか Space で過去の会話をさかのぼってください",
+      "helpCalls": "不在着信のタブも開いてみてください",
+      "date": "7月14日",
+      "close": "画面を消す",
+      "next": "次へ",
+      "openCalls": "不在着信を見る",
+      "tab": {
+        "chat": "グループ",
+        "calls": "不在着信"
+      },
+      "caller": {
+        "mom": "母さん",
+        "dad": "父さん"
+      },
+      "chat": {
+        "room": "三人",
+        "jinho": "ジノ",
+        "sena": "セナ",
+        "m1": "今日何時に集まる？",
+        "m2": "六時ごろなら行けそう",
+        "m3": "僕もその頃出るよ",
+        "m4": "おっけー 学校の前でな",
+        "m5": "…来ないの？",
+        "m6": "電話出なかったけど 寝てる？",
+        "m7": "何かあった？ 返事して",
+        "m8": "明日学校でな。心配してる",
+        "members": "ジノ、セナ、僕"
+      },
+      "callsSubtitle": "不在着信",
+      "callsTitle": "履歴",
+      "helpCallsTab": "何度かけてきたか見てください",
+      "olderAbove": "上にまだある"
+    }
   },
   "characterSheet": {
     "title": "キャラクターシート",

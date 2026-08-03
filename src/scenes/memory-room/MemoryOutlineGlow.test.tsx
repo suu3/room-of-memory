@@ -28,6 +28,10 @@ const TEST_PALETTE = {
   dusk: "#3f3a43",
   navy: "#27313d",
   olive: "#55533d",
+  storm: "#2a3d48",
+  abyss: "#121c24",
+  coal: "#17202a",
+  void: "#060a10",
 } satisfies RoomPalette;
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;

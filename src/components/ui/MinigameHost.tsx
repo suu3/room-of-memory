@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { phaseConfigOf } from "@/data/memory-room";
+import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
 import { SuccessBurst } from "./SuccessBurst";
@@ -33,6 +34,8 @@ export function MinigameHost() {
       : undefined;
   const definition = minigameId ? getMinigame(minigameId) : undefined;
   const hosted = definition?.mode === "overlay" ? definition : undefined;
+  /** 탐색형 오브젝트 — 시작 카드도 패널도 없이 물건만 떠오른다. */
+  const bare = hosted?.presentation === "bare";
 
   useEffect(() => {
     if (active?.phase === "minigame" && !hosted) {
@@ -41,12 +44,13 @@ export function MinigameHost() {
   }, [active, hosted, finishMinigame]);
 
   const activeKey = active ? `${active.memoryId}:${active.gamePhase}` : null;
-  const started = startedKey !== null && startedKey === activeKey;
+  // bare는 "시작"을 거치지 않는다 — 물건을 집었으면 이미 들여다보는 중이다.
+  const started = bare || (startedKey !== null && startedKey === activeKey);
 
   // 시작 카드가 뜨면 버튼에 포커스 (키보드 플레이)
   useEffect(() => {
-    if (hosted && !started) startButtonRef.current?.focus();
-  }, [hosted, started]);
+    if (hosted && !bare && !started) startButtonRef.current?.focus();
+  }, [hosted, bare, started]);
 
   // Esc = 바깥 클릭과 같은 닫기 (키보드 접근성). 결과 대사 중에는 대사창이 닫기를 맡는다
   useEffect(() => {
@@ -66,9 +70,10 @@ export function MinigameHost() {
         // 바깥(백드롭) 클릭 시 완료 처리 없이 닫는다 — 핫스팟은 다시 클릭 가능
         // 결과 대사 중에는 화면을 더 어둡게 깔고, 아래쪽을 대사창 자리로 비워둔다
         <div
-          className={`absolute inset-0 z-40 grid place-items-center backdrop-blur-sm ${
-            resultStage ? "bg-scene-void/75 pb-56" : "bg-scene-void/40"
-          }`}
+          className={`absolute inset-0 z-40 grid place-items-center ${
+            // 탐색형은 방을 덜 가린다 — 물건을 든 채로도 방이 보여야 "그 방 안"이다.
+            bare ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-sm"
+          } ${resultStage ? "bg-scene-void/75 pb-56" : bare ? "" : "bg-scene-void/40"}`}
           onPointerDown={(event) => {
             if (event.target === event.currentTarget && !resultStage) cancelMinigame();
           }}
@@ -78,6 +83,7 @@ export function MinigameHost() {
               <Minigame
                 gamePhase={active.gamePhase}
                 onComplete={(result) => {
+                  playSound(result.cleared ? "success" : "fail");
                   if (result.cleared && !result.celebrated) setBurstId((id) => id + 1);
                   finishMinigame(result);
                 }}
@@ -90,7 +96,10 @@ export function MinigameHost() {
               <button
                 ref={startButtonRef}
                 type="button"
-                onClick={() => setStartedKey(activeKey)}
+                onClick={() => {
+                  playSound("select");
+                  setStartedKey(activeKey);
+                }}
                 className="mt-7 cursor-pointer rounded-full bg-ink px-10 py-2.5 text-base font-bold tracking-widest text-paper transition-all hover:bg-ink/85 active:translate-y-px active:bg-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
               >
                 {t("minigame.start")}

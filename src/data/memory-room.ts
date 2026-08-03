@@ -50,12 +50,12 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "phone",
     icon: DeviceMobile,
-    phase1: {},
+    phase1: { interaction: { minigameId: "phone-chat" } },
   },
   {
     id: "calendar",
     icon: CalendarHeart,
-    phase1: { unlockAfter: ["phone"] },
+    phase1: { interaction: { minigameId: "calendar-flip" }, unlockAfter: ["phone"] },
   },
   {
     id: "ball",

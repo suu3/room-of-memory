@@ -45,9 +45,20 @@ export interface MinigameProps {
  */
 export type MinigameMode = "canvas" | "overlay";
 
+/**
+ * 화면에 어떻게 얹히는가.
+ *
+ * "panel"은 제목·조작법·스킵이 달린 미니게임 카드다. "bare"는 그 껍데기 없이
+ * 오브젝트만 떠오른다 — 방탈출처럼 "물건을 집어서 들여다보는" 인터랙션은
+ * 시작 카드도 패널도 없어야 게임이 아니라 탐색으로 읽힌다.
+ */
+export type MinigamePresentation = "panel" | "bare";
+
 export interface MinigameDefinition {
   id: string;
   mode: MinigameMode;
+  /** 기본값 "panel". */
+  presentation?: MinigamePresentation;
   /** Component registered in src/minigames/index.ts. */
   component: React.ComponentType<MinigameProps>;
   /** 시작 카드(게임 마운트 전)에 보여줄 제목/조작법 키. */

@@ -3,6 +3,7 @@
 import { Star } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 
@@ -77,6 +78,7 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
     const position = positionRef.current;
     const hit = position >= bandLeft && position <= bandLeft + BAND_WIDTH;
     setFlash(hit ? "hit" : "miss");
+    playSound(hit ? "collect" : "deny");
     if (hit) {
       const next = hits + 1;
       setHits(next);

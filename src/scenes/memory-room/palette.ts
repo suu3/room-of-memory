@@ -10,6 +10,10 @@ export interface RoomPalette {
   dusk: string;
   navy: string;
   olive: string;
+  storm: string;
+  abyss: string;
+  coal: string;
+  void: string;
 }
 
 const TOKEN_BY_KEY = {
@@ -24,6 +28,10 @@ const TOKEN_BY_KEY = {
   dusk: "--color-scene-dusk",
   navy: "--color-scene-navy",
   olive: "--color-scene-olive",
+  storm: "--color-scene-storm",
+  abyss: "--color-scene-abyss",
+  coal: "--color-scene-coal",
+  void: "--color-scene-void",
 } as const;
 
 export function resolveRoomPalette(): RoomPalette {
@@ -43,5 +51,9 @@ export function resolveRoomPalette(): RoomPalette {
     dusk: read(TOKEN_BY_KEY.dusk),
     navy: read(TOKEN_BY_KEY.navy),
     olive: read(TOKEN_BY_KEY.olive),
+    storm: read(TOKEN_BY_KEY.storm),
+    abyss: read(TOKEN_BY_KEY.abyss),
+    coal: read(TOKEN_BY_KEY.coal),
+    void: read(TOKEN_BY_KEY.void),
   };
 }

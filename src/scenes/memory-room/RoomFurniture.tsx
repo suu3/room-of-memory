@@ -1,14 +1,36 @@
+import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
-import { type Group, MathUtils } from "three";
-
-import { type CurtainSide, curtainTargetX } from "./curtain-motion";
-import { CHAIR_POSITION, CHAIR_ROTATION, DESK_POSITION, DESK_ROTATION } from "./layout";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { type Group, MathUtils, Plane, Vector3 } from "three";
+import { ASSETS } from "@/lib/assets";
+import { type CurtainPull, type CurtainSide, curtainX, pullProgress } from "./curtain-motion";
+import { FurnitureModel } from "./FurnitureModel";
+import {
+  CABINET_BODY,
+  CABINET_TOP_PROPS,
+  CABINET_TOP_Y,
+  CHAIR_POSITION,
+  CHAIR_ROTATION,
+  DESK_POSITION,
+  DESK_ROTATION,
+} from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
+
+const ROOM_PROP_PATHS = [
+  ASSETS.models.computerScreen,
+  ASSETS.models.computerKeyboard,
+  ASSETS.models.computerMouse,
+  ASSETS.models.deskLamp,
+  ASSETS.models.books,
+  ASSETS.models.rug,
+  ASSETS.models.pottedPlant,
+] as const;
+
+for (const path of ROOM_PROP_PATHS) useGLTF.preload(path, true, true);
 
 interface BoxPart {
   size: Vec3Tuple;
@@ -63,8 +85,9 @@ const CHAIR_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 // 몸통 앞면 z=-2.53. 서랍판은 그 면을 물고, 손잡이는 서랍판 앞에 0.015 띄운다.
+// 몸통은 layout의 CABINET_BODY를 그대로 쓴다 — 상판 위 기억 오브젝트와 같은 수치를 봐야 한다.
 const CABINET_PARTS = [
-  { size: [4.4, 1.15, 0.72], position: [2.35, 0.58, -2.89], color: "dusk" },
+  { ...CABINET_BODY, color: "dusk" },
   { size: [2.08, 0.92, 0.06], position: [1.23, 0.58, -2.53], color: "slate" },
   { size: [2.08, 0.92, 0.06], position: [3.47, 0.58, -2.53], color: "slate" },
   { size: [0.12, 0.12, 0.05], position: [2.14, 0.58, -2.46], color: "bone" },
@@ -82,6 +105,20 @@ const SHELF_PARTS = [
   { size: [0.5, 0.12, 2.1], position: [-5.65, 2.95, -1.4], color: "dusk" },
   { size: [2.1, 0.12, 0.5], position: [4.35, 2.8, -3.65], color: "dusk" },
 ] as const satisfies readonly BoxPart[];
+
+/**
+ * 커튼이 걸린 평면. 드래그 기준점을 커튼 메쉬에서 뽑으면 안 된다 — 커튼이 손을 따라
+ * 밀리는 순간 교차점도 같이 밀려서 이동량이 0으로 무너진다. 움직이지 않는 이 평면에
+ * 광선을 쏴서 손이 실제로 간 거리를 잰다.
+ */
+const CURTAIN_Z = -3.72;
+const CURTAIN_PLANE = new Plane(new Vector3(0, 0, 1), -CURTAIN_Z);
+const curtainHit = new Vector3();
+
+/** 포인터 광선이 커튼 평면과 만나는 x. 평행이면 null. */
+function curtainPlaneX(ray: { intersectPlane: (plane: Plane, target: Vector3) => Vector3 | null }) {
+  return ray.intersectPlane(CURTAIN_PLANE, curtainHit)?.x ?? null;
+}
 
 const CURTAIN_FOLD_PARTS = [
   { size: [0.82, 2.9, 0.16], position: [-0.52, 0, -0.02], color: "navy" },
@@ -144,76 +181,75 @@ function Shelves({ palette }: FurnitureProps) {
   );
 }
 
-function DeskAccessories({ palette }: FurnitureProps) {
+/*
+ * 책상 위 소품은 가구킷 glb로 바꿨다. 전부 같은 배율(DESK_PROP_SCALE)을 쓰는데,
+ * 모델마다 배율이 다르면 한 책상 위에서 물건 크기가 서로 안 맞아 보인다.
+ * 배율은 모니터 높이(0.29)를 예전 프리미티브 높이(0.9)에 맞춰 잡았다.
+ *
+ * 좌표는 책상 로컬 프레임이다 — 책상은 Y 90° 돌아 있어서 로컬 +x가 책상 길이,
+ * 로컬 +z가 의자(앉는 쪽)를 향한다. 상판 윗면은 y=1.11.
+ */
+const DESK_PROP_SCALE = 3.1;
+const DESK_TOP_Y = 1.11;
+
+function DeskAccessories(_: FurnitureProps) {
   return (
     <group name="desk-accessories">
-      <FurnitureBox
-        part={{ size: [1.45, 0.9, 0.14], position: [-0.3, 1.62, -0.41], color: "ink" }}
-        palette={palette}
+      <FurnitureModel
+        path={ASSETS.models.computerScreen}
+        position={[-0.35, DESK_TOP_Y, -0.36]}
+        scale={DESK_PROP_SCALE}
       />
-      <FurnitureBox
-        part={{ size: [1.2, 0.68, 0.04], position: [-0.3, 1.62, -0.32], color: "navy" }}
-        palette={palette}
+      <FurnitureModel
+        path={ASSETS.models.computerKeyboard}
+        position={[-0.3, DESK_TOP_Y, 0.32]}
+        scale={DESK_PROP_SCALE}
       />
-      <FurnitureBox
-        part={{ size: [0.12, 0.42, 0.12], position: [-0.3, 1.12, -0.39], color: "ink" }}
-        palette={palette}
+      <FurnitureModel
+        path={ASSETS.models.computerMouse}
+        position={[0.42, DESK_TOP_Y, 0.34]}
+        scale={DESK_PROP_SCALE}
       />
-      <FurnitureBox
-        part={{ size: [0.72, 0.08, 0.34], position: [-0.3, 1.13, -0.23], color: "ink" }}
-        palette={palette}
+      <FurnitureModel
+        path={ASSETS.models.deskLamp}
+        position={[1.42, DESK_TOP_Y, -0.3]}
+        scale={DESK_PROP_SCALE}
       />
-      <FurnitureBox
-        part={{ size: [1.35, 0.07, 0.42], position: [0.15, 1.14, 0.5], color: "navy" }}
-        palette={palette}
+      <FurnitureModel
+        path={ASSETS.models.books}
+        position={[1.05, DESK_TOP_Y, 0.34]}
+        rotation={[0, -0.5, 0]}
+        scale={DESK_PROP_SCALE}
       />
-      <mesh position={[1.3, 1.16, -0.25]} castShadow>
-        <cylinderGeometry args={[0.22, 0.26, 0.1, 16]} />
-        <meshStandardMaterial color={palette.ink} roughness={0.7} />
-      </mesh>
-      <mesh position={[1.3, 1.58, -0.25]} castShadow>
-        <cylinderGeometry args={[0.035, 0.035, 0.78, 12]} />
-        <meshStandardMaterial color={palette.slate} roughness={0.7} />
-      </mesh>
-      <mesh position={[1.3, 1.98, -0.25]} rotation={[0, 0, -0.28]} castShadow>
-        <coneGeometry args={[0.24, 0.42, 16]} />
-        <meshStandardMaterial color={palette.navy} roughness={0.65} />
-      </mesh>
     </group>
   );
 }
 
+// 상판 소품의 x는 layout의 CABINET_TOP_PROPS에서 가져온다 — 기억 오브젝트가 피해야 할
+// 구간이라 한곳에서 관리한다. 도형 크기를 바꾸면 거기 halfWidth도 같이 고칠 것.
+const { plant, storageBox, clock } = CABINET_TOP_PROPS;
+
 function CabinetAccessories({ palette }: FurnitureProps) {
   return (
     <group name="cabinet-accessories">
-      <mesh position={[0.65, 1.23, -2.86]} castShadow>
-        <cylinderGeometry args={[0.18, 0.23, 0.34, 16]} />
-        <meshStandardMaterial color={palette.dusk} roughness={0.8} />
-      </mesh>
-      {[-0.16, 0, 0.16].map((offset, index) => (
-        <mesh
-          key={offset}
-          position={[0.65 + offset, 1.55 + Math.abs(offset), -2.86]}
-          rotation={[0, 0, (index - 1) * 0.45]}
-          castShadow
-        >
-          <coneGeometry args={[0.13, 0.55, 10]} />
-          <meshStandardMaterial color={palette.olive} roughness={0.72} />
-        </mesh>
-      ))}
+      <FurnitureModel
+        path={ASSETS.models.pottedPlant}
+        position={[plant.x, CABINET_TOP_Y, -2.86]}
+        scale={1.08}
+      />
       <FurnitureBox
-        part={{ size: [0.72, 0.34, 0.45], position: [2.25, 1.32, -2.82], color: "navy" }}
+        part={{ size: [0.72, 0.34, 0.45], position: [storageBox.x, 1.32, -2.82], color: "navy" }}
         palette={palette}
       />
       <FurnitureBox
-        part={{ size: [0.22, 0.22, 0.04], position: [2.25, 1.56, -2.79], color: "paper" }}
+        part={{ size: [0.22, 0.22, 0.04], position: [storageBox.x, 1.56, -2.79], color: "paper" }}
         palette={palette}
       />
-      <mesh position={[3.92, 1.43, -2.48]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+      <mesh position={[clock.x, 1.43, -2.48]} rotation={[Math.PI / 2, 0, 0]} castShadow>
         <cylinderGeometry args={[0.28, 0.28, 0.1, 24]} />
         <meshStandardMaterial color={palette.bone} roughness={0.72} />
       </mesh>
-      <mesh position={[3.92, 1.43, -2.42]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh position={[clock.x, 1.43, -2.42]} rotation={[Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.2, 24]} />
         <meshStandardMaterial color={palette.paper} roughness={0.8} />
       </mesh>
@@ -224,10 +260,8 @@ function CabinetAccessories({ palette }: FurnitureProps) {
 function FloorAccessories({ palette }: FurnitureProps) {
   return (
     <group name="floor-accessories">
-      <FurnitureBox
-        part={{ size: [3.2, 0.05, 2.15], position: [0.2, 0.025, 3.65], color: "slate" }}
-        palette={palette}
-      />
+      {/* 러그는 두께가 0.01뿐이라 바닥과 겹치지 않게 살짝 띄운다 */}
+      <FurnitureModel path={ASSETS.models.rug} position={[0.2, 0.012, 3.65]} scale={2.1} />
       <FurnitureBox
         part={{ size: [0.62, 0.13, 1.02], position: [-0.12, 0.12, 3.52], color: "bone" }}
         palette={palette}
@@ -240,46 +274,99 @@ function FloorAccessories({ palette }: FurnitureProps) {
   );
 }
 
+/**
+ * 커튼 한 쪽. 클릭이 아니라 잡아당겨 연다.
+ *
+ * 포인터를 누른 채 좌우로 끌면 그만큼 젖혀지고, 놓으면 충분히 당겼는지에 따라
+ * 끝까지 열리거나 도로 닫힌다. 양쪽을 다 젖혀야 밖이 보인다 — 창을 여는 건
+ * 이 게임에서 "진실을 마주하는" 동작이라 손으로 하게 두는 편이 맞는다.
+ *
+ * 키보드 사용자를 위해 Enter/Space는 그 쪽을 한 번에 젖힌다 (RoomInteractionPrompt의
+ * 창문 버튼도 같은 경로로 들어온다).
+ */
 function Curtain({
   side,
-  open,
+  progress,
+  onPull,
+  onRelease,
   palette,
-  onOpen,
 }: FurnitureProps & {
   side: CurtainSide;
-  open: boolean;
-  onOpen: () => void;
+  progress: number;
+  /** 이번 프레임까지 끌어온 진행도(0~1). */
+  onPull: (side: CurtainSide, progress: number) => void;
+  onRelease: (side: CurtainSide) => void;
 }) {
   const groupRef = useRef<Group>(null);
-  const { hovered, handlers } = useGlowHover(!open);
+  const opened = progress >= 1;
+  const { hovered, handlers } = useGlowHover(!opened);
   const reducedMotion = useMemo(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     [],
   );
-  const initialX = useRef(curtainTargetX(side, open)).current;
+  /** 드래그를 시작한 지점과 그때의 진행도. */
+  const dragRef = useRef<{ pointerId: number; startX: number; from: number } | null>(null);
+  const releaseRef = useRef(onRelease);
+  releaseRef.current = onRelease;
+
+  const endDrag = useCallback(() => {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    releaseRef.current(side);
+  }, [side]);
+
+  // 캔버스 밖에서 손을 떼도 커튼이 끌린 채로 굳지 않게 하는 안전망.
+  useEffect(() => {
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
+    return () => {
+      window.removeEventListener("pointerup", endDrag);
+      window.removeEventListener("pointercancel", endDrag);
+    };
+  }, [endDrag]);
 
   useFrame((_, delta) => {
     const group = groupRef.current;
     if (!group) return;
-    group.position.x = MathUtils.damp(
-      group.position.x,
-      curtainTargetX(side, open),
-      reducedMotion ? 18 : 5.5,
-      delta,
-    );
+    // 끌고 있는 동안에는 손을 그대로 따라가고, 놓은 뒤에만 부드럽게 붙는다.
+    const goal = curtainX(side, progress);
+    group.position.x = dragRef.current
+      ? goal
+      : MathUtils.damp(group.position.x, goal, reducedMotion ? 18 : 5.5, delta);
   });
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group is a Canvas pointer target.
     <group
       ref={groupRef}
-      position={[initialX, 2.5, -3.72]}
+      position={[curtainX(side, progress), 2.5, CURTAIN_Z]}
       name={`curtain-${side}`}
-      onClick={(event) => {
-        event.stopPropagation();
-        if (!open) onOpen();
-      }}
       {...handlers}
+      onPointerDown={(event) => {
+        if (opened) return;
+        event.stopPropagation();
+        // 포인터를 잡아둬야 커튼 밖으로 손이 나가도 드래그가 이어진다.
+        (event.target as Element | null)?.setPointerCapture?.(event.pointerId);
+        const startX = curtainPlaneX(event.ray);
+        if (startX === null) return;
+        dragRef.current = { pointerId: event.pointerId, startX, from: progress };
+      }}
+      onPointerMove={(event) => {
+        const drag = dragRef.current;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        event.stopPropagation();
+        const x = curtainPlaneX(event.ray);
+        if (x === null) return;
+        onPull(side, pullProgress(side, x - drag.startX, drag.from));
+      }}
+      onPointerUp={(event) => {
+        if (!dragRef.current) return;
+        event.stopPropagation();
+        (event.target as Element | null)?.releasePointerCapture?.(event.pointerId);
+        endDrag();
+      }}
+      // onPointerLeave는 쓰지 않는다 — 커튼을 젖히는 순간 포인터가 메쉬 밖으로 나가면서
+      // 곧바로 드래그가 취소돼 한 칸도 못 움직였다. 포인터 캡처가 잡혀 있으므로
+      // 밖으로 나가도 move/up은 계속 들어온다.
     >
       <MemoryGlowSelection selectionKey={`curtain-${side}`} enabled={hovered}>
         <BoxParts parts={CURTAIN_FOLD_PARTS} palette={palette} />
@@ -290,11 +377,13 @@ function Curtain({
 
 export function RoomFurniture({
   palette,
-  curtainsOpen,
-  onCurtainInteract,
+  curtainPull,
+  onCurtainPull,
+  onCurtainRelease,
 }: FurnitureProps & {
-  curtainsOpen: boolean;
-  onCurtainInteract: () => void;
+  curtainPull: CurtainPull;
+  onCurtainPull: (side: CurtainSide, progress: number) => void;
+  onCurtainRelease: (side: CurtainSide) => void;
 }) {
   return (
     <group name="room-furniture">
@@ -306,8 +395,20 @@ export function RoomFurniture({
       <Shelves palette={palette} />
       <CabinetAccessories palette={palette} />
       <FloorAccessories palette={palette} />
-      <Curtain side="left" open={curtainsOpen} palette={palette} onOpen={onCurtainInteract} />
-      <Curtain side="right" open={curtainsOpen} palette={palette} onOpen={onCurtainInteract} />
+      <Curtain
+        side="left"
+        progress={curtainPull.left}
+        palette={palette}
+        onPull={onCurtainPull}
+        onRelease={onCurtainRelease}
+      />
+      <Curtain
+        side="right"
+        progress={curtainPull.right}
+        palette={palette}
+        onPull={onCurtainPull}
+        onRelease={onCurtainRelease}
+      />
     </group>
   );
 }

@@ -5,7 +5,9 @@
     "memoryCount": "기억",
     "contact": "Contact",
     "reset": "리셋",
-    "characterSheet": "캐릭터 시트"
+    "characterSheet": "캐릭터 시트",
+    "soundOn": "소리 켜짐",
+    "soundOff": "소리 꺼짐"
   },
   "door": {
     "locked": "잠긴 문",
@@ -87,7 +89,61 @@
     "labelSuccess": "성공",
     "labelMiss": "실패",
     "labelClarity": "선명도",
-    "labelTime": "남은 시간"
+    "labelTime": "남은 시간",
+    "calendarFlip": {
+      "title": "달력 넘기기",
+      "help": "← → 로 달력을 넘겨보세요",
+      "month": "{{value}}월",
+      "prev": "이전 달",
+      "next": "다음 달",
+      "weekday": {
+        "sun": "일",
+        "mon": "월",
+        "tue": "화",
+        "wed": "수",
+        "thu": "목",
+        "fri": "금",
+        "sat": "토"
+      },
+      "survived": "{{value}}일 버텼다",
+      "pageOf": "{{value}} / {{total}}",
+      "close": "달력을 내려놓는다"
+    },
+    "phoneChat": {
+      "title": "스마트폰",
+      "help": "위로 스크롤하거나 Space로 지난 대화를 거슬러 올라가세요",
+      "helpCalls": "부재중 전화 탭도 열어보세요",
+      "date": "7월 14일",
+      "close": "화면을 끈다",
+      "next": "다음",
+      "openCalls": "부재중 전화 보기",
+      "tab": {
+        "chat": "단톡방",
+        "calls": "부재중"
+      },
+      "caller": {
+        "mom": "엄마",
+        "dad": "아빠"
+      },
+      "chat": {
+        "room": "우리 셋",
+        "jinho": "진호",
+        "sena": "세나",
+        "m1": "야 오늘 몇 시에 모여?",
+        "m2": "난 여섯 시쯤 갈 수 있을 듯",
+        "m3": "나도 그때쯤 갈게",
+        "m4": "ㅇㅋ 그럼 학교 앞에서 보자",
+        "m5": "…안 오네?",
+        "m6": "전화 안 받던데 자냐",
+        "m7": "무슨 일 있어? 답장 좀",
+        "m8": "내일 학교에서 보자. 걱정된다",
+        "members": "진호, 세나, 나"
+      },
+      "callsSubtitle": "부재중 전화",
+      "callsTitle": "최근 기록",
+      "helpCallsTab": "부모님이 몇 번이나 걸었는지 보세요",
+      "olderAbove": "위로 올리면 더 있다"
+    }
   },
   "characterSheet": {
     "title": "캐릭터 시트",

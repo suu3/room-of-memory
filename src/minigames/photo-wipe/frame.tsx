@@ -13,7 +13,9 @@ const CORNERS = [
  */
 export function PhotoFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative mx-auto w-fit rounded-md bg-scene-olive p-3.5 shadow-panel ring-1 ring-night/70">
+    // max-w-full이 없으면 사진 원본 폭(최대 620px)이 그대로 액자 폭이 되어
+    // 좁은 화면에서 패널 밖으로 삐져나간다.
+    <div className="relative mx-auto w-fit max-w-full rounded-md bg-scene-olive p-3.5 shadow-panel ring-1 ring-night/70">
       {/* 몰딩 안쪽 그늘 — 나무 두께가 보이는 선 */}
       <div
         aria-hidden

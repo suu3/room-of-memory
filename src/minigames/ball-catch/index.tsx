@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, useOnceCompleter, useSkipEligible } from "../shell";
 import { BallCatchField } from "./field";
@@ -96,6 +97,8 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
     const progress = (performance.now() - round.start) / round.duration;
     const result = classifySwing(progress, CATCH_WINDOW);
     setFeedback(result);
+    // 맞은 순간과 빗나간 순간의 소리를 다르게 — 타이밍 게임은 귀로도 배운다
+    playSound(result === "hit" ? "collect" : "deny");
 
     if (result === "hit") {
       round.hitAt = performance.now();

@@ -79,7 +79,7 @@ export function MinigameShell({
 
   return (
     <div
-      className={`${size === "lg" ? "w-[54rem]" : "w-[38rem]"} max-w-[94vw] animate-fade-rise rounded-xl border border-bone bg-paper p-7 shadow-panel`}
+      className={`${size === "lg" ? "w-[54rem]" : "w-[38rem]"} max-w-[94vw] animate-fade-rise rounded-xl border border-bone bg-paper p-5 shadow-panel sm:p-7`}
     >
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-2xl font-bold tracking-tight text-ink">{title}</h2>

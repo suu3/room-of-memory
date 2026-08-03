@@ -11,6 +11,7 @@ import {
 } from "three";
 import type { MemoryId } from "@/data/memory-room";
 import {
+  gamePhaseOf,
   MEMORY_TOTAL,
   REVISIT_TOTAL,
   selectCollectedCount,
@@ -20,6 +21,7 @@ import {
 } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
 import { CameraRig } from "./memory-room/CameraRig";
+import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
 import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
@@ -28,6 +30,7 @@ import { resolveRoomPalette } from "./memory-room/palette";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
 import {
+  outsideDecay,
   ROOM_LIGHT_RAMP,
   ROOM_LIGHTING,
   roomLightLevel,
@@ -122,6 +125,9 @@ export function MemoryRoomScene({
   focusMemoryId,
   nearbyMemoryId,
   curtainsOpen,
+  curtainPull,
+  onCurtainPull,
+  onCurtainRelease,
   roomZoom,
   orbitAzimuth,
   onInteract,
@@ -131,12 +137,16 @@ export function MemoryRoomScene({
   focusMemoryId: MemoryId | null;
   nearbyMemoryId: MemoryId | null;
   curtainsOpen: boolean;
+  curtainPull: CurtainPull;
+  onCurtainPull: (side: CurtainSide, progress: number) => void;
+  onCurtainRelease: (side: CurtainSide) => void;
   roomZoom: number;
   orbitAzimuth: number;
   onInteract: (id: MemoryId) => void;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
   const isEndingReady = useMemoryRoomStore(selectEndingReady);
+  const gamePhase = useMemoryRoomStore(gamePhaseOf);
   const collectedCount = useMemoryRoomStore(selectCollectedCount);
   const revisitedCount = useMemoryRoomStore(selectRevisitedCount);
   const lightLevel = roomLightLevel({
@@ -154,13 +164,22 @@ export function MemoryRoomScene({
         fillColor={palette.paper}
         groundColor={palette.deep}
       />
-      <RoomShell palette={palette} doorReady={isEndingReady} />
+      <RoomShell
+        palette={palette}
+        doorReady={isEndingReady}
+        outsideDecay={outsideDecay({
+          collected: collectedCount,
+          memoryTotal: MEMORY_TOTAL,
+          phase: gamePhase,
+        })}
+      />
       {/* 커튼도 클릭 가능한 오브젝트라 기억들과 같은 아웃라인 글로우를 쓴다 — 같은 루트 안에 있어야 한다 */}
       <MemoryGlowRoot color={palette.memory}>
         <RoomFurniture
           palette={palette}
-          curtainsOpen={curtainsOpen}
-          onCurtainInteract={() => onInteract("window")}
+          curtainPull={curtainPull}
+          onCurtainPull={onCurtainPull}
+          onCurtainRelease={onCurtainRelease}
         />
         <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
       </MemoryGlowRoot>

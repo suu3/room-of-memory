@@ -23,6 +23,24 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.photoWipe.title",
     helpKey: "minigame.photoWipe.help",
   },
+  "calendar-flip": {
+    id: "calendar-flip",
+    mode: "overlay",
+    presentation: "bare",
+    component: lazy(() =>
+      import("./calendar-flip").then((m) => ({ default: m.CalendarFlipMinigame })),
+    ),
+    titleKey: "minigame.calendarFlip.title",
+    helpKey: "minigame.calendarFlip.help",
+  },
+  "phone-chat": {
+    id: "phone-chat",
+    mode: "overlay",
+    presentation: "bare",
+    component: lazy(() => import("./phone-chat").then((m) => ({ default: m.PhoneChatMinigame }))),
+    titleKey: "minigame.phoneChat.title",
+    helpKey: "minigame.phoneChat.help",
+  },
   "ball-catch": {
     id: "ball-catch",
     mode: "overlay",

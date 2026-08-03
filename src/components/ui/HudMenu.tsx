@@ -1,8 +1,9 @@
 "use client";
 
-import { List, Warning, X } from "@phosphor-icons/react";
+import { List, SpeakerSimpleHigh, SpeakerSimpleSlash, Warning, X } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
 
@@ -18,6 +19,8 @@ export function HudMenu() {
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const setCharacterSheetOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
   const setContactOpen = useMemoryRoomStore((state) => state.setContactOpen);
+  const soundMuted = useMemoryRoomStore((state) => state.soundMuted);
+  const setSoundMuted = useMemoryRoomStore((state) => state.setSoundMuted);
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -47,7 +50,10 @@ export function HudMenu() {
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          playSound(open ? "close" : "open");
+          setOpen(!open);
+        }}
         aria-expanded={open}
         aria-label={open ? t("menu.close") : t("menu.open")}
         className="grid size-10 cursor-pointer place-items-center rounded-full border border-bone bg-paper text-ink/80 shadow-chip transition-all hover:-translate-y-0.5 hover:border-memory hover:text-ink active:translate-y-0 active:scale-95"
@@ -66,7 +72,25 @@ export function HudMenu() {
           <div className="my-3 h-px bg-ink/10" />
           <button
             type="button"
+            aria-pressed={!soundMuted}
             onClick={() => {
+              // 켤 때만 소리를 낸다 — 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다
+              if (soundMuted) playSound("select");
+              setSoundMuted(!soundMuted);
+            }}
+            className={`${ITEM_CLASS} flex items-center gap-2`}
+          >
+            {soundMuted ? (
+              <SpeakerSimpleSlash size={15} weight="bold" />
+            ) : (
+              <SpeakerSimpleHigh size={15} weight="bold" />
+            )}
+            {t(soundMuted ? "hud.soundOff" : "hud.soundOn")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playSound("select");
               setOpen(false);
               setCharacterSheetOpen(true);
             }}
@@ -77,6 +101,7 @@ export function HudMenu() {
           <button
             type="button"
             onClick={() => {
+              playSound("select");
               setOpen(false);
               setContactOpen(true);
             }}
@@ -127,6 +152,7 @@ export function HudMenu() {
               <button
                 type="button"
                 onClick={() => {
+                  playSound("close");
                   reset();
                   setConfirming(false);
                 }}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ENTRY_LIGHT_LEVEL,
+  outsideDecay,
   ROOM_LIGHT_RAMP,
   ROOM_LIGHTING,
   roomLightLevel,
@@ -76,5 +77,31 @@ describe("memory-room visual state", () => {
   it("고정 채움광은 그대로 유지한다", () => {
     expect(ROOM_LIGHTING.ceilingFill).toBeGreaterThanOrEqual(26);
     expect(ROOM_LIGHTING.hemisphereFill).toBeGreaterThanOrEqual(1.2);
+  });
+});
+
+describe("outsideDecay", () => {
+  const memoryTotal = 7;
+
+  it("only ever gets worse as the first loop uncovers more", () => {
+    let previous = -1;
+    for (let collected = 0; collected <= memoryTotal; collected += 1) {
+      const decay = outsideDecay({ collected, memoryTotal, phase: 1 });
+      expect(decay).toBeGreaterThanOrEqual(previous);
+      previous = decay;
+    }
+    expect(outsideDecay({ collected: 0, memoryTotal, phase: 1 })).toBe(0);
+    expect(outsideDecay({ collected: memoryTotal, memoryTotal, phase: 1 })).toBe(1);
+  });
+
+  it("stays at the bottom through the second loop — the room brightens, the street does not", () => {
+    expect(outsideDecay({ collected: 0, memoryTotal, phase: 2 })).toBe(1);
+    expect(outsideDecay({ collected: memoryTotal, memoryTotal, phase: 2 })).toBe(1);
+  });
+
+  it("clamps nonsense input instead of blowing past the ramp", () => {
+    expect(outsideDecay({ collected: 99, memoryTotal, phase: 1 })).toBe(1);
+    expect(outsideDecay({ collected: -3, memoryTotal, phase: 1 })).toBe(0);
+    expect(outsideDecay({ collected: 1, memoryTotal: 0, phase: 1 })).toBe(1);
   });
 });

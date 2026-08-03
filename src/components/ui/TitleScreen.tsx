@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
 import { LoadingOverlay } from "./LoadingOverlay";
@@ -19,14 +20,26 @@ export function TitleScreen() {
   const startGame = useMemoryRoomStore((state) => state.startGame);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const setContactOpen = useMemoryRoomStore((state) => state.setContactOpen);
+  const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
   const startButtonRef = useRef<HTMLButtonElement>(null);
+  const enterTimerRef = useRef<number | null>(null);
   // 눌린 순간 바로 방이 드러나면 전환이 뚝 끊긴다. 로딩 화면을 한 박자 끼워 넣는다.
-  const [entering, setEntering] = useState(false);
+  // 리셋으로 타이틀에 돌아오면 다시 시작 버튼이 보여야 하므로 리비전에 묶어 둔다 —
+  // 단순 boolean이면 리셋 후에도 true로 남아 로딩 화면에서 빠져나오지 못한다.
+  const [enteringAtRevision, setEnteringAtRevision] = useState<number | null>(null);
+  const entering = enteringAtRevision === resetRevision;
 
   useEffect(() => {
     setUiLock("title", !started);
     return () => setUiLock("title", false);
   }, [started, setUiLock]);
+
+  useEffect(
+    () => () => {
+      if (enterTimerRef.current !== null) window.clearTimeout(enterTimerRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!started) startButtonRef.current?.focus();
@@ -52,8 +65,9 @@ export function TitleScreen() {
         ref={startButtonRef}
         type="button"
         onClick={() => {
-          setEntering(true);
-          window.setTimeout(startGame, ENTER_DELAY_MS);
+          playSound("open");
+          setEnteringAtRevision(resetRevision);
+          enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
         }}
         className="cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
       >

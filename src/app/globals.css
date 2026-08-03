@@ -48,6 +48,10 @@
   --animate-batting-impact: batting-impact 0.35s ease-out both;
   --animate-batting-field-shake: batting-field-shake 0.28s ease-out both;
   --animate-batting-feedback: batting-feedback 0.35s ease-out both;
+  /* 달력 넘기기 — 길이를 바꾸면 calendar-flip의 FLIP_MS도 같이 고칠 것 */
+  --animate-page-flip-next: page-flip-next 0.32s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+  --animate-page-flip-prev: page-flip-prev 0.32s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+  --animate-page-nudge: page-nudge 0.3s ease-out both;
 
   @keyframes hotspot-glow {
     0%,
@@ -118,6 +122,42 @@
     }
     100% {
       transform: translate3d(-54%, -24%, 0) rotate(-82deg);
+    }
+  }
+
+  /* 왼쪽 모서리를 축으로 종이 한 장이 넘어간다 (origin-left와 함께 쓴다) */
+  @keyframes page-flip-next {
+    0% {
+      transform: rotateY(-58deg);
+      opacity: 0.25;
+    }
+    100% {
+      transform: rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes page-flip-prev {
+    0% {
+      transform: rotateY(38deg);
+      opacity: 0.25;
+    }
+    100% {
+      transform: rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes page-nudge {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    75% {
+      transform: translateX(5px);
     }
   }
 
@@ -266,6 +306,16 @@ body {
   .animate-batting-impact {
     animation: none;
     opacity: 0;
+  }
+
+  /* 종이를 돌리는 대신 밝기만 바꿔 장이 바뀐 걸 알린다 */
+  .animate-page-flip-next,
+  .animate-page-flip-prev {
+    animation: fade-rise 0.16s ease-out both;
+  }
+
+  .animate-page-nudge {
+    animation: none;
   }
 
   /* 왕복을 멈추고 트랙 가운데에 조각만 남긴다 */

@@ -12,12 +12,20 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { Vector3 } from "three";
 import { MovementJoystick } from "@/components/ui/MovementJoystick";
 import { RoomInteractionPrompt } from "@/components/ui/RoomInteractionPrompt";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
+import { playSound } from "@/lib/audio";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
+import {
+  CURTAIN_CLOSED,
+  type CurtainPull,
+  type CurtainSide,
+  isCurtainOpen,
+  settleProgress,
+} from "@/scenes/memory-room/curtain-motion";
 import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/layout";
+import { PLAYER_START } from "@/scenes/memory-room/Player";
 import { findNearestMemory } from "@/scenes/memory-room/spatial";
 import {
   hotspotStatus,
@@ -84,7 +92,7 @@ class CanvasErrorBoundary extends Component<CanvasErrorBoundaryProps, CanvasErro
 export function RoomCanvas() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
-  const playerPositionRef = useRef(new Vector3(0, 0.45, 2.35));
+  const playerPositionRef = useRef(PLAYER_START.clone());
   const movementInputRef = useRef<MovementAxes>({ horizontal: 0, vertical: 0 });
   const nearbyMemoryIdRef = useRef<MemoryId | null>(null);
   const directFocusTimer = useRef<number | null>(null);
@@ -99,14 +107,42 @@ export function RoomCanvas() {
   const [roomZoom, setRoomZoom] = useState(64);
   const [zoomScale, setZoomScale] = useState(1);
   const [orbitAzimuth, setOrbitAzimuth] = useState(0);
-  const [curtainsOpenedAtRevision, setCurtainsOpenedAtRevision] = useState<number | null>(null);
+  /** 커튼은 쪽마다 따로 젖혀진다. 리셋하면 리비전이 어긋나 자동으로 닫힌 상태가 된다. */
+  const [curtainState, setCurtainState] = useState<{ revision: number; pull: CurtainPull } | null>(
+    null,
+  );
   const activeInteraction = useMemoryRoomStore(selectActiveInteraction);
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const beginInteraction = useMemoryRoomStore((state) => state.beginInteraction);
   const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
-  const curtainsOpen = curtainsOpenedAtRevision === resetRevision;
+  const curtainPull = curtainState?.revision === resetRevision ? curtainState.pull : CURTAIN_CLOSED;
+  const curtainsOpen = isCurtainOpen(curtainPull);
+
+  const setPull = useCallback(
+    (next: (current: CurtainPull) => CurtainPull) => {
+      setCurtainState((state) => ({
+        revision: resetRevision,
+        pull: next(state?.revision === resetRevision ? state.pull : CURTAIN_CLOSED),
+      }));
+    },
+    [resetRevision],
+  );
+
+  const handleCurtainPull = useCallback(
+    (side: CurtainSide, progress: number) => setPull((pull) => ({ ...pull, [side]: progress })),
+    [setPull],
+  );
+
+  const handleCurtainRelease = useCallback(
+    (side: CurtainSide) =>
+      setPull((pull) => ({ ...pull, [side]: settleProgress(pull[side] ?? 0) })),
+    [setPull],
+  );
+
+  /** 키보드·프롬프트 버튼 경로 — 드래그를 못 하는 사용자를 위해 양쪽을 한 번에 젖힌다. */
+  const openBothCurtains = useCallback(() => setPull(() => ({ left: 1, right: 1 })), [setPull]);
 
   const handleWebGLFailure = useCallback((event: Event) => {
     if (event.cancelable) event.preventDefault();
@@ -156,8 +192,8 @@ export function RoomCanvas() {
   }, []);
 
   const interact = useCallback(
-    (id: MemoryId) =>
-      dispatchMemoryInteraction(
+    (id: MemoryId) => {
+      const accepted = dispatchMemoryInteraction(
         useMemoryRoomStore.getState(),
         id,
         () => {
@@ -173,10 +209,16 @@ export function RoomCanvas() {
         },
         {
           curtainsOpen,
-          openCurtains: () => setCurtainsOpenedAtRevision(resetRevision),
+          openCurtains: openBothCurtains,
         },
-      ),
-    [beginInteraction, clearDirectFocusTimer, curtainsOpen, resetRevision],
+      );
+      // 대사·미니게임이 떠 있어 입력이 잠긴 동안에는 아무 소리도 내지 않는다 —
+      // 그건 "안 되는 것"이 아니라 "지금 차례가 아닌 것"이다.
+      if (accepted) playSound("select");
+      else if (!selectSceneInputLocked(useMemoryRoomStore.getState())) playSound("deny");
+      return accepted;
+    },
+    [beginInteraction, clearDirectFocusTimer, curtainsOpen, openBothCurtains],
   );
 
   useEffect(() => {
@@ -395,6 +437,9 @@ export function RoomCanvas() {
               focusMemoryId={focusMemoryId}
               nearbyMemoryId={nearbyMemoryId}
               curtainsOpen={curtainsOpen}
+              curtainPull={curtainPull}
+              onCurtainPull={handleCurtainPull}
+              onCurtainRelease={handleCurtainRelease}
               roomZoom={roomZoom * zoomScale}
               orbitAzimuth={orbitAzimuth}
               onInteract={interact}

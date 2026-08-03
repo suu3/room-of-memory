@@ -38,6 +38,8 @@ interface MemoryRoomState {
   contactOpen: boolean;
   /** Monotonic signal for local UI state that must close when progress resets. */
   resetRevision: number;
+  /** 효과음 음소거. 리셋해도 유지된다 — 언어 설정과 같은 성격의 환경설정이다. */
+  soundMuted: boolean;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   finishMinigame: (result: MinigameResult) => void;
@@ -49,6 +51,7 @@ interface MemoryRoomState {
   setCharacterSheetOpen: (open: boolean) => void;
   setContactOpen: (open: boolean) => void;
   startGame: () => void;
+  setSoundMuted: (muted: boolean) => void;
   reset: () => void;
 }
 
@@ -114,6 +117,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   contactOpen: false,
   started: false,
   resetRevision: 0,
+  soundMuted: false,
   beginInteraction: (id) =>
     set((state) => {
       if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
@@ -214,6 +218,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   setCharacterSheetOpen: (open) => set({ characterSheetOpen: open }),
   setContactOpen: (open) => set({ contactOpen: open }),
   startGame: () => set({ started: true }),
+  setSoundMuted: (muted) => set({ soundMuted: muted }),
   reset: () =>
     set((state) => ({
       collected: [],
