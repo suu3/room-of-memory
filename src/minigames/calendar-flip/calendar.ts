@@ -8,8 +8,12 @@
 
 /** 달력에 적힌 해. 시나리오가 확정되면 그쪽 값과 맞춘다. */
 export const CALENDAR_YEAR = 2011;
-/** 모든 게 끊긴 날. 이 달까지는 달력이 달력으로 남아 있다. */
-export const INCIDENT_DATE = { month: 7, day: 14 } as const;
+/**
+ * 모든 게 끊긴 날. 이 달까지는 달력이 달력으로 남아 있다.
+ * 방 안의 다른 기록도 전부 이 날짜를 가리켜야 한다 — 로어(lore.calendar)의 제목,
+ * 폰 단톡방 화면의 날짜(minigame.phoneChat.date).
+ */
+export const INCIDENT_DATE = { month: 10, day: 19 } as const;
 export const FIRST_MONTH = 1;
 export const LAST_MONTH = 12;
 export const START_MONTH = 1;
