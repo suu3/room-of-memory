@@ -11,10 +11,10 @@ import {
   type ChatMessage,
   hasEarlier,
   isThreadComplete,
-  MISSED_CALLS,
+  OUTGOING_CALLS,
   type PhoneTab,
   revealEarlier,
-  totalMissedCalls,
+  totalOutgoingCalls,
   visibleMessages,
 } from "./thread";
 
@@ -67,9 +67,9 @@ function Bubble({
 /**
  * 스마트폰을 확대해 그날의 기록을 읽는다.
  *
- * 단톡방은 클릭(또는 Space/↓)으로 한 줄씩 내려가고, 부재중 전화 탭을 열면
- * 부모님이 몇 번 걸었는지 보인다. 둘 다 봐야 끝난다 — 한쪽만 보면 그날의
- * 절반만 본 셈이라. 실패 조건은 두지 않았다. 읽는 게 목적인 인터랙션이다.
+ * 단톡방은 클릭(또는 Space/↓)으로 한 줄씩 내려가고, 통화 기록 탭을 열면
+ * 도해가 누구에게 몇 번이나 걸었는지 보인다. 둘 다 봐야 끝난다 — 한쪽만 보면
+ * 그날의 절반만 본 셈이라. 실패 조건은 두지 않았다. 읽는 게 목적인 인터랙션이다.
  */
 export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   const { t } = useTranslation();
@@ -118,7 +118,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [scrollBack, tab]);
 
-  const missedTotal = totalMissedCalls();
+  const callTotal = totalOutgoingCalls();
 
   return (
     <div className="flex animate-fade-rise flex-col items-center gap-4">
@@ -130,7 +130,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
           tab === "chat" ? "minigame.phoneChat.chat.members" : "minigame.phoneChat.callsSubtitle",
         )}
         clock="20:47"
-        badge={seenCalls ? 0 : missedTotal}
+        badge={seenCalls ? 0 : callTotal}
         tabLabels={{
           chat: t("minigame.phoneChat.tab.chat"),
           calls: t("minigame.phoneChat.tab.calls"),
@@ -175,14 +175,14 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
         ) : (
           <div className="size-full overflow-y-auto bg-scene-navy px-3 py-2">
             <ul className="flex flex-col">
-              {MISSED_CALLS.map((call) => (
+              {OUTGOING_CALLS.map((call) => (
                 <li
                   key={call.id}
                   className="flex animate-fade-rise items-center gap-3 border-b border-bone/8 px-1.5 py-3 last:border-b-0"
                 >
                   <PhoneDisconnect size={18} weight="fill" className="shrink-0 text-ember" />
                   <span className="min-w-0 flex-1 truncate text-[0.9375rem] font-bold text-ember">
-                    {t(call.fromKey)}
+                    {t(call.toKey)}
                     {call.count > 1 ? (
                       <span className="ml-1 font-normal text-ember/65">({call.count})</span>
                     ) : null}

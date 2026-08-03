@@ -136,37 +136,37 @@
     "phoneChat": {
       "title": "The phone",
       "help": "Scroll up or press Space to read back through the thread",
-      "helpCalls": "Open the missed calls tab too",
+      "helpCalls": "Open the call log tab too",
       "date": "July 14",
       "close": "Turn the screen off",
       "next": "Next",
-      "openCalls": "See missed calls",
+      "openCalls": "See the call log",
       "tab": {
         "chat": "Group chat",
-        "calls": "Missed"
-      },
-      "caller": {
-        "mom": "Mom",
-        "dad": "Dad"
+        "calls": "Calls"
       },
       "chat": {
-        "room": "The three of us",
-        "jinho": "Jinho",
-        "sena": "Sena",
-        "m1": "hey what time are we meeting",
-        "m2": "i can get there around six",
-        "m3": "i'll head out around then too",
-        "m4": "ok see you in front of school",
-        "m5": "...you're not coming?",
-        "m6": "you didn't pick up. asleep?",
-        "m7": "is something wrong? answer me",
-        "m8": "see you at school tomorrow. i'm worried",
-        "members": "Jinho, Sena, me"
+        "room": "Back row, baseball team",
+        "m1": "hey where is everyone",
+        "m2": "i'm out front of school. nobody's here",
+        "m3": "if this is a joke, drop it",
+        "m4": "went by both your places. every door locked",
+        "m5": "pick up. please",
+        "m6": "radio says it reached busan",
+        "m7": "if anyone reads this, answer me",
+        "m8": "...i'm still here",
+        "members": "Woojin, Taeo, me"
       },
-      "callsSubtitle": "Missed calls",
+      "callsSubtitle": "No answer",
       "callsTitle": "Recents",
-      "helpCallsTab": "See how many times they called",
-      "olderAbove": "More above — scroll up"
+      "helpCallsTab": "See how many times you called",
+      "olderAbove": "More above — scroll up",
+      "contact": {
+        "mom": "Mom",
+        "dad": "Dad",
+        "woojin": "Woojin",
+        "taeo": "Taeo"
+      }
     }
   },
   "characterSheet": {

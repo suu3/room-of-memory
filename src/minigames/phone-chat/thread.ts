@@ -3,6 +3,10 @@
  *
  * 대사 본문은 여기 넣지 않는다 — 시나리오 규칙(.claude/rules/visual-novel.md)대로
  * i18n 키만 담고 ko/en/ja는 common.json이 갖는다.
+ *
+ * 기록은 전부 도해가 보낸 쪽이다. 받은 메시지도, 걸려 온 전화도 없다 —
+ * 로어(memory-room의 lore.phone)가 말하는 "부재중 전화는 전부 내가 건 쪽이다"가
+ * 이 화면의 전부다.
  */
 
 import type { CommonTextKey } from "@/types/minigame";
@@ -19,89 +23,51 @@ export interface ChatMessage {
   time: string;
 }
 
-export interface MissedCall {
+export interface OutgoingCall {
   id: string;
-  fromKey: CommonTextKey;
+  /** 건 상대. */
+  toKey: CommonTextKey;
   time: string;
-  /** 부재중이 이어진 횟수 — 화면에 (N)으로 붙는다. */
+  /** 연달아 건 횟수 — 화면에 (N)으로 붙는다. */
   count: number;
 }
 
 /**
- * 친구들 단톡방. 앞부분은 평범한 잡담이고 뒤로 갈수록 "왜 안 와" 쪽으로 기운다 —
- * 읽어 내려가는 것 자체가 그날을 되짚는 동작이 되도록.
+ * 친구들 단톡방. 전부 도해가 보낸 줄이고 답은 한 줄도 없다 —
+ * 거슬러 올라갈수록 목소리가 혼자라는 게 드러나도록.
+ *
+ * side는 전부 "me"지만 ChatSide/fromKey는 남겨 둔다. 말풍선(Bubble)이 양쪽을
+ * 그릴 줄 아는 편이 나중에 답이 오는 장면을 넣을 때 데이터만 고치면 되게 한다.
  */
 export const GROUP_CHAT: ChatMessage[] = [
-  {
-    id: "m1",
-    side: "them",
-    fromKey: "minigame.phoneChat.chat.jinho",
-    textKey: "minigame.phoneChat.chat.m1",
-    time: "16:02",
-  },
-  {
-    id: "m2",
-    side: "them",
-    fromKey: "minigame.phoneChat.chat.sena",
-    textKey: "minigame.phoneChat.chat.m2",
-    time: "16:03",
-  },
-  { id: "m3", side: "me", textKey: "minigame.phoneChat.chat.m3", time: "16:05" },
-  {
-    id: "m4",
-    side: "them",
-    fromKey: "minigame.phoneChat.chat.jinho",
-    textKey: "minigame.phoneChat.chat.m4",
-    time: "16:06",
-  },
-  {
-    id: "m5",
-    side: "them",
-    fromKey: "minigame.phoneChat.chat.sena",
-    textKey: "minigame.phoneChat.chat.m5",
-    time: "16:20",
-  },
-  {
-    id: "m6",
-    side: "them",
-    fromKey: "minigame.phoneChat.chat.jinho",
-    textKey: "minigame.phoneChat.chat.m6",
-    time: "17:41",
-  },
-  {
-    id: "m7",
-    side: "them",
-    fromKey: "minigame.phoneChat.chat.sena",
-    textKey: "minigame.phoneChat.chat.m7",
-    time: "18:15",
-  },
-  {
-    id: "m8",
-    side: "them",
-    fromKey: "minigame.phoneChat.chat.jinho",
-    textKey: "minigame.phoneChat.chat.m8",
-    time: "20:02",
-  },
+  { id: "m1", side: "me", textKey: "minigame.phoneChat.chat.m1", time: "16:02" },
+  { id: "m2", side: "me", textKey: "minigame.phoneChat.chat.m2", time: "16:40" },
+  { id: "m3", side: "me", textKey: "minigame.phoneChat.chat.m3", time: "17:15" },
+  { id: "m4", side: "me", textKey: "minigame.phoneChat.chat.m4", time: "18:20" },
+  { id: "m5", side: "me", textKey: "minigame.phoneChat.chat.m5", time: "19:03" },
+  { id: "m6", side: "me", textKey: "minigame.phoneChat.chat.m6", time: "20:02" },
+  { id: "m7", side: "me", textKey: "minigame.phoneChat.chat.m7", time: "21:47" },
+  { id: "m8", side: "me", textKey: "minigame.phoneChat.chat.m8", time: "23:58" },
 ];
 
-/** 부모님 부재중 전화. 시간이 뒤로 갈수록 간격이 좁아진다. */
-export const MISSED_CALLS: MissedCall[] = [
-  { id: "c1", fromKey: "minigame.phoneChat.caller.mom", time: "18:40", count: 1 },
-  { id: "c2", fromKey: "minigame.phoneChat.caller.dad", time: "19:12", count: 1 },
-  { id: "c3", fromKey: "minigame.phoneChat.caller.mom", time: "19:55", count: 3 },
-  { id: "c4", fromKey: "minigame.phoneChat.caller.mom", time: "20:31", count: 7 },
+/** 도해가 건 전화. 아무도 받지 않았고, 뒤로 갈수록 다시 거는 횟수가 늘어난다. */
+export const OUTGOING_CALLS: OutgoingCall[] = [
+  { id: "c1", toKey: "minigame.phoneChat.contact.woojin", time: "18:22", count: 2 },
+  { id: "c2", toKey: "minigame.phoneChat.contact.taeo", time: "18:35", count: 2 },
+  { id: "c3", toKey: "minigame.phoneChat.contact.dad", time: "19:12", count: 4 },
+  { id: "c4", toKey: "minigame.phoneChat.contact.mom", time: "20:31", count: 9 },
 ];
 
 export type PhoneTab = "chat" | "calls";
 export const PHONE_TABS: PhoneTab[] = ["chat", "calls"];
 
-/** 부재중 전화 총 횟수 — 탭 배지에 쓴다. */
-export function totalMissedCalls(calls: readonly MissedCall[] = MISSED_CALLS): number {
+/** 건 전화 총 횟수 — 탭 배지에 쓴다. */
+export function totalOutgoingCalls(calls: readonly OutgoingCall[] = OUTGOING_CALLS): number {
   return calls.reduce((sum, call) => sum + call.count, 0);
 }
 
 /**
- * 다 읽었는지. 단톡방을 맨 위까지 거슬러 올라가고 부재중 목록까지 열어야 클리어다 —
+ * 다 읽었는지. 단톡방을 맨 위까지 거슬러 올라가고 통화 기록까지 열어야 클리어다 —
  * 둘 중 하나만 보면 그날의 절반만 본 셈이라.
  */
 export function isThreadComplete(revealed: number, seenCalls: boolean): boolean {

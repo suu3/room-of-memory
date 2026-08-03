@@ -40,7 +40,7 @@ export function PhoneShell({
   title: string;
   subtitle: string;
   clock: string;
-  /** 통화 탭에 띄울 부재중 개수. 0이면 안 띄운다. */
+  /** 통화 탭에 띄울 통화 횟수. 0이면 안 띄운다. */
   badge: number;
   tabLabels: Record<PhoneTab, string>;
   children: ReactNode;

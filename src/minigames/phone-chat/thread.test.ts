@@ -3,10 +3,10 @@ import {
   GROUP_CHAT,
   hasEarlier,
   isThreadComplete,
-  MISSED_CALLS,
+  OUTGOING_CALLS,
   PHONE_TABS,
   revealEarlier,
-  totalMissedCalls,
+  totalOutgoingCalls,
   visibleMessages,
 } from "./thread";
 
@@ -51,20 +51,21 @@ describe("phone-chat thread", () => {
     expect(isThreadComplete(GROUP_CHAT.length, true)).toBe(true);
   });
 
-  it("keeps the thread readable: unique ids, one voice from the player", () => {
+  it("keeps the thread readable: unique ids, and every line is the player's", () => {
+    // 이 화면은 도해가 보낸 기록만 담는다 — 답이 한 줄이라도 섞이면 연출이 뒤집힌다
     const ids = GROUP_CHAT.map((message) => message.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const message of GROUP_CHAT) {
-      if (message.side === "me") expect(message.fromKey).toBeUndefined();
-      else expect(message.fromKey).toBeTruthy();
+      expect(message.side).toBe("me");
+      expect(message.fromKey).toBeUndefined();
     }
-    expect(GROUP_CHAT.some((message) => message.side === "me")).toBe(true);
   });
 
-  it("counts every missed call for the tab badge", () => {
-    expect(totalMissedCalls()).toBe(MISSED_CALLS.reduce((sum, call) => sum + call.count, 0));
-    expect(totalMissedCalls([])).toBe(0);
-    expect(totalMissedCalls()).toBeGreaterThan(MISSED_CALLS.length);
+  it("counts every call the player placed for the tab badge", () => {
+    expect(totalOutgoingCalls()).toBe(OUTGOING_CALLS.reduce((sum, call) => sum + call.count, 0));
+    expect(totalOutgoingCalls([])).toBe(0);
+    // 다시 건 횟수가 쌓여 있어야 "몇 번이나 걸었다"가 화면에서 읽힌다
+    expect(totalOutgoingCalls()).toBeGreaterThan(OUTGOING_CALLS.length);
   });
 
   it("exposes exactly the two tabs the screen renders", () => {
