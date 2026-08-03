@@ -1,0 +1,19 @@
+[
+  { "name": "area: 3d", "color": "1D4ED8", "description": "3D 씬 · r3f 캔버스 · 모델/텍스처" },
+  { "name": "area: ui", "color": "7C3AED", "description": "DOM 오버레이 UI · 라우트" },
+  { "name": "area: minigame", "color": "DB2777", "description": "미니게임" },
+  { "name": "area: scenario", "color": "0891B2", "description": "시나리오 데이터" },
+  { "name": "area: i18n", "color": "0D9488", "description": "다국어 리소스" },
+  { "name": "area: state", "color": "4F46E5", "description": "zustand 스토어 · 공용 타입" },
+  { "name": "area: assets", "color": "B45309", "description": "public/assets 에셋" },
+  { "name": "area: design", "color": "9333EA", "description": "DESIGN.md 토큰 · 전역 스타일" },
+  { "name": "type: test", "color": "16A34A", "description": "테스트 코드" },
+  { "name": "type: docs", "color": "6B7280", "description": "문서" },
+  { "name": "type: config", "color": "374151", "description": "빌드 · 툴링 · CI 설정" },
+  { "name": "type: deps", "color": "525252", "description": "의존성 변경" },
+  { "name": "size/XS", "color": "C6F6D5", "description": "변경 10줄 이하" },
+  { "name": "size/S", "color": "9AE6B4", "description": "변경 50줄 이하" },
+  { "name": "size/M", "color": "FAF089", "description": "변경 200줄 이하" },
+  { "name": "size/L", "color": "F6AD55", "description": "변경 600줄 이하" },
+  { "name": "size/XL", "color": "FC8181", "description": "변경 600줄 초과 — 쪼개는 것을 검토" }
+]

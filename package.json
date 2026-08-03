@@ -12,6 +12,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "design:lint": "pnpm dlx @google/design.md lint DESIGN.md",
+    "assets:check": "node .github/scripts/check-assets.mjs",
     "prepare": "husky"
   },
   "dependencies": {

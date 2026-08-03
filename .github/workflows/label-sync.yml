@@ -1,0 +1,41 @@
+name: Label sync
+
+# .github/labels.json을 리포의 실제 라벨과 맞춘다.
+# 정의에 없는 라벨은 지우지 않는다 (수동으로 만든 라벨을 날리지 않기 위해).
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/labels.json
+      - .github/workflows/label-sync.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    name: create or update labels
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("node:fs");
+            const { owner, repo } = context.repo;
+            const labels = JSON.parse(fs.readFileSync(".github/labels.json", "utf8"));
+
+            for (const { name, color, description } of labels) {
+              try {
+                await github.rest.issues.updateLabel({ owner, repo, name, color, description });
+                core.info(`updated: ${name}`);
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({ owner, repo, name, color, description });
+                core.info(`created: ${name}`);
+              }
+            }

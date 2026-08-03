@@ -1,0 +1,82 @@
+# actions/labeler v5 설정. PR이 건드린 경로를 보고 라벨을 붙인다.
+# 라벨 자체의 색/설명 정의는 .github/labels.json, 동기화는 label-sync.yml.
+
+"area: 3d":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/scenes/**"
+          - "src/components/canvas/**"
+          - "public/assets/models/**"
+          - "public/assets/textures/**"
+
+"area: ui":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/components/ui/**"
+          - "src/app/**"
+
+"area: minigame":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/minigames/**"
+
+"area: scenario":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/data/**"
+          - "src/types/scenario.ts"
+
+"area: i18n":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/i18n/**"
+
+"area: state":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/store/**"
+          - "src/types/**"
+
+"area: assets":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "public/assets/**"
+          - "src/lib/assets.ts"
+
+"area: design":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "DESIGN.md"
+          - "src/app/globals.css"
+
+"type: test":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.test.ts"
+          - "**/*.test.tsx"
+          - "vitest.config.ts"
+
+"type: docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**"
+
+"type: config":
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+          - ".husky/**"
+          - ".claude/**"
+          - "biome.json"
+          - "next.config.ts"
+          - "postcss.config.mjs"
+          - "tsconfig.json"
+          - ".gitattributes"
+          - ".gitignore"
+
+"type: deps":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "package.json"
+          - "pnpm-lock.yaml"
