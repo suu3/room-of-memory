@@ -26,7 +26,7 @@ const CELL_PX = 16;
  * 1차는 부모 얼굴이 그늘에 묻힌 사진, 2차는 얼굴이 드러난 사진.
  */
 const PHOTOS = {
-  1: { src: ASSETS.images.mgPhotoWipePhase1, width: 620, height: 508, tint: "--color-bone" },
+  1: { src: ASSETS.images.mgPhotoWipePhase1, width: 620, height: 471, tint: "--color-bone" },
   2: { src: ASSETS.images.mgPhotoWipePhase2, width: 560, height: 516, tint: "--color-memory" },
 } as const;
 
