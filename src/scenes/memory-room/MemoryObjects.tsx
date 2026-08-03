@@ -22,6 +22,7 @@ import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { ASSETS } from "@/lib/assets";
 import { hotspotStatus, useMemoryRoomStore } from "@/store/memory-room";
 import { MEMORY_PLACEMENTS } from "./layout";
+import { MemoryBeacon } from "./MemoryBeacon";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
 import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-motion";
 import { centerModelXZ } from "./model-utils";
@@ -603,6 +604,14 @@ export function InteractiveMemory({
         onInteract(id);
       }}
     >
+      {/* 글로우 레이어 밖 — 표식은 아웃라인 선택 대상이 아니다 */}
+      <MemoryBeacon
+        id={id}
+        color={palette.memory}
+        active={status === "available"}
+        near={nearbyMemoryId === id}
+        groundOffset={placement.position[1]}
+      />
       <MemoryGlowLayers
         selectionKey={`memory-${id}`}
         enabled={highlighted}

@@ -7,8 +7,14 @@ import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
 import { LoadingOverlay } from "./LoadingOverlay";
 
-/** 시작 버튼을 누르고 방이 드러나기까지 로딩 화면을 보여주는 시간. */
-const ENTER_DELAY_MS = 900;
+/**
+ * 시작 버튼을 누르고 방이 드러나기까지 로딩 화면을 보여주는 시간.
+ *
+ * 900ms였는데, 그 사이에 카메라가 방 안으로 내려앉기 시작하는 걸 로딩 화면이
+ * 통째로 가렸다 — 연출을 넣어 놓고 그 앞을 막고 있던 셈이다. 씬은 타이틀 뒤에서
+ * 이미 돌고 있으니 실제로 기다릴 것도 없다. 버튼이 눌렸다는 감각만 남기고 줄인다.
+ */
+const ENTER_DELAY_MS = 260;
 
 /**
  * 게임 시작 화면. 방을 새로 마운트하지 않고 그 위에 덮는다 —
@@ -50,8 +56,23 @@ export function TitleScreen() {
   if (entering) return <LoadingOverlay label={t("scene.loading")} />;
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-10 bg-scene-void/80 px-6 backdrop-blur-md">
-      <div className="flex flex-col items-center gap-4 text-center">
+    /*
+     * 베일은 방을 가리는 게 아니라 글씨를 읽히게 하는 정도까지만.
+     * bg-scene-void/80 + blur-md는 방을 거의 지워서, 타이틀 화면에 3D를 돌려 두는
+     * 의미가 없었다. 흐림을 줄이고 어둠은 가운데로 모아(radial) 글자 뒤만 눌러 준다.
+     */
+    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-10 px-6 backdrop-blur-[2px]">
+      {/* 글자 뒤만 눌러 주는 어둠. 방 가장자리는 그대로 드러난다 */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(68% 54% at 50% 46%, color-mix(in srgb, var(--color-scene-void) 88%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 62%, transparent) 55%, color-mix(in srgb, var(--color-scene-void) 34%, transparent) 100%)",
+        }}
+      />
+
+      <div className="relative flex flex-col items-center gap-4 text-center">
         <p className="font-pixel text-xs tracking-[0.4em] text-memory/80">
           {t("titleScreen.eyebrow")}
         </p>
@@ -69,17 +90,17 @@ export function TitleScreen() {
           setEnteringAtRevision(resetRevision);
           enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
         }}
-        className="cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
+        className="relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
       >
         {t("titleScreen.start")}
       </button>
 
       {/* 짧은 게임이라는 걸 미리 알려주면 진입 문턱이 낮아진다 */}
-      <p className="-mt-5 text-[0.6875rem] font-bold tracking-[0.18em] text-bone/40">
+      <p className="relative -mt-5 text-[0.6875rem] font-bold tracking-[0.18em] text-bone/40">
         {t("titleScreen.playtime")}
       </p>
 
-      <div className="flex flex-col items-center gap-4">
+      <div className="relative flex flex-col items-center gap-4">
         {/* 언어 토글은 종이 패널 위에 놓이도록 설계됐다 — 어두운 배경에 직접 두면 글씨가 안 보인다 */}
         <div className="rounded-full border border-bone/20 bg-paper px-3 py-2 shadow-chip">
           <LanguageToggle />

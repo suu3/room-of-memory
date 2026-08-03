@@ -29,9 +29,14 @@ export const WALL_NORMALS = {
  * 0에서 바로 지우면 안 된다 — 카메라가 벽과 정면으로 나란한 각도(facing=0)에서는
  * 그 벽이 화면 옆구리를 이루고 있을 뿐 아무것도 가리지 않는다. 거기서 지우면
  * 방의 옆면이 통째로 뚫려 보인다.
+ *
+ * 구간을 좁게 잡는다. 넓게 잡았더니 회전 범위(±0.5rad) 안에서 벽이 40~60%
+ * 불투명도로 오래 머물렀는데, 반쯤 비치는 벽은 서 있는 것도 걷힌 것도 아니라
+ * 그냥 고장난 것처럼 보인다. 좁으면 사실상 켜짐/꺼짐이고, 그 사이 전환은
+ * CulledWall의 시간 damp가 부드럽게 만든다.
  */
-const FADE_START = 0.15;
-const FADE_END = 0.5;
+const FADE_START = 0.28;
+const FADE_END = 0.42;
 
 function smoothstep(edge0: number, edge1: number, value: number): number {
   const t = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));

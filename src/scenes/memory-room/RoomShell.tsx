@@ -1,6 +1,5 @@
-import { useFrame } from "@react-three/fiber";
-import { type ReactNode, useLayoutEffect, useRef } from "react";
-import { type Group, MathUtils, type Mesh, type MeshStandardMaterial } from "three";
+import type {} from "@react-three/fiber";
+import { CulledWall } from "./CulledWall";
 import {
   ROOM_DOOR_POSITION,
   ROOM_DOOR_ROTATION,
@@ -10,7 +9,6 @@ import {
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 import { WindowView } from "./WindowView";
-import { type WallSide, wallOpacity } from "./wall-culling";
 
 interface ShellBoxProps {
   size: Vec3Tuple;
@@ -41,59 +39,6 @@ function ShellBox({
         roughness={0.82}
       />
     </mesh>
-  );
-}
-
-/** 굽도리보다 위 — 카메라가 이쪽에 있으면 스러진다. */
-function CulledWall({ side, children }: { side: WallSide; children: ReactNode }) {
-  const groupRef = useRef<Group>(null);
-  const materialsRef = useRef<MeshStandardMaterial[]>([]);
-  const opacityRef = useRef(1);
-
-  // 자식 머티리얼을 한 번만 모아 둔다. transparent는 프로그램 재컴파일을 부르므로
-  // 여기서 한 번 켜고, 이후 프레임에서는 opacity 숫자만 민다.
-  useLayoutEffect(() => {
-    const group = groupRef.current;
-    if (!group) return;
-
-    const collected: MeshStandardMaterial[] = [];
-    group.traverse((object) => {
-      const mesh = object as Mesh;
-      if (!mesh.isMesh) return;
-      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-      for (const material of materials) {
-        const standard = material as MeshStandardMaterial;
-        standard.transparent = true;
-        standard.needsUpdate = true;
-        collected.push(standard);
-      }
-    });
-    materialsRef.current = collected;
-  }, []);
-
-  useFrame(({ camera }, delta) => {
-    const group = groupRef.current;
-    if (!group) return;
-
-    const goal = wallOpacity(
-      side,
-      camera.position.x - SHELL_CENTER_X,
-      camera.position.z - SHELL_CENTER_Z,
-    );
-    const next = MathUtils.damp(opacityRef.current, goal, 9, delta);
-    opacityRef.current = next;
-
-    // 완전히 투명해지면 아예 그리지 않는다 — 투명 패스 정렬 비용과
-    // 그림자 캐스팅을 같이 덜어낸다.
-    group.visible = next > 0.02;
-    if (!group.visible) return;
-    for (const material of materialsRef.current) material.opacity = next;
-  });
-
-  return (
-    <group ref={groupRef} name={`wall-${side}-upper`}>
-      {children}
-    </group>
   );
 }
 

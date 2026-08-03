@@ -2,6 +2,7 @@
 
 import { afterEach, describe, expect, it } from "vitest";
 import type { MemoryId } from "@/data/memory-room";
+import { wallOpacity } from "@/scenes/memory-room/wall-culling";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import {
   canInitializeWebGL,
@@ -26,9 +27,9 @@ const PLAYER_HEIGHT_UNITS = 1.1;
 
 describe("roomZoomForViewport", () => {
   it("frames a fixed slice of the world instead of the whole room", () => {
-    // 세로 7.6유닛을 담는다 — 방 전체(12.3)를 담던 예전 구도의 1.6배
-    expect(roomZoomForViewport(1440, 900)).toBeCloseTo(118.42, 1);
-    expect(900 / roomZoomForViewport(1440, 900)).toBeCloseTo(7.6, 1);
+    // 세로 6유닛을 담는다 — 방 전체(12.3)를 담던 예전 구도의 2배
+    expect(roomZoomForViewport(1440, 900)).toBe(150);
+    expect(900 / roomZoomForViewport(1440, 900)).toBeCloseTo(6, 1);
   });
 
   it("makes the character big enough to read on a phone", () => {
@@ -40,8 +41,8 @@ describe("roomZoomForViewport", () => {
   });
 
   it("uses height as the limiting axis when width is comfortable", () => {
-    expect(roomZoomForViewport(1440, 900)).toBe(900 / 7.6);
-    expect(roomZoomForViewport(1024, 768)).toBe(768 / 7.6);
+    expect(roomZoomForViewport(1440, 900)).toBe(900 / 6);
+    expect(roomZoomForViewport(1024, 768)).toBe(768 / 6);
   });
 
   it("never shows less than the minimum width on a landscape phone", () => {
@@ -159,16 +160,45 @@ describe("room zoom keyboard", () => {
 });
 
 describe("room orbit", () => {
-  // 기준 방위각 43.4°에서 벗어나도 카메라는 +X/+Z 사분면(0~90°) 안에 있어야 한다.
-  // 그 밖으로 나가면 벽이 없는 앞/오른쪽 면이 "먼 쪽 벽"이 되어 방이 뚫려 보인다.
+  // 기준 방위각 46.7°에서 벗어나도 카메라는 +X/+Z 사분면(0~90°) 안에 있어야 한다.
   const BASE_AZIMUTH = Math.atan2(14.2 - 0.8, 15.4 - 1.2);
 
-  it("keeps the camera inside the walled quadrant at both extremes", () => {
+  it("keeps the camera inside the quadrant where the back and left walls stand", () => {
     expect(BASE_AZIMUTH - MAX_ROOM_ORBIT).toBeGreaterThan(0);
     expect(BASE_AZIMUTH + MAX_ROOM_ORBIT).toBeLessThan(Math.PI / 2);
-    // "살짝" 회전이어야 한다 — 25도를 넘기면 열린 면이 눈에 띄기 시작한다
-    expect(MAX_ROOM_ORBIT).toBeLessThan(0.44);
-    expect(MAX_ROOM_ORBIT).toBeGreaterThan(0.1);
+
+    // 이 범위 안에서는 뒷벽·왼쪽 벽이 절대 걷히지 않아야 한다 — 거기 붙은
+    // 포스터·달력·창밖 풍경은 CulledWall 밖에 있어서, 벽이 사라지면 허공에 뜬다.
+    for (let step = 0; step <= 20; step += 1) {
+      const azimuth = BASE_AZIMUTH - MAX_ROOM_ORBIT + (step / 20) * MAX_ROOM_ORBIT * 2;
+      const dirX = Math.cos(azimuth);
+      const dirZ = Math.sin(azimuth);
+      expect(wallOpacity("back", dirX, dirZ)).toBe(1);
+      expect(wallOpacity("left", dirX, dirZ)).toBe(1);
+    }
+  });
+
+  it("turns far enough to reveal the two walls that face the camera", () => {
+    // 돌려도 앞·오른쪽 벽이 안 드러나면 사면벽을 세운 보람이 없다
+    const turnedRight = BASE_AZIMUTH - MAX_ROOM_ORBIT;
+    const turnedLeft = BASE_AZIMUTH + MAX_ROOM_ORBIT;
+    expect(wallOpacity("front", Math.cos(turnedRight), Math.sin(turnedRight))).toBeGreaterThan(0.8);
+    expect(wallOpacity("right", Math.cos(turnedLeft), Math.sin(turnedLeft))).toBeGreaterThan(0.8);
+  });
+
+  it("does not leave a wall lingering half-transparent across the turn", () => {
+    // 반쯤 비치는 벽은 서 있는 것도 걷힌 것도 아니라 고장으로 읽힌다.
+    // 전환 자체는 연속이라 어딘가는 지나가지만, 그 구간이 회전 범위의 한 뼘이어야 한다.
+    const SAMPLES = 200;
+    for (const side of ["front", "right"] as const) {
+      let inBetween = 0;
+      for (let step = 0; step <= SAMPLES; step += 1) {
+        const azimuth = BASE_AZIMUTH - MAX_ROOM_ORBIT + (step / SAMPLES) * MAX_ROOM_ORBIT * 2;
+        const opacity = wallOpacity(side, Math.cos(azimuth), Math.sin(azimuth));
+        if (opacity >= 0.12 && opacity <= 0.88) inBetween += 1;
+      }
+      expect(inBetween / SAMPLES).toBeLessThan(0.15);
+    }
   });
 
   it("clamps the orbit and follows the drag direction", () => {

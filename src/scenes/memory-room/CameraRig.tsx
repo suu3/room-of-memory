@@ -44,6 +44,16 @@ const FOLLOW_LAMBDA = 3.2;
 const ENTER_LAMBDA = 1.25;
 const ENTER_DURATION_S = 2.2;
 
+/**
+ * 타이틀 화면에서 방 모형이 저 혼자 도는 폭(rad)과 주기(초).
+ *
+ * 멈춰 있는 3D는 렌더된 그림과 구별이 안 된다. 아주 느리게라도 돌면 "이건 진짜
+ * 공간이고 들어갈 수 있다"가 한눈에 읽힌다. 폭은 사용자가 돌릴 수 있는 범위
+ * (MAX_ROOM_ORBIT)보다 훨씬 좁게 — 타이틀에서 벽이 스러졌다 섰다 하면 산만하다.
+ */
+const TITLE_DRIFT_AMPLITUDE = 0.16;
+const TITLE_DRIFT_PERIOD_S = 26;
+
 /** 카메라가 붙을 수 있는 대상 — 기억 오브젝트와 엔딩(문 옆 배트). */
 export type CameraFocusId = MemoryId | "ending";
 
@@ -82,7 +92,8 @@ export function CameraRig({
     enterElapsed.current = 0;
   }, [following]);
 
-  useFrame(({ camera }, delta) => {
+  useFrame((state, delta) => {
+    const { camera } = state;
     if (follows) enterElapsed.current += delta;
     const entering = follows && enterElapsed.current < ENTER_DURATION_S;
     const lambda = reducedMotion ? 18 : entering ? ENTER_LAMBDA : follows ? FOLLOW_LAMBDA : 7;
@@ -98,6 +109,14 @@ export function CameraRig({
     } else {
       cameraTargetGoal.set(preset.target[0], preset.target[1], preset.target[2]);
     }
+    // 타이틀에서는 사용자 입력 없이도 아주 느리게 돈다. 시작하면 그 흐름 그대로
+    // 0으로 수렴시켜야 방에 들어서는 순간 구도가 튀지 않는다.
+    const drift =
+      following || reducedMotion
+        ? 0
+        : Math.sin((state.clock.elapsedTime / TITLE_DRIFT_PERIOD_S) * Math.PI * 2) *
+          TITLE_DRIFT_AMPLITUDE;
+
     // 프리셋 위치를 타깃 기준으로 Y축 회전시킨다 — 타깃은 그대로라 구도 중심이 유지된다.
     orbitOffset
       .set(
@@ -105,7 +124,7 @@ export function CameraRig({
         preset.position[1] - preset.target[1],
         preset.position[2] - preset.target[2],
       )
-      .applyAxisAngle(ORBIT_AXIS, orbitAzimuth);
+      .applyAxisAngle(ORBIT_AXIS, orbitAzimuth + drift);
     cameraPositionGoal.copy(cameraTargetGoal).add(orbitOffset);
 
     camera.position.x = MathUtils.damp(camera.position.x, cameraPositionGoal.x, lambda, delta);

@@ -1,6 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { ASSETS } from "@/lib/assets";
+import { CulledWall } from "./CulledWall";
 import { FurnitureModel } from "./FurnitureModel";
 import { ROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
@@ -23,6 +24,8 @@ useGLTF.preload(ASSETS.models.books, true, true);
 /** 벽 안쪽 면. 벽 두께 0.18의 절반만큼 중심에서 안으로 들어온 자리다. */
 const BACK_WALL_FACE_Z = ROOM_SHELL_BOUNDS.minZ + 0.09;
 const LEFT_WALL_FACE_X = ROOM_SHELL_BOUNDS.minX + 0.09;
+const FRONT_WALL_FACE_Z = ROOM_SHELL_BOUNDS.maxZ - 0.09;
+const RIGHT_WALL_FACE_X = ROOM_SHELL_BOUNDS.maxX - 0.09;
 
 /** 벽에 붙는 납작한 판의 기본 두께. */
 const PLAQUE_DEPTH = 0.04;
@@ -58,6 +61,33 @@ function leftWall(
   depth = PLAQUE_DEPTH,
 ): DecorBox {
   return { size: [depth, height, width], position: [LEFT_WALL_FACE_X + depth / 2, y, z], color };
+}
+
+/*
+ * 앞·오른쪽 벽. 기본 구도에서는 카메라를 향하고 있어 걷혀 있고, 시점을 돌려야 드러난다.
+ * 여기 붙는 것들은 반드시 해당 CulledWall 안에서 렌더해야 한다 — 벽만 사라지고
+ * 포스터가 남으면 액자가 허공에 뜬다.
+ */
+function frontWall(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  color: keyof RoomPalette,
+  depth = PLAQUE_DEPTH,
+): DecorBox {
+  return { size: [width, height, depth], position: [x, y, FRONT_WALL_FACE_Z - depth / 2], color };
+}
+
+function rightWall(
+  z: number,
+  y: number,
+  width: number,
+  height: number,
+  color: keyof RoomPalette,
+  depth = PLAQUE_DEPTH,
+): DecorBox {
+  return { size: [depth, height, width], position: [RIGHT_WALL_FACE_X - depth / 2, y, z], color };
 }
 
 /**
@@ -139,6 +169,34 @@ const PENNANT = [
   backWall(4.3, 4.05, 1.7, 0.12, "navy", 0.06),
 ] as const satisfies readonly DecorBox[];
 
+/**
+ * 앞벽 — 돌려야 보이는 면. 벽이 통째로 비면 "돌려봤자 아무것도 없네"가 되므로
+ * 볼 것을 둔다. 침대 머리맡(x 3.1~6.2) 위가 가장 크게 비어 있다.
+ */
+const FRONT_WALL_DECOR = [
+  frontWall(4.6, 3.2, 1.4, 1.8, "bone"),
+  frontWall(4.6, 3.2, 1.28, 1.68, "storm", 0.06),
+  frontWall(4.6, 2.84, 1.06, 0.16, "bone", 0.08),
+  // 옷걸이 못 세 개와 걸린 옷 한 벌
+  frontWall(-1.4, 2.4, 1.5, 0.12, "dusk"),
+  frontWall(-1.85, 2.32, 0.1, 0.14, "bone", 0.06),
+  frontWall(-1.4, 2.32, 0.1, 0.14, "bone", 0.06),
+  frontWall(-0.95, 2.32, 0.1, 0.14, "bone", 0.06),
+  frontWall(-1.4, 1.72, 0.72, 1.06, "navy", 0.09),
+  frontWall(1.6, 1.9, 0.85, 1.1, "dusk"),
+] as const satisfies readonly DecorBox[];
+
+/**
+ * 오른쪽 벽 — 침대 머리 쪽. 야구 스코어보드를 흉내 낸 판과 빛바랜 자국.
+ */
+const RIGHT_WALL_DECOR = [
+  rightWall(2.4, 3.05, 2.0, 1.15, "bone"),
+  rightWall(2.4, 3.05, 1.86, 1.01, "navy", 0.06),
+  rightWall(2.4, 3.28, 1.6, 0.14, "bone", 0.08),
+  rightWall(2.4, 2.9, 1.6, 0.14, "bone", 0.08),
+  rightWall(-1.5, 2.5, 1.0, 1.3, "dusk"),
+] as const satisfies readonly DecorBox[];
+
 /** 문 옆 전등 스위치와 걸레받이 위 콘센트. 손 닿는 높이에 있어야 방처럼 보인다. */
 const WALL_FITTINGS = [
   leftWall(4.15, 1.72, 0.2, 0.3, "bone", 0.05),
@@ -209,6 +267,14 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
       <DecorBoxes parts={PHOTO_STRIP} palette={palette} />
       <DecorBoxes parts={PENNANT} palette={palette} />
       <DecorBoxes parts={WALL_FITTINGS} palette={palette} />
+
+      {/* 돌려야 드러나는 두 면. 벽과 함께 스러져야 하므로 반드시 CulledWall 안이다 */}
+      <CulledWall side="front">
+        <DecorBoxes parts={FRONT_WALL_DECOR} palette={palette} />
+      </CulledWall>
+      <CulledWall side="right">
+        <DecorBoxes parts={RIGHT_WALL_DECOR} palette={palette} />
+      </CulledWall>
 
       {/* 뒷벽 선반 위 — 트로피와 꽂아둔 책 */}
       <Trophy palette={palette} position={[3.72, BACK_SHELF_TOP_Y, -3.66]} />
