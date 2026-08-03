@@ -116,6 +116,9 @@ const WINDOW_FRAME = [
   { size: [0.1, 2.48, 0.13], position: [0, 0, 0.02] },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
+/** 문짝이 도는 축 — 왼쪽 문틀 안쪽. */
+const DOOR_HINGE_X = 0.73;
+
 const DOOR_FRAME = [
   { size: [0.18, 3.62, 0.18], position: [-0.82, 0.09, 0] },
   { size: [0.18, 3.62, 0.18], position: [0.82, 0.09, 0] },
@@ -157,10 +160,13 @@ const FLOOR_RIM = [
 export function RoomShell({
   palette,
   doorReady,
+  doorOpen,
   outsideDecay,
 }: {
   palette: RoomPalette;
   doorReady: boolean;
+  /** 배트를 쥐었는가 — 문이 열린다. */
+  doorOpen: boolean;
   /** 창밖이 얼마나 무너져 보이는지 (0=평범한 야경, 1=사태 이후). */
   outsideDecay: number;
 }) {
@@ -196,18 +202,23 @@ export function RoomShell({
       </group>
 
       <group position={ROOM_DOOR_POSITION} rotation={ROOM_DOOR_ROTATION}>
-        <ShellBox
-          size={[1.45, 3.4, 0.12]}
-          position={[0, 0, 0]}
-          color={doorReady ? palette.memory : palette.navy}
-          castShadow
-          emissive={palette.memory}
-          emissiveIntensity={doorReady ? 0.65 : 0}
-        />
+        {/* 문짝만 경첩(왼쪽 문틀)을 축으로 열린다. 문틀·손잡이는 제자리에 남는다. */}
+        <group position={[-DOOR_HINGE_X, 0, 0]} rotation={[0, doorOpen ? -1.15 : 0, 0]}>
+          <group position={[DOOR_HINGE_X, 0, 0]}>
+            <ShellBox
+              size={[1.45, 3.4, 0.12]}
+              position={[0, 0, 0]}
+              color={doorReady ? palette.memory : palette.navy}
+              castShadow
+              emissive={palette.memory}
+              emissiveIntensity={doorReady ? 0.65 : 0}
+            />
+            <ShellBox size={[0.11, 0.11, 0.1]} position={[0.48, 0, 0.1]} color={palette.ember} />
+          </group>
+        </group>
         {DOOR_FRAME.map((part) => (
           <ShellBox key={part.position.join(":")} {...part} color={palette.ink} castShadow />
         ))}
-        <ShellBox size={[0.11, 0.11, 0.1]} position={[0.48, 0, 0.1]} color={palette.ember} />
         {/* 문틈으로 새는 빛 — 문 밖에도 뭔가 있다는 유일한 단서다. doorReady 금빛과
             헷갈리지 않게 세기를 낮게 잡는다. */}
         <ShellBox

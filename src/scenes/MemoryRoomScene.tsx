@@ -23,6 +23,7 @@ import type { MovementAxes } from "@/types/movement";
 import { CameraRig } from "./memory-room/CameraRig";
 import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
+import { EndingTrigger } from "./memory-room/EndingTrigger";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
 import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
 import { Player } from "./memory-room/Player";
@@ -146,6 +147,7 @@ export function MemoryRoomScene({
 }) {
   const palette = useMemo(resolveRoomPalette, []);
   const isEndingReady = useMemoryRoomStore(selectEndingReady);
+  const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   const gamePhase = useMemoryRoomStore(gamePhaseOf);
   const collectedCount = useMemoryRoomStore(selectCollectedCount);
   const revisitedCount = useMemoryRoomStore(selectRevisitedCount);
@@ -167,6 +169,7 @@ export function MemoryRoomScene({
       <RoomShell
         palette={palette}
         doorReady={isEndingReady}
+        doorOpen={endingStarted}
         outsideDecay={outsideDecay({
           collected: collectedCount,
           memoryTotal: MEMORY_TOTAL,
@@ -182,6 +185,8 @@ export function MemoryRoomScene({
           onCurtainRelease={onCurtainRelease}
         />
         <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
+        {/* 문 옆 배트 — 수집 대상이 아니라 2바퀴를 다 돌면 켜지는 엔딩 트리거 */}
+        <EndingTrigger palette={palette} />
       </MemoryGlowRoot>
       {/* 글로우 루트 밖 — 빛·먼지는 아웃라인 선택 대상이 아니다 */}
       <WindowLight
@@ -195,7 +200,12 @@ export function MemoryRoomScene({
         opacity={curtainsOpen ? roomLightValue(ROOM_LIGHT_RAMP.dust, lightLevel) : 0}
       />
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
-      <CameraRig focusMemoryId={focusMemoryId} roomZoom={roomZoom} orbitAzimuth={orbitAzimuth} />
+      {/* 배트를 쥐면 카메라도 문 쪽으로 붙는다 — 엔딩 영상의 첫 컷과 이어지는 구도 */}
+      <CameraRig
+        focusId={endingStarted ? "ending" : focusMemoryId}
+        roomZoom={roomZoom}
+        orbitAzimuth={orbitAzimuth}
+      />
     </>
   );
 }

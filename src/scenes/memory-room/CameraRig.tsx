@@ -13,12 +13,15 @@ const orbitOffset = new Vector3();
 const ORBIT_AXIS = new Vector3(0, 1, 0);
 const roomTarget = CAMERA_PRESETS.room.target;
 
+/** 카메라가 붙을 수 있는 대상 — 기억 오브젝트와 엔딩(문 옆 배트). */
+export type CameraFocusId = MemoryId | "ending";
+
 export function CameraRig({
-  focusMemoryId,
+  focusId,
   roomZoom,
   orbitAzimuth,
 }: {
-  focusMemoryId: MemoryId | null;
+  focusId: CameraFocusId | null;
   roomZoom: number;
   orbitAzimuth: number;
 }) {
@@ -27,9 +30,9 @@ export function CameraRig({
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     [],
   );
-  const preset = CAMERA_PRESETS[focusMemoryId ?? "room"];
+  const preset = CAMERA_PRESETS[focusId ?? "room"];
   const lambda = reducedMotion ? 18 : 7;
-  const zoomGoal = focusZoomFor(roomZoom, focusMemoryId !== null);
+  const zoomGoal = focusZoomFor(roomZoom, focusId !== null);
 
   useFrame(({ camera }, delta) => {
     cameraTargetGoal.set(preset.target[0], preset.target[1], preset.target[2]);

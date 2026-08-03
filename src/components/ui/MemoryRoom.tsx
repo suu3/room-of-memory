@@ -21,6 +21,7 @@ import {
 import { CharacterSheetModal } from "./CharacterSheetModal";
 import { ContactModal } from "./ContactModal";
 import { DialogueBox } from "./DialogueBox";
+import { EndingScreen } from "./EndingScreen";
 import { HudMenu } from "./HudMenu";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { MemoryPanel } from "./MemoryPanel";
@@ -58,6 +59,7 @@ export function MemoryRoom() {
   });
   const stage = ROOM_STAGES[roomStageIndex(lightLevel, phase)];
   const isEndingReady = useMemoryRoomStore(selectEndingReady);
+  const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 타이틀 화면이 떠 있는 동안에는 인게임 HUD를 아예 렌더하지 않는다 — 블러 너머로 비친다.
   const started = useMemoryRoomStore((state) => state.started);
 
@@ -66,16 +68,15 @@ export function MemoryRoom() {
       {/* 플레이 가능한 3D 방 */}
       <RoomCanvas />
 
-      {/* 문 — 기억을 모두 모으면 열린다. 아직 장식 요소라 핫스팟 클릭을 가로채지 않게 한다 */}
-      {isEndingReady ? (
-        <div className="pointer-events-none absolute bottom-[16%] left-[4.5%] z-10 flex flex-col items-center gap-2.5 opacity-100 transition-all duration-1000">
-          <div className="relative h-40 w-18 rounded-t-sm border-2 border-memory bg-memory/15 shadow-door-glow transition-colors duration-1000">
-            <span aria-hidden className="absolute right-2 top-18 size-2 rounded-full bg-memory" />
-          </div>
-          <span className="rounded-full border border-memory bg-memory px-3 py-1 text-xs font-bold tracking-widest text-scene-navy transition-colors duration-1000">
-            {t("door.exit")}
-          </span>
-        </div>
+      {/*
+        문은 이제 씬 안의 진짜 문이다 (RoomShell). 화면 구석에 고정된 DOM 문을 같이
+        그리면 카메라를 돌릴 때 벽 밖에 문이 하나 더 떠 있는 꼴이라 뺐다 — 대신
+        준비가 되면 문 옆 배트가 금빛으로 켜지고, 그걸 쥐는 게 엔딩 입구다.
+      */}
+      {isEndingReady && !endingStarted ? (
+        <p className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.3em] text-memory/80">
+          {t("door.ready")}
+        </p>
       ) : null}
 
       {/* 비네트 + 필름 그레인 */}
@@ -142,6 +143,9 @@ export function MemoryRoom() {
           <MinigameHost />
         </>
       )}
+
+      {/* 배트를 쥔 뒤 — 문이 열리는 걸 보여주고 나서 화면을 덮는다 */}
+      <EndingScreen />
 
       {/* 씬(z-0) < 대사(z-10) < HUD·모달(z-30) < 타이틀(z-40) — 시작 전에는 전부 덮는다 */}
       <TitleScreen />

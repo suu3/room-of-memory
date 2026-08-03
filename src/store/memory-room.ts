@@ -5,7 +5,13 @@ import type { MinigameResult } from "@/types/minigame";
 export type GamePhase = 1 | 2;
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
-export type UiLockId = "hud-menu" | "memory-panel" | "character-sheet" | "title" | "contact";
+export type UiLockId =
+  | "hud-menu"
+  | "memory-panel"
+  | "character-sheet"
+  | "title"
+  | "contact"
+  | "ending";
 
 export interface ActiveInteraction {
   memoryId: MemoryId;
@@ -40,6 +46,8 @@ interface MemoryRoomState {
   resetRevision: number;
   /** 효과음 음소거. 리셋해도 유지된다 — 언어 설정과 같은 성격의 환경설정이다. */
   soundMuted: boolean;
+  /** 문 옆 배트를 쥐었는가. 2바퀴를 다 돌아야 쥘 수 있고, 쥐면 문이 열린다. */
+  endingStarted: boolean;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   finishMinigame: (result: MinigameResult) => void;
@@ -52,6 +60,8 @@ interface MemoryRoomState {
   setContactOpen: (open: boolean) => void;
   startGame: () => void;
   setSoundMuted: (muted: boolean) => void;
+  /** 엔딩 시작 — 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
+  startEnding: () => void;
   reset: () => void;
 }
 
@@ -118,6 +128,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   started: false,
   resetRevision: 0,
   soundMuted: false,
+  endingStarted: false,
   beginInteraction: (id) =>
     set((state) => {
       if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
@@ -219,6 +230,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   setContactOpen: (open) => set({ contactOpen: open }),
   startGame: () => set({ started: true }),
   setSoundMuted: (muted) => set({ soundMuted: muted }),
+  startEnding: () => set((state) => (selectEndingReady(state) ? { endingStarted: true } : state)),
   reset: () =>
     set((state) => ({
       collected: [],
@@ -228,6 +240,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
       characterSheetOpen: false,
       contactOpen: false,
       started: false,
+      endingStarted: false,
       resetRevision: state.resetRevision + 1,
     })),
 }));
