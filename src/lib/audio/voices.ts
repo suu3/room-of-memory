@@ -11,6 +11,7 @@ export type VoiceId =
   | "select"
   | "collect"
   | "flip"
+  | "wipe"
   | "deny"
   | "success"
   | "fail"
@@ -36,52 +37,82 @@ export interface Tone {
 export interface Voice {
   tones: Tone[];
   /** 짧은 노이즈 버스트 — 종이 넘김·먼지 같은 마찰음에 쓴다. */
-  noise?: { delay: number; duration: number; gain: number; highpass: number };
+  noise?: {
+    delay: number;
+    duration: number;
+    gain: number;
+    highpass: number;
+    /** 위쪽을 잘라내면 밝은 "쉭" 대신 둔한 "쓱"이 된다. 없으면 안 자른다. */
+    lowpass?: number;
+    /** 최대 음량까지 올라가는 시간(초). 기본값은 즉발에 가깝다. */
+    attack?: number;
+  };
 }
 
-/** 음이름 대신 쓰는 값들. 오단조 5음계라 어떤 순서로 울려도 부딪히지 않는다. */
+/**
+ * 음이름 대신 쓰는 값들. 라단조 5음계라 어떤 순서로 울려도 부딪히지 않는다.
+ *
+ * 원래는 한 옥타브 위(C5~C6)의 다장조였는데, 그 음역의 삼각파 아르페지오는
+ * 아무리 짧게 잘라도 "코인 먹는 소리"로 들렸다 — 재난 뒤 빈방을 도는 게임의
+ * 톤과 정면으로 어긋난다. 옥타브를 내리고 장3도를 뺐다.
+ */
+const A3 = 220;
+const D4 = 293.66;
+const E4 = 329.63;
 const A4 = 440;
 const C5 = 523.25;
 const D5 = 587.33;
-const E5 = 659.25;
-const G5 = 783.99;
-const A5 = 880;
-const C6 = 1046.5;
 
-function pluck(frequency: number, delay: number, gain = 0.5): Tone {
-  return { from: frequency, waveform: "triangle", delay, duration: 0.16, gain };
+/**
+ * 삼각파는 배음이 많아 밝고 장난감처럼 들린다. 사인파로 바꾸고 꼬리를 늘려
+ * 튕기는 소리가 아니라 울리다 잦아드는 소리로 만든다.
+ */
+function pluck(frequency: number, delay: number, gain = 0.34): Tone {
+  return { from: frequency, waveform: "sine", delay, duration: 0.26, gain };
 }
 
 export const VOICES: Record<VoiceId, Voice> = {
   /** 호버 — 있는 듯 없는 듯. 계속 울리는 소리라 제일 작다. */
   hover: {
-    tones: [{ from: G5, waveform: "sine", delay: 0, duration: 0.07, gain: 0.16 }],
+    tones: [{ from: E4, waveform: "sine", delay: 0, duration: 0.07, gain: 0.1 }],
   },
-  /** 클릭/조사 시작. */
+  /** 클릭/조사 시작. 올라가면 들뜨므로 내려가는 글라이드로 둔다. */
   select: {
-    tones: [{ from: D5, to: A5, waveform: "triangle", delay: 0, duration: 0.11, gain: 0.42 }],
+    tones: [{ from: A4, to: E4, waveform: "sine", delay: 0, duration: 0.13, gain: 0.3 }],
   },
-  /** 기억 수집 — 이 게임에서 제일 기분 좋아야 하는 소리라 3음 아르페지오. */
+  /**
+   * 기억 수집. 이 게임에서 되찾는 건 좋기만 한 기억이 아니라서 밝게 해소하지
+   * 않는다 — 5도로 올라갔다 4도에 걸쳐 두면 "찾았다"까지만 말하고 멈춘다.
+   */
   collect: {
-    tones: [pluck(C5, 0), pluck(E5, 0.07), pluck(G5, 0.14), pluck(C6, 0.21, 0.4)],
+    tones: [pluck(D4, 0), pluck(A4, 0.09), pluck(C5, 0.18, 0.3)],
   },
   /** 종이 넘김 — 톤보다 노이즈가 본체다. */
   flip: {
     tones: [{ from: 320, to: 190, waveform: "sine", delay: 0, duration: 0.09, gain: 0.14 }],
     noise: { delay: 0, duration: 0.13, gain: 0.3, highpass: 1800 },
   },
+  /**
+   * 헝겊으로 유리를 문지르는 소리. flip과 같은 노이즈 기반이지만 성격이 반대다 —
+   * 종이 넘김은 짧고 밝게 튀고(highpass 1800, 즉발), 닦기는 대역을 좁혀 둔하게 만든 뒤
+   * 천천히 부풀렸다 사그라든다. 톤은 손이 유리에 닿는 몸통만 아주 작게 깐다.
+   */
+  wipe: {
+    tones: [{ from: 220, to: 180, waveform: "sine", delay: 0, duration: 0.2, gain: 0.08 }],
+    noise: { delay: 0, duration: 0.3, gain: 0.26, highpass: 600, lowpass: 3200, attack: 0.09 },
+  },
   /** 안 되는 걸 눌렀을 때. 낮게 한 번. */
   deny: {
     tones: [{ from: 196, to: 165, waveform: "square", delay: 0, duration: 0.12, gain: 0.18 }],
   },
-  /** 미니게임 성공. */
+  /** 미니게임 성공. 수집(collect)보다 한 음 더 가되 팡파르가 되지는 않는다. */
   success: {
-    tones: [pluck(E5, 0), pluck(G5, 0.08), pluck(C6, 0.16, 0.45), pluck(A5, 0.3, 0.28)],
+    tones: [pluck(A3, 0), pluck(E4, 0.09), pluck(A4, 0.18), pluck(D5, 0.3, 0.26)],
   },
   /** 미니게임 실패 — 벌 주는 소리가 아니라 가라앉는 소리로. */
   fail: {
     tones: [
-      { from: A4, to: 220, waveform: "triangle", delay: 0, duration: 0.34, gain: 0.3 },
+      { from: A4, to: A3, waveform: "triangle", delay: 0, duration: 0.34, gain: 0.3 },
       { from: 330, to: 165, waveform: "sine", delay: 0.06, duration: 0.34, gain: 0.2 },
     ],
   },

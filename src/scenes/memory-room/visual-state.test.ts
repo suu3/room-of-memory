@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ENTRY_LIGHT_LEVEL,
+  lampScaled,
   outsideDecay,
   ROOM_LIGHT_RAMP,
   ROOM_LIGHTING,
@@ -60,6 +61,15 @@ describe("memory-room visual state", () => {
     expect(roomStageIndex(1, 1)).toBeLessThan(2);
     expect(roomStageIndex(ENTRY_LIGHT_LEVEL, 1)).toBeLessThan(2);
     expect(roomStageIndex(1, 2)).toBe(2);
+  });
+
+  it("dims the room when the wall switch is off, without blacking it out", () => {
+    // 완전히 0이면 스위치를 다시 누를 수조차 없다
+    expect(lampScaled(1, false)).toBeGreaterThan(0);
+    expect(lampScaled(1, false)).toBeLessThan(lampScaled(1, true));
+    // 켜져 있을 때는 아무것도 건드리지 않는다 — 기존 밝기가 그대로여야 한다
+    expect(lampScaled(0.62, true)).toBe(0.62);
+    expect(lampScaled(0, false)).toBe(0);
   });
 
   it("램프는 밝기를 따라 보간되고 양 끝을 넘지 않는다", () => {

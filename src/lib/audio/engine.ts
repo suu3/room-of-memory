@@ -69,21 +69,33 @@ function scheduleVoice(ctx: AudioContext, output: GainNode, voice: Voice, startA
   }
 
   if (!voice.noise) return;
-  const { delay, duration, gain: noiseGain, highpass } = voice.noise;
+  const { delay, duration, gain: noiseGain, highpass, lowpass, attack = 0.01 } = voice.noise;
   const source = ctx.createBufferSource();
-  const filter = ctx.createBiquadFilter();
+  const highpassFilter = ctx.createBiquadFilter();
   const gain = ctx.createGain();
   const begin = startAt + delay;
   const end = begin + duration;
 
   source.buffer = getNoiseBuffer(ctx);
-  filter.type = "highpass";
-  filter.frequency.value = highpass;
+  highpassFilter.type = "highpass";
+  highpassFilter.frequency.value = highpass;
+
+  // 위아래를 다 자르면 대역이 좁아져 마찰의 재질이 바뀐다 (종이 → 헝겊).
+  let tail: AudioNode = highpassFilter;
+  if (lowpass !== undefined) {
+    const lowpassFilter = ctx.createBiquadFilter();
+    lowpassFilter.type = "lowpass";
+    lowpassFilter.frequency.value = lowpass;
+    tail = tail.connect(lowpassFilter);
+  }
+
+  // 어택이 길면 "툭" 튀지 않고 부풀어 오른다. 감쇠 구간을 먹지 않게 절반으로 제한.
   gain.gain.setValueAtTime(0.0001, begin);
-  gain.gain.exponentialRampToValueAtTime(noiseGain, begin + 0.01);
+  gain.gain.exponentialRampToValueAtTime(noiseGain, begin + Math.min(attack, duration / 2));
   gain.gain.exponentialRampToValueAtTime(0.0001, end);
 
-  source.connect(filter).connect(gain).connect(output);
+  source.connect(highpassFilter);
+  tail.connect(gain).connect(output);
   source.start(begin);
   source.stop(end + 0.02);
 }
@@ -103,6 +115,17 @@ export function playSound(id: VoiceId) {
 
   const voice = VOICES[id];
   scheduleVoice(ctx, master, voice, now + 0.001);
+}
+
+/**
+ * BGM 레이어(music.ts)가 효과음과 같은 컨텍스트·마스터 버스에 붙기 위한 통로.
+ * 버스를 공유해야 음소거·전체 음량이 한 번에 걸린다.
+ */
+export function audioGraph(): { context: AudioContext; master: GainNode } | null {
+  const ctx = ensureContext();
+  if (!ctx || !master) return null;
+  if (ctx.state === "suspended") void ctx.resume();
+  return { context: ctx, master };
 }
 
 /** 첫 사용자 제스처에서 부른다 — 이후 재생이 정책에 막히지 않는다. */

@@ -93,7 +93,10 @@ export interface RoomStage {
   vignetteOpacity: number;
 }
 
-/** 수집 개수 0~2 / 3~4 / 5~6에 대응하는 방의 밝기 3단계 */
+/**
+ * 배경 그라디언트 3단계. 어느 단계를 쓸지는 밝기(0~1)와 바퀴 수가 정하며,
+ * 그 판단은 `roomStageIndex`(src/scenes/memory-room/visual-state.ts)가 한다.
+ */
 export const ROOM_STAGES: RoomStage[] = [
   {
     id: "dark",
@@ -120,12 +123,6 @@ export const ROOM_STAGES: RoomStage[] = [
     vignetteOpacity: 0.3,
   },
 ];
-
-export function stageIndexFromCount(count: number): number {
-  if (count <= 2) return 0;
-  if (count <= 4) return 1;
-  return 2;
-}
 
 export const MEMORY_BY_ID = Object.fromEntries(
   MEMORIES.map((memory) => [memory.id, memory]),

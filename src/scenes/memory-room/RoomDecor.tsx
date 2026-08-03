@@ -197,10 +197,13 @@ const RIGHT_WALL_DECOR = [
   rightWall(-1.5, 2.5, 1.0, 1.3, "dusk"),
 ] as const satisfies readonly DecorBox[];
 
-/** 문 옆 전등 스위치와 걸레받이 위 콘센트. 손 닿는 높이에 있어야 방처럼 보인다. */
+/**
+ * 걸레받이 위 콘센트. 손 닿는 높이에 있어야 방처럼 보인다.
+ *
+ * 전등 스위치도 원래 여기 장식으로 있었지만, 실제로 눌리는 물건이 되면서
+ * LightSwitch(RoomShell의 왼벽)로 옮겨갔다 — 여기 두면 둘이 겹쳐 두 개가 된다.
+ */
 const WALL_FITTINGS = [
-  leftWall(4.15, 1.72, 0.2, 0.3, "bone", 0.05),
-  leftWall(4.15, 1.72, 0.1, 0.14, "paper", 0.07),
   leftWall(-3.05, 0.44, 0.22, 0.16, "bone", 0.05),
 ] as const satisfies readonly DecorBox[];
 

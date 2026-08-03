@@ -73,6 +73,21 @@ export const BAT_PLACEMENT = {
   interactionRadius: 1.35,
 } as const satisfies Omit<MemoryPlacement, "id">;
 
+/**
+ * 문 쪽 왼벽에 붙은 조명 스위치. 기억도 트리거도 아닌 배경 오브젝트다 —
+ * 진행에는 아무 영향이 없고 방의 불만 끄고 켠다 (docs/content-design.md 4-2).
+ *
+ * 좌표는 RoomDecor가 장식으로 그리던 자리를 그대로 물려받았다 (왼벽 안쪽 면
+ * x=-5.91 + 판 두께의 절반). 장식과 실물을 둘 다 두면 스위치가 두 개로 보인다.
+ */
+export const LIGHT_SWITCH_PLACEMENT = {
+  position: [-5.885, 1.72, 4.15],
+  rotation: [0, Math.PI / 2, 0],
+  /** 판/토글 크기도 장식이 쓰던 값 그대로 — [폭(z), 높이(y), 두께(x)]. */
+  plateSize: [0.2, 0.3, 0.05],
+  rockerSize: [0.1, 0.14, 0.03],
+} as const;
+
 export const MEMORY_PLACEMENTS = {
   console: {
     id: "console",

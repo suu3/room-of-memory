@@ -3,8 +3,9 @@
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL, ROOM_STAGES } from "@/data/memory-room";
-import { useAudioRuntime } from "@/lib/audio";
+import { useAudioRuntime, useRoomMusic } from "@/lib/audio";
 import {
+  lampScaled,
   ROOM_LIGHT_RAMP,
   roomLightLevel,
   roomLightValue,
@@ -16,6 +17,7 @@ import {
   selectCollected,
   selectEndingReady,
   selectRevisitedCount,
+  selectSceneInputLocked,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { CharacterSheetModal } from "./CharacterSheetModal";
@@ -62,6 +64,13 @@ export function MemoryRoom() {
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 타이틀 화면이 떠 있는 동안에는 인게임 HUD를 아예 렌더하지 않는다 — 블러 너머로 비친다.
   const started = useMemoryRoomStore((state) => state.started);
+  // BGM은 밝기와 같은 값을 먹는다 — 방이 어두워지면 곡도 벽 너머로 물러난다.
+  // 인터랙션 중에는 눌러둔다: 미니게임은 효과음이, 대사는 글이 주인공이다.
+  const interacting = useMemoryRoomStore(selectSceneInputLocked);
+  const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
+  // 불을 끄면 곡도 같이 물러난다 — 밝기와 음색을 한 축으로 묶어 둔 이득이다
+  const heardLevel = lampScaled(lightLevel, lightsOn);
+  useRoomMusic({ playing: started && !endingStarted, level: heardLevel, ducked: interacting });
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-night">
@@ -84,7 +93,7 @@ export function MemoryRoom() {
         aria-hidden
         className="pointer-events-none absolute inset-0 transition-opacity duration-1000"
         style={{
-          opacity: roomLightValue(ROOM_LIGHT_RAMP.vignette, lightLevel),
+          opacity: roomLightValue(ROOM_LIGHT_RAMP.vignette, heardLevel),
           background:
             "radial-gradient(115% 90% at 50% 42%, transparent 44%, color-mix(in srgb, var(--color-scene-void) 75%, transparent) 100%)",
         }}

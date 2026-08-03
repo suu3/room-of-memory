@@ -1,5 +1,6 @@
 import type {} from "@react-three/fiber";
 import { CulledWall } from "./CulledWall";
+import { LightSwitch } from "./LightSwitch";
 import {
   ROOM_DOOR_POSITION,
   ROOM_DOOR_ROTATION,
@@ -250,6 +251,8 @@ export function RoomShell({
 
       <CulledWall side="left">
         <ShellBox {...LEFT_WALL_UPPER} color={palette.slate} receiveShadow />
+        {/* 벽에 붙은 물건이라 벽과 함께 스러져야 한다 — 밖에 두면 허공에 뜬다 */}
+        <LightSwitch palette={palette} />
       </CulledWall>
       <CulledWall side="front">
         <ShellBox {...FRONT_WALL_UPPER} color={palette.slate} receiveShadow />

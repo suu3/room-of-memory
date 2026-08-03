@@ -32,6 +32,7 @@ import { RoomDecor } from "./memory-room/RoomDecor";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
 import {
+  lampScaled,
   outsideDecay,
   ROOM_LIGHT_RAMP,
   ROOM_LIGHTING,
@@ -42,12 +43,15 @@ import { WindowLight } from "./memory-room/WindowLight";
 
 function StageLighting({
   lightLevel,
+  lightsOn,
   memoryColor,
   fillColor,
   groundColor,
 }: {
   /** 0=바닥, 1=완성. 1바퀴는 깎이고 2바퀴는 채워진다. */
   lightLevel: number;
+  /** 벽의 전등 스위치. 꺼도 창으로 드는 빛은 남는다. */
+  lightsOn: boolean;
   memoryColor: string;
   fillColor: string;
   groundColor: string;
@@ -63,15 +67,16 @@ function StageLighting({
     const windowGlow = windowGlowRef.current;
     if (!ambient || !key || !windowGlow) return;
 
+    // 전등이 만드는 두 빛만 스위치를 탄다 — 창으로 드는 빛(windowGlow)은 그대로다
     ambient.intensity = MathUtils.damp(
       ambient.intensity,
-      roomLightValue(ROOM_LIGHT_RAMP.ambient, lightLevel),
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.ambient, lightLevel), lightsOn),
       4,
       delta,
     );
     key.intensity = MathUtils.damp(
       key.intensity,
-      roomLightValue(ROOM_LIGHT_RAMP.key, lightLevel),
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.key, lightLevel), lightsOn),
       4,
       delta,
     );
@@ -155,6 +160,7 @@ export function MemoryRoomScene({
   const gamePhase = useMemoryRoomStore(gamePhaseOf);
   const collectedCount = useMemoryRoomStore(selectCollectedCount);
   const revisitedCount = useMemoryRoomStore(selectRevisitedCount);
+  const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
   const lightLevel = roomLightLevel({
     collected: collectedCount,
     memoryTotal: MEMORY_TOTAL,
@@ -166,6 +172,7 @@ export function MemoryRoomScene({
     <>
       <StageLighting
         lightLevel={lightLevel}
+        lightsOn={lightsOn}
         memoryColor={palette.memory}
         fillColor={palette.paper}
         groundColor={palette.deep}

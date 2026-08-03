@@ -43,4 +43,11 @@ export const ASSETS = {
     characterHeroSurprised: "/assets/images/character-hero-surprised.webp",
     characterHeroSheet: "/assets/images/character-hero-sheet.webp",
   },
+  bgm: {
+    /**
+     * 방 전체를 관통하는 단 하나의 곡. V자 감정선을 곡 교체가 아니라 로우패스로
+     * 표현한다 — 1바퀴에서 닫히고 2바퀴에서 열린다 (docs/content-design.md 3장).
+     */
+    room: "/assets/audio/bgm/bgm-room-winter-morning.ogg",
+  },
 } as const;

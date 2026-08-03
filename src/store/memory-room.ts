@@ -46,6 +46,11 @@ interface MemoryRoomState {
   resetRevision: number;
   /** 효과음 음소거. 리셋해도 유지된다 — 언어 설정과 같은 성격의 환경설정이다. */
   soundMuted: boolean;
+  /**
+   * 방의 전등. 진행과 무관한 배경 오브젝트라 수집·엔딩 조건에 전혀 끼지 않는다 —
+   * 순전히 플레이어가 방을 만질 수 있다는 감각을 위한 스위치다.
+   */
+  lightsOn: boolean;
   /** 문 옆 배트를 쥐었는가. 2바퀴를 다 돌아야 쥘 수 있고, 쥐면 문이 열린다. */
   endingStarted: boolean;
   beginInteraction: (id: MemoryId) => void;
@@ -60,6 +65,7 @@ interface MemoryRoomState {
   setContactOpen: (open: boolean) => void;
   startGame: () => void;
   setSoundMuted: (muted: boolean) => void;
+  toggleLights: () => void;
   /** 엔딩 시작 — 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
   startEnding: () => void;
   reset: () => void;
@@ -128,6 +134,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   started: false,
   resetRevision: 0,
   soundMuted: false,
+  lightsOn: true,
   endingStarted: false,
   beginInteraction: (id) =>
     set((state) => {
@@ -230,6 +237,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
   setContactOpen: (open) => set({ contactOpen: open }),
   startGame: () => set({ started: true }),
   setSoundMuted: (muted) => set({ soundMuted: muted }),
+  toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),
   startEnding: () => set((state) => (selectEndingReady(state) ? { endingStarted: true } : state)),
   reset: () =>
     set((state) => ({
@@ -240,6 +248,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
       characterSheetOpen: false,
       contactOpen: false,
       started: false,
+      lightsOn: true,
       endingStarted: false,
       resetRevision: state.resetRevision + 1,
     })),

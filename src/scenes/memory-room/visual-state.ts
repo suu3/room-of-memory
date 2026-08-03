@@ -64,6 +64,20 @@ export function roomLightLevel({
   return revisitTotal <= 0 ? 1 : Math.min(1, revisited / revisitTotal);
 }
 
+/**
+ * 전등을 껐을 때 남기는 비율. 0으로 두면 아무것도 안 보여 스위치를 다시 누를
+ * 수조차 없다 — 커튼 틈으로 드는 빛만큼은 남긴다.
+ */
+export const LIGHTS_OFF_FACTOR = 0.26;
+
+/**
+ * 전등 스위치를 반영한다. 방 안의 빛(ambient·key)과 여기에 물린 BGM·비네트에만
+ * 곱하고, 창으로 드는 빛에는 쓰지 않는다 — 밖에서 오는 빛은 방 스위치와 무관하다.
+ */
+export function lampScaled(value: number, lightsOn: boolean): number {
+  return lightsOn ? value : value * LIGHTS_OFF_FACTOR;
+}
+
 /** 램프의 두 끝을 밝기로 보간한다. */
 export function roomLightValue(ramp: readonly [number, number], level: number): number {
   const clamped = Math.min(1, Math.max(0, level));
