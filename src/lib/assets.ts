@@ -32,7 +32,7 @@ export const ASSETS = {
      * 창 좌표는 src/minigames/frequency-tune/index.tsx의 DIAL_WINDOW.
      */
     mgFrequencyTuneFrame: "/assets/images/mg-frequency-tune-frame.webp",
-    /** 커튼을 걷었을 때 보이는 창밖 (524×380). 그날 이후의 도시가 그려져 있다. */
+    /** 커튼을 걷었을 때 보이는 창밖 (1448×1086). 그날 이후의 도시가 그려져 있다. */
     mgWindowViewOutside: "/assets/images/mg-window-view-outside.webp",
     /*
      * 격투 미니게임 스프라이트. 아직 리포에 없어도 된다 — 파일이 없으면

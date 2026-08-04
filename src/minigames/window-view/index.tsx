@@ -32,8 +32,8 @@ export function WindowViewMinigame({ onComplete }: MinigameProps) {
         <img
           src={ASSETS.images.mgWindowViewOutside}
           alt={t("minigame.windowView.title")}
-          width={524}
-          height={380}
+          width={1448}
+          height={1086}
           draggable={false}
           className="block h-auto w-full select-none rounded-sm"
         />
