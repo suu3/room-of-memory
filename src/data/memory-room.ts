@@ -45,7 +45,8 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "window",
     icon: GridFour,
-    phase1: {},
+    /** 커튼을 걷으면 그림 한 장 — 미니게임이라기보다 들여다보는 오브젝트다. */
+    phase1: { interaction: { minigameId: "window-view" } },
   },
   {
     id: "frame",

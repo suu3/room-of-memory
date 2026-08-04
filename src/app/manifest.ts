@@ -25,9 +25,9 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "ko",
     categories: ["games", "entertainment"],
     /*
-     * 아이콘은 파비콘과 같은 그림이다 — src/app/favicon.ico의 방 일러스트를 키운 것.
-     * 탭에 보이는 그림과 홈 화면에 놓이는 그림이 다르면 같은 앱으로 안 읽힌다.
-     * 픽셀아트라 확대는 nearest로만 한다(보간하면 뭉갠다). 생성 절차는 CREDITS.md.
+     * 아이콘은 파비콘과 같은 그림(방 일러스트)이다 — 탭에 보이는 그림과 홈 화면에
+     * 놓이는 그림이 다르면 같은 앱으로 안 읽힌다. 1254px 원본에서 축소해 뽑으며,
+     * 확대가 아니라 축소라 면적 평균을 쓴다. 생성 절차는 CREDITS.md.
      *
      * maskable은 런처가 원·스퀴클로 잘라내므로 그림을 중앙 400px 안에 두고
      * 바깥은 night로 채운다 — 잘려 나가는 건 방의 빈 모서리뿐이다.

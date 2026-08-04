@@ -50,6 +50,14 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.fighterDuel.title",
     helpKey: "minigame.fighterDuel.help",
   },
+  "window-view": {
+    id: "window-view",
+    mode: "overlay",
+    presentation: "bare",
+    component: lazy(() => import("./window-view").then((m) => ({ default: m.WindowViewMinigame }))),
+    titleKey: "minigame.windowView.title",
+    helpKey: "minigame.windowView.help",
+  },
   "ball-catch": {
     id: "ball-catch",
     mode: "overlay",
