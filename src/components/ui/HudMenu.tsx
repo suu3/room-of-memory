@@ -1,6 +1,6 @@
 "use client";
 
-import { List, SpeakerSimpleHigh, SpeakerSimpleSlash, Warning, X } from "@phosphor-icons/react";
+import { List, Warning, X } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
@@ -19,8 +19,6 @@ export function HudMenu() {
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const setCharacterSheetOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
   const setContactOpen = useMemoryRoomStore((state) => state.setContactOpen);
-  const soundMuted = useMemoryRoomStore((state) => state.soundMuted);
-  const setSoundMuted = useMemoryRoomStore((state) => state.setSoundMuted);
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -69,24 +67,8 @@ export function HudMenu() {
           <div className="mt-2">
             <LanguageToggle />
           </div>
+          {/* 소리 on/off는 메뉴 밖으로 나갔다 — SoundToggle 참고. */}
           <div className="my-3 h-px bg-ink/10" />
-          <button
-            type="button"
-            aria-pressed={!soundMuted}
-            onClick={() => {
-              // 켤 때만 소리를 낸다 — 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다
-              if (soundMuted) playSound("select");
-              setSoundMuted(!soundMuted);
-            }}
-            className={`${ITEM_CLASS} flex items-center gap-2`}
-          >
-            {soundMuted ? (
-              <SpeakerSimpleSlash size={15} weight="bold" />
-            ) : (
-              <SpeakerSimpleHigh size={15} weight="bold" />
-            )}
-            {t(soundMuted ? "hud.soundOff" : "hud.soundOn")}
-          </button>
           <button
             type="button"
             onClick={() => {

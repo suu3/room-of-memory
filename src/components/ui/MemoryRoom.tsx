@@ -29,6 +29,7 @@ import { LoadingOverlay } from "./LoadingOverlay";
 import { MemoryPanel } from "./MemoryPanel";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
+import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
 
 function CanvasLoading() {
@@ -138,11 +139,24 @@ export function MemoryRoom() {
         </header>
       )}
 
-      {/* HUD 햄버거 메뉴 — 언어 토글 · Contact · 리셋 (사운드 버튼 예정 자리) */}
+      {/* HUD — 햄버거 메뉴(언어 · 캐릭터 시트 · Contact · 리셋)와 소리 on/off */}
       {/* 레이어링 순서: 대사(z-10) < HUD·모달(z-30) < 미니게임(z-40, HUD를 덮는다) < 성공 파티클(z-50) */}
       {started && (
-        <div className="absolute right-6 top-6 z-30">
-          <HudMenu />
+        /*
+         * 가로가 아니라 세로로 쌓는다. 제일 좁은 폰(360px)에서 헤더(기억 진행 바)
+         * 오른쪽 끝과 메뉴 버튼 사이가 48px인데, 버튼 하나(40px)와 간격(8px)을
+         * 나란히 넣으면 딱 48px이라 여백이 0이 된다 — 헤더와 맞닿는다.
+         */
+        <div className="absolute right-6 top-6 z-30 flex flex-col items-end gap-2">
+          {/*
+            메뉴 드롭다운은 햄버거 바로 아래(top-full + mt-2)로 열리는데, 그 자리가
+            소리 버튼 자리와 정확히 겹친다. 메뉴 쪽을 위로 올려 두지 않으면 열린 패널
+            위로 소리 버튼이 뚫고 올라온다.
+          */}
+          <div className="relative z-10">
+            <HudMenu />
+          </div>
+          <SoundToggle />
         </div>
       )}
 
