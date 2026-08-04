@@ -63,107 +63,111 @@ export function TitleScreen() {
 
   return (
     /*
-     * 베일은 방을 가리는 게 아니라 글씨를 읽히게 하는 정도까지만.
-     * bg-scene-void/80 + blur-md는 방을 거의 지워서, 타이틀 화면에 3D를 돌려 두는
-     * 의미가 없었다. 흐림을 줄이고 어둠은 가운데로 모아(radial) 글자 뒤만 눌러 준다.
+     * 바깥은 스크롤 그릇, 안쪽이 실제 레이아웃이다.
      *
-     * pb-16은 푸터(연락처) 자리다. 가운데 정렬이라 이만큼 비워 둬야 화면이 낮을 때
-     * 조작 안내가 연락처 밑으로 파고들지 않는다.
+     * 방(MemoryRoom)이 overflow-hidden이라, 화면이 낮으면 넘친 부분이 스크롤되는 게
+     * 아니라 잘려 나갔다 — 가로로 눕힌 폰(667×375)에서 제목이 화면 위로 42px 잘리고
+     * 조작 안내가 연락처를 덮었다. min-h-full + justify-center면 들어갈 때는 가운데
+     * 정렬 그대로고, 안 들어갈 때만 안쪽이 늘어나며 스크롤이 생긴다.
+     * (justify-center에 직접 overflow를 걸면 넘친 위쪽에 손이 닿지 않는다.)
      */
-    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-10 px-6 pb-16 backdrop-blur-[2px]">
-      {/* 글자 뒤만 눌러 주는 어둠. 방 가장자리는 그대로 드러난다 */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(68% 54% at 50% 46%, color-mix(in srgb, var(--color-scene-void) 88%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 62%, transparent) 55%, color-mix(in srgb, var(--color-scene-void) 34%, transparent) 100%)",
-        }}
-      />
+    <div className="absolute inset-0 z-40 overflow-y-auto overscroll-contain backdrop-blur-[2px]">
+      <div className="relative flex min-h-full flex-col items-center justify-center gap-10 px-6 py-10">
+        {/* 글자 뒤만 눌러 주는 어둠. 방 가장자리는 그대로 드러난다.
+            베일은 방을 가리는 게 아니라 글씨를 읽히게 하는 정도까지만 — 흐림을 줄이고
+            어둠은 가운데로 모아(radial) 글자 뒤만 눌러 준다. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(68% 54% at 50% 46%, color-mix(in srgb, var(--color-scene-void) 88%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 62%, transparent) 55%, color-mix(in srgb, var(--color-scene-void) 34%, transparent) 100%)",
+          }}
+        />
 
-      <div className="relative flex flex-col items-center gap-4 text-center">
-        <p className="font-pixel text-xs tracking-[0.4em] text-memory/80">
-          {t("titleScreen.eyebrow")}
-        </p>
-        <h1 className="text-5xl font-bold tracking-tight text-paper md:text-6xl">{t("title")}</h1>
-        <p className="max-w-sm break-ko text-pretty text-sm leading-relaxed text-bone/60">
-          {t("titleScreen.tagline")}
-        </p>
-      </div>
+        <div className="relative flex flex-col items-center gap-4 text-center">
+          <p className="font-pixel text-xs tracking-[0.4em] text-memory/80">
+            {t("titleScreen.eyebrow")}
+          </p>
+          <h1 className="text-5xl font-bold tracking-tight text-paper md:text-6xl">{t("title")}</h1>
+          <p className="max-w-sm break-ko text-pretty text-sm leading-relaxed text-bone/60">
+            {t("titleScreen.tagline")}
+          </p>
+        </div>
 
-      {/*
-        이 화면에서 눌러야 할 곳은 여기 하나다. 방 안의 기억 핫스팟과 같은 2.4s 호흡으로
-        맥동시켜 "누를 수 있는 것"의 신호를 게임 전체에서 하나로 맞춘다.
-      */}
-      <button
-        ref={startButtonRef}
-        type="button"
-        onClick={() => {
-          playSound("open");
-          setEnteringAtRevision(resetRevision);
-          enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
-        }}
-        className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
-      >
-        {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
-      </button>
-
-      {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
-      {hasSave ? (
-        <p className="relative -mt-5 text-[0.6875rem] font-bold tracking-[0.18em] text-memory/70">
-          {t("titleScreen.saved", { count: collectedCount })}
-        </p>
-      ) : null}
-
-      {/* 짧은 게임이라는 걸 미리 알려주면 진입 문턱이 낮아진다 */}
-      <p className="relative -mt-5 text-[0.6875rem] font-bold tracking-[0.18em] text-bone/40">
-        {t("titleScreen.playtime")}
-      </p>
-
-      {/*
-        무엇을 하는 게임인지 한 줄, 어떻게 조작하는지 한 줄.
-        시작 버튼을 누른 뒤에는 알려줄 자리가 없다 — 방에 들어가면 화면은 씬이 다 쓴다.
-      */}
-      <div className="relative -mt-4 flex max-w-md flex-col items-center gap-2 text-center">
-        <p className="break-ko text-pretty text-sm leading-relaxed text-bone/70">
-          {t("titleScreen.howTo")}
-        </p>
         {/*
-          조작 안내는 "이동"과 "조사" 두 덩어리다. 한 문장으로 이어 두면 좁은 화면에서
-          아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다 — 덩어리째 줄바꿈되도록 flex로 나눈다.
+          이 화면에서 눌러야 할 곳은 여기 하나다. 방 안의 기억 핫스팟과 같은 2.4s 호흡으로
+          맥동시켜 "누를 수 있는 것"의 신호를 게임 전체에서 하나로 맞춘다.
         */}
-        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-[0.6875rem] leading-relaxed tracking-wider text-bone/40">
-          <span className="break-ko text-pretty">{t("titleScreen.howToMove")}</span>
-          <span className="break-ko text-pretty">{t("titleScreen.howToExamine")}</span>
-        </div>
-      </div>
-
-      <div className="relative flex flex-col items-center gap-4">
-        {/* 언어 토글은 종이 패널 위에 놓이도록 설계됐다 — 어두운 배경에 직접 두면 글씨가 안 보인다 */}
-        <div className="rounded-full border border-bone/20 bg-paper px-3 py-2 shadow-chip">
-          <LanguageToggle />
-        </div>
-      </div>
-
-      {/*
-        연락처는 게임을 시작하는 흐름의 일부가 아니라 이 사이트에 대한 정보다 —
-        시작 버튼 바로 아래에 두면 다음 단계처럼 읽힌다. 화면 맨 아래로 내려 푸터로
-        분리하면 "필요하면 찾아가는 곳"이 된다.
-
-        safe-area는 모바일 홈 인디케이터에 글자가 물리지 않게 하기 위한 것.
-      */}
-      <footer
-        className="absolute inset-x-0 bottom-0 flex justify-center px-6"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.25rem)" }}
-      >
         <button
+          ref={startButtonRef}
           type="button"
-          onClick={() => setContactOpen(true)}
-          className="cursor-pointer rounded-sm px-2 py-1 text-xs font-bold tracking-widest text-bone/45 transition-colors hover:text-bone active:text-bone/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+          onClick={() => {
+            playSound("open");
+            setEnteringAtRevision(resetRevision);
+            enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
+          }}
+          className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
         >
-          {t("hud.contact")}
+          {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
         </button>
-      </footer>
+
+        {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
+        {hasSave ? (
+          <p className="relative -mt-5 text-[0.6875rem] font-bold tracking-[0.18em] text-memory/70">
+            {t("titleScreen.saved", { count: collectedCount })}
+          </p>
+        ) : null}
+
+        {/* 짧은 게임이라는 걸 미리 알려주면 진입 문턱이 낮아진다 */}
+        <p className="relative -mt-5 text-[0.6875rem] font-bold tracking-[0.18em] text-bone/40">
+          {t("titleScreen.playtime")}
+        </p>
+
+        {/*
+          무엇을 하는 게임인지 한 줄, 어떻게 조작하는지 한 줄.
+          시작 버튼을 누른 뒤에는 알려줄 자리가 없다 — 방에 들어가면 화면은 씬이 다 쓴다.
+        */}
+        <div className="relative -mt-4 flex max-w-md flex-col items-center gap-2 text-center">
+          <p className="break-ko text-pretty text-sm leading-relaxed text-bone/70">
+            {t("titleScreen.howTo")}
+          </p>
+          {/*
+            조작 안내는 "이동"과 "조사" 두 덩어리다. 한 문장으로 이어 두면 좁은 화면에서
+            아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다 — 덩어리째 줄바꿈되도록 flex로 나눈다.
+          */}
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-[0.6875rem] leading-relaxed tracking-wider text-bone/40">
+            <span className="break-ko text-pretty">{t("titleScreen.howToMove")}</span>
+            <span className="break-ko text-pretty">{t("titleScreen.howToExamine")}</span>
+          </div>
+        </div>
+
+        {/*
+          종이 알약을 깔면 시작 버튼과 재질이 같아져 둘의 위계가 나란해 보인다.
+          어두운 배경 위에 직접 얹는 톤을 따로 둔다 (LanguageToggle의 tone).
+        */}
+        <div className="relative">
+          <LanguageToggle tone="dark" />
+        </div>
+
+        {/*
+          연락처는 게임을 시작하는 흐름의 일부가 아니라 이 사이트에 대한 정보다 —
+          시작 버튼 바로 아래 세로 스택에 있으면 다음 단계처럼 읽힌다. 맨 끝으로 내리고
+          간격을 한 번 더 벌려 "필요하면 찾아가는 곳"으로 떼어 놓는다.
+
+          화면 아래에 붙이지는 않는다. 절대 위치로 고정하면 폰의 주소창이 접혔다 펴질 때
+          기준이 되는 높이가 흔들려 스크롤이 생긴다 — 그냥 흐름의 마지막에 둔다.
+        */}
+        <footer className="relative mt-2">
+          <button
+            type="button"
+            onClick={() => setContactOpen(true)}
+            className="cursor-pointer rounded-sm px-2 py-1 text-xs font-bold tracking-widest text-bone/45 transition-colors hover:text-bone active:text-bone/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+          >
+            {t("hud.contact")}
+          </button>
+        </footer>
+      </div>
     </div>
   );
 }
