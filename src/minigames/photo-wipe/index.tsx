@@ -14,8 +14,12 @@ import { createWipeGrid, wipeCircle } from "./wipe-grid";
 const CLEAR_RATIO = 0.7;
 const TIME_LIMIT_S = 40;
 const SKIP_AFTER_MS = 15_000;
-/** 파티클(rAF)이 멈춘 탭에서도 결과 대사로 넘어가게 하는 하드 폴백. */
-const BURST_FALLBACK_MS = 2_000;
+/**
+ * 파티클(rAF)이 멈춘 탭에서도 결과 대사로 넘어가게 하는 하드 폴백.
+ * SuccessBurst가 스스로 끝나는 시간(2.3초)보다 넉넉히 뒤여야 한다 — 짧으면
+ * 정상적인 탭에서도 폴백이 먼저 터져 빛입자가 다 떠오르기 전에 잘린다.
+ */
+const BURST_FALLBACK_MS = 2_900;
 /** 사진이 커진 만큼 헝겊도 키운다 — 한 번에 닦이는 비율은 그대로. */
 const WIPE_RADIUS = 42;
 /** 격자 한 칸의 목표 크기(px). 사진 비율이 달라도 셀 밀도가 비슷하게 유지된다. */
