@@ -5,7 +5,7 @@
     "memoryCount": "기억",
     "contact": "Contact",
     "reset": "리셋",
-    "characterSheet": "캐릭터 시트",
+    "characterSheet": "내 수첩",
     "soundOn": "소리 켜짐",
     "soundOff": "소리 꺼짐"
   },
@@ -185,8 +185,8 @@
     }
   },
   "characterSheet": {
-    "title": "캐릭터 시트",
-    "close": "캐릭터 시트 닫기",
+    "title": "내 수첩",
+    "close": "수첩 닫기",
     "alt": "주인공 캐릭터 설정 시트",
     "locked": "아직 열리지 않은 항목 — 기억을 더 모으면 드러난다",
     "tabProfile": "프로필",

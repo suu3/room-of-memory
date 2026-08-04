@@ -353,6 +353,53 @@ body {
   transform-origin: 88% 82%;
 }
 
+/*
+ * 수첩 — "내 수첩" 모달의 제본과 종이.
+ *
+ * 이미지 에셋을 쓰지 않는다. 제본 구멍도 모눈도 그라디언트 반복이면 충분하고,
+ * 규칙상 웹 UI 장식은 파일로 커밋하지 않는다 (.claude/rules/assets.md).
+ */
+
+/* 왼쪽 여백에 뚫린 링 제본 구멍. 구멍 안은 씬 색이라 정말 뚫린 것처럼 보인다 */
+.notebook-punch {
+  background-image: radial-gradient(
+    circle at 50% 16px,
+    var(--color-scene-void) 0 5.5px,
+    color-mix(in srgb, var(--color-ink) 28%, transparent) 5.5px 7px,
+    transparent 7.5px
+  );
+  background-size: 100% 34px;
+  background-repeat: repeat-y;
+}
+
+/*
+ * 모눈. 괘선(가로줄)이 아니라 격자로 간 이유는, 괘선은 글줄이 그 위에 앉아야
+ * 말이 되는데 항목마다 줄높이가 달라 어긋나기 때문이다. 격자는 글이 아니라
+ * 종이의 무늬라 어디에 무엇이 놓이든 어긋날 것이 없다.
+ */
+.notebook-grid {
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-ink) 7%, transparent) 0 1px,
+      transparent 1px 24px
+    ),
+    repeating-linear-gradient(
+      to right,
+      color-mix(in srgb, var(--color-ink) 7%, transparent) 0 1px,
+      transparent 1px 24px
+    );
+}
+
+/* 제본 옆으로 지는 접힘 그림자 — 종이가 안쪽으로 말려 들어가는 자리 */
+.notebook-gutter {
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-ink) 14%, transparent) 0%,
+    transparent 100%
+  );
+}
+
 /* 시작 버튼 뒤 후광의 색. 움직임은 --animate-start-glow가 맡는다 */
 .start-glow {
   background: radial-gradient(

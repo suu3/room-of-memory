@@ -5,7 +5,7 @@
     "memoryCount": "記憶",
     "contact": "Contact",
     "reset": "リセット",
-    "characterSheet": "キャラクターシート",
+    "characterSheet": "自分の手帳",
     "soundOn": "サウンド オン",
     "soundOff": "サウンド オフ"
   },
@@ -185,8 +185,8 @@
     }
   },
   "characterSheet": {
-    "title": "キャラクターシート",
-    "close": "キャラクターシートを閉じる",
+    "title": "自分の手帳",
+    "close": "手帳を閉じる",
     "alt": "主人公のキャラクター設定シート",
     "locked": "まだ明かされていない項目 — 記憶を集めると現れる",
     "tabProfile": "プロフィール",

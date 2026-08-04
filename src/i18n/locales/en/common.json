@@ -5,7 +5,7 @@
     "memoryCount": "Memories",
     "contact": "Contact",
     "reset": "Reset",
-    "characterSheet": "Character Sheet",
+    "characterSheet": "My Notebook",
     "soundOn": "Sound on",
     "soundOff": "Sound off"
   },
@@ -185,8 +185,8 @@
     }
   },
   "characterSheet": {
-    "title": "Character Sheet",
-    "close": "Close character sheet",
+    "title": "My Notebook",
+    "close": "Close the notebook",
     "alt": "Character design sheet for the protagonist",
     "locked": "Not yet revealed — gather more memories",
     "tabProfile": "Profile",
