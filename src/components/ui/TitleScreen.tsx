@@ -27,6 +27,12 @@ export function TitleScreen() {
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const setContactOpen = useMemoryRoomStore((state) => state.setContactOpen);
   const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
+  /**
+   * 저장된 진행. localStorage에서 되살아나므로 서버 렌더에는 없고, 첫 클라이언트
+   * 렌더에서 채워진다 — 그래서 "0개면 아무것도 안 보여준다"가 곧 hydration 안전판이다.
+   */
+  const collectedCount = useMemoryRoomStore((state) => state.collected.length);
+  const hasSave = collectedCount > 0;
   const startButtonRef = useRef<HTMLButtonElement>(null);
   const enterTimerRef = useRef<number | null>(null);
   // 눌린 순간 바로 방이 드러나면 전환이 뚝 끊긴다. 로딩 화면을 한 박자 끼워 넣는다.
@@ -92,13 +98,31 @@ export function TitleScreen() {
         }}
         className="relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
       >
-        {t("titleScreen.start")}
+        {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
       </button>
+
+      {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
+      {hasSave ? (
+        <p className="relative -mt-5 text-[0.6875rem] font-bold tracking-[0.18em] text-memory/70">
+          {t("titleScreen.saved", { count: collectedCount })}
+        </p>
+      ) : null}
 
       {/* 짧은 게임이라는 걸 미리 알려주면 진입 문턱이 낮아진다 */}
       <p className="relative -mt-5 text-[0.6875rem] font-bold tracking-[0.18em] text-bone/40">
         {t("titleScreen.playtime")}
       </p>
+
+      {/*
+        무엇을 하는 게임인지 한 줄, 어떻게 조작하는지 한 줄.
+        시작 버튼을 누른 뒤에는 알려줄 자리가 없다 — 방에 들어가면 화면은 씬이 다 쓴다.
+      */}
+      <div className="relative -mt-4 flex max-w-md flex-col items-center gap-2 text-center">
+        <p className="text-sm leading-relaxed text-bone/70">{t("titleScreen.howTo")}</p>
+        <p className="text-pretty text-[0.6875rem] leading-relaxed tracking-wider text-bone/40">
+          {t("titleScreen.howToControls")}
+        </p>
+      </div>
 
       <div className="relative flex flex-col items-center gap-4">
         {/* 언어 토글은 종이 패널 위에 놓이도록 설계됐다 — 어두운 배경에 직접 두면 글씨가 안 보인다 */}

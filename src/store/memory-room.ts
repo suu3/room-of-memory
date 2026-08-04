@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { MEMORIES, MEMORY_BY_ID, type MemoryId, phaseConfigOf, SCRIPTS } from "@/data/memory-room";
 import type { MinigameResult } from "@/types/minigame";
 
@@ -124,123 +125,63 @@ function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
   };
 }
 
-export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
-  collected: [],
-  revisited: [],
-  activeInteraction: null,
-  uiLocks: [],
-  characterSheetOpen: false,
-  contactOpen: false,
-  started: false,
-  resetRevision: 0,
-  soundMuted: false,
-  lightsOn: true,
-  endingStarted: false,
-  beginInteraction: (id) =>
-    set((state) => {
-      if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
-      const gamePhase = gamePhaseOf(state);
-      const interaction = phaseConfigOf(id, gamePhase)?.interaction;
-      if (interaction?.scriptId) {
-        return {
-          activeInteraction: {
-            memoryId: id,
-            gamePhase,
-            phase: "dialogue" as const,
-            scriptId: interaction.scriptId,
-            lineIndex: 0,
-          },
-        };
-      }
-      if (interaction?.minigameId) {
-        return {
-          activeInteraction: { memoryId: id, gamePhase, phase: "minigame" as const, lineIndex: 0 },
-        };
-      }
-      return complete(state, id, gamePhase);
-    }),
-  advanceDialogue: () =>
-    set((state) => {
-      const active = state.activeInteraction;
-      if (active?.phase !== "dialogue") return state;
-      const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
-      const script = active.scriptId ? SCRIPTS[active.scriptId] : undefined;
-      if (script && active.lineIndex + 1 < script.lines.length) {
-        return { activeInteraction: { ...active, lineIndex: active.lineIndex + 1 } };
-      }
-      // 결과 대사는 미니게임 뒤에 오므로 다시 미니게임으로 돌아가지 않는다
-      if (!active.keepMinigame && interaction?.minigameId) {
-        return {
-          activeInteraction: { ...active, phase: "minigame" as const, scriptId: undefined },
-        };
-      }
-      return finishInteraction(state, active);
-    }),
-  finishMinigame: (result) =>
-    set((state) => {
-      const active = state.activeInteraction;
-      if (active?.phase !== "minigame") return state;
-      const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
-      // 클리어했으면 결과 대사로 — 미니게임 화면을 뒤에 남긴 채 대사창이 뜬다
-      if (result.cleared && interaction?.resultScriptId) {
-        return {
-          activeInteraction: {
-            ...active,
-            phase: "dialogue" as const,
-            scriptId: interaction.resultScriptId,
-            keepMinigame: true,
-            lineIndex: 0,
-          },
-        };
-      }
-      // 실패도 유효한 결말 — 결과와 무관하게 완료. 플래그/분기는 추후 확장.
-      return finishInteraction(state, active);
-    }),
-  cancelMinigame: () =>
-    set((state) =>
-      state.activeInteraction?.phase === "minigame" ? { activeInteraction: null } : state,
-    ),
-  replayMemory: (id) =>
-    set((state) => {
-      // 이미 본 것만 되짚을 수 있다. beginInteraction은 available일 때만 돌아서 쓸 수 없다.
-      if (state.activeInteraction || !state.collected.includes(id)) return state;
-      // 2바퀴까지 본 기억이면 마지막으로 본 쪽(phase2)을 되돌려준다
-      const item = MEMORY_BY_ID[id];
-      const gamePhase: GamePhase = state.revisited.includes(id) && item.phase2 ? 2 : 1;
-      const interaction = phaseConfigOf(id, gamePhase)?.interaction;
-      if (!interaction) return state;
+/**
+ * 저장되는 것 — 진행과 방의 상태뿐이다.
+ *
+ * 화면 상태(열린 모달, 진행 중인 인터랙션, uiLocks)는 저장하지 않는다. 대사 도중에
+ * 탭을 닫았다가 돌아왔을 때 대사창이 반쯤 열린 채로 되살아나면 어디서 이어지는지
+ * 알 수 없고, 미니게임은 아예 마운트 상태를 복원할 수 없다.
+ *
+ * started도 저장하지 않는다. 저장하면 새로고침이 곧장 방 안으로 떨어져서 타이틀
+ * 화면을 건너뛰는데, 그러면 "이어하기"를 고를 기회 자체가 없어진다. 대신 타이틀에
+ * 남아 있고, 저장본이 있으면 시작 버튼이 "이어하기"로 바뀐다.
+ */
+type PersistedProgress = Pick<
+  MemoryRoomState,
+  "collected" | "revisited" | "endingStarted" | "soundMuted" | "lightsOn"
+>;
 
-      const base = { memoryId: id, gamePhase, replaying: true, lineIndex: 0 } as const;
-      if (interaction.scriptId) {
-        return {
-          activeInteraction: {
-            ...base,
-            phase: "dialogue" as const,
-            scriptId: interaction.scriptId,
-          },
-        };
-      }
-      if (interaction.minigameId) {
-        return { activeInteraction: { ...base, phase: "minigame" as const } };
-      }
-      return state;
-    }),
-  setUiLock: (id, locked) =>
-    set((state) => {
-      const present = state.uiLocks.includes(id);
-      if (present === locked) return state;
-      return {
-        uiLocks: locked ? [...state.uiLocks, id] : state.uiLocks.filter((lock) => lock !== id),
-      };
-    }),
-  setCharacterSheetOpen: (open) => set({ characterSheetOpen: open }),
-  setContactOpen: (open) => set({ contactOpen: open }),
-  startGame: () => set({ started: true }),
-  setSoundMuted: (muted) => set({ soundMuted: muted }),
-  toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),
-  startEnding: () => set((state) => (selectEndingReady(state) ? { endingStarted: true } : state)),
-  reset: () =>
-    set((state) => ({
+const PERSIST_KEY = "rom-progress";
+const PERSIST_VERSION = 1;
+
+/**
+ * 저장본을 지금 스키마에 맞춰 걸러낸다.
+ *
+ * 저장된 뒤에 기억 목록이 바뀌면(이름 변경·삭제) 없는 id가 남는다. 그대로 두면
+ * 수집 개수가 실제보다 많아져 엔딩 조건이 잘못 열리거나, MEMORY_BY_ID 조회가
+ * undefined를 물고 터진다. 모르는 id는 조용히 버린다 — 저장본이 조금 어긋났다고
+ * 게임을 못 하게 만드는 쪽이 더 나쁘다.
+ */
+export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
+  if (typeof raw !== "object" || raw === null) return {};
+  const saved = raw as Partial<Record<keyof PersistedProgress, unknown>>;
+
+  const ids = (value: unknown): MemoryId[] =>
+    Array.isArray(value)
+      ? Array.from(
+          new Set(
+            value.filter((id): id is MemoryId => typeof id === "string" && id in MEMORY_BY_ID),
+          ),
+        )
+      : [];
+
+  const collected = ids(saved.collected);
+  // 2바퀴는 1바퀴를 마친 기억에만 붙는다 — 순서가 뒤집힌 저장본은 앞뒤가 맞게 자른다
+  const revisited = ids(saved.revisited).filter((id) => collected.includes(id));
+
+  return {
+    collected,
+    revisited,
+    endingStarted: saved.endingStarted === true && collected.length === MEMORIES.length,
+    soundMuted: saved.soundMuted === true,
+    // 불은 켜진 상태가 기본 — 저장본에 명시적으로 false일 때만 꺼진 채로 돌아온다
+    lightsOn: saved.lightsOn !== false,
+  };
+}
+
+export const useMemoryRoomStore = create<MemoryRoomState>()(
+  persist<MemoryRoomState, [], [], Partial<PersistedProgress>>(
+    (set) => ({
       collected: [],
       revisited: [],
       activeInteraction: null,
@@ -248,11 +189,148 @@ export const useMemoryRoomStore = create<MemoryRoomState>()((set) => ({
       characterSheetOpen: false,
       contactOpen: false,
       started: false,
+      resetRevision: 0,
+      soundMuted: false,
       lightsOn: true,
       endingStarted: false,
-      resetRevision: state.resetRevision + 1,
-    })),
-}));
+      beginInteraction: (id) =>
+        set((state) => {
+          if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
+          const gamePhase = gamePhaseOf(state);
+          const interaction = phaseConfigOf(id, gamePhase)?.interaction;
+          if (interaction?.scriptId) {
+            return {
+              activeInteraction: {
+                memoryId: id,
+                gamePhase,
+                phase: "dialogue" as const,
+                scriptId: interaction.scriptId,
+                lineIndex: 0,
+              },
+            };
+          }
+          if (interaction?.minigameId) {
+            return {
+              activeInteraction: {
+                memoryId: id,
+                gamePhase,
+                phase: "minigame" as const,
+                lineIndex: 0,
+              },
+            };
+          }
+          return complete(state, id, gamePhase);
+        }),
+      advanceDialogue: () =>
+        set((state) => {
+          const active = state.activeInteraction;
+          if (active?.phase !== "dialogue") return state;
+          const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
+          const script = active.scriptId ? SCRIPTS[active.scriptId] : undefined;
+          if (script && active.lineIndex + 1 < script.lines.length) {
+            return { activeInteraction: { ...active, lineIndex: active.lineIndex + 1 } };
+          }
+          // 결과 대사는 미니게임 뒤에 오므로 다시 미니게임으로 돌아가지 않는다
+          if (!active.keepMinigame && interaction?.minigameId) {
+            return {
+              activeInteraction: { ...active, phase: "minigame" as const, scriptId: undefined },
+            };
+          }
+          return finishInteraction(state, active);
+        }),
+      finishMinigame: (result) =>
+        set((state) => {
+          const active = state.activeInteraction;
+          if (active?.phase !== "minigame") return state;
+          const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
+          // 클리어했으면 결과 대사로 — 미니게임 화면을 뒤에 남긴 채 대사창이 뜬다
+          if (result.cleared && interaction?.resultScriptId) {
+            return {
+              activeInteraction: {
+                ...active,
+                phase: "dialogue" as const,
+                scriptId: interaction.resultScriptId,
+                keepMinigame: true,
+                lineIndex: 0,
+              },
+            };
+          }
+          // 실패도 유효한 결말 — 결과와 무관하게 완료. 플래그/분기는 추후 확장.
+          return finishInteraction(state, active);
+        }),
+      cancelMinigame: () =>
+        set((state) =>
+          state.activeInteraction?.phase === "minigame" ? { activeInteraction: null } : state,
+        ),
+      replayMemory: (id) =>
+        set((state) => {
+          // 이미 본 것만 되짚을 수 있다. beginInteraction은 available일 때만 돌아서 쓸 수 없다.
+          if (state.activeInteraction || !state.collected.includes(id)) return state;
+          // 2바퀴까지 본 기억이면 마지막으로 본 쪽(phase2)을 되돌려준다
+          const item = MEMORY_BY_ID[id];
+          const gamePhase: GamePhase = state.revisited.includes(id) && item.phase2 ? 2 : 1;
+          const interaction = phaseConfigOf(id, gamePhase)?.interaction;
+          if (!interaction) return state;
+
+          const base = { memoryId: id, gamePhase, replaying: true, lineIndex: 0 } as const;
+          if (interaction.scriptId) {
+            return {
+              activeInteraction: {
+                ...base,
+                phase: "dialogue" as const,
+                scriptId: interaction.scriptId,
+              },
+            };
+          }
+          if (interaction.minigameId) {
+            return { activeInteraction: { ...base, phase: "minigame" as const } };
+          }
+          return state;
+        }),
+      setUiLock: (id, locked) =>
+        set((state) => {
+          const present = state.uiLocks.includes(id);
+          if (present === locked) return state;
+          return {
+            uiLocks: locked ? [...state.uiLocks, id] : state.uiLocks.filter((lock) => lock !== id),
+          };
+        }),
+      setCharacterSheetOpen: (open) => set({ characterSheetOpen: open }),
+      setContactOpen: (open) => set({ contactOpen: open }),
+      startGame: () => set({ started: true }),
+      setSoundMuted: (muted) => set({ soundMuted: muted }),
+      toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),
+      startEnding: () =>
+        set((state) => (selectEndingReady(state) ? { endingStarted: true } : state)),
+      reset: () =>
+        set((state) => ({
+          collected: [],
+          revisited: [],
+          activeInteraction: null,
+          uiLocks: [],
+          characterSheetOpen: false,
+          contactOpen: false,
+          started: false,
+          lightsOn: true,
+          endingStarted: false,
+          resetRevision: state.resetRevision + 1,
+        })),
+    }),
+    {
+      name: PERSIST_KEY,
+      version: PERSIST_VERSION,
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        collected: state.collected,
+        revisited: state.revisited,
+        endingStarted: state.endingStarted,
+        soundMuted: state.soundMuted,
+        lightsOn: state.lightsOn,
+      }),
+      merge: (persisted, current) => ({ ...current, ...sanitizeProgress(persisted) }),
+    },
+  ),
+);
 
 export const selectCollected = (state: MemoryRoomState) => state.collected;
 export const selectActiveInteraction = (state: MemoryRoomState) => state.activeInteraction;

@@ -72,7 +72,7 @@
     },
     "frequencyTune": {
       "title": "周波数を合わせる",
-      "help": "針が明るい帯を通る瞬間にSpace（クリックも可）"
+      "help": "針が明るい帯を通る瞬間に — Space・クリック・タップ"
     },
     "photoWipe": {
       "title": "写真を拭く",
@@ -80,8 +80,8 @@
     },
     "ballCatch": {
       "title": "スイング！",
-      "help": "ボールが点線リングに入った瞬間にSpaceでバットを振ろう（クリックも可）",
-      "prompt": "SPACE / クリックでスイング",
+      "help": "ボールが点線のリングに入る瞬間にバットを振る — Space・クリック・タップ",
+      "prompt": "SPACE・クリック・タップ",
       "early": "早い",
       "late": "遅い",
       "hits": "ヒット {{value}} / {{goal}}",
@@ -116,7 +116,7 @@
     "labelTime": "残り時間",
     "calendarFlip": {
       "title": "カレンダーをめくる",
-      "help": "← → でページをめくってください",
+      "help": "カレンダーをめくる — ← → ・矢印ボタン・タップ",
       "month": "{{value}}月",
       "prev": "前の月",
       "next": "次の月",
@@ -135,7 +135,7 @@
     },
     "phoneChat": {
       "title": "スマートフォン",
-      "help": "上にスクロールするか Space で過去の会話をさかのぼってください",
+      "help": "過去のやりとりをさかのぼる — 上にスクロール・クリック・タップ・Space",
       "helpCalls": "発信履歴のタブも開いてみてください",
       "date": "10月19日",
       "close": "画面を消す",
@@ -183,7 +183,11 @@
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "閉じた部屋に散らばった記憶を、ひとつずつ取り戻す物語。",
     "start": "はじめる",
-    "playtime": "プレイ時間 約15分"
+    "playtime": "プレイ時間 約15分",
+    "howTo": "部屋を自由に歩き、記憶が残る物を調べてください。",
+    "howToControls": "移動 WASD・矢印・ジョイスティック 　|　 調べる E・Enter・物をクリック",
+    "resume": "続きから",
+    "saved": "記憶を{{count}}個集めたところで止まっています。"
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",

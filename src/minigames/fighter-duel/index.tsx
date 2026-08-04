@@ -66,7 +66,7 @@ function opponentPose(resolved: Resolved | null, tell: Move): Pose {
  * 게임기 속 격투 게임. 상대가 다음 수를 자세로 예고하고, 그걸 받아치는 수를 낸다.
  * 때리기 > 잡기 > 막기 > 때리기 — 반사신경이 아니라 읽기 싸움이다.
  */
-export function FighterDuelMinigame({ onComplete }: MinigameProps) {
+export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
   const complete = useOnceCompleter(onComplete);
   // 판마다 순서가 달라야 외워서 이기지 않는다. 판 안에서는 고정 (읽는 재미).
@@ -96,6 +96,8 @@ export function FighterDuelMinigame({ onComplete }: MinigameProps) {
     playSound(outcome === "win" ? "success" : outcome === "lose" ? "deny" : "select");
 
     const status = duelStatus(next);
+    // 승부가 났으면 결과 자세를 보여주는 동안 닫히지 않게 잠근다
+    if (status !== "playing") onSettled?.();
     const timeout = setTimeout(() => {
       pendingRef.current.delete(timeout);
       if (status === "playing") {

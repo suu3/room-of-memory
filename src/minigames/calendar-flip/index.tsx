@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretLeft, CaretRight, X } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, Check } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
@@ -222,7 +222,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
             }}
             className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-5 py-1.5 text-xs font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
-            <X size={13} weight="bold" />
+            <Check size={14} weight="bold" />
             {t("minigame.calendarFlip.close")}
           </button>
         ) : null}

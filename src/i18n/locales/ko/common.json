@@ -72,7 +72,7 @@
     },
     "frequencyTune": {
       "title": "주파수 맞추기",
-      "help": "바늘이 밝은 구간을 지나는 순간 Space (클릭도 가능)"
+      "help": "바늘이 밝은 구간을 지나는 순간 — Space · 클릭 · 화면 터치"
     },
     "photoWipe": {
       "title": "사진 닦기",
@@ -80,8 +80,8 @@
     },
     "ballCatch": {
       "title": "스윙!",
-      "help": "공이 점선 링에 들어오는 순간 Space로 배트를 휘두르세요 (클릭도 가능)",
-      "prompt": "SPACE / 클릭으로 스윙",
+      "help": "공이 점선 링에 들어오는 순간 배트를 휘두르세요 — Space · 클릭 · 화면 터치",
+      "prompt": "SPACE · 클릭 · 터치",
       "early": "빨랐어",
       "late": "늦었어",
       "hits": "안타 {{value}} / {{goal}}",
@@ -116,7 +116,7 @@
     "labelTime": "남은 시간",
     "calendarFlip": {
       "title": "달력 넘기기",
-      "help": "← → 로 달력을 넘겨보세요",
+      "help": "달력을 넘겨보세요 — ← → · 좌우 화살표 버튼 클릭 · 터치",
       "month": "{{value}}월",
       "prev": "이전 달",
       "next": "다음 달",
@@ -135,7 +135,7 @@
     },
     "phoneChat": {
       "title": "스마트폰",
-      "help": "위로 스크롤하거나 Space로 지난 대화를 거슬러 올라가세요",
+      "help": "지난 대화를 거슬러 올라가세요 — 위로 스크롤 · 클릭 · 터치 · Space",
       "helpCalls": "통화 기록 탭도 열어보세요",
       "date": "10월 19일",
       "close": "화면을 끈다",
@@ -183,7 +183,11 @@
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
     "start": "시작하기",
-    "playtime": "플레이타임 약 15분"
+    "playtime": "플레이타임 약 15분",
+    "howTo": "방을 자유롭게 돌아다니며 기억이 걸린 물건을 찾아 조사하세요.",
+    "howToControls": "이동 WASD · 화살표 · 화면 왼쪽 아래 조이스틱 　|　 조사 E · Enter · 물건 클릭",
+    "resume": "이어하기",
+    "saved": "기억 {{count}}개를 모아 둔 채로 멈춰 있습니다."
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",

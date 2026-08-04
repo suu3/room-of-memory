@@ -181,24 +181,14 @@ export const LEFT_SKIRTING = {
   position: [ROOM_SHELL_BOUNDS.minX + 0.16, 0.15, (SKIRTING_START_Z + DOOR_OPENING_Z.min) / 2],
 } as const satisfies { size: Vec3Tuple; position: Vec3Tuple };
 
-const FLOOR_RIM = [
-  {
-    size: [SHELL_WIDTH, 0.12, 0.14],
-    position: [SHELL_CENTER_X, 0.01, ROOM_SHELL_BOUNDS.minZ],
-  },
-  {
-    size: [SHELL_WIDTH, 0.12, 0.14],
-    position: [SHELL_CENTER_X, 0.01, ROOM_SHELL_BOUNDS.maxZ],
-  },
-  {
-    size: [0.14, 0.12, SHELL_DEPTH],
-    position: [ROOM_SHELL_BOUNDS.minX, 0.01, SHELL_CENTER_Z],
-  },
-  {
-    size: [0.14, 0.12, SHELL_DEPTH],
-    position: [ROOM_SHELL_BOUNDS.maxX, 0.01, SHELL_CENTER_Z],
-  },
-] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
+/*
+ * 바닥 테두리(FLOOR_RIM)는 뺐다.
+ *
+ * 열린 면이 있던 디오라마 시절에는 바닥의 잘린 단면을 마감하는 몰딩이었다.
+ * 사면벽이 되면서 네 면 굽도리(BASE_WALLS)가 그 자리를 통째로 감쌌고, 테두리는
+ * 굽도리 안에 완전히 파묻혀 한 픽셀도 보이지 않게 됐다 — 대신 폭이 굽도리와 똑같아
+ * 양 끝면이 같은 평면에 놓이면서 모서리에서 깜빡이기만 했다.
+ */
 
 export function RoomShell({
   palette,
@@ -298,10 +288,6 @@ export function RoomShell({
         receiveShadow
       />
       <ShellBox {...LEFT_SKIRTING} color={palette.bone} castShadow receiveShadow />
-
-      {FLOOR_RIM.map((part) => (
-        <ShellBox key={part.position.join(":")} {...part} color={palette.ink} receiveShadow />
-      ))}
     </group>
   );
 }

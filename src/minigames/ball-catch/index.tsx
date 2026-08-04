@@ -6,9 +6,15 @@ import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, useOnceCompleter, useSkipEligible } from "../shell";
 import { BallCatchField } from "./field";
-import { classifySwing, remainingChances, type SwingResult } from "./timing";
+import {
+  classifySwing,
+  nextPitch,
+  type PitchSide,
+  remainingChances,
+  type SwingResult,
+} from "./timing";
 
-const GOAL_CATCHES = 3;
+const GOAL_CATCHES = 5;
 const MAX_MISSES = 5;
 const SKIP_AFTER_MS = 30_000;
 const SKIP_AFTER_MISSES = 3;
@@ -39,16 +45,17 @@ interface Round {
   hitAt?: number;
 }
 
-function newRound(duration: number): Round {
-  return { start: performance.now(), duration, startX: 46 + Math.random() * 8, resolved: false };
+function newRound(duration: number, lastSide: PitchSide): Round & { side: PitchSide } {
+  const { startX, side } = nextPitch(lastSide, Math.random());
+  return { start: performance.now(), duration, startX, resolved: false, side };
 }
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
   return target instanceof Element && target.closest(INTERACTIVE_TARGET_SELECTOR) !== null;
 }
 
-/** 멀리서 날아와 커지는 공이 점선 링에 겹치는 순간 Space로 배트를 휘두른다 — 3회 맞히면 클리어. */
-export function BallCatchMinigame({ onComplete }: MinigameProps) {
+/** 멀리서 날아와 커지는 공이 점선 링에 겹치는 순간 Space로 배트를 휘두른다 — 5회 맞히면 클리어. */
+export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
   const complete = useOnceCompleter(onComplete);
   const [catches, setCatches] = useState(0);
@@ -59,7 +66,9 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
   const [swingId, setSwingId] = useState(0);
   const ballRef = useRef<HTMLDivElement>(null);
   const shadowRef = useRef<HTMLDivElement>(null);
-  const roundRef = useRef<Round>(newRound(ROUND_MS_START));
+  /** 직전 공이 어느 쪽에서 왔는지 — 다음 공은 반대편에서 온다. */
+  const lastSideRef = useRef<PitchSide>(1);
+  const roundRef = useRef<Round>(newRound(ROUND_MS_START, -1));
   const pendingTimeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
 
@@ -83,7 +92,9 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
   scheduleNextRef.current = () => {
     const duration = Math.max(ROUND_MS_MIN, ROUND_MS_START - catches * ROUND_MS_STEP);
     schedulePendingTimeout(() => {
-      roundRef.current = newRound(duration);
+      const round = newRound(duration, lastSideRef.current);
+      lastSideRef.current = round.side;
+      roundRef.current = round;
     }, ROUND_GAP_MS);
   };
 
@@ -105,7 +116,9 @@ export function BallCatchMinigame({ onComplete }: MinigameProps) {
       const next = catches + 1;
       setCatches(next);
       if (next >= GOAL_CATCHES) {
-        // 마지막 타구가 날아가는 걸 보여준 뒤 완료
+        // 마지막 타구가 날아가는 걸 보여준 뒤 완료. 그 사이 바깥 클릭으로
+        // 판이 날아가지 않게 호스트에 먼저 알린다.
+        onSettled?.();
         schedulePendingTimeout(() => complete({ cleared: true, score: next }), CLEAR_DELAY_MS);
         return;
       }

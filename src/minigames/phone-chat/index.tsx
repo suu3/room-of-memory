@@ -1,6 +1,6 @@
 "use client";
 
-import { PhoneDisconnect, X } from "@phosphor-icons/react";
+import { Check, PhoneDisconnect } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
@@ -206,7 +206,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
             onClick={() => complete({ cleared: true })}
             className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-6 py-2 text-sm font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
-            <X size={15} weight="bold" />
+            <Check size={16} weight="bold" />
             {t("minigame.phoneChat.close")}
           </button>
         ) : (

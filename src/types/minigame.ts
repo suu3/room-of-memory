@@ -36,6 +36,17 @@ export interface MinigameProps {
    * call onComplete({ cleared: true }) when skipped).
    */
   onSkip?: () => void;
+  /**
+   * 판이 끝나 결과가 확정됐음을 알린다. onComplete보다 먼저 부른다.
+   *
+   * 승부가 난 뒤에도 연출(파티클, 마지막 타구, 결과 자세)을 보여주느라 onComplete가
+   * 수백 ms~2초 뒤에 나가는 미니게임이 있다. 그 사이에 딤드 영역을 잘못 누르면
+   * 호스트가 "아직 minigame 단계"로 보고 취소해 버려서, 다 이긴 판이 수집도 안 된 채
+   * 사라졌다. 이걸 부르면 호스트가 바깥 클릭과 Esc를 막는다.
+   *
+   * 연출 없이 즉시 onComplete를 부르는 미니게임은 부를 필요가 없다.
+   */
+  onSettled?: () => void;
 }
 
 /**

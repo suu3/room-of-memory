@@ -72,7 +72,7 @@
     },
     "frequencyTune": {
       "title": "Tune the Frequency",
-      "help": "Press Space the moment the needle crosses the bright band (click works too)"
+      "help": "The moment the needle crosses the lit band — Space · click · tap"
     },
     "photoWipe": {
       "title": "Wipe the Photo",
@@ -80,8 +80,8 @@
     },
     "ballCatch": {
       "title": "Swing!",
-      "help": "Press Space to swing the bat the moment the ball enters the dashed ring (click works too)",
-      "prompt": "SPACE / CLICK TO SWING",
+      "help": "Swing the bat the moment the ball enters the dashed ring — Space · click · tap",
+      "prompt": "SPACE · CLICK · TAP",
       "early": "EARLY",
       "late": "LATE",
       "hits": "HITS {{value}} / {{goal}}",
@@ -116,7 +116,7 @@
     "labelTime": "Time left",
     "calendarFlip": {
       "title": "Flipping the calendar",
-      "help": "Flip the pages with ← →",
+      "help": "Flip through the calendar — ← → · arrow buttons · tap",
       "month": "{{value}}",
       "prev": "Previous month",
       "next": "Next month",
@@ -135,7 +135,7 @@
     },
     "phoneChat": {
       "title": "The phone",
-      "help": "Scroll up or press Space to read back through the thread",
+      "help": "Scroll back through the thread — scroll up · click · tap · Space",
       "helpCalls": "Open the call log tab too",
       "date": "October 19",
       "close": "Turn the screen off",
@@ -183,7 +183,11 @@
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "Gather the memories scattered across a room that never opened.",
     "start": "START",
-    "playtime": "About 15 minutes"
+    "playtime": "About 15 minutes",
+    "howTo": "Wander the room and examine the objects a memory still clings to.",
+    "howToControls": "Move WASD · arrows · joystick 　|　 Examine E · Enter · click the object",
+    "resume": "Continue",
+    "saved": "You left off with {{count}} memories gathered."
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",

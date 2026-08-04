@@ -11,3 +11,4 @@
 | images/mg-ball-catch-bat.png | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-ball-catch-impact.png | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |
 | audio/bgm/bgm-room-winter-morning.ogg | https://pixabay.com/music/modern-classical-winter-morning-299362/ ("winter morning" — 256kbps mp3를 앞뒤 무음 트림 후 Vorbis q4로 재인코딩) | Tomomi_Kato | Pixabay Content License (크레딧 불요, 상업 이용 가능) |
+| ../icons/*.png | 이 프로젝트에서 DESIGN.md 토큰(night/slate/memory/bone)으로 생성한 SVG를 sharp로 래스터화 | Project-generated | Project-generated |

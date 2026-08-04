@@ -29,18 +29,24 @@ function runNextFrame(timestamp: number) {
 }
 
 function getFieldButton() {
-  return screen.getByRole("button", { name: /Press Space to swing/ });
+  return screen.getByRole("button", { name: /dashed ring/ });
 }
 
-function hitThreeRounds() {
-  advanceTime(1700);
-  fireEvent.click(getFieldButton());
-  advanceTime(550);
-  advanceTime(1700);
-  fireEvent.click(getFieldButton());
-  advanceTime(550);
-  advanceTime(1550);
-  fireEvent.click(getFieldButton());
+/**
+ * 클리어까지 필요한 5안타를 친다.
+ *
+ * 라운드 길이는 안타를 칠 때마다 짧아진다(1700에서 150씩, 하한 1200). 다만
+ * 다음 라운드 길이는 "그 안타를 칠 때의 catches" 기준이라 한 박자 늦게 반영된다 —
+ * 그래서 1700이 두 번 나온다.
+ */
+const ROUND_DURATIONS = [1700, 1700, 1550, 1400, 1250];
+
+function hitAllRounds() {
+  ROUND_DURATIONS.forEach((duration, index) => {
+    if (index > 0) advanceTime(550);
+    advanceTime(duration);
+    fireEvent.click(getFieldButton());
+  });
 }
 
 describe("BallCatchMinigame", () => {
@@ -98,16 +104,16 @@ describe("BallCatchMinigame", () => {
 
     expect(html).toContain(`src="${ASSETS.images.mgBallCatchSunsetField}"`);
     expect(html).toContain(`src="${ASSETS.images.mgBallCatchPitcher}"`);
-    expect(html).toContain("HITS 0 / 3");
+    expect(html).toContain("HITS 0 / 5");
     expect(html).toContain("Chances left");
     expect(html).toContain("5 / 5");
-    expect(html).toContain("SPACE / CLICK TO SWING");
+    expect(html).toContain("SPACE · CLICK · TAP");
   });
 
   it("renders the localized hit progress only once", () => {
     const html = renderToStaticMarkup(<BallCatchMinigame onComplete={() => {}} />);
 
-    expect(html.match(/0 \/ 3/g)).toHaveLength(1);
+    expect(html.match(/0 \/ 5/g)).toHaveLength(1);
   });
 
   it("uses a restrained ball path when reduced motion is preferred", () => {
@@ -136,7 +142,8 @@ describe("BallCatchMinigame", () => {
 
     expect(defaultStyle).toEqual({
       opacity: "1",
-      left: "48%",
+      // 첫 투구는 Math.random=0 → 오른쪽으로 최소 폭(8)만큼 치우친 58%에서 출발한다
+      left: "54%",
       top: "51.5%",
       transform: "translate(-50%, -50%) scale(0.5963708265778848) rotate(135deg)",
     });
@@ -147,7 +154,7 @@ describe("BallCatchMinigame", () => {
       transform: reducedBall?.style.transform,
     }).toEqual({
       opacity: "0.775",
-      left: "48%",
+      left: "54%",
       top: "62%",
       transform: "translate(-50%, -50%) scale(1.075) rotate(0deg)",
     });
@@ -202,7 +209,7 @@ describe("BallCatchMinigame", () => {
     const onComplete = vi.fn();
     const view = render(<BallCatchMinigame onComplete={onComplete} />);
 
-    hitThreeRounds();
+    hitAllRounds();
     expect(onComplete).not.toHaveBeenCalled();
 
     view.unmount();
@@ -215,13 +222,13 @@ describe("BallCatchMinigame", () => {
     const onComplete = vi.fn();
     render(<BallCatchMinigame onComplete={onComplete} />);
 
-    hitThreeRounds();
+    hitAllRounds();
     advanceTime(549);
     expect(onComplete).not.toHaveBeenCalled();
 
     advanceTime(1);
     expect(onComplete).toHaveBeenCalledOnce();
-    expect(onComplete).toHaveBeenCalledWith({ cleared: true, score: 3 });
+    expect(onComplete).toHaveBeenCalledWith({ cleared: true, score: 5 });
   });
 
   it("does not replay resolved-round feedback or change progress on repeat input", () => {
@@ -241,7 +248,7 @@ describe("BallCatchMinigame", () => {
     expect(
       document.querySelector<HTMLImageElement>(`img[src="${ASSETS.images.mgBallCatchImpact}"]`),
     ).toBe(impact);
-    expect(screen.getByText("HITS 1 / 3")).toBeTruthy();
+    expect(screen.getByText("HITS 1 / 5")).toBeTruthy();
     expect(onComplete).not.toHaveBeenCalled();
   });
 

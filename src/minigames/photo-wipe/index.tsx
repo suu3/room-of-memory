@@ -35,7 +35,7 @@ function tokenColor(name: string): string {
 }
 
 /** 뿌옇게 덮인 액자 사진을 닦아 선명도 70% 이상 만들면 클리어. 제한 시간 초과 시 실패. */
-export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) {
+export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: MinigameProps) {
   const { t } = useTranslation();
   const photo = PHOTOS[gamePhase];
   const complete = useOnceCompleter(onComplete);
@@ -97,6 +97,9 @@ export function PhotoWipeMinigame({ onComplete, gamePhase = 1 }: MinigameProps) 
     if (revealed) return;
     const context = canvasRef.current?.getContext("2d");
     context?.clearRect(0, 0, photo.width, photo.height);
+    // 여기서부터 파티클이 끝날 때까지 최대 2초 — 그 사이 바깥 클릭으로
+    // 다 닦은 사진이 수집도 안 된 채 사라지면 안 된다.
+    onSettled?.();
     setRevealed(true);
   };
 

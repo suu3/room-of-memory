@@ -22,6 +22,11 @@ export function MinigameHost() {
   const cancelMinigame = useMemoryRoomStore((state) => state.cancelMinigame);
   /** 시작 버튼을 누른 인터랙션 키 — 인터랙션이 바뀌면 자연히 시작 카드로 돌아간다. */
   const [startedKey, setStartedKey] = useState<string | null>(null);
+  /**
+   * 결과가 확정돼 더는 취소할 수 없는 인터랙션 키.
+   * 미니게임이 onSettled로 알린다 (src/types/minigame.ts).
+   */
+  const [settledKey, setSettledKey] = useState<string | null>(null);
   /** 성공 파티클 리트리거 키 — 모달이 닫힌 뒤에도 버스트는 끝까지 재생된다. */
   const [burstId, setBurstId] = useState(0);
   const startButtonRef = useRef<HTMLButtonElement>(null);
@@ -46,21 +51,26 @@ export function MinigameHost() {
   const activeKey = active ? `${active.memoryId}:${active.gamePhase}` : null;
   // bare는 "시작"을 거치지 않는다 — 물건을 집었으면 이미 들여다보는 중이다.
   const started = bare || (startedKey !== null && startedKey === activeKey);
+  /**
+   * 승부가 난 뒤부터 결과 대사가 끝날 때까지는 닫을 수 없다.
+   * 이 구간에서 닫히면 다 이긴 판이 수집도 안 된 채 사라진다.
+   */
+  const sealed = resultStage || (settledKey !== null && settledKey === activeKey);
 
   // 시작 카드가 뜨면 버튼에 포커스 (키보드 플레이)
   useEffect(() => {
     if (hosted && !bare && !started) startButtonRef.current?.focus();
   }, [hosted, bare, started]);
 
-  // Esc = 바깥 클릭과 같은 닫기 (키보드 접근성). 결과 대사 중에는 대사창이 닫기를 맡는다
+  // Esc = 바깥 클릭과 같은 닫기 (키보드 접근성). 승부가 난 뒤에는 닫기를 막는다
   useEffect(() => {
-    if (!hosted || resultStage) return;
+    if (!hosted || sealed) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.code === "Escape") cancelMinigame();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [hosted, resultStage, cancelMinigame]);
+  }, [hosted, sealed, cancelMinigame]);
 
   const Minigame = hosted?.component;
   return (
@@ -75,13 +85,14 @@ export function MinigameHost() {
             bare ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-sm"
           } ${resultStage ? "bg-scene-void/75 pb-56" : bare ? "" : "bg-scene-void/40"}`}
           onPointerDown={(event) => {
-            if (event.target === event.currentTarget && !resultStage) cancelMinigame();
+            if (event.target === event.currentTarget && !sealed) cancelMinigame();
           }}
         >
           {started ? (
             <Suspense fallback={null}>
               <Minigame
                 gamePhase={active.gamePhase}
+                onSettled={() => setSettledKey(activeKey)}
                 onComplete={(result) => {
                   playSound(result.cleared ? "success" : "fail");
                   if (result.cleared && !result.celebrated) setBurstId((id) => id + 1);

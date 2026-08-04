@@ -6,6 +6,7 @@ import { FurnitureModel } from "./FurnitureModel";
 import { ROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
+import type { WallSide } from "./wall-culling";
 
 useGLTF.preload(ASSETS.models.books, true, true);
 
@@ -128,10 +129,18 @@ function leftPoster(
  * 이 방에서 시간이 흘렀다는 걸 말없이 알리는 장치라 일부러 비워 둔다.
  * mist(#16212C)로 잡았다가 되돌렸다 — 벽보다 어두워서 자국이 아니라 그늘로 보였다.
  */
-const FADED_MARKS = [
+const BACK_FADED_MARKS = [
   backWall(-1.15, 2.45, 0.92, 1.2, "dusk"),
   backWall(6.5, 1.65, 1.05, 1.35, "dusk"),
-  leftWall(1.95, 1.5, 1.15, 1.45, "dusk"),
+] as const satisfies readonly DecorBox[];
+
+/**
+ * 왼쪽 벽 자국. 예전에는 z=1.95에 있었는데 그 자리가 포스터(z 1.9~3.4)와 겹쳤다.
+ * 둘 다 벽면에서 같은 두께(0.04)로 튀어나와 앞면이 정확히 같은 평면에 놓이는 바람에
+ * 프레임마다 어느 쪽이 앞인지 뒤집히며 깜빡였다. 포스터 왼쪽 빈자리로 물린다.
+ */
+const LEFT_FADED_MARKS = [
+  leftWall(0.35, 1.5, 1.15, 1.45, "dusk"),
 ] as const satisfies readonly DecorBox[];
 
 /**
@@ -141,11 +150,12 @@ const FADED_MARKS = [
  * 포스터가 아니라 "빈 액자 테두리"로 읽혔다. olive 한 장은 따뜻한 색이 하나쯤
  * 걸려 있어야 방이 차갑게만 안 보여서 넣었다 — memory 금빛을 쓸 수 없는 자리의 대타다.
  */
-const POSTERS = [
+const BACK_POSTERS = [
   ...backPoster(-4.6, 3.3, 1.3, 1.7, "storm"),
   ...backPoster(6.5, 3.35, 1.25, 1.65, "olive"),
-  ...leftPoster(2.65, 2.9, 1.5, 1.9, "storm"),
-] as const satisfies readonly DecorBox[];
+] satisfies DecorBox[];
+
+const LEFT_POSTERS = [...leftPoster(2.65, 2.9, 1.5, 1.9, "storm")] satisfies DecorBox[];
 
 /**
  * 테이프로 붙인 사진 넉 장. 야구부 시절 사진이라는 설정이라 나란히 한 줄로 둔다.
@@ -219,6 +229,17 @@ const SHELF_BOOKS = [
   { x: 5.12, height: 0.46, color: "slate" },
 ] as const satisfies readonly { x: number; height: number; color: keyof RoomPalette }[];
 
+/**
+ * 벽면별 장식 목록. 테스트가 겹침을 검사할 수 있도록 내보낸다
+ * (RoomDecor.test.ts — 같은 벽에서 화면상 겹치는 판은 두께가 달라야 한다).
+ */
+export const DECOR_BY_WALL = {
+  back: [...BACK_FADED_MARKS, ...BACK_POSTERS, ...PHOTO_STRIP, ...PENNANT],
+  left: [...LEFT_FADED_MARKS, ...LEFT_POSTERS, ...WALL_FITTINGS],
+  front: FRONT_WALL_DECOR,
+  right: RIGHT_WALL_DECOR,
+} as const satisfies Record<WallSide, readonly DecorBox[]>;
+
 function DecorBoxMesh({ part, palette }: { part: DecorBox; palette: RoomPalette }) {
   return (
     <mesh position={part.position} receiveShadow>
@@ -265,18 +286,19 @@ function Trophy({ palette, position }: { palette: RoomPalette; position: Vec3Tup
 export function RoomDecor({ palette }: { palette: RoomPalette }) {
   return (
     <group name="room-decor">
-      <DecorBoxes parts={FADED_MARKS} palette={palette} />
-      <DecorBoxes parts={POSTERS} palette={palette} />
-      <DecorBoxes parts={PHOTO_STRIP} palette={palette} />
-      <DecorBoxes parts={PENNANT} palette={palette} />
-      <DecorBoxes parts={WALL_FITTINGS} palette={palette} />
+      {/*
+        뒷벽·왼쪽 벽은 회전 범위(±0.5rad) 안에서 절대 걷히지 않으므로 CulledWall 없이
+        그대로 세운다. 회전을 더 열려면 이것들도 CulledWall 안으로 옮겨야 한다.
+      */}
+      <DecorBoxes parts={DECOR_BY_WALL.back} palette={palette} />
+      <DecorBoxes parts={DECOR_BY_WALL.left} palette={palette} />
 
       {/* 돌려야 드러나는 두 면. 벽과 함께 스러져야 하므로 반드시 CulledWall 안이다 */}
       <CulledWall side="front">
-        <DecorBoxes parts={FRONT_WALL_DECOR} palette={palette} />
+        <DecorBoxes parts={DECOR_BY_WALL.front} palette={palette} />
       </CulledWall>
       <CulledWall side="right">
-        <DecorBoxes parts={RIGHT_WALL_DECOR} palette={palette} />
+        <DecorBoxes parts={DECOR_BY_WALL.right} palette={palette} />
       </CulledWall>
 
       {/* 뒷벽 선반 위 — 트로피와 꽂아둔 책 */}
