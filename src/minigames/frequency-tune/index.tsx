@@ -3,23 +3,47 @@
 import { Star } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useControlHint } from "@/i18n/control-hint";
+import { ASSETS } from "@/lib/assets";
 import { type NoiseBed, playSound, startNoiseBed } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
+import {
+  bandWidthAt,
+  GOAL_HITS,
+  MAX_MISSES,
+  needlePeriodAt,
+  randomBandLeft,
+  staticLevel,
+} from "./difficulty";
 
-const GOAL_HITS = 3;
-const MAX_MISSES = 5;
 const SKIP_AFTER_MS = 30_000;
 const SKIP_AFTER_MISSES = 3;
-const NEEDLE_PERIOD_MS = 4200;
-/** 목표 대역 폭 (%) */
-const BAND_WIDTH = 14;
 /** 다이얼 눈금 범위 (MHz) — position 0~100% 를 이 범위로 매핑. */
 const FREQ_MIN = 88;
 const FREQ_MAX = 108;
 
-function randomBandLeft(): number {
-  return 6 + Math.random() * (100 - BAND_WIDTH - 12);
+/** 라디오 일러스트 원본 크기(px). */
+const FRAME = { width: 1598, height: 1174 };
+/** 그 안에서 알파로 뚫려 있는 표시창(px) — 이미지에서 실측한 값. */
+const GLASS = { x: 66, y: 85, width: 1470, height: 416 };
+/**
+ * 표시창 바탕을 프레임 뒤로 물려 그리는 여유(px, 원본 기준).
+ * 창 모서리가 둥글어서 딱 맞게 그리면 라운드 틈으로 뒷배경이 비친다.
+ */
+const GLASS_BLEED = 14;
+/** 프레임에 그려진 TUNING 램프의 중심(%). 주파수가 맞을수록 여기가 밝아진다. */
+const LAMP = { left: "8.76%", top: "85.9%" };
+
+/** 원본 px 좌표 → 프레임 기준 inset 스타일. */
+function glassInset(bleed = 0): React.CSSProperties {
+  const pct = (value: number, total: number) => `${((value / total) * 100).toFixed(3)}%`;
+  return {
+    left: pct(GLASS.x - bleed, FRAME.width),
+    right: pct(FRAME.width - GLASS.x - GLASS.width - bleed, FRAME.width),
+    top: pct(GLASS.y - bleed, FRAME.height),
+    bottom: pct(FRAME.height - GLASS.y - GLASS.height - bleed, FRAME.height),
+  };
 }
 
 /** position(0~100%) → 표시 주파수 문자열. */
@@ -27,35 +51,22 @@ function freqAt(position: number): string {
   return (FREQ_MIN + (position / 100) * (FREQ_MAX - FREQ_MIN)).toFixed(1);
 }
 
-/** 잡음이 완전히 걷히지는 않는다 — 대역 한가운데서도 남는 양. */
-const STATIC_FLOOR = 0.08;
-/** 이 거리(%)만큼 벗어나면 잡음이 최대가 된다. */
-const STATIC_FALLOFF = 45;
-
 /**
- * 바늘이 목표 대역에서 멀수록 잡음이 커진다.
- *
- * 눈으로만 맞추는 게임이었는데, 귀로도 조준할 수 있게 하면 난이도가 아니라 감각이
- * 붙는다 — 실제 라디오를 맞출 때 우리가 보는 건 눈금이 아니라 잡음이 걷히는 지점이다.
+ * 좌우로 흔들리는 바늘이 목표 대역을 지나는 순간 Space — 5회 맞추면 클리어.
+ * 맞출수록 대역이 좁아지고 바늘이 빨라진다 (./difficulty.ts).
  */
-function staticLevel(position: number, bandLeft: number): number {
-  const inner = BAND_WIDTH / 2;
-  const distance = Math.abs(position - (bandLeft + inner));
-  if (distance <= inner) return STATIC_FLOOR;
-  return Math.min(1, STATIC_FLOOR + ((distance - inner) / STATIC_FALLOFF) * (1 - STATIC_FLOOR));
-}
-
-/** 좌우로 흔들리는 바늘이 목표 대역을 지나는 순간 Space — 3회 맞추면 클리어. */
 export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
   const { t } = useTranslation();
+  const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
-  const [bandLeft, setBandLeft] = useState(randomBandLeft);
+  const [bandLeft, setBandLeft] = useState(() => randomBandLeft(bandWidthAt(0)));
   const [flash, setFlash] = useState<"hit" | "miss" | null>(null);
   const needleRef = useRef<HTMLDivElement>(null);
   const pointerRef = useRef<HTMLDivElement>(null);
   const readoutRef = useRef<HTMLSpanElement>(null);
+  const lampRef = useRef<HTMLSpanElement>(null);
   const positionRef = useRef(0);
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
 
@@ -91,23 +102,36 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
     };
   }, []);
 
-  // 목표 대역은 명중할 때마다 바뀐다. rAF 루프는 한 번만 도므로 최신 값을 ref로 받는다.
+  /** 이번 판의 목표 대역 폭 — 명중할수록 좁아진다. */
+  const bandWidth = bandWidthAt(hits);
+
+  // 대역과 속도는 명중할 때마다 바뀐다. rAF 루프는 한 번만 도므로 최신 값을 ref로 받는다.
   const bandLeftRef = useRef(bandLeft);
   bandLeftRef.current = bandLeft;
+  const bandWidthRef = useRef(bandWidth);
+  bandWidthRef.current = bandWidth;
+  const periodRef = useRef(needlePeriodAt(hits));
+  periodRef.current = needlePeriodAt(hits);
 
   // 바늘 애니메이션 — setState 대신 ref 직접 변이 (60fps)
   useEffect(() => {
     let frame = 0;
-    const start = performance.now();
+    let last = performance.now();
+    // 경과 시간이 아니라 위상을 누적한다 — 주기가 바뀌는 순간 바늘이 순간이동하지 않게.
+    let phase = 0;
     const loop = (now: number) => {
-      const phase = ((now - start) % NEEDLE_PERIOD_MS) / NEEDLE_PERIOD_MS;
+      phase = (phase + (now - last) / periodRef.current) % 1;
+      last = now;
       const position = (Math.sin(phase * Math.PI * 2) + 1) * 50;
       positionRef.current = position;
       if (needleRef.current) needleRef.current.style.left = `${position}%`;
       if (pointerRef.current) pointerRef.current.style.left = `${position}%`;
       if (readoutRef.current) readoutRef.current.textContent = freqAt(position);
       // setState 없이 게인만 민다 — 매 프레임 리렌더가 나면 60fps가 안 나온다.
-      bedRef.current?.setLevel(staticLevel(position, bandLeftRef.current));
+      const level = staticLevel(position, bandLeftRef.current, bandWidthRef.current);
+      bedRef.current?.setLevel(level);
+      // 잡음이 걷히는 만큼 TUNING 램프가 밝아진다 — 소리와 같은 값을 눈으로도 준다.
+      if (lampRef.current) lampRef.current.style.opacity = (1 - level).toFixed(3);
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
@@ -117,13 +141,14 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
   const attemptRef = useRef(() => {});
   attemptRef.current = () => {
     const position = positionRef.current;
-    const hit = position >= bandLeft && position <= bandLeft + BAND_WIDTH;
+    const hit = position >= bandLeft && position <= bandLeft + bandWidth;
     setFlash(hit ? "hit" : "miss");
     playSound(hit ? "radioLock" : "deny");
     if (hit) {
       const next = hits + 1;
       setHits(next);
-      setBandLeft(randomBandLeft());
+      // 다음 대역은 좁아진 폭 기준으로 놓는다 — 넓은 폭으로 뽑으면 다이얼 끝에 걸린다.
+      setBandLeft(randomBandLeft(bandWidthAt(next)));
       if (next >= GOAL_HITS) complete({ cleared: true, score: next });
       return;
     }
@@ -150,9 +175,8 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
 
   return (
     <MinigameShell
-      size="lg"
       title={t("minigame.frequencyTune.title")}
-      help={t("minigame.frequencyTune.help")}
+      help={hint("minigame.frequencyTune.help")}
       stats={
         <>
           <MinigameStat label={t("minigame.labelSuccess")} value={`${hits} / ${GOAL_HITS}`} />
@@ -175,98 +199,135 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
       skipVisible={skipByTime || misses >= SKIP_AFTER_MISSES}
       onSkip={() => complete({ cleared: true, score: hits })}
     >
+      {/*
+       * 라디오 한 대가 통째로 버튼이다. 폭은 화면 높이에서도 잘라준다 —
+       * 오버레이는 스크롤되지 않아서(MinigameHost), 세로가 짧으면 라디오 아래가 잘린다.
+       */}
       <button
         type="button"
         onPointerDown={() => attemptRef.current()}
-        aria-label={t("minigame.frequencyTune.help")}
-        className={`relative block w-full cursor-pointer overflow-hidden rounded-md border-2 bg-scene-deep px-6 pb-5 pt-7 shadow-panel transition-colors duration-300 ${
-          flash === "hit"
-            ? "border-memory shadow-slot-glow"
-            : flash === "miss"
-              ? "border-ember"
-              : "border-bone/15"
-        }`}
+        aria-label={hint("minigame.frequencyTune.help")}
+        className="relative mx-auto block w-[min(100%,calc(44svh*1.361))] cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
       >
-        {/* 모서리 나사 디테일 */}
-        <span aria-hidden className="absolute left-2 top-2 size-1 rounded-full bg-bone/20" />
-        <span aria-hidden className="absolute right-2 top-2 size-1 rounded-full bg-bone/20" />
-        <span aria-hidden className="absolute bottom-2 left-2 size-1 rounded-full bg-bone/20" />
-        <span aria-hidden className="absolute bottom-2 right-2 size-1 rounded-full bg-bone/20" />
+        {/* 표시창 바탕 — 프레임 뒤로 물려 깐다 (둥근 모서리 틈 방지) */}
+        <span
+          aria-hidden
+          className="absolute rounded-md bg-paper"
+          style={glassInset(GLASS_BLEED)}
+        />
 
-        {/* 다이얼 눈금 트랙 (position 0~100% 좌표계) */}
-        <div aria-hidden className="relative mx-1 h-36">
-          {/* 목표 대역 — 금빛 대시 밴드 */}
-          <div
-            className="absolute top-8 bottom-[2.9rem] rounded-sm border border-dashed border-memory/70 bg-memory/20 shadow-slot-glow transition-all duration-300"
-            style={{ left: `${bandLeft}%`, width: `${BAND_WIDTH}%` }}
+        {/* 표시창 안쪽 — 여기 있는 건 전부 창 좌표계(0~100%) */}
+        <span
+          aria-hidden
+          className="@container absolute block overflow-hidden"
+          style={glassInset()}
+        >
+          {/* 명중·실패 순간의 유리 물들임 */}
+          <span
+            className={`absolute inset-0 transition-opacity duration-300 ${
+              flash === "hit"
+                ? "bg-memory/35 opacity-100"
+                : flash === "miss"
+                  ? "bg-ember/20 opacity-100"
+                  : "opacity-0"
+            }`}
           />
 
-          {/* 눈금 */}
-          {ticks.map((tick) => (
-            <span
-              key={tick.pct}
-              className={`absolute top-8 w-px -translate-x-1/2 ${
-                tick.major ? "h-7 bg-bone/45" : "h-3.5 bg-bone/25"
-              }`}
-              style={{ left: `${tick.pct}%` }}
-            />
-          ))}
-
-          {/* 주파수 숫자 */}
-          {ticks
-            .filter((tick) => tick.label !== undefined)
-            .map((tick) => (
+          {/* 주파수 표시 + 성공 진행 별 */}
+          <span className="absolute inset-x-[4%] top-[3%] flex items-baseline justify-between">
+            <span className="flex items-baseline gap-[1.5cqw]">
               <span
-                key={`label-${tick.pct}`}
-                // 좁은 화면에서는 100 이상 세 자리가 서로 붙어 "100102104"로 읽힌다 — 글자를 줄여 띄운다
-                className="absolute top-[4.75rem] -translate-x-1/2 font-mono text-[0.6875rem] font-bold tabular-nums text-bone/70 sm:text-sm"
-                style={{ left: `${tick.pct}%` }}
+                ref={readoutRef}
+                className="font-mono text-[7cqw] font-bold leading-none tabular-nums text-ink"
               >
-                {tick.label}
+                {freqAt(0)}
               </span>
-            ))}
-          <span className="absolute right-0 top-[6.5rem] font-mono text-xs font-medium tracking-widest text-bone/40">
-            MHz
+              <span className="font-mono text-[2.6cqw] font-medium tracking-widest text-ink/45">
+                MHz
+              </span>
+            </span>
+            <span className="flex items-center gap-[1cqw]">
+              {Array.from({ length: GOAL_HITS }, (_, i) => (
+                <span
+                  // biome-ignore lint/suspicious/noArrayIndexKey: 고정 길이 진행 표시
+                  key={i}
+                  className={`block w-[4cqw] ${i < hits ? "text-memory" : "text-ink/20"}`}
+                >
+                  <Star size="100%" weight={i < hits ? "fill" : "regular"} />
+                </span>
+              ))}
+            </span>
           </span>
 
-          {/* 베이스라인 */}
-          <span className="absolute inset-x-0 top-[6.1rem] h-px bg-bone/15" />
+          {/* 다이얼 트랙 — 바늘이 끝까지 가도 잘리지 않게 좌우를 띄운다 */}
+          <span className="absolute inset-y-0 inset-x-[4%] block">
+            {/* 목표 대역 */}
+            <span
+              className="absolute top-[38%] h-[36%] rounded-xs border border-memory bg-memory/25 transition-all duration-300"
+              style={{ left: `${bandLeft}%`, width: `${bandWidth}%` }}
+            />
 
-          {/* 삼각 포인터 (바늘 위치 추적) */}
-          <div
-            ref={pointerRef}
-            className="absolute -top-1 size-0 -translate-x-1/2 border-x-[7px] border-t-[9px] border-x-transparent border-t-ember"
-            style={{ left: "0%" }}
-          />
-
-          {/* 바늘 — 레드 스티치 */}
-          <div
-            ref={needleRef}
-            className="absolute top-7 bottom-[2.9rem] w-0.5 -translate-x-1/2 rounded-full bg-ember shadow-slot-glow"
-            style={{ left: "0%" }}
-          />
-        </div>
-
-        {/* 디지털 표시창 + 성공 진행 별 */}
-        <div className="mt-2 flex items-center justify-center gap-4">
-          <span aria-hidden className="flex gap-1.5">
-            {Array.from({ length: GOAL_HITS }, (_, i) => (
-              <Star
-                // biome-ignore lint/suspicious/noArrayIndexKey: 고정 길이 진행 표시
-                key={i}
-                size={18}
-                weight={i < hits ? "fill" : "regular"}
-                className={i < hits ? "text-memory" : "text-bone/25"}
+            {/* 눈금 */}
+            {ticks.map((tick) => (
+              <span
+                key={tick.pct}
+                className={`absolute w-px -translate-x-1/2 ${
+                  tick.major ? "top-[58%] h-[16%] bg-ink/45" : "top-[66%] h-[8%] bg-ink/25"
+                }`}
+                style={{ left: `${tick.pct}%` }}
               />
             ))}
+
+            {/* 베이스라인 */}
+            <span className="absolute inset-x-0 top-[74%] h-px bg-ink/20" />
+
+            {/* 주파수 숫자 */}
+            {ticks
+              .filter((tick) => tick.label !== undefined)
+              .map((tick) => (
+                <span
+                  key={`label-${tick.pct}`}
+                  className="absolute top-[78%] -translate-x-1/2 font-mono text-[2.6cqw] font-bold leading-none tabular-nums text-ink/55"
+                  style={{ left: `${tick.pct}%` }}
+                >
+                  {tick.label}
+                </span>
+              ))}
+
+            {/* 삼각 포인터 (바늘 위치 추적) */}
+            <span
+              ref={pointerRef}
+              className="absolute top-[30%] size-0 -translate-x-1/2 border-x-[0.9cqw] border-t-[1.2cqw] border-x-transparent border-t-ember"
+              style={{ left: "0%" }}
+            />
+
+            {/* 바늘 */}
+            <span
+              ref={needleRef}
+              className="absolute top-[33%] h-[43%] w-[max(1px,0.4cqw)] -translate-x-1/2 rounded-full bg-ember"
+              style={{ left: "0%" }}
+            />
           </span>
-          <span className="flex items-baseline gap-2 rounded-full border border-bone/15 bg-scene-navy px-6 py-1.5">
-            <span ref={readoutRef} className="font-mono text-4xl font-bold tabular-nums text-paper">
-              {freqAt(0)}
-            </span>
-            <span className="font-mono text-sm font-medium tracking-widest text-bone/50">MHz</span>
-          </span>
-        </div>
+        </span>
+
+        {/* 라디오 본체 — 바깥 배경과 표시창이 뚫려 있어 위에 얹으면 창 안에 든 것처럼 보인다 */}
+        {/* biome-ignore lint/performance/noImgElement: 표시창을 정확히 덮어야 해서 원본 비율 그대로 쓴다. */}
+        <img
+          src={ASSETS.images.mgFrequencyTuneFrame}
+          alt=""
+          width={FRAME.width}
+          height={FRAME.height}
+          draggable={false}
+          className="relative z-10 block h-auto w-full select-none"
+        />
+
+        {/* TUNING 램프 — 프레임에 그려진 빨간 점 위에 얹는 빛 */}
+        <span
+          ref={lampRef}
+          aria-hidden
+          className="absolute z-20 block w-[3.6%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember opacity-0 blur-[3px]"
+          style={{ left: LAMP.left, top: LAMP.top, aspectRatio: "1" }}
+        />
       </button>
     </MinigameShell>
   );
