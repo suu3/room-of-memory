@@ -86,6 +86,11 @@ export const LIGHT_SWITCH_PLACEMENT = {
   /** 판/토글 크기도 장식이 쓰던 값 그대로 — [폭(z), 높이(y), 두께(x)]. */
   plateSize: [0.2, 0.3, 0.05],
   rockerSize: [0.1, 0.14, 0.03],
+  /**
+   * 다가가면 빛나기 시작하는 거리. 표식이 없는 물건이라 이 반경이 곧 "여기 뭔가
+   * 있다"는 유일한 신호다 — 옆에 선 배트(1.35)와 같이 잡아 둘이 함께 켜지게 한다.
+   */
+  interactionRadius: 1.35,
 } as const;
 
 export const MEMORY_PLACEMENTS = {

@@ -10,8 +10,10 @@ import { LIGHT_SWITCH_PLACEMENT } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { useGlowHover } from "./use-glow-hover";
+import { useNearPlayer } from "./use-near-player";
 
 const { plateSize, rockerSize } = LIGHT_SWITCH_PLACEMENT;
+const [SWITCH_X, , SWITCH_Z] = LIGHT_SWITCH_PLACEMENT.position;
 /** 토글이 위아래로 젖혀지는 각도(라디안). */
 const ROCKER_TILT = 0.42;
 
@@ -26,6 +28,9 @@ export function LightSwitch({ palette }: { palette: RoomPalette }) {
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
   const toggleLights = useMemoryRoomStore((state) => state.toggleLights);
   const { hovered, handlers } = useGlowHover(true);
+  // 표식을 달기엔 곁가지 물건이라, 다가간 사람에게만 빛으로 알린다.
+  // 마우스가 없는 화면에서는 이게 스위치를 찾는 유일한 단서다.
+  const near = useNearPlayer(SWITCH_X, SWITCH_Z, LIGHT_SWITCH_PLACEMENT.interactionRadius);
   const rockerRef = useRef<Group>(null);
 
   // 토글은 각도만 오가므로 setState 없이 ref를 민다 (.claude/rules/r3f.md)
@@ -54,7 +59,7 @@ export function LightSwitch({ palette }: { palette: RoomPalette }) {
         toggleLights();
       }}
     >
-      <MemoryGlowSelection selectionKey="light-switch" enabled={hovered}>
+      <MemoryGlowSelection selectionKey="light-switch" enabled={hovered || near}>
         {/* 벽에 붙는 판 */}
         <mesh castShadow>
           <boxGeometry args={plateSize} />

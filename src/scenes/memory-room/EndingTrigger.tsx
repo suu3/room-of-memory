@@ -13,8 +13,11 @@ import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-m
 import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
 import { useGlowHover } from "./use-glow-hover";
+import { useNearPlayer } from "./use-near-player";
 
 useGLTF.preload(ASSETS.models.baseballBat, true, true);
+
+const [BAT_X, , BAT_Z] = BAT_PLACEMENT.position;
 
 /** 준비되기 전의 배트가 내는 아주 옅은 빛 — "여기 뭔가 있다"까지만 말한다. */
 const DORMANT_EMISSIVE = 0.06;
@@ -34,7 +37,11 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
   const ready = useMemoryRoomStore(selectEndingReady);
   const started = useMemoryRoomStore((state) => state.endingStarted);
   const startEnding = useMemoryRoomStore((state) => state.startEnding);
-  const { hovered, handlers } = useGlowHover(ready && !started);
+  const clickable = ready && !started;
+  const { hovered, handlers } = useGlowHover(clickable);
+  // 다가가면 빛난다 — 쥘 수 있게 된 뒤부터만. 아직 아닌 배트가 빛나면
+  // 다 돌지도 않았는데 엔딩이 열린 것처럼 읽힌다.
+  const near = useNearPlayer(BAT_X, BAT_Z, BAT_PLACEMENT.interactionRadius) && clickable;
   const motionRef = useRef<Group>(null);
   const hoverRef = useRef(0);
   const punchRef = useRef(PUNCH_DURATION);
@@ -109,7 +116,7 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
         grab();
       }}
     >
-      <MemoryGlowSelection selectionKey="ending-bat" enabled={hovered}>
+      <MemoryGlowSelection selectionKey="ending-bat" enabled={hovered || near}>
         <group ref={motionRef}>
           <group rotation={BAT_PLACEMENT.rotation} scale={BAT_PLACEMENT.scale} {...handlers}>
             <primitive object={bat} />

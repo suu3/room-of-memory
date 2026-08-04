@@ -4,7 +4,13 @@ import { useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { type Group, MathUtils, Plane, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
-import { type CurtainPull, type CurtainSide, curtainX, pullProgress } from "./curtain-motion";
+import {
+  CURTAIN_X,
+  type CurtainPull,
+  type CurtainSide,
+  curtainX,
+  pullProgress,
+} from "./curtain-motion";
 import { FurnitureModel } from "./FurnitureModel";
 import {
   CABINET_BODY,
@@ -19,6 +25,7 @@ import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
+import { useNearPlayer } from "./use-near-player";
 
 const ROOM_PROP_PATHS = [
   ASSETS.models.computerScreen,
@@ -119,6 +126,15 @@ const curtainHit = new Vector3();
 function curtainPlaneX(ray: { intersectPlane: (plane: Plane, target: Vector3) => Vector3 | null }) {
   return ray.intersectPlane(CURTAIN_PLANE, curtainHit)?.x ?? null;
 }
+
+/**
+ * 커튼이 켜지기 시작하는 거리.
+ *
+ * 커튼은 뒷벽에 붙어 있어(z=-3.72) 플레이어가 아무리 다가가도 z로 0.8쯤은 떨어져
+ * 선다. 창문 기억의 반경(1.6)보다 넉넉히 잡아야 "창가에 왔다" 싶은 자리에서
+ * 양쪽 커튼이 함께 켜진다 — 한 쪽만 켜지면 나머지 한 쪽이 있는 줄 모른다.
+ */
+const CURTAIN_NEAR_RADIUS = 2.1;
 
 const CURTAIN_FOLD_PARTS = [
   { size: [0.82, 2.9, 0.16], position: [-0.52, 0, -0.02], color: "navy" },
@@ -376,6 +392,14 @@ function Curtain({
   const groupRef = useRef<Group>(null);
   const opened = progress >= 1;
   const { hovered, handlers } = useGlowHover(!opened);
+  /*
+   * 다가가면 빛난다 — 젖힐 수 있을 때만.
+   *
+   * 기준점은 커튼이 지금 있는 자리가 아니라 닫혀 있을 때의 자리다. 젖히는 도중에
+   * 판정 원이 손을 따라 미끄러지면, 당기다 말고 반경 밖으로 나가 빛이 꺼진다.
+   */
+  const nearCurtain = useNearPlayer(CURTAIN_X[side].closed, CURTAIN_Z, CURTAIN_NEAR_RADIUS);
+  const near = nearCurtain && !opened;
   const reducedMotion = useMemo(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     [],
@@ -444,7 +468,7 @@ function Curtain({
       // 곧바로 드래그가 취소돼 한 칸도 못 움직였다. 포인터 캡처가 잡혀 있으므로
       // 밖으로 나가도 move/up은 계속 들어온다.
     >
-      <MemoryGlowSelection selectionKey={`curtain-${side}`} enabled={hovered}>
+      <MemoryGlowSelection selectionKey={`curtain-${side}`} enabled={hovered || near}>
         <BoxParts parts={CURTAIN_FOLD_PARTS} palette={palette} />
       </MemoryGlowSelection>
     </group>

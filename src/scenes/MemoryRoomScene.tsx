@@ -31,6 +31,7 @@ import { resolveRoomPalette } from "./memory-room/palette";
 import { RoomDecor } from "./memory-room/RoomDecor";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
+import { PlayerPositionProvider } from "./memory-room/use-near-player";
 import {
   lampScaled,
   outsideDecay,
@@ -169,7 +170,8 @@ export function MemoryRoomScene({
   });
 
   return (
-    <>
+    // 커튼·전등 스위치처럼 표식 없이 근접으로만 켜지는 것들이 플레이어 위치를 본다
+    <PlayerPositionProvider value={playerPositionRef}>
       <StageLighting
         lightLevel={lightLevel}
         lightsOn={lightsOn}
@@ -177,20 +179,30 @@ export function MemoryRoomScene({
         fillColor={palette.paper}
         groundColor={palette.deep}
       />
-      <RoomShell
-        palette={palette}
-        doorReady={isEndingReady}
-        doorOpen={endingStarted}
-        outsideDecay={outsideDecay({
-          collected: collectedCount,
-          memoryTotal: MEMORY_TOTAL,
-          phase: gamePhase,
-        })}
-      />
-      {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없으니 글로우 루트 밖이다 */}
-      <RoomDecor palette={palette} />
-      {/* 커튼도 클릭 가능한 오브젝트라 기억들과 같은 아웃라인 글로우를 쓴다 — 같은 루트 안에 있어야 한다 */}
+      {/*
+        방의 몸통은 통째로 글로우 루트 안에 둔다.
+
+        예전에는 "만질 수 있는 것"만 넣었는데, 전등 스위치가 벽에 붙은 물건이라
+        RoomShell(=루트 밖)에 있었고 — MemoryGlowSelection이 컨텍스트를 못 찾아
+        조용히 아무것도 안 했다. 스위치만 혼자 빛나지 않던 이유다.
+
+        루트 안에 있다고 빛나는 게 아니라 MemoryGlowSelection이 enabled일 때만
+        빛나므로, 범위를 넓혀도 장식·벽은 그대로 잠잠하다. EffectComposer는
+        화면 전체를 한 번 훑는 패스라 트리에서의 위치도 그림에 영향이 없다.
+      */}
       <MemoryGlowRoot color={palette.memory}>
+        <RoomShell
+          palette={palette}
+          doorReady={isEndingReady}
+          doorOpen={endingStarted}
+          outsideDecay={outsideDecay({
+            collected: collectedCount,
+            memoryTotal: MEMORY_TOTAL,
+            phase: gamePhase,
+          })}
+        />
+        {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
+        <RoomDecor palette={palette} />
         <RoomFurniture
           palette={palette}
           curtainPull={curtainPull}
@@ -221,6 +233,6 @@ export function MemoryRoomScene({
         following={following}
         playerPositionRef={playerPositionRef}
       />
-    </>
+    </PlayerPositionProvider>
   );
 }
