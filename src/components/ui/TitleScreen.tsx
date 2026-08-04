@@ -66,8 +66,11 @@ export function TitleScreen() {
      * 베일은 방을 가리는 게 아니라 글씨를 읽히게 하는 정도까지만.
      * bg-scene-void/80 + blur-md는 방을 거의 지워서, 타이틀 화면에 3D를 돌려 두는
      * 의미가 없었다. 흐림을 줄이고 어둠은 가운데로 모아(radial) 글자 뒤만 눌러 준다.
+     *
+     * pb-16은 푸터(연락처) 자리다. 가운데 정렬이라 이만큼 비워 둬야 화면이 낮을 때
+     * 조작 안내가 연락처 밑으로 파고들지 않는다.
      */
-    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-10 px-6 backdrop-blur-[2px]">
+    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-10 px-6 pb-16 backdrop-blur-[2px]">
       {/* 글자 뒤만 눌러 주는 어둠. 방 가장자리는 그대로 드러난다 */}
       <div
         aria-hidden
@@ -88,6 +91,10 @@ export function TitleScreen() {
         </p>
       </div>
 
+      {/*
+        이 화면에서 눌러야 할 곳은 여기 하나다. 방 안의 기억 핫스팟과 같은 2.4s 호흡으로
+        맥동시켜 "누를 수 있는 것"의 신호를 게임 전체에서 하나로 맞춘다.
+      */}
       <button
         ref={startButtonRef}
         type="button"
@@ -96,7 +103,7 @@ export function TitleScreen() {
           setEnteringAtRevision(resetRevision);
           enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
         }}
-        className="relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
+        className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
       >
         {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
       </button>
@@ -136,14 +143,27 @@ export function TitleScreen() {
         <div className="rounded-full border border-bone/20 bg-paper px-3 py-2 shadow-chip">
           <LanguageToggle />
         </div>
+      </div>
+
+      {/*
+        연락처는 게임을 시작하는 흐름의 일부가 아니라 이 사이트에 대한 정보다 —
+        시작 버튼 바로 아래에 두면 다음 단계처럼 읽힌다. 화면 맨 아래로 내려 푸터로
+        분리하면 "필요하면 찾아가는 곳"이 된다.
+
+        safe-area는 모바일 홈 인디케이터에 글자가 물리지 않게 하기 위한 것.
+      */}
+      <footer
+        className="absolute inset-x-0 bottom-0 flex justify-center px-6"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.25rem)" }}
+      >
         <button
           type="button"
           onClick={() => setContactOpen(true)}
-          className="cursor-pointer text-xs font-bold tracking-widest text-bone/45 transition-colors hover:text-bone active:text-bone/70"
+          className="cursor-pointer rounded-sm px-2 py-1 text-xs font-bold tracking-widest text-bone/45 transition-colors hover:text-bone active:text-bone/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
           {t("hud.contact")}
         </button>
-      </div>
+      </footer>
     </div>
   );
 }

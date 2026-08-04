@@ -52,6 +52,12 @@
   --animate-page-flip-next: page-flip-next 0.32s cubic-bezier(0.3, 0.7, 0.4, 1) both;
   --animate-page-flip-prev: page-flip-prev 0.32s cubic-bezier(0.3, 0.7, 0.4, 1) both;
   --animate-page-nudge: page-nudge 0.3s ease-out both;
+  /*
+   * 시작 버튼. 주기를 hotspot-glow와 같은 2.4s로 맞춘다 — 방 안에서 "여기 눌러라"는
+   * 이미 그 호흡으로 말하고 있으므로, 타이틀에서 다른 박자로 깜빡이면 같은 게임의
+   * 같은 신호로 안 읽힌다.
+   */
+  --animate-start-pulse: start-pulse 2.4s ease-in-out infinite;
 
   @keyframes hotspot-glow {
     0%,
@@ -110,6 +116,34 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  /*
+   * 시작 버튼의 호흡. 링이 퍼져 나가는 것과 종이가 금빛으로 데워지는 것이 한 박자로
+   * 묶여 있다 — 표면과 테두리를 각각 다른 주기로 움직이면 버튼 하나가 두 개로 보인다.
+   *
+   * 광택(흰 빛이 훑고 지나가는)은 쓰지 않는다. paper(#EFE7D6)보다 밝은 토큰이
+   * 팔레트에 없어서 크림색 버튼 위의 광택은 뿌연 얼룩으로만 보인다. 대신 팔레트가
+   * 가진 방향, 즉 금빛(memory) 쪽으로 데운다.
+   *
+   * box-shadow는 목록 전체가 교체되므로 버튼 자신의 그림자(shadow-panel)를 매
+   * 키프레임에 다시 얹는다 — 링만 적으면 애니메이션이 도는 동안 버튼이 종이에서
+   * 떠 있던 그림자를 잃는다.
+   */
+  @keyframes start-pulse {
+    0%,
+    100% {
+      background-color: var(--color-paper);
+      box-shadow:
+        var(--shadow-panel),
+        0 0 0 0 color-mix(in srgb, var(--color-memory) 55%, transparent);
+    }
+    50% {
+      background-color: color-mix(in srgb, var(--color-paper) 86%, var(--color-memory));
+      box-shadow:
+        var(--shadow-panel),
+        0 0 0 12px transparent;
     }
   }
 
@@ -298,6 +332,7 @@ body {
   transform-origin: 88% 82%;
 }
 
+
 @keyframes bat-swing-image-reduced {
   0%,
   100% {
@@ -340,5 +375,17 @@ body {
   .animate-loading-sweep {
     animation: none;
     transform: translateX(100%);
+  }
+
+  /*
+   * 시작 버튼은 움직임을 멈추되 강조는 남긴다 — 이 화면에서 눌러야 할 곳이
+   * 어디인지가 애니메이션에만 실려 있으면, 모션을 끈 사람에게는 정보가 사라진다
+   * (DESIGN.md > Accessibility).
+   */
+  .animate-start-pulse {
+    animation: none;
+    box-shadow:
+      var(--shadow-panel),
+      0 0 0 3px color-mix(in srgb, var(--color-memory) 50%, transparent);
   }
 }
