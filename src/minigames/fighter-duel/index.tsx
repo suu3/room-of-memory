@@ -93,7 +93,11 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
     const next = applyOutcome(score, outcome);
     setResolved({ player: move, opponent: tell, outcome });
     setScore(next);
-    playSound(outcome === "win" ? "success" : outcome === "lose" ? "deny" : "select");
+    // 라운드 결과는 타격으로 말한다 — 승패 스팅어(success/fail)는 판 전체가 끝날 때
+    // 호스트가 한 번만 울린다. 여기서까지 울리면 매 라운드가 결승처럼 들린다.
+    playSound(outcome === "win" ? "punch" : outcome === "lose" ? "hurt" : "guard", {
+      variation: 0.05,
+    });
 
     const status = duelStatus(next);
     // 승부가 났으면 결과 자세를 보여주는 동안 닫히지 않게 잠근다
@@ -115,7 +119,8 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
     startRef.current = performance.now();
     lockedRef.current = false;
     setResolved(null);
-    playSound("flip");
+    // 예고 모션에 붙는 소리. 종이 넘김(flip)이 아니라 상대가 팔을 당기는 바람 소리다.
+    playSound("swingMiss", { variation: 0.08 });
   }, [round]);
 
   // 남은 시간 바 — setState 없이 ref를 직접 민다.

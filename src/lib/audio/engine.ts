@@ -1,10 +1,11 @@
 "use client";
 
-import { VOICES, type Voice, type VoiceId, voiceDuration } from "./voices";
+import { transposeVoice, VOICES, type Voice, type VoiceId, voiceDuration } from "./voices";
 
 /**
- * Web Audio로 효과음을 합성해 재생한다. 오디오 파일이 없다 — voices.ts의 악보를
- * 그때그때 오실레이터로 만든다.
+ * Web Audio로 효과음을 합성해 재생한다. 기본적으로 오디오 파일이 없다 — voices.ts의
+ * 악보를 그때그때 오실레이터로 만든다. 파일이 등록된 보이스만 파일이 이긴다
+ * (samples.ts 참고).
  *
  * AudioContext는 첫 사용자 제스처 전에는 만들지 않는다. 브라우저 자동재생 정책상
  * 제스처 없이 만들면 suspended 상태로 시작하고, 콘솔 경고만 남기고 아무 소리도 안 난다.
@@ -100,8 +101,33 @@ function scheduleVoice(ctx: AudioContext, output: GainNode, voice: Voice, startA
   source.stop(end + 0.02);
 }
 
+export interface PlayOptions {
+  /**
+   * 음높이를 매번 이 비율만큼 무작위로 흔든다 (0.08이면 ±8%). 같은 소리가 연달아
+   * 나는 자리에서만 쓴다 — 버튼처럼 한 번씩 울리는 소리는 흔들면 고장난 것처럼 들린다.
+   */
+  variation?: number;
+}
+
+/** 등록된 파일 샘플. 비어 있으면(기본) 전부 합성으로 간다 — samples.ts 참고. */
+const samples = new Map<VoiceId, AudioBuffer>();
+
+/** samples.ts가 디코드를 끝낸 버퍼를 꽂아 넣는 통로. */
+export function registerSample(id: VoiceId, buffer: AudioBuffer) {
+  samples.set(id, buffer);
+}
+
+function playSample(ctx: AudioContext, output: GainNode, buffer: AudioBuffer, rate: number) {
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.playbackRate.value = rate;
+  source.connect(output);
+  source.start();
+  source.onended = () => source.disconnect();
+}
+
 /** 소리 하나 재생. 컨텍스트가 아직 없으면(제스처 전) 조용히 넘어간다. */
-export function playSound(id: VoiceId) {
+export function playSound(id: VoiceId, options: PlayOptions = {}) {
   if (muted) return;
   const ctx = ensureContext();
   if (!ctx || !master) return;
@@ -113,8 +139,98 @@ export function playSound(id: VoiceId) {
   if (now - previous < MIN_REPEAT_S) return;
   lastPlayedAt.set(id, now);
 
-  const voice = VOICES[id];
-  scheduleVoice(ctx, master, voice, now + 0.001);
+  const { variation = 0 } = options;
+  // 1을 중심으로 ±variation. 샘플에는 재생속도로, 합성에는 주파수 배율로 같은 값이 걸린다.
+  const ratio = variation > 0 ? 1 + (Math.random() * 2 - 1) * variation : 1;
+
+  const sample = samples.get(id);
+  if (sample) {
+    playSample(ctx, master, sample, ratio);
+    return;
+  }
+  scheduleVoice(ctx, master, transposeVoice(VOICES[id], ratio), now + 0.001);
+}
+
+/**
+ * 계속 깔리는 노이즈 층. 라디오 잡음처럼 "한 번 울리고 끝"이 아닌 소리는 Voice로
+ * 못 만든다 — Voice는 0.6초를 넘지 않는다는 계약이 걸려 있다(voices.test.ts).
+ *
+ * 필터드 화이트노이즈가 곧 정적이라, 이건 파일보다 합성이 유리한 몇 안 되는 소리다.
+ * 파일이면 루프 이음새를 감춰야 하지만 노이즈는 애초에 이음새가 없다.
+ */
+export interface NoiseBed {
+  /** 0이면 무음, 1이면 설정한 최대 음량. 뚝 끊기지 않게 완만히 따라간다. */
+  setLevel(level: number): void;
+  stop(): void;
+}
+
+export interface NoiseBedOptions {
+  /** level 1에서의 음량. 효과음보다 낮게 — 계속 들리는 소리라 금방 피곤해진다. */
+  gain: number;
+  highpass: number;
+  lowpass: number;
+}
+
+/** 루프용 노이즈. 짧은 버퍼를 돌리면 반복 주기가 웅웅거려 들리므로 넉넉히 잡는다. */
+const BED_BUFFER_S = 2;
+let bedBuffer: AudioBuffer | null = null;
+/** disposeAudio에서 한 번에 걷어내기 위한 목록. */
+const activeBeds = new Set<NoiseBed>();
+
+function getBedBuffer(ctx: AudioContext): AudioBuffer {
+  if (bedBuffer && bedBuffer.sampleRate === ctx.sampleRate) return bedBuffer;
+  const length = Math.floor(ctx.sampleRate * BED_BUFFER_S);
+  const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let index = 0; index < length; index += 1) data[index] = Math.random() * 2 - 1;
+  bedBuffer = buffer;
+  return buffer;
+}
+
+export function startNoiseBed({ gain: peak, highpass, lowpass }: NoiseBedOptions): NoiseBed | null {
+  const ctx = ensureContext();
+  if (!ctx || !master) return null;
+  if (ctx.state === "suspended") void ctx.resume();
+
+  const source = ctx.createBufferSource();
+  source.buffer = getBedBuffer(ctx);
+  source.loop = true;
+  const highpassFilter = ctx.createBiquadFilter();
+  highpassFilter.type = "highpass";
+  highpassFilter.frequency.value = highpass;
+  const lowpassFilter = ctx.createBiquadFilter();
+  lowpassFilter.type = "lowpass";
+  lowpassFilter.frequency.value = lowpass;
+  const gain = ctx.createGain();
+  // 0에서 시작해야 켜지는 순간 "퍽" 하고 튀지 않는다.
+  gain.gain.value = 0;
+
+  source.connect(highpassFilter).connect(lowpassFilter).connect(gain).connect(master);
+  source.start();
+
+  let stopped = false;
+  const bed: NoiseBed = {
+    setLevel(level) {
+      if (stopped) return;
+      const clamped = Number.isNaN(level) ? 0 : Math.min(1, Math.max(0, level));
+      gain.gain.setTargetAtTime(clamped * peak, ctx.currentTime, 0.08);
+    },
+    stop() {
+      if (stopped) return;
+      stopped = true;
+      activeBeds.delete(bed);
+      gain.gain.setTargetAtTime(0, ctx.currentTime, 0.05);
+      source.stop(ctx.currentTime + 0.3);
+      source.onended = () => {
+        source.disconnect();
+        highpassFilter.disconnect();
+        lowpassFilter.disconnect();
+        gain.disconnect();
+      };
+    },
+  };
+  activeBeds.add(bed);
+  return bed;
 }
 
 /**
@@ -150,10 +266,15 @@ export function setAudioVolume(next: number) {
 
 /** 테스트·핫리로드에서 상태를 되돌리기 위한 탈출구. */
 export function disposeAudio() {
+  // 컨텍스트를 닫기 전에 돌고 있는 소스를 끊는다 — 닫힌 컨텍스트에서는 stop이 던진다.
+  for (const bed of [...activeBeds]) bed.stop();
+  activeBeds.clear();
   void context?.close();
   context = null;
   master = null;
   noiseBuffer = null;
+  bedBuffer = null;
+  samples.clear();
   lastPlayedAt.clear();
 }
 

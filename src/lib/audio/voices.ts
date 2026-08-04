@@ -7,6 +7,7 @@
  */
 
 export type VoiceId =
+  // 공용 UI
   | "hover"
   | "select"
   | "collect"
@@ -16,7 +17,16 @@ export type VoiceId =
   | "success"
   | "fail"
   | "open"
-  | "close";
+  | "close"
+  // 미니게임 전용 — 공용 보이스를 돌려쓰면 손맛이 안 나는 자리들만 따로 판다.
+  | "batHit"
+  | "swingMiss"
+  | "punch"
+  | "hurt"
+  | "guard"
+  | "radioLock"
+  | "phoneBeep"
+  | "pencilStroke";
 
 export type Waveform = "sine" | "triangle" | "square" | "sawtooth";
 
@@ -122,7 +132,92 @@ export const VOICES: Record<VoiceId, Voice> = {
   close: {
     tones: [{ from: 494, to: 294, waveform: "sine", delay: 0, duration: 0.12, gain: 0.24 }],
   },
+
+  /*
+   * 여기부터 미니게임 전용. 위쪽 UI 보이스는 라단조 5음계로 "말을 거는" 소리지만,
+   * 아래는 대부분 무조(無調)다 — 배트도 주먹도 음정을 갖지 않는다. 대신 노이즈의
+   * 대역과 톤 몸통의 깊이로 재질을 나눈다.
+   */
+
+  /**
+   * 배트가 공을 맞히는 순간. 나무 몸통(빠르게 떨어지는 낮은 톤)과 크랙(짧고 밝은
+   * 노이즈)을 겹친다. 진짜 나무 소리는 합성으로 끝까지 못 가지만, 이 게임의 배트는
+   * 실사가 아니라 도트 스프라이트라 여기서 멈추는 편이 오히려 맞는다.
+   */
+  batHit: {
+    tones: [{ from: 180, to: 90, waveform: "triangle", delay: 0, duration: 0.11, gain: 0.26 }],
+    noise: { delay: 0, duration: 0.09, gain: 0.34, highpass: 2400 },
+  },
+  /** 헛스윙 — 맞은 소리가 아니라 지나간 소리. 부풀었다 사그라드는 바람만 남긴다. */
+  swingMiss: {
+    tones: [{ from: 140, to: 110, waveform: "sine", delay: 0, duration: 0.18, gain: 0.07 }],
+    noise: { delay: 0, duration: 0.22, gain: 0.2, highpass: 900, lowpass: 5200, attack: 0.08 },
+  },
+  /** 주먹이 꽂힌다. batHit과 같은 구조지만 대역을 낮게 좁혀 나무가 아니라 몸으로. */
+  punch: {
+    tones: [{ from: 150, to: 70, waveform: "sine", delay: 0, duration: 0.13, gain: 0.3 }],
+    noise: { delay: 0, duration: 0.07, gain: 0.26, highpass: 700, lowpass: 3800 },
+  },
+  /** 맞았을 때. 임팩트 뒤에 숨이 빠지는 꼬리가 붙는 게 punch와의 차이다. */
+  hurt: {
+    tones: [
+      { from: 130, to: 62, waveform: "triangle", delay: 0, duration: 0.16, gain: 0.28 },
+      { from: A3, to: 165, waveform: "sine", delay: 0.08, duration: 0.22, gain: 0.14 },
+    ],
+    noise: { delay: 0, duration: 0.09, gain: 0.2, highpass: 500, lowpass: 2600 },
+  },
+  /** 서로 막았을 때. 들어가지 않고 부딪히기만 하므로 짧고 딱딱하게 끊는다. */
+  guard: {
+    tones: [{ from: 330, to: 247, waveform: "square", delay: 0, duration: 0.06, gain: 0.16 }],
+    noise: { delay: 0, duration: 0.05, gain: 0.22, highpass: 3200 },
+  },
+  /** 주파수가 잡히는 순간. 잡음 속에서 신호가 떠오르듯 올라갔다 그 음에 머문다. */
+  radioLock: {
+    tones: [
+      { from: D4, to: A4, waveform: "sine", delay: 0, duration: 0.14, gain: 0.24 },
+      { from: A4, waveform: "sine", delay: 0.12, duration: 0.22, gain: 0.18 },
+    ],
+  },
+  /**
+   * 옛날 폰 문자 알림. 그 시절 알림음은 대개 사각파 두 방이었고, 지금 귀에 거슬리는
+   * 그 얇음이 곧 시대감이다 — 부드럽게 다듬으면 오히려 폰이 아니게 된다.
+   */
+  phoneBeep: {
+    tones: [
+      { from: C5, waveform: "square", delay: 0, duration: 0.07, gain: 0.16 },
+      { from: C5, waveform: "square", delay: 0.11, duration: 0.07, gain: 0.16 },
+    ],
+  },
+  /** 正자 한 획. 종이를 긁는 아주 짧은 마찰 — 달력을 넘기는 소리보다 작아야 한다. */
+  pencilStroke: {
+    tones: [{ from: 260, to: 210, waveform: "sine", delay: 0, duration: 0.05, gain: 0.06 }],
+    noise: { delay: 0, duration: 0.07, gain: 0.18, highpass: 1400, lowpass: 6000 },
+  },
 };
+
+/**
+ * 보이스 전체를 위아래로 옮긴다. 같은 소리가 연달아 나는 자리(사진 닦기처럼
+ * 진행률마다 울리는 것)에서 매번 똑같이 울리면 재생이 아니라 반복으로 들린다.
+ *
+ * 게인은 건드리지 않는다 — 음높이만 흔들어야 "같은 동작"으로 남는다. 노이즈의
+ * 필터 주파수까지 같이 옮겨야 재질이 따라온다(대역만 고정되면 음정만 뜬 것처럼 들린다).
+ */
+export function transposeVoice(voice: Voice, ratio: number): Voice {
+  if (ratio === 1) return voice;
+  const scale = (value: number) => value * ratio;
+  return {
+    tones: voice.tones.map((tone) => ({
+      ...tone,
+      from: scale(tone.from),
+      to: tone.to === undefined ? undefined : scale(tone.to),
+    })),
+    noise: voice.noise && {
+      ...voice.noise,
+      highpass: scale(voice.noise.highpass),
+      lowpass: voice.noise.lowpass === undefined ? undefined : scale(voice.noise.lowpass),
+    },
+  };
+}
 
 /** 소리 하나가 완전히 끝나는 데 걸리는 시간(초). 스케줄 정리에 쓴다. */
 export function voiceDuration(voice: Voice): number {

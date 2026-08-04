@@ -1,3 +1,5 @@
+import type { VoiceId } from "@/lib/audio/voices";
+
 /** 에셋 경로 상수 — 코드 곳곳에 경로 문자열을 산재시키지 않는다 (.claude/rules/assets.md). */
 export const ASSETS = {
   models: {
@@ -50,4 +52,18 @@ export const ASSETS = {
      */
     room: "/assets/audio/bgm/bgm-room-winter-morning.ogg",
   },
+  /**
+   * 파일로 대신할 효과음. 여기 없는 보이스는 전부 합성이다(src/lib/audio/voices.ts).
+   *
+   * 스프라이트 시트와 같이 "아직 리포에 없어도 되는" 목록이다 — 파일이 없으면
+   * 합성 보이스가 그대로 울린다 (src/lib/audio/samples.ts).
+   */
+  sfx: {
+    /**
+     * 배트가 공을 맞히는 순간. 나무가 쪼개지는 크랙은 오실레이터로 끝까지 못 간다 —
+     * 이 목록에 파일이 필요한 소리가 하나뿐인 이유이자, 그 하나인 이유.
+     * 넣을 때 규격: mp3/ogg, 500KB 이하 (.claude/rules/assets.md).
+     */
+    batHit: "/assets/audio/sfx/mg-ball-catch-bat-hit.mp3",
+  } as Partial<Record<VoiceId, string>>,
 } as const;

@@ -86,7 +86,8 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   const scrollBack = useCallback(() => {
     setRevealed((current) => {
       const next = revealEarlier(current);
-      if (next !== current) playSound("flip");
+      // 거슬러 올라갈 때마다 그때 울렸을 알림음이 한 번씩 다시 울린다.
+      if (next !== current) playSound("phoneBeep", { variation: 0.04 });
       return next;
     });
   }, []);

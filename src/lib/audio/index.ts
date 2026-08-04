@@ -6,9 +6,17 @@ import { useMemoryRoomStore } from "@/store/memory-room";
 import { disposeAudio as disposeEngine, playSound, setAudioMuted, unlockAudio } from "./engine";
 import { disposeMusic, setMusicDuck, setMusicLevel, startMusic, stopMusic } from "./music";
 
-export { playSound, setAudioMuted, setAudioVolume, unlockAudio } from "./engine";
+export {
+  type NoiseBed,
+  playSound,
+  setAudioMuted,
+  setAudioVolume,
+  startNoiseBed,
+  unlockAudio,
+} from "./engine";
 export { setMusicDuck, setMusicLevel, startMusic, stopMusic } from "./music";
 export { musicCutoff, musicVolume } from "./music-curve";
+export { preloadSamples } from "./samples";
 export type { VoiceId } from "./voices";
 
 /** BGM까지 함께 정리한다 — 컨텍스트를 닫기 전에 소스를 끊어야 한다. */

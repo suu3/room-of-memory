@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { VOICES, type VoiceId, voiceDuration } from "./voices";
+import { transposeVoice, VOICES, type VoiceId, voiceDuration } from "./voices";
 
 const IDS = Object.keys(VOICES) as VoiceId[];
 
@@ -41,6 +41,48 @@ describe("synthesised sound voices", () => {
     };
     for (const id of IDS.filter((candidate) => candidate !== "hover")) {
       expect(loudest("hover"), id).toBeLessThan(loudest(id));
+    }
+  });
+});
+
+describe("transposeVoice", () => {
+  it("returns the voice untouched at ratio 1", () => {
+    expect(transposeVoice(VOICES.wipe, 1)).toBe(VOICES.wipe);
+  });
+
+  it("moves tone frequencies and the noise band together", () => {
+    // 대역을 두고 음정만 옮기면 재질이 어긋난다 — 필터도 같은 비율로 따라가야 한다.
+    const moved = transposeVoice(VOICES.wipe, 2);
+    expect(moved.tones[0].from).toBeCloseTo(VOICES.wipe.tones[0].from * 2, 5);
+    expect(moved.tones[0].to ?? 0).toBeCloseTo((VOICES.wipe.tones[0].to ?? 0) * 2, 5);
+    expect(moved.noise?.highpass).toBeCloseTo((VOICES.wipe.noise?.highpass ?? 0) * 2, 5);
+    expect(moved.noise?.lowpass).toBeCloseTo((VOICES.wipe.noise?.lowpass ?? 0) * 2, 5);
+  });
+
+  it("leaves gains and timing alone so the same action stays the same action", () => {
+    const moved = transposeVoice(VOICES.batHit, 1.2);
+    expect(voiceDuration(moved)).toBe(voiceDuration(VOICES.batHit));
+    expect(moved.tones[0].gain).toBe(VOICES.batHit.tones[0].gain);
+    expect(moved.noise?.gain).toBe(VOICES.batHit.noise?.gain);
+  });
+
+  it("does not mutate the source voice", () => {
+    const before = VOICES.punch.tones[0].from;
+    transposeVoice(VOICES.punch, 3);
+    expect(VOICES.punch.tones[0].from).toBe(before);
+  });
+
+  it("keeps every voice within the gain contract after the widest variation in use", () => {
+    // photo-wipe의 0.14가 지금 제일 큰 변주다. 어느 쪽 끝으로 흔들려도 주파수는
+    // 양수여야 한다 — exponentialRampToValueAtTime이 0을 지날 수 없다.
+    for (const id of IDS) {
+      for (const ratio of [0.86, 1.14]) {
+        const moved = transposeVoice(VOICES[id], ratio);
+        for (const tone of moved.tones) {
+          expect(tone.from, `${id} @ ${ratio}`).toBeGreaterThan(0);
+          if (tone.to !== undefined) expect(tone.to, `${id} @ ${ratio}`).toBeGreaterThan(0);
+        }
+      }
     }
   });
 });

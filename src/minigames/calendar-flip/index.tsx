@@ -109,7 +109,9 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
     setMonth((current) => {
       const next = flipMonth(current, direction);
       if (next === current) return current;
-      playSound("flip");
+      // 사건 이후 장에는 날짜가 없고 正자만 있다. 넘기는 소리도 종이가 아니라
+      // 연필이어야 그 장이 "달력"이 아니라 "기록"이라는 게 귀로 먼저 온다.
+      playSound(isAftermath(next) ? "pencilStroke" : "flip", { variation: 0.05 });
       setFlip({ direction, key: Date.now() });
       return next;
     });

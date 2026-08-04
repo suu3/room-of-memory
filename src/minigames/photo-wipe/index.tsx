@@ -116,7 +116,9 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
     const wiped = wipeCircle(gridRef.current, photo, x, y, WIPE_RADIUS);
     if (wiped - progressRef.current >= 0.01 || wiped >= CLEAR_RATIO) {
       // 문지를 때마다 울리면 시끄럽다 — 5% 구간을 넘길 때만 한 번씩.
-      if (Math.floor(wiped * 20) > Math.floor(progressRef.current * 20)) playSound("wipe");
+      // 스무 번 울리는 동안 음높이가 고정이면 마찰이 아니라 계측음으로 들린다.
+      if (Math.floor(wiped * 20) > Math.floor(progressRef.current * 20))
+        playSound("wipe", { variation: 0.14 });
       progressRef.current = wiped;
       setProgress(wiped);
       if (wiped >= CLEAR_RATIO) revealRef.current();

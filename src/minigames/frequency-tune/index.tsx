@@ -3,7 +3,7 @@
 import { Star } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { playSound } from "@/lib/audio";
+import { type NoiseBed, playSound, startNoiseBed } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 
@@ -25,6 +25,24 @@ function randomBandLeft(): number {
 /** position(0~100%) → 표시 주파수 문자열. */
 function freqAt(position: number): string {
   return (FREQ_MIN + (position / 100) * (FREQ_MAX - FREQ_MIN)).toFixed(1);
+}
+
+/** 잡음이 완전히 걷히지는 않는다 — 대역 한가운데서도 남는 양. */
+const STATIC_FLOOR = 0.08;
+/** 이 거리(%)만큼 벗어나면 잡음이 최대가 된다. */
+const STATIC_FALLOFF = 45;
+
+/**
+ * 바늘이 목표 대역에서 멀수록 잡음이 커진다.
+ *
+ * 눈으로만 맞추는 게임이었는데, 귀로도 조준할 수 있게 하면 난이도가 아니라 감각이
+ * 붙는다 — 실제 라디오를 맞출 때 우리가 보는 건 눈금이 아니라 잡음이 걷히는 지점이다.
+ */
+function staticLevel(position: number, bandLeft: number): number {
+  const inner = BAND_WIDTH / 2;
+  const distance = Math.abs(position - (bandLeft + inner));
+  if (distance <= inner) return STATIC_FLOOR;
+  return Math.min(1, STATIC_FLOOR + ((distance - inner) / STATIC_FALLOFF) * (1 - STATIC_FLOOR));
 }
 
 /** 좌우로 흔들리는 바늘이 목표 대역을 지나는 순간 Space — 3회 맞추면 클리어. */
@@ -56,6 +74,25 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
     return out;
   }, []);
 
+  /**
+   * 계속 깔리는 라디오 잡음. 판이 열려 있는 동안만 살아 있다.
+   *
+   * 이건 Voice로 못 만든다 — Voice는 0.6초를 넘지 않는다는 계약이 걸려 있어서
+   * 지속음은 별도 노드로 간다 (src/lib/audio/engine.ts의 startNoiseBed).
+   */
+  const bedRef = useRef<NoiseBed | null>(null);
+  useEffect(() => {
+    bedRef.current = startNoiseBed({ gain: 0.13, highpass: 1200, lowpass: 7000 });
+    return () => {
+      bedRef.current?.stop();
+      bedRef.current = null;
+    };
+  }, []);
+
+  // 목표 대역은 명중할 때마다 바뀐다. rAF 루프는 한 번만 도므로 최신 값을 ref로 받는다.
+  const bandLeftRef = useRef(bandLeft);
+  bandLeftRef.current = bandLeft;
+
   // 바늘 애니메이션 — setState 대신 ref 직접 변이 (60fps)
   useEffect(() => {
     let frame = 0;
@@ -67,6 +104,8 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
       if (needleRef.current) needleRef.current.style.left = `${position}%`;
       if (pointerRef.current) pointerRef.current.style.left = `${position}%`;
       if (readoutRef.current) readoutRef.current.textContent = freqAt(position);
+      // setState 없이 게인만 민다 — 매 프레임 리렌더가 나면 60fps가 안 나온다.
+      bedRef.current?.setLevel(staticLevel(position, bandLeftRef.current));
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
@@ -78,7 +117,7 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
     const position = positionRef.current;
     const hit = position >= bandLeft && position <= bandLeft + BAND_WIDTH;
     setFlash(hit ? "hit" : "miss");
-    playSound(hit ? "collect" : "deny");
+    playSound(hit ? "radioLock" : "deny");
     if (hit) {
       const next = hits + 1;
       setHits(next);
