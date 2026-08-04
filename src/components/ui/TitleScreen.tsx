@@ -74,7 +74,13 @@ export function TitleScreen() {
      * (justify-center에 직접 overflow를 걸면 넘친 위쪽에 손이 닿지 않는다.)
      */
     <div className="absolute inset-0 z-40 overflow-y-auto overscroll-contain backdrop-blur-[2px]">
-      <div className="relative flex min-h-full flex-col items-center justify-center gap-10 px-6 py-10">
+      {/*
+        간격이 위계를 만든다. DESIGN.md의 spacing 스케일에서 세 단만 쓴다 —
+        한 덩어리 안은 8px(sm), 덩어리 사이는 32px(lg), 시작 버튼과 사이트 정보
+        사이만 64px(xl). 크기를 세 종류로 묶어 두면 "어디까지가 한 말인지"가
+        글을 읽기 전에 먼저 보인다. 중간값을 섞으면 그 경계가 흐려진다.
+      */}
+      <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-6 py-10">
         {/* 글자 뒤만 눌러 주는 어둠. 방 가장자리는 그대로 드러난다.
             베일은 방을 가리는 게 아니라 글씨를 읽히게 하는 정도까지만 — 흐림을 줄이고
             어둠은 가운데로 모아(radial) 글자 뒤만 눌러 준다. */}
@@ -87,28 +93,33 @@ export function TitleScreen() {
           }}
         />
 
-        {/*
-          이 게임이 무슨 이야기인지(tagline)와 그래서 무엇을 하는지(howTo)는 한 덩어리다 —
-          떨어뜨려 놓으면 사이에 낀 것들이 설명을 끊는다. 제목 아래에 붙여 한 번에 읽힌다.
-        */}
-        <div className="relative flex max-w-md flex-col items-center gap-4 text-center">
+        {/* 이름표와 제목. 눈썹 문구는 제목에 붙은 라벨이지 따로 하는 말이 아니다 */}
+        <div className="relative flex flex-col items-center gap-2 text-center">
           <p className="font-pixel text-xs tracking-[0.4em] text-memory/80">
             {t("titleScreen.eyebrow")}
           </p>
           <h1 className="text-5xl font-bold tracking-tight text-paper md:text-6xl">{t("title")}</h1>
-          <p className="max-w-sm break-ko text-pretty text-sm leading-relaxed text-bone/60">
+        </div>
+
+        {/*
+          이 게임이 무슨 이야기인지(tagline)와 그래서 무엇을 하는지(howTo)는 한 덩어리다 —
+          떨어뜨려 놓으면 사이에 낀 것들이 설명을 끊는다. 같은 크기·같은 줄간격으로 붙여
+          두 문장이 한 문단으로 읽히게 하고, 농도만 낮춰 앞 문장을 앞세운다.
+        */}
+        <div className="relative flex max-w-md flex-col items-center gap-2 text-center">
+          <p className="max-w-sm break-ko text-pretty text-sm leading-relaxed text-bone/70">
             {t("titleScreen.tagline")}
           </p>
-          <p className="break-ko text-pretty text-sm leading-relaxed text-bone/70">
+          <p className="break-ko text-pretty text-sm leading-relaxed text-bone/50">
             {t("titleScreen.howTo")}
-          </p>
-          {/* 짧은 게임이라는 걸 미리 알려주면 진입 문턱이 낮아진다 */}
-          <p className="text-[0.6875rem] font-bold tracking-[0.18em] text-bone/40">
-            {t("titleScreen.playtime")}
           </p>
         </div>
 
         {/*
+          누르기 전에 알아 두면 좋은 실무 정보 — 얼마나 걸리는지, 무엇으로 움직이는지.
+          둘 다 같은 크기의 작은 글씨라 한 덩어리로 묶인다. 설명 문단과 섞이면
+          "이야기"와 "사용법"이 한 목소리로 들린다.
+
           조작 안내는 "이동"과 "조사" 두 덩어리다. 한 문장으로 이어 두면 좁은 화면에서
           아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다 — 덩어리째 줄바꿈되도록 flex로 나눈다.
           문구는 기기를 따라간다 — 폰에서 WASD를 읽어 봐야 누를 키가 없다.
@@ -116,9 +127,12 @@ export function TitleScreen() {
           시작 버튼 바로 위에 둔다. 누르고 나면 알려줄 자리가 없다 — 방에 들어가면
           화면은 씬이 다 쓴다.
         */}
-        <div className="relative -mt-4 flex max-w-md flex-wrap items-center justify-center gap-x-5 gap-y-1 text-center text-[0.6875rem] leading-relaxed tracking-wider text-bone/40">
-          <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
-          <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
+        <div className="relative flex max-w-md flex-col items-center gap-2 text-center text-[0.6875rem] leading-relaxed">
+          <p className="font-bold tracking-[0.18em] text-bone/40">{t("titleScreen.playtime")}</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 tracking-wider text-bone/40">
+            <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
+            <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
+          </div>
         </div>
 
         {/*
@@ -160,7 +174,7 @@ export function TitleScreen() {
           화면 아래에 붙이지는 않는다. 절대 위치로 고정하면 폰의 주소창이 접혔다 펴질 때
           기준이 되는 높이가 흔들려 스크롤이 생긴다 — 그냥 흐름의 마지막에 둔다.
         */}
-        <footer className="relative mt-14 flex flex-col items-center gap-3">
+        <footer className="relative mt-8 flex flex-col items-center gap-2">
           {/*
             종이 알약을 깔면 시작 버튼과 재질이 같아져 둘의 위계가 나란해 보인다.
             어두운 배경 위에 직접 얹는 톤을 따로 둔다 (LanguageToggle의 tone).
