@@ -23,9 +23,17 @@ export const ASSETS = {
     uiLoading: "/assets/images/ui-loading.gif",
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp",
-    mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.png",
-    mgBallCatchBat: "/assets/images/mg-ball-catch-bat.png",
-    mgBallCatchImpact: "/assets/images/mg-ball-catch-impact.png",
+    mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp",
+    mgBallCatchBat: "/assets/images/mg-ball-catch-bat.webp",
+    mgBallCatchImpact: "/assets/images/mg-ball-catch-impact.webp",
+    /**
+     * 라디오 본체 일러스트 (1598×1174). 바깥 배경과 표시창이 알파로 뚫려 있어
+     * 다이얼을 뒤에 깔고 이 이미지를 위에 얹으면 창 안에 든 것처럼 보인다.
+     * 창 좌표는 src/minigames/frequency-tune/index.tsx의 DIAL_WINDOW.
+     */
+    mgFrequencyTuneFrame: "/assets/images/mg-frequency-tune-frame.webp",
+    /** 커튼을 걷었을 때 보이는 창밖 (524×380). 그날 이후의 도시가 그려져 있다. */
+    mgWindowViewOutside: "/assets/images/mg-window-view-outside.webp",
     /*
      * 격투 미니게임 스프라이트. 아직 리포에 없어도 된다 — 파일이 없으면
      * 블록 캐릭터/그라디언트 배경으로 떨어진다. 시트 규격은
