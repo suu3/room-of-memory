@@ -22,6 +22,22 @@ export const CHAIR_POSITION = [-3.3, 0, -1.2] as const;
 export const CHAIR_ROTATION = [0, Math.PI / 2, 0] as const;
 
 /**
+ * 의자를 책상에서 끌어낸 양. 책상은 의자의 -x 쪽에 있으므로 +x로 물러난다.
+ *
+ * 거리를 크게 잡지 않는 이유: ROOM_COLLIDERS의 의자 박스는 고정이라 의자만 움직이면
+ * 충돌 판정이 제자리에 남는다. 밀려난 좌석 끝(중심 +거리 +반폭 0.525)이 플레이어가
+ * 설 수 있는 가장 안쪽 선(콜라이더 maxX -2.82 + 반지름 0.38 = -2.44)을 넘지 않아야
+ * 의자를 뚫고 지나가는 장면이 안 나온다 — 그 한계가 0.335이고, layout.test가 지킨다.
+ */
+export const CHAIR_PULL = { distance: 0.33, turn: 0.12 } as const;
+
+/**
+ * 서랍이 밀려 나오는 거리. 둘 다 몸통 앞면이 +z를 보고 있어 +z로 나온다.
+ * 콜라이더가 몸통보다 조금 앞까지 잡혀 있어(캐비닛 0.28, 협탁 0.04) 그 여유 안에서 멈춘다.
+ */
+export const DRAWER_TRAVEL = { cabinet: 0.34, nightstand: 0.24 } as const;
+
+/**
  * 캐비닛 몸통. 액자·스마트폰이 놓이는 면이라 RoomFurniture와 MEMORY_PLACEMENTS가
  * 같은 수치를 봐야 한다 — 따로 들고 있다가 어긋나면 오브젝트가 상판을 뚫거나
  * 앞으로 떠 버린다.

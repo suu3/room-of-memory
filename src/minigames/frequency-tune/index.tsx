@@ -82,7 +82,9 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
    */
   const bedRef = useRef<NoiseBed | null>(null);
   useEffect(() => {
-    bedRef.current = startNoiseBed({ gain: 0.13, highpass: 1200, lowpass: 7000 });
+    // 계속 깔리는 소리는 한 번 튀는 소리와 같은 값이어도 훨씬 크게 들린다 —
+    // 효과음 게인(0.15~0.34)보다 한참 아래로 내려야 배경으로 남는다.
+    bedRef.current = startNoiseBed({ gain: 0.06, highpass: 1200, lowpass: 7000 });
     return () => {
       bedRef.current?.stop();
       bedRef.current = null;

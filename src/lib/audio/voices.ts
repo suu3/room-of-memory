@@ -26,7 +26,10 @@ export type VoiceId =
   | "guard"
   | "radioLock"
   | "phoneBeep"
-  | "pencilStroke";
+  | "pencilStroke"
+  // 방 안의 곁가지 인터랙션 (서랍·의자)
+  | "drawer"
+  | "chairDrag";
 
 export type Waveform = "sine" | "triangle" | "square" | "sawtooth";
 
@@ -108,8 +111,10 @@ export const VOICES: Record<VoiceId, Voice> = {
    * 천천히 부풀렸다 사그라든다. 톤은 손이 유리에 닿는 몸통만 아주 작게 깐다.
    */
   wipe: {
-    tones: [{ from: 220, to: 180, waveform: "sine", delay: 0, duration: 0.2, gain: 0.08 }],
-    noise: { delay: 0, duration: 0.3, gain: 0.26, highpass: 600, lowpass: 3200, attack: 0.09 },
+    tones: [{ from: 220, to: 180, waveform: "sine", delay: 0, duration: 0.2, gain: 0.05 }],
+    // 한 판에 스무 번 울리는 소리다. 한 번 듣기 좋은 크기로 맞추면 스무 번째에는
+    // 시끄럽다 — 반복 횟수만큼 깎아 둔다.
+    noise: { delay: 0, duration: 0.3, gain: 0.15, highpass: 600, lowpass: 3200, attack: 0.09 },
   },
   /** 안 되는 걸 눌렀을 때. 낮게 한 번. */
   deny: {
@@ -192,6 +197,26 @@ export const VOICES: Record<VoiceId, Voice> = {
   pencilStroke: {
     tones: [{ from: 260, to: 210, waveform: "sine", delay: 0, duration: 0.05, gain: 0.06 }],
     noise: { delay: 0, duration: 0.07, gain: 0.18, highpass: 1400, lowpass: 6000 },
+  },
+  /**
+   * 서랍이 밀려 나오는 소리. 나무가 나무 위를 미끄러지는 마찰(노이즈)에, 끝까지
+   * 나왔을 때의 둔한 멎음(0.22초 뒤 낮은 톤)을 붙였다. 멎는 소리가 없으면 서랍이
+   * 계속 나가는 것처럼 들린다.
+   */
+  drawer: {
+    tones: [
+      { from: 150, to: 120, waveform: "sine", delay: 0, duration: 0.2, gain: 0.1 },
+      { from: 110, to: 88, waveform: "triangle", delay: 0.22, duration: 0.09, gain: 0.14 },
+    ],
+    noise: { delay: 0, duration: 0.26, gain: 0.16, highpass: 400, lowpass: 2600, attack: 0.05 },
+  },
+  /**
+   * 의자를 바닥에 끄는 소리. 서랍보다 대역이 낮고 길다 — 나무 서랍은 미끄러지고
+   * 의자 다리는 바닥을 긁는다. 방 안에서 나는 곁가지 소리라 조사·수집음보다 작다.
+   */
+  chairDrag: {
+    tones: [{ from: 90, to: 70, waveform: "sine", delay: 0, duration: 0.3, gain: 0.09 }],
+    noise: { delay: 0, duration: 0.34, gain: 0.14, highpass: 250, lowpass: 1800, attack: 0.07 },
   },
 };
 

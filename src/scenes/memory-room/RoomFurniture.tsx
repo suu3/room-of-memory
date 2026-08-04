@@ -1,9 +1,10 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { useFrame } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type Group, MathUtils, Plane, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
+import { playSound } from "@/lib/audio";
 import {
   CURTAIN_X,
   type CurtainPull,
@@ -17,9 +18,11 @@ import {
   CABINET_TOP_PROPS,
   CABINET_TOP_Y,
   CHAIR_POSITION,
+  CHAIR_PULL,
   CHAIR_ROTATION,
   DESK_POSITION,
   DESK_ROTATION,
+  DRAWER_TRAVEL,
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
@@ -93,17 +96,32 @@ const CHAIR_PARTS = [
 
 // 몸통 앞면 z=-2.53. 서랍판은 그 면을 물고, 손잡이는 서랍판 앞에 0.015 띄운다.
 // 몸통은 layout의 CABINET_BODY를 그대로 쓴다 — 상판 위 기억 오브젝트와 같은 수치를 봐야 한다.
-const CABINET_PARTS = [
+const CABINET_BODY_PARTS = [
   { ...CABINET_BODY, color: "dusk" },
-  { size: [2.08, 0.92, 0.06], position: [1.23, 0.58, -2.53], color: "slate" },
-  { size: [2.08, 0.92, 0.06], position: [3.47, 0.58, -2.53], color: "slate" },
-  { size: [0.12, 0.12, 0.05], position: [2.14, 0.58, -2.46], color: "bone" },
-  { size: [0.12, 0.12, 0.05], position: [2.56, 0.58, -2.46], color: "bone" },
 ] as const satisfies readonly BoxPart[];
 
+/*
+ * 서랍 한 칸은 서랍판 + 손잡이 한 쌍이다. 좌표는 닫혀 있을 때 그대로 두고 그룹째
+ * +z로 밀어낸다 — 파트마다 위치를 다시 계산하면 손잡이가 판에서 떨어져 나간다.
+ * 손잡이 둘이 안쪽(x=2.14, 2.56)에 몰려 있는 건 여닫이처럼 가운데서 잡는 모양이라서다.
+ */
+const CABINET_DRAWERS = [
+  [
+    { size: [2.08, 0.92, 0.06], position: [1.23, 0.58, -2.53], color: "slate" },
+    { size: [0.12, 0.12, 0.05], position: [2.14, 0.58, -2.46], color: "bone" },
+  ],
+  [
+    { size: [2.08, 0.92, 0.06], position: [3.47, 0.58, -2.53], color: "slate" },
+    { size: [0.12, 0.12, 0.05], position: [2.56, 0.58, -2.46], color: "bone" },
+  ],
+] as const satisfies readonly (readonly BoxPart[])[];
+
 // 몸통 앞면 z=1.16. 캐비닛과 같은 규칙.
-const NIGHTSTAND_PARTS = [
+const NIGHTSTAND_BODY_PARTS = [
   { size: [0.9, 0.95, 0.82], position: [6.8, 0.48, 0.75], color: "dusk" },
+] as const satisfies readonly BoxPart[];
+
+const NIGHTSTAND_DRAWER = [
   { size: [0.72, 0.28, 0.06], position: [6.8, 0.72, 1.16], color: "slate" },
   { size: [0.16, 0.08, 0.05], position: [6.8, 0.72, 1.225], color: "bone" },
 ] as const satisfies readonly BoxPart[];
@@ -165,10 +183,127 @@ function Desk({ palette }: FurnitureProps) {
   );
 }
 
-function Chair({ palette }: FurnitureProps) {
+/**
+ * 곁가지 인터랙션이 공통으로 쓰는 값들.
+ *
+ * 커튼과 달리 이쪽은 끌지 않고 한 번 눌러 여닫는다 — 커튼을 젖히는 건 밖을 보는
+ * 이야기의 한 순간이라 손으로 하는 몸짓이 값을 하지만, 서랍과 의자는 방을 만지는
+ * 감각이라 몸짓까지 요구하면 품이 이야기보다 커진다.
+ */
+const FURNITURE_NEAR_RADIUS = 2.1;
+/** 손을 떠난 뒤 목표에 붙는 속도. 의자는 무거우니 서랍보다 느리게 민다. */
+const DRAWER_LAMBDA = 6;
+const CHAIR_LAMBDA = 4.5;
+/** 모션을 끈 사람에게는 미끄러짐 없이 곧바로 옮겨 놓는다. */
+const REDUCED_LAMBDA = 18;
+
+function usePrefersReducedMotion(): boolean {
+  return useMemo(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches, []);
+}
+
+/**
+ * 눌러서 여닫는 서랍. 캐비닛 두 칸과 협탁 한 칸이 같은 부품을 쓴다.
+ *
+ * 열림 여부는 이 컴포넌트가 들고 있다 — 이야기에 아무것도 남기지 않는 순수한 겉모습이라
+ * 스토어에 올릴 이유가 없다 (플래그도, 세이브도 걸리지 않는다).
+ */
+function Drawer({
+  palette,
+  name,
+  parts,
+  travel,
+  near,
+}: FurnitureProps & {
+  name: string;
+  parts: readonly BoxPart[];
+  /** 다 열렸을 때 +z로 나와 있는 거리. */
+  travel: number;
+  /** 다가왔는지 재는 기준점 (월드 x·z). */
+  near: readonly [number, number];
+}) {
+  const [open, setOpen] = useState(false);
+  const groupRef = useRef<Group>(null);
+  const { hovered, handlers } = useGlowHover(true);
+  const nearPlayer = useNearPlayer(near[0], near[1], FURNITURE_NEAR_RADIUS);
+  const reducedMotion = usePrefersReducedMotion();
+
+  useFrame((_, delta) => {
+    const group = groupRef.current;
+    if (!group) return;
+    const goal = open ? travel : 0;
+    group.position.z = MathUtils.damp(
+      group.position.z,
+      goal,
+      reducedMotion ? REDUCED_LAMBDA : DRAWER_LAMBDA,
+      delta,
+    );
+  });
+
   return (
-    <group name="chair" position={CHAIR_POSITION} rotation={CHAIR_ROTATION}>
-      <BoxParts parts={CHAIR_PARTS} palette={palette} />
+    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
+    <group
+      ref={groupRef}
+      name={name}
+      {...handlers}
+      onClick={(event) => {
+        // 서랍 뒤에 있는 몸통·벽까지 같이 눌리면 안 된다.
+        event.stopPropagation();
+        playSound("drawer");
+        setOpen((current) => !current);
+      }}
+    >
+      <MemoryGlowSelection selectionKey={name} enabled={hovered || nearPlayer}>
+        <BoxParts parts={parts} palette={palette} />
+      </MemoryGlowSelection>
+    </group>
+  );
+}
+
+/** 책상 앞으로 붙어 있는 의자. 누르면 뒤로 물러나며 살짝 틀어진다. */
+function Chair({ palette }: FurnitureProps) {
+  const [pulled, setPulled] = useState(false);
+  const groupRef = useRef<Group>(null);
+  const { hovered, handlers } = useGlowHover(true);
+  const near = useNearPlayer(CHAIR_POSITION[0], CHAIR_POSITION[2], FURNITURE_NEAR_RADIUS);
+  const reducedMotion = usePrefersReducedMotion();
+
+  useFrame((_, delta) => {
+    const group = groupRef.current;
+    if (!group) return;
+    const lambda = reducedMotion ? REDUCED_LAMBDA : CHAIR_LAMBDA;
+    // 책상은 의자의 -x 쪽에 있다 — 물러나는 건 +x.
+    group.position.x = MathUtils.damp(
+      group.position.x,
+      CHAIR_POSITION[0] + (pulled ? CHAIR_PULL.distance : 0),
+      lambda,
+      delta,
+    );
+    // 밀려나기만 하면 미끄러진 것처럼 보인다. 조금 틀어져야 누가 일어난 자리가 된다.
+    group.rotation.y = MathUtils.damp(
+      group.rotation.y,
+      CHAIR_ROTATION[1] + (pulled ? CHAIR_PULL.turn : 0),
+      lambda,
+      delta,
+    );
+  });
+
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
+    <group
+      ref={groupRef}
+      name="chair"
+      position={CHAIR_POSITION}
+      rotation={CHAIR_ROTATION}
+      {...handlers}
+      onClick={(event) => {
+        event.stopPropagation();
+        playSound("chairDrag");
+        setPulled((current) => !current);
+      }}
+    >
+      <MemoryGlowSelection selectionKey="chair" enabled={hovered || near}>
+        <BoxParts parts={CHAIR_PARTS} palette={palette} />
+      </MemoryGlowSelection>
     </group>
   );
 }
@@ -176,7 +311,17 @@ function Chair({ palette }: FurnitureProps) {
 function Cabinet({ palette }: FurnitureProps) {
   return (
     <group name="cabinet">
-      <BoxParts parts={CABINET_PARTS} palette={palette} />
+      <BoxParts parts={CABINET_BODY_PARTS} palette={palette} />
+      {CABINET_DRAWERS.map((parts, index) => (
+        <Drawer
+          key={parts[0].position.join(":")}
+          name={`cabinet-drawer-${index}`}
+          parts={parts}
+          travel={DRAWER_TRAVEL.cabinet}
+          near={[parts[0].position[0], parts[0].position[2]]}
+          palette={palette}
+        />
+      ))}
     </group>
   );
 }
@@ -184,7 +329,14 @@ function Cabinet({ palette }: FurnitureProps) {
 function Nightstand({ palette }: FurnitureProps) {
   return (
     <group name="nightstand">
-      <BoxParts parts={NIGHTSTAND_PARTS} palette={palette} />
+      <BoxParts parts={NIGHTSTAND_BODY_PARTS} palette={palette} />
+      <Drawer
+        name="nightstand-drawer"
+        parts={NIGHTSTAND_DRAWER}
+        travel={DRAWER_TRAVEL.nightstand}
+        near={[NIGHTSTAND_DRAWER[0].position[0], NIGHTSTAND_DRAWER[0].position[2]]}
+        palette={palette}
+      />
     </group>
   );
 }

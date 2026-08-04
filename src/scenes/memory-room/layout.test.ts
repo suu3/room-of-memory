@@ -2,12 +2,15 @@ import { describe, expect, it } from "vitest";
 import { MEMORY_IDS } from "@/data/memory-room";
 import {
   BAT_PLACEMENT,
+  CABINET_BODY,
   CABINET_TOP_BOUNDS,
   CABINET_TOP_PROPS,
   CABINET_TOP_Y,
   CAMERA_PRESETS,
   CHAIR_POSITION,
+  CHAIR_PULL,
   DESK_ROTATION,
+  DRAWER_TRAVEL,
   MEMORY_PLACEMENTS,
   REFERENCE_ROOM_LAYOUT,
   ROOM_BOUNDS,
@@ -251,5 +254,49 @@ describe("memory-room layout", () => {
     expect(phone.rotation[0] + PHONE_VISUAL_TILT).toBeCloseTo(-Math.PI / 2, 5);
     // 손에 쥐는 물건이다. 게임기(가로 0.46)보다 커 보이면 폰으로 안 읽힌다
     expect(phone.scale * 0.48).toBeLessThan(0.46);
+  });
+});
+
+/**
+ * 서랍과 의자는 움직이지만 ROOM_COLLIDERS는 고정이다. 움직인 자리가 콜라이더에서
+ * 너무 멀어지면 플레이어가 가구를 뚫고 지나가는 것처럼 보인다 — 그 어긋남이
+ * 눈에 띄지 않는 범위인지를 여기서 지킨다.
+ */
+describe("pulled furniture", () => {
+  const CHAIR_SEAT_HALF = 0.525;
+
+  it("keeps a fully open cabinet drawer inside the room", () => {
+    // 캐비닛 몸통 앞면 + 나온 거리. 뒷벽 쪽 가구라 방 안으로만 나온다.
+    const front = CABINET_BODY.position[2] + CABINET_BODY.size[2] / 2 + DRAWER_TRAVEL.cabinet;
+    expect(front).toBeLessThan(ROOM_BOUNDS.maxZ);
+
+    // 콜라이더가 잡아 둔 여유 안에서 멈춰야 서랍이 플레이어를 뚫고 나오지 않는다
+    const cabinet = ROOM_COLLIDERS.find((box) => box.minX === 0.15);
+    expect(cabinet).toBeDefined();
+    expect(front).toBeLessThanOrEqual((cabinet?.maxZ ?? 0) + PLAYER_RADIUS);
+  });
+
+  it("keeps the nightstand drawer inside the room", () => {
+    const nightstand = ROOM_COLLIDERS.find((box) => box.minX === 6.3);
+    expect(nightstand).toBeDefined();
+    const front = 1.16 + DRAWER_TRAVEL.nightstand;
+    expect(front).toBeLessThan(ROOM_BOUNDS.maxZ);
+    expect(front).toBeLessThanOrEqual((nightstand?.maxZ ?? 0) + PLAYER_RADIUS);
+  });
+
+  it("keeps the pulled-out chair covered by its fixed collider", () => {
+    const chair = ROOM_COLLIDERS.find(
+      (box) => CHAIR_POSITION[0] > box.minX && CHAIR_POSITION[0] < box.maxX,
+    );
+    expect(chair).toBeDefined();
+
+    // 물러난 좌석의 바깥 끝. 플레이어 중심은 콜라이더에서 반지름만큼 떨어져 서므로,
+    // 좌석 끝이 그 선을 넘지 않으면 의자를 통과하는 장면이 나오지 않는다.
+    const seatEdge = CHAIR_POSITION[0] + CHAIR_PULL.distance + CHAIR_SEAT_HALF;
+    expect(seatEdge).toBeLessThanOrEqual((chair?.maxX ?? 0) + PLAYER_RADIUS);
+
+    // 책상 쪽으로는 자리가 남아야 물러나는 게 보인다
+    expect(CHAIR_PULL.distance).toBeGreaterThan(0.2);
+    expect(CHAIR_PULL.turn).toBeGreaterThan(0);
   });
 });
