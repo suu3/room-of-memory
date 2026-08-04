@@ -255,7 +255,16 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
               },
             };
           }
-          // 실패도 유효한 결말 — 결과와 무관하게 완료. 플래그/분기는 추후 확장.
+          /*
+           * 실패는 인터랙션을 닫되 수집으로 적지 않는다. 못 되찾은 기억을 되찾았다고
+           * 적으면 진행도(n/7)와 방 밝기가 실제보다 앞서가고, 캐릭터 시트의 항목도
+           * 거저 열린다 — 미니게임을 푸는 의미가 사라진다.
+           *
+           * 핫스팟은 available로 남으므로 다시 눌러 재도전할 수 있다. 막다른 길이
+           * 되지는 않는다. 스킵은 접근성 계약상 cleared: true라 이 갈래로 오지 않고
+           * 그대로 수집된다 (src/types/minigame.ts).
+           */
+          if (!result.cleared) return { activeInteraction: null };
           return finishInteraction(state, active);
         }),
       cancelMinigame: () =>

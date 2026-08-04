@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { MEMORIES } from "@/data/memory-room";
-import { selectEndingReady, selectSceneInputLocked, useMemoryRoomStore } from "./memory-room";
+import {
+  hotspotStatus,
+  selectEndingReady,
+  selectSceneInputLocked,
+  useMemoryRoomStore,
+} from "./memory-room";
 
 describe("scene input locks", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
@@ -53,11 +58,27 @@ describe("minigame result dialogue", () => {
     expect(useMemoryRoomStore.getState().collected).toEqual(["frame"]);
   });
 
-  it("skips the result script when the minigame is failed", () => {
+  it("closes without collecting when the minigame is failed, and stays retryable", () => {
     useMemoryRoomStore.getState().beginInteraction("frame");
     useMemoryRoomStore.getState().finishMinigame({ cleared: false });
 
+    // 결과 대사도 없고 수집도 없다 — 못 되찾은 기억을 되찾았다고 적지 않는다
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
+    expect(useMemoryRoomStore.getState().collected).toEqual([]);
+
+    // 막다른 길이 되면 안 된다: 핫스팟은 그대로 눌러서 다시 붙을 수 있다
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "frame")).toBe("available");
+    useMemoryRoomStore.getState().beginInteraction("frame");
+    expect(useMemoryRoomStore.getState().activeInteraction?.memoryId).toBe("frame");
+  });
+
+  it("still collects when the player skips, since skipping reports cleared", () => {
+    useMemoryRoomStore.getState().beginInteraction("frame");
+    // 접근성 계약상 스킵은 cleared: true다 (src/types/minigame.ts)
+    useMemoryRoomStore.getState().finishMinigame({ cleared: true });
+    useMemoryRoomStore.getState().advanceDialogue();
+    useMemoryRoomStore.getState().advanceDialogue();
+
     expect(useMemoryRoomStore.getState().collected).toEqual(["frame"]);
   });
 });

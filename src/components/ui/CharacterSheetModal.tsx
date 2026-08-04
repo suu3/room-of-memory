@@ -128,7 +128,13 @@ export function CharacterSheetModal() {
           </div>
           <div className="h-px flex-none bg-ink/10" />
           {/* 시트는 세로로 길다 — 모달을 늘리지 말고 안쪽만 스크롤시킨다 */}
-          <div className="notebook-grid scroll-paper min-h-0 overflow-y-auto px-6 py-5">
+          {/*
+            overscroll-contain — 페이지 끝에 닿은 스크롤이 뒤로 새어 나가지 않게 한다.
+            없으면 끝까지 넘긴 순간 스크롤이 조상으로 이어져(scroll chaining) 방이
+            딸려 움직인다. 수첩을 보는 동안 뒤가 흔들리면 수첩이 화면 위에 얹힌
+            종이가 아니라 페이지의 일부처럼 보인다.
+          */}
+          <div className="notebook-grid scroll-paper min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
             {tab === "lore" ? (
               <div className="mx-auto max-w-2xl">
                 <LoreEntries />
