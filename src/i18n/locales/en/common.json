@@ -45,7 +45,9 @@
     "loading": "Loading the room…",
     "webglFallback": "The 3D room cannot be displayed on this device.",
     "moveHint": "Move with WASD / arrow keys",
-    "interactHint": "Examine {{name}} · E / Enter",
+    "moveHint_touch": "Move with the joystick",
+    "interactHint": "Examine {{name}} · E",
+    "interactHint_touch": "Examine {{name}} · tap",
     "moveCaption": "MOVE"
   },
   "reset": {
@@ -72,16 +74,20 @@
     },
     "frequencyTune": {
       "title": "Tune the Frequency",
-      "help": "The moment the needle crosses the lit band — Space · click · tap"
+      "help": "The moment the needle crosses the lit band — Space",
+      "help_touch": "Tap the moment the needle crosses the lit band"
     },
     "photoWipe": {
       "title": "Wipe the Photo",
-      "help": "Drag with the mouse or swipe with a finger to wipe the dust away"
+      "help": "Drag with the mouse to wipe the dust away",
+      "help_touch": "Swipe with a finger to wipe the dust away"
     },
     "ballCatch": {
       "title": "Swing!",
-      "help": "Swing the bat the moment the ball enters the dashed ring — Space · click · tap",
-      "prompt": "SPACE · CLICK · TAP",
+      "help": "Swing the bat the moment the ball enters the dashed ring — Space",
+      "help_touch": "Tap to swing the moment the ball enters the dashed ring",
+      "prompt": "SPACE",
+      "prompt_touch": "TAP",
       "early": "EARLY",
       "late": "LATE",
       "hits": "HITS {{value}} / {{goal}}",
@@ -90,6 +96,7 @@
     "fighterDuel": {
       "title": "Fighting Game",
       "help": "Read the stance and counter it — 1 Strike · 2 Guard · 3 Throw",
+      "help_touch": "Read the stance and counter it with the buttons below",
       "hint": "Strike beats throw, throw beats guard, guard beats strike",
       "labelWins": "Rounds won",
       "labelLosses": "Rounds lost",
@@ -116,7 +123,8 @@
     "labelTime": "Time left",
     "calendarFlip": {
       "title": "Flipping the calendar",
-      "help": "Flip through the calendar — ← → · arrow buttons · tap",
+      "help": "Flip through the calendar — ← →",
+      "help_touch": "Flip through the calendar with the arrow buttons",
       "month": "{{value}}",
       "prev": "Previous month",
       "next": "Next month",
@@ -133,9 +141,15 @@
       "pageOf": "{{value}} / {{total}}",
       "close": "Put the calendar down"
     },
+    "windowView": {
+      "title": "Outside",
+      "help": "Draw the curtain and look outside",
+      "close": "Close the curtain"
+    },
     "phoneChat": {
       "title": "The phone",
-      "help": "Scroll back through the thread — scroll up · click · tap · Space",
+      "help": "Scroll back through the thread — scroll up · Space",
+      "help_touch": "Scroll back through the thread — swipe up · tap",
       "helpCalls": "Open the call log tab too",
       "date": "October 19",
       "close": "Turn the screen off",
@@ -185,8 +199,10 @@
     "start": "START",
     "playtime": "About 15 minutes",
     "howTo": "Wander the room and examine the objects a memory still clings to.",
-    "howToMove": "Move WASD · arrows · joystick",
-    "howToExamine": "Examine E · Enter · click the object",
+    "howToMove": "Move WASD",
+    "howToMove_touch": "Move joystick, bottom left",
+    "howToExamine": "Examine E · click",
+    "howToExamine_touch": "Examine tap the object",
     "resume": "Continue",
     "saved": "You left off with {{count}} memories gathered."
   },

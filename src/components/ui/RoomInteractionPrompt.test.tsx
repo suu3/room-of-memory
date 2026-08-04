@@ -21,7 +21,7 @@ function renderPrompt(availableIds: readonly MemoryId[], onInteract: (id: Memory
   render(
     <RoomInteractionPrompt
       nearbyMemoryId="console"
-      nearbyLabel="Console · E / Enter"
+      nearbyLabel="Console 조사 · E"
       labels={labels}
       availableIds={availableIds}
       onInteract={onInteract}
@@ -33,7 +33,7 @@ describe("RoomInteractionPrompt", () => {
   it("renders the nearby prompt and seven translated accessible button names", () => {
     renderPrompt(["console"], () => {});
 
-    expect(screen.getByText("Console · E / Enter")).toBeTruthy();
+    expect(screen.getByText("Console 조사 · E")).toBeTruthy();
     expect(screen.getAllByRole("button")).toHaveLength(7);
     expect(screen.getByRole("button", { name: "Console" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Window" })).toBeTruthy();

@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { MovementJoystick } from "@/components/ui/MovementJoystick";
 import { RoomInteractionPrompt } from "@/components/ui/RoomInteractionPrompt";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
+import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
 import {
@@ -93,6 +94,8 @@ class CanvasErrorBoundary extends Component<CanvasErrorBoundaryProps, CanvasErro
 export function RoomCanvas() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
+  // 키 안내는 기기를 따라간다 — 폰에는 누를 E도 WASD도 없다.
+  const hint = useControlHint();
   const playerPositionRef = useRef(PLAYER_START.clone());
   const movementInputRef = useRef<MovementAxes>({ horizontal: 0, vertical: 0 });
   const nearbyMemoryIdRef = useRef<MemoryId | null>(null);
@@ -427,7 +430,7 @@ export function RoomCanvas() {
   }, [applyZoomScale, applyOrbit, viewLocked]);
 
   const nearbyLabel = nearbyMemoryId
-    ? t("scene.interactHint", { name: labels[nearbyMemoryId] })
+    ? hint("scene.interactHint", { name: labels[nearbyMemoryId] })
     : "";
 
   return (
@@ -478,7 +481,7 @@ export function RoomCanvas() {
       <MovementJoystick
         inputRef={movementInputRef}
         disabled={inputLocked}
-        label={t("scene.moveHint")}
+        label={hint("scene.moveHint")}
         caption={t("scene.moveCaption")}
       />
     </div>

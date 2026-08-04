@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useControlHint } from "@/i18n/control-hint";
 import { playSound, preloadSamples } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, useOnceCompleter, useSkipEligible } from "../shell";
@@ -57,6 +58,7 @@ function isInteractiveTarget(target: EventTarget | null): boolean {
 /** 멀리서 날아와 커지는 공이 점선 링에 겹치는 순간 Space로 배트를 휘두른다 — 5회 맞히면 클리어. */
 export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
+  const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
   const [catches, setCatches] = useState(0);
   const [misses, setMisses] = useState(0);
@@ -247,7 +249,7 @@ export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
   return (
     <MinigameShell
       title={t("minigame.ballCatch.title")}
-      help={t("minigame.ballCatch.help")}
+      help={hint("minigame.ballCatch.help")}
       skipVisible={skipByTime || misses >= SKIP_AFTER_MISSES}
       onSkip={() => complete({ cleared: true, score: catches })}
       size="lg"
@@ -262,10 +264,10 @@ export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
         showPrompt={showPrompt}
         onSwing={() => attemptRef.current()}
         labels={{
-          aria: t("minigame.ballCatch.help"),
+          aria: hint("minigame.ballCatch.help"),
           hits: t("minigame.ballCatch.hits", { value: catches, goal: GOAL_CATCHES }),
           chances: t("minigame.ballCatch.chances"),
-          prompt: t("minigame.ballCatch.prompt"),
+          prompt: hint("minigame.ballCatch.prompt"),
           hit: t("minigame.feedback.hit"),
           early: t("minigame.ballCatch.early"),
           late: t("minigame.ballCatch.late"),

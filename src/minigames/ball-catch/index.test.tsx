@@ -107,7 +107,8 @@ describe("BallCatchMinigame", () => {
     expect(html).toContain("HITS 0 / 5");
     expect(html).toContain("Chances left");
     expect(html).toContain("5 / 5");
-    expect(html).toContain("SPACE · CLICK · TAP");
+    // 키보드 기기 기준 문구 — 터치 기기에서는 "TAP"으로 바뀐다 (src/i18n/control-hint.ts)
+    expect(html).toContain("SPACE");
   });
 
   it("renders the localized hit progress only once", () => {

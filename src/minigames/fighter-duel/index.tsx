@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useControlHint } from "@/i18n/control-hint";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
@@ -68,6 +69,7 @@ function opponentPose(resolved: Resolved | null, tell: Move): Pose {
  */
 export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
+  const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
   // 판마다 순서가 달라야 외워서 이기지 않는다. 판 안에서는 고정 (읽는 재미).
   const [salt] = useState(() => Math.floor(Math.random() * 1000));
@@ -162,7 +164,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   return (
     <MinigameShell
       title={t("minigame.fighterDuel.title")}
-      help={t("minigame.fighterDuel.help")}
+      help={hint("minigame.fighterDuel.help")}
       stats={
         <>
           <MinigameStat

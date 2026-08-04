@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SuccessBurst } from "@/components/ui/SuccessBurst";
+import { useControlHint } from "@/i18n/control-hint";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
@@ -41,6 +42,7 @@ function tokenColor(name: string): string {
 /** 뿌옇게 덮인 액자 사진을 닦아 선명도 70% 이상 만들면 클리어. 제한 시간 초과 시 실패. */
 export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: MinigameProps) {
   const { t } = useTranslation();
+  const hint = useControlHint();
   const photo = PHOTOS[gamePhase];
   const complete = useOnceCompleter(onComplete);
   const [progress, setProgress] = useState(0);
@@ -198,7 +200,7 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
     <MinigameShell
       size="lg"
       title={t("minigame.photoWipe.title")}
-      help={t("minigame.photoWipe.help")}
+      help={hint("minigame.photoWipe.help")}
       stats={
         <>
           <MinigameStat

@@ -3,6 +3,7 @@
 import { Check, PhoneDisconnect } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { useOnceCompleter } from "../shell";
@@ -73,6 +74,7 @@ function Bubble({
  */
 export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   const { t } = useTranslation();
+  const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
   const [tab, setTab] = useState<PhoneTab>("chat");
   const [revealed, setRevealed] = useState(INITIAL_REVEALED);
@@ -212,7 +214,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
           </button>
         ) : (
           <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
-            {t(phoneHelpKey(tab, chatDone, seenCalls))}
+            {hint(phoneHelpKey(tab, chatDone, seenCalls))}
           </p>
         )}
       </div>

@@ -45,7 +45,9 @@
     "loading": "部屋を読み込み中…",
     "webglFallback": "この端末では3Dの部屋を表示できません。",
     "moveHint": "WASD / 矢印キーで移動",
-    "interactHint": "{{name}}を調べる · E / Enter",
+    "moveHint_touch": "スティックで移動",
+    "interactHint": "{{name}}を調べる · E",
+    "interactHint_touch": "{{name}}を調べる · タップ",
     "moveCaption": "移動"
   },
   "reset": {
@@ -72,16 +74,20 @@
     },
     "frequencyTune": {
       "title": "周波数を合わせる",
-      "help": "針が明るい帯を通る瞬間に — Space・クリック・タップ"
+      "help": "針が明るい帯を通る瞬間に — Space",
+      "help_touch": "針が明るい帯を通る瞬間に画面をタップ"
     },
     "photoWipe": {
       "title": "写真を拭く",
-      "help": "マウスでドラッグ、または指でこすってほこりを拭き取ってください"
+      "help": "マウスでドラッグしてほこりを拭き取ってください",
+      "help_touch": "指でこすってほこりを拭き取ってください"
     },
     "ballCatch": {
       "title": "スイング！",
-      "help": "ボールが点線のリングに入る瞬間にバットを振る — Space・クリック・タップ",
-      "prompt": "SPACE・クリック・タップ",
+      "help": "ボールが点線のリングに入る瞬間にバットを振る — Space",
+      "help_touch": "ボールが点線のリングに入る瞬間に画面をタップ",
+      "prompt": "SPACE",
+      "prompt_touch": "タップ",
       "early": "早い",
       "late": "遅い",
       "hits": "ヒット {{value}} / {{goal}}",
@@ -90,6 +96,7 @@
     "fighterDuel": {
       "title": "格闘ゲーム",
       "help": "相手の構えを読んで返しましょう — 1 打つ · 2 守る · 3 掴む",
+      "help_touch": "相手の構えを読んで下のボタンで返しましょう",
       "hint": "打つは掴むに、掴むは守るに、守るは打つに勝つ",
       "labelWins": "取った本",
       "labelLosses": "取られた本",
@@ -116,7 +123,8 @@
     "labelTime": "残り時間",
     "calendarFlip": {
       "title": "カレンダーをめくる",
-      "help": "カレンダーをめくる — ← → ・矢印ボタン・タップ",
+      "help": "カレンダーをめくる — ← →",
+      "help_touch": "矢印ボタンでカレンダーをめくる",
       "month": "{{value}}月",
       "prev": "前の月",
       "next": "次の月",
@@ -133,9 +141,15 @@
       "pageOf": "{{value}} / {{total}}",
       "close": "カレンダーを置く"
     },
+    "windowView": {
+      "title": "窓の外",
+      "help": "カーテンを開けて外を見る",
+      "close": "カーテンを閉じる"
+    },
     "phoneChat": {
       "title": "スマートフォン",
-      "help": "過去のやりとりをさかのぼる — 上にスクロール・クリック・タップ・Space",
+      "help": "過去のやりとりをさかのぼる — 上にスクロール・Space",
+      "help_touch": "過去のやりとりをさかのぼる — 上にスワイプ・タップ",
       "helpCalls": "発信履歴のタブも開いてみてください",
       "date": "10月19日",
       "close": "画面を消す",
@@ -185,8 +199,10 @@
     "start": "はじめる",
     "playtime": "プレイ時間 約15分",
     "howTo": "部屋を自由に歩き、記憶が残る物を調べてください。",
-    "howToMove": "移動 WASD・矢印・ジョイスティック",
-    "howToExamine": "調べる E・Enter・物をクリック",
+    "howToMove": "移動 WASD",
+    "howToMove_touch": "移動 左下のスティック",
+    "howToExamine": "調べる E・クリック",
+    "howToExamine_touch": "調べる 物をタップ",
     "resume": "続きから",
     "saved": "記憶を{{count}}個集めたところで止まっています。"
   },

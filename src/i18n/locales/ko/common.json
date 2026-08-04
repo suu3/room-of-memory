@@ -45,7 +45,9 @@
     "loading": "방을 불러오는 중…",
     "webglFallback": "이 기기에서는 3D 방을 표시할 수 없습니다.",
     "moveHint": "WASD / 방향키로 이동",
-    "interactHint": "{{name}} 조사 · E / Enter",
+    "moveHint_touch": "조이스틱으로 이동",
+    "interactHint": "{{name}} 조사 · E",
+    "interactHint_touch": "{{name}} 조사 · 터치",
     "moveCaption": "이동"
   },
   "reset": {
@@ -72,16 +74,20 @@
     },
     "frequencyTune": {
       "title": "주파수 맞추기",
-      "help": "바늘이 밝은 구간을 지나는 순간 — Space · 클릭 · 화면 터치"
+      "help": "바늘이 밝은 구간을 지나는 순간 Space",
+      "help_touch": "바늘이 밝은 구간을 지날 때 화면 터치"
     },
     "photoWipe": {
       "title": "사진 닦기",
-      "help": "마우스로 드래그하거나 손가락으로 문질러 먼지를 닦아내세요"
+      "help": "마우스로 드래그해 먼지를 닦아내세요",
+      "help_touch": "손가락으로 문질러 먼지를 닦아내세요"
     },
     "ballCatch": {
       "title": "스윙!",
-      "help": "공이 점선 링에 들어오는 순간 배트를 휘두르세요 — Space · 클릭 · 화면 터치",
-      "prompt": "SPACE · 클릭 · 터치",
+      "help": "공이 점선 링에 들어오는 순간 배트를 휘두르세요 — Space",
+      "help_touch": "공이 점선 링에 들어올 때 화면을 터치해 배트를 휘두르세요",
+      "prompt": "SPACE",
+      "prompt_touch": "터치",
       "early": "빨랐어",
       "late": "늦었어",
       "hits": "안타 {{value}} / {{goal}}",
@@ -90,6 +96,7 @@
     "fighterDuel": {
       "title": "격투 게임",
       "help": "상대 자세를 보고 받아치세요 — 1 때리기 · 2 막기 · 3 잡기",
+      "help_touch": "상대 자세를 보고 아래 버튼으로 받아치세요",
       "hint": "때리기는 잡기를, 잡기는 막기를, 막기는 때리기를 이긴다",
       "labelWins": "따낸 판",
       "labelLosses": "맞은 판",
@@ -116,7 +123,8 @@
     "labelTime": "남은 시간",
     "calendarFlip": {
       "title": "달력 넘기기",
-      "help": "달력을 넘겨보세요 — ← → · 좌우 화살표 버튼 클릭 · 터치",
+      "help": "달력을 넘겨보세요 — ← →",
+      "help_touch": "좌우 화살표 버튼으로 달력을 넘겨보세요",
       "month": "{{value}}월",
       "prev": "이전 달",
       "next": "다음 달",
@@ -133,9 +141,15 @@
       "pageOf": "{{value}} / {{total}}",
       "close": "달력을 내려놓는다"
     },
+    "windowView": {
+      "title": "창밖",
+      "help": "커튼을 걷고 밖을 내다본다",
+      "close": "커튼을 닫는다"
+    },
     "phoneChat": {
       "title": "스마트폰",
-      "help": "지난 대화를 거슬러 올라가세요 — 위로 스크롤 · 클릭 · 터치 · Space",
+      "help": "지난 대화를 거슬러 올라가세요 — 위로 스크롤 · Space",
+      "help_touch": "지난 대화를 거슬러 올라가세요 — 위로 스크롤 · 터치",
       "helpCalls": "통화 기록 탭도 열어보세요",
       "date": "10월 19일",
       "close": "화면을 끈다",
@@ -185,8 +199,10 @@
     "start": "시작하기",
     "playtime": "플레이타임 약 15분",
     "howTo": "방을 자유롭게 돌아다니며 기억이 걸린 물건을 찾아 조사하세요.",
-    "howToMove": "이동 WASD · 화살표 · 화면 왼쪽 아래 조이스틱",
-    "howToExamine": "조사 E · Enter · 물건 클릭",
+    "howToMove": "이동 WASD",
+    "howToMove_touch": "이동 왼쪽 아래 조이스틱",
+    "howToExamine": "조사 E · 클릭",
+    "howToExamine_touch": "조사 물건 터치",
     "resume": "이어하기",
     "saved": "기억 {{count}}개를 모아 둔 채로 멈춰 있습니다."
   },

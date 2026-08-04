@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
@@ -22,6 +23,7 @@ const ENTER_DELAY_MS = 260;
  */
 export function TitleScreen() {
   const { t } = useTranslation();
+  const hint = useControlHint();
   const started = useMemoryRoomStore((state) => state.started);
   const startGame = useMemoryRoomStore((state) => state.startGame);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
@@ -135,10 +137,11 @@ export function TitleScreen() {
           {/*
             조작 안내는 "이동"과 "조사" 두 덩어리다. 한 문장으로 이어 두면 좁은 화면에서
             아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다 — 덩어리째 줄바꿈되도록 flex로 나눈다.
+            문구는 기기를 따라간다 — 폰에서 WASD를 읽어 봐야 누를 키가 없다.
           */}
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-[0.6875rem] leading-relaxed tracking-wider text-bone/40">
-            <span className="break-ko text-pretty">{t("titleScreen.howToMove")}</span>
-            <span className="break-ko text-pretty">{t("titleScreen.howToExamine")}</span>
+            <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
+            <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
           </div>
         </div>
 

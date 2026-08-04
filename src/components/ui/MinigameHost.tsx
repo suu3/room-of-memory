@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { phaseConfigOf } from "@/data/memory-room";
+import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
@@ -17,6 +18,7 @@ import { SuccessBurst } from "./SuccessBurst";
  */
 export function MinigameHost() {
   const { t } = useTranslation();
+  const hint = useControlHint();
   const active = useMemoryRoomStore(selectActiveInteraction);
   const finishMinigame = useMemoryRoomStore((state) => state.finishMinigame);
   const cancelMinigame = useMemoryRoomStore((state) => state.cancelMinigame);
@@ -106,7 +108,7 @@ export function MinigameHost() {
                 {t(hosted.titleKey)}
               </h2>
               <p className="mt-3 break-ko text-pretty text-base leading-relaxed text-ink/70">
-                {t(hosted.helpKey)}
+                {hint(hosted.helpKey)}
               </p>
               <button
                 ref={startButtonRef}
