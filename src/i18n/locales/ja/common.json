@@ -19,7 +19,8 @@
     "open": "記憶コレクションパネルを開く",
     "close": "記憶コレクションパネルを閉じる",
     "unknownName": "? ? ?",
-    "replay": "{{name}} をもう一度見る"
+    "replay": "{{name}} をもう一度見る",
+    "replayAction": "もう一度"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 収集した記憶",

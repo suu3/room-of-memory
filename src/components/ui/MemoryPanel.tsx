@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowCounterClockwise } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MEMORIES, MEMORY_GOAL } from "@/data/memory-room";
@@ -138,13 +137,15 @@ export function MemoryPanel() {
                   >
                     {done ? tRoom(`memories.${memory.id}.name`) : t("panel.unknownName")}
                   </span>
+                  {/*
+                    회전 화살표 아이콘만 있으면 "새로고침"으로도 읽혀서 무슨 일이 벌어질지
+                    모른 채 누르게 된다. 글자로 적어 둔다 — 줄 전체가 버튼이므로 이건
+                    누를 수 있는 별개의 컨트롤이 아니라 그 줄이 하는 일의 이름표다.
+                  */}
                   {done && (
-                    <ArrowCounterClockwise
-                      size={15}
-                      weight="bold"
-                      aria-hidden
-                      className="ml-auto flex-none text-ink/25 transition-colors group-hover:text-memory"
-                    />
+                    <span className="ml-auto flex-none whitespace-nowrap rounded-sm border border-ink/15 px-1.5 py-0.5 text-[0.6875rem] font-bold tracking-wide text-ink/45 transition-colors group-hover:border-memory group-hover:text-memory">
+                      {t("panel.replayAction")}
+                    </span>
                   )}
                 </Row>
               </li>

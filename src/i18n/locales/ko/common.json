@@ -19,7 +19,8 @@
     "open": "기억 수집 패널 열기",
     "close": "기억 수집 패널 닫기",
     "unknownName": "? ? ?",
-    "replay": "{{name}} 다시 보기"
+    "replay": "{{name}} 다시 보기",
+    "replayAction": "다시보기"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 수집한 기억",

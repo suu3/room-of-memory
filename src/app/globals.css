@@ -58,6 +58,12 @@
    * 같은 신호로 안 읽힌다.
    */
   --animate-start-pulse: start-pulse 2.4s ease-in-out infinite;
+  /*
+   * 시작 버튼 뒤에 깔리는 금빛 후광. 버튼 자신이 아니라 별도 레이어를 부풀린다 —
+   * 버튼에 transform을 걸면 hover의 살짝 뜨는 동작(-translate-y)을 애니메이션이
+   * 덮어써서 눌러지는 느낌이 사라진다. 주기는 start-pulse와 같은 2.4s.
+   */
+  --animate-start-glow: start-glow 2.4s ease-in-out infinite;
 
   @keyframes hotspot-glow {
     0%,
@@ -137,13 +143,28 @@
       background-color: var(--color-paper);
       box-shadow:
         var(--shadow-panel),
+        0 0 16px color-mix(in srgb, var(--color-memory) 28%, transparent),
         0 0 0 0 color-mix(in srgb, var(--color-memory) 55%, transparent);
     }
     50% {
       background-color: color-mix(in srgb, var(--color-paper) 86%, var(--color-memory));
       box-shadow:
         var(--shadow-panel),
+        0 0 30px color-mix(in srgb, var(--color-memory) 62%, transparent),
         0 0 0 12px transparent;
+    }
+  }
+
+  /* 후광은 크기와 진하기가 같이 숨쉰다 — 하나만 움직이면 빛이 아니라 도형으로 보인다 */
+  @keyframes start-glow {
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scale(0.92);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.08);
     }
   }
 
@@ -332,6 +353,16 @@ body {
   transform-origin: 88% 82%;
 }
 
+/* 시작 버튼 뒤 후광의 색. 움직임은 --animate-start-glow가 맡는다 */
+.start-glow {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-memory) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-memory) 22%, transparent) 58%,
+    transparent 100%
+  );
+}
+
 
 @keyframes bat-swing-image-reduced {
   0%,
@@ -386,6 +417,13 @@ body {
     animation: none;
     box-shadow:
       var(--shadow-panel),
+      0 0 22px color-mix(in srgb, var(--color-memory) 40%, transparent),
       0 0 0 3px color-mix(in srgb, var(--color-memory) 50%, transparent);
+  }
+
+  /* 후광도 숨쉬기를 멈추되 사라지지는 않는다 — 빛 자체가 강조의 일부다 */
+  .animate-start-glow {
+    animation: none;
+    opacity: 0.45;
   }
 }

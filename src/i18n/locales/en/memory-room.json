@@ -47,15 +47,15 @@
   },
   "stages": {
     "dark": {
-      "monologue": "Monologue placeholder goes here",
+      "monologue": "I have seen all of it, and the room only got darker.",
       "dialogue": "Dialogue placeholder goes here"
     },
     "dim": {
-      "monologue": "Monologue placeholder goes here",
+      "monologue": "There is a lot I have not touched yet. One thing at a time.",
       "dialogue": "Dialogue placeholder goes here"
     },
     "gold": {
-      "monologue": "Monologue placeholder goes here",
+      "monologue": "It looks different the second time. The door side is bright.",
       "dialogue": "Dialogue placeholder goes here"
     }
   },
@@ -72,7 +72,7 @@
       "line2": "…Where are they right now?"
     },
     "frame-photo-echo": {
-      "line1": "…Their faces. I can finally see them properly.",
+      "line1": "…My parents' faces. I can finally see them properly.",
       "line2": "When I find them, I'll start with this photo."
     },
     "console-echo": {
@@ -97,8 +97,8 @@
       "phase1": "I opened the curtain. Broken glass, a crushed car, stains that will not wash off. I closed it again."
     },
     "frame": {
-      "title": "Them",
-      "phase1": "Dust on the glass hides their faces. Even wiped clean, only the two of them stay blurred."
+      "title": "My Parents",
+      "phase1": "Dust on the glass hides their faces. Even wiped clean, only my parents stay blurred."
     },
     "radio": {
       "title": "That Broadcast",

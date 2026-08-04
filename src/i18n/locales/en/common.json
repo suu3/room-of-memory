@@ -19,7 +19,8 @@
     "open": "Open the memory collection panel",
     "close": "Close the memory collection panel",
     "unknownName": "? ? ?",
-    "replay": "Replay {{name}}"
+    "replay": "Replay {{name}}",
+    "replayAction": "Replay"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — collected memory",
