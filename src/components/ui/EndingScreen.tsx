@@ -50,10 +50,10 @@ export function EndingScreen() {
           <p className="font-pixel text-xs tracking-[0.4em] text-memory/80">
             {t("ending.eyebrow")}
           </p>
-          <h2 className="max-w-lg text-pretty text-3xl font-bold leading-snug tracking-tight text-paper md:text-4xl">
+          <h2 className="max-w-lg break-ko text-pretty text-3xl font-bold leading-snug tracking-tight text-paper md:text-4xl">
             {t("ending.line")}
           </h2>
-          <p className="max-w-md text-pretty text-sm leading-relaxed text-bone/55">
+          <p className="max-w-md break-ko text-pretty text-sm leading-relaxed text-bone/55">
             {t("ending.note")}
           </p>
           <button

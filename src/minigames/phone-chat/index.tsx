@@ -48,7 +48,7 @@ function Bubble({
       ) : null}
       <div className={`flex max-w-[82%] items-end gap-1.5 ${mine ? "flex-row-reverse" : ""}`}>
         <p
-          className={`rounded-2xl px-3 py-2 text-[0.875rem] leading-relaxed ${
+          className={`break-ko text-pretty rounded-2xl px-3 py-2 text-[0.875rem] leading-relaxed ${
             mine
               ? "rounded-br-sm bg-memory text-scene-navy"
               : "rounded-bl-sm bg-scene-dusk text-paper"
@@ -199,7 +199,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
 
       {/* 다 읽었을 때만 닫는 버튼이 뜬다. 그 전에 닫으면(바깥 클릭·Esc) 아무 일도
           없었던 것처럼 다시 열 수 있다 — 방탈출 탐색이라 되돌아올 수 있어야 한다. */}
-      <div className="flex h-9 items-center gap-3">
+      <div className="flex min-h-9 items-center gap-3">
         {done ? (
           <button
             type="button"
@@ -210,7 +210,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
             {t("minigame.phoneChat.close")}
           </button>
         ) : (
-          <p className="px-4 text-center text-sm tracking-widest text-bone/50">
+          <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
             {t(phoneHelpKey(tab, chatDone, seenCalls))}
           </p>
         )}

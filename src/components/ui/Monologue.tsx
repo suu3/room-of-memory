@@ -17,7 +17,10 @@ export function Monologue({ stageId }: { stageId: StageId }) {
 
   return (
     <div className="pointer-events-none absolute left-1/2 top-32 z-10 w-full max-w-2xl -translate-x-1/2 px-4 text-center md:top-16">
-      <p className="animate-fade-rise font-pixel text-2xl text-fog">「 {monologue} 」</p>
+      {/* 좁은 화면에서는 한 줄이 안 나온다 — 글자를 줄이고, 넘칠 땐 어절 단위로 접는다 */}
+      <p className="animate-fade-rise break-ko text-pretty font-pixel text-xl text-fog sm:text-2xl">
+        「 {monologue} 」
+      </p>
     </div>
   );
 }

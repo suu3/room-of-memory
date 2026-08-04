@@ -83,7 +83,7 @@ export function TitleScreen() {
           {t("titleScreen.eyebrow")}
         </p>
         <h1 className="text-5xl font-bold tracking-tight text-paper md:text-6xl">{t("title")}</h1>
-        <p className="max-w-sm text-pretty text-sm leading-relaxed text-bone/60">
+        <p className="max-w-sm break-ko text-pretty text-sm leading-relaxed text-bone/60">
           {t("titleScreen.tagline")}
         </p>
       </div>
@@ -118,10 +118,17 @@ export function TitleScreen() {
         시작 버튼을 누른 뒤에는 알려줄 자리가 없다 — 방에 들어가면 화면은 씬이 다 쓴다.
       */}
       <div className="relative -mt-4 flex max-w-md flex-col items-center gap-2 text-center">
-        <p className="text-sm leading-relaxed text-bone/70">{t("titleScreen.howTo")}</p>
-        <p className="text-pretty text-[0.6875rem] leading-relaxed tracking-wider text-bone/40">
-          {t("titleScreen.howToControls")}
+        <p className="break-ko text-pretty text-sm leading-relaxed text-bone/70">
+          {t("titleScreen.howTo")}
         </p>
+        {/*
+          조작 안내는 "이동"과 "조사" 두 덩어리다. 한 문장으로 이어 두면 좁은 화면에서
+          아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다 — 덩어리째 줄바꿈되도록 flex로 나눈다.
+        */}
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-[0.6875rem] leading-relaxed tracking-wider text-bone/40">
+          <span className="break-ko text-pretty">{t("titleScreen.howToMove")}</span>
+          <span className="break-ko text-pretty">{t("titleScreen.howToExamine")}</span>
+        </div>
       </div>
 
       <div className="relative flex flex-col items-center gap-4">

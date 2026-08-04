@@ -25,8 +25,10 @@ export function BlurredValue({
       <span
         aria-hidden
         title={label}
-        // 안내 문구가 위에 얹히므로 본문은 더 눌러둔다 — 둘 다 진하면 서로 읽기 어렵다
-        className="block select-none text-sm leading-relaxed text-ink/40 blur-[5px]"
+        // 안내 문구가 위에 얹히므로 본문은 더 눌러둔다 — 둘 다 진하면 서로 읽기 어렵다.
+        // 줄바꿈 규칙(break-ko)은 열린 뒤의 본문과 반드시 같아야 한다 — 다르면 줄 수가
+        // 달라져서 열리는 순간 레이아웃이 튄다.
+        className="block select-none break-ko text-pretty text-sm leading-relaxed text-ink/40 blur-[5px]"
       >
         {text}
       </span>

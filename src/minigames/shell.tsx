@@ -82,20 +82,23 @@ export function MinigameShell({
       className={`${size === "lg" ? "w-[54rem]" : "w-[38rem]"} max-w-[94vw] animate-fade-rise rounded-xl border border-bone bg-paper p-5 shadow-panel sm:p-7`}
     >
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-2xl font-bold tracking-tight text-ink">{title}</h2>
+        {/* 제목은 좁아지면 접히고, 스킵 버튼은 접근성 장치라 절대 눌리지 않는다 */}
+        <h2 className="min-w-0 break-ko text-2xl font-bold tracking-tight text-ink">{title}</h2>
         {skipVisible && (
           <button
             type="button"
             onClick={onSkip}
-            className="cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-sm font-bold tracking-widest text-ink/60 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5"
+            className="shrink-0 cursor-pointer whitespace-nowrap rounded-full border border-ink/15 px-4 py-1.5 text-sm font-bold tracking-widest text-ink/60 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5"
           >
             {t("minigame.skip")}
           </button>
         )}
       </div>
-      <p className="mt-2.5 text-base leading-relaxed text-ink/70">{help}</p>
+      <p className="mt-2.5 break-ko text-pretty text-base leading-relaxed text-ink/70">{help}</p>
       {stats && (
-        <div className="mt-3 flex items-center gap-5 text-base font-bold text-ink/70">{stats}</div>
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-base font-bold text-ink/70">
+          {stats}
+        </div>
       )}
       <div className="mt-3">{children}</div>
     </div>

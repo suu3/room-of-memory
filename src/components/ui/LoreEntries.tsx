@@ -41,7 +41,7 @@ export function LoreEntries() {
             </dt>
             <dd className="mt-2">
               {unlocked ? (
-                <span className="block animate-fade-rise text-sm leading-relaxed text-ink/80">
+                <span className="block animate-fade-rise break-ko text-pretty text-sm leading-relaxed text-ink/80">
                   {tRoom(bodyKey)}
                 </span>
               ) : (

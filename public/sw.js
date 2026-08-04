@@ -13,7 +13,7 @@
  */
 
 /** 캐시 이름에 버전을 박는다. 올리면 activate에서 옛 캐시를 통째로 버린다. */
-const VERSION = "v1";
+const VERSION = "v2";
 const ASSET_CACHE = `rom-assets-${VERSION}`;
 const PAGE_CACHE = `rom-pages-${VERSION}`;
 const CACHES = [ASSET_CACHE, PAGE_CACHE];

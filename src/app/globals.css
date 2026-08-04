@@ -251,6 +251,24 @@ body {
   background: transparent;
 }
 
+/*
+ * 한글 본문 줄바꿈.
+ *
+ * 브라우저 기본값(word-break: normal)은 한글을 글자 단위로 끊는다 — 좁은 화면에서
+ * "되찾는 이야" / "기." 처럼 어절 한가운데가 갈라진다. keep-all이면 띄어쓰기에서만
+ * 끊어져 읽는 리듬이 유지된다.
+ *
+ * overflow-wrap: anywhere를 같이 건다. keep-all만 두면 칸보다 긴 덩어리(긴 영어 낱말,
+ * URL)가 통째로 넘쳐 가로 스크롤이 생긴다 — 그때만 강제로 끊는 안전장치다.
+ *
+ * text-wrap: pretty는 Tailwind의 text-pretty로 필요한 곳에만 따로 건다 (마지막 줄에
+ * 한 어절만 남는 걸 막는 것은 별개 문제라서).
+ */
+@utility break-ko {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
 /* 캔버스 아래 깔리는 방 바깥 배경 — 창 쪽에서 번지는 빛.
    3D 스프라이트로 두면 three가 투명 오브젝트를 불투명 뒤에 그려서 벽을 뚫는다. */
 .room-backdrop {

@@ -185,7 +185,8 @@
     "start": "START",
     "playtime": "About 15 minutes",
     "howTo": "Wander the room and examine the objects a memory still clings to.",
-    "howToControls": "Move WASD · arrows · joystick 　|　 Examine E · Enter · click the object",
+    "howToMove": "Move WASD · arrows · joystick",
+    "howToExamine": "Examine E · Enter · click the object",
     "resume": "Continue",
     "saved": "You left off with {{count}} memories gathered."
   },

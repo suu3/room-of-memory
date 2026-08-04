@@ -23,10 +23,11 @@ export function ContactLinks() {
             rel="noreferrer"
             className="group flex items-center justify-between gap-4 py-4 transition-colors active:bg-ink/5"
           >
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-ink/45">
+            <span className="shrink-0 text-xs font-bold uppercase tracking-[0.18em] text-ink/45">
               {link.label}
             </span>
-            <span className="flex items-center gap-2 text-sm text-ink/80 transition-colors group-hover:text-ink">
+            {/* 메일 주소는 어절이 없다 — 좁아지면 어디서든 접히게 두는 편이 잘린 것보다 낫다 */}
+            <span className="flex min-w-0 items-center gap-2 break-ko text-right text-sm text-ink/80 transition-colors group-hover:text-ink">
               {link.value}
               <ArrowUpRight
                 size={14}
@@ -80,10 +81,12 @@ export function ContactModal() {
         role="dialog"
         aria-modal="true"
         aria-label={t("contact.title")}
-        className="relative w-full max-w-xl animate-fade-rise rounded-xl border border-bone bg-paper p-8 shadow-panel"
+        className="relative w-full max-w-xl animate-fade-rise rounded-xl border border-bone bg-paper p-6 shadow-panel sm:p-8"
       >
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-ink">{t("contact.title")}</h2>
+          <h2 className="min-w-0 break-ko text-2xl font-bold tracking-tight text-ink">
+            {t("contact.title")}
+          </h2>
           <button
             type="button"
             onClick={() => setOpen(false)}

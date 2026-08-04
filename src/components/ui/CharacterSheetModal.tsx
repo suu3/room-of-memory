@@ -132,7 +132,7 @@ export function CharacterSheetModal() {
                       </dt>
                       <dd>
                         {revealed ? (
-                          <span className="mt-1.5 block animate-fade-rise text-sm leading-relaxed text-ink/80">
+                          <span className="mt-1.5 block animate-fade-rise break-ko text-pretty text-sm leading-relaxed text-ink/80">
                             {tRoom(
                               `characters.hero.profile.${row.index}.value` as ParseKeys<"memoryRoom">,
                             )}

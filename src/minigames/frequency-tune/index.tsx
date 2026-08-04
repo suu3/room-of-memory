@@ -177,7 +177,8 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
             .map((tick) => (
               <span
                 key={`label-${tick.pct}`}
-                className="absolute top-[4.75rem] -translate-x-1/2 font-mono text-sm font-bold tabular-nums text-bone/70"
+                // 좁은 화면에서는 100 이상 세 자리가 서로 붙어 "100102104"로 읽힌다 — 글자를 줄여 띄운다
+                className="absolute top-[4.75rem] -translate-x-1/2 font-mono text-[0.6875rem] font-bold tabular-nums text-bone/70 sm:text-sm"
                 style={{ left: `${tick.pct}%` }}
               >
                 {tick.label}

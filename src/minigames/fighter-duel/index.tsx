@@ -177,7 +177,9 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
     >
       <div className="overflow-hidden rounded-md border-2 border-night bg-scene-abyss">
         <div
-          className="relative flex h-64 items-end justify-between bg-cover bg-center px-10 pb-6"
+          // 예고 글자가 위쪽 띠로 빠졌으니 둘 사이는 간격으로 벌린다 —
+          // justify-between이면 넓은 패널에서 양 끝으로 밀려 마주 본다는 느낌이 사라진다
+          className="relative flex h-64 items-end justify-center gap-8 bg-cover bg-center px-3 pb-6 sm:gap-40 sm:px-10"
           style={{
             // 무대 그림이 리포에 없으면 그 레이어만 못 그리고 아래 그라디언트가 남는다 —
             // 배경은 이 폴백만으로도 충분해서 존재 확인을 따로 하지 않는다.
@@ -195,16 +197,22 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
             />
           </div>
 
-          {/* 예고와 결과는 자세만으로 전하지 않는다 — 글로도 읽히고, 바뀌면 알린다 */}
+          {/*
+            예고와 결과는 자세만으로 전하지 않는다 — 글로도 읽히고, 바뀌면 알린다.
+
+            두 파이터 사이에 끼워 두면 좁은 화면에서 가운데 칸이 눌려 "상대가 어깨를
+            뒤로 뺀다"가 네 줄로 접히고 스프라이트에 가린다. 무대 위쪽 띠로 띄워
+            폭을 화면 전체로 쓰게 하고, 파이터는 아래에서 마주 보게 둔다.
+          */}
           <div
             role="status"
             aria-live="polite"
-            className="relative flex flex-col items-center gap-3 pb-10 text-center"
+            className="pointer-events-none absolute inset-x-3 top-4 flex flex-col items-center gap-3 text-center sm:top-6"
           >
             {resolved ? (
               <span
                 key={`${round}-outcome`}
-                className={`animate-fade-rise font-pixel text-xl tracking-widest ${OUTCOME_TONE[resolved.outcome]}`}
+                className={`animate-fade-rise whitespace-nowrap font-pixel text-lg tracking-widest sm:text-xl ${OUTCOME_TONE[resolved.outcome]}`}
               >
                 {t(
                   resolved.player === null
@@ -213,7 +221,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
                 )}
               </span>
             ) : (
-              <span className="font-pixel text-xs leading-relaxed tracking-widest text-bone/80">
+              <span className="break-ko text-pretty font-pixel text-xs leading-relaxed tracking-widest text-bone/80">
                 {t(`minigame.fighterDuel.tell.${tell}`)}
               </span>
             )}
@@ -251,7 +259,9 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
           </button>
         ))}
       </div>
-      <p className="mt-2.5 text-center text-sm text-ink/55">{t("minigame.fighterDuel.hint")}</p>
+      <p className="mt-2.5 break-ko text-pretty text-center text-sm text-ink/55">
+        {t("minigame.fighterDuel.hint")}
+      </p>
     </MinigameShell>
   );
 }

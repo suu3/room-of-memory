@@ -18,7 +18,7 @@ export function RoomInteractionPrompt({
   return (
     <>
       {nearbyMemoryId ? (
-        <div className="pointer-events-none absolute bottom-6 left-1/2 z-20 -translate-x-1/2 rounded-lg border-2 border-bone bg-paper px-4 py-2 text-xs font-medium tracking-wider text-ink shadow-chip">
+        <div className="pointer-events-none absolute bottom-6 left-1/2 z-20 max-w-[calc(100vw-2rem)] -translate-x-1/2 break-ko text-pretty rounded-lg border-2 border-bone bg-paper px-4 py-2 text-center text-xs font-medium tracking-wider text-ink shadow-chip">
           {nearbyLabel}
         </div>
       ) : null}

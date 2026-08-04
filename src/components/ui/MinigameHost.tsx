@@ -102,8 +102,12 @@ export function MinigameHost() {
             </Suspense>
           ) : (
             <div className="w-[38rem] max-w-[94vw] animate-fade-rise rounded-xl border border-bone bg-paper p-8 text-center shadow-panel">
-              <h2 className="text-2xl font-bold tracking-tight text-ink">{t(hosted.titleKey)}</h2>
-              <p className="mt-3 text-base leading-relaxed text-ink/70">{t(hosted.helpKey)}</p>
+              <h2 className="break-ko text-2xl font-bold tracking-tight text-ink">
+                {t(hosted.titleKey)}
+              </h2>
+              <p className="mt-3 break-ko text-pretty text-base leading-relaxed text-ink/70">
+                {t(hosted.helpKey)}
+              </p>
               <button
                 ref={startButtonRef}
                 type="button"

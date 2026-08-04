@@ -72,7 +72,8 @@ export function DialogueBox() {
       <div className="pointer-events-none absolute bottom-8 left-1/2 w-full max-w-4xl -translate-x-1/2 animate-fade-rise px-4">
         <div className="relative">
           <CharacterPortrait expression={scriptLine.expression ?? "neutral"} talking={!done} />
-          <div className="relative rounded-xl border border-bone bg-paper px-8 pb-6 pt-5 text-left shadow-overlay">
+          {/* 좁은 화면에서는 여백을 줄여 본문 폭을 확보한다 — 한 줄에 담기는 어절이 늘어난다 */}
+          <div className="relative rounded-xl border border-bone bg-paper px-5 pb-5 pt-4 text-left shadow-overlay sm:px-8 sm:pb-6 sm:pt-5">
             {/* 화자 이름은 패널 안 라벨로 — 초상이 있어 별도 칩이나 소개 문구는 군더더기다 */}
             <div className="flex items-center gap-2.5">
               <span className="text-sm font-bold tracking-wide text-ink">{speakerName}</span>
@@ -80,7 +81,7 @@ export function DialogueBox() {
             </div>
             <p
               key={`${active.memoryId}-${active.lineIndex}`}
-              className="mt-4 min-h-20 text-pretty text-lg leading-dialogue text-ink"
+              className="mt-4 min-h-20 break-ko text-pretty text-base leading-dialogue text-ink sm:text-lg"
             >
               {typed}
             </p>

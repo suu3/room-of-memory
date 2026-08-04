@@ -9,8 +9,11 @@ import { BallCatchField } from "./field";
 import {
   classifySwing,
   nextPitch,
+  nextTempo,
   type PitchSide,
+  type PitchTempoKey,
   remainingChances,
+  roundDuration,
   type SwingResult,
 } from "./timing";
 
@@ -18,9 +21,6 @@ const GOAL_CATCHES = 5;
 const MAX_MISSES = 5;
 const SKIP_AFTER_MS = 30_000;
 const SKIP_AFTER_MISSES = 3;
-const ROUND_MS_START = 1700;
-const ROUND_MS_MIN = 1200;
-const ROUND_MS_STEP = 150;
 const ROUND_GAP_MS = 550;
 /**
  * 공이 점선 링과 겹치는 판정 구간 (진행률). 1.0 = 공이 링 중심 도달 —
@@ -68,7 +68,10 @@ export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
   const shadowRef = useRef<HTMLDivElement>(null);
   /** 직전 공이 어느 쪽에서 왔는지 — 다음 공은 반대편에서 온다. */
   const lastSideRef = useRef<PitchSide>(1);
-  const roundRef = useRef<Round>(newRound(ROUND_MS_START, -1));
+  /** 직전 구종 — 다음 공은 이것 말고 다른 속도로 온다. */
+  const lastTempoRef = useRef<PitchTempoKey>("normal");
+  // 첫 공은 기준 속도로 던진다 — 뭐가 빠르고 느린지 견줄 게 있어야 변주가 변주로 읽힌다
+  const roundRef = useRef<Round>(newRound(roundDuration(0, 1), -1));
   const pendingTimeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
 
@@ -90,7 +93,9 @@ export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
 
   const scheduleNextRef = useRef(() => {});
   scheduleNextRef.current = () => {
-    const duration = Math.max(ROUND_MS_MIN, ROUND_MS_START - catches * ROUND_MS_STEP);
+    const tempo = nextTempo(lastTempoRef.current, Math.random());
+    lastTempoRef.current = tempo.key;
+    const duration = roundDuration(catches, tempo.scale);
     schedulePendingTimeout(() => {
       const round = newRound(duration, lastSideRef.current);
       lastSideRef.current = round.side;

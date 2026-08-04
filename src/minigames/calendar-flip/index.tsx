@@ -208,7 +208,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
         </button>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-3">
         <p className="text-xs tracking-widest text-bone/50">
           {t("minigame.calendarFlip.pageOf", { value: month, total: LAST_MONTH })}
         </p>
@@ -220,7 +220,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
               doneRef.current = true;
               onComplete({ cleared: true });
             }}
-            className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-5 py-1.5 text-xs font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
+            className="flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-5 py-1.5 text-xs font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
             <Check size={14} weight="bold" />
             {t("minigame.calendarFlip.close")}

@@ -185,7 +185,8 @@
     "start": "はじめる",
     "playtime": "プレイ時間 約15分",
     "howTo": "部屋を自由に歩き、記憶が残る物を調べてください。",
-    "howToControls": "移動 WASD・矢印・ジョイスティック 　|　 調べる E・Enter・物をクリック",
+    "howToMove": "移動 WASD・矢印・ジョイスティック",
+    "howToExamine": "調べる E・Enter・物をクリック",
     "resume": "続きから",
     "saved": "記憶を{{count}}個集めたところで止まっています。"
   },

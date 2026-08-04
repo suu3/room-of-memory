@@ -185,7 +185,8 @@
     "start": "시작하기",
     "playtime": "플레이타임 약 15분",
     "howTo": "방을 자유롭게 돌아다니며 기억이 걸린 물건을 찾아 조사하세요.",
-    "howToControls": "이동 WASD · 화살표 · 화면 왼쪽 아래 조이스틱 　|　 조사 E · Enter · 물건 클릭",
+    "howToMove": "이동 WASD · 화살표 · 화면 왼쪽 아래 조이스틱",
+    "howToExamine": "조사 E · Enter · 물건 클릭",
     "resume": "이어하기",
     "saved": "기억 {{count}}개를 모아 둔 채로 멈춰 있습니다."
   },

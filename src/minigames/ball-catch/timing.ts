@@ -37,3 +37,44 @@ export function nextPitch(
   const offset = PITCH_OFFSET_MIN + spread * (PITCH_OFFSET_MAX - PITCH_OFFSET_MIN);
   return { startX: 50 + side * offset, side };
 }
+
+/** 안타를 하나씩 쌓을수록 기본 비행 시간이 이만큼 짧아진다. */
+export const ROUND_MS_START = 1700;
+export const ROUND_MS_MIN = 1200;
+export const ROUND_MS_STEP = 150;
+/**
+ * 변주까지 얹은 뒤의 절대 하한. 이 아래로 내려가면 보고 반응하는 게 아니라
+ * 찍는 게임이 된다 — 판정 구간(CATCH_WINDOW 폭 0.34)이 280ms 밑으로 좁아진다.
+ */
+export const ROUND_MS_FLOOR = 820;
+
+/**
+ * 구종. 방향만 바뀌고 속도가 늘 같으면 몇 번 만에 손이 박자를 외워서,
+ * 공을 보지 않고 스윙해도 맞는다. 느린 공과 빠른 공을 섞어 매번 다시 보게 한다.
+ */
+export const PITCH_TEMPOS = [
+  { key: "slow", scale: 1.18 },
+  { key: "normal", scale: 1 },
+  { key: "fast", scale: 0.82 },
+] as const;
+
+export type PitchTempo = (typeof PITCH_TEMPOS)[number];
+export type PitchTempoKey = PitchTempo["key"];
+
+/**
+ * 다음 구종. 직전과 같은 속도는 뽑지 않는다 — 같은 게 두 번 이어지면
+ * 그 두 번째는 변주가 아니라 그냥 기준이 되어 버린다.
+ *
+ * `random`은 0 이상 1 미만. `nextPitch`와 같은 이유로 인자로 받는다.
+ */
+export function nextTempo(lastKey: PitchTempoKey, random: number): PitchTempo {
+  const candidates = PITCH_TEMPOS.filter((tempo) => tempo.key !== lastKey);
+  const spread = Math.min(0.999_999, Math.max(0, random));
+  return candidates[Math.floor(spread * candidates.length)];
+}
+
+/** 안타 수(기본 난이도)와 구종(변주)을 합친 이번 공의 비행 시간(ms). */
+export function roundDuration(catches: number, scale: number): number {
+  const base = Math.max(ROUND_MS_MIN, ROUND_MS_START - catches * ROUND_MS_STEP);
+  return Math.max(ROUND_MS_FLOOR, Math.round(base * scale));
+}

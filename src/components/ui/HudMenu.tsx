@@ -139,10 +139,15 @@ export function HudMenu() {
                 <Warning size={19} weight="fill" />
               </span>
               <div className="min-w-0">
-                <h2 id="reset-dialog-title" className="text-base font-bold tracking-tight text-ink">
+                <h2
+                  id="reset-dialog-title"
+                  className="break-ko text-base font-bold tracking-tight text-ink"
+                >
                   {t("reset.title")}
                 </h2>
-                <p className="mt-2.5 text-sm leading-relaxed text-ink/70">{t("reset.body")}</p>
+                <p className="mt-2.5 break-ko text-pretty text-sm leading-relaxed text-ink/70">
+                  {t("reset.body")}
+                </p>
               </div>
             </div>
             <div className="mt-5 flex justify-end gap-2">
