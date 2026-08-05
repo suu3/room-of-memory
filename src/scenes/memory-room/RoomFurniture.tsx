@@ -6,6 +6,7 @@ import { type Group, MathUtils, Plane, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import {
+  CURTAIN_TAP_SLOP,
   CURTAIN_X,
   type CurtainPull,
   type CurtainSide,
@@ -519,11 +520,15 @@ function FloorAccessories({ palette }: FurnitureProps) {
 }
 
 /**
- * 커튼 한 쪽. 클릭이 아니라 잡아당겨 연다.
+ * 커튼 한 쪽. 잡아당겨 젖히고, 한 번 눌러도 여닫힌다.
  *
  * 포인터를 누른 채 좌우로 끌면 그만큼 젖혀지고, 놓으면 충분히 당겼는지에 따라
  * 끝까지 열리거나 도로 닫힌다. 양쪽을 다 젖혀야 밖이 보인다 — 창을 여는 건
  * 이 게임에서 "진실을 마주하는" 동작이라 손으로 하게 두는 편이 맞는다.
+ *
+ * 다 젖힌 뒤에도 계속 만질 수 있다. 커튼은 수집 대상이 아니라 전등 스위치와 같은
+ * 방의 곁가지 인터랙션이라, 창밖을 한 번 봤다고 굳어 버리면 안 된다 — 도로 닫고
+ * 다시 젖히는 것까지가 이 물건의 전부다 (창문 기억 자체는 스토어가 따로 잠근다).
  *
  * 키보드 사용자를 위해 Enter/Space는 그 쪽을 한 번에 젖힌다 (RoomInteractionPrompt의
  * 창문 버튼도 같은 경로로 들어온다).
@@ -539,32 +544,37 @@ function Curtain({
   progress: number;
   /** 이번 프레임까지 끌어온 진행도(0~1). */
   onPull: (side: CurtainSide, progress: number) => void;
-  onRelease: (side: CurtainSide) => void;
+  /** `tapped`면 끌지 않고 누르기만 한 것 — 진행도를 그대로 뒤집는다. */
+  onRelease: (side: CurtainSide, tapped: boolean) => void;
 }) {
   const groupRef = useRef<Group>(null);
-  const opened = progress >= 1;
-  const { hovered, handlers } = useGlowHover(!opened);
+  const { hovered, handlers } = useGlowHover(true);
   /*
-   * 다가가면 빛난다 — 젖힐 수 있을 때만.
+   * 다가가면 빛난다.
    *
    * 기준점은 커튼이 지금 있는 자리가 아니라 닫혀 있을 때의 자리다. 젖히는 도중에
    * 판정 원이 손을 따라 미끄러지면, 당기다 말고 반경 밖으로 나가 빛이 꺼진다.
    */
-  const nearCurtain = useNearPlayer(CURTAIN_X[side].closed, CURTAIN_Z, CURTAIN_NEAR_RADIUS);
-  const near = nearCurtain && !opened;
+  const near = useNearPlayer(CURTAIN_X[side].closed, CURTAIN_Z, CURTAIN_NEAR_RADIUS);
   const reducedMotion = useMemo(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     [],
   );
-  /** 드래그를 시작한 지점과 그때의 진행도. */
-  const dragRef = useRef<{ pointerId: number; startX: number; from: number } | null>(null);
+  /** 드래그를 시작한 지점과 그때의 진행도. `moved`는 탭과 드래그를 가른다. */
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    from: number;
+    moved: boolean;
+  } | null>(null);
   const releaseRef = useRef(onRelease);
   releaseRef.current = onRelease;
 
   const endDrag = useCallback(() => {
-    if (!dragRef.current) return;
+    const drag = dragRef.current;
+    if (!drag) return;
     dragRef.current = null;
-    releaseRef.current(side);
+    releaseRef.current(side, !drag.moved);
   }, [side]);
 
   // 캔버스 밖에서 손을 떼도 커튼이 끌린 채로 굳지 않게 하는 안전망.
@@ -594,13 +604,12 @@ function Curtain({
       name={`curtain-${side}`}
       {...handlers}
       onPointerDown={(event) => {
-        if (opened) return;
         event.stopPropagation();
         // 포인터를 잡아둬야 커튼 밖으로 손이 나가도 드래그가 이어진다.
         (event.target as Element | null)?.setPointerCapture?.(event.pointerId);
         const startX = curtainPlaneX(event.ray);
         if (startX === null) return;
-        dragRef.current = { pointerId: event.pointerId, startX, from: progress };
+        dragRef.current = { pointerId: event.pointerId, startX, from: progress, moved: false };
       }}
       onPointerMove={(event) => {
         const drag = dragRef.current;
@@ -608,6 +617,9 @@ function Curtain({
         event.stopPropagation();
         const x = curtainPlaneX(event.ray);
         if (x === null) return;
+        // 손이 이 폭을 넘긴 적이 있으면 그 뒤로는 계속 드래그다 — 되돌아왔다고 탭이 되면
+        // 끌다 만 커튼이 엉뚱하게 뒤집힌다.
+        if (Math.abs(x - drag.startX) >= CURTAIN_TAP_SLOP) drag.moved = true;
         onPull(side, pullProgress(side, x - drag.startX, drag.from));
       }}
       onPointerUp={(event) => {
@@ -635,7 +647,7 @@ export function RoomFurniture({
 }: FurnitureProps & {
   curtainPull: CurtainPull;
   onCurtainPull: (side: CurtainSide, progress: number) => void;
-  onCurtainRelease: (side: CurtainSide) => void;
+  onCurtainRelease: (side: CurtainSide, tapped: boolean) => void;
 }) {
   return (
     <group name="room-furniture">

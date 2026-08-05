@@ -45,6 +45,26 @@ export function settleProgress(progress: number): number {
   return progress >= CURTAIN_SNAP_THRESHOLD ? 1 : 0;
 }
 
+/**
+ * 끌지 않고 그냥 눌렀다고 볼 이동량(월드 x).
+ *
+ * 커튼은 젖히는 몸짓이 곧 조작이지만, 그렇다고 누르기만 해서는 아무 일도 안 일어나는
+ * 물건이면 곤란하다 — 방의 다른 인터랙션(서랍·의자·전등 스위치)은 전부 한 번 누르면
+ * 여닫히고, 커튼만 "끌 줄 알아야 열리는" 물건이면 손이 어디까지 가야 하는지 알 수 없다.
+ * 이 폭 안에서 손을 떼면 끌 생각이 없었던 것으로 보고 반대쪽으로 뒤집는다.
+ */
+export const CURTAIN_TAP_SLOP = 0.1;
+
+/** 한 번 눌러 여닫기 — 젖혀져 있으면 닫고, 아니면 끝까지 젖힌다. */
+export function toggleProgress(progress: number): number {
+  return progress >= CURTAIN_SNAP_THRESHOLD ? 0 : 1;
+}
+
+/** 손을 뗐을 때 갈 자리. 끌었으면 가까운 끝으로 붙고, 누르기만 했으면 뒤집힌다. */
+export function releaseProgress(progress: number, tapped: boolean): number {
+  return tapped ? toggleProgress(progress) : settleProgress(progress);
+}
+
 /** 두 쪽 모두 젖혀졌는가. 한 쪽만 열어서는 밖이 보이지 않는다. */
 export function isCurtainOpen(pull: CurtainPull): boolean {
   return pull.left >= CURTAIN_OPEN_THRESHOLD && pull.right >= CURTAIN_OPEN_THRESHOLD;

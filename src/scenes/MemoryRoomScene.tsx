@@ -148,7 +148,7 @@ export function MemoryRoomScene({
   curtainsOpen: boolean;
   curtainPull: CurtainPull;
   onCurtainPull: (side: CurtainSide, progress: number) => void;
-  onCurtainRelease: (side: CurtainSide) => void;
+  onCurtainRelease: (side: CurtainSide, tapped: boolean) => void;
   roomZoom: number;
   orbitAzimuth: number;
   /** 게임이 시작됐는가 — 타이틀 구도(방 모형 전체)와 플레이 구도(플레이어 추적)를 가른다. */

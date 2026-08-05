@@ -23,7 +23,7 @@ import {
   type CurtainPull,
   type CurtainSide,
   isCurtainOpen,
-  settleProgress,
+  releaseProgress,
 } from "@/scenes/memory-room/curtain-motion";
 import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/layout";
 import { PLAYER_START } from "@/scenes/memory-room/Player";
@@ -160,9 +160,13 @@ export function RoomCanvas() {
   );
 
   const handleCurtainRelease = useCallback(
-    (side: CurtainSide) =>
-      setPull((pull) => ({ ...pull, [side]: settleProgress(pull[side] ?? 0) })),
-    [setPull],
+    (side: CurtainSide, tapped: boolean) => {
+      const settled = releaseProgress(curtainPull[side], tapped);
+      // 커튼이 실제로 자리를 옮길 때만 소리를 낸다 — 끌다 말고 도로 붙는 건 아무 일도 아니다
+      if (settled !== curtainPull[side]) playSound("wipe");
+      setPull((pull) => ({ ...pull, [side]: settled }));
+    },
+    [curtainPull, setPull],
   );
 
   /** 키보드·프롬프트 버튼 경로 — 드래그를 못 하는 사용자를 위해 양쪽을 한 번에 젖힌다. */

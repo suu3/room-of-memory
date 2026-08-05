@@ -8,7 +8,9 @@ import {
   curtainX,
   isCurtainOpen,
   pullProgress,
+  releaseProgress,
   settleProgress,
+  toggleProgress,
 } from "./curtain-motion";
 
 describe("curtain motion", () => {
@@ -55,6 +57,24 @@ describe("pulling the curtains open", () => {
     expect(settleProgress(CURTAIN_SNAP_THRESHOLD - 0.01)).toBe(0);
     expect(settleProgress(1)).toBe(1);
     expect(settleProgress(0)).toBe(0);
+  });
+
+  it("closes a panel that is dragged back the way it came", () => {
+    // 다 젖힌 커튼도 반대로 끌면 도로 닫힌다 — 창밖을 한 번 봤다고 굳지 않는다
+    expect(pullProgress("left", curtainTravel("left"), 1)).toBe(0);
+    expect(pullProgress("right", -curtainTravel("right"), 1)).toBe(0);
+    // 조금만 되돌리면 스냅 기준을 못 넘겨 다시 열린 자리로 붙는다
+    expect(settleProgress(pullProgress("left", curtainTravel("left") * 0.2, 1))).toBe(1);
+  });
+
+  it("flips the panel when it is tapped instead of dragged", () => {
+    expect(toggleProgress(0)).toBe(1);
+    expect(toggleProgress(1)).toBe(0);
+    expect(releaseProgress(0, true)).toBe(1);
+    expect(releaseProgress(1, true)).toBe(0);
+    // 끌었을 때는 그대로 가까운 끝으로 붙는다
+    expect(releaseProgress(0.2, false)).toBe(0);
+    expect(releaseProgress(CURTAIN_SNAP_THRESHOLD, false)).toBe(1);
   });
 
   it("places the panels between closed and open as it is pulled", () => {
