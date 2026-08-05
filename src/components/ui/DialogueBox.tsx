@@ -98,8 +98,12 @@ export function DialogueBox() {
       {/* 창 자체는 보여주기만 한다 — 클릭은 뒤의 전체 화면 버튼이 받는다 */}
       <div className="pointer-events-none absolute bottom-8 left-1/2 w-full max-w-4xl -translate-x-1/2 animate-fade-rise px-4">
         <div className="relative">
-          {/* 얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다 */}
-          {hasPortrait(scriptLine.speaker) && (
+          {/*
+            얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다.
+            컷씬도 마찬가지다 — 그림이 이미 인물을 보여주는 자리라, 초상까지 세우면
+            같은 화면에 도해가 둘이 된다.
+          */}
+          {!cutsceneLine && hasPortrait(scriptLine.speaker) && (
             <CharacterPortrait expression={scriptLine.expression ?? "neutral"} talking={!done} />
           )}
           {/* 좁은 화면에서는 여백을 줄여 본문 폭을 확보한다 — 한 줄에 담기는 어절이 늘어난다 */}

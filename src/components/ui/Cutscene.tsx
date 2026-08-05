@@ -91,7 +91,11 @@ export function Cutscene() {
           stage === "cuts" ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div className="relative aspect-video h-full max-h-full w-full max-w-[min(100%,177.7svh)] bg-scene-slate/70">
+        {/*
+          일러스트 자리. 파일이 오기 전에는 회색 판이 그대로 보인다 — 비어 보이는
+          것이 맞다. 다만 "아직 안 들어온 자리"로 읽히도록 배경보다 확실히 밝게 둔다.
+        */}
+        <div className="relative aspect-video h-full max-h-full w-full max-w-[min(100%,177.7svh)] bg-scene-storm">
           {showImage && (
             /* biome-ignore lint/performance/noImgElement: 파일이 없을 때 onError로 회색 판에 떨어져야 해서 최적화 파이프라인을 타지 않는다. */
             <img
@@ -113,13 +117,16 @@ export function Cutscene() {
         }`}
       />
 
-      {/* 화면 가장자리를 조여 그림을 가운데로 모은다 — 방 비네트와 같은 처방 */}
+      {/*
+        화면 가장자리를 조여 그림을 가운데로 모은다 — 방 비네트와 같은 처방.
+        방(75%)보다 옅게 잡는다: 여기서는 비네트가 그림 자체를 먹어치우면 안 된다.
+      */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(115% 90% at 50% 45%, transparent 40%, color-mix(in srgb, var(--color-scene-void) 88%, transparent) 100%)",
+            "radial-gradient(120% 95% at 50% 45%, transparent 52%, color-mix(in srgb, var(--color-scene-void) 62%, transparent) 100%)",
         }}
       />
 

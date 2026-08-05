@@ -442,8 +442,13 @@ function RadioMemory({ palette, opacity }: VisualProps) {
   );
 }
 
-/** 신호등이 앉는 자리 — 라디오 표시창 언저리. 모델과 프리미티브 어느 쪽에도 맞는다. */
-const RADIO_SIGNAL_POSITION: Vec3Tuple = [0, 0.34, 0.22];
+/**
+ * 신호등이 앉는 자리 — 라디오 표시창 언저리(로컬 좌표).
+ * 배치 스케일(layout의 radio.scale)이 그대로 곱해지므로 glb 원본 크기 기준이다.
+ */
+const RADIO_SIGNAL_POSITION: Vec3Tuple = [0, 0.15, 0.11];
+/** 표시등 반경. 판이 아니라 구라 라디오를 어느 각도에서 봐도 보인다. */
+const RADIO_SIGNAL_RADIUS = 0.022;
 /** 깜빡임이 방으로 새어 나가는 정도. 방 조명(1.15~5.6)에 비해 아주 작다. */
 const RADIO_SIGNAL_LIGHT = 1.6;
 
@@ -471,7 +476,7 @@ function RadioSignal({ palette }: { palette: RoomPalette }) {
   return (
     <group position={RADIO_SIGNAL_POSITION}>
       <mesh>
-        <planeGeometry args={[0.16, 0.05]} />
+        <sphereGeometry args={[RADIO_SIGNAL_RADIUS, 10, 8]} />
         <meshStandardMaterial
           ref={materialRef}
           color={palette.ember}
