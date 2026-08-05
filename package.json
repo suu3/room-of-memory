@@ -39,7 +39,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/three": "^0.185.0",
+    "@types/three": "^0.185.1",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "tailwindcss": "^4",
