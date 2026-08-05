@@ -9,20 +9,11 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  CatmullRomCurve3,
-  type Color,
-  type Group,
-  type Material,
-  type Mesh,
-  type MeshStandardMaterial,
-  type PointLight,
-  TubeGeometry,
-  Vector3,
-} from "three";
+import type { Color, Group, Material, Mesh, MeshStandardMaterial, PointLight } from "three";
 import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { ASSETS } from "@/lib/assets";
 import { hotspotStatus, selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
+import { ballSeamGeometry } from "./ball-seam";
 import { MEMORY_PLACEMENTS } from "./layout";
 import { MemoryBeacon } from "./MemoryBeacon";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
@@ -225,40 +216,7 @@ function Ball({ palette, opacity }: VisualProps) {
   );
 }
 
-/*
- * 야구공 실밥.
- *
- * ch1-baseball.glb 안에도 실밥 메쉬(BézierCurve, 진한 빨강)가 들어 있지만 그 메쉬를
- * 가리키는 node가 없어서 GLTFLoader가 씬 그래프에 올리지 않는다. node를 붙여 봐도
- * 정점의 평균 반지름이 0.57(공 반지름은 1)이라 대부분 공 속에 파묻히고 한 점만
- * 삐죽 나온다 — 즉 파일 안의 실밥은 손볼 수 있는 상태가 아니다. 그래서 직접 그린다.
- *
- * 아래 곡선은 야구공/테니스공 솔기의 고전적인 매개변수식이다.
- *   x = a·cos t + b·cos 3t,  y = a·sin t − b·sin 3t,  z = c·sin 2t
- * c² = 4ab 이면 x²+y²+z² = (a+b)² 로 상수가 되어 곡선이 반지름 (a+b) 구면에
- * 정확히 놓인다. a+b를 1로 잡아 glb 공(반지름 1)에 그대로 맞춘다.
- */
-const SEAM_A = 0.75;
-const SEAM_B = 0.25;
-const SEAM_C = 2 * Math.sqrt(SEAM_A * SEAM_B);
-/** 공 표면에서 살짝 띄운다 — 같은 반지름이면 면이 겹쳐 깜빡인다. */
-const SEAM_SURFACE_RADIUS = 1.012;
-const SEAM_TUBE_RADIUS = 0.055;
-const SEAM_SAMPLES = 128;
-
-function ballSeamGeometry() {
-  const points = Array.from({ length: SEAM_SAMPLES }, (_, index) => {
-    const t = (index / SEAM_SAMPLES) * Math.PI * 2;
-    return new Vector3(
-      SEAM_A * Math.cos(t) + SEAM_B * Math.cos(3 * t),
-      SEAM_A * Math.sin(t) - SEAM_B * Math.sin(3 * t),
-      SEAM_C * Math.sin(2 * t),
-    ).multiplyScalar(SEAM_SURFACE_RADIUS);
-  });
-  const curve = new CatmullRomCurve3(points, true, "catmullrom", 0.5);
-  return new TubeGeometry(curve, SEAM_SAMPLES * 2, SEAM_TUBE_RADIUS, 6, true);
-}
-
+/** 실밥이 어디를 지나는지는 ball-seam.ts가 정한다 — glb 표면에 파인 홈을 따른다. */
 function BallSeam({ palette, opacity }: VisualProps) {
   const geometry = useMemo(ballSeamGeometry, []);
   useEffect(() => () => geometry.dispose(), [geometry]);
