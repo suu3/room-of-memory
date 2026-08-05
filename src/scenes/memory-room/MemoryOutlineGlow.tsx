@@ -116,16 +116,27 @@ const KERNEL_SIZE_SMALL = 1;
 const KERNEL_SIZE_VERY_LARGE = 4;
 
 /*
- * 아웃라인 패스는 **정확히 둘**이다. 늘리지 말 것.
+ * 아웃라인 패스는 **정확히 둘**이고, 둘은 서로 다른 selection 레이어를 쓴다.
  *
- * 곁가지에 따로 은은한 번짐 패스를 하나 더 달았다가 화면 전체에 잔상이 남았다.
- * 이 컴포저는 캔버스 뒤 DOM 워시가 비쳐야 해서 autoClear를 꺼 두는데(RoomCanvas의
- * alpha: true), 그 상태에서 Outline 패스가 셋이 되면 프레임이 지워지지 않고 쌓여
- * 글로우가 지나간 자리마다 금빛 궤적이 눌어붙는다.
+ * postprocessing의 Selection은 원래 인스턴스마다 다른 레이어를 자동으로 배정한다.
+ * 그런데 @react-three/postprocessing의 <Outline> 래퍼가 selectionLayer 기본값을
+ * 10으로 못박아 덮어써서, 패스를 둘 두면 둘 다 10번을 쓴다.
  *
- * 그래서 등급은 "패스를 더 주는" 방식이 아니라 "어느 패스에 태우느냐"로 가른다:
- * 윤곽선은 둘 다 타고, 헤일로는 기억만 탄다.
+ * OutlineEffect의 마스크 패스는 `camera.layers.set(layer)` 하나로 그릴 대상을
+ * 고른다. 레이어가 겹치면 "누가 어느 선택에 들어 있는지"가 통째로 사라져서,
+ * 곁가지를 넣은 적이 없는 헤일로 패스가 곁가지까지 같이 그린다. 그 패스는 xRay라
+ * 커튼·서랍 윤곽이 벽과 가구를 뚫고 화면을 가로지르는 금빛 줄로 남는다 — 커튼처럼
+ * 큰 물건이 켜지는 순간(창문을 열었을 때)이 제일 크게 보인다.
+ *
+ * 겹친 레이어는 지우는 쪽도 망가뜨린다. 한 selection이 set/clear로 레이어를 끄면
+ * 다른 selection이 아직 들고 있는 오브젝트까지 같이 꺼진다.
+ *
+ * 그래서 등급은 "패스를 더 주는" 방식이 아니라 "어느 패스에 태우느냐"로 가르고,
+ * 그 가름이 실제로 지켜지도록 레이어를 갈라 둔다: 윤곽선은 둘 다 타고, 헤일로는
+ * 기억만 탄다.
  */
+const INNER_SELECTION_LAYER = 11;
+const OUTER_SELECTION_LAYER = 12;
 
 export function createMemoryOutlineSettings(color: string) {
   const edgeColor = new Color(color).offsetHSL(0, -0.08, 0.16).getHex();
@@ -143,15 +154,19 @@ export function createMemoryOutlineSettings(color: string) {
       kernelSize: KERNEL_SIZE_SMALL,
       pulseSpeed: 0,
       resolutionScale: 1,
+      selectionLayer: INNER_SELECTION_LAYER,
       xRay: false,
     },
     // xRay는 가구에 가려진 오브젝트도 은은하게 비쳐 보이게 해 근접 활성화를 읽히게 한다.
+    // 바로 그래서 이 패스의 대상은 레이어로 확실히 갈라 둬야 한다 — 곁가지가 여기
+    // 섞이면 곁가지 윤곽이 방 전체를 뚫고 나온다.
     outer: {
       blur: true,
       edgeStrength: 11,
       kernelSize: KERNEL_SIZE_VERY_LARGE,
       pulseSpeed: 0.45,
       resolutionScale: 0.5,
+      selectionLayer: OUTER_SELECTION_LAYER,
       xRay: true,
     },
   } as const;

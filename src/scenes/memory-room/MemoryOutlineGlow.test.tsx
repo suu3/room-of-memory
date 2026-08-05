@@ -14,7 +14,7 @@ import type { RoomPalette } from "./palette";
 type MemoryId = "bat" | "ball";
 
 type OutlineEffectInstance = Object3D & {
-  selection: Set<Object3D>;
+  selection: Set<Object3D> & { layer: number };
 };
 
 const TEST_PALETTE = {
@@ -60,6 +60,26 @@ function MultiSelectionScene({
           </mesh>
         </MemoryGlowSelection>
       ))}
+    </MemoryGlowRoot>
+  );
+}
+
+/** 기억 하나와 곁가지 하나가 동시에 켜진 방 — 등급이 실제로 갈리는지 보는 자리. */
+function MixedTierScene() {
+  return (
+    <MemoryGlowRoot color="#b89a5e">
+      <MemoryGlowSelection selectionKey="bat" tier="memory" enabled>
+        <mesh name="bat-visual">
+          <sphereGeometry args={[0.5, 8, 6]} />
+          <meshStandardMaterial />
+        </mesh>
+      </MemoryGlowSelection>
+      <MemoryGlowSelection selectionKey="drawer" tier="prop" enabled>
+        <mesh name="drawer-visual">
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial />
+        </mesh>
+      </MemoryGlowSelection>
     </MemoryGlowRoot>
   );
 }
@@ -135,6 +155,15 @@ describe("memory outline glow", () => {
       xRay: false,
     });
     expect(settings.outer).toMatchObject({ blur: true, resolutionScale: 0.5, xRay: true });
+    /*
+     * 두 패스의 selection 레이어는 절대 같으면 안 된다. OutlineEffect는 마스크를
+     * camera.layers 하나로만 고르므로, 같은 레이어를 쓰면 곁가지가 헤일로 패스에
+     * 딸려 들어가고 그 패스는 xRay라 방을 뚫고 나온다. <Outline>의 기본값 10을
+     * 그대로 두면 정확히 이 상태가 된다 — 그래서 둘 다 명시한다.
+     */
+    expect(settings.inner.selectionLayer).not.toBe(settings.outer.selectionLayer);
+    expect(settings.inner.selectionLayer).not.toBe(10);
+    expect(settings.outer.selectionLayer).not.toBe(10);
     // 근접 활성화가 화면에서 읽히려면 outer가 inner보다 세고, 둘 다 기본값(1)보다 세야 한다.
     expect(settings.inner.edgeStrength).toBeGreaterThan(1);
     expect(settings.outer.edgeStrength).toBeGreaterThan(settings.inner.edgeStrength);
@@ -144,9 +173,33 @@ describe("memory outline glow", () => {
     expect(settings).toHaveProperty("composer.multisampling", 2);
   });
 
-  it("keeps the outline to exactly two passes so the composer cannot ghost", async () => {
-    // autoClear가 꺼진 컴포저에서 Outline 패스가 셋이 되면 프레임이 쌓여 화면에
-    // 금빛 잔상이 눌어붙는다. 등급은 패스를 더 다는 게 아니라 선택을 갈라서 낸다.
+  it("keeps prop meshes off the halo layer so xRay edges cannot cut across the room", async () => {
+    const renderer = await ReactThreeTestRenderer.create(<MixedTierScene />, {
+      gl: createTestWebGlRenderer,
+    });
+    const effects = outlineEffects(renderer);
+    const contour = contourPass(effects);
+    const halo = haloPass(effects);
+
+    expect(contour.selection.layer).not.toBe(halo.selection.layer);
+
+    const drawer = [...contour.selection].find((object) => object.name === "drawer-visual");
+    expect(drawer).toBeDefined();
+    /*
+     * 마스크는 레이어 하나로만 고른다. 곁가지에 헤일로 레이어까지 켜져 있으면
+     * 서랍·커튼 윤곽이 xRay 패스에 실려 벽과 가구를 뚫고 나온다 — 창문을 열었을 때
+     * 방을 가로지르던 금빛 줄이 이것이었다.
+     */
+    expect(drawer?.layers.isEnabled(contour.selection.layer)).toBe(true);
+    expect(drawer?.layers.isEnabled(halo.selection.layer)).toBe(false);
+
+    await renderer.unmount();
+  });
+
+  it("keeps the outline to exactly two passes, one per glow tier", async () => {
+    // 등급은 패스를 더 다는 게 아니라 선택을 갈라서 낸다. 패스가 늘면 레이어도
+    // 같이 늘려야 하는데(위 selectionLayer 참고), 그걸 빠뜨리면 등급 구분이 조용히
+    // 무너진다 — 그래서 개수 자체를 고정해 둔다.
     const renderer = await ReactThreeTestRenderer.create(
       <MultiSelectionScene active={["bat", "ball"]} />,
       { gl: createTestWebGlRenderer },
