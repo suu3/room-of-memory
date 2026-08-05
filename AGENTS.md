@@ -22,6 +22,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `pnpm dev` — dev 서버
 - `pnpm build` — 프로덕션 빌드 (머지 전 필수 통과)
 - `pnpm lint` / `pnpm lint:fix` — Biome 검사/자동수정
+- `pnpm lint:wasm` — Biome WASM 판으로 같은 검사. `biome.exe`가 실행되지 않는 환경용 (Windows Smart App Control은 서명 없는 실행 파일을 막는다). pre-commit 훅도 이 경로를 쓴다
 - `pnpm typecheck` — tsc --noEmit
 - `pnpm design:lint` — DESIGN.md 토큰 검증
 
