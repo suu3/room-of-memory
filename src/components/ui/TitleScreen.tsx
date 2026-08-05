@@ -139,28 +139,35 @@ export function TitleScreen() {
           이 화면에서 눌러야 할 곳은 여기 하나다. 방 안의 기억 핫스팟과 같은 2.4s 호흡으로
           맥동시켜 "누를 수 있는 것"의 신호를 게임 전체에서 하나로 맞춘다.
         */}
-        <div className="relative flex flex-col items-center gap-2">
-          {/* 버튼 뒤에서 번지는 금빛. 버튼 자신이 아니라 별도 레이어라 hover 동작을 안 뺏는다 */}
-          <span
-            aria-hidden
-            className="start-glow animate-start-glow pointer-events-none absolute -inset-x-8 -inset-y-5 rounded-full blur-xl"
-          />
-          <button
-            ref={startButtonRef}
-            type="button"
-            onClick={() => {
-              playSound("open");
-              setEnteringAtRevision(resetRevision);
-              enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
-            }}
-            className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
-          >
-            {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
-          </button>
+        <div className="flex flex-col items-center gap-6">
+          {/*
+            후광은 버튼만 감싼다. 이 자리(-inset-y-5)를 바깥 열에 걸어 두면, 이어하는
+            판에서 열이 저장 문구까지 길어지면서 후광도 같이 늘어나 글자가 맥동하는
+            금빛 한가운데 들어앉는다 — 간격을 아무리 벌려도 버튼에 눌어붙어 보인다.
+          */}
+          <div className="relative">
+            {/* 버튼 뒤에서 번지는 금빛. 버튼 자신이 아니라 별도 레이어라 hover 동작을 안 뺏는다 */}
+            <span
+              aria-hidden
+              className="start-glow animate-start-glow pointer-events-none absolute -inset-x-8 -inset-y-5 rounded-full blur-xl"
+            />
+            <button
+              ref={startButtonRef}
+              type="button"
+              onClick={() => {
+                playSound("open");
+                setEnteringAtRevision(resetRevision);
+                enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
+              }}
+              className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
+            >
+              {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
+            </button>
+          </div>
 
           {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
           {hasSave ? (
-            <p className="relative text-[0.6875rem] font-bold tracking-[0.18em] text-memory/70">
+            <p className="text-[0.6875rem] font-bold tracking-[0.18em] text-memory/70">
               {t("titleScreen.saved", { count: collectedCount })}
             </p>
           ) : null}
