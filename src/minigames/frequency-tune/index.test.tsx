@@ -116,6 +116,36 @@ describe("FrequencyTuneMinigame", () => {
     expect(results).toEqual([{ cleared: true, score: GOAL_HITS }]);
   });
 
+  it("freezes into a still radio once the result dialogue takes over", () => {
+    const results: MinigameResult[] = [];
+    const { container, rerender } = render(
+      <FrequencyTuneMinigame onComplete={(result) => results.push(result)} />,
+    );
+
+    let timestamp = needlePeriodAt(0) * IN_BAND_PHASE;
+    for (let hits = 0; hits < GOAL_HITS; hits++) {
+      runFrameAt(timestamp);
+      press();
+      timestamp += needlePeriodAt(hits + 1);
+    }
+    const lockedAt = needleLeft(container);
+
+    act(() => {
+      rerender(
+        <FrequencyTuneMinigame onComplete={(result) => results.push(result)} stage="result" />,
+      );
+    });
+
+    // 판이 멈춘다: 프레임도 더 잡지 않고, 스킵 버튼이 달린 패널도 사라진다.
+    expect(scheduledFrames.size).toBe(0);
+    expect(container.querySelector("button")).toBeNull();
+    // 바늘은 마지막으로 맞춘 자리에 그대로 선다.
+    expect(needleLeft(container)).toBeCloseTo(lockedAt, 3);
+    // Space는 이제 대사창의 키다 — 미니게임이 먹지 않는다.
+    press();
+    expect(results).toEqual([{ cleared: true, score: GOAL_HITS }]);
+  });
+
   it("counts a miss when the needle is off the band", () => {
     const { container } = render(<FrequencyTuneMinigame onComplete={() => {}} />);
 

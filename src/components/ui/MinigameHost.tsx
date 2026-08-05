@@ -134,6 +134,7 @@ export function MinigameHost() {
             <Suspense fallback={null}>
               <Minigame
                 gamePhase={active.gamePhase}
+                stage={resultStage ? "result" : "play"}
                 onSettled={() => setSettledKey(activeKey)}
                 onComplete={(result) => {
                   playSound(result.cleared ? "success" : "fail");

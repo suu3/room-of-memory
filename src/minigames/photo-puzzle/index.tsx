@@ -23,6 +23,38 @@ import {
 const SKIP_AFTER_MS = 40_000;
 /** 섞는 수. 3×3에서 이 정도면 한눈에 답이 보이지도, 손이 지치지도 않는다. */
 const SCRAMBLE_MOVES = 24;
+/** 조각 하나가 잘라 쓸 배경의 크기 — 가로·세로 **둘 다** 격자 배수여야 한다. */
+const TILE_BACKGROUND_SIZE = `${PUZZLE_SIZE * 100}% ${PUZZLE_SIZE * 100}%`;
+
+/**
+ * 사진의 가로세로비를 실제 파일에서 읽어 온다.
+ *
+ * 격자가 사진과 다른 비율이면 조각이 사진을 왜곡한다. 값을 코드에 박아 두면 사진을
+ * 갈아 끼울 때마다 같이 고쳐야 하므로, 파일에게 직접 묻는다. 알아내기 전에는
+ * 정사각으로 두고, 알아낸 뒤 한 번 갱신된다.
+ */
+function usePhotoAspect(src: string): number {
+  const [aspect, setAspect] = useState(1);
+
+  useEffect(() => {
+    let active = true;
+    const image = new Image();
+    const measure = () => {
+      if (active && image.naturalWidth > 0 && image.naturalHeight > 0) {
+        setAspect(image.naturalWidth / image.naturalHeight);
+      }
+    };
+    image.onload = measure;
+    image.src = src;
+    // 이미 받아 둔 사진이면 onload가 안 온다 (1차 조사에서 같은 파일을 썼다)
+    if (image.complete) measure();
+    return () => {
+      active = false;
+    };
+  }, [src]);
+
+  return aspect;
+}
 
 const ARROW_DIRECTIONS: Record<string, SlideDirection> = {
   ArrowUp: "up",
@@ -46,6 +78,7 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
   const [moves, setMoves] = useState(0);
   const [solved, setSolved] = useState(false);
   const skipEligible = useSkipEligible(SKIP_AFTER_MS);
+  const aspect = usePhotoAspect(ASSETS.images.mgPhotoWipePhase2);
 
   /*
    * 판을 한 번 민다. 못 미는 자리를 눌렀으면 아무 일도 일어나지 않는다 —
@@ -114,18 +147,20 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
               disabled={!movable}
               aria-label={t("minigame.photoPuzzle.tile", { value: tile + 1 })}
               onClick={() => applyRef.current(moveAt(board, index))}
-              className={`aspect-square rounded-xs bg-cover transition-[opacity,transform] duration-150 ${
+              className={`rounded-xs transition-[opacity,transform] duration-150 ${
                 empty ? "bg-ink/15" : ""
               } ${movable ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory`}
-              style={
-                empty
-                  ? undefined
+              style={{
+                // 조각도 사진과 같은 비율이어야 한다 — 정사각 칸에 넣으면 사진이 눌린다
+                aspectRatio: aspect,
+                ...(empty
+                  ? null
                   : {
                       backgroundImage: `url(${ASSETS.images.mgPhotoWipePhase2})`,
-                      backgroundSize: `${PUZZLE_SIZE * 100}%`,
+                      backgroundSize: TILE_BACKGROUND_SIZE,
                       backgroundPosition: `${position.x}% ${position.y}%`,
-                    }
-              }
+                    }),
+              }}
             />
           );
         })}
