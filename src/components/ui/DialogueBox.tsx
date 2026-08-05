@@ -4,11 +4,11 @@ import { CaretDown } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { CUTSCENES, SCRIPTS } from "@/data/memory-room";
+import { SCRIPTS } from "@/data/memory-room";
 import { useTypewriterState } from "@/lib/use-typewriter";
 import {
-  selectActiveCutscene,
   selectActiveInteraction,
+  selectActivePlayback,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { CharacterPortrait } from "./CharacterPortrait";
@@ -17,22 +17,22 @@ import { hasPortrait } from "./character-portrait";
 /**
  * 대사창은 대사가 재생 중일 때만 뜬다 — 평상시 화면에는 없다.
  *
- * 대사가 들어오는 문은 둘이다: 오브젝트 인터랙션과 전환 컷씬. 컷씬이 자기 창을
- * 따로 갖지 않는 건 기획의 요구다("텍스트는 전부 기존 대사창") — 일러스트에
- * 말풍선을 얹지 않으려면 글은 늘 같은 자리에 있어야 한다.
+ * 대사가 들어오는 문은 둘이다: 오브젝트 인터랙션과 재생(전환 컷씬·다시보기).
+ * 재생이 자기 창을 따로 갖지 않는 건 기획의 요구다("텍스트는 전부 기존 대사창") —
+ * 일러스트에 말풍선을 얹지 않으려면 글은 늘 같은 자리에 있어야 한다.
  */
 export function DialogueBox() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
   const active = useMemoryRoomStore(selectActiveInteraction);
-  const cutscene = useMemoryRoomStore(selectActiveCutscene);
+  const playback = useMemoryRoomStore(selectActivePlayback);
   const advanceDialogue = useMemoryRoomStore((state) => state.advanceDialogue);
-  const advanceCutscene = useMemoryRoomStore((state) => state.advanceCutscene);
+  const advancePlayback = useMemoryRoomStore((state) => state.advancePlayback);
 
   // 도입(라디오가 꺼지는 비트)과 정적 구간에는 창이 뜨지 않는다 — 침묵도 연출이다
-  const cutsceneLine =
-    cutscene && !cutscene.intro && !cutscene.holding
-      ? CUTSCENES[cutscene.id]?.cuts[cutscene.cutIndex]?.lines[cutscene.lineIndex]
+  const playbackLine =
+    playback && !playback.intro && !playback.holding
+      ? playback.cuts[playback.cutIndex]?.lines[playback.lineIndex]
       : undefined;
 
   // 인트로 대사와 미니게임 결과 대사가 같은 창을 쓴다 — 어느 쪽인지는 스토어가 들고 있다
@@ -40,16 +40,16 @@ export function DialogueBox() {
     active?.phase === "dialogue" && active.scriptId ? SCRIPTS[active.scriptId] : undefined;
   const interactionLine = active ? script?.lines[active.lineIndex] : undefined;
 
-  // 컷씬은 인터랙션이 닫힌 뒤에 열리므로 둘이 겹치지 않는다. 겹쳐도 컷씬이 이긴다.
-  const scriptLine = cutsceneLine ?? interactionLine;
+  // 재생은 인터랙션이 닫힌 뒤에 열리므로 둘이 겹치지 않는다. 겹쳐도 재생이 이긴다.
+  const scriptLine = playbackLine ?? interactionLine;
   // 훅은 조건부로 호출할 수 없으므로 대사가 없을 때도 빈 문자열로 돌린다
   const text = scriptLine ? tRoom(scriptLine.textKey) : "";
   const { typed, done, skip } = useTypewriterState(text);
   const open = scriptLine !== undefined;
-  const advanceLine = cutsceneLine ? advanceCutscene : advanceDialogue;
+  const advanceLine = playbackLine ? advancePlayback : advanceDialogue;
   /** 줄이 바뀔 때마다 본문을 다시 마운트시키는 키 — 어느 문에서 온 대사든 하나로. */
-  const lineKey = cutsceneLine
-    ? `${cutscene?.id}-${cutscene?.cutIndex}-${cutscene?.lineIndex}`
+  const lineKey = playbackLine
+    ? `${playback?.cutsceneId ?? playback?.memoryId}-${playback?.cutIndex}-${playback?.lineIndex}`
     : `${active?.memoryId}-${active?.lineIndex}`;
 
   /** 지금 Enter가 해야 할 일. 타자 연출 중이면 먼저 다 채우고, 다 찼으면 다음 줄로. */
@@ -100,10 +100,10 @@ export function DialogueBox() {
         <div className="relative">
           {/*
             얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다.
-            컷씬도 마찬가지다 — 그림이 이미 인물을 보여주는 자리라, 초상까지 세우면
-            같은 화면에 도해가 둘이 된다.
+            컷씬·다시보기도 마찬가지다 — 그림이 이미 인물을 보여주는 자리라,
+            초상까지 세우면 같은 화면에 도해가 둘이 된다.
           */}
-          {!cutsceneLine && hasPortrait(scriptLine.speaker) && (
+          {!playbackLine && hasPortrait(scriptLine.speaker) && (
             <CharacterPortrait expression={scriptLine.expression ?? "neutral"} talking={!done} />
           )}
           {/* 좁은 화면에서는 여백을 줄여 본문 폭을 확보한다 — 한 줄에 담기는 어절이 늘어난다 */}

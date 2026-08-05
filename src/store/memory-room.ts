@@ -9,6 +9,7 @@ import {
   phaseConfigOf,
   SCRIPTS,
 } from "@/data/memory-room";
+import type { CutsceneCut, DialogueScriptLine } from "@/types/interaction";
 import type { MinigameResult } from "@/types/minigame";
 
 export type GamePhase = 1 | 2;
@@ -31,21 +32,34 @@ export interface ActiveInteraction {
   scriptId?: string;
   /** 결과 대사 단계 — 대사창 뒤로 미니게임 화면이 그대로 남는다. */
   keepMinigame?: boolean;
-  /** 이미 본 기억을 다시 재생하는 중. 끝나도 수집 상태를 건드리지 않는다. */
-  replaying?: boolean;
   lineIndex: number;
 }
 
 /**
- * 재생 중인 컷씬. 인터랙션과 같은 자리를 쓰지 않는다 — 컷씬은 오브젝트에 매달린
- * 연출이 아니라 진행 자체가 여는 장면이라, 어느 핫스팟에서 왔는지가 없다.
+ * 재생의 성격. 같은 기계를 쓰지만 화면의 태도가 다르다 — 컷씬은 방을 덮고
+ * 진행을 밀어붙이는 장면이고, 다시보기는 이미 지나간 것을 들춰 보는 것뿐이다.
  */
-export interface ActiveCutscene {
-  id: string;
+export type PlaybackKind = "cutscene" | "replay";
+
+/**
+ * 재생 중인 장면. 인터랙션과 같은 자리를 쓰지 않는다 — 여기에는 미니게임이 없고,
+ * 끝나도 진행이 바뀌지 않는다.
+ *
+ * 컷씬과 다시보기가 이 하나를 공유한다. 둘 다 "그림 한 장 위로 대사가 흐르고
+ * 끝나면 방으로 돌아가는" 같은 모양이라, 기계를 두 벌 만들 이유가 없다.
+ */
+export interface ActivePlayback {
+  kind: PlaybackKind;
+  /** 등록된 컷씬이면 그 id. 다시보기는 즉석에서 엮이므로 없다. */
+  cutsceneId?: string;
+  /** 다시보기 대상 기억 — 무엇을 보고 있는지 화면에 적기 위해서. */
+  memoryId?: MemoryId;
+  /** 재생할 컷들. 레지스트리를 다시 뒤지지 않도록 펼쳐서 들고 있는다. */
+  cuts: CutsceneCut[];
   cutIndex: number;
   lineIndex: number;
   /**
-   * 첫 컷이 뜨기 전, 라디오가 지직거리다 꺼지는 도입 구간.
+   * 첫 컷이 뜨기 전, 라디오가 지직거리다 꺼지는 도입 구간 (컷씬 전용).
    * 이 동안에는 대사창도 그림도 뜨지 않는다 — 화면에 남는 건 끊기는 소리뿐이다.
    */
   intro: boolean;
@@ -60,8 +74,8 @@ interface MemoryRoomState {
   revisited: MemoryId[];
   /** 진행 중인 인터랙션. 활성이면 다른 핫스팟 입력은 잠긴다. */
   activeInteraction: ActiveInteraction | null;
-  /** 재생 중인 전환 컷씬. 인터랙션과 마찬가지로 저장하지 않는다. */
-  activeCutscene: ActiveCutscene | null;
+  /** 재생 중인 장면 (컷씬 또는 다시보기). 인터랙션과 마찬가지로 저장하지 않는다. */
+  activePlayback: ActivePlayback | null;
   /** DOM overlay sources currently blocking scene controls. */
   uiLocks: UiLockId[];
   /** 캐릭터 시트 모달 — HUD 메뉴와 대사창 초상 두 곳에서 열리므로 스토어가 소유한다. */
@@ -83,10 +97,10 @@ interface MemoryRoomState {
   endingStarted: boolean;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
-  /** 컷씬을 한 칸 진행한다 — 다음 줄 → 정적 → 다음 컷 → 종료 순. */
-  advanceCutscene: () => void;
-  /** 컷씬을 통째로 닫는다 (끝까지 봤거나 건너뛰었거나). */
-  endCutscene: () => void;
+  /** 재생을 한 칸 진행한다 — 다음 줄 → 정적 → 다음 컷 → 종료 순. */
+  advancePlayback: () => void;
+  /** 재생을 통째로 닫는다 (끝까지 봤거나 건너뛰었거나). */
+  endPlayback: () => void;
   finishMinigame: (result: MinigameResult) => void;
   /** 미니게임을 완료 처리 없이 중단한다 (모달 닫기) — 핫스팟은 다시 클릭 가능. */
   cancelMinigame: () => void;
@@ -134,34 +148,72 @@ export function endingReady(state: StateSnapshot): boolean {
   );
 }
 
+/** 컷씬의 도입 구간부터 시작하는 재생. 등록되지 않은 id면 null이라 진행이 막히지 않는다. */
+export function openCutscene(id: string): ActivePlayback | null {
+  const cutscene = CUTSCENES[id];
+  if (!cutscene) return null;
+  return {
+    kind: "cutscene",
+    cutsceneId: id,
+    cuts: cutscene.cuts,
+    cutIndex: 0,
+    lineIndex: 0,
+    intro: true,
+    holding: false,
+  };
+}
+
 /**
- * 인터랙션을 닫는다. 다시보기는 이미 본 것을 되짚는 것뿐이라 수집·재조사 기록을
- * 남기지 않는다 — 남기면 2바퀴 진행도와 방 밝기가 멋대로 올라간다.
+ * 다시보기 재생을 엮는다 — 미니게임은 빼고 그때의 대사와 그림만 잇는다.
+ *
+ * 이미 푼 판을 다시 풀리는 것은 되짚기가 아니라 재도전이다. 기억 패널과 수첩은
+ * "무엇을 봤는지"를 다시 보여주는 자리라, 손을 다시 쓰게 만들면 안 된다.
+ *
+ * 대사가 한 줄도 없는 기억(조사 자체가 미니게임뿐이었던 것들)은 그때 남긴
+ * 기록을 나레이션으로 대신 세운다 — 눌렀는데 아무 일도 없는 줄을 만들지 않는다.
  */
-function finishInteraction(state: MemoryRoomState, active: ActiveInteraction) {
-  if (active.replaying) return { activeInteraction: null };
-  return complete(state, active.memoryId, active.gamePhase);
-}
+export function buildMemoryReplay(id: MemoryId, gamePhase: GamePhase): ActivePlayback | null {
+  const config = phaseConfigOf(id, gamePhase);
+  if (!config) return null;
 
-/** 컷씬의 도입 구간. 등록되지 않은 id면 null이라 진행이 막히지 않는다. */
-export function openCutscene(id: string): ActiveCutscene | null {
-  return CUTSCENES[id] ? { id, cutIndex: 0, lineIndex: 0, intro: true, holding: false } : null;
+  const spoken = [config.interaction?.scriptId, config.interaction?.resultScriptId].flatMap(
+    (scriptId) => (scriptId ? (SCRIPTS[scriptId]?.lines ?? []) : []),
+  );
+  const lines =
+    spoken.length > 0
+      ? spoken
+      : [
+          {
+            speaker: "narrator",
+            textKey: `lore.${id}.phase${gamePhase}`,
+          } as DialogueScriptLine,
+        ];
+
+  return {
+    kind: "replay",
+    memoryId: id,
+    cuts: [{ image: config.replayStill, fit: "contain", lines }],
+    cutIndex: 0,
+    lineIndex: 0,
+    // 다시보기에는 도입이 없다 — 라디오가 꺼지는 비트는 그 컷씬만의 것이다
+    intro: false,
+    holding: false,
+  };
 }
 
 /**
- * 컷씬을 한 칸 진행한 결과. 끝났으면 null.
+ * 재생을 한 칸 진행한 결과. 끝났으면 null.
  *
  * 정적(holding)은 컷의 마지막 줄과 다음 컷 사이에 낀 한 칸이다. 한 칸으로 두면
  * "다음"을 누르는 것과 시간이 흐르는 것이 같은 함수로 처리돼서, 화면 쪽은
  * 타이머를 걸어 이 함수를 한 번 더 부르기만 하면 된다.
  */
-export function nextCutsceneStep(active: ActiveCutscene): ActiveCutscene | null {
-  const cutscene = CUTSCENES[active.id];
-  const cut = cutscene?.cuts[active.cutIndex];
+export function nextPlaybackStep(active: ActivePlayback): ActivePlayback | null {
+  const cut = active.cuts[active.cutIndex];
   if (!cut) return null;
 
-  const toNextCut = (): ActiveCutscene | null =>
-    active.cutIndex + 1 < cutscene.cuts.length
+  const toNextCut = (): ActivePlayback | null =>
+    active.cutIndex + 1 < active.cuts.length
       ? { ...active, cutIndex: active.cutIndex + 1, lineIndex: 0, holding: false }
       : null;
 
@@ -188,7 +240,7 @@ function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
     return {
       collected,
       activeInteraction: null,
-      activeCutscene: finished ? openCutscene(CUTSCENE_RADIO_BLACKOUT) : state.activeCutscene,
+      activePlayback: finished ? openCutscene(CUTSCENE_RADIO_BLACKOUT) : state.activePlayback,
     };
   }
   return {
@@ -257,7 +309,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       collected: [],
       revisited: [],
       activeInteraction: null,
-      activeCutscene: null,
+      activePlayback: null,
       uiLocks: [],
       characterSheetOpen: false,
       contactOpen: false,
@@ -268,7 +320,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       endingStarted: false,
       beginInteraction: (id) =>
         set((state) => {
-          if (state.activeCutscene) return state;
+          if (state.activePlayback) return state;
           if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
           const gamePhase = gamePhaseOf(state);
           const interaction = phaseConfigOf(id, gamePhase)?.interaction;
@@ -310,13 +362,13 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
               activeInteraction: { ...active, phase: "minigame" as const, scriptId: undefined },
             };
           }
-          return finishInteraction(state, active);
+          return complete(state, active.memoryId, active.gamePhase);
         }),
-      advanceCutscene: () =>
+      advancePlayback: () =>
         set((state) =>
-          state.activeCutscene ? { activeCutscene: nextCutsceneStep(state.activeCutscene) } : state,
+          state.activePlayback ? { activePlayback: nextPlaybackStep(state.activePlayback) } : state,
         ),
-      endCutscene: () => set((state) => (state.activeCutscene ? { activeCutscene: null } : state)),
+      endPlayback: () => set((state) => (state.activePlayback ? { activePlayback: null } : state)),
       finishMinigame: (result) =>
         set((state) => {
           const active = state.activeInteraction;
@@ -344,7 +396,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
            * 그대로 수집된다 (src/types/minigame.ts).
            */
           if (!result.cleared) return { activeInteraction: null };
-          return finishInteraction(state, active);
+          return complete(state, active.memoryId, active.gamePhase);
         }),
       cancelMinigame: () =>
         set((state) =>
@@ -353,27 +405,13 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       replayMemory: (id) =>
         set((state) => {
           // 이미 본 것만 되짚을 수 있다. beginInteraction은 available일 때만 돌아서 쓸 수 없다.
-          if (state.activeInteraction || !state.collected.includes(id)) return state;
+          if (state.activeInteraction || state.activePlayback) return state;
+          if (!state.collected.includes(id)) return state;
           // 2바퀴까지 본 기억이면 마지막으로 본 쪽(phase2)을 되돌려준다
           const item = MEMORY_BY_ID[id];
           const gamePhase: GamePhase = state.revisited.includes(id) && item.phase2 ? 2 : 1;
-          const interaction = phaseConfigOf(id, gamePhase)?.interaction;
-          if (!interaction) return state;
-
-          const base = { memoryId: id, gamePhase, replaying: true, lineIndex: 0 } as const;
-          if (interaction.scriptId) {
-            return {
-              activeInteraction: {
-                ...base,
-                phase: "dialogue" as const,
-                scriptId: interaction.scriptId,
-              },
-            };
-          }
-          if (interaction.minigameId) {
-            return { activeInteraction: { ...base, phase: "minigame" as const } };
-          }
-          return state;
+          const playback = buildMemoryReplay(id, gamePhase);
+          return playback ? { activePlayback: playback } : state;
         }),
       setUiLock: (id, locked) =>
         set((state) => {
@@ -395,7 +433,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           collected: [],
           revisited: [],
           activeInteraction: null,
-          activeCutscene: null,
+          activePlayback: null,
           uiLocks: [],
           characterSheetOpen: false,
           contactOpen: false,
@@ -423,11 +461,11 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
 
 export const selectCollected = (state: MemoryRoomState) => state.collected;
 export const selectActiveInteraction = (state: MemoryRoomState) => state.activeInteraction;
-export const selectActiveCutscene = (state: MemoryRoomState) => state.activeCutscene;
+export const selectActivePlayback = (state: MemoryRoomState) => state.activePlayback;
 export const selectGamePhase = (state: MemoryRoomState) => gamePhaseOf(state);
 export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
 export const selectSceneInputLocked = (state: MemoryRoomState) =>
-  state.activeInteraction !== null || state.activeCutscene !== null || state.uiLocks.length > 0;
+  state.activeInteraction !== null || state.activePlayback !== null || state.uiLocks.length > 0;
 
 /**
  * 라디오가 저 혼자 살아나 있는가.
@@ -437,7 +475,7 @@ export const selectSceneInputLocked = (state: MemoryRoomState) =>
  * 목소리를 잡고 나면(revisited) 더는 깜빡이지 않는다 — 할 말을 이미 했으니까.
  */
 export const selectRadioSignaling = (state: MemoryRoomState) =>
-  gamePhaseOf(state) === 2 && !state.revisited.includes("radio") && state.activeCutscene === null;
+  gamePhaseOf(state) === 2 && !state.revisited.includes("radio") && state.activePlayback === null;
 
 /**
  * BGM이 뒤로 물러나야 하는 정도를 정하는 축. 미니게임은 효과음이, 대사는 글이
@@ -456,7 +494,7 @@ export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogu
  * 멎는다 — 여기서 BGM이 계속 흐르면 "뚝 끊김"이 소리로 전달되지 않는다.
  */
 export const selectMusicPlaying = (state: MemoryRoomState) =>
-  state.started && !state.endingStarted && state.activeCutscene === null;
+  state.started && !state.endingStarted && state.activePlayback?.kind !== "cutscene";
 
 /** 2바퀴 재조사 대상 수. 밝기 상승 구간의 분모다. */
 export const REVISIT_TOTAL = MEMORIES.filter((memory) => memory.phase2).length;

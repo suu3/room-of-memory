@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { CUTSCENE_RADIO_BLACKOUT, CUTSCENES, MEMORIES } from "@/data/memory-room";
+import { CUTSCENE_RADIO_BLACKOUT, CUTSCENES, MEMORIES, SCRIPTS } from "@/data/memory-room";
 import {
   hotspotStatus,
   selectEndingReady,
@@ -85,7 +85,7 @@ describe("minigame result dialogue", () => {
   });
 });
 
-describe("replaying a collected memory", () => {
+describe("수집한 기억 다시보기", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   /**
@@ -115,18 +115,60 @@ describe("replaying a collected memory", () => {
   it("아직 수집하지 않은 기억은 재생되지 않는다", () => {
     useMemoryRoomStore.getState().replayMemory("ball");
 
-    expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
   });
 
-  it("수집한 기억은 처음 봤던 대사를 다시 재생한다", () => {
+  it("수집한 기억은 그때의 대사를 다시 재생한다", () => {
     collectBall();
     useMemoryRoomStore.getState().replayMemory("ball");
 
-    const active = useMemoryRoomStore.getState().activeInteraction;
-    expect(active?.memoryId).toBe("ball");
-    expect(active?.phase).toBe("dialogue");
-    expect(active?.replaying).toBe(true);
-    expect(active?.lineIndex).toBe(0);
+    const playback = useMemoryRoomStore.getState().activePlayback;
+    expect(playback?.kind).toBe("replay");
+    expect(playback?.memoryId).toBe("ball");
+    expect(playback?.lineIndex).toBe(0);
+    // 도입(라디오가 꺼지는 비트)은 컷씬만의 것이다
+    expect(playback?.intro).toBe(false);
+    expect(playback?.cuts[0].lines).toEqual(SCRIPTS["ball-intro"].lines);
+  });
+
+  /** 이 규칙이 이 기능의 전부다 — 되짚기가 재도전이 되면 안 된다. */
+  it("미니게임을 다시 열지 않는다", () => {
+    collectBall();
+    useMemoryRoomStore.getState().replayMemory("ball");
+
+    expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
+  });
+
+  it("결과 대사까지 이어 붙인다 — 미니게임만 빠진다", () => {
+    useMemoryRoomStore.getState().beginInteraction("frame");
+    pushToEnd("frame");
+    useMemoryRoomStore.getState().replayMemory("frame");
+
+    const playback = useMemoryRoomStore.getState().activePlayback;
+    expect(playback?.cuts[0].lines).toEqual(SCRIPTS["frame-photo"].lines);
+    // 그때 본 사진이 대사 뒤에 선다
+    expect(playback?.cuts[0].image).toBeDefined();
+  });
+
+  it("대사가 없던 기억은 그때 남긴 기록으로 대신한다", () => {
+    useMemoryRoomStore.getState().beginInteraction("console");
+    pushToEnd("console");
+    useMemoryRoomStore.getState().replayMemory("console");
+
+    const lines = useMemoryRoomStore.getState().activePlayback?.cuts[0].lines;
+    expect(lines).toEqual([{ speaker: "narrator", textKey: "lore.console.phase1" }]);
+  });
+
+  it("2바퀴까지 본 기억은 마지막으로 본 쪽을 되돌려준다", () => {
+    useMemoryRoomStore.setState({
+      collected: MEMORIES.map((memory) => memory.id),
+      revisited: ["radio", "ball"],
+    });
+    useMemoryRoomStore.getState().replayMemory("ball");
+
+    expect(useMemoryRoomStore.getState().activePlayback?.cuts[0].lines).toEqual(
+      SCRIPTS["ball-echo"].lines,
+    );
   });
 
   it("재생이 끝나도 수집·재조사 기록이 늘지 않는다", () => {
@@ -136,22 +178,31 @@ describe("replaying a collected memory", () => {
     const revisited = [...before.revisited];
 
     useMemoryRoomStore.getState().replayMemory("ball");
-    pushToEnd("ball(replay)");
+    for (let step = 0; step < 32 && useMemoryRoomStore.getState().activePlayback; step += 1) {
+      useMemoryRoomStore.getState().advancePlayback();
+    }
 
     const after = useMemoryRoomStore.getState();
     expect(after.collected).toEqual(collected);
     expect(after.revisited).toEqual(revisited);
-    expect(after.activeInteraction).toBeNull();
+    expect(after.activePlayback).toBeNull();
   });
 
   it("다른 인터랙션이 진행 중이면 재생을 시작하지 않는다", () => {
     collectBall();
     useMemoryRoomStore.getState().beginInteraction("console");
-    const active = useMemoryRoomStore.getState().activeInteraction;
 
     useMemoryRoomStore.getState().replayMemory("ball");
 
-    expect(useMemoryRoomStore.getState().activeInteraction).toBe(active);
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+  });
+
+  it("다시보기 중에는 BGM이 멎지 않는다 — 정적은 컷씬의 것이다", () => {
+    useMemoryRoomStore.getState().startGame();
+    collectBall();
+    useMemoryRoomStore.getState().replayMemory("ball");
+
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
   });
 });
 
@@ -259,8 +310,9 @@ describe("전환 컷씬", () => {
   it("1바퀴를 완주하면 컷씬이 열린다", () => {
     finishFirstRound();
 
-    const cutscene = useMemoryRoomStore.getState().activeCutscene;
-    expect(cutscene?.id).toBe(CUTSCENE_RADIO_BLACKOUT);
+    const cutscene = useMemoryRoomStore.getState().activePlayback;
+    expect(cutscene?.kind).toBe("cutscene");
+    expect(cutscene?.cutsceneId).toBe(CUTSCENE_RADIO_BLACKOUT);
     // 첫 컷보다 라디오가 꺼지는 도입이 먼저다
     expect(cutscene?.intro).toBe(true);
   });
@@ -279,12 +331,12 @@ describe("전환 컷씬", () => {
     const steps: string[] = [];
 
     for (let step = 0; step < 64; step += 1) {
-      const active = useMemoryRoomStore.getState().activeCutscene;
+      const active = useMemoryRoomStore.getState().activePlayback;
       if (!active) break;
       steps.push(
         active.intro ? "intro" : active.holding ? "hold" : `${active.cutIndex}:${active.lineIndex}`,
       );
-      useMemoryRoomStore.getState().advanceCutscene();
+      useMemoryRoomStore.getState().advancePlayback();
     }
 
     const expected = [
@@ -295,14 +347,14 @@ describe("전환 컷씬", () => {
       ]),
     ];
     expect(steps).toEqual(expected);
-    expect(useMemoryRoomStore.getState().activeCutscene).toBeNull();
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
   });
 
   it("컷씬이 끝나면 라디오가 저 혼자 지직거린다", () => {
     finishFirstRound();
     expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(false);
 
-    useMemoryRoomStore.getState().endCutscene();
+    useMemoryRoomStore.getState().endPlayback();
 
     expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(true);
     // 목소리를 잡고 나면 더는 부르지 않는다
@@ -315,7 +367,7 @@ describe("전환 컷씬", () => {
     finishFirstRound();
 
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
-    useMemoryRoomStore.getState().endCutscene();
+    useMemoryRoomStore.getState().endPlayback();
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
   });
 });

@@ -1,6 +1,8 @@
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import ko from "@/i18n/locales/ko/memory-room.json";
 import { MINIGAMES } from "@/minigames";
+import { buildMemoryReplay } from "@/store/memory-room";
 import {
   CUTSCENES,
   MEMORIES,
@@ -82,6 +84,53 @@ describe("시나리오 데이터 정합성", () => {
           expect(dependency).not.toBe(memory.id);
         }
       }
+    }
+  });
+});
+
+describe("다시보기", () => {
+  /** 패널·수첩에서 누를 수 있는 모든 줄. 눌렀는데 아무 일도 없으면 안 된다. */
+  const REPLAYABLE = MEMORIES.flatMap((memory) =>
+    ([1, 2] as const)
+      .filter((gamePhase) => (gamePhase === 1 ? memory.phase1 : memory.phase2))
+      .map((gamePhase) => ({ id: memory.id, gamePhase })),
+  );
+
+  it("모든 기억이 되짚을 대사를 갖는다 — 대사가 없으면 기록으로 대신한다", () => {
+    for (const { id, gamePhase } of REPLAYABLE) {
+      const playback = buildMemoryReplay(id, gamePhase);
+      expect(playback, `${id} phase${gamePhase}`).not.toBeNull();
+      expect(playback?.cuts[0].lines.length, `${id} phase${gamePhase}`).toBeGreaterThan(0);
+    }
+  });
+
+  it("되짚는 대사의 textKey가 전부 ko 리소스에 있다 — 기록으로 대신한 것도", () => {
+    const missing = REPLAYABLE.flatMap(({ id, gamePhase }) =>
+      (buildMemoryReplay(id, gamePhase)?.cuts[0].lines ?? [])
+        .map((line) => line.textKey)
+        .filter((key) => !hasKey(key)),
+    );
+
+    expect(missing).toEqual([]);
+  });
+
+  it("미니게임을 끌고 오지 않는다 — 되짚기는 재도전이 아니다", () => {
+    for (const { id, gamePhase } of REPLAYABLE) {
+      expect(buildMemoryReplay(id, gamePhase)?.kind).toBe("replay");
+      expect(buildMemoryReplay(id, gamePhase)?.intro).toBe(false);
+    }
+  });
+
+  it("다시보기 스틸은 리포에 실제로 있는 파일을 가리킨다", () => {
+    const stills = MEMORIES.flatMap((memory) =>
+      [memory.phase1.replayStill, memory.phase2?.replayStill].filter(
+        (path): path is string => path !== undefined,
+      ),
+    );
+
+    expect(stills.length).toBeGreaterThan(0);
+    for (const path of stills) {
+      expect(existsSync(`public${path}`), path).toBe(true);
     }
   });
 });

@@ -23,7 +23,6 @@ import {
 } from "@/store/memory-room";
 import { CharacterSheetModal } from "./CharacterSheetModal";
 import { ContactModal } from "./ContactModal";
-import { Cutscene } from "./Cutscene";
 import { DialogueBox } from "./DialogueBox";
 import { EndingScreen } from "./EndingScreen";
 import { HudMenu } from "./HudMenu";
@@ -31,6 +30,7 @@ import { LoadingOverlay } from "./LoadingOverlay";
 import { MemoryPanel } from "./MemoryPanel";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
+import { PlaybackScene } from "./PlaybackScene";
 import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
 
@@ -169,8 +169,8 @@ export function MemoryRoom() {
           {/* 혼잣말 — key로 단계가 바뀔 때마다 다시 마운트해 처음부터 찍는다 */}
           <Monologue key={stage.id} stageId={stage.id} />
 
-          {/* 전환 컷씬 — 대사창(z-50)보다 아래에 깔려 그림 위로 글이 얹힌다 */}
-          <Cutscene />
+          {/* 컷씬·다시보기 — 대사창(z-50)보다 아래에 깔려 그림 위로 글이 얹힌다 */}
+          <PlaybackScene />
           <DialogueBox />
           <MemoryPanel />
           <CharacterSheetModal />

@@ -59,16 +59,23 @@ export const MEMORIES: MemoryItem[] = [
     id: "window",
     icon: GridFour,
     /** 커튼을 걷으면 그림 한 장 — 미니게임이라기보다 들여다보는 오브젝트다. */
-    phase1: { interaction: { minigameId: "window-view" } },
+    phase1: {
+      interaction: { minigameId: "window-view" },
+      replayStill: ASSETS.images.mgWindowViewOutside,
+    },
   },
   {
     id: "frame",
     icon: ImageSquare,
-    phase1: { interaction: { minigameId: "photo-wipe", resultScriptId: "frame-photo" } },
+    phase1: {
+      interaction: { minigameId: "photo-wipe", resultScriptId: "frame-photo" },
+      replayStill: ASSETS.images.mgPhotoWipePhase1,
+    },
     /** 2차 조사: 흩어진 사진 조각을 맞추면 그늘에 묻혔던 가족 얼굴이 드러난다. */
     phase2: {
       interaction: { minigameId: "photo-puzzle", resultScriptId: "frame-photo-echo" },
       unlockAfter: AFTER_RADIO_VOICE,
+      replayStill: ASSETS.images.mgPhotoWipePhase2,
     },
   },
   {
@@ -108,7 +115,10 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "ball",
     icon: Baseball,
-    phase1: { interaction: { scriptId: "ball-intro", minigameId: "ball-catch" } },
+    phase1: {
+      interaction: { scriptId: "ball-intro", minigameId: "ball-catch" },
+      replayStill: ASSETS.images.mgBallCatchSunsetField,
+    },
     phase2: { interaction: { scriptId: "ball-echo" }, unlockAfter: AFTER_RADIO_VOICE },
   },
 ];

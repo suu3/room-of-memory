@@ -137,7 +137,7 @@ export function CharacterSheetModal() {
           <div className="notebook-grid scroll-paper min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
             {tab === "lore" ? (
               <div className="mx-auto max-w-2xl">
-                <LoreEntries />
+                <LoreEntries onReplay={() => setOpen(false)} />
               </div>
             ) : (
               /* SD 캐릭터 위쪽이 비어 있어서, 넓은 화면에서는 프로필을 그 자리에 겹친다 */

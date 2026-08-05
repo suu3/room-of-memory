@@ -44,8 +44,17 @@ export interface MemoryInteraction {
  * 갈라져 있어야 한다.
  */
 export interface CutsceneCut {
-  /** 일러스트 경로(ASSETS.images.*). 파일이 아직 없으면 회색 판이 대신 선다. */
-  image: string;
+  /**
+   * 일러스트 경로(ASSETS.images.*). 컷씬에서는 파일이 아직 없어도 회색 판이 자리를
+   * 지킨다. 다시보기처럼 애초에 보여줄 그림이 없는 재생에서는 생략한다 —
+   * 그때는 빈 판 대신 방이 그대로 비친다.
+   */
+  image?: string;
+  /**
+   * 그림을 판에 맞추는 방식. 컷씬 일러는 판에 맞춰 그려지므로 "cover"(기본),
+   * 다시보기 스틸은 비율이 제각각이라 잘리지 않게 "contain"으로 세운다.
+   */
+  fit?: "cover" | "contain";
   lines: DialogueScriptLine[];
   /**
    * 대사가 끝난 뒤 대사창 없이 그림만 남기는 시간(ms).
@@ -69,4 +78,12 @@ export interface MemoryPhaseConfig {
   interaction?: MemoryInteraction;
   /** 같은 페이즈에서 이 아이템들이 먼저 완료되어야 클릭 가능 (순서 게이트). */
   unlockAfter?: MemoryId[];
+  /**
+   * 다시보기에서 대사 뒤에 세우는 정지 그림.
+   *
+   * 되짚어 볼 만한 한 장이 있는 기억에만 준다 — 미니게임 화면을 스크린샷처럼
+   * 재현하는 것이 목적이 아니라, "그때 본 것"이 한 장으로 남는 기억만 해당한다.
+   * 없으면 대사만 흐르고 방이 뒤에 비친다.
+   */
+  replayStill?: string;
 }
