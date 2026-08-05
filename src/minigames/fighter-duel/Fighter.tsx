@@ -12,7 +12,7 @@ import { frameBackgroundSize, framePosition, useSpriteSheet } from "./sprites";
  *
  * 어느 쪽이든 플레이어가 읽어야 하는 건 얼굴이 아니라 "팔이 어디 있는가"다.
  */
-export type Pose = Move | "idle" | "hurt";
+export type Pose = Move | "idle" | "hurt" | "ko" | "win";
 
 /**
  * 팔 각도(deg). 어깨에 고정하고 회전만 시킨다 — 0이 정면으로 쭉 뻗은 상태,
@@ -29,6 +29,18 @@ const ARMS: Record<Pose, { front: number; back: number }> = {
   throw: { front: 6, back: 20 },
   // 맞았을 때 — 팔이 뒤로 풀린다
   hurt: { front: 128, back: 142 },
+  // 쓰러졌을 때 — 팔이 완전히 늘어진다 (몸통은 아래 KO_TILT가 눕힌다)
+  ko: { front: 96, back: 108 },
+  // 이겼을 때 — 한 팔을 하늘로
+  win: { front: -80, back: 70 },
+};
+
+/** 자세마다 몸이 얼마나 기우는가(deg). 팔만으로는 안 되는 무게중심 이동. */
+const LEAN: Partial<Record<Pose, number>> = {
+  strike: 8,
+  hurt: -14,
+  ko: -78,
+  win: -3,
 };
 
 const ARM_CLASS = "absolute top-[36%] h-2.5 w-10 origin-left rounded-sm transition-transform";
@@ -38,12 +50,11 @@ function BlockFighter({ pose, tone }: { pose: Pose; tone: "memory" | "bone" }) {
   const arms = ARMS[pose];
   const body = tone === "memory" ? "bg-memory" : "bg-bone";
   const dark = tone === "memory" ? "bg-memory/55" : "bg-bone/50";
-  const lean = pose === "hurt" ? -14 : pose === "strike" ? 8 : 0;
 
   return (
     <div
       className="absolute inset-0 origin-bottom transition-transform duration-200"
-      style={{ transform: `rotate(${lean}deg)` }}
+      style={{ transform: `rotate(${LEAN[pose] ?? 0}deg)` }}
     >
       {/* 뒷팔 — 몸통 뒤라 한 톤 어둡게. 어깨는 몸통 안쪽에 둔다 */}
       <div
@@ -91,6 +102,7 @@ export function Fighter({
   tone,
   facing,
   shake,
+  flash,
   sprite,
 }: {
   pose: Pose;
@@ -98,23 +110,34 @@ export function Fighter({
   tone: "memory" | "bone";
   facing: "right" | "left";
   shake?: boolean;
+  /** 맞은 순간 한 프레임 하얗게 뜬다 — 격투 게임의 히트 플래시. */
+  flash?: boolean;
   /** 스프라이트 시트 경로. 파일이 없으면 자동으로 블록 캐릭터가 나온다. */
   sprite: string;
 }) {
   const sheet = useSpriteSheet(sprite);
 
   return (
-    <div
-      aria-hidden
-      className={`relative h-40 w-28 ${facing === "left" ? "-scale-x-100" : ""} ${
-        shake ? "animate-batting-field-shake" : ""
-      }`}
-    >
-      {sheet === "ready" ? (
-        <SpriteFighter pose={pose} sprite={sprite} />
-      ) : (
-        <BlockFighter pose={pose} tone={tone} />
-      )}
+    /*
+      움직임을 한 층에 하나씩만 맡긴다. 흔들림·숨쉬기·자세는 전부 transform이라
+      같은 요소에 겹치면 나중 것이 앞의 것을 통째로 덮어쓴다 — 맞고 흔들리는 동안
+      기울기가 풀리거나 숨쉬기가 흔들림을 지운다.
+      (좌우 뒤집기만 예외로 바깥에 남는다. Tailwind v4의 scale은 별도 속성이라
+      transform과 부딪히지 않는다.)
+    */
+    <div aria-hidden className={`relative h-40 w-28 ${facing === "left" ? "-scale-x-100" : ""}`}>
+      <div className={`absolute inset-0 ${shake ? "animate-batting-field-shake" : ""}`}>
+        {/* 숨쉬기는 자세 레이어 바깥 — 안쪽에 걸면 자세 전환과 겹쳐 팔이 제자리에 안 선다 */}
+        <div className={`absolute inset-0 ${pose === "idle" ? "animate-duel-breathe" : ""}`}>
+          <div className={`absolute inset-0 ${flash ? "animate-duel-flash" : ""}`}>
+            {sheet === "ready" ? (
+              <SpriteFighter pose={pose} sprite={sprite} />
+            ) : (
+              <BlockFighter pose={pose} tone={tone} />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

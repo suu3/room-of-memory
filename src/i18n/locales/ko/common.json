@@ -49,7 +49,11 @@
     "moveHint_touch": "조이스틱으로 이동",
     "interactHint": "{{name}} 조사 · E",
     "interactHint_touch": "{{name}} 조사 · 터치",
-    "moveCaption": "이동"
+    "moveCaption": "이동",
+    "memoryState": {
+      "locked": "{{name}} · 아직 조사할 수 없음",
+      "done": "{{name}} · 조사 완료"
+    }
   },
   "reset": {
     "title": "모든 진행을 초기화할까요?",
@@ -99,9 +103,20 @@
       "title": "격투 게임",
       "help": "상대 자세를 보고 받아치세요 — 1 때리기 · 2 막기 · 3 잡기",
       "help_touch": "상대 자세를 보고 아래 버튼으로 받아치세요",
-      "hint": "때리기는 잡기를, 잡기는 막기를, 막기는 때리기를 이긴다",
-      "labelWins": "따낸 판",
-      "labelLosses": "맞은 판",
+      "hint": "때리기는 잡기를, 잡기는 막기를, 막기는 때리기를 이긴다 · 빨리 받아치면 간파, 대신 상대는 자세를 바꾼다",
+      "labelCombo": "콤보",
+      "labelCritical": "간파",
+      "nameHero": "P1",
+      "nameRival": "CPU",
+      "round": "ROUND {{value}}",
+      "combo": "{{value}} COMBO",
+      "critical": "간파!",
+      "feint": "상대가 자세를 바꿨다!",
+      "banner": {
+        "fight": "FIGHT!",
+        "ko": "K.O.",
+        "down": "DOWN"
+      },
       "move": {
         "strike": "때리기",
         "guard": "막기",

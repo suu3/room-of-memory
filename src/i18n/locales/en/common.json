@@ -49,7 +49,11 @@
     "moveHint_touch": "Move with the joystick",
     "interactHint": "Examine {{name}} · E",
     "interactHint_touch": "Examine {{name}} · tap",
-    "moveCaption": "MOVE"
+    "moveCaption": "MOVE",
+    "memoryState": {
+      "locked": "{{name}} · not ready to examine",
+      "done": "{{name}} · already examined"
+    }
   },
   "reset": {
     "title": "Reset all progress?",
@@ -99,9 +103,20 @@
       "title": "Fighting Game",
       "help": "Read the stance and counter it — 1 Strike · 2 Guard · 3 Throw",
       "help_touch": "Read the stance and counter it with the buttons below",
-      "hint": "Strike beats throw, throw beats guard, guard beats strike",
-      "labelWins": "Rounds won",
-      "labelLosses": "Rounds lost",
+      "hint": "Strike beats throw, throw beats guard, guard beats strike · Answer fast for a read — but they may switch stance",
+      "labelCombo": "Combo",
+      "labelCritical": "Reads",
+      "nameHero": "P1",
+      "nameRival": "CPU",
+      "round": "ROUND {{value}}",
+      "combo": "{{value}} COMBO",
+      "critical": "READ!",
+      "feint": "They switched stance!",
+      "banner": {
+        "fight": "FIGHT!",
+        "ko": "K.O.",
+        "down": "DOWN"
+      },
       "move": {
         "strike": "Strike",
         "guard": "Guard",

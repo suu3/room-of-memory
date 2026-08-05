@@ -22,6 +22,8 @@ export type VoiceId =
   | "batHit"
   | "swingMiss"
   | "punch"
+  | "punchHeavy"
+  | "feint"
   | "hurt"
   | "guard"
   | "radioLock"
@@ -164,6 +166,25 @@ export const VOICES: Record<VoiceId, Voice> = {
   punch: {
     tones: [{ from: 150, to: 70, waveform: "sine", delay: 0, duration: 0.13, gain: 0.3 }],
     noise: { delay: 0, duration: 0.07, gain: 0.26, highpass: 700, lowpass: 3800 },
+  },
+  /**
+   * 간파해서 꽂은 한 방. punch를 더 낮게, 더 두껍게 — 같은 주먹이 아니라 더 깊이
+   * 들어갔다는 걸 대미지 숫자가 아니라 몸통 울림으로 먼저 알린다.
+   */
+  punchHeavy: {
+    tones: [
+      { from: 170, to: 55, waveform: "sine", delay: 0, duration: 0.2, gain: 0.34 },
+      { from: 110, to: 44, waveform: "triangle", delay: 0.02, duration: 0.26, gain: 0.2 },
+    ],
+    noise: { delay: 0, duration: 0.1, gain: 0.3, highpass: 600, lowpass: 4200 },
+  },
+  /**
+   * 상대가 예고 도중에 자세를 바꾸는 순간. 타격이 아니라 신호라 위로 튄다 —
+   * 아래로 떨어지는 소리는 전부 "맞았다"로 예약돼 있어서 헷갈리면 안 된다.
+   */
+  feint: {
+    tones: [{ from: 420, to: 620, waveform: "square", delay: 0, duration: 0.07, gain: 0.14 }],
+    noise: { delay: 0, duration: 0.06, gain: 0.16, highpass: 2600 },
   },
   /** 맞았을 때. 임팩트 뒤에 숨이 빠지는 꼬리가 붙는 게 punch와의 차이다. */
   hurt: {

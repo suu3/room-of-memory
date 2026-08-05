@@ -14,20 +14,34 @@ import type { Pose } from "./Fighter";
  * 1. 아래 두 파일을 `public/assets/images/`에 둔다.
  *    - `mg-fighter-duel-hero.webp`  — 플레이어(왼쪽)
  *    - `mg-fighter-duel-rival.webp` — 상대(오른쪽)
- * 2. 두 장 다 **가로로 이어붙인 5프레임 시트**여야 한다. 순서는 POSE_ORDER 그대로:
- *    `idle → strike → guard → throw → hurt`
- * 3. 프레임 하나는 224×320 px, 따라서 시트 전체는 **1120×320 px**.
+ * 2. 두 장 다 **가로로 이어붙인 7프레임 시트**여야 한다. 순서는 POSE_ORDER 그대로:
+ *    `idle → strike → guard → throw → hurt → ko → win`
+ *    - `idle` 대기. 상대의 이 프레임은 예고가 아직 안 뜬 순간에만 보인다.
+ *    - `strike` / `guard` / `throw` 는 세 수이자 **상대의 예고 자세**다.
+ *      플레이어는 이 셋을 실루엣만으로 갈라 읽어야 한다 — 팔 위치를 크게 다르게.
+ *    - `hurt` 맞고 밀리는 순간. `ko` 쓰러진 자세(누워도 됨).
+ *    - `win` 승리 포즈. 판이 끝난 뒤 이긴 쪽이 이 자세로 선다.
+ * 3. 프레임 하나는 224×320 px, 따라서 시트 전체는 **1568×320 px**.
  *    (화면에는 112×160으로 그려진다 — 2배로 만들어야 고해상도 화면에서 안 뭉갠다.)
  * 4. 캐릭터는 **오른쪽을 보게** 그린다. 상대는 코드가 좌우로 뒤집어 쓴다.
  * 5. 배경은 투명(알파). 프레임마다 발바닥이 같은 y에 오게 맞춘다 — 어긋나면
- *    자세가 바뀔 때마다 캐릭터가 위아래로 튄다.
+ *    자세가 바뀔 때마다 캐릭터가 위아래로 튄다. (`ko`만 예외 — 누운 자세라
+ *    아래쪽에 붙어 있으면 된다.)
  *
  * 무대 배경(선택): `mg-fighter-duel-stage.webp`, 960×256. 없으면 지금의 그라디언트가
  * 그대로 보인다 — 이쪽은 CSS가 알아서 떨어지므로 코드에서 존재 확인을 하지 않는다.
  *
  * 용량 한도는 이미지 1MB/장. 도트 그림이면 webp로 수십 KB면 충분하다.
  */
-export const POSE_ORDER = ["idle", "strike", "guard", "throw", "hurt"] as const satisfies Pose[];
+export const POSE_ORDER = [
+  "idle",
+  "strike",
+  "guard",
+  "throw",
+  "hurt",
+  "ko",
+  "win",
+] as const satisfies Pose[];
 
 /** 시트 한 프레임의 원본 크기(px). 화면 표시 크기는 Fighter가 정한다. */
 export const FRAME_SIZE = { width: 224, height: 320 } as const;

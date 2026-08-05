@@ -49,7 +49,11 @@
     "moveHint_touch": "スティックで移動",
     "interactHint": "{{name}}を調べる · E",
     "interactHint_touch": "{{name}}を調べる · タップ",
-    "moveCaption": "移動"
+    "moveCaption": "移動",
+    "memoryState": {
+      "locked": "{{name}} · まだ調べられない",
+      "done": "{{name}} · 調べ済み"
+    }
   },
   "reset": {
     "title": "すべての進行をリセットしますか？",
@@ -99,9 +103,20 @@
       "title": "格闘ゲーム",
       "help": "相手の構えを読んで返しましょう — 1 打つ · 2 守る · 3 掴む",
       "help_touch": "相手の構えを読んで下のボタンで返しましょう",
-      "hint": "打つは掴むに、掴むは守るに、守るは打つに勝つ",
-      "labelWins": "取った本",
-      "labelLosses": "取られた本",
+      "hint": "打つは掴むに、掴むは守るに、守るは打つに勝つ · 早く返せば見切り、ただし相手は構えを変える",
+      "labelCombo": "コンボ",
+      "labelCritical": "見切り",
+      "nameHero": "P1",
+      "nameRival": "CPU",
+      "round": "ROUND {{value}}",
+      "combo": "{{value}} COMBO",
+      "critical": "見切った！",
+      "feint": "相手が構えを変えた！",
+      "banner": {
+        "fight": "FIGHT!",
+        "ko": "K.O.",
+        "down": "DOWN"
+      },
       "move": {
         "strike": "打つ",
         "guard": "守る",

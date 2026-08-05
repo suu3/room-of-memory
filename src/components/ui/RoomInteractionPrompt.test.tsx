@@ -3,6 +3,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import type { MemoryId } from "@/data/memory-room";
+import type { HotspotStatus } from "@/store/memory-room";
 import { RoomInteractionPrompt } from "./RoomInteractionPrompt";
 
 const labels = {
@@ -18,12 +19,18 @@ const labels = {
 afterEach(cleanup);
 
 function renderPrompt(availableIds: readonly MemoryId[], onInteract: (id: MemoryId) => void) {
+  const statuses = Object.fromEntries(
+    (Object.keys(labels) as MemoryId[]).map((id) => [
+      id,
+      availableIds.includes(id) ? "available" : "locked",
+    ]),
+  ) as Record<MemoryId, HotspotStatus>;
   render(
     <RoomInteractionPrompt
       nearbyMemoryId="console"
       nearbyLabel="Console 조사 · E"
       labels={labels}
-      availableIds={availableIds}
+      statuses={statuses}
       onInteract={onInteract}
     />,
   );
@@ -65,6 +72,16 @@ describe("RoomInteractionPrompt", () => {
     fireEvent.click(screen.getByRole("button", { name: "Console" }));
 
     expect(interacted).toEqual(["console"]);
+  });
+
+  it("keeps unavailable memories in the list under the name it was handed", () => {
+    // 조사할 수 없는 물건을 목록에서 지우면 스크린리더에는 방이 비어 가는 것으로 들린다.
+    // 이름에 이유를 담는 건 호출부(RoomCanvas)의 일이고, 여기는 그 이름을 지운다/남긴다만 정한다.
+    renderPrompt(["console"], () => {});
+
+    const window = screen.getByRole("button", { name: "Window" }) as HTMLButtonElement;
+    expect(window.disabled).toBe(true);
+    expect(screen.getAllByRole("button")).toHaveLength(7);
   });
 
   it("does not dispatch a disabled memory button", () => {

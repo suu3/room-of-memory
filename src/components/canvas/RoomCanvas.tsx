@@ -29,6 +29,7 @@ import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/layout";
 import { PLAYER_START } from "@/scenes/memory-room/Player";
 import { findNearestMemory } from "@/scenes/memory-room/spatial";
 import {
+  type HotspotStatus,
   hotspotStatus,
   selectActiveInteraction,
   selectSceneInputLocked,
@@ -208,9 +209,29 @@ export function RoomCanvas() {
     [tRoom],
   );
 
-  const availableIds = useMemo(
-    () => MEMORY_IDS.filter((id) => hotspotStatus({ collected, revisited }, id) === "available"),
+  const statuses = useMemo(
+    () =>
+      Object.fromEntries(
+        MEMORY_IDS.map((id) => [id, hotspotStatus({ collected, revisited }, id)]),
+      ) as Record<MemoryId, HotspotStatus>,
     [collected, revisited],
+  );
+
+  /**
+   * 스크린리더가 읽을 이름. 조사할 수 없는 물건은 이유까지 붙인다 — 목록에서 이름만
+   * 읽히고 눌러도 아무 일이 없으면, 잠긴 것인지 이미 본 것인지 알 길이 없다.
+   */
+  const memoryButtonLabels = useMemo<Record<MemoryId, string>>(
+    () =>
+      Object.fromEntries(
+        MEMORY_IDS.map((id) => [
+          id,
+          statuses[id] === "available"
+            ? labels[id]
+            : t(`scene.memoryState.${statuses[id]}`, { name: labels[id] }),
+        ]),
+      ) as Record<MemoryId, string>,
+    [labels, statuses, t],
   );
 
   const clearDirectFocusTimer = useCallback(() => {
@@ -478,8 +499,8 @@ export function RoomCanvas() {
       <RoomInteractionPrompt
         nearbyMemoryId={nearbyMemoryId}
         nearbyLabel={nearbyLabel}
-        labels={labels}
-        availableIds={availableIds}
+        labels={memoryButtonLabels}
+        statuses={statuses}
         onInteract={interact}
       />
       <MovementJoystick

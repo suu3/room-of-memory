@@ -8,18 +8,25 @@ import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 import {
-  applyOutcome,
+  applyRound,
+  CRITICAL_MS,
   DUEL_START,
+  type DuelState,
+  damageOf,
   duelStatus,
-  MAX_LOSSES,
+  FEINT_AT,
+  hpRatio,
+  isCritical,
+  isEnraged,
   MOVES,
   type Move,
-  opponentMove,
-  ROUNDS_TO_WIN,
+  planRound,
   type RoundOutcome,
+  type RoundPlan,
   resolveRound,
 } from "./duel";
 import { Fighter, type Pose } from "./Fighter";
+import { HealthBar } from "./HealthBar";
 import { preloadSpriteSheet } from "./sprites";
 
 /*
@@ -30,20 +37,32 @@ import { preloadSpriteSheet } from "./sprites";
 preloadSpriteSheet(ASSETS.images.mgFighterDuelHero);
 preloadSpriteSheet(ASSETS.images.mgFighterDuelRival);
 
-/** 예고를 보고 받아칠 시간. 짧으면 반사신경 게임이 되고, 길면 긴장이 없다. */
-const TELL_MS = 1600;
 /** 결과 자세를 보여주는 시간. */
-const RESULT_MS = 800;
+const RESULT_MS = 850;
+/** 승부가 난 뒤 KO 연출을 보여주는 시간. */
+const KO_MS = 1500;
+/** 첫 라운드 전에 "FIGHT!"가 떠 있는 시간. */
+const INTRO_MS = 900;
+/**
+ * 프레임이 이만큼 끊기면 라운드 시계를 그만큼 뒤로 민다 (탭 전환·긴 로드).
+ * 60fps에서 프레임 간격은 16ms라, 이 값에 걸리는 건 화면이 실제로 멈춘 경우뿐이다.
+ */
+const STALL_MS = 400;
 const SKIP_AFTER_MS = 30_000;
-const SKIP_AFTER_LOSSES = 2;
+/** 이 체력 아래로 떨어지면 스킵을 열어 둔다 (접근성 — 두 번 맞으면 보인다). */
+const SKIP_AT_HP = 0.7;
 /** 1/2/3 — MOVES 순서와 같은 자리. */
 const MOVE_KEYS = ["1", "2", "3"] as const;
 
+/** 한 라운드가 끝난 자리에 남는 것 — 화면이 읽어서 자세·숫자·문구로 옮긴다. */
 interface Resolved {
   /** 시간 안에 아무것도 안 냈으면 null. */
   player: Move | null;
   opponent: Move;
   outcome: RoundOutcome;
+  critical: boolean;
+  /** 이번 라운드에 깎인 체력. 무승부면 0. */
+  damage: number;
 }
 
 const OUTCOME_TONE: Record<RoundOutcome, string> = {
@@ -52,20 +71,26 @@ const OUTCOME_TONE: Record<RoundOutcome, string> = {
   draw: "text-bone",
 };
 
-function playerPose(resolved: Resolved | null): Pose {
+function playerPose(resolved: Resolved | null, over: boolean): Pose {
   if (!resolved) return "idle";
+  if (over) return resolved.outcome === "win" ? "win" : "ko";
   if (resolved.outcome === "lose") return "hurt";
   return resolved.player ?? "idle";
 }
 
-function opponentPose(resolved: Resolved | null, tell: Move): Pose {
+function opponentPose(resolved: Resolved | null, tell: Move, over: boolean): Pose {
   if (!resolved) return tell;
+  if (over) return resolved.outcome === "win" ? "ko" : "win";
   return resolved.outcome === "win" ? "hurt" : resolved.opponent;
 }
 
 /**
  * 게임기 속 격투 게임. 상대가 다음 수를 자세로 예고하고, 그걸 받아치는 수를 낸다.
  * 때리기 > 잡기 > 막기 > 때리기 — 반사신경이 아니라 읽기 싸움이다.
+ *
+ * 읽기만으로 끝나지 않게 세 가지가 얹혀 있다(규칙은 ./duel.ts):
+ * 연속으로 읽어내면 세게 들어가고(콤보), 빨리 읽으면 한 방이 커지고(간파),
+ * 대신 상대는 예고를 도중에 바꾼다(페인트). 서두를수록 크게 이기고 크게 당한다.
  */
 export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
@@ -73,64 +98,157 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   const complete = useOnceCompleter(onComplete);
   // 판마다 순서가 달라야 외워서 이기지 않는다. 판 안에서는 고정 (읽는 재미).
   const [salt] = useState(() => Math.floor(Math.random() * 1000));
-  const [round, setRound] = useState(0);
-  const [score, setScore] = useState(DUEL_START);
+  const [state, setState] = useState<DuelState>(DUEL_START);
+  const [plan, setPlan] = useState<RoundPlan>(() => planRound(DUEL_START, salt, [], 1));
+  /** 지금 화면에 걸려 있는 예고. 페인트가 들어오면 바뀐다. */
+  const [shown, setShown] = useState<Move>(plan.tell);
+  /** 페인트가 들어온 라운드를 표시로 남긴다 (0이면 아직 없음). */
+  const [feintAt, setFeintAt] = useState(0);
   const [resolved, setResolved] = useState<Resolved | null>(null);
+  const [criticals, setCriticals] = useState(0);
+  /** 라운드 진행 열쇠 — 결과 연출이 끝나면 올라가고, 그때 다음 라운드가 짜인다. */
+  const [roundKey, setRoundKey] = useState(0);
+  const [live, setLive] = useState(false);
+  const [over, setOver] = useState<"won" | "lost" | null>(null);
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
 
   const timerRef = useRef<HTMLDivElement>(null);
-  const startRef = useRef(0);
-  const lockedRef = useRef(false);
+  /** 이번 라운드의 시계. 0이면 "아직 첫 프레임을 못 봤다" — 그때까진 시간이 안 간다. */
+  const roundStartRef = useRef(0);
+  /** 직전 프레임 시각. 프레임 사이가 벌어지면 그만큼 화면이 멈춰 있었다는 뜻이다. */
+  const lastFrameRef = useRef(0);
+  /** 지금 걸린 예고가 뜬 시각 — 간파는 여기서부터 잰다 (페인트면 다시 0). */
+  const tellShownRef = useRef(0);
+  const feintDoneRef = useRef(false);
+  const lockedRef = useRef(true);
+  const liveRef = useRef(false);
+  liveRef.current = live;
+  /** 플레이어가 낸 수의 이력 — 상대의 페인트가 이걸 읽는다. */
+  const historyRef = useRef<Move[]>([]);
   const pendingRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
 
-  const tell = opponentMove(round, salt);
-
   // rAF·전역 키 리스너에서 최신 값을 보게 ref에 담아 둔다 (매 렌더 갱신).
-  const answerRef = useRef((_move: Move | null) => {});
-  answerRef.current = (move) => {
-    if (lockedRef.current) return;
-    lockedRef.current = true;
-    // 시간 안에 못 내면 그대로 맞는다.
-    const outcome: RoundOutcome = move ? resolveRound(move, tell) : "lose";
-    const next = applyOutcome(score, outcome);
-    setResolved({ player: move, opponent: tell, outcome });
-    setScore(next);
-    // 라운드 결과는 타격으로 말한다 — 승패 스팅어(success/fail)는 판 전체가 끝날 때
-    // 호스트가 한 번만 울린다. 여기서까지 울리면 매 라운드가 결승처럼 들린다.
-    playSound(outcome === "win" ? "punch" : outcome === "lose" ? "hurt" : "guard", {
-      variation: 0.05,
-    });
+  const planRef = useRef(plan);
+  planRef.current = plan;
+  const shownRef = useRef(shown);
+  shownRef.current = shown;
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
-    const status = duelStatus(next);
-    // 승부가 났으면 결과 자세를 보여주는 동안 닫히지 않게 잠근다
-    if (status !== "playing") onSettled?.();
+  const schedule = (callback: () => void, delay: number) => {
     const timeout = setTimeout(() => {
       pendingRef.current.delete(timeout);
-      if (status === "playing") {
-        setRound((current) => current + 1);
-        return;
-      }
-      complete({ cleared: status === "won", score: next.wins });
-    }, RESULT_MS);
+      callback();
+    }, delay);
     pendingRef.current.add(timeout);
   };
 
-  // 새 라운드 — 예고가 뜨는 순간부터 시간을 잰다.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: round는 값이 아니라 "새 라운드가 시작됐다"는 신호로만 쓴다.
+  const answerRef = useRef((_move: Move | null) => {});
+  answerRef.current = (move) => {
+    if (lockedRef.current || !liveRef.current) return;
+    lockedRef.current = true;
+    const opponent = shownRef.current;
+    // 시간 안에 못 내면 그대로 맞는다.
+    const outcome: RoundOutcome = move ? resolveRound(move, opponent) : "lose";
+    // 예고가 아직 안 그려졌으면(첫 프레임 전) 흐른 시간은 0이다 — 못 본 시간은 안 센다.
+    const sinceTell = tellShownRef.current === 0 ? 0 : performance.now() - tellShownRef.current;
+    const critical = outcome === "win" && isCritical(sinceTell);
+    const resolution = { player: move, opponent, outcome, critical };
+    const damage = damageOf(state, resolution);
+    const next = applyRound(state, resolution);
+    if (move) historyRef.current.push(move);
+    setResolved({ ...resolution, damage });
+    setState(next);
+    if (critical) setCriticals((count) => count + 1);
+    // 라운드 결과는 타격으로 말한다 — 승패 스팅어(success/fail)는 판 전체가 끝날 때
+    // 호스트가 한 번만 울린다. 여기서까지 울리면 매 라운드가 결승처럼 들린다.
+    playSound(
+      outcome === "win"
+        ? critical
+          ? "punchHeavy"
+          : "punch"
+        : outcome === "lose"
+          ? "hurt"
+          : "guard",
+      { variation: 0.05 },
+    );
+
+    const status = duelStatus(next);
+    if (status === "playing") {
+      schedule(() => setRoundKey((key) => key + 1), RESULT_MS);
+      return;
+    }
+    // 승부가 났으면 KO 연출이 도는 동안 판이 닫히지 않게 잠근다
+    setLive(false);
+    setOver(status === "won" ? "won" : "lost");
+    onSettled?.();
+    schedule(() => playSound("punchHeavy", { variation: 0.05 }), 120);
+    schedule(
+      () =>
+        complete({
+          cleared: status === "won",
+          // 이겼으면 얼마나 덜 맞고 이겼는지, 졌으면 얼마나 깎았는지가 점수다.
+          score: Math.round(status === "won" ? next.heroHp : 100 - next.rivalHp),
+        }),
+      KO_MS,
+    );
+  };
+
+  // 시작 배너가 걷히면 첫 라운드가 선다.
   useEffect(() => {
-    startRef.current = performance.now();
-    lockedRef.current = false;
+    const timer = setTimeout(() => setLive(true), INTRO_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 새 라운드 — 예고가 뜨는 순간부터 시간을 잰다.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: roundKey는 값이 아니라 "다음 라운드로 넘어간다"는 신호로만 쓴다.
+  useEffect(() => {
+    if (!live) return;
+    const nextPlan = planRound(stateRef.current, salt, historyRef.current, Math.random());
+    setPlan(nextPlan);
+    setShown(nextPlan.tell);
     setResolved(null);
+    setFeintAt(0);
+    // 시계는 여기서 시작하지 않는다 — 예고가 실제로 그려진 첫 프레임에 시작한다.
+    roundStartRef.current = 0;
+    tellShownRef.current = 0;
+    feintDoneRef.current = false;
+    lockedRef.current = false;
     // 예고 모션에 붙는 소리. 종이 넘김(flip)이 아니라 상대가 팔을 당기는 바람 소리다.
     playSound("swingMiss", { variation: 0.08 });
-  }, [round]);
+  }, [roundKey, live, salt]);
 
-  // 남은 시간 바 — setState 없이 ref를 직접 민다.
+  // 남은 시간 바 — setState 없이 ref를 직접 민다. 페인트만 예외로 한 번 상태를 건드린다.
   useEffect(() => {
     let frame = 0;
     const loop = (now: number) => {
-      if (!lockedRef.current) {
-        const progress = Math.min(1, (now - startRef.current) / TELL_MS);
+      /*
+       * 화면이 멈춰 있던 시간은 라운드 시간으로 세지 않는다.
+       *
+       * 프레임 사이가 벌어지는 건 탭이 가려졌거나(rAF 자체가 멈춘다) 3D 씬·청크
+       * 로드가 메인 스레드를 붙잡고 있었다는 뜻이다. 그 시간을 그냥 흘려보내면
+       * 돌아온 첫 프레임에서 progress가 1을 넘어, 플레이어가 예고를 보지도 못한 채
+       * 라운드가 통째로 지나간다 — "시작하자마자 연패"가 이렇게 만들어졌다.
+       */
+      const gap = lastFrameRef.current === 0 ? 0 : now - lastFrameRef.current;
+      lastFrameRef.current = now;
+      if (gap > STALL_MS && roundStartRef.current > 0) roundStartRef.current += gap;
+
+      if (!lockedRef.current && liveRef.current) {
+        const { durationMs, feint } = planRef.current;
+        // 예고가 처음 그려지는 프레임 — 여기가 이 라운드의 0초다
+        if (roundStartRef.current === 0) {
+          roundStartRef.current = now;
+          tellShownRef.current = now;
+        }
+        const progress = Math.min(1, (now - roundStartRef.current) / durationMs);
+        if (feint && !feintDoneRef.current && progress >= FEINT_AT) {
+          feintDoneRef.current = true;
+          tellShownRef.current = now;
+          setShown(feint);
+          setFeintAt(now);
+          playSound("feint");
+        }
         if (timerRef.current) timerRef.current.style.transform = `scaleX(${1 - progress})`;
         if (progress >= 1) answerRef.current(null);
       }
@@ -159,7 +277,16 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
     [],
   );
 
-  const skip = useCallback(() => complete({ cleared: true, score: score.wins }), [complete, score]);
+  const skip = useCallback(
+    () => complete({ cleared: true, score: Math.round(state.heroHp) }),
+    [complete, state.heroHp],
+  );
+
+  const enraged = over === null && isEnraged(state.rivalHp);
+  const heroHit = resolved?.outcome === "lose";
+  const rivalHit = resolved?.outcome === "win";
+  /** 간파 판정이 살아 있는 구간 — 게이지 오른쪽 끝의 눈금으로 보여준다. */
+  const criticalZone = Math.min(100, (CRITICAL_MS / plan.durationMs) * 100);
 
   return (
     <MinigameShell
@@ -167,26 +294,41 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
       help={hint("minigame.fighterDuel.help")}
       stats={
         <>
-          <MinigameStat
-            label={t("minigame.fighterDuel.labelWins")}
-            value={`${score.wins} / ${ROUNDS_TO_WIN}`}
-          />
-          <MinigameStat
-            label={t("minigame.fighterDuel.labelLosses")}
-            value={`${score.losses} / ${MAX_LOSSES}`}
-            tone="warning"
-          />
+          <MinigameStat label={t("minigame.fighterDuel.labelCombo")} value={state.combo} />
+          <MinigameStat label={t("minigame.fighterDuel.labelCritical")} value={criticals} />
         </>
       }
-      skipVisible={skipByTime || score.losses >= SKIP_AFTER_LOSSES}
+      skipVisible={skipByTime || hpRatio(state.heroHp) <= SKIP_AT_HP}
       onSkip={skip}
       size="lg"
     >
-      <div className="overflow-hidden rounded-md border-2 border-night bg-scene-abyss">
+      {/* 체력 게이지 — 게임기 화면의 상단 띠. 무대와 붙어 하나의 화면으로 읽힌다 */}
+      <div className="flex items-start gap-4 rounded-t-md border-2 border-b-0 border-night bg-night/85 px-3 pb-2 pt-2 sm:px-5">
+        <HealthBar
+          hp={state.heroHp}
+          label={t("minigame.fighterDuel.nameHero")}
+          side="left"
+          tone="memory"
+        />
+        <span className="mt-3 shrink-0 font-pixel text-[0.65rem] tracking-widest text-bone/45">
+          {t("minigame.fighterDuel.round", { value: state.round + 1 })}
+        </span>
+        <HealthBar
+          hp={state.rivalHp}
+          label={t("minigame.fighterDuel.nameRival")}
+          side="right"
+          tone="bone"
+          enraged={enraged}
+        />
+      </div>
+
+      <div className="overflow-hidden rounded-b-md border-2 border-night bg-scene-abyss">
         <div
           // 예고 글자가 위쪽 띠로 빠졌으니 둘 사이는 간격으로 벌린다 —
           // justify-between이면 넓은 패널에서 양 끝으로 밀려 마주 본다는 느낌이 사라진다
-          className="relative flex h-64 items-end justify-center gap-8 bg-cover bg-center px-3 pb-6 sm:gap-40 sm:px-10"
+          className={`relative flex h-64 items-end justify-center gap-8 bg-cover bg-center px-3 pb-6 sm:gap-40 sm:px-10 ${
+            resolved && resolved.outcome !== "draw" ? "animate-batting-field-shake" : ""
+          }`}
           style={{
             // 무대 그림이 리포에 없으면 그 레이어만 못 그리고 아래 그라디언트가 남는다 —
             // 배경은 이 폴백만으로도 충분해서 존재 확인을 따로 하지 않는다.
@@ -194,14 +336,47 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
           }}
         >
           <span className="absolute inset-x-0 bottom-0 h-6 bg-night/50" aria-hidden />
+          {/* 게임기 화면이라는 신호. 무대 위에만 얹고 UI 패널로는 넘기지 않는다 */}
+          <span
+            className="duel-scanline pointer-events-none absolute inset-0 opacity-25"
+            aria-hidden
+          />
+          {/* 각성한 상대 쪽에서 번지는 기색 */}
+          {enraged && (
+            <span
+              className="pointer-events-none absolute inset-y-0 right-0 w-1/3 animate-duel-rage bg-gradient-to-l from-ember/25 to-transparent"
+              aria-hidden
+            />
+          )}
+
           <div className="relative">
             <Fighter
-              pose={playerPose(resolved)}
+              pose={playerPose(resolved, over !== null)}
               tone="memory"
               facing="right"
               sprite={ASSETS.images.mgFighterDuelHero}
-              shake={resolved?.outcome === "lose"}
+              shake={heroHit}
+              flash={heroHit}
             />
+            {heroHit && resolved && (
+              <span
+                key={`${roundKey}-hero-damage`}
+                className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 animate-duel-damage font-pixel text-lg text-ember"
+                aria-hidden
+              >
+                -{resolved.damage}
+              </span>
+            )}
+            {/* 콤보는 도해 쪽에 쌓인다 — 내가 이어가고 있다는 표시라 내 쪽에 붙어야 한다 */}
+            {state.combo >= 2 && over === null && (
+              <span
+                key={`${state.combo}-combo`}
+                className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 animate-duel-combo whitespace-nowrap font-pixel text-xs tracking-widest text-memory"
+                aria-hidden
+              >
+                {t("minigame.fighterDuel.combo", { value: state.combo })}
+              </span>
+            )}
           </div>
 
           {/*
@@ -214,51 +389,109 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
           <div
             role="status"
             aria-live="polite"
-            className="pointer-events-none absolute inset-x-3 top-4 flex flex-col items-center gap-3 text-center sm:top-6"
+            className="pointer-events-none absolute inset-x-3 top-4 flex flex-col items-center gap-2 text-center sm:top-6"
           >
             {resolved ? (
-              <span
-                key={`${round}-outcome`}
-                className={`animate-fade-rise whitespace-nowrap font-pixel text-lg tracking-widest sm:text-xl ${OUTCOME_TONE[resolved.outcome]}`}
-              >
-                {t(
-                  resolved.player === null
-                    ? "minigame.fighterDuel.outcome.late"
-                    : `minigame.fighterDuel.outcome.${resolved.outcome}`,
+              <>
+                <span
+                  key={`${roundKey}-outcome`}
+                  className={`animate-fade-rise whitespace-nowrap font-pixel text-lg tracking-widest sm:text-xl ${OUTCOME_TONE[resolved.outcome]}`}
+                >
+                  {t(
+                    resolved.player === null
+                      ? "minigame.fighterDuel.outcome.late"
+                      : `minigame.fighterDuel.outcome.${resolved.outcome}`,
+                  )}
+                </span>
+                {resolved.critical && (
+                  <span className="animate-fade-rise font-pixel text-xs tracking-widest text-memory">
+                    {t("minigame.fighterDuel.critical")}
+                  </span>
                 )}
-              </span>
+              </>
             ) : (
-              <span className="break-ko text-pretty font-pixel text-xs leading-relaxed tracking-widest text-bone/80">
-                {t(`minigame.fighterDuel.tell.${tell}`)}
-              </span>
+              <>
+                <span className="break-ko text-pretty font-pixel text-xs leading-relaxed tracking-widest text-bone/80">
+                  {t(`minigame.fighterDuel.tell.${shown}`)}
+                </span>
+                {feintAt > 0 && (
+                  <span
+                    key={feintAt}
+                    className="animate-duel-alert break-ko text-pretty font-pixel text-xs tracking-widest text-ember"
+                  >
+                    {t("minigame.fighterDuel.feint")}
+                  </span>
+                )}
+              </>
             )}
           </div>
 
           <div className="relative">
             <Fighter
-              pose={opponentPose(resolved, tell)}
+              pose={opponentPose(resolved, shown, over !== null)}
               tone="bone"
               facing="left"
               sprite={ASSETS.images.mgFighterDuelRival}
-              shake={resolved?.outcome === "win"}
+              shake={rivalHit}
+              flash={rivalHit}
             />
+            {rivalHit && resolved && (
+              <span
+                key={`${roundKey}-rival-damage`}
+                className={`pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 animate-duel-damage font-pixel text-memory ${
+                  resolved.critical ? "text-2xl" : "text-lg"
+                }`}
+                aria-hidden
+              >
+                -{resolved.damage}
+              </span>
+            )}
           </div>
+
+          {/* 시작·KO 배너. 화면 한가운데를 잠깐 차지하는 유일한 글자다 */}
+          {(!live || over) && (
+            <span
+              key={over ?? "fight"}
+              className={`pointer-events-none absolute inset-0 flex items-center justify-center animate-duel-banner font-pixel text-3xl tracking-[0.3em] sm:text-4xl ${
+                over === "lost" ? "text-ember" : "text-memory"
+              }`}
+            >
+              {t(
+                over === "won"
+                  ? "minigame.fighterDuel.banner.ko"
+                  : over === "lost"
+                    ? "minigame.fighterDuel.banner.down"
+                    : "minigame.fighterDuel.banner.fight",
+              )}
+            </span>
+          )}
         </div>
 
-        {/* 남은 시간 — 색이 아니라 길이로 읽히게 */}
-        <div className="h-1.5 w-full bg-night/60">
+        {/* 남은 시간 — 색이 아니라 길이로 읽히게. 오른쪽 끝 눈금 안에서 내면 간파다 */}
+        <div className="relative h-1.5 w-full bg-night/60">
           <div ref={timerRef} className="h-full w-full origin-left bg-memory" />
+          <span
+            className="pointer-events-none absolute inset-y-0 right-0 border-l border-paper/50 bg-paper/20"
+            style={{ width: `${criticalZone}%` }}
+            aria-hidden
+          />
         </div>
       </div>
 
+      {/*
+        예고가 걸려 있지 않은 동안(시작 배너·결과 연출)은 버튼을 잠근다. 눌러도
+        아무 일이 없는 버튼은 "고장난 게임"으로 읽힌다 — 지금은 낼 차례가 아니라는
+        걸 커서와 색으로 먼저 말해 준다.
+      */}
       <div className="mt-3 grid grid-cols-3 gap-3">
         {MOVES.map((move, index) => (
           <button
             key={move}
             type="button"
+            disabled={!live || resolved !== null}
             onClick={() => answerRef.current(move)}
-            className={`cursor-pointer rounded-md border border-ink/15 px-4 py-3 text-base font-bold tracking-wide text-ink transition-all hover:border-ink/40 hover:bg-ink/5 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
-              resolved?.player === move ? "border-ink/40 bg-ink/5" : ""
+            className={`rounded-md border border-ink/15 px-4 py-3 text-base font-bold tracking-wide text-ink transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory enabled:cursor-pointer enabled:hover:border-ink/40 enabled:hover:bg-ink/5 enabled:active:translate-y-px disabled:opacity-45 ${
+              resolved?.player === move ? "border-ink/40 bg-ink/5 opacity-100" : ""
             }`}
           >
             <span className="font-pixel text-xs text-ink/45">{MOVE_KEYS[index]}</span>{" "}

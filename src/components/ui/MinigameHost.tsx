@@ -60,6 +60,20 @@ export function MinigameHost() {
    */
   const sealed = resultStage || (settledKey !== null && settledKey === activeKey);
 
+  /*
+   * 판이 닫히면 시작·확정 표시를 놓아준다.
+   *
+   * 이 두 키는 인터랙션 키(`memoryId:gamePhase`)와 같은지로만 판정하는데, 그 키는
+   * 같은 물건을 다시 조사하면 똑같이 만들어진다. 닫을 때 비우지 않으면 다음에 그
+   * 물건을 열었을 때 시작 카드를 건너뛰고 타이머가 곧장 돌아버리고(조작법을 읽기
+   * 전에 라운드가 지나간다), 한 번 승부가 났던 물건은 닫기 버튼조차 없이 열린다.
+   */
+  useEffect(() => {
+    if (activeKey !== null) return;
+    setStartedKey(null);
+    setSettledKey(null);
+  }, [activeKey]);
+
   // 시작 카드가 뜨면 버튼에 포커스 (키보드 플레이)
   useEffect(() => {
     if (hosted && !bare && !started) startButtonRef.current?.focus();

@@ -37,7 +37,8 @@ export const ASSETS = {
     /*
      * 격투 미니게임 스프라이트. 아직 리포에 없어도 된다 — 파일이 없으면
      * 블록 캐릭터/그라디언트 배경으로 떨어진다. 시트 규격은
-     * src/minigames/fighter-duel/sprites.ts 주석 참고 (5프레임 가로 시트, 1120×320).
+     * src/minigames/fighter-duel/sprites.ts 주석 참고
+     * (7프레임 가로 시트, 1568×320 — idle·strike·guard·throw·hurt·ko·win).
      */
     mgFighterDuelHero: "/assets/images/mg-fighter-duel-hero.webp",
     mgFighterDuelRival: "/assets/images/mg-fighter-duel-rival.webp",
