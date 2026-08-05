@@ -116,7 +116,7 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
         grab();
       }}
     >
-      <MemoryGlowSelection selectionKey="ending-bat" enabled={hovered || near}>
+      <MemoryGlowSelection selectionKey="ending-bat" tier="memory" enabled={hovered || near}>
         <group ref={motionRef}>
           <group rotation={BAT_PLACEMENT.rotation} scale={BAT_PLACEMENT.scale} {...handlers}>
             <primitive object={bat} />

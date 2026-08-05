@@ -59,7 +59,7 @@ export function LightSwitch({ palette }: { palette: RoomPalette }) {
         toggleLights();
       }}
     >
-      <MemoryGlowSelection selectionKey="light-switch" enabled={hovered || near}>
+      <MemoryGlowSelection selectionKey="light-switch" tier="prop" enabled={hovered || near}>
         {/* 벽에 붙는 판 */}
         <mesh castShadow>
           <boxGeometry args={plateSize} />

@@ -253,7 +253,7 @@ function Drawer({
         setOpen((current) => !current);
       }}
     >
-      <MemoryGlowSelection selectionKey={name} enabled={hovered || nearPlayer}>
+      <MemoryGlowSelection selectionKey={name} tier="prop" enabled={hovered || nearPlayer}>
         <BoxParts parts={parts} palette={palette} />
       </MemoryGlowSelection>
     </group>
@@ -302,7 +302,7 @@ function Chair({ palette }: FurnitureProps) {
         setPulled((current) => !current);
       }}
     >
-      <MemoryGlowSelection selectionKey="chair" enabled={hovered || near}>
+      <MemoryGlowSelection selectionKey="chair" tier="prop" enabled={hovered || near}>
         <BoxParts parts={CHAIR_PARTS} palette={palette} />
       </MemoryGlowSelection>
     </group>
@@ -632,7 +632,7 @@ function Curtain({
       // 곧바로 드래그가 취소돼 한 칸도 못 움직였다. 포인터 캡처가 잡혀 있으므로
       // 밖으로 나가도 move/up은 계속 들어온다.
     >
-      <MemoryGlowSelection selectionKey={`curtain-${side}`} enabled={hovered || near}>
+      <MemoryGlowSelection selectionKey={`curtain-${side}`} tier="prop" enabled={hovered || near}>
         <BoxParts parts={CURTAIN_FOLD_PARTS} palette={palette} />
       </MemoryGlowSelection>
     </group>
