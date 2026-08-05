@@ -23,7 +23,7 @@ import {
 } from "./calendar";
 
 /** 넘기는 애니메이션 길이. globals.css의 calendar-flip-*과 맞춘다. */
-const FLIP_MS = 520;
+const FLIP_MS = 380;
 const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
 /** 사건 이후 장 — 날짜 대신 버틴 날을 세는 正자만 남는다. */
@@ -176,16 +176,6 @@ function CalendarSheet({ month }: { month: number }) {
   );
 }
 
-/** 넘어간 종이의 뒷면. 인쇄가 없는 종이라 결만 남는다. */
-function SheetBack() {
-  return (
-    <div
-      aria-hidden
-      className="h-full rounded-md bg-bone shadow-panel [background-image:repeating-linear-gradient(0deg,transparent,transparent_1.4rem,color-mix(in_srgb,var(--color-ink)_6%,transparent)_1.4rem,color-mix(in_srgb,var(--color-ink)_6%,transparent)_calc(1.4rem+1px))]"
-    />
-  );
-}
-
 interface Flip {
   direction: FlipDirection;
   /** 넘어가는 종이에 인쇄된 달. next면 떠나는 달, prev면 되돌아오는 달이다. */
@@ -202,9 +192,8 @@ interface Flip {
  * 날짜가 사라지고 버틴 날을 세는 正자만 남는다. 마지막 장까지 넘기면 다 본 것으로
  * 친다. 도중에 닫으면 아무 일도 없었던 것처럼 다시 열 수 있다 (방탈출 탐색).
  *
- * 넘김은 종이 한 장이 위쪽 스프링을 축으로 실제로 넘어가는 3D 회전이다. 넘어가는
- * 장에는 앞뒤 두 면이 있고(앞: 인쇄된 달, 뒤: 빈 종이), 그 밑에 다음 장이 미리
- * 깔려 있어 젖혀지는 동안 드러난다.
+ * 넘김은 종이 한 장이 위쪽 스프링을 축으로 보는 쪽으로 들려 넘어가는 3D 회전이다.
+ * 그 밑에 다음 장이 미리 깔려 있어 젖혀지는 동안 드러난다.
  */
 export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
   const { t } = useTranslation();
@@ -271,6 +260,13 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [turn]);
 
+  /*
+   * 되돌리기는 넘김을 거꾸로 돌린 것이다. 키프레임을 한 벌 더 만드는 대신 방향만
+   * 뒤집으면, 그늘·그림자까지 저절로 짝이 맞는다 — 두 벌을 손으로 맞추다 어긋나는
+   * 자리를 아예 없앤다.
+   */
+  const reversed = flip?.direction === "prev" ? "[animation-direction:reverse]" : "";
+
   return (
     <div className="flex animate-fade-rise flex-col items-center gap-4">
       <div className="flex items-center gap-3">
@@ -295,36 +291,48 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
           </div>
 
           {/*
-            넘김 무대. 밑장은 흐름을 따라가는 보통 요소라 높이를 정하고, 넘어가는
-            종이만 그 위에 절대배치로 겹친다 — 그래야 판 높이가 넘길 때마다 흔들리지 않는다.
-          */}
-          <div className="relative [perspective:1400px]">
-            <CalendarSheet month={flip ? flip.under : month} />
+            축(스프링) 위쪽은 잘라 낸다.
 
-            {flip && (
-              <div
-                key={flip.key}
-                className={`absolute inset-0 origin-top [transform-style:preserve-3d] ${
-                  flip.direction === "next"
-                    ? "animate-calendar-flip-away"
-                    : "animate-calendar-flip-back"
-                }`}
-              >
-                {/* 앞면 — 인쇄된 달 */}
-                <div className="absolute inset-0 [backface-visibility:hidden]">
-                  <CalendarSheet month={flip.sheet} />
-                </div>
-                {/* 뒷면 — 젖혀졌을 때 보이는 빈 종이. 뒤집어 붙여야 바로 선다 */}
-                <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateX(180deg)]">
-                  <SheetBack />
-                </div>
-                {/* 세워지는 순간 종이에 지는 그늘 */}
-                <div
-                  aria-hidden
-                  className="animate-calendar-shade pointer-events-none absolute inset-0 rounded-md bg-scene-void"
-                />
-              </div>
-            )}
+            종이는 위쪽 축에 매달려 있어 아무리 돌아도 축에서부터 위로만 뻗는다 —
+            자르지 않으면 90도를 넘긴 종이가 달력 위에 통째로 선 채 남았다가 툭
+            사라진다. 잘라 두면 링을 넘어가며 사라지는, 벽걸이 달력이 실제로 하는
+            모양이 된다. 위만 자르고 나머지 세 방향은 넓혀 둔다 — 판의 그림자까지
+            같이 자르지 않으려고.
+          */}
+          <div className="[clip-path:inset(0_-100%_-100%_-100%)]">
+            {/*
+              넘김 무대. 밑장은 흐름을 따라가는 보통 요소라 높이를 정하고, 넘어가는
+              종이만 그 위에 절대배치로 겹친다 — 그래야 판 높이가 넘길 때마다 흔들리지 않는다.
+
+              perspective는 900px, 소실점은 축과 같은 자리(위쪽 가운데)에 둔다. 판 너비의
+              세 배쯤이라야 아래 모서리가 보는 쪽으로 나오는 게 읽힌다 — 1400px에서는
+              거의 정사영이라 넘김이 아니라 세로로 접히는 블라인드처럼 보였다.
+            */}
+            <div className="relative [perspective-origin:50%_0] [perspective:900px]">
+              <CalendarSheet month={flip ? flip.under : month} />
+
+              {flip && (
+                <>
+                  {/* 들린 종이가 밑장에 드리우는 그림자 — 종이의 발자국을 따라 걷힌다 */}
+                  <div
+                    key={`cast-${flip.key}`}
+                    aria-hidden
+                    className={`animate-calendar-cast pointer-events-none absolute inset-0 origin-top rounded-md [background:linear-gradient(to_bottom,color-mix(in_srgb,var(--color-scene-void)_72%,transparent),transparent_58%)] ${reversed}`}
+                  />
+                  <div
+                    key={`sheet-${flip.key}`}
+                    className={`animate-calendar-flip absolute inset-0 origin-top ${reversed}`}
+                  >
+                    <CalendarSheet month={flip.sheet} />
+                    {/* 젖혀지는 만큼 빛을 잃는다 */}
+                    <div
+                      aria-hidden
+                      className={`animate-calendar-shade pointer-events-none absolute inset-0 rounded-md bg-scene-void ${reversed}`}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 

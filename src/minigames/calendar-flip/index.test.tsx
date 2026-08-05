@@ -89,15 +89,34 @@ describe("the turning sheet", () => {
 
   it("lays a turning sheet over the page underneath while it flips", () => {
     const { container } = render(<CalendarFlipMinigame onComplete={vi.fn()} />);
-    expect(container.querySelectorAll(".origin-top")).toHaveLength(0);
+    expect(container.querySelectorAll(".animate-calendar-flip")).toHaveLength(0);
 
     fireEvent.click(screen.getByRole("button", { name: "Next month" }));
 
     // 넘어가는 종이 한 장이 밑장 위에 겹친다
-    const turning = container.querySelectorAll(".origin-top");
+    const turning = container.querySelectorAll(".animate-calendar-flip");
     expect(turning).toHaveLength(1);
-    expect(turning[0].className).toContain("animate-calendar-flip-away");
+    // 앞으로 넘길 때는 키프레임을 그대로 — 되돌릴 때만 거꾸로 돌린다
+    expect(turning[0].className).not.toContain("animation-direction:reverse");
     // 앞면은 떠나는 달, 밑장은 새 달 — 두 장이 동시에 서 있어야 넘김이 보인다
     expect(screen.getAllByText(String(CALENDAR_YEAR))).toHaveLength(2);
+  });
+
+  it("runs the same keyframes backwards when turning back", () => {
+    const { container } = render(<CalendarFlipMinigame onComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Next month" }));
+    fireEvent.click(screen.getByRole("button", { name: "Previous month" }));
+
+    const turning = container.querySelectorAll(".animate-calendar-flip");
+    expect(turning).toHaveLength(1);
+    expect(turning[0].className).toContain("animation-direction:reverse");
+    // 그늘·그림자도 같이 뒤집혀야 짝이 맞는다
+    expect(container.querySelectorAll(".animate-calendar-shade")[0].className).toContain(
+      "animation-direction:reverse",
+    );
+    expect(container.querySelectorAll(".animate-calendar-cast")[0].className).toContain(
+      "animation-direction:reverse",
+    );
   });
 });

@@ -50,15 +50,26 @@
   --animate-batting-feedback: batting-feedback 0.35s ease-out both;
   /* 달력 넘기기 — 길이를 바꾸면 calendar-flip의 FLIP_MS도 같이 고칠 것 */
   /*
-   * 벽걸이 달력 장 넘김. 스프링에 매달린 종이가 위쪽 모서리를 축으로 넘어간다 —
-   * 그래서 rotateY(좌우 책장)가 아니라 rotateX다. 축은 transform-origin: top.
-   * 0.52s는 종이 한 장이 손에서 떨어져 넘어가는 체감에 맞춘 값이라, 더 짧으면
-   * 툭 끊기고 더 길면 조작이 굼떠진다.
+   * 벽걸이 달력 장 넘김. 스프링에 매달린 종이의 아래 모서리를 들어 올려 위쪽 축으로
+   * 넘긴다 — 그래서 rotateY(좌우 책장)가 아니라 rotateX이고, 부호는 **양수**다.
+   * CSS는 Y축이 아래를 향하므로 rotateX(+90deg)에서 아래 모서리가 보는 쪽으로 온다.
+   * 음수로 돌리면 종이가 벽 안쪽으로 젖혀져, 넘김이 아니라 세로로 찌부러지는
+   * 블라인드처럼 읽힌다.
+   *
+   * 100도까지만 돈다. 축이 위쪽이라 종이는 아무리 돌아도 축에서부터 위로만 뻗는데,
+   * 무대가 축 위쪽을 잘라 내므로(index.tsx의 clip-path) 90도를 넘기는 순간 완전히
+   * 가려진다. 그 뒤로 더 도는 건 화면에 아무것도 남기지 않는 시간이다.
+   *
+   * ease-in인 이유: 보이는 구간이 0~90도 전부라, 끝에서 느려지면 사라지기 직전에
+   * 늘어진다. 손에 걸려 떨어지듯 시작해 넘어가며 빨라져야 종이로 읽힌다.
+   * 되돌리기는 같은 애니메이션을 reverse로 돌린다 — 뒤집힌 ease-in이 그대로
+   * 내려앉는 종이의 감속이라 따로 만들 이유가 없다.
    */
-  --animate-calendar-flip-away: calendar-flip-away 0.52s cubic-bezier(0.42, 0, 0.3, 1) both;
-  --animate-calendar-flip-back: calendar-flip-back 0.52s cubic-bezier(0.42, 0, 0.3, 1) both;
-  /* 넘어가는 종이에 지는 그늘. 세워지는 순간(50%) 가장 어둡다 */
-  --animate-calendar-shade: calendar-shade 0.52s cubic-bezier(0.42, 0, 0.3, 1) both;
+  --animate-calendar-flip: calendar-flip 0.38s cubic-bezier(0.45, 0.05, 0.75, 0.5) both;
+  /* 젖혀지는 만큼 빛을 잃는 종이 앞면 */
+  --animate-calendar-shade: calendar-shade 0.38s cubic-bezier(0.45, 0.05, 0.75, 0.5) both;
+  /* 들린 종이가 밑장에 드리우는 그림자. 종이의 발자국이 줄어드는 만큼 축 쪽으로 걷힌다 */
+  --animate-calendar-cast: calendar-cast 0.38s cubic-bezier(0.45, 0.05, 0.75, 0.5) both;
   --animate-page-nudge: page-nudge 0.3s ease-out both;
   /*
    * 시작 버튼. 주기를 hotspot-glow와 같은 2.4s로 맞춘다 — 방 안에서 "여기 눌러라"는
@@ -192,34 +203,34 @@
 
   /*
    * 위쪽 모서리를 축으로 종이 한 장이 넘어간다 (transform-origin: top과 함께 쓴다).
-   * -90도에서 종이가 화면 쪽으로 곧추서고, -180도면 위로 완전히 젖혀져 뒷면만 남는다.
+   * +90도에서 종이가 보는 쪽으로 곧추서고, 그 뒤로는 축 위로 넘어가 잘려 나간다.
    */
-  @keyframes calendar-flip-away {
-    0% {
+  @keyframes calendar-flip {
+    from {
       transform: rotateX(0deg);
     }
-    100% {
-      transform: rotateX(-180deg);
-    }
-  }
-
-  /* 되돌아 넘기기 — 젖혀져 있던 장이 도로 내려온다 */
-  @keyframes calendar-flip-back {
-    0% {
-      transform: rotateX(-180deg);
-    }
-    100% {
-      transform: rotateX(0deg);
+    to {
+      transform: rotateX(100deg);
     }
   }
 
   @keyframes calendar-shade {
-    0%,
-    100% {
+    from {
       opacity: 0;
     }
-    50% {
-      opacity: 0.55;
+    to {
+      opacity: 0.62;
+    }
+  }
+
+  @keyframes calendar-cast {
+    from {
+      opacity: 0.5;
+      transform: scaleY(1);
+    }
+    to {
+      opacity: 0;
+      transform: scaleY(0);
     }
   }
 
@@ -465,9 +476,9 @@ body {
    * 넘김은 없애지 않고 아주 짧게 줄인다. 완전히 끄면 장이 순간이동해서 몇 장을
    * 넘겼는지 알 수 없는데, 이 미니게임은 "넘기는 동작" 자체가 내용이다.
    */
-  .animate-calendar-flip-away,
-  .animate-calendar-flip-back,
-  .animate-calendar-shade {
+  .animate-calendar-flip,
+  .animate-calendar-shade,
+  .animate-calendar-cast {
     animation-duration: 0.12s;
   }
 
