@@ -19,9 +19,15 @@ import {
   visibleMessages,
 } from "./thread";
 
-/** 지금 화면에서 뭘 하면 되는지 한 줄. 탭과 진행에 따라 바뀐다. */
+/**
+ * 지금 화면에서 뭘 하면 되는지 한 줄. 탭과 진행에 따라 바뀐다.
+ *
+ * 통화 기록 탭에서는 아무 말도 하지 않는다(null). 안내를 붙일 자리가 아니다 —
+ * 화면에 안 받은 전화가 줄줄이 떠 있는 것으로 이미 다 말했고, 거기에 한 줄을
+ * 더 얹으면 화자가 플레이어를 부르는 것처럼 읽혀서 톤이 어긋난다.
+ */
 function phoneHelpKey(tab: PhoneTab, chatDone: boolean, seenCalls: boolean) {
-  if (tab === "calls") return "minigame.phoneChat.helpCallsTab" as const;
+  if (tab === "calls") return null;
   if (chatDone && !seenCalls) return "minigame.phoneChat.helpCalls" as const;
   return "minigame.phoneChat.help" as const;
 }
@@ -83,6 +89,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
 
   const chatDone = !hasEarlier(revealed);
   const done = isThreadComplete(revealed, seenCalls);
+  const helpKey = phoneHelpKey(tab, chatDone, seenCalls);
 
   /** 위로 한 줄 더 거슬러 올라간다. */
   const scrollBack = useCallback(() => {
@@ -213,9 +220,11 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
             {t("minigame.phoneChat.close")}
           </button>
         ) : (
-          <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
-            {hint(phoneHelpKey(tab, chatDone, seenCalls))}
-          </p>
+          helpKey && (
+            <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
+              {hint(helpKey)}
+            </p>
+          )
         )}
       </div>
     </div>

@@ -21,8 +21,8 @@ import { Color, type Group, type Mesh, type Object3D } from "three";
  *
  * - `memory` — 기억 오브젝트와 엔딩 배트. 또렷한 윤곽선 + 숨쉬는 헤일로가 겹치고,
  *   가구에 가려져도 벽 너머로 비친다. "이건 이야기다"라고 말하는 빛.
- * - `prop` — 서랍·의자·커튼·전등 스위치처럼 진행에 끼지 않는 곁가지. 번짐 한 겹만
- *   은은하게. "만져진다"까지만 말하고 이야기인 척하지 않는다.
+ * - `prop` — 서랍·의자·커튼·전등 스위치처럼 진행에 끼지 않는 곁가지. 윤곽선 한 줄만.
+ *   "만져진다"까지만 말하고 이야기인 척하지 않는다.
  *
  * DESIGN.md에서 금빛은 "기억을 모을수록 화면에서 비중이 늘어나는 것"이 핵심 연출이라
  * 했다. 곁가지가 기억과 같은 세기로 타오르면 그 비중이 진행과 무관하게 늘 차 있어
@@ -113,25 +113,29 @@ function selectedMeshes(group: Group | null) {
 
 /** postprocessing의 KernelSize 열거값. 패키지가 직접 의존성이 아니라 숫자로 고정한다. */
 const KERNEL_SIZE_SMALL = 1;
-const KERNEL_SIZE_MEDIUM = 2;
 const KERNEL_SIZE_VERY_LARGE = 4;
+
+/*
+ * 아웃라인 패스는 **정확히 둘**이다. 늘리지 말 것.
+ *
+ * 곁가지에 따로 은은한 번짐 패스를 하나 더 달았다가 화면 전체에 잔상이 남았다.
+ * 이 컴포저는 캔버스 뒤 DOM 워시가 비쳐야 해서 autoClear를 꺼 두는데(RoomCanvas의
+ * alpha: true), 그 상태에서 Outline 패스가 셋이 되면 프레임이 지워지지 않고 쌓여
+ * 글로우가 지나간 자리마다 금빛 궤적이 눌어붙는다.
+ *
+ * 그래서 등급은 "패스를 더 주는" 방식이 아니라 "어느 패스에 태우느냐"로 가른다:
+ * 윤곽선은 둘 다 타고, 헤일로는 기억만 탄다.
+ */
 
 export function createMemoryOutlineSettings(color: string) {
   const edgeColor = new Color(color).offsetHSL(0, -0.08, 0.16).getHex();
   // 가려진 쪽 테두리는 한 단계 어둡게 — 벽 너머까지 같은 밝기로 타오르지 않게 한다.
   const hiddenEdgeColor = new Color(color).offsetHSL(0, -0.12, -0.12).getHex();
-  /*
-   * 곁가지의 빛. 색상(hue)은 기억과 같은 금빛을 유지한다 — 색을 갈라 버리면
-   * "만질 수 있다"는 신호가 두 갈래로 읽혀서, 어느 쪽이 만져지는 건지 매번 배워야 한다.
-   * 채도와 밝기만 낮춰서 같은 말을 작은 목소리로 하게 둔다.
-   */
-  const propEdgeColor = new Color(color).offsetHSL(0, -0.24, -0.02).getHex();
 
   return {
     composer: { autoClear: false, multisampling: 2 },
     edgeColor,
     hiddenEdgeColor,
-    propEdgeColor,
     // inner는 윤곽선, outer는 그 바깥으로 번지는 숨쉬는 광량 — 둘 다 약하면 화면에서 안 보인다.
     inner: {
       blur: false,
@@ -149,27 +153,6 @@ export function createMemoryOutlineSettings(color: string) {
       pulseSpeed: 0.45,
       resolutionScale: 0.5,
       xRay: true,
-    },
-    /*
-     * 곁가지는 이 한 겹이 전부다. 기억과 갈리는 지점이 셋이다.
-     *
-     * 1. 또렷한 윤곽선(inner)이 없다 — 선이 아니라 번짐이라 "조준할 것"이 아니라
-     *    "거기 있는 것"으로 읽힌다.
-     * 2. pulseSpeed 0 — 숨쉬지 않는다. 움직이는 빛은 시선을 끌어당기는데, 그 몫은
-     *    기억이 가져가야 한다.
-     * 3. xRay false — 벽이나 가구에 가리면 그냥 가린다. 곁가지를 찾아 방을 헤맬
-     *    이유는 없다.
-     *
-     * 패스가 하나 늘어나는 값은 치른다. resolutionScale을 반으로 낮추고 커널도
-     * 중간 크기로 잡아 outer보다 싸게 굴린다.
-     */
-    prop: {
-      blur: true,
-      edgeStrength: 3,
-      kernelSize: KERNEL_SIZE_MEDIUM,
-      pulseSpeed: 0,
-      resolutionScale: 0.5,
-      xRay: false,
     },
   } as const;
 }
@@ -194,32 +177,28 @@ export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: s
     );
   }, []);
 
+  // 윤곽선은 만질 수 있는 것 전부가 받는다. 헤일로는 아래에서 기억만 받는다.
+  const touchable = useMemo(
+    () => [...selection.memory, ...selection.prop],
+    [selection.memory, selection.prop],
+  );
+
   return (
     <MemoryGlowSelectionContext.Provider value={updateSelection}>
       {children}
-      {/*
-        패스 순서 = 등급 순서. 기억은 윤곽선 위에 헤일로가 겹쳐 두 겹으로 타오르고,
-        곁가지는 마지막 한 겹만 은은하게 받는다.
-      */}
       <EffectComposer {...settings.composer}>
         <Outline
-          selection={selection.memory}
+          selection={touchable}
           visibleEdgeColor={settings.edgeColor}
           hiddenEdgeColor={settings.hiddenEdgeColor}
           {...settings.inner}
         />
+        {/* 숨쉬는 헤일로 + 벽 너머 투과는 기억만 — 곁가지는 윤곽선 한 줄에서 멈춘다 */}
         <Outline
           selection={selection.memory}
           visibleEdgeColor={settings.edgeColor}
           hiddenEdgeColor={settings.hiddenEdgeColor}
           {...settings.outer}
-        />
-        <Outline
-          selection={selection.prop}
-          visibleEdgeColor={settings.propEdgeColor}
-          // 가려진 쪽을 따로 두지 않는다 — xRay가 꺼져 있어 벽 너머는 아예 안 그린다.
-          hiddenEdgeColor={settings.propEdgeColor}
-          {...settings.prop}
         />
       </EffectComposer>
     </MemoryGlowSelectionContext.Provider>

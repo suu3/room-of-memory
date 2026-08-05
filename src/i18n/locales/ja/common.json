@@ -65,6 +65,7 @@
   "minigame": {
     "start": "スタート",
     "skip": "スキップ",
+    "close": "やめて部屋に戻る",
     "successCount": "成功 {{value}} / {{goal}}",
     "missCount": "ミス {{value}} / {{max}}",
     "timeLeft": "残り {{seconds}}秒",
@@ -174,7 +175,6 @@
       },
       "callsSubtitle": "応答なし",
       "callsTitle": "履歴",
-      "helpCallsTab": "何度かけたか見てください",
       "olderAbove": "上にまだある",
       "contact": {
         "mom": "母さん",

@@ -65,6 +65,7 @@
   "minigame": {
     "start": "시작",
     "skip": "건너뛰기",
+    "close": "그만두고 방으로 돌아가기",
     "successCount": "성공 {{value}} / {{goal}}",
     "missCount": "실패 {{value}} / {{max}}",
     "timeLeft": "남은 시간 {{seconds}}초",
@@ -174,7 +175,6 @@
       },
       "callsSubtitle": "안 받은 전화",
       "callsTitle": "최근 기록",
-      "helpCallsTab": "내가 몇 번이나 걸었는지 보세요",
       "olderAbove": "위로 올리면 더 있다",
       "contact": {
         "mom": "엄마",

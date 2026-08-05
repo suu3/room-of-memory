@@ -65,6 +65,7 @@
   "minigame": {
     "start": "Start",
     "skip": "Skip",
+    "close": "Close and return to the room",
     "successCount": "Success {{value}} / {{goal}}",
     "missCount": "Misses {{value}} / {{max}}",
     "timeLeft": "{{seconds}}s left",
@@ -174,7 +175,6 @@
       },
       "callsSubtitle": "No answer",
       "callsTitle": "Recents",
-      "helpCallsTab": "See how many times you called",
       "olderAbove": "More above — scroll up",
       "contact": {
         "mom": "Mom",

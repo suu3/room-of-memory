@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "@phosphor-icons/react";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { phaseConfigOf } from "@/data/memory-room";
@@ -79,17 +80,42 @@ export function MinigameHost() {
     <>
       {burstId > 0 && <SuccessBurst key={burstId} onDone={() => setBurstId(0)} />}
       {(active?.phase === "minigame" || resultStage) && hosted && Minigame && (
-        // 바깥(백드롭) 클릭 시 완료 처리 없이 닫는다 — 핫스팟은 다시 클릭 가능
-        // 결과 대사 중에는 화면을 더 어둡게 깔고, 아래쪽을 대사창 자리로 비워둔다
+        /*
+         * 바깥(백드롭) 클릭 시 완료 처리 없이 닫는다 — 핫스팟은 다시 클릭 가능.
+         * 결과 대사 중에는 화면을 더 어둡게 깔고, 아래쪽을 대사창 자리로 비워둔다.
+         *
+         * 단, 게임이 **시작된 뒤에는** 백드롭으로 닫히지 않는다. 손가락으로 하는
+         * 게임(닦기·다이얼)은 획이 판 밖에서 시작되는 일이 잦은데, 그때마다 판이
+         * 통째로 닫혀 버렸다. 대신 오른쪽 위 닫기 버튼이 늘 떠 있어 나갈 길은 남는다.
+         */
         <div
           className={`absolute inset-0 z-40 grid place-items-center ${
             // 탐색형은 방을 덜 가린다 — 물건을 든 채로도 방이 보여야 "그 방 안"이다.
             bare ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-sm"
           } ${resultStage ? "bg-scene-void/75 pb-56" : bare ? "" : "bg-scene-void/40"}`}
           onPointerDown={(event) => {
-            if (event.target === event.currentTarget && !sealed) cancelMinigame();
+            if (event.target !== event.currentTarget || sealed || started) return;
+            cancelMinigame();
           }}
         >
+          {/*
+            닫기. 백드롭이 잠긴 동안 유일하게 남는 출구라 늘 보인다 — 스킵(건너뛰기)은
+            일정 시간이 지나야 뜨고 의미도 다르다(스킵은 수집으로 친다, 닫기는 아니다).
+          */}
+          {started && !sealed && (
+            <button
+              type="button"
+              aria-label={t("minigame.close")}
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={() => {
+                playSound("close");
+                cancelMinigame();
+              }}
+              className="absolute right-4 top-4 z-10 grid size-11 cursor-pointer place-items-center rounded-full border border-bone/40 bg-scene-void/70 text-xl font-bold leading-none text-bone backdrop-blur-sm transition-all hover:border-bone hover:text-paper active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+            >
+              <X size={20} weight="bold" />
+            </button>
+          )}
           {started ? (
             <Suspense fallback={null}>
               <Minigame
