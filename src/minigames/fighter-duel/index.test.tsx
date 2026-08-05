@@ -41,7 +41,7 @@ function runFramesUntil(timestamp: number) {
 /** 예고 문구 → 그걸 받아치는 수의 키. 플레이어가 화면에서 읽는 것과 같은 경로. */
 const COUNTER_KEY: Record<string, string> = {
   "They pull a shoulder back": "2", // strike → guard
-  "They raise both arms to their face": "3", // guard → throw
+  "They raise both arms overhead": "3", // guard → throw
   "They reach both arms forward": "1", // throw → strike
 };
 

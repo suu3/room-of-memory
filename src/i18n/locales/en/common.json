@@ -124,7 +124,7 @@
       },
       "tell": {
         "strike": "They pull a shoulder back",
-        "guard": "They raise both arms to their face",
+        "guard": "They raise both arms overhead",
         "throw": "They reach both arms forward"
       },
       "outcome": {
