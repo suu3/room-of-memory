@@ -1,5 +1,16 @@
 import { ASSETS } from "@/lib/assets";
 import type { CharacterExpression } from "@/types/interaction";
+import type { CharacterId } from "@/types/scenario";
+
+/**
+ * 초상이 있는 화자. 라디오 너머의 목소리처럼 얼굴이 없는 화자는 대사창만 쓴다 —
+ * 정체를 모른다는 것이 그 인물의 전부라 아무 얼굴도 붙이면 안 된다.
+ */
+const PORTRAIT_SPEAKERS: readonly CharacterId[] = ["hero"];
+
+export function hasPortrait(speaker: CharacterId): boolean {
+  return PORTRAIT_SPEAKERS.includes(speaker);
+}
 
 /** 세 장 모두 같은 크롭이라 겹쳐두고 opacity만 토글하면 정렬이 맞는다. */
 export const PORTRAIT_SOURCES: Record<CharacterExpression, string> = {

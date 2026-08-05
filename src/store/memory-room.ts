@@ -1,6 +1,14 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { MEMORIES, MEMORY_BY_ID, type MemoryId, phaseConfigOf, SCRIPTS } from "@/data/memory-room";
+import {
+  CUTSCENE_RADIO_BLACKOUT,
+  CUTSCENES,
+  MEMORIES,
+  MEMORY_BY_ID,
+  type MemoryId,
+  phaseConfigOf,
+  SCRIPTS,
+} from "@/data/memory-room";
 import type { MinigameResult } from "@/types/minigame";
 
 export type GamePhase = 1 | 2;
@@ -28,6 +36,23 @@ export interface ActiveInteraction {
   lineIndex: number;
 }
 
+/**
+ * 재생 중인 컷씬. 인터랙션과 같은 자리를 쓰지 않는다 — 컷씬은 오브젝트에 매달린
+ * 연출이 아니라 진행 자체가 여는 장면이라, 어느 핫스팟에서 왔는지가 없다.
+ */
+export interface ActiveCutscene {
+  id: string;
+  cutIndex: number;
+  lineIndex: number;
+  /**
+   * 첫 컷이 뜨기 전, 라디오가 지직거리다 꺼지는 도입 구간.
+   * 이 동안에는 대사창도 그림도 뜨지 않는다 — 화면에 남는 건 끊기는 소리뿐이다.
+   */
+  intro: boolean;
+  /** 대사가 끝나고 그림만 남은 정적 구간 (CutsceneCut.holdMs). */
+  holding: boolean;
+}
+
 interface MemoryRoomState {
   /** Phase 1 수집 완료 */
   collected: MemoryId[];
@@ -35,6 +60,8 @@ interface MemoryRoomState {
   revisited: MemoryId[];
   /** 진행 중인 인터랙션. 활성이면 다른 핫스팟 입력은 잠긴다. */
   activeInteraction: ActiveInteraction | null;
+  /** 재생 중인 전환 컷씬. 인터랙션과 마찬가지로 저장하지 않는다. */
+  activeCutscene: ActiveCutscene | null;
   /** DOM overlay sources currently blocking scene controls. */
   uiLocks: UiLockId[];
   /** 캐릭터 시트 모달 — HUD 메뉴와 대사창 초상 두 곳에서 열리므로 스토어가 소유한다. */
@@ -56,6 +83,10 @@ interface MemoryRoomState {
   endingStarted: boolean;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
+  /** 컷씬을 한 칸 진행한다 — 다음 줄 → 정적 → 다음 컷 → 종료 순. */
+  advanceCutscene: () => void;
+  /** 컷씬을 통째로 닫는다 (끝까지 봤거나 건너뛰었거나). */
+  endCutscene: () => void;
   finishMinigame: (result: MinigameResult) => void;
   /** 미니게임을 완료 처리 없이 중단한다 (모달 닫기) — 핫스팟은 다시 클릭 가능. */
   cancelMinigame: () => void;
@@ -112,11 +143,52 @@ function finishInteraction(state: MemoryRoomState, active: ActiveInteraction) {
   return complete(state, active.memoryId, active.gamePhase);
 }
 
+/** 컷씬의 도입 구간. 등록되지 않은 id면 null이라 진행이 막히지 않는다. */
+export function openCutscene(id: string): ActiveCutscene | null {
+  return CUTSCENES[id] ? { id, cutIndex: 0, lineIndex: 0, intro: true, holding: false } : null;
+}
+
+/**
+ * 컷씬을 한 칸 진행한 결과. 끝났으면 null.
+ *
+ * 정적(holding)은 컷의 마지막 줄과 다음 컷 사이에 낀 한 칸이다. 한 칸으로 두면
+ * "다음"을 누르는 것과 시간이 흐르는 것이 같은 함수로 처리돼서, 화면 쪽은
+ * 타이머를 걸어 이 함수를 한 번 더 부르기만 하면 된다.
+ */
+export function nextCutsceneStep(active: ActiveCutscene): ActiveCutscene | null {
+  const cutscene = CUTSCENES[active.id];
+  const cut = cutscene?.cuts[active.cutIndex];
+  if (!cut) return null;
+
+  const toNextCut = (): ActiveCutscene | null =>
+    active.cutIndex + 1 < cutscene.cuts.length
+      ? { ...active, cutIndex: active.cutIndex + 1, lineIndex: 0, holding: false }
+      : null;
+
+  // 도입(라디오가 꺼지는 비트)이 끝나면 같은 컷의 첫 줄부터 시작한다
+  if (active.intro) return { ...active, intro: false };
+  if (active.holding) return toNextCut();
+  if (active.lineIndex + 1 < cut.lines.length) {
+    return { ...active, lineIndex: active.lineIndex + 1 };
+  }
+  // 마지막 줄을 넘겼다 — 정적이 걸린 컷이면 그림만 남기고 한 박자 쉰다
+  if (cut.holdMs && cut.holdMs > 0) return { ...active, holding: true };
+  return toNextCut();
+}
+
 function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
   if (gamePhase === 1) {
+    const collected = state.collected.includes(id) ? state.collected : [...state.collected, id];
+    /*
+     * 1바퀴를 방금 완주했다 = 라디오 재난방송이 막 끊긴 순간이다(라디오가 1바퀴의
+     * 마지막 관문이므로). 절망의 바닥에서 전환 컷씬으로 곧장 넘어간다 — 방을 한 번
+     * 둘러보게 두면 바닥의 밀도가 흩어진다.
+     */
+    const finished = collected.length >= MEMORIES.length;
     return {
-      collected: state.collected.includes(id) ? state.collected : [...state.collected, id],
+      collected,
       activeInteraction: null,
+      activeCutscene: finished ? openCutscene(CUTSCENE_RADIO_BLACKOUT) : state.activeCutscene,
     };
   }
   return {
@@ -185,6 +257,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       collected: [],
       revisited: [],
       activeInteraction: null,
+      activeCutscene: null,
       uiLocks: [],
       characterSheetOpen: false,
       contactOpen: false,
@@ -195,6 +268,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       endingStarted: false,
       beginInteraction: (id) =>
         set((state) => {
+          if (state.activeCutscene) return state;
           if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
           const gamePhase = gamePhaseOf(state);
           const interaction = phaseConfigOf(id, gamePhase)?.interaction;
@@ -238,6 +312,11 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           }
           return finishInteraction(state, active);
         }),
+      advanceCutscene: () =>
+        set((state) =>
+          state.activeCutscene ? { activeCutscene: nextCutsceneStep(state.activeCutscene) } : state,
+        ),
+      endCutscene: () => set((state) => (state.activeCutscene ? { activeCutscene: null } : state)),
       finishMinigame: (result) =>
         set((state) => {
           const active = state.activeInteraction;
@@ -316,6 +395,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           collected: [],
           revisited: [],
           activeInteraction: null,
+          activeCutscene: null,
           uiLocks: [],
           characterSheetOpen: false,
           contactOpen: false,
@@ -343,10 +423,21 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
 
 export const selectCollected = (state: MemoryRoomState) => state.collected;
 export const selectActiveInteraction = (state: MemoryRoomState) => state.activeInteraction;
+export const selectActiveCutscene = (state: MemoryRoomState) => state.activeCutscene;
 export const selectGamePhase = (state: MemoryRoomState) => gamePhaseOf(state);
 export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
 export const selectSceneInputLocked = (state: MemoryRoomState) =>
-  state.activeInteraction !== null || state.uiLocks.length > 0;
+  state.activeInteraction !== null || state.activeCutscene !== null || state.uiLocks.length > 0;
+
+/**
+ * 라디오가 저 혼자 살아나 있는가.
+ *
+ * 재난방송이 끊기면서 라디오는 확실히 죽는다. 2바퀴의 문은 도해가 다시 만지는 게
+ * 아니라 라디오가 먼저 말을 거는 것이라, 컷씬이 끝난 자리에서 저절로 지직거린다.
+ * 목소리를 잡고 나면(revisited) 더는 깜빡이지 않는다 — 할 말을 이미 했으니까.
+ */
+export const selectRadioSignaling = (state: MemoryRoomState) =>
+  gamePhaseOf(state) === 2 && !state.revisited.includes("radio") && state.activeCutscene === null;
 
 /**
  * BGM이 뒤로 물러나야 하는 정도를 정하는 축. 미니게임은 효과음이, 대사는 글이
@@ -359,6 +450,13 @@ export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogu
   if (state.activeInteraction !== null || state.uiLocks.length > 0) return "dialogue";
   return "room";
 };
+
+/**
+ * 곡이 흐르고 있어야 하는가. 컷씬은 방송이 끊긴 정적 위에 서는 장면이라 곡도 같이
+ * 멎는다 — 여기서 BGM이 계속 흐르면 "뚝 끊김"이 소리로 전달되지 않는다.
+ */
+export const selectMusicPlaying = (state: MemoryRoomState) =>
+  state.started && !state.endingStarted && state.activeCutscene === null;
 
 /** 2바퀴 재조사 대상 수. 밝기 상승 구간의 분모다. */
 export const REVISIT_TOTAL = MEMORIES.filter((memory) => memory.phase2).length;

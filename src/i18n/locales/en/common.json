@@ -182,6 +182,13 @@
         "woojin": "Woojin",
         "taeo": "Taeo"
       }
+    },
+    "photoPuzzle": {
+      "title": "Piece It Together",
+      "help": "Slide the pieces with the arrow keys to rebuild the photo",
+      "help_touch": "Tap a piece to slide it into the gap and rebuild the photo",
+      "moves": "Moves",
+      "tile": "Piece {{value}}"
     }
   },
   "characterSheet": {
@@ -212,5 +219,8 @@
     "line": "He opens the door and steps outside.",
     "note": "The ending film goes here. Its last shot picks up exactly where you left off — bat in hand, door swinging open.",
     "again": "Start again"
+  },
+  "cutscene": {
+    "skip": "Skip"
   }
 }

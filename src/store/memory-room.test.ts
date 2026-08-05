@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { MEMORIES } from "@/data/memory-room";
+import { CUTSCENE_RADIO_BLACKOUT, CUTSCENES, MEMORIES } from "@/data/memory-room";
 import {
   hotspotStatus,
   selectEndingReady,
+  selectMusicPlaying,
+  selectRadioSignaling,
   selectSceneInputLocked,
   useMemoryRoomStore,
 } from "./memory-room";
@@ -191,5 +193,163 @@ describe("ending trigger", () => {
 
     expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
     expect(selectEndingReady(useMemoryRoomStore.getState())).toBe(false);
+  });
+});
+
+describe("1바퀴 마지막 관문 — 라디오", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  /** 라디오를 뺀 나머지를 다 조사한 상태. */
+  function collectAllButRadio() {
+    useMemoryRoomStore.setState({
+      collected: MEMORIES.map((memory) => memory.id).filter((id) => id !== "radio"),
+    });
+  }
+
+  it("나머지를 다 조사하기 전에는 라디오를 만질 수 없다", () => {
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "radio")).toBe("locked");
+
+    useMemoryRoomStore.getState().beginInteraction("radio");
+
+    expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
+  });
+
+  it("나머지 6개를 마치면 라디오가 열린다", () => {
+    collectAllButRadio();
+
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "radio")).toBe("available");
+  });
+
+  it("진입 대사 → 튜닝 → 재난방송 순으로 흐른다", () => {
+    collectAllButRadio();
+    useMemoryRoomStore.getState().beginInteraction("radio");
+
+    expect(useMemoryRoomStore.getState().activeInteraction?.scriptId).toBe("radio-intro");
+    useMemoryRoomStore.getState().advanceDialogue();
+    useMemoryRoomStore.getState().advanceDialogue();
+    expect(useMemoryRoomStore.getState().activeInteraction?.phase).toBe("minigame");
+
+    useMemoryRoomStore.getState().finishMinigame({ cleared: true });
+
+    const active = useMemoryRoomStore.getState().activeInteraction;
+    expect(active?.scriptId).toBe("radio-broadcast");
+    expect(active?.keepMinigame).toBe(true);
+  });
+});
+
+describe("전환 컷씬", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  /** 재난방송이 끝나 1바퀴를 완주한 직후 상태로 밀어넣는다. */
+  function finishFirstRound() {
+    useMemoryRoomStore.setState({
+      collected: MEMORIES.map((memory) => memory.id).filter((id) => id !== "radio"),
+    });
+    useMemoryRoomStore.getState().beginInteraction("radio");
+    for (let step = 0; step < 32; step += 1) {
+      const active = useMemoryRoomStore.getState().activeInteraction;
+      if (!active) return;
+      if (active.phase === "minigame")
+        useMemoryRoomStore.getState().finishMinigame({ cleared: true });
+      else useMemoryRoomStore.getState().advanceDialogue();
+    }
+    throw new Error("라디오 인터랙션이 끝나지 않는다");
+  }
+
+  it("1바퀴를 완주하면 컷씬이 열린다", () => {
+    finishFirstRound();
+
+    const cutscene = useMemoryRoomStore.getState().activeCutscene;
+    expect(cutscene?.id).toBe(CUTSCENE_RADIO_BLACKOUT);
+    // 첫 컷보다 라디오가 꺼지는 도입이 먼저다
+    expect(cutscene?.intro).toBe(true);
+  });
+
+  it("컷씬이 떠 있는 동안에는 다른 조사를 시작할 수 없다", () => {
+    finishFirstRound();
+
+    expect(selectSceneInputLocked(useMemoryRoomStore.getState())).toBe(true);
+    useMemoryRoomStore.getState().beginInteraction("radio");
+    expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
+  });
+
+  it("도입 → 컷 → 정적 → 마지막 컷을 지나면 닫힌다", () => {
+    finishFirstRound();
+    const cuts = CUTSCENES[CUTSCENE_RADIO_BLACKOUT].cuts;
+    const steps: string[] = [];
+
+    for (let step = 0; step < 64; step += 1) {
+      const active = useMemoryRoomStore.getState().activeCutscene;
+      if (!active) break;
+      steps.push(
+        active.intro ? "intro" : active.holding ? "hold" : `${active.cutIndex}:${active.lineIndex}`,
+      );
+      useMemoryRoomStore.getState().advanceCutscene();
+    }
+
+    const expected = [
+      "intro",
+      ...cuts.flatMap((cut, cutIndex) => [
+        ...cut.lines.map((_line, lineIndex) => `${cutIndex}:${lineIndex}`),
+        ...(cut.holdMs ? ["hold"] : []),
+      ]),
+    ];
+    expect(steps).toEqual(expected);
+    expect(useMemoryRoomStore.getState().activeCutscene).toBeNull();
+  });
+
+  it("컷씬이 끝나면 라디오가 저 혼자 지직거린다", () => {
+    finishFirstRound();
+    expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(false);
+
+    useMemoryRoomStore.getState().endCutscene();
+
+    expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(true);
+    // 목소리를 잡고 나면 더는 부르지 않는다
+    useMemoryRoomStore.setState({ revisited: ["radio"] });
+    expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(false);
+  });
+
+  it("컷씬 중에는 BGM이 멎는다", () => {
+    useMemoryRoomStore.getState().startGame();
+    finishFirstRound();
+
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().endCutscene();
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
+  });
+});
+
+describe("2바퀴 — 라디오가 유일한 관문", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  function startSecondRound() {
+    useMemoryRoomStore.setState({ collected: MEMORIES.map((memory) => memory.id) });
+  }
+
+  it("라디오만 열려 있고 나머지 재조사는 잠겨 있다", () => {
+    startSecondRound();
+    const state = useMemoryRoomStore.getState();
+
+    expect(hotspotStatus(state, "radio")).toBe("available");
+    for (const id of ["ball", "console", "frame"] as const) {
+      expect(hotspotStatus(state, id)).toBe("locked");
+    }
+  });
+
+  it("라디오 목소리를 잡으면 나머지가 재점등된다", () => {
+    startSecondRound();
+    useMemoryRoomStore.setState({ revisited: ["radio"] });
+    const state = useMemoryRoomStore.getState();
+
+    for (const id of ["ball", "console", "frame"] as const) {
+      expect(hotspotStatus(state, id)).toBe("available");
+    }
+  });
+
+  it("2차 조사 대상은 라디오와 재점등 3종뿐이다", () => {
+    const revisitable = MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id);
+
+    expect(revisitable.sort()).toEqual(["ball", "frame", "console", "radio"]);
   });
 });

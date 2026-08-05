@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   BAND_WIDTH_MAX,
   BAND_WIDTH_MIN,
+  bandBonusFor,
   bandWidthAt,
   GOAL_HITS,
+  goalHitsFor,
   NEEDLE_PERIOD_MAX_MS,
   NEEDLE_PERIOD_MIN_MS,
   needlePeriodAt,
@@ -67,5 +69,26 @@ describe("staticLevel", () => {
     const wide = staticLevel(30, 50 - BAND_WIDTH_MAX / 2, BAND_WIDTH_MAX);
     const narrow = staticLevel(30, 50 - BAND_WIDTH_MIN / 2, BAND_WIDTH_MIN);
     expect(narrow).toBeGreaterThan(wide);
+  });
+});
+
+describe("2바퀴의 다이얼", () => {
+  it("판 수가 줄어든다 — 저쪽에서 이미 부르고 있으니까", () => {
+    expect(goalHitsFor(2)).toBeLessThan(goalHitsFor(1));
+    expect(goalHitsFor(1)).toBe(GOAL_HITS);
+  });
+
+  it("대역이 한 뼘 넓어진다", () => {
+    expect(bandWidthAt(0, bandBonusFor(2))).toBeGreaterThan(bandWidthAt(0, bandBonusFor(1)));
+  });
+
+  it("마지막 판까지도 눈으로 조준할 수 있는 폭을 유지한다", () => {
+    for (let hits = 0; hits < goalHitsFor(2); hits += 1) {
+      expect(bandWidthAt(hits, bandBonusFor(2))).toBeGreaterThanOrEqual(BAND_WIDTH_MIN);
+    }
+  });
+
+  it("1바퀴 폭은 예전 그대로다 — 보정 없이 부르면 값이 안 바뀐다", () => {
+    expect(bandWidthAt(0)).toBe(BAND_WIDTH_MAX);
   });
 });

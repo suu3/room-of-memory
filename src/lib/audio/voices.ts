@@ -25,6 +25,8 @@ export type VoiceId =
   | "hurt"
   | "guard"
   | "radioLock"
+  | "radioCut"
+  | "radioWake"
   | "phoneBeep"
   | "pencilStroke"
   // 방 안의 곁가지 인터랙션 (서랍·의자)
@@ -182,6 +184,23 @@ export const VOICES: Record<VoiceId, Voice> = {
       { from: D4, to: A4, waveform: "sine", delay: 0, duration: 0.14, gain: 0.24 },
       { from: A4, waveform: "sine", delay: 0.12, duration: 0.22, gain: 0.18 },
     ],
+  },
+  /**
+   * 방송이 끊기는 순간. 지직 한 번(노이즈)에 전원이 빠지는 하강음을 붙이고
+   * 0.3초 안에 전부 끝낸다 — 여운을 남기면 "뚝"이 아니라 "서서히"가 된다.
+   * 뒤에 올 정적이 이 소리의 진짜 내용이다.
+   */
+  radioCut: {
+    tones: [{ from: 240, to: 60, waveform: "sawtooth", delay: 0.04, duration: 0.16, gain: 0.2 }],
+    noise: { delay: 0, duration: 0.14, gain: 0.3, highpass: 900, lowpass: 6000 },
+  },
+  /**
+   * 꺼져 있던 라디오가 저 혼자 깨어나는 소리. 끊길 때의 하강음을 뒤집어 올리되
+   * 훨씬 작게 — 도해를 놀래키는 소리가 아니라 방 건너에서 겨우 들리는 기척이다.
+   */
+  radioWake: {
+    tones: [{ from: 90, to: 210, waveform: "sawtooth", delay: 0.02, duration: 0.12, gain: 0.08 }],
+    noise: { delay: 0, duration: 0.22, gain: 0.16, highpass: 1400, lowpass: 5200, attack: 0.04 },
   },
   /**
    * 옛날 폰 문자 알림. 그 시절 알림음은 대개 사각파 두 방이었고, 지금 귀에 거슬리는

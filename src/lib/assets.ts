@@ -47,6 +47,14 @@ export const ASSETS = {
     mgPhotoWipePhase1: "/assets/images/mg-photo-wipe-phase-1.webp",
     /** 액자 사진 2차 — 가족 얼굴이 드러난 버전. Phase 2에서 닦아내면 나온다. */
     mgPhotoWipePhase2: "/assets/images/mg-photo-wipe-phase-2.webp",
+    /*
+     * 전환 컷씬 일러스트 3컷. 게임을 통틀어 그림이 화면을 통째로 차지하는 유일한
+     * 자리라, 파일이 아직 없어도 컷씬은 돌아간다 — 없으면 회색 판이 대신 서고
+     * 대사만 흐른다 (src/components/ui/Cutscene.tsx).
+     */
+    cutsceneRadioRoom: "/assets/images/cutscene-radio-room.webp",
+    cutsceneRadioHands: "/assets/images/cutscene-radio-hands.webp",
+    cutsceneRadioSignal: "/assets/images/cutscene-radio-signal.webp",
     /** 대사창 초상. 세 장 모두 같은 크롭이라 겹쳐서 opacity만 토글하면 정렬이 맞는다. */
     characterHeroNeutral: "/assets/images/character-hero-neutral.webp",
     characterHeroSmile: "/assets/images/character-hero-smile.webp",

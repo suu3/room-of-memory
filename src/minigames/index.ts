@@ -23,6 +23,15 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.photoWipe.title",
     helpKey: "minigame.photoWipe.help",
   },
+  "photo-puzzle": {
+    id: "photo-puzzle",
+    mode: "overlay",
+    component: lazy(() =>
+      import("./photo-puzzle").then((m) => ({ default: m.PhotoPuzzleMinigame })),
+    ),
+    titleKey: "minigame.photoPuzzle.title",
+    helpKey: "minigame.photoPuzzle.help",
+  },
   "calendar-flip": {
     id: "calendar-flip",
     mode: "overlay",

@@ -9,8 +9,9 @@ import { type NoiseBed, playSound, startNoiseBed } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 import {
+  bandBonusFor,
   bandWidthAt,
-  GOAL_HITS,
+  goalHitsFor,
   MAX_MISSES,
   needlePeriodAt,
   randomBandLeft,
@@ -55,13 +56,16 @@ function freqAt(position: number): string {
  * 좌우로 흔들리는 바늘이 목표 대역을 지나는 순간 Space — 5회 맞추면 클리어.
  * 맞출수록 대역이 좁아지고 바늘이 빨라진다 (./difficulty.ts).
  */
-export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
+export function FrequencyTuneMinigame({ onComplete, gamePhase = 1 }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
+  // 2바퀴는 판이 짧고 대역이 넓다 — 이유는 ./difficulty.ts 참고
+  const goalHits = goalHitsFor(gamePhase);
+  const bandBonus = bandBonusFor(gamePhase);
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
-  const [bandLeft, setBandLeft] = useState(() => randomBandLeft(bandWidthAt(0)));
+  const [bandLeft, setBandLeft] = useState(() => randomBandLeft(bandWidthAt(0, bandBonus)));
   const [flash, setFlash] = useState<"hit" | "miss" | null>(null);
   const needleRef = useRef<HTMLDivElement>(null);
   const pointerRef = useRef<HTMLDivElement>(null);
@@ -103,7 +107,7 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
   }, []);
 
   /** 이번 판의 목표 대역 폭 — 명중할수록 좁아진다. */
-  const bandWidth = bandWidthAt(hits);
+  const bandWidth = bandWidthAt(hits, bandBonus);
 
   // 대역과 속도는 명중할 때마다 바뀐다. rAF 루프는 한 번만 도므로 최신 값을 ref로 받는다.
   const bandLeftRef = useRef(bandLeft);
@@ -148,8 +152,8 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
       const next = hits + 1;
       setHits(next);
       // 다음 대역은 좁아진 폭 기준으로 놓는다 — 넓은 폭으로 뽑으면 다이얼 끝에 걸린다.
-      setBandLeft(randomBandLeft(bandWidthAt(next)));
-      if (next >= GOAL_HITS) complete({ cleared: true, score: next });
+      setBandLeft(randomBandLeft(bandWidthAt(next, bandBonus)));
+      if (next >= goalHits) complete({ cleared: true, score: next });
       return;
     }
     const next = misses + 1;
@@ -179,7 +183,7 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
       help={hint("minigame.frequencyTune.help")}
       stats={
         <>
-          <MinigameStat label={t("minigame.labelSuccess")} value={`${hits} / ${GOAL_HITS}`} />
+          <MinigameStat label={t("minigame.labelSuccess")} value={`${hits} / ${goalHits}`} />
           <MinigameStat
             label={t("minigame.labelMiss")}
             value={`${misses} / ${MAX_MISSES}`}
@@ -247,7 +251,7 @@ export function FrequencyTuneMinigame({ onComplete }: MinigameProps) {
               </span>
             </span>
             <span className="flex items-center gap-[1cqw]">
-              {Array.from({ length: GOAL_HITS }, (_, i) => (
+              {Array.from({ length: goalHits }, (_, i) => (
                 <span
                   // biome-ignore lint/suspicious/noArrayIndexKey: 고정 길이 진행 표시
                   key={i}

@@ -15,18 +15,21 @@ import {
   type Group,
   type Material,
   type Mesh,
+  type MeshStandardMaterial,
+  type PointLight,
   TubeGeometry,
   Vector3,
 } from "three";
 import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { ASSETS } from "@/lib/assets";
-import { hotspotStatus, useMemoryRoomStore } from "@/store/memory-room";
+import { hotspotStatus, selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
 import { MEMORY_PLACEMENTS } from "./layout";
 import { MemoryBeacon } from "./MemoryBeacon";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
 import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-motion";
 import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
+import { radioSignalLevel } from "./radio-signal";
 import type { Vec3Tuple } from "./types";
 import { useCoverTexture } from "./use-cover-texture";
 import { useGlowHover } from "./use-glow-hover";
@@ -439,6 +442,49 @@ function RadioMemory({ palette, opacity }: VisualProps) {
   );
 }
 
+/** 신호등이 앉는 자리 — 라디오 표시창 언저리. 모델과 프리미티브 어느 쪽에도 맞는다. */
+const RADIO_SIGNAL_POSITION: Vec3Tuple = [0, 0.34, 0.22];
+/** 깜빡임이 방으로 새어 나가는 정도. 방 조명(1.15~5.6)에 비해 아주 작다. */
+const RADIO_SIGNAL_LIGHT = 1.6;
+
+/**
+ * 재난방송이 끊긴 뒤, 도해가 만지지도 않았는데 저 혼자 지직거리는 라디오.
+ *
+ * 2바퀴의 문은 "다시 조사해 보자"가 아니라 "라디오가 먼저 말을 건다"로 열린다.
+ * 그래서 이 깜빡임은 조사 가능 표식(금빛 외곽선·비컨)과 별개다 — 표식은 플레이어에게
+ * 거는 말이고, 이건 방 안에서 실제로 일어나는 일이다.
+ */
+function RadioSignal({ palette }: { palette: RoomPalette }) {
+  const signaling = useMemoryRoomStore(selectRadioSignaling);
+  const materialRef = useRef<MeshStandardMaterial>(null);
+  const lightRef = useRef<PointLight>(null);
+
+  // setState 없이 매 프레임 값만 민다 (.claude/rules/r3f.md)
+  useFrame((state) => {
+    const level = radioSignalLevel(state.clock.elapsedTime);
+    if (materialRef.current) materialRef.current.emissiveIntensity = level * 2.2;
+    if (lightRef.current) lightRef.current.intensity = level * RADIO_SIGNAL_LIGHT;
+  });
+
+  if (!signaling) return null;
+
+  return (
+    <group position={RADIO_SIGNAL_POSITION}>
+      <mesh>
+        <planeGeometry args={[0.16, 0.05]} />
+        <meshStandardMaterial
+          ref={materialRef}
+          color={palette.ember}
+          emissive={palette.ember}
+          emissiveIntensity={0}
+          toneMapped={false}
+        />
+      </mesh>
+      <pointLight ref={lightRef} color={palette.ember} intensity={0} distance={1.8} decay={2} />
+    </group>
+  );
+}
+
 function PhoneMemory({ palette, opacity }: VisualProps) {
   return (
     <group rotation={[-0.18, 0, 0]}>
@@ -532,7 +578,22 @@ function MemoryVisual({
 }: VisualProps & { id: MemoryId; onModelReady: () => void }) {
   const fallback = <PrimitiveVisual id={id} palette={palette} opacity={opacity} />;
   const modelPath = MODEL_PATHS[id as keyof typeof MODEL_PATHS];
-  if (!modelPath) return fallback;
+  /* 모델 위에 코드로 덧입히는 것들 — glb가 아직 안 왔어도 fallback 위에 그대로 얹힌다. */
+  const overlays = (
+    <>
+      {/* glb에 실밥이 빠져 있어 코드로 덧입힌다. */}
+      {id === "ball" ? <BallSeam palette={palette} opacity={opacity} /> : null}
+      {id === "radio" ? <RadioSignal palette={palette} /> : null}
+    </>
+  );
+  if (!modelPath) {
+    return (
+      <>
+        {fallback}
+        {overlays}
+      </>
+    );
+  }
 
   return (
     <>
@@ -542,8 +603,7 @@ function MemoryVisual({
         opacity={opacity}
         onReady={onModelReady}
       />
-      {/* glb에 실밥이 빠져 있어 코드로 덧입힌다. 로딩 중 fallback 구에도 그대로 얹힌다. */}
-      {id === "ball" ? <BallSeam palette={palette} opacity={opacity} /> : null}
+      {overlays}
     </>
   );
 }

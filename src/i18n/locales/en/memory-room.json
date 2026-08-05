@@ -20,6 +20,12 @@
           "value": "Bounces a ball off the wall while thinking · Keeps a fixed pre-game routine"
         }
       ]
+    },
+    "broadcast": {
+      "name": "Emergency Broadcast"
+    },
+    "signal": {
+      "name": "? ? ?"
     }
   },
   "memories": {
@@ -60,9 +66,6 @@
     }
   },
   "scripts": {
-    "radio-echo": {
-      "line1": "Phase 2 dialogue placeholder goes here (radio)"
-    },
     "ball-intro": {
       "line1": "That game that day... it was incredible.",
       "line2": "I feel like I'm forgetting how a swing feels…"
@@ -77,12 +80,36 @@
     },
     "console-echo": {
       "line1": "When I get out, we're playing a round."
+    },
+    "radio-intro": {
+      "line1": "The radio is the only thing left.",
+      "line2": "…It only ever picks up noise anyway."
+    },
+    "radio-broadcast": {
+      "line1": "…This is an emergency broadcast. All citizens must take shelter indoors immediately.",
+      "line2": "The infection has spread past the capital region into the entire south.",
+      "line3": "It has reached Busan. The areas still under control are—",
+      "line4": "Kssh… kkt—"
+    },
+    "radio-voice-intro": {
+      "line1": "…You went dead. I watched you go dead."
+    },
+    "radio-voice": {
+      "line1": "Hey, is anyone there?",
+      "line2": "…If you're out there, say something.",
+      "line3": "That's a person. That's a real voice.",
+      "line4": "Nothing happens if I keep sitting here."
+    },
+    "ball-echo": {
+      "line1": "Maybe I can stop throwing it alone.",
+      "line2": "When I find someone to catch it, we'll throw again."
     }
   },
   "lore": {
     "ball": {
       "title": "Catch, Alone",
-      "phase1": "Throw it at the wall and it comes back. That is all. I keep forgetting there is no one to catch it."
+      "phase1": "Throw it at the wall and it comes back. That is all. I keep forgetting there is no one to catch it.",
+      "phase2": "If someone out there can catch it, this ball still has a use."
     },
     "calendar": {
       "title": "October 19",
@@ -98,7 +125,8 @@
     },
     "frame": {
       "title": "My Parents",
-      "phase1": "Dust on the glass hides their faces. Even wiped clean, only my parents stay blurred."
+      "phase1": "Dust on the glass hides their faces. Even wiped clean, only my parents stay blurred.",
+      "phase2": "I put the pieces back and the faces returned. We just haven't met yet."
     },
     "radio": {
       "title": "That Broadcast",
@@ -109,6 +137,14 @@
       "title": "Not fun anymore",
       "phase1": "Alone, winning and losing feel the same.",
       "phase2": "Maybe it gets fun again with two."
+    }
+  },
+  "cutscenes": {
+    "radio-blackout": {
+      "cut1": "…So that's all of it.",
+      "cut2": "……",
+      "cut3": "…Hey. Is somebody there?",
+      "cut3Reply": "Huh? Who is that?"
     }
   }
 }

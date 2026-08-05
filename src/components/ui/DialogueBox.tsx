@@ -4,30 +4,57 @@ import { CaretDown } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { SCRIPTS } from "@/data/memory-room";
+import { CUTSCENES, SCRIPTS } from "@/data/memory-room";
 import { useTypewriterState } from "@/lib/use-typewriter";
-import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
+import {
+  selectActiveCutscene,
+  selectActiveInteraction,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { CharacterPortrait } from "./CharacterPortrait";
+import { hasPortrait } from "./character-portrait";
 
-/** 대사창은 인터랙션 대사가 재생 중일 때만 뜬다 — 평상시 화면에는 없다. */
+/**
+ * 대사창은 대사가 재생 중일 때만 뜬다 — 평상시 화면에는 없다.
+ *
+ * 대사가 들어오는 문은 둘이다: 오브젝트 인터랙션과 전환 컷씬. 컷씬이 자기 창을
+ * 따로 갖지 않는 건 기획의 요구다("텍스트는 전부 기존 대사창") — 일러스트에
+ * 말풍선을 얹지 않으려면 글은 늘 같은 자리에 있어야 한다.
+ */
 export function DialogueBox() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
   const active = useMemoryRoomStore(selectActiveInteraction);
+  const cutscene = useMemoryRoomStore(selectActiveCutscene);
   const advanceDialogue = useMemoryRoomStore((state) => state.advanceDialogue);
+  const advanceCutscene = useMemoryRoomStore((state) => state.advanceCutscene);
+
+  // 도입(라디오가 꺼지는 비트)과 정적 구간에는 창이 뜨지 않는다 — 침묵도 연출이다
+  const cutsceneLine =
+    cutscene && !cutscene.intro && !cutscene.holding
+      ? CUTSCENES[cutscene.id]?.cuts[cutscene.cutIndex]?.lines[cutscene.lineIndex]
+      : undefined;
 
   // 인트로 대사와 미니게임 결과 대사가 같은 창을 쓴다 — 어느 쪽인지는 스토어가 들고 있다
   const script =
     active?.phase === "dialogue" && active.scriptId ? SCRIPTS[active.scriptId] : undefined;
-  const scriptLine = active ? script?.lines[active.lineIndex] : undefined;
+  const interactionLine = active ? script?.lines[active.lineIndex] : undefined;
+
+  // 컷씬은 인터랙션이 닫힌 뒤에 열리므로 둘이 겹치지 않는다. 겹쳐도 컷씬이 이긴다.
+  const scriptLine = cutsceneLine ?? interactionLine;
   // 훅은 조건부로 호출할 수 없으므로 대사가 없을 때도 빈 문자열로 돌린다
   const text = scriptLine ? tRoom(scriptLine.textKey) : "";
   const { typed, done, skip } = useTypewriterState(text);
-  const open = active?.phase === "dialogue" && scriptLine !== undefined;
+  const open = scriptLine !== undefined;
+  const advanceLine = cutsceneLine ? advanceCutscene : advanceDialogue;
+  /** 줄이 바뀔 때마다 본문을 다시 마운트시키는 키 — 어느 문에서 온 대사든 하나로. */
+  const lineKey = cutsceneLine
+    ? `${cutscene?.id}-${cutscene?.cutIndex}-${cutscene?.lineIndex}`
+    : `${active?.memoryId}-${active?.lineIndex}`;
 
   /** 지금 Enter가 해야 할 일. 타자 연출 중이면 먼저 다 채우고, 다 찼으면 다음 줄로. */
   const advanceRef = useRef(() => {});
-  advanceRef.current = done ? advanceDialogue : skip;
+  advanceRef.current = done ? advanceLine : skip;
 
   /*
    * 화면 아무 데나 클릭하는 것 말고 Enter로도 넘어간다.
@@ -49,7 +76,7 @@ export function DialogueBox() {
     return () => window.removeEventListener("keydown", onKey, true);
   }, [open]);
 
-  if (!open || active?.phase !== "dialogue" || !scriptLine) return null;
+  if (!open || !scriptLine) return null;
 
   const speakerName = tRoom(`characters.${scriptLine.speaker}.name` as ParseKeys<"memoryRoom">);
 
@@ -63,7 +90,7 @@ export function DialogueBox() {
       <button
         type="button"
         // 타자 연출 중 클릭은 대사를 건너뛰지 않고 먼저 다 채운다 (VN 관례)
-        onClick={done ? advanceDialogue : skip}
+        onClick={done ? advanceLine : skip}
         aria-label={done ? t("dialogue.advance") : t("dialogue.skipTyping")}
         className="absolute inset-0 cursor-pointer"
       />
@@ -71,7 +98,10 @@ export function DialogueBox() {
       {/* 창 자체는 보여주기만 한다 — 클릭은 뒤의 전체 화면 버튼이 받는다 */}
       <div className="pointer-events-none absolute bottom-8 left-1/2 w-full max-w-4xl -translate-x-1/2 animate-fade-rise px-4">
         <div className="relative">
-          <CharacterPortrait expression={scriptLine.expression ?? "neutral"} talking={!done} />
+          {/* 얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다 */}
+          {hasPortrait(scriptLine.speaker) && (
+            <CharacterPortrait expression={scriptLine.expression ?? "neutral"} talking={!done} />
+          )}
           {/* 좁은 화면에서는 여백을 줄여 본문 폭을 확보한다 — 한 줄에 담기는 어절이 늘어난다 */}
           <div className="relative rounded-xl border border-bone bg-paper px-5 pb-5 pt-4 text-left shadow-overlay sm:px-8 sm:pb-6 sm:pt-5">
             {/* 화자 이름은 패널 안 라벨로 — 초상이 있어 별도 칩이나 소개 문구는 군더더기다 */}
@@ -80,7 +110,7 @@ export function DialogueBox() {
               <span aria-hidden className="h-px flex-1 bg-ink/12" />
             </div>
             <p
-              key={`${active.memoryId}-${active.lineIndex}`}
+              key={lineKey}
               className="mt-4 min-h-20 break-ko text-pretty text-base leading-dialogue text-ink sm:text-lg"
             >
               {typed}

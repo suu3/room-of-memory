@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { ASSETS } from "@/lib/assets";
-import { useMemoryRoomStore } from "@/store/memory-room";
+import { selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
 import { disposeAudio as disposeEngine, playSound, setAudioMuted, unlockAudio } from "./engine";
 import { disposeMusic, setMusicDuck, setMusicLevel, startMusic, stopMusic } from "./music";
 
@@ -45,6 +45,14 @@ export function useAudioRuntime() {
     () =>
       useMemoryRoomStore.subscribe((state, previous) => {
         if (state.collected.length > previous.collected.length) playSound("collect");
+        /*
+         * 컷씬이 끝나고 방으로 돌아온 순간, 꺼져 있던 라디오가 저 혼자 깨어난다.
+         * 도해가 무언가를 한 결과가 아니라 방에서 일어난 일이라, 소리도 클릭이
+         * 아니라 상태 변화에 붙는다.
+         */
+        if (selectRadioSignaling(state) && !selectRadioSignaling(previous)) {
+          playSound("radioWake");
+        }
       }),
     [],
   );

@@ -17,11 +17,13 @@ import {
   selectCollected,
   selectEndingReady,
   selectMusicForeground,
+  selectMusicPlaying,
   selectRevisitedCount,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { CharacterSheetModal } from "./CharacterSheetModal";
 import { ContactModal } from "./ContactModal";
+import { Cutscene } from "./Cutscene";
 import { DialogueBox } from "./DialogueBox";
 import { EndingScreen } from "./EndingScreen";
 import { HudMenu } from "./HudMenu";
@@ -72,8 +74,10 @@ export function MemoryRoom() {
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
   // 불을 끄면 곡도 같이 물러난다 — 밝기와 음색을 한 축으로 묶어 둔 이득이다
   const heardLevel = lampScaled(lightLevel, lightsOn);
+  // 컷씬은 방송이 끊긴 정적 위에 서는 장면이라 곡도 같이 멎는다 (selectMusicPlaying)
+  const musicPlaying = useMemoryRoomStore(selectMusicPlaying);
   useRoomMusic({
-    playing: started && !endingStarted,
+    playing: musicPlaying,
     level: heardLevel,
     foreground: musicForeground,
   });
@@ -165,6 +169,8 @@ export function MemoryRoom() {
           {/* 혼잣말 — key로 단계가 바뀔 때마다 다시 마운트해 처음부터 찍는다 */}
           <Monologue key={stage.id} stageId={stage.id} />
 
+          {/* 전환 컷씬 — 대사창(z-50)보다 아래에 깔려 그림 위로 글이 얹힌다 */}
+          <Cutscene />
           <DialogueBox />
           <MemoryPanel />
           <CharacterSheetModal />

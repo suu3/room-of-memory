@@ -37,6 +37,30 @@ export interface MemoryInteraction {
 }
 
 /**
+ * 컷씬 한 컷 — 일러스트 한 장과 그 위로 흐르는 대사.
+ *
+ * 대사는 컷씬 전용 창을 새로 만들지 않고 기존 대사창(DialogueBox)이 그대로 받는다.
+ * 그림 안에 말풍선을 넣지 않는 것이 이 연출의 규칙이라, 그림과 글의 레이어가
+ * 갈라져 있어야 한다.
+ */
+export interface CutsceneCut {
+  /** 일러스트 경로(ASSETS.images.*). 파일이 아직 없으면 회색 판이 대신 선다. */
+  image: string;
+  lines: DialogueScriptLine[];
+  /**
+   * 대사가 끝난 뒤 대사창 없이 그림만 남기는 시간(ms).
+   * "정적 몇 초"가 연출의 일부인 컷에만 준다 — 없으면 곧장 다음 컷으로 넘어간다.
+   */
+  holdMs?: number;
+}
+
+/** 컷씬 하나. CUTSCENES 레지스트리(src/data)에 id로 등록. */
+export interface Cutscene {
+  id: string;
+  cuts: CutsceneCut[];
+}
+
+/**
  * 페이즈별 핫스팟 설정. 페이즈 규칙이 늘어나면 여기에 필드를 더한다.
  * MemoryId는 type-only import라 data ↔ types 순환이 런타임에 존재하지 않는다.
  */

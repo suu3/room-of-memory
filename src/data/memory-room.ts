@@ -8,7 +8,8 @@ import {
   Radio,
 } from "@phosphor-icons/react";
 import type { MemoryIcon } from "@/components/ui/icons";
-import type { DialogueScript, MemoryPhaseConfig } from "@/types/interaction";
+import { ASSETS } from "@/lib/assets";
+import type { Cutscene, DialogueScript, MemoryPhaseConfig } from "@/types/interaction";
 
 /**
  * 수집 대상. 배트는 여기 없다 — 문 옆의 배트는 모으는 물건이 아니라 2바퀴를 다
@@ -35,12 +36,24 @@ export interface MemoryItem {
   phase2?: MemoryPhaseConfig;
 }
 
+/**
+ * 라디오는 1바퀴의 마지막 관문이다 — 나머지를 다 조사해야 열린다.
+ *
+ * 순서를 강제하는 이유는 반전이 한 번뿐이기 때문이다. 라디오를 먼저 들으면
+ * 재난방송이 세계관을 통째로 열어버려서, 남은 오브젝트의 "일상에 난 균열"이
+ * 전부 이미 아는 이야기의 각주로 떨어진다.
+ */
+const RADIO_PREREQUISITES = MEMORY_IDS.filter((id) => id !== "radio");
+
+/** 2바퀴는 라디오 목소리에서 시작한다 — 재점등된 나머지는 그 뒤에 열린다. */
+const AFTER_RADIO_VOICE: MemoryId[] = ["radio"];
+
 export const MEMORIES: MemoryItem[] = [
   {
     id: "console",
     icon: GameController,
     phase1: { interaction: { minigameId: "fighter-duel" } },
-    phase2: { interaction: { scriptId: "console-echo" } },
+    phase2: { interaction: { scriptId: "console-echo" }, unlockAfter: AFTER_RADIO_VOICE },
   },
   {
     id: "window",
@@ -52,14 +65,35 @@ export const MEMORIES: MemoryItem[] = [
     id: "frame",
     icon: ImageSquare,
     phase1: { interaction: { minigameId: "photo-wipe", resultScriptId: "frame-photo" } },
-    /** 2차 조사: 같은 액자를 다시 닦으면 그늘에 묻혔던 가족 얼굴이 드러난다. */
-    phase2: { interaction: { minigameId: "photo-wipe", resultScriptId: "frame-photo-echo" } },
+    /** 2차 조사: 흩어진 사진 조각을 맞추면 그늘에 묻혔던 가족 얼굴이 드러난다. */
+    phase2: {
+      interaction: { minigameId: "photo-puzzle", resultScriptId: "frame-photo-echo" },
+      unlockAfter: AFTER_RADIO_VOICE,
+    },
   },
   {
     id: "radio",
     icon: Radio,
-    phase1: { interaction: { minigameId: "frequency-tune" } },
-    phase2: { interaction: { scriptId: "radio-echo" }, unlockAfter: ["console"] },
+    /**
+     * 1차: 진입 대사 → 튜닝 → 재난방송(결과 대사). 방송이 끊기면 전환 컷씬이 뜬다
+     * (store의 complete가 CUTSCENE_RADIO_BLACKOUT을 연다).
+     */
+    phase1: {
+      interaction: {
+        scriptId: "radio-intro",
+        minigameId: "frequency-tune",
+        resultScriptId: "radio-broadcast",
+      },
+      unlockAfter: RADIO_PREREQUISITES,
+    },
+    /** 2차: 2바퀴에서 유일하게 손을 쓰는 조사. 같은 다이얼 끝에 이번엔 사람이 있다. */
+    phase2: {
+      interaction: {
+        scriptId: "radio-voice-intro",
+        minigameId: "frequency-tune",
+        resultScriptId: "radio-voice",
+      },
+    },
   },
   {
     id: "phone",
@@ -75,6 +109,7 @@ export const MEMORIES: MemoryItem[] = [
     id: "ball",
     icon: Baseball,
     phase1: { interaction: { scriptId: "ball-intro", minigameId: "ball-catch" } },
+    phase2: { interaction: { scriptId: "ball-echo" }, unlockAfter: AFTER_RADIO_VOICE },
   },
 ];
 
@@ -141,9 +176,41 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "console-echo",
     lines: [{ speaker: "hero", textKey: "scripts.console-echo.line1", expression: "smile" }],
   },
-  "radio-echo": {
-    id: "radio-echo",
-    lines: [{ speaker: "hero", textKey: "scripts.radio-echo.line1" }],
+  /** 1차 라디오 진입 — 마지막 남은 물건 앞에 선 한마디. */
+  "radio-intro": {
+    id: "radio-intro",
+    lines: [
+      { speaker: "hero", textKey: "scripts.radio-intro.line1" },
+      { speaker: "hero", textKey: "scripts.radio-intro.line2" },
+    ],
+  },
+  /**
+   * 재난방송. 화자가 도해가 아니라 라디오라 초상이 붙지 않는다 —
+   * 이 게임에서 도해 아닌 목소리가 대사창을 쓰는 첫 자리다.
+   */
+  "radio-broadcast": {
+    id: "radio-broadcast",
+    lines: [
+      { speaker: "broadcast", textKey: "scripts.radio-broadcast.line1" },
+      { speaker: "broadcast", textKey: "scripts.radio-broadcast.line2" },
+      { speaker: "broadcast", textKey: "scripts.radio-broadcast.line3" },
+      { speaker: "broadcast", textKey: "scripts.radio-broadcast.line4" },
+    ],
+  },
+  /** 2차 라디오 진입 — 저 혼자 지직거리는 라디오 앞에 다시 앉는다. */
+  "radio-voice-intro": {
+    id: "radio-voice-intro",
+    lines: [{ speaker: "hero", textKey: "scripts.radio-voice-intro.line1" }],
+  },
+  /** 2차 결과 — 컷씬에서 스쳤던 목소리가 이번엔 또렷하게 잡힌다. */
+  "radio-voice": {
+    id: "radio-voice",
+    lines: [
+      { speaker: "signal", textKey: "scripts.radio-voice.line1" },
+      { speaker: "signal", textKey: "scripts.radio-voice.line2" },
+      { speaker: "hero", textKey: "scripts.radio-voice.line3", expression: "surprised" },
+      { speaker: "hero", textKey: "scripts.radio-voice.line4" },
+    ],
   },
   /** 액자를 다 닦은 뒤의 결과 대사 (1차). */
   "frame-photo": {
@@ -166,6 +233,52 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.ball-intro.line1", expression: "surprised" },
       { speaker: "hero", textKey: "scripts.ball-intro.line2", expression: "smile" },
+    ],
+  },
+  /** 2차 조사: 벽에 혼자 던지던 공이 "같이 던질 사람"의 물건으로 돌아온다. */
+  "ball-echo": {
+    id: "ball-echo",
+    lines: [
+      { speaker: "hero", textKey: "scripts.ball-echo.line1" },
+      { speaker: "hero", textKey: "scripts.ball-echo.line2", expression: "smile" },
+    ],
+  },
+};
+
+/**
+ * 재난방송이 끊긴 자리에서 도는 전환 컷씬 — 게임 중 일러스트가 화면을 통째로
+ * 차지하는 유일한 자리다. 특별한 순간이라는 신호이므로 두 번 쓰지 않는다.
+ *
+ * 톤은 차가운 현재다. 따뜻한 과거 회상은 여기 없다 — 2바퀴에서 되찾을 온기를
+ * 미리 써버리면 상승 구간이 밋밋해진다.
+ */
+export const CUTSCENE_RADIO_BLACKOUT = "radio-blackout";
+
+export const CUTSCENES: Record<string, Cutscene> = {
+  [CUTSCENE_RADIO_BLACKOUT]: {
+    id: CUTSCENE_RADIO_BLACKOUT,
+    cuts: [
+      {
+        image: ASSETS.images.cutsceneRadioRoom,
+        lines: [{ speaker: "hero", textKey: "cutscenes.radio-blackout.cut1" }],
+      },
+      {
+        image: ASSETS.images.cutsceneRadioHands,
+        lines: [{ speaker: "hero", textKey: "cutscenes.radio-blackout.cut2" }],
+        /** 말이 끊긴 자리에 남는 정적. 다음 컷의 목소리가 여기서 이질적으로 들어온다. */
+        holdMs: 3200,
+      },
+      {
+        image: ASSETS.images.cutsceneRadioSignal,
+        lines: [
+          { speaker: "signal", textKey: "cutscenes.radio-blackout.cut3" },
+          {
+            speaker: "hero",
+            textKey: "cutscenes.radio-blackout.cut3Reply",
+            expression: "surprised",
+          },
+        ],
+      },
     ],
   },
 };

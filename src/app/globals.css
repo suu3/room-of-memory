@@ -64,6 +64,8 @@
    * 덮어써서 눌러지는 느낌이 사라진다. 주기는 start-pulse와 같은 2.4s.
    */
   --animate-start-glow: start-glow 2.4s ease-in-out infinite;
+  /* 끊기기 직전의 방송. 고르지 않은 박자로 흔들려야 신호가 죽어가는 것으로 읽힌다 */
+  --animate-signal-static: signal-static 0.24s steps(3, end) infinite;
 
   @keyframes hotspot-glow {
     0%,
@@ -240,6 +242,25 @@
     }
     70% {
       transform: translateX(var(--spacing));
+    }
+  }
+
+  @keyframes signal-static {
+    0% {
+      opacity: 0.5;
+      transform: translate3d(0, 0, 0);
+    }
+    33% {
+      opacity: 0.85;
+      transform: translate3d(-2%, 1%, 0);
+    }
+    66% {
+      opacity: 0.6;
+      transform: translate3d(2%, -1%, 0);
+    }
+    100% {
+      opacity: 0.9;
+      transform: translate3d(0, 0, 0);
     }
   }
 
@@ -472,5 +493,14 @@ body {
   .animate-start-glow {
     animation: none;
     opacity: 0.45;
+  }
+
+  /*
+   * 노이즈는 떨림을 멈추고 밀도만 남긴다. 완전히 지우지는 않는다 —
+   * 화면이 지직거리고 있다는 정보가 이 레이어에만 실려 있다.
+   */
+  .animate-signal-static {
+    animation: none;
+    opacity: 0.8;
   }
 }
