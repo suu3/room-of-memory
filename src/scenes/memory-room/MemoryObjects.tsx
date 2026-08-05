@@ -28,6 +28,7 @@ import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-m
 import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
+import { useCoverTexture } from "./use-cover-texture";
 import { useGlowHover } from "./use-glow-hover";
 import { shouldHighlightMemory } from "./visual-state";
 
@@ -278,6 +279,7 @@ const FRAME_BORDER = 0.045;
 const FRAME_DEPTH = 0.035;
 const FRAME_OPENING_WIDTH = FRAME_WIDTH - FRAME_BORDER * 2;
 const FRAME_OPENING_HEIGHT = FRAME_HEIGHT - FRAME_BORDER * 2;
+const FRAME_OPENING_ASPECT = FRAME_OPENING_WIDTH / FRAME_OPENING_HEIGHT;
 
 const FRAME_BARS = [
   {
@@ -298,7 +300,20 @@ const FRAME_BARS = [
   },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
+/**
+ * 캐비닛 위 액자. 닦기 미니게임을 열기 전에도 사진이 들어 있다.
+ *
+ * 예전에는 종이색 판에 벽돌빛 띠 하나가 "사진이 있을 자리"를 흉내내고 있었는데,
+ * 방을 둘러보는 사람에게는 그냥 무늬 없는 판때기라 액자로 읽히지 않았다. 사진을
+ * 미리 걸어 두면 "저기 뭔가 찍혀 있다 → 가서 봐야겠다"가 클릭보다 먼저 온다.
+ *
+ * 그림은 1차(부모 얼굴이 그늘에 묻힌) 버전이다 — 닦아서 드러나는 것이 이 오브젝트의
+ * 이야기라, 방에 서 있는 액자가 미리 다 보여주면 안 된다.
+ */
 function Frame({ palette, opacity }: VisualProps) {
+  // 액자 구멍(1.39:1)보다 사진(1.32:1)이 세로로 길어 위아래가 조금 잘린다.
+  const photo = useCoverTexture(ASSETS.images.mgPhotoWipePhase1, FRAME_OPENING_ASPECT);
+
   return (
     <group rotation={[-0.12, 0, 0]}>
       {FRAME_BARS.map((bar) => (
@@ -321,26 +336,24 @@ function Frame({ palette, opacity }: VisualProps) {
           transparent={opacity < 1}
         />
       </mesh>
+      {/*
+        사진면. map이 붙기 전(로드 중이거나 파일이 없을 때)에는 종이색 판이 그대로
+        보인다 — 예전 모습 그대로라 사진이 늦게 와도 액자가 비어 보이지 않는다.
+
+        색은 map에 곱해지므로 종이색이 사진 위에 옅은 크림 베일로 남는다. 흰색으로
+        빼지 않는 건, 바랜 세피아가 이 방의 톤이고 팔레트 밖 값을 새로 만들지
+        않기 위해서다 (DESIGN.md).
+      */}
       <mesh position={[0, 0, 0.004]}>
         <planeGeometry args={[FRAME_OPENING_WIDTH, FRAME_OPENING_HEIGHT]} />
         <meshStandardMaterial
+          map={photo}
           color={palette.paper}
           emissive={palette.memory}
           emissiveIntensity={0.1}
           roughness={0.85}
           opacity={opacity}
           transparent={opacity < 1}
-        />
-      </mesh>
-      {/* 반투명 덧칠이라 transparent를 유지한다 — 대신 depthWrite를 꺼 사진면과 다투지 않게. */}
-      <mesh position={[0, -FRAME_OPENING_HEIGHT * 0.28, 0.009]}>
-        <planeGeometry args={[FRAME_OPENING_WIDTH, FRAME_OPENING_HEIGHT * 0.34]} />
-        <meshStandardMaterial
-          color={palette.ember}
-          roughness={0.88}
-          opacity={0.55 * opacity}
-          transparent
-          depthWrite={false}
         />
       </mesh>
       <mesh position={[0, -FRAME_HEIGHT * 0.2, -0.085]} rotation={[0.38, 0, 0]} castShadow>
