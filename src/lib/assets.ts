@@ -43,6 +43,21 @@ export const ASSETS = {
     mgFighterDuelRival: "/assets/images/mg-fighter-duel-rival.webp",
     /** 격투 미니게임 무대 배경 (960×256). 없으면 CSS 그라디언트가 그대로 보인다. */
     mgFighterDuelStage: "/assets/images/mg-fighter-duel-stage.webp",
+    /*
+     * 달력 장 그림 (7~11월). 아직 리포에 없어도 된다 — 파일이 없으면 코드가 그리는
+     * 날짜 격자·正자 장이 그대로 선다 (src/minigames/calendar-flip).
+     *
+     * 규격: 세로로 긴 한 장(권장 3:4 안팎, 잘리지 않게 판에 맞춰 들어간다).
+     * 요일 배치는 CALENDAR_YEAR(2026) 기준으로 그릴 것 — 코드가 그리는 대체 장이
+     * 같은 해로 격자를 만들기 때문에 해가 어긋나면 둘이 다른 달력이 된다.
+     */
+    mgCalendarFlipPages: {
+      7: "/assets/images/mg-calendar-flip-07.webp",
+      8: "/assets/images/mg-calendar-flip-08.webp",
+      9: "/assets/images/mg-calendar-flip-09.webp",
+      10: "/assets/images/mg-calendar-flip-10.webp",
+      11: "/assets/images/mg-calendar-flip-11.webp",
+    } as Partial<Record<number, string>>,
     /** 액자 사진 1차 — 부모 얼굴이 그늘에 묻힌 버전. Phase 1의 바탕, Phase 2의 덮개. */
     mgPhotoWipePhase1: "/assets/images/mg-photo-wipe-phase-1.webp",
     /** 액자 사진 2차 — 가족 얼굴이 드러난 버전. Phase 2에서 닦아내면 나온다. */

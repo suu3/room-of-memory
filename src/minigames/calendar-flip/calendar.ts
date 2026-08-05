@@ -6,17 +6,33 @@
  * 넘기는 동작 자체가 "일상이 끊긴 지점"을 보여준다.
  */
 
-/** 달력에 적힌 해. 시나리오가 확정되면 그쪽 값과 맞춘다. */
-export const CALENDAR_YEAR = 2011;
+/** 달력에 적힌 해. 요일 격자가 이 값에서 나오므로 장 이미지도 같은 해로 그려야 한다. */
+export const CALENDAR_YEAR = 2026;
 /**
  * 모든 게 끊긴 날. 이 달까지는 달력이 달력으로 남아 있다.
  * 방 안의 다른 기록도 전부 이 날짜를 가리켜야 한다 — 로어(lore.calendar)의 제목,
  * 폰 단톡방 화면의 날짜(minigame.phoneChat.date).
  */
 export const INCIDENT_DATE = { month: 10, day: 19 } as const;
-export const FIRST_MONTH = 1;
-export const LAST_MONTH = 12;
-export const START_MONTH = 1;
+/*
+ * 걸려 있는 장은 7월부터 11월까지 다섯 장이다.
+ *
+ * 한 해를 통째로 넘기게 두면 앞의 여섯 장이 전부 "아무 일도 없는 달"이라, 사건까지
+ * 가는 길이 길기만 하고 읽히는 건 없다. 여름에서 시작해 10월에 끊기고 11월 한 장이
+ * 그 뒤를 보여주는 다섯 장이면 흐름이 다 담긴다.
+ *
+ * 11월은 지우면 안 된다 — 날짜가 사라지고 正자만 남는 유일한 장이라,
+ * "일상이 끊긴 지점"이 넘김 동작으로 드러나는 자리다 (docs/content-design.md).
+ */
+export const FIRST_MONTH = 7;
+export const LAST_MONTH = 11;
+export const START_MONTH = FIRST_MONTH;
+
+/** 걸려 있는 장 전부, 앞에서 뒤로. */
+export const CALENDAR_MONTHS: readonly number[] = Array.from(
+  { length: LAST_MONTH - FIRST_MONTH + 1 },
+  (_, index) => FIRST_MONTH + index,
+);
 /** 正 한 글자가 세는 날 수. */
 export const TALLY_PER_MARK = 5;
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  CALENDAR_MONTHS,
   CALENDAR_YEAR,
   clampMonth,
   daysInMonth,
@@ -39,10 +40,20 @@ describe("calendar-flip pages", () => {
   it("stops at both ends instead of wrapping around the year", () => {
     expect(flipMonth(FIRST_MONTH, "prev")).toBe(FIRST_MONTH);
     expect(flipMonth(LAST_MONTH, "next")).toBe(LAST_MONTH);
-    expect(flipMonth(5, "next")).toBe(6);
-    expect(flipMonth(5, "prev")).toBe(4);
+    expect(flipMonth(FIRST_MONTH, "next")).toBe(FIRST_MONTH + 1);
+    expect(flipMonth(LAST_MONTH, "prev")).toBe(LAST_MONTH - 1);
     expect(clampMonth(99)).toBe(LAST_MONTH);
     expect(clampMonth(-3)).toBe(FIRST_MONTH);
+  });
+
+  it("hangs the summer-to-aftermath run and nothing else", () => {
+    expect(CALENDAR_MONTHS).toEqual([7, 8, 9, 10, 11]);
+    expect(CALENDAR_MONTHS.at(0)).toBe(FIRST_MONTH);
+    expect(CALENDAR_MONTHS.at(-1)).toBe(LAST_MONTH);
+
+    // 사건이 난 달은 걸려 있어야 하고, 그 뒤로 正자 장이 정확히 한 장 따라와야 한다
+    expect(CALENDAR_MONTHS).toContain(INCIDENT_DATE.month);
+    expect(CALENDAR_MONTHS.filter(isAftermath)).toEqual([INCIDENT_DATE.month + 1]);
   });
 
   it("keeps the calendar a calendar up to the incident, then only tallies", () => {
@@ -80,6 +91,15 @@ describe("calendar-flip pages", () => {
   it("treats reaching the last sheet as having seen it all", () => {
     expect(isLastPage(START_MONTH)).toBe(false);
     expect(isLastPage(LAST_MONTH)).toBe(true);
+    // 첫 장은 사건보다 앞이어야 한다 — 열자마자 결말이면 넘길 이유가 없다
     expect(START_MONTH).toBeLessThan(INCIDENT_DATE.month);
+  });
+
+  it("keeps the year in step with the rest of the room", () => {
+    // 연도를 바꾸면 요일 격자가 통째로 바뀐다. 장 이미지도 같은 해로 그려져야 하므로
+    // 이 값이 흔들리면 그림과 코드가 서로 다른 달력이 된다.
+    expect(CALENDAR_YEAR).toBe(2026);
+    // 2026-10-19는 월요일(1)
+    expect(new Date(CALENDAR_YEAR, INCIDENT_DATE.month - 1, INCIDENT_DATE.day).getDay()).toBe(1);
   });
 });
