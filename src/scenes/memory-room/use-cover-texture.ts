@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SRGBColorSpace, type Texture, TextureLoader } from "three";
 
 /** 로더 하나를 모듈이 공유한다 — 텍스처마다 새로 만들 이유가 없다. */
@@ -58,13 +58,18 @@ function imageAspectOf(texture: Texture): number {
  * (.claude/rules/assets.md의 "파일이 아직 없어도 되는" 에셋들과 같은 계약).
  *
  * 반환값은 머티리얼의 `map`에 그대로 물린다. null인 동안에는 바탕색이 그 자리를 채운다.
+ *
+ * `path`가 바뀌면 새 그림이 **다 도착한 뒤에** 옛 그림을 버린다 — 먼저 비우면
+ * 갈아끼우는 사이에 판이 한 번 빈다. 액자 사진처럼 이야기가 진행되며 바뀌는
+ * 그림에서는 그 깜빡임이 곧 연출의 흠이 된다.
  */
 export function useCoverTexture(path: string, planeAspect: number): Texture | null {
   const [texture, setTexture] = useState<Texture | null>(null);
+  /** 지금 화면에 걸려 있는 텍스처. 언마운트 때 버릴 대상이자 교체 시 버릴 이전 그림. */
+  const mountedRef = useRef<Texture | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    let loaded: Texture | null = null;
 
     loader.load(
       path,
@@ -74,9 +79,11 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
           result.dispose();
           return;
         }
-        loaded = result;
         result.colorSpace = SRGBColorSpace;
+        const previous = mountedRef.current;
+        mountedRef.current = result;
         setTexture(result);
+        if (previous) previous.dispose();
       },
       undefined,
       () => undefined,
@@ -84,10 +91,17 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
 
     return () => {
       cancelled = true;
-      loaded?.dispose();
-      setTexture(null);
     };
   }, [path]);
+
+  // 마지막까지 걸려 있던 텍스처는 여기서 버린다 (.claude/rules/r3f.md — 수동 생성분은 직접 dispose).
+  useEffect(
+    () => () => {
+      mountedRef.current?.dispose();
+      mountedRef.current = null;
+    },
+    [],
+  );
 
   // 판 비율이 바뀌면 크롭을 다시 잡는다. 텍스처 객체는 그대로 두고 UV만 민다.
   useEffect(() => {
