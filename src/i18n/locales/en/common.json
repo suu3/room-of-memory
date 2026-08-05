@@ -104,6 +104,14 @@
       "help": "Read the stance and counter it — 1 Strike · 2 Guard · 3 Throw",
       "help_touch": "Read the stance and counter it with the buttons below",
       "hint": "Strike beats throw, throw beats guard, guard beats strike · Answer fast for a read — but they may switch stance",
+      "rules": {
+        "controls": "Keys 1 Strike · 2 Guard · 3 Throw — or press the buttons below",
+        "controls_touch": "Tap the three buttons below: Strike, Guard, Throw",
+        "triangle": "Strike beats throw, throw beats guard, guard beats strike",
+        "clock": "The rival telegraphs the next move — answer with the move that beats that stance before the timer bar empties. Run out and you take the hit",
+        "feint": "They sometimes switch stance mid-tell (a feint) — when they do, read the new stance and answer that one",
+        "reward": "Answer fast for a read, string reads together for a combo — both land harder"
+      },
       "labelCombo": "Combo",
       "labelCritical": "Reads",
       "nameHero": "P1",

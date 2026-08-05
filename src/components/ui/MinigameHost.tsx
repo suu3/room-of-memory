@@ -151,6 +151,26 @@ export function MinigameHost() {
               <p className="mt-3 break-ko text-pretty text-base leading-relaxed text-ink/70">
                 {hint(hosted.helpKey)}
               </p>
+              {/*
+                플레이 방법. 카드가 가운데 정렬이라 목록만 왼쪽으로 세운다 —
+                가운데 정렬된 여러 줄은 줄머리가 들쭉날쭉해서 읽는 순서가 안 잡힌다.
+                시작 버튼과는 한 칸 더 벌려, 읽는 것과 누르는 것을 나눠 둔다.
+              */}
+              {hosted.rulesKeys && hosted.rulesKeys.length > 0 && (
+                <ul className="mx-auto mt-5 flex max-w-[30rem] flex-col gap-2 text-left">
+                  {hosted.rulesKeys.map((key) => (
+                    <li
+                      key={key}
+                      className="flex gap-2 break-ko text-pretty text-sm leading-relaxed text-ink/60"
+                    >
+                      <span className="shrink-0 font-bold text-memory" aria-hidden>
+                        ·
+                      </span>
+                      <span>{hint(key)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <button
                 ref={startButtonRef}
                 type="button"

@@ -53,10 +53,16 @@ export const COMBO_CAP = 5;
 /** 간파(빠른 반응) 배수. 다 간파하면 한 라운드를 앞당긴다. */
 export const CRITICAL_SCALE = 1.5;
 
-/** 상대의 기본 대미지와 라운드마다 붙는 가산 — 오래 끌수록 상대가 매워진다. */
-export const RIVAL_BASE_DAMAGE = 18;
-export const RIVAL_RAMP = 3;
-export const RIVAL_DAMAGE_CAP = 30;
+/**
+ * 상대의 기본 대미지와 라운드마다 붙는 가산 — 오래 끌수록 상대가 매워진다.
+ *
+ * 다섯 대에 쓰러지던 걸 여섯 대로 늘렸다. 읽기 싸움은 처음 한두 판을 버려 가며
+ * 배우는 게임인데, 배우는 값이 그대로 패배면 규칙을 알기 전에 판이 끝난다.
+ * 이기는 쪽(다섯 번)은 그대로 둔다 — 판이 늘어지면 그것대로 지친다.
+ */
+export const RIVAL_BASE_DAMAGE = 15;
+export const RIVAL_RAMP = 2;
+export const RIVAL_DAMAGE_CAP = 23;
 
 export interface DuelState {
   heroHp: number;
@@ -134,14 +140,21 @@ export function hpRatio(hp: number): number {
 
 /* -------------------------------------------------------------- 시간 압박 */
 
-/** 첫 라운드의 예고 시간. 짧으면 반사신경 게임이 되고, 길면 긴장이 없다. */
-export const TELL_START_MS = 1700;
+/**
+ * 첫 라운드의 예고 시간. 짧으면 반사신경 게임이 되고, 길면 긴장이 없다.
+ *
+ * 예고는 그림이 아니라 문장으로도 읽힌다("상대가 두 팔을 머리 위로 든다"). 읽고,
+ * 삼각 상성에서 받아칠 수를 떠올리고, 버튼을 찾는 데 실제로 2초 가까이 걸린다 —
+ * 1.7초로는 규칙을 아는 사람도 손이 먼저 가는 게임이 됐다. 여기서 재는 것은
+ * 손 빠르기가 아니라 읽기라, 읽을 시간을 먼저 주고 그 위에서 조인다.
+ */
+export const TELL_START_MS = 2600;
 /** 아무리 몰려도 여기보다 짧아지지 않는다 — 읽을 시간은 남겨 둔다. */
-export const TELL_FLOOR_MS = 950;
-export const TELL_STEP_MS = 80;
+export const TELL_FLOOR_MS = 1600;
+export const TELL_STEP_MS = 60;
 /** 상대가 이 체력 아래로 떨어지면 각성한다. */
 export const RAGE_HP_RATIO = 0.35;
-export const RAGE_CUT_MS = 160;
+export const RAGE_CUT_MS = 120;
 
 /**
  * 이번 라운드의 예고 시간.
@@ -165,7 +178,7 @@ export function isEnraged(rivalHp: number): boolean {
  * 간파 판정 시간. 예고가 화면에 뜬 순간부터 잰다 — 페인트로 자세가 바뀌면
  * 거기서 다시 0이다. 바뀐 걸 빨리 읽어낸 것도 똑같이 읽어낸 것이다.
  */
-export const CRITICAL_MS = 520;
+export const CRITICAL_MS = 700;
 
 export function isCritical(elapsedMs: number): boolean {
   return elapsedMs <= CRITICAL_MS;
@@ -182,8 +195,8 @@ export function isCritical(elapsedMs: number): boolean {
 export const FEINT_FROM_ROUND = 1;
 /** 예고 시간의 어느 지점에서 자세를 바꾸는가. 바꾼 뒤에 절반 넘게 남아야 한다. */
 export const FEINT_AT = 0.38;
-export const FEINT_CHANCE_STEP = 0.22;
-export const FEINT_CHANCE_CAP = 0.5;
+export const FEINT_CHANCE_STEP = 0.18;
+export const FEINT_CHANCE_CAP = 0.42;
 
 export function feintChance(round: number): number {
   if (round < FEINT_FROM_ROUND) return 0;

@@ -35,6 +35,16 @@ describe("MinigameHost", () => {
     expect(screen.getByRole("button", { name: "Start" })).toBeTruthy();
   });
 
+  it("lays out how to play on the start card, not just the one-line help", () => {
+    // UT: "격투 게임이 너무 어렵다" — 상성도 페인트도 모르고 들어가면 첫 판이 그냥 지나간다.
+    render(<MinigameHost />);
+    openConsole();
+
+    expect(screen.getByText(/Strike beats throw/)).toBeTruthy();
+    expect(screen.getByText(/switch stance mid-tell/)).toBeTruthy();
+    expect(screen.getByText(/before the timer bar empties/)).toBeTruthy();
+  });
+
   it("comes back to the start card after the panel is closed and reopened", () => {
     /*
      * 같은 물건은 같은 인터랙션 키를 만든다. 닫을 때 시작 표시를 비우지 않으면

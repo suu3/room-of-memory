@@ -125,7 +125,7 @@ describe("applyRound", () => {
     expect(applyRound(nearly, won()).rivalHp).toBe(0);
   });
 
-  it("ends in five reads in a row, or four when every one is a critical", () => {
+  it("ends in five reads in a row, four when all critical, and six clean hits taken", () => {
     // 판이 얼마나 걸리는가는 규칙의 일부다 — 30초~2분 안에 끝나야 한다.
     const rounds = (resolution: () => Parameters<typeof applyRound>[1]) => {
       let state = DUEL_START;
@@ -138,7 +138,8 @@ describe("applyRound", () => {
     };
     expect(rounds(() => won())).toEqual({ count: 5, status: "won" });
     expect(rounds(() => won(true))).toEqual({ count: 4, status: "won" });
-    expect(rounds(() => lost)).toEqual({ count: 5, status: "lost" });
+    // 지는 쪽이 한 대 더 길다 — 규칙을 배우는 판이 그대로 패배가 되지 않게.
+    expect(rounds(() => lost)).toEqual({ count: 6, status: "lost" });
   });
 });
 

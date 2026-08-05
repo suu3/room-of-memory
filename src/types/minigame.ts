@@ -84,4 +84,13 @@ export interface MinigameDefinition {
   /** 시작 카드(게임 마운트 전)에 보여줄 제목/조작법 키. */
   titleKey: CommonTextKey;
   helpKey: CommonTextKey;
+  /**
+   * 시작 카드에서 조작법 아래에 한 줄씩 펼쳐 보여줄 플레이 방법.
+   *
+   * 한 줄 요약(helpKey)으로 규칙이 다 서는 게임은 비워 둔다 — 그런 게임에 목록을
+   * 붙이면 집는 데 3초 걸릴 인터랙션이 설명서를 읽는 일이 된다. 상성·페인트처럼
+   * 모르면 첫 판을 통째로 버리게 되는 규칙이 있는 게임만 채운다.
+   * 조작 안내와 같은 잣대로 `_touch` 변형이 있으면 그쪽이 쓰인다.
+   */
+  rulesKeys?: readonly CommonTextKey[];
 }

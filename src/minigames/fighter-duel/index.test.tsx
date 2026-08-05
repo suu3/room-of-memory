@@ -4,7 +4,15 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { i18n } from "../../i18n/config";
-import { BASE_DAMAGE, COMBO_STEP, CRITICAL_SCALE, FEINT_AT, MAX_HP, tellDurationMs } from "./duel";
+import {
+  BASE_DAMAGE,
+  COMBO_STEP,
+  CRITICAL_MS,
+  CRITICAL_SCALE,
+  FEINT_AT,
+  MAX_HP,
+  tellDurationMs,
+} from "./duel";
 import { FighterDuelMinigame } from "./index";
 
 let now = 0;
@@ -29,6 +37,9 @@ function runNextFrame(timestamp: number) {
 
 /** 프레임 간격(ms). 게임은 프레임이 끊기면 시계를 멈추므로 촘촘히 돌려야 한다. */
 const FRAME_STEP = 100;
+
+/** 간파 판정이 확실히 지난 시점. 창 길이가 바뀌어도 "빨리 못 낸 판"으로 남아야 한다. */
+const PAST_CRITICAL_MS = CRITICAL_MS + FRAME_STEP;
 
 /** 실제 브라우저처럼 프레임을 이어서 돌린다 — 마지막 프레임이 `timestamp`에 선다. */
 function runFramesUntil(timestamp: number) {
@@ -156,7 +167,7 @@ describe("FighterDuelMinigame", () => {
     render(<FighterDuelMinigame onComplete={() => {}} />);
     advanceTime(INTRO_MS);
     runNextFrame(now);
-    runFramesUntil(now + 600);
+    runFramesUntil(now + PAST_CRITICAL_MS);
 
     answerTell();
 
@@ -169,13 +180,13 @@ describe("FighterDuelMinigame", () => {
     render(<FighterDuelMinigame onComplete={() => {}} />);
     advanceTime(INTRO_MS);
     runNextFrame(now);
-    runFramesUntil(now + 600);
+    runFramesUntil(now + PAST_CRITICAL_MS);
     answerTell();
     const afterFirst = rivalHp();
 
     advanceTime(RESULT_MS);
     runNextFrame(now);
-    runFramesUntil(now + 600);
+    runFramesUntil(now + PAST_CRITICAL_MS);
     answerTell();
 
     expect(afterFirst - rivalHp()).toBe(BASE_DAMAGE + COMBO_STEP);

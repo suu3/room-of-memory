@@ -58,6 +58,14 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     ),
     titleKey: "minigame.fighterDuel.title",
     helpKey: "minigame.fighterDuel.help",
+    // 상성·시간·페인트·보너스 — 넷 다 모르고 들어가면 첫 판이 그냥 지나간다.
+    rulesKeys: [
+      "minigame.fighterDuel.rules.controls",
+      "minigame.fighterDuel.rules.triangle",
+      "minigame.fighterDuel.rules.clock",
+      "minigame.fighterDuel.rules.feint",
+      "minigame.fighterDuel.rules.reward",
+    ],
   },
   "window-view": {
     id: "window-view",
