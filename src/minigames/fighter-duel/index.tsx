@@ -9,6 +9,7 @@ import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 import {
   applyRound,
+  beats,
   CRITICAL_MS,
   DUEL_START,
   type DuelState,
@@ -53,6 +54,11 @@ const SKIP_AFTER_MS = 30_000;
 const SKIP_AT_HP = 0.7;
 /** 1/2/3 — MOVES 순서와 같은 자리. */
 const MOVE_KEYS = ["1", "2", "3"] as const;
+/**
+ * 도해 시트는 프레임 안에서 발이 상대 시트보다 높이 앉아 있어, 그대로 두면
+ * 혼자 바닥에서 떠 보인다. 시트를 다시 그리는 대신 그리는 자리를 내린다.
+ */
+const HERO_OFFSET_Y = 16;
 
 /** 한 라운드가 끝난 자리에 남는 것 — 화면이 읽어서 자세·숫자·문구로 옮긴다. */
 interface Resolved {
@@ -355,6 +361,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
               tone="memory"
               facing="right"
               sprite={ASSETS.images.mgFighterDuelHero}
+              offsetY={HERO_OFFSET_Y}
               shake={heroHit}
               flash={heroHit}
             />
@@ -411,6 +418,24 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
               </>
             ) : (
               <>
+                {/*
+                  자세 그림에서 수 이름까지 가는 길을 없앤다.
+
+                  전에는 "상대가 어깨를 뒤로 뺀다"만 띄우고 그게 무슨 수인지는
+                  플레이어가 옮겨야 했다. 자세를 읽고 → 수로 옮기고 → 상성을
+                  떠올리고 → 버튼을 찾는 네 걸음을 2초 안에 하는 셈이라, 규칙을
+                  아는 사람도 손이 먼저 갔다. 이름을 크게 못박아 두 걸음을 지운다 —
+                  남는 건 "이 수를 이기는 버튼 찾기" 하나다.
+                */}
+                <span
+                  key={`${shown}-name`}
+                  className="animate-fade-rise font-pixel text-lg tracking-widest text-paper sm:text-xl"
+                >
+                  {t(`minigame.fighterDuel.move.${shown}`)}
+                </span>
+                <span className="-mt-1 font-pixel text-[0.6rem] tracking-[0.2em] text-bone/45">
+                  {t("minigame.fighterDuel.tellLabel")}
+                </span>
                 <span className="break-ko text-pretty font-pixel text-xs leading-relaxed tracking-widest text-bone/80">
                   {t(`minigame.fighterDuel.tell.${shown}`)}
                 </span>
@@ -484,20 +509,37 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
         걸 커서와 색으로 먼저 말해 준다.
       */}
       <div className="mt-3 grid grid-cols-3 gap-3">
-        {MOVES.map((move, index) => (
-          <button
-            key={move}
-            type="button"
-            disabled={!live || resolved !== null}
-            onClick={() => answerRef.current(move)}
-            className={`rounded-md border border-ink/15 px-4 py-3 text-base font-bold tracking-wide text-ink transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory enabled:cursor-pointer enabled:hover:border-ink/40 enabled:hover:bg-ink/5 enabled:active:translate-y-px disabled:opacity-45 ${
-              resolved?.player === move ? "border-ink/40 bg-ink/5 opacity-100" : ""
-            }`}
-          >
-            <span className="font-pixel text-xs text-ink/45">{MOVE_KEYS[index]}</span>{" "}
-            {t(`minigame.fighterDuel.move.${move}`)}
-          </button>
-        ))}
+        {MOVES.map((move, index) => {
+          /*
+            버튼마다 "무엇을 이기는가"를 적는다. 삼각 상성을 외워서 떠올리는
+            대신, 위에 뜬 상대 수와 같은 글자를 버튼에서 찾으면 되는 일이 된다.
+            상성을 화면 밖(머리)에 두면 아는 사람만 아는 게임이 된다.
+
+            정답 버튼을 대신 짚어 주지는 않는다. 짚어 주면 페인트가 무의미해지고
+            (자세가 바뀌면 표시도 따라 바뀌므로) 읽기 싸움이 통째로 사라진다.
+          */
+          return (
+            <button
+              key={move}
+              type="button"
+              disabled={!live || resolved !== null}
+              onClick={() => answerRef.current(move)}
+              className={`rounded-md border border-ink/15 px-4 py-2.5 tracking-wide text-ink transition-all focus-visible:outline-2 focus-visible:outline-memory focus-visible:outline-offset-2 enabled:cursor-pointer enabled:hover:border-ink/40 enabled:hover:bg-ink/5 enabled:active:translate-y-px disabled:opacity-45 ${
+                resolved?.player === move ? "border-ink/40 bg-ink/5 opacity-100" : ""
+              }`}
+            >
+              <span className="block font-bold text-base">
+                <span className="font-pixel text-ink/45 text-xs">{MOVE_KEYS[index]}</span>{" "}
+                {t(`minigame.fighterDuel.move.${move}`)}
+              </span>
+              <span className="mt-0.5 block break-ko text-[0.6875rem] text-ink/50">
+                {t("minigame.fighterDuel.beats", {
+                  move: t(`minigame.fighterDuel.move.${beats(move)}`),
+                })}
+              </span>
+            </button>
+          );
+        })}
       </div>
       <p className="mt-2.5 break-ko text-pretty text-center text-sm text-ink/55">
         {t("minigame.fighterDuel.hint")}

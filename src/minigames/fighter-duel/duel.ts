@@ -30,6 +30,14 @@ export function resolveRound(player: Move, opponent: Move): RoundOutcome {
   return BEATS[player] === opponent ? "win" : "lose";
 }
 
+/**
+ * 이 수가 이기는 수. 버튼에 "○○를 이김"으로 적어 상성을 화면 안에 둔다 —
+ * 외워야만 되는 규칙이면 2초 안에 안 떠오른다.
+ */
+export function beats(move: Move): Move {
+  return BEATS[move];
+}
+
 /** 상대 예고를 받아치는 수 — 화면의 힌트가 가리키는 정답. */
 export function counterTo(move: Move): Move {
   const counter = MOVES.find((candidate) => BEATS[candidate] === move);

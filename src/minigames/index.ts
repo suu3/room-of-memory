@@ -58,9 +58,11 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     ),
     titleKey: "minigame.fighterDuel.title",
     helpKey: "minigame.fighterDuel.help",
-    // 상성·시간·페인트·보너스 — 넷 다 모르고 들어가면 첫 판이 그냥 지나간다.
+    // 세 수가 뭔지·상성·시간·페인트·보너스 — 모르고 들어가면 첫 판이 그냥 지나간다.
+    // "잡기"는 격투 게임을 안 해본 사람에게는 처음 듣는 말이라 뜻부터 적는다.
     rulesKeys: [
       "minigame.fighterDuel.rules.controls",
+      "minigame.fighterDuel.rules.moves",
       "minigame.fighterDuel.rules.triangle",
       "minigame.fighterDuel.rules.clock",
       "minigame.fighterDuel.rules.feint",

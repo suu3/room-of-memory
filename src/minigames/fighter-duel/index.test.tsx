@@ -126,6 +126,41 @@ describe("FighterDuelMinigame", () => {
     expect(html.match(/value="100"/g)).toHaveLength(2);
   });
 
+  it("keeps the triangle on screen — each button says what it beats", () => {
+    /*
+     * UT: "공격 방어 뭐 이렇게 해, 잡기는 뭔지도 모르겠네" — 상성을 머리에 두면
+     * 규칙을 아는 사람만 아는 게임이 된다. 버튼이 스스로 말해야 한다.
+     */
+    render(<FighterDuelMinigame onComplete={() => {}} />);
+
+    // 접근성 이름으로 찾는다 — 화면에 보이는 글자이자 스크린리더가 읽는 문장이다
+    expect(screen.getByRole("button", { name: "1 Strike beats Throw" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "2 Guard beats Strike" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "3 Throw beats Guard" })).toBeTruthy();
+  });
+
+  it("names the move the opponent is telegraphing, not just the pose", () => {
+    /*
+     * 자세 문장만 띄우면 "자세 → 수 → 상성 → 버튼" 네 걸음을 예고 시간 안에 해야
+     * 한다. 이름을 못박아 두 걸음을 지운다 — 버튼에서 그 이름을 찾으면 끝이다.
+     */
+    render(<FighterDuelMinigame onComplete={() => {}} />);
+    advanceTime(INTRO_MS);
+
+    const status = screen.getByRole("status").textContent ?? "";
+    expect(status).toContain("They reach both arms forward");
+    expect(status).toContain("Throw");
+    expect(status).toContain("Opponent");
+  });
+
+  it("drops the hero sprite onto the floor line the rival already stands on", () => {
+    // 두 시트가 프레임 안에서 발 높이가 달라, 안 맞추면 도해만 떠 보인다
+    const html = renderToStaticMarkup(<FighterDuelMinigame onComplete={() => {}} />);
+
+    expect(html).toContain("translateY(16px)");
+    expect(html.match(/translateY\(16px\)/g)).toHaveLength(1);
+  });
+
   it("holds the round until the opening banner clears", () => {
     render(<FighterDuelMinigame onComplete={() => {}} />);
 
@@ -140,7 +175,11 @@ describe("FighterDuelMinigame", () => {
   it("locks the move buttons while there is nothing to answer", () => {
     // UT: "버튼을 눌러도 아무 반응이 없다" — 낼 차례가 아닌 구간이 눌리는 것처럼 보였다.
     render(<FighterDuelMinigame onComplete={() => {}} />);
-    const strike = () => screen.getByRole("button", { name: /Strike/ }) as HTMLButtonElement;
+    /*
+     * 앞을 고정해서 찾는다 — 버튼마다 "무엇을 이기는가"가 같이 적혀 있어서
+     * /Strike/로는 막기 버튼("2 Guard beats Strike")까지 걸린다.
+     */
+    const strike = () => screen.getByRole("button", { name: /^1 Strike/ }) as HTMLButtonElement;
     expect(strike().disabled).toBe(true); // 시작 배너 동안
 
     advanceTime(INTRO_MS);

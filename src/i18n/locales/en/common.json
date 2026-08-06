@@ -101,16 +101,17 @@
     },
     "fighterDuel": {
       "title": "Fighting Game",
-      "help": "Read the stance and counter it — 1 Strike · 2 Guard · 3 Throw",
-      "help_touch": "Read the stance and counter it with the buttons below",
-      "hint": "Strike beats throw, throw beats guard, guard beats strike · Answer fast for a read — but they may switch stance",
+      "help": "Read the opponent's stance and play what beats it — 1 Strike · 2 Guard · 3 Throw",
+      "help_touch": "Read the opponent's stance and play what beats it with the buttons below",
+      "hint": "Press the button whose “beats ○○” matches the opponent's move",
       "rules": {
-        "controls": "Keys 1 Strike · 2 Guard · 3 Throw — or press the buttons below",
-        "controls_touch": "Tap the three buttons below: Strike, Guard, Throw",
-        "triangle": "Strike beats throw, throw beats guard, guard beats strike",
-        "clock": "The rival telegraphs the next move — answer with the move that beats that stance before the timer bar empties. Run out and you take the hit",
-        "feint": "They sometimes switch stance mid-tell (a feint) — when they do, read the new stance and answer that one",
-        "reward": "Answer fast for a read, string reads together for a combo — both land harder"
+        "controls": "Number keys 1 Strike · 2 Guard · 3 Throw — the buttons below work too",
+        "controls_touch": "Use the three buttons below (Strike · Guard · Throw)",
+        "triangle": "Strike → Throw → Guard → Strike. The arm reaching to grab gets hit first, a guarding opponent just gets grabbed, and an incoming punch gets blocked",
+        "clock": "The opponent telegraphs the next move with a stance. Its name appears at the top — press the button that says it beats that move before the timer runs out",
+        "feint": "The opponent may change stance mid-tell (a feint) — the name changes with it",
+        "reward": "Answer fast for a read, chain wins for a combo — both hit harder",
+        "moves": "Strike is a punch, Guard is an arm block, Throw grabs and takes them down"
       },
       "labelCombo": "Combo",
       "labelCritical": "Reads",
@@ -140,7 +141,9 @@
         "lose": "Took it…",
         "draw": "Clashed",
         "late": "Too slow…"
-      }
+      },
+      "beats": "beats {{move}}",
+      "tellLabel": "Opponent"
     },
     "labelSuccess": "HITS",
     "labelMiss": "MISS",

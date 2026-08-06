@@ -104,6 +104,7 @@ export function Fighter({
   shake,
   flash,
   sprite,
+  offsetY = 0,
 }: {
   pose: Pose;
   /** 블록 캐릭터일 때의 도트 색 — 플레이어는 금빛, 상대는 바랜 크림. */
@@ -114,6 +115,12 @@ export function Fighter({
   flash?: boolean;
   /** 스프라이트 시트 경로. 파일이 없으면 자동으로 블록 캐릭터가 나온다. */
   sprite: string;
+  /**
+   * 세로 미세 조정(px, 양수가 아래). 시트마다 프레임 안에서 발이 앉은 높이가
+   * 조금씩 달라서, 그대로 두면 한쪽만 바닥에서 떠 보인다. 그림을 다시 그리는
+   * 대신 여기서 맞춘다.
+   */
+  offsetY?: number;
 }) {
   const sheet = useSpriteSheet(sprite);
 
@@ -125,7 +132,12 @@ export function Fighter({
       (좌우 뒤집기만 예외로 바깥에 남는다. Tailwind v4의 scale은 별도 속성이라
       transform과 부딪히지 않는다.)
     */
-    <div aria-hidden className={`relative h-40 w-28 ${facing === "left" ? "-scale-x-100" : ""}`}>
+    <div
+      aria-hidden
+      className={`relative h-40 w-28 ${facing === "left" ? "-scale-x-100" : ""}`}
+      // 자리 잡기는 바깥에서 한 번만. 안쪽 층은 흔들림·숨쉬기·자세가 이미 쓰고 있다
+      style={offsetY ? { transform: `translateY(${offsetY}px)` } : undefined}
+    >
       <div className={`absolute inset-0 ${shake ? "animate-batting-field-shake" : ""}`}>
         {/* 숨쉬기는 자세 레이어 바깥 — 안쪽에 걸면 자세 전환과 겹쳐 팔이 제자리에 안 선다 */}
         <div className={`absolute inset-0 ${pose === "idle" ? "animate-duel-breathe" : ""}`}>
