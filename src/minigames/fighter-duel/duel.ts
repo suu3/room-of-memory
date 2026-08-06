@@ -78,21 +78,24 @@ export const RIVAL_BASE_DAMAGE = 15;
 export const RIVAL_RAMP = 2;
 export const RIVAL_DAMAGE_CAP = 23;
 
-/* ------------------------------------------------------- 필살기 게이지 */
+/* --------------------------------------------------------- 필살기 횟수 */
 
 /**
- * 필살기는 낼 때마다 게이지 한 칸을 쓴다 — 아무 때나 낼 수 있으면 필살기가 아니라
- * 그냥 세 번째 버튼이다.
+ * 필살기는 한 판에 세 번뿐이다. 다시 차지 않는다.
  *
- * 읽어낼 때마다 한 칸이 차므로 제대로 받아친 필살기는 제 값을 스스로 벌고(써서
- * 이기면 net 0), 헛디딘 필살기만 한 칸을 잃는다. 게이지가 비면 상대의 방어
- * 예고를 이길 수가 없는데, 그때는 같이 방어해서 비기면 된다 — 손해 없이 한
- * 라운드를 흘려보내는 선택지가 항상 남아 있어야 빈 게이지가 사형선고가 아니다.
+ * 처음엔 읽어낼 때마다 한 칸씩 채워 줬는데, 그러면 잘 읽는 사람에게는 결국
+ * 무제한이라 제한이 아니었다. 쓸 때마다 줄기만 해야 "아껴 뒀다 여기서 쓴다"가
+ * 생긴다.
+ *
+ * 세 번인 이유: 판은 다섯 번 읽어내면 끝나고 방어 예고는 세 수 중 하나라,
+ * 한 판에 필살기로만 이길 수 있는 라운드가 두어 번 온다. 세 번이면 제때 쓰는
+ * 사람은 모자라지 않고, 아무 데나 쓰는 사람만 빈손이 된다.
+ *
+ * 다 쓰고 나면 방어 예고를 이길 수가 없다. 그게 이 제한의 값이다 — 대신 같이
+ * 방어해서 비기는 길은 항상 열려 있어서, 빈손이 사형선고는 아니다.
  */
-export const SPECIAL_MAX = 3;
-export const SPECIAL_START = 1;
+export const SPECIAL_USES = 3;
 export const SPECIAL_COST = 1;
-export const SPECIAL_GAIN = 1;
 
 export interface DuelState {
   heroHp: number;
@@ -101,7 +104,7 @@ export interface DuelState {
   combo: number;
   /** 지금까지 치른 라운드 수. 난이도 곡선의 축. */
   round: number;
-  /** 남은 필살기 게이지. 0이면 필살기를 못 낸다. */
+  /** 남은 필살기 횟수. 0이면 필살기를 못 낸다. 판 안에서 다시 차지 않는다. */
   special: number;
 }
 
@@ -110,18 +113,17 @@ export const DUEL_START: DuelState = {
   rivalHp: MAX_HP,
   combo: 0,
   round: 0,
-  special: SPECIAL_START,
+  special: SPECIAL_USES,
 };
 
 export function canUseSpecial(state: DuelState): boolean {
   return state.special >= SPECIAL_COST;
 }
 
-/** 이번 라운드를 치르고 난 게이지. 쓴 만큼 빠지고 읽어낸 만큼 찬다. */
+/** 이번 라운드를 치르고 난 남은 횟수. 쓴 만큼만 빠진다 — 채워 주는 길은 없다. */
 export function nextSpecial(state: DuelState, resolution: RoundResolution): number {
   const spent = resolution.player === "throw" ? SPECIAL_COST : 0;
-  const gained = resolution.outcome === "win" ? SPECIAL_GAIN : 0;
-  return Math.min(SPECIAL_MAX, Math.max(0, state.special - spent + gained));
+  return Math.max(0, state.special - spent);
 }
 
 export interface RoundResolution {

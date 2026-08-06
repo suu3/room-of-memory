@@ -11,6 +11,7 @@ import {
   CRITICAL_SCALE,
   FEINT_AT,
   MAX_HP,
+  SPECIAL_USES,
   tellDurationMs,
 } from "./duel";
 import { FighterDuelMinigame } from "./index";
@@ -138,7 +139,7 @@ describe("FighterDuelMinigame", () => {
     expect(screen.getByRole("button", { name: "2 Guard beats Attack" })).toBeTruthy();
     // 필살기 버튼만 남은 게이지까지 읽힌다 — 눈으로는 칸, 스크린리더로는 문장
     expect(
-      screen.getByRole("button", { name: "3 Special beats Guard special meter 1 of 3" }),
+      screen.getByRole("button", { name: `3 Special beats Guard ${SPECIAL_USES} specials left` }),
     ).toBeTruthy();
   });
 
@@ -167,23 +168,34 @@ describe("FighterDuelMinigame", () => {
     const special = () => screen.getByRole("button", { name: /^3 Special/ }) as HTMLButtonElement;
     advanceTime(INTRO_MS);
 
-    // 첫 예고는 필살기 — 같은 수를 내면 비기고, 게이지 한 칸만 빠진다
+    for (let use = 0; use < SPECIAL_USES; use += 1) {
+      expect(special().disabled).toBe(false);
+      fireEvent.keyDown(window, { key: "3" });
+      advanceTime(RESULT_MS);
+    }
+
+    // 세 번을 다 썼다 — 판이 끝날 때까지 다시 열리지 않는다
+    expect(special().disabled).toBe(true);
+
+    const heroBefore = heroHp();
+    const rivalBefore = rivalHp();
     fireEvent.keyDown(window, { key: "3" });
-    expect(screen.getByText("Clashed")).toBeTruthy();
+    expect(heroHp()).toBe(heroBefore);
+    expect(rivalHp()).toBe(rivalBefore);
+
+    /*
+     * 같은 라운드를 다른 수로 계속 낼 수 있다 — 막힌 필살기가 판을 잡아먹지 않았다.
+     * 이겼는지로 재지 않는 이유: 방어 예고가 걸린 라운드라면 그걸 이기는 수가
+     * 필살기뿐이라 이길 수가 없다. 그게 이 제한의 값이고, 여기서 볼 것은
+     * "라운드가 아직 살아 있는가"다.
+     */
+    const attack = () => screen.getByRole("button", { name: /^1 Attack/ }) as HTMLButtonElement;
+    expect(attack().disabled).toBe(false);
+    fireEvent.keyDown(window, { key: "1" });
+    expect(attack().disabled).toBe(true);
 
     advanceTime(RESULT_MS);
     expect(special().disabled).toBe(true);
-
-    // 빈 게이지로 눌러도 라운드는 그대로 살아 있다
-    fireEvent.keyDown(window, { key: "3" });
-    expect(screen.queryByText("Clashed")).toBeNull();
-    expect(heroHp()).toBe(MAX_HP);
-    expect(rivalHp()).toBe(MAX_HP);
-
-    // 읽어내면 다시 한 칸 차고 필살기가 열린다
-    answerTell();
-    advanceTime(RESULT_MS);
-    expect(special().disabled).toBe(false);
   });
 
   it("drops the hero sprite onto the floor line the rival already stands on", () => {

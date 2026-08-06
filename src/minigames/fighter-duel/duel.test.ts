@@ -31,8 +31,7 @@ import {
   readHabit,
   resolveRound,
   rivalDamage,
-  SPECIAL_MAX,
-  SPECIAL_START,
+  SPECIAL_USES,
   shouldFeint,
   TELL_FLOOR_MS,
   TELL_START_MS,
@@ -329,37 +328,37 @@ describe("필살기 게이지", () => {
     critical: false,
   } as const;
 
-  it("starts with a bar and fills one per read, up to the cap", () => {
-    expect(DUEL_START.special).toBe(SPECIAL_START);
+  it("hands out a fixed number per match", () => {
+    expect(DUEL_START.special).toBe(SPECIAL_USES);
+  });
 
+  it("never gives one back — not for a read, not for a landed special", () => {
+    /*
+     * 읽어낼 때마다 채워 주던 때는 잘 읽는 사람에게 사실상 무제한이라 제한이
+     * 아니었다 (UT: "필살기는 횟수 제한 있어야 하지 않나"). 줄기만 해야 한다.
+     */
+    expect(applyRound(DUEL_START, won()).special).toBe(SPECIAL_USES);
+    expect(applyRound(DUEL_START, specialWon).special).toBe(SPECIAL_USES - 1);
+    expect(applyRound(DUEL_START, specialWhiffed).special).toBe(SPECIAL_USES - 1);
+  });
+
+  it("runs out after the last one and stays out", () => {
     let state = DUEL_START;
-    for (let round = 0; round < 6; round += 1) state = applyRound(state, won());
+    for (let use = 0; use < SPECIAL_USES; use += 1) {
+      expect(canUseSpecial(state)).toBe(true);
+      state = applyRound(state, specialWon);
+    }
 
-    expect(state.special).toBe(SPECIAL_MAX);
+    expect(state.special).toBe(0);
+    expect(canUseSpecial(state)).toBe(false);
+    // 다 쓴 뒤에도 아래로 새지 않는다
+    expect(applyRound(state, specialWhiffed).special).toBe(0);
   });
 
-  it("lets a landed special pay for itself — spent one, read one back", () => {
-    // 제대로 읽고 쓴 필살기까지 게이지를 깎으면, 맞게 쓴 것에 벌을 주는 셈이 된다
-    expect(applyRound(DUEL_START, specialWon).special).toBe(DUEL_START.special);
-  });
-
-  it("charges a bar for the special that misses", () => {
-    expect(applyRound(DUEL_START, specialWhiffed).special).toBe(DUEL_START.special - 1);
-  });
-
-  it("never drops below empty, and an empty meter locks the special", () => {
-    const empty = applyRound(DUEL_START, specialWhiffed);
-
-    expect(empty.special).toBe(0);
-    expect(canUseSpecial(empty)).toBe(false);
-    expect(applyRound(empty, specialWhiffed).special).toBe(0);
-    expect(canUseSpecial(DUEL_START)).toBe(true);
-  });
-
-  it("leaves the other two moves free — only the special draws on the meter", () => {
+  it("leaves the other two moves free — only the special is counted", () => {
     const drained = { ...DUEL_START, special: 0 };
 
     expect(applyRound(drained, drew).special).toBe(0);
-    expect(applyRound(drained, won()).special).toBe(1);
+    expect(applyRound(drained, won()).special).toBe(0);
   });
 });

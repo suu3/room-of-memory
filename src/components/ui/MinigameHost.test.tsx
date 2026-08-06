@@ -41,12 +41,12 @@ describe("MinigameHost", () => {
     openConsole();
 
     // 상성은 순서만이 아니라 이유까지 — 임의의 규칙은 판이 도는 중에 안 떠오른다
-    expect(screen.getByText(/A special breaks through a guard/)).toBeTruthy();
-    expect(screen.getByText(/change stance mid-tell/)).toBeTruthy();
-    expect(screen.getByText(/before the timer runs out/)).toBeTruthy();
+    expect(screen.getByText(/a special breaks through a guard/)).toBeTruthy();
+    // 필살기가 무한이 아니라는 건 첫 판 전에 알아야 한다
+    expect(screen.getByText(/three specials per match/)).toBeTruthy();
 
-    // 다섯 줄을 넘기지 않는다 — 그 이상은 시작 버튼 앞에서 안 읽힌다
-    expect(screen.getAllByRole("listitem")).toHaveLength(5);
+    // 두 줄. 미니게임 하나 붙잡고 읽을 분량이 아니다 (UT: "미니겜이니까 더 짧아도 될 듯")
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
   });
 
   it("comes back to the start card after the panel is closed and reopened", () => {

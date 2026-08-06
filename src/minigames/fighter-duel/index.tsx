@@ -26,7 +26,7 @@ import {
   type RoundOutcome,
   type RoundPlan,
   resolveRound,
-  SPECIAL_MAX,
+  SPECIAL_USES,
 } from "./duel";
 import { Fighter, type Pose } from "./Fighter";
 import { HealthBar } from "./HealthBar";
@@ -62,13 +62,13 @@ const MOVE_KEYS = ["1", "2", "3"] as const;
  */
 const HERO_OFFSET_Y = 16;
 
-/**
- * 필살기 게이지 칸. 숫자가 아니라 칸으로 보여준다 — 판이 도는 중에 읽어야 해서
- * "두 칸 남았다"보다 "두 개 켜져 있다"가 빠르다.
- */
-/** 칸 수는 고정이고 자리가 곧 정체성이라, 키를 미리 박아 둔다. */
-const SPECIAL_SLOTS = Array.from({ length: SPECIAL_MAX }, (_, slot) => `special-${slot}`);
+/** 점 개수는 고정이고 자리가 곧 정체성이라, 키를 미리 박아 둔다. */
+const SPECIAL_SLOTS = Array.from({ length: SPECIAL_USES }, (_, slot) => `special-${slot}`);
 
+/**
+ * 남은 필살기 횟수. 숫자가 아니라 점으로 보여준다 — 판이 도는 중에 읽어야 해서
+ * "두 번 남았다"보다 "두 개 켜져 있다"가 빠르다. 쓰면 꺼지고 다시 켜지지 않는다.
+ */
 function SpecialMeter({ charged }: { charged: number }) {
   return (
     <span aria-hidden className="flex gap-0.5">
@@ -115,7 +115,7 @@ function opponentPose(resolved: Resolved | null, tell: Move, over: boolean): Pos
 /**
  * 게임기 속 격투 게임. 상대가 다음 수를 자세로 예고하고, 그걸 받아치는 수를 낸다.
  * 공격 > 필살기 > 방어 > 공격 — 반사신경이 아니라 읽기 싸움이다.
- * 필살기만 게이지를 쓰므로 세 수가 대등하지 않다 — 방어 예고를 이기려면 게이지가 있어야 한다.
+ * 필살기만 횟수가 있어 세 수가 대등하지 않다 — 방어 예고를 이기려면 필살기가 남아 있어야 한다.
  *
  * 읽기만으로 끝나지 않게 세 가지가 얹혀 있다(규칙은 ./duel.ts):
  * 연속으로 읽어내면 세게 들어가고(콤보), 빨리 읽으면 한 방이 커지고(간파),
@@ -575,7 +575,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
               </span>
               {costsMeter && (
                 <span className="sr-only">
-                  {t("minigame.fighterDuel.specialLeft", { left: state.special, max: SPECIAL_MAX })}
+                  {t("minigame.fighterDuel.specialLeft", { left: state.special })}
                 </span>
               )}
             </button>
