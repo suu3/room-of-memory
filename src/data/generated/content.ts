@@ -97,6 +97,14 @@ export const MEMORIES: MemoryItem[] = [
     id: "phone",
     icon: DeviceMobile,
     phase1: { interaction: { minigameId: "phone-chat", resultScriptId: "phone-stopped" } },
+    phase2: {
+      interaction: {
+        scriptId: "phone-unlock-intro",
+        minigameId: "phone-lock",
+        resultScriptId: "phone-unlock-result",
+      },
+      unlockAfter: ["radio"],
+    },
   },
   {
     id: "calendar",
@@ -174,6 +182,21 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.phone-stopped.line1" },
       { speaker: "hero", textKey: "scripts.phone-stopped.line2" },
+    ],
+  },
+  "phone-unlock-intro": {
+    id: "phone-unlock-intro",
+    lines: [
+      { speaker: "hero", textKey: "scripts.phone-unlock-intro.line1", expression: "surprised" },
+      { speaker: "hero", textKey: "scripts.phone-unlock-intro.line2" },
+      { speaker: "hero", textKey: "scripts.phone-unlock-intro.line3" },
+    ],
+  },
+  "phone-unlock-result": {
+    id: "phone-unlock-result",
+    lines: [
+      { speaker: "hero", textKey: "scripts.phone-unlock-result.line1" },
+      { speaker: "hero", textKey: "scripts.phone-unlock-result.line2" },
     ],
   },
   "calendar-intro": {

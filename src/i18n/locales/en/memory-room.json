@@ -100,6 +100,15 @@
       "line1": "The last message is from October 19.",
       "line2": "Since that day, not one word from anyone."
     },
+    "phone-unlock-intro": {
+      "line1": "The phone just buzzed. …Now?",
+      "line2": "The first notification in weeks.",
+      "line3": "…The fingerprint won't take. I changed the passcode… what was it?"
+    },
+    "phone-unlock-result": {
+      "line1": "She sent these that day. They only arrived now.",
+      "line2": "She told me to wait. …I have waited long enough."
+    },
     "calendar-intro": {
       "line1": "The calendar stopped there too. October 19."
     },
@@ -153,7 +162,8 @@
     },
     "phone": {
       "title": "The Silence",
-      "phase1": "The group chat has been quiet since that day. Every missed call is one I made."
+      "phase1": "The group chat has been quiet since that day. Every missed call is one I made.",
+      "phase2": "Mom's texts from that day finally arrived. Lock the door and wait, she said. …I have waited enough."
     },
     "calendar": {
       "title": "October 19",

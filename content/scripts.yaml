@@ -103,6 +103,33 @@ scripts:
       en: Since that day, not one word from anyone.
       ja: あの日から、誰も何も言わない。
 
+  # 2차 폰 진입 — 몇 주 만에 처음 온 알림. 지문이 안 먹어 비밀번호를 떠올려야 한다
+  phone-unlock-intro:
+    - speaker: hero
+      expression: surprised
+      ko: 폰이 울렸다. …지금?
+      en: The phone just buzzed. …Now?
+      ja: スマホが鳴った。…今？
+    - speaker: hero
+      ko: 몇 주 만에 처음 오는 알림이야.
+      en: The first notification in weeks.
+      ja: 何週間ぶりの通知だ。
+    - speaker: hero
+      ko: …지문이 안 먹네. 비밀번호로 바꿨었는데, 뭐였더라.
+      en: …The fingerprint won't take. I changed the passcode… what was it?
+      ja: …指紋が効かない。パスコードに変えたはずだけど、何だったっけ。
+
+  # 2차 폰 결과 — 그날의 문자가 늦게 도착했다는 확인, 그리고 기다림을 끝내는 결심
+  phone-unlock-result:
+    - speaker: hero
+      ko: 그날 보낸 문자였어. 이제야 도착한 거야.
+      en: She sent these that day. They only arrived now.
+      ja: あの日送ったメッセージだったんだ。今になって届いたんだ。
+    - speaker: hero
+      ko: 기다리라고 했지. …충분히 기다렸어.
+      en: She told me to wait. …I have waited long enough.
+      ja: 待ってろって言われた。…もう十分待ったよ。
+
   # 1차 달력 진입 — phone 뒤에만 열리므로(unlockAfter) 단톡의 날짜를 이어받아도 안전하다
   calendar-intro:
     - speaker: hero

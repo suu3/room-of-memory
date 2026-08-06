@@ -142,10 +142,23 @@ memories:
         ko: 단톡은 그날 이후로 조용하다. 부재중 전화는 전부 내가 건 쪽이다.
         en: The group chat has been quiet since that day. Every missed call is one I made.
         ja: グループチャットはあの日から静かだ。不在着信は全部こちらからかけたものだ。
+      phase2:
+        ko: 그날 엄마가 보낸 문자가 이제야 도착했다. 문 잠그고 기다리라고 했다. …충분히 기다렸어.
+        en: Mom's texts from that day finally arrived. Lock the door and wait, she said. …I have waited enough.
+        ja: あの日母さんが送ったメッセージが、今になって届いた。鍵をかけて待ってなさいって。…もう十分待った。
     # 1차: 채팅은 미니게임이 보여주고, 결과 대사가 "10월 19일"을 처음 못박는다
     phase1:
       minigame: phone-chat
       resultScript: phone-stopped
+    # 2차: 전파가 돌아온 뒤(라디오 목소리), 그날 묶여 있던 엄마의 문자가 이제야
+    # 도착한다. 잠금 비번(1019)은 calendar가 심은 날짜가 단서다 — 미궁의 첫 조각.
+    # 부모님 행방의 절반이 여기서 풀린다: 그날 여행 중이었고(그래서 집에 없다),
+    # 돌아오겠다고 했고, 못 왔다.
+    phase2:
+      script: phone-unlock-intro
+      minigame: phone-lock
+      resultScript: phone-unlock-result
+      unlockAfter: [radio]
 
   - id: calendar
     icon: CalendarHeart

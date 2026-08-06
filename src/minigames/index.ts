@@ -50,6 +50,15 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.phoneChat.title",
     helpKey: "minigame.phoneChat.help",
   },
+  "phone-lock": {
+    id: "phone-lock",
+    mode: "overlay",
+    // phone-chat과 같은 폰을 집어 드는 인터랙션 — 패널 없이 기기만 떠오른다
+    presentation: "bare",
+    component: lazy(() => import("./phone-lock").then((m) => ({ default: m.PhoneLockMinigame }))),
+    titleKey: "minigame.phoneLock.title",
+    helpKey: "minigame.phoneLock.help",
+  },
   "fighter-duel": {
     id: "fighter-duel",
     mode: "overlay",

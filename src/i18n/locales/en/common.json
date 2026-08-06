@@ -205,6 +205,23 @@
         "taeo": "Taeo"
       }
     },
+    "phoneLock": {
+      "title": "Lock Screen",
+      "help": "Four-digit passcode — type with the number keys",
+      "help_touch": "Tap in the four-digit passcode",
+      "hint": "Hint: the day everything stopped",
+      "wrong": "Wrong passcode",
+      "sender": "Mom",
+      "notification": "3 new messages",
+      "erase": "Erase one digit",
+      "dateSent": "Sent on October 19",
+      "msg": {
+        "w1": "Dohae, you saw the news. Do not go outside",
+        "w2": "Dad and I left the trip right away but the roads are all blocked",
+        "w3": "Lock the door and wait. We'll be there soon"
+      },
+      "close": "Turn off the screen"
+    },
     "photoPuzzle": {
       "title": "Piece It Together",
       "help": "Slide the pieces with the arrow keys to rebuild the photo",
