@@ -51,6 +51,8 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 
 시각 디자인의 단일 소스는 루트의 **`DESIGN.md`** (google-labs-code/design.md 포맷). UI 색상·타이포·간격은 반드시 DESIGN.md 토큰에서 가져오고, 하드코딩된 hex 값을 새로 만들지 말 것. 토큰 변경 후 `pnpm design:lint`로 검증.
 
+예외는 `src/app/admin/` 하나다. 어드민은 프로덕션에 안 들어가는 로컬 편집 도구라 게임 팔레트를 따르지 않고, 눈이 덜 피로한 중립 회색 팔레트를 `src/app/admin/admin-theme.css`에 따로 둔다 (`.admin-theme` 스코프). 어드민 컴포넌트의 색은 전부 그 파일의 `--admin-*` 변수에서 가져온다.
+
 ## Rules
 
 세부 규칙은 `.claude/rules/`에 분리되어 있음:

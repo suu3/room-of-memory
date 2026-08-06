@@ -9,6 +9,10 @@
  *
  * 기억 id는 여기서 못 고친다. id는 3D 씬의 오브젝트 이름, 에셋 파일명,
  * i18n의 memories.<id>.name까지 걸쳐 있어서 편집기 혼자 바꿀 수 있는 값이 아니다.
+ *
+ * 흐름 탭은 id만 세우지 않는다. 대사는 id가 아니라 본문으로 기억되는 것이라
+ * 고른 스크립트의 줄을 그 자리에 펼쳐 두고, ①②③ 번호로 재생 순서를 박아 둔다.
+ * 카드 앞의 번호는 목록 순번이 아니라 **열리는 차례**다 — 같은 번호는 같이 열린다.
  */
 import { useCallback, useEffect, useState } from "react";
 import type {
@@ -21,7 +25,22 @@ import type {
   LocalizedText,
   SaveResult,
 } from "@/types/content";
-import { Button, Card, Field, LocalizedInput, labelClass, Select, TextInput } from "./fields";
+import {
+  Button,
+  Card,
+  CollapseAll,
+  Field,
+  faintClass,
+  hintClass,
+  LocalizedInput,
+  labelClass,
+  mutedClass,
+  panelClass,
+  Select,
+  sunkenClass,
+  TextInput,
+  useCollapsible,
+} from "./fields";
 
 const TABS = [
   { id: "flow", label: "흐름" },
@@ -32,7 +51,13 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
+/** 해금이 갈리는 단위. 1바퀴와 2바퀴는 서로 다른 그래프다. */
+type Round = "phase1" | "phase2";
+
 const EMPTY_TEXT: LocalizedText = { ko: "", en: "", ja: "" };
+
+/** 미리보기는 기준 언어(ko)만 세운다 — 셋을 다 세우면 흐름이 안 보인다. */
+const PREVIEW_LOCALE = "ko";
 
 export function ContentAdmin() {
   const [content, setContent] = useState<GameContent | null>(null);
@@ -97,7 +122,7 @@ export function ContentAdmin() {
 
   if (!content || !options) {
     return (
-      <p className="p-8 text-fog">
+      <p className={`p-8 ${mutedClass}`}>
         {issues.length > 0 ? issues.join("\n") : "content/*.yaml 읽는 중…"}
       </p>
     );
@@ -109,33 +134,31 @@ export function ContentAdmin() {
     <div className="mx-auto flex max-w-5xl flex-col gap-6 p-6 pb-24">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-medium text-2xl text-paper">대본 · 흐름 편집기</h1>
-          <p className="mt-1 text-fog text-sm">
+          <h1 className="font-medium text-2xl">대본 · 흐름 편집기</h1>
+          <p className={`mt-1 text-sm ${mutedClass}`}>
             content/*.yaml을 고친다. 저장하면 생성물(src/data/generated, i18n 리소스)까지 같이
             갱신된다.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {dirty ? <span className="text-memory text-sm">저장 안 된 변경</span> : null}
+          {dirty ? <span className="text-[var(--admin-warn)] text-sm">저장 안 된 변경</span> : null}
           <Button tone="primary" onClick={save} disabled={saving || !dirty}>
             저장
           </Button>
         </div>
       </header>
 
-      {status ? <p className="text-bone text-sm">{status}</p> : null}
+      {status ? <p className={`text-sm ${mutedClass}`}>{status}</p> : null}
 
       {issues.length > 0 ? (
-        <ul className="flex flex-col gap-1 rounded-md border border-ember/50 bg-ember/10 p-4 text-sm">
+        <ul className="flex flex-col gap-1 rounded-md border border-[var(--admin-warn-line)] bg-[var(--admin-warn-soft)] p-4 text-sm">
           {issues.map((issue) => (
-            <li key={issue} className="text-paper">
-              · {issue}
-            </li>
+            <li key={issue}>· {issue}</li>
           ))}
         </ul>
       ) : null}
 
-      <nav className="flex gap-2 border-fog/20 border-b">
+      <nav className="flex gap-2 border-[var(--admin-line)] border-b">
         {TABS.map((entry) => (
           <button
             key={entry.id}
@@ -143,8 +166,8 @@ export function ContentAdmin() {
             onClick={() => setTab(entry.id)}
             className={`-mb-px border-b-2 px-3 py-2 text-sm transition-colors ${
               tab === entry.id
-                ? "border-memory text-paper"
-                : "border-transparent text-fog hover:text-bone"
+                ? "border-[var(--admin-accent)] font-medium text-[var(--admin-accent)]"
+                : `border-transparent ${mutedClass} hover:text-[var(--admin-ink)]`
             }`}
           >
             {entry.label}
@@ -166,6 +189,119 @@ export function ContentAdmin() {
   );
 }
 
+/* ── 해금 차례 ────────────────────────────────────────────────────────── */
+
+/**
+ * 한 바퀴 안에서 각 기억이 몇 번째로 열리는지. **같은 번호는 동시에 열린다** —
+ * unlockAfter가 없는 것들이 다 같이 1번이고, 1번만 기다리는 것이 2번이다.
+ * 목록 순서(↑↓)와는 상관이 없다: 그건 기억 패널에 뜨는 차례일 뿐이다.
+ *
+ * 순환은 검증기(findUnlockCycles)가 저장에서 막지만, 편집 도중에는 한때 순환이
+ * 생길 수 있다 — 그 한때에 무한 재귀로 화면이 죽지 않도록 지나온 id는 다시 세지
+ * 않는다.
+ */
+function unlockWaves(memories: ContentMemory[], round: Round): Map<string, number> {
+  const inRound = memories.filter((memory) => memory[round]);
+  const phaseById = new Map(inRound.map((memory) => [memory.id, memory[round] as ContentPhase]));
+  const waves = new Map<string, number>();
+
+  const waveOf = (id: string, trail: Set<string>): number => {
+    const known = waves.get(id);
+    if (known !== undefined) return known;
+    if (trail.has(id)) return 1;
+
+    // 이 바퀴에 없는 기억을 기다리는 것은 차례를 셀 수 없다 — 그건 검증기가 잡는다
+    const deps = (phaseById.get(id)?.unlockAfter ?? []).filter((dep) => phaseById.has(dep));
+    const walked = new Set(trail).add(id);
+    const wave = deps.length === 0 ? 1 : Math.max(...deps.map((dep) => waveOf(dep, walked))) + 1;
+
+    waves.set(id, wave);
+    return wave;
+  };
+
+  for (const memory of inRound) waveOf(memory.id, new Set());
+  return waves;
+}
+
+/** 몇 번째로 열리는지. 같은 번호끼리 동시에 열린다. */
+function WaveBadge({ wave, round }: { wave: number | undefined; round: Round }) {
+  const label = round === "phase1" ? "1바퀴" : "2바퀴";
+
+  if (wave === undefined) {
+    return (
+      <span
+        title={`${label}에는 없는 기억이다`}
+        className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--admin-line)] text-xs ${faintClass}`}
+      >
+        –
+      </span>
+    );
+  }
+
+  return (
+    <span
+      title={`${label}에서 ${wave}번째로 열린다 — 같은 번호끼리 동시에 열린다`}
+      className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--admin-accent-line)] bg-[var(--admin-accent-soft)] font-medium text-[var(--admin-accent)] text-xs"
+    >
+      {wave}
+    </span>
+  );
+}
+
+/* ── 공용 조각 ────────────────────────────────────────────────────────── */
+
+/** 카드 제목: 열리는 차례 · id · 수첩 제목. id만 있으면 무엇이었는지 매번 다시 떠올려야 한다. */
+function MemoryTitle({ memory, wave }: { memory: ContentMemory; wave: number | undefined }) {
+  return (
+    <span className="flex min-w-0 flex-wrap items-center gap-2">
+      <WaveBadge wave={wave} round="phase1" />
+      <span className="font-mono">{memory.id}</span>
+      <span className={`truncate text-sm ${mutedClass}`}>{memory.lore.title[PREVIEW_LOCALE]}</span>
+    </span>
+  );
+}
+
+/** 고른 스크립트의 줄을 그 자리에 펼친다 — 대사창에 실제로 흐를 순서 그대로. */
+function ScriptPreview({ lines }: { lines: ContentLine[] | undefined }) {
+  if (!lines || lines.length === 0) {
+    return <p className={`mt-2 ${hintClass}`}>줄이 없는 스크립트다.</p>;
+  }
+
+  return (
+    <ol className={`mt-2 flex flex-col gap-1.5 px-3 py-2 ${sunkenClass}`}>
+      {lines.map((line, index) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: 줄의 정체성은 순서 그 자체다
+        <li key={index} className="flex gap-2 text-xs">
+          <span className={`w-4 shrink-0 text-right ${faintClass}`}>{index + 1}</span>
+          <span className={`w-20 shrink-0 font-mono ${mutedClass}`}>{line.speaker}</span>
+          <span className="min-w-0">
+            {line[PREVIEW_LOCALE]?.trim() || "(본문이 비어 있다 — 저장이 막힌다)"}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/** 스크립트 고르는 목록에도 첫 줄을 붙인다 — id만으로는 어느 대사인지 안 갈린다. */
+function scriptOptionLabel(id: string, scripts: GameContent["scripts"]): string {
+  const first = scripts[id]?.[0]?.[PREVIEW_LOCALE]?.trim();
+  if (!first) return id;
+  const head = first.length > 34 ? `${first.slice(0, 34)}…` : first;
+  return `${id} — ${head}`;
+}
+
+/** 접힌 카드에 남길 한 줄 — 이 바퀴에 무엇이 붙어 있는지. */
+function phaseDigest(phase: ContentPhase | undefined): string | null {
+  if (!phase) return null;
+  const parts = [
+    phase.script ? "대사" : null,
+    phase.minigame ? "미니게임" : null,
+    phase.resultScript ? "결과 대사" : null,
+  ].filter((part): part is string => part !== null);
+  return parts.length > 0 ? parts.join(" · ") : "바로 수집";
+}
+
 /* ── 흐름 ─────────────────────────────────────────────────────────────── */
 
 function FlowTab({
@@ -179,6 +315,8 @@ function FlowTab({
   scriptIds: string[];
   onChange: (next: GameContent) => void;
 }) {
+  const cards = useCollapsible(false);
+
   const setMemory = (index: number, memory: ContentMemory) => {
     const memories = [...content.memories];
     memories[index] = memory;
@@ -193,19 +331,56 @@ function FlowTab({
     onChange({ ...content, memories });
   };
 
+  const waves = {
+    phase1: unlockWaves(content.memories, "phase1"),
+    phase2: unlockWaves(content.memories, "phase2"),
+  };
+  const ids = content.memories.map((memory) => memory.id);
+
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-fog text-sm">
-        여기 적힌 순서가 기억 패널에 뜨는 순서다. id는 3D 씬·에셋·i18n 이름까지 걸쳐 있어 편집기에서
-        바꾸지 않는다.
-      </p>
+      <div className={`${panelClass} p-4 text-sm ${mutedClass}`}>
+        <p>
+          카드 앞의 번호는{" "}
+          <strong className="font-medium text-[var(--admin-ink)]">몇 번째로 열리는가</strong>다 —{" "}
+          <strong className="font-medium text-[var(--admin-ink)]">같은 번호는 동시에 열린다</strong>
+          . 아래 &ldquo;먼저 조사해야 열림&rdquo;이 이 번호를 정한다. ↑↓는 번호가 아니라 기억 패널에
+          뜨는 자리(총 {content.memories.length}개)를 바꾼다.
+        </p>
+        <p className="mt-2">
+          기억 하나를 누르면{" "}
+          <strong className="font-medium text-[var(--admin-ink)]">
+            ① 대사 → ② 미니게임 → ③ 대사
+          </strong>{" "}
+          순으로 흐른다. 비운 칸은 건너뛰고, 셋 다 비면 누르는 즉시 수집된다. id는 3D 씬·에셋·i18n
+          이름까지 걸쳐 있어 편집기에서 바꾸지 않는다.
+        </p>
+      </div>
+
+      <div className="flex justify-end">
+        <CollapseAll
+          onExpand={() => cards.setAll(ids, true)}
+          onCollapse={() => cards.setAll(ids, false)}
+        />
+      </div>
 
       {content.memories.map((memory, index) => (
         <Card
           key={memory.id}
-          title={<span className="font-mono">{memory.id}</span>}
+          open={cards.isOpen(memory.id)}
+          onToggle={() => cards.toggle(memory.id)}
+          title={<MemoryTitle memory={memory} wave={waves.phase1.get(memory.id)} />}
+          summary={
+            <>
+              1바퀴 {phaseDigest(memory.phase1)}
+              {memory.phase2 ? ` / 2바퀴 ${phaseDigest(memory.phase2)}` : ""}
+            </>
+          }
           actions={
             <>
+              <span className={`text-xs ${mutedClass}`} title="기억 패널에 뜨는 자리">
+                패널 {index + 1}
+              </span>
               <Button onClick={() => move(index, -1)} disabled={index === 0}>
                 ↑
               </Button>
@@ -231,9 +406,12 @@ function FlowTab({
 
             <PhaseEditor
               label="1바퀴 (최초 수집)"
+              round="phase1"
               phase={memory.phase1}
               memory={memory}
               memories={content.memories}
+              waves={waves.phase1}
+              scripts={content.scripts}
               options={options}
               scriptIds={scriptIds}
               onChange={(phase1) => setMemory(index, { ...memory, phase1 })}
@@ -242,9 +420,12 @@ function FlowTab({
             {memory.phase2 ? (
               <PhaseEditor
                 label="2바퀴 (재조사)"
+                round="phase2"
                 phase={memory.phase2}
                 memory={memory}
                 memories={content.memories}
+                waves={waves.phase2}
+                scripts={content.scripts}
                 options={options}
                 scriptIds={scriptIds}
                 onRemove={() => {
@@ -274,20 +455,67 @@ function FlowTab({
   );
 }
 
+/** 이 페이즈가 실제로 어떤 차례로 흐르는지 한 줄로 — 비운 칸은 빠진 채로 보여준다. */
+function FlowSummary({ phase }: { phase: ContentPhase }) {
+  const steps = [
+    "오브젝트 클릭",
+    phase.script ? `① 대사창 · ${phase.script}` : null,
+    phase.minigame ? `② 미니게임 · ${phase.minigame}` : null,
+    phase.resultScript ? `③ 대사창 · ${phase.resultScript}` : null,
+    "수집 완료",
+  ].filter((step): step is string => step !== null);
+
+  return (
+    <div
+      className={`mb-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 px-3 py-2 text-xs ${sunkenClass}`}
+    >
+      {steps.map((step, index) => (
+        <span key={step} className="flex items-center gap-1.5">
+          {index > 0 ? <span className={faintClass}>→</span> : null}
+          <span className={index === 0 || index === steps.length - 1 ? mutedClass : ""}>
+            {step}
+          </span>
+        </span>
+      ))}
+      {steps.length === 2 ? (
+        <span className={mutedClass}>— 대사도 미니게임도 없이 바로 수집된다</span>
+      ) : null}
+    </div>
+  );
+}
+
+/** ①②③ 번호 + 라벨 한 줄. 번호가 곧 재생 순서다. */
+function StepLabel({ step, title, when }: { step: string; title: string; when: string }) {
+  return (
+    <span className="flex flex-wrap items-baseline gap-x-2 tracking-normal">
+      <span className="font-medium text-[var(--admin-ink)] text-sm">
+        {step} {title}
+      </span>
+      <span className={`text-xs ${mutedClass}`}>{when}</span>
+    </span>
+  );
+}
+
 function PhaseEditor({
   label,
+  round,
   phase,
   memory,
   memories,
+  waves,
+  scripts,
   options,
   scriptIds,
   onChange,
   onRemove,
 }: {
   label: string;
+  round: Round;
   phase: ContentPhase;
   memory: ContentMemory;
   memories: ContentMemory[];
+  waves: Map<string, number>;
+  scripts: GameContent["scripts"];
   options: ContentOptions;
   scriptIds: string[];
   onChange: (phase: ContentPhase) => void;
@@ -306,10 +534,30 @@ function PhaseEditor({
     set("unlockAfter", next.length > 0 ? next : undefined);
   };
 
+  const scriptLabel = (id: string) => scriptOptionLabel(id, scripts);
+  const wave = waves.get(memory.id);
+  const together =
+    wave === undefined
+      ? []
+      : memories
+          .filter((entry) => entry.id !== memory.id && waves.get(entry.id) === wave)
+          .map((entry) => entry.id);
+
   return (
-    <div className="rounded-sm border border-fog/20 p-3">
-      <div className="mb-3 flex items-center justify-between">
-        <span className={labelClass}>{label}</span>
+    <div className="rounded-sm border border-[var(--admin-line)] p-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <span className="flex flex-wrap items-center gap-2">
+          <span className={labelClass}>{label}</span>
+          <WaveBadge wave={wave} round={round} />
+          <span className="text-[var(--admin-ink)] text-xs">
+            {wave === undefined ? "차례를 셀 수 없다" : `${wave}번째로 열림`}
+          </span>
+          {wave === undefined ? null : (
+            <span className={`text-xs ${mutedClass}`}>
+              {together.length > 0 ? `· 동시에: ${together.join(", ")}` : "· 혼자 열린다"}
+            </span>
+          )}
+        </span>
         {onRemove ? (
           <Button tone="danger" onClick={onRemove}>
             2바퀴 제거
@@ -317,16 +565,29 @@ function PhaseEditor({
         ) : null}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Field label="진입 대사">
-          <Select
-            allowEmpty
-            value={phase.script}
-            options={scriptIds}
-            onChange={(value) => set("script", value)}
-          />
-        </Field>
-        <Field label="미니게임">
+      <FlowSummary phase={phase} />
+
+      <div className="flex flex-col gap-4">
+        <div>
+          <Field
+            label={<StepLabel step="①" title="대사창" when="게임 전 — 누르는 즉시" />}
+            hint="오브젝트를 누르면 이 대사부터 흐른다. 다 넘기면 미니게임으로 넘어간다."
+          >
+            <Select
+              allowEmpty
+              value={phase.script}
+              options={scriptIds}
+              labelOf={scriptLabel}
+              onChange={(value) => set("script", value)}
+            />
+          </Field>
+          {phase.script ? <ScriptPreview lines={scripts[phase.script]} /> : null}
+        </div>
+
+        <Field
+          label={<StepLabel step="②" title="미니게임" when="대사 다음" />}
+          hint="비우면 ① 대사가 끝나는 순간 수집된다."
+        >
           <Select
             allowEmpty
             value={phase.minigame}
@@ -334,34 +595,49 @@ function PhaseEditor({
             onChange={(value) => set("minigame", value)}
           />
         </Field>
-        <Field label="결과 대사">
-          <Select
-            allowEmpty
-            value={phase.resultScript}
-            options={scriptIds}
-            onChange={(value) => set("resultScript", value)}
-          />
-        </Field>
+
+        <div>
+          <Field
+            label={<StepLabel step="③" title="대사창" when="게임 후 — 클리어했을 때만" />}
+            hint="미니게임 화면을 뒤에 남긴 채 뜬다. 실패하면 뜨지 않고 인터랙션이 닫힌다 (재도전 가능). 미니게임 없이는 저장이 막힌다."
+          >
+            <Select
+              allowEmpty
+              value={phase.resultScript}
+              options={scriptIds}
+              labelOf={scriptLabel}
+              onChange={(value) => set("resultScript", value)}
+            />
+          </Field>
+          {phase.resultScript ? <ScriptPreview lines={scripts[phase.resultScript]} /> : null}
+        </div>
       </div>
 
-      <div className="mt-3">
-        <span className={labelClass}>먼저 조사해야 열림</span>
+      <div className="mt-4">
+        <span className={labelClass}>먼저 조사해야 열림 — 고를수록 번호가 뒤로 밀린다</span>
         <div className="mt-1 flex flex-wrap gap-2">
           {memories
             .filter((entry) => entry.id !== memory.id)
             .map((entry) => {
               const on = (phase.unlockAfter ?? []).includes(entry.id);
+              const depWave = waves.get(entry.id);
               return (
                 <button
                   key={entry.id}
                   type="button"
+                  title={
+                    depWave === undefined
+                      ? `${entry.id}에는 이 바퀴가 없다 — 기다리면 영영 안 열린다`
+                      : `${depWave}번째로 열리는 기억`
+                  }
                   onClick={() => toggleUnlock(entry.id)}
-                  className={`rounded-sm border px-2 py-1 font-mono text-xs transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-sm border px-2 py-1 font-mono text-xs transition-colors ${
                     on
-                      ? "border-memory bg-memory/20 text-paper"
-                      : "border-fog/30 text-fog hover:text-bone"
+                      ? "border-[var(--admin-accent-line)] bg-[var(--admin-accent-soft)] text-[var(--admin-ink)]"
+                      : `border-[var(--admin-line-strong)] ${mutedClass} hover:text-[var(--admin-ink)]`
                   }`}
                 >
+                  <span className={faintClass}>{depWave ?? "–"}</span>
                   {entry.id}
                 </button>
               );
@@ -369,7 +645,7 @@ function PhaseEditor({
         </div>
       </div>
 
-      <div className="mt-3">
+      <div className="mt-4">
         <Field label="다시보기 스틸 (public 기준 경로, 비우면 방이 비친다)">
           <TextInput
             value={phase.replayStill ?? ""}
@@ -384,6 +660,31 @@ function PhaseEditor({
 
 /* ── 대사 ─────────────────────────────────────────────────────────────── */
 
+/**
+ * 어느 기억의 몇 번째 칸이 이 스크립트를 가리키는지. 검증기가 세는 것과 같은
+ * 자리를 세므로, 여기서 비어 있으면 저장도 막힌다.
+ */
+function scriptUsage(content: GameContent): Record<string, string[]> {
+  const usage: Record<string, string[]> = {};
+
+  for (const memory of content.memories) {
+    const mark = (id: string | undefined, round: string, slot: string) => {
+      if (!id) return;
+      usage[id] = [...(usage[id] ?? []), `${memory.id} · ${round} · ${slot}`];
+    };
+    for (const [round, phase] of [
+      ["1바퀴", memory.phase1],
+      ["2바퀴", memory.phase2],
+    ] as const) {
+      if (!phase) continue;
+      mark(phase.script, round, "① 게임 전");
+      mark(phase.resultScript, round, "③ 게임 후");
+    }
+  }
+
+  return usage;
+}
+
 function ScriptsTab({
   content,
   options,
@@ -393,17 +694,52 @@ function ScriptsTab({
   options: ContentOptions;
   onChange: (next: GameContent) => void;
 }) {
+  const cards = useCollapsible(true);
+
   const setLines = (id: string, lines: ContentLine[]) =>
     onChange({ ...content, scripts: { ...content.scripts, [id]: lines } });
 
+  const usage = scriptUsage(content);
+  const ids = Object.keys(content.scripts);
+
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-fog text-sm">
-        어디서도 가리키지 않는 스크립트는 저장이 막힌다 — 흐름 탭에서 먼저 붙일 것.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className={`text-sm ${mutedClass}`}>
+          제목 옆이 이 대사가 뜨는 자리다 — 어디서도 가리키지 않는 스크립트는 저장이 막힌다. 자리를
+          붙이는 것은 흐름 탭이다.
+        </p>
+        <CollapseAll
+          onExpand={() => cards.setAll(ids, true)}
+          onCollapse={() => cards.setAll(ids, false)}
+        />
+      </div>
 
       {Object.entries(content.scripts).map(([id, lines]) => (
-        <Card key={id} title={<span className="font-mono">{id}</span>}>
+        <Card
+          key={id}
+          open={cards.isOpen(id)}
+          onToggle={() => cards.toggle(id)}
+          summary={`${lines.length}줄`}
+          title={
+            <span className="flex min-w-0 flex-wrap items-center gap-2">
+              <span className="font-mono">{id}</span>
+              {(usage[id] ?? []).map((where) => (
+                <span
+                  key={where}
+                  className={`rounded-sm border border-[var(--admin-line)] px-2 py-0.5 font-normal text-xs ${mutedClass}`}
+                >
+                  {where}
+                </span>
+              ))}
+              {usage[id] ? null : (
+                <span className="rounded-sm border border-[var(--admin-warn-line)] bg-[var(--admin-warn-soft)] px-2 py-0.5 font-normal text-[var(--admin-warn)] text-xs">
+                  아직 아무 데도 안 붙었다 — 저장이 막힌다
+                </span>
+              )}
+            </span>
+          }
+        >
           <LinesEditor lines={lines} options={options} onChange={(next) => setLines(id, next)} />
         </Card>
       ))}
@@ -439,9 +775,11 @@ function LinesEditor({
       {lines.map((line, index) => (
         // 줄에는 고유 id가 없다 — 순서가 곧 정체성이라 인덱스를 키로 쓴다
         // biome-ignore lint/suspicious/noArrayIndexKey: 줄의 정체성은 순서 그 자체다
-        <div key={index} className="rounded-sm border border-fog/20 p-3">
+        <div key={index} className="rounded-sm border border-[var(--admin-line)] p-3">
           <div className="mb-2 flex flex-wrap items-end gap-3">
-            <span className="pb-2 font-mono text-fog text-xs">line{index + 1}</span>
+            <span className={`pb-2 font-mono text-xs ${mutedClass}`}>
+              {index + 1}번째 줄 / {lines.length}
+            </span>
             <div className="w-36">
               <Field label="화자">
                 <Select
@@ -516,22 +854,40 @@ function CutscenesTab({
   options: ContentOptions;
   onChange: (next: GameContent) => void;
 }) {
+  const cards = useCollapsible(true);
+
   const setCuts = (id: string, cuts: ContentCut[]) =>
     onChange({ ...content, cutscenes: { ...content.cutscenes, [id]: cuts } });
 
+  const ids = Object.keys(content.cutscenes);
+
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-fog text-sm">
-        컷씬 일러스트는 아직 리포에 없어도 된다 — 없으면 회색 판이 자리를 지키고 대사만 흐른다.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className={`text-sm ${mutedClass}`}>
+          컷씬 일러스트는 아직 리포에 없어도 된다 — 없으면 회색 판이 자리를 지키고 대사만 흐른다.
+        </p>
+        <CollapseAll
+          onExpand={() => cards.setAll(ids, true)}
+          onCollapse={() => cards.setAll(ids, false)}
+        />
+      </div>
 
       {Object.entries(content.cutscenes).map(([id, cuts]) => (
-        <Card key={id} title={<span className="font-mono">{id}</span>}>
+        <Card
+          key={id}
+          open={cards.isOpen(id)}
+          onToggle={() => cards.toggle(id)}
+          summary={`${cuts.length}컷`}
+          title={<span className="font-mono">{id}</span>}
+        >
           <div className="flex flex-col gap-4">
             {cuts.map((cut, index) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: 컷의 정체성은 순서 그 자체다
-              <div key={index} className="rounded-sm border border-fog/20 p-3">
-                <p className="mb-3 font-mono text-fog text-xs">cut{index + 1}</p>
+              <div key={index} className="rounded-sm border border-[var(--admin-line)] p-3">
+                <p className={`mb-3 font-mono text-xs ${mutedClass}`}>
+                  {index + 1}번째 컷 / {cuts.length}
+                </p>
 
                 <div className="grid gap-3 sm:grid-cols-[3fr_1fr]">
                   <Field label="일러스트 경로">
@@ -591,21 +947,38 @@ function LoreTab({
   content: GameContent;
   onChange: (next: GameContent) => void;
 }) {
+  const cards = useCollapsible(false);
+
   const setMemory = (index: number, memory: ContentMemory) => {
     const memories = [...content.memories];
     memories[index] = memory;
     onChange({ ...content, memories });
   };
 
+  const waves = unlockWaves(content.memories, "phase1");
+  const ids = [...content.memories.map((memory) => memory.id), ...Object.keys(content.stages)];
+
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-fog text-sm">
-        기록은 수첩에 남는 문장이다. 대사가 한 줄도 없는 기억은 다시보기에서 이 기록이 나레이션으로
-        대신 선다.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className={`text-sm ${mutedClass}`}>
+          기록은 수첩에 남는 문장이다. 대사가 한 줄도 없는 기억은 다시보기에서 이 기록이
+          나레이션으로 대신 선다. 번호는 흐름 탭과 같은 &ldquo;열리는 차례&rdquo;다.
+        </p>
+        <CollapseAll
+          onExpand={() => cards.setAll(ids, true)}
+          onCollapse={() => cards.setAll(ids, false)}
+        />
+      </div>
 
       {content.memories.map((memory, index) => (
-        <Card key={memory.id} title={<span className="font-mono">{memory.id}</span>}>
+        <Card
+          key={memory.id}
+          open={cards.isOpen(memory.id)}
+          onToggle={() => cards.toggle(memory.id)}
+          summary={memory.phase2 ? "1바퀴 · 2바퀴 기록" : "1바퀴 기록"}
+          title={<MemoryTitle memory={memory} wave={waves.get(memory.id)} />}
+        >
           <div className="flex flex-col gap-4">
             <LocalizedInput
               label="제목"
@@ -634,7 +1007,13 @@ function LoreTab({
       ))}
 
       {Object.entries(content.stages).map(([id, stage]) => (
-        <Card key={id} title={<span className="font-mono">stage · {id}</span>}>
+        <Card
+          key={id}
+          open={cards.isOpen(id)}
+          onToggle={() => cards.toggle(id)}
+          summary="독백 · 대사"
+          title={<span className="font-mono">stage · {id}</span>}
+        >
           <div className="flex flex-col gap-4">
             <LocalizedInput
               label="독백"

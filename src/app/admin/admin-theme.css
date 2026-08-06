@@ -1,0 +1,40 @@
+/*
+ * 어드민 전용 팔레트 — 게임 팔레트(DESIGN.md)를 따르지 않는다.
+ *
+ * 게임 UI는 바랜 크림/세피아가 정서지만, 여기는 몇 시간씩 글자만 들여다보는
+ * 작업 화면이다. 색이 있는 바탕은 오래 보면 눈이 먼저 지치므로, 채도를 뺀
+ * 중립 회색 한 계열로 깔고 밝기 단계로만 층을 나눈다. 흰색(#fff)과 검정(#000)은
+ * 쓰지 않는다 — 눈부심과 잔상이 거기서 나온다.
+ *
+ * 그래서 이 파일의 hex는 DESIGN.md 토큰이 아니다. 어드민은 프로덕션 빌드에
+ * 들어가지 않는 로컬 도구라(page.dev.tsx) 게임 화면과 색을 맞출 이유가 없고,
+ * 맞추면 오히려 편집 중인 대사가 게임 UI인 것처럼 보인다.
+ *
+ * .admin-theme 안에서만 산다. 값은 전부 Tailwind 임의값(bg-[var(--admin-panel)])
+ * 으로 쓰고, 여기 없는 색을 컴포넌트에 직접 박지 않는다.
+ */
+.admin-theme {
+  /* 층: 바탕 < 카드. 카드가 바탕보다 밝아야 종이가 위에 놓인 것으로 읽힌다 */
+  --admin-canvas: #eceef0;
+  --admin-panel: #fafafb;
+  /* 입력칸·미리보기처럼 "패인" 자리 */
+  --admin-sunken: #f1f2f4;
+
+  /* 글자 3단. faint는 번호·화살표 같은 장식 전용 (본문에 쓰면 대비가 모자란다) */
+  --admin-ink: #2c3138;
+  --admin-ink-soft: #5b636c;
+  --admin-ink-faint: #8b929a;
+
+  --admin-line: #dcdfe3;
+  --admin-line-strong: #c2c7cd;
+
+  /* 고른 것·현재 위치. 차분한 청색 하나로 통일한다 */
+  --admin-accent: #3d7089;
+  --admin-accent-soft: #e7f0f4;
+  --admin-accent-line: #a9c7d4;
+
+  /* 저장을 막는 것들 */
+  --admin-warn: #a2544a;
+  --admin-warn-soft: #f8ebe9;
+  --admin-warn-line: #ddb3ac;
+}
