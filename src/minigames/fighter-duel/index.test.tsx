@@ -136,7 +136,10 @@ describe("FighterDuelMinigame", () => {
     // 접근성 이름으로 찾는다 — 화면에 보이는 글자이자 스크린리더가 읽는 문장이다
     expect(screen.getByRole("button", { name: "1 Attack beats Special" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "2 Guard beats Attack" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "3 Special beats Guard" })).toBeTruthy();
+    // 필살기 버튼만 남은 게이지까지 읽힌다 — 눈으로는 칸, 스크린리더로는 문장
+    expect(
+      screen.getByRole("button", { name: "3 Special beats Guard special meter 1 of 3" }),
+    ).toBeTruthy();
   });
 
   it("names the move the opponent is telegraphing, not just the pose", () => {
@@ -151,6 +154,36 @@ describe("FighterDuelMinigame", () => {
     expect(status).toContain("They reach both arms forward");
     expect(status).toContain("Special");
     expect(status).toContain("Opponent");
+  });
+
+  it("locks the special once the meter runs dry, without eating the round", () => {
+    /*
+     * UT: "필살기면 횟수 제한 있어야 할 듯."
+     *
+     * 빈 게이지로 누른 필살기가 라운드를 잡아먹으면 "눌렀는데 아무 일도 없이 한 판을
+     * 날렸다"가 된다. 잠그되, 그 라운드는 다른 수로 계속 낼 수 있어야 한다.
+     */
+    render(<FighterDuelMinigame onComplete={() => {}} />);
+    const special = () => screen.getByRole("button", { name: /^3 Special/ }) as HTMLButtonElement;
+    advanceTime(INTRO_MS);
+
+    // 첫 예고는 필살기 — 같은 수를 내면 비기고, 게이지 한 칸만 빠진다
+    fireEvent.keyDown(window, { key: "3" });
+    expect(screen.getByText("Clashed")).toBeTruthy();
+
+    advanceTime(RESULT_MS);
+    expect(special().disabled).toBe(true);
+
+    // 빈 게이지로 눌러도 라운드는 그대로 살아 있다
+    fireEvent.keyDown(window, { key: "3" });
+    expect(screen.queryByText("Clashed")).toBeNull();
+    expect(heroHp()).toBe(MAX_HP);
+    expect(rivalHp()).toBe(MAX_HP);
+
+    // 읽어내면 다시 한 칸 차고 필살기가 열린다
+    answerTell();
+    advanceTime(RESULT_MS);
+    expect(special().disabled).toBe(false);
   });
 
   it("drops the hero sprite onto the floor line the rival already stands on", () => {

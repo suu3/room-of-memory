@@ -109,7 +109,8 @@
         "controls_touch": "Use the three buttons below (Attack · Guard · Special)",
         "triangle": "Attack → Special → Guard → Attack. A special breaks through a guard, and a special needs a windup an attack can cut short",
         "clock": "The opponent telegraphs the next move with a stance — press the button that beats the name shown before the timer runs out",
-        "feint": "They may change stance mid-tell (a feint). Answer fast for a read, chain wins for a combo — both hit harder"
+        "feint": "They may change stance mid-tell (a feint). Answer fast for a read, chain wins for a combo — both hit harder",
+        "special": "A special spends one meter bar — you gain one for every read you land, up to three. Empty means you cannot use it"
       },
       "labelCombo": "Combo",
       "labelCritical": "Reads",
@@ -141,7 +142,8 @@
         "late": "Too slow…"
       },
       "beats": "beats {{move}}",
-      "tellLabel": "Opponent"
+      "tellLabel": "Opponent",
+      "specialLeft": "special meter {{left}} of {{max}}"
     },
     "labelSuccess": "HITS",
     "labelMiss": "MISS",

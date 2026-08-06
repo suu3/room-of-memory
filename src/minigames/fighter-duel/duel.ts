@@ -78,6 +78,22 @@ export const RIVAL_BASE_DAMAGE = 15;
 export const RIVAL_RAMP = 2;
 export const RIVAL_DAMAGE_CAP = 23;
 
+/* ------------------------------------------------------- 필살기 게이지 */
+
+/**
+ * 필살기는 낼 때마다 게이지 한 칸을 쓴다 — 아무 때나 낼 수 있으면 필살기가 아니라
+ * 그냥 세 번째 버튼이다.
+ *
+ * 읽어낼 때마다 한 칸이 차므로 제대로 받아친 필살기는 제 값을 스스로 벌고(써서
+ * 이기면 net 0), 헛디딘 필살기만 한 칸을 잃는다. 게이지가 비면 상대의 방어
+ * 예고를 이길 수가 없는데, 그때는 같이 방어해서 비기면 된다 — 손해 없이 한
+ * 라운드를 흘려보내는 선택지가 항상 남아 있어야 빈 게이지가 사형선고가 아니다.
+ */
+export const SPECIAL_MAX = 3;
+export const SPECIAL_START = 1;
+export const SPECIAL_COST = 1;
+export const SPECIAL_GAIN = 1;
+
 export interface DuelState {
   heroHp: number;
   rivalHp: number;
@@ -85,9 +101,28 @@ export interface DuelState {
   combo: number;
   /** 지금까지 치른 라운드 수. 난이도 곡선의 축. */
   round: number;
+  /** 남은 필살기 게이지. 0이면 필살기를 못 낸다. */
+  special: number;
 }
 
-export const DUEL_START: DuelState = { heroHp: MAX_HP, rivalHp: MAX_HP, combo: 0, round: 0 };
+export const DUEL_START: DuelState = {
+  heroHp: MAX_HP,
+  rivalHp: MAX_HP,
+  combo: 0,
+  round: 0,
+  special: SPECIAL_START,
+};
+
+export function canUseSpecial(state: DuelState): boolean {
+  return state.special >= SPECIAL_COST;
+}
+
+/** 이번 라운드를 치르고 난 게이지. 쓴 만큼 빠지고 읽어낸 만큼 찬다. */
+export function nextSpecial(state: DuelState, resolution: RoundResolution): number {
+  const spent = resolution.player === "throw" ? SPECIAL_COST : 0;
+  const gained = resolution.outcome === "win" ? SPECIAL_GAIN : 0;
+  return Math.min(SPECIAL_MAX, Math.max(0, state.special - spent + gained));
+}
 
 export interface RoundResolution {
   /** 시간 안에 아무것도 안 냈으면 null. */
@@ -125,18 +160,20 @@ export function damageOf(state: DuelState, resolution: RoundResolution): number 
 export function applyRound(state: DuelState, resolution: RoundResolution): DuelState {
   const damage = damageOf(state, resolution);
   const round = state.round + 1;
+  const special = nextSpecial(state, resolution);
   if (resolution.outcome === "win") {
     return {
       ...state,
       round,
+      special,
       rivalHp: Math.max(0, state.rivalHp - damage),
       combo: state.combo + 1,
     };
   }
   if (resolution.outcome === "lose") {
-    return { ...state, round, heroHp: Math.max(0, state.heroHp - damage), combo: 0 };
+    return { ...state, round, special, heroHp: Math.max(0, state.heroHp - damage), combo: 0 };
   }
-  return { ...state, round };
+  return { ...state, round, special };
 }
 
 export type DuelStatus = "playing" | "won" | "lost";

@@ -11,6 +11,7 @@ import {
   applyRound,
   beats,
   CRITICAL_MS,
+  canUseSpecial,
   DUEL_START,
   type DuelState,
   damageOf,
@@ -25,6 +26,7 @@ import {
   type RoundOutcome,
   type RoundPlan,
   resolveRound,
+  SPECIAL_MAX,
 } from "./duel";
 import { Fighter, type Pose } from "./Fighter";
 import { HealthBar } from "./HealthBar";
@@ -60,6 +62,26 @@ const MOVE_KEYS = ["1", "2", "3"] as const;
  */
 const HERO_OFFSET_Y = 16;
 
+/**
+ * 필살기 게이지 칸. 숫자가 아니라 칸으로 보여준다 — 판이 도는 중에 읽어야 해서
+ * "두 칸 남았다"보다 "두 개 켜져 있다"가 빠르다.
+ */
+/** 칸 수는 고정이고 자리가 곧 정체성이라, 키를 미리 박아 둔다. */
+const SPECIAL_SLOTS = Array.from({ length: SPECIAL_MAX }, (_, slot) => `special-${slot}`);
+
+function SpecialMeter({ charged }: { charged: number }) {
+  return (
+    <span aria-hidden className="flex gap-0.5">
+      {SPECIAL_SLOTS.map((key, slot) => (
+        <span
+          key={key}
+          className={`size-1.5 rounded-full ${slot < charged ? "bg-memory" : "bg-ink/20"}`}
+        />
+      ))}
+    </span>
+  );
+}
+
 /** 한 라운드가 끝난 자리에 남는 것 — 화면이 읽어서 자세·숫자·문구로 옮긴다. */
 interface Resolved {
   /** 시간 안에 아무것도 안 냈으면 null. */
@@ -92,7 +114,8 @@ function opponentPose(resolved: Resolved | null, tell: Move, over: boolean): Pos
 
 /**
  * 게임기 속 격투 게임. 상대가 다음 수를 자세로 예고하고, 그걸 받아치는 수를 낸다.
- * 때리기 > 잡기 > 막기 > 때리기 — 반사신경이 아니라 읽기 싸움이다.
+ * 공격 > 필살기 > 방어 > 공격 — 반사신경이 아니라 읽기 싸움이다.
+ * 필살기만 게이지를 쓰므로 세 수가 대등하지 않다 — 방어 예고를 이기려면 게이지가 있어야 한다.
  *
  * 읽기만으로 끝나지 않게 세 가지가 얹혀 있다(규칙은 ./duel.ts):
  * 연속으로 읽어내면 세게 들어가고(콤보), 빨리 읽으면 한 방이 커지고(간파),
@@ -152,6 +175,12 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   const answerRef = useRef((_move: Move | null) => {});
   answerRef.current = (move) => {
     if (lockedRef.current || !liveRef.current) return;
+    /*
+     * 게이지가 빈 필살기는 낸 것으로 치지 않는다 — 잠그지 않고 그대로 돌아가므로
+     * 같은 라운드에 다른 수를 낼 수 있다. 여기서 라운드를 잡아먹으면 "눌렀는데
+     * 아무 일도 없이 한 판을 날렸다"가 된다.
+     */
+    if (move === "throw" && !canUseSpecial(stateRef.current)) return;
     lockedRef.current = true;
     const opponent = shownRef.current;
     // 시간 안에 못 내면 그대로 맞는다.
@@ -518,25 +547,37 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
             정답 버튼을 대신 짚어 주지는 않는다. 짚어 주면 페인트가 무의미해지고
             (자세가 바뀌면 표시도 따라 바뀌므로) 읽기 싸움이 통째로 사라진다.
           */
+          /** 필살기만 게이지를 쓴다 — 빈 게이지면 낼 수 없다는 걸 버튼이 먼저 말한다. */
+          const costsMeter = move === "throw";
+          const spent = costsMeter && !canUseSpecial(state);
+
           return (
             <button
               key={move}
               type="button"
-              disabled={!live || resolved !== null}
+              disabled={!live || resolved !== null || spent}
               onClick={() => answerRef.current(move)}
               className={`rounded-md border border-ink/15 px-4 py-2.5 tracking-wide text-ink transition-all focus-visible:outline-2 focus-visible:outline-memory focus-visible:outline-offset-2 enabled:cursor-pointer enabled:hover:border-ink/40 enabled:hover:bg-ink/5 enabled:active:translate-y-px disabled:opacity-45 ${
                 resolved?.player === move ? "border-ink/40 bg-ink/5 opacity-100" : ""
               }`}
             >
-              <span className="block font-bold text-base">
-                <span className="font-pixel text-ink/45 text-xs">{MOVE_KEYS[index]}</span>{" "}
-                {t(`minigame.fighterDuel.move.${move}`)}
+              <span className="flex items-center justify-center gap-2 font-bold text-base">
+                <span>
+                  <span className="font-pixel text-ink/45 text-xs">{MOVE_KEYS[index]}</span>{" "}
+                  {t(`minigame.fighterDuel.move.${move}`)}
+                </span>
+                {costsMeter && <SpecialMeter charged={state.special} />}
               </span>
               <span className="mt-0.5 block break-ko text-[0.6875rem] text-ink/50">
                 {t("minigame.fighterDuel.beats", {
                   move: t(`minigame.fighterDuel.move.${beats(move)}`),
                 })}
               </span>
+              {costsMeter && (
+                <span className="sr-only">
+                  {t("minigame.fighterDuel.specialLeft", { left: state.special, max: SPECIAL_MAX })}
+                </span>
+              )}
             </button>
           );
         })}

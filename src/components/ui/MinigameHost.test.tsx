@@ -45,8 +45,8 @@ describe("MinigameHost", () => {
     expect(screen.getByText(/change stance mid-tell/)).toBeTruthy();
     expect(screen.getByText(/before the timer runs out/)).toBeTruthy();
 
-    // 네 줄을 넘기지 않는다 — 그 이상은 시작 버튼 앞에서 안 읽힌다
-    expect(screen.getAllByRole("listitem")).toHaveLength(4);
+    // 다섯 줄을 넘기지 않는다 — 그 이상은 시작 버튼 앞에서 안 읽힌다
+    expect(screen.getAllByRole("listitem")).toHaveLength(5);
   });
 
   it("comes back to the start card after the panel is closed and reopened", () => {

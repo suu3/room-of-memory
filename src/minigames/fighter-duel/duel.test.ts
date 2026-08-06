@@ -6,6 +6,7 @@ import {
   COMBO_STEP,
   CRITICAL_MS,
   CRITICAL_SCALE,
+  canUseSpecial,
   counterTo,
   DUEL_START,
   damageOf,
@@ -30,6 +31,8 @@ import {
   readHabit,
   resolveRound,
   rivalDamage,
+  SPECIAL_MAX,
+  SPECIAL_START,
   shouldFeint,
   TELL_FLOOR_MS,
   TELL_START_MS,
@@ -308,5 +311,55 @@ describe("planRound", () => {
     expect(planRound(cornered, 7, [], 1).durationMs).toBeLessThan(
       planRound({ ...cornered, rivalHp: MAX_HP }, 7, [], 1).durationMs,
     );
+  });
+});
+
+describe("필살기 게이지", () => {
+  /** 필살기로 이긴 라운드 / 헛디딘 라운드. player가 throw인 것이 게이지를 쓴다. */
+  const specialWon = {
+    player: "throw",
+    opponent: "guard",
+    outcome: "win",
+    critical: false,
+  } as const;
+  const specialWhiffed = {
+    player: "throw",
+    opponent: "strike",
+    outcome: "lose",
+    critical: false,
+  } as const;
+
+  it("starts with a bar and fills one per read, up to the cap", () => {
+    expect(DUEL_START.special).toBe(SPECIAL_START);
+
+    let state = DUEL_START;
+    for (let round = 0; round < 6; round += 1) state = applyRound(state, won());
+
+    expect(state.special).toBe(SPECIAL_MAX);
+  });
+
+  it("lets a landed special pay for itself — spent one, read one back", () => {
+    // 제대로 읽고 쓴 필살기까지 게이지를 깎으면, 맞게 쓴 것에 벌을 주는 셈이 된다
+    expect(applyRound(DUEL_START, specialWon).special).toBe(DUEL_START.special);
+  });
+
+  it("charges a bar for the special that misses", () => {
+    expect(applyRound(DUEL_START, specialWhiffed).special).toBe(DUEL_START.special - 1);
+  });
+
+  it("never drops below empty, and an empty meter locks the special", () => {
+    const empty = applyRound(DUEL_START, specialWhiffed);
+
+    expect(empty.special).toBe(0);
+    expect(canUseSpecial(empty)).toBe(false);
+    expect(applyRound(empty, specialWhiffed).special).toBe(0);
+    expect(canUseSpecial(DUEL_START)).toBe(true);
+  });
+
+  it("leaves the other two moves free — only the special draws on the meter", () => {
+    const drained = { ...DUEL_START, special: 0 };
+
+    expect(applyRound(drained, drew).special).toBe(0);
+    expect(applyRound(drained, won()).special).toBe(1);
   });
 });
