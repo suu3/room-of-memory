@@ -1,0 +1,39 @@
+# 방 단계별 독백 — 밝기와 바퀴 수가 정하는 3단계(dark/dim/gold)에 붙는 텍스트.
+#
+# 어느 단계를 쓸지는 roomStageIndex(src/scenes/memory-room/visual-state.ts)가 정한다.
+# 배경 그라디언트·글로우 세기 같은 시각값은 대본이 아니라 디자인 토큰이라
+# src/data/memory-room.ts의 ROOM_STAGES에 그대로 있다.
+#
+#   monologue  화면 상단에 타자기로 찍히는 독백 (src/components/ui/Monologue.tsx)
+#   dialogue   아직 쓰이는 곳이 없는 자리. 넣을 대사가 정해지면 여기에 쓴다.
+
+stages:
+  dark:
+    monologue:
+      ko: 다 봤는데, 방은 더 어두워졌다.
+      en: I have seen all of it, and the room only got darker.
+      ja: 全部見たのに、部屋はもっと暗くなった。
+    dialogue:
+      ko: 여기에 대사가 들어갑니다
+      en: Dialogue placeholder goes here
+      ja: ここにセリフが入ります
+
+  dim:
+    monologue:
+      ko: 심심하네. 뭐부터 해볼까.
+      en: Nothing to do. What should I start with.
+      ja: 退屈だな。何からやろうか。
+    dialogue:
+      ko: 여기에 대사가 들어갑니다
+      en: Dialogue placeholder goes here
+      ja: ここにセリフが入ります
+
+  gold:
+    monologue:
+      ko: 다시 보니 다르게 보이네. 문 쪽이 밝아.
+      en: It looks different the second time. The door side is bright.
+      ja: 見直すと違って見える。ドアのほうが明るい。
+    dialogue:
+      ko: 여기에 대사가 들어갑니다
+      en: Dialogue placeholder goes here
+      ja: ここにセリフが入ります

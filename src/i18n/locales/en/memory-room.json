@@ -109,18 +109,10 @@
     }
   },
   "lore": {
-    "ball": {
-      "title": "Catch, Alone",
-      "phase1": "Throw it at the wall and it comes back. That is all. I keep forgetting there is no one to catch it.",
-      "phase2": "If someone out there can catch it, this ball still has a use."
-    },
-    "calendar": {
-      "title": "October 19",
-      "phase1": "The numbers stopped on that day. After that I stopped writing dates and only made tally marks."
-    },
-    "phone": {
-      "title": "The Silence",
-      "phase1": "The group chat has been quiet since that day. Every missed call is one I made."
+    "console": {
+      "title": "Not fun anymore",
+      "phase1": "Alone, winning and losing feel the same.",
+      "phase2": "Maybe it gets fun again with two."
     },
     "window": {
       "title": "Outside",
@@ -136,18 +128,32 @@
       "phase1": "They said it had reached Busan. I cannot pretend not to know anymore.",
       "phase2": "A human voice came through the noise. “Hey, is anyone there?” I am not the only one."
     },
-    "console": {
-      "title": "Not fun anymore",
-      "phase1": "Alone, winning and losing feel the same.",
-      "phase2": "Maybe it gets fun again with two."
+    "phone": {
+      "title": "The Silence",
+      "phase1": "The group chat has been quiet since that day. Every missed call is one I made."
+    },
+    "calendar": {
+      "title": "October 19",
+      "phase1": "The numbers stopped on that day. After that I stopped writing dates and only made tally marks."
+    },
+    "ball": {
+      "title": "Catch, Alone",
+      "phase1": "Throw it at the wall and it comes back. That is all. I keep forgetting there is no one to catch it.",
+      "phase2": "If someone out there can catch it, this ball still has a use."
     }
   },
   "cutscenes": {
     "radio-blackout": {
-      "cut1": "…So that's all of it.",
-      "cut2": "……",
-      "cut3": "…Hey. Is somebody there?",
-      "cut3Reply": "Huh? Who is that?"
+      "cut1": {
+        "line1": "…So that's all of it."
+      },
+      "cut2": {
+        "line1": "……"
+      },
+      "cut3": {
+        "line1": "…Hey. Is somebody there?",
+        "line2": "Huh? Who is that?"
+      }
     }
   }
 }

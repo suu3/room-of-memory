@@ -1,0 +1,178 @@
+# 기억 오브젝트 — 목록·순서·해금 조건·인터랙션 흐름.
+#
+# 이 파일이 게임 진행의 뼈대다. 여기 적힌 순서가 기억 패널에 뜨는 순서이고,
+# unlockAfter가 "무엇을 먼저 조사해야 열리는가"를 정한다.
+#
+# 고치고 나면 `pnpm content:build`. 어드민(dev 서버의 /admin)에서 저장하면 자동으로 돈다.
+#
+# 배트는 여기 없다 — 문 옆의 배트는 모으는 물건이 아니라 2바퀴를 다 돌았을 때
+# 켜지는 엔딩 트리거다 (layout의 BAT_PLACEMENT, scenes의 EndingTrigger).
+#
+# 한 항목의 형태:
+#   id            기억 id. 코드·에셋·i18n 키가 전부 이 값을 쓴다.
+#   icon          기억 패널 아이콘. @phosphor-icons/react 이름 (schema.mjs의 허용 목록).
+#   lore          수첩에 남는 기록. phase1은 필수, phase2는 2바퀴 대상만.
+#   phase1        최초 수집 클릭. 모든 기억에 필수.
+#   phase2        전원 수집 후 재클릭. 있는 기억만 2바퀴 대상이 된다.
+#
+# phase 안의 형태:
+#   script        미니게임 앞에 트는 진입 대사 (scripts.yaml의 id)
+#   minigame      미니게임 id (src/minigames/index.ts 레지스트리)
+#   resultScript  미니게임 클리어 뒤의 결과 대사 (scripts.yaml의 id)
+#   unlockAfter   같은 페이즈에서 먼저 완료돼야 하는 기억 id 목록
+#   replayStill   다시보기에서 대사 뒤에 세우는 정지 그림 (public 기준 경로)
+#
+# 셋 다 생략하면 클릭 즉시 완료된다.
+
+memories:
+  - id: console
+    icon: GameController
+    lore:
+      title:
+        ko: 이젠 재미없네
+        en: Not fun anymore
+        ja: もう楽しくない
+      phase1:
+        ko: 혼자 하는 게임은 이기든 지든 똑같다.
+        en: Alone, winning and losing feel the same.
+        ja: 一人だと勝っても負けても同じだ。
+      phase2:
+        ko: 다시 둘이 하면 또 재밌어질까.
+        en: Maybe it gets fun again with two.
+        ja: 二人ならまた楽しくなるかな。
+    phase1:
+      minigame: fighter-duel
+    phase2:
+      script: console-echo
+      # 2바퀴는 라디오 목소리에서 시작한다 — 재점등된 나머지는 그 뒤에 열린다
+      unlockAfter: [radio]
+
+  - id: window
+    icon: GridFour
+    lore:
+      title:
+        ko: 창밖
+        en: Outside
+        ja: 窓の外
+      phase1:
+        ko: 커튼을 걷었다. 깨진 유리, 찌그러진 차, 지워지지 않는 자국. 다시 닫았다.
+        en: I opened the curtain. Broken glass, a crushed car, stains that will not wash off. I closed it again.
+        ja: カーテンを開けた。割れたガラス、潰れた車、消えない跡。また閉めた。
+    # 커튼을 걷으면 그림 한 장 — 미니게임이라기보다 들여다보는 오브젝트다
+    phase1:
+      minigame: window-view
+      replayStill: /assets/images/mg-window-view-outside.webp
+
+  - id: frame
+    icon: ImageSquare
+    lore:
+      title:
+        ko: 부모님
+        en: My Parents
+        ja: 両親
+      phase1:
+        ko: 유리에 먼지가 껴서 얼굴이 안 보인다. 닦아도 부모님 얼굴만 흐릿하다.
+        en: Dust on the glass hides their faces. Even wiped clean, only my parents stay blurred.
+        ja: ガラスに埃がついて顔が見えない。拭いても両親の顔だけがぼやけている。
+      phase2:
+        ko: 흩어진 조각을 제자리에 놓으니 얼굴이 돌아왔다. 아직 못 만났을 뿐이다.
+        en: I put the pieces back and the faces returned. We just haven't met yet.
+        ja: 散らばった欠片を戻したら顔が返ってきた。まだ会えていないだけだ。
+    phase1:
+      minigame: photo-wipe
+      resultScript: frame-photo
+      replayStill: /assets/images/mg-photo-wipe-phase-1.webp
+    # 2차 조사: 흩어진 사진 조각을 맞추면 그늘에 묻혔던 가족 얼굴이 드러난다
+    phase2:
+      minigame: photo-puzzle
+      resultScript: frame-photo-echo
+      unlockAfter: [radio]
+      replayStill: /assets/images/mg-photo-wipe-phase-2.webp
+
+  - id: radio
+    icon: Radio
+    lore:
+      title:
+        ko: 그날의 방송
+        en: That Broadcast
+        ja: あの日の放送
+      phase1:
+        ko: 부산까지 번졌다고 했다. 이제 모르는 척할 수가 없다.
+        en: They said it had reached Busan. I cannot pretend not to know anymore.
+        ja: 釜山まで広がったと言っていた。もう知らないふりはできない。
+      phase2:
+        ko: 노이즈 사이로 사람 목소리가 들렸다. “야, 누구 없어?” 나 말고도 있다.
+        en: A human voice came through the noise. “Hey, is anyone there?” I am not the only one.
+        ja: ノイズの向こうから人の声がした。「なあ、誰かいないか？」 俺だけじゃない。
+    #
+    # 라디오는 1바퀴의 마지막 관문이다 — 나머지를 다 조사해야 열린다.
+    #
+    # 순서를 강제하는 이유는 반전이 한 번뿐이기 때문이다. 라디오를 먼저 들으면
+    # 재난방송이 세계관을 통째로 열어버려서, 남은 오브젝트의 "일상에 난 균열"이
+    # 전부 이미 아는 이야기의 각주로 떨어진다.
+    #
+    # 1차: 진입 대사 → 튜닝 → 재난방송(결과 대사). 방송이 끊기면 전환 컷씬이 뜬다
+    # (store의 complete가 CUTSCENE_RADIO_BLACKOUT을 연다).
+    phase1:
+      script: radio-intro
+      minigame: frequency-tune
+      resultScript: radio-broadcast
+      unlockAfter: [console, window, frame, phone, calendar, ball]
+    # 2차: 2바퀴에서 유일하게 손을 쓰는 조사. 같은 다이얼 끝에 이번엔 사람이 있다.
+    # 2바퀴의 첫 관문이라 아무것도 기다리지 않는다.
+    phase2:
+      script: radio-voice-intro
+      minigame: frequency-tune
+      resultScript: radio-voice
+
+  - id: phone
+    icon: DeviceMobile
+    lore:
+      title:
+        ko: 끊긴 연락
+        en: The Silence
+        ja: 途切れた連絡
+      phase1:
+        ko: 단톡은 그날 이후로 조용하다. 부재중 전화는 전부 내가 건 쪽이다.
+        en: The group chat has been quiet since that day. Every missed call is one I made.
+        ja: グループチャットはあの日から静かだ。不在着信は全部こちらからかけたものだ。
+    phase1:
+      minigame: phone-chat
+
+  - id: calendar
+    icon: CalendarHeart
+    lore:
+      title:
+        ko: 10월 19일
+        en: October 19
+        ja: 10月19日
+      phase1:
+        ko: 숫자가 그날에서 멈췄다. 그 뒤로는 날짜가 아니라 正자만 그었다.
+        en: The numbers stopped on that day. After that I stopped writing dates and only made tally marks.
+        ja: 数字はあの日で止まった。それからは日付ではなく、正の字だけを書いた。
+    phase1:
+      minigame: calendar-flip
+      unlockAfter: [phone]
+
+  - id: ball
+    icon: Baseball
+    lore:
+      title:
+        ko: 혼자 하는 캐치볼
+        en: Catch, Alone
+        ja: ひとりのキャッチボール
+      phase1:
+        ko: 벽에 던지면 돌아온다. 그게 전부다. 받아줄 사람이 없다는 걸 자꾸 잊는다.
+        en: Throw it at the wall and it comes back. That is all. I keep forgetting there is no one to catch it.
+        ja: 壁に投げれば返ってくる。それだけだ。受けてくれる人がいないことを、つい忘れる。
+      phase2:
+        ko: 받아줄 사람이 어딘가에 있다면, 이 공은 아직 쓸 데가 있다.
+        en: If someone out there can catch it, this ball still has a use.
+        ja: 受けてくれる人がどこかにいるなら、このボールにはまだ使い道がある。
+    phase1:
+      script: ball-intro
+      minigame: ball-catch
+      replayStill: /assets/images/mg-ball-catch-sunset-field.webp
+    phase2:
+      script: ball-echo
+      unlockAfter: [radio]

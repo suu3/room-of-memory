@@ -1,0 +1,57 @@
+{
+  "characters": {
+    "hero": {
+      "name": "한도해",
+      "profile": [
+        {
+          "label": "나이",
+          "value": "19세 · 고3"
+        },
+        {
+          "label": "소속",
+          "value": "야구부 2루수 — 번트와 도루에 능한 타자"
+        },
+        {
+          "label": "좋아하는 것",
+          "value": "야구 · 심야 라디오 · 편의점 군것질"
+        },
+        {
+          "label": "버릇",
+          "value": "생각을 정리할 때 벽에 공 튀기기 · 시합 전 순서를 지키는 루틴"
+        }
+      ]
+    },
+    "broadcast": {
+      "name": "긴급 재난 방송"
+    },
+    "signal": {
+      "name": "? ? ?"
+    },
+    "narrator": {
+      "name": "기록"
+    }
+  },
+  "memories": {
+    "window": {
+      "name": "창문"
+    },
+    "frame": {
+      "name": "액자"
+    },
+    "radio": {
+      "name": "라디오"
+    },
+    "phone": {
+      "name": "스마트폰"
+    },
+    "calendar": {
+      "name": "달력"
+    },
+    "ball": {
+      "name": "사인볼"
+    },
+    "console": {
+      "name": "게임기"
+    }
+  }
+}

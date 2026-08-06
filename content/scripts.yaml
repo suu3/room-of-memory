@@ -1,0 +1,128 @@
+# 대사 스크립트 — 기억을 조사할 때 대사창에 흐르는 줄.
+#
+# memories.yaml의 script / resultScript가 여기 id를 가리킨다.
+# 어디서도 가리키지 않는 스크립트는 죽은 대사라 `pnpm content:build`가 막는다.
+#
+# 한 줄의 형태:
+#   speaker     화자 id. 이름은 i18n의 characters.<id>.name (memory-room.base.json).
+#               hero=한도해, broadcast=긴급 재난 방송, signal=???, narrator=기록
+#   expression  초상 표정. neutral(기본) | smile | surprised.
+#               hero가 아닌 화자는 초상이 없어서 무시된다.
+#   ko/en/ja    본문. 셋 다 있어야 한다. 마크업·이스케이프 금지.
+#
+# 여러 줄 대사는 YAML 블록(>-)이 아니라 한 줄로 쓴다 — 줄바꿈은 대사창이 알아서 한다.
+
+scripts:
+  ball-intro:
+    - speaker: hero
+      expression: surprised
+      ko: 그 날 시합, 엄청났었는데.
+      en: That game that day... it was incredible.
+      ja: あの日の試合、すごかったのにな。
+    - speaker: hero
+      expression: smile
+      ko: 휘두르는 감각을 잊어버릴 것 같아…
+      en: I feel like I'm forgetting how a swing feels…
+      ja: スイングの感覚を忘れてしまいそうだ…
+
+  # 액자를 다 닦은 뒤의 결과 대사 (1차)
+  frame-photo:
+    - speaker: hero
+      expression: smile
+      ko: 이건 유소년 야구대회에서 입상했을 때의 사진이야.
+      en: This is from the youth baseball tournament, the day I placed.
+      ja: これ、少年野球の大会で入賞したときの写真だ。
+    - speaker: hero
+      ko: …지금 어디 계실까?
+      en: …Where are they right now?
+      ja: …今、どこにいるんだろう。
+
+  # 2차 조사에서 가족 얼굴이 드러난 뒤의 결과 대사
+  frame-photo-echo:
+    - speaker: hero
+      expression: surprised
+      ko: …부모님 얼굴, 이제야 제대로 보이네.
+      en: …My parents' faces. I can finally see them properly.
+      ja: …両親の顔、やっとちゃんと見える。
+    - speaker: hero
+      expression: smile
+      ko: 만나면 이 사진 얘기부터 해야지.
+      en: When I find them, I'll start with this photo.
+      ja: 会えたら、まずこの写真の話をしよう。
+
+  console-echo:
+    - speaker: hero
+      expression: smile
+      ko: 나가면 한 판 할거야.
+      en: When I get out, we're playing a round.
+      ja: 外に出たら 一戦やるんだ。
+
+  # 1차 라디오 진입 — 마지막 남은 물건 앞에 선 한마디
+  radio-intro:
+    - speaker: hero
+      ko: 이제 남은 건 라디오뿐이네.
+      en: The radio is the only thing left.
+      ja: 残ってるのはラジオだけか。
+    - speaker: hero
+      ko: …어차피 노이즈밖에 안 잡히겠지만.
+      en: …It only ever picks up noise anyway.
+      ja: …どうせノイズしか入らないけど。
+
+  # 재난방송. 화자가 도해가 아니라 라디오라 초상이 붙지 않는다 —
+  # 이 게임에서 도해 아닌 목소리가 대사창을 쓰는 첫 자리다.
+  radio-broadcast:
+    - speaker: broadcast
+      ko: …긴급 재난 방송입니다. 전 국민은 즉시 실내로 대피하십시오.
+      en: …This is an emergency broadcast. All citizens must take shelter indoors immediately.
+      ja: …緊急災害放送です。国民の皆さんは直ちに屋内へ避難してください。
+    - speaker: broadcast
+      ko: 감염 사태는 수도권을 넘어 남부 전역으로 확산되고 있습니다.
+      en: The infection has spread past the capital region into the entire south.
+      ja: 感染は首都圏を越え、南部全域へ拡大しています。
+    - speaker: broadcast
+      ko: 부산까지 감염 사태가 번졌습니다. 현재 통제가 유지되는 지역은—
+      en: It has reached Busan. The areas still under control are—
+      ja: 釜山まで感染事態が広がりました。現在、統制が保たれている地域は—
+    - speaker: broadcast
+      ko: 지지…직—
+      en: Kssh… kkt—
+      ja: ザ…ザッ—
+
+  # 2차 라디오 진입 — 저 혼자 지직거리는 라디오 앞에 다시 앉는다
+  radio-voice-intro:
+    - speaker: hero
+      ko: …너, 아까 분명히 꺼졌잖아.
+      en: …You went dead. I watched you go dead.
+      ja: …お前、さっき確かに消えたよな。
+
+  # 2차 결과 — 컷씬에서 스쳤던 목소리가 이번엔 또렷하게 잡힌다
+  radio-voice:
+    - speaker: signal
+      ko: 야, 누구 없어?
+      en: Hey, is anyone there?
+      ja: なあ、誰かいないか？
+    - speaker: signal
+      ko: …있으면 대답 좀 해봐.
+      en: …If you're out there, say something.
+      ja: …いるなら返事してくれ。
+    - speaker: hero
+      expression: surprised
+      ko: 사람이다. 진짜 사람 목소리다.
+      en: That's a person. That's a real voice.
+      ja: 人だ。本物の人の声だ。
+    - speaker: hero
+      ko: 여기 앉아 있어서는 아무 일도 안 일어나겠지.
+      en: Nothing happens if I keep sitting here.
+      ja: ここに座っていても、何も起きないよな。
+
+  # 2차 조사: 벽에 혼자 던지던 공이 "같이 던질 사람"의 물건으로 돌아온다
+  ball-echo:
+    - speaker: hero
+      ko: 혼자 던지는 건 이제 그만해도 되려나.
+      en: Maybe I can stop throwing it alone.
+      ja: ひとりで投げるのは、もうやめてもいいかな。
+    - speaker: hero
+      expression: smile
+      ko: 받아줄 놈 찾으면, 그때 다시 던지자.
+      en: When I find someone to catch it, we'll throw again.
+      ja: 受けてくれるやつを見つけたら、そのときまた投げよう。

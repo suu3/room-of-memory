@@ -1,0 +1,57 @@
+{
+  "characters": {
+    "hero": {
+      "name": "ハン・ドヘ",
+      "profile": [
+        {
+          "label": "年齢",
+          "value": "19歳・高校3年"
+        },
+        {
+          "label": "所属",
+          "value": "野球部 二塁手 — バントと盗塁が得意な打者"
+        },
+        {
+          "label": "好きなもの",
+          "value": "野球・深夜ラジオ・コンビニのお菓子"
+        },
+        {
+          "label": "癖",
+          "value": "考えをまとめるとき壁にボールをぶつける・試合前の決まった手順"
+        }
+      ]
+    },
+    "broadcast": {
+      "name": "緊急災害放送"
+    },
+    "signal": {
+      "name": "? ? ?"
+    },
+    "narrator": {
+      "name": "記録"
+    }
+  },
+  "memories": {
+    "window": {
+      "name": "窓"
+    },
+    "frame": {
+      "name": "写真立て"
+    },
+    "radio": {
+      "name": "ラジオ"
+    },
+    "phone": {
+      "name": "スマートフォン"
+    },
+    "calendar": {
+      "name": "カレンダー"
+    },
+    "ball": {
+      "name": "サインボール"
+    },
+    "console": {
+      "name": "ニンテンドー"
+    }
+  }
+}

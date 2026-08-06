@@ -1,0 +1,48 @@
+# 컷씬 — 일러스트 한 장이 화면을 통째로 차지하고 그 위로 대사가 흐르는 연출.
+#
+# 그림 안에 말풍선을 넣지 않는 것이 이 연출의 규칙이라, 대사는 컷씬 전용 창을
+# 새로 만들지 않고 기존 대사창(DialogueBox)이 그대로 받는다.
+#
+# 컷 하나의 형태:
+#   image   일러스트 경로 (public 기준). 파일이 아직 없어도 회색 판이 자리를 지킨다.
+#   holdMs  대사가 끝난 뒤 대사창 없이 그림만 남기는 시간(ms).
+#           "정적 몇 초"가 연출의 일부인 컷에만 준다 — 없으면 곧장 다음 컷으로.
+#   lines   scripts.yaml과 같은 형태 (speaker / expression / ko / en / ja).
+
+cutscenes:
+  #
+  # 재난방송이 끊긴 자리에서 도는 전환 컷씬 — 게임 중 일러스트가 화면을 통째로
+  # 차지하는 유일한 자리다. 특별한 순간이라는 신호이므로 두 번 쓰지 않는다.
+  #
+  # 톤은 차가운 현재다. 따뜻한 과거 회상은 여기 없다 — 2바퀴에서 되찾을 온기를
+  # 미리 써버리면 상승 구간이 밋밋해진다.
+  #
+  # id를 바꾸면 src/data/memory-room.ts의 CUTSCENE_RADIO_BLACKOUT도 같이 고쳐야 한다.
+  radio-blackout:
+    - image: /assets/images/cutscene-radio-room.webp
+      lines:
+        - speaker: hero
+          ko: …다 확인했네.
+          en: …So that's all of it.
+          ja: …全部、確かめたな。
+
+    - image: /assets/images/cutscene-radio-hands.webp
+      # 말이 끊긴 자리에 남는 정적. 다음 컷의 목소리가 여기서 이질적으로 들어온다.
+      holdMs: 3200
+      lines:
+        - speaker: hero
+          ko: ……
+          en: ……
+          ja: ……
+
+    - image: /assets/images/cutscene-radio-signal.webp
+      lines:
+        - speaker: signal
+          ko: …거기, 누구 있어?
+          en: …Hey. Is somebody there?
+          ja: …そこ、誰かいるのか？
+        - speaker: hero
+          expression: surprised
+          ko: 어? 누구지?
+          en: Huh? Who is that?
+          ja: え？ 誰だ？

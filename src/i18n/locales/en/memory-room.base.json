@@ -1,0 +1,57 @@
+{
+  "characters": {
+    "hero": {
+      "name": "Han Do-hae",
+      "profile": [
+        {
+          "label": "Age",
+          "value": "19 · Final year of high school"
+        },
+        {
+          "label": "Club",
+          "value": "Baseball, second base — a bunt-and-steal hitter"
+        },
+        {
+          "label": "Likes",
+          "value": "Baseball · Late-night radio · Convenience store snacks"
+        },
+        {
+          "label": "Habits",
+          "value": "Bounces a ball off the wall while thinking · Keeps a fixed pre-game routine"
+        }
+      ]
+    },
+    "broadcast": {
+      "name": "Emergency Broadcast"
+    },
+    "signal": {
+      "name": "? ? ?"
+    },
+    "narrator": {
+      "name": "Record"
+    }
+  },
+  "memories": {
+    "window": {
+      "name": "Window"
+    },
+    "frame": {
+      "name": "Photo Frame"
+    },
+    "radio": {
+      "name": "Radio"
+    },
+    "phone": {
+      "name": "Smartphone"
+    },
+    "calendar": {
+      "name": "Calendar"
+    },
+    "ball": {
+      "name": "Signed Ball"
+    },
+    "console": {
+      "name": "Console"
+    }
+  }
+}
