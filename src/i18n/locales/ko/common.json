@@ -222,7 +222,8 @@
     "tabProfile": "프로필",
     "tabLore": "기록",
     "loreLocked": "아직 조사하지 않은 기록",
-    "lockedHint": "수집 시 열립니다"
+    "lockedHint": "수집 시 열립니다",
+    "loreStill": "{{name}} — 그때 본 장면"
   },
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",

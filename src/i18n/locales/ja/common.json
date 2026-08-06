@@ -222,7 +222,8 @@
     "tabProfile": "プロフィール",
     "tabLore": "記録",
     "loreLocked": "まだ調べていない記録",
-    "lockedHint": "収集すると開きます"
+    "lockedHint": "収集すると開きます",
+    "loreStill": "{{name}} — あのとき見た光景"
   },
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",

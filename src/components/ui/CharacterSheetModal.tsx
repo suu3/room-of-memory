@@ -136,7 +136,8 @@ export function CharacterSheetModal() {
           */}
           <div className="notebook-grid scroll-paper min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
             {tab === "lore" ? (
-              <div className="mx-auto max-w-2xl">
+              /* 갤러리는 3열까지 벌어진다 — 프로필처럼 2xl로 묶으면 카드가 눌린다 */
+              <div className="mx-auto max-w-4xl py-1">
                 <LoreEntries onReplay={() => setOpen(false)} />
               </div>
             ) : (

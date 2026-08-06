@@ -222,7 +222,8 @@
     "tabProfile": "Profile",
     "tabLore": "Notes",
     "loreLocked": "An entry you have not uncovered yet",
-    "lockedHint": "Unlocks when collected"
+    "lockedHint": "Unlocks when collected",
+    "loreStill": "{{name}} — what I saw then"
   },
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",
