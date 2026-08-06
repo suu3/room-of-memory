@@ -44,14 +44,20 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "console",
     icon: GameController,
-    phase1: { interaction: { minigameId: "fighter-duel" } },
+    phase1: {
+      interaction: {
+        scriptId: "console-intro",
+        minigameId: "fighter-duel",
+        resultScriptId: "console-alone",
+      },
+    },
     phase2: { interaction: { scriptId: "console-echo" }, unlockAfter: ["radio"] },
   },
   {
     id: "window",
     icon: GridFour,
     phase1: {
-      interaction: { minigameId: "window-view" },
+      interaction: { minigameId: "window-view", resultScriptId: "window-silence" },
       replayStill: "/assets/images/mg-window-view-outside.webp",
     },
   },
@@ -90,12 +96,19 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "phone",
     icon: DeviceMobile,
-    phase1: { interaction: { minigameId: "phone-chat" } },
+    phase1: { interaction: { minigameId: "phone-chat", resultScriptId: "phone-stopped" } },
   },
   {
     id: "calendar",
     icon: CalendarHeart,
-    phase1: { interaction: { minigameId: "calendar-flip" }, unlockAfter: ["phone"] },
+    phase1: {
+      interaction: {
+        scriptId: "calendar-intro",
+        minigameId: "calendar-flip",
+        resultScriptId: "calendar-tally",
+      },
+      unlockAfter: ["phone"],
+    },
   },
   {
     id: "ball",
@@ -131,9 +144,48 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.frame-photo-echo.line2", expression: "smile" },
     ],
   },
+  "console-intro": {
+    id: "console-intro",
+    lines: [
+      { speaker: "hero", textKey: "scripts.console-intro.line1" },
+      { speaker: "hero", textKey: "scripts.console-intro.line2", expression: "smile" },
+    ],
+  },
+  "console-alone": {
+    id: "console-alone",
+    lines: [
+      { speaker: "hero", textKey: "scripts.console-alone.line1" },
+      { speaker: "hero", textKey: "scripts.console-alone.line2" },
+    ],
+  },
   "console-echo": {
     id: "console-echo",
     lines: [{ speaker: "hero", textKey: "scripts.console-echo.line1", expression: "smile" }],
+  },
+  "window-silence": {
+    id: "window-silence",
+    lines: [
+      { speaker: "hero", textKey: "scripts.window-silence.line1", expression: "surprised" },
+      { speaker: "hero", textKey: "scripts.window-silence.line2" },
+    ],
+  },
+  "phone-stopped": {
+    id: "phone-stopped",
+    lines: [
+      { speaker: "hero", textKey: "scripts.phone-stopped.line1" },
+      { speaker: "hero", textKey: "scripts.phone-stopped.line2" },
+    ],
+  },
+  "calendar-intro": {
+    id: "calendar-intro",
+    lines: [{ speaker: "hero", textKey: "scripts.calendar-intro.line1" }],
+  },
+  "calendar-tally": {
+    id: "calendar-tally",
+    lines: [
+      { speaker: "hero", textKey: "scripts.calendar-tally.line1" },
+      { speaker: "hero", textKey: "scripts.calendar-tally.line2" },
+    ],
   },
   "radio-intro": {
     id: "radio-intro",

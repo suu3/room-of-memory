@@ -81,8 +81,31 @@
       "line1": "…My parents' faces. I can finally see them properly.",
       "line2": "When I find them, I'll start with this photo."
     },
+    "console-intro": {
+      "line1": "When did I last turn this on?",
+      "line2": "Loser bought snacks. That was the rule."
+    },
+    "console-alone": {
+      "line1": "I won.",
+      "line2": "…But there's no one here to be mad about it."
+    },
     "console-echo": {
       "line1": "When I get out, we're playing a round."
+    },
+    "window-silence": {
+      "line1": "The first few days, the sirens went all night.",
+      "line2": "Now… there's no sound at all."
+    },
+    "phone-stopped": {
+      "line1": "The last message is from October 19.",
+      "line2": "Since that day, not one word from anyone."
+    },
+    "calendar-intro": {
+      "line1": "The calendar stopped there too. October 19."
+    },
+    "calendar-tally": {
+      "line1": "How many tally marks is that now…",
+      "line2": "I stopped counting. Counting makes it feel longer."
     },
     "radio-intro": {
       "line1": "The radio is the only thing left.",

@@ -50,12 +50,76 @@ scripts:
       en: When I find them, I'll start with this photo.
       ja: 会えたら、まずこの写真の話をしよう。
 
+  # 1차 게임기 진입 — 사태 전의 일상(내기하던 상대가 있었다)을 한 줄로 심는다
+  console-intro:
+    - speaker: hero
+      ko: 마지막으로 켠 게 언제였더라.
+      en: When did I last turn this on?
+      ja: 最後に電源を入れたのはいつだったかな。
+    - speaker: hero
+      expression: smile
+      ko: 지는 쪽이 매점 쏘는 거였는데.
+      en: Loser bought snacks. That was the rule.
+      ja: 負けたほうが売店おごり、って決まりだったのに。
+
+  # 1차 게임기 결과 — 이겨도 반응할 사람이 없다. lore("이기든 지든 똑같다")의 실연
+  console-alone:
+    - speaker: hero
+      ko: 이겼다.
+      en: I won.
+      ja: 勝った。
+    - speaker: hero
+      ko: …근데 분해하는 놈이 없네.
+      en: …But there's no one here to be mad about it.
+      ja: …なのに、悔しがるやつがいない。
+
   console-echo:
     - speaker: hero
       expression: smile
       ko: 나가면 한 판 할거야.
       en: When I get out, we're playing a round.
       ja: 外に出たら 一戦やるんだ。
+
+  # 1차 창밖 결과 — 초기엔 사이렌이 있었고 지금은 정적. 사태의 경과를 소리로 흘린다
+  window-silence:
+    - speaker: hero
+      expression: surprised
+      ko: 처음엔 사이렌이 밤새 울렸는데.
+      en: The first few days, the sirens went all night.
+      ja: 最初のころは、サイレンが夜通し鳴ってたのに。
+    - speaker: hero
+      ko: 지금은… 아무 소리도 안 나.
+      en: Now… there's no sound at all.
+      ja: 今は…何の音もしない。
+
+  # 1차 폰 결과 — 단톡이 멈춘 날짜를 처음으로 못박는다. calendar가 이 날짜를 받는다
+  phone-stopped:
+    - speaker: hero
+      ko: 마지막 메시지가 10월 19일.
+      en: The last message is from October 19.
+      ja: 最後のメッセージは10月19日。
+    - speaker: hero
+      ko: 그날 이후로, 아무도 아무 말이 없다.
+      en: Since that day, not one word from anyone.
+      ja: あの日から、誰も何も言わない。
+
+  # 1차 달력 진입 — phone 뒤에만 열리므로(unlockAfter) 단톡의 날짜를 이어받아도 안전하다
+  calendar-intro:
+    - speaker: hero
+      ko: 달력도 거기서 멈췄지. 10월 19일.
+      en: The calendar stopped there too. October 19.
+      ja: カレンダーもそこで止まってる。10月19日。
+
+  # 1차 달력 결과 — 고립이 얼마나 길었는지. 숫자는 일부러 안 박는다 (세다 만 것까지가 정서)
+  calendar-tally:
+    - speaker: hero
+      ko: 正자가… 몇 개더라.
+      en: How many tally marks is that now…
+      ja: 正の字…いくつになったっけ。
+    - speaker: hero
+      ko: 세다 말았다. 세면 더 길게 느껴져서.
+      en: I stopped counting. Counting makes it feel longer.
+      ja: 数えるのはやめた。数えると、もっと長く感じるから。
 
   # 1차 라디오 진입 — 마지막 남은 물건 앞에 선 한마디
   radio-intro:

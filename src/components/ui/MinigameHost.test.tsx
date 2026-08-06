@@ -7,9 +7,24 @@ import { i18n } from "@/i18n/config";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { MinigameHost } from "./MinigameHost";
 
-/** 게임기(격투 게임)를 조사한 상태로 만든다 — 시작 카드가 뜨는 자리. */
+/**
+ * 게임기(격투 게임)를 조사한 상태로 만든다 — 시작 카드가 뜨는 자리.
+ * 진입 대사(①)가 붙어 있으므로 대사를 끝까지 넘겨야 미니게임 페이즈에 닿는다.
+ */
 function openConsole() {
-  act(() => useMemoryRoomStore.getState().beginInteraction("console"));
+  act(() => {
+    useMemoryRoomStore.getState().beginInteraction("console");
+    for (
+      let step = 0;
+      step < 16 && useMemoryRoomStore.getState().activeInteraction?.phase === "dialogue";
+      step += 1
+    ) {
+      useMemoryRoomStore.getState().advanceDialogue();
+    }
+  });
+  if (useMemoryRoomStore.getState().activeInteraction?.phase !== "minigame") {
+    throw new Error("게임기 진입 대사가 미니게임 페이즈로 이어지지 않는다");
+  }
 }
 
 describe("MinigameHost", () => {

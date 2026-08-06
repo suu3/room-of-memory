@@ -150,13 +150,32 @@ describe("수집한 기억 다시보기", () => {
     expect(playback?.cuts[0].image).toBeDefined();
   });
 
-  it("대사가 없던 기억은 그때 남긴 기록으로 대신한다", () => {
+  it("진입 대사(①)와 결과 대사(③)를 그 순서로 잇는다", () => {
     useMemoryRoomStore.getState().beginInteraction("console");
     pushToEnd("console");
     useMemoryRoomStore.getState().replayMemory("console");
 
     const lines = useMemoryRoomStore.getState().activePlayback?.cuts[0].lines;
-    expect(lines).toEqual([{ speaker: "narrator", textKey: "lore.console.phase1" }]);
+    expect(lines).toEqual([...SCRIPTS["console-intro"].lines, ...SCRIPTS["console-alone"].lines]);
+  });
+
+  it("어떤 기억의 다시보기도 빈 줄로 서지 않는다 — 대사가 없으면 기록이 대신 선다", () => {
+    /*
+     * 지금 대본은 모든 기억에 대사가 있어 lore 폴백이 실데이터로는 돌지 않지만,
+     * 대본은 어드민에서 언제든 바뀐다. 대사를 다 비운 기억이 생겨도 다시보기가
+     * "눌렀는데 아무 일도 없는 줄"이 되지 않는다는 계약을 여기 묶어 둔다.
+     */
+    useMemoryRoomStore.setState({
+      collected: MEMORIES.map((memory) => memory.id),
+      revisited: [],
+    });
+
+    for (const memory of MEMORIES) {
+      useMemoryRoomStore.getState().replayMemory(memory.id);
+      const playback = useMemoryRoomStore.getState().activePlayback;
+      expect(playback?.cuts[0].lines.length, memory.id).toBeGreaterThan(0);
+      useMemoryRoomStore.getState().endPlayback();
+    }
   });
 
   it("2바퀴까지 본 기억은 마지막으로 본 쪽을 되돌려준다", () => {

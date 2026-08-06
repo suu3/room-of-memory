@@ -40,8 +40,11 @@ memories:
         ko: 다시 둘이 하면 또 재밌어질까.
         en: Maybe it gets fun again with two.
         ja: 二人ならまた楽しくなるかな。
+    # 1차: 내기하던 상대의 존재(진입) → 이겨도 반응이 없는 방(결과)
     phase1:
+      script: console-intro
       minigame: fighter-duel
+      resultScript: console-alone
     phase2:
       script: console-echo
       # 2바퀴는 라디오 목소리에서 시작한다 — 재점등된 나머지는 그 뒤에 열린다
@@ -58,9 +61,12 @@ memories:
         ko: 커튼을 걷었다. 깨진 유리, 찌그러진 차, 지워지지 않는 자국. 다시 닫았다.
         en: I opened the curtain. Broken glass, a crushed car, stains that will not wash off. I closed it again.
         ja: カーテンを開けた。割れたガラス、潰れた車、消えない跡。また閉めた。
-    # 커튼을 걷으면 그림 한 장 — 미니게임이라기보다 들여다보는 오브젝트다
+    # 커튼을 걷으면 그림 한 장 — 미니게임이라기보다 들여다보는 오브젝트다.
+    # 진입 대사는 일부러 없다: 보기 전에 말을 얹으면 "들여다본다"는 동작이 늦어진다.
+    # 결과 대사가 사이렌→정적으로 사태의 경과를 흘린다.
     phase1:
       minigame: window-view
+      resultScript: window-silence
       replayStill: /assets/images/mg-window-view-outside.webp
 
   - id: frame
@@ -136,8 +142,10 @@ memories:
         ko: 단톡은 그날 이후로 조용하다. 부재중 전화는 전부 내가 건 쪽이다.
         en: The group chat has been quiet since that day. Every missed call is one I made.
         ja: グループチャットはあの日から静かだ。不在着信は全部こちらからかけたものだ。
+    # 1차: 채팅은 미니게임이 보여주고, 결과 대사가 "10월 19일"을 처음 못박는다
     phase1:
       minigame: phone-chat
+      resultScript: phone-stopped
 
   - id: calendar
     icon: CalendarHeart
@@ -150,8 +158,12 @@ memories:
         ko: 숫자가 그날에서 멈췄다. 그 뒤로는 날짜가 아니라 正자만 그었다.
         en: The numbers stopped on that day. After that I stopped writing dates and only made tally marks.
         ja: 数字はあの日で止まった。それからは日付ではなく、正の字だけを書いた。
+    # phone 뒤에만 열린다 — 진입 대사가 단톡의 날짜(10월 19일)를 이어받는 구조라
+    # unlockAfter를 풀면 대사가 근거 없이 날짜를 아는 셈이 된다. 같이 고칠 것.
     phase1:
+      script: calendar-intro
       minigame: calendar-flip
+      resultScript: calendar-tally
       unlockAfter: [phone]
 
   - id: ball
