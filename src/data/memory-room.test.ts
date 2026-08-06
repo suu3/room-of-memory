@@ -146,16 +146,16 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     );
   });
 
-  it("2바퀴에서 손을 쓰는 조사는 라디오·액자·폰뿐이다", () => {
+  it("2바퀴에서 손을 쓰는 조사는 라디오·액자·폰·컴퓨터뿐이다", () => {
     const withMinigame = MEMORIES.filter((memory) => memory.phase2?.interaction?.minigameId).map(
       (memory) => memory.id,
     );
 
-    expect(withMinigame.sort()).toEqual(["frame", "phone", "radio"]);
+    expect(withMinigame.sort()).toEqual(["computer", "frame", "phone", "radio"]);
   });
 
   it("2바퀴 재점등 대상은 라디오 목소리를 들은 뒤에만 열린다", () => {
-    const gated: MemoryId[] = ["ball", "console", "frame", "phone"];
+    const gated: MemoryId[] = ["ball", "console", "frame", "phone", "computer"];
 
     for (const id of gated) {
       expect(MEMORY_BY_ID[id].phase2?.unlockAfter).toEqual(["radio"]);

@@ -14,6 +14,7 @@ import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { ASSETS } from "@/lib/assets";
 import { hotspotStatus, selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
 import { ballSeamGeometry } from "./ball-seam";
+import { toLitMaterial } from "./FurnitureModel";
 import { MEMORY_PLACEMENTS } from "./layout";
 import { MemoryBeacon } from "./MemoryBeacon";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
@@ -33,7 +34,14 @@ const MODEL_PATHS = {
   radio: ASSETS.models.radio,
 } as const satisfies Partial<Record<MemoryId, string>>;
 
-for (const path of Object.values(MODEL_PATHS)) {
+/** 컴퓨터는 한 기억이 glb 세 개(모니터·키보드·마우스)로 이루어진다. */
+const COMPUTER_MODEL_PATHS = [
+  ASSETS.models.computerScreen,
+  ASSETS.models.computerKeyboard,
+  ASSETS.models.computerMouse,
+] as const;
+
+for (const path of [...Object.values(MODEL_PATHS), ...COMPUTER_MODEL_PATHS]) {
   // Drei enables Meshopt by default; passing `true` keeps that decoder requirement explicit.
   useGLTF.preload(path, true, true);
 }
@@ -85,7 +93,7 @@ function setMaterialOpacity(material: Material, opacity: number) {
   material.needsUpdate = true;
 }
 
-function LoadedGlb({ path, opacity }: { path: string; opacity: number }) {
+function LoadedGlb({ path, opacity, lit }: { path: string; opacity: number; lit?: boolean }) {
   // The third argument explicitly enables the MeshoptDecoder configured by Drei's useGLTF.
   const { scene } = useGLTF(path, true, true);
   const cloned = useMemo(() => {
@@ -94,13 +102,15 @@ function LoadedGlb({ path, opacity }: { path: string; opacity: number }) {
       const mesh = object as Mesh;
       if (!mesh.isMesh) return;
       mesh.castShadow = true;
+      // 가구킷은 unlit이라 방 조명을 무시한다 — lit이면 조명 받는 재질로 갈아끼운다.
+      const remake = lit ? toLitMaterial : (material: Material) => material.clone();
       mesh.material = Array.isArray(mesh.material)
-        ? mesh.material.map((material) => material.clone())
-        : mesh.material.clone();
+        ? mesh.material.map(remake)
+        : remake(mesh.material);
     });
     // 일부 glb는 원점이 모서리에 있다 — 배치 좌표가 중심을 뜻하도록 맞춘다.
     return centerModelXZ(copy);
-  }, [scene]);
+  }, [scene, lit]);
 
   useLayoutEffect(() => {
     cloned.traverse((object) => {
@@ -514,6 +524,92 @@ const CALENDAR_DOTS = Array.from({ length: 16 }, (_, index) => ({
   y: (1.5 - Math.floor(index / 4)) * 0.14 - 0.1,
 }));
 
+/*
+ * 컴퓨터 세트의 부품 배치 — 앵커(MEMORY_PLACEMENTS.computer) 기준 로컬 오프셋.
+ * 값은 예전 DeskAccessories가 책상 로컬로 들고 있던 좌표에서 앵커만큼 뺀 것이라,
+ * 월드에서는 가구였을 때와 같은 자리에 선다. 배율도 책상 소품 공통값(3.1) 그대로.
+ */
+const COMPUTER_PROP_SCALE = 3.1;
+const COMPUTER_PARTS = [
+  { path: ASSETS.models.computerScreen, offset: [-0.15, 0, -0.46] },
+  { path: ASSETS.models.computerKeyboard, offset: [-0.1, 0, 0.22] },
+  { path: ASSETS.models.computerMouse, offset: [0.62, 0, 0.24] },
+] as const satisfies readonly { path: string; offset: Vec3Tuple }[];
+
+/** glb가 오기 전의 컴퓨터 — 모니터 판과 키보드 슬래브만 세운 대역. */
+function ComputerPrimitive({ palette, opacity }: VisualProps) {
+  const transparent = opacity < 1;
+  return (
+    <group>
+      <group position={COMPUTER_PARTS[0].offset}>
+        <mesh position={[0, 0.45, 0]} castShadow>
+          <boxGeometry args={[0.95, 0.62, 0.07]} />
+          <meshStandardMaterial
+            color={palette.slate}
+            roughness={0.55}
+            opacity={opacity}
+            transparent={transparent}
+          />
+        </mesh>
+        {/* 꺼진 모니터 — 어두운 유리에 방의 빛만 살짝 어린다 */}
+        <mesh position={[0, 0.45, 0.038]}>
+          <planeGeometry args={[0.85, 0.52]} />
+          <meshStandardMaterial
+            color={palette.deep}
+            emissive={palette.memory}
+            emissiveIntensity={0.08}
+            roughness={0.35}
+            opacity={opacity}
+            transparent={transparent}
+          />
+        </mesh>
+        <mesh position={[0, 0.06, 0]} castShadow>
+          <boxGeometry args={[0.3, 0.12, 0.22]} />
+          <meshStandardMaterial
+            color={palette.slate}
+            roughness={0.6}
+            opacity={opacity}
+            transparent={transparent}
+          />
+        </mesh>
+      </group>
+      <group position={COMPUTER_PARTS[1].offset}>
+        <mesh position={[0, 0.02, 0]} castShadow>
+          <boxGeometry args={[0.72, 0.04, 0.26]} />
+          <meshStandardMaterial
+            color={palette.bone}
+            roughness={0.7}
+            opacity={opacity}
+            transparent={transparent}
+          />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+/**
+ * 책상 위 컴퓨터 — 한 기억이 glb 세 개(모니터·키보드·마우스)로 이루어진다.
+ * 가구였을 때(DeskAccessories)와 같은 킷·같은 자리라, 승격 전후로 방이 달라
+ * 보이지 않는다. 가구킷은 unlit이라 lit 변환을 거친다.
+ */
+function ComputerMemory({ palette, opacity, onReady }: VisualProps & { onReady: () => void }) {
+  return (
+    <MemoryGlowVisualBoundary
+      fallback={<ComputerPrimitive palette={palette} opacity={opacity} />}
+      onVisible={onReady}
+    >
+      <group>
+        {COMPUTER_PARTS.map((part) => (
+          <group key={part.path} position={part.offset} scale={COMPUTER_PROP_SCALE}>
+            <LoadedGlb path={part.path} opacity={opacity} lit />
+          </group>
+        ))}
+      </group>
+    </MemoryGlowVisualBoundary>
+  );
+}
+
 function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId }) {
   switch (id) {
     case "console":
@@ -530,6 +626,8 @@ function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId 
       return <PhoneMemory palette={palette} opacity={opacity} />;
     case "calendar":
       return <CalendarMemory palette={palette} opacity={opacity} />;
+    case "computer":
+      return <ComputerPrimitive palette={palette} opacity={opacity} />;
   }
 }
 
@@ -540,6 +638,12 @@ function MemoryVisual({
   onModelReady,
 }: VisualProps & { id: MemoryId; onModelReady: () => void }) {
   const fallback = <PrimitiveVisual id={id} palette={palette} opacity={opacity} />;
+
+  // 컴퓨터는 glb가 세 개라 1기억-1모델 경로(MODEL_PATHS)를 못 탄다
+  if (id === "computer") {
+    return <ComputerMemory palette={palette} opacity={opacity} onReady={onModelReady} />;
+  }
+
   const modelPath = MODEL_PATHS[id as keyof typeof MODEL_PATHS];
   /* 모델 위에 코드로 덧입히는 것들 — glb가 아직 안 왔어도 fallback 위에 그대로 얹힌다. */
   const overlays = (

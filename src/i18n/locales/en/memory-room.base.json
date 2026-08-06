@@ -38,6 +38,9 @@
     "frame": {
       "name": "Photo Frame"
     },
+    "computer": {
+      "name": "Computer"
+    },
     "radio": {
       "name": "Radio"
     },

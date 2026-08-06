@@ -135,6 +135,22 @@ export const MEMORY_PLACEMENTS = {
     scale: 1,
     interactionRadius: 1.05,
   },
+  computer: {
+    id: "computer",
+    /*
+     * 책상 위 컴퓨터 세트(모니터·키보드·마우스). 예전 DeskAccessories가 그리던
+     * 월드 좌표를 그대로 물려받되, 앵커는 세트의 무게중심쯤(키보드 언저리)에 둔다 —
+     * 모니터에 앵커를 두면 책상 안쪽이라 상호작용 반경이 통로까지 안 닿는다.
+     * 부품별 오프셋은 MemoryObjects의 ComputerMemory가 이 앵커 기준으로 갖고 있다.
+     *
+     * 반경 1.5: 의자 콜라이더(z -1.68~-0.72)가 정면을 막아서, 플레이어는 의자
+     * 옆(z≈-0.34 또는 z≈-2.06)의 통로에서 닿는다 — 그 거리가 약 1.33이다.
+     */
+    position: [-4.5, 1.11, -1.0],
+    rotation: [0, Math.PI / 2, 0],
+    scale: 1,
+    interactionRadius: 1.5,
+  },
   radio: {
     id: "radio",
     // y는 책상 상판 윗면(1.11) — 라디오 로컬 원점이 밑면이라 그대로 얹힌다.
@@ -191,6 +207,8 @@ export const CAMERA_PRESETS = {
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
   frame: { position: [4.05, 2.6, 0.75], target: [1.42, 1.4, -2.7] },
   radio: { position: [-1.1, 2.5, 2.1], target: [-4.05, 1.31, 0.1] },
+  // 라디오와 같은 통로에서 책상 안쪽(모니터)을 비스듬히 본다
+  computer: { position: [-0.9, 2.7, 1.1], target: [-4.6, 1.5, -0.95] },
   phone: { position: [6.75, 2.65, 6.25], target: [3.55, 0.95, 2.75] },
   calendar: { position: [-1.1, 3.6, 3.2], target: [-5.75, 2.5, 0.9] },
   ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },

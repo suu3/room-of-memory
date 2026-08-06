@@ -38,6 +38,9 @@
     "frame": {
       "name": "Photo Frame"
     },
+    "computer": {
+      "name": "Computer"
+    },
     "radio": {
       "name": "Radio"
     },
@@ -86,8 +89,7 @@
       "line2": "Loser bought snacks. That was the rule."
     },
     "console-alone": {
-      "line1": "I won.",
-      "line2": "…But there's no one here to be mad about it."
+      "line1": "I won."
     },
     "console-echo": {
       "line1": "When I get out, we're playing a round."
@@ -99,6 +101,22 @@
     "phone-stopped": {
       "line1": "The last message is from October 19.",
       "line2": "Since that day, not one word from anyone."
+    },
+    "computer-intro": {
+      "line1": "Haven't turned this on in a while. The internet's been dead since that day.",
+      "line2": "All that opens is… what's already saved."
+    },
+    "computer-mail": {
+      "line1": "Look at them, laughing away. Must have been nice.",
+      "line2": "I never replied. …I'll just tell them in person when they're back."
+    },
+    "computer-echo": {
+      "line1": "There was a person on the radio. Then the news must be saved somewhere too.",
+      "line2": "What happened that day — I'm ready to look at it straight."
+    },
+    "computer-news": {
+      "line1": "The world was stopping little by little. …It wasn't just me.",
+      "line2": "Everyone kept trying to reach each other, right to the end."
     },
     "phone-unlock-intro": {
       "line1": "The phone just buzzed. …Now?",
@@ -154,6 +172,11 @@
       "title": "My Parents",
       "phase1": "Dust on the glass hides their faces. Even wiped clean, only my parents stay blurred.",
       "phase2": "I put the pieces back and the faces returned. We just haven't met yet."
+    },
+    "computer": {
+      "title": "Trip Photos",
+      "phase1": "Dad's emails from the trip. In the photos the two of them are smiling. I never got to reply.",
+      "phase2": "The cached news lays out the order of it all. The world stopped little by little, then all at once."
     },
     "radio": {
       "title": "That Broadcast",

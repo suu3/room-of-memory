@@ -205,6 +205,51 @@
         "taeo": "Taeo"
       }
     },
+    "computerBrowse": {
+      "title": "The Computer",
+      "help": "Next page — click · Space · →",
+      "help_touch": "Tap Next and read to the end",
+      "offline": "No internet connection",
+      "mailApp": "Mail — saved copy",
+      "newsApp": "Browser — saved page",
+      "mailFrom": "From: Dad",
+      "next": "Next",
+      "close": "Turn the computer off",
+      "truncated": "— the saved copy ends here —",
+      "mail": {
+        "m1": {
+          "subject": "We arrived safe",
+          "date": "October 15",
+          "b1": "Your mom and I got here fine. The sea is right outside the room.",
+          "b2": "She keeps telling me to send photos, so here are a few. Eat properly."
+        },
+        "m2": {
+          "subject": "Back the day after tomorrow",
+          "date": "October 18",
+          "b1": "We had a good rest. We should be home by evening the day after tomorrow.",
+          "b2": "Want us to bring you anything? Write back."
+        }
+      },
+      "news": {
+        "n1": {
+          "headline": "Unexplained behavioral cases reported… health authorities investigating",
+          "date": "October 12",
+          "b1": "Local hospitals report a growing number of similar symptoms. Authorities say they are not ruling out an infection.",
+          "b2": "Experts urge people to avoid contact and report symptoms immediately."
+        },
+        "n2": {
+          "headline": "Signs of nationwide spread… government urges people to stay in",
+          "date": "October 17",
+          "b1": "Cases are being reported across the country. The government has advised against all non-essential travel.",
+          "b2": "Major roads have begun to close."
+        },
+        "n3": {
+          "headline": "BREAKING: Perimeter around the capital collapses",
+          "date": "October 19",
+          "b1": "The army said at dawn today that the outer perimeter"
+        }
+      }
+    },
     "phoneLock": {
       "title": "Lock Screen",
       "help": "Four-digit passcode — type with the number keys",

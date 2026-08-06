@@ -403,7 +403,7 @@ describe("2바퀴 — 라디오가 유일한 관문", () => {
     const state = useMemoryRoomStore.getState();
 
     expect(hotspotStatus(state, "radio")).toBe("available");
-    for (const id of ["ball", "console", "frame", "phone"] as const) {
+    for (const id of ["ball", "console", "frame", "phone", "computer"] as const) {
       expect(hotspotStatus(state, id)).toBe("locked");
     }
   });
@@ -413,14 +413,14 @@ describe("2바퀴 — 라디오가 유일한 관문", () => {
     useMemoryRoomStore.setState({ revisited: ["radio"] });
     const state = useMemoryRoomStore.getState();
 
-    for (const id of ["ball", "console", "frame", "phone"] as const) {
+    for (const id of ["ball", "console", "frame", "phone", "computer"] as const) {
       expect(hotspotStatus(state, id)).toBe("available");
     }
   });
 
-  it("2차 조사 대상은 라디오와 재점등 4종뿐이다", () => {
+  it("2차 조사 대상은 라디오와 재점등 5종뿐이다", () => {
     const revisitable = MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id);
 
-    expect(revisitable.sort()).toEqual(["ball", "frame", "console", "phone", "radio"]);
+    expect(revisitable.sort()).toEqual(["ball", "computer", "frame", "console", "phone", "radio"]);
   });
 });

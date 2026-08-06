@@ -10,6 +10,7 @@ const labels = {
   console: "Console",
   window: "Window",
   frame: "Frame",
+  computer: "Computer",
   radio: "Radio",
   phone: "Phone",
   calendar: "Calendar",
@@ -37,11 +38,11 @@ function renderPrompt(availableIds: readonly MemoryId[], onInteract: (id: Memory
 }
 
 describe("RoomInteractionPrompt", () => {
-  it("renders the nearby prompt and seven translated accessible button names", () => {
+  it("renders the nearby prompt and eight translated accessible button names", () => {
     renderPrompt(["console"], () => {});
 
     expect(screen.getByText("Console 조사 · E")).toBeTruthy();
-    expect(screen.getAllByRole("button")).toHaveLength(7);
+    expect(screen.getAllByRole("button")).toHaveLength(8);
     expect(screen.getByRole("button", { name: "Console" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Window" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Frame" })).toBeTruthy();
@@ -81,7 +82,7 @@ describe("RoomInteractionPrompt", () => {
 
     const window = screen.getByRole("button", { name: "Window" }) as HTMLButtonElement;
     expect(window.disabled).toBe(true);
-    expect(screen.getAllByRole("button")).toHaveLength(7);
+    expect(screen.getAllByRole("button")).toHaveLength(8);
   });
 
   it("does not dispatch a disabled memory button", () => {

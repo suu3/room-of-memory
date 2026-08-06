@@ -31,6 +31,7 @@ export const ICONS = [
   "Bed",
   "BookOpen",
   "CalendarHeart",
+  "Desktop",
   "DeviceMobile",
   "Envelope",
   "GameController",

@@ -95,6 +95,36 @@ memories:
       unlockAfter: [radio]
       replayStill: /assets/images/mg-photo-wipe-phase-2.webp
 
+  - id: computer
+    icon: Desktop
+    lore:
+      title:
+        ko: 여행 사진
+        en: Trip Photos
+        ja: 旅行の写真
+      phase1:
+        ko: 아빠가 여행지에서 보낸 메일. 사진 속 두 사람은 웃고 있다. 답장은 아직 못 했다.
+        en: Dad's emails from the trip. In the photos the two of them are smiling. I never got to reply.
+        ja: 旅行先から父さんが送ったメール。写真の中の二人は笑っている。返事はまだ書けていない。
+      phase2:
+        ko: 캐시로 남은 뉴스가 그날까지의 순서를 보여준다. 세상은 조금씩, 그러다 한꺼번에 멈췄다.
+        en: The cached news lays out the order of it all. The world stopped little by little, then all at once.
+        ja: キャッシュに残ったニュースがあの日までの順番を見せてくれる。世界は少しずつ、そして一気に止まった。
+    # 1차: 인터넷이 끊긴 컴퓨터 — 열리는 건 저장된 것뿐. 아빠의 여행 메일이
+    # "부모님은 여행 중"을 심는다. phone 2차의 문자("여행지에서 바로 출발했는데")가
+    # 여기서 심은 사실을 받는다.
+    phase1:
+      script: computer-intro
+      minigame: computer-browse
+      resultScript: computer-mail
+    # 2차: 같은 컴퓨터에서 이번엔 뉴스 캐시를 뒤진다 — 그날까지의 타임라인.
+    # 미니게임은 같은 computer-browse가 gamePhase를 보고 메일/뉴스를 가른다.
+    phase2:
+      script: computer-echo
+      minigame: computer-browse
+      resultScript: computer-news
+      unlockAfter: [radio]
+
   - id: radio
     icon: Radio
     lore:
@@ -123,7 +153,7 @@ memories:
       script: radio-intro
       minigame: frequency-tune
       resultScript: radio-broadcast
-      unlockAfter: [console, window, frame, phone, calendar, ball]
+      unlockAfter: [console, window, frame, computer, phone, calendar, ball]
     # 2차: 2바퀴에서 유일하게 손을 쓰는 조사. 같은 다이얼 끝에 이번엔 사람이 있다.
     # 2바퀴의 첫 관문이라 아무것도 기다리지 않는다.
     phase2:

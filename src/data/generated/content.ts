@@ -8,6 +8,7 @@
 import {
   Baseball,
   CalendarHeart,
+  Desktop,
   DeviceMobile,
   GameController,
   GridFour,
@@ -22,6 +23,7 @@ export const MEMORY_IDS = [
   "console",
   "window",
   "frame",
+  "computer",
   "radio",
   "phone",
   "calendar",
@@ -75,6 +77,25 @@ export const MEMORIES: MemoryItem[] = [
     },
   },
   {
+    id: "computer",
+    icon: Desktop,
+    phase1: {
+      interaction: {
+        scriptId: "computer-intro",
+        minigameId: "computer-browse",
+        resultScriptId: "computer-mail",
+      },
+    },
+    phase2: {
+      interaction: {
+        scriptId: "computer-echo",
+        minigameId: "computer-browse",
+        resultScriptId: "computer-news",
+      },
+      unlockAfter: ["radio"],
+    },
+  },
+  {
     id: "radio",
     icon: Radio,
     phase1: {
@@ -83,7 +104,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "frequency-tune",
         resultScriptId: "radio-broadcast",
       },
-      unlockAfter: ["console", "window", "frame", "phone", "calendar", "ball"],
+      unlockAfter: ["console", "window", "frame", "computer", "phone", "calendar", "ball"],
     },
     phase2: {
       interaction: {
@@ -161,10 +182,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   },
   "console-alone": {
     id: "console-alone",
-    lines: [
-      { speaker: "hero", textKey: "scripts.console-alone.line1" },
-      { speaker: "hero", textKey: "scripts.console-alone.line2" },
-    ],
+    lines: [{ speaker: "hero", textKey: "scripts.console-alone.line1" }],
   },
   "console-echo": {
     id: "console-echo",
@@ -182,6 +200,34 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.phone-stopped.line1" },
       { speaker: "hero", textKey: "scripts.phone-stopped.line2" },
+    ],
+  },
+  "computer-intro": {
+    id: "computer-intro",
+    lines: [
+      { speaker: "hero", textKey: "scripts.computer-intro.line1" },
+      { speaker: "hero", textKey: "scripts.computer-intro.line2" },
+    ],
+  },
+  "computer-mail": {
+    id: "computer-mail",
+    lines: [
+      { speaker: "hero", textKey: "scripts.computer-mail.line1", expression: "smile" },
+      { speaker: "hero", textKey: "scripts.computer-mail.line2" },
+    ],
+  },
+  "computer-echo": {
+    id: "computer-echo",
+    lines: [
+      { speaker: "hero", textKey: "scripts.computer-echo.line1" },
+      { speaker: "hero", textKey: "scripts.computer-echo.line2" },
+    ],
+  },
+  "computer-news": {
+    id: "computer-news",
+    lines: [
+      { speaker: "hero", textKey: "scripts.computer-news.line1" },
+      { speaker: "hero", textKey: "scripts.computer-news.line2" },
     ],
   },
   "phone-unlock-intro": {

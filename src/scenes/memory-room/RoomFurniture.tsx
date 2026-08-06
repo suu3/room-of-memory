@@ -31,10 +31,9 @@ import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
 
+// 컴퓨터(모니터·키보드·마우스)는 이제 가구가 아니라 기억 오브젝트다 —
+// MemoryObjects가 그리고 프리로드한다. 여기 다시 넣으면 두 개로 보인다.
 const ROOM_PROP_PATHS = [
-  ASSETS.models.computerScreen,
-  ASSETS.models.computerKeyboard,
-  ASSETS.models.computerMouse,
   ASSETS.models.deskLamp,
   ASSETS.models.books,
   ASSETS.models.rug,
@@ -362,23 +361,10 @@ const DESK_PROP_SCALE = 3.1;
 const DESK_TOP_Y = 1.11;
 
 function DeskAccessories(_: FurnitureProps) {
+  // 컴퓨터 세트(모니터·키보드·마우스)는 기억 오브젝트로 승격됐다 —
+  // MemoryObjects의 ComputerMemory가 같은 자리(월드 좌표)에 그린다.
   return (
     <group name="desk-accessories">
-      <FurnitureModel
-        path={ASSETS.models.computerScreen}
-        position={[-0.35, DESK_TOP_Y, -0.36]}
-        scale={DESK_PROP_SCALE}
-      />
-      <FurnitureModel
-        path={ASSETS.models.computerKeyboard}
-        position={[-0.3, DESK_TOP_Y, 0.32]}
-        scale={DESK_PROP_SCALE}
-      />
-      <FurnitureModel
-        path={ASSETS.models.computerMouse}
-        position={[0.42, DESK_TOP_Y, 0.34]}
-        scale={DESK_PROP_SCALE}
-      />
       <FurnitureModel
         path={ASSETS.models.deskLamp}
         position={[1.42, DESK_TOP_Y, -0.3]}

@@ -50,6 +50,17 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.phoneChat.title",
     helpKey: "minigame.phoneChat.help",
   },
+  "computer-browse": {
+    id: "computer-browse",
+    mode: "overlay",
+    // 책상 위 컴퓨터를 들여다보는 인터랙션 — 패널 없이 모니터만 떠오른다
+    presentation: "bare",
+    component: lazy(() =>
+      import("./computer-browse").then((m) => ({ default: m.ComputerBrowseMinigame })),
+    ),
+    titleKey: "minigame.computerBrowse.title",
+    helpKey: "minigame.computerBrowse.help",
+  },
   "phone-lock": {
     id: "phone-lock",
     mode: "overlay",

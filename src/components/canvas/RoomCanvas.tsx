@@ -201,6 +201,7 @@ export function RoomCanvas() {
       console: tRoom("memories.console.name"),
       window: tRoom("memories.window.name"),
       frame: tRoom("memories.frame.name"),
+      computer: tRoom("memories.computer.name"),
       radio: tRoom("memories.radio.name"),
       phone: tRoom("memories.phone.name"),
       calendar: tRoom("memories.calendar.name"),

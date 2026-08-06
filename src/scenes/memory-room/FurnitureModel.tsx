@@ -12,8 +12,12 @@ interface FurnitureModelProps {
   scale: number;
 }
 
-/** unlit(MeshBasicMaterial)로 들어온 재질을 같은 색의 조명 받는 재질로 바꾼다. */
-function toLitMaterial(material: Material): Material {
+/**
+ * unlit(MeshBasicMaterial)로 들어온 재질을 같은 색의 조명 받는 재질로 바꾼다.
+ * 가구킷 glb를 쓰는 쪽은 어디든 필요해서 내보낸다 — MemoryObjects의 컴퓨터도
+ * 같은 킷이라 이걸 안 거치면 방이 어두워져도 혼자 원래 밝기로 떠 있는다.
+ */
+export function toLitMaterial(material: Material): Material {
   const source = material as Material & { color?: { getHex: () => number } };
   if (!source.color || material instanceof MeshStandardMaterial) return material.clone();
   const lit = new MeshStandardMaterial({

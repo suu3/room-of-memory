@@ -38,6 +38,9 @@
     "frame": {
       "name": "액자"
     },
+    "computer": {
+      "name": "컴퓨터"
+    },
     "radio": {
       "name": "라디오"
     },

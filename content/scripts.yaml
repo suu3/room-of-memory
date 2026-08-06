@@ -62,16 +62,13 @@ scripts:
       en: Loser bought snacks. That was the rule.
       ja: 負けたほうが売店おごり、って決まりだったのに。
 
-  # 1차 게임기 결과 — 이겨도 반응할 사람이 없다. lore("이기든 지든 똑같다")의 실연
+  # 1차 게임기 결과 — 이겨도 반응할 사람이 없다. lore("이기든 지든 똑같다")의 실연.
+  # 덧붙이는 말 없이 한 줄로 끊는다 — 빈 방에서는 이 한마디가 더 길게 울린다.
   console-alone:
     - speaker: hero
       ko: 이겼다.
       en: I won.
       ja: 勝った。
-    - speaker: hero
-      ko: …근데 분해하는 놈이 없네.
-      en: …But there's no one here to be mad about it.
-      ja: …なのに、悔しがるやつがいない。
 
   console-echo:
     - speaker: hero
@@ -102,6 +99,51 @@ scripts:
       ko: 그날 이후로, 아무도 아무 말이 없다.
       en: Since that day, not one word from anyone.
       ja: あの日から、誰も何も言わない。
+
+  # 1차 컴퓨터 진입 — 인터넷은 그날 끊겼다. 열리는 건 저장된 것뿐이라는 전제를 깐다
+  computer-intro:
+    - speaker: hero
+      ko: 오랜만에 켜 보네. 인터넷은 그날부터 먹통이지만.
+      en: Haven't turned this on in a while. The internet's been dead since that day.
+      ja: 久しぶりに点けてみるか。ネットはあの日から死んでるけど。
+    - speaker: hero
+      ko: 열리는 건… 저장된 것들뿐이다.
+      en: All that opens is… what's already saved.
+      ja: 開くのは…保存されたものだけだ。
+
+  # 1차 컴퓨터 결과 — 여행 메일을 읽은 뒤. 답장 못 한 것이 이 기억의 가시다
+  computer-mail:
+    - speaker: hero
+      expression: smile
+      ko: 두 분 다 실컷 웃고 있네. 좋았겠다.
+      en: Look at them, laughing away. Must have been nice.
+      ja: 二人ともよく笑ってるな。楽しかったんだろうな。
+    - speaker: hero
+      ko: 답장 아직 안 했는데. …돌아오면 얼굴 보고 하지 뭐.
+      en: I never replied. …I'll just tell them in person when they're back.
+      ja: まだ返事してなかった。…帰ってきたら直接言えばいいか。
+
+  # 2차 컴퓨터 진입 — 라디오 목소리가 "소식을 찾아볼 이유"를 만든다
+  computer-echo:
+    - speaker: hero
+      ko: 라디오에 사람이 있었어. 그럼 소식도 어딘가 남아 있겠지.
+      en: There was a person on the radio. Then the news must be saved somewhere too.
+      ja: ラジオに人がいた。なら、ニュースもどこかに残ってるはずだ。
+    - speaker: hero
+      ko: 그날 무슨 일이 있었는지, 이제 똑바로 볼래.
+      en: What happened that day — I'm ready to look at it straight.
+      ja: あの日何があったのか、もうちゃんと見るよ。
+
+  # 2차 컴퓨터 결과 — 타임라인을 다 본 뒤. 고립의 수치심을 내려놓는 자리
+  computer-news:
+    - speaker: hero
+      ko: 세상은 조금씩 멈추고 있었구나. …나만 그런 게 아니었어.
+      en: The world was stopping little by little. …It wasn't just me.
+      ja: 世界は少しずつ止まっていったんだな。…俺だけじゃなかったんだ。
+    - speaker: hero
+      ko: 다들 끝까지 서로한테 알리려고 했어.
+      en: Everyone kept trying to reach each other, right to the end.
+      ja: みんな最後まで、誰かに知らせようとしてたんだ。
 
   # 2차 폰 진입 — 몇 주 만에 처음 온 알림. 지문이 안 먹어 비밀번호를 떠올려야 한다
   phone-unlock-intro:
