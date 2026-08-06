@@ -58,15 +58,16 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     ),
     titleKey: "minigame.fighterDuel.title",
     helpKey: "minigame.fighterDuel.help",
-    // 세 수가 뭔지·상성·시간·페인트·보너스 — 모르고 들어가면 첫 판이 그냥 지나간다.
-    // "잡기"는 격투 게임을 안 해본 사람에게는 처음 듣는 말이라 뜻부터 적는다.
+    /*
+     * 네 줄. 조작 · 상성 · 시계 · 변수 순이고, 그 이상은 시작 버튼 앞에서 읽히지
+     * 않는다 — 여섯 줄이던 때는 카드째로 넘겨졌다 (UT: "설명 모달이 넘 길다").
+     * 간파·콤보는 몰라도 판이 도므로 페인트 줄에 붙여 한 줄로 줄였다.
+     */
     rulesKeys: [
       "minigame.fighterDuel.rules.controls",
-      "minigame.fighterDuel.rules.moves",
       "minigame.fighterDuel.rules.triangle",
       "minigame.fighterDuel.rules.clock",
       "minigame.fighterDuel.rules.feint",
-      "minigame.fighterDuel.rules.reward",
     ],
   },
   "window-view": {

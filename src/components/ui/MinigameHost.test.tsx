@@ -40,12 +40,13 @@ describe("MinigameHost", () => {
     render(<MinigameHost />);
     openConsole();
 
-    // UT: "잡기는 뭔지도 모르겠네" — 상성보다 먼저 세 수가 뭔지를 말해야 한다
-    expect(screen.getByText(/Throw grabs and takes them down/)).toBeTruthy();
     // 상성은 순서만이 아니라 이유까지 — 임의의 규칙은 판이 도는 중에 안 떠오른다
-    expect(screen.getByText(/a guarding opponent just gets grabbed/)).toBeTruthy();
+    expect(screen.getByText(/A special breaks through a guard/)).toBeTruthy();
     expect(screen.getByText(/change stance mid-tell/)).toBeTruthy();
     expect(screen.getByText(/before the timer runs out/)).toBeTruthy();
+
+    // 네 줄을 넘기지 않는다 — 그 이상은 시작 버튼 앞에서 안 읽힌다
+    expect(screen.getAllByRole("listitem")).toHaveLength(4);
   });
 
   it("comes back to the start card after the panel is closed and reopened", () => {

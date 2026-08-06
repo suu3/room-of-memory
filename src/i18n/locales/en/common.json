@@ -101,17 +101,15 @@
     },
     "fighterDuel": {
       "title": "Fighting Game",
-      "help": "Read the opponent's stance and play what beats it — 1 Strike · 2 Guard · 3 Throw",
+      "help": "Read the opponent's stance and play what beats it — 1 Attack · 2 Guard · 3 Special",
       "help_touch": "Read the opponent's stance and play what beats it with the buttons below",
-      "hint": "Press the button whose “beats ○○” matches the opponent's move",
+      "hint": "Find the opponent's move shown above on one of the “beats ○○” buttons",
       "rules": {
-        "controls": "Number keys 1 Strike · 2 Guard · 3 Throw — the buttons below work too",
-        "controls_touch": "Use the three buttons below (Strike · Guard · Throw)",
-        "triangle": "Strike → Throw → Guard → Strike. The arm reaching to grab gets hit first, a guarding opponent just gets grabbed, and an incoming punch gets blocked",
-        "clock": "The opponent telegraphs the next move with a stance. Its name appears at the top — press the button that says it beats that move before the timer runs out",
-        "feint": "The opponent may change stance mid-tell (a feint) — the name changes with it",
-        "reward": "Answer fast for a read, chain wins for a combo — both hit harder",
-        "moves": "Strike is a punch, Guard is an arm block, Throw grabs and takes them down"
+        "controls": "Number keys 1 Attack · 2 Guard · 3 Special — the buttons below work too",
+        "controls_touch": "Use the three buttons below (Attack · Guard · Special)",
+        "triangle": "Attack → Special → Guard → Attack. A special breaks through a guard, and a special needs a windup an attack can cut short",
+        "clock": "The opponent telegraphs the next move with a stance — press the button that beats the name shown before the timer runs out",
+        "feint": "They may change stance mid-tell (a feint). Answer fast for a read, chain wins for a combo — both hit harder"
       },
       "labelCombo": "Combo",
       "labelCritical": "Reads",
@@ -127,9 +125,9 @@
         "down": "DOWN"
       },
       "move": {
-        "strike": "Strike",
+        "strike": "Attack",
         "guard": "Guard",
-        "throw": "Throw"
+        "throw": "Special"
       },
       "tell": {
         "strike": "They pull a shoulder back",

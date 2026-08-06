@@ -134,9 +134,9 @@ describe("FighterDuelMinigame", () => {
     render(<FighterDuelMinigame onComplete={() => {}} />);
 
     // 접근성 이름으로 찾는다 — 화면에 보이는 글자이자 스크린리더가 읽는 문장이다
-    expect(screen.getByRole("button", { name: "1 Strike beats Throw" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "2 Guard beats Strike" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "3 Throw beats Guard" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "1 Attack beats Special" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "2 Guard beats Attack" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "3 Special beats Guard" })).toBeTruthy();
   });
 
   it("names the move the opponent is telegraphing, not just the pose", () => {
@@ -149,7 +149,7 @@ describe("FighterDuelMinigame", () => {
 
     const status = screen.getByRole("status").textContent ?? "";
     expect(status).toContain("They reach both arms forward");
-    expect(status).toContain("Throw");
+    expect(status).toContain("Special");
     expect(status).toContain("Opponent");
   });
 
@@ -177,9 +177,9 @@ describe("FighterDuelMinigame", () => {
     render(<FighterDuelMinigame onComplete={() => {}} />);
     /*
      * 앞을 고정해서 찾는다 — 버튼마다 "무엇을 이기는가"가 같이 적혀 있어서
-     * /Strike/로는 막기 버튼("2 Guard beats Strike")까지 걸린다.
+     * /Attack/로는 방어 버튼("2 Guard beats Attack")까지 걸린다.
      */
-    const strike = () => screen.getByRole("button", { name: /^1 Strike/ }) as HTMLButtonElement;
+    const strike = () => screen.getByRole("button", { name: /^1 Attack/ }) as HTMLButtonElement;
     expect(strike().disabled).toBe(true); // 시작 배너 동안
 
     advanceTime(INTRO_MS);

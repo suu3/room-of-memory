@@ -16,7 +16,13 @@ export type Move = "strike" | "guard" | "throw";
 
 export const MOVES: readonly Move[] = ["strike", "guard", "throw"];
 
-/** 무엇이 무엇을 이기는가. 때리기 > 잡기 > 막기 > 때리기. */
+/**
+ * 무엇이 무엇을 이기는가. 공격 > 필살기 > 방어 > 공격.
+ *
+ * 필살기는 방어를 뚫고, 뜸을 들이는 필살기는 먼저 때리면 끊기고, 날아오는
+ * 공격은 막힌다 — 세 변에 다 이유가 있어야 외우지 않고도 떠오른다.
+ * (id는 코드가 쓰는 키라 strike/guard/throw 그대로. 화면 이름은 i18n에 있다.)
+ */
 const BEATS: Record<Move, Move> = {
   strike: "throw",
   throw: "guard",

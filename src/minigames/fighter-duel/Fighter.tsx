@@ -21,11 +21,11 @@ export type Pose = Move | "idle" | "hurt" | "ko" | "win";
 const ARMS: Record<Pose, { front: number; back: number }> = {
   // 기본 자세 — 두 팔을 늘어뜨린 채 상대를 본다
   idle: { front: 62, back: 76 },
-  // 때리기 — 앞팔이 정면으로 쭉
+  // 공격 — 앞팔이 정면으로 쭉
   strike: { front: 0, back: 104 },
-  // 막기 — 두 팔을 얼굴 앞으로 올린다
+  // 방어 — 두 팔을 얼굴 앞으로 올린다
   guard: { front: -100, back: -118 },
-  // 잡기 — 두 팔을 앞으로 나란히 내민다
+  // 필살기 — 두 팔을 앞으로 나란히 모아 내민다 (id는 코드가 쓰는 키라 throw 그대로)
   throw: { front: 6, back: 20 },
   // 맞았을 때 — 팔이 뒤로 풀린다
   hurt: { front: 128, back: 142 },
