@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { musicVolume } from "./music-curve";
 
 /**
  * 후보 목록 폴백만 본다 — 소리 자체는 브라우저 없이는 검증할 수 없고, 여기서
@@ -8,8 +9,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("./engine", () => ({ audioGraph: () => graph }));
 
+/** setTargetAtTime으로 흘러간 값 전부 (음량·컷오프가 섞여 있다). */
+const scheduled: number[] = [];
+
 function fakeParam() {
-  return { value: 0, cancelScheduledValues: vi.fn(), setTargetAtTime: vi.fn() };
+  return {
+    value: 0,
+    cancelScheduledValues: vi.fn(),
+    setTargetAtTime: vi.fn((target: number) => {
+      scheduled.push(target);
+    }),
+  };
 }
 
 function fakeNode() {
@@ -62,6 +72,7 @@ async function importMusic() {
 }
 
 beforeEach(() => {
+  scheduled.length = 0;
   served = new Set();
   asked = vi.fn(async (input: string) =>
     served.has(input)
@@ -122,5 +133,50 @@ describe("startMusic 후보 목록", () => {
     startMusic("/old.ogg");
     await settle();
     expect(asked.mock.calls).toHaveLength(before);
+  });
+});
+
+/**
+ * 곡마다 녹음 레벨이 다르면 같은 밝기를 넣어도 다른 크기로 들린다. 음량 곡선은
+ * 그 차이를 모르므로 트림이 먼저 출발선을 맞춘다 (index.ts의 ROUND_TRIM).
+ */
+describe("곡별 트림", () => {
+  async function playing() {
+    served.add("/a.ogg");
+    const music = await importMusic();
+    music.startMusic("/a.ogg");
+    await settle();
+    music.setMusicLevel(0.62);
+    return music;
+  }
+
+  it("음량 곡선의 값에 곱해진다", async () => {
+    const { setMusicTrim } = await playing();
+
+    scheduled.length = 0;
+    setMusicTrim(1.35);
+
+    expect(scheduled).toEqual([musicVolume(0.62) * 1.35]);
+  });
+
+  it("덕킹과 함께 걸린다 — 둘이 서로를 덮어쓰지 않는다", async () => {
+    const { setMusicTrim, setMusicDuck } = await playing();
+
+    setMusicTrim(1.35);
+    scheduled.length = 0;
+    setMusicDuck(0.42);
+
+    // 곱하는 순서가 코드와 달라 끝자리가 어긋난다 — 값이 맞는지만 본다
+    expect(scheduled).toHaveLength(1);
+    expect(scheduled[0]).toBeCloseTo(musicVolume(0.62) * 1.35 * 0.42, 12);
+  });
+
+  it("음수는 0으로 막는다 — 위상이 뒤집힌 소리를 낼 수는 없다", async () => {
+    const { setMusicTrim } = await playing();
+
+    scheduled.length = 0;
+    setMusicTrim(-1);
+
+    expect(scheduled).toEqual([0]);
   });
 });

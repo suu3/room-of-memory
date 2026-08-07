@@ -87,7 +87,7 @@
 
 파라미터는 GSAP이 아니라 Web Audio의 `setTargetAtTime`으로 민다 — 오디오 스레드에서 보간해야 프레임이 밀려도 소리가 튀지 않는다. 조각을 하나 모을 때마다 값이 새 목표로 미끄러진다(볼륨 0.6s / 컷오프 1.4s / 리버브 2s).
 
-**곡이 아직 리포에 없어도 게임은 돈다.** `ASSETS.bgm`의 값은 경로 하나가 아니라 후보 목록이라, 앞에서부터 받아 처음 성공한 것을 튼다 — 1바퀴는 뒤에 선 자리 지킴이가 받고, 2바퀴는 대신 설 곡이 없으므로 1바퀴 곡이 그대로 이어진다.
+두 곡 다 리포에 들어와 있다. **곡이 빠져도 게임은 돈다** — `ASSETS.bgm`의 값은 경로 하나가 아니라 후보 목록이라 앞에서부터 받아 처음 성공한 것을 튼다. 1바퀴는 뒤에 선 자리 지킴이가 받고, 2바퀴는 대신 설 곡이 없으므로 1바퀴 곡이 그대로 이어진다.
 
 ### 3-2. 곡 사양 — 두 곡을 고를 때의 기준
 
@@ -132,7 +132,7 @@
 | 피할 것 | 에픽 트레일러 톤, 큰 타악, 코러스, 크레셴도 후 정적 |
 | 검색어 | `warm piano strings`, `gentle hopeful`, `emotional acoustic`, `quiet resolve`, `sunrise piano` |
 
-#### 넣는 법
+#### 넣는 법 / 바꾸는 법
 
 경로는 이미 코드에 박혀 있다. 원본을 받아서 스크립트에 넘기면 자리까지 들어간다.
 
@@ -157,7 +157,7 @@ pnpm audio:bgm ~/Downloads/받아온-곡.mp3 second-light   # 2바퀴
 | 1바퀴 | Jazz Pop Piano Japan Afternoon | [Pixabay 155522](https://pixabay.com/ko/music/%EC%86%94%EB%A1%9C-%ED%94%BC%EC%95%84%EB%85%B8-18021402-jazz-pop-piano-japan-afternoon-155522/) |
 | 2바퀴 | Hopeful Love Romantic Music | [Pixabay 338664](https://pixabay.com/ko/music/%ED%98%84%EB%8C%80-%EA%B3%A0%EC%A0%84-hopeful-love-romantic-music-338664/) |
 
-> 1바퀴 후보 목록의 뒤에 선 `bgm-room-winter-morning.ogg`는 자리 지킴이다. modern classical 솔로 피아노라 위의 "발랄한 일상"과 톤이 다르다 — `bgm-room-daylight.ogg`가 들어오면 그때부터 안 쓰인다.
+> 1바퀴 후보 목록의 뒤에 선 `bgm-room-winter-morning.ogg`는 자리 지킴이라 지금은 쓰이지 않는다. modern classical 솔로 피아노라 위의 "발랄한 일상"과 톤이 다르다 — `bgm-room-daylight.ogg`를 못 받았을 때만 선다.
 
 ---
 

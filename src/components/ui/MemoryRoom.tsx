@@ -21,6 +21,7 @@ import {
   selectRevisitedCount,
   useMemoryRoomStore,
 } from "@/store/memory-room";
+import { BootCurtain } from "./BootCurtain";
 import { CharacterSheetModal } from "./CharacterSheetModal";
 import { ClueOverlay } from "./ClueOverlay";
 import { ContactModal } from "./ContactModal";
@@ -35,12 +36,11 @@ import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
 
 /*
- * 로딩 표시는 타이틀 화면이 혼자 맡는다 (TitleScreen의 진행 바).
+ * 로딩 표시는 부팅 커튼이 혼자 맡는다 (BootCurtain).
  *
- * 여기에 loading 폴백을 걸면 청크를 받는 동안 전체 화면 오버레이가 뜨는데,
- * 그 위에 타이틀이 또 자기 진행 바를 그려서 로딩 표시가 두 겹이 된다. started는
- * 저장하지 않으므로 이 청크는 **항상** 타이틀이 떠 있는 동안 받는다 — 즉 이
- * 폴백은 언제나 겹친다.
+ * 여기에 loading 폴백을 걸면 청크를 받는 동안 전체 화면 오버레이가 뜨는데, 그
+ * 위를 커튼이 또 덮어 로딩 표시가 두 겹이 된다. started는 저장하지 않으므로 이
+ * 청크는 **항상** 커튼이 내려와 있는 동안 받는다 — 즉 이 폴백은 언제나 겹친다.
  */
 const RoomCanvas = dynamic(
   () => import("@/components/canvas/RoomCanvas").then((module) => module.RoomCanvas),
@@ -199,6 +199,12 @@ export function MemoryRoom() {
       <TitleScreen />
       {/* 타이틀 화면에서도 열 수 있어야 하므로 타이틀보다 뒤에 그린다 */}
       <ContactModal />
+
+      {/*
+        부팅 커튼(z-50) — 맨 위에서 전부 덮는다. 타이틀보다 **뒤에** 그리는 것이
+        요점이다: 커튼이 걷히는 동안 그 아래에서 드러날 화면이 이미 있어야 한다.
+      */}
+      <BootCurtain />
     </div>
   );
 }

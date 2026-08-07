@@ -31,6 +31,7 @@ import { resolveRoomPalette } from "./memory-room/palette";
 import { RoomDecor } from "./memory-room/RoomDecor";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
+import { RoomSurroundings } from "./memory-room/RoomSurroundings";
 import { PlayerPositionProvider } from "./memory-room/use-near-player";
 import {
   lampScaled,
@@ -213,6 +214,11 @@ export function MemoryRoomScene({
         {/* 문 옆 배트 — 수집 대상이 아니라 2바퀴를 다 돌면 켜지는 엔딩 트리거 */}
         <EndingTrigger palette={palette} />
       </MemoryGlowRoot>
+      {/*
+        방 바깥 — 받침 아래 고인 빛과 둘레를 떠도는 티끌.
+        글로우 루트 밖이다: 만질 수 있는 것이 아니라 배경이라 아웃라인이 붙으면 안 된다.
+      */}
+      <RoomSurroundings palette={palette} />
       {/* 글로우 루트 밖 — 빛·먼지는 아웃라인 선택 대상이 아니다 */}
       <WindowLight
         color={palette.memory}

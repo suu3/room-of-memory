@@ -66,9 +66,10 @@ let impulse: AudioBuffer | null = null;
 /** 로딩이 끝나기 전에 들어온 밝기·덕킹 값. 재생이 시작되면 그대로 반영된다. */
 let level = 0;
 let duck = 1;
+let trim = 1;
 
 function targetVolume(): number {
-  return musicVolume(level) * duck;
+  return musicVolume(level) * duck * trim;
 }
 
 /**
@@ -272,6 +273,21 @@ export function setMusicDuck(next: number) {
   voice.gain.gain.setTargetAtTime(targetVolume(), graph.context.currentTime, VOLUME_GLIDE_S);
 }
 
+/**
+ * 곡마다 다른 녹음 레벨을 맞춘다 (1=파일 그대로).
+ *
+ * 음량 곡선(musicVolume)은 곡이 몇 dB로 녹음됐는지 모른다 — 같은 밝기를 넣어도
+ * 조용하게 마스터링된 곡은 조용하게 나온다. 그 차이를 여기서 먼저 없애야 곡선이
+ * 두 바퀴에서 같은 뜻을 갖는다. 값은 곡을 바꿀 때 `pnpm audio:bgm`이 찍어 주는
+ * LUFS로 다시 잡는다 (index.ts의 ROUND_TRIM).
+ */
+export function setMusicTrim(next: number) {
+  trim = Math.max(0, next);
+  const graph = audioGraph();
+  if (!voice || !graph) return;
+  voice.gain.gain.setTargetAtTime(targetVolume(), graph.context.currentTime, VOLUME_GLIDE_S);
+}
+
 /** 테스트·핫리로드 탈출구. disposeAudio가 컨텍스트를 닫기 전에 불린다. */
 export function disposeMusic() {
   currentRequest = null;
@@ -283,4 +299,5 @@ export function disposeMusic() {
   impulse = null;
   level = 0;
   duck = 1;
+  trim = 1;
 }

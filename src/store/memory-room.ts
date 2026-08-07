@@ -92,6 +92,14 @@ interface MemoryRoomState {
    * 한 번 받아 둔 모델은 타이틀로 돌아가도 그대로 있다.
    */
   roomLoadProgress: number;
+  /**
+   * 부팅 커튼이 다 걷혔는가. 에셋을 받는 동안 화면을 덮고 있다가 다 받으면 위로
+   * 올라가고, 그 아래에서 타이틀 화면이 드러난다 (BootCurtain).
+   *
+   * 이 페이지를 연 뒤 한 번뿐인 사건이라 **리셋해도 되돌리지 않는다** — 되돌리면
+   * 타이틀로 돌아갈 때마다 이미 받아 둔 방을 다시 받는 척하는 커튼이 내려온다.
+   */
+  booted: boolean;
   /** 연락처 모달. HUD 메뉴와 타이틀 화면 두 곳에서 열린다. */
   contactOpen: boolean;
   /** Monotonic signal for local UI state that must close when progress resets. */
@@ -131,6 +139,8 @@ interface MemoryRoomState {
   startGame: () => void;
   /** 로딩 진행률 보고. **올리기만 한다** — 뒤늦게 붙는 모델 때문에 바가 되감기면 안 된다. */
   setRoomLoadProgress: (progress: number) => void;
+  /** 부팅 커튼이 다 올라갔다고 알린다. 되돌리는 짝은 없다. */
+  finishBoot: () => void;
   setSoundMuted: (muted: boolean) => void;
   toggleLights: () => void;
   openClue: (id: ClueId) => void;
@@ -377,6 +387,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       contactOpen: false,
       started: false,
       roomLoadProgress: 0,
+      booted: false,
       resetRevision: 0,
       soundMuted: false,
       lightsOn: true,
@@ -493,6 +504,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) =>
           progress > state.roomLoadProgress ? { roomLoadProgress: progress } : state,
         ),
+      finishBoot: () => set({ booted: true }),
       setSoundMuted: (muted) => set({ soundMuted: muted }),
       toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),
       // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다 — 화면이 두 겹이 된다
