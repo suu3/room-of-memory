@@ -1,5 +1,5 @@
 import type { MemoryId } from "@/data/memory-room";
-import type { Aabb2, CameraPreset, MemoryPlacement, Vec3Tuple } from "./types";
+import type { Aabb2, CameraPreset, EulerTuple, MemoryPlacement, Vec3Tuple } from "./types";
 
 export const ROOM_SHELL_BOUNDS: Aabb2 = { minX: -6, maxX: 8, minZ: -4, maxZ: 6.5 };
 export const ROOM_SHELL_CENTER = [
@@ -107,6 +107,34 @@ export const LIGHT_SWITCH_PLACEMENT = {
    * 있다"는 유일한 신호다 — 옆에 선 배트(1.35)와 같이 잡아 둘이 함께 켜지게 한다.
    */
   interactionRadius: 1.35,
+} as const;
+
+/*
+ * 컴퓨터 비밀번호 단서를 든 배경 오브젝트.
+ *
+ * 기억이 아니라 방의 소품이라 MEMORY_PLACEMENTS와 따로 둔다 — 수집 카운터에도
+ * 해금 규칙에도 끼지 않고, 만져도 진행에는 아무 일이 없다 (전등 스위치와 같은
+ * 성격). 무엇이 적혀 있는지는 src/data/room-clues.ts에 있다.
+ */
+
+/**
+ * 협탁 서랍 속 접힌 쪽지. 서랍 부품과 같은 월드 프레임(닫힌 상태)이고, 서랍
+ * 그룹이 통째로 +z로 밀려 나갈 때 같이 나온다.
+ *
+ * y는 서랍판 윗변(0.86)보다 높고 협탁 몸통 윗면(0.955)보다 낮다 — 닫혀 있으면
+ * 몸통 안에 잠겨 안 보이고, 열리면 서랍판 너머로 위에서 내려다보인다.
+ */
+export const DRAWER_NOTE = {
+  position: [6.8, 0.89, 1.05] as Vec3Tuple,
+  /**
+   * 아무렇게나 던져둔 각도. 크게 틀면 돌아간 만큼 z로 두꺼워져서, 서랍이 다 나와도
+   * (0.24) 몸통 앞을 못 벗어난다 — layout.test가 그 여유를 지킨다.
+   */
+  rotation: [0, 0.12, 0] as EulerTuple,
+  /** [가로, 두께, 세로]. 서랍 안쪽 폭(0.72)에 한참 못 미쳐야 쪽지로 읽힌다. */
+  size: [0.26, 0.012, 0.14] as Vec3Tuple,
+  near: [6.8, 1.16] as readonly [number, number],
+  interactionRadius: 2.1,
 } as const;
 
 export const MEMORY_PLACEMENTS = {

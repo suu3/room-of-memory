@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { CUTSCENE_RADIO_BLACKOUT, CUTSCENES, MEMORIES, SCRIPTS } from "@/data/memory-room";
+import {
+  CUTSCENE_RADIO_BLACKOUT,
+  CUTSCENES,
+  MEMORIES,
+  PHASE1_MEMORIES,
+  SCRIPTS,
+} from "@/data/memory-room";
 import {
   hotspotStatus,
   selectEndingReady,
@@ -166,8 +172,9 @@ describe("수집한 기억 다시보기", () => {
      * "눌렀는데 아무 일도 없는 줄"이 되지 않는다는 계약을 여기 묶어 둔다.
      */
     useMemoryRoomStore.setState({
-      collected: MEMORIES.map((memory) => memory.id),
-      revisited: [],
+      collected: PHASE1_MEMORIES.map((memory) => memory.id),
+      // 1바퀴가 없는 기억(컴퓨터)은 2바퀴 재조사가 다시보기를 여는 열쇠다
+      revisited: MEMORIES.filter((memory) => !memory.phase1).map((memory) => memory.id),
     });
 
     for (const memory of MEMORIES) {
@@ -180,7 +187,7 @@ describe("수집한 기억 다시보기", () => {
 
   it("2바퀴까지 본 기억은 마지막으로 본 쪽을 되돌려준다", () => {
     useMemoryRoomStore.setState({
-      collected: MEMORIES.map((memory) => memory.id),
+      collected: PHASE1_MEMORIES.map((memory) => memory.id),
       revisited: ["radio", "ball"],
     });
     useMemoryRoomStore.getState().replayMemory("ball");
@@ -230,15 +237,14 @@ describe("ending trigger", () => {
 
   /** 2바퀴를 다 돈 상태 — 배트가 켜지는 조건. */
   function finishBothRounds() {
-    const all = MEMORIES.map((memory) => memory.id);
     useMemoryRoomStore.setState({
-      collected: all,
+      collected: PHASE1_MEMORIES.map((memory) => memory.id),
       revisited: MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id),
     });
   }
 
   it("2바퀴를 다 돌기 전에는 엔딩이 시작되지 않는다", () => {
-    useMemoryRoomStore.setState({ collected: MEMORIES.map((memory) => memory.id) });
+    useMemoryRoomStore.setState({ collected: PHASE1_MEMORIES.map((memory) => memory.id) });
     expect(selectEndingReady(useMemoryRoomStore.getState())).toBe(false);
 
     useMemoryRoomStore.getState().startEnding();
@@ -272,7 +278,7 @@ describe("1바퀴 마지막 관문 — 라디오", () => {
   /** 라디오를 뺀 나머지를 다 조사한 상태. */
   function collectAllButRadio() {
     useMemoryRoomStore.setState({
-      collected: MEMORIES.map((memory) => memory.id).filter((id) => id !== "radio"),
+      collected: PHASE1_MEMORIES.map((memory) => memory.id).filter((id) => id !== "radio"),
     });
   }
 
@@ -313,7 +319,7 @@ describe("전환 컷씬", () => {
   /** 재난방송이 끝나 1바퀴를 완주한 직후 상태로 밀어넣는다. */
   function finishFirstRound() {
     useMemoryRoomStore.setState({
-      collected: MEMORIES.map((memory) => memory.id).filter((id) => id !== "radio"),
+      collected: PHASE1_MEMORIES.map((memory) => memory.id).filter((id) => id !== "radio"),
     });
     useMemoryRoomStore.getState().beginInteraction("radio");
     for (let step = 0; step < 32; step += 1) {
@@ -395,7 +401,7 @@ describe("2바퀴 — 라디오가 유일한 관문", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   function startSecondRound() {
-    useMemoryRoomStore.setState({ collected: MEMORIES.map((memory) => memory.id) });
+    useMemoryRoomStore.setState({ collected: PHASE1_MEMORIES.map((memory) => memory.id) });
   }
 
   it("라디오만 열려 있고 나머지 재조사는 잠겨 있다", () => {
@@ -413,9 +419,13 @@ describe("2바퀴 — 라디오가 유일한 관문", () => {
     useMemoryRoomStore.setState({ revisited: ["radio"] });
     const state = useMemoryRoomStore.getState();
 
-    for (const id of ["ball", "console", "frame", "phone", "computer"] as const) {
+    for (const id of ["ball", "console", "frame", "computer"] as const) {
       expect(hotspotStatus(state, id)).toBe("available");
     }
+    // 폰만 한 칸 뒤다 — 컴퓨터의 여행 메일이 서야 엄마 문자가 근거를 얻는다
+    expect(hotspotStatus(state, "phone")).toBe("locked");
+    useMemoryRoomStore.setState({ revisited: ["radio", "computer"] });
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "phone")).toBe("available");
   });
 
   it("2차 조사 대상은 라디오와 재점등 5종뿐이다", () => {

@@ -22,6 +22,11 @@
   --color-scene-navy: #161f28;
   --color-scene-void: #060a10;
 
+  /* 기기 화면 — DESIGN.md > Colors > 기기 화면 */
+  --color-screen-glass: #f4f5f7;
+  --color-screen-chrome: #e2e5ea;
+  --color-screen-shade: #c9ced6;
+
   --font-sans: var(--font-pretendard), "Pretendard", "Hiragino Sans", "Yu Gothic", sans-serif;
   --font-pixel: var(--font-galmuri), "Galmuri14", "Hiragino Sans", sans-serif;
 

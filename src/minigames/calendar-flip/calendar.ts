@@ -6,6 +6,8 @@
  * 넘기는 동작 자체가 "일상이 끊긴 지점"을 보여준다.
  */
 
+import { NATIONALS_DATE } from "@/data/room-clues";
+
 /** 달력에 적힌 해. 요일 격자가 이 값에서 나오므로 장 이미지도 같은 해로 그려야 한다. */
 export const CALENDAR_YEAR = 2026;
 /**
@@ -27,6 +29,14 @@ export const INCIDENT_DATE = { month: 10, day: 19 } as const;
 export const FIRST_MONTH = 7;
 export const LAST_MONTH = 11;
 export const START_MONTH = FIRST_MONTH;
+
+/** 전국대회가 있던 달. 조사 뒤의 배경 달력이 처음 펼치는 장이다. */
+export const NATIONALS_MONTH = NATIONALS_DATE.month;
+/**
+ * 날짜 격자가 남아 있는 마지막 달. 그 뒤는 正자 장이라 격자를 못 그린다 —
+ * 배경 달력(ClueOverlay)은 여기까지만 오간다.
+ */
+export const LAST_DATED_MONTH = INCIDENT_DATE.month;
 
 /** 걸려 있는 장 전부, 앞에서 뒤로. */
 export const CALENDAR_MONTHS: readonly number[] = Array.from(
@@ -73,6 +83,24 @@ export function isAftermath(month: number): boolean {
 
 export function isIncidentDay(month: number, day: number | null): boolean {
   return day !== null && month === INCIDENT_DATE.month && day === INCIDENT_DATE.day;
+}
+
+/**
+ * 전국대회 날인가 — 사건 표시(붉은 동그라미)와 달리 금빛으로 그어진 날이다.
+ *
+ * 이 표시가 컴퓨터 비밀번호의 유일한 숫자 출처다 (src/data/room-clues.ts).
+ * 사건 표시와 색을 갈라 두는 게 중요하다: 같은 색이면 10월 19일과 뒤섞여
+ * "표시된 날"이 둘 중 어느 쪽인지 알 수 없다.
+ */
+export function isNationalsDay(month: number, day: number | null): boolean {
+  return day !== null && month === NATIONALS_DATE.month && day === NATIONALS_DATE.day;
+}
+
+/** 이 달에 표시된 날이 있는가 — 격자 밑에 붙는 설명 줄의 조건. */
+export function markedDayOf(month: number): "incident" | "nationals" | null {
+  if (month === INCIDENT_DATE.month) return "incident";
+  if (month === NATIONALS_DATE.month) return "nationals";
+  return null;
 }
 
 /** 사건 이후의 달은 날짜가 아니라 버틴 날 수로 센다. */

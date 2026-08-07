@@ -13,18 +13,16 @@ import {
   type FlipDirection,
   flipMonth,
   isAftermath,
-  isIncidentDay,
   isLastPage,
   LAST_MONTH,
-  monthCells,
   START_MONTH,
   survivedDays,
   tallyGroups,
 } from "./calendar";
+import { MonthGrid } from "./MonthGrid";
 
 /** 넘기는 애니메이션 길이. globals.css의 calendar-flip-*과 맞춘다. */
 const FLIP_MS = 380;
-const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
 /** 사건 이후 장 — 날짜 대신 버틴 날을 세는 正자만 남는다. */
 function TallySheet({ days, label }: { days: number; label: string }) {
@@ -55,40 +53,11 @@ function TallySheet({ days, label }: { days: number; label: string }) {
   );
 }
 
-/** 평범했던 달 — 날짜 격자. 사건 당일에만 동그라미가 쳐져 있다. */
+/** 평범했던 달 — 날짜 격자. 표시된 날은 MonthGrid가 그린다. */
 function MonthSheet({ month }: { month: number }) {
-  const { t } = useTranslation();
-  const cells = monthCells(CALENDAR_YEAR, month);
-
   return (
     <div className="h-64 overflow-hidden">
-      <div className="grid grid-cols-7 gap-1">
-        {WEEKDAY_KEYS.map((key) => (
-          <span
-            key={key}
-            className="pb-1 text-center text-[0.625rem] font-bold tracking-widest text-ink/40"
-          >
-            {t(`minigame.calendarFlip.weekday.${key}`)}
-          </span>
-        ))}
-        {cells.map((day, index) =>
-          day === null ? (
-            // biome-ignore lint/suspicious/noArrayIndexKey: 앞자리 빈칸은 값이 없어 인덱스가 유일한 키다.
-            <span key={`blank-${index}`} aria-hidden />
-          ) : (
-            <span
-              key={day}
-              className={`grid aspect-square place-items-center text-sm font-bold tabular-nums ${
-                isIncidentDay(month, day)
-                  ? "rounded-full text-ink ring-2 ring-ember"
-                  : "text-ink/70"
-              }`}
-            >
-              {day}
-            </span>
-          ),
-        )}
-      </div>
+      <MonthGrid month={month} />
     </div>
   );
 }

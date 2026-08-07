@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { useFrame } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type Group, MathUtils, Plane, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
@@ -27,6 +27,7 @@ import {
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
+import { DrawerNoteClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
@@ -213,6 +214,7 @@ function Drawer({
   parts,
   travel,
   near,
+  children,
 }: FurnitureProps & {
   name: string;
   parts: readonly BoxPart[];
@@ -220,6 +222,11 @@ function Drawer({
   travel: number;
   /** 다가왔는지 재는 기준점 (월드 x·z). */
   near: readonly [number, number];
+  /**
+   * 서랍 안에 든 것. 서랍과 함께 밀려 나와야 하므로 같은 그룹에 들어간다 —
+   * 열림 여부를 알아야 만질 수 있는지 정할 수 있어 함수로 받는다.
+   */
+  children?: (open: boolean) => ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const groupRef = useRef<Group>(null);
@@ -255,6 +262,7 @@ function Drawer({
       <MemoryGlowSelection selectionKey={name} tier="prop" enabled={hovered || nearPlayer}>
         <BoxParts parts={parts} palette={palette} />
       </MemoryGlowSelection>
+      {children?.(open)}
     </group>
   );
 }
@@ -336,7 +344,10 @@ function Nightstand({ palette }: FurnitureProps) {
         travel={DRAWER_TRAVEL.nightstand}
         near={[NIGHTSTAND_DRAWER[0].position[0], NIGHTSTAND_DRAWER[0].position[2]]}
         palette={palette}
-      />
+      >
+        {/* 아빠가 넣어둔 쪽지 — 컴퓨터 비밀번호 단서의 절반이다 */}
+        {(open) => <DrawerNoteClue palette={palette} open={open} />}
+      </Drawer>
     </group>
   );
 }

@@ -5,10 +5,12 @@ import {
   CUTSCENES,
   MEMORIES,
   MEMORY_BY_ID,
+  MEMORY_GOAL,
   type MemoryId,
   phaseConfigOf,
   SCRIPTS,
 } from "@/data/memory-room";
+import { CLUE_AFTER_MEMORY, type ClueId } from "@/data/room-clues";
 import type { CutsceneCut, DialogueScriptLine } from "@/types/interaction";
 import type { MinigameResult } from "@/types/minigame";
 
@@ -21,7 +23,8 @@ export type UiLockId =
   | "character-sheet"
   | "title"
   | "contact"
-  | "ending";
+  | "ending"
+  | "clue";
 
 export interface ActiveInteraction {
   memoryId: MemoryId;
@@ -95,6 +98,15 @@ interface MemoryRoomState {
   lightsOn: boolean;
   /** 문 옆 배트를 쥐었는가. 2바퀴를 다 돌아야 쥘 수 있고, 쥐면 문이 열린다. */
   endingStarted: boolean;
+  /**
+   * 지금 들여다보고 있는 단서 (책상 위 기록 노트 · 서랍 속 쪽지).
+   *
+   * 전등 스위치와 같은 배경 오브젝트라 진행에는 아무것도 남기지 않는다 — 저장도
+   * 안 하고 수집·엔딩 조건에도 끼지 않는다. 스토어가 드는 이유는 하나: 만지는
+   * 쪽은 Canvas 안의 3D 물건이고 펼쳐지는 쪽은 Canvas 밖 DOM이라, 둘을 잇는
+   * 자리가 여기밖에 없다.
+   */
+  activeClue: ClueId | null;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   /** 재생을 한 칸 진행한다 — 다음 줄 → 정적 → 다음 컷 → 종료 순. */
@@ -112,6 +124,8 @@ interface MemoryRoomState {
   startGame: () => void;
   setSoundMuted: (muted: boolean) => void;
   toggleLights: () => void;
+  openClue: (id: ClueId) => void;
+  closeClue: () => void;
   /** 엔딩 시작 — 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
   startEnding: () => void;
   reset: () => void;
@@ -120,20 +134,49 @@ interface MemoryRoomState {
 type StateSnapshot = Pick<MemoryRoomState, "collected" | "revisited">;
 
 export function gamePhaseOf(state: StateSnapshot): GamePhase {
-  return state.collected.length >= MEMORIES.length ? 2 : 1;
+  return state.collected.length >= MEMORY_GOAL ? 2 : 1;
 }
 
 export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus {
   const gamePhase = gamePhaseOf(state);
   if (gamePhase === 1) {
     if (state.collected.includes(id)) return "done";
-    const unlockAfter = MEMORY_BY_ID[id].phase1.unlockAfter ?? [];
+    const config = MEMORY_BY_ID[id].phase1;
+    /*
+     * 1바퀴에 없는 기억(컴퓨터)은 잠겨 있다 — done이 아니라 locked다. done으로
+     * 두면 표식이 켜지고 다시보기까지 열려서, 아직 아무것도 안 본 물건이 이미
+     * 본 것처럼 보인다.
+     */
+    if (!config) return "locked";
+    const unlockAfter = config.unlockAfter ?? [];
     return unlockAfter.every((dep) => state.collected.includes(dep)) ? "available" : "locked";
   }
   const config = MEMORY_BY_ID[id].phase2;
   if (!config || state.revisited.includes(id)) return "done";
   const unlockAfter = config.unlockAfter ?? [];
   return unlockAfter.every((dep) => state.revisited.includes(dep)) ? "available" : "locked";
+}
+
+/**
+ * 이 단서를 지금 펼칠 수 있는가.
+ *
+ * 대부분은 늘 열려 있다 (서랍 속 쪽지 = 방에 처음부터 놓인 물건). 예외는 조사를
+ * 마친 뒤에야 배경 오브젝트가 되는 달력이다 — 조사 전에 열면 미니게임이 보여줄
+ * 것을 먼저 보여주는 셈이고, 그 안의 표시가 컴퓨터 비밀번호라 순서가 무너진다.
+ */
+export function clueUnlocked(state: StateSnapshot, id: ClueId): boolean {
+  const owner = Object.entries(CLUE_AFTER_MEMORY).find(([, clue]) => clue === id)?.[0];
+  return owner === undefined || state.collected.includes(owner as MemoryId);
+}
+
+/**
+ * 이 기억을 한 번이라도 봤는가 — 수첩·기억 패널·다시보기가 열어 줄지 정하는 기준.
+ *
+ * 대부분은 1바퀴 수집이 첫 관문이지만, 1바퀴가 없는 기억(컴퓨터)은 2바퀴 재조사가
+ * 그 자리를 대신한다. collected만 보면 그 기억은 영영 잠긴 채로 남는다.
+ */
+export function isSeen(state: StateSnapshot, id: MemoryId): boolean {
+  return state.collected.includes(id) || state.revisited.includes(id);
 }
 
 /**
@@ -236,7 +279,7 @@ function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
      * 마지막 관문이므로). 절망의 바닥에서 전환 컷씬으로 곧장 넘어간다 — 방을 한 번
      * 둘러보게 두면 바닥의 밀도가 흩어진다.
      */
-    const finished = collected.length >= MEMORIES.length;
+    const finished = collected.length >= MEMORY_GOAL;
     return {
       collected,
       activeInteraction: null,
@@ -289,14 +332,24 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
         )
       : [];
 
-  const collected = ids(saved.collected);
-  // 2바퀴는 1바퀴를 마친 기억에만 붙는다 — 순서가 뒤집힌 저장본은 앞뒤가 맞게 자른다
-  const revisited = ids(saved.revisited).filter((id) => collected.includes(id));
+  /*
+   * 1바퀴가 없는 기억(컴퓨터)은 collected에 들어갈 수 없다. 옛 저장본에는 들어
+   * 있으므로 여기서 턴다 — 남겨 두면 수집 개수가 목표를 넘어서 엔딩 조건이
+   * 어긋난다.
+   */
+  const collected = ids(saved.collected).filter((id) => MEMORY_BY_ID[id].phase1);
+  /*
+   * 2바퀴는 1바퀴를 마친 기억에만 붙는다 — 순서가 뒤집힌 저장본은 앞뒤가 맞게 자른다.
+   * 단, 1바퀴가 아예 없는 기억(컴퓨터)은 collected에 들어갈 길이 없으므로 예외다.
+   */
+  const revisited = ids(saved.revisited).filter(
+    (id) => collected.includes(id) || !MEMORY_BY_ID[id].phase1,
+  );
 
   return {
     collected,
     revisited,
-    endingStarted: saved.endingStarted === true && collected.length === MEMORIES.length,
+    endingStarted: saved.endingStarted === true && collected.length === MEMORY_GOAL,
     soundMuted: saved.soundMuted === true,
     // 불은 켜진 상태가 기본 — 저장본에 명시적으로 false일 때만 꺼진 채로 돌아온다
     lightsOn: saved.lightsOn !== false,
@@ -318,6 +371,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       soundMuted: false,
       lightsOn: true,
       endingStarted: false,
+      activeClue: null,
       beginInteraction: (id) =>
         set((state) => {
           if (state.activePlayback) return state;
@@ -406,10 +460,11 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) => {
           // 이미 본 것만 되짚을 수 있다. beginInteraction은 available일 때만 돌아서 쓸 수 없다.
           if (state.activeInteraction || state.activePlayback) return state;
-          if (!state.collected.includes(id)) return state;
+          if (!isSeen(state, id)) return state;
           // 2바퀴까지 본 기억이면 마지막으로 본 쪽(phase2)을 되돌려준다
           const item = MEMORY_BY_ID[id];
-          const gamePhase: GamePhase = state.revisited.includes(id) && item.phase2 ? 2 : 1;
+          const gamePhase: GamePhase =
+            !item.phase1 || (state.revisited.includes(id) && item.phase2) ? 2 : 1;
           const playback = buildMemoryReplay(id, gamePhase);
           return playback ? { activePlayback: playback } : state;
         }),
@@ -426,6 +481,14 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       startGame: () => set({ started: true }),
       setSoundMuted: (muted) => set({ soundMuted: muted }),
       toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),
+      // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다 — 화면이 두 겹이 된다
+      openClue: (id) =>
+        set((state) =>
+          state.activeInteraction || state.activePlayback || !clueUnlocked(state, id)
+            ? state
+            : { activeClue: id },
+        ),
+      closeClue: () => set((state) => (state.activeClue ? { activeClue: null } : state)),
       startEnding: () =>
         set((state) => (selectEndingReady(state) ? { endingStarted: true } : state)),
       reset: () =>
@@ -440,6 +503,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           started: false,
           lightsOn: true,
           endingStarted: false,
+          activeClue: null,
           resetRevision: state.resetRevision + 1,
         })),
     }),
@@ -499,8 +563,8 @@ export const selectMusicPlaying = (state: MemoryRoomState) =>
 /** 2바퀴 재조사 대상 수. 밝기 상승 구간의 분모다. */
 export const REVISIT_TOTAL = MEMORIES.filter((memory) => memory.phase2).length;
 
-/** 전체 기억 수. 밝기 하강 구간의 분모다. */
-export const MEMORY_TOTAL = MEMORIES.length;
+/** 1바퀴 수집 목표. 밝기 하강 구간의 분모다 — 데이터 쪽 MEMORY_GOAL과 같은 수. */
+export const MEMORY_TOTAL = MEMORY_GOAL;
 
 /*
  * 밝기 입력은 원시값으로만 노출한다. 객체를 새로 만들어 돌려주면 zustand가

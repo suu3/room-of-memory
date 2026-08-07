@@ -372,7 +372,7 @@ function FlowTab({
           title={<MemoryTitle memory={memory} wave={waves.phase1.get(memory.id)} />}
           summary={
             <>
-              1바퀴 {phaseDigest(memory.phase1)}
+              {memory.phase1 ? `1바퀴 ${phaseDigest(memory.phase1)}` : "1바퀴 없음"}
               {memory.phase2 ? ` / 2바퀴 ${phaseDigest(memory.phase2)}` : ""}
             </>
           }
@@ -404,18 +404,46 @@ function FlowTab({
               </Field>
             </div>
 
-            <PhaseEditor
-              label="1바퀴 (최초 수집)"
-              round="phase1"
-              phase={memory.phase1}
-              memory={memory}
-              memories={content.memories}
-              waves={waves.phase1}
-              scripts={content.scripts}
-              options={options}
-              scriptIds={scriptIds}
-              onChange={(phase1) => setMemory(index, { ...memory, phase1 })}
-            />
+            {/*
+              1바퀴가 없는 기억은 2바퀴 전용이다 — 1바퀴 내내 잠겨 있고 수집
+              개수에서도 빠진다. 둘 다 없애면 저장이 막히므로 마지막 하나는
+              제거 버튼이 안 뜬다.
+            */}
+            {memory.phase1 ? (
+              <PhaseEditor
+                label="1바퀴 (최초 수집)"
+                round="phase1"
+                phase={memory.phase1}
+                memory={memory}
+                memories={content.memories}
+                waves={waves.phase1}
+                scripts={content.scripts}
+                options={options}
+                scriptIds={scriptIds}
+                onRemove={
+                  memory.phase2
+                    ? () => {
+                        const { phase1: _dropped, lore, ...rest } = memory;
+                        const { phase1: _loreDropped, ...loreRest } = lore;
+                        setMemory(index, { ...rest, lore: loreRest });
+                      }
+                    : undefined
+                }
+                onChange={(phase1) => setMemory(index, { ...memory, phase1 })}
+              />
+            ) : (
+              <Button
+                onClick={() =>
+                  setMemory(index, {
+                    ...memory,
+                    phase1: {},
+                    lore: { ...memory.lore, phase1: { ...EMPTY_TEXT } },
+                  })
+                }
+              >
+                + 1바퀴 조사 추가
+              </Button>
+            )}
 
             {memory.phase2 ? (
               <PhaseEditor
@@ -428,11 +456,15 @@ function FlowTab({
                 scripts={content.scripts}
                 options={options}
                 scriptIds={scriptIds}
-                onRemove={() => {
-                  const { phase2: _dropped, lore, ...rest } = memory;
-                  const { phase2: _loreDropped, ...loreRest } = lore;
-                  setMemory(index, { ...rest, lore: loreRest });
-                }}
+                onRemove={
+                  memory.phase1
+                    ? () => {
+                        const { phase2: _dropped, lore, ...rest } = memory;
+                        const { phase2: _loreDropped, ...loreRest } = lore;
+                        setMemory(index, { ...rest, lore: loreRest });
+                      }
+                    : undefined
+                }
                 onChange={(phase2) => setMemory(index, { ...memory, phase2 })}
               />
             ) : (
@@ -560,7 +592,7 @@ function PhaseEditor({
         </span>
         {onRemove ? (
           <Button tone="danger" onClick={onRemove}>
-            2바퀴 제거
+            {round === "phase1" ? "1바퀴" : "2바퀴"} 제거
           </Button>
         ) : null}
       </div>
@@ -976,7 +1008,9 @@ function LoreTab({
           key={memory.id}
           open={cards.isOpen(memory.id)}
           onToggle={() => cards.toggle(memory.id)}
-          summary={memory.phase2 ? "1바퀴 · 2바퀴 기록" : "1바퀴 기록"}
+          summary={[memory.phase1 ? "1바퀴 기록" : null, memory.phase2 ? "2바퀴 기록" : null]
+            .filter(Boolean)
+            .join(" · ")}
           title={<MemoryTitle memory={memory} wave={waves.get(memory.id)} />}
         >
           <div className="flex flex-col gap-4">
@@ -986,13 +1020,16 @@ function LoreTab({
               value={memory.lore.title}
               onChange={(title) => setMemory(index, { ...memory, lore: { ...memory.lore, title } })}
             />
-            <LocalizedInput
-              label="1바퀴 기록"
-              value={memory.lore.phase1}
-              onChange={(phase1) =>
-                setMemory(index, { ...memory, lore: { ...memory.lore, phase1 } })
-              }
-            />
+            {/* 기록은 있는 바퀴만 쓴다 — 없는 바퀴의 문장은 아무 데서도 안 뜨고 저장이 막힌다 */}
+            {memory.phase1 ? (
+              <LocalizedInput
+                label="1바퀴 기록"
+                value={memory.lore.phase1 ?? EMPTY_TEXT}
+                onChange={(phase1) =>
+                  setMemory(index, { ...memory, lore: { ...memory.lore, phase1 } })
+                }
+              />
+            ) : null}
             {memory.phase2 ? (
               <LocalizedInput
                 label="2바퀴 기록"

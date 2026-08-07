@@ -95,34 +95,30 @@ memories:
       unlockAfter: [radio]
       replayStill: /assets/images/mg-photo-wipe-phase-2.webp
 
+  # 컴퓨터는 유일한 2바퀴 전용 기억이다 — phase1이 없다.
+  #
+  # 1바퀴 내내 책상 위에 꺼진 채로 서 있고, 조사 대상이 아니라 배경 오브젝트로만
+  # 읽힌다 (1바퀴 수집 개수에서도 빠진다 — src/data의 PHASE1_MEMORIES). 2바퀴에
+  # 라디오 목소리를 잡고 나서야 전원을 넣을 이유가 생긴다.
+  #
+  # 열리는 순서: 부팅 → 잠금 화면(비밀번호 0724) → 저장된 메일 + 캐시된 뉴스.
+  # 비밀번호 단서는 기억이 아니라 방의 배경 오브젝트 둘에 갈라 두었다
+  # (책상 위 기록 노트 = 날짜, 협탁 서랍 속 쪽지 = 무슨 날짜인지 — CLUE_PROPS).
   - id: computer
     icon: Desktop
     lore:
       title:
-        ko: 여행 사진
-        en: Trip Photos
-        ja: 旅行の写真
-      phase1:
-        ko: 아빠가 여행지에서 보낸 메일. 사진 속 두 사람은 웃고 있다. 답장은 아직 못 했다.
-        en: Dad's emails from the trip. In the photos the two of them are smiling. I never got to reply.
-        ja: 旅行先から父さんが送ったメール。写真の中の二人は笑っている。返事はまだ書けていない。
+        ko: 저장된 것들
+        en: What Was Saved
+        ja: 保存されていたもの
       phase2:
-        ko: 캐시로 남은 뉴스가 그날까지의 순서를 보여준다. 세상은 조금씩, 그러다 한꺼번에 멈췄다.
-        en: The cached news lays out the order of it all. The world stopped little by little, then all at once.
-        ja: キャッシュに残ったニュースがあの日までの順番を見せてくれる。世界は少しずつ、そして一気に止まった。
-    # 1차: 인터넷이 끊긴 컴퓨터 — 열리는 건 저장된 것뿐. 아빠의 여행 메일이
-    # "부모님은 여행 중"을 심는다. phone 2차의 문자("여행지에서 바로 출발했는데")가
-    # 여기서 심은 사실을 받는다.
-    phase1:
-      script: computer-intro
-      minigame: computer-browse
-      resultScript: computer-mail
-    # 2차: 같은 컴퓨터에서 이번엔 뉴스 캐시를 뒤진다 — 그날까지의 타임라인.
-    # 미니게임은 같은 computer-browse가 gamePhase를 보고 메일/뉴스를 가른다.
+        ko: 답장 못 한 아빠의 여행 메일, 그리고 캐시에 남은 뉴스. 세상은 조금씩, 그러다 한꺼번에 멈췄다.
+        en: Dad's trip emails I never answered, and the news left in the cache. The world stopped little by little, then all at once.
+        ja: 返事できなかった父さんの旅行メールと、キャッシュに残ったニュース。世界は少しずつ、そして一気に止まった。
     phase2:
-      script: computer-echo
+      script: computer-power-on
       minigame: computer-browse
-      resultScript: computer-news
+      resultScript: computer-archive
       unlockAfter: [radio]
 
   - id: radio
@@ -153,7 +149,8 @@ memories:
       script: radio-intro
       minigame: frequency-tune
       resultScript: radio-broadcast
-      unlockAfter: [console, window, frame, computer, phone, calendar, ball]
+      # 컴퓨터는 여기 없다 — 1바퀴에 아예 안 열리는 기억이라 기다리면 영영 안 열린다
+      unlockAfter: [console, window, frame, phone, calendar, ball]
     # 2차: 2바퀴에서 유일하게 손을 쓰는 조사. 같은 다이얼 끝에 이번엔 사람이 있다.
     # 2바퀴의 첫 관문이라 아무것도 기다리지 않는다.
     phase2:
@@ -184,11 +181,15 @@ memories:
     # 도착한다. 잠금 비번(1019)은 calendar가 심은 날짜가 단서다 — 미궁의 첫 조각.
     # 부모님 행방의 절반이 여기서 풀린다: 그날 여행 중이었고(그래서 집에 없다),
     # 돌아오겠다고 했고, 못 왔다.
+    #
+    # computer를 기다리는 이유: "여행 중이었다"를 심는 건 컴퓨터의 아빠 메일이다.
+    # 그게 먼저 서지 않으면 엄마 문자의 "여행지에서 바로 출발했는데"가 근거 없이
+    # 튀어나온다. 1바퀴에서는 컴퓨터가 그 자리를 맡았지만 이제 둘 다 2바퀴에 있다.
     phase2:
       script: phone-unlock-intro
       minigame: phone-lock
       resultScript: phone-unlock-result
-      unlockAfter: [radio]
+      unlockAfter: [radio, computer]
 
   - id: calendar
     icon: CalendarHeart

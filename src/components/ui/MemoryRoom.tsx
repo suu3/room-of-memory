@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
-import { MEMORIES, MEMORY_GOAL, ROOM_STAGES } from "@/data/memory-room";
+import { MEMORY_GOAL, PHASE1_MEMORIES, ROOM_STAGES } from "@/data/memory-room";
 import { useAudioRuntime, useRoomMusic } from "@/lib/audio";
 import {
   lampScaled,
@@ -22,6 +22,7 @@ import {
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { CharacterSheetModal } from "./CharacterSheetModal";
+import { ClueOverlay } from "./ClueOverlay";
 import { ContactModal } from "./ContactModal";
 import { DialogueBox } from "./DialogueBox";
 import { EndingScreen } from "./EndingScreen";
@@ -127,9 +128,10 @@ export function MemoryRoom() {
                 <span className="text-sm"> / {MEMORY_GOAL}</span>
               </span>
             </div>
-            {/* 기억 하나당 한 칸 — 모을수록 금빛이 왼쪽부터 찬다 */}
+            {/* 기억 하나당 한 칸 — 모을수록 금빛이 왼쪽부터 찬다.
+                1바퀴에 안 열리는 기억(컴퓨터)은 칸도 없다 — 있으면 영영 안 차는 칸이 된다 */}
             <div className="flex gap-1">
-              {MEMORIES.map((memory) => (
+              {PHASE1_MEMORIES.map((memory) => (
                 <span
                   key={memory.id}
                   aria-hidden
@@ -166,13 +168,17 @@ export function MemoryRoom() {
 
       {started && (
         <>
-          {/* 혼잣말 — key로 단계가 바뀔 때마다 다시 마운트해 처음부터 찍는다 */}
-          <Monologue key={stage.id} stageId={stage.id} />
+          {/* 혼잣말 — 단계가 바뀌면 Monologue가 스스로 옛 줄을 물리고 새로 찍는다.
+              key로 강제 리마운트하면 기억을 완료하는 순간 줄이 통째로 사라졌다
+              다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다 */}
+          <Monologue stageId={stage.id} />
 
           {/* 컷씬·다시보기 — 대사창(z-50)보다 아래에 깔려 그림 위로 글이 얹힌다 */}
           <PlaybackScene />
           <DialogueBox />
           <MemoryPanel />
+          {/* 방에서 집어 든 종이 한 장 (기록 노트 · 서랍 쪽지) — 진행에 남지 않는다 */}
+          <ClueOverlay />
           <CharacterSheetModal />
           <MinigameHost />
         </>

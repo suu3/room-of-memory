@@ -36,8 +36,8 @@ export interface MemoryItem {
   id: MemoryId;
   /** 수집 패널에 표시할 아이콘 (Phosphor 또는 호환 커스텀) */
   icon: MemoryIcon;
-  /** Phase 1: 최초 수집 클릭. 모든 아이템 필수. */
-  phase1: MemoryPhaseConfig;
+  /** Phase 1: 최초 수집 클릭. 없으면 1바퀴 내내 잠겨 있는 2바퀴 전용 기억이다. */
+  phase1?: MemoryPhaseConfig;
   /** Phase 2: 전원 수집 후 재클릭. 있는 아이템만 재클릭 대상. */
   phase2?: MemoryPhaseConfig;
 }
@@ -79,18 +79,11 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "computer",
     icon: Desktop,
-    phase1: {
-      interaction: {
-        scriptId: "computer-intro",
-        minigameId: "computer-browse",
-        resultScriptId: "computer-mail",
-      },
-    },
     phase2: {
       interaction: {
-        scriptId: "computer-echo",
+        scriptId: "computer-power-on",
         minigameId: "computer-browse",
-        resultScriptId: "computer-news",
+        resultScriptId: "computer-archive",
       },
       unlockAfter: ["radio"],
     },
@@ -104,7 +97,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "frequency-tune",
         resultScriptId: "radio-broadcast",
       },
-      unlockAfter: ["console", "window", "frame", "computer", "phone", "calendar", "ball"],
+      unlockAfter: ["console", "window", "frame", "phone", "calendar", "ball"],
     },
     phase2: {
       interaction: {
@@ -124,7 +117,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "phone-lock",
         resultScriptId: "phone-unlock-result",
       },
-      unlockAfter: ["radio"],
+      unlockAfter: ["radio", "computer"],
     },
   },
   {
@@ -202,32 +195,20 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.phone-stopped.line2" },
     ],
   },
-  "computer-intro": {
-    id: "computer-intro",
+  "computer-power-on": {
+    id: "computer-power-on",
     lines: [
-      { speaker: "hero", textKey: "scripts.computer-intro.line1" },
-      { speaker: "hero", textKey: "scripts.computer-intro.line2" },
+      { speaker: "hero", textKey: "scripts.computer-power-on.line1" },
+      { speaker: "hero", textKey: "scripts.computer-power-on.line2" },
+      { speaker: "hero", textKey: "scripts.computer-power-on.line3" },
     ],
   },
-  "computer-mail": {
-    id: "computer-mail",
+  "computer-archive": {
+    id: "computer-archive",
     lines: [
-      { speaker: "hero", textKey: "scripts.computer-mail.line1", expression: "smile" },
-      { speaker: "hero", textKey: "scripts.computer-mail.line2" },
-    ],
-  },
-  "computer-echo": {
-    id: "computer-echo",
-    lines: [
-      { speaker: "hero", textKey: "scripts.computer-echo.line1" },
-      { speaker: "hero", textKey: "scripts.computer-echo.line2" },
-    ],
-  },
-  "computer-news": {
-    id: "computer-news",
-    lines: [
-      { speaker: "hero", textKey: "scripts.computer-news.line1" },
-      { speaker: "hero", textKey: "scripts.computer-news.line2" },
+      { speaker: "hero", textKey: "scripts.computer-archive.line1", expression: "smile" },
+      { speaker: "hero", textKey: "scripts.computer-archive.line2" },
+      { speaker: "hero", textKey: "scripts.computer-archive.line3" },
     ],
   },
   "phone-unlock-intro": {

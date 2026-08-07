@@ -40,6 +40,8 @@ export function MemoryPanel() {
   const [openedAtResetRevision, setOpenedAtResetRevision] = useState<number | null>(null);
   const panelRef = useRef<HTMLElement>(null);
   const collected = useMemoryRoomStore(selectCollected);
+  // 컴퓨터는 1바퀴가 없어 collected에 안 들어간다 — 2바퀴 재조사가 그 자리를 대신한다
+  const revisited = useMemoryRoomStore((state) => state.revisited);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const replayMemory = useMemoryRoomStore((state) => state.replayMemory);
   const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
@@ -96,7 +98,7 @@ export function MemoryPanel() {
 
         <ul className="flex flex-col px-3 pb-3">
           {MEMORIES.map((memory) => {
-            const done = collected.includes(memory.id);
+            const done = collected.includes(memory.id) || revisited.includes(memory.id);
             return (
               <li key={memory.id} className="border-b border-ink/8 last:border-b-0">
                 {/* 수집한 기억은 눌러서 다시 볼 수 있다 — 미수집은 누를 게 없으므로 버튼이 아니다 */}

@@ -14,7 +14,15 @@ import { MEMORIES, type MemoryId } from "./generated/content";
 export { CUTSCENES, MEMORIES, MEMORY_IDS, type MemoryItem, SCRIPTS } from "./generated/content";
 export type { MemoryId };
 
-export const MEMORY_GOAL = MEMORIES.length;
+/**
+ * 1바퀴에 조사할 수 있는 기억. phase1이 없는 기억(컴퓨터)은 1바퀴 내내 잠겨 있어
+ * 여기 끼지 않는다 — 끼우면 절대 못 채우는 수를 분모로 삼는 셈이라 2바퀴가 영영
+ * 안 열린다.
+ */
+export const PHASE1_MEMORIES = MEMORIES.filter((memory) => memory.phase1);
+
+/** 1바퀴 수집 목표. 진행 표시(n/N)와 방 밝기 하강 구간의 분모다. */
+export const MEMORY_GOAL = PHASE1_MEMORIES.length;
 
 export const STAGE_IDS = ["dark", "dim", "gold"] as const;
 export type StageId = (typeof STAGE_IDS)[number];

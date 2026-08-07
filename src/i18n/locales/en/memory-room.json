@@ -102,21 +102,15 @@
       "line1": "The last message is from October 19.",
       "line2": "Since that day, not one word from anyone."
     },
-    "computer-intro": {
-      "line1": "Haven't turned this on in a while. The internet's been dead since that day.",
-      "line2": "All that opens is… what's already saved."
+    "computer-power-on": {
+      "line1": "There was a person on the radio. Then the news from that day must be saved somewhere too.",
+      "line2": "The internet's been dead since that day… but whatever's saved will do.",
+      "line3": "I press the power button on the dust-covered tower."
     },
-    "computer-mail": {
-      "line1": "Look at them, laughing away. Must have been nice.",
-      "line2": "I never replied. …I'll just tell them in person when they're back."
-    },
-    "computer-echo": {
-      "line1": "There was a person on the radio. Then the news must be saved somewhere too.",
-      "line2": "What happened that day — I'm ready to look at it straight."
-    },
-    "computer-news": {
-      "line1": "The world was stopping little by little. …It wasn't just me.",
-      "line2": "Everyone kept trying to reach each other, right to the end."
+    "computer-archive": {
+      "line1": "Look at them, laughing away. I never did reply.",
+      "line2": "And after that… the world was stopping, little by little.",
+      "line3": "It wasn't just me. Everyone kept trying to reach each other, right to the end."
     },
     "phone-unlock-intro": {
       "line1": "The phone just buzzed. …Now?",
@@ -174,9 +168,8 @@
       "phase2": "I put the pieces back and the faces returned. We just haven't met yet."
     },
     "computer": {
-      "title": "Trip Photos",
-      "phase1": "Dad's emails from the trip. In the photos the two of them are smiling. I never got to reply.",
-      "phase2": "The cached news lays out the order of it all. The world stopped little by little, then all at once."
+      "title": "What Was Saved",
+      "phase2": "Dad's trip emails I never answered, and the news left in the cache. The world stopped little by little, then all at once."
     },
     "radio": {
       "title": "That Broadcast",

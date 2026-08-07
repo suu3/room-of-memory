@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ENTRY_LIGHT_LEVEL,
   lampScaled,
+  memoryOpacity,
   outsideDecay,
   ROOM_LIGHT_RAMP,
   ROOM_LIGHTING,
@@ -30,6 +31,15 @@ describe("memory-room visual state", () => {
     // 클릭할 수 없는 기억은 호버해도 빛나지 않는다
     expect(shouldHighlightMemory("locked", "console", null, true)).toBe(false);
     expect(shouldHighlightMemory("done", "console", null, true)).toBe(false);
+  });
+
+  it("이 바퀴에 없는 기억은 흐리지 않는다 — 잠긴 게 아니라 가구다", () => {
+    // 1바퀴의 컴퓨터: phase1이 없어 status는 locked지만 이 바퀴의 물건이 아니다
+    expect(memoryOpacity("locked", false)).toBe(1);
+    // 같은 바퀴 안에서 순서를 기다리는 기억은 흐려야 "곧 열린다"가 보인다
+    expect(memoryOpacity("locked", true)).toBeLessThan(1);
+    expect(memoryOpacity("available", true)).toBe(1);
+    expect(memoryOpacity("done", true)).toBe(1);
   });
 
   it("어둡지 않은 평범한 밝기로 시작한다 (기획안: 진입은 낮의 남고생 방)", () => {

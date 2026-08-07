@@ -9,6 +9,7 @@ import {
   MEMORY_BY_ID,
   MEMORY_IDS,
   type MemoryId,
+  PHASE1_MEMORIES,
   SCRIPTS,
 } from "./memory-room";
 
@@ -123,7 +124,7 @@ describe("다시보기", () => {
 
   it("다시보기 스틸은 리포에 실제로 있는 파일을 가리킨다", () => {
     const stills = MEMORIES.flatMap((memory) =>
-      [memory.phase1.replayStill, memory.phase2?.replayStill].filter(
+      [memory.phase1?.replayStill, memory.phase2?.replayStill].filter(
         (path): path is string => path !== undefined,
       ),
     );
@@ -136,14 +137,24 @@ describe("다시보기", () => {
 });
 
 describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
-  it("라디오는 나머지 전부를 기다린다 — 재난방송이 마지막에 온다", () => {
-    const prerequisites = MEMORY_BY_ID.radio.phase1.unlockAfter ?? [];
+  it("라디오는 1바퀴의 나머지 전부를 기다린다 — 재난방송이 마지막에 온다", () => {
+    const prerequisites = MEMORY_BY_ID.radio.phase1?.unlockAfter ?? [];
 
     expect([...prerequisites].sort()).toEqual(
-      MEMORY_IDS.filter((id) => id !== "radio")
-        .slice()
+      PHASE1_MEMORIES.map((memory) => memory.id)
+        .filter((id) => id !== "radio")
         .sort(),
     );
+  });
+
+  it("컴퓨터만 1바퀴가 없다 — 2바퀴에 처음 열리는 기억이다", () => {
+    const phase2Only = MEMORIES.filter((memory) => !memory.phase1).map((memory) => memory.id);
+
+    expect(phase2Only).toEqual(["computer"]);
+    // 1바퀴에 없는 기억을 1바퀴 조건으로 기다리면 그 기억은 영영 안 열린다
+    for (const memory of PHASE1_MEMORIES) {
+      expect(memory.phase1?.unlockAfter ?? [], memory.id).not.toContain("computer");
+    }
   });
 
   it("2바퀴에서 손을 쓰는 조사는 라디오·액자·폰·컴퓨터뿐이다", () => {
@@ -155,11 +166,13 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
   });
 
   it("2바퀴 재점등 대상은 라디오 목소리를 들은 뒤에만 열린다", () => {
-    const gated: MemoryId[] = ["ball", "console", "frame", "phone", "computer"];
+    const gated: MemoryId[] = ["ball", "console", "frame", "computer"];
 
     for (const id of gated) {
       expect(MEMORY_BY_ID[id].phase2?.unlockAfter).toEqual(["radio"]);
     }
+    // 폰은 컴퓨터의 여행 메일까지 기다린다 — 엄마 문자가 그 사실을 받아 쓴다
+    expect(MEMORY_BY_ID.phone.phase2?.unlockAfter).toEqual(["radio", "computer"]);
     // 라디오 자신은 2바퀴의 첫 관문이라 아무것도 기다리지 않는다
     expect(MEMORY_BY_ID.radio.phase2?.unlockAfter).toBeUndefined();
   });

@@ -163,7 +163,11 @@
       },
       "survived": "{{value}}일 버텼다",
       "pageOf": "{{value}} / {{total}}",
-      "close": "달력을 내려놓는다"
+      "close": "달력을 내려놓는다",
+      "mark": {
+        "incident": "{{month}}월 {{day}}일 — 다 멈춘 날",
+        "nationals": "{{month}}월 {{day}}일 — 전국대회"
+      }
     },
     "windowView": {
       "title": "창밖",
@@ -209,6 +213,20 @@
       "title": "컴퓨터",
       "help": "다음 장으로 — 클릭 · Space · →",
       "help_touch": "다음 버튼을 눌러 끝까지 읽으세요",
+      "booting": "부팅 중",
+      "account": "한도해",
+      "passwordLabel": "비밀번호",
+      "passHint": "힌트: 전국대회 날. 월일 네 자리.",
+      "wrong": "비밀번호가 올바르지 않습니다",
+      "submit": "로그인",
+      "lockHelp": "비밀번호를 입력하고 Enter",
+      "lockHelp_touch": "비밀번호를 입력하고 화살표 버튼을 누르세요",
+      "boot": {
+        "l1": "디스크 확인 중…",
+        "l2": "마지막 종료: 10월 19일",
+        "l3": "사용자 정보 불러오는 중…",
+        "l4": "거의 다 됐다"
+      },
       "offline": "인터넷 연결 없음",
       "mailApp": "메일함 — 저장된 사본",
       "newsApp": "브라우저 — 저장된 페이지",
@@ -309,5 +327,20 @@
     "skip": "건너뛰기",
     "close": "닫기",
     "replayTitle": "{{name}} · 다시보기"
+  },
+  "clue": {
+    "read": "{{name}} 보기",
+    "close": "내려놓는다",
+    "drawerNote": {
+      "title": "접힌 쪽지",
+      "caption": "아빠 글씨다. 언제 넣어둔 건지도 모르겠다.",
+      "l1": "컴퓨터 비번 바꿔놨다",
+      "l2": "전국대회 날짜로 해놨으니까. 그날은 안 까먹을 거 아니냐.",
+      "l3": "— 아빠가"
+    },
+    "wallCalendar": {
+      "title": "벽에 걸린 달력",
+      "caption": "동그라미가 둘. 하나는 그날이고, 하나는 그전의 어떤 날이다."
+    }
   }
 }

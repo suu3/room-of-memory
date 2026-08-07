@@ -65,8 +65,14 @@ export function validateContent(content, { minigameIds = [] } = {}) {
 
     validateLore(memory, issues);
 
-    if (!isPlainObject(memory.phase1)) {
-      issues.push(`${id}: phase1은 필수다 — 최초 수집이 없는 기억은 만들 수 없다.`);
+    /*
+     * 페이즈가 하나도 없으면 아무 바퀴에서도 못 여는 기억이다. 반대로 phase1이
+     * 없고 phase2만 있는 기억은 허용한다 — 1바퀴 내내 잠겨 있다가 2바퀴에 처음
+     * 열리는 물건(컴퓨터)이 그렇다. 그런 기억은 1바퀴 수집 개수에서도 빠진다
+     * (src/data/memory-room.ts의 PHASE1_MEMORIES).
+     */
+    if (memory.phase1 === undefined && memory.phase2 === undefined) {
+      issues.push(`${id}: phase1도 phase2도 없다 — 어느 바퀴에서도 못 여는 기억은 만들 수 없다.`);
     }
 
     for (const phase of ["phase1", "phase2"]) {
@@ -227,12 +233,17 @@ function validateLore(memory, issues) {
     return;
   }
   validateText(lore.title, `${id}.lore.title`, issues);
-  validateText(lore.phase1, `${id}.lore.phase1`, issues);
 
-  // 2바퀴 대상이면 그때의 기록도 있어야 한다 — 되짚었는데 1바퀴 문장이 다시 뜨면 안 된다
-  if (memory.phase2 !== undefined) validateText(lore.phase2, `${id}.lore.phase2`, issues);
-  else if (lore.phase2 !== undefined) {
-    issues.push(`${id}.lore.phase2: phase2가 없는 기억인데 2바퀴 기록만 남아 있다.`);
+  /*
+   * 기록은 페이즈와 1:1이다. 그 바퀴가 있으면 그때의 문장도 있어야 하고(되짚었는데
+   * 앞 바퀴 문장이 다시 뜨면 안 된다), 없는 바퀴의 문장은 아무 데서도 안 뜬다.
+   */
+  for (const phase of ["phase1", "phase2"]) {
+    if (memory[phase] !== undefined) {
+      validateText(lore[phase], `${id}.lore.${phase}`, issues);
+    } else if (lore[phase] !== undefined) {
+      issues.push(`${id}.lore.${phase}: ${phase}가 없는 기억인데 그 바퀴 기록만 남아 있다.`);
+    }
   }
 }
 

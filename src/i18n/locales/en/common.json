@@ -163,7 +163,11 @@
       },
       "survived": "{{value}} days survived",
       "pageOf": "{{value}} / {{total}}",
-      "close": "Put the calendar down"
+      "close": "Put the calendar down",
+      "mark": {
+        "incident": "{{month}}/{{day}} — the day it all stopped",
+        "nationals": "{{month}}/{{day}} — the national tournament"
+      }
     },
     "windowView": {
       "title": "Outside",
@@ -209,6 +213,20 @@
       "title": "The Computer",
       "help": "Next page — click · Space · →",
       "help_touch": "Tap Next and read to the end",
+      "booting": "Booting",
+      "account": "Han Do-hae",
+      "passwordLabel": "Password",
+      "passHint": "Hint: the day of the national tournament. Month and day, four digits.",
+      "wrong": "Incorrect password",
+      "submit": "Log in",
+      "lockHelp": "Type the password and press Enter",
+      "lockHelp_touch": "Type the password and tap the arrow",
+      "boot": {
+        "l1": "Checking disk…",
+        "l2": "Last shutdown: October 19",
+        "l3": "Loading account…",
+        "l4": "Almost there"
+      },
       "offline": "No internet connection",
       "mailApp": "Mail — saved copy",
       "newsApp": "Browser — saved page",
@@ -309,5 +327,20 @@
     "skip": "Skip",
     "close": "Close",
     "replayTitle": "{{name}} · Replay"
+  },
+  "clue": {
+    "read": "Look at the {{name}}",
+    "close": "Put it back",
+    "drawerNote": {
+      "title": "Folded Note",
+      "caption": "Dad's handwriting. No idea when he left it here.",
+      "l1": "Changed the computer password",
+      "l2": "Set it to the national tournament date. You'll never forget that one.",
+      "l3": "— Dad"
+    },
+    "wallCalendar": {
+      "title": "Wall Calendar",
+      "caption": "Two circles. One is that day; the other is some day before it."
+    }
   }
 }

@@ -10,9 +10,16 @@ import {
   useState,
 } from "react";
 import type { Color, Group, Material, Mesh, MeshStandardMaterial, PointLight } from "three";
-import { MEMORIES, type MemoryId } from "@/data/memory-room";
+import { MEMORIES, type MemoryId, phaseConfigOf } from "@/data/memory-room";
+import { CLUE_AFTER_MEMORY, type ClueId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
-import { hotspotStatus, selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
+import { playSound } from "@/lib/audio";
+import {
+  gamePhaseOf,
+  hotspotStatus,
+  selectRadioSignaling,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { ballSeamGeometry } from "./ball-seam";
 import { toLitMaterial } from "./FurnitureModel";
 import { MEMORY_PLACEMENTS } from "./layout";
@@ -25,7 +32,7 @@ import { radioSignalLevel } from "./radio-signal";
 import type { Vec3Tuple } from "./types";
 import { useCoverTexture } from "./use-cover-texture";
 import { useGlowHover } from "./use-glow-hover";
-import { shouldHighlightMemory } from "./visual-state";
+import { memoryOpacity, shouldHighlightMemory } from "./visual-state";
 
 // 액자 glb(ch1-photo-frame)는 액자가 아니라 납작한 오각형 판때기라 지웠다.
 // 제대로 된 액자 glb가 들어오면 frame 키를 다시 추가할 것.
@@ -708,6 +715,9 @@ function CollectedTint({
   return <group ref={groupRef}>{children}</group>;
 }
 
+/** 조사를 마치면 배경 오브젝트로 다시 열리는 기억 → 그때 펼칠 단서. */
+const BACKGROUND_CLUE = CLUE_AFTER_MEMORY as Partial<Record<MemoryId, ClueId>>;
+
 export function InteractiveMemory({
   id,
   palette,
@@ -720,9 +730,19 @@ export function InteractiveMemory({
   onInteract: (id: MemoryId) => void;
 }) {
   const status = useMemoryRoomStore((state) => hotspotStatus(state, id));
+  const openClue = useMemoryRoomStore((state) => state.openClue);
+  /*
+   * 조사를 마친 뒤 배경 오브젝트로 내려앉는 기억(달력)이 있다. 조사가 끝나도
+   * 벽에 걸린 물건이라, 누르면 그때 본 것을 다시 펼쳐 준다 — 컴퓨터 비밀번호를
+   * 잊었을 때 달력을 다시 볼 유일한 길이다 (src/data/room-clues.ts).
+   */
+  const backgroundClue = status === "done" ? BACKGROUND_CLUE[id] : undefined;
   const placement = MEMORY_PLACEMENTS[id];
-  const opacity = status === "locked" ? 0.45 : 1;
-  const { hovered, handlers } = useGlowHover(status === "available");
+  // 이 바퀴에 있는 기억인가 — 흐림을 줄지 정한다 (visual-state의 memoryOpacity)
+  const inThisRound = useMemoryRoomStore((state) => Boolean(phaseConfigOf(id, gamePhaseOf(state))));
+  const opacity = memoryOpacity(status, inThisRound);
+  const clickable = status === "available" || backgroundClue !== undefined;
+  const { hovered, handlers } = useGlowHover(clickable);
   const highlighted = shouldHighlightMemory(status, id, nearbyMemoryId, hovered);
   const [selectionVersion, setSelectionVersion] = useState(0);
   const refreshSelection = useCallback(() => setSelectionVersion((version) => version + 1), []);
@@ -749,7 +769,14 @@ export function InteractiveMemory({
       position={placement.position}
       onClick={(event) => {
         event.stopPropagation();
-        if (status !== "available") return;
+        if (status !== "available") {
+          if (backgroundClue) {
+            punchRef.current = 0;
+            playSound("open");
+            openClue(backgroundClue);
+          }
+          return;
+        }
         punchRef.current = 0;
         onInteract(id);
       }}

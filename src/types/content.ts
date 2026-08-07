@@ -32,10 +32,10 @@ export interface ContentPhase {
   replayStill?: string;
 }
 
-/** 수첩에 남는 기록. phase2는 2바퀴 대상 기억만. */
+/** 수첩에 남는 기록. 페이즈와 1:1 — 있는 바퀴의 기록만 쓴다. */
 export interface ContentLore {
   title: LocalizedText;
-  phase1: LocalizedText;
+  phase1?: LocalizedText;
   phase2?: LocalizedText;
 }
 
@@ -44,7 +44,8 @@ export interface ContentMemory {
   /** @phosphor-icons/react 아이콘 이름 (scripts/content/schema.mjs의 허용 목록). */
   icon: string;
   lore: ContentLore;
-  phase1: ContentPhase;
+  /** 없으면 1바퀴 내내 잠겨 있는 2바퀴 전용 기억이다. 둘 다 없으면 저장이 막힌다. */
+  phase1?: ContentPhase;
   phase2?: ContentPhase;
 }
 

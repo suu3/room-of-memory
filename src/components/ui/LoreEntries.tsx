@@ -37,8 +37,13 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
     <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {MEMORY_IDS.map((id, index) => {
         const memory = MEMORY_BY_ID[id];
-        const unlocked = collected.includes(id);
-        const rewritten = revisited.includes(id) && Boolean(memory.phase2);
+        const unlocked = collected.includes(id) || revisited.includes(id);
+        /*
+         * 어느 바퀴의 문장을 세울지. 1바퀴가 없는 기억(컴퓨터)은 처음부터 2바퀴
+         * 문장만 있으므로 잠긴 동안에도 그쪽을 흐려 세운다 — phase1 키를 찾으면
+         * 번역이 없어 키 문자열이 그대로 카드에 박힌다.
+         */
+        const rewritten = !memory.phase1 || (revisited.includes(id) && Boolean(memory.phase2));
         const phase = rewritten ? memory.phase2 : memory.phase1;
         const bodyKey = `lore.${id}.${rewritten ? "phase2" : "phase1"}` as ParseKeys<"memoryRoom">;
         const name = tRoom(`memories.${id}.name` as ParseKeys<"memoryRoom">);
