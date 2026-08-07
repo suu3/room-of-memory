@@ -6,6 +6,7 @@ import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
+import { LoadingIndicator } from "./LoadingIndicator";
 import { LoadingOverlay } from "./LoadingOverlay";
 
 /**
@@ -202,41 +203,22 @@ export function TitleScreen() {
           </div>
 
           {/*
-            버튼 자리는 그대로 두고 아래에 진행만 붙인다. 로딩 화면으로 갈아 끼우면
-            다 받는 순간 레이아웃이 튀고, 무엇보다 이 화면에서 읽을 만한 것(제목·설명)을
-            가려 버린다 — 기다리는 동안 읽으라고 쓴 글이다.
+            버튼 자리는 그대로 두고 아래에 로딩 표시를 붙인다. 화면을 통째로 덮으면
+            이 화면에서 읽을 만한 것(제목·설명·조작법)을 가려 버린다 — 기다리는
+            동안 읽으라고 쓴 글이다. 그림은 오버레이와 같은 달리는 아이를 쓴다.
+
+            첫 모델이 다 들어오기 전에는 셀 것이 없어(로딩 매니저는 파일이 끝날
+            때만 하나씩 센다) percent를 넘기지 않는다 — 0에 멈춘 바는 멈춘 것처럼
+            보인다.
           */}
           {ready ? null : (
-            <div className="flex w-52 flex-col items-center gap-2">
-              {/*
-                첫 모델이 다 들어오기 전에는 셀 것이 없다 — 로딩 매니저는 파일이
-                끝날 때만 하나씩 세기 때문에 그때까지 0%다. 0에 멈춘 바는 멈춘
-                것처럼 보이므로, 셀 것이 생기기 전까지는 훑고 지나가는 바를 쓴다.
-              */}
-              <div
-                className="h-1 w-full overflow-hidden rounded-full bg-night/50 ring-1 ring-inset ring-bone/25"
-                role="progressbar"
-                aria-valuenow={counting ? loadPercent : undefined}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={t("scene.loading")}
-              >
-                {counting ? (
-                  <div
-                    className="h-full rounded-full bg-memory transition-[width] duration-300 ease-out"
-                    style={{ width: `${loadPercent}%` }}
-                  />
-                ) : (
-                  <div className="h-full w-1/3 animate-loading-sweep rounded-full bg-memory" />
-                )}
-              </div>
-              <p
-                aria-hidden
-                className="text-[0.6875rem] font-bold tracking-[0.18em] text-bone/85 [text-shadow:0_1px_3px_var(--color-scene-void)]"
-              >
-                {counting ? t("titleScreen.loading", { percent: loadPercent }) : t("scene.loading")}
-              </p>
-            </div>
+            <LoadingIndicator
+              size="inline"
+              percent={counting ? loadPercent : undefined}
+              label={
+                counting ? t("titleScreen.loading", { percent: loadPercent }) : t("scene.loading")
+              }
+            />
           )}
 
           {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
