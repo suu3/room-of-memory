@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
-import { MEMORY_GOAL, PHASE1_MEMORIES, ROOM_STAGES } from "@/data/memory-room";
+import { MEMORY_GOAL, memoriesForPhase, ROOM_STAGES } from "@/data/memory-room";
 import { useAudioRuntime, useRoomMusic } from "@/lib/audio";
 import {
   lampScaled,
@@ -53,17 +53,26 @@ export function MemoryRoom() {
   // 스토어의 음소거 설정을 오디오 엔진에 잇고 첫 제스처에서 AudioContext를 깨운다
   useAudioRuntime();
   const collected = useMemoryRoomStore(selectCollected);
-  const count = collected.length;
+  const revisited = useMemoryRoomStore((state) => state.revisited);
   // 밝기는 V자 — 1바퀴는 어두워지고 2바퀴에 되밝아진다 (기획안 3장)
   const revisitedCount = useMemoryRoomStore(selectRevisitedCount);
   const phase = useMemoryRoomStore(gamePhaseOf);
   const lightLevel = roomLightLevel({
-    collected: count,
+    collected: collected.length,
     memoryTotal: MEMORY_GOAL,
     revisited: revisitedCount,
     revisitTotal: REVISIT_TOTAL,
   });
   const stage = ROOM_STAGES[roomStageIndex(lightLevel, phase)];
+  /*
+   * 진행 표시는 이 바퀴에 모으는 것만 센다 — 2바퀴는 대상이 여섯 개로 갈리고
+   * (컴퓨터가 새로 끼고 창문·달력이 빠진다) 1바퀴 목록을 그대로 두면 영영 안
+   * 채워지는 칸이 남는다. 방 밝기의 분모는 이것과 다르다 — 그쪽은 V자를 그리는
+   * 축이라 1바퀴 수집 수(MEMORY_GOAL)와 2바퀴 재조사 수를 따로 본다.
+   */
+  const roundMemories = memoriesForPhase(phase);
+  const roundDone = phase === 1 ? collected : revisited;
+  const count = roundMemories.filter((memory) => roundDone.includes(memory.id)).length;
   const isEndingReady = useMemoryRoomStore(selectEndingReady);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 타이틀 화면이 떠 있는 동안에는 인게임 HUD를 아예 렌더하지 않는다 — 블러 너머로 비친다.
@@ -79,6 +88,7 @@ export function MemoryRoom() {
   const musicPlaying = useMemoryRoomStore(selectMusicPlaying);
   useRoomMusic({
     playing: musicPlaying,
+    phase,
     level: heardLevel,
     foreground: musicForeground,
   });
@@ -125,18 +135,17 @@ export function MemoryRoom() {
               {/* 모은 개수가 이 화면의 유일한 진행 지표다 — 라벨보다 확실히 앞으로 나와야 한다 */}
               <span className="font-pixel text-bone/40">
                 <span className="text-xl font-bold text-memory">{count}</span>
-                <span className="text-sm"> / {MEMORY_GOAL}</span>
+                <span className="text-sm"> / {roundMemories.length}</span>
               </span>
             </div>
-            {/* 기억 하나당 한 칸 — 모을수록 금빛이 왼쪽부터 찬다.
-                1바퀴에 안 열리는 기억(컴퓨터)은 칸도 없다 — 있으면 영영 안 차는 칸이 된다 */}
+            {/* 기억 하나당 한 칸 — 모을수록 금빛이 왼쪽부터 찬다 */}
             <div className="flex gap-1">
-              {PHASE1_MEMORIES.map((memory) => (
+              {roundMemories.map((memory) => (
                 <span
                   key={memory.id}
                   aria-hidden
                   className={`h-1 w-7 rounded-full transition-colors duration-700 ${
-                    collected.includes(memory.id) ? "bg-memory shadow-slot-glow" : "bg-bone/18"
+                    roundDone.includes(memory.id) ? "bg-memory shadow-slot-glow" : "bg-bone/18"
                   }`}
                 />
               ))}

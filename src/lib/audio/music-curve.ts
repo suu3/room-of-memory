@@ -2,9 +2,17 @@
  * BGM을 방 밝기에 물리기 위한 순수 함수들. 실제 오디오 노드는 music.ts가 만들고,
  * 여기 있는 건 전부 브라우저 없이 테스트할 수 있는 계산이다.
  *
- * 곡은 하나뿐이다. 기획의 V자 감정선(평범 → 어둠 → 희망)은 곡을 갈아끼워서가 아니라
- * 이 곡에 걸린 로우패스가 닫혔다 열리면서 표현된다 — 하강과 상승에 같은 선율이
- * 흐르는 게 "돌아왔다"는 인상을 만든다 (docs/content-design.md 3장).
+ * 바퀴마다 곡이 다르다. 1바퀴는 발랄한 곡 하나가 조사할수록 열화되고(컷오프가
+ * 닫히고 볼륨이 빠지고 리버브가 늘어 멀어진다), 라디오 직전에는 거의 정적에
+ * 닿는다. 그 정적 위에 전환 컷씬이 서고, 2바퀴는 **다른 따뜻한 곡**이 같은
+ * 곡선을 거꾸로 타고 올라온다 (docs/content-design.md 3장).
+ *
+ * 곡을 가르는 이유는 컷씬의 정적이 사이에 있기 때문이다 — 같은 선율이 다시
+ * 흐르면 "돌아왔다"가 되지만, 여기서 필요한 건 회복이 아니라 다른 데서 온
+ * 온기라서 곡 자체가 바뀌는 편이 맞다. 곡 하나가 열화됐다 복원되는 예전 방식은
+ * 정적을 건너뛰고 이어질 때만 값을 했다.
+ *
+ * 파일 자체는 절대 손대지 않는다 — 여기 있는 값은 전부 재생 시점 이펙트다.
  */
 
 /**
@@ -22,6 +30,10 @@ const CUTOFF_CEILING = 16_000;
 const VOLUME_FLOOR = 0.3;
 const VOLUME_CEILING = 0.46;
 
+/** 리버브에 보내는 비율. 가장 어두울 때(멀리) ↔ 가장 밝을 때(바로 앞). */
+const REVERB_WET_MAX = 0.46;
+const REVERB_WET_MIN = 0.08;
+
 function clamp01(value: number): number {
   if (Number.isNaN(value)) return 0;
   return Math.min(1, Math.max(0, value));
@@ -38,10 +50,43 @@ export function musicCutoff(level: number): number {
   return CUTOFF_FLOOR * (CUTOFF_CEILING / CUTOFF_FLOOR) ** clamped;
 }
 
-/** 밝기(0~1) → BGM 음량. 어두울 때 아주 꺼지지는 않는다 — 그건 덕킹이 할 일이다. */
+/**
+ * 바닥 근처에서 곡을 마저 재우는 구간의 폭.
+ *
+ * 밝기 이 값 아래로는 볼륨이 급히 빠져 거의 정적에 닿는다. 1바퀴 마지막 관문
+ * (라디오) 직전이 이 구간이다 — 여섯 개를 조사한 시점의 밝기가 0.09쯤이라
+ * 그 자리에서 곡이 거의 들리지 않아야 재난방송의 정적이 산다.
+ *
+ * 구간 밖(0.25 위)은 손대지 않는다. 예전에 전 구간을 낮췄더니 배경으로도
+ * 안 들렸다 — 조용해야 하는 건 바닥이지 중반이 아니다.
+ */
+const HUSH_BAND = 0.25;
+/** 바닥에서 남기는 음량 비율. 0으로 두면 곡이 사라진 건지 꺼진 건지 모른다. */
+const HUSH_FLOOR = 0.12;
+
+/**
+ * 밝기(0~1) → BGM 음량.
+ *
+ * 중반까지는 완만하게 빠지다가 바닥 근처(HUSH_BAND)에서 급히 재워진다.
+ * 완전히 0이 되지는 않는다 — 그건 덕킹과 컷씬 정지가 할 일이다.
+ */
 export function musicVolume(level: number): number {
   const clamped = clamp01(level);
-  return VOLUME_FLOOR + (VOLUME_CEILING - VOLUME_FLOOR) * clamped;
+  const base = VOLUME_FLOOR + (VOLUME_CEILING - VOLUME_FLOOR) * clamped;
+  const hush = HUSH_FLOOR + (1 - HUSH_FLOOR) * Math.min(1, clamped / HUSH_BAND);
+  return base * hush;
+}
+
+/**
+ * 밝기(0~1) → 리버브에 보내는 비율(0~1).
+ *
+ * 어두울수록 젖는다. 컷오프가 "벽 너머로 들린다"를 만든다면 이쪽은 "멀어진다"를
+ * 만든다 — 둘을 같이 걸어야 곡이 작아지는 게 아니라 물러나는 것으로 들린다.
+ * 밝을 때도 완전히 마르지는 않는다: 방 안에서 나는 소리라 잔향이 조금은 있다.
+ */
+export function musicReverb(level: number): number {
+  const clamped = clamp01(level);
+  return REVERB_WET_MAX + (REVERB_WET_MIN - REVERB_WET_MAX) * clamped;
 }
 
 /**

@@ -9,6 +9,7 @@ import {
   MEMORY_BY_ID,
   MEMORY_IDS,
   type MemoryId,
+  memoriesForPhase,
   PHASE1_MEMORIES,
   SCRIPTS,
 } from "./memory-room";
@@ -145,6 +146,20 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
         .filter((id) => id !== "radio")
         .sort(),
     );
+  });
+
+  it("바퀴마다 모으는 목록이 다르다 — 진행 표시가 못 채울 칸을 세지 않는다", () => {
+    const round1 = memoriesForPhase(1).map((memory) => memory.id);
+    const round2 = memoriesForPhase(2).map((memory) => memory.id);
+
+    // 1바퀴에만 있는 것(창문·달력)과 2바퀴에만 있는 것(컴퓨터)이 서로 갈린다
+    expect(round1).not.toContain("computer");
+    expect(round2).toContain("computer");
+    expect(round2).not.toContain("window");
+    expect(round2).not.toContain("calendar");
+    // 목록은 각 바퀴의 phase 설정과 정확히 같아야 한다
+    expect(round1).toEqual(MEMORIES.filter((memory) => memory.phase1).map((memory) => memory.id));
+    expect(round2).toEqual(MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id));
   });
 
   it("컴퓨터만 1바퀴가 없다 — 2바퀴에 처음 열리는 기억이다", () => {

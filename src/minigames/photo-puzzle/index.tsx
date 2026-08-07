@@ -147,8 +147,9 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
               disabled={!movable}
               aria-label={t("minigame.photoPuzzle.tile", { value: tile + 1 })}
               onClick={() => applyRef.current(moveAt(board, index))}
+              // 조각에도 바탕을 깔아 둔다 — 사진이 붙기 전에 빈 칸으로 비지 않게
               className={`rounded-xs transition-[opacity,transform] duration-150 ${
-                empty ? "bg-ink/15" : ""
+                empty ? "bg-ink/15" : "bg-bone"
               } ${movable ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory`}
               style={{
                 // 조각도 사진과 같은 비율이어야 한다 — 정사각 칸에 넣으면 사진이 눌린다

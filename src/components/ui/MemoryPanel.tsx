@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MEMORIES, MEMORY_GOAL } from "@/data/memory-room";
-import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
+import { memoriesForPhase } from "@/data/memory-room";
+import { gamePhaseOf, selectCollected, useMemoryRoomStore } from "@/store/memory-room";
 
 /** 수집 여부에 따라 버튼이 되기도, 그냥 줄이 되기도 한다. */
 function Row({
@@ -40,13 +40,20 @@ export function MemoryPanel() {
   const [openedAtResetRevision, setOpenedAtResetRevision] = useState<number | null>(null);
   const panelRef = useRef<HTMLElement>(null);
   const collected = useMemoryRoomStore(selectCollected);
-  // 컴퓨터는 1바퀴가 없어 collected에 안 들어간다 — 2바퀴 재조사가 그 자리를 대신한다
   const revisited = useMemoryRoomStore((state) => state.revisited);
+  const gamePhase = useMemoryRoomStore(gamePhaseOf);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const replayMemory = useMemoryRoomStore((state) => state.replayMemory);
   const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
   const open = openedAtResetRevision === resetRevision;
-  const count = collected.length;
+  /*
+   * 두 바퀴는 모으는 대상이 다르다. 1바퀴는 창문·달력까지 일곱 개, 2바퀴는
+   * 다시 열리는 여섯 개(컴퓨터가 새로 끼고 창문·달력이 빠진다). 한 목록으로
+   * 합쳐 두면 2바퀴 내내 영영 안 채워지는 칸이 남는다.
+   */
+  const memories = memoriesForPhase(gamePhase);
+  const doneIds = gamePhase === 1 ? collected : revisited;
+  const count = memories.filter((memory) => doneIds.includes(memory.id)).length;
 
   useEffect(() => {
     setUiLock("memory-panel", open);
@@ -90,15 +97,15 @@ export function MemoryPanel() {
           <div className="flex items-baseline justify-between">
             <span className="text-sm font-bold tracking-wide text-ink">{t("panel.title")}</span>
             <span className="text-xs text-ink/60">
-              {count} / {MEMORY_GOAL}
+              {count} / {memories.length}
             </span>
           </div>
           <div className="mt-2.5 h-px bg-ink/10" />
         </div>
 
         <ul className="flex flex-col px-3 pb-3">
-          {MEMORIES.map((memory) => {
-            const done = collected.includes(memory.id) || revisited.includes(memory.id);
+          {memories.map((memory) => {
+            const done = doneIds.includes(memory.id);
             return (
               <li key={memory.id} className="border-b border-ink/8 last:border-b-0">
                 {/* 수집한 기억은 눌러서 다시 볼 수 있다 — 미수집은 누를 게 없으므로 버튼이 아니다 */}

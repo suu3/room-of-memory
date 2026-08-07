@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { foldLoopTail, musicCutoff, musicVolume } from "./music-curve";
+import { foldLoopTail, musicCutoff, musicReverb, musicVolume } from "./music-curve";
 
 describe("music brightness curve", () => {
   it("opens the filter as the room brightens", () => {
@@ -33,9 +33,34 @@ describe("music brightness curve", () => {
   it("stays audible as a bed without covering the sound effects", () => {
     // voices.ts에서 제일 큰 소리가 0.5다. BGM이 그걸 넘으면 조작음이 묻힌다.
     expect(musicVolume(1)).toBeLessThan(0.5);
-    // 배경음이라도 0.25 아래로 내려가면 마스터 0.7을 거치며 사실상 안 들린다
-    expect(musicVolume(0)).toBeGreaterThan(0.25);
-    expect(musicVolume(0)).toBeLessThan(musicVolume(1));
+    // 중반까지는 배경으로 들려야 한다 — 0.25 아래면 마스터 0.7을 거치며 사라진다
+    expect(musicVolume(0.4)).toBeGreaterThan(0.25);
+    expect(musicVolume(0.4)).toBeLessThan(musicVolume(1));
+  });
+
+  it("hushes to near-silence at the bottom — 재난방송 앞의 정적", () => {
+    /*
+     * 1바퀴 마지막 관문(라디오) 직전이 밝기 0.09쯤이다. 그 자리에서 곡이 거의
+     * 들리지 않아야 재난방송의 정적이 산다. 다만 0은 아니다 — 완전히 끊는 건
+     * 컷씬의 몫이고, 여기서 끊으면 곡이 꺼진 건지 사라진 건지 알 수 없다.
+     */
+    expect(musicVolume(0.09)).toBeLessThan(0.15);
+    expect(musicVolume(0)).toBeLessThan(0.05);
+    expect(musicVolume(0)).toBeGreaterThan(0);
+    // 재우는 구간은 바닥에만 걸린다 — 중반은 예전 음량 그대로다
+    expect(musicVolume(0.5)).toBeGreaterThan(musicVolume(0.25) * 0.9);
+  });
+
+  it("soaks the dark end in reverb and dries out as it brightens", () => {
+    // 어두울수록 젖는다 — 작아지는 게 아니라 멀어지는 것으로 들리게
+    expect(musicReverb(0)).toBeGreaterThan(musicReverb(0.5));
+    expect(musicReverb(0.5)).toBeGreaterThan(musicReverb(1));
+    // 젖은 쪽이 마른 쪽을 넘으면 곡이 아니라 잔향만 들린다
+    expect(musicReverb(0)).toBeLessThan(0.5);
+    // 밝을 때도 완전히 마르지는 않는다 — 방 안에서 나는 소리다
+    expect(musicReverb(1)).toBeGreaterThan(0);
+    expect(musicReverb(-1)).toBe(musicReverb(0));
+    expect(musicReverb(4)).toBe(musicReverb(1));
   });
 });
 

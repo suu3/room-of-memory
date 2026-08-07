@@ -85,10 +85,16 @@ export const ASSETS = {
   },
   bgm: {
     /**
-     * 방 전체를 관통하는 단 하나의 곡. V자 감정선을 곡 교체가 아니라 로우패스로
-     * 표현한다 — 1바퀴에서 닫히고 2바퀴에서 열린다 (docs/content-design.md 3장).
+     * 1바퀴 — 발랄한 일상 곡. 조사할수록 컷오프가 닫히고 리버브가 늘며 열화되어
+     * 라디오 직전에는 거의 정적에 닿는다 (src/lib/audio/music-curve.ts).
      */
     room: "/assets/audio/bgm/bgm-room-winter-morning.ogg",
+    /**
+     * 2바퀴 — 컷씬의 정적을 지나 새로 드는 따뜻한 곡. **아직 리포에 없어도 된다:**
+     * 못 받으면 1바퀴 곡이 그대로 이어진다 (music.ts의 startMusic). 규격은
+     * .ogg 또는 .mp3 128kbps, 3MB 이하 (.claude/rules/assets.md).
+     */
+    roomSecondLight: "/assets/audio/bgm/bgm-room-second-light.ogg",
   },
   /**
    * 파일로 대신할 효과음. 여기 없는 보이스는 전부 합성이다(src/lib/audio/voices.ts).

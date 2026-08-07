@@ -15,7 +15,7 @@ export {
   unlockAudio,
 } from "./engine";
 export { setMusicDuck, setMusicLevel, startMusic, stopMusic } from "./music";
-export { musicCutoff, musicVolume } from "./music-curve";
+export { musicCutoff, musicReverb, musicVolume } from "./music-curve";
 export { preloadSamples } from "./samples";
 export type { VoiceId } from "./voices";
 
@@ -79,19 +79,31 @@ export function useAudioRuntime() {
 const DIALOGUE_DUCK = 0.72;
 const MINIGAME_DUCK = 0.18;
 
+/** 바퀴마다 도는 곡. 2바퀴 곡이 아직 없으면 1바퀴 곡이 그대로 이어진다. */
+const ROUND_TRACK = { 1: ASSETS.bgm.room, 2: ASSETS.bgm.roomSecondLight } as const;
+
 /**
- * 방 BGM을 방 밝기에 물린다. 곡은 하나뿐이고, V자 감정선은 로우패스가 닫혔다
- * 열리며 표현된다 (docs/content-design.md 3장).
+ * 방 BGM을 방 밝기와 바퀴에 물린다.
+ *
+ * 바퀴마다 곡이 다르고(1바퀴 발랄 → 2바퀴 따뜻), 그 안에서 밝기가 컷오프·음량·
+ * 리버브를 움직인다 — V자 감정선이 곡선 하나로 두 곡에 걸린다
+ * (docs/content-design.md 3장).
+ *
+ * 곡이 갈리는 지점은 전환 컷씬이다. 컷씬 동안은 `playing`이 false라 곡이 멎어
+ * 있고, 방으로 돌아올 때 새 곡이 정적 위에 처음 든다.
  *
  * `playing`이 처음 true가 되는 시점은 타이틀의 "시작하기" 클릭 직후라, 그 제스처로
  * 이미 AudioContext가 깨어 있다 (useAudioRuntime).
  */
 export function useRoomMusic({
   playing,
+  phase,
   level,
   foreground,
 }: {
   playing: boolean;
+  /** 지금 몇 바퀴인가. 곡을 고르는 유일한 기준이다. */
+  phase: 1 | 2;
   level: number;
   /** 지금 화면의 주인공. BGM은 그 뒤로 물러난다. */
   foreground: "room" | "dialogue" | "minigame";
@@ -101,8 +113,8 @@ export function useRoomMusic({
       stopMusic();
       return;
     }
-    startMusic(ASSETS.bgm.room);
-  }, [playing]);
+    startMusic(ROUND_TRACK[phase]);
+  }, [playing, phase]);
 
   useEffect(() => {
     setMusicLevel(level);

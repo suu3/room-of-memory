@@ -231,7 +231,12 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
           aria-hidden="true"
           width={photo.width}
           height={photo.height}
-          className="block h-auto max-w-full"
+          /*
+            먼지 막이 깔리기 전까지는 감춘다. useEffect는 브라우저가 한 번 그린
+            뒤에 도니까, 캐시에 있는 사진이면 선명한 원본이 한 프레임 번쩍이고
+            그 위에 먼지가 덮인다 — 깜빡임이기도 하고 답을 미리 보여주는 것이기도 하다.
+          */
+          className={`block h-auto max-w-full ${ready ? "" : "invisible"}`}
           style={{ width: photo.width }}
         />
         {/*

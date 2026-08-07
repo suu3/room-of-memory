@@ -25,7 +25,12 @@ export function PhotoFrame({ children }: { children: React.ReactNode }) {
       <div className="rounded-sm bg-memory p-px">
         {/* 매트 */}
         <div className="bg-bone p-2.5">
-          <div className="relative block ring-1 ring-night/45">{children}</div>
+          {/*
+            사진이 앉는 자리. 바탕을 깔아 두는 게 중요하다 — 비워 두면 사진이
+            붙기 전까지 액자 한가운데가 투명한 구멍이 되어 뒤의 방이 그대로
+            비치고, 그림이 뒤늦게 툭 채워지면서 깜빡인 것처럼 보인다.
+          */}
+          <div className="relative block bg-bone ring-1 ring-night/45">{children}</div>
         </div>
       </div>
       {CORNERS.map((position) => (

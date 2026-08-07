@@ -21,8 +21,20 @@ export type { MemoryId };
  */
 export const PHASE1_MEMORIES = MEMORIES.filter((memory) => memory.phase1);
 
-/** 1바퀴 수집 목표. 진행 표시(n/N)와 방 밝기 하강 구간의 분모다. */
+/** 1바퀴 수집 목표. 2바퀴 개방 조건이자 방 밝기 하강 구간의 분모다. */
 export const MEMORY_GOAL = PHASE1_MEMORIES.length;
+
+/** 2바퀴에 다시 조사하는 기억. 1바퀴에만 있던 것(창문·달력)은 여기 없다. */
+export const PHASE2_MEMORIES = MEMORIES.filter((memory) => memory.phase2);
+
+/**
+ * 이 바퀴에 모으는 기억들. 진행 표시와 기억 패널이 같은 목록을 본다 —
+ * 두 바퀴는 모으는 대상이 다르므로 한 목록으로 합쳐 놓으면 2바퀴 내내
+ * "영영 안 채워지는 칸"(창문·달력)이 남는다.
+ */
+export function memoriesForPhase(gamePhase: 1 | 2) {
+  return gamePhase === 1 ? PHASE1_MEMORIES : PHASE2_MEMORIES;
+}
 
 export const STAGE_IDS = ["dark", "dim", "gold"] as const;
 export type StageId = (typeof STAGE_IDS)[number];
