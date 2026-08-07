@@ -45,8 +45,9 @@ memories:
       script: console-intro
       minigame: fighter-duel
       resultScript: console-alone
-    # 2차: 대사만 흐른다. 카드 미궁(card-odd)은 거실 식탁 트럼프로 이사했다
-    # (docs/content-design-v2.md 7장) — 여기 다시 붙이지 말 것.
+    # 2차: 혼자 이겨도 그만인 대전 대신, 둘이서만 성립하는 놀이를 꺼낸다.
+    # [v2 이사 예정] card-odd는 거실이 서면 식탁 트럼프로 옮기고 여기는 대사만
+    # 남는다 (docs/content-design-v2.md 7장). 거실이 없는 동안만 이 자리다.
     phase2:
       script: console-echo
       minigame: card-odd
@@ -232,8 +233,10 @@ memories:
       script: ball-intro
       minigame: ball-catch
       replayStill: /assets/images/mg-ball-catch-sunset-field.webp
-    # 2차: 대사만 흐른다. 회전 미궁(angle-turn)은 거실 현관 잠금장치로 이사했다
-    # (docs/content-design-v2.md 7장) — 여기 다시 붙이지 말 것.
+    # 2차: 공을 벽에 던지는 대신, 벽에 붙은 글자를 돌려 본다. 회전 미궁의 규칙은
+    # 캐비닛 위 시계가 들고 있다 (src/data/room-clues.ts의 PUZZLE_CLUES).
+    # [v2 이사 예정] angle-turn은 거실이 서면 현관 잠금장치로 옮기고 여기는 대사만
+    # 남는다 (docs/content-design-v2.md 7장). 거실이 없는 동안만 이 자리다.
     phase2:
       script: ball-echo
       minigame: angle-turn
