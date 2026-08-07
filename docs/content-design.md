@@ -134,16 +134,28 @@
 
 #### 넣는 법
 
-경로는 이미 코드에 박혀 있다. **파일 이름을 맞춰 넣기만 하면 그 곡이 잡힌다.**
+경로는 이미 코드에 박혀 있다. 원본을 받아서 스크립트에 넘기면 자리까지 들어간다.
 
-| 바퀴 | 파일명 |
-|---|---|
-| 1바퀴 | `public/assets/audio/bgm/bgm-room-daylight.ogg` |
-| 2바퀴 | `public/assets/audio/bgm/bgm-room-second-light.ogg` |
+```sh
+pnpm audio:bgm ~/Downloads/받아온-곡.mp3 daylight       # 1바퀴
+pnpm audio:bgm ~/Downloads/받아온-곡.mp3 second-light   # 2바퀴
+```
 
-1. 위 이름으로 `public/assets/audio/bgm/`에 둔다 (다른 이름을 쓰겠다면 `src/lib/assets.ts`의 `bgm` 후보 목록에서 한 줄 고친다)
-2. `public/assets/CREDITS.md`에 출처·라이선스를 기록한다
-3. 실제로 들어보고 `src/lib/audio/music-curve.ts`의 컷오프·음량 범위를 다시 잡는다. 곡마다 대역이 달라 지금 값(컷오프 460Hz~16kHz)이 안 맞을 수 있다
+`scripts/prepare-bgm.mjs`가 하는 일 — **앞뒤 무음 트림**(꼬리를 머리에 접는 루프라 무음이 접히면 구멍이 된다), Ogg Vorbis 인코딩(3MB를 넘으면 품질을 낮춰 다시), 그리고 라우드니스·다이내믹 측정 리포트. 음악 자체는 손대지 않는다.
+
+측정값에서 볼 것:
+
+- **LUFS** — 두 곡이 3 이상 벌어지면 바퀴가 바뀔 때 한쪽이 튄다
+- **LRA** — 10을 넘으면 미니게임 중 18%로 눌렸을 때 조용한 대목이 사라진다
+
+그다음 `public/assets/CREDITS.md`에 출처·라이선스를 적고, 실제로 들어보며 `src/lib/audio/music-curve.ts`의 컷오프·음량 범위를 다시 잡는다. 곡마다 대역이 달라 지금 값(컷오프 460Hz~16kHz)이 안 맞을 수 있다.
+
+##### 고른 곡
+
+| 바퀴 | 곡 | 출처 |
+|---|---|---|
+| 1바퀴 | Jazz Pop Piano Japan Afternoon | [Pixabay 155522](https://pixabay.com/ko/music/%EC%86%94%EB%A1%9C-%ED%94%BC%EC%95%84%EB%85%B8-18021402-jazz-pop-piano-japan-afternoon-155522/) |
+| 2바퀴 | Hopeful Love Romantic Music | [Pixabay 338664](https://pixabay.com/ko/music/%ED%98%84%EB%8C%80-%EA%B3%A0%EC%A0%84-hopeful-love-romantic-music-338664/) |
 
 > 1바퀴 후보 목록의 뒤에 선 `bgm-room-winter-morning.ogg`는 자리 지킴이다. modern classical 솔로 피아노라 위의 "발랄한 일상"과 톤이 다르다 — `bgm-room-daylight.ogg`가 들어오면 그때부터 안 쓰인다.
 

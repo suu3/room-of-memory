@@ -27,7 +27,6 @@ import { ContactModal } from "./ContactModal";
 import { DialogueBox } from "./DialogueBox";
 import { EndingScreen } from "./EndingScreen";
 import { HudMenu } from "./HudMenu";
-import { LoadingOverlay } from "./LoadingOverlay";
 import { MemoryPanel } from "./MemoryPanel";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
@@ -35,17 +34,17 @@ import { PlaybackScene } from "./PlaybackScene";
 import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
 
-function CanvasLoading() {
-  const { t } = useTranslation();
-  return <LoadingOverlay label={t("scene.loading")} />;
-}
-
+/*
+ * 로딩 표시는 타이틀 화면이 혼자 맡는다 (TitleScreen의 진행 바).
+ *
+ * 여기에 loading 폴백을 걸면 청크를 받는 동안 전체 화면 오버레이가 뜨는데,
+ * 그 위에 타이틀이 또 자기 진행 바를 그려서 로딩 표시가 두 겹이 된다. started는
+ * 저장하지 않으므로 이 청크는 **항상** 타이틀이 떠 있는 동안 받는다 — 즉 이
+ * 폴백은 언제나 겹친다.
+ */
 const RoomCanvas = dynamic(
   () => import("@/components/canvas/RoomCanvas").then((module) => module.RoomCanvas),
-  {
-    ssr: false,
-    loading: () => <CanvasLoading />,
-  },
+  { ssr: false },
 );
 
 export function MemoryRoom() {

@@ -308,6 +308,7 @@
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "閉じた部屋に散らばった記憶を、ひとつずつ取り戻す物語。",
     "start": "はじめる",
+    "loading": "部屋を読み込み中… {{percent}}%",
     "playtime": "プレイ時間 約15分",
     "howTo": "部屋を自由に歩き、記憶が残る物を調べてください。",
     "howToMove": "移動 WASD",

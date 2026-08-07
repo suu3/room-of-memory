@@ -308,6 +308,7 @@
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "Gather the memories scattered across a room that never opened.",
     "start": "START",
+    "loading": "Loading the room… {{percent}}%",
     "playtime": "About 15 minutes",
     "howTo": "Wander the room and examine the objects a memory still clings to.",
     "howToMove": "Move WASD",

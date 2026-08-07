@@ -17,7 +17,8 @@
     "assets:check": "node .github/scripts/check-assets.mjs",
     "prepare": "husky",
     "content:build": "node scripts/build-content.mjs",
-    "content:check": "node scripts/build-content.mjs --check"
+    "content:check": "node scripts/build-content.mjs --check",
+    "audio:bgm": "node scripts/prepare-bgm.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

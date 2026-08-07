@@ -36,6 +36,7 @@ import {
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
+import { RoomLoadReporter } from "./RoomLoadReporter";
 import {
   canInitializeWebGL,
   dispatchMemoryInteraction,
@@ -461,6 +462,8 @@ export function RoomCanvas() {
 
   return (
     <div ref={containerRef} className="absolute inset-0">
+      {/* 모델이 얼마나 들어왔는지를 타이틀 화면에 알린다 — 그리는 것은 없다 */}
+      <RoomLoadReporter failed={webGLFailed} />
       {/* 창밖으로 새어나가는 빛 — 캔버스보다 아래라 방을 절대 덮지 않는다 */}
       <div aria-hidden className="room-backdrop pointer-events-none absolute inset-0" />
       {webGLFailed ? (

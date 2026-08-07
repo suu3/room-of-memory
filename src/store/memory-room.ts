@@ -85,6 +85,13 @@ interface MemoryRoomState {
   characterSheetOpen: boolean;
   /** 타이틀 화면을 지나 방에 들어왔는지. 리셋하면 다시 타이틀로 돌아간다. */
   started: boolean;
+  /**
+   * 3D 에셋이 얼마나 들어왔는지 (0~1). 타이틀 화면의 로딩 바가 이걸 읽는다.
+   *
+   * 진행이 아니라 이 세션의 사정이라 저장하지 않고, 리셋해도 되돌리지 않는다 —
+   * 한 번 받아 둔 모델은 타이틀로 돌아가도 그대로 있다.
+   */
+  roomLoadProgress: number;
   /** 연락처 모달. HUD 메뉴와 타이틀 화면 두 곳에서 열린다. */
   contactOpen: boolean;
   /** Monotonic signal for local UI state that must close when progress resets. */
@@ -122,6 +129,8 @@ interface MemoryRoomState {
   setCharacterSheetOpen: (open: boolean) => void;
   setContactOpen: (open: boolean) => void;
   startGame: () => void;
+  /** 로딩 진행률 보고. **올리기만 한다** — 뒤늦게 붙는 모델 때문에 바가 되감기면 안 된다. */
+  setRoomLoadProgress: (progress: number) => void;
   setSoundMuted: (muted: boolean) => void;
   toggleLights: () => void;
   openClue: (id: ClueId) => void;
@@ -367,6 +376,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       characterSheetOpen: false,
       contactOpen: false,
       started: false,
+      roomLoadProgress: 0,
       resetRevision: 0,
       soundMuted: false,
       lightsOn: true,
@@ -479,6 +489,10 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       setCharacterSheetOpen: (open) => set({ characterSheetOpen: open }),
       setContactOpen: (open) => set({ contactOpen: open }),
       startGame: () => set({ started: true }),
+      setRoomLoadProgress: (progress) =>
+        set((state) =>
+          progress > state.roomLoadProgress ? { roomLoadProgress: progress } : state,
+        ),
       setSoundMuted: (muted) => set({ soundMuted: muted }),
       toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),
       // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다 — 화면이 두 겹이 된다

@@ -18,6 +18,15 @@ import { LoadingOverlay } from "./LoadingOverlay";
 const ENTER_DELAY_MS = 260;
 
 /**
+ * 로딩을 포기하고 시작 버튼을 여는 시각(ms).
+ *
+ * 진행률은 캔버스 청크가 보고한다 — 그 청크 자체를 못 받으면 아무도 보고하지
+ * 않아 0에 멈춘다. 그 경우에도 게임은 시작할 수 있어야 한다. 방이 덜 예쁘게
+ * 뜨는 것과 아예 못 들어가는 것은 다른 문제다.
+ */
+const LOAD_GIVE_UP_MS = 12_000;
+
+/**
  * 게임 시작 화면. 방을 새로 마운트하지 않고 그 위에 덮는다 —
  * 뒤에서 3D 씬이 이미 돌고 있어야 "시작"을 누른 순간 지연 없이 들어간다.
  */
@@ -42,6 +51,17 @@ export function TitleScreen() {
   // 단순 boolean이면 리셋 후에도 true로 남아 로딩 화면에서 빠져나오지 못한다.
   const [enteringAtRevision, setEnteringAtRevision] = useState<number | null>(null);
   const entering = enteringAtRevision === resetRevision;
+  /*
+   * 방을 이루는 glb는 타이틀 뒤에서 이미 받는 중이다. 다 받기 전에 들어가면 방이
+   * 텅 빈 채로 시작해 가구가 하나씩 튀어나오므로, 그동안은 버튼을 잠그고 얼마나
+   * 남았는지 보여준다 — 기다리게 하는 것보다 나쁜 건 왜 기다리는지 모르는 것이다.
+   */
+  const loadProgress = useMemoryRoomStore((state) => state.roomLoadProgress);
+  const [gaveUp, setGaveUp] = useState(false);
+  const ready = loadProgress >= 1 || gaveUp;
+  const loadPercent = Math.round(loadProgress * 100);
+  /** 셀 것이 생겼는가. 첫 모델이 들어오기 전에는 퍼센트가 거짓말이 된다. */
+  const counting = loadPercent > 0;
 
   useEffect(() => {
     setUiLock("title", !started);
@@ -56,8 +76,16 @@ export function TitleScreen() {
   );
 
   useEffect(() => {
-    if (!started) startButtonRef.current?.focus();
-  }, [started]);
+    if (ready) return;
+    const timer = window.setTimeout(() => setGaveUp(true), LOAD_GIVE_UP_MS);
+    return () => window.clearTimeout(timer);
+  }, [ready]);
+
+  // 다 받고 나서 포커스를 준다 — 잠긴 버튼에 포커스를 박아 두면 키보드로 눌러 보고
+  // 아무 일도 안 일어나는 걸 겪은 뒤에야 기다려야 한다는 걸 알게 된다.
+  useEffect(() => {
+    if (!started && ready) startButtonRef.current?.focus();
+  }, [started, ready]);
 
   if (started) return null;
 
@@ -146,24 +174,70 @@ export function TitleScreen() {
             금빛 한가운데 들어앉는다 — 간격을 아무리 벌려도 버튼에 눌어붙어 보인다.
           */}
           <div className="relative">
-            {/* 버튼 뒤에서 번지는 금빛. 버튼 자신이 아니라 별도 레이어라 hover 동작을 안 뺏는다 */}
-            <span
-              aria-hidden
-              className="start-glow animate-start-glow pointer-events-none absolute -inset-x-8 -inset-y-5 rounded-full blur-xl"
-            />
+            {/* 버튼 뒤에서 번지는 금빛. 버튼 자신이 아니라 별도 레이어라 hover 동작을 안 뺏는다.
+                아직 받는 중이면 켜지 않는다 — 누르라는 신호를 눌리지 않는 버튼에 붙일 수 없다 */}
+            {ready ? (
+              <span
+                aria-hidden
+                className="start-glow animate-start-glow pointer-events-none absolute -inset-x-8 -inset-y-5 rounded-full blur-xl"
+              />
+            ) : null}
             <button
               ref={startButtonRef}
               type="button"
+              disabled={!ready}
               onClick={() => {
                 playSound("open");
                 setEnteringAtRevision(resetRevision);
                 enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
               }}
-              className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
+              className={`relative rounded-full px-12 py-3 text-sm font-bold tracking-[0.2em] shadow-panel transition-transform focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory ${
+                ready
+                  ? "animate-start-pulse cursor-pointer bg-paper text-ink hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                  : "cursor-progress bg-paper/45 text-ink/60"
+              }`}
             >
               {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
             </button>
           </div>
+
+          {/*
+            버튼 자리는 그대로 두고 아래에 진행만 붙인다. 로딩 화면으로 갈아 끼우면
+            다 받는 순간 레이아웃이 튀고, 무엇보다 이 화면에서 읽을 만한 것(제목·설명)을
+            가려 버린다 — 기다리는 동안 읽으라고 쓴 글이다.
+          */}
+          {ready ? null : (
+            <div className="flex w-52 flex-col items-center gap-2">
+              {/*
+                첫 모델이 다 들어오기 전에는 셀 것이 없다 — 로딩 매니저는 파일이
+                끝날 때만 하나씩 세기 때문에 그때까지 0%다. 0에 멈춘 바는 멈춘
+                것처럼 보이므로, 셀 것이 생기기 전까지는 훑고 지나가는 바를 쓴다.
+              */}
+              <div
+                className="h-1 w-full overflow-hidden rounded-full bg-night/50 ring-1 ring-inset ring-bone/25"
+                role="progressbar"
+                aria-valuenow={counting ? loadPercent : undefined}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={t("scene.loading")}
+              >
+                {counting ? (
+                  <div
+                    className="h-full rounded-full bg-memory transition-[width] duration-300 ease-out"
+                    style={{ width: `${loadPercent}%` }}
+                  />
+                ) : (
+                  <div className="h-full w-1/3 animate-loading-sweep rounded-full bg-memory" />
+                )}
+              </div>
+              <p
+                aria-hidden
+                className="text-[0.6875rem] font-bold tracking-[0.18em] text-bone/85 [text-shadow:0_1px_3px_var(--color-scene-void)]"
+              >
+                {counting ? t("titleScreen.loading", { percent: loadPercent }) : t("scene.loading")}
+              </p>
+            </div>
+          )}
 
           {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
           {hasSave ? (
