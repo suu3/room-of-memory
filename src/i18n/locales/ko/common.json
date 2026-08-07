@@ -12,7 +12,10 @@
   "door": {
     "locked": "잠긴 문",
     "exit": "나가기 →",
-    "ready": "문 옆의 배트가 빛난다"
+    "ready": "문 옆의 배트가 빛난다",
+    "exitReady": "거실 끝, 현관문이 빛난다",
+    "nudgeStay": "…나갈 이유가 없잖아.",
+    "nudgeBat": "맨손으로는 안 나가. …저거라도 들고."
   },
   "panel": {
     "title": "기억 수집",
@@ -341,7 +344,6 @@
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
     "start": "시작하기",
     "loading": "방을 불러오는 중… {{percent}}%",
-    "playtime": "플레이타임 약 15분",
     "howTo": "방을 자유롭게 돌아다니며 기억이 걸린 물건을 찾아 조사하세요.",
     "howToMove": "이동 WASD",
     "howToMove_touch": "이동 왼쪽 아래 조이스틱",

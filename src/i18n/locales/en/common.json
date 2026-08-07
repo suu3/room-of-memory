@@ -12,7 +12,10 @@
   "door": {
     "locked": "Locked Door",
     "exit": "Leave →",
-    "ready": "The bat by the door is glowing"
+    "ready": "The bat by the door is glowing",
+    "exitReady": "Across the living room, the front door is glowing",
+    "nudgeStay": "…There's nothing out there for me.",
+    "nudgeBat": "Not empty-handed. …At least take that."
   },
   "panel": {
     "title": "Collected Memories",
@@ -341,7 +344,6 @@
     "tagline": "Gather the memories scattered across a room that never opened.",
     "start": "START",
     "loading": "Loading the room… {{percent}}%",
-    "playtime": "About 15 minutes",
     "howTo": "Wander the room and examine the objects a memory still clings to.",
     "howToMove": "Move WASD",
     "howToMove_touch": "Move joystick, bottom left",

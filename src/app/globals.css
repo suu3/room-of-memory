@@ -48,6 +48,21 @@
   --animate-bob-arrow: bob-arrow 1.3s ease-in-out infinite;
   --animate-fade-rise: fade-rise 0.3s ease-out both;
   --animate-loading-sweep: loading-sweep 1.6s ease-in-out infinite;
+  /*
+   * 부팅 커튼이 걷히는 동작 (BootCurtain). 방의 창 커튼과 같은 몸짓이라 위로 접혀
+   * 올라간다. 길이는 DESIGN.md > Motion의 "조명이 바뀌는" 구간(800~1200ms)에 맞췄고,
+   * BootCurtain의 RISE_MS와 반드시 같아야 한다 — 커튼이 다 오르기 전에 언마운트되면
+   * 화면이 뚝 끊긴다.
+   */
+  --animate-boot-curtain-rise: boot-curtain-rise 1.1s cubic-bezier(0.62, 0, 0.28, 1) both;
+  /*
+   * 커튼 앞을 떠도는 먼지 (BootCurtain). 방 안의 먼지(DustMotes)와 같은 것을 DOM으로
+   * 옮겼다 — 로딩 화면에도 공기가 있어야 기다리는 동안 화면이 죽어 보이지 않는다.
+   *
+   * 길이·지연·표류 폭은 낱알마다 인라인 스타일로 덮어쓴다. 여기 적힌 12s는 그 값을
+   * 못 받았을 때의 기본값일 뿐이다 — 전부 같은 박자로 뜨면 먼지가 아니라 격자로 읽힌다.
+   */
+  --animate-boot-dust: boot-dust 12s linear infinite;
   --animate-bat-swing: bat-swing 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both;
   --animate-bat-swing-image: bat-swing-image 0.42s cubic-bezier(0.2, 0.9, 0.3, 1) both;
   --animate-batting-impact: batting-impact 0.35s ease-out both;
@@ -156,6 +171,49 @@
     }
     100% {
       transform: translateX(300%);
+    }
+  }
+
+  /*
+   * 천은 가속한다 — 걷기 시작할 때 무게로 한 번 늘어졌다가(12%) 위로 빨려 올라간다.
+   * 처음부터 등속으로 올리면 커튼이 아니라 판때기가 미끄러지는 것처럼 보인다.
+   */
+  @keyframes boot-curtain-rise {
+    0% {
+      transform: translateY(0);
+    }
+    12% {
+      transform: translateY(1.5%);
+    }
+    100% {
+      transform: translateY(-100%);
+    }
+  }
+
+  /*
+   * 떠오르는 먼지 한 알. 바닥에서 시작해 위로 빠져나가며 한 번 옆으로 부풀었다 돌아온다 —
+   * 곧게만 오르면 먼지가 아니라 상승하는 점이 된다.
+   *
+   * 양 끝에서 꺼지는 이유는 방의 DustMotes와 같다. 화면 가장자리에서 툭 나타나고 툭
+   * 사라지면 낱알이 아니라 잘린 도형으로 보인다.
+   */
+  @keyframes boot-dust {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0) scale(0.5);
+    }
+    14% {
+      opacity: var(--dust-peak);
+    }
+    50% {
+      transform: translate3d(var(--dust-drift), calc(var(--dust-rise) * -0.5), 0) scale(1);
+    }
+    76% {
+      opacity: var(--dust-peak);
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(0, calc(var(--dust-rise) * -1), 0) scale(0.7);
     }
   }
 
@@ -569,6 +627,74 @@ body {
   );
 }
 
+/*
+ * 부팅 커튼의 천 (BootCurtain).
+ *
+ * 처음에는 세로 줄무늬였는데 천이 아니라 바코드로 보였다. 주름은 선이 아니라 **면의
+ * 명암**이다 — 골에서 마루로 빛이 서서히 돌아나가야 원통형 천으로 읽힌다. 그래서
+ * 색이 딱 끊기는 구간(`X 0 18px` 같은 쌍)을 하나도 쓰지 않고 전부 번지는 전이로만 쌓았다.
+ *
+ * 한 주기(210px) 안에 깊은 골과 얕은 골을 하나씩 넣어 폭을 어긋나게 뒀다. 같은 폭이
+ * 반복되면 아무리 부드러워도 눈이 규칙을 먼저 읽는다. 첫 스톱과 끝 스톱은 같은 값이라
+ * 주기가 이어지는 자리에 이음매가 남지 않는다.
+ *
+ * 여기에 위쪽 어둠(천이 뭉쳐 걸린 자리)과 양옆 그늘을 얹는다. 주름만 있으면 무늬를
+ * 넣은 판때기고, 가장자리와 위가 눌려야 드리운 천이 된다.
+ */
+.boot-curtain-cloth {
+  background-image:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-scene-void) 80%, transparent) 0px,
+      color-mix(in srgb, var(--color-scene-slate) 30%, transparent) 42px,
+      color-mix(in srgb, var(--color-scene-void) 78%, transparent) 78px,
+      color-mix(in srgb, var(--color-scene-void) 45%, transparent) 108px,
+      color-mix(in srgb, var(--color-scene-slate) 18%, transparent) 148px,
+      color-mix(in srgb, var(--color-scene-void) 80%, transparent) 210px
+    ),
+    linear-gradient(
+      to right,
+      var(--color-scene-void) 0%,
+      transparent 18%,
+      transparent 82%,
+      var(--color-scene-void) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-scene-void) 78%, transparent) 0%,
+      color-mix(in srgb, var(--color-scene-void) 30%, transparent) 14%,
+      transparent 40%
+    );
+  /* 주름만 반복하고 나머지 두 겹은 화면에 한 번씩 편다 */
+  background-size:
+    210px 100%,
+    100% 100%,
+    100% 100%;
+  background-repeat: repeat-x, no-repeat, no-repeat;
+}
+
+/*
+ * 먼지 한 알의 헤일로 (BootCurtain).
+ *
+ * 번지는 폭만 인라인으로 받고 색은 여기서 정한다. box-shadow를 통째로 인라인으로
+ * 넘기면 브라우저가 그 문자열을 제 방식으로 다시 적으면서 서버가 쓴 것과 달라지고,
+ * hydration이 어긋났다고 경고한다 — 커스텀 속성값은 적힌 그대로 보존되므로
+ * 낱알마다 다른 값은 변수로만 건넨다.
+ */
+.boot-dust {
+  box-shadow: 0 0 var(--dust-blur) color-mix(in srgb, var(--color-memory) 55%, transparent);
+}
+
+/* 커튼 밑단으로 새어 나오는 방의 빛. 저 너머에 이미 방이 있다고 말하는 층이다 */
+.boot-curtain-hem {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-memory) 20%, transparent) 0%,
+    color-mix(in srgb, var(--color-memory) 6%, transparent) 42%,
+    transparent 100%
+  );
+}
+
 /* 시작 버튼 뒤 후광의 색. 움직임은 --animate-start-glow가 맡는다 */
 .start-glow {
   background: radial-gradient(
@@ -579,6 +705,13 @@ body {
   );
 }
 
+
+/* 모션을 끈 판에서 부팅 커튼이 걷히는 방식 (@media prefers-reduced-motion) */
+@keyframes boot-curtain-fade {
+  to {
+    opacity: 0;
+  }
+}
 
 @keyframes bat-swing-image-reduced {
   0%,
@@ -632,6 +765,24 @@ body {
   .animate-loading-sweep {
     animation: none;
     transform: translateX(100%);
+  }
+
+  /*
+   * 커튼을 올리는 대신 걷어낸다. 화면 전체가 움직이는 연출이라 모션을 끈 사람에게
+   * 제일 크게 걸리는 자리다 — 다만 길이는 BootCurtain의 RISE_MS보다 짧게만 두면
+   * 되므로(먼저 사라지고 나서 언마운트된다) 여기서 줄여도 흐름이 깨지지 않는다.
+   */
+  .animate-boot-curtain-rise {
+    animation: boot-curtain-fade 0.24s ease-out both;
+  }
+
+  /*
+   * 먼지는 떠다니기를 멈추되 사라지지는 않는다. 움직임이 아니라 낱알이 흩어져 있다는
+   * 것 자체가 이 화면의 그림이라, 통째로 지우면 다시 휑한 검은 판이 된다.
+   */
+  .animate-boot-dust {
+    animation: none;
+    opacity: var(--dust-peak);
   }
 
   /*

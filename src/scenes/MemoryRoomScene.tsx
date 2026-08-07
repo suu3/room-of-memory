@@ -15,7 +15,6 @@ import {
   MEMORY_TOTAL,
   REVISIT_TOTAL,
   selectCollectedCount,
-  selectEndingReady,
   selectRevisitedCount,
   useMemoryRoomStore,
 } from "@/store/memory-room";
@@ -24,6 +23,8 @@ import { CameraRig } from "./memory-room/CameraRig";
 import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
 import { EndingTrigger } from "./memory-room/EndingTrigger";
+import { LivingRoomFurniture } from "./memory-room/LivingRoomFurniture";
+import { LivingRoomShell } from "./memory-room/LivingRoomShell";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
 import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
 import { Player } from "./memory-room/Player";
@@ -31,6 +32,7 @@ import { resolveRoomPalette } from "./memory-room/palette";
 import { RoomDecor } from "./memory-room/RoomDecor";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
+import { RoomSurroundings } from "./memory-room/RoomSurroundings";
 import { PlayerPositionProvider } from "./memory-room/use-near-player";
 import {
   lampScaled,
@@ -156,7 +158,8 @@ export function MemoryRoomScene({
   onInteract: (id: MemoryId) => void;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
-  const isEndingReady = useMemoryRoomStore(selectEndingReady);
+  const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
+  const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   const gamePhase = useMemoryRoomStore(gamePhaseOf);
   const collectedCount = useMemoryRoomStore(selectCollectedCount);
@@ -191,39 +194,62 @@ export function MemoryRoomScene({
         화면 전체를 한 번 훑는 패스라 트리에서의 위치도 그림에 영향이 없다.
       */}
       <MemoryGlowRoot color={palette.memory}>
-        <RoomShell
-          palette={palette}
-          doorReady={isEndingReady}
-          doorOpen={endingStarted}
-          outsideDecay={outsideDecay({
-            collected: collectedCount,
-            memoryTotal: MEMORY_TOTAL,
-            phase: gamePhase,
-          })}
-        />
-        {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
-        <RoomDecor palette={palette} />
-        <RoomFurniture
-          palette={palette}
-          curtainPull={curtainPull}
-          onCurtainPull={onCurtainPull}
-          onCurtainRelease={onCurtainRelease}
-        />
-        <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
-        {/* 문 옆 배트 — 수집 대상이 아니라 2바퀴를 다 돌면 켜지는 엔딩 트리거 */}
-        <EndingTrigger palette={palette} />
+        {/*
+          한 번에 한 방만 보인다 (v2). 두 방을 나란히 세워두면 디오라마가 아니라
+          단면도가 된다 — 지금 서 있는 공간만 서 있고, 문턱을 넘는 순간 바뀐다.
+          숨긴 방의 인터랙션은 근접 판정이 어차피 막는다 (다가갈 수 없는 거리다).
+        */}
+        <group visible={!inLivingRoom}>
+          <RoomShell
+            palette={palette}
+            doorOpen={doorOpened}
+            outsideDecay={outsideDecay({
+              collected: collectedCount,
+              memoryTotal: MEMORY_TOTAL,
+              phase: gamePhase,
+            })}
+          />
+          {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
+          <RoomDecor palette={palette} />
+          <RoomFurniture
+            palette={palette}
+            curtainPull={curtainPull}
+            onCurtainPull={onCurtainPull}
+            onCurtainRelease={onCurtainRelease}
+          />
+          <MemoryObjects
+            palette={palette}
+            nearbyMemoryId={nearbyMemoryId}
+            onInteract={onInteract}
+          />
+          {/* 문 옆 배트 — 라디오 목소리를 들으면 켜지고, 쥐면 방문이 열린다 (v2) */}
+          <EndingTrigger palette={palette} />
+        </group>
+        {/* 방문 너머 — 2바퀴에 문이 열리면 걸어 나갈 수 있다 (v2) */}
+        <group visible={inLivingRoom}>
+          <LivingRoomShell palette={palette} />
+          <LivingRoomFurniture palette={palette} />
+        </group>
       </MemoryGlowRoot>
-      {/* 글로우 루트 밖 — 빛·먼지는 아웃라인 선택 대상이 아니다 */}
-      <WindowLight
-        color={palette.memory}
-        intensity={roomLightValue(ROOM_LIGHT_RAMP.windowLight, lightLevel)}
-        curtainsOpen={curtainsOpen}
-      />
-      {/* 먼지는 빛줄기 안의 반짝임이라 커튼이 닫히면 같이 사라져야 한다 */}
-      <DustMotes
-        color={palette.memory}
-        opacity={curtainsOpen ? roomLightValue(ROOM_LIGHT_RAMP.dust, lightLevel) : 0}
-      />
+      {/*
+        방 바깥 — 받침 아래 고인 빛과 둘레를 떠도는 티끌.
+        글로우 루트 밖이다: 만질 수 있는 것이 아니라 배경이라 아웃라인이 붙으면 안 된다.
+      */}
+      <RoomSurroundings palette={palette} />
+      {/* 창빛·먼지는 방의 것이다 — 거실에 있는 동안은 방과 함께 숨는다 */}
+      <group visible={!inLivingRoom}>
+        {/* 글로우 루트 밖 — 빛·먼지는 아웃라인 선택 대상이 아니다 */}
+        <WindowLight
+          color={palette.memory}
+          intensity={roomLightValue(ROOM_LIGHT_RAMP.windowLight, lightLevel)}
+          curtainsOpen={curtainsOpen}
+        />
+        {/* 먼지는 빛줄기 안의 반짝임이라 커튼이 닫히면 같이 사라져야 한다 */}
+        <DustMotes
+          color={palette.memory}
+          opacity={curtainsOpen ? roomLightValue(ROOM_LIGHT_RAMP.dust, lightLevel) : 0}
+        />
+      </group>
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
       {/* 배트를 쥐면 카메라도 문 쪽으로 붙는다 — 엔딩 영상의 첫 컷과 이어지는 구도 */}
       <CameraRig

@@ -61,6 +61,14 @@ export type ClueId = (typeof CLUE_IDS)[number];
 export const PUZZLE_CLUES = { "card-odd": "shelf-book", "angle-turn": "desk-clock" } as const;
 
 /**
+ * 미궁 문제 id. 미니게임 레지스트리(src/minigames)의 id와 같지만, 기억 인터랙션이
+ * 아니라 거실 물건(식탁 트럼프·현관 잠금장치)에 붙는다 — 수집·재조사에 안 세어지고
+ * 완료는 스토어의 solvedPuzzles에만 남는다.
+ */
+export type PuzzleId = keyof typeof PUZZLE_CLUES;
+export const PUZZLE_IDS = Object.keys(PUZZLE_CLUES) as readonly PuzzleId[];
+
+/**
  * 조사를 마친 뒤 배경 오브젝트로 다시 열리는 기억. 달력이 유일하다 — 1바퀴에
  * "그날 이후로 正자만"을 보여주고 나면, 그 뒤로는 그냥 벽에 걸린 달력이다.
  */

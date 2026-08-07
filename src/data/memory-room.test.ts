@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { PUZZLE_CLUES, PUZZLE_IDS } from "@/data/room-clues";
 import ko from "@/i18n/locales/ko/memory-room.json";
 import { MINIGAMES } from "@/minigames";
 import { buildMemoryReplay } from "@/store/memory-room";
@@ -18,7 +19,7 @@ import {
  * 답을 적어 내는 미궁 문제들. 규칙이 화면에 없고 단서가 방에 흩어져 있어서
  * (src/data/room-clues.ts의 PUZZLE_CLUES) 나머지 조사와 무게가 다르다.
  */
-const MAZE_MINIGAMES: readonly string[] = ["card-odd", "angle-turn"];
+const MAZE_MINIGAMES: readonly string[] = [...PUZZLE_IDS];
 
 /** "scripts.radio-intro.line1" 같은 키가 ko 리소스에 실제로 있는지. */
 function hasKey(path: string): boolean {
@@ -178,28 +179,32 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     }
   });
 
-  it("2바퀴 조사는 전부 손을 쓰지만, 답을 적어 내는 미궁 문제는 둘뿐이다", () => {
+  it("미궁 문제는 기억이 나르지 않는다 — 거실 물건의 몫이다", () => {
+    /*
+     * card-odd·angle-turn은 거실의 식탁 트럼프·현관 잠금장치에 붙는다
+     * (docs/content-design-v2.md 7장, 스토어의 openPuzzle). 기억 쪽에 다시 붙으면
+     * 같은 문제가 두 입구를 갖게 되고, "문제는 거실에, 단서는 방에"라는 왕복
+     * 동선이 무너진다.
+     */
+    const carried = MEMORIES.flatMap((memory) =>
+      [memory.phase1, memory.phase2].flatMap((config) =>
+        config?.interaction?.minigameId ? [config.interaction.minigameId] : [],
+      ),
+    );
+    for (const maze of MAZE_MINIGAMES) expect(carried).not.toContain(maze);
+
+    // 미궁이 빠진 2바퀴 조사 목록 — 대사만 흐르는 것(게임기·사인볼)이 되돌아왔다
     const withMinigame = MEMORIES.filter((memory) => memory.phase2?.interaction?.minigameId).map(
       (memory) => memory.id,
     );
-    const mazes = MEMORIES.filter((memory) =>
-      MAZE_MINIGAMES.includes(memory.phase2?.interaction?.minigameId ?? ""),
-    ).map((memory) => memory.id);
+    expect(withMinigame.sort()).toEqual(["computer", "frame", "phone", "radio"]);
+  });
 
-    expect(withMinigame.sort()).toEqual([
-      "ball",
-      "computer",
-      "frame",
-      "console",
-      "phone",
-      "radio",
-    ]);
-    /*
-     * 미궁 문제는 화면에 규칙이 없고 방을 뒤져 온 사람만 풀 수 있다 — 붙잡히는 시간이
-     * 나머지 조사와 비교가 안 된다. 셋을 넘기면 2바퀴가 회복의 상승이 아니라
-     * 퍼즐 모음집이 되고, 단서를 찾을 곳도 그만큼 더 필요해진다.
-     */
-    expect(mazes.sort()).toEqual(["ball", "console"]);
+  it("미궁 문제마다 단서와 미니게임 구현이 다 있다", () => {
+    for (const id of PUZZLE_IDS) {
+      expect(MINIGAMES[id], id).toBeDefined();
+      expect(PUZZLE_CLUES[id], id).toBeDefined();
+    }
   });
 
   it("2바퀴 재점등 대상은 라디오 목소리를 들은 뒤에만 열린다", () => {

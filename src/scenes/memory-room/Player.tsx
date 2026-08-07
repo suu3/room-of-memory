@@ -7,7 +7,14 @@ import { Group, MathUtils, type Mesh, type Object3D, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
 import { selectSceneInputLocked, useMemoryRoomStore } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
-import { ROOM_BOUNDS, ROOM_COLLIDERS } from "./layout";
+import {
+  DOORWAY_ZONE,
+  LIVING_BOUNDS,
+  LIVING_COLLIDERS,
+  ROOM_BOUNDS,
+  ROOM_COLLIDERS,
+  ROOM_SHELL_BOUNDS,
+} from "./layout";
 import { type RoomPalette, resolveRoomPalette } from "./palette";
 import { captureMovementKeyDown, MOVEMENT_KEYS, resolveMovementInput } from "./player-input";
 import {
@@ -18,7 +25,7 @@ import {
   playerPose,
   STEP_RATE,
 } from "./player-rig";
-import { moveCircle, type Vec2 } from "./spatial";
+import { moveThroughZones, type Vec2 } from "./spatial";
 
 /** 발이 바닥에 닿는 높이. 충돌·근접 판정은 x/z만 보므로 y는 순수 시각값이다. */
 export const PLAYER_START = new Vector3(0, 0, 2.35);
@@ -32,6 +39,15 @@ const WALK_BLEND_LAMBDA = 12;
 const BREATHE_RATE = 1.8;
 const cameraForward = new Vector3();
 const cameraRight = new Vector3();
+
+/**
+ * 걷기 영역. 방문이 닫혀 있으면 방뿐이고, 열리면 문간과 거실이 이어진다 —
+ * 문 자체에 콜라이더가 없으므로 "문이 막는다"는 곧 "저 두 영역이 없다"이다.
+ */
+const CLOSED_ZONES = [ROOM_BOUNDS] as const;
+const OPEN_ZONES = [ROOM_BOUNDS, DOORWAY_ZONE, LIVING_BOUNDS] as const;
+/** 가구 발자국은 두 공간 것을 늘 합쳐 본다 — 문이 닫혀 있으면 거실 쪽은 어차피 못 닿는다. */
+const ALL_COLLIDERS = [...ROOM_COLLIDERS, ...LIVING_COLLIDERS] as const;
 
 useGLTF.preload(ASSETS.models.playerBlocky, true, true);
 
@@ -201,17 +217,21 @@ export function Player({
       const origin = originRef.current;
       origin.x = group.position.x;
       origin.z = group.position.z;
-      const result = moveCircle(
+      const result = moveThroughZones(
         origin,
         movementDelta,
         PLAYER_RADIUS,
-        ROOM_BOUNDS,
-        ROOM_COLLIDERS,
+        useMemoryRoomStore.getState().doorOpened ? OPEN_ZONES : CLOSED_ZONES,
+        ALL_COLLIDERS,
         resultRef.current,
       );
       group.position.x = result.x;
       group.position.z = result.z;
       positionRef.current.copy(group.position);
+
+      // 문턱(공유벽 x)을 넘으면 알린다 — 공유벽 컬링이 이 사실을 본다.
+      // setInLivingRoom은 값이 같으면 아무것도 안 하므로 프레임마다 불러도 싸다.
+      useMemoryRoomStore.getState().setInLivingRoom(result.x < ROOM_SHELL_BOUNDS.minX);
 
       facing.rotation.y = dampAngle(
         facing.rotation.y,

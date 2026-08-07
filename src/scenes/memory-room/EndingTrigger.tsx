@@ -6,7 +6,7 @@ import { useCallback, useMemo, useRef } from "react";
 import type { Group, Mesh } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
-import { selectEndingReady, useMemoryRoomStore } from "@/store/memory-room";
+import { selectDoorReady, useMemoryRoomStore } from "@/store/memory-room";
 import { BAT_PLACEMENT } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-motion";
@@ -28,15 +28,17 @@ const TAKEN_DURATION = 0.45;
 const TAKEN_LIFT = 0.9;
 
 /**
- * 문 옆에 세워둔 배트. 수집 대상이 아니라 엔딩 트리거다.
+ * 문 옆에 세워둔 배트. 수집 대상이 아니라 **방문을 여는** 트리거다 (v2).
  *
- * 2바퀴를 다 돌기 전에는 손이 안 간다 — 눌러도 아무 일이 없고 커서도 바뀌지 않는다.
- * 다 돌면 금빛으로 켜지고, 쥐는 순간 문이 열린다.
+ * v1에서는 엔딩 트리거였다 — 이제 엔딩은 거실 끝 현관문이 맡고(FrontDoor),
+ * 배트는 라디오 목소리를 들은 순간 켜진다. 쥐면 방문이 열리고 거실로 나갈 수
+ * 있다. 무기가 아니라 표식이던 배트가 여기서 처음 무기가 된다
+ * (docs/content-design-v2.md 3장).
  */
 export function EndingTrigger({ palette }: { palette: RoomPalette }) {
-  const ready = useMemoryRoomStore(selectEndingReady);
-  const started = useMemoryRoomStore((state) => state.endingStarted);
-  const startEnding = useMemoryRoomStore((state) => state.startEnding);
+  const ready = useMemoryRoomStore(selectDoorReady);
+  const started = useMemoryRoomStore((state) => state.doorOpened);
+  const openRoomDoor = useMemoryRoomStore((state) => state.openRoomDoor);
   const clickable = ready && !started;
   const { hovered, handlers } = useGlowHover(clickable);
   // 다가가면 빛난다 — 쥘 수 있게 된 뒤부터만. 아직 아닌 배트가 빛나면
@@ -103,8 +105,8 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
     if (!ready || started) return;
     punchRef.current = 0;
     playSound("collect");
-    startEnding();
-  }, [ready, started, startEnding]);
+    openRoomDoor();
+  }, [ready, started, openRoomDoor]);
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.

@@ -6,7 +6,6 @@ import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
-import { LoadingIndicator } from "./LoadingIndicator";
 import { LoadingOverlay } from "./LoadingOverlay";
 
 /**
@@ -19,17 +18,12 @@ import { LoadingOverlay } from "./LoadingOverlay";
 const ENTER_DELAY_MS = 260;
 
 /**
- * 로딩을 포기하고 시작 버튼을 여는 시각(ms).
- *
- * 진행률은 캔버스 청크가 보고한다 — 그 청크 자체를 못 받으면 아무도 보고하지
- * 않아 0에 멈춘다. 그 경우에도 게임은 시작할 수 있어야 한다. 방이 덜 예쁘게
- * 뜨는 것과 아예 못 들어가는 것은 다른 문제다.
- */
-const LOAD_GIVE_UP_MS = 12_000;
-
-/**
  * 게임 시작 화면. 방을 새로 마운트하지 않고 그 위에 덮는다 —
  * 뒤에서 3D 씬이 이미 돌고 있어야 "시작"을 누른 순간 지연 없이 들어간다.
+ *
+ * 에셋을 받는 동안의 로딩 표시는 여기 없다. 부팅 커튼(BootCurtain)이 이 화면째로
+ * 덮고 있다가 다 받으면 걷히므로, 이 화면이 보일 때는 이미 다 받은 뒤다 — 잠긴
+ * 시작 버튼도 그 아래 진행 바도 필요 없다.
  */
 export function TitleScreen() {
   const { t } = useTranslation();
@@ -52,17 +46,8 @@ export function TitleScreen() {
   // 단순 boolean이면 리셋 후에도 true로 남아 로딩 화면에서 빠져나오지 못한다.
   const [enteringAtRevision, setEnteringAtRevision] = useState<number | null>(null);
   const entering = enteringAtRevision === resetRevision;
-  /*
-   * 방을 이루는 glb는 타이틀 뒤에서 이미 받는 중이다. 다 받기 전에 들어가면 방이
-   * 텅 빈 채로 시작해 가구가 하나씩 튀어나오므로, 그동안은 버튼을 잠그고 얼마나
-   * 남았는지 보여준다 — 기다리게 하는 것보다 나쁜 건 왜 기다리는지 모르는 것이다.
-   */
-  const loadProgress = useMemoryRoomStore((state) => state.roomLoadProgress);
-  const [gaveUp, setGaveUp] = useState(false);
-  const ready = loadProgress >= 1 || gaveUp;
-  const loadPercent = Math.round(loadProgress * 100);
-  /** 셀 것이 생겼는가. 첫 모델이 들어오기 전에는 퍼센트가 거짓말이 된다. */
-  const counting = loadPercent > 0;
+  /** 부팅 커튼이 걷혔는가. 걷히기 전에는 이 화면이 커튼 뒤에 가려 있다. */
+  const booted = useMemoryRoomStore((state) => state.booted);
 
   useEffect(() => {
     setUiLock("title", !started);
@@ -76,17 +61,12 @@ export function TitleScreen() {
     [],
   );
 
+  // 커튼이 다 걷힌 뒤에 포커스를 준다 — 커튼 뒤의 안 보이는 버튼에 포커스를 박아
+  // 두면 키보드로 눌러 보고 아무 일도 안 일어나는 걸 겪은 뒤에야 기다려야 한다는
+  // 걸 알게 된다.
   useEffect(() => {
-    if (ready) return;
-    const timer = window.setTimeout(() => setGaveUp(true), LOAD_GIVE_UP_MS);
-    return () => window.clearTimeout(timer);
-  }, [ready]);
-
-  // 다 받고 나서 포커스를 준다 — 잠긴 버튼에 포커스를 박아 두면 키보드로 눌러 보고
-  // 아무 일도 안 일어나는 걸 겪은 뒤에야 기다려야 한다는 걸 알게 된다.
-  useEffect(() => {
-    if (!started && ready) startButtonRef.current?.focus();
-  }, [started, ready]);
+    if (!started && booted) startButtonRef.current?.focus();
+  }, [started, booted]);
 
   if (started) return null;
 
@@ -102,7 +82,15 @@ export function TitleScreen() {
      * 정렬 그대로고, 안 들어갈 때만 안쪽이 늘어나며 스크롤이 생긴다.
      * (justify-center에 직접 overflow를 걸면 넘친 위쪽에 손이 닿지 않는다.)
      */
-    <div className="absolute inset-0 z-40 overflow-y-auto overscroll-contain backdrop-blur-[2px]">
+    <div
+      /*
+       * 커튼 뒤에 있는 동안에는 없는 셈 친다. 걷히는 걸 보여주려면 미리 그려 둬야
+       * 하는데, 그려 두기만 하고 두면 스크린 리더가 아직 덮여 있는 제목·버튼을
+       * 읽고 Tab이 그리로 들어간다.
+       */
+      inert={!booted}
+      className="absolute inset-0 z-40 overflow-y-auto overscroll-contain backdrop-blur-[2px]"
+    >
       {/*
         간격이 위계를 만든다. DESIGN.md의 spacing 스케일에서 세 단만 쓴다 —
         한 덩어리 안은 8px(sm), 덩어리 사이는 32px(lg), 시작 버튼과 사이트 정보
@@ -157,7 +145,6 @@ export function TitleScreen() {
           화면은 씬이 다 쓴다.
         */}
         <div className="relative flex max-w-md flex-col items-center gap-2 text-center text-[0.6875rem] leading-relaxed">
-          <p className="font-bold tracking-[0.18em] text-bone/40">{t("titleScreen.playtime")}</p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 tracking-wider text-bone/40">
             <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
             <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
@@ -176,8 +163,9 @@ export function TitleScreen() {
           */}
           <div className="relative">
             {/* 버튼 뒤에서 번지는 금빛. 버튼 자신이 아니라 별도 레이어라 hover 동작을 안 뺏는다.
-                아직 받는 중이면 켜지 않는다 — 누르라는 신호를 눌리지 않는 버튼에 붙일 수 없다 */}
-            {ready ? (
+                커튼이 걷힌 뒤에 켠다 — 커튼 뒤에서 혼자 맥동하고 있을 이유가 없고,
+                걷히는 순간 빛이 함께 드는 편이 이 화면의 첫인상으로 낫다 */}
+            {booted ? (
               <span
                 aria-hidden
                 className="start-glow animate-start-glow pointer-events-none absolute -inset-x-8 -inset-y-5 rounded-full blur-xl"
@@ -186,40 +174,16 @@ export function TitleScreen() {
             <button
               ref={startButtonRef}
               type="button"
-              disabled={!ready}
               onClick={() => {
                 playSound("open");
                 setEnteringAtRevision(resetRevision);
                 enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
               }}
-              className={`relative rounded-full px-12 py-3 text-sm font-bold tracking-[0.2em] shadow-panel transition-transform focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory ${
-                ready
-                  ? "animate-start-pulse cursor-pointer bg-paper text-ink hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-                  : "cursor-progress bg-paper/45 text-ink/60"
-              }`}
+              className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory active:translate-y-0 active:scale-[0.98]"
             >
               {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
             </button>
           </div>
-
-          {/*
-            버튼 자리는 그대로 두고 아래에 로딩 표시를 붙인다. 화면을 통째로 덮으면
-            이 화면에서 읽을 만한 것(제목·설명·조작법)을 가려 버린다 — 기다리는
-            동안 읽으라고 쓴 글이다. 그림은 오버레이와 같은 달리는 아이를 쓴다.
-
-            첫 모델이 다 들어오기 전에는 셀 것이 없어(로딩 매니저는 파일이 끝날
-            때만 하나씩 센다) percent를 넘기지 않는다 — 0에 멈춘 바는 멈춘 것처럼
-            보인다.
-          */}
-          {ready ? null : (
-            <LoadingIndicator
-              size="inline"
-              percent={counting ? loadPercent : undefined}
-              label={
-                counting ? t("titleScreen.loading", { percent: loadPercent }) : t("scene.loading")
-              }
-            />
-          )}
 
           {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
           {hasSave ? (

@@ -92,7 +92,9 @@ const CHAIR_PARTS = [
   { size: [0.14, 0.64, 0.14], position: [0.41, 0.32, -0.41], color: "slate" },
   { size: [0.14, 0.64, 0.14], position: [-0.41, 0.32, 0.41], color: "slate" },
   { size: [0.14, 0.64, 0.14], position: [0.41, 0.32, 0.41], color: "slate" },
-  { size: [1.05, 0.79, 0.16], position: [0, 1.06, 0.445], color: "dusk" },
+  // 등받이 뒷면(0.545)을 좌석 모서리(0.525) 뒤로 뺀다 — 두 면이 같은 평면에
+  // 놓이면 z-fighting으로 깜빡인다 (위 겹침 원칙)
+  { size: [1.05, 0.79, 0.16], position: [0, 1.06, 0.465], color: "dusk" },
 ] as const satisfies readonly BoxPart[];
 
 // 몸통 앞면 z=-2.53. 서랍판은 그 면을 물고, 손잡이는 서랍판 앞에 0.015 띄운다.

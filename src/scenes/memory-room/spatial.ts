@@ -57,6 +57,86 @@ export function moveCircle(
   return result;
 }
 
+/** 반지름을 뺀 안쪽에 중심이 들어가는가. */
+function insideZone(x: number, z: number, radius: number, zone: Aabb2): boolean {
+  return (
+    x >= zone.minX + radius &&
+    x <= zone.maxX - radius &&
+    z >= zone.minZ + radius &&
+    z <= zone.maxZ - radius
+  );
+}
+
+/**
+ * 한 축의 이동을 여러 영역에 대해 푼다.
+ *
+ * 후보 지점이 어느 영역 안이든 들어가면 그대로 통과 — 문간처럼 영역이 겹치는
+ * 자리에서 옆 영역으로 넘어가는 게 이 경로다. 아무 데도 못 들어가면, **지금 서
+ * 있는 영역들** 안으로만 클램프해서 벽을 따라 미끄러진다. 지금 서 있지 않은
+ * 영역까지 클램프 후보로 삼으면 반대편 공간으로 순간이동할 수 있다.
+ */
+function slideAxis(
+  candidate: number,
+  cross: number,
+  origin: number,
+  radius: number,
+  zones: readonly Aabb2[],
+  axis: "x" | "z",
+): number {
+  for (const zone of zones) {
+    const valid =
+      axis === "x"
+        ? insideZone(candidate, cross, radius, zone)
+        : insideZone(cross, candidate, radius, zone);
+    if (valid) return candidate;
+  }
+
+  let best = origin;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  for (const zone of zones) {
+    const standing =
+      axis === "x"
+        ? insideZone(origin, cross, radius, zone)
+        : insideZone(cross, origin, radius, zone);
+    if (!standing) continue;
+    const clamped =
+      axis === "x"
+        ? clamp(candidate, zone.minX + radius, zone.maxX - radius)
+        : clamp(candidate, zone.minZ + radius, zone.maxZ - radius);
+    const distance = Math.abs(clamped - candidate);
+    if (distance < bestDistance) {
+      best = clamped;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
+/**
+ * 여러 걷기 영역(방·문간·거실)에 걸친 이동. 영역들이 넉넉히 겹쳐 있어야 한다 —
+ * 겹침이 지름보다 얇으면 중심이 어느 쪽에도 못 들어가는 틈이 생긴다 (layout.test).
+ *
+ * 축을 하나씩 푸는 것은 moveCircle과 같다. x를 먼저 확정하고 그 자리에서 z를
+ * 푼다 — 대각선 입력으로 문간 모서리를 파고들 때 두 축이 서로를 무효화하지 않게.
+ */
+export function moveThroughZones(
+  origin: Vec2,
+  delta: Vec2,
+  radius: number,
+  zones: readonly Aabb2[],
+  obstacles: readonly Aabb2[],
+  output?: Vec2,
+): Vec2 {
+  const nextX = slideAxis(origin.x + delta.x, origin.z, origin.x, radius, zones, "x");
+  const afterX = collides(nextX, origin.z, radius, obstacles) ? origin.x : nextX;
+  const nextZ = slideAxis(origin.z + delta.z, afterX, origin.z, radius, zones, "z");
+  const afterZ = collides(afterX, nextZ, radius, obstacles) ? origin.z : nextZ;
+  const result = output ?? { x: 0, z: 0 };
+  result.x = afterX;
+  result.z = afterZ;
+  return result;
+}
+
 export function findNearestMemory(
   position: Vec2,
   targets: readonly ProximityTarget[],

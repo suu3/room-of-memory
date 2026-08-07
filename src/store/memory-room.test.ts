@@ -243,6 +243,11 @@ describe("ending trigger", () => {
     });
   }
 
+  /** 현관 잠금(회전 미궁)을 푼 상태 — 엔딩의 두 번째 조건. */
+  function unlockFrontDoor() {
+    useMemoryRoomStore.setState({ solvedPuzzles: ["angle-turn"] });
+  }
+
   it("2바퀴를 다 돌기 전에는 엔딩이 시작되지 않는다", () => {
     useMemoryRoomStore.setState({ collected: PHASE1_MEMORIES.map((memory) => memory.id) });
     expect(selectEndingReady(useMemoryRoomStore.getState())).toBe(false);
@@ -252,9 +257,19 @@ describe("ending trigger", () => {
     expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
   });
 
-  it("2바퀴를 다 돌면 배트를 쥘 수 있다", () => {
+  it("2바퀴를 다 돌아도 현관 잠금(회전 미궁)이 남아 있으면 엔딩이 안 열린다", () => {
     finishBothRounds();
     expect(selectEndingReady(useMemoryRoomStore.getState())).toBe(true);
+
+    useMemoryRoomStore.getState().startEnding();
+
+    // v2: 엔딩은 기억 완주 + 현관 잠금 해제, 두 조건이다 (docs/content-design-v2.md 7장)
+    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
+  });
+
+  it("2바퀴 완주 + 잠금 해제면 현관문이 열린다", () => {
+    finishBothRounds();
+    unlockFrontDoor();
 
     useMemoryRoomStore.getState().startEnding();
 
@@ -263,6 +278,7 @@ describe("ending trigger", () => {
 
   it("리셋하면 엔딩도 처음으로 돌아간다", () => {
     finishBothRounds();
+    unlockFrontDoor();
     useMemoryRoomStore.getState().startEnding();
 
     useMemoryRoomStore.getState().reset();
@@ -432,5 +448,58 @@ describe("2바퀴 — 라디오가 유일한 관문", () => {
     const revisitable = MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id);
 
     expect(revisitable.sort()).toEqual(["ball", "computer", "frame", "console", "phone", "radio"]);
+  });
+});
+
+describe("미궁 문제 (거실)", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("붙잡고 → 풀면 solvedPuzzles에 남고, 다시는 안 열린다", () => {
+    useMemoryRoomStore.getState().openPuzzle("card-odd");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("card-odd");
+
+    useMemoryRoomStore.getState().finishPuzzle({ cleared: true });
+
+    const state = useMemoryRoomStore.getState();
+    expect(state.activePuzzle).toBeNull();
+    expect(state.solvedPuzzles).toEqual(["card-odd"]);
+
+    state.openPuzzle("card-odd");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
+  });
+
+  it("내려놓으면 아무것도 안 남는다 — 물건은 다시 클릭할 수 있다", () => {
+    useMemoryRoomStore.getState().openPuzzle("angle-turn");
+    useMemoryRoomStore.getState().closePuzzle();
+
+    const state = useMemoryRoomStore.getState();
+    expect(state.activePuzzle).toBeNull();
+    expect(state.solvedPuzzles).toEqual([]);
+
+    state.openPuzzle("angle-turn");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("angle-turn");
+  });
+
+  it("다른 화면이 떠 있으면 문제가 열리지 않는다", () => {
+    useMemoryRoomStore.getState().openClue("drawer-note");
+
+    useMemoryRoomStore.getState().openPuzzle("card-odd");
+
+    expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
+  });
+
+  it("문제가 떠 있는 동안 씬 입력이 잠긴다", () => {
+    useMemoryRoomStore.getState().openPuzzle("card-odd");
+
+    expect(selectSceneInputLocked(useMemoryRoomStore.getState())).toBe(true);
+  });
+
+  it("리셋하면 푼 문제도 처음으로 돌아간다", () => {
+    useMemoryRoomStore.getState().openPuzzle("angle-turn");
+    useMemoryRoomStore.getState().finishPuzzle({ cleared: true });
+
+    useMemoryRoomStore.getState().reset();
+
+    expect(useMemoryRoomStore.getState().solvedPuzzles).toEqual([]);
   });
 });

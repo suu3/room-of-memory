@@ -45,8 +45,8 @@ memories:
       script: console-intro
       minigame: fighter-duel
       resultScript: console-alone
-    # 2차: 혼자 이겨도 그만인 대전 대신, 둘이서만 성립하는 놀이를 꺼낸다.
-    # 카드는 혼자 치면 게임이 아니라 정리라, "받아줄 사람"이라는 2바퀴 주제와 붙는다.
+    # 2차: 대사만 흐른다. 카드 미궁(card-odd)은 거실 식탁 트럼프로 이사했다
+    # (docs/content-design-v2.md 7장) — 여기 다시 붙이지 말 것.
     phase2:
       script: console-echo
       minigame: card-odd
@@ -232,8 +232,8 @@ memories:
       script: ball-intro
       minigame: ball-catch
       replayStill: /assets/images/mg-ball-catch-sunset-field.webp
-    # 2차: 공을 벽에 던지는 대신, 벽에 붙은 글자를 돌려 본다. 회전 미궁의 규칙은
-    # 캐비닛 위 시계가 들고 있다 (src/data/room-clues.ts의 PUZZLE_CLUES).
+    # 2차: 대사만 흐른다. 회전 미궁(angle-turn)은 거실 현관 잠금장치로 이사했다
+    # (docs/content-design-v2.md 7장) — 여기 다시 붙이지 말 것.
     phase2:
       script: ball-echo
       minigame: angle-turn

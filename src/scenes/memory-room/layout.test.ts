@@ -10,8 +10,14 @@ import {
   CHAIR_POSITION,
   CHAIR_PULL,
   DESK_ROTATION,
+  DOORWAY_ZONE,
   DRAWER_NOTE,
   DRAWER_TRAVEL,
+  FRONT_DOOR_INTERACTION,
+  FRONT_DOOR_POSITION,
+  LIVING_BOUNDS,
+  LIVING_COLLIDERS,
+  LIVING_SHELL_BOUNDS,
   MEMORY_PLACEMENTS,
   REFERENCE_ROOM_LAYOUT,
   ROOM_BOUNDS,
@@ -118,12 +124,13 @@ describe("memory-room layout", () => {
     expect(doorGap).toBeLessThan(1.3);
     expect(wallGap).toBeGreaterThan(0.5);
     expect(wallGap).toBeLessThan(0.9);
+    // 엔딩 카메라는 이제 배트가 아니라 거실 끝 현관문을 본다 (v2)
     expect(
       Math.hypot(
-        CAMERA_PRESETS.ending.target[0] - bat.position[0],
-        CAMERA_PRESETS.ending.target[2] - bat.position[2],
+        CAMERA_PRESETS.ending.target[0] - FRONT_DOOR_POSITION[0],
+        CAMERA_PRESETS.ending.target[2] - FRONT_DOOR_POSITION[2],
       ),
-    ).toBeLessThan(0.35);
+    ).toBeLessThan(0.6);
   });
 
   it("matches the reference diorama shell", () => {
@@ -324,5 +331,55 @@ describe("clue props", () => {
     // 열리면 몸통 밖으로 나오고, 서랍판 윗변보다 높아 위에서 내려다보인다
     expect(noteZ + DRAWER_TRAVEL.nightstand - halfDepth).toBeGreaterThan(body.frontZ);
     expect(noteY).toBeGreaterThan(drawerFaceTopY);
+  });
+});
+
+/**
+ * 거실 (v2). 가구 발자국이 두 통로를 막으면 게임이 물리적으로 막힌다 —
+ * 문간에서 나오는 길과, 엔딩으로 가는 현관문 앞.
+ */
+describe("living room layout", () => {
+  const PLAYER_DIAMETER = 0.76;
+
+  it("keeps every collider inside the living room shell", () => {
+    for (const box of LIVING_COLLIDERS) {
+      expect(box.minX).toBeGreaterThanOrEqual(LIVING_SHELL_BOUNDS.minX);
+      expect(box.maxX).toBeLessThanOrEqual(LIVING_SHELL_BOUNDS.maxX);
+      expect(box.minZ).toBeGreaterThanOrEqual(LIVING_SHELL_BOUNDS.minZ);
+      expect(box.maxZ).toBeLessThanOrEqual(LIVING_SHELL_BOUNDS.maxZ);
+    }
+  });
+
+  it("leaves the doorway exit clear", () => {
+    // 문간 영역과 겹치는 가구가 있으면 문을 열고 나오자마자 낀다
+    for (const box of LIVING_COLLIDERS) {
+      const overlapsX = box.maxX > DOORWAY_ZONE.minX && box.minX < DOORWAY_ZONE.maxX;
+      const overlapsZ = box.maxZ > DOORWAY_ZONE.minZ && box.minZ < DOORWAY_ZONE.maxZ;
+      expect(overlapsX && overlapsZ).toBe(false);
+    }
+  });
+
+  it("leaves room to stand in front of the front door", () => {
+    /*
+     * 현관문 상호작용 반경 안에, 가구에 안 닿고 설 수 있는 자리가 있어야 한다.
+     * 문 바로 앞(x로 지름만큼 떨어진 지점)이 그 자리다 — 여기가 어떤 가구
+     * 발자국과도 겹치지 않는지 본다.
+     */
+    const standX = FRONT_DOOR_POSITION[0] + PLAYER_DIAMETER;
+    const standZ = FRONT_DOOR_POSITION[2];
+    expect(
+      Math.hypot(standX - FRONT_DOOR_INTERACTION.near[0], standZ - FRONT_DOOR_INTERACTION.near[1]),
+    ).toBeLessThan(FRONT_DOOR_INTERACTION.interactionRadius);
+    for (const box of LIVING_COLLIDERS) {
+      const inX = standX > box.minX - 0.38 && standX < box.maxX + 0.38;
+      const inZ = standZ > box.minZ - 0.38 && standZ < box.maxZ + 0.38;
+      expect(inX && inZ).toBe(false);
+    }
+  });
+
+  it("keeps the front door on the far wall, inside the walkable range", () => {
+    expect(FRONT_DOOR_POSITION[0]).toBeLessThan(LIVING_BOUNDS.minX);
+    expect(FRONT_DOOR_POSITION[2]).toBeGreaterThan(LIVING_BOUNDS.minZ);
+    expect(FRONT_DOOR_POSITION[2]).toBeLessThan(LIVING_BOUNDS.maxZ);
   });
 });

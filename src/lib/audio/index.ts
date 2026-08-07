@@ -4,7 +4,14 @@ import { useEffect } from "react";
 import { ASSETS } from "@/lib/assets";
 import { selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
 import { disposeAudio as disposeEngine, playSound, setAudioMuted, unlockAudio } from "./engine";
-import { disposeMusic, setMusicDuck, setMusicLevel, startMusic, stopMusic } from "./music";
+import {
+  disposeMusic,
+  setMusicDuck,
+  setMusicLevel,
+  setMusicTrim,
+  startMusic,
+  stopMusic,
+} from "./music";
 
 export {
   type NoiseBed,
@@ -14,7 +21,14 @@ export {
   startNoiseBed,
   unlockAudio,
 } from "./engine";
-export { type MusicTrack, setMusicDuck, setMusicLevel, startMusic, stopMusic } from "./music";
+export {
+  type MusicTrack,
+  setMusicDuck,
+  setMusicLevel,
+  setMusicTrim,
+  startMusic,
+  stopMusic,
+} from "./music";
 export { musicCutoff, musicReverb, musicVolume } from "./music-curve";
 export { preloadSamples } from "./samples";
 export type { VoiceId } from "./voices";
@@ -73,14 +87,28 @@ export function useAudioRuntime() {
  *
  * 대사와 미니게임은 눌러야 하는 깊이가 다르다. VN이라 대사창이 떠 있는 시간이
  * 길어서, 대사에서 깊게 누르면 게임 대부분의 시간 동안 BGM이 사라진 것처럼 들린다
- * — 비켜서기만 할 만큼만 누른다. 반대로 미니게임은 효과음이 주인공인 구간이라
- * 거의 비운다. 끝나고 방으로 돌아올 때 음악이 다시 드는 것이 곧 연출이 된다.
+ * — 비켜서기만 할 만큼만 누른다. 미니게임은 효과음이 주인공이라 더 깊이 누르되,
+ * 0.18까지 내렸더니 눌린 게 아니라 꺼진 것처럼 들렸다. 미니게임은 몇 분씩 이어지는
+ * 구간이라 그 사이 방이 통째로 조용해진다 — 뒤에서 곡이 계속 돌고 있다는 건
+ * 남겨 두고, 앞자리만 효과음에 내준다.
  */
 const DIALOGUE_DUCK = 0.72;
-const MINIGAME_DUCK = 0.18;
+const MINIGAME_DUCK = 0.42;
 
 /** 바퀴마다 도는 곡(후보 목록). 2바퀴 곡이 아직 없으면 1바퀴 곡이 그대로 이어진다. */
 const ROUND_TRACK = { 1: ASSETS.bgm.room, 2: ASSETS.bgm.roomSecondLight } as const;
+
+/**
+ * 곡마다 다른 녹음 레벨을 맞추는 보정 (1=파일 그대로).
+ *
+ * 음량 곡선은 밝기만 보고 곡이 몇 dB로 녹음됐는지는 모른다. 지금 두 곡은
+ * 1바퀴 −17.7 LUFS / 2바퀴 −15.1 LUFS로 2.6 LU 벌어져 있어서, 곡선에 같은 값을
+ * 넣어도 1바퀴가 그만큼 작게 들렸다. 조용한 쪽을 끌어올려 출발선을 맞춘다
+ * (2.6 LU ≒ ×1.35).
+ *
+ * 곡을 바꾸면 `pnpm audio:bgm`이 찍어 주는 LUFS로 이 값을 다시 잡는다.
+ */
+const ROUND_TRIM = { 1: 1.35, 2: 1 } as const;
 
 /**
  * 방 BGM을 방 밝기와 바퀴에 물린다.
@@ -113,6 +141,8 @@ export function useRoomMusic({
       stopMusic();
       return;
     }
+    // 트림을 먼저 세운다 — 곡이 올라오면서 바로 맞는 레벨로 페이드인해야 한다
+    setMusicTrim(ROUND_TRIM[phase]);
     startMusic(ROUND_TRACK[phase]);
   }, [playing, phase]);
 

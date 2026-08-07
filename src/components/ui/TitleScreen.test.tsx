@@ -7,11 +7,11 @@ import { useMemoryRoomStore } from "@/store/memory-room";
 import { TitleScreen } from "./TitleScreen";
 
 /**
- * 로딩 진행률은 리셋으로 되돌아가지 않는다 (한 번 받은 모델은 그대로 있다) —
+ * 부팅 커튼은 리셋으로 다시 내려오지 않는다 (한 번 받은 모델은 그대로 있다) —
  * 테스트끼리 새는 것을 막으려면 스토어를 직접 되돌려 놓아야 한다.
  */
-function setRoomLoaded(progress: number) {
-  useMemoryRoomStore.setState({ roomLoadProgress: progress });
+function setBooted(booted: boolean) {
+  useMemoryRoomStore.setState({ booted });
 }
 
 describe("TitleScreen", () => {
@@ -22,15 +22,15 @@ describe("TitleScreen", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     useMemoryRoomStore.getState().reset();
-    // 방이 다 들어온 상태가 기본 — 시작 버튼이 열려 있어야 눌러 볼 수 있다
-    setRoomLoaded(1);
+    // 커튼이 걷힌 뒤가 기본이다 — 이 화면은 그때부터 보인다
+    setBooted(true);
   });
 
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
     useMemoryRoomStore.getState().reset();
-    setRoomLoaded(0);
+    setBooted(false);
   });
 
   afterAll(async () => {
@@ -61,45 +61,26 @@ describe("TitleScreen", () => {
     expect(screen.getByRole("button", { name: "START" })).toBeTruthy();
   });
 
-  describe("3D 에셋을 받는 동안", () => {
-    it("시작 버튼을 잠그고 진행률을 보여준다", () => {
-      setRoomLoaded(0.4);
-      render(<TitleScreen />);
+  /*
+   * 로딩은 이제 BootCurtain이 전부 맡는다 (BootCurtain.test.tsx). 이 화면은 커튼이
+   * 걷힌 뒤에만 보이므로 진행률을 알 필요가 없다 — 다만 걷히기 전에 미리 그려져
+   * 있으므로, 그동안 손이 닿지 않는지는 여기서 지킨다.
+   */
+  it("커튼이 걷히기 전에는 손이 닿지 않는다", () => {
+    setBooted(false);
+    const { container } = render(<TitleScreen />);
 
-      const start = screen.getByRole("button", { name: "START" });
-      expect(start.hasAttribute("disabled")).toBe(true);
-      expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("40");
-      expect(screen.getByText("Loading the room… 40%")).toBeTruthy();
+    expect(container.firstElementChild?.hasAttribute("inert")).toBe(true);
+    expect(document.activeElement).toBe(document.body);
+  });
 
-      // 잠긴 버튼을 눌러도 방으로 넘어가지 않는다
-      fireEvent.click(start);
-      act(() => vi.runAllTimers());
-      expect(useMemoryRoomStore.getState().started).toBe(false);
-    });
+  it("커튼이 걷히면 열리고 시작 버튼에 포커스가 간다", () => {
+    setBooted(false);
+    const { container } = render(<TitleScreen />);
 
-    it("다 받으면 버튼이 열리고 진행률이 사라진다", () => {
-      setRoomLoaded(0.4);
-      render(<TitleScreen />);
+    act(() => useMemoryRoomStore.getState().finishBoot());
 
-      act(() => useMemoryRoomStore.getState().setRoomLoadProgress(1));
-
-      expect(screen.getByRole("button", { name: "START" }).hasAttribute("disabled")).toBe(false);
-      expect(screen.queryByRole("progressbar")).toBeNull();
-    });
-
-    it("보고가 끊겨도 결국 열어 준다 — 못 들어가는 것보다는 낫다", () => {
-      setRoomLoaded(0);
-      render(<TitleScreen />);
-
-      expect(screen.getByRole("button", { name: "START" }).hasAttribute("disabled")).toBe(true);
-      // 셀 것이 없으면 0%를 내걸지 않는다 — 훑고 지나가는 바만 돈다
-      expect(screen.getByRole("progressbar").hasAttribute("aria-valuenow")).toBe(false);
-
-      // 캔버스 청크 자체를 못 받으면 아무도 진행률을 보고하지 않는다
-      act(() => vi.advanceTimersByTime(12_000));
-
-      expect(screen.getByRole("button", { name: "START" }).hasAttribute("disabled")).toBe(false);
-      expect(screen.queryByRole("progressbar")).toBeNull();
-    });
+    expect(container.firstElementChild?.hasAttribute("inert")).toBe(false);
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "START" }));
   });
 });

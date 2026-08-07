@@ -93,16 +93,17 @@ export const ASSETS = {
      * 1바퀴 — 발랄한 일상 곡. 조사할수록 컷오프가 닫히고 리버브가 늘며 열화되어
      * 라디오 직전에는 거의 정적에 닿는다 (src/lib/audio/music-curve.ts).
      *
-     * 뒤에 선 winter-morning은 자리 지킴이다. modern classical 솔로 피아노라
-     * "발랄한 일상"과는 톤이 다르다 — daylight 파일이 들어오면 그때부터 안 쓰인다.
+     * daylight가 들어와 있으므로 실제로 도는 건 첫 줄이다. 뒤에 선 winter-morning은
+     * modern classical 솔로 피아노라 톤이 다르다 — daylight를 못 받았을 때만 서는
+     * 자리 지킴이로 남겨 둔다.
      */
     room: [
       "/assets/audio/bgm/bgm-room-daylight.ogg",
       "/assets/audio/bgm/bgm-room-winter-morning.ogg",
     ],
     /**
-     * 2바퀴 — 컷씬의 정적을 지나 새로 드는 따뜻한 곡. 아직 리포에 없다. 못 받으면
-     * 대신 설 곡이 없으므로 1바퀴 곡이 그대로 이어진다.
+     * 2바퀴 — 컷씬의 정적을 지나 새로 드는 따뜻한 곡. 대신 설 곡이 없어서 이 파일을
+     * 못 받으면 1바퀴 곡이 그대로 이어진다.
      */
     roomSecondLight: ["/assets/audio/bgm/bgm-room-second-light.ogg"],
   },

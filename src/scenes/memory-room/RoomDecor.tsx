@@ -1,6 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { ASSETS } from "@/lib/assets";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { FurnitureModel } from "./FurnitureModel";
 import { ROOM_SHELL_BOUNDS } from "./layout";
@@ -307,14 +308,22 @@ function Trophy({ palette, position }: { palette: RoomPalette; position: Vec3Tup
 }
 
 export function RoomDecor({ palette }: { palette: RoomPalette }) {
+  /*
+   * 왼벽은 이제 걷힐 수 있다 — 플레이어가 거실로 나가면 공유벽이 시야를 가려서
+   * RoomShell이 강제로 걷는다 (v2). 벽에 붙은 장식은 벽과 함께 사라져야 한다.
+   */
+  const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
+
   return (
     <group name="room-decor">
       {/*
-        뒷벽·왼쪽 벽은 회전 범위(±0.5rad) 안에서 절대 걷히지 않으므로 CulledWall 없이
-        그대로 세운다. 회전을 더 열려면 이것들도 CulledWall 안으로 옮겨야 한다.
+        뒷벽은 회전 범위(±0.5rad) 안에서 절대 걷히지 않으므로 CulledWall 없이
+        그대로 세운다. 회전을 더 열려면 이것도 CulledWall 안으로 옮겨야 한다.
       */}
       <DecorBoxes parts={DECOR_BY_WALL.back} palette={palette} />
-      <DecorBoxes parts={DECOR_BY_WALL.left} palette={palette} />
+      <CulledWall side="left" hidden={inLivingRoom}>
+        <DecorBoxes parts={DECOR_BY_WALL.left} palette={palette} />
+      </CulledWall>
 
       {/* 돌려야 드러나는 두 면. 벽과 함께 스러져야 하므로 반드시 CulledWall 안이다 */}
       <CulledWall side="front">
