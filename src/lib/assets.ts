@@ -83,18 +83,28 @@ export const ASSETS = {
     characterHeroSurprised: "/assets/images/character-hero-surprised.webp",
     characterHeroSheet: "/assets/images/character-hero-sheet.webp",
   },
+  /**
+   * 바퀴마다 한 곡. 값은 **후보 목록**이고 앞에서부터 받아 처음 성공한 것을 튼다
+   * (music.ts의 startMusic) — 아직 리포에 없는 곡을 앞에 세워 둬도 방이 조용해지지
+   * 않는다. 규격과 고르는 기준은 docs/content-design.md 3-2.
+   */
   bgm: {
     /**
      * 1바퀴 — 발랄한 일상 곡. 조사할수록 컷오프가 닫히고 리버브가 늘며 열화되어
      * 라디오 직전에는 거의 정적에 닿는다 (src/lib/audio/music-curve.ts).
+     *
+     * 뒤에 선 winter-morning은 자리 지킴이다. modern classical 솔로 피아노라
+     * "발랄한 일상"과는 톤이 다르다 — daylight 파일이 들어오면 그때부터 안 쓰인다.
      */
-    room: "/assets/audio/bgm/bgm-room-winter-morning.ogg",
+    room: [
+      "/assets/audio/bgm/bgm-room-daylight.ogg",
+      "/assets/audio/bgm/bgm-room-winter-morning.ogg",
+    ],
     /**
-     * 2바퀴 — 컷씬의 정적을 지나 새로 드는 따뜻한 곡. **아직 리포에 없어도 된다:**
-     * 못 받으면 1바퀴 곡이 그대로 이어진다 (music.ts의 startMusic). 규격은
-     * .ogg 또는 .mp3 128kbps, 3MB 이하 (.claude/rules/assets.md).
+     * 2바퀴 — 컷씬의 정적을 지나 새로 드는 따뜻한 곡. 아직 리포에 없다. 못 받으면
+     * 대신 설 곡이 없으므로 1바퀴 곡이 그대로 이어진다.
      */
-    roomSecondLight: "/assets/audio/bgm/bgm-room-second-light.ogg",
+    roomSecondLight: ["/assets/audio/bgm/bgm-room-second-light.ogg"],
   },
   /**
    * 파일로 대신할 효과음. 여기 없는 보이스는 전부 합성이다(src/lib/audio/voices.ts).

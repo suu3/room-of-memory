@@ -14,7 +14,7 @@ export {
   startNoiseBed,
   unlockAudio,
 } from "./engine";
-export { setMusicDuck, setMusicLevel, startMusic, stopMusic } from "./music";
+export { type MusicTrack, setMusicDuck, setMusicLevel, startMusic, stopMusic } from "./music";
 export { musicCutoff, musicReverb, musicVolume } from "./music-curve";
 export { preloadSamples } from "./samples";
 export type { VoiceId } from "./voices";
@@ -79,7 +79,7 @@ export function useAudioRuntime() {
 const DIALOGUE_DUCK = 0.72;
 const MINIGAME_DUCK = 0.18;
 
-/** 바퀴마다 도는 곡. 2바퀴 곡이 아직 없으면 1바퀴 곡이 그대로 이어진다. */
+/** 바퀴마다 도는 곡(후보 목록). 2바퀴 곡이 아직 없으면 1바퀴 곡이 그대로 이어진다. */
 const ROUND_TRACK = { 1: ASSETS.bgm.room, 2: ASSETS.bgm.roomSecondLight } as const;
 
 /**
