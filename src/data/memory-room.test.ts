@@ -14,6 +14,12 @@ import {
   SCRIPTS,
 } from "./memory-room";
 
+/**
+ * 답을 적어 내는 미궁 문제들. 규칙이 화면에 없고 단서가 방에 흩어져 있어서
+ * (src/data/room-clues.ts의 PUZZLE_CLUES) 나머지 조사와 무게가 다르다.
+ */
+const MAZE_MINIGAMES: readonly string[] = ["card-odd", "angle-turn"];
+
 /** "scripts.radio-intro.line1" 같은 키가 ko 리소스에 실제로 있는지. */
 function hasKey(path: string): boolean {
   return (
@@ -172,12 +178,28 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     }
   });
 
-  it("2바퀴에서 손을 쓰는 조사는 라디오·액자·폰·컴퓨터뿐이다", () => {
+  it("2바퀴 조사는 전부 손을 쓰지만, 답을 적어 내는 미궁 문제는 둘뿐이다", () => {
     const withMinigame = MEMORIES.filter((memory) => memory.phase2?.interaction?.minigameId).map(
       (memory) => memory.id,
     );
+    const mazes = MEMORIES.filter((memory) =>
+      MAZE_MINIGAMES.includes(memory.phase2?.interaction?.minigameId ?? ""),
+    ).map((memory) => memory.id);
 
-    expect(withMinigame.sort()).toEqual(["computer", "frame", "phone", "radio"]);
+    expect(withMinigame.sort()).toEqual([
+      "ball",
+      "computer",
+      "frame",
+      "console",
+      "phone",
+      "radio",
+    ]);
+    /*
+     * 미궁 문제는 화면에 규칙이 없고 방을 뒤져 온 사람만 풀 수 있다 — 붙잡히는 시간이
+     * 나머지 조사와 비교가 안 된다. 셋을 넘기면 2바퀴가 회복의 상승이 아니라
+     * 퍼즐 모음집이 되고, 단서를 찾을 곳도 그만큼 더 필요해진다.
+     */
+    expect(mazes.sort()).toEqual(["ball", "console"]);
   });
 
   it("2바퀴 재점등 대상은 라디오 목소리를 들은 뒤에만 열린다", () => {

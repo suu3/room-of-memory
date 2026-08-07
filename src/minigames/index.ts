@@ -97,6 +97,26 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.windowView.title",
     helpKey: "minigame.windowView.help",
   },
+  "card-odd": {
+    id: "card-odd",
+    mode: "overlay",
+    component: lazy(() => import("./card-odd").then((m) => ({ default: m.CardOddMinigame }))),
+    titleKey: "minigame.cardOdd.title",
+    helpKey: "minigame.cardOdd.help",
+    /*
+     * rulesKeys를 일부러 비운다. 이건 미니게임이 아니라 미궁 문제라, 무엇이 틀린
+     * 카드인지 시작 카드에서 알려주면 문제가 통째로 사라진다. 카드가 지키는 규칙은
+     * 방의 다른 오브젝트 대사에 흩어 두고, 여기서는 답 형식만 말한다.
+     */
+  },
+  "angle-turn": {
+    id: "angle-turn",
+    mode: "overlay",
+    component: lazy(() => import("./angle-turn").then((m) => ({ default: m.AngleTurnMinigame }))),
+    titleKey: "minigame.angleTurn.title",
+    helpKey: "minigame.angleTurn.help",
+    // card-odd와 같은 이유로 rulesKeys를 비운다 — 각도를 읽는 법은 캐비닛 위 시계에 있다
+  },
   "ball-catch": {
     id: "ball-catch",
     mode: "overlay",

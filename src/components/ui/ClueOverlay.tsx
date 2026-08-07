@@ -14,6 +14,7 @@ import {
   NATIONALS_MONTH,
 } from "@/minigames/calendar-flip/calendar";
 import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
+import { SUIT_GLYPH, SUITS, suitColor } from "@/minigames/card-odd/cards";
 import { useMemoryRoomStore } from "@/store/memory-room";
 
 /** 서랍 속 쪽지에 적힌 줄. 아빠가 급히 적은 메모라 세 줄이 전부다. */
@@ -23,7 +24,12 @@ const NOTE_LINES = ["clue.drawerNote.l1", "clue.drawerNote.l2", "clue.drawerNote
 const CLUE_TEXT = {
   "drawer-note": { title: "clue.drawerNote.title", caption: "clue.drawerNote.caption" },
   "wall-calendar": { title: "clue.wallCalendar.title", caption: "clue.wallCalendar.caption" },
+  "shelf-book": { title: "clue.shelfBook.title", caption: "clue.shelfBook.caption" },
+  "desk-clock": { title: "clue.deskClock.title", caption: "clue.deskClock.caption" },
 } as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
+
+/** 놀이책의 펼쳐진 쪽에 적힌 줄 — 트럼프 항목의 앞부분만 보인다. */
+const BOOK_LINES = ["clue.shelfBook.l1", "clue.shelfBook.l2"] as const;
 
 /**
  * 화면에 안 보이는 조사 목록 — 스크린리더와 키보드 전용.
@@ -82,6 +88,8 @@ export function ClueOverlay() {
 
   const { title: titleKey, caption: captionKey } = CLUE_TEXT[clue];
   const isNote = clue === "drawer-note";
+  // 종이(쪽지·책)는 좁게, 격자를 그리는 것(달력·시계)은 넓게 편다
+  const narrow = isNote || clue === "shelf-book";
 
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center overflow-hidden p-4">
@@ -95,7 +103,7 @@ export function ClueOverlay() {
         role="dialog"
         aria-modal="true"
         aria-label={t(titleKey)}
-        className={`relative w-full animate-fade-rise ${isNote ? "max-w-lg" : "max-w-xl"}`}
+        className={`relative w-full animate-fade-rise ${narrow ? "max-w-lg" : "max-w-xl"}`}
       >
         {/* 닫기는 종이 밖에 둔다 — 종이 위에 UI 버튼이 얹히면 종이가 아니라 창이 된다 */}
         <button
@@ -108,7 +116,15 @@ export function ClueOverlay() {
           {t("clue.close")}
         </button>
 
-        {isNote ? <FoldedNote /> : <WallCalendar />}
+        {isNote ? (
+          <FoldedNote />
+        ) : clue === "shelf-book" ? (
+          <ShelfBook />
+        ) : clue === "desk-clock" ? (
+          <DeskClock />
+        ) : (
+          <WallCalendar />
+        )}
 
         <p className="mt-4 break-ko text-pretty text-center text-sm leading-relaxed text-bone/60">
           {t(captionKey)}
@@ -154,6 +170,117 @@ function FoldedNote() {
           </p>
         ))}
       </div>
+    </div>
+  );
+}
+
+/**
+ * 선반에서 뽑아 든 놀이책의 펼친 쪽 — 게임기 2바퀴 카드 미궁의 규칙이 여기 있다.
+ *
+ * 규칙책으로 읽혀야지 문제 풀이로 읽히면 안 된다. 그래서 문양을 제 색으로 늘어놓기만
+ * 하고, "이 중 틀린 것을 찾아라" 같은 말은 한 줄도 없다 — 무엇에 쓰는 규칙인지는
+ * 문제를 만난 사람이 알아본다 (src/data/room-clues.ts의 PUZZLE_CLUES).
+ */
+function ShelfBook() {
+  const { t } = useTranslation();
+
+  return (
+    <div className="rounded-xl border border-bone bg-paper p-6 shadow-panel sm:p-8">
+      <p className="border-b border-ink/10 pb-3 text-sm font-bold tracking-widest text-ink/45">
+        {t("clue.shelfBook.heading")}
+      </p>
+      {/* 색은 글로 적지 않고 문양을 제 색으로 찍어서 보여준다 — 보면 아는 것을 설명하지 않는다 */}
+      <ul className="flex items-center justify-center gap-6 py-6 sm:gap-9">
+        {SUITS.map((suit) => (
+          <li
+            key={suit}
+            className={`text-4xl leading-none sm:text-5xl ${
+              suitColor(suit) === "red" ? "text-ember" : "text-ink"
+            }`}
+          >
+            {SUIT_GLYPH[suit]}
+          </li>
+        ))}
+      </ul>
+      <div className="flex flex-col gap-2 border-t border-ink/10 pt-4">
+        {BOOK_LINES.map((key) => (
+          <p key={key} className="break-ko text-pretty text-base leading-relaxed text-ink/80">
+            {t(key)}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** 각도 눈금을 매길 자리 — 시계 방향 45° 간격. */
+const CLOCK_TICKS = [0, 45, 90, 135, 180, 225, 270, 315] as const;
+const CLOCK_RADIUS = 78;
+const CLOCK_LABEL_RADIUS = 60;
+
+/**
+ * 캐비닛 위 탁상시계 — 사인볼 2바퀴 회전 미궁의 단서.
+ *
+ * 방에 놓인 시계는 멈춘 시각(20:47)을 가리키는 소품이지만, 집어 들면 누군가 연필로
+ * 눈금마다 각도를 적어 둔 게 보인다. 그림이 "시계 방향으로 몇 도"라는 읽는 법만
+ * 주고, 문제에 어떤 각이 쓰였는지는 말하지 않는다.
+ */
+function DeskClock() {
+  const { t } = useTranslation();
+
+  return (
+    <div className="rounded-xl border border-bone bg-paper p-6 shadow-panel sm:p-8">
+      <p className="border-b border-ink/10 pb-3 text-sm font-bold tracking-widest text-ink/45">
+        {t("clue.deskClock.heading")}
+      </p>
+      <svg
+        viewBox="-100 -100 200 200"
+        role="img"
+        aria-label={t("clue.deskClock.figure")}
+        className="mx-auto my-4 w-full max-w-[16rem]"
+      >
+        <circle r={CLOCK_RADIUS} fill="none" stroke="currentColor" className="text-ink/15" />
+        {CLOCK_TICKS.map((degrees) => {
+          // SVG는 x축에서 시작해 시계 방향으로 돈다 — 12시(위)에서 출발하도록 90도 뺀다
+          const radians = ((degrees - 90) * Math.PI) / 180;
+          return (
+            <g key={degrees}>
+              <line
+                x1={Math.cos(radians) * (CLOCK_RADIUS - 9)}
+                y1={Math.sin(radians) * (CLOCK_RADIUS - 9)}
+                x2={Math.cos(radians) * CLOCK_RADIUS}
+                y2={Math.sin(radians) * CLOCK_RADIUS}
+                stroke="currentColor"
+                strokeWidth={2}
+                className="text-ink/35"
+              />
+              <text
+                x={Math.cos(radians) * CLOCK_LABEL_RADIUS}
+                y={Math.sin(radians) * CLOCK_LABEL_RADIUS}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontSize={15}
+                className="fill-ink/55 font-bold"
+              >
+                {degrees}
+              </text>
+            </g>
+          );
+        })}
+        {/* 도는 방향을 화살표 하나로 못박는다 — 반시계로 읽으면 답이 전부 뒤집힌다 */}
+        <path
+          d="M 0 -34 A 34 34 0 0 1 29 17"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={3}
+          strokeLinecap="round"
+          className="text-memory"
+        />
+        <path d="M 29 17 l -11 -1 l 6 10 z" className="fill-memory" />
+      </svg>
+      <p className="break-ko text-pretty border-t border-ink/10 pt-4 text-base leading-relaxed text-ink/80">
+        {t("clue.deskClock.l1")}
+      </p>
     </div>
   );
 }

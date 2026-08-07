@@ -41,8 +41,24 @@ export const COMPUTER_PASSCODE_LENGTH = COMPUTER_PASSCODE.length;
  * 마치면 배경 오브젝트로 내려앉는 물건이다. 그래서 수집 전에는 열리지 않는다
  * (store의 openClue).
  */
-export const CLUE_IDS = ["drawer-note", "wall-calendar"] as const;
+export const CLUE_IDS = ["drawer-note", "wall-calendar", "shelf-book", "desk-clock"] as const;
 export type ClueId = (typeof CLUE_IDS)[number];
+
+/**
+ * 2바퀴 미궁 문제의 규칙이 어디에 있는가.
+ *
+ * 두 문제 모두 화면에 규칙을 한 줄도 적지 않는다. 적는 순간 문제가 아니라 안내가
+ * 되기 때문이다. 대신 방에 놓인 물건이 규칙을 들고 있다:
+ *
+ *   선반 위 놀이책 — 트럼프의 색과 대칭 (게임기 2바퀴, card-odd)
+ *   캐비닛 위 시계 — 바늘이 도는 각도 (사인볼 2바퀴, angle-turn)
+ *
+ * 비밀번호 단서와 같은 원칙을 지킨다: 물건은 규칙까지만 말하고 "저 문제에 써라"는
+ * 말하지 않는다. 지시하는 순간 단서가 심부름표가 된다.
+ *
+ * 못 찾아도 진행은 안 막힌다 — 두 문제 다 일정 시간 뒤 스킵이 나온다.
+ */
+export const PUZZLE_CLUES = { "card-odd": "shelf-book", "angle-turn": "desk-clock" } as const;
 
 /**
  * 조사를 마친 뒤 배경 오브젝트로 다시 열리는 기억. 달력이 유일하다 — 1바퀴에

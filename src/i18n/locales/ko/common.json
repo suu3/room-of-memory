@@ -291,6 +291,38 @@
       "help_touch": "조각을 눌러 빈칸으로 밀어 사진을 맞추세요",
       "moves": "움직인 횟수",
       "tile": "{{value}}번 조각"
+    },
+    "angleTurn": {
+      "title": "돌아간 글자",
+      "help": "왼쪽을 시계 방향으로 돌리면 오른쪽이 됩니다. 그 값을 왼쪽부터 이어 적으세요",
+      "attempts": "틀린 횟수",
+      "answerLabel": "답",
+      "placeholder": "답을 입력하세요",
+      "submit": "확인",
+      "blanks": "답은 {{count}}자리"
+    },
+    "cardOdd": {
+      "title": "이 중에 없는 카드",
+      "help": "잘못된 카드의 숫자를 왼쪽부터 이어 적으세요",
+      "attempts": "틀린 횟수",
+      "answerLabel": "답",
+      "placeholder": "답을 입력하세요",
+      "submit": "확인",
+      "cardLabel": "{{ink}} {{suit}} {{rank}}, 아래 인덱스 {{orientation}}",
+      "ink": {
+        "black": "검정",
+        "red": "빨강"
+      },
+      "orientation": {
+        "flipped": "뒤집힘",
+        "upright": "바로 섬"
+      },
+      "suit": {
+        "spade": "스페이드",
+        "heart": "하트",
+        "diamond": "다이아",
+        "club": "클로버"
+      }
     }
   },
   "characterSheet": {
@@ -342,6 +374,20 @@
     "wallCalendar": {
       "title": "벽에 걸린 달력",
       "caption": "동그라미가 둘. 하나는 그날이고, 하나는 그전의 어떤 날이다."
+    },
+    "shelfBook": {
+      "title": "선반 위 놀이책",
+      "heading": "세계의 놀이 · 트럼프",
+      "l1": "문양은 넷. 스페이드와 클로버는 검게, 하트와 다이아는 붉게 찍는다.",
+      "l2": "어느 쪽으로 집어도 같아 보이도록, 위아래를 뒤집어 한 번 더 인쇄한다.",
+      "caption": "초등학교 때 사놓고 몇 번 안 펼친 책이다."
+    },
+    "deskClock": {
+      "title": "탁상시계",
+      "heading": "눈금마다 적힌 숫자",
+      "figure": "시계 방향으로 45도씩 각도가 적힌 시계판",
+      "l1": "0에서 시작해 바늘이 도는 쪽으로 센다. 반 바퀴가 180.",
+      "caption": "언제 적어둔 건지. 숙제하다 심심해서 그랬던 것 같기도 하고."
     }
   }
 }

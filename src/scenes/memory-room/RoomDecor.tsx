@@ -5,6 +5,7 @@ import { CulledWall } from "./CulledWall";
 import { FurnitureModel } from "./FurnitureModel";
 import { ROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
+import { ShelfBookClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
 import type { WallSide } from "./wall-culling";
 
@@ -230,6 +231,28 @@ const SHELF_BOOKS = [
 ] as const satisfies readonly { x: number; height: number; color: keyof RoomPalette }[];
 
 /**
+ * 집어 들 수 있는 한 권. 밝은 색(bone)이라 네 권 중 눈에 먼저 걸리는 책이고,
+ * 다가감 판정도 이 x를 기준으로 잡혀 있다 (layout의 CLUE_PROPS.shelfBook).
+ */
+const CLUE_BOOK_X = 4.86;
+
+/** 선반에 꽂힌 책 한 권. 단서로 쓰는 한 권도 같은 도형을 쓴다 — 겉으로는 구별되지 않는다. */
+function ShelfBook({
+  book,
+  palette,
+}: {
+  book: (typeof SHELF_BOOKS)[number];
+  palette: RoomPalette;
+}) {
+  return (
+    <mesh position={[book.x, BACK_SHELF_TOP_Y + book.height / 2, -3.66]} castShadow receiveShadow>
+      <boxGeometry args={[0.11, book.height, 0.3]} />
+      <meshStandardMaterial color={palette[book.color]} roughness={0.85} />
+    </mesh>
+  );
+}
+
+/**
  * 벽면별 장식 목록. 테스트가 겹침을 검사할 수 있도록 내보낸다
  * (RoomDecor.test.ts — 같은 벽에서 화면상 겹치는 판은 두께가 달라야 한다).
  */
@@ -303,17 +326,16 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
 
       {/* 뒷벽 선반 위 — 트로피와 꽂아둔 책 */}
       <Trophy palette={palette} position={[3.72, BACK_SHELF_TOP_Y, -3.66]} />
-      {SHELF_BOOKS.map((book) => (
-        <mesh
-          key={book.x}
-          position={[book.x, BACK_SHELF_TOP_Y + book.height / 2, -3.66]}
-          castShadow
-          receiveShadow
-        >
-          <boxGeometry args={[0.11, book.height, 0.3]} />
-          <meshStandardMaterial color={palette[book.color]} roughness={0.85} />
-        </mesh>
-      ))}
+      {/* 한 권만 집을 수 있다 — 네 권 다 열리면 어느 것을 봐도 같은 화면이 뜬다 */}
+      {SHELF_BOOKS.map((book) =>
+        book.x === CLUE_BOOK_X ? (
+          <ShelfBookClue key={book.x}>
+            <ShelfBook book={book} palette={palette} />
+          </ShelfBookClue>
+        ) : (
+          <ShelfBook key={book.x} book={book} palette={palette} />
+        ),
+      )}
 
       {/* 왼쪽 벽 선반 위 — 눕혀 쌓아둔 책 더미 */}
       <FurnitureModel

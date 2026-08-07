@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { ClueId } from "@/data/room-clues";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { DRAWER_NOTE } from "./layout";
+import { CLUE_PROPS, DRAWER_NOTE } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { useGlowHover } from "./use-glow-hover";
@@ -60,6 +60,39 @@ function ClueProp({
         {children}
       </MemoryGlowSelection>
     </group>
+  );
+}
+
+/**
+ * 원래 있던 장식을 그대로 단서로 쓰는 자리들 — 선반의 책 한 권, 캐비닛 위 시계.
+ *
+ * 2바퀴 미궁 문제(카드·회전)의 규칙을 들고 있다. 문제 화면에는 규칙이 한 줄도
+ * 없으므로, 방을 뒤진 사람만 그림을 읽을 수 있다 (src/data/room-clues.ts).
+ *
+ * 새 도형을 만들지 않고 children으로 받는다 — 이 물건들은 이미 방에 놓여 있고,
+ * 여기서 다시 그리면 같은 책이 두 권 서게 된다.
+ */
+export function ShelfBookClue({ children }: { children: ReactNode }) {
+  return (
+    <ClueProp
+      clue="shelf-book"
+      near={CLUE_PROPS.shelfBook.near}
+      radius={CLUE_PROPS.shelfBook.interactionRadius}
+    >
+      {children}
+    </ClueProp>
+  );
+}
+
+export function DeskClockClue({ children }: { children: ReactNode }) {
+  return (
+    <ClueProp
+      clue="desk-clock"
+      near={CLUE_PROPS.deskClock.near}
+      radius={CLUE_PROPS.deskClock.interactionRadius}
+    >
+      {children}
+    </ClueProp>
   );
 }
 

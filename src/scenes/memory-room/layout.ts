@@ -137,6 +137,21 @@ export const DRAWER_NOTE = {
   interactionRadius: 2.1,
 } as const;
 
+/**
+ * 들여다볼 수 있는 곁가지 물건들의 다가감 판정. 3D는 각자 제 자리(RoomDecor·
+ * RoomFurniture)에서 그리고, 여기엔 기준점과 반경만 모은다 — 서랍 속 쪽지와 달리
+ * 이 둘은 원래 있던 장식을 그대로 쓰므로 좌표를 새로 잡을 게 없다.
+ */
+export const CLUE_PROPS = {
+  /** 뒷벽 선반에 꽂힌 책들 중 한 권 (RoomDecor의 SHELF_BOOKS). */
+  shelfBook: { near: [4.86, -3.66] as readonly [number, number], interactionRadius: 2.2 },
+  /** 캐비닛 상판의 탁상시계 (RoomFurniture의 DeskClock). */
+  deskClock: {
+    near: [CABINET_TOP_PROPS.clock.x, -2.82] as readonly [number, number],
+    interactionRadius: 2.1,
+  },
+} as const;
+
 export const MEMORY_PLACEMENTS = {
   console: {
     id: "console",
