@@ -2,8 +2,8 @@
 
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
-import { AdditiveBlending, CanvasTexture, Color, type ShaderMaterial, SRGBColorSpace } from "three";
-import { ROOM_SHELL_BOUNDS, ROOM_SHELL_CENTER } from "./layout";
+import { AdditiveBlending, Color, type ShaderMaterial } from "three";
+import { ROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
 
 /**
@@ -13,82 +13,17 @@ import type { RoomPalette } from "./palette";
  * 있었다 — 캔버스 뒤에 깔린 CSS 그라디언트(.room-backdrop) 하나가 배경의 전부라,
  * 카메라를 돌리거나 타이틀에서 모형 전체를 잡을 때 방이 검은 판에 얹힌 것처럼 보였다.
  *
- * 두 겹을 세운다.
+ * 여기 세우는 것은 **티끌 한 겹뿐이다** (OuterDrift). 방 밖에도 공기가 있다는 것만
+ * 말하고 그친다.
  *
- * - 받침 아래 고인 빛 (GroundPool) — 모형이 무언가 위에 놓여 있게 만든다
- * - 둘레를 떠도는 티끌 (OuterDrift) — 방 밖에도 공기가 있게 만든다
+ * 받침 아래에 빛을 깔아 모형을 받쳐 보기도 했는데(고인 빛 원판, 그림자까지 넣은
+ * 바닥판) 둘 다 뺐다. 바닥이 생기는 순간 이 방은 "허공에 뜬 기억"이 아니라 "무대에
+ * 올린 모형"이 되고, 그 인상은 이 게임이 하려는 말과 다르다. 발밑이 없는 편이 낫다.
  *
- * 둘 다 조명을 안 받는다. 방의 밝기는 진행에 따라 V자를 그리는데(ROOM_LIGHT_RAMP),
- * 바깥까지 같이 어두워지면 모형이 배경에 묻혀 실루엣을 잃는다 — 창밖 풍경을
- * meshBasicMaterial로만 세운 것과 같은 이유다 (WindowView).
+ * 조명을 안 받는다. 방의 밝기는 진행에 따라 V자를 그리는데(ROOM_LIGHT_RAMP), 바깥까지
+ * 같이 어두워지면 모형이 배경에 묻혀 실루엣을 잃는다 — 창밖 풍경을 meshBasicMaterial로만
+ * 세운 것과 같은 이유다 (WindowView).
  */
-
-const [SHELL_CENTER_X, SHELL_CENTER_Z] = ROOM_SHELL_CENTER;
-
-/** 받침 밑면. RoomShell의 PLINTH 둘째 단(중심 -0.6, 높이 0.55)에서 나온다. */
-const PLINTH_BOTTOM_Y = -0.875;
-
-/* ------------------------------------------------------------------ 받침 아래 빛 */
-
-/** 고인 빛의 반지름. 방(가로 14)보다 넉넉히 넓어야 받침이 그 위에 얹힌 것으로 보인다. */
-const POOL_RADIUS = 15;
-
-/**
- * 가운데가 밝고 가장자리로 스러지는 원판 텍스처.
- *
- * 셰이더 대신 캔버스인 이유는 이 판이 한 번 만들고 마는 정적인 그림이기 때문이다 —
- * 하늘판(WindowView)이나 창빛(WindowLight)이 쓰는 방식과 같다.
- */
-function usePoolTexture(color: string): CanvasTexture {
-  return useMemo(() => {
-    // 토큰이 어떤 표기로 들어오든 6자리 hex로 세탁한다 — 아래에서 투명도 두 자리를
-    // 덧붙이므로 `rgb(...)`가 섞여 들어오면 그대로 깨진다.
-    const hex = `#${new Color(color).getHexString()}`;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = 256;
-    canvas.height = 256;
-    const context = canvas.getContext("2d");
-    if (context) {
-      const gradient = context.createRadialGradient(128, 128, 0, 128, 128, 128);
-      gradient.addColorStop(0, hex);
-      // 가장자리까지 선형으로 떨어뜨리면 원의 경계가 선으로 보인다. 중간을 눌러
-      // 두면 빛이 번지다 사라지는 것으로 읽힌다.
-      gradient.addColorStop(0.34, `${hex}66`);
-      gradient.addColorStop(0.68, `${hex}14`);
-      gradient.addColorStop(1, `${hex}00`);
-      context.fillStyle = gradient;
-      context.fillRect(0, 0, 256, 256);
-    }
-    const texture = new CanvasTexture(canvas);
-    texture.colorSpace = SRGBColorSpace;
-    return texture;
-  }, [color]);
-}
-
-function GroundPool({ color }: { color: string }) {
-  const texture = usePoolTexture(color);
-  // 직접 만든 텍스처는 직접 버린다 (.claude/rules/r3f.md)
-  useEffect(() => () => texture.dispose(), [texture]);
-
-  return (
-    <mesh
-      // 받침 밑면보다 아주 조금만 더 내린다. 같은 평면에 두면 깊이가 겹쳐 깜빡인다.
-      position={[SHELL_CENTER_X, PLINTH_BOTTOM_Y - 0.02, SHELL_CENTER_Z]}
-      rotation={[-Math.PI / 2, 0, 0]}
-    >
-      <circleGeometry args={[POOL_RADIUS, 48]} />
-      <meshBasicMaterial
-        map={texture}
-        transparent
-        // 어두운 배경 위에 더해지는 빛이라 가산 합성이다. 곱하면 검은 원판이 된다.
-        blending={AdditiveBlending}
-        depthWrite={false}
-        opacity={0.5}
-      />
-    </mesh>
-  );
-}
 
 /* -------------------------------------------------------------------- 둘레 티끌 */
 
@@ -296,7 +231,6 @@ const DRIFT_OPACITY = 0.55;
 export function RoomSurroundings({ palette }: { palette: RoomPalette }) {
   return (
     <group name="room-surroundings">
-      <GroundPool color={palette.memory} />
       <OuterDrift color={palette.memory} opacity={DRIFT_OPACITY} />
     </group>
   );
