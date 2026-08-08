@@ -82,6 +82,27 @@ const TABLE_PARTS = [
   { size: [0.14, 0.9, 0.14], position: [-13.1, 0.45, 4.5], color: "ink" },
 ] as const satisfies readonly BoxPart[];
 
+/**
+ * 식탁 상판의 발자국과 의자 배치 — 겹침 검사가 보는 값 (LivingRoomFurniture.test.ts).
+ *
+ * 의자 등받이(y 0.62~1.12)는 상판 슬래브(y 0.885~0.975)와 높이가 겹치므로, 등받이
+ * 발자국이 상판 발자국 안에 들어오면 그대로 관통한다. 실제로 세 의자 전부 등받이가
+ * 상판을 뚫고 좌판이 식탁 다리와 물린 채 출시 직전까지 갔다 — 눈으로는 식탁 아래라
+ * 잘 안 보인다. 그래서 배치를 데이터로 빼고 테스트가 기하로 지킨다.
+ */
+export const DINING_SET = {
+  /** 상판 슬래브의 XZ 발자국 (TABLE_PARTS 첫 항목에서 파생) */
+  tableTop: { minX: -14.6, maxX: -13.0, minZ: 3.0, maxZ: 4.6 },
+  /** 등받이의 로컬 기하 — CHAIR_PART_TEMPLATE 두 번째 항목에서 파생 */
+  backrest: { halfWidth: 0.22, halfThickness: 0.035, offsetZ: -0.21 },
+  /** 의자 셋 — 둘은 제자리, 하나(도해 자리)는 빠져 나와 비스듬하다 */
+  chairs: [
+    { position: [-14.5, 0, 3.8], rotationY: Math.PI / 2 },
+    { position: [-13.1, 0, 3.8], rotationY: -Math.PI / 2 },
+    { position: [-13.4, 0, 2.62], rotationY: Math.PI + 0.5 },
+  ],
+} as const;
+
 /** 의자 한 벌 — 좌판·등받이·다리 네 개. 원점이 좌판 중심이라 통째로 옮긴다. */
 const CHAIR_PART_TEMPLATE = [
   { size: [0.44, 0.07, 0.44], position: [0, 0.56, 0], color: "slate" },
@@ -122,6 +143,27 @@ const SHOE_CABINET_PARTS = [
   // 남은 운동화 한 켤레 (도해 것). 나란하지 않고 살짝 어긋나 있다
   { size: [0.13, 0.09, 0.32], position: [-15.62, 0.05, 0.12], color: "ember" },
   { size: [0.13, 0.09, 0.32], position: [-15.46, 0.05, 0.04], color: "ember" },
+] as const satisfies readonly BoxPart[];
+
+/**
+ * 냉장고 — 식탁 옆 +z 벽. 거실에서 유일하게 흰 물건이라, 여기가 부엌 몫의
+ * 구석이라는 걸 색 하나로 말한다. 문에 자석으로 눌러 둔 메모 한 장 — 내용은
+ * 없다. 셋이 살던 집에 남은 살림의 흔적이면 된다.
+ *
+ * 발자국은 layout의 LIVING_COLLIDERS — 좌표를 옮기면 거기도 같이.
+ */
+const FRIDGE_PARTS = [
+  // 받침 — 몸통보다 물려 있어 바닥에서 살짝 뜬 것처럼 보인다
+  { size: [0.8, 0.18, 0.56], position: [-15.32, 0.09, 6.08], color: "ink" },
+  { size: [0.92, 1.84, 0.68], position: [-15.32, 1.09, 6.08], color: "paper" },
+  // 냉동칸 경계 — 몸통보다 사방 한 치수 커서 어두운 줄로 드러난다
+  { size: [0.94, 0.035, 0.7], position: [-15.32, 1.45, 6.08], color: "dusk" },
+  // 손잡이 둘 — 문 앞면(z 5.74)에 5mm 파고들어 붙는다 (맞닿는 면 공유 금지)
+  { size: [0.05, 0.3, 0.05], position: [-14.98, 1.0, 5.72], color: "slate" },
+  { size: [0.05, 0.22, 0.05], position: [-14.98, 1.72, 5.72], color: "slate" },
+  // 메모와 자석 — 종이는 문에, 자석은 종이 위에 겹쳐 물린다
+  { size: [0.18, 0.22, 0.02], position: [-15.45, 1.05, 5.735], color: "bone" },
+  { size: [0.055, 0.055, 0.025], position: [-15.45, 1.185, 5.715], color: "ember" },
 ] as const satisfies readonly BoxPart[];
 
 /**
@@ -195,11 +237,17 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
       <Boxes parts={TV_PARTS} palette={palette} />
       <Boxes parts={TABLE_PARTS} palette={palette} />
       <TableCards palette={palette} />
-      {/* 의자 셋 — 둘은 제자리, 하나(도해 자리)는 빠져 나와 비스듬하다 */}
-      <Chair palette={palette} position={[-14.35, 0, 3.35]} rotationY={Math.PI / 2} />
-      <Chair palette={palette} position={[-13.25, 0, 4.25]} rotationY={-Math.PI / 2} />
-      <Chair palette={palette} position={[-13.35, 0, 2.95]} rotationY={Math.PI + 0.5} />
+      {/* 배치는 DINING_SET.chairs — 상판·다리와의 간격을 테스트가 지키는 값이다 */}
+      {DINING_SET.chairs.map((chair) => (
+        <Chair
+          key={chair.position.join(":")}
+          palette={palette}
+          position={chair.position}
+          rotationY={chair.rotationY}
+        />
+      ))}
       <Boxes parts={SHOE_CABINET_PARTS} palette={palette} />
+      <Boxes parts={FRIDGE_PARTS} palette={palette} />
     </group>
   );
 }
