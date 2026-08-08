@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import {
+  CUTSCENE_BAT_FAREWELL,
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENES,
   MEMORIES,
@@ -175,6 +176,11 @@ interface MemoryRoomState {
   closeClue: () => void;
   /** 방문 개방 — 배트를 쥔다. 라디오 목소리를 못 들었으면 아무 일도 일어나지 않는다. */
   openRoomDoor: () => void;
+  /**
+   * 배트를 쥔다 — 곧장 문을 여는 게 아니라 떠나는 두 줄(bat-farewell)을 먼저
+   * 흘리고, 그 재생이 끝나는 모든 경로(완주·스킵)에서 문이 열린다.
+   */
+  grabBat: () => void;
   /** 문턱을 넘었다고 알린다 — Player만 부른다. */
   setInLivingRoom: (inLivingRoom: boolean) => void;
   /** 미궁 문제를 붙잡는다. 이미 푼 문제나 다른 화면이 떠 있으면 아무 일도 없다. */
@@ -255,6 +261,14 @@ export function endingReady(state: StateSnapshot): boolean {
     gamePhaseOf(state) === 2 &&
     MEMORIES.every((memory) => !memory.phase2 || state.revisited.includes(memory.id))
   );
+}
+
+/**
+ * 지금 끝나는 재생이 배트의 작별 대사인가 — 그렇다면 문이 같이 열려야 한다.
+ * advancePlayback(완주)과 endPlayback(스킵) 두 출구가 같은 판정을 쓴다.
+ */
+function batFarewellEnding(state: Pick<MemoryRoomState, "activePlayback" | "doorOpened">): boolean {
+  return state.activePlayback?.cutsceneId === CUTSCENE_BAT_FAREWELL && !state.doorOpened;
 }
 
 /** 컷씬의 도입 구간부터 시작하는 재생. 등록되지 않은 id면 null이라 진행이 막히지 않는다. */
@@ -503,10 +517,25 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           return complete(state, active.memoryId, active.gamePhase);
         }),
       advancePlayback: () =>
+        set((state) => {
+          if (!state.activePlayback) return state;
+          const next = nextPlaybackStep(state.activePlayback);
+          return {
+            activePlayback: next,
+            // 배트 대사가 다 흘렀으면 그때 문이 열린다 — 재생의 끝이 곧 손잡이다
+            ...(next === null && batFarewellEnding(state) ? { doorOpened: true } : {}),
+          };
+        }),
+      endPlayback: () =>
         set((state) =>
-          state.activePlayback ? { activePlayback: nextPlaybackStep(state.activePlayback) } : state,
+          state.activePlayback
+            ? {
+                activePlayback: null,
+                // 건너뛰어도 문은 열린다 — 스킵은 유효한 결말이다
+                ...(batFarewellEnding(state) ? { doorOpened: true } : {}),
+              }
+            : state,
         ),
-      endPlayback: () => set((state) => (state.activePlayback ? { activePlayback: null } : state)),
       finishMinigame: (result) =>
         set((state) => {
           const active = state.activeInteraction;
@@ -579,6 +608,17 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         ),
       closeClue: () => set((state) => (state.activeClue ? { activeClue: null } : state)),
       openRoomDoor: () => set((state) => (selectDoorReady(state) ? { doorOpened: true } : state)),
+      grabBat: () =>
+        set((state) => {
+          // 문을 열 수 없는 상태거나 다른 장면이 도는 중이면 배트는 그냥 소품이다
+          if (!selectDoorReady(state) || state.activePlayback || state.activeInteraction)
+            return state;
+          const playback = openCutscene(CUTSCENE_BAT_FAREWELL);
+          // 컷씬 데이터가 없으면(등록 누락) 대사 없이라도 문은 열린다 — 진행이 먼저다
+          if (!playback) return { doorOpened: true };
+          // 지직거리다 꺼지는 도입은 라디오 컷씬만의 것이다 — 여기는 곧장 첫 줄
+          return { activePlayback: { ...playback, intro: false } };
+        }),
       setInLivingRoom: (inLivingRoom) =>
         set((state) => (state.inLivingRoom === inLivingRoom ? state : { inLivingRoom })),
       openPuzzle: (id) =>

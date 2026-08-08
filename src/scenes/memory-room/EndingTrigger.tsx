@@ -38,7 +38,7 @@ const TAKEN_LIFT = 0.9;
 export function EndingTrigger({ palette }: { palette: RoomPalette }) {
   const ready = useMemoryRoomStore(selectDoorReady);
   const started = useMemoryRoomStore((state) => state.doorOpened);
-  const openRoomDoor = useMemoryRoomStore((state) => state.openRoomDoor);
+  const grabBat = useMemoryRoomStore((state) => state.grabBat);
   const clickable = ready && !started;
   const { hovered, handlers } = useGlowHover(clickable);
   // 다가가면 빛난다 — 쥘 수 있게 된 뒤부터만. 아직 아닌 배트가 빛나면
@@ -105,8 +105,9 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
     if (!ready || started) return;
     punchRef.current = 0;
     playSound("collect");
-    openRoomDoor();
-  }, [ready, started, openRoomDoor]);
+    // 문은 여기서 안 연다 — 떠나는 두 줄이 먼저고, 그 재생이 끝나야 열린다 (store.grabBat)
+    grabBat();
+  }, [ready, started, grabBat]);
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.

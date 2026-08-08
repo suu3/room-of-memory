@@ -301,4 +301,15 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
     ],
   },
+  "bat-farewell": {
+    id: "bat-farewell",
+    cuts: [
+      {
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.bat-farewell.cut1.line1" },
+          { speaker: "hero", textKey: "cutscenes.bat-farewell.cut1.line2" },
+        ],
+      },
+    ],
+  },
 };

@@ -203,6 +203,12 @@
         "line1": "…Hey. Is somebody there?",
         "line2": "Huh? Who is that?"
       }
+    },
+    "bat-farewell": {
+      "cut1": {
+        "line1": "…Staying in here won't fix anything.",
+        "line2": "Let's go."
+      }
     }
   }
 }

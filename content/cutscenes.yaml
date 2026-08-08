@@ -46,3 +46,22 @@ cutscenes:
           ko: 어? 누구지?
           en: Huh? Who is that?
           ja: え？ 誰だ？
+
+  #
+  # 배트를 쥔 순간 — 문이 열리기 직전의 두 줄 (v2 기획 3장).
+  #
+  # 그림이 없다. 화면을 덮는 대신 방이 그대로 비친 채 대사창만 뜬다 — 떠나는
+  # 말은 회상이 아니라 지금 이 방에서 하는 말이라서다. 대사가 끝나면(건너뛰어도)
+  # 스토어가 방문을 연다 (grabBat).
+  #
+  # id를 바꾸면 src/data/memory-room.ts의 CUTSCENE_BAT_FAREWELL도 같이 고쳐야 한다.
+  bat-farewell:
+    - lines:
+        - speaker: hero
+          ko: …여기에만 있으면 아무것도 해결되지 않아.
+          en: …Staying in here won't fix anything.
+          ja: …ここにいるだけじゃ、何も解決しない。
+        - speaker: hero
+          ko: 나가자.
+          en: Let's go.
+          ja: 出よう。

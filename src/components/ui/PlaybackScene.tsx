@@ -39,6 +39,11 @@ export function PlaybackScene() {
   const [missing, setMissing] = useState<string[]>([]);
 
   const isCutscene = active?.kind === "cutscene";
+  /**
+   * 그림 없는 컷씬 (배트의 작별 대사). 화면을 덮는 대신 방이 비친 채 대사창만
+   * 뜬다 — 떠나는 말은 회상이 아니라 지금 이 방에서 하는 말이라서다.
+   */
+  const bare = isCutscene && active.cuts.every((each) => each.image === undefined);
   /** 재생이 바뀔 때마다 도입을 다시 돌리기 위한 열쇠. */
   const playbackKey = active ? `${active.kind}:${active.cutsceneId ?? active.memoryId}` : null;
   const cut = active?.cuts[active.cutIndex];
@@ -46,10 +51,16 @@ export function PlaybackScene() {
   /*
    * 컷씬이 열릴 때마다 처음부터 — 방송이 끊기고, 잠깐 아무것도 없다가, 그림이 뜬다.
    * 도입이 끝나면 스토어의 intro를 내려 대사창이 첫 컷 위에 올라오게 한다.
+   *
+   * 단, 도입은 재생이 intro를 달고 열렸을 때만이다. 지직거리다 꺼지는 비트는
+   * 라디오 컷씬의 것이라, intro 없이 열린 컷씬(배트)은 곧장 첫 줄로 간다.
+   * effect가 도는 시점에는 아직 아무도 재생을 진행시키지 않았으므로, 스토어에서
+   * 지금 값을 읽으면 그게 곧 열릴 때의 값이다.
    */
   useEffect(() => {
     if (!playbackKey) return;
-    if (!isCutscene) {
+    const openedWithIntro = useMemoryRoomStore.getState().activePlayback?.intro === true;
+    if (!isCutscene || !openedWithIntro) {
       setStage("cuts");
       return;
     }
@@ -98,15 +109,20 @@ export function PlaybackScene() {
 
   const image = cut?.image;
   const showImage = stage === "cuts" && image !== undefined && !missing.includes(image);
-  /** 컷씬에서는 그림이 아직 없어도 자리를 지킨다 — 다시보기는 보여줄 게 없으면 비운다. */
-  const showPlate = stage === "cuts" && (isCutscene || image !== undefined);
+  /**
+   * 컷씬에서는 그림이 아직 없어도 자리를 지킨다 — 다시보기는 보여줄 게 없으면 비운다.
+   * 애초에 그림 없이 설계된 컷씬(bare)은 판도 세우지 않는다 — 회색 판은 "올 그림"의
+   * 자리이지, 없는 그림의 자리가 아니다.
+   */
+  const showPlate = stage === "cuts" && ((isCutscene && !bare) || image !== undefined);
 
   return (
     // z-40: 미니게임과 같은 층. 재생은 인터랙션이 닫힌 뒤에 열려 둘이 겹치지 않는다.
     // 대사창(z-50)은 이 위에 뜬다 — 그림 위에 글이 얹히는 것이 이 연출의 형태다.
     <div
       className={`absolute inset-0 z-40 ${
-        isCutscene ? "bg-scene-void" : "bg-scene-void/80 backdrop-blur-sm"
+        // 그림 없는 컷씬은 방을 살짝 눌러만 둔다 — 말하는 곳이 이 방이라서다
+        isCutscene && !bare ? "bg-scene-void" : "bg-scene-void/80 backdrop-blur-sm"
       }`}
     >
       {/*

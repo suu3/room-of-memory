@@ -219,11 +219,12 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     expect(MEMORY_BY_ID.radio.phase2?.unlockAfter).toBeUndefined();
   });
 
-  it("컷씬의 컷마다 그림과 대사가 하나 이상 있다", () => {
+  it("컷씬의 컷마다 대사가 하나 이상, 그림은 있다면 제 자리에", () => {
+    // 그림은 이제 선택이다 — 배트의 작별 대사(bat-farewell)는 방이 비친 채 흐른다
     for (const cutscene of Object.values(CUTSCENES)) {
       expect(cutscene.cuts.length).toBeGreaterThan(0);
       for (const cut of cutscene.cuts) {
-        expect(cut.image).toMatch(/^\/assets\/images\/.+\.webp$/);
+        if (cut.image !== undefined) expect(cut.image).toMatch(/^\/assets\/images\/.+\.webp$/);
         expect(cut.lines.length).toBeGreaterThan(0);
       }
     }

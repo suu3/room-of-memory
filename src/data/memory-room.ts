@@ -99,3 +99,5 @@ export function phaseConfigOf(id: MemoryId, gamePhase: 1 | 2): MemoryPhaseConfig
  * 차지하는 유일한 자리다. 컷 내용은 content/cutscenes.yaml에 있다.
  */
 export const CUTSCENE_RADIO_BLACKOUT = "radio-blackout";
+/** 배트를 쥐었을 때 문이 열리기 직전의 두 줄. 끝나면 스토어가 방문을 연다 (grabBat). */
+export const CUTSCENE_BAT_FAREWELL = "bat-farewell";

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  CUTSCENE_BAT_FAREWELL,
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENES,
   MEMORIES,
@@ -8,6 +9,7 @@ import {
 } from "@/data/memory-room";
 import {
   hotspotStatus,
+  openCutscene,
   selectDoorReady,
   selectEndingReady,
   selectMusicPlaying,
@@ -431,6 +433,69 @@ describe("전환 컷씬", () => {
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
     useMemoryRoomStore.getState().endPlayback();
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
+  });
+});
+
+describe("배트 — 대사를 거쳐 문이 열린다", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  function readyForBat() {
+    useMemoryRoomStore.setState({
+      collected: PHASE1_MEMORIES.map((memory) => memory.id),
+      revisited: ["radio"],
+    });
+  }
+
+  it("준비되기 전에는 쥐어도 아무 일도 없다", () => {
+    useMemoryRoomStore.getState().grabBat();
+
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
+  });
+
+  it("쥐면 문 대신 대사가 먼저 뜬다 — 라디오 도입 없이", () => {
+    readyForBat();
+    useMemoryRoomStore.getState().grabBat();
+
+    const playback = useMemoryRoomStore.getState().activePlayback;
+    expect(playback?.kind).toBe("cutscene");
+    expect(playback?.cutsceneId).toBe(CUTSCENE_BAT_FAREWELL);
+    // 지직거리다 꺼지는 도입은 라디오 컷씬만의 것이다
+    expect(playback?.intro).toBe(false);
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
+  });
+
+  it("대사를 끝까지 넘기면 그때 문이 열린다", () => {
+    readyForBat();
+    useMemoryRoomStore.getState().grabBat();
+
+    for (let step = 0; step < 16 && useMemoryRoomStore.getState().activePlayback; step += 1) {
+      useMemoryRoomStore.getState().advancePlayback();
+    }
+
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
+  });
+
+  it("대사를 건너뛰어도 문은 열린다", () => {
+    // 스킵은 유효한 결말이다 — 문까지 같이 무르면 배트가 죽은 버튼이 된다
+    readyForBat();
+    useMemoryRoomStore.getState().grabBat();
+    useMemoryRoomStore.getState().endPlayback();
+
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
+  });
+
+  it("다른 재생이 도는 중에는 쥘 수 없다", () => {
+    readyForBat();
+    useMemoryRoomStore.setState({ activePlayback: openCutscene(CUTSCENE_RADIO_BLACKOUT) });
+
+    useMemoryRoomStore.getState().grabBat();
+
+    expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_RADIO_BLACKOUT);
+    // 라디오 컷씬이 끝나도 배트 대사가 아니었으니 문은 닫힌 채다
+    useMemoryRoomStore.getState().endPlayback();
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
   });
 });
 
