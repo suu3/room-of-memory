@@ -19,6 +19,8 @@ export function HudMenu() {
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const setCharacterSheetOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
   const setContactOpen = useMemoryRoomStore((state) => state.setContactOpen);
+  const difficulty = useMemoryRoomStore((state) => state.difficulty);
+  const setDifficulty = useMemoryRoomStore((state) => state.setDifficulty);
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -67,6 +69,35 @@ export function HudMenu() {
           <div className="mt-2">
             <LanguageToggle />
           </div>
+          <p className="mt-4 px-0.5 text-xs font-bold tracking-widest text-ink/50">
+            {t("difficulty.label")}
+          </p>
+          {/* 이지=스킵 열림, 보통=스킵 숨김. 게이트는 useSkipEligible 한 곳 (minigames/shell) */}
+          <fieldset className="mt-2 flex gap-1.5">
+            <legend className="sr-only">{t("difficulty.label")}</legend>
+            {(["easy", "normal"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => {
+                  playSound("select");
+                  setDifficulty(mode);
+                }}
+                aria-pressed={difficulty === mode}
+                className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-bold tracking-widest transition-colors ${
+                  difficulty === mode
+                    ? "border-ink bg-ink text-paper"
+                    : "border-ink/15 text-ink/60 hover:border-ink/40 hover:text-ink active:bg-ink/5"
+                }`}
+              >
+                {t(`difficulty.${mode}`)}
+              </button>
+            ))}
+          </fieldset>
+          {/* 어느 쪽이 켜져 있는지 말로도 남긴다 — 칩 두 개만으로는 뜻이 안 읽힌다 */}
+          <p className="mt-1.5 px-0.5 text-[0.6875rem] leading-relaxed text-ink/45">
+            {t(difficulty === "easy" ? "difficulty.easyHint" : "difficulty.normalHint")}
+          </p>
           {/* 소리 on/off는 메뉴 밖으로 나갔다 — SoundToggle 참고. */}
           <div className="my-3 h-px bg-ink/10" />
           <button

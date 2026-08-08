@@ -16,6 +16,11 @@ import type { CutsceneCut, DialogueScriptLine } from "@/types/interaction";
 import type { MinigameResult } from "@/types/minigame";
 
 export type GamePhase = 1 | 2;
+/**
+ * 난이도 — 이지(기본)는 미니게임 스킵이 열리고, 보통은 숨는다.
+ * 게이트는 useSkipEligible(src/minigames/shell.tsx) 한 곳이 담당한다.
+ */
+export type Difficulty = "easy" | "normal";
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
 export type UiLockId =
@@ -107,6 +112,8 @@ interface MemoryRoomState {
   resetRevision: number;
   /** 효과음 음소거. 리셋해도 유지된다 — 언어 설정과 같은 성격의 환경설정이다. */
   soundMuted: boolean;
+  /** 난이도. 음소거처럼 환경설정이라 리셋해도 유지된다. */
+  difficulty: Difficulty;
   /**
    * 방의 전등. 진행과 무관한 배경 오브젝트라 수집·엔딩 조건에 전혀 끼지 않는다 —
    * 순전히 플레이어가 방을 만질 수 있다는 감각을 위한 스위치다.
@@ -171,6 +178,7 @@ interface MemoryRoomState {
   /** 부팅 커튼이 다 올라갔다고 알린다. 되돌리는 짝은 없다. */
   finishBoot: () => void;
   setSoundMuted: (muted: boolean) => void;
+  setDifficulty: (difficulty: Difficulty) => void;
   toggleLights: () => void;
   openClue: (id: ClueId) => void;
   closeClue: () => void;
@@ -391,6 +399,7 @@ type PersistedProgress = Pick<
   | "solvedPuzzles"
   | "endingStarted"
   | "soundMuted"
+  | "difficulty"
   | "lightsOn"
 >;
 
@@ -442,6 +451,8 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
       : [],
     endingStarted: saved.endingStarted === true && collected.length === MEMORY_GOAL,
     soundMuted: saved.soundMuted === true,
+    // 모르는 값은 스킵이 보이는 쪽(easy)으로 — normal이 잘못 살아나면 접근성 장치가 사라진다
+    difficulty: saved.difficulty === "normal" ? "normal" : "easy",
     // 불은 켜진 상태가 기본 — 저장본에 명시적으로 false일 때만 꺼진 채로 돌아온다
     lightsOn: saved.lightsOn !== false,
   };
@@ -462,6 +473,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       booted: false,
       resetRevision: 0,
       soundMuted: false,
+      difficulty: "easy",
       lightsOn: true,
       doorOpened: false,
       endingStarted: false,
@@ -598,6 +610,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         ),
       finishBoot: () => set({ booted: true }),
       setSoundMuted: (muted) => set({ soundMuted: muted }),
+      setDifficulty: (difficulty) => set({ difficulty }),
       toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),
       // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다 — 화면이 두 겹이 된다
       openClue: (id) =>
@@ -680,6 +693,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         solvedPuzzles: state.solvedPuzzles,
         endingStarted: state.endingStarted,
         soundMuted: state.soundMuted,
+        difficulty: state.difficulty,
         lightsOn: state.lightsOn,
       }),
       merge: (persisted, current) => ({ ...current, ...sanitizeProgress(persisted) }),

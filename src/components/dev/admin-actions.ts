@@ -37,6 +37,7 @@ export function applyAdminPatch(patch: AdminPatch): void {
     // 진행이 아니라 환경설정이지만, 걸러내는 함수가 통째로 받으므로 같이 넘겨야 안 지워진다
     soundMuted: state.soundMuted,
     lightsOn: state.lightsOn,
+    difficulty: state.difficulty,
     ...progress,
   };
 

@@ -15,6 +15,7 @@ describe("sanitizeProgress", () => {
         endingStarted: false,
         soundMuted: true,
         lightsOn: false,
+        difficulty: "normal",
       }),
     ).toEqual({
       collected: [first, second],
@@ -24,7 +25,15 @@ describe("sanitizeProgress", () => {
       endingStarted: false,
       soundMuted: true,
       lightsOn: false,
+      difficulty: "normal",
     });
+  });
+
+  it("falls back to easy when the saved difficulty is unknown", () => {
+    // 스킵을 숨기는 쪽(normal)이 잘못 살아나면 접근성 장치가 말없이 사라진다 —
+    // 모르는 값은 스킵이 보이는 쪽으로 넘어진다
+    expect(sanitizeProgress({ difficulty: "hardcore" }).difficulty).toBe("easy");
+    expect(sanitizeProgress({}).difficulty).toBe("easy");
   });
 
   it("drops ids that no longer exist", () => {

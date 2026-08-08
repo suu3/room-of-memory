@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import type { MinigameResult } from "@/types/minigame";
 
 /** onComplete를 정확히 한 번만 호출하도록 감싼다 (미니게임 계약). */
@@ -17,14 +18,21 @@ export function useOnceCompleter(onComplete: (result: MinigameResult) => void) {
   return completeRef.current;
 }
 
-/** ms 경과 후 true — 스킵 UI 노출 타이밍 (접근성 규칙: 시간 경과 또는 N회 실패). */
+/**
+ * ms 경과 후 true — 스킵 UI 노출 타이밍 (시간 경과 또는 N회 실패).
+ *
+ * 난이도 게이트가 여기 하나뿐이다: 보통 모드에서는 시간이 아무리 지나도 스킵이
+ * 열리지 않는다. 미니게임 쪽에서 난이도를 따로 읽지 않는다 — 아홉 게임이 이
+ * 훅을 쓰므로, 게이트가 흩어지면 하나쯤은 반드시 빠뜨린다.
+ */
 export function useSkipEligible(ms: number): boolean {
+  const difficulty = useMemoryRoomStore((state) => state.difficulty);
   const [eligible, setEligible] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => setEligible(true), ms);
     return () => clearTimeout(timer);
   }, [ms]);
-  return eligible;
+  return eligible && difficulty === "easy";
 }
 
 /**

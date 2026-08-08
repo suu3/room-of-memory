@@ -391,5 +391,12 @@
       "l1": "Start at 0 and count the way the hands turn. Half a turn is 180.",
       "caption": "No idea when I wrote these. Bored during homework, probably."
     }
+  },
+  "difficulty": {
+    "label": "Difficulty",
+    "easy": "Easy",
+    "normal": "Normal",
+    "easyHint": "Skip unlocks after a while if you get stuck.",
+    "normalHint": "No skips — solve everything yourself."
   }
 }
