@@ -53,10 +53,7 @@ export const MEMORIES: MemoryItem[] = [
         resultScriptId: "console-alone",
       },
     },
-    phase2: {
-      interaction: { scriptId: "console-echo", minigameId: "card-odd" },
-      unlockAfter: ["radio"],
-    },
+    phase2: { interaction: { scriptId: "console-echo" }, unlockAfter: ["radio"] },
   },
   {
     id: "window",
@@ -142,10 +139,7 @@ export const MEMORIES: MemoryItem[] = [
       interaction: { scriptId: "ball-intro", minigameId: "ball-catch" },
       replayStill: "/assets/images/mg-ball-catch-sunset-field.webp",
     },
-    phase2: {
-      interaction: { scriptId: "ball-echo", minigameId: "angle-turn" },
-      unlockAfter: ["radio"],
-    },
+    phase2: { interaction: { scriptId: "ball-echo" }, unlockAfter: ["radio"] },
   },
 ];
 

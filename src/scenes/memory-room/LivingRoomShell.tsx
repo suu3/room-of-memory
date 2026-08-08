@@ -4,7 +4,11 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import type { Group, MeshStandardMaterial } from "three";
 import { playSound } from "@/lib/audio";
-import { selectEndingReady, useMemoryRoomStore } from "@/store/memory-room";
+import {
+  selectEndingReady,
+  selectFrontDoorUnlocked,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import {
   FRONT_DOOR_INTERACTION,
@@ -117,16 +121,20 @@ function ShellBox({
 }
 
 /**
- * 현관문 — 엔딩 트리거 (v1의 배트에서 옮겨왔다).
+ * 현관문 — 엔딩 트리거이자 회전 미궁(angle-turn)의 자리 (v2 기획 7장).
  *
- * 2바퀴를 다 돌면 금빛으로 켜지고, 열면 엔딩이 시작된다. 그 전에는 눌러도
- * 아무 일이 없다 — 잠겨서가 아니라 도해가 아직 나갈 이유를 다 줍지 못해서다.
+ * 잠금이 안 풀렸으면 클릭이 잠금 화면(글자 세 쌍 미궁)을 연다 — 각도를 읽는
+ * 법은 방의 탁상시계가 들고 있다. 잠금이 풀리고 2바퀴까지 다 돌면 금빛으로
+ * 켜지고, 열면 엔딩이 시작된다.
  */
 function FrontDoor({ palette }: { palette: RoomPalette }) {
   const ready = useMemoryRoomStore(selectEndingReady);
+  const unlocked = useMemoryRoomStore(selectFrontDoorUnlocked);
   const started = useMemoryRoomStore((state) => state.endingStarted);
   const startEnding = useMemoryRoomStore((state) => state.startEnding);
-  const clickable = ready && !started;
+  const openPuzzle = useMemoryRoomStore((state) => state.openPuzzle);
+  // 잠긴 동안은 언제든 눌러 잠금을 들여다볼 수 있고, 풀린 뒤에는 엔딩이 준비돼야 눌린다
+  const clickable = !started && (!unlocked || ready);
   const { hovered, handlers } = useGlowHover(clickable);
   const near = useNearPlayer(
     FRONT_DOOR_INTERACTION.near[0],
@@ -158,6 +166,12 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
       onClick={(event) => {
         if (!clickable) return;
         event.stopPropagation();
+        if (!unlocked) {
+          // 잠금 화면부터 — 문제가 풀려야 문이 열 물건이 된다
+          playSound("select");
+          openPuzzle("angle-turn");
+          return;
+        }
         playSound("open");
         startEnding();
       }}

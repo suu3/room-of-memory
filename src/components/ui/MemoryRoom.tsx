@@ -198,7 +198,6 @@ export function MemoryRoom() {
           <CharacterSheetModal />
           <MinigameHost />
           <PuzzleHost />
-          <DoorNudge />
         </>
       )}
 
