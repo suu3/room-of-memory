@@ -7,6 +7,7 @@ import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
 import { LoadingOverlay } from "./LoadingOverlay";
+import { RisingDust } from "./RisingDust";
 
 /**
  * 시작 버튼을 누르고 방이 드러나기까지 로딩 화면을 보여주는 시간.
@@ -110,12 +111,15 @@ export function TitleScreen() {
           }}
         />
 
+        {/* 밑에서 떠오르는 먼지 — 부팅 커튼과 같은 공기가 타이틀까지 이어진다 */}
+        <RisingDust count={22} />
+
         {/* 이름표와 제목. 눈썹 문구는 제목에 붙은 라벨이지 따로 하는 말이 아니다 */}
         <div className="relative flex flex-col items-center gap-2 text-center">
-          <p className="font-pixel text-xs tracking-[0.4em] text-memory/80">
+          <p className="font-pixel text-sm tracking-[0.45em] text-memory/80">
             {t("titleScreen.eyebrow")}
           </p>
-          <h1 className="text-5xl font-bold tracking-tight text-paper md:text-6xl">{t("title")}</h1>
+          <h1 className="text-6xl font-bold tracking-tight text-paper md:text-7xl">{t("title")}</h1>
         </div>
 
         {/*
@@ -124,10 +128,10 @@ export function TitleScreen() {
           두 문장이 한 문단으로 읽히게 하고, 농도만 낮춰 앞 문장을 앞세운다.
         */}
         <div className="relative flex max-w-md flex-col items-center gap-2 text-center">
-          <p className="max-w-sm break-ko text-pretty text-sm leading-relaxed text-bone/70">
+          <p className="max-w-md break-ko text-pretty text-base leading-relaxed text-bone/70">
             {t("titleScreen.tagline")}
           </p>
-          <p className="break-ko text-pretty text-sm leading-relaxed text-bone/50">
+          <p className="break-ko text-pretty text-base leading-relaxed text-bone/50">
             {t("titleScreen.howTo")}
           </p>
         </div>
@@ -144,7 +148,7 @@ export function TitleScreen() {
           시작 버튼 바로 위에 둔다. 누르고 나면 알려줄 자리가 없다 — 방에 들어가면
           화면은 씬이 다 쓴다.
         */}
-        <div className="relative flex max-w-md flex-col items-center gap-2 text-center text-[0.6875rem] leading-relaxed">
+        <div className="relative flex max-w-md flex-col items-center gap-2 text-center text-xs leading-relaxed">
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 tracking-wider text-bone/40">
             <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
             <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
@@ -179,7 +183,7 @@ export function TitleScreen() {
                 setEnteringAtRevision(resetRevision);
                 enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
               }}
-              className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-12 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory active:translate-y-0 active:scale-[0.98]"
+              className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-14 py-3.5 text-base font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory active:translate-y-0 active:scale-[0.98]"
             >
               {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
             </button>
