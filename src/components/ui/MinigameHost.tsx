@@ -103,6 +103,13 @@ export function MinigameHost() {
          * 통째로 닫혀 버렸다. 대신 오른쪽 위 닫기 버튼이 늘 떠 있어 나갈 길은 남는다.
          */
         <div
+          /*
+           * 결과 대사 중에는 판이 대사창(z-50) 아래 그림으로만 남는다. DOM에는 그대로
+           * 살아 있어서 탭이 닿으면 안 보이는 버튼에 포커스가 잡히는데, 그 상태의
+           * Enter는 대사가 아니라 그 버튼에게 간다 — 보이지 않는 것이 눌린다.
+           * inert로 이 층을 통째로 입력에서 빼면, 그 구간의 주인이 대사창 하나가 된다.
+           */
+          inert={resultStage}
           className={`absolute inset-0 z-40 grid place-items-center ${
             // 탐색형은 방을 덜 가린다 — 물건을 든 채로도 방이 보여야 "그 방 안"이다.
             bare ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-sm"

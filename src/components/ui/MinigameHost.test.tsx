@@ -81,6 +81,28 @@ describe("MinigameHost", () => {
     expect(screen.getByRole("button", { name: "Start" })).toBeTruthy();
   });
 
+  it("결과 대사 중에는 밑에 깔린 판이 포커스를 못 잡는다", () => {
+    /*
+     * 결과 대사 단계에서 판은 대사창(z-50) 아래 그림으로만 남는다. 그런데 DOM에는
+     * 그대로 살아 있어서, 탭이 닿으면 안 보이는 버튼에 포커스가 잡힌다 — 그 상태로
+     * Enter를 누르면 대사는 안 넘어가고 보이지도 않는 버튼이 눌린다.
+     */
+    render(<MinigameHost />);
+    openConsole();
+    fireEvent.click(screen.getByRole("button", { name: "Start" }));
+
+    act(() => useMemoryRoomStore.getState().finishMinigame({ cleared: true }));
+    if (useMemoryRoomStore.getState().activeInteraction?.keepMinigame !== true) {
+      throw new Error("결과 대사 단계에 닿지 않았다");
+    }
+
+    // 판을 얹는 층(z-40) 자체가 입력에서 빠져 있어야 한다 — 이 게임은 결과 단계에
+    // 버튼을 안 남기지만, 남기는 미니게임이 생겨도 같은 층이 막아 준다
+    const layer = document.querySelector("[inert]");
+    expect(layer).not.toBeNull();
+    expect(layer?.className).toContain("z-40");
+  });
+
   it("leaves nothing on screen once the panel is closed", () => {
     render(<MinigameHost />);
     openConsole();
