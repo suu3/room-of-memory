@@ -177,14 +177,6 @@ interface MemoryRoomState {
   openRoomDoor: () => void;
   /** 문턱을 넘었다고 알린다 — Player만 부른다. */
   setInLivingRoom: (inLivingRoom: boolean) => void;
-  /** 미궁 문제를 붙잡는다. 이미 푼 문제나 다른 화면이 떠 있으면 아무 일도 없다. */
-  openPuzzle: (id: PuzzleId) => void;
-  /** 풀지 않고 내려놓는다 — 물건은 다시 클릭할 수 있다. */
-  closePuzzle: () => void;
-  /** 문제가 끝났다 (클리어 또는 스킵 — 미니게임 계약상 스킵도 cleared다). */
-  finishPuzzle: (result: MinigameResult) => void;
-  /** 닫힌 방문을 두드렸다 — 문이 열려 있으면 아무 일도 없다. */
-  nudgeDoor: () => void;
   /** 엔딩 시작 — 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
   startEnding: () => void;
   reset: () => void;
@@ -364,13 +356,7 @@ function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
  */
 type PersistedProgress = Pick<
   MemoryRoomState,
-  | "collected"
-  | "revisited"
-  | "doorOpened"
-  | "solvedPuzzles"
-  | "endingStarted"
-  | "soundMuted"
-  | "lightsOn"
+  "collected" | "revisited" | "doorOpened" | "endingStarted" | "soundMuted" | "lightsOn"
 >;
 
 const PERSIST_KEY = "rom-progress";
@@ -416,9 +402,6 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     revisited,
     // 방문은 라디오 목소리를 들은 뒤에만 열린다 — 조건이 안 맞는 저장본은 닫고 시작
     doorOpened: saved.doorOpened === true && revisited.includes("radio" as MemoryId),
-    solvedPuzzles: Array.isArray(saved.solvedPuzzles)
-      ? PUZZLE_IDS.filter((id) => (saved.solvedPuzzles as unknown[]).includes(id))
-      : [],
     endingStarted: saved.endingStarted === true && collected.length === MEMORY_GOAL,
     soundMuted: saved.soundMuted === true,
     // 불은 켜진 상태가 기본 — 저장본에 명시적으로 false일 때만 꺼진 채로 돌아온다
@@ -574,27 +557,6 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       openRoomDoor: () => set((state) => (selectDoorReady(state) ? { doorOpened: true } : state)),
       setInLivingRoom: (inLivingRoom) =>
         set((state) => (state.inLivingRoom === inLivingRoom ? state : { inLivingRoom })),
-      openPuzzle: (id) =>
-        set((state) => {
-          // 다른 화면(대사·미니게임·재생·단서)이 떠 있으면 위에 얹지 않는다
-          if (state.activeInteraction || state.activePlayback || state.activeClue) return state;
-          if (state.activePuzzle || state.solvedPuzzles.includes(id)) return state;
-          return { activePuzzle: id };
-        }),
-      closePuzzle: () => set((state) => (state.activePuzzle ? { activePuzzle: null } : state)),
-      finishPuzzle: (result) =>
-        set((state) => {
-          if (!state.activePuzzle) return state;
-          if (!result.cleared) return { activePuzzle: null };
-          return {
-            activePuzzle: null,
-            solvedPuzzles: [...state.solvedPuzzles, state.activePuzzle],
-          };
-        }),
-      nudgeDoor: () =>
-        set((state) =>
-          state.doorOpened || selectSceneInputLocked(state) ? state : { doorNudgedAt: Date.now() },
-        ),
       startEnding: () =>
         set((state) =>
           selectEndingReady(state) && selectFrontDoorUnlocked(state)
@@ -630,7 +592,6 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         collected: state.collected,
         revisited: state.revisited,
         doorOpened: state.doorOpened,
-        solvedPuzzles: state.solvedPuzzles,
         endingStarted: state.endingStarted,
         soundMuted: state.soundMuted,
         lightsOn: state.lightsOn,
@@ -658,13 +619,6 @@ export const selectDoorReady = (state: MemoryRoomState) =>
 
 /** 방문이 열려 있는가 — 걷기 영역과 문짝 회전이 같이 본다. */
 export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;
-
-/**
- * 현관 잠금(angle-turn 미궁)이 풀렸는가 — 엔딩의 두 번째 조건이다.
- * 기억을 다 되찾아도(endingReady) 이게 안 풀리면 현관문은 잠금 화면을 연다.
- */
-export const selectFrontDoorUnlocked = (state: MemoryRoomState) =>
-  state.solvedPuzzles.includes("angle-turn");
 export const selectSceneInputLocked = (state: MemoryRoomState) =>
   state.activeInteraction !== null ||
   state.activePlayback !== null ||
