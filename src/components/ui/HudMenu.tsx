@@ -19,6 +19,7 @@ export function HudMenu() {
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const setCharacterSheetOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
   const setContactOpen = useMemoryRoomStore((state) => state.setContactOpen);
+  const setFeedbackOpen = useMemoryRoomStore((state) => state.setFeedbackOpen);
   const difficulty = useMemoryRoomStore((state) => state.difficulty);
   const setDifficulty = useMemoryRoomStore((state) => state.setDifficulty);
   const [open, setOpen] = useState(false);
@@ -121,6 +122,17 @@ export function HudMenu() {
             className={ITEM_CLASS}
           >
             {t("hud.contact")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playSound("select");
+              setOpen(false);
+              setFeedbackOpen(true);
+            }}
+            className={ITEM_CLASS}
+          >
+            {t("feedback.title")}
           </button>
           <button
             type="button"

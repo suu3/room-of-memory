@@ -3,7 +3,7 @@
   "hud": {
     "scattered": "部屋に散らばった記憶",
     "memoryCount": "記憶",
-    "contact": "Contact",
+    "contact": "制作者",
     "reset": "リセット",
     "characterSheet": "自分の手帳",
     "soundOn": "サウンド オン",
@@ -65,9 +65,9 @@
     "cancel": "キャンセル"
   },
   "contact": {
-    "title": "Contact Me",
+    "title": "制作者",
     "back": "部屋に戻る",
-    "close": "連絡先を閉じる"
+    "close": "制作者を閉じる"
   },
   "minigame": {
     "start": "スタート",
@@ -401,5 +401,25 @@
     "normal": "ノーマル",
     "easyHint": "詰まったら少し待つとスキップが開きます。",
     "normalHint": "スキップなしで自力で解きます。"
+  },
+  "feedback": {
+    "title": "フィードバック",
+    "lead": "バグ、アイデア、なんでも歓迎です。",
+    "close": "フィードバックを閉じる",
+    "categoryLabel": "種類",
+    "category": {
+      "bug": "バグ",
+      "idea": "アイデア",
+      "other": "その他"
+    },
+    "bodyLabel": "内容",
+    "bodyPlaceholder": "何が起きたか、何を思ったか教えてください。",
+    "emailLabel": "メール（任意）",
+    "emailPlaceholder": "返信用メール（任意）",
+    "submit": "送信",
+    "sending": "送信中…",
+    "sent": "送信しました。ありがとう！",
+    "failed": "送信に失敗しました。本文は残っています — もう一度どうぞ。",
+    "unconfigured": "受付はまだ接続されていません。"
   }
 }

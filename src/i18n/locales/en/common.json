@@ -3,7 +3,7 @@
   "hud": {
     "scattered": "Memories scattered around the room",
     "memoryCount": "Memories",
-    "contact": "Contact",
+    "contact": "Credits",
     "reset": "Reset",
     "characterSheet": "My Notebook",
     "soundOn": "Sound on",
@@ -65,9 +65,9 @@
     "cancel": "Cancel"
   },
   "contact": {
-    "title": "Contact Me",
+    "title": "Credits",
     "back": "Back to the room",
-    "close": "Close contact"
+    "close": "Close credits"
   },
   "minigame": {
     "start": "Start",
@@ -401,5 +401,25 @@
     "normal": "Normal",
     "easyHint": "Skip unlocks after a while if you get stuck.",
     "normalHint": "No skips — solve everything yourself."
+  },
+  "feedback": {
+    "title": "Feedback",
+    "lead": "Bugs, ideas, anything at all — it all helps.",
+    "close": "Close feedback",
+    "categoryLabel": "Type",
+    "category": {
+      "bug": "Bug",
+      "idea": "Idea",
+      "other": "Other"
+    },
+    "bodyLabel": "Message",
+    "bodyPlaceholder": "Tell me what happened, or what you were thinking.",
+    "emailLabel": "Email (optional)",
+    "emailPlaceholder": "Email for a reply (optional)",
+    "submit": "Send",
+    "sending": "Sending…",
+    "sent": "Sent. Thank you!",
+    "failed": "Sending failed. Your text is still here — try again.",
+    "unconfigured": "The inbox isn't connected yet."
   }
 }

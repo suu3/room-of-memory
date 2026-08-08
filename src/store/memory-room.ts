@@ -29,6 +29,7 @@ export type UiLockId =
   | "character-sheet"
   | "title"
   | "contact"
+  | "feedback"
   | "ending"
   | "clue";
 
@@ -108,6 +109,8 @@ interface MemoryRoomState {
   booted: boolean;
   /** 연락처 모달. HUD 메뉴와 타이틀 화면 두 곳에서 열린다. */
   contactOpen: boolean;
+  /** 피드백 모달 — HUD 메뉴에서만 열린다 (플레이 전엔 보낼 피드백이 없다). */
+  feedbackOpen: boolean;
   /** Monotonic signal for local UI state that must close when progress resets. */
   resetRevision: number;
   /** 효과음 음소거. 리셋해도 유지된다 — 언어 설정과 같은 성격의 환경설정이다. */
@@ -172,6 +175,7 @@ interface MemoryRoomState {
   setUiLock: (id: UiLockId, locked: boolean) => void;
   setCharacterSheetOpen: (open: boolean) => void;
   setContactOpen: (open: boolean) => void;
+  setFeedbackOpen: (open: boolean) => void;
   startGame: () => void;
   /** 로딩 진행률 보고. **올리기만 한다** — 뒤늦게 붙는 모델 때문에 바가 되감기면 안 된다. */
   setRoomLoadProgress: (progress: number) => void;
@@ -468,6 +472,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       uiLocks: [],
       characterSheetOpen: false,
       contactOpen: false,
+      feedbackOpen: false,
       started: false,
       roomLoadProgress: 0,
       booted: false,
@@ -603,6 +608,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         }),
       setCharacterSheetOpen: (open) => set({ characterSheetOpen: open }),
       setContactOpen: (open) => set({ contactOpen: open }),
+      setFeedbackOpen: (open) => set({ feedbackOpen: open }),
       startGame: () => set({ started: true }),
       setRoomLoadProgress: (progress) =>
         set((state) =>
@@ -670,6 +676,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           uiLocks: [],
           characterSheetOpen: false,
           contactOpen: false,
+          feedbackOpen: false,
           started: false,
           lightsOn: true,
           doorOpened: false,

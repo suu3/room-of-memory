@@ -30,6 +30,7 @@ import { ContactModal } from "./ContactModal";
 import { DialogueBox } from "./DialogueBox";
 import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
+import { FeedbackModal } from "./FeedbackModal";
 import { HudMenu } from "./HudMenu";
 import { MemoryPanel } from "./MemoryPanel";
 import { MinigameHost } from "./MinigameHost";
@@ -210,6 +211,7 @@ export function MemoryRoom() {
       <TitleScreen />
       {/* 타이틀 화면에서도 열 수 있어야 하므로 타이틀보다 뒤에 그린다 */}
       <ContactModal />
+      <FeedbackModal />
 
       {/*
         개발 빌드에서만 뜨는 진행 점프 패널. process.env.NODE_ENV는 Next가 리터럴로

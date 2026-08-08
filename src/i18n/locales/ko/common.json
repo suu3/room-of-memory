@@ -3,7 +3,7 @@
   "hud": {
     "scattered": "방 안에 흩어진 기억",
     "memoryCount": "기억",
-    "contact": "Contact",
+    "contact": "만든 사람",
     "reset": "리셋",
     "characterSheet": "내 수첩",
     "soundOn": "소리 켜짐",
@@ -65,9 +65,9 @@
     "cancel": "취소"
   },
   "contact": {
-    "title": "Contact Me",
+    "title": "만든 사람",
     "back": "방으로 돌아가기",
-    "close": "연락처 닫기"
+    "close": "만든 사람 닫기"
   },
   "minigame": {
     "start": "시작",
@@ -401,5 +401,25 @@
     "normal": "보통",
     "easyHint": "막히면 잠시 뒤 건너뛰기가 열립니다.",
     "normalHint": "건너뛰기 없이 직접 풀어야 합니다."
+  },
+  "feedback": {
+    "title": "피드백",
+    "lead": "버그, 아이디어, 하고 싶은 말 — 무엇이든 좋습니다.",
+    "close": "피드백 닫기",
+    "categoryLabel": "유형",
+    "category": {
+      "bug": "버그",
+      "idea": "아이디어",
+      "other": "기타"
+    },
+    "bodyLabel": "내용",
+    "bodyPlaceholder": "무슨 일이 있었는지, 어떤 생각이 들었는지 적어주세요.",
+    "emailLabel": "이메일 (선택)",
+    "emailPlaceholder": "답장 받을 이메일 (선택)",
+    "submit": "보내기",
+    "sending": "보내는 중…",
+    "sent": "보냈습니다. 고마워요!",
+    "failed": "전송에 실패했습니다. 내용은 그대로 있으니 다시 눌러주세요.",
+    "unconfigured": "아직 접수함이 연결되지 않았습니다."
   }
 }
