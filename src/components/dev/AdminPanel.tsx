@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MEMORIES } from "@/data/memory-room";
 import { PUZZLE_IDS } from "@/data/room-clues";
 import { useMemoryRoomStore } from "@/store/memory-room";
@@ -30,36 +30,49 @@ export function AdminPanel() {
     if (localStorage.getItem(OPEN_KEY) === "1") setOpen(true);
   }, []);
 
+  // 마운트 직후 이 effect의 첫 실행은 건너뛴다. 그 시점엔 위 복원 effect가 setOpen(true)를
+  // 예약했더라도 아직 커밋 전이라 open은 여전히 false — 그대로 저장하면 방금 읽은 "1"을
+  // "0"으로 덮어써 버린다. 두 번째 실행부터는 setOpen이 이미 커밋된 뒤이므로 안전하다.
+  const skipFirstPersist = useRef(true);
+  useEffect(() => {
+    if (skipFirstPersist.current) {
+      skipFirstPersist.current = false;
+      return;
+    }
+    localStorage.setItem(OPEN_KEY, open ? "1" : "0");
+  }, [open]);
+
+  // updater 함수는 순수해야 한다(React가 dev에서 두 번 호출할 수 있음) — 여기선 상태만 뒤집고,
+  // 저장은 위 effect가 open 변화를 감지해서 처리한다. useCallback으로 참조를 고정해 두어야
+  // 아래 keydown effect의 의존성 배열에 넣어도 매 렌더마다 리스너를 다시 붙이지 않는다.
+  const toggleOpen = useCallback(() => {
+    setOpen((was) => !was);
+  }, []);
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== TOGGLE_KEY) return;
-      setOpen((was) => {
-        localStorage.setItem(OPEN_KEY, was ? "0" : "1");
-        return !was;
-      });
+      toggleOpen();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  function toggleOpen() {
-    setOpen((was) => {
-      localStorage.setItem(OPEN_KEY, was ? "0" : "1");
-      return !was;
-    });
-  }
+  }, [toggleOpen]);
 
   return (
     <div className="fixed bottom-4 right-4 z-[99999] flex flex-col items-end gap-2 font-pixel text-xs">
       {open && (
-        // biome-ignore lint/a11y/useSemanticElements: <fieldset>은 기본 테두리·패딩이 붙어 레이아웃을 흐트러뜨린다 — 테스트가 찾는 role="group"만 유지
-        <div
-          role="group"
-          aria-label="memories"
+        // fieldset은 암묵적으로 role="group"이고 legend가 접근 가능한 이름을 주므로
+        // 억제 주석 없이도 role="group"(name: "memories") 쿼리가 그대로 통과한다.
+        // 네이티브 fieldset 기본 테두리·패딩은 author 스타일(border, p-3)이 항상 UA 기본값을
+        // 이기므로 이미 지워진다 — 유일하게 남는 건 margin-inline 기본값이라 m-0만 더한다.
+        // (border-0/p-0을 같이 넣으면 Tailwind 컴파일 순서상 border-0가 border보다 뒤에 와서
+        // 테두리가 사라져 버리므로 넣지 않는다 — 실제 컴파일 결과로 확인함)
+        <fieldset
           /* 패널 안에서 누른 키가 방의 이동·진행 핸들러까지 흘러가면 안 된다 */
           onKeyDown={(event) => event.stopPropagation()}
-          className="flex w-56 flex-col gap-3 rounded-md border border-bone/30 bg-ink/95 p-3 text-bone"
+          className="m-0 flex w-56 flex-col gap-3 rounded-md border border-bone/30 bg-ink/95 p-3 text-bone"
         >
+          <legend className="sr-only">memories</legend>
           <div className="grid grid-cols-4 gap-1">
             {MEMORIES.map((memory) => {
               const stage = memoryStage({ collected, revisited }, memory.id);
@@ -134,7 +147,7 @@ export function AdminPanel() {
           >
             reset
           </button>
-        </div>
+        </fieldset>
       )}
 
       <button
