@@ -1,0 +1,60 @@
+import { beforeEach, describe, expect, it } from "vitest";
+import { useMemoryRoomStore } from "@/store/memory-room";
+import { applyAdminPatch, cycleAdminMemory } from "./admin-actions";
+
+describe("applyAdminPatch", () => {
+  beforeEach(() => {
+    useMemoryRoomStore.getState().reset();
+  });
+
+  it("writes collected memories into the store", () => {
+    applyAdminPatch({ collected: ["radio", "phone"] });
+    expect(useMemoryRoomStore.getState().collected).toEqual(["radio", "phone"]);
+  });
+
+  it("drops a door opened without the radio revisited", () => {
+    // sanitizeProgress의 불변식 — 라디오 2바퀴 전에는 방문이 열릴 수 없다
+    applyAdminPatch({ doorOpened: true });
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
+  });
+
+  it("keeps a door opened once the radio is revisited", () => {
+    applyAdminPatch({ collected: ["radio"], revisited: ["radio"], doorOpened: true });
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
+  });
+
+  it("keeps solved puzzles", () => {
+    applyAdminPatch({ solvedPuzzles: ["angle-turn"] });
+    expect(useMemoryRoomStore.getState().solvedPuzzles).toEqual(["angle-turn"]);
+  });
+
+  it("applies started even though sanitizeProgress does not carry it", () => {
+    applyAdminPatch({ started: true });
+    expect(useMemoryRoomStore.getState().started).toBe(true);
+  });
+
+  it("does not clobber unrelated settings", () => {
+    useMemoryRoomStore.setState({ soundMuted: true, lightsOn: false });
+    applyAdminPatch({ collected: ["radio"] });
+    expect(useMemoryRoomStore.getState().soundMuted).toBe(true);
+    expect(useMemoryRoomStore.getState().lightsOn).toBe(false);
+  });
+});
+
+describe("cycleAdminMemory", () => {
+  beforeEach(() => {
+    useMemoryRoomStore.getState().reset();
+  });
+
+  it("advances one memory a stage at a time", () => {
+    cycleAdminMemory("console");
+    expect(useMemoryRoomStore.getState().collected).toEqual(["console"]);
+
+    cycleAdminMemory("console");
+    expect(useMemoryRoomStore.getState().revisited).toEqual(["console"]);
+
+    cycleAdminMemory("console");
+    expect(useMemoryRoomStore.getState().collected).toEqual([]);
+    expect(useMemoryRoomStore.getState().revisited).toEqual([]);
+  });
+});
