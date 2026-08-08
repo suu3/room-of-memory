@@ -144,6 +144,12 @@ interface MemoryRoomState {
   activePuzzle: PuzzleId | null;
   /** 풀어낸 미궁 문제. 저장된다 — 현관 잠금(angle-turn)이 엔딩의 두 번째 조건이다. */
   solvedPuzzles: PuzzleId[];
+  /**
+   * 닫힌 방문을 마지막으로 두드린 시각 (0 = 아직). 문이 안 열리는 이유를 한 줄
+   * 혼잣말로 흘리는 신호다 (DoorNudge) — 잠긴 게 아니라 **안 여는** 것이라는 게
+   * 대사로 드러나야 한다 (docs/content-design-v2.md 4장).
+   */
+  doorNudgedAt: number;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   /** 재생을 한 칸 진행한다 — 다음 줄 → 정적 → 다음 컷 → 종료 순. */
@@ -177,6 +183,8 @@ interface MemoryRoomState {
   closePuzzle: () => void;
   /** 문제가 끝났다 (클리어 또는 스킵 — 미니게임 계약상 스킵도 cleared다). */
   finishPuzzle: (result: MinigameResult) => void;
+  /** 닫힌 방문을 두드렸다 — 문이 열려 있으면 아무 일도 없다. */
+  nudgeDoor: () => void;
   /** 엔딩 시작 — 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
   startEnding: () => void;
   reset: () => void;
@@ -440,6 +448,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       activeClue: null,
       activePuzzle: null,
       solvedPuzzles: [],
+      doorNudgedAt: 0,
       beginInteraction: (id) =>
         set((state) => {
           if (state.activePlayback) return state;
@@ -582,6 +591,10 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
             solvedPuzzles: [...state.solvedPuzzles, state.activePuzzle],
           };
         }),
+      nudgeDoor: () =>
+        set((state) =>
+          state.doorOpened || selectSceneInputLocked(state) ? state : { doorNudgedAt: Date.now() },
+        ),
       startEnding: () =>
         set((state) =>
           selectEndingReady(state) && selectFrontDoorUnlocked(state)
@@ -605,6 +618,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           activeClue: null,
           activePuzzle: null,
           solvedPuzzles: [],
+          doorNudgedAt: 0,
           resetRevision: state.resetRevision + 1,
         })),
     }),

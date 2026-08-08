@@ -1,4 +1,5 @@
 import type {} from "@react-three/fiber";
+import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { LightSwitch } from "./LightSwitch";
@@ -267,6 +268,7 @@ export function RoomShell({
    * 자기 사이에 서는 가림막이다.
    */
   const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
+  const nudgeDoor = useMemoryRoomStore((state) => state.nudgeDoor);
 
   return (
     <group name="room-shell">

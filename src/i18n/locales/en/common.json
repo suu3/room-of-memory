@@ -13,7 +13,9 @@
     "locked": "Locked Door",
     "exit": "Leave →",
     "ready": "The bat by the door is glowing",
-    "exitReady": "Across the living room, the front door is glowing"
+    "exitReady": "Across the living room, the front door is glowing",
+    "nudgeStay": "…There's nothing out there for me.",
+    "nudgeBat": "Not empty-handed. …At least take that."
   },
   "panel": {
     "title": "Collected Memories",

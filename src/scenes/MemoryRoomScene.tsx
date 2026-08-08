@@ -15,7 +15,6 @@ import {
   MEMORY_TOTAL,
   REVISIT_TOTAL,
   selectCollectedCount,
-  selectDoorReady,
   selectRevisitedCount,
   useMemoryRoomStore,
 } from "@/store/memory-room";
@@ -159,8 +158,8 @@ export function MemoryRoomScene({
   onInteract: (id: MemoryId) => void;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
-  const isDoorReady = useMemoryRoomStore(selectDoorReady);
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
+  const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   const gamePhase = useMemoryRoomStore(gamePhaseOf);
   const collectedCount = useMemoryRoomStore(selectCollectedCount);
@@ -195,30 +194,42 @@ export function MemoryRoomScene({
         화면 전체를 한 번 훑는 패스라 트리에서의 위치도 그림에 영향이 없다.
       */}
       <MemoryGlowRoot color={palette.memory}>
-        <RoomShell
-          palette={palette}
-          doorReady={isDoorReady}
-          doorOpen={doorOpened}
-          outsideDecay={outsideDecay({
-            collected: collectedCount,
-            memoryTotal: MEMORY_TOTAL,
-            phase: gamePhase,
-          })}
-        />
+        {/*
+          한 번에 한 방만 보인다 (v2). 두 방을 나란히 세워두면 디오라마가 아니라
+          단면도가 된다 — 지금 서 있는 공간만 서 있고, 문턱을 넘는 순간 바뀐다.
+          숨긴 방의 인터랙션은 근접 판정이 어차피 막는다 (다가갈 수 없는 거리다).
+        */}
+        <group visible={!inLivingRoom}>
+          <RoomShell
+            palette={palette}
+            doorOpen={doorOpened}
+            outsideDecay={outsideDecay({
+              collected: collectedCount,
+              memoryTotal: MEMORY_TOTAL,
+              phase: gamePhase,
+            })}
+          />
+          {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
+          <RoomDecor palette={palette} />
+          <RoomFurniture
+            palette={palette}
+            curtainPull={curtainPull}
+            onCurtainPull={onCurtainPull}
+            onCurtainRelease={onCurtainRelease}
+          />
+          <MemoryObjects
+            palette={palette}
+            nearbyMemoryId={nearbyMemoryId}
+            onInteract={onInteract}
+          />
+          {/* 문 옆 배트 — 라디오 목소리를 들으면 켜지고, 쥐면 방문이 열린다 (v2) */}
+          <EndingTrigger palette={palette} />
+        </group>
         {/* 방문 너머 — 2바퀴에 문이 열리면 걸어 나갈 수 있다 (v2) */}
-        <LivingRoomShell palette={palette} />
-        <LivingRoomFurniture palette={palette} />
-        {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
-        <RoomDecor palette={palette} />
-        <RoomFurniture
-          palette={palette}
-          curtainPull={curtainPull}
-          onCurtainPull={onCurtainPull}
-          onCurtainRelease={onCurtainRelease}
-        />
-        <MemoryObjects palette={palette} nearbyMemoryId={nearbyMemoryId} onInteract={onInteract} />
-        {/* 문 옆 배트 — 라디오 목소리를 들으면 켜지고, 쥐면 방문이 열린다 (v2) */}
-        <EndingTrigger palette={palette} />
+        <group visible={inLivingRoom}>
+          <LivingRoomShell palette={palette} />
+          <LivingRoomFurniture palette={palette} />
+        </group>
       </MemoryGlowRoot>
       {/*
         방 바깥 — 받침 아래 고인 빛과 둘레를 떠도는 티끌.

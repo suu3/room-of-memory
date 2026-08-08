@@ -224,6 +224,11 @@ function FrontDoorLeaf({
 }
 
 export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
+  /*
+   * 색이 방과 다르다 — 방은 도해 취향의 어두운 남색(slate) 벽인데, 거실은 부모님이
+   * 꾸민 밝은 벽지(paper)다. 문 하나 건넜을 뿐인데 공기가 달라지는 게 이 색 차이가
+   * 하는 일의 전부다. 바닥은 장판 느낌의 따뜻한 올리브.
+   */
   return (
     <group name="living-room-shell">
       {PLINTH.map((part, index) => (
@@ -233,22 +238,22 @@ export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
           color={index === 0 ? palette.ink : palette.void}
         />
       ))}
-      <ShellBox part={FLOOR} color={palette.mist} />
+      <ShellBox part={FLOOR} color={palette.olive} />
 
       {BASE_WALLS.map((part) => (
-        <ShellBox key={part.position.join(":")} part={part} color={palette.slate} />
+        <ShellBox key={part.position.join(":")} part={part} color={palette.bone} />
       ))}
 
       {/* 걷히는 규칙은 방과 같되, 중심이 거실이다 — 카메라가 거실의 어느 쪽에
           있느냐로 계산해야 앞벽만 걷히고 뒷벽·현관벽은 서 있는다 */}
       <CulledWall side="back" center={LIVING_SHELL_CENTER}>
-        <ShellBox part={BACK_WALL_UPPER} color={palette.slate} />
+        <ShellBox part={BACK_WALL_UPPER} color={palette.paper} />
       </CulledWall>
       <CulledWall side="front" center={LIVING_SHELL_CENTER}>
-        <ShellBox part={FRONT_WALL_UPPER} color={palette.slate} />
+        <ShellBox part={FRONT_WALL_UPPER} color={palette.paper} />
       </CulledWall>
       <CulledWall side="left" center={LIVING_SHELL_CENTER}>
-        <ShellBox part={LEFT_WALL_UPPER} color={palette.slate} />
+        <ShellBox part={LEFT_WALL_UPPER} color={palette.paper} />
       </CulledWall>
 
       <FrontDoor palette={palette} />
