@@ -27,7 +27,26 @@ const [SHELL_CENTER_X, SHELL_CENTER_Z] = ROOM_SHELL_CENTER;
  * 규칙 자체는 wall-culling.ts에 순수 함수로, 재질을 만지는 일은 wall-materials.ts에
  * 있다. 여기는 프레임마다 그 둘을 잇는다.
  */
-export function CulledWall({ side, children }: { side: WallSide; children: ReactNode }) {
+export function CulledWall({
+  side,
+  center,
+  hidden = false,
+  children,
+}: {
+  side: WallSide;
+  /**
+   * 이 벽이 둘러싼 공간의 중심(x·z). 기본은 방 — 거실 벽은 거실 중심을 넘긴다.
+   * 공간마다 중심이 달라야 "카메라가 이 공간의 어느 쪽에 있나"가 맞게 계산된다.
+   */
+  center?: readonly [number, number];
+  /**
+   * 카메라 각도와 무관하게 강제로 걷는다. 방과 거실의 공유벽이 쓴다 — 플레이어가
+   * 거실에 있으면 이 벽이 카메라와 플레이어 사이에 서는데, 각도 규칙으로는 잡히지
+   * 않는 가림이다 (카메라는 늘 +x 쪽에 있어 왼벽의 facing이 음수다).
+   */
+  hidden?: boolean;
+  children: ReactNode;
+}) {
   const groupRef = useRef<Group>(null);
   const opacityRef = useRef(1);
   /** 마지막으로 재질에 써 넣은 값. 이만큼 움직였을 때만 다시 칠한다. */
@@ -45,11 +64,10 @@ export function CulledWall({ side, children }: { side: WallSide; children: React
     const group = groupRef.current;
     if (!group) return;
 
-    const goal = wallOpacity(
-      side,
-      camera.position.x - SHELL_CENTER_X,
-      camera.position.z - SHELL_CENTER_Z,
-    );
+    const [centerX, centerZ] = center ?? [SHELL_CENTER_X, SHELL_CENTER_Z];
+    const goal = hidden
+      ? 0
+      : wallOpacity(side, camera.position.x - centerX, camera.position.z - centerZ);
     let next = MathUtils.damp(opacityRef.current, goal, 9, delta);
     // damp는 목표에 수렴만 하고 닿지는 않는다. 눈에 안 보이는 나머지를 끊어야
     // 벽이 멈춘 뒤 트래버스도 같이 멈춘다.

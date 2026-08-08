@@ -67,6 +67,9 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
   const [texture, setTexture] = useState<Texture | null>(null);
   /** 지금 화면에 걸려 있는 텍스처. 언마운트 때 버릴 대상이자 교체 시 버릴 이전 그림. */
   const mountedRef = useRef<Texture | null>(null);
+  /** 로드 콜백이 크롭을 미리 걸 때 볼 판 비율 — 렌더마다 최신값으로 둔다. */
+  const planeAspectRef = useRef(planeAspect);
+  planeAspectRef.current = planeAspect;
 
   useEffect(() => {
     let cancelled = false;
@@ -80,10 +83,15 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
           return;
         }
         result.colorSpace = SRGBColorSpace;
-        const previous = mountedRef.current;
-        mountedRef.current = result;
+        /*
+         * 크롭을 걸어 둔 채로 내보낸다. 걸지 않고 내보내면 아래 크롭 이펙트가
+         * 도는 커밋 전 한 프레임 동안 안 잘린 그림이 판에 눌려 뜬다 — 사진이
+         * 바뀌는 순간(2차 조사 뒤) 한 번 늘어났다 돌아오는 깜빡임이 그것이다.
+         */
+        const { repeat, offset } = coverTransform(imageAspectOf(result), planeAspectRef.current);
+        result.repeat.set(repeat[0], repeat[1]);
+        result.offset.set(offset[0], offset[1]);
         setTexture(result);
-        if (previous) previous.dispose();
       },
       undefined,
       () => undefined,
@@ -93,6 +101,19 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
       cancelled = true;
     };
   }, [path]);
+
+  /*
+   * 옛 그림은 **새 그림이 화면에 붙은 뒤에** 버린다 (커밋 후 이펙트).
+   *
+   * 전에는 로드 콜백에서 바로 버렸는데, 그 시점의 머티리얼은 아직 옛 텍스처를
+   * 물고 있다 — React가 map을 갈아끼우기 전에 GPU 텍스처부터 지워져서, 다음
+   * 프레임이 지워진 그림을 그리며 사진이 검게 깜빡였다 (액자 2차 교체에서 보임).
+   */
+  useEffect(() => {
+    const previous = mountedRef.current;
+    mountedRef.current = texture;
+    if (previous && previous !== texture) previous.dispose();
+  }, [texture]);
 
   // 마지막까지 걸려 있던 텍스처는 여기서 버린다 (.claude/rules/r3f.md — 수동 생성분은 직접 dispose).
   useEffect(

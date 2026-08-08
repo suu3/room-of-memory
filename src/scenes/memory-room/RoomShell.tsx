@@ -1,4 +1,6 @@
 import type {} from "@react-three/fiber";
+import { playSound } from "@/lib/audio";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { LightSwitch } from "./LightSwitch";
 import {
@@ -130,14 +132,73 @@ const BACK_WALL_SEGMENTS = [
 const BASE_WALLS = [
   endWall(ROOM_SHELL_BOUNDS.minZ, WALL_Y.min, WALL_STUB_TOP_Y),
   endWall(ROOM_SHELL_BOUNDS.maxZ, WALL_Y.min, WALL_STUB_TOP_Y),
-  sideWall(ROOM_SHELL_BOUNDS.minX, WALL_Y.min, WALL_STUB_TOP_Y),
   sideWall(ROOM_SHELL_BOUNDS.maxX, WALL_Y.min, WALL_STUB_TOP_Y),
 ] as const satisfies readonly WallBox[];
 
 /** 굽도리 위로 서는 나머지 세 면 (뒷벽은 창 때문에 위에서 따로 짰다). */
-const LEFT_WALL_UPPER = sideWall(ROOM_SHELL_BOUNDS.minX, WALL_STUB_TOP_Y, WALL_Y.max);
 const RIGHT_WALL_UPPER = sideWall(ROOM_SHELL_BOUNDS.maxX, WALL_STUB_TOP_Y, WALL_Y.max);
 const FRONT_WALL_UPPER = endWall(ROOM_SHELL_BOUNDS.maxZ, WALL_STUB_TOP_Y, WALL_Y.max);
+
+/**
+ * 문의 실제 개구부 (v2 — 문 너머에 거실이 생기면서 필요해졌다).
+ *
+ * 전에는 왼벽이 통짜이고 문틀·문짝이 그 앞에 붙은 그림이었다. 이제 문이 열리면
+ * 걸어 나가야 하므로 벽에 진짜 구멍을 낸다. 구멍 가장자리는 문틀(기둥 ±0.82,
+ * 상인방 y≈3.42~3.60) 뒤에 숨는 크기로 잡는다 — 단면이 보이면 안 된다.
+ */
+const DOOR_HOLE_Z = {
+  min: ROOM_DOOR_POSITION[2] - 0.82,
+  max: ROOM_DOOR_POSITION[2] + 0.82,
+} as const;
+const DOOR_HOLE_TOP_Y = 3.46;
+
+/** x축을 보고 선 벽의 조각 — z·y 범위를 좁혀 개구부를 비운다. */
+function sideWallSegment(
+  x: number,
+  z: { min: number; max: number },
+  y: { min: number; max: number },
+): WallBox {
+  return {
+    size: [WALL_THICKNESS, y.max - y.min, z.max - z.min],
+    position: [x, (y.min + y.max) / 2, (z.min + z.max) / 2],
+  };
+}
+
+/** 왼벽 윗부분 — 문 개구부를 비워둔 세 조각 (양옆 + 상인방 위). */
+const LEFT_WALL_SEGMENTS = [
+  sideWallSegment(
+    ROOM_SHELL_BOUNDS.minX,
+    { min: ROOM_SHELL_BOUNDS.minZ, max: DOOR_HOLE_Z.min },
+    UPPER_Y,
+  ),
+  sideWallSegment(
+    ROOM_SHELL_BOUNDS.minX,
+    { min: DOOR_HOLE_Z.max, max: ROOM_SHELL_BOUNDS.maxZ },
+    UPPER_Y,
+  ),
+  sideWallSegment(ROOM_SHELL_BOUNDS.minX, DOOR_HOLE_Z, {
+    min: DOOR_HOLE_TOP_Y,
+    max: WALL_Y.max,
+  }),
+] as const satisfies readonly WallBox[];
+
+/**
+ * 왼벽 굽도리 — 문 개구부에서 끊는다. 통짜로 이으면 문지방 자리에 무릎 높이
+ * 턱이 남아, 열린 문으로 나가는 발이 벽 토막을 뚫고 지나간다.
+ * (BASE_WALLS에서 왼벽만 여기로 빠져 있다.)
+ */
+const LEFT_BASE_SEGMENTS = [
+  sideWallSegment(
+    ROOM_SHELL_BOUNDS.minX,
+    { min: ROOM_SHELL_BOUNDS.minZ, max: DOOR_HOLE_Z.min },
+    { min: WALL_Y.min, max: WALL_STUB_TOP_Y },
+  ),
+  sideWallSegment(
+    ROOM_SHELL_BOUNDS.minX,
+    { min: DOOR_HOLE_Z.max, max: ROOM_SHELL_BOUNDS.maxZ },
+    { min: WALL_Y.min, max: WALL_STUB_TOP_Y },
+  ),
+] as const satisfies readonly WallBox[];
 
 /** 디오라마 받침. 방이 허공에 떠 있으면 모형이라는 인상이 안 산다. */
 const PLINTH = [
@@ -192,17 +253,23 @@ export const LEFT_SKIRTING = {
 
 export function RoomShell({
   palette,
-  doorReady,
   doorOpen,
   outsideDecay,
 }: {
   palette: RoomPalette;
-  doorReady: boolean;
   /** 배트를 쥐었는가 — 문이 열린다. */
   doorOpen: boolean;
   /** 창밖이 얼마나 무너져 보이는지 (0=평범한 야경, 1=사태 이후). */
   outsideDecay: number;
 }) {
+  /*
+   * 공유벽(왼벽)은 플레이어가 거실에 있으면 걷는다. 카메라는 늘 +x 쪽이라 각도
+   * 규칙으로는 이 벽이 절대 안 걷히는데, 거실의 플레이어에게는 이 벽이 카메라와
+   * 자기 사이에 서는 가림막이다.
+   */
+  const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
+  const nudgeDoor = useMemoryRoomStore((state) => state.nudgeDoor);
+
   return (
     <group name="room-shell">
       {PLINTH.map((part, index) => (
@@ -215,8 +282,8 @@ export function RoomShell({
 
       <ShellBox {...SHELL.floor} color={palette.mist} receiveShadow />
 
-      {/* 네 면의 굽도리 — 늘 남는다 */}
-      {BASE_WALLS.map((part) => (
+      {/* 네 면의 굽도리 — 늘 남는다 (왼벽은 문 개구부에서 끊긴 두 조각) */}
+      {[...BASE_WALLS, ...LEFT_BASE_SEGMENTS].map((part) => (
         <ShellBox key={part.position.join(":")} {...part} color={palette.slate} receiveShadow />
       ))}
 
@@ -239,8 +306,10 @@ export function RoomShell({
         </group>
       </CulledWall>
 
-      <CulledWall side="left">
-        <ShellBox {...LEFT_WALL_UPPER} color={palette.slate} receiveShadow />
+      <CulledWall side="left" hidden={inLivingRoom}>
+        {LEFT_WALL_SEGMENTS.map((part) => (
+          <ShellBox key={part.position.join(":")} {...part} color={palette.slate} receiveShadow />
+        ))}
         {/* 벽에 붙은 물건이라 벽과 함께 스러져야 한다 — 밖에 두면 허공에 뜬다 */}
         <LightSwitch palette={palette} />
       </CulledWall>
@@ -251,17 +320,33 @@ export function RoomShell({
         <ShellBox {...RIGHT_WALL_UPPER} color={palette.slate} receiveShadow />
       </CulledWall>
 
-      <group position={ROOM_DOOR_POSITION} rotation={ROOM_DOOR_ROTATION}>
+      {/*
+        문. 색은 늘 어둡다(navy) — 금빛 신호는 문이 아니라 옆의 배트가 맡는다
+        (EndingTrigger). 문까지 같이 빛나면 신호가 두 개가 되고, 쥐어야 하는 건
+        배트라는 게 흐려진다.
+
+        닫혀 있는 동안은 눌러볼 수 있다 — 열리는 대신 안 여는 이유가 한 줄
+        흐른다 (DoorNudge). 잠긴 게 아니라 안 여는 것이라는 게 여기서 드러난다.
+      */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
+      <group
+        position={ROOM_DOOR_POSITION}
+        rotation={ROOM_DOOR_ROTATION}
+        onClick={(event) => {
+          if (doorOpen) return;
+          event.stopPropagation();
+          playSound("deny");
+          nudgeDoor();
+        }}
+      >
         {/* 문짝만 경첩(왼쪽 문틀)을 축으로 열린다. 문틀·손잡이는 제자리에 남는다. */}
         <group position={[-DOOR_HINGE_X, 0, 0]} rotation={[0, doorOpen ? -1.15 : 0, 0]}>
           <group position={[DOOR_HINGE_X, 0, 0]}>
             <ShellBox
               size={[1.45, 3.4, 0.12]}
               position={[0, 0, 0]}
-              color={doorReady ? palette.memory : palette.navy}
+              color={palette.navy}
               castShadow
-              emissive={palette.memory}
-              emissiveIntensity={doorReady ? 0.65 : 0}
             />
             <ShellBox size={[0.11, 0.11, 0.1]} position={[0.48, 0, 0.1]} color={palette.ember} />
           </group>
@@ -269,15 +354,17 @@ export function RoomShell({
         {DOOR_FRAME.map((part) => (
           <ShellBox key={part.position.join(":")} {...part} color={palette.ink} castShadow />
         ))}
-        {/* 문틈으로 새는 빛 — 문 밖에도 뭔가 있다는 유일한 단서다. doorReady 금빛과
-            헷갈리지 않게 세기를 낮게 잡는다. */}
-        <ShellBox
-          size={[1.3, 0.045, 0.05]}
-          position={[0, -1.71, 0.08]}
-          color={palette.memory}
-          emissive={palette.memory}
-          emissiveIntensity={0.9}
-        />
+        {/* 문틈으로 새는 빛 — 거실에서 오는 빛이다 (v2). 문이 열리면 틈 자체가
+            사라지므로 같이 사라진다. doorReady 금빛과 헷갈리지 않게 세기를 낮게. */}
+        {!doorOpen && (
+          <ShellBox
+            size={[1.3, 0.045, 0.05]}
+            position={[0, -1.71, 0.08]}
+            color={palette.memory}
+            emissive={palette.memory}
+            emissiveIntensity={0.9}
+          />
+        )}
       </group>
 
       <ShellBox

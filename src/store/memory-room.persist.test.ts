@@ -10,6 +10,8 @@ describe("sanitizeProgress", () => {
       sanitizeProgress({
         collected: [first, second],
         revisited: [first],
+        doorOpened: false,
+        solvedPuzzles: ["card-odd"],
         endingStarted: false,
         soundMuted: true,
         lightsOn: false,
@@ -17,6 +19,8 @@ describe("sanitizeProgress", () => {
     ).toEqual({
       collected: [first, second],
       revisited: [first],
+      doorOpened: false,
+      solvedPuzzles: ["card-odd"],
       endingStarted: false,
       soundMuted: true,
       lightsOn: false,

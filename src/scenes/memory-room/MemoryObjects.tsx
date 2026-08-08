@@ -90,7 +90,12 @@ function setMaterialCollected(material: Material, collected: boolean, memoryColo
     target.emissive.setHex(baseline.color);
     target.emissiveIntensity = baseline.intensity;
   }
-  material.needsUpdate = true;
+  /*
+   * needsUpdate는 걸지 않는다. emissive 색·세기는 유니폼이라 다음 프레임에
+   * 그대로 반영된다 — needsUpdate를 걸면 셰이더가 통째로 재컴파일되면서 수집
+   * 확정 프레임(미니게임을 닫는 순간)에 그 메쉬가 한 번 비어 보인다. 액자
+   * 사진이 닫을 때마다 깜빡이던 원인이다.
+   */
 }
 
 function setMaterialOpacity(material: Material, opacity: number) {

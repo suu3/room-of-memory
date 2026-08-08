@@ -45,6 +45,8 @@ memories:
       script: console-intro
       minigame: fighter-duel
       resultScript: console-alone
+    # 2차: 대사만 흐른다. 카드 미궁(card-odd)은 거실 식탁 트럼프로 이사했다
+    # (docs/content-design-v2.md 7장) — 여기 다시 붙이지 말 것.
     phase2:
       script: console-echo
       # 2바퀴는 라디오 목소리에서 시작한다 — 재점등된 나머지는 그 뒤에 열린다
@@ -229,6 +231,8 @@ memories:
       script: ball-intro
       minigame: ball-catch
       replayStill: /assets/images/mg-ball-catch-sunset-field.webp
+    # 2차: 대사만 흐른다. 회전 미궁(angle-turn)은 거실 현관 잠금장치로 이사했다
+    # (docs/content-design-v2.md 7장) — 여기 다시 붙이지 말 것.
     phase2:
       script: ball-echo
       unlockAfter: [radio]

@@ -5,7 +5,8 @@ import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { MathUtils, type OrthographicCamera, Vector3 } from "three";
 import { focusZoomFor } from "@/components/canvas/room-canvas-runtime";
 import type { MemoryId } from "@/data/memory-room";
-import { CAMERA_PRESETS, ROOM_BOUNDS } from "./layout";
+import { useMemoryRoomStore } from "@/store/memory-room";
+import { CAMERA_PRESETS, LIVING_BOUNDS, ROOM_BOUNDS } from "./layout";
 
 const cameraPositionGoal = new Vector3();
 const cameraTargetGoal = new Vector3();
@@ -30,6 +31,19 @@ const FOLLOW_LIMITS = {
   maxX: ROOM_BOUNDS.maxX - FOLLOW_INSET,
   minZ: ROOM_BOUNDS.minZ + FOLLOW_INSET,
   maxZ: ROOM_BOUNDS.maxZ - FOLLOW_INSET,
+} as const;
+
+/**
+ * 방문이 열린 뒤의 추적 한계 — x만 거실 끝까지 는다 (v2).
+ *
+ * 공간별로 한계를 갈라 문턱에서 스위치하면 목표점이 한 번에 수 유닛을 건너뛰어
+ * 카메라가 출렁인다. 두 공간이 x로 이어져 있으므로 x 축 한계만 합치면 목표점이
+ * 플레이어를 따라 연속으로 미끄러진다. 전환 연출이 따로 없는 이유다 — 문을
+ * 넘는 순간은 컷이 아니라 이동이다 (docs/content-design-v2.md 5장).
+ */
+const OPEN_FOLLOW_LIMITS = {
+  ...FOLLOW_LIMITS,
+  minX: LIVING_BOUNDS.minX + FOLLOW_INSET,
 } as const;
 
 /** 따라붙는 속도. 프리셋 전환(7)보다 느슨해야 걸을 때 화면이 덜 출렁인다. */
@@ -101,10 +115,11 @@ export function CameraRig({
     if (follows) {
       // 자유 이동 중 — 방 한가운데 고정이 아니라 플레이어를 따라본다.
       const player = playerPositionRef.current;
+      const limits = useMemoryRoomStore.getState().doorOpened ? OPEN_FOLLOW_LIMITS : FOLLOW_LIMITS;
       cameraTargetGoal.set(
-        MathUtils.clamp(player.x, FOLLOW_LIMITS.minX, FOLLOW_LIMITS.maxX),
+        MathUtils.clamp(player.x, limits.minX, limits.maxX),
         FOLLOW_TARGET_Y,
-        MathUtils.clamp(player.z, FOLLOW_LIMITS.minZ, FOLLOW_LIMITS.maxZ),
+        MathUtils.clamp(player.z, limits.minZ, limits.maxZ),
       );
     } else {
       cameraTargetGoal.set(preset.target[0], preset.target[1], preset.target[2]);

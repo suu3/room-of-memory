@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { findNearestMemory, moveCircle, normalizeMovement } from "./spatial";
+import { DOORWAY_ZONE, LIVING_BOUNDS, ROOM_BOUNDS } from "./layout";
+import { findNearestMemory, moveCircle, moveThroughZones, normalizeMovement } from "./spatial";
 
 describe("normalizeMovement", () => {
   it("keeps diagonal movement at unit length", () => {
@@ -32,6 +33,73 @@ describe("moveCircle", () => {
 
     expect(result).toBe(output);
     expect(output).toEqual({ x: -0.6, z: 0.4 });
+  });
+});
+
+describe("moveThroughZones", () => {
+  const RADIUS = 0.38;
+  const zones = [ROOM_BOUNDS, DOORWAY_ZONE, LIVING_BOUNDS] as const;
+  /** 문간 한가운데 (공유벽 x=-6 위, 문 z 범위 안). */
+  const doorway = { x: -6, z: 5.35 };
+
+  it("behaves like moveCircle inside a single zone", () => {
+    expect(
+      moveThroughZones({ x: 0, z: 0 }, { x: 0.4, z: -0.2 }, RADIUS, [ROOM_BOUNDS], []),
+    ).toEqual({ x: 0.4, z: -0.2 });
+  });
+
+  it("clamps at the shared wall while the door is closed", () => {
+    const nearWall = { x: ROOM_BOUNDS.minX + RADIUS + 0.05, z: doorway.z };
+
+    const result = moveThroughZones(nearWall, { x: -0.3, z: 0 }, RADIUS, [ROOM_BOUNDS], []);
+
+    expect(result.x).toBeCloseTo(ROOM_BOUNDS.minX + RADIUS, 5);
+  });
+
+  it("walks through the doorway once the living room zones are added", () => {
+    // 방 안 문 앞 → 문간을 지나 거실까지, 걸음 크기(0.12)로 밀어본다
+    const step = 0.12;
+    const position = { x: ROOM_BOUNDS.minX + RADIUS + 0.05, z: doorway.z };
+    for (let index = 0; index < 40; index += 1) {
+      moveThroughZones(position, { x: -step, z: 0 }, RADIUS, zones, [], position);
+    }
+
+    expect(position.x).toBeLessThan(LIVING_BOUNDS.maxX);
+  });
+
+  it("keeps the walker inside the doorway strip while crossing", () => {
+    const inside = { x: doorway.x, z: doorway.z };
+
+    // 문간 한가운데서 벽 쪽(z 양방향)으로 밀어도 문틀 폭을 벗어나지 않는다
+    const up = moveThroughZones(inside, { x: 0, z: 2 }, RADIUS, zones, []);
+    const down = moveThroughZones(inside, { x: 0, z: -2 }, RADIUS, zones, []);
+
+    expect(up.z).toBeLessThanOrEqual(DOORWAY_ZONE.maxZ - RADIUS);
+    expect(down.z).toBeGreaterThanOrEqual(DOORWAY_ZONE.minZ + RADIUS);
+  });
+
+  it("never jumps into a zone the walker is not standing in", () => {
+    // 방 왼벽에 붙어 서 있되 문간 z 밖 — 왼쪽으로 밀어도 거실로 순간이동하지 않는다
+    const againstWall = { x: ROOM_BOUNDS.minX + RADIUS, z: 0 };
+
+    const result = moveThroughZones(againstWall, { x: -1, z: 0 }, RADIUS, zones, []);
+
+    expect(result.x).toBeCloseTo(ROOM_BOUNDS.minX + RADIUS, 5);
+  });
+});
+
+describe("zone continuity", () => {
+  const DIAMETER = 0.76;
+
+  it("overlaps every seam wider than the player, so nobody wedges in a gap", () => {
+    /*
+     * 문간 영역은 방·거실의 걷기 범위와 지름 이상 겹쳐야 한다 — 겹침이 그보다
+     * 얇으면 중심이 어느 영역에도 못 들어가는 틈이 생겨 문턱에서 몸이 끼인다.
+     */
+    expect(DOORWAY_ZONE.maxX - ROOM_BOUNDS.minX).toBeGreaterThan(DIAMETER);
+    expect(LIVING_BOUNDS.maxX - DOORWAY_ZONE.minX).toBeGreaterThan(DIAMETER);
+    // 문간의 z 폭 자체도 지름보다 넓어야 지나갈 수 있다
+    expect(DOORWAY_ZONE.maxZ - DOORWAY_ZONE.minZ).toBeGreaterThan(DIAMETER);
   });
 });
 

@@ -79,7 +79,7 @@ function ShellScene({ player }: { player: Vector3 }) {
   return (
     <PlayerPositionProvider value={{ current: player }}>
       <MemoryGlowRoot color={TEST_PALETTE.memory}>
-        <RoomShell palette={TEST_PALETTE} doorReady={false} doorOpen={false} outsideDecay={0} />
+        <RoomShell palette={TEST_PALETTE} doorOpen={false} outsideDecay={0} />
       </MemoryGlowRoot>
     </PlayerPositionProvider>
   );

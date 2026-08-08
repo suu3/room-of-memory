@@ -15,6 +15,7 @@ import {
   gamePhaseOf,
   REVISIT_TOTAL,
   selectCollected,
+  selectDoorReady,
   selectEndingReady,
   selectMusicForeground,
   selectMusicPlaying,
@@ -26,12 +27,14 @@ import { CharacterSheetModal } from "./CharacterSheetModal";
 import { ClueOverlay } from "./ClueOverlay";
 import { ContactModal } from "./ContactModal";
 import { DialogueBox } from "./DialogueBox";
+import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
 import { HudMenu } from "./HudMenu";
 import { MemoryPanel } from "./MemoryPanel";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
 import { PlaybackScene } from "./PlaybackScene";
+import { PuzzleHost } from "./PuzzleHost";
 import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
 
@@ -73,6 +76,7 @@ export function MemoryRoom() {
   const roundDone = phase === 1 ? collected : revisited;
   const count = roundMemories.filter((memory) => roundDone.includes(memory.id)).length;
   const isEndingReady = useMemoryRoomStore(selectEndingReady);
+  const isDoorReady = useMemoryRoomStore(selectDoorReady);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 타이틀 화면이 떠 있는 동안에는 인게임 HUD를 아예 렌더하지 않는다 — 블러 너머로 비친다.
   const started = useMemoryRoomStore((state) => state.started);
@@ -98,13 +102,17 @@ export function MemoryRoom() {
       <RoomCanvas />
 
       {/*
-        문은 이제 씬 안의 진짜 문이다 (RoomShell). 화면 구석에 고정된 DOM 문을 같이
-        그리면 카메라를 돌릴 때 벽 밖에 문이 하나 더 떠 있는 꼴이라 뺐다 — 대신
-        준비가 되면 문 옆 배트가 금빛으로 켜지고, 그걸 쥐는 게 엔딩 입구다.
+        문은 씬 안의 진짜 문이다 (RoomShell·LivingRoomShell). 안내문만 DOM으로 띄운다 —
+        배트가 켜지는 순간(방문이 열릴 준비)과 현관문이 켜지는 순간(엔딩 준비)을
+        같은 자리에서 한 줄씩 알린다.
       */}
-      {isEndingReady && !endingStarted ? (
+      {isDoorReady && !endingStarted ? (
         <p className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.3em] text-memory/80">
           {t("door.ready")}
+        </p>
+      ) : isEndingReady && !endingStarted ? (
+        <p className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.3em] text-memory/80">
+          {t("door.exitReady")}
         </p>
       ) : null}
 
@@ -189,6 +197,8 @@ export function MemoryRoom() {
           <ClueOverlay />
           <CharacterSheetModal />
           <MinigameHost />
+          <PuzzleHost />
+          <DoorNudge />
         </>
       )}
 

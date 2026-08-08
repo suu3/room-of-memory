@@ -12,7 +12,10 @@
   "door": {
     "locked": "Locked Door",
     "exit": "Leave →",
-    "ready": "The bat by the door is glowing"
+    "ready": "The bat by the door is glowing",
+    "exitReady": "Across the living room, the front door is glowing",
+    "nudgeStay": "…There's nothing out there for me.",
+    "nudgeBat": "Not empty-handed. …At least take that."
   },
   "panel": {
     "title": "Collected Memories",
@@ -291,6 +294,38 @@
       "help_touch": "Tap a piece to slide it into the gap and rebuild the photo",
       "moves": "Moves",
       "tile": "Piece {{value}}"
+    },
+    "angleTurn": {
+      "title": "Turned Letters",
+      "help": "Turn the left one clockwise and it becomes the right one. Write those values, left to right",
+      "attempts": "Wrong answers",
+      "answerLabel": "Answer",
+      "placeholder": "Type your answer",
+      "submit": "Enter",
+      "blanks": "The answer has {{count}} digits"
+    },
+    "cardOdd": {
+      "title": "Cards That Aren't There",
+      "help": "Write the numbers of the wrong cards, left to right",
+      "attempts": "Wrong answers",
+      "answerLabel": "Answer",
+      "placeholder": "Type your answer",
+      "submit": "Enter",
+      "cardLabel": "{{ink}} {{rank}} of {{suit}}, lower index {{orientation}}",
+      "ink": {
+        "black": "black",
+        "red": "red"
+      },
+      "orientation": {
+        "flipped": "upside down",
+        "upright": "upright"
+      },
+      "suit": {
+        "spade": "spades",
+        "heart": "hearts",
+        "diamond": "diamonds",
+        "club": "clubs"
+      }
     }
   },
   "characterSheet": {
@@ -309,7 +344,6 @@
     "tagline": "Gather the memories scattered across a room that never opened.",
     "start": "START",
     "loading": "Loading the room… {{percent}}%",
-    "playtime": "About 15 minutes",
     "howTo": "Wander the room and examine the objects a memory still clings to.",
     "howToMove": "Move WASD",
     "howToMove_touch": "Move joystick, bottom left",
@@ -342,6 +376,20 @@
     "wallCalendar": {
       "title": "Wall Calendar",
       "caption": "Two circles. One is that day; the other is some day before it."
+    },
+    "shelfBook": {
+      "title": "Book on the Shelf",
+      "heading": "Games of the World · Playing Cards",
+      "l1": "Four suits. Spades and clubs print in black, hearts and diamonds in red.",
+      "l2": "Each face is printed twice, the second upside down, so either end reads the same.",
+      "caption": "Bought it in grade school and barely opened it."
+    },
+    "deskClock": {
+      "title": "Desk Clock",
+      "heading": "Numbers penciled on the ticks",
+      "figure": "A clock face marked every 45 degrees, clockwise",
+      "l1": "Start at 0 and count the way the hands turn. Half a turn is 180.",
+      "caption": "No idea when I wrote these. Bored during homework, probably."
     }
   }
 }

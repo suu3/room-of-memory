@@ -1,10 +1,12 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { ASSETS } from "@/lib/assets";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { FurnitureModel } from "./FurnitureModel";
 import { ROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
+import { ShelfBookClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
 import type { WallSide } from "./wall-culling";
 
@@ -230,6 +232,28 @@ const SHELF_BOOKS = [
 ] as const satisfies readonly { x: number; height: number; color: keyof RoomPalette }[];
 
 /**
+ * 집어 들 수 있는 한 권. 밝은 색(bone)이라 네 권 중 눈에 먼저 걸리는 책이고,
+ * 다가감 판정도 이 x를 기준으로 잡혀 있다 (layout의 CLUE_PROPS.shelfBook).
+ */
+const CLUE_BOOK_X = 4.86;
+
+/** 선반에 꽂힌 책 한 권. 단서로 쓰는 한 권도 같은 도형을 쓴다 — 겉으로는 구별되지 않는다. */
+function ShelfBook({
+  book,
+  palette,
+}: {
+  book: (typeof SHELF_BOOKS)[number];
+  palette: RoomPalette;
+}) {
+  return (
+    <mesh position={[book.x, BACK_SHELF_TOP_Y + book.height / 2, -3.66]} castShadow receiveShadow>
+      <boxGeometry args={[0.11, book.height, 0.3]} />
+      <meshStandardMaterial color={palette[book.color]} roughness={0.85} />
+    </mesh>
+  );
+}
+
+/**
  * 벽면별 장식 목록. 테스트가 겹침을 검사할 수 있도록 내보낸다
  * (RoomDecor.test.ts — 같은 벽에서 화면상 겹치는 판은 두께가 달라야 한다).
  */
@@ -284,14 +308,22 @@ function Trophy({ palette, position }: { palette: RoomPalette; position: Vec3Tup
 }
 
 export function RoomDecor({ palette }: { palette: RoomPalette }) {
+  /*
+   * 왼벽은 이제 걷힐 수 있다 — 플레이어가 거실로 나가면 공유벽이 시야를 가려서
+   * RoomShell이 강제로 걷는다 (v2). 벽에 붙은 장식은 벽과 함께 사라져야 한다.
+   */
+  const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
+
   return (
     <group name="room-decor">
       {/*
-        뒷벽·왼쪽 벽은 회전 범위(±0.5rad) 안에서 절대 걷히지 않으므로 CulledWall 없이
-        그대로 세운다. 회전을 더 열려면 이것들도 CulledWall 안으로 옮겨야 한다.
+        뒷벽은 회전 범위(±0.5rad) 안에서 절대 걷히지 않으므로 CulledWall 없이
+        그대로 세운다. 회전을 더 열려면 이것도 CulledWall 안으로 옮겨야 한다.
       */}
       <DecorBoxes parts={DECOR_BY_WALL.back} palette={palette} />
-      <DecorBoxes parts={DECOR_BY_WALL.left} palette={palette} />
+      <CulledWall side="left" hidden={inLivingRoom}>
+        <DecorBoxes parts={DECOR_BY_WALL.left} palette={palette} />
+      </CulledWall>
 
       {/* 돌려야 드러나는 두 면. 벽과 함께 스러져야 하므로 반드시 CulledWall 안이다 */}
       <CulledWall side="front">
@@ -303,17 +335,16 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
 
       {/* 뒷벽 선반 위 — 트로피와 꽂아둔 책 */}
       <Trophy palette={palette} position={[3.72, BACK_SHELF_TOP_Y, -3.66]} />
-      {SHELF_BOOKS.map((book) => (
-        <mesh
-          key={book.x}
-          position={[book.x, BACK_SHELF_TOP_Y + book.height / 2, -3.66]}
-          castShadow
-          receiveShadow
-        >
-          <boxGeometry args={[0.11, book.height, 0.3]} />
-          <meshStandardMaterial color={palette[book.color]} roughness={0.85} />
-        </mesh>
-      ))}
+      {/* 한 권만 집을 수 있다 — 네 권 다 열리면 어느 것을 봐도 같은 화면이 뜬다 */}
+      {SHELF_BOOKS.map((book) =>
+        book.x === CLUE_BOOK_X ? (
+          <ShelfBookClue key={book.x}>
+            <ShelfBook book={book} palette={palette} />
+          </ShelfBookClue>
+        ) : (
+          <ShelfBook key={book.x} book={book} palette={palette} />
+        ),
+      )}
 
       {/* 왼쪽 벽 선반 위 — 눕혀 쌓아둔 책 더미 */}
       <FurnitureModel

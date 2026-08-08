@@ -145,7 +145,6 @@ export function TitleScreen() {
           화면은 씬이 다 쓴다.
         */}
         <div className="relative flex max-w-md flex-col items-center gap-2 text-center text-[0.6875rem] leading-relaxed">
-          <p className="font-bold tracking-[0.18em] text-bone/40">{t("titleScreen.playtime")}</p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 tracking-wider text-bone/40">
             <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
             <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>

@@ -15,6 +15,67 @@ export const REFERENCE_ROOM_LAYOUT = {
 } as const;
 export const ROOM_DOOR_POSITION = [ROOM_SHELL_BOUNDS.minX + 0.14, 1.7, 5.35] as const;
 export const ROOM_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
+
+/*
+ * ---------------------------------------------------------------- 거실 (v2)
+ *
+ * 방문(-x 벽) 너머의 두 번째 공간 (docs/content-design-v2.md 2장). 방과 벽 하나
+ * (x = ROOM_SHELL_BOUNDS.minX)를 공유하고, 그 벽의 문이 둘을 잇는다.
+ * 반대쪽 끝(-x)에 현관문이 있다 — 엔딩은 이제 거기서 난다.
+ */
+export const LIVING_SHELL_BOUNDS: Aabb2 = {
+  minX: -16.5,
+  maxX: ROOM_SHELL_BOUNDS.minX,
+  minZ: ROOM_SHELL_BOUNDS.minZ,
+  maxZ: ROOM_SHELL_BOUNDS.maxZ,
+};
+export const LIVING_SHELL_CENTER = [
+  (LIVING_SHELL_BOUNDS.minX + LIVING_SHELL_BOUNDS.maxX) / 2,
+  (LIVING_SHELL_BOUNDS.minZ + LIVING_SHELL_BOUNDS.maxZ) / 2,
+] as const;
+
+/** 거실의 걷는 범위. 방(ROOM_BOUNDS)과 같은 여유(0.45)로 벽에서 물린다. */
+export const LIVING_BOUNDS: Aabb2 = {
+  minX: LIVING_SHELL_BOUNDS.minX + 0.45,
+  maxX: LIVING_SHELL_BOUNDS.maxX - 0.45,
+  minZ: LIVING_SHELL_BOUNDS.minZ + 0.45,
+  maxZ: LIVING_SHELL_BOUNDS.maxZ - 0.45,
+};
+
+/**
+ * 문간 판정 구간 — 방과 거실을 잇는 세 번째 걷기 영역 (v2 기획 5장).
+ *
+ * 벽에 난 구멍이 아니라 두 공간의 걷기 범위를 겹쳐 잇는 다리다. x 양끝은 각
+ * 공간의 걷기 범위와 **플레이어 지름(0.76) 이상** 겹쳐야 한다 — 덜 겹치면 중심이
+ * 어느 영역에도 못 들어가는 틈이 생겨 문턱에서 몸이 끼인다 (layout.test가 지킨다).
+ * z 범위는 문 개구부(DOOR_OPENING_Z, 5.35±0.91) 안쪽 — 몸 반지름을 더해도
+ * 벽 단면을 스치지 않는 폭이다.
+ */
+export const DOORWAY_ZONE: Aabb2 = { minX: -7.4, maxX: -4.6, minZ: 4.7, maxZ: 6.0 };
+
+/**
+ * 거실 가구의 발자국 (v2 기획 7장). 배치 원칙 둘:
+ * 문간(DOORWAY_ZONE)에서 나오는 길과 현관문 앞(FRONT_DOOR_INTERACTION 반경)은
+ * 비워 둔다 — 나오자마자 소파에 끼거나, 엔딩 문 앞에 가구가 서 있으면 안 된다.
+ * layout.test가 이 둘을 지킨다.
+ */
+export const LIVING_COLLIDERS = [
+  { minX: -10.95, maxX: -8.05, minZ: -4, maxZ: -2.2 }, // sofa
+  { minX: -10.75, maxX: -8.25, minZ: 5.9, maxZ: 6.5 }, // tv stand
+  { minX: -14.75, maxX: -12.85, minZ: 2.6, maxZ: 4.75 }, // dining table + chairs (빠진 의자 포함)
+  { minX: -16.5, maxX: -15.85, minZ: -1.7, maxZ: 0.35 }, // shoe cabinet
+] as const satisfies readonly Aabb2[];
+
+/**
+ * 현관문 — 거실 -x 끝 벽. 배트가 방문을 열게 되면서 엔딩 트리거가 여기로 왔다
+ * (docs/content-design-v2.md 3장). 회전은 방문과 반대 — 문이 벽 안쪽을 본다.
+ */
+export const FRONT_DOOR_POSITION = [LIVING_SHELL_BOUNDS.minX + 0.14, 1.7, 1.25] as const;
+export const FRONT_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
+export const FRONT_DOOR_INTERACTION = {
+  near: [FRONT_DOOR_POSITION[0], FRONT_DOOR_POSITION[2]] as readonly [number, number],
+  interactionRadius: 2.2,
+} as const;
 export const DESK_POSITION = [-4.6, 0, -1.2] as const;
 export const DESK_ROTATION = [0, Math.PI / 2, 0] as const;
 // 책상이 커지면서 다리가 x=-4.0까지 나온다 — 의자를 그만큼 안쪽으로 물린다.
@@ -137,6 +198,21 @@ export const DRAWER_NOTE = {
   interactionRadius: 2.1,
 } as const;
 
+/**
+ * 들여다볼 수 있는 곁가지 물건들의 다가감 판정. 3D는 각자 제 자리(RoomDecor·
+ * RoomFurniture)에서 그리고, 여기엔 기준점과 반경만 모은다 — 서랍 속 쪽지와 달리
+ * 이 둘은 원래 있던 장식을 그대로 쓰므로 좌표를 새로 잡을 게 없다.
+ */
+export const CLUE_PROPS = {
+  /** 뒷벽 선반에 꽂힌 책들 중 한 권 (RoomDecor의 SHELF_BOOKS). */
+  shelfBook: { near: [4.86, -3.66] as readonly [number, number], interactionRadius: 2.2 },
+  /** 캐비닛 상판의 탁상시계 (RoomFurniture의 DeskClock). */
+  deskClock: {
+    near: [CABINET_TOP_PROPS.clock.x, -2.82] as readonly [number, number],
+    interactionRadius: 2.1,
+  },
+} as const;
+
 export const MEMORY_PLACEMENTS = {
   console: {
     id: "console",
@@ -229,8 +305,8 @@ export const MEMORY_PLACEMENTS = {
 export const CAMERA_PRESETS = {
   // room.target.y를 올리면 시선 중심이 위로 가면서 방이 화면 아래쪽으로 내려온다
   room: { position: [14.2, 10.4, 15.4], target: [0.8, 2.35, 1.2] },
-  /** 엔딩 — 문 옆 배트를 잡을 때. */
-  ending: { position: [-1.4, 3.0, 6.7], target: [-5.25, 0.8, 4.15] },
+  /** 엔딩 — 거실 끝 현관문을 열 때 (v2에서 배트 → 현관문으로 옮겨왔다). */
+  ending: { position: [-12.1, 3.1, 3.8], target: [-15.95, 0.9, 1.25] },
   console: { position: [4.4, 2.4, 6.9], target: [1.05, 0.35, 4.05] },
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
   frame: { position: [4.05, 2.6, 0.75], target: [1.42, 1.4, -2.7] },

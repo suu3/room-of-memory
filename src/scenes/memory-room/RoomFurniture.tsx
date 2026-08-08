@@ -27,7 +27,7 @@ import {
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
-import { DrawerNoteClue } from "./RoomClues";
+import { DeskClockClue, DrawerNoteClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
@@ -92,7 +92,9 @@ const CHAIR_PARTS = [
   { size: [0.14, 0.64, 0.14], position: [0.41, 0.32, -0.41], color: "slate" },
   { size: [0.14, 0.64, 0.14], position: [-0.41, 0.32, 0.41], color: "slate" },
   { size: [0.14, 0.64, 0.14], position: [0.41, 0.32, 0.41], color: "slate" },
-  { size: [1.05, 0.79, 0.16], position: [0, 1.06, 0.445], color: "dusk" },
+  // 등받이 뒷면(0.545)을 좌석 모서리(0.525) 뒤로 뺀다 — 두 면이 같은 평면에
+  // 놓이면 z-fighting으로 깜빡인다 (위 겹침 원칙)
+  { size: [1.05, 0.79, 0.16], position: [0, 1.06, 0.465], color: "dusk" },
 ] as const satisfies readonly BoxPart[];
 
 // 몸통 앞면 z=-2.53. 서랍판은 그 면을 물고, 손잡이는 서랍판 앞에 0.015 띄운다.
@@ -444,37 +446,43 @@ function ClockHand({
   );
 }
 
+/**
+ * 캐비닛 위 탁상시계. 멈춘 시각을 가리키는 소품이면서, 집어 들면 눈금마다 각도가
+ * 적힌 게 보인다 — 사인볼 2바퀴 회전 미궁의 단서다 (src/data/room-clues.ts).
+ */
 function DeskClock({ palette }: FurnitureProps) {
   return (
-    <group name="desk-clock" position={CLOCK_CENTER}>
-      <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.28, 0.28, 0.1, 24]} />
-        <meshStandardMaterial color={palette.bone} roughness={0.72} />
-      </mesh>
-      <mesh position={[0, 0, CLOCK_FACE_Z]}>
-        <circleGeometry args={[0.2, 24]} />
-        <meshStandardMaterial color={palette.paper} roughness={0.8} />
-      </mesh>
-      <ClockHand
-        angle={HOUR_ANGLE}
-        length={0.11}
-        width={0.022}
-        z={CLOCK_FACE_Z + 0.008}
-        color={palette.ink}
-      />
-      <ClockHand
-        angle={MINUTE_ANGLE}
-        length={0.16}
-        width={0.016}
-        z={CLOCK_FACE_Z + 0.014}
-        color={palette.ink}
-      />
-      {/* 바늘이 만나는 축 — 두 바늘이 그냥 겹쳐 있으면 십자 무늬로 보인다 */}
-      <mesh position={[0, 0, CLOCK_FACE_Z + 0.022]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.018, 0.018, 0.01, 10]} />
-        <meshStandardMaterial color={palette.ember} roughness={0.6} />
-      </mesh>
-    </group>
+    <DeskClockClue>
+      <group name="desk-clock" position={CLOCK_CENTER}>
+        <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.28, 0.28, 0.1, 24]} />
+          <meshStandardMaterial color={palette.bone} roughness={0.72} />
+        </mesh>
+        <mesh position={[0, 0, CLOCK_FACE_Z]}>
+          <circleGeometry args={[0.2, 24]} />
+          <meshStandardMaterial color={palette.paper} roughness={0.8} />
+        </mesh>
+        <ClockHand
+          angle={HOUR_ANGLE}
+          length={0.11}
+          width={0.022}
+          z={CLOCK_FACE_Z + 0.008}
+          color={palette.ink}
+        />
+        <ClockHand
+          angle={MINUTE_ANGLE}
+          length={0.16}
+          width={0.016}
+          z={CLOCK_FACE_Z + 0.014}
+          color={palette.ink}
+        />
+        {/* 바늘이 만나는 축 — 두 바늘이 그냥 겹쳐 있으면 십자 무늬로 보인다 */}
+        <mesh position={[0, 0, CLOCK_FACE_Z + 0.022]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.018, 0.018, 0.01, 10]} />
+          <meshStandardMaterial color={palette.ember} roughness={0.6} />
+        </mesh>
+      </group>
+    </DeskClockClue>
   );
 }
 
