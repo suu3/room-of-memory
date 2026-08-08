@@ -8,6 +8,7 @@ import {
 } from "@/data/memory-room";
 import {
   hotspotStatus,
+  selectDoorReady,
   selectEndingReady,
   selectMusicPlaying,
   selectRadioSignaling,
@@ -389,6 +390,29 @@ describe("전환 컷씬", () => {
     ];
     expect(steps).toEqual(expected);
     expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+  });
+
+  it("1바퀴를 다 돌면 그때 방문이 열린다", () => {
+    // 문이 열리는 것이 2바퀴가 시작됐다는 신호다 — 2바퀴에서 라디오를 다시
+    // 조사할 때까지 기다리면 한 박자 늦는다
+    useMemoryRoomStore.setState({
+      collected: PHASE1_MEMORIES.map((memory) => memory.id).filter((id) => id !== "radio"),
+    });
+    expect(selectDoorReady(useMemoryRoomStore.getState())).toBe(false);
+
+    finishFirstRound();
+
+    expect(selectDoorReady(useMemoryRoomStore.getState())).toBe(true);
+    // 2바퀴 재조사는 조건이 아니다
+    expect(useMemoryRoomStore.getState().revisited).toEqual([]);
+  });
+
+  it("한 번 연 문은 다시 열 대상이 아니다", () => {
+    finishFirstRound();
+    useMemoryRoomStore.getState().openRoomDoor();
+
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
+    expect(selectDoorReady(useMemoryRoomStore.getState())).toBe(false);
   });
 
   it("컷씬이 끝나면 라디오가 저 혼자 지직거린다", () => {

@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { MEMORIES } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { applyAdminPatch, cycleAdminMemory } from "./admin-actions";
+
+/** 1바퀴에 모을 수 있는 기억 전부 — 방문이 열리는 조건이 이 개수를 다 채우는 것이다. */
+const PHASE1_IDS = MEMORIES.filter((memory) => memory.phase1).map((memory) => memory.id);
 
 describe("applyAdminPatch", () => {
   beforeEach(() => {
@@ -12,14 +16,14 @@ describe("applyAdminPatch", () => {
     expect(useMemoryRoomStore.getState().collected).toEqual(["radio", "phone"]);
   });
 
-  it("drops a door opened without the radio revisited", () => {
-    // sanitizeProgress의 불변식 — 라디오 2바퀴 전에는 방문이 열릴 수 없다
-    applyAdminPatch({ doorOpened: true });
+  it("drops a door opened before phase 1 is finished", () => {
+    // sanitizeProgress의 불변식 — 1바퀴를 다 돌기 전에는 방문이 열릴 수 없다
+    applyAdminPatch({ collected: ["radio"], doorOpened: true });
     expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
   });
 
-  it("keeps a door opened once the radio is revisited", () => {
-    applyAdminPatch({ collected: ["radio"], revisited: ["radio"], doorOpened: true });
+  it("keeps a door opened once phase 1 is finished", () => {
+    applyAdminPatch({ collected: PHASE1_IDS, doorOpened: true });
     expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
   });
 

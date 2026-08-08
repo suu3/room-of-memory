@@ -414,8 +414,8 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
   return {
     collected,
     revisited,
-    // 방문은 라디오 목소리를 들은 뒤에만 열린다 — 조건이 안 맞는 저장본은 닫고 시작
-    doorOpened: saved.doorOpened === true && revisited.includes("radio" as MemoryId),
+    // 방문은 1바퀴를 다 돈 뒤에만 열린다 — 조건이 안 맞는 저장본은 닫고 시작
+    doorOpened: saved.doorOpened === true && collected.length === MEMORY_GOAL,
     solvedPuzzles: Array.isArray(saved.solvedPuzzles)
       ? PUZZLE_IDS.filter((id) => (saved.solvedPuzzles as unknown[]).includes(id))
       : [],
@@ -647,14 +647,18 @@ export const selectGamePhase = (state: MemoryRoomState) => gamePhaseOf(state);
 export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
 
 /**
- * 배트를 쥘 수 있는가 — 라디오 목소리를 들은 뒤, 아직 문을 안 열었을 때.
+ * 배트를 쥘 수 있는가 — 1바퀴를 다 돈 뒤, 아직 문을 안 열었을 때.
  *
- * 2바퀴 진입이 조건이다 (v2 기획 3장). 완료가 아니라 진입인 이유: 거실의 단서와
- * 문제가 2바퀴 진행의 일부라서, 문이 완료를 기다리면 거실 콘텐츠가 전부 엔딩
+ * 조건이 "2바퀴에서 라디오를 다시 조사(revisited)"였는데, 그러면 2바퀴가 이미
+ * 시작되고 한 박자 지난 뒤에야 문이 열렸다. 순서가 거꾸로다 — 1바퀴를 다 보면
+ * (라디오까지) 문이 열리고, 그 열림이 2바퀴가 시작됐다는 신호여야 한다.
+ *
+ * 완료가 아니라 진입에 거는 원칙은 그대로다 (v2 기획 3장): 거실의 단서와 문제가
+ * 2바퀴 진행의 일부라서, 문이 2바퀴 완료를 기다리면 거실 콘텐츠가 전부 엔딩
  * 뒤로 밀린다.
  */
 export const selectDoorReady = (state: MemoryRoomState) =>
-  state.revisited.includes("radio") && !state.doorOpened;
+  gamePhaseOf(state) === 2 && !state.doorOpened;
 
 /** 방문이 열려 있는가 — 걷기 영역과 문짝 회전이 같이 본다. */
 export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;
