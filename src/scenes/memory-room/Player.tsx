@@ -10,6 +10,7 @@ import type { MovementAxes } from "@/types/movement";
 import {
   DOORWAY_ZONE,
   LIVING_BOUNDS,
+  LIVING_COLLIDERS,
   ROOM_BOUNDS,
   ROOM_COLLIDERS,
   ROOM_SHELL_BOUNDS,
@@ -45,6 +46,8 @@ const cameraRight = new Vector3();
  */
 const CLOSED_ZONES = [ROOM_BOUNDS] as const;
 const OPEN_ZONES = [ROOM_BOUNDS, DOORWAY_ZONE, LIVING_BOUNDS] as const;
+/** 가구 발자국은 두 공간 것을 늘 합쳐 본다 — 문이 닫혀 있으면 거실 쪽은 어차피 못 닿는다. */
+const ALL_COLLIDERS = [...ROOM_COLLIDERS, ...LIVING_COLLIDERS] as const;
 
 useGLTF.preload(ASSETS.models.playerBlocky, true, true);
 
@@ -219,7 +222,7 @@ export function Player({
         movementDelta,
         PLAYER_RADIUS,
         useMemoryRoomStore.getState().doorOpened ? OPEN_ZONES : CLOSED_ZONES,
-        ROOM_COLLIDERS,
+        ALL_COLLIDERS,
         resultRef.current,
       );
       group.position.x = result.x;

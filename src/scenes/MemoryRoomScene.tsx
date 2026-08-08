@@ -24,6 +24,7 @@ import { CameraRig } from "./memory-room/CameraRig";
 import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
 import { EndingTrigger } from "./memory-room/EndingTrigger";
+import { LivingRoomFurniture } from "./memory-room/LivingRoomFurniture";
 import { LivingRoomShell } from "./memory-room/LivingRoomShell";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
 import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
@@ -204,8 +205,9 @@ export function MemoryRoomScene({
             phase: gamePhase,
           })}
         />
-        {/* 방문 너머 — 2바퀴에 문이 열리면 걸어 나갈 수 있다 (v2). 골격만 서 있다 */}
+        {/* 방문 너머 — 2바퀴에 문이 열리면 걸어 나갈 수 있다 (v2) */}
         <LivingRoomShell palette={palette} />
+        <LivingRoomFurniture palette={palette} />
         {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
         <RoomDecor palette={palette} />
         <RoomFurniture

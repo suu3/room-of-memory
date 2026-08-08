@@ -54,6 +54,19 @@ export const LIVING_BOUNDS: Aabb2 = {
 export const DOORWAY_ZONE: Aabb2 = { minX: -7.4, maxX: -4.6, minZ: 4.7, maxZ: 6.0 };
 
 /**
+ * 거실 가구의 발자국 (v2 기획 7장). 배치 원칙 둘:
+ * 문간(DOORWAY_ZONE)에서 나오는 길과 현관문 앞(FRONT_DOOR_INTERACTION 반경)은
+ * 비워 둔다 — 나오자마자 소파에 끼거나, 엔딩 문 앞에 가구가 서 있으면 안 된다.
+ * layout.test가 이 둘을 지킨다.
+ */
+export const LIVING_COLLIDERS = [
+  { minX: -10.95, maxX: -8.05, minZ: -4, maxZ: -2.2 }, // sofa
+  { minX: -10.75, maxX: -8.25, minZ: 5.9, maxZ: 6.5 }, // tv stand
+  { minX: -14.75, maxX: -12.85, minZ: 2.6, maxZ: 4.75 }, // dining table + chairs (빠진 의자 포함)
+  { minX: -16.5, maxX: -15.85, minZ: -1.7, maxZ: 0.35 }, // shoe cabinet
+] as const satisfies readonly Aabb2[];
+
+/**
  * 현관문 — 거실 -x 끝 벽. 배트가 방문을 열게 되면서 엔딩 트리거가 여기로 왔다
  * (docs/content-design-v2.md 3장). 회전은 방문과 반대 — 문이 벽 안쪽을 본다.
  */
