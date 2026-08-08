@@ -51,7 +51,8 @@ export function AdminPanel() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== TOGGLE_KEY) return;
+      // repeat을 그냥 두면 키를 누르고 있는 동안 매 반복 이벤트마다 뒤집혀서 패널이 깜빡인다
+      if (event.key !== TOGGLE_KEY || event.repeat) return;
       toggleOpen();
     };
     window.addEventListener("keydown", onKey);
@@ -68,7 +69,20 @@ export function AdminPanel() {
         // (border-0/p-0을 같이 넣으면 Tailwind 컴파일 순서상 border-0가 border보다 뒤에 와서
         // 테두리가 사라져 버리므로 넣지 않는다 — 실제 컴파일 결과로 확인함)
         <fieldset
-          /* 패널 안에서 누른 키가 방의 이동·진행 핸들러까지 흘러가면 안 된다 */
+          /*
+           * 패널 안에서 누른 키가 방의 이동·진행 핸들러까지 흘러가면 안 된다.
+           * 버블 단계 stopPropagation만으로는 부족하다 — DialogueBox는 대사가 떠 있는 동안
+           * 자기 Enter 핸들러를 window에 캡처 단계로 붙여 두는데, 캡처는 window가 경로 맨
+           * 앞이라 여기서 막을 수 없는 것과 별개로, 이후 언젠가 window와 패널 사이(예: 앱
+           * 루트)에 캡처 리스너가 생기더라도 버블 쪽처럼 걸러지도록 캡처 단계 짝을 붙여 둔다.
+           * 백틱은 패널이 유일하게 직접 소비하는 키라, 여기서 stopPropagation과 함께 열림
+           * 상태를 뒤집어 둔다 — 그래야 패널 안에 포커스가 있어도 백틱으로 닫을 수 있다
+           * (버블 단계 window 리스너는 이 이벤트를 못 보므로 거기선 못 닫는다).
+           */
+          onKeyDownCapture={(event) => {
+            event.stopPropagation();
+            if (event.key === TOGGLE_KEY && !event.repeat) toggleOpen();
+          }}
           onKeyDown={(event) => event.stopPropagation()}
           className="m-0 flex w-56 flex-col gap-3 rounded-md border border-bone/30 bg-ink/95 p-3 text-bone"
         >
