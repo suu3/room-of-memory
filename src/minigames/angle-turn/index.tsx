@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
+import { AnswerKeypad, AnswerSlots } from "../answer-input";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 import { ANSWER_LENGTH, isCorrect, PAIRS } from "./rotation";
 
@@ -76,6 +77,14 @@ export function AngleTurnMinigame({ onComplete, onSettled }: MinigameProps) {
     return () => window.clearTimeout(timer);
   }, [rejected]);
 
+  // 슬롯을 다 채우면 스스로 확인한다 — 슬롯 UI에는 제출 버튼이 없다.
+  // 틀리면 입력이 남으므로(지워서 고치라고) 같은 값으로는 다시 확인하지 않는다.
+  const submitRef = useRef(submit);
+  submitRef.current = submit;
+  useEffect(() => {
+    if (input.length === ANSWER_LENGTH) submitRef.current();
+  }, [input]);
+
   const attemptsRef = useRef(attempts);
   attemptsRef.current = attempts;
   useEffect(() => {
@@ -115,32 +124,27 @@ export function AngleTurnMinigame({ onComplete, onSettled }: MinigameProps) {
         </p>
       </div>
 
+      {/*
+       * 자리수가 보이는 슬롯 + 화면 키패드. 빈 칸 수까지는 공짜 힌트다 — 각도의
+       * 규칙은 탁상시계가 들고 있다. 다 채우면 스스로 확인하므로 제출 버튼이 없다.
+       */}
       <form
-        className="mt-4 flex items-center gap-2"
+        className="mx-auto mt-4 flex w-full max-w-md flex-col gap-3"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
         }}
       >
-        <input
-          inputMode="numeric"
-          autoComplete="off"
-          disabled={solved}
+        <AnswerSlots
+          length={ANSWER_LENGTH}
           value={input}
-          onChange={(event) => setInput(event.target.value)}
-          aria-label={t("minigame.angleTurn.answerLabel")}
-          placeholder={t("minigame.angleTurn.placeholder")}
-          className={`min-w-0 flex-1 rounded-md border bg-paper px-3 py-2 text-lg tabular-nums tracking-[0.3em] text-ink outline-none transition-colors placeholder:tracking-normal placeholder:text-ink/35 focus-visible:border-memory ${
-            rejected ? "animate-page-nudge border-ember" : "border-bone"
-          } ${solved ? "border-memory text-memory" : ""}`}
+          onChange={setInput}
+          label={t("minigame.angleTurn.answerLabel")}
+          rejected={rejected}
+          solved={solved}
+          disabled={solved}
         />
-        <button
-          type="submit"
-          disabled={solved || input.trim() === ""}
-          className="shrink-0 cursor-pointer rounded-md border border-ink/15 px-5 py-2 text-base font-bold tracking-widest text-ink/70 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5 disabled:cursor-default disabled:opacity-40"
-        >
-          {t("minigame.angleTurn.submit")}
-        </button>
+        <AnswerKeypad length={ANSWER_LENGTH} value={input} onChange={setInput} disabled={solved} />
       </form>
     </MinigameShell>
   );

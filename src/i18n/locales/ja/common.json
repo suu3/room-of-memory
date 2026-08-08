@@ -326,6 +326,9 @@
         "diamond": "ダイヤ",
         "club": "クラブ"
       }
+    },
+    "answer": {
+      "backspace": "消す"
     }
   },
   "characterSheet": {

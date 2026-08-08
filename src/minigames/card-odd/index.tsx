@@ -5,8 +5,17 @@ import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
+import { AnswerKeypad, AnswerSlots } from "../answer-input";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
-import { BOARD, type Card, isCorrect, isIndexFlipped, printedColor, SUIT_GLYPH } from "./cards";
+import {
+  ANSWER,
+  BOARD,
+  type Card,
+  isCorrect,
+  isIndexFlipped,
+  printedColor,
+  SUIT_GLYPH,
+} from "./cards";
 
 /** 미궁 문제는 붙잡고 들여다보는 시간이 길다 — 스킵은 한참 뒤에야 내민다. */
 const SKIP_AFTER_MS = 90_000;
@@ -83,6 +92,14 @@ export function CardOddMinigame({ onComplete, onSettled }: MinigameProps) {
     return () => window.clearTimeout(timer);
   }, [rejected]);
 
+  // 슬롯을 다 채우면 스스로 확인한다 — 슬롯 UI에는 제출 버튼이 없다.
+  // 틀리면 입력이 남으므로(지워서 고치라고) 같은 값으로는 다시 확인하지 않는다.
+  const submitRef = useRef(submit);
+  submitRef.current = submit;
+  useEffect(() => {
+    if (input.length === ANSWER.length) submitRef.current();
+  }, [input]);
+
   const attemptsRef = useRef(attempts);
   attemptsRef.current = attempts;
   useEffect(() => {
@@ -148,33 +165,27 @@ export function CardOddMinigame({ onComplete, onSettled }: MinigameProps) {
         })}
       </ul>
 
+      {/*
+       * 자리수가 보이는 슬롯 + 화면 키패드. 빈 칸 수까지는 공짜 힌트다 — 무엇인지는
+       * 놀이책이 들고 있다. 다 채우면 스스로 확인하므로 제출 버튼이 없다.
+       */}
       <form
-        className="mx-auto mt-4 flex w-[min(100%,105svh)] items-center gap-2"
+        className="mx-auto mt-4 flex w-[min(100%,105svh)] flex-col gap-3"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
         }}
       >
-        <input
-          // 폰에서 숫자판이 먼저 뜨게 하되, 붙여넣기·구분기호는 isCorrect가 흘려 넘긴다
-          inputMode="numeric"
-          autoComplete="off"
-          disabled={solved}
+        <AnswerSlots
+          length={ANSWER.length}
           value={input}
-          onChange={(event) => setInput(event.target.value)}
-          aria-label={t("minigame.cardOdd.answerLabel")}
-          placeholder={t("minigame.cardOdd.placeholder")}
-          className={`min-w-0 flex-1 rounded-md border bg-paper px-3 py-2 text-lg tabular-nums tracking-[0.3em] text-ink outline-none transition-colors placeholder:tracking-normal placeholder:text-ink/35 focus-visible:border-memory ${
-            rejected ? "animate-page-nudge border-ember" : "border-bone"
-          } ${solved ? "border-memory text-memory" : ""}`}
+          onChange={setInput}
+          label={t("minigame.cardOdd.answerLabel")}
+          rejected={rejected}
+          solved={solved}
+          disabled={solved}
         />
-        <button
-          type="submit"
-          disabled={solved || input.trim() === ""}
-          className="shrink-0 cursor-pointer rounded-md border border-ink/15 px-5 py-2 text-base font-bold tracking-widest text-ink/70 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5 disabled:cursor-default disabled:opacity-40"
-        >
-          {t("minigame.cardOdd.submit")}
-        </button>
+        <AnswerKeypad length={ANSWER.length} value={input} onChange={setInput} disabled={solved} />
       </form>
     </MinigameShell>
   );

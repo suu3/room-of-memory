@@ -9,13 +9,12 @@ import { CardOddMinigame } from "./index";
 function setup(onComplete = vi.fn()) {
   const { container } = render(<CardOddMinigame onComplete={onComplete} />);
   const input = container.querySelector("input") as HTMLInputElement;
-  const form = container.querySelector("form") as HTMLFormElement;
   return {
     container,
     onComplete,
     answer(text: string) {
+      // 슬롯 UI는 다 채우면 스스로 확인한다 — 별도 제출이 없다
       fireEvent.change(input, { target: { value: text } });
-      fireEvent.submit(form);
     },
     input,
   };
@@ -40,8 +39,8 @@ describe("CardOddMinigame", () => {
     const { container } = setup();
 
     expect(container.querySelectorAll("li")).toHaveLength(BOARD.length);
-    // 남은 버튼은 확인 버튼 하나뿐 (스킵은 아직 안 뜬다)
-    expect(container.querySelectorAll("button")).toHaveLength(1);
+    // 카드 판 안에는 버튼이 하나도 없다 — 화면 키패드의 버튼은 판 밖이다
+    expect(container.querySelectorAll("ul button")).toHaveLength(0);
   });
 
   it("gives away neither rule on screen", () => {

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowRight,
   CaretRight,
   Check,
   EnvelopeSimple,
@@ -16,6 +15,7 @@ import { COMPUTER_PASSCODE, COMPUTER_PASSCODE_LENGTH } from "@/data/room-clues";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
+import { AnswerKeypad, AnswerSlots } from "../answer-input";
 import { useOnceCompleter, useSkipEligible } from "../shell";
 import {
   ARCHIVE_PAGES,
@@ -244,36 +244,34 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                   {t("minigame.computerBrowse.account")}
                 </p>
 
+                {/*
+                 * 자리수가 보이는 슬롯 + 화면 키패드. 비밀번호라 숫자 대신 점을
+                 * 세운다(masked). 다 채우면 typeEntry가 스스로 확인하므로 제출
+                 * 버튼이 없다.
+                 */}
                 <form
                   onSubmit={(event) => {
                     event.preventDefault();
                     submit();
                   }}
-                  className={`mt-1 flex items-center gap-1 rounded-full border bg-screen-glass py-1 pl-4 pr-1 shadow-chip transition-colors ${
-                    wrong ? "animate-page-nudge border-ember" : "border-ink/15"
-                  }`}
+                  className="mt-1 flex flex-col items-center gap-3"
                 >
-                  <input
-                    ref={inputRef}
-                    type="password"
-                    inputMode="numeric"
-                    autoComplete="off"
-                    maxLength={COMPUTER_PASSCODE_LENGTH}
-                    aria-label={t("minigame.computerBrowse.passwordLabel")}
-                    placeholder={t("minigame.computerBrowse.passwordLabel")}
+                  <AnswerSlots
+                    length={COMPUTER_PASSCODE_LENGTH}
                     value={entry}
+                    onChange={typeEntry}
+                    label={t("minigame.computerBrowse.passwordLabel")}
+                    masked
+                    rejected={wrong}
                     disabled={frozen}
-                    onChange={(event) => typeEntry(event.target.value)}
-                    className="w-40 bg-transparent text-center text-base tracking-[0.5em] text-ink outline-none placeholder:tracking-normal placeholder:text-ink/30"
+                    inputRef={inputRef}
                   />
-                  <button
-                    type="submit"
-                    aria-label={t("minigame.computerBrowse.submit")}
+                  <AnswerKeypad
+                    length={COMPUTER_PASSCODE_LENGTH}
+                    value={entry}
+                    onChange={typeEntry}
                     disabled={frozen}
-                    className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-ink/10 text-ink/60 transition-colors hover:bg-ink/20 hover:text-ink"
-                  >
-                    <ArrowRight size={15} weight="bold" />
-                  </button>
+                  />
                 </form>
 
                 <p

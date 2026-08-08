@@ -111,7 +111,8 @@ describe("ComputerBrowseMinigame", () => {
     runBoot();
 
     typeCode("08");
-    fireEvent.click(screen.getByRole("button", { name: /Log in/ }));
+    // 제출 버튼은 없어졌다(다 채우면 스스로 확인) — 못 채운 채 보내는 길은 Enter뿐이다
+    fireEvent.submit(screen.getByLabelText(/password/i).closest("form") as HTMLFormElement);
 
     expect(screen.getByText("Incorrect password")).toBeTruthy();
   });

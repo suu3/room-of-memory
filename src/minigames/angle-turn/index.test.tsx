@@ -9,14 +9,13 @@ import { ANSWER, ANSWER_LENGTH, PAIRS } from "./rotation";
 function setup(onComplete = vi.fn()) {
   const { container } = render(<AngleTurnMinigame onComplete={onComplete} />);
   const input = container.querySelector("input") as HTMLInputElement;
-  const form = container.querySelector("form") as HTMLFormElement;
   return {
     container,
     onComplete,
     input,
     answer(text: string) {
+      // 슬롯 UI는 다 채우면 스스로 확인한다 — 별도 제출이 없다
       fireEvent.change(input, { target: { value: text } });
-      fireEvent.submit(form);
     },
   };
 }
@@ -47,9 +46,12 @@ describe("AngleTurnMinigame", () => {
 
     expect(container.textContent).toContain("_".repeat(ANSWER_LENGTH));
     expect(container.textContent).not.toContain(ANSWER);
-    // 각도가 화면에 적히면 돌려볼 것도 없이 이어 적기만 하면 된다
+    // 각도가 화면에 적히면 돌려볼 것도 없이 이어 적기만 하면 된다.
+    // 키패드의 숫자(0~9 나열)는 힌트가 아니므로 지문에서만 본다.
+    const prose = container.cloneNode(true) as HTMLElement;
+    prose.querySelector(".grid-cols-3")?.remove();
     for (const pair of PAIRS) {
-      expect(container.textContent).not.toContain(String(pair.degrees));
+      expect(prose.textContent).not.toContain(String(pair.degrees));
     }
   });
 
