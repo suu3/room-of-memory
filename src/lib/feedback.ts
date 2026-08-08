@@ -56,13 +56,29 @@ export interface FeedbackFormConfig {
   entryMeta: string;
 }
 
-/** env에서 폼 설정을 읽는다. 하나라도 비어 있으면 null — 라우트가 503으로 알린다. */
+/**
+ * entry id 표기 정규화 — `entry.123`도 `123`도 받는다.
+ *
+ * 미리 채워진 링크에는 `entry.숫자`로 적히지만, 사람이 옮겨 적을 때 숫자만
+ * 남기기 쉽다. 형식이 둘 다 아니면 null — 잘못 적힌 채로 구글에 보내면
+ * 200이 오면서 데이터만 조용히 버려지는 게 이 연동의 함정이라, 알아볼 수
+ * 있는 오류는 여기서 막는다.
+ */
+function normalizeEntryId(value: string | undefined): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (/^entry\.\d+$/.test(trimmed)) return trimmed;
+  if (/^\d+$/.test(trimmed)) return `entry.${trimmed}`;
+  return null;
+}
+
+/** env에서 폼 설정을 읽는다. 하나라도 비거나 형식이 어긋나면 null — 라우트가 503으로 알린다. */
 export function readFormConfig(env: Record<string, string | undefined>): FeedbackFormConfig | null {
-  const formId = env.FEEDBACK_GOOGLE_FORM_ID;
-  const entryCategory = env.FEEDBACK_ENTRY_CATEGORY;
-  const entryBody = env.FEEDBACK_ENTRY_BODY;
-  const entryEmail = env.FEEDBACK_ENTRY_EMAIL;
-  const entryMeta = env.FEEDBACK_ENTRY_META;
+  const formId = env.FEEDBACK_GOOGLE_FORM_ID?.trim();
+  const entryCategory = normalizeEntryId(env.FEEDBACK_ENTRY_CATEGORY);
+  const entryBody = normalizeEntryId(env.FEEDBACK_ENTRY_BODY);
+  const entryEmail = normalizeEntryId(env.FEEDBACK_ENTRY_EMAIL);
+  const entryMeta = normalizeEntryId(env.FEEDBACK_ENTRY_META);
   if (!formId || !entryCategory || !entryBody || !entryEmail || !entryMeta) return null;
   return { formId, entryCategory, entryBody, entryEmail, entryMeta };
 }

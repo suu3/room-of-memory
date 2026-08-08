@@ -60,6 +60,31 @@ describe("readFormConfig", () => {
     expect(readFormConfig({ FEEDBACK_GOOGLE_FORM_ID: CONFIG.formId })).toBeNull();
     expect(readFormConfig({})).toBeNull();
   });
+
+  it("entry. 접두사 없이 숫자만 적어도 받아준다", () => {
+    // 미리 채워진 링크에서 옮겨 적다 보면 숫자만 남기기 쉽다 — 사람의 실수는 코드가 받는다
+    const result = readFormConfig({
+      FEEDBACK_GOOGLE_FORM_ID: CONFIG.formId,
+      FEEDBACK_ENTRY_CATEGORY: "111",
+      FEEDBACK_ENTRY_BODY: "222",
+      FEEDBACK_ENTRY_EMAIL: "333",
+      FEEDBACK_ENTRY_META: "444",
+    });
+
+    expect(result).toEqual(CONFIG);
+  });
+
+  it("숫자도 entry.N도 아닌 값은 설정 실패다 — 조용히 버려지느니 503이 낫다", () => {
+    expect(
+      readFormConfig({
+        FEEDBACK_GOOGLE_FORM_ID: CONFIG.formId,
+        FEEDBACK_ENTRY_CATEGORY: "https://docs.google.com/...",
+        FEEDBACK_ENTRY_BODY: "222",
+        FEEDBACK_ENTRY_EMAIL: "333",
+        FEEDBACK_ENTRY_META: "444",
+      }),
+    ).toBeNull();
+  });
 });
 
 describe("구글 폼 페이로드", () => {
