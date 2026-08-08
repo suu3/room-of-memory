@@ -392,23 +392,20 @@ describe("전환 컷씬", () => {
     expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
   });
 
-  it("1바퀴를 다 돌면 그때 방문이 열린다", () => {
-    // 문이 열리는 것이 2바퀴가 시작됐다는 신호다 — 2바퀴에서 라디오를 다시
-    // 조사할 때까지 기다리면 한 박자 늦는다
-    useMemoryRoomStore.setState({
-      collected: PHASE1_MEMORIES.map((memory) => memory.id).filter((id) => id !== "radio"),
-    });
+  it("라디오 목소리를 잡아야 방문이 열린다", () => {
+    // 순서: 1바퀴 끝 → 라디오가 다시 켜짐 → 목소리(revisited) → 문. 1바퀴를 다
+    // 돌았다고 바로 열리면 라디오가 부르는 연출이 통째로 건너뛰어진다
+    finishFirstRound();
     expect(selectDoorReady(useMemoryRoomStore.getState())).toBe(false);
 
-    finishFirstRound();
+    useMemoryRoomStore.setState({ revisited: ["radio"] });
 
     expect(selectDoorReady(useMemoryRoomStore.getState())).toBe(true);
-    // 2바퀴 재조사는 조건이 아니다
-    expect(useMemoryRoomStore.getState().revisited).toEqual([]);
   });
 
   it("한 번 연 문은 다시 열 대상이 아니다", () => {
     finishFirstRound();
+    useMemoryRoomStore.setState({ revisited: ["radio"] });
     useMemoryRoomStore.getState().openRoomDoor();
 
     expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
@@ -454,9 +451,21 @@ describe("2바퀴 — 라디오가 유일한 관문", () => {
     }
   });
 
-  it("라디오 목소리를 잡으면 나머지가 재점등된다", () => {
+  it("라디오 목소리를 잡아도 문을 열기 전에는 나머지가 잠겨 있다", () => {
+    // 문이 열리는 것이 2바퀴의 시작이다 — 단서 수집은 방과 거실을 오가는 일이라,
+    // 문도 안 열었는데 방 안에서 2바퀴가 다 돌면 거실이 부록이 된다
     startSecondRound();
     useMemoryRoomStore.setState({ revisited: ["radio"] });
+    const state = useMemoryRoomStore.getState();
+
+    for (const id of ["ball", "console", "frame", "phone", "computer"] as const) {
+      expect(hotspotStatus(state, id)).toBe("locked");
+    }
+  });
+
+  it("문이 열리면 나머지가 재점등된다", () => {
+    startSecondRound();
+    useMemoryRoomStore.setState({ revisited: ["radio"], doorOpened: true });
     const state = useMemoryRoomStore.getState();
 
     for (const id of ["ball", "console", "frame", "computer"] as const) {

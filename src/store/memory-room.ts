@@ -190,7 +190,7 @@ interface MemoryRoomState {
   reset: () => void;
 }
 
-type StateSnapshot = Pick<MemoryRoomState, "collected" | "revisited">;
+type StateSnapshot = Pick<MemoryRoomState, "collected" | "revisited" | "doorOpened">;
 
 export function gamePhaseOf(state: StateSnapshot): GamePhase {
   return state.collected.length >= MEMORY_GOAL ? 2 : 1;
@@ -212,6 +212,13 @@ export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus
   }
   const config = MEMORY_BY_ID[id].phase2;
   if (!config || state.revisited.includes(id)) return "done";
+  /*
+   * 라디오 목소리만은 문보다 앞이다 — 그걸 들어야 문이 열리니까(selectDoorReady).
+   * 나머지 재조사는 전부 문 뒤에 있다: 문이 열리는 것이 2바퀴의 시작이고, 단서
+   * 수집은 방과 거실을 오가는 일이어야 한다. 문도 안 열었는데 방 안에서 2바퀴가
+   * 다 돌아가면 거실이 부록이 된다.
+   */
+  if (id !== "radio" && !state.doorOpened) return "locked";
   const unlockAfter = config.unlockAfter ?? [];
   return unlockAfter.every((dep) => state.revisited.includes(dep)) ? "available" : "locked";
 }
@@ -414,8 +421,8 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
   return {
     collected,
     revisited,
-    // 방문은 1바퀴를 다 돈 뒤에만 열린다 — 조건이 안 맞는 저장본은 닫고 시작
-    doorOpened: saved.doorOpened === true && collected.length === MEMORY_GOAL,
+    // 방문은 라디오 목소리를 들은 뒤에만 열린다 — 조건이 안 맞는 저장본은 닫고 시작
+    doorOpened: saved.doorOpened === true && revisited.includes("radio" as MemoryId),
     solvedPuzzles: Array.isArray(saved.solvedPuzzles)
       ? PUZZLE_IDS.filter((id) => (saved.solvedPuzzles as unknown[]).includes(id))
       : [],
@@ -647,18 +654,15 @@ export const selectGamePhase = (state: MemoryRoomState) => gamePhaseOf(state);
 export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
 
 /**
- * 배트를 쥘 수 있는가 — 1바퀴를 다 돈 뒤, 아직 문을 안 열었을 때.
+ * 배트를 쥘 수 있는가 — 라디오 목소리를 들은 뒤, 아직 문을 안 열었을 때.
  *
- * 조건이 "2바퀴에서 라디오를 다시 조사(revisited)"였는데, 그러면 2바퀴가 이미
- * 시작되고 한 박자 지난 뒤에야 문이 열렸다. 순서가 거꾸로다 — 1바퀴를 다 보면
- * (라디오까지) 문이 열리고, 그 열림이 2바퀴가 시작됐다는 신호여야 한다.
- *
- * 완료가 아니라 진입에 거는 원칙은 그대로다 (v2 기획 3장): 거실의 단서와 문제가
- * 2바퀴 진행의 일부라서, 문이 2바퀴 완료를 기다리면 거실 콘텐츠가 전부 엔딩
- * 뒤로 밀린다.
+ * 순서가 정해져 있다: 1바퀴 끝(라디오 방송·암전) → 라디오가 저 혼자 다시 켜짐 →
+ * 목소리를 잡음(revisited) → 배트가 켜지고 문이 열림 → **그때가 2바퀴의 시작**.
+ * 문이 열리기 전의 방은 아직 2바퀴가 아니다 — 나머지 재조사도 문이 열려야 풀린다
+ * (hotspotStatus의 doorOpened 게이트).
  */
 export const selectDoorReady = (state: MemoryRoomState) =>
-  gamePhaseOf(state) === 2 && !state.doorOpened;
+  state.revisited.includes("radio") && !state.doorOpened;
 
 /** 방문이 열려 있는가 — 걷기 영역과 문짝 회전이 같이 본다. */
 export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;

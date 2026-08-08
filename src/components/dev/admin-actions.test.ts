@@ -16,14 +16,14 @@ describe("applyAdminPatch", () => {
     expect(useMemoryRoomStore.getState().collected).toEqual(["radio", "phone"]);
   });
 
-  it("drops a door opened before phase 1 is finished", () => {
-    // sanitizeProgress의 불변식 — 1바퀴를 다 돌기 전에는 방문이 열릴 수 없다
-    applyAdminPatch({ collected: ["radio"], doorOpened: true });
+  it("drops a door opened without the radio revisited", () => {
+    // sanitizeProgress의 불변식 — 라디오 목소리를 듣기 전에는 방문이 열릴 수 없다
+    applyAdminPatch({ collected: PHASE1_IDS, doorOpened: true });
     expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
   });
 
-  it("keeps a door opened once phase 1 is finished", () => {
-    applyAdminPatch({ collected: PHASE1_IDS, doorOpened: true });
+  it("keeps a door opened once the radio is revisited", () => {
+    applyAdminPatch({ collected: PHASE1_IDS, revisited: ["radio"], doorOpened: true });
     expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
   });
 
