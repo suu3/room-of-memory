@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
+import { AdminPanel } from "@/components/dev/AdminPanel";
 import { MEMORY_GOAL, memoriesForPhase, ROOM_STAGES } from "@/data/memory-room";
 import { useAudioRuntime, useRoomMusic } from "@/lib/audio";
 import {
@@ -209,6 +210,13 @@ export function MemoryRoom() {
       <TitleScreen />
       {/* 타이틀 화면에서도 열 수 있어야 하므로 타이틀보다 뒤에 그린다 */}
       <ContactModal />
+
+      {/*
+        개발 빌드에서만 뜨는 진행 점프 패널. process.env.NODE_ENV는 Next가 리터럴로
+        치환하므로 프로덕션 컴파일에서는 이 자리가 `false && …`가 되어 패널 코드가
+        번들에서 통째로 빠진다 — dynamic import가 아니라 정적 import여야 그렇게 된다.
+      */}
+      {process.env.NODE_ENV !== "production" && <AdminPanel />}
 
       {/*
         부팅 커튼(z-50) — 맨 위에서 전부 덮는다. 타이틀보다 **뒤에** 그리는 것이
