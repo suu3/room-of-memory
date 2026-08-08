@@ -85,7 +85,8 @@ const TABLE_PARTS = [
 /** 의자 한 벌 — 좌판·등받이·다리 네 개. 원점이 좌판 중심이라 통째로 옮긴다. */
 const CHAIR_PART_TEMPLATE = [
   { size: [0.44, 0.07, 0.44], position: [0, 0.56, 0], color: "slate" },
-  { size: [0.44, 0.5, 0.07], position: [0, 0.87, -0.185], color: "slate" },
+  // 등받이 뒷면(-0.245)을 좌판 모서리(-0.22) 뒤로 뺀다 — 같은 평면이면 깜빡인다
+  { size: [0.44, 0.5, 0.07], position: [0, 0.87, -0.21], color: "slate" },
   { size: [0.06, 0.56, 0.06], position: [-0.17, 0.28, -0.17], color: "ink" },
   { size: [0.06, 0.56, 0.06], position: [0.17, 0.28, -0.17], color: "ink" },
   { size: [0.06, 0.56, 0.06], position: [-0.17, 0.28, 0.17], color: "ink" },
