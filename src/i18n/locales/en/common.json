@@ -84,6 +84,16 @@
       "help": "The moment the needle crosses the lit band — Space",
       "help_touch": "Tap the moment the needle crosses the lit band"
     },
+    "radioQuiz": {
+      "title": "Spell the Answer",
+      "help": "Pick letters to fill the blanks — Backspace erases the last one",
+      "help_touch": "Tap letters to fill the blanks — tap a filled blank to erase it",
+      "question": "Why am I trapped in this room?",
+      "answer": "ZOMBIE",
+      "pool": "Z O M B I E R A D S",
+      "wrong": "…No. That's not it.",
+      "slotLabel": "Blank {{index}}"
+    },
     "photoWipe": {
       "title": "Wipe the Photo",
       "help": "Drag with the mouse to wipe the dust away",

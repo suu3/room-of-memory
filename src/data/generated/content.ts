@@ -94,7 +94,7 @@ export const MEMORIES: MemoryItem[] = [
     phase1: {
       interaction: {
         scriptId: "radio-intro",
-        minigameId: "frequency-tune",
+        minigameId: "radio-quiz",
         resultScriptId: "radio-broadcast",
       },
       unlockAfter: ["console", "window", "frame", "phone", "calendar", "ball"],
@@ -251,6 +251,8 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "broadcast", textKey: "scripts.radio-broadcast.line2" },
       { speaker: "broadcast", textKey: "scripts.radio-broadcast.line3" },
       { speaker: "broadcast", textKey: "scripts.radio-broadcast.line4" },
+      { speaker: "hero", textKey: "scripts.radio-broadcast.line5" },
+      { speaker: "hero", textKey: "scripts.radio-broadcast.line6" },
     ],
   },
   "radio-voice-intro": {
@@ -262,8 +264,9 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "signal", textKey: "scripts.radio-voice.line1" },
       { speaker: "signal", textKey: "scripts.radio-voice.line2" },
-      { speaker: "hero", textKey: "scripts.radio-voice.line3", expression: "surprised" },
-      { speaker: "hero", textKey: "scripts.radio-voice.line4" },
+      { speaker: "signal", textKey: "scripts.radio-voice.line3" },
+      { speaker: "hero", textKey: "scripts.radio-voice.line4", expression: "surprised" },
+      { speaker: "hero", textKey: "scripts.radio-voice.line5" },
     ],
   },
   "ball-echo": {

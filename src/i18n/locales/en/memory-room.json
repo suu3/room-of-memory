@@ -133,19 +133,22 @@
       "line2": "…It only ever picks up noise anyway."
     },
     "radio-broadcast": {
-      "line1": "…This is an emergency broadcast. All citizens must take shelter indoors immediately.",
+      "line1": "…This is an emergency broadcast. A zombie outbreak is underway. All citizens must take shelter indoors immediately.",
       "line2": "The infection has spread past the capital region into the entire south.",
       "line3": "It has reached Busan. The areas still under control are—",
-      "line4": "Kssh… kkt—"
+      "line4": "Kssh… kkt—",
+      "line5": "…Right. That's how it was.",
+      "line6": "I hadn't forgotten. I was pretending I had."
     },
     "radio-voice-intro": {
       "line1": "…You went dead. I watched you go dead."
     },
     "radio-voice": {
-      "line1": "Hey, is anyone there?",
-      "line2": "…If you're out there, say something.",
-      "line3": "That's a person. That's a real voice.",
-      "line4": "Nothing happens if I keep sitting here."
+      "line1": "Ah, damn… is this thing even transmitting? Can anyone hear me?",
+      "line2": "If you're alive out there, come to us. Remember — the answer is here.",
+      "line3": "We'll talk once we're together— kssht… click.",
+      "line4": "That's a person. That's a real voice.",
+      "line5": "Nothing happens if I keep sitting here."
     },
     "ball-echo": {
       "line1": "Maybe I can stop throwing it alone.",
