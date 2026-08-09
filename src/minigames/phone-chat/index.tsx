@@ -63,8 +63,14 @@ function Bubble({
         >
           {text}
         </p>
-        <span className="shrink-0 pb-1 text-[0.625rem] tabular-nums text-bone/35">
-          {message.time}
+        {/* 안읽음 수가 시각 위에 선다 — 줄어들지 않는 이 숫자가 이 화면의 화자다 */}
+        <span
+          className={`flex shrink-0 flex-col pb-1 text-[0.625rem] tabular-nums ${
+            mine ? "items-end" : "items-start"
+          }`}
+        >
+          {message.unread ? <span className="font-bold text-memory">{message.unread}</span> : null}
+          <span className="text-bone/35">{message.time}</span>
         </span>
       </div>
     </li>

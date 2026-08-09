@@ -51,13 +51,30 @@ describe("phone-chat thread", () => {
     expect(isThreadComplete(GROUP_CHAT.length, true)).toBe(true);
   });
 
-  it("keeps the thread readable: unique ids, and every line is the player's", () => {
-    // 이 화면은 도해가 보낸 기록만 담는다 — 답이 한 줄이라도 섞이면 연출이 뒤집힌다
+  it("keeps the thread readable: unique ids, and labels only on friends' lines", () => {
     const ids = GROUP_CHAT.map((message) => message.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const message of GROUP_CHAT) {
+      // 친구 줄에는 보낸 사람 라벨이, 내 줄에는 라벨이 없어야 말풍선이 맞게 선다
+      if (message.side === "them") expect(message.fromKey).toBeDefined();
+      else expect(message.fromKey).toBeUndefined();
+    }
+  });
+
+  it("splits into a lively past and an unread-2 silence — nothing in between", () => {
+    // 살아 있는 구간(안읽음 없음) 뒤로는 도해 혼자, 전부 안읽음 2 — 이 대비가 연출의 전부다
+    const firstUnread = GROUP_CHAT.findIndex((message) => message.unread !== undefined);
+    expect(firstUnread).toBeGreaterThan(0);
+    const lively = GROUP_CHAT.slice(0, firstUnread);
+    expect(lively.some((message) => message.side === "them")).toBe(true);
+    expect(lively.some((message) => message.side === "me")).toBe(true);
+    for (const message of lively) {
+      expect(message.unread).toBeUndefined();
+    }
+    for (const message of GROUP_CHAT.slice(firstUnread)) {
       expect(message.side).toBe("me");
-      expect(message.fromKey).toBeUndefined();
+      // 셋이 쓰는 방이라 안읽음 최대치가 2 — 이 값이 "둘 다 읽지 않았다"를 말한다
+      expect(message.unread).toBe(2);
     }
   });
 

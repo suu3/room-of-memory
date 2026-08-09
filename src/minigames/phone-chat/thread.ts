@@ -4,9 +4,10 @@
  * 대사 본문은 여기 넣지 않는다 — 시나리오 규칙(.claude/rules/visual-novel.md)대로
  * i18n 키만 담고 ko/en/ja는 common.json이 갖는다.
  *
- * 기록은 전부 도해가 보낸 쪽이다. 받은 메시지도, 걸려 온 전화도 없다 —
- * 로어(memory-room의 lore.phone)가 말하는 "부재중 전화는 전부 내가 건 쪽이다"가
- * 이 화면의 전부다.
+ * 단톡방은 그날 오후까지 평범하게 살아 있다가, 어느 순간부터 도해 혼자다.
+ * 무슨 일이 있었는지는 아무도 입에 올리지 않는다 — 내 메시지 옆에 안읽음 2가
+ * 끝까지 남아 있는 것이 이 화면의 전부다. 통화 기록은 로어(memory-room의
+ * lore.phone)가 말하는 "부재중 전화는 전부 내가 건 쪽이다"를 그대로 보여준다.
  */
 
 import type { CommonTextKey } from "@/types/minigame";
@@ -21,6 +22,8 @@ export interface ChatMessage {
   textKey: CommonTextKey;
   /** 화면에 찍히는 시각. 실제 시간 계산은 하지 않는다. */
   time: string;
+  /** 말풍선 옆에 남는 안 읽은 사람 수. 그날 이후 한 번도 줄지 않았다. */
+  unread?: number;
 }
 
 export interface OutgoingCall {
@@ -33,21 +36,42 @@ export interface OutgoingCall {
 }
 
 /**
- * 친구들 단톡방. 전부 도해가 보낸 줄이고 답은 한 줄도 없다 —
- * 거슬러 올라갈수록 목소리가 혼자라는 게 드러나도록.
+ * 친구들 단톡방 — 셋이 쓰는 방(우진·태오·나)이라 안읽음 최대치가 2다.
  *
- * side는 전부 "me"지만 ChatSide/fromKey는 남겨 둔다. 말풍선(Bubble)이 양쪽을
- * 그릴 줄 아는 편이 나중에 답이 오는 장면을 넣을 때 데이터만 고치면 되게 한다.
+ * 위쪽(과거)은 피시방 내기로 떠드는 평범한 방과 후다. 16시 이후로는 도해의
+ * 목소리만 남고, 그 줄들에는 안읽음 2가 그대로 붙어 있다 — 둘 다 한 번도
+ * 읽지 않았다는 것만이 그날의 증거다.
+ *
+ * 재난을 입에 올리는 줄은 한 줄도 넣지 않는다 — 세계관을 여는 반전은
+ * 강도 4의 라디오 한 곳이 갖는다 (docs/content-design.md 4-1).
  */
 export const GROUP_CHAT: ChatMessage[] = [
-  { id: "m1", side: "me", textKey: "minigame.phoneChat.chat.m1", time: "16:02" },
-  { id: "m2", side: "me", textKey: "minigame.phoneChat.chat.m2", time: "16:40" },
-  { id: "m3", side: "me", textKey: "minigame.phoneChat.chat.m3", time: "17:15" },
-  { id: "m4", side: "me", textKey: "minigame.phoneChat.chat.m4", time: "18:20" },
-  { id: "m5", side: "me", textKey: "minigame.phoneChat.chat.m5", time: "19:03" },
-  { id: "m6", side: "me", textKey: "minigame.phoneChat.chat.m6", time: "20:02" },
-  { id: "m7", side: "me", textKey: "minigame.phoneChat.chat.m7", time: "21:47" },
-  { id: "m8", side: "me", textKey: "minigame.phoneChat.chat.m8", time: "23:58" },
+  {
+    id: "w1",
+    side: "them",
+    fromKey: "minigame.phoneChat.contact.woojin",
+    textKey: "minigame.phoneChat.chat.w1",
+    time: "15:42",
+  },
+  {
+    id: "t1",
+    side: "them",
+    fromKey: "minigame.phoneChat.contact.taeo",
+    textKey: "minigame.phoneChat.chat.t1",
+    time: "15:43",
+  },
+  { id: "m1", side: "me", textKey: "minigame.phoneChat.chat.m1", time: "15:44" },
+  { id: "m2", side: "me", textKey: "minigame.phoneChat.chat.m2", time: "15:45" },
+  {
+    id: "w2",
+    side: "them",
+    fromKey: "minigame.phoneChat.contact.woojin",
+    textKey: "minigame.phoneChat.chat.w2",
+    time: "15:46",
+  },
+  { id: "m3", side: "me", textKey: "minigame.phoneChat.chat.m3", time: "16:40", unread: 2 },
+  { id: "m4", side: "me", textKey: "minigame.phoneChat.chat.m4", time: "18:41", unread: 2 },
+  { id: "m5", side: "me", textKey: "minigame.phoneChat.chat.m5", time: "19:03", unread: 2 },
 ];
 
 /** 도해가 건 전화. 아무도 받지 않았고, 뒤로 갈수록 다시 거는 횟수가 늘어난다. */
