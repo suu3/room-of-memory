@@ -13,11 +13,8 @@ import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-m
 import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
 import { useGlowHover } from "./use-glow-hover";
-import { useNearPlayer } from "./use-near-player";
 
 useGLTF.preload(ASSETS.models.baseballBat, true, true);
-
-const [BAT_X, , BAT_Z] = BAT_PLACEMENT.position;
 
 /** 준비되기 전의 배트가 내는 아주 옅은 빛 — "여기 뭔가 있다"까지만 말한다. */
 const DORMANT_EMISSIVE = 0.06;
@@ -41,9 +38,6 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
   const grabBat = useMemoryRoomStore((state) => state.grabBat);
   const clickable = ready && !started;
   const { hovered, handlers } = useGlowHover(clickable);
-  // 다가가면 빛난다 — 쥘 수 있게 된 뒤부터만. 아직 아닌 배트가 빛나면
-  // 다 돌지도 않았는데 엔딩이 열린 것처럼 읽힌다.
-  const near = useNearPlayer(BAT_X, BAT_Z, BAT_PLACEMENT.interactionRadius) && clickable;
   const motionRef = useRef<Group>(null);
   const hoverRef = useRef(0);
   const punchRef = useRef(PUNCH_DURATION);
@@ -119,13 +113,29 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
         grab();
       }}
     >
-      <MemoryGlowSelection selectionKey="ending-bat" tier="memory" enabled={hovered || near}>
+      {/*
+        쥘 수 있으면 방 어디서 봐도 빛난다 — HUD가 "문 옆의 배트가 빛난다"고
+        말해 주는데 다가가야만 켜지면 그 말이 거짓이 된다. 아직 아닌 배트는
+        원래대로 어둡다 (DORMANT_EMISSIVE).
+      */}
+      <MemoryGlowSelection selectionKey="ending-bat" tier="memory" enabled={clickable}>
         <group ref={motionRef}>
           <group rotation={BAT_PLACEMENT.rotation} scale={BAT_PLACEMENT.scale} {...handlers}>
             <primitive object={bat} />
           </group>
         </group>
       </MemoryGlowSelection>
+      {/*
+        터치 판정 — 배트는 얇고 기울어진 메쉬라 모바일에서 정확히 짚기 어렵다.
+        기억 오브젝트들의 memory-hit 구와 같은 방식으로, 쥘 수 있는 동안만
+        투명한 구가 탭을 받아 준다 (글로우 선택 밖이라 윤곽선에는 안 잡힌다).
+      */}
+      {clickable ? (
+        <mesh name="ending-bat-hit">
+          <sphereGeometry args={[BAT_PLACEMENT.interactionRadius, 12, 8]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      ) : null}
     </group>
   );
 }
