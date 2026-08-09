@@ -65,7 +65,8 @@
   "contact": {
     "title": "Credits",
     "back": "Back to the room",
-    "close": "Close credits"
+    "close": "Close credits",
+    "support": "Made with support from the Gyeonggi Youth Gap Year Program."
   },
   "minigame": {
     "start": "Start",

@@ -13,32 +13,38 @@ export const CONTACT_LINKS = [
 
 /** 페이지와 모달이 같은 본문을 쓴다 — /contact로 직접 들어와도 내용이 갈리지 않는다. */
 export function ContactLinks() {
+  const { t } = useTranslation();
+
   return (
-    <ul className="flex flex-col">
-      {CONTACT_LINKS.map((link) => (
-        <li key={link.label} className="border-t border-ink/10 last:border-b">
-          <a
-            href={link.href}
-            target={link.href.startsWith("http") ? "_blank" : undefined}
-            rel="noreferrer"
-            className="group flex items-center justify-between gap-4 py-4 transition-colors active:bg-ink/5"
-          >
-            <span className="shrink-0 text-xs font-bold uppercase tracking-[0.18em] text-ink/45">
-              {link.label}
-            </span>
-            {/* 메일 주소는 어절이 없다 — 좁아지면 어디서든 접히게 두는 편이 잘린 것보다 낫다 */}
-            <span className="flex min-w-0 items-center gap-2 break-ko text-right text-sm text-ink/80 transition-colors group-hover:text-ink">
-              {link.value}
-              <ArrowUpRight
-                size={14}
-                weight="bold"
-                className="text-ink/30 transition-colors group-hover:text-memory"
-              />
-            </span>
-          </a>
-        </li>
-      ))}
-    </ul>
+    <div className="flex flex-col gap-5">
+      <ul className="flex flex-col">
+        {CONTACT_LINKS.map((link) => (
+          <li key={link.label} className="border-t border-ink/10 last:border-b">
+            <a
+              href={link.href}
+              target={link.href.startsWith("http") ? "_blank" : undefined}
+              rel="noreferrer"
+              className="group flex items-center justify-between gap-4 py-4 transition-colors active:bg-ink/5"
+            >
+              <span className="shrink-0 text-xs font-bold uppercase tracking-[0.18em] text-ink/45">
+                {link.label}
+              </span>
+              {/* 메일 주소는 어절이 없다 — 좁아지면 어디서든 접히게 두는 편이 잘린 것보다 낫다 */}
+              <span className="flex min-w-0 items-center gap-2 break-ko text-right text-sm text-ink/80 transition-colors group-hover:text-ink">
+                {link.value}
+                <ArrowUpRight
+                  size={14}
+                  weight="bold"
+                  className="text-ink/30 transition-colors group-hover:text-memory"
+                />
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      {/* 지원사업 표기 — 요란하지 않게, 크레딧을 열어본 사람에게만 보인다 */}
+      <p className="break-ko text-xs leading-relaxed text-ink/35">{t("contact.support")}</p>
+    </div>
   );
 }
 
