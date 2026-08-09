@@ -295,7 +295,7 @@
     },
     "angleTurn": {
       "title": "Turned Letters",
-      "help": "Turn the left one clockwise and it becomes the right one. Write those values, left to right",
+      "help": "Write the answer, left to right",
       "attempts": "Wrong answers",
       "answerLabel": "Answer",
       "placeholder": "Type your answer",
