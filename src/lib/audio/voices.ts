@@ -30,7 +30,6 @@ export type VoiceId =
   | "radioCut"
   | "radioWake"
   | "phoneBeep"
-  | "pencilStroke"
   // 방 안의 곁가지 인터랙션 (서랍·의자)
   | "drawer"
   | "chairDrag";
@@ -232,11 +231,6 @@ export const VOICES: Record<VoiceId, Voice> = {
       { from: C5, waveform: "square", delay: 0, duration: 0.07, gain: 0.16 },
       { from: C5, waveform: "square", delay: 0.11, duration: 0.07, gain: 0.16 },
     ],
-  },
-  /** 正자 한 획. 종이를 긁는 아주 짧은 마찰 — 달력을 넘기는 소리보다 작아야 한다. */
-  pencilStroke: {
-    tones: [{ from: 260, to: 210, waveform: "sine", delay: 0, duration: 0.05, gain: 0.06 }],
-    noise: { delay: 0, duration: 0.07, gain: 0.18, highpass: 1400, lowpass: 6000 },
   },
   /**
    * 서랍이 밀려 나오는 소리. 나무가 나무 위를 미끄러지는 마찰(노이즈)에, 끝까지
