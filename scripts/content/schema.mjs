@@ -12,7 +12,7 @@ export const LOCALES = ["ko", "en", "ja"];
 export const BASE_LOCALE = "ko";
 
 /** 초상 표정 프레임. 생략하면 neutral. */
-export const EXPRESSIONS = ["neutral", "smile", "surprised"];
+export const EXPRESSIONS = ["neutral", "smile", "surprised", "embarrassed"];
 
 /**
  * 대사창을 쓸 수 있는 화자. 이름은 i18n의 characters.<id>.name에 있다

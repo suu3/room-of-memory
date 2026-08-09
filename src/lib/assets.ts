@@ -77,10 +77,11 @@ export const ASSETS = {
     cutsceneRadioRoom: "/assets/images/cutscene-radio-room.webp",
     cutsceneRadioHands: "/assets/images/cutscene-radio-hands.webp",
     cutsceneRadioSignal: "/assets/images/cutscene-radio-signal.webp",
-    /** 대사창 초상. 세 장 모두 같은 크롭이라 겹쳐서 opacity만 토글하면 정렬이 맞는다. */
+    /** 대사창 초상. 전부 같은 크롭이라 겹쳐서 opacity만 토글하면 정렬이 맞는다. */
     characterHeroNeutral: "/assets/images/character-hero-neutral.webp",
     characterHeroSmile: "/assets/images/character-hero-smile.webp",
     characterHeroSurprised: "/assets/images/character-hero-surprised.webp",
+    characterHeroEmbarrassed: "/assets/images/character-hero-embarrassed.webp",
     characterHeroSheet: "/assets/images/character-hero-sheet.webp",
   },
   /**

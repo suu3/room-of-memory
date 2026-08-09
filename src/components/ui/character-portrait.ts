@@ -12,11 +12,12 @@ export function hasPortrait(speaker: CharacterId): boolean {
   return PORTRAIT_SPEAKERS.includes(speaker);
 }
 
-/** 세 장 모두 같은 크롭이라 겹쳐두고 opacity만 토글하면 정렬이 맞는다. */
+/** 전부 같은 크롭이라 겹쳐두고 opacity만 토글하면 정렬이 맞는다. */
 export const PORTRAIT_SOURCES: Record<CharacterExpression, string> = {
   neutral: ASSETS.images.characterHeroNeutral,
   smile: ASSETS.images.characterHeroSmile,
   surprised: ASSETS.images.characterHeroSurprised,
+  embarrassed: ASSETS.images.characterHeroEmbarrassed,
 };
 
 export const PORTRAIT_EXPRESSIONS = Object.keys(PORTRAIT_SOURCES) as CharacterExpression[];
