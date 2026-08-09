@@ -344,7 +344,7 @@
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "Gather the memories scattered across a room that never opened.",
-    "start": "START",
+    "start": "New Game",
     "loading": "Loading the room… {{percent}}%",
     "howTo": "Wander the room and examine the objects a memory still clings to.",
     "howToMove": "Move WASD",
@@ -352,7 +352,12 @@
     "howToExamine": "Examine E · click",
     "howToExamine_touch": "Examine tap the object",
     "resume": "Continue",
-    "saved": "You left off with {{count}} memories gathered."
+    "saved": "You left off with {{count}} memories gathered.",
+    "menu": "Main menu",
+    "newGameTitle": "Start over from the beginning?",
+    "newGameBody": "The {{count}} memories you gathered will be lost. Your language setting is kept.",
+    "newGameConfirm": "Start over",
+    "newGameCancel": "Cancel"
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Warning } from "@phosphor-icons/react";
+import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
@@ -19,12 +20,35 @@ import { RisingDust } from "./RisingDust";
 const ENTER_DELAY_MS = 260;
 
 /**
+ * 메뉴 항목의 공통 옷. 인디게임 타이틀 메뉴의 관례를 따른다 — 항목들은 같은 크기의
+ * 세로 목록이고, 지금 고른 것 하나만 금빛(hover/focus 색 + ▶ 표식)으로 켜진다.
+ * 금빛 글로우는 globals.css의 .title-menu-item이 얹는다.
+ */
+const MENU_ITEM_CLASS =
+  "title-menu-item group relative w-full cursor-pointer rounded-full px-10 py-2.5 text-center font-pixel text-xl tracking-[0.08em] text-bone/75 transition-colors hover:text-memory focus-visible:text-memory focus-visible:outline-none active:text-memory";
+
+/** hover/focus에만 떠오르는 선택 표식. 라벨은 가운데 그대로 두고 왼쪽에 얹는다. */
+function MenuMarker() {
+  return (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-memory opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+    >
+      ▶
+    </span>
+  );
+}
+
+/**
  * 게임 시작 화면. 방을 새로 마운트하지 않고 그 위에 덮는다 —
- * 뒤에서 3D 씬이 이미 돌고 있어야 "시작"을 누른 순간 지연 없이 들어간다.
+ * 뒤에서 3D 씬이 이미 돌고 있어야 메뉴를 고른 순간 지연 없이 들어간다.
+ *
+ * 화면의 짜임은 인디게임 메인 메뉴다: 큰 타이틀 로고 아래 세로 메뉴
+ * (이어하기 · 새 게임 · 만든 사람)가 서고, ↑/↓로 오가며 Enter로 고른다.
+ * 저장이 있는 판의 "새 게임"은 진행을 지우므로 확인을 한 번 거친다.
  *
  * 에셋을 받는 동안의 로딩 표시는 여기 없다. 부팅 커튼(BootCurtain)이 이 화면째로
- * 덮고 있다가 다 받으면 걷히므로, 이 화면이 보일 때는 이미 다 받은 뒤다 — 잠긴
- * 시작 버튼도 그 아래 진행 바도 필요 없다.
+ * 덮고 있다가 다 받으면 걷히므로, 이 화면이 보일 때는 이미 다 받은 뒤다.
  */
 export function TitleScreen() {
   const { t } = useTranslation();
@@ -33,6 +57,7 @@ export function TitleScreen() {
   const startGame = useMemoryRoomStore((state) => state.startGame);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const setContactOpen = useMemoryRoomStore((state) => state.setContactOpen);
+  const reset = useMemoryRoomStore((state) => state.reset);
   const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
   /**
    * 저장된 진행. localStorage에서 되살아나므로 서버 렌더에는 없고, 첫 클라이언트
@@ -40,13 +65,16 @@ export function TitleScreen() {
    */
   const collectedCount = useMemoryRoomStore((state) => state.collected.length);
   const hasSave = collectedCount > 0;
-  const startButtonRef = useRef<HTMLButtonElement>(null);
+  const itemsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const cancelRef = useRef<HTMLButtonElement>(null);
   const enterTimerRef = useRef<number | null>(null);
   // 눌린 순간 바로 방이 드러나면 전환이 뚝 끊긴다. 로딩 화면을 한 박자 끼워 넣는다.
-  // 리셋으로 타이틀에 돌아오면 다시 시작 버튼이 보여야 하므로 리비전에 묶어 둔다 —
+  // 리셋으로 타이틀에 돌아오면 다시 메뉴가 보여야 하므로 리비전에 묶어 둔다 —
   // 단순 boolean이면 리셋 후에도 true로 남아 로딩 화면에서 빠져나오지 못한다.
   const [enteringAtRevision, setEnteringAtRevision] = useState<number | null>(null);
   const entering = enteringAtRevision === resetRevision;
+  /** 저장이 있는 판에서 "새 게임"을 골랐다 — 지우기 전에 한 번 묻는다. */
+  const [confirming, setConfirming] = useState(false);
   /** 부팅 커튼이 걷혔는가. 걷히기 전에는 이 화면이 커튼 뒤에 가려 있다. */
   const booted = useMemoryRoomStore((state) => state.booted);
 
@@ -62,16 +90,88 @@ export function TitleScreen() {
     [],
   );
 
-  // 커튼이 다 걷힌 뒤에 포커스를 준다 — 커튼 뒤의 안 보이는 버튼에 포커스를 박아
+  // 커튼이 다 걷힌 뒤에 포커스를 준다 — 커튼 뒤의 안 보이는 메뉴에 포커스를 박아
   // 두면 키보드로 눌러 보고 아무 일도 안 일어나는 걸 겪은 뒤에야 기다려야 한다는
-  // 걸 알게 된다.
+  // 걸 알게 된다. 첫 항목이 곧 기본 선택이다 (저장이 있으면 이어하기).
   useEffect(() => {
-    if (!started && booted) startButtonRef.current?.focus();
+    if (!started && booted) itemsRef.current[0]?.focus();
   }, [started, booted]);
+
+  // 확인 대화상자가 뜨면 포커스도 따라 들어간다. 기본은 취소 — 지우는 쪽이
+  // Enter 연타에 걸리면 안 된다.
+  useEffect(() => {
+    if (confirming) cancelRef.current?.focus();
+  }, [confirming]);
+
+  // Escape로 확인을 물린다. HudMenu처럼 문서 리스너로 받는다 — 대화상자 안 어디에
+  // 포커스가 있어도 닿아야 한다.
+  useEffect(() => {
+    if (!confirming) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      playSound("close");
+      setConfirming(false);
+      // 물러난 자리로 포커스를 돌려준다 — 새 게임은 저장이 있는 판에서 두 번째 항목이다
+      itemsRef.current[1]?.focus();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [confirming]);
 
   if (started) return null;
 
   if (entering) return <LoadingOverlay label={t("scene.loading")} />;
+
+  /** 방으로 들어간다. reset() 직후에도 맞는 리비전을 읽도록 스토어에서 바로 꺼낸다. */
+  const enterGame = () => {
+    playSound("open");
+    setEnteringAtRevision(useMemoryRoomStore.getState().resetRevision);
+    enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
+  };
+
+  const closeConfirm = () => {
+    playSound("close");
+    setConfirming(false);
+    // 물러난 자리로 포커스를 돌려준다 — 새 게임은 저장이 있는 판에서 두 번째 항목이다
+    itemsRef.current[1]?.focus();
+  };
+
+  const items = [
+    ...(hasSave ? [{ key: "resume", label: t("titleScreen.resume"), onSelect: enterGame }] : []),
+    {
+      key: "new-game",
+      label: t("titleScreen.start"),
+      onSelect: hasSave
+        ? () => {
+            playSound("select");
+            setConfirming(true);
+          }
+        : enterGame,
+    },
+    {
+      key: "contact",
+      label: t("hud.contact"),
+      onSelect: () => {
+        playSound("select");
+        setContactOpen(true);
+      },
+    },
+  ];
+
+  /** ↑/↓로 메뉴를 오간다 (끝에서 반대편으로 감긴다). Enter/Space는 버튼 기본 동작. */
+  const onMenuKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    const focusable = itemsRef.current.filter((item): item is HTMLButtonElement => item !== null);
+    if (focusable.length === 0) return;
+    const index = focusable.indexOf(document.activeElement as HTMLButtonElement);
+    if (index === -1) {
+      focusable[0].focus();
+      return;
+    }
+    const delta = event.key === "ArrowDown" ? 1 : -1;
+    focusable[(index + delta + focusable.length) % focusable.length].focus();
+  };
 
   return (
     /*
@@ -86,18 +186,12 @@ export function TitleScreen() {
     <div
       /*
        * 커튼 뒤에 있는 동안에는 없는 셈 친다. 걷히는 걸 보여주려면 미리 그려 둬야
-       * 하는데, 그려 두기만 하고 두면 스크린 리더가 아직 덮여 있는 제목·버튼을
+       * 하는데, 그려 두기만 하고 두면 스크린 리더가 아직 덮여 있는 제목·메뉴를
        * 읽고 Tab이 그리로 들어간다.
        */
       inert={!booted}
       className="absolute inset-0 z-40 overflow-y-auto overscroll-contain backdrop-blur-[2px]"
     >
-      {/*
-        간격이 위계를 만든다. DESIGN.md의 spacing 스케일에서 세 단만 쓴다 —
-        한 덩어리 안은 8px(sm), 덩어리 사이는 32px(lg), 시작 버튼과 사이트 정보
-        사이만 64px(xl). 크기를 세 종류로 묶어 두면 "어디까지가 한 말인지"가
-        글을 읽기 전에 먼저 보인다. 중간값을 섞으면 그 경계가 흐려진다.
-      */}
       <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-6 py-10">
         {/* 글자 뒤만 눌러 주는 어둠. 방 가장자리는 그대로 드러난다.
             베일은 방을 가리는 게 아니라 글씨를 읽히게 하는 정도까지만 — 흐림을 줄이고
@@ -114,112 +208,120 @@ export function TitleScreen() {
         {/* 밑에서 떠오르는 먼지 — 부팅 커튼과 같은 공기가 타이틀까지 이어진다 */}
         <RisingDust count={22} />
 
-        {/* 이름표와 제목. 눈썹 문구는 제목에 붙은 라벨이지 따로 하는 말이 아니다 */}
-        <div className="relative flex flex-col items-center gap-2 text-center">
+        {/* 로고 블록. 눈썹 문구는 제목에 붙은 라벨이지 따로 하는 말이 아니고,
+            타이틀은 게임 픽셀 서체(Galmuri14)로 세워 인디게임 로고처럼 읽힌다 */}
+        <div className="relative flex flex-col items-center gap-3 text-center">
           <p className="font-pixel text-sm tracking-[0.45em] text-memory/80">
             {t("titleScreen.eyebrow")}
           </p>
-          <h1 className="text-6xl font-bold tracking-tight text-paper md:text-7xl">{t("title")}</h1>
-        </div>
-
-        {/*
-          이 게임이 무슨 이야기인지(tagline)와 그래서 무엇을 하는지(howTo)는 한 덩어리다 —
-          떨어뜨려 놓으면 사이에 낀 것들이 설명을 끊는다. 같은 크기·같은 줄간격으로 붙여
-          두 문장이 한 문단으로 읽히게 하고, 농도만 낮춰 앞 문장을 앞세운다.
-        */}
-        <div className="relative flex max-w-md flex-col items-center gap-2 text-center">
-          <p className="max-w-md break-ko text-pretty text-base leading-relaxed text-bone/70">
+          <h1 className="title-logo break-ko font-pixel text-5xl text-paper md:text-6xl">
+            {t("title")}
+          </h1>
+          <p className="mt-1 max-w-md break-ko text-pretty text-sm leading-relaxed text-bone/60">
             {t("titleScreen.tagline")}
           </p>
-          <p className="break-ko text-pretty text-base leading-relaxed text-bone/50">
-            {t("titleScreen.howTo")}
-          </p>
         </div>
 
         {/*
-          누르기 전에 알아 두면 좋은 실무 정보 — 얼마나 걸리는지, 무엇으로 움직이는지.
-          둘 다 같은 크기의 작은 글씨라 한 덩어리로 묶인다. 설명 문단과 섞이면
-          "이야기"와 "사용법"이 한 목소리로 들린다.
-
-          조작 안내는 "이동"과 "조사" 두 덩어리다. 한 문장으로 이어 두면 좁은 화면에서
-          아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다 — 덩어리째 줄바꿈되도록 flex로 나눈다.
-          문구는 기기를 따라간다 — 폰에서 WASD를 읽어 봐야 누를 키가 없다.
-
-          시작 버튼 바로 위에 둔다. 누르고 나면 알려줄 자리가 없다 — 방에 들어가면
-          화면은 씬이 다 쓴다.
+          메뉴. 이 화면의 유일한 조작부라 설명 문단 없이 목록만 세운다 —
+          인디게임 메뉴의 문법(같은 크기 세로 목록, 고른 항목만 켜짐)이 곧 설명이다.
         */}
-        <div className="relative flex max-w-md flex-col items-center gap-2 text-center text-xs leading-relaxed">
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 tracking-wider text-bone/40">
-            <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
-            <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
-          </div>
-        </div>
-
-        {/*
-          이 화면에서 눌러야 할 곳은 여기 하나다. 방 안의 기억 핫스팟과 같은 2.4s 호흡으로
-          맥동시켜 "누를 수 있는 것"의 신호를 게임 전체에서 하나로 맞춘다.
-        */}
-        <div className="flex flex-col items-center gap-6">
-          {/*
-            후광은 버튼만 감싼다. 이 자리(-inset-y-5)를 바깥 열에 걸어 두면, 이어하는
-            판에서 열이 저장 문구까지 길어지면서 후광도 같이 늘어나 글자가 맥동하는
-            금빛 한가운데 들어앉는다 — 간격을 아무리 벌려도 버튼에 눌어붙어 보인다.
-          */}
-          <div className="relative">
-            {/* 버튼 뒤에서 번지는 금빛. 버튼 자신이 아니라 별도 레이어라 hover 동작을 안 뺏는다.
-                커튼이 걷힌 뒤에 켠다 — 커튼 뒤에서 혼자 맥동하고 있을 이유가 없고,
-                걷히는 순간 빛이 함께 드는 편이 이 화면의 첫인상으로 낫다 */}
-            {booted ? (
-              <span
-                aria-hidden
-                className="start-glow animate-start-glow pointer-events-none absolute -inset-x-8 -inset-y-5 rounded-full blur-xl"
-              />
-            ) : null}
+        <nav
+          aria-label={t("titleScreen.menu")}
+          onKeyDown={onMenuKeyDown}
+          className="relative flex w-56 flex-col items-stretch gap-1"
+        >
+          {items.map((item, index) => (
             <button
-              ref={startButtonRef}
-              type="button"
-              onClick={() => {
-                playSound("open");
-                setEnteringAtRevision(resetRevision);
-                enterTimerRef.current = window.setTimeout(startGame, ENTER_DELAY_MS);
+              key={item.key}
+              ref={(el) => {
+                itemsRef.current[index] = el;
               }}
-              className="animate-start-pulse relative cursor-pointer rounded-full bg-paper px-14 py-3.5 text-base font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory active:translate-y-0 active:scale-[0.98]"
+              type="button"
+              onClick={item.onSelect}
+              className={MENU_ITEM_CLASS}
             >
-              {t(hasSave ? "titleScreen.resume" : "titleScreen.start")}
+              <MenuMarker />
+              {item.label}
             </button>
-          </div>
+          ))}
+        </nav>
 
-          {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
-          {hasSave ? (
-            <p className="text-[0.6875rem] font-bold tracking-[0.18em] text-memory/70">
-              {t("titleScreen.saved", { count: collectedCount })}
-            </p>
-          ) : null}
-        </div>
+        {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
+        {hasSave ? (
+          <p className="relative -mt-4 text-[0.6875rem] font-bold tracking-[0.18em] text-memory/70">
+            {t("titleScreen.saved", { count: collectedCount })}
+          </p>
+        ) : null}
 
         {/*
-          여기서부터는 게임을 시작하는 흐름이 아니라 이 사이트에 대한 것이다 —
-          시작 버튼 바로 아래 붙어 있으면 다음 단계처럼 읽힌다. 빈 자리를 한 번 크게
-          두어 떼어 놓는다.
-
-          화면 아래에 붙이지는 않는다. 절대 위치로 고정하면 폰의 주소창이 접혔다 펴질 때
-          기준이 되는 높이가 흔들려 스크롤이 생긴다 — 그냥 흐름의 마지막에 둔다.
+          조작 안내는 "이동"과 "조사" 두 덩어리다. 한 문장으로 이어 두면 좁은 화면에서
+          아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다 — 덩어리째 줄바꿈되도록 flex로
+          나눈다. 문구는 기기를 따라간다 — 폰에서 WASD를 읽어 봐야 누를 키가 없다.
         */}
-        <footer className="relative mt-8 flex flex-col items-center gap-2">
-          {/*
-            종이 알약을 깔면 시작 버튼과 재질이 같아져 둘의 위계가 나란해 보인다.
-            어두운 배경 위에 직접 얹는 톤을 따로 둔다 (LanguageToggle의 tone).
-          */}
+        <div className="relative flex max-w-md flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs leading-relaxed tracking-wider text-bone/40">
+          <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
+          <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
+        </div>
+
+        {/* 게임 바깥의 것(언어)은 메뉴와 떼어 흐름의 마지막에 둔다 */}
+        <footer className="relative mt-4 flex flex-col items-center gap-2">
           <LanguageToggle tone="dark" />
-          <button
-            type="button"
-            onClick={() => setContactOpen(true)}
-            className="cursor-pointer rounded-sm px-2 py-1 text-xs font-bold tracking-widest text-bone/45 transition-colors hover:text-bone active:text-bone/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
-          >
-            {t("hud.contact")}
-          </button>
         </footer>
       </div>
+
+      {/* 새 게임 확인 — 저장을 지우는 되돌릴 수 없는 동작이라 경고색(ember)이 선다 */}
+      {confirming && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-scene-void/70 p-4 backdrop-blur-sm">
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="new-game-dialog-title"
+            className="w-full max-w-md animate-fade-rise rounded-xl border border-bone bg-paper p-7 shadow-panel"
+          >
+            <div className="flex items-start gap-3.5">
+              <span
+                aria-hidden
+                className="grid size-9 flex-none place-items-center rounded-full bg-ember/12 text-ember"
+              >
+                <Warning size={19} weight="fill" />
+              </span>
+              <div className="min-w-0">
+                <h2
+                  id="new-game-dialog-title"
+                  className="break-ko text-base font-bold tracking-tight text-ink"
+                >
+                  {t("titleScreen.newGameTitle")}
+                </h2>
+                <p className="mt-2.5 break-ko text-pretty text-sm leading-relaxed text-ink/70">
+                  {t("titleScreen.newGameBody", { count: collectedCount })}
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                ref={cancelRef}
+                type="button"
+                onClick={closeConfirm}
+                className="cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-xs font-bold tracking-widest text-ink/60 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5"
+              >
+                {t("titleScreen.newGameCancel")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirming(false);
+                  reset();
+                  enterGame();
+                }}
+                className="cursor-pointer rounded-full bg-ink px-4 py-1.5 text-xs font-bold tracking-widest text-paper transition-all hover:bg-ink/85 active:translate-y-px active:bg-ink"
+              >
+                {t("titleScreen.newGameConfirm")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

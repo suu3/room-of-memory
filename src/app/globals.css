@@ -91,18 +91,6 @@
   /* 들린 종이가 밑장에 드리우는 그림자. 종이의 발자국이 줄어드는 만큼 축 쪽으로 걷힌다 */
   --animate-calendar-cast: calendar-cast 0.38s cubic-bezier(0.45, 0.05, 0.75, 0.5) both;
   --animate-page-nudge: page-nudge 0.3s ease-out both;
-  /*
-   * 시작 버튼. 주기를 hotspot-glow와 같은 2.4s로 맞춘다 — 방 안에서 "여기 눌러라"는
-   * 이미 그 호흡으로 말하고 있으므로, 타이틀에서 다른 박자로 깜빡이면 같은 게임의
-   * 같은 신호로 안 읽힌다.
-   */
-  --animate-start-pulse: start-pulse 2.4s ease-in-out infinite;
-  /*
-   * 시작 버튼 뒤에 깔리는 금빛 후광. 버튼 자신이 아니라 별도 레이어를 부풀린다 —
-   * 버튼에 transform을 걸면 hover의 살짝 뜨는 동작(-translate-y)을 애니메이션이
-   * 덮어써서 눌러지는 느낌이 사라진다. 주기는 start-pulse와 같은 2.4s.
-   */
-  --animate-start-glow: start-glow 2.4s ease-in-out infinite;
   /* 끊기기 직전의 방송. 고르지 않은 박자로 흔들려야 신호가 죽어가는 것으로 읽힌다 */
   --animate-signal-static: signal-static 0.24s steps(3, end) infinite;
 
@@ -225,49 +213,6 @@
     to {
       opacity: 1;
       transform: translateY(0);
-    }
-  }
-
-  /*
-   * 시작 버튼의 호흡. 링이 퍼져 나가는 것과 종이가 금빛으로 데워지는 것이 한 박자로
-   * 묶여 있다 — 표면과 테두리를 각각 다른 주기로 움직이면 버튼 하나가 두 개로 보인다.
-   *
-   * 광택(흰 빛이 훑고 지나가는)은 쓰지 않는다. paper(#EFE7D6)보다 밝은 토큰이
-   * 팔레트에 없어서 크림색 버튼 위의 광택은 뿌연 얼룩으로만 보인다. 대신 팔레트가
-   * 가진 방향, 즉 금빛(memory) 쪽으로 데운다.
-   *
-   * box-shadow는 목록 전체가 교체되므로 버튼 자신의 그림자(shadow-panel)를 매
-   * 키프레임에 다시 얹는다 — 링만 적으면 애니메이션이 도는 동안 버튼이 종이에서
-   * 떠 있던 그림자를 잃는다.
-   */
-  @keyframes start-pulse {
-    0%,
-    100% {
-      background-color: var(--color-paper);
-      box-shadow:
-        var(--shadow-panel),
-        0 0 16px color-mix(in srgb, var(--color-memory) 28%, transparent),
-        0 0 0 0 color-mix(in srgb, var(--color-memory) 55%, transparent);
-    }
-    50% {
-      background-color: color-mix(in srgb, var(--color-paper) 86%, var(--color-memory));
-      box-shadow:
-        var(--shadow-panel),
-        0 0 30px color-mix(in srgb, var(--color-memory) 62%, transparent),
-        0 0 0 12px transparent;
-    }
-  }
-
-  /* 후광은 크기와 진하기가 같이 숨쉰다 — 하나만 움직이면 빛이 아니라 도형으로 보인다 */
-  @keyframes start-glow {
-    0%,
-    100% {
-      opacity: 0.3;
-      transform: scale(0.92);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.08);
     }
   }
 
@@ -713,14 +658,23 @@ body {
   );
 }
 
-/* 시작 버튼 뒤 후광의 색. 움직임은 --animate-start-glow가 맡는다 */
-.start-glow {
-  background: radial-gradient(
-    closest-side,
-    color-mix(in srgb, var(--color-memory) 55%, transparent) 0%,
-    color-mix(in srgb, var(--color-memory) 22%, transparent) 58%,
-    transparent 100%
-  );
+/*
+ * 타이틀 로고 — 커튼 틈으로 새는 금빛이 글자 뒤에서 배어나는 정도까지만.
+ * 인디게임 타이틀의 관례(빛나는 로고 타이포)를 팔레트 밖 색 없이 memory로 만든다.
+ */
+.title-logo {
+  text-shadow:
+    0 0 18px color-mix(in srgb, var(--color-memory) 30%, transparent),
+    0 0 56px color-mix(in srgb, var(--color-memory) 18%, transparent);
+}
+
+/*
+ * 타이틀 메뉴 — 고른 항목만 금빛으로 데워진다. 정보는 색과 ▶ 표식이 이미 나르므로
+ * 글로우는 장식이다 (색·표식은 컴포넌트 쪽 Tailwind 상태 클래스가 맡는다).
+ */
+.title-menu-item:hover,
+.title-menu-item:focus-visible {
+  text-shadow: 0 0 16px color-mix(in srgb, var(--color-memory) 55%, transparent);
 }
 
 
@@ -801,25 +755,6 @@ body {
   .animate-boot-dust {
     animation: none;
     opacity: var(--dust-peak);
-  }
-
-  /*
-   * 시작 버튼은 움직임을 멈추되 강조는 남긴다 — 이 화면에서 눌러야 할 곳이
-   * 어디인지가 애니메이션에만 실려 있으면, 모션을 끈 사람에게는 정보가 사라진다
-   * (DESIGN.md > Accessibility).
-   */
-  .animate-start-pulse {
-    animation: none;
-    box-shadow:
-      var(--shadow-panel),
-      0 0 22px color-mix(in srgb, var(--color-memory) 40%, transparent),
-      0 0 0 3px color-mix(in srgb, var(--color-memory) 50%, transparent);
-  }
-
-  /* 후광도 숨쉬기를 멈추되 사라지지는 않는다 — 빛 자체가 강조의 일부다 */
-  .animate-start-glow {
-    animation: none;
-    opacity: 0.45;
   }
 
   /*

@@ -344,7 +344,7 @@
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
-    "start": "시작하기",
+    "start": "새 게임",
     "loading": "방을 불러오는 중… {{percent}}%",
     "howTo": "방을 자유롭게 돌아다니며 기억이 걸린 물건을 찾아 조사하세요.",
     "howToMove": "이동 WASD",
@@ -352,7 +352,12 @@
     "howToExamine": "조사 E · 클릭",
     "howToExamine_touch": "조사 물건 터치",
     "resume": "이어하기",
-    "saved": "기억 {{count}}개를 모아 둔 채로 멈춰 있습니다."
+    "saved": "기억 {{count}}개를 모아 둔 채로 멈춰 있습니다.",
+    "menu": "메인 메뉴",
+    "newGameTitle": "처음부터 시작할까요?",
+    "newGameBody": "모아 둔 기억 {{count}}개가 사라집니다. 언어 설정은 유지됩니다.",
+    "newGameConfirm": "처음부터",
+    "newGameCancel": "취소"
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",

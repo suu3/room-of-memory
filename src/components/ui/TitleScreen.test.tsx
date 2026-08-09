@@ -2,6 +2,7 @@
 
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { MemoryId } from "@/data/memory-room";
 import { i18n } from "@/i18n/config";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { TitleScreen } from "./TitleScreen";
@@ -12,6 +13,11 @@ import { TitleScreen } from "./TitleScreen";
  */
 function setBooted(booted: boolean) {
   useMemoryRoomStore.setState({ booted });
+}
+
+/** 저장이 있는 판 — 기억 하나를 모아 둔 채 타이틀로 돌아온 상태. */
+function setSaved() {
+  useMemoryRoomStore.setState({ collected: ["radio" as MemoryId] });
 }
 
 describe("TitleScreen", () => {
@@ -40,7 +46,7 @@ describe("TitleScreen", () => {
   it("shows the loading overlay for a beat, then hands over to the room", () => {
     render(<TitleScreen />);
 
-    fireEvent.click(screen.getByRole("button", { name: "START" }));
+    fireEvent.click(screen.getByRole("button", { name: "New Game" }));
     expect(screen.getByRole("status")).toBeTruthy();
     expect(useMemoryRoomStore.getState().started).toBe(false);
 
@@ -49,16 +55,16 @@ describe("TitleScreen", () => {
     expect(screen.queryByRole("status")).toBeNull();
   });
 
-  it("returns to the start button after a reset instead of hanging on the loading overlay", () => {
+  it("returns to the menu after a reset instead of hanging on the loading overlay", () => {
     render(<TitleScreen />);
 
-    fireEvent.click(screen.getByRole("button", { name: "START" }));
+    fireEvent.click(screen.getByRole("button", { name: "New Game" }));
     act(() => vi.runAllTimers());
 
     act(() => useMemoryRoomStore.getState().reset());
 
     expect(screen.queryByRole("status")).toBeNull();
-    expect(screen.getByRole("button", { name: "START" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "New Game" })).toBeTruthy();
   });
 
   /*
@@ -74,13 +80,74 @@ describe("TitleScreen", () => {
     expect(document.activeElement).toBe(document.body);
   });
 
-  it("커튼이 걷히면 열리고 시작 버튼에 포커스가 간다", () => {
+  it("커튼이 걷히면 열리고 첫 메뉴 항목에 포커스가 간다", () => {
     setBooted(false);
     const { container } = render(<TitleScreen />);
 
     act(() => useMemoryRoomStore.getState().finishBoot());
 
     expect(container.firstElementChild?.hasAttribute("inert")).toBe(false);
-    expect(document.activeElement).toBe(screen.getByRole("button", { name: "START" }));
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "New Game" }));
+  });
+
+  it("화살표로 메뉴를 오가고 끝에서 감긴다", () => {
+    render(<TitleScreen />);
+
+    const newGame = screen.getByRole("button", { name: "New Game" });
+    const credits = screen.getByRole("button", { name: "Credits" });
+    act(() => newGame.focus());
+
+    fireEvent.keyDown(newGame, { key: "ArrowDown" });
+    expect(document.activeElement).toBe(credits);
+
+    // 마지막 항목에서 아래로 → 처음으로 감긴다
+    fireEvent.keyDown(credits, { key: "ArrowDown" });
+    expect(document.activeElement).toBe(newGame);
+
+    fireEvent.keyDown(newGame, { key: "ArrowUp" });
+    expect(document.activeElement).toBe(credits);
+  });
+
+  it("저장이 있으면 이어하기가 첫 항목으로 서고 포커스를 받는다", () => {
+    setSaved();
+    render(<TitleScreen />);
+
+    const resume = screen.getByRole("button", { name: "Continue" });
+    expect(document.activeElement).toBe(resume);
+
+    fireEvent.click(resume);
+    act(() => vi.runAllTimers());
+    // 이어하기는 진행을 지우지 않는다
+    expect(useMemoryRoomStore.getState().collected).toEqual(["radio"]);
+    expect(useMemoryRoomStore.getState().started).toBe(true);
+  });
+
+  it("저장이 있는 판의 새 게임은 확인을 거쳐 진행을 지우고 시작한다", () => {
+    setSaved();
+    render(<TitleScreen />);
+
+    fireEvent.click(screen.getByRole("button", { name: "New Game" }));
+    // 묻기만 했다 — 아직 아무것도 안 지워졌다
+    expect(screen.getByRole("alertdialog")).toBeTruthy();
+    expect(useMemoryRoomStore.getState().collected).toEqual(["radio"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Start over" }));
+    act(() => vi.runAllTimers());
+    expect(useMemoryRoomStore.getState().collected).toEqual([]);
+    expect(useMemoryRoomStore.getState().started).toBe(true);
+  });
+
+  it("새 게임 확인에서 취소하면 아무것도 지워지지 않는다", () => {
+    setSaved();
+    render(<TitleScreen />);
+
+    fireEvent.click(screen.getByRole("button", { name: "New Game" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(useMemoryRoomStore.getState().collected).toEqual(["radio"]);
+    expect(useMemoryRoomStore.getState().started).toBe(false);
+    // 물러난 자리로 포커스가 돌아온다
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "New Game" }));
   });
 });
