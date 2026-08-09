@@ -21,7 +21,6 @@ export function HudMenu() {
   const { t } = useTranslation();
   const reset = useMemoryRoomStore((state) => state.reset);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
-  const setCharacterSheetOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
   const setContactOpen = useMemoryRoomStore((state) => state.setContactOpen);
   const setFeedbackOpen = useMemoryRoomStore((state) => state.setFeedbackOpen);
   const difficulty = useMemoryRoomStore((state) => state.difficulty);
@@ -104,18 +103,8 @@ export function HudMenu() {
             {t(difficulty === "easy" ? "difficulty.easyHint" : "difficulty.normalHint")}
           </p>
           {/* 소리 on/off는 메뉴 밖으로 나갔다 — SoundToggle 참고. */}
+          {/* 수첩은 여기 없다 — 오른쪽 가장자리 손잡이(NotebookTab)가 유일한 입구다. */}
           <div className="my-3 h-px bg-ink/10" />
-          <button
-            type="button"
-            onClick={() => {
-              playSound("select");
-              setOpen(false);
-              setCharacterSheetOpen(true);
-            }}
-            className={ITEM_CLASS}
-          >
-            {t("hud.characterSheet")}
-          </button>
           {/* 만든 사람 · 피드백은 성격이 같은 부속 화면이라 한 줄에 나란히 둔다 */}
           <div className="flex items-center">
             <button
