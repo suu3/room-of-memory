@@ -743,8 +743,19 @@ export function InteractiveMemory({
    */
   const backgroundClue = status === "done" ? BACKGROUND_CLUE[id] : undefined;
   const placement = MEMORY_PLACEMENTS[id];
-  // 이 바퀴에 있는 기억인가 — 흐림을 줄지 정한다 (visual-state의 memoryOpacity)
-  const inThisRound = useMemoryRoomStore((state) => Boolean(phaseConfigOf(id, gamePhaseOf(state))));
+  /*
+   * 이 바퀴에 있는 기억인가 — 흐림을 줄지 정한다 (visual-state의 memoryOpacity).
+   *
+   * 2바퀴는 문이 열려야 시작한다(selectDoorReady 주석) — 문이 열리기 전의 방은
+   * 아직 1바퀴 끝자락이라 흐림("곧 열릴 물건" 신호)을 걸지 않는다. 이때 걸면
+   * 가장 어두운 방에서 어두운 물건이 0.45로 내려가 그냥 없는 물건으로 읽힌다
+   * (책상 위 컴퓨터가 통째로 사라져 보이던 원인).
+   */
+  const inThisRound = useMemoryRoomStore((state) => {
+    const gamePhase = gamePhaseOf(state);
+    if (!phaseConfigOf(id, gamePhase)) return false;
+    return gamePhase === 1 || state.doorOpened;
+  });
   const opacity = memoryOpacity(status, inThisRound);
   const clickable = status === "available" || backgroundClue !== undefined;
   const { hovered, handlers } = useGlowHover(clickable);

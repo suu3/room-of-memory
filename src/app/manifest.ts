@@ -9,6 +9,10 @@ import type { MetadataRoute } from "next";
  *
  * display를 "fullscreen"이 아니라 "standalone"으로 둔다. 전체화면은 상태바까지
  * 먹어서 몰입은 좋지만, iOS에서 홈 인디케이터와 겹치는 자리에 조이스틱이 놓인다.
+ *
+ * orientation은 적지 않는다. "any"로 명시하면 설치형 앱이 방향을 스스로 풀어서
+ * 폰의 자동 회전 잠금을 무시하고 기울임대로 돌아간다 — 방향은 앱이 아니라
+ * 시스템 설정이 정하게 둔다.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -18,7 +22,6 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    orientation: "any",
     // DESIGN.md의 night — 스플래시와 브라우저 테마가 방의 어둠과 이어지게 한다
     background_color: "#0B111A",
     theme_color: "#0B111A",
