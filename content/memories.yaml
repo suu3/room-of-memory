@@ -145,11 +145,13 @@ memories:
     # 재난방송이 세계관을 통째로 열어버려서, 남은 오브젝트의 "일상에 난 균열"이
     # 전부 이미 아는 이야기의 각주로 떨어진다.
     #
-    # 1차: 진입 대사 → 튜닝 → 재난방송(결과 대사). 방송이 끊기면 전환 컷씬이 뜬다
+    # 1차: 진입 대사 → 튜닝 → 글자 맞추기("내가 방에 갇혀 있는 이유는?" 답: 좀비)
+    # → 재난방송(결과 대사). radio-quiz는 frequency-tune을 품은 2단계 미니게임이다
+    # (src/minigames/radio-quiz). 방송이 끊기면 전환 컷씬이 뜬다
     # (store의 complete가 CUTSCENE_RADIO_BLACKOUT을 연다).
     phase1:
       script: radio-intro
-      minigame: frequency-tune
+      minigame: radio-quiz
       resultScript: radio-broadcast
       # 컴퓨터는 여기 없다 — 1바퀴에 아예 안 열리는 기억이라 기다리면 영영 안 열린다
       unlockAfter: [console, window, frame, phone, calendar, ball]
