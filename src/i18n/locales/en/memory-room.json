@@ -73,8 +73,8 @@
   },
   "scripts": {
     "ball-intro": {
-      "line1": "That game that day... it was incredible.",
-      "line2": "I feel like I'm forgetting how a swing feels…"
+      "line1": "That game that day — it was something else.",
+      "line2": "Let's see if I've still got my swing."
     },
     "frame-photo": {
       "line1": "This is from the youth baseball tournament, the day I placed.",
@@ -85,7 +85,7 @@
       "line2": "When I find them, I'll start with this photo."
     },
     "console-intro": {
-      "line1": "When did I last turn this on?",
+      "line1": "Been a while — time for a round.",
       "line2": "Loser bought snacks. That was the rule."
     },
     "console-alone": {
@@ -100,7 +100,7 @@
     },
     "phone-stopped": {
       "line1": "The last message is from October 19.",
-      "line2": "Since that day, not one word from anyone."
+      "line2": "The group chat has never been this quiet."
     },
     "computer-power-on": {
       "line1": "There was a person on the radio. Then the news from that day must be saved somewhere too.",
