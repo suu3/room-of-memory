@@ -103,10 +103,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   collect: {
     tones: [pluck(D4, 0), pluck(A4, 0.09), pluck(C5, 0.18, 0.3)],
   },
-  /** 종이 넘김 — 톤보다 노이즈가 본체다. */
+  /**
+   * 종이 넘김 — 노이즈뿐이다. 원래는 낮은 사인 글라이드(320→190)를 종이의 "몸통"으로
+   * 같이 깔았는데, 마찰음보다 그 톤이 먼저 들려 종이가 아니라 "퉁" 하는 타격음으로
+   * 읽혔다. 종이 소리의 정체는 음정이 아니라 마찰이다 — 살짝 부풀었다(들리는 순간)
+   * 바로 잦아드는(넘어가는 순간) 밝은 노이즈 한 번이 정확하다.
+   */
   flip: {
-    tones: [{ from: 320, to: 190, waveform: "sine", delay: 0, duration: 0.09, gain: 0.14 }],
-    noise: { delay: 0, duration: 0.13, gain: 0.3, highpass: 1800 },
+    tones: [],
+    noise: { delay: 0, duration: 0.16, gain: 0.34, highpass: 1100, lowpass: 8500, attack: 0.045 },
   },
   /**
    * 헝겊으로 유리를 문지르는 소리. flip과 같은 노이즈 기반이지만 성격이 반대다 —
