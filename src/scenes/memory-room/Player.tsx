@@ -147,9 +147,24 @@ export function Player({
     [rig],
   );
 
+  /*
+   * 리셋(HUD "처음으로"·엔딩 화면)마다 몸도 시작 자리로 돌아간다.
+   *
+   * 진행은 스토어가 지우지만 위치는 이 그룹의 변환에만 있어서, 안 돌리면 거실까지
+   * 걸어갔던 몸이 그 자리에 남는다 — 다음 "새 게임"이 닫힌 문 너머 거실에서
+   * 시작되고, 방으로 돌아올 길이 없다 (엔딩이 거실 현관에서 나므로 완주 후
+   * 새 게임이 정확히 이 꼴이 된다).
+   */
+  const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
   useEffect(() => {
+    // 값은 안 읽는다 — 리셋마다 다시 실행되게 하는 신호다 (MemoryOutlineGlow와 같은 패턴).
+    void resetRevision;
     positionRef.current.copy(PLAYER_START);
-  }, [positionRef]);
+    const group = groupRef.current;
+    if (group) group.position.copy(PLAYER_START);
+    if (facingRef.current) facingRef.current.rotation.y = 0;
+    walkRef.current = 0;
+  }, [resetRevision, positionRef]);
 
   useEffect(() => {
     const keys = keysRef.current;
