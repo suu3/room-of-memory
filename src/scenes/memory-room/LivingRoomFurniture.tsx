@@ -146,25 +146,84 @@ const SHOE_CABINET_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 /**
- * 냉장고 — 식탁 옆 +z 벽. 거실에서 유일하게 흰 물건이라, 여기가 부엌 몫의
- * 구석이라는 걸 색 하나로 말한다. 문에 자석으로 눌러 둔 메모 한 장 — 내용은
- * 없다. 셋이 살던 집에 남은 살림의 흔적이면 된다.
+ * 냉장고 — 소파 쪽 뒷벽(-z)의 -x 구석. 원래 식탁 옆 +z 벽에 있었는데, 그 자리는
+ * 피아노에게 내주고 반대편 벽으로 건너왔다. 거실에서 유일하게 흰 물건이라
+ * 여기가 부엌 몫의 구석이라는 걸 색 하나로 말한다. 문에 자석으로 눌러 둔 메모
+ * 한 장 — 내용은 없다. 셋이 살던 집에 남은 살림의 흔적이면 된다.
  *
  * 발자국은 layout의 LIVING_COLLIDERS — 좌표를 옮기면 거기도 같이.
  */
 const FRIDGE_PARTS = [
   // 받침 — 몸통보다 물려 있어 바닥에서 살짝 뜬 것처럼 보인다
-  { size: [0.8, 0.18, 0.56], position: [-15.32, 0.09, 6.08], color: "ink" },
-  { size: [0.92, 1.84, 0.68], position: [-15.32, 1.09, 6.08], color: "paper" },
+  { size: [0.8, 0.18, 0.56], position: [-15.32, 0.09, -3.58], color: "ink" },
+  { size: [0.92, 1.84, 0.68], position: [-15.32, 1.09, -3.58], color: "paper" },
   // 냉동칸 경계 — 몸통보다 사방 한 치수 커서 어두운 줄로 드러난다
-  { size: [0.94, 0.035, 0.7], position: [-15.32, 1.45, 6.08], color: "dusk" },
-  // 손잡이 둘 — 문 앞면(z 5.74)에 5mm 파고들어 붙는다 (맞닿는 면 공유 금지)
-  { size: [0.05, 0.3, 0.05], position: [-14.98, 1.0, 5.72], color: "slate" },
-  { size: [0.05, 0.22, 0.05], position: [-14.98, 1.72, 5.72], color: "slate" },
+  { size: [0.94, 0.035, 0.7], position: [-15.32, 1.45, -3.58], color: "dusk" },
+  // 손잡이 둘 — 문 앞면(z -3.24)에 5mm 파고들어 붙는다 (맞닿는 면 공유 금지)
+  { size: [0.05, 0.3, 0.05], position: [-14.98, 1.0, -3.22], color: "slate" },
+  { size: [0.05, 0.22, 0.05], position: [-14.98, 1.72, -3.22], color: "slate" },
   // 메모와 자석 — 종이는 문에, 자석은 종이 위에 겹쳐 물린다
-  { size: [0.18, 0.22, 0.02], position: [-15.45, 1.05, 5.735], color: "bone" },
-  { size: [0.055, 0.055, 0.025], position: [-15.45, 1.185, 5.715], color: "ember" },
+  { size: [0.18, 0.22, 0.02], position: [-15.45, 1.05, -3.235], color: "bone" },
+  { size: [0.055, 0.055, 0.025], position: [-15.45, 1.185, -3.215], color: "ember" },
 ] as const satisfies readonly BoxPart[];
+
+/**
+ * 업라이트 피아노 — 냉장고가 떠난 +z 벽, 식탁 옆 자리. 뚜껑이 닫혀 있다 —
+ * 이 집의 다른 물건들처럼 어느 날 멈춘 채로 있다. 치던 사람이 누구였는지는
+ * 말하지 않는다. 의자만 반쯤 빼놓아 앉던 흔적으로 남긴다.
+ *
+ * 발자국은 layout의 LIVING_COLLIDERS(piano) — 좌표를 옮기면 거기도 같이.
+ */
+const PIANO_PARTS = [
+  // 본체 — 뒷면(6.42)이 벽 안쪽 면(6.41)에 1cm 파고든다 (냉장고와 같은 규칙)
+  { size: [1.5, 1.32, 0.42], position: [-14.95, 0.66, 6.21], color: "ink" },
+  // 윗판 — 본체보다 살짝 넓어 어두운 실루엣에 모서리 한 줄을 만든다
+  { size: [1.54, 0.06, 0.46], position: [-14.95, 1.34, 6.2], color: "slate" },
+  // 닫힌 건반 뚜껑 — 본체 앞면(6.00)을 물고 앞으로 나온다
+  { size: [1.5, 0.14, 0.26], position: [-14.95, 0.92, 5.93], color: "slate" },
+  // 뚜껑을 받치는 앞다리 둘 — 위로 5mm 파고들어 뚜껑에 붙는다
+  { size: [0.1, 0.85, 0.1], position: [-15.6, 0.43, 5.95], color: "ink" },
+  { size: [0.1, 0.85, 0.1], position: [-14.3, 0.43, 5.95], color: "ink" },
+  // 페달 한 쌍 — 본체 앞면 아래
+  { size: [0.09, 0.05, 0.14], position: [-15.05, 0.03, 5.96], color: "bone" },
+  { size: [0.09, 0.05, 0.14], position: [-14.85, 0.03, 5.96], color: "bone" },
+  // 보면대 홈 — 본체 앞면에 가로줄 하나
+  { size: [0.95, 0.05, 0.03], position: [-14.95, 1.13, 6.005], color: "slate" },
+  // 의자 — 반쯤 빼놓은 채다. 좌판 밑으로 다리가 1cm 파고든다
+  { size: [0.56, 0.1, 0.34], position: [-14.95, 0.52, 5.38], color: "ink" },
+  { size: [0.07, 0.48, 0.07], position: [-15.15, 0.24, 5.28], color: "slate" },
+  { size: [0.07, 0.48, 0.07], position: [-14.75, 0.24, 5.28], color: "slate" },
+  { size: [0.07, 0.48, 0.07], position: [-15.15, 0.24, 5.48], color: "slate" },
+  { size: [0.07, 0.48, 0.07], position: [-14.75, 0.24, 5.48], color: "slate" },
+] as const satisfies readonly BoxPart[];
+
+/**
+ * 커다란 곰인형 — 소파 옆 구석에 앉아 있다. 이 거실에서 유일하게 부드러운 물건.
+ * 누구 것이었는지 말하지 않는다 — 셋이 살던 집에 남은, 아무도 안 치운 것 하나.
+ *
+ * 로컬 원점이 엉덩이 중심이고 +z를 본다. 살짝 틀어 앉혀야 진열이 아니라
+ * 놓아둔 것으로 읽힌다. 발자국은 layout의 LIVING_COLLIDERS(plush).
+ */
+const PLUSH_BEAR_PARTS = [
+  // 몸통과 배 — 배는 몸통 앞면을 물고 반 치수 나온다
+  { size: [0.6, 0.62, 0.42], position: [0, 0.31, 0], color: "bone" },
+  { size: [0.34, 0.3, 0.04], position: [0, 0.3, 0.215], color: "dusk" },
+  // 머리 — 몸통 위로 2cm 파고들어 얹힌다
+  { size: [0.46, 0.4, 0.38], position: [0, 0.8, 0], color: "bone" },
+  { size: [0.13, 0.13, 0.1], position: [-0.17, 1.02, 0], color: "bone" },
+  { size: [0.13, 0.13, 0.1], position: [0.17, 1.02, 0], color: "bone" },
+  // 주둥이 — 머리 앞면(0.19)에 5mm 파고들어 붙는다
+  { size: [0.18, 0.13, 0.05], position: [0, 0.76, 0.21], color: "dusk" },
+  // 팔 — 몸통 옆면을 2cm 물고 늘어져 있다
+  { size: [0.16, 0.42, 0.16], position: [-0.36, 0.32, 0], color: "bone" },
+  { size: [0.16, 0.42, 0.16], position: [0.36, 0.32, 0], color: "bone" },
+  // 다리 — 앉은 자세라 앞으로 뻗는다
+  { size: [0.18, 0.16, 0.4], position: [-0.17, 0.08, 0.3], color: "bone" },
+  { size: [0.18, 0.16, 0.4], position: [0.17, 0.08, 0.3], color: "bone" },
+] as const satisfies readonly BoxPart[];
+
+/** 곰인형의 자리 — 소파 왼쪽, 뒷벽 구석. 살짝 방 쪽으로 튼다. */
+const PLUSH_BEAR_PLACEMENT = { position: [-11.75, 0, -3.3], rotationY: 0.35 } as const;
 
 /**
  * 식탁 위에 펼쳐진 트럼프 — 카드 미궁(card-odd)의 진입점.
@@ -248,6 +307,13 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
       ))}
       <Boxes parts={SHOE_CABINET_PARTS} palette={palette} />
       <Boxes parts={FRIDGE_PARTS} palette={palette} />
+      <Boxes parts={PIANO_PARTS} palette={palette} />
+      <group
+        position={PLUSH_BEAR_PLACEMENT.position}
+        rotation={[0, PLUSH_BEAR_PLACEMENT.rotationY, 0]}
+      >
+        <Boxes parts={PLUSH_BEAR_PARTS} palette={palette} />
+      </group>
     </group>
   );
 }

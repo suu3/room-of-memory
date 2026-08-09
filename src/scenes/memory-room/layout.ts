@@ -64,7 +64,9 @@ export const LIVING_COLLIDERS = [
   { minX: -10.75, maxX: -8.25, minZ: 5.9, maxZ: 6.5 }, // tv stand
   { minX: -14.75, maxX: -12.85, minZ: 2.3, maxZ: 4.75 }, // dining table + chairs (빠진 의자 포함)
   { minX: -16.5, maxX: -15.85, minZ: -1.7, maxZ: 0.35 }, // shoe cabinet
-  { minX: -15.85, maxX: -14.8, minZ: 5.7, maxZ: 6.5 }, // fridge
+  { minX: -15.85, maxX: -14.8, minZ: -4, maxZ: -3.2 }, // fridge (피아노에게 +z 벽을 내주고 -z 구석으로)
+  { minX: -15.75, maxX: -14.15, minZ: 5.15, maxZ: 6.5 }, // piano + 반쯤 빼놓은 의자
+  { minX: -12.3, maxX: -11.2, minZ: -3.9, maxZ: -2.8 }, // plush bear (소파 옆)
 ] as const satisfies readonly Aabb2[];
 
 /**
