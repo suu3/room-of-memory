@@ -33,8 +33,9 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const replayMemory = useMemoryRoomStore((state) => state.replayMemory);
 
+  // 모바일도 두 칸 — 한 칸이면 카드가 화면을 통째로 먹어 스크랩북이 아니라 피드가 된다
   return (
-    <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
       {MEMORY_IDS.map((id, index) => {
         const memory = MEMORY_BY_ID[id];
         const unlocked = collected.includes(id) || revisited.includes(id);
