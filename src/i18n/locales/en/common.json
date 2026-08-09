@@ -19,9 +19,7 @@
   },
   "panel": {
     "title": "Collected Memories",
-    "open": "Open the memory collection panel",
-    "close": "Close the memory collection panel",
-    "unknownName": "? ? ?",
+    "open": "Open the notebook — collected memories",
     "replay": "Replay {{name}}",
     "replayAction": "Replay"
   },

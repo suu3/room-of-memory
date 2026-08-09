@@ -3,7 +3,7 @@
 import { X } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ASSETS } from "@/lib/assets";
 import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
@@ -34,7 +34,9 @@ export function CharacterSheetModal() {
   const setOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const collectedCount = useMemoryRoomStore(selectCollected).length;
-  const [tab, setTab] = useState<(typeof TABS)[number]>("profile");
+  // 탭은 스토어에 있다 — 오른쪽 "기억 수집" 탭이 기록 페이지를 지정해 열기 때문
+  const tab = useMemoryRoomStore((state) => state.characterSheetTab);
+  const setTab = useMemoryRoomStore((state) => state.setCharacterSheetTab);
 
   useEffect(() => {
     setUiLock("character-sheet", open);

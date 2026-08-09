@@ -21,11 +21,12 @@ export type GamePhase = 1 | 2;
  * 게이트는 useSkipEligible(src/minigames/shell.tsx) 한 곳이 담당한다.
  */
 export type Difficulty = "easy" | "normal";
+/** 수첩(캐릭터 시트)의 페이지 — 프로필과 기록(기억 스크랩북). */
+export type CharacterSheetTab = "profile" | "lore";
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
 export type UiLockId =
   | "hud-menu"
-  | "memory-panel"
   | "character-sheet"
   | "title"
   | "contact"
@@ -90,6 +91,11 @@ interface MemoryRoomState {
   uiLocks: UiLockId[];
   /** 캐릭터 시트 모달 — HUD 메뉴와 대사창 초상 두 곳에서 열리므로 스토어가 소유한다. */
   characterSheetOpen: boolean;
+  /**
+   * 수첩이 펼쳐질 페이지. 여는 곳마다 목적이 다르다 — 오른쪽 "기억 수집" 탭은
+   * 기록(스크랩북)으로, HUD 메뉴는 마지막으로 보던 페이지로 연다.
+   */
+  characterSheetTab: CharacterSheetTab;
   /** 타이틀 화면을 지나 방에 들어왔는지. 리셋하면 다시 타이틀로 돌아간다. */
   started: boolean;
   /**
@@ -173,7 +179,9 @@ interface MemoryRoomState {
   /** 수집한 기억을 다시 재생한다 (수집 상태는 그대로). */
   replayMemory: (id: MemoryId) => void;
   setUiLock: (id: UiLockId, locked: boolean) => void;
-  setCharacterSheetOpen: (open: boolean) => void;
+  /** tab을 주면 그 페이지를 펼친 채 연다. 안 주면 마지막 페이지 그대로. */
+  setCharacterSheetOpen: (open: boolean, tab?: CharacterSheetTab) => void;
+  setCharacterSheetTab: (tab: CharacterSheetTab) => void;
   setContactOpen: (open: boolean) => void;
   setFeedbackOpen: (open: boolean) => void;
   startGame: () => void;
@@ -471,6 +479,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       activePlayback: null,
       uiLocks: [],
       characterSheetOpen: false,
+      characterSheetTab: "profile",
       contactOpen: false,
       feedbackOpen: false,
       started: false,
@@ -606,7 +615,12 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
             uiLocks: locked ? [...state.uiLocks, id] : state.uiLocks.filter((lock) => lock !== id),
           };
         }),
-      setCharacterSheetOpen: (open) => set({ characterSheetOpen: open }),
+      setCharacterSheetOpen: (open, tab) =>
+        set((state) => ({
+          characterSheetOpen: open,
+          characterSheetTab: tab ?? state.characterSheetTab,
+        })),
+      setCharacterSheetTab: (tab) => set({ characterSheetTab: tab }),
       setContactOpen: (open) => set({ contactOpen: open }),
       setFeedbackOpen: (open) => set({ feedbackOpen: open }),
       startGame: () => set({ started: true }),
@@ -675,6 +689,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           activePlayback: null,
           uiLocks: [],
           characterSheetOpen: false,
+          characterSheetTab: "profile",
           contactOpen: false,
           feedbackOpen: false,
           started: false,

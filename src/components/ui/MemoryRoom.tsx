@@ -32,9 +32,9 @@ import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
 import { FeedbackModal } from "./FeedbackModal";
 import { HudMenu } from "./HudMenu";
-import { MemoryPanel } from "./MemoryPanel";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
+import { NotebookTab } from "./NotebookTab";
 import { PlaybackScene } from "./PlaybackScene";
 import { PuzzleHost } from "./PuzzleHost";
 import { SoundToggle } from "./SoundToggle";
@@ -194,7 +194,8 @@ export function MemoryRoom() {
           {/* 컷씬·다시보기 — 대사창(z-50)보다 아래에 깔려 그림 위로 글이 얹힌다 */}
           <PlaybackScene />
           <DialogueBox />
-          <MemoryPanel />
+          {/* 수첩(기록 페이지)으로 들어가는 오른쪽 가장자리 손잡이 */}
+          <NotebookTab />
           {/* 방에서 집어 든 종이 한 장 (기록 노트 · 서랍 쪽지) — 진행에 남지 않는다 */}
           <ClueOverlay />
           <CharacterSheetModal />

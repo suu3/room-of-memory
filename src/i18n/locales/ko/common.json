@@ -19,9 +19,7 @@
   },
   "panel": {
     "title": "기억 수집",
-    "open": "기억 수집 패널 열기",
-    "close": "기억 수집 패널 닫기",
-    "unknownName": "? ? ?",
+    "open": "수첩 열기 — 기억 수집",
     "replay": "{{name}} 다시 보기",
     "replayAction": "다시보기"
   },

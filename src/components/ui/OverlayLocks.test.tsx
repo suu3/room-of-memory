@@ -4,8 +4,11 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { i18n } from "@/i18n/config";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { CharacterSheetModal } from "./CharacterSheetModal";
 import { HudMenu } from "./HudMenu";
-import { MemoryPanel } from "./MemoryPanel";
+import { NotebookTab } from "./NotebookTab";
+
+const NOTEBOOK_TAB_NAME = "Open the notebook — collected memories";
 
 describe("room overlay input locks", () => {
   beforeAll(async () => {
@@ -27,16 +30,17 @@ describe("room overlay input locks", () => {
     const view = render(
       <>
         <HudMenu />
-        <MemoryPanel />
+        <NotebookTab />
+        <CharacterSheetModal />
       </>,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
-    fireEvent.click(screen.getByRole("button", { name: "Open the memory collection panel" }));
-    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["hud-menu", "memory-panel"]);
+    fireEvent.click(screen.getByRole("button", { name: NOTEBOOK_TAB_NAME }));
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["hud-menu", "character-sheet"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Close menu" }));
-    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["memory-panel"]);
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["character-sheet"]);
 
     view.unmount();
     expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
@@ -53,25 +57,37 @@ describe("room overlay input locks", () => {
     expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
   });
 
-  it("closes an open memory panel when reset is confirmed from the menu", () => {
+  it("opens the notebook on the memory log page from the edge tab", () => {
     render(
       <>
-        <HudMenu />
-        <MemoryPanel />
+        <NotebookTab />
+        <CharacterSheetModal />
       </>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Open the memory collection panel" }));
+    fireEvent.click(screen.getByRole("button", { name: NOTEBOOK_TAB_NAME }));
+    expect(useMemoryRoomStore.getState().characterSheetOpen).toBe(true);
+    expect(useMemoryRoomStore.getState().characterSheetTab).toBe("lore");
+    expect(screen.getByRole("tab", { name: "Notes", selected: true })).toBeTruthy();
+  });
+
+  it("closes an open notebook when reset is confirmed from the menu", () => {
+    render(
+      <>
+        <HudMenu />
+        <NotebookTab />
+        <CharacterSheetModal />
+      </>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: NOTEBOOK_TAB_NAME }));
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
     fireEvent.click(screen.getByRole("button", { name: "Reset" }));
-    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["memory-panel", "hud-menu"]);
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["character-sheet", "hud-menu"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Reset" }));
 
-    const panelButton = screen.getByRole("button", {
-      name: "Open the memory collection panel",
-    });
-    expect(panelButton.getAttribute("aria-expanded")).toBe("false");
+    expect(useMemoryRoomStore.getState().characterSheetOpen).toBe(false);
     expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
   });
 });
