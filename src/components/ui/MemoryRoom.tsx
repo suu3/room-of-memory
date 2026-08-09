@@ -19,6 +19,7 @@ import {
   selectDoorReady,
   selectEndingReady,
   selectMusicForeground,
+  selectMusicPhase,
   selectMusicPlaying,
   selectRevisitedCount,
   useMemoryRoomStore,
@@ -91,9 +92,11 @@ export function MemoryRoom() {
   const heardLevel = lampScaled(lightLevel, lightsOn);
   // 컷씬은 방송이 끊긴 정적 위에 서는 장면이라 곡도 같이 멎는다 (selectMusicPlaying)
   const musicPlaying = useMemoryRoomStore(selectMusicPlaying);
+  // 곡의 바퀴는 밝기의 바퀴(phase)와 다르다 — 2바퀴 곡은 문이 열려야 든다
+  const musicPhase = useMemoryRoomStore(selectMusicPhase);
   useRoomMusic({
     playing: musicPlaying,
-    phase,
+    phase: musicPhase,
     level: heardLevel,
     foreground: musicForeground,
   });

@@ -12,6 +12,7 @@ import {
   openCutscene,
   selectDoorReady,
   selectEndingReady,
+  selectMusicPhase,
   selectMusicPlaying,
   selectRadioSignaling,
   selectSceneInputLocked,
@@ -232,6 +233,15 @@ describe("수집한 기억 다시보기", () => {
     useMemoryRoomStore.getState().replayMemory("ball");
 
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
+  });
+
+  it("2바퀴 곡은 수집 완료가 아니라 문이 열려야 든다", () => {
+    // 6개를 다 모으면 gamePhase는 2지만, 문이 열리기 전까지는 아직 1바퀴의 끝자락이다
+    useMemoryRoomStore.setState({ collected: PHASE1_MEMORIES.map((memory) => memory.id) });
+    expect(selectMusicPhase(useMemoryRoomStore.getState())).toBe(1);
+
+    useMemoryRoomStore.setState({ doorOpened: true });
+    expect(selectMusicPhase(useMemoryRoomStore.getState())).toBe(2);
   });
 });
 

@@ -785,6 +785,16 @@ export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogu
 export const selectMusicPlaying = (state: MemoryRoomState) =>
   state.started && !state.endingStarted && state.activePlayback?.kind !== "cutscene";
 
+/**
+ * BGM이 몇 바퀴 곡을 틀어야 하는가.
+ *
+ * gamePhaseOf(수집 6개 즉시 2)가 아니라 doorOpened를 본다 — 문이 열리는 것이
+ * 2바퀴의 시작이다(selectDoorReady 주석). 수집 완료부터 문이 열리기까지의 구간
+ * (라디오 목소리·배트)은 아직 1바퀴의 끝자락이라 곡도 1바퀴 것이 남아야 한다.
+ * 문은 배트 작별 컷씬이 끝나는 순간 열리므로, 2바퀴 곡은 그 정적 위에 처음 든다.
+ */
+export const selectMusicPhase = (state: MemoryRoomState): 1 | 2 => (state.doorOpened ? 2 : 1);
+
 /** 2바퀴 재조사 대상 수. 밝기 상승 구간의 분모다. */
 export const REVISIT_TOTAL = MEMORIES.filter((memory) => memory.phase2).length;
 
