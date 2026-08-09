@@ -40,9 +40,10 @@ describe("radioQuiz 리소스", () => {
       expect(poolCoversAnswer(parsePool(quiz.pool), quiz.answer)).toBe(true);
     });
 
-    it(`${name}: 정답이 두 글자 이상, 풀이 정답보다 크다`, () => {
+    it(`${name}: 정답이 두 글자 이상, 풀은 최소 10글자`, () => {
       expect(answerLetters(quiz.answer).length).toBeGreaterThanOrEqual(2);
-      expect(parsePool(quiz.pool).length).toBeGreaterThan(answerLetters(quiz.answer).length);
+      // 풀이 정답과 엇비슷하게 좁으면 고르는 맛이 없다 — 선택지는 열 개부터.
+      expect(parsePool(quiz.pool).length).toBeGreaterThanOrEqual(10);
     });
   }
 });

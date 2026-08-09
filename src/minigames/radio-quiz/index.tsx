@@ -2,11 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { FrequencyTuneMinigame } from "../frequency-tune";
-import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
+import { useOnceCompleter, useSkipEligible } from "../shell";
 import { answerLetters, judgeSlots, parsePool, shufflePool } from "./letters";
 
 const SKIP_AFTER_MS = 30_000;
@@ -30,7 +29,6 @@ function QuizBoard({
   stage = "play",
 }: Pick<MinigameProps, "onComplete" | "onSettled" | "stage">) {
   const { t } = useTranslation();
-  const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
   const answer = t("minigame.radioQuiz.answer");
   const letters = useMemo(() => answerLetters(answer), [answer]);
@@ -110,27 +108,32 @@ function QuizBoard({
     return () => window.removeEventListener("keydown", onKey);
   }, [stage]);
 
+  /*
+   * 카드·제목·설명이 없다. 이 화면은 미니게임 패널이 아니라 연출이다 — 어두운 방
+   * 위에 질문 하나가 서 있어야지, "글자 맞추기"라는 제목이 먼저 서면 긴장이 죽는다.
+   * 색도 종이 카드가 아니라 방의 어둠 위에 밝은 글자로 얹는다.
+   */
   const slotTone =
     verdict === "correct" || stage === "result"
-      ? "border-memory bg-memory/10 text-ink"
+      ? "border-memory bg-memory/15 text-memory"
       : verdict === "wrong"
-        ? "border-ember bg-ember/10 text-ember"
-        : "border-ink/25 bg-paper text-ink";
+        ? "border-ember bg-ember/15 text-ember"
+        : "border-bone/40 bg-scene-void/40 text-paper";
 
   const board = (
-    <div className="flex flex-col items-center gap-6">
-      <p className="break-ko text-pretty text-center text-xl font-bold leading-relaxed text-ink">
+    <div className="flex flex-col items-center gap-8">
+      <p className="break-ko text-pretty text-center text-2xl font-bold leading-relaxed text-paper">
         {t("minigame.radioQuiz.question")}
       </p>
 
       {/* 빈칸 — 결과 화면에서는 정답이 금빛으로 서 있다 */}
-      <div className="flex flex-wrap items-center justify-center gap-2.5">
+      <div className="flex flex-wrap items-center justify-center gap-3">
         {letters.map((letter, slotIndex) =>
           stage === "result" ? (
             <span
               // biome-ignore lint/suspicious/noArrayIndexKey: 고정 길이 정답 칸
               key={slotIndex}
-              className={`grid size-14 place-items-center rounded-lg border-2 text-2xl font-bold ${slotTone}`}
+              className={`grid size-16 place-items-center rounded-lg border-2 text-3xl font-bold ${slotTone}`}
             >
               {letter}
             </span>
@@ -141,7 +144,7 @@ function QuizBoard({
               type="button"
               aria-label={t("minigame.radioQuiz.slotLabel", { index: slotIndex + 1 })}
               onClick={() => erase(slotIndex)}
-              className={`grid size-14 cursor-pointer place-items-center rounded-lg border-2 text-2xl font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${slotTone}`}
+              className={`grid size-16 cursor-pointer place-items-center rounded-lg border-2 text-3xl font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${slotTone}`}
             >
               {slots[slotIndex] !== null ? pool[slots[slotIndex] as number] : ""}
             </button>
@@ -163,7 +166,7 @@ function QuizBoard({
 
       {/* 글자 풀 */}
       {stage !== "result" && (
-        <div className="flex max-w-[26rem] flex-wrap items-center justify-center gap-2.5">
+        <div className="flex max-w-[30rem] flex-wrap items-center justify-center gap-3">
           {pool.map((letter, index) => (
             <button
               // biome-ignore lint/suspicious/noArrayIndexKey: 섞인 풀은 마운트 동안 고정이다
@@ -171,7 +174,7 @@ function QuizBoard({
               type="button"
               disabled={used.has(index) || verdict !== null}
               onClick={() => pick(index)}
-              className="grid size-12 cursor-pointer place-items-center rounded-lg border border-ink/20 bg-paper text-xl font-bold text-ink transition-all hover:border-memory hover:text-ink active:translate-y-px disabled:cursor-default disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+              className="grid size-13 cursor-pointer place-items-center rounded-lg border border-bone/30 bg-scene-void/50 text-2xl font-bold text-paper transition-all hover:border-memory hover:text-memory active:translate-y-px disabled:cursor-default disabled:opacity-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
             >
               {letter}
             </button>
@@ -182,36 +185,31 @@ function QuizBoard({
   );
 
   /*
-   * 결과 대사 단계: 패널을 걷고 답이 선 판만 남긴다 — 방송(결과 대사)이 흐르는 동안
+   * 결과 대사 단계: 답이 선 판만 남긴다 — 방송(결과 대사)이 흐르는 동안
    * 화면에 남는 것은 "좀비"라고 대답한 그 자리다 (frequency-tune의 locked와 같은 결).
    */
   if (stage === "result") {
     return (
-      <div
-        aria-hidden
-        className="w-[38rem] max-w-[94vw] animate-fade-rise rounded-xl border border-bone bg-paper p-7"
-      >
+      <div aria-hidden className="animate-fade-rise">
         {board}
       </div>
     );
   }
 
   return (
-    <MinigameShell
-      title={t("minigame.radioQuiz.title")}
-      help={hint("minigame.radioQuiz.help")}
-      stats={
-        <MinigameStat
-          label={t("minigame.labelMiss")}
-          value={`${misses} / ${SKIP_AFTER_MISSES}`}
-          tone="warning"
-        />
-      }
-      skipVisible={skipByTime || misses >= SKIP_AFTER_MISSES}
-      onSkip={() => complete({ cleared: true })}
-    >
+    <div className="flex w-[min(40rem,94vw)] animate-fade-rise flex-col items-center gap-9">
       {board}
-    </MinigameShell>
+      {/* 스킵은 접근성 장치라 연출을 위해서도 없애지 않는다 — 조건이 차면 조용히 선다 */}
+      {(skipByTime || misses >= SKIP_AFTER_MISSES) && (
+        <button
+          type="button"
+          onClick={() => complete({ cleared: true })}
+          className="cursor-pointer whitespace-nowrap rounded-full border border-bone/40 px-5 py-1.5 text-sm font-bold tracking-widest text-bone/70 transition-all hover:border-bone hover:text-paper active:translate-y-px"
+        >
+          {t("minigame.skip")}
+        </button>
+      )}
+    </div>
   );
 }
 
