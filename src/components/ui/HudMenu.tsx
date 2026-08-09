@@ -10,6 +10,10 @@ import { LanguageToggle } from "./LanguageToggle";
 const ITEM_CLASS =
   "block w-full cursor-pointer rounded-md px-2.5 py-2 text-left text-xs font-bold tracking-widest text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink active:bg-ink/10";
 
+/** 한 줄에 둘이 나눠 앉는 항목 — 폭만 반씩, 나머지는 ITEM_CLASS와 같다. */
+const PAIR_ITEM_CLASS =
+  "flex-1 cursor-pointer rounded-md px-2.5 py-2 text-left text-xs font-bold tracking-widest text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink active:bg-ink/10";
+
 const CHIP_CLASS =
   "cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-xs font-bold tracking-widest text-ink/60 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5";
 
@@ -112,28 +116,32 @@ export function HudMenu() {
           >
             {t("hud.characterSheet")}
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              playSound("select");
-              setOpen(false);
-              setContactOpen(true);
-            }}
-            className={ITEM_CLASS}
-          >
-            {t("hud.contact")}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playSound("select");
-              setOpen(false);
-              setFeedbackOpen(true);
-            }}
-            className={ITEM_CLASS}
-          >
-            {t("feedback.title")}
-          </button>
+          {/* 만든 사람 · 피드백은 성격이 같은 부속 화면이라 한 줄에 나란히 둔다 */}
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() => {
+                playSound("select");
+                setOpen(false);
+                setContactOpen(true);
+              }}
+              className={PAIR_ITEM_CLASS}
+            >
+              {t("hud.contact")}
+            </button>
+            <span aria-hidden className="mx-1 h-3.5 w-px flex-none bg-ink/15" />
+            <button
+              type="button"
+              onClick={() => {
+                playSound("select");
+                setOpen(false);
+                setFeedbackOpen(true);
+              }}
+              className={PAIR_ITEM_CLASS}
+            >
+              {t("feedback.title")}
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => {
