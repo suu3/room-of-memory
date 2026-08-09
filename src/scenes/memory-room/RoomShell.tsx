@@ -63,8 +63,12 @@ const SHELL = {
 /**
  * 벽을 굽도리와 윗부분으로 가르는 높이. 카메라 쪽 벽은 윗부분만 스러지고
  * 굽도리는 남는다 (wall-culling.ts 참고).
+ *
+ * 걸레받이(높이 0.3)와 정확히 같은 높이여야 한다. 0.55였을 때는 굽도리가
+ * 걸레받이 위로 0.25 삐져나왔고, 그 띠가 조명을 받아 걸레받이 위에 판이
+ * 하나 더 얹힌 것처럼 보였다 — 벽 몰딩이 두 겹이 된다.
  */
-const WALL_STUB_TOP_Y = 0.55;
+const WALL_STUB_TOP_Y = 0.3;
 
 interface WallBox {
   size: Vec3Tuple;
