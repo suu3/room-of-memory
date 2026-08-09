@@ -86,14 +86,18 @@ export function CardOddMinigame({ onComplete, onSettled }: MinigameProps) {
     playSound("success");
   };
 
+  // 틀린 답은 흔들림이 끝나면 통째로 비운다 — 지워서 고치는 게 아니라 처음부터
+  // 다시 적는 문제다. 남겨두면 어느 자리가 틀렸는지 맞춰보라는 힌트가 된다.
   useEffect(() => {
     if (!rejected) return;
-    const timer = window.setTimeout(() => setRejected(false), NUDGE_MS);
+    const timer = window.setTimeout(() => {
+      setRejected(false);
+      setInput("");
+    }, NUDGE_MS);
     return () => window.clearTimeout(timer);
   }, [rejected]);
 
   // 슬롯을 다 채우면 스스로 확인한다 — 슬롯 UI에는 제출 버튼이 없다.
-  // 틀리면 입력이 남으므로(지워서 고치라고) 같은 값으로는 다시 확인하지 않는다.
   const submitRef = useRef(submit);
   submitRef.current = submit;
   useEffect(() => {
