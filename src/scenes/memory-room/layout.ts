@@ -19,7 +19,7 @@ export const ROOM_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
 /*
  * ---------------------------------------------------------------- 거실 (v2)
  *
- * 방문(-x 벽) 너머의 두 번째 공간 (docs/content-design-v2.md 2장). 방과 벽 하나
+ * 방문(-x 벽) 너머의 두 번째 공간 (docs/story.md 5-1). 방과 벽 하나
  * (x = ROOM_SHELL_BOUNDS.minX)를 공유하고, 그 벽의 문이 둘을 잇는다.
  * 반대쪽 끝(-x)에 현관문이 있다 — 엔딩은 이제 거기서 난다.
  */
@@ -71,7 +71,7 @@ export const LIVING_COLLIDERS = [
 
 /**
  * 현관문 — 거실 -x 끝 벽. 배트가 방문을 열게 되면서 엔딩 트리거가 여기로 왔다
- * (docs/content-design-v2.md 3장). 회전은 방문과 반대 — 문이 벽 안쪽을 본다.
+ * (docs/story.md 5-2). 회전은 방문과 반대 — 문이 벽 안쪽을 본다.
  */
 export const FRONT_DOOR_POSITION = [LIVING_SHELL_BOUNDS.minX + 0.14, 1.7, 1.25] as const;
 export const FRONT_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
@@ -155,7 +155,7 @@ export const BAT_PLACEMENT = {
 
 /**
  * 문 쪽 왼벽에 붙은 조명 스위치. 기억도 트리거도 아닌 배경 오브젝트다 —
- * 진행에는 아무 영향이 없고 방의 불만 끄고 켠다 (docs/content-design.md 4-2).
+ * 진행에는 아무 영향이 없고 방의 불만 끄고 켠다 (docs/story.md 7-2).
  *
  * 좌표는 RoomDecor가 장식으로 그리던 자리를 그대로 물려받았다 (왼벽 안쪽 면
  * x=-5.91 + 판 두께의 절반). 장식과 실물을 둘 다 두면 스위치가 두 개로 보인다.

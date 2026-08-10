@@ -24,7 +24,7 @@ import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
 
 /**
- * 방문 너머의 거실 (docs/content-design-v2.md 7장).
+ * 방문 너머의 거실 (docs/story.md 8장).
  *
  * 아직 골격뿐이다 — 바닥·벽·현관문. 가구(소파·TV·식탁·신발장)와 미궁 문제는
  * 다음 단계에서 선다. 벽 치수는 RoomShell과 같은 값을 쓴다: 같은 집이라 벽

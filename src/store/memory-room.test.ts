@@ -276,7 +276,7 @@ describe("ending trigger", () => {
 
     useMemoryRoomStore.getState().startEnding();
 
-    // v2: 엔딩은 기억 완주 + 현관 잠금 해제, 두 조건이다 (docs/content-design-v2.md 7장)
+    // v2: 엔딩은 기억 완주 + 현관 잠금 해제, 두 조건이다 (docs/story.md 8장)
     expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
   });
 

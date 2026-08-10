@@ -10,7 +10,7 @@ import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
 
 /**
- * 거실 가구 (docs/content-design-v2.md 7장). 전부 박스 조합 — 방(RoomFurniture)과
+ * 거실 가구 (docs/story.md 8장). 전부 박스 조합 — 방(RoomFurniture)과
  * 같은 문법이라야 문 하나 건넌 같은 집으로 읽힌다.
  *
  * 거실은 셋이 쓰던 공간이고, 가구가 그 부재를 말한다:

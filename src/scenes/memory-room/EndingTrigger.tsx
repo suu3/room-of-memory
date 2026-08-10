@@ -30,7 +30,7 @@ const TAKEN_LIFT = 0.9;
  * v1에서는 엔딩 트리거였다 — 이제 엔딩은 거실 끝 현관문이 맡고(FrontDoor),
  * 배트는 라디오 목소리를 들은 순간 켜진다. 쥐면 방문이 열리고 거실로 나갈 수
  * 있다. 무기가 아니라 표식이던 배트가 여기서 처음 무기가 된다
- * (docs/content-design-v2.md 3장).
+ * (docs/story.md 5-2).
  */
 export function EndingTrigger({ palette }: { palette: RoomPalette }) {
   const ready = useMemoryRoomStore(selectDoorReady);

@@ -131,7 +131,7 @@ interface MemoryRoomState {
   /**
    * 방문이 열렸는가 — 배트를 쥔 순간부터 계속 true (v2: 문은 한 번 열리면 계속
    * 열려 있다). 라디오 목소리를 들은 뒤에만 열 수 있고, 열리면 거실로 걸어
-   * 나갈 수 있다 (docs/content-design-v2.md 3장).
+   * 나갈 수 있다 (docs/story.md 5-2).
    */
   doorOpened: boolean;
   /** 엔딩이 시작됐는가 — 거실 끝 현관문을 연 순간 (v2에서 배트 → 현관문으로 옮겨왔다). */
@@ -156,7 +156,7 @@ interface MemoryRoomState {
    *
    * 기억 인터랙션(activeInteraction)과 다른 자리인 이유: 미궁 문제는 기억이
    * 아니다. 수집·재조사에 안 세어지고, 대사도 안 딸리고, 완료는 solvedPuzzles에만
-   * 남는다 (docs/content-design-v2.md 4장).
+   * 남는다 (docs/story.md 5-3).
    */
   activePuzzle: PuzzleId | null;
   /** 풀어낸 미궁 문제. 저장된다 — 현관 잠금(angle-turn)이 엔딩의 두 번째 조건이다. */
@@ -164,7 +164,7 @@ interface MemoryRoomState {
   /**
    * 닫힌 방문을 마지막으로 두드린 시각 (0 = 아직). 문이 안 열리는 이유를 한 줄
    * 혼잣말로 흘리는 신호다 (DoorNudge) — 잠긴 게 아니라 **안 여는** 것이라는 게
-   * 대사로 드러나야 한다 (docs/content-design-v2.md 4장).
+   * 대사로 드러나야 한다 (docs/story.md 5-3).
    */
   doorNudgedAt: number;
   beginInteraction: (id: MemoryId) => void;
