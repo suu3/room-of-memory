@@ -11,10 +11,10 @@
   "door": {
     "locked": "Locked Door",
     "exit": "Leave →",
-    "ready": "The bat by the door is glowing",
-    "exitReady": "Across the living room, the front door is glowing",
+    "ready": "The bedroom door is glowing",
+    "exitReady": "The bat in the entryway is glowing",
     "nudgeStay": "…There's nothing out there for me.",
-    "nudgeBat": "Not empty-handed. …At least take that."
+    "nudgeBat": "…Is it alright to go out now?"
   },
   "panel": {
     "title": "Collected Memories",
@@ -431,5 +431,8 @@
     "sent": "Sent. Thank you!",
     "failed": "Sending failed. Your text is still here — try again.",
     "unconfigured": "The inbox isn't connected yet."
+  },
+  "callout": {
+    "frame": "…That photo frame. I should look at it again."
   }
 }

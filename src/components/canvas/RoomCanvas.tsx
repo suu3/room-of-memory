@@ -209,6 +209,11 @@ export function RoomCanvas() {
       phone: tRoom("memories.phone.name"),
       calendar: tRoom("memories.calendar.name"),
       ball: tRoom("memories.ball.name"),
+      fridge: tRoom("memories.fridge.name"),
+      duffel: tRoom("memories.duffel.name"),
+      shoes: tRoom("memories.shoes.name"),
+      cards: tRoom("memories.cards.name"),
+      ampoule: tRoom("memories.ampoule.name"),
     }),
     [tRoom],
   );

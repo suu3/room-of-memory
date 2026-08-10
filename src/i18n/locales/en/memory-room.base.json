@@ -21,6 +21,12 @@
         }
       ]
     },
+    "dad": {
+      "name": "Dad"
+    },
+    "mom": {
+      "name": "Mom"
+    },
     "broadcast": {
       "name": "Emergency Broadcast"
     },
@@ -55,6 +61,21 @@
     },
     "console": {
       "name": "Console"
+    },
+    "fridge": {
+      "name": "Fridge"
+    },
+    "duffel": {
+      "name": "Duffel Bag"
+    },
+    "shoes": {
+      "name": "Shoe Cabinet"
+    },
+    "cards": {
+      "name": "Playing Cards"
+    },
+    "ampoule": {
+      "name": "Ampoule"
     }
   }
 }

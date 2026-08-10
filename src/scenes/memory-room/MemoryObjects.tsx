@@ -22,7 +22,7 @@ import {
 } from "@/store/memory-room";
 import { ballSeamGeometry } from "./ball-seam";
 import { toLitMaterial } from "./FurnitureModel";
-import { MEMORY_PLACEMENTS } from "./layout";
+import { MEMORY_PLACEMENTS, MEMORY_SPACE, type MemorySpace } from "./layout";
 import { MemoryBeacon } from "./MemoryBeacon";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
 import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-motion";
@@ -622,6 +622,165 @@ function ComputerMemory({ palette, opacity, onReady }: VisualProps & { onReady: 
   );
 }
 
+/*
+ * ── 거실의 기억 (2막) ──────────────────────────────────────────────
+ *
+ * 셋은 이미 서 있는 가구를 만진다 (냉장고 문·아래칸, 신발장 문). 가구를 복제하지
+ * 않고 **여는 면의 테두리만** 가는 막대 넷으로 긋는다 — 평소엔 가구와 같은 색이라
+ * 이음매처럼 묻혀 있다가, 조사할 차례가 되면 그 사각형이 통째로 금빛으로 뜬다.
+ *
+ * 판때기로 면을 덮지 않는 이유: 냉장고 문에는 이미 자석에 눌린 메모가 붙어 있고
+ * (LivingRoomFurniture의 FRIDGE_PARTS), 판을 얹으면 그 메모가 가려진다. 메모는
+ * 마지막 단서(ampoule)가 들추는 물건이라 끝까지 보여야 한다.
+ */
+const DOOR_EDGE = 0.028;
+
+function DoorOutline({
+  width,
+  height,
+  color,
+  opacity,
+}: {
+  width: number;
+  height: number;
+  color: string;
+  opacity: number;
+}) {
+  const transparent = opacity < 1;
+  const halfW = width / 2;
+  const halfH = height / 2;
+  const bars: { size: Vec3Tuple; position: Vec3Tuple }[] = [
+    { size: [width, DOOR_EDGE, DOOR_EDGE], position: [0, halfH, 0] },
+    { size: [width, DOOR_EDGE, DOOR_EDGE], position: [0, -halfH, 0] },
+    { size: [DOOR_EDGE, height, DOOR_EDGE], position: [-halfW, 0, 0] },
+    { size: [DOOR_EDGE, height, DOOR_EDGE], position: [halfW, 0, 0] },
+  ];
+  return bars.map((bar) => (
+    <mesh key={bar.position.join(":")} position={bar.position}>
+      <boxGeometry args={bar.size} />
+      <meshStandardMaterial
+        color={color}
+        roughness={0.75}
+        opacity={opacity}
+        transparent={transparent}
+      />
+    </mesh>
+  ));
+}
+
+/** 냉장실 문 — 열면 아직 반이나 남은 식량이 나온다. */
+function FridgeDoorMemory({ palette, opacity }: VisualProps) {
+  return <DoorOutline width={0.86} height={0.7} color={palette.paper} opacity={opacity} />;
+}
+
+/** 냉장고 아래칸 — "손대지 마"라던 칸. 앰플이 여기 있다. */
+function FridgeDrawerMemory({ palette, opacity }: VisualProps) {
+  return <DoorOutline width={0.86} height={0.38} color={palette.paper} opacity={opacity} />;
+}
+
+/** 신발장 문 — 두고 간 등산화가 그대로 있다. */
+function ShoeCabinetMemory({ palette, opacity }: VisualProps) {
+  return <DoorOutline width={1.7} height={0.86} color={palette.dusk} opacity={opacity} />;
+}
+
+/**
+ * 식탁에 펼쳐진 트럼프 — 넷이서 치다 만 판이 그대로다.
+ *
+ * 원래 거실 가구(LivingRoomFurniture의 TableCards)가 미궁 문제(activePuzzle)로
+ * 열던 물건인데, 2막 추리 체인의 한 칸이 되면서 기억으로 올라왔다. 미궁 축을
+ * 따로 둘 이유가 사라졌다 — 카드는 이제 대사도 기록도 남긴다.
+ */
+function TableCardsMemory({ palette, opacity }: VisualProps) {
+  const transparent = opacity < 1;
+  return (
+    <group>
+      {/* 덱 — 반쯤 남은 더미 */}
+      <mesh position={[-0.15, 0.025, -0.02]} castShadow>
+        <boxGeometry args={[0.2, 0.05, 0.28]} />
+        <meshStandardMaterial
+          color={palette.bone}
+          roughness={0.7}
+          opacity={opacity}
+          transparent={transparent}
+        />
+      </mesh>
+      {SPREAD_CARDS.map(([x, z, turn]) => (
+        <mesh key={`${x}:${z}`} position={[x, 0.004, z]} rotation={[0, turn, 0]} castShadow>
+          <boxGeometry args={[0.18, 0.008, 0.26]} />
+          <meshStandardMaterial
+            color={palette.paper}
+            roughness={0.7}
+            opacity={opacity}
+            transparent={transparent}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/** 흩어진 카드들 — 식탁 상판 중심 기준의 [x, z, y회전]. */
+const SPREAD_CARDS = [
+  [-0.3, -0.25, 0.3],
+  [-0.1, 0.3, -0.5],
+  [0.25, 0.15, 0.9],
+  [0.3, -0.3, -0.15],
+] as const;
+
+/**
+ * 소파 앞에 던져둔 야구 가방 — 비우고 다시 싸는 물건.
+ *
+ * 거실에서 유일하게 새로 서는 기억이다. 나머지는 이미 있던 가구를 다시 보는
+ * 것이지만, 나갈 준비는 없던 행동이라 없던 물건이 필요하다.
+ */
+function DuffelMemory({ palette, opacity }: VisualProps) {
+  const transparent = opacity < 1;
+  return (
+    <group>
+      {/* 몸통 — 눕힌 원통이 천 가방의 처진 실루엣에 가장 가깝다 */}
+      <mesh rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.19, 0.19, 0.62, 12]} />
+        <meshStandardMaterial
+          color={palette.olive ?? palette.dusk}
+          roughness={0.9}
+          opacity={opacity}
+          transparent={transparent}
+        />
+      </mesh>
+      {/* 어깨끈 — 몸통 위를 가로지른다 */}
+      <mesh position={[0, 0.16, 0]} rotation={[0.12, 0, 0]} castShadow>
+        <boxGeometry args={[0.5, 0.06, 0.09]} />
+        <meshStandardMaterial
+          color={palette.ink}
+          roughness={0.85}
+          opacity={opacity}
+          transparent={transparent}
+        />
+      </mesh>
+      {/* 지퍼 — 몸통 위쪽을 따라 난 줄 하나 */}
+      <mesh position={[0, 0.185, 0.03]} castShadow={false}>
+        <boxGeometry args={[0.56, 0.012, 0.02]} />
+        <meshStandardMaterial
+          color={palette.bone}
+          roughness={0.6}
+          opacity={opacity}
+          transparent={transparent}
+        />
+      </mesh>
+      {/* 옆주머니 — 가방 한쪽 끝에 덧댄 천 */}
+      <mesh position={[-0.28, -0.02, 0.02]} castShadow>
+        <boxGeometry args={[0.1, 0.24, 0.3]} />
+        <meshStandardMaterial
+          color={palette.slate}
+          roughness={0.9}
+          opacity={opacity}
+          transparent={transparent}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId }) {
   switch (id) {
     case "console":
@@ -640,6 +799,16 @@ function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId 
       return <CalendarMemory palette={palette} opacity={opacity} />;
     case "computer":
       return <ComputerPrimitive palette={palette} opacity={opacity} />;
+    case "fridge":
+      return <FridgeDoorMemory palette={palette} opacity={opacity} />;
+    case "duffel":
+      return <DuffelMemory palette={palette} opacity={opacity} />;
+    case "shoes":
+      return <ShoeCabinetMemory palette={palette} opacity={opacity} />;
+    case "cards":
+      return <TableCardsMemory palette={palette} opacity={opacity} />;
+    case "ampoule":
+      return <FridgeDrawerMemory palette={palette} opacity={opacity} />;
   }
 }
 
@@ -841,18 +1010,25 @@ export function InteractiveMemory({
   );
 }
 
+/**
+ * 한 공간의 기억들. 씬이 방과 거실을 갈라 그리므로(한 번에 한 방만 보인다)
+ * 여기도 공간으로 갈라 낸다 — 거실 물건이 방 트리에 섞이면 벽 너머에 떠 있는
+ * 유령이 되고, 근접 판정도 벽을 뚫고 잡힌다.
+ */
 export function MemoryObjects({
+  space,
   palette,
   nearbyMemoryId,
   onInteract,
 }: {
+  space: MemorySpace;
   palette: RoomPalette;
   nearbyMemoryId: MemoryId | null;
   onInteract: (id: MemoryId) => void;
 }) {
   return (
-    <group name="memory-objects">
-      {MEMORIES.map((memory) => (
+    <group name={`memory-objects-${space}`}>
+      {MEMORIES.filter((memory) => MEMORY_SPACE[memory.id] === space).map((memory) => (
         <InteractiveMemory
           key={memory.id}
           id={memory.id}

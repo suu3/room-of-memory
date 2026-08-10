@@ -6,7 +6,7 @@ import { useCallback, useMemo, useRef } from "react";
 import type { Group, Mesh } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
-import { selectDoorReady, useMemoryRoomStore } from "@/store/memory-room";
+import { selectBatReady, useMemoryRoomStore } from "@/store/memory-room";
 import { BAT_PLACEMENT } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-motion";
@@ -25,17 +25,16 @@ const TAKEN_DURATION = 0.45;
 const TAKEN_LIFT = 0.9;
 
 /**
- * 문 옆에 세워둔 배트. 수집 대상이 아니라 **방문을 여는** 트리거다 (v2).
+ * 현관문 옆에 세워둔 배트 — 3막의 물건이다 (docs/content-design.md 3-2).
  *
- * v1에서는 엔딩 트리거였다 — 이제 엔딩은 거실 끝 현관문이 맡고(FrontDoor),
- * 배트는 라디오 목소리를 들은 순간 켜진다. 쥐면 방문이 열리고 거실로 나갈 수
- * 있다. 무기가 아니라 표식이던 배트가 여기서 처음 무기가 된다
- * (docs/story.md 5-2).
+ * 앰플을 손에 넣어야(2막 완료) 켜지고, 쥐면 현관문이 열린다. 야구부였다는
+ * 사실이 처음으로 쓸모를 갖는 자리이자, 도해가 밖을 어떻게 생각하고 있는지를
+ * 말없이 보여주는 자리다. 문을 여는 것 자체는 현관문이 맡는다 (FrontDoor).
  */
 export function EndingTrigger({ palette }: { palette: RoomPalette }) {
-  const ready = useMemoryRoomStore(selectDoorReady);
-  const started = useMemoryRoomStore((state) => state.doorOpened);
-  const grabBat = useMemoryRoomStore((state) => state.grabBat);
+  const ready = useMemoryRoomStore(selectBatReady);
+  const started = useMemoryRoomStore((state) => state.batTaken);
+  const takeBat = useMemoryRoomStore((state) => state.takeBat);
   const clickable = ready && !started;
   const { hovered, handlers } = useGlowHover(clickable);
   const motionRef = useRef<Group>(null);
@@ -99,9 +98,9 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
     if (!ready || started) return;
     punchRef.current = 0;
     playSound("collect");
-    // 문은 여기서 안 연다 — 떠나는 두 줄이 먼저고, 그 재생이 끝나야 열린다 (store.grabBat)
-    grabBat();
-  }, [ready, started, grabBat]);
+    // 여기서 바로 쥐지 않는다 — 두 줄이 먼저고, 그 재생이 끝나야 손에 들어온다 (store.takeBat)
+    takeBat();
+  }, [ready, started, takeBat]);
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
@@ -114,7 +113,7 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
       }}
     >
       {/*
-        쥘 수 있으면 방 어디서 봐도 빛난다 — HUD가 "문 옆의 배트가 빛난다"고
+        쥘 수 있으면 거실 어디서 봐도 빛난다 — HUD가 "현관의 배트가 빛난다"고
         말해 주는데 다가가야만 켜지면 그 말이 거짓이 된다. 아직 아닌 배트는
         원래대로 어둡다 (DORMANT_EMISSIVE).
       */}

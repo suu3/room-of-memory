@@ -15,6 +15,11 @@ const labels = {
   phone: "Phone",
   calendar: "Calendar",
   ball: "Ball",
+  fridge: "Fridge",
+  duffel: "Duffel",
+  shoes: "Shoes",
+  cards: "Cards",
+  ampoule: "Ampoule",
 } satisfies Record<MemoryId, string>;
 
 afterEach(cleanup);
@@ -38,11 +43,11 @@ function renderPrompt(availableIds: readonly MemoryId[], onInteract: (id: Memory
 }
 
 describe("RoomInteractionPrompt", () => {
-  it("renders the nearby prompt and eight translated accessible button names", () => {
+  it("renders the nearby prompt and a translated accessible button per memory", () => {
     renderPrompt(["console"], () => {});
 
     expect(screen.getByText("Console 조사 · E")).toBeTruthy();
-    expect(screen.getAllByRole("button")).toHaveLength(8);
+    expect(screen.getAllByRole("button")).toHaveLength(Object.keys(labels).length);
     expect(screen.getByRole("button", { name: "Console" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Window" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Frame" })).toBeTruthy();
@@ -82,7 +87,7 @@ describe("RoomInteractionPrompt", () => {
 
     const window = screen.getByRole("button", { name: "Window" }) as HTMLButtonElement;
     expect(window.disabled).toBe(true);
-    expect(screen.getAllByRole("button")).toHaveLength(8);
+    expect(screen.getAllByRole("button")).toHaveLength(Object.keys(labels).length);
   });
 
   it("does not dispatch a disabled memory button", () => {

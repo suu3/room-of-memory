@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  CUTSCENE_BAT_FAREWELL,
+  ACT2_CHAIN,
+  CUTSCENE_BAT_GRIP,
+  CUTSCENE_FAREWELL,
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENES,
   MEMORIES,
@@ -8,8 +10,11 @@ import {
   SCRIPTS,
 } from "@/data/memory-room";
 import {
+  actOf,
+  actTwoProgress,
   hotspotStatus,
   openCutscene,
+  selectBatReady,
   selectDoorReady,
   selectEndingReady,
   selectMusicPhase,
@@ -245,44 +250,65 @@ describe("수집한 기억 다시보기", () => {
   });
 });
 
-describe("ending trigger", () => {
+describe("3막 — 앰플 · 배트 · 현관문", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  /** 2바퀴를 다 돈 상태 — 배트가 켜지는 조건. */
-  function finishBothRounds() {
+  /** 2막 추리 체인을 끝낸 상태 — 앰플까지 손에 넣었다. */
+  function finishActTwo() {
     useMemoryRoomStore.setState({
       collected: PHASE1_MEMORIES.map((memory) => memory.id),
-      revisited: MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id),
+      revisited: [...ACT2_CHAIN],
+      doorOpened: true,
     });
   }
 
-  /** 현관 잠금(회전 미궁)을 푼 상태 — 엔딩의 두 번째 조건. */
+  /** 현관 잠금(회전 미궁)을 푼 상태 — 문의 두 번째 조건. */
   function unlockFrontDoor() {
     useMemoryRoomStore.setState({ solvedPuzzles: ["angle-turn"] });
   }
 
-  it("2바퀴를 다 돌기 전에는 엔딩이 시작되지 않는다", () => {
-    useMemoryRoomStore.setState({ collected: PHASE1_MEMORIES.map((memory) => memory.id) });
+  it("앰플을 쥐기 전에는 3막이 아니다", () => {
+    useMemoryRoomStore.setState({
+      collected: PHASE1_MEMORIES.map((memory) => memory.id),
+      revisited: ACT2_CHAIN.filter((id) => id !== "ampoule"),
+      doorOpened: true,
+    });
+
+    expect(actOf(useMemoryRoomStore.getState())).toBe(2);
     expect(selectEndingReady(useMemoryRoomStore.getState())).toBe(false);
-
-    useMemoryRoomStore.getState().startEnding();
-
-    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
+    expect(selectBatReady(useMemoryRoomStore.getState())).toBe(false);
   });
 
-  it("2바퀴를 다 돌아도 현관 잠금(회전 미궁)이 남아 있으면 엔딩이 안 열린다", () => {
-    finishBothRounds();
-    expect(selectEndingReady(useMemoryRoomStore.getState())).toBe(true);
+  it("곁가지(컴퓨터·폰·게임기)를 안 봐도 3막은 열린다", () => {
+    // 선택 콘텐츠가 관문이 되면 체인을 끝낸 플레이어가 왜 막혔는지 알 길이 없다
+    finishActTwo();
 
-    useMemoryRoomStore.getState().startEnding();
-
-    // v2: 엔딩은 기억 완주 + 현관 잠금 해제, 두 조건이다 (docs/story.md 8장)
-    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
+    expect(actOf(useMemoryRoomStore.getState())).toBe(3);
+    expect(useMemoryRoomStore.getState().revisited).not.toContain("computer");
   });
 
-  it("2바퀴 완주 + 잠금 해제면 현관문이 열린다", () => {
-    finishBothRounds();
+  it("배트를 쥐기 전에는 현관문이 안 열린다", () => {
+    finishActTwo();
     unlockFrontDoor();
+
+    useMemoryRoomStore.getState().startEnding();
+
+    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
+  });
+
+  it("배트를 쥐어도 현관 잠금이 남아 있으면 안 열린다", () => {
+    finishActTwo();
+    useMemoryRoomStore.setState({ batTaken: true });
+
+    useMemoryRoomStore.getState().startEnding();
+
+    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
+  });
+
+  it("배트 + 잠금 해제면 현관문이 열린다", () => {
+    finishActTwo();
+    unlockFrontDoor();
+    useMemoryRoomStore.setState({ batTaken: true });
 
     useMemoryRoomStore.getState().startEnding();
 
@@ -290,14 +316,41 @@ describe("ending trigger", () => {
   });
 
   it("리셋하면 엔딩도 처음으로 돌아간다", () => {
-    finishBothRounds();
+    finishActTwo();
     unlockFrontDoor();
+    useMemoryRoomStore.setState({ batTaken: true });
     useMemoryRoomStore.getState().startEnding();
 
     useMemoryRoomStore.getState().reset();
 
-    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
-    expect(selectEndingReady(useMemoryRoomStore.getState())).toBe(false);
+    const state = useMemoryRoomStore.getState();
+    expect(state.endingStarted).toBe(false);
+    expect(state.batTaken).toBe(false);
+    expect(actOf(state)).toBe(1);
+  });
+});
+
+describe("2막 진행도 — 밝기 상승 곡선의 분모", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("필수 체인만 센다 — 곁가지는 분자에도 분모에도 없다", () => {
+    useMemoryRoomStore.setState({ revisited: ["radio", "computer", "console"] });
+
+    // 셋을 봤지만 체인에 든 것은 라디오뿐이다
+    expect(actTwoProgress(useMemoryRoomStore.getState())).toBeCloseTo(1 / ACT2_CHAIN.length);
+  });
+
+  it("체인을 다 돌면 1이다", () => {
+    useMemoryRoomStore.setState({ revisited: [...ACT2_CHAIN] });
+
+    expect(actTwoProgress(useMemoryRoomStore.getState())).toBe(1);
+  });
+
+  it("체인은 앰플에서 거슬러 올라간 순서다", () => {
+    // 의존이 먼저 오고 앰플이 마지막 — 어느 칸도 자기 선행 조건보다 앞서지 않는다
+    expect(ACT2_CHAIN[ACT2_CHAIN.length - 1]).toBe("ampoule");
+    expect(ACT2_CHAIN).toContain("radio");
+    expect(ACT2_CHAIN).not.toContain("computer");
   });
 });
 
@@ -446,133 +499,199 @@ describe("전환 컷씬", () => {
   });
 });
 
-describe("배트 — 대사를 거쳐 문이 열린다", () => {
+describe("현관의 배트 — 대사를 거쳐 손에 들어온다", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   function readyForBat() {
     useMemoryRoomStore.setState({
       collected: PHASE1_MEMORIES.map((memory) => memory.id),
-      revisited: ["radio"],
+      revisited: [...ACT2_CHAIN],
+      doorOpened: true,
     });
   }
 
-  it("준비되기 전에는 쥐어도 아무 일도 없다", () => {
-    useMemoryRoomStore.getState().grabBat();
+  it("앰플이 없으면 쥐어도 아무 일도 없다", () => {
+    useMemoryRoomStore.getState().takeBat();
 
     expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
-    expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
+    expect(useMemoryRoomStore.getState().batTaken).toBe(false);
   });
 
-  it("쥐면 문 대신 대사가 먼저 뜬다 — 라디오 도입 없이", () => {
+  it("쥐면 먼저 대사가 뜬다 — 라디오 도입 없이", () => {
     readyForBat();
-    useMemoryRoomStore.getState().grabBat();
+    useMemoryRoomStore.getState().takeBat();
 
     const playback = useMemoryRoomStore.getState().activePlayback;
     expect(playback?.kind).toBe("cutscene");
-    expect(playback?.cutsceneId).toBe(CUTSCENE_BAT_FAREWELL);
+    expect(playback?.cutsceneId).toBe(CUTSCENE_BAT_GRIP);
     // 지직거리다 꺼지는 도입은 라디오 컷씬만의 것이다
     expect(playback?.intro).toBe(false);
-    expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
+    expect(useMemoryRoomStore.getState().batTaken).toBe(false);
   });
 
-  it("대사를 끝까지 넘기면 그때 문이 열린다", () => {
+  it("대사를 끝까지 넘기면 그때 배트가 손에 들어온다", () => {
     readyForBat();
-    useMemoryRoomStore.getState().grabBat();
+    useMemoryRoomStore.getState().takeBat();
 
     for (let step = 0; step < 16 && useMemoryRoomStore.getState().activePlayback; step += 1) {
       useMemoryRoomStore.getState().advancePlayback();
     }
 
     expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
-    expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
+    expect(useMemoryRoomStore.getState().batTaken).toBe(true);
   });
 
-  it("대사를 건너뛰어도 문은 열린다", () => {
-    // 스킵은 유효한 결말이다 — 문까지 같이 무르면 배트가 죽은 버튼이 된다
+  it("대사를 건너뛰어도 배트는 손에 들어온다", () => {
+    // 스킵은 유효한 결말이다 — 배트까지 같이 무르면 죽은 버튼이 된다
     readyForBat();
-    useMemoryRoomStore.getState().grabBat();
+    useMemoryRoomStore.getState().takeBat();
     useMemoryRoomStore.getState().endPlayback();
 
-    expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
+    expect(useMemoryRoomStore.getState().batTaken).toBe(true);
   });
 
   it("다른 재생이 도는 중에는 쥘 수 없다", () => {
     readyForBat();
     useMemoryRoomStore.setState({ activePlayback: openCutscene(CUTSCENE_RADIO_BLACKOUT) });
 
-    useMemoryRoomStore.getState().grabBat();
+    useMemoryRoomStore.getState().takeBat();
 
     expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_RADIO_BLACKOUT);
-    // 라디오 컷씬이 끝나도 배트 대사가 아니었으니 문은 닫힌 채다
+    // 라디오 컷씬이 끝나도 배트 대사가 아니었으니 배트는 벽에 그대로 서 있다
     useMemoryRoomStore.getState().endPlayback();
-    expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
+    expect(useMemoryRoomStore.getState().batTaken).toBe(false);
+  });
+
+  it("앰플을 되찾는 순간 작별의 회상이 뜬다", () => {
+    useMemoryRoomStore.setState({
+      collected: PHASE1_MEMORIES.map((memory) => memory.id),
+      revisited: ACT2_CHAIN.filter((id) => id !== "ampoule"),
+      doorOpened: true,
+    });
+
+    useMemoryRoomStore.getState().beginInteraction("ampoule");
+    // 진입 대사를 다 넘기면 조사가 끝난다 (미니게임이 없는 조사다)
+    for (let step = 0; step < 16 && useMemoryRoomStore.getState().activeInteraction; step += 1) {
+      useMemoryRoomStore.getState().advanceDialogue();
+    }
+
+    const state = useMemoryRoomStore.getState();
+    expect(state.revisited).toContain("ampoule");
+    expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_FAREWELL);
   });
 });
 
-describe("2바퀴 — 라디오가 유일한 관문", () => {
+describe("2막 — 라디오가 유일한 관문, 그다음은 체인", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  function startSecondRound() {
+  function startActTwo() {
     useMemoryRoomStore.setState({ collected: PHASE1_MEMORIES.map((memory) => memory.id) });
   }
 
   it("라디오만 열려 있고 나머지 재조사는 잠겨 있다", () => {
-    startSecondRound();
+    startActTwo();
     const state = useMemoryRoomStore.getState();
 
     expect(hotspotStatus(state, "radio")).toBe("available");
-    for (const id of ["ball", "console", "frame", "phone", "computer"] as const) {
+    for (const id of ["fridge", "duffel", "frame", "shoes", "cards", "ball"] as const) {
       expect(hotspotStatus(state, id)).toBe("locked");
     }
   });
 
   it("라디오 목소리를 잡아도 문을 열기 전에는 나머지가 잠겨 있다", () => {
-    // 문이 열리는 것이 2바퀴의 시작이다 — 단서 수집은 방과 거실을 오가는 일이라,
-    // 문도 안 열었는데 방 안에서 2바퀴가 다 돌면 거실이 부록이 된다
-    startSecondRound();
+    // 문이 열리는 것이 2막의 시작이다 — 추리는 방과 거실을 오가는 일이라,
+    // 문도 안 열었는데 방 안에서 2막이 다 돌면 거실이 부록이 된다
+    startActTwo();
     useMemoryRoomStore.setState({ revisited: ["radio"] });
     const state = useMemoryRoomStore.getState();
 
-    for (const id of ["ball", "console", "frame", "phone", "computer"] as const) {
+    for (const id of ["fridge", "duffel", "frame", "ball"] as const) {
       expect(hotspotStatus(state, id)).toBe("locked");
     }
   });
 
-  it("문이 열리면 나머지가 재점등된다", () => {
-    startSecondRound();
+  it("문이 열리면 거실의 준비 둘부터 켜진다", () => {
+    startActTwo();
     useMemoryRoomStore.setState({ revisited: ["radio"], doorOpened: true });
     const state = useMemoryRoomStore.getState();
 
-    for (const id of ["ball", "console", "frame", "computer"] as const) {
-      expect(hotspotStatus(state, id)).toBe("available");
-    }
+    expect(hotspotStatus(state, "fridge")).toBe("available");
+    expect(hotspotStatus(state, "duffel")).toBe("available");
+    // 액자는 준비를 마쳐야 켜진다 — 거실에서 방으로 부르는 고리다
+    expect(hotspotStatus(state, "frame")).toBe("locked");
+  });
+
+  it("추리 체인은 거실 → 방 → 거실 → 방 → 거실로 접힌다", () => {
+    startActTwo();
+    const step = (...revisited: string[]) =>
+      useMemoryRoomStore.setState({ revisited: revisited as never, doorOpened: true });
+
+    step("radio", "fridge", "duffel");
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "frame")).toBe("available");
+    // 액자를 보기 전에는 거실 단서가 안 열린다
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "shoes")).toBe("locked");
+
+    step("radio", "fridge", "duffel", "frame");
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "shoes")).toBe("available");
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "cards")).toBe("available");
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "ball")).toBe("locked");
+
+    step("radio", "fridge", "duffel", "frame", "shoes", "cards");
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "ball")).toBe("available");
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "ampoule")).toBe("locked");
+
+    step("radio", "fridge", "duffel", "frame", "shoes", "cards", "ball");
+    expect(hotspotStatus(useMemoryRoomStore.getState(), "ampoule")).toBe("available");
+  });
+
+  it("곁가지는 라디오 뒤에 바로 열린다 — 체인을 기다리지 않는다", () => {
+    startActTwo();
+    useMemoryRoomStore.setState({ revisited: ["radio"], doorOpened: true });
+    const state = useMemoryRoomStore.getState();
+
+    expect(hotspotStatus(state, "console")).toBe("available");
+    expect(hotspotStatus(state, "computer")).toBe("available");
     // 폰만 한 칸 뒤다 — 컴퓨터의 여행 메일이 서야 엄마 문자가 근거를 얻는다
     expect(hotspotStatus(state, "phone")).toBe("locked");
     useMemoryRoomStore.setState({ revisited: ["radio", "computer"] });
     expect(hotspotStatus(useMemoryRoomStore.getState(), "phone")).toBe("available");
   });
 
-  it("2차 조사 대상은 라디오와 재점등 5종뿐이다", () => {
-    const revisitable = MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id);
+  it("2차 조사 대상 목록", () => {
+    const revisitable = MEMORIES.filter((memory) => memory.phase2)
+      .map((memory) => memory.id)
+      .sort();
 
-    expect(revisitable.sort()).toEqual(["ball", "computer", "frame", "console", "phone", "radio"]);
+    expect(revisitable).toEqual([
+      "ampoule",
+      "ball",
+      "cards",
+      "computer",
+      "duffel",
+      "frame",
+      "fridge",
+      "console",
+      "phone",
+      "radio",
+      "shoes",
+    ]);
   });
 });
 
-describe("미궁 문제 (거실)", () => {
+describe("미궁 문제 — 현관 잠금", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   it("붙잡고 → 풀면 solvedPuzzles에 남고, 다시는 안 열린다", () => {
-    useMemoryRoomStore.getState().openPuzzle("card-odd");
-    expect(useMemoryRoomStore.getState().activePuzzle).toBe("card-odd");
+    useMemoryRoomStore.getState().openPuzzle("angle-turn");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("angle-turn");
 
     useMemoryRoomStore.getState().finishPuzzle({ cleared: true });
 
     const state = useMemoryRoomStore.getState();
     expect(state.activePuzzle).toBeNull();
-    expect(state.solvedPuzzles).toEqual(["card-odd"]);
+    expect(state.solvedPuzzles).toEqual(["angle-turn"]);
 
-    state.openPuzzle("card-odd");
+    state.openPuzzle("angle-turn");
     expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
   });
 
@@ -591,13 +710,13 @@ describe("미궁 문제 (거실)", () => {
   it("다른 화면이 떠 있으면 문제가 열리지 않는다", () => {
     useMemoryRoomStore.getState().openClue("drawer-note");
 
-    useMemoryRoomStore.getState().openPuzzle("card-odd");
+    useMemoryRoomStore.getState().openPuzzle("angle-turn");
 
     expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
   });
 
   it("문제가 떠 있는 동안 씬 입력이 잠긴다", () => {
-    useMemoryRoomStore.getState().openPuzzle("card-odd");
+    useMemoryRoomStore.getState().openPuzzle("angle-turn");
 
     expect(selectSceneInputLocked(useMemoryRoomStore.getState())).toBe(true);
   });

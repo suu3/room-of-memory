@@ -14,14 +14,13 @@ import {
 } from "@/scenes/memory-room/visual-state";
 import {
   gamePhaseOf,
-  REVISIT_TOTAL,
+  selectActTwoProgress,
+  selectBatReady,
   selectCollected,
   selectDoorReady,
-  selectEndingReady,
   selectMusicForeground,
   selectMusicPhase,
   selectMusicPlaying,
-  selectRevisitedCount,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { BootCurtain } from "./BootCurtain";
@@ -38,6 +37,7 @@ import { Monologue } from "./Monologue";
 import { NotebookTab } from "./NotebookTab";
 import { PlaybackScene } from "./PlaybackScene";
 import { PuzzleHost } from "./PuzzleHost";
+import { RoomCallout } from "./RoomCallout";
 import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
 
@@ -59,26 +59,25 @@ export function MemoryRoom() {
   useAudioRuntime();
   const collected = useMemoryRoomStore(selectCollected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
-  // 밝기는 V자 — 1바퀴는 어두워지고 2바퀴에 되밝아진다 (기획안 3장)
-  const revisitedCount = useMemoryRoomStore(selectRevisitedCount);
+  // 밝기는 V자 — 1막은 어두워지고 2막 추리로 되밝아진다 (docs/content-design.md 5장)
+  const recovery = useMemoryRoomStore(selectActTwoProgress);
   const phase = useMemoryRoomStore(gamePhaseOf);
   const lightLevel = roomLightLevel({
     collected: collected.length,
     memoryTotal: MEMORY_GOAL,
-    revisited: revisitedCount,
-    revisitTotal: REVISIT_TOTAL,
+    recovery,
   });
   const stage = ROOM_STAGES[roomStageIndex(lightLevel, phase)];
   /*
-   * 진행 표시는 이 바퀴에 모으는 것만 센다 — 2바퀴는 대상이 여섯 개로 갈리고
-   * (컴퓨터가 새로 끼고 창문·달력이 빠진다) 1바퀴 목록을 그대로 두면 영영 안
-   * 채워지는 칸이 남는다. 방 밝기의 분모는 이것과 다르다 — 그쪽은 V자를 그리는
-   * 축이라 1바퀴 수집 수(MEMORY_GOAL)와 2바퀴 재조사 수를 따로 본다.
+   * 진행 표시는 이 차수에 조사하는 것만 센다 — 2차는 대상이 갈리므로(컴퓨터·거실
+   * 물건이 새로 끼고 창문·달력이 빠진다) 1차 목록을 그대로 두면 영영 안 채워지는
+   * 칸이 남는다. 밝기의 분모는 또 다르다 — 그쪽은 2막 **필수 체인**만 세므로
+   * 곁가지를 건너뛴 플레이어도 3막에서 방이 다 밝다 (actTwoProgress).
    */
   const roundMemories = memoriesForPhase(phase);
   const roundDone = phase === 1 ? collected : revisited;
   const count = roundMemories.filter((memory) => roundDone.includes(memory.id)).length;
-  const isEndingReady = useMemoryRoomStore(selectEndingReady);
+  const isBatReady = useMemoryRoomStore(selectBatReady);
   const isDoorReady = useMemoryRoomStore(selectDoorReady);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 타이틀 화면이 떠 있는 동안에는 인게임 HUD를 아예 렌더하지 않는다 — 블러 너머로 비친다.
@@ -92,7 +91,7 @@ export function MemoryRoom() {
   const heardLevel = lampScaled(lightLevel, lightsOn);
   // 컷씬은 방송이 끊긴 정적 위에 서는 장면이라 곡도 같이 멎는다 (selectMusicPlaying)
   const musicPlaying = useMemoryRoomStore(selectMusicPlaying);
-  // 곡의 바퀴는 밝기의 바퀴(phase)와 다르다 — 2바퀴 곡은 문이 열려야 든다
+  // 곡이 갈리는 자리는 밝기와 다르다 — 2막 곡은 방문이 열려야 든다
   const musicPhase = useMemoryRoomStore(selectMusicPhase);
   useRoomMusic({
     playing: musicPlaying,
@@ -108,14 +107,14 @@ export function MemoryRoom() {
 
       {/*
         문은 씬 안의 진짜 문이다 (RoomShell·LivingRoomShell). 안내문만 DOM으로 띄운다 —
-        배트가 켜지는 순간(방문이 열릴 준비)과 현관문이 켜지는 순간(엔딩 준비)을
-        같은 자리에서 한 줄씩 알린다.
+        방문이 열릴 준비(2막의 시작)와 현관의 배트가 켜지는 순간(3막)을 같은
+        자리에서 한 줄씩 알린다.
       */}
       {isDoorReady && !endingStarted ? (
         <p className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.3em] text-memory/80">
           {t("door.ready")}
         </p>
-      ) : isEndingReady && !endingStarted ? (
+      ) : isBatReady && !endingStarted ? (
         <p className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.3em] text-memory/80">
           {t("door.exitReady")}
         </p>
@@ -205,6 +204,8 @@ export function MemoryRoom() {
           <MinigameHost />
           <PuzzleHost />
           <DoorNudge />
+          {/* 거실에 있는 동안 방의 액자가 켜졌다는 한 줄 (content-design 4-3) */}
+          <RoomCallout />
         </>
       )}
 

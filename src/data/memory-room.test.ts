@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { PUZZLE_CLUES, PUZZLE_IDS } from "@/data/room-clues";
+import { PUZZLE_IDS, RULE_CLUES } from "@/data/room-clues";
 import ko from "@/i18n/locales/ko/memory-room.json";
 import { MINIGAMES } from "@/minigames";
 import { buildMemoryReplay } from "@/store/memory-room";
@@ -16,8 +16,8 @@ import {
 } from "./memory-room";
 
 /**
- * 답을 적어 내는 미궁 문제들. 규칙이 화면에 없고 단서가 방에 흩어져 있어서
- * (src/data/room-clues.ts의 PUZZLE_CLUES) 나머지 조사와 무게가 다르다.
+ * 기억이 나르면 안 되는 미궁 문제들 — 지금은 현관 잠금(angle-turn) 하나다.
+ * 규칙이 화면에 없고 단서가 방에 흩어져 있다 (src/data/room-clues.ts의 RULE_CLUES).
  */
 const MAZE_MINIGAMES: readonly string[] = [...PUZZLE_IDS];
 
@@ -169,22 +169,28 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     expect(round2).toEqual(MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id));
   });
 
-  it("컴퓨터만 1바퀴가 없다 — 2바퀴에 처음 열리는 기억이다", () => {
+  it("1막에 없는 기억은 컴퓨터와 거실 물건들이다 — 2막에 처음 열린다", () => {
     const phase2Only = MEMORIES.filter((memory) => !memory.phase1).map((memory) => memory.id);
 
-    expect(phase2Only).toEqual(["computer"]);
+    expect(phase2Only.sort()).toEqual([
+      "ampoule",
+      "cards",
+      "computer",
+      "duffel",
+      "fridge",
+      "shoes",
+    ]);
     // 1바퀴에 없는 기억을 1바퀴 조건으로 기다리면 그 기억은 영영 안 열린다
     for (const memory of PHASE1_MEMORIES) {
       expect(memory.phase1?.unlockAfter ?? [], memory.id).not.toContain("computer");
     }
   });
 
-  it("미궁 문제는 기억이 나르지 않는다 — 거실 물건의 몫이다", () => {
+  it("현관 잠금은 기억이 나르지 않는다 — 문에 붙은 문제다", () => {
     /*
-     * card-odd·angle-turn은 거실의 식탁 트럼프·현관 잠금장치에 붙는다
-     * (docs/story.md 8장, 스토어의 openPuzzle). 기억 쪽에 다시 붙으면
-     * 같은 문제가 두 입구를 갖게 되고, "문제는 거실에, 단서는 방에"라는 왕복
-     * 동선이 무너진다.
+     * angle-turn은 거실 끝 현관 잠금장치에 붙는다 (docs/content-design.md 3-2,
+     * 스토어의 openPuzzle). 기억 쪽에 다시 붙으면 같은 문제가 두 입구를 갖는다.
+     * card-odd는 반대로 2막 추리 체인의 한 칸이 되면서 기억(cards)으로 올라갔다.
      */
     const carried = MEMORIES.flatMap((memory) =>
       [memory.phase1, memory.phase2].flatMap((config) =>
@@ -193,34 +199,41 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     );
     for (const maze of MAZE_MINIGAMES) expect(carried).not.toContain(maze);
 
-    // 미궁이 빠진 2바퀴 조사 목록 — 대사만 흐르는 것(게임기·사인볼)이 되돌아왔다
     const withMinigame = MEMORIES.filter((memory) => memory.phase2?.interaction?.minigameId).map(
       (memory) => memory.id,
     );
-    expect(withMinigame.sort()).toEqual(["computer", "frame", "phone", "radio"]);
+    expect(withMinigame.sort()).toEqual(["cards", "computer", "frame", "phone", "radio"]);
   });
 
-  it("미궁 문제마다 단서와 미니게임 구현이 다 있다", () => {
-    for (const id of PUZZLE_IDS) {
+  it("규칙이 화면에 없는 문제마다 단서와 미니게임 구현이 다 있다", () => {
+    for (const id of Object.keys(RULE_CLUES) as (keyof typeof RULE_CLUES)[]) {
       expect(MINIGAMES[id], id).toBeDefined();
-      expect(PUZZLE_CLUES[id], id).toBeDefined();
+      expect(RULE_CLUES[id], id).toBeDefined();
     }
+    for (const id of PUZZLE_IDS) expect(MINIGAMES[id], id).toBeDefined();
   });
 
-  it("2바퀴 재점등 대상은 라디오 목소리를 들은 뒤에만 열린다", () => {
-    const gated: MemoryId[] = ["ball", "console", "frame", "computer"];
-
-    for (const id of gated) {
+  it("2막 곁가지는 라디오 목소리를 들은 뒤에만 열린다", () => {
+    for (const id of ["console", "computer", "fridge", "duffel"] as MemoryId[]) {
       expect(MEMORY_BY_ID[id].phase2?.unlockAfter).toEqual(["radio"]);
     }
     // 폰은 컴퓨터의 여행 메일까지 기다린다 — 엄마 문자가 그 사실을 받아 쓴다
     expect(MEMORY_BY_ID.phone.phase2?.unlockAfter).toEqual(["radio", "computer"]);
-    // 라디오 자신은 2바퀴의 첫 관문이라 아무것도 기다리지 않는다
+    // 라디오 자신은 2막의 첫 관문이라 아무것도 기다리지 않는다
     expect(MEMORY_BY_ID.radio.phase2?.unlockAfter).toBeUndefined();
   });
 
+  it("2막 추리 체인은 거실 ↔ 방을 두 번 왕복한다", () => {
+    // 왕복 상한 원칙 — 방 방문 2회를 넘지 않는다 (docs/content-design.md 2장)
+    expect(MEMORY_BY_ID.frame.phase2?.unlockAfter).toEqual(["radio", "fridge", "duffel"]);
+    expect(MEMORY_BY_ID.shoes.phase2?.unlockAfter).toEqual(["frame"]);
+    expect(MEMORY_BY_ID.cards.phase2?.unlockAfter).toEqual(["frame"]);
+    expect(MEMORY_BY_ID.ball.phase2?.unlockAfter).toEqual(["shoes", "cards"]);
+    expect(MEMORY_BY_ID.ampoule.phase2?.unlockAfter).toEqual(["ball"]);
+  });
+
   it("컷씬의 컷마다 대사가 하나 이상, 그림은 있다면 제 자리에", () => {
-    // 그림은 이제 선택이다 — 배트의 작별 대사(bat-farewell)는 방이 비친 채 흐른다
+    // 그림은 이제 선택이다 — 작별의 회상(farewell)과 배트(bat-grip)는 공간이 비친 채 흐른다
     for (const cutscene of Object.values(CUTSCENES)) {
       expect(cutscene.cuts.length).toBeGreaterThan(0);
       for (const cut of cutscene.cuts) {

@@ -13,9 +13,8 @@ import type { MemoryId } from "@/data/memory-room";
 import {
   gamePhaseOf,
   MEMORY_TOTAL,
-  REVISIT_TOTAL,
+  selectActTwoProgress,
   selectCollectedCount,
-  selectRevisitedCount,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
@@ -35,6 +34,7 @@ import { RoomShell } from "./memory-room/RoomShell";
 import { RoomSurroundings } from "./memory-room/RoomSurroundings";
 import { PlayerPositionProvider } from "./memory-room/use-near-player";
 import {
+  LIVING_ROOM_LIGHT_OFFSET,
   lampScaled,
   outsideDecay,
   ROOM_LIGHT_RAMP,
@@ -163,14 +163,19 @@ export function MemoryRoomScene({
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   const gamePhase = useMemoryRoomStore(gamePhaseOf);
   const collectedCount = useMemoryRoomStore(selectCollectedCount);
-  const revisitedCount = useMemoryRoomStore(selectRevisitedCount);
+  const recovery = useMemoryRoomStore(selectActTwoProgress);
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
-  const lightLevel = roomLightLevel({
+  const roomLight = roomLightLevel({
     collected: collectedCount,
     memoryTotal: MEMORY_TOTAL,
-    revisited: revisitedCount,
-    revisitTotal: REVISIT_TOTAL,
+    recovery,
   });
+  /*
+   * 밝기는 진행도가 정하고 공간이 정하지 않는다 — 다만 거실은 한 단계 낮게
+   * 출발한다 (docs/content-design.md 5장). 여기서 한 번만 깎아 두면 조명·창빛·
+   * 비네트가 전부 같은 값을 본다.
+   */
+  const lightLevel = inLivingRoom ? Math.max(0, roomLight - LIVING_ROOM_LIGHT_OFFSET) : roomLight;
 
   return (
     // 커튼·전등 스위치처럼 표식 없이 근접으로만 켜지는 것들이 플레이어 위치를 본다
@@ -218,17 +223,24 @@ export function MemoryRoomScene({
             onCurtainRelease={onCurtainRelease}
           />
           <MemoryObjects
+            space="room"
             palette={palette}
             nearbyMemoryId={nearbyMemoryId}
             onInteract={onInteract}
           />
-          {/* 문 옆 배트 — 라디오 목소리를 들으면 켜지고, 쥐면 방문이 열린다 (v2) */}
-          <EndingTrigger palette={palette} />
         </group>
-        {/* 방문 너머 — 2바퀴에 문이 열리면 걸어 나갈 수 있다 (v2) */}
+        {/* 방문 너머 — 2막에 문이 열리면 걸어 나갈 수 있다 */}
         <group visible={inLivingRoom}>
           <LivingRoomShell palette={palette} />
           <LivingRoomFurniture palette={palette} />
+          <MemoryObjects
+            space="living"
+            palette={palette}
+            nearbyMemoryId={nearbyMemoryId}
+            onInteract={onInteract}
+          />
+          {/* 현관 옆 배트 — 앰플을 쥐면 켜지는 3막 트리거 */}
+          <EndingTrigger palette={palette} />
         </group>
       </MemoryGlowRoot>
       {/*

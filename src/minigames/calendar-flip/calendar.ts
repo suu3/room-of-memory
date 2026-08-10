@@ -24,7 +24,7 @@ export const INCIDENT_DATE = { month: 10, day: 19 } as const;
  * 그 뒤를 보여주는 다섯 장이면 흐름이 다 담긴다.
  *
  * 11월은 지우면 안 된다 — 날짜가 사라지고 正자만 남는 유일한 장이라,
- * "일상이 끊긴 지점"이 넘김 동작으로 드러나는 자리다 (docs/story.md 7-1).
+ * "일상이 끊긴 지점"이 넘김 동작으로 드러나는 자리다 (docs/content-design.md 6-1).
  */
 export const FIRST_MONTH = 7;
 export const LAST_MONTH = 11;

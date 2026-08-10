@@ -21,7 +21,7 @@ const ROCKER_TILT = 0.42;
  * 문 쪽 벽에 붙은 전등 스위치. 누르면 방 불이 꺼지고 다시 누르면 켜진다.
  *
  * 기억도 엔딩 트리거도 아니다 — 눌러도 진행에는 아무 일이 없다. 기획의 배경
- * 오브젝트(docs/story.md 7-2)와 같은 성격이라, 수집 카운터에도
+ * 오브젝트(docs/content-design.md 6-3)와 같은 성격이라, 수집 카운터에도
  * 잠금 규칙에도 끼지 않는다. 언제든 만질 수 있다.
  */
 export function LightSwitch({ palette }: { palette: RoomPalette }) {

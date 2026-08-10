@@ -21,6 +21,12 @@
         }
       ]
     },
+    "dad": {
+      "name": "父さん"
+    },
+    "mom": {
+      "name": "母さん"
+    },
     "broadcast": {
       "name": "緊急災害放送"
     },
@@ -55,6 +61,21 @@
     },
     "console": {
       "name": "ニンテンドー"
+    },
+    "fridge": {
+      "name": "冷蔵庫"
+    },
+    "duffel": {
+      "name": "バッグ"
+    },
+    "shoes": {
+      "name": "靴箱"
+    },
+    "cards": {
+      "name": "トランプ"
+    },
+    "ampoule": {
+      "name": "アンプル"
     }
   }
 }

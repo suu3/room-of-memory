@@ -1,24 +1,21 @@
 "use client";
 
 import type {} from "@react-three/fiber";
-import { playSound } from "@/lib/audio";
-import { useMemoryRoomStore } from "@/store/memory-room";
-import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
-import { useGlowHover } from "./use-glow-hover";
-import { useNearPlayer } from "./use-near-player";
 
 /**
- * 거실 가구 (docs/story.md 8장). 전부 박스 조합 — 방(RoomFurniture)과
+ * 거실 가구 (docs/content-design.md 3-1). 전부 박스 조합 — 방(RoomFurniture)과
  * 같은 문법이라야 문 하나 건넌 같은 집으로 읽힌다.
  *
  * 거실은 셋이 쓰던 공간이고, 가구가 그 부재를 말한다:
  * 소파의 눌린 자리, 꺼진 TV, 의자 하나가 빠진 식탁, 한 켤레만 남은 신발장.
  * 발자국(콜라이더)은 layout의 LIVING_COLLIDERS — 여기 좌표를 옮기면 거기도 같이.
  *
- * 미궁 문제를 나르는 물건(식탁 위 트럼프, 현관 잠금장치)은 아직 없다 — 이사는
- * 다음 커밋이다 (v2 기획 9장 7번).
+ * 만질 수 있는 것은 여기 없다. 2막에 조사하는 거실 물건(냉장고 문·아래칸,
+ * 신발장 문, 식탁 트럼프)은 기억이라 MemoryObjects가 이 위에 얹는다 — 가구는
+ * 가구만 그리고, 여는 면의 테두리는 기억 쪽이 긋는다
+ * (docs/content-design.md 4장).
  */
 
 interface BoxPart {
@@ -225,77 +222,12 @@ const PLUSH_BEAR_PARTS = [
 /** 곰인형의 자리 — 소파 왼쪽, 뒷벽 구석. 살짝 방 쪽으로 튼다. */
 const PLUSH_BEAR_PLACEMENT = { position: [-11.75, 0, -3.3], rotationY: 0.35 } as const;
 
-/**
- * 식탁 위에 펼쳐진 트럼프 — 카드 미궁(card-odd)의 진입점.
- *
- * 넷이서 치다 만 판이 그대로 남아 있다는 설정이라 덱 하나와 흩어진 카드 몇 장이다.
- * 규칙(문양의 색·대칭)은 방의 선반 놀이책이 들고 있다 (src/data/room-clues.ts) —
- * 여기서 문제를 만나고, 방으로 돌아가 규칙을 찾는 왕복이 설계다.
- */
-const TABLE_TOP_Y = 0.975;
-const DECK_NEAR = [-13.8, 3.8] as const;
-const DECK_RADIUS = 1.9;
-
-/** 흩어진 카드들 — [x, z, y회전]. 식탁 상판(1.6×1.6, 중심 -13.8/3.8) 안이다. */
-const SPREAD_CARDS = [
-  [-14.1, 3.55, 0.3],
-  [-13.9, 4.1, -0.5],
-  [-13.55, 3.95, 0.9],
-  [-13.5, 3.5, -0.15],
-] as const;
-
-function TableCards({ palette }: { palette: RoomPalette }) {
-  const solved = useMemoryRoomStore((state) => state.solvedPuzzles.includes("card-odd"));
-  const openPuzzle = useMemoryRoomStore((state) => state.openPuzzle);
-  const clickable = !solved;
-  const { hovered, handlers } = useGlowHover(clickable);
-  const near = useNearPlayer(DECK_NEAR[0], DECK_NEAR[1], DECK_RADIUS);
-
-  return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
-    <group
-      name="table-cards"
-      {...handlers}
-      onClick={(event) => {
-        if (!clickable) return;
-        event.stopPropagation();
-        playSound("select");
-        openPuzzle("card-odd");
-      }}
-    >
-      <MemoryGlowSelection
-        selectionKey="table-cards"
-        tier="prop"
-        enabled={clickable && (hovered || near)}
-      >
-        {/* 덱 — 반쯤 남은 더미 */}
-        <mesh position={[-13.95, TABLE_TOP_Y + 0.025, 3.78]} castShadow>
-          <boxGeometry args={[0.2, 0.05, 0.28]} />
-          <meshStandardMaterial color={palette.bone} roughness={0.7} />
-        </mesh>
-        {SPREAD_CARDS.map(([x, z, turn]) => (
-          <mesh
-            key={`${x}:${z}`}
-            position={[x, TABLE_TOP_Y + 0.004, z]}
-            rotation={[0, turn, 0]}
-            castShadow
-          >
-            <boxGeometry args={[0.18, 0.008, 0.26]} />
-            <meshStandardMaterial color={palette.paper} roughness={0.7} />
-          </mesh>
-        ))}
-      </MemoryGlowSelection>
-    </group>
-  );
-}
-
 export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
   return (
     <group name="living-room-furniture">
       <Boxes parts={SOFA_PARTS} palette={palette} />
       <Boxes parts={TV_PARTS} palette={palette} />
       <Boxes parts={TABLE_PARTS} palette={palette} />
-      <TableCards palette={palette} />
       {/* 배치는 DINING_SET.chairs — 상판·다리와의 간격을 테스트가 지키는 값이다 */}
       {DINING_SET.chairs.map((chair) => (
         <Chair

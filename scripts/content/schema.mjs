@@ -18,7 +18,7 @@ export const EXPRESSIONS = ["neutral", "smile", "surprised", "embarrassed"];
  * 대사창을 쓸 수 있는 화자. 이름은 i18n의 characters.<id>.name에 있다
  * (src/i18n/locales/<lng>/memory-room.base.json).
  */
-export const SPEAKERS = ["hero", "broadcast", "signal", "narrator"];
+export const SPEAKERS = ["hero", "dad", "mom", "broadcast", "signal", "narrator"];
 
 /**
  * 기억 패널 아이콘으로 쓸 수 있는 @phosphor-icons/react 이름.
@@ -27,10 +27,12 @@ export const SPEAKERS = ["hero", "broadcast", "signal", "narrator"];
  * 타입 에러가 아니라 친절한 검증 에러로 먼저 걸린다.
  */
 export const ICONS = [
+  "Bag",
   "Baseball",
   "Bed",
   "BookOpen",
   "CalendarHeart",
+  "Cards",
   "Desktop",
   "DeviceMobile",
   "Envelope",
@@ -41,6 +43,8 @@ export const ICONS = [
   "MusicNotes",
   "Package",
   "Radio",
+  "Sneaker",
+  "Syringe",
   "Television",
 ];
 
