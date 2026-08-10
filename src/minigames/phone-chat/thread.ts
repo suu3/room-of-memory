@@ -43,7 +43,7 @@ export interface OutgoingCall {
  * 읽지 않았다는 것만이 그날의 증거다.
  *
  * 재난을 입에 올리는 줄은 한 줄도 넣지 않는다 — 세계관을 여는 반전은
- * 강도 4의 라디오 한 곳이 갖는다 (docs/content-design.md 4-1).
+ * 강도 4의 라디오 한 곳이 갖는다 (docs/story.md 7-1).
  */
 export const GROUP_CHAT: ChatMessage[] = [
   {
