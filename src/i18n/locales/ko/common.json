@@ -184,8 +184,8 @@
     },
     "phoneChat": {
       "title": "스마트폰",
-      "help": "지난 대화를 거슬러 올라가세요 — 위로 스크롤 · Space",
-      "help_touch": "지난 대화를 거슬러 올라가세요 — 위로 스크롤 · 터치",
+      "help": "그날의 대화를 따라 내려가세요 — 아래로 스크롤 · Space",
+      "help_touch": "그날의 대화를 따라 내려가세요 — 아래로 스크롤 · 터치",
       "helpCalls": "통화 기록 탭도 열어보세요",
       "date": "10월 19일",
       "close": "화면을 끈다",
@@ -209,7 +209,7 @@
       },
       "callsSubtitle": "안 받은 전화",
       "callsTitle": "최근 기록",
-      "olderAbove": "위로 올리면 더 있다",
+      "moreBelow": "아래로 내리면 더 있다",
       "contact": {
         "mom": "엄마",
         "dad": "아빠",

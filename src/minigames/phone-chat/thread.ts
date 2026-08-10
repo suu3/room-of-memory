@@ -91,7 +91,7 @@ export function totalOutgoingCalls(calls: readonly OutgoingCall[] = OUTGOING_CAL
 }
 
 /**
- * 다 읽었는지. 단톡방을 맨 위까지 거슬러 올라가고 통화 기록까지 열어야 클리어다 —
+ * 다 읽었는지. 단톡방을 맨 아래까지 읽어 내려가고 통화 기록까지 열어야 클리어다 —
  * 둘 중 하나만 보면 그날의 절반만 본 셈이라.
  */
 export function isThreadComplete(revealed: number, seenCalls: boolean): boolean {
@@ -99,25 +99,25 @@ export function isThreadComplete(revealed: number, seenCalls: boolean): boolean 
 }
 
 /**
- * 위로 한 줄 더 거슬러 올라간다. 맨 위에 닿으면 그대로 멈춘다.
+ * 아래로 한 줄 더 읽어 내려간다. 마지막 줄에 닿으면 그대로 멈춘다.
  *
- * 아래로 드러내는 대신 위로 올린다 — 폰을 집어 든 시점에 대화는 이미 끝나 있다.
- * 최신 메시지에서 시작해 거슬러 올라가는 게 "이미 벌어진 일을 되짚는" 동작이다.
+ * 대화의 첫머리에서 시작해 시간순으로 내려간다 — 평범한 방과 후에서 출발해
+ * 한 줄씩 내려갈수록 도해 혼자 남는 침묵으로 가라앉는 동작이다.
  */
-export function revealEarlier(revealed: number): number {
+export function revealNext(revealed: number): number {
   return Math.min(GROUP_CHAT.length, revealed + 1);
 }
 
 /**
- * 화면에 보이는 메시지 — 뒤에서부터 revealed개. 시간순은 그대로 유지된다.
- * 위로 올릴수록 앞쪽(오래된) 메시지가 목록 앞에 붙는다.
+ * 화면에 보이는 메시지 — 앞에서부터 revealed개. 시간순은 그대로 유지된다.
+ * 읽어 내려갈수록 뒤쪽(최신) 메시지가 목록 끝에 붙는다.
  */
 export function visibleMessages(revealed: number): ChatMessage[] {
   const count = Math.min(GROUP_CHAT.length, Math.max(0, revealed));
-  return GROUP_CHAT.slice(GROUP_CHAT.length - count);
+  return GROUP_CHAT.slice(0, count);
 }
 
-/** 위에 아직 더 있는지 — "위로 올려보세요" 안내를 언제 접을지 정한다. */
-export function hasEarlier(revealed: number): boolean {
+/** 아래에 아직 더 있는지 — "아래로 내려보세요" 안내를 언제 접을지 정한다. */
+export function hasLater(revealed: number): boolean {
   return revealed < GROUP_CHAT.length;
 }

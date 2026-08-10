@@ -1,34 +1,34 @@
 import { describe, expect, it } from "vitest";
 import {
   GROUP_CHAT,
-  hasEarlier,
+  hasLater,
   isThreadComplete,
   OUTGOING_CALLS,
   PHONE_TABS,
-  revealEarlier,
+  revealNext,
   totalOutgoingCalls,
   visibleMessages,
 } from "./thread";
 
 describe("phone-chat thread", () => {
-  it("walks backwards one line at a time and stops at the oldest", () => {
+  it("walks forward one line at a time and stops at the newest", () => {
     let revealed = 0;
     for (let step = 0; step < GROUP_CHAT.length; step += 1) {
-      revealed = revealEarlier(revealed);
+      revealed = revealNext(revealed);
       expect(revealed).toBe(step + 1);
     }
-    expect(revealEarlier(revealed)).toBe(GROUP_CHAT.length);
-    expect(revealEarlier(GROUP_CHAT.length + 5)).toBe(GROUP_CHAT.length);
+    expect(revealNext(revealed)).toBe(GROUP_CHAT.length);
+    expect(revealNext(GROUP_CHAT.length + 5)).toBe(GROUP_CHAT.length);
   });
 
-  it("shows the newest messages first and keeps them in time order", () => {
-    // 처음엔 마지막 줄만 보인다 — 폰을 집었을 때 화면에 남아 있던 그 화면
-    expect(visibleMessages(1)).toEqual([GROUP_CHAT.at(-1)]);
-    // 올릴수록 앞쪽(오래된) 메시지가 위에 붙는다
+  it("shows the oldest messages first and keeps them in time order", () => {
+    // 처음엔 첫 줄만 보인다 — 대화의 첫머리에서 출발한다
+    expect(visibleMessages(1)).toEqual([GROUP_CHAT[0]]);
+    // 내려갈수록 뒤쪽(최신) 메시지가 아래에 붙는다
     const three = visibleMessages(3);
     expect(three).toHaveLength(3);
-    expect(three.at(-1)).toEqual(GROUP_CHAT.at(-1));
-    expect(three[0]).toEqual(GROUP_CHAT.at(-3));
+    expect(three[0]).toEqual(GROUP_CHAT[0]);
+    expect(three.at(-1)).toEqual(GROUP_CHAT[2]);
     // 순서가 뒤집히지 않는다
     expect(visibleMessages(GROUP_CHAT.length)).toEqual(GROUP_CHAT);
   });
@@ -39,10 +39,10 @@ describe("phone-chat thread", () => {
     expect(visibleMessages(GROUP_CHAT.length + 9)).toEqual(GROUP_CHAT);
   });
 
-  it("knows when there is nothing older left", () => {
-    expect(hasEarlier(0)).toBe(true);
-    expect(hasEarlier(GROUP_CHAT.length - 1)).toBe(true);
-    expect(hasEarlier(GROUP_CHAT.length)).toBe(false);
+  it("knows when there is nothing newer left", () => {
+    expect(hasLater(0)).toBe(true);
+    expect(hasLater(GROUP_CHAT.length - 1)).toBe(true);
+    expect(hasLater(GROUP_CHAT.length)).toBe(false);
   });
 
   it("needs both the chat and the missed calls before it counts as read", () => {

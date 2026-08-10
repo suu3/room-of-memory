@@ -184,8 +184,8 @@
     },
     "phoneChat": {
       "title": "The phone",
-      "help": "Scroll back through the thread — scroll up · Space",
-      "help_touch": "Scroll back through the thread — swipe up · tap",
+      "help": "Read the thread from the top — scroll down · Space",
+      "help_touch": "Read the thread from the top — swipe down · tap",
       "helpCalls": "Open the call log tab too",
       "date": "October 19",
       "close": "Turn the screen off",
@@ -209,7 +209,7 @@
       },
       "callsSubtitle": "No answer",
       "callsTitle": "Recents",
-      "olderAbove": "More above — scroll up",
+      "moreBelow": "More below — scroll down",
       "contact": {
         "mom": "Mom",
         "dad": "Dad",
