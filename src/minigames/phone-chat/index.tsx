@@ -10,11 +10,11 @@ import { useOnceCompleter } from "../shell";
 import { PhoneShell } from "./PhoneShell";
 import {
   type ChatMessage,
-  hasEarlier,
+  hasLater,
   isThreadComplete,
   OUTGOING_CALLS,
   type PhoneTab,
-  revealEarlier,
+  revealNext,
   totalOutgoingCalls,
   visibleMessages,
 } from "./thread";
@@ -32,7 +32,7 @@ function phoneHelpKey(tab: PhoneTab, chatDone: boolean, seenCalls: boolean) {
   return "minigame.phoneChat.help" as const;
 }
 
-/** 폰을 집었을 때 화면에 남아 있던 만큼. 마지막 몇 줄만 보인다. */
+/** 폰을 열었을 때 이미 펼쳐져 있는 만큼. 대화의 첫 몇 줄만 보인다. */
 const INITIAL_REVEALED = 2;
 
 function Bubble({
@@ -80,9 +80,10 @@ function Bubble({
 /**
  * 스마트폰을 확대해 그날의 기록을 읽는다.
  *
- * 단톡방은 클릭(또는 Space/↓)으로 한 줄씩 내려가고, 통화 기록 탭을 열면
- * 도해가 누구에게 몇 번이나 걸었는지 보인다. 둘 다 봐야 끝난다 — 한쪽만 보면
- * 그날의 절반만 본 셈이라. 실패 조건은 두지 않았다. 읽는 게 목적인 인터랙션이다.
+ * 단톡방은 클릭(또는 Space/↓)으로 첫 줄부터 한 줄씩 읽어 내려가고, 통화 기록
+ * 탭을 열면 도해가 누구에게 몇 번이나 걸었는지 보인다. 둘 다 봐야 끝난다 —
+ * 한쪽만 보면 그날의 절반만 본 셈이라. 실패 조건은 두지 않았다. 읽는 게 목적인
+ * 인터랙션이다.
  */
 export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   const { t } = useTranslation();
@@ -93,15 +94,15 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   const [seenCalls, setSeenCalls] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const chatDone = !hasEarlier(revealed);
+  const chatDone = !hasLater(revealed);
   const done = isThreadComplete(revealed, seenCalls);
   const helpKey = phoneHelpKey(tab, chatDone, seenCalls);
 
-  /** 위로 한 줄 더 거슬러 올라간다. */
-  const scrollBack = useCallback(() => {
+  /** 아래로 한 줄 더 읽어 내려간다. */
+  const readNext = useCallback(() => {
     setRevealed((current) => {
-      const next = revealEarlier(current);
-      // 거슬러 올라갈 때마다 그때 울렸을 알림음이 한 번씩 다시 울린다.
+      const next = revealNext(current);
+      // 한 줄 내려갈 때마다 그때 울렸을 알림음이 한 번씩 다시 울린다.
       if (next !== current) playSound("phoneBeep", { variation: 0.04 });
       return next;
     });
@@ -113,8 +114,8 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
     if (next === "calls") setSeenCalls(true);
   }, []);
 
-  // 위로 거슬러 올라가는 화면이라 시선은 늘 아래(최신)에 머문다. 새 줄은 위에
-  // 붙으므로 바닥에 붙여두면 방금 읽던 줄이 그대로 있고 위쪽만 길어진다.
+  // 새 줄이 아래에 붙는 화면이라 방금 열린 줄이 보이려면 바닥을 따라가야 한다 —
+  // 실제 채팅앱이 새 메시지에 붙는 것과 같은 감각.
   // biome-ignore lint/correctness/useExhaustiveDependencies: revealed는 본문에서 읽지 않고 "줄이 늘었다"는 신호로만 쓴다.
   useEffect(() => {
     const node = scrollRef.current;
@@ -125,14 +126,14 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (tab !== "chat") return;
-      if (event.code === "Space" || event.code === "ArrowUp" || event.code === "Enter") {
+      if (event.code === "Space" || event.code === "ArrowDown" || event.code === "Enter") {
         event.preventDefault();
-        scrollBack();
+        readNext();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [scrollBack, tab]);
+  }, [readNext, tab]);
 
   const callTotal = totalOutgoingCalls();
 
@@ -159,23 +160,21 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
             ref={scrollRef}
             role="log"
             aria-label={t("minigame.phoneChat.chat.room")}
-            onClick={scrollBack}
+            onClick={readNext}
             onKeyDown={(event) => {
               if (event.code !== "Space" && event.code !== "Enter") return;
               event.preventDefault();
-              scrollBack();
+              readNext();
             }}
-            // 휠을 위로 굴려도 과거가 열린다 — 실제 채팅앱과 같은 감각
+            // 휠을 아래로 굴려도 다음 줄이 열린다 — 읽어 내려가는 방향 그대로
             onWheel={(event) => {
-              if (event.deltaY < 0) scrollBack();
+              if (event.deltaY > 0) readNext();
             }}
             className="size-full overflow-y-auto bg-scene-navy px-3 py-3.5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-memory"
           >
-            {/* 위로 더 있으면 그렇게 알려주고, 다 올라오면 날짜가 대화의 머리로 남는다 */}
+            {/* 날짜가 대화의 머리에 선다 — 첫 줄부터 읽어 내려가는 화면이라 처음부터 보인다 */}
             <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
-              {hasEarlier(revealed)
-                ? t("minigame.phoneChat.olderAbove")
-                : t("minigame.phoneChat.date")}
+              {t("minigame.phoneChat.date")}
             </p>
             <ul className="flex flex-col gap-2.5">
               {visibleMessages(revealed).map((message) => (
@@ -187,6 +186,12 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
                 />
               ))}
             </ul>
+            {/* 아래로 더 있으면 그렇게 알려주고, 다 내려오면 조용히 사라진다 */}
+            {hasLater(revealed) ? (
+              <p className="pt-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
+                {t("minigame.phoneChat.moreBelow")}
+              </p>
+            ) : null}
           </div>
         ) : (
           <div className="size-full overflow-y-auto bg-scene-navy px-3 py-2">
