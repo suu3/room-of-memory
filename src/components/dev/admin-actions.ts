@@ -8,6 +8,7 @@ export interface AdminPatch {
   collected?: MemoryId[];
   revisited?: MemoryId[];
   doorOpened?: boolean;
+  batTaken?: boolean;
   solvedPuzzles?: PuzzleId[];
   endingStarted?: boolean;
   started?: boolean;
@@ -32,6 +33,7 @@ export function applyAdminPatch(patch: AdminPatch): void {
     collected: state.collected,
     revisited: state.revisited,
     doorOpened: state.doorOpened,
+    batTaken: state.batTaken,
     solvedPuzzles: state.solvedPuzzles,
     endingStarted: state.endingStarted,
     // 진행이 아니라 환경설정이지만, 걸러내는 함수가 통째로 받으므로 같이 넘겨야 안 지워진다

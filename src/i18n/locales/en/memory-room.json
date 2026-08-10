@@ -21,6 +21,12 @@
         }
       ]
     },
+    "dad": {
+      "name": "Dad"
+    },
+    "mom": {
+      "name": "Mom"
+    },
     "broadcast": {
       "name": "Emergency Broadcast"
     },
@@ -55,6 +61,21 @@
     },
     "console": {
       "name": "Console"
+    },
+    "fridge": {
+      "name": "Fridge"
+    },
+    "duffel": {
+      "name": "Duffel Bag"
+    },
+    "shoes": {
+      "name": "Shoe Cabinet"
+    },
+    "cards": {
+      "name": "Playing Cards"
+    },
+    "ampoule": {
+      "name": "Ampoule"
     }
   },
   "stages": {
@@ -153,6 +174,45 @@
     "ball-echo": {
       "line1": "Maybe I can stop throwing it alone.",
       "line2": "When I find someone to catch it, we'll throw again."
+    },
+    "fridge-open": {
+      "line1": "If I'm going out, I should take something. Start with the fridge.",
+      "line2": "I've been eating for a month and it's still half full.",
+      "line3": "Two nights, they said. So why stock this much?",
+      "line4": "…This wasn't packing for a trip."
+    },
+    "duffel-pack": {
+      "line1": "I'll empty the baseball bag. The glove stays.",
+      "line2": "Water, cans, a flashlight. That should do it.",
+      "line3": "First time I've packed anything in thirty days."
+    },
+    "shoes-open": {
+      "line1": "The shoe cabinet. Haven't opened it in a long time.",
+      "line2": "Dad's hiking boots. Still here.",
+      "line3": "No walking on this one. I'll leave the boots.",
+      "line4": "A trip with no walking — and two suitcases.",
+      "line5": "What exactly did you carry off with you?"
+    },
+    "cards-intro": {
+      "line1": "The cards are still laid out on the table.",
+      "line2": "We'll finish this hand next time."
+    },
+    "cards-unfinished": {
+      "line1": "The last hand never finished.",
+      "line2": "Next time, they said. Did they mean it?",
+      "line3": "No. They meant it. That's why nobody cleared the table."
+    },
+    "ampoule-note": {
+      "line1": "The note on the fridge door. The magnet hid a second page.",
+      "line2": "Don't touch the bottom drawer. Your mother sorted it out.",
+      "line3": "The boots, the unfinished hand, and this note.",
+      "line4": "All of it wore the face of coming back. But sorting things out is what people do when they leave.",
+      "line5": "…Let's open it.",
+      "line6": "What is this.",
+      "line7": "A glass ampoule. The label is half worn off — I can't read it.",
+      "line8": "They buried this under the food and left?",
+      "line9": "…They knew. They knew this was coming.",
+      "line10": "Then this isn't something they abandoned. It's something they left for me."
     }
   },
   "lore": {
@@ -169,6 +229,14 @@
       "title": "My Parents",
       "phase1": "Dust on the glass hides their faces. Even wiped clean, only my parents stay blurred.",
       "phase2": "I put the pieces back and the faces returned. We just haven't met yet."
+    },
+    "fridge": {
+      "title": "What They Stocked",
+      "phase2": "The fridge and the cupboard are still half full. Why was there a month of food in this house?"
+    },
+    "duffel": {
+      "title": "What to Take",
+      "phase2": "I emptied my baseball bag and packed it again. Water and cans this time, not a glove."
     },
     "computer": {
       "title": "What Was Saved",
@@ -192,6 +260,18 @@
       "title": "Catch, Alone",
       "phase1": "Throw it at the wall and it comes back. That is all. I keep forgetting there is no one to catch it.",
       "phase2": "If someone out there can catch it, this ball still has a use."
+    },
+    "shoes": {
+      "title": "The Boots They Left",
+      "phase2": "The hiking boots are still in the cabinet. A trip with no walking, they said — so why was there so much luggage?"
+    },
+    "cards": {
+      "title": "The Unfinished Hand",
+      "phase2": "The cards are still on the table. We'll finish it next time, they said. The hand never moved."
+    },
+    "ampoule": {
+      "title": "An Unmarked Ampoule",
+      "phase2": "The label is half worn away, unreadable. I am holding a question, not an answer."
     }
   },
   "cutscenes": {
@@ -207,10 +287,18 @@
         "line2": "Huh? Who is that?"
       }
     },
-    "bat-farewell": {
+    "farewell": {
       "cut1": {
-        "line1": "…Staying in here won't fix anything.",
-        "line2": "Let's go."
+        "line1": "\"Back soon,\" they said, and left. Like always.",
+        "line2": "If I'd known that was the last of it, I'd have said something more.",
+        "line3": "…No. They knew. That's exactly why they said nothing.",
+        "line4": "They didn't leave me behind. They were keeping me."
+      }
+    },
+    "bat-grip": {
+      "cut1": {
+        "line1": "Three years with this bat. All I ever hit with it was a ball.",
+        "line2": "…Let's go."
       }
     }
   }

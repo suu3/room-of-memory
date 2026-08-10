@@ -19,7 +19,7 @@ export const ROOM_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
 /*
  * ---------------------------------------------------------------- 거실 (v2)
  *
- * 방문(-x 벽) 너머의 두 번째 공간 (docs/story.md 5-1). 방과 벽 하나
+ * 방문(-x 벽) 너머의 두 번째 공간 (docs/content-design.md 3-1). 방과 벽 하나
  * (x = ROOM_SHELL_BOUNDS.minX)를 공유하고, 그 벽의 문이 둘을 잇는다.
  * 반대쪽 끝(-x)에 현관문이 있다 — 엔딩은 이제 거기서 난다.
  */
@@ -71,7 +71,7 @@ export const LIVING_COLLIDERS = [
 
 /**
  * 현관문 — 거실 -x 끝 벽. 배트가 방문을 열게 되면서 엔딩 트리거가 여기로 왔다
- * (docs/story.md 5-2). 회전은 방문과 반대 — 문이 벽 안쪽을 본다.
+ * (docs/content-design.md 3-2). 회전은 방문과 반대 — 문이 벽 안쪽을 본다.
  */
 export const FRONT_DOOR_POSITION = [LIVING_SHELL_BOUNDS.minX + 0.14, 1.7, 1.25] as const;
 export const FRONT_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
@@ -143,11 +143,16 @@ export const ROOM_COLLIDERS = [
 ] as const satisfies readonly Aabb2[];
 
 /**
- * 문 옆에 세워둔 배트. 수집 대상이 아니라 2바퀴를 다 돌면 켜지는 엔딩 트리거라
- * MEMORY_PLACEMENTS와 따로 둔다.
+ * 현관문 옆에 세워둔 배트. 수집 대상이 아니라 2막을 다 돌면(앰플) 켜지는 3막
+ * 트리거라 MEMORY_PLACEMENTS와 따로 둔다 (docs/content-design.md 3-2).
+ *
+ * 방문 옆이 아니라 여기 서 있는 이유: 3막이 현관에서 나기 때문이다. 방에 두면
+ * 마지막 장면을 위해 방까지 되돌아가야 하고, "현관에서 배트와 앰플을 쥐고 문을
+ * 연다"는 그림이 흩어진다. 흙 묻은 야구 장비를 현관에 세워 두는 건 생활에서도
+ * 자연스럽다.
  */
 export const BAT_PLACEMENT = {
-  position: [-5.25, 1.48, 4.15],
+  position: [-15.95, 1.48, 2.5],
   rotation: [0, 0, Math.PI - 0.22],
   scale: 1.6,
   interactionRadius: 1.35,
@@ -155,7 +160,7 @@ export const BAT_PLACEMENT = {
 
 /**
  * 문 쪽 왼벽에 붙은 조명 스위치. 기억도 트리거도 아닌 배경 오브젝트다 —
- * 진행에는 아무 영향이 없고 방의 불만 끄고 켠다 (docs/story.md 7-2).
+ * 진행에는 아무 영향이 없고 방의 불만 끄고 켠다 (docs/content-design.md 6-3).
  *
  * 좌표는 RoomDecor가 장식으로 그리던 자리를 그대로 물려받았다 (왼벽 안쪽 면
  * x=-5.91 + 판 두께의 절반). 장식과 실물을 둘 다 두면 스위치가 두 개로 보인다.
@@ -303,7 +308,82 @@ export const MEMORY_PLACEMENTS = {
     scale: 0.19,
     interactionRadius: 1.05,
   },
+
+  /*
+   * ── 거실의 기억 (2막) ──────────────────────────────────────────
+   *
+   * 넷은 이미 서 있는 가구 위에 얹힌다 (냉장고 문·아래칸, 신발장 문, 식탁 트럼프).
+   * 가구를 복제하지 않고 **만지는 면만** 얇은 판으로 덮어 아웃라인이 붙을 형태를
+   * 준다 — 판의 색은 밑에 깔린 가구와 같아서 눈에는 안 보이고, 빛날 때만 그 면이
+   * 드러난다 (MemoryObjects의 FridgeDoor·CabinetDoor).
+   *
+   * 좌표는 LivingRoomFurniture의 부품에서 파생된다 — 거기 가구를 옮기면 여기도
+   * 같이 옮겨야 한다.
+   */
+  fridge: {
+    id: "fridge",
+    // 냉장고 문 앞면(z -3.24)에서 5mm 앞. 냉동칸 경계(y 1.45) 아래 = 냉장실 문
+    position: [-15.32, 1.07, -3.235],
+    rotation: [0, 0, 0],
+    scale: 1,
+    interactionRadius: 1.5,
+  },
+  duffel: {
+    id: "duffel",
+    // 소파 앞 바닥에 던져둔 야구 가방. 사방이 트여 있어 다가가기 쉽다
+    position: [-9.5, 0.2, -1.75],
+    rotation: [0, 0.42, 0],
+    scale: 1,
+    interactionRadius: 1.3,
+  },
+  shoes: {
+    id: "shoes",
+    // 신발장 문 앞면(x -15.91)에서 5mm 앞
+    position: [-15.905, 0.55, -0.68],
+    rotation: [0, Math.PI / 2, 0],
+    scale: 1,
+    interactionRadius: 1.45,
+  },
+  cards: {
+    id: "cards",
+    // 식탁 상판 윗면(0.975) 위에 펼쳐진 판. 상판 중심과 같은 자리다
+    position: [-13.8, 0.975, 3.8],
+    rotation: [0, 0, 0],
+    scale: 1,
+    interactionRadius: 1.9,
+  },
+  ampoule: {
+    id: "ampoule",
+    // 냉장고 아래칸. "손대지 마"라던 그 칸이다 — 냉장실 문 테두리(y 0.72~1.42) 아래
+    position: [-15.32, 0.43, -3.235],
+    rotation: [0, 0, 0],
+    scale: 1,
+    interactionRadius: 1.5,
+  },
 } as const satisfies Record<MemoryId, MemoryPlacement>;
+
+/**
+ * 기억이 어느 공간에 서 있는가. 한 번에 한 방만 보이므로(MemoryRoomScene) 씬이
+ * 이 표를 보고 갈라 그린다 — 거실 물건이 방 안에 같이 렌더되면 벽 너머에 떠 있는
+ * 유령이 된다.
+ */
+export const MEMORY_SPACE = {
+  console: "room",
+  window: "room",
+  frame: "room",
+  fridge: "living",
+  duffel: "living",
+  computer: "room",
+  radio: "room",
+  phone: "room",
+  calendar: "room",
+  ball: "room",
+  shoes: "living",
+  cards: "living",
+  ampoule: "living",
+} as const satisfies Record<MemoryId, "room" | "living">;
+
+export type MemorySpace = (typeof MEMORY_SPACE)[MemoryId];
 
 export const CAMERA_PRESETS = {
   // room.target.y를 올리면 시선 중심이 위로 가면서 방이 화면 아래쪽으로 내려온다
@@ -319,4 +399,13 @@ export const CAMERA_PRESETS = {
   phone: { position: [6.75, 2.65, 6.25], target: [3.55, 0.95, 2.75] },
   calendar: { position: [-1.1, 3.6, 3.2], target: [-5.75, 2.5, 0.9] },
   ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },
+  /*
+   * 거실 물건들. 방과 같은 방향(+x·+z)에서 본다 — 공간이 바뀔 때 카메라가 반대편으로
+   * 돌아가면 "옆 방으로 걸어갔다"가 아니라 "다른 씬으로 잘렸다"로 읽힌다.
+   */
+  fridge: { position: [-12.7, 3.0, -0.7], target: [-15.32, 1.15, -3.24] },
+  duffel: { position: [-6.9, 2.2, 0.9], target: [-9.5, 0.3, -1.75] },
+  shoes: { position: [-13.2, 2.5, 1.5], target: [-15.91, 0.6, -0.68] },
+  cards: { position: [-11.1, 2.6, 6.2], target: [-13.8, 1.0, 3.8] },
+  ampoule: { position: [-13.0, 2.4, -1.0], target: [-15.32, 0.45, -3.24] },
 } as const satisfies Record<"room" | "ending" | MemoryId, CameraPreset>;

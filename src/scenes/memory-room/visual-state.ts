@@ -40,32 +40,38 @@ export interface OutsideDecayInput {
 }
 
 export interface RoomLightInput {
-  /** 1바퀴에서 수집한 개수 */
+  /** 1막에서 조사한 개수 */
   collected: number;
   memoryTotal: number;
-  /** 2바퀴에서 재조사한 개수 */
-  revisited: number;
-  revisitTotal: number;
+  /**
+   * 2막 추리의 진행도 (0~1). 재조사 **개수**가 아니라 비율을 받는다 —
+   * 무엇이 필수 체인이고 무엇이 곁가지인지는 스토어가 알고(actTwoProgress),
+   * 여기는 "얼마나 되찾았는가"만 알면 된다.
+   */
+  recovery: number;
 }
 
 /**
- * 방의 밝기(0=바닥, 1=완성). 1바퀴는 깎고 2바퀴는 채운다.
+ * 공간의 밝기(0=바닥, 1=완성). 1막은 깎고 2막은 채운다 —
+ * 기획의 V자 감정선 (docs/content-design.md 5장).
  *
- * 진입 0.62(평범) → 1바퀴 완주 0(가장 어두움) → 2바퀴 완주 1(금빛).
+ * 진입 0.62(평범) → 1막 완주 0(가장 어두움) → 2막 완주 1(금빛).
  * 두 구간이 0에서 이어지므로 라디오 전환점에서 끊기지 않는다.
  */
-export function roomLightLevel({
-  collected,
-  memoryTotal,
-  revisited,
-  revisitTotal,
-}: RoomLightInput): number {
+export function roomLightLevel({ collected, memoryTotal, recovery }: RoomLightInput): number {
   if (collected < memoryTotal) {
     const progress = memoryTotal <= 0 ? 1 : collected / memoryTotal;
     return ENTRY_LIGHT_LEVEL * (1 - progress);
   }
-  return revisitTotal <= 0 ? 1 : Math.min(1, revisited / revisitTotal);
+  return Math.min(1, Math.max(0, recovery));
 }
+
+/**
+ * 거실이 방보다 어두운 몫. 밝기는 진행도가 정하고 공간이 정하지 않는다는 원칙
+ * (5장) 위에서, 거실만 한 단계 낮게 출발시키는 오프셋이다 — 아직 아무것도
+ * 되찾지 않은 공간이라 방과 같은 밝기로 서면 나가는 것만으로 회복한 것처럼 보인다.
+ */
+export const LIVING_ROOM_LIGHT_OFFSET = 0.12;
 
 /**
  * 전등을 껐을 때 남기는 비율. 0으로 두면 아무것도 안 보여 스위치를 다시 누를
@@ -88,13 +94,17 @@ export function roomLightValue(ramp: readonly [number, number], level: number): 
 }
 
 /**
- * 배경 그라디언트 단계. 1바퀴는 평범(dim) → 어둠(dark)만 오가고,
- * 금빛(gold)은 2바퀴에서 되찾았을 때만 나온다.
+ * 배경 그라디언트 단계. 1막은 평범(dim) → 어둠(dark)만 오가고,
+ * 금빛(gold)은 2막에서 되찾기 시작했을 때만 나온다.
+ *
+ * 2막은 dim을 건너뛴다. 단계마다 독백이 붙어 있는데(content/stages.yaml) dim의
+ * 줄은 "심심하네, 뭐부터 해볼까" — 할 일이 없던 1막의 말이다. 추리 중에 그게
+ * 다시 뜨면 2막의 톤(직면)이 통째로 무너진다. 바닥에서 곧장 온기로 넘어가는 편이
+ * 기획의 "정적 위에 새로 드는 다른 온기"와도 맞는다 (docs/content-design.md 8장).
  */
 export function roomStageIndex(level: number, phase: 1 | 2): number {
   if (phase === 1) return level > 0.34 ? 1 : 0;
-  if (level > 0.55) return 2;
-  return level > 0.2 ? 1 : 0;
+  return level > 0.2 ? 2 : 0;
 }
 
 /**

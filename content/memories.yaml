@@ -5,8 +5,16 @@
 #
 # 고치고 나면 `pnpm content:build`. 어드민(dev 서버의 /admin)에서 저장하면 자동으로 돈다.
 #
-# 배트는 여기 없다 — 문 옆의 배트는 모으는 물건이 아니라 2바퀴를 다 돌았을 때
-# 켜지는 엔딩 트리거다 (layout의 BAT_PLACEMENT, scenes의 EndingTrigger).
+# 배트는 여기 없다 — 현관에 세워진 배트는 모으는 물건이 아니라 2막을 다 돌았을 때
+# (앰플 획득) 켜지는 3막 트리거다 (layout의 BAT_PLACEMENT, scenes의 EndingTrigger).
+#
+# phase1 = 1막 조사, phase2 = 2막 재조사다 (docs/content-design.md 2장).
+# 2막의 추리 체인은 unlockAfter가 통째로 들고 있다:
+#
+#   radio(목소리) → fridge·duffel(준비) → frame(액자 2차) → shoes·cards(거실 단서)
+#   → ball(사인볼 재조사) → ampoule(앰플)
+#
+# console·computer·phone은 이 체인 밖의 곁가지다 — 안 봐도 3막에 갈 수 있다.
 #
 # 한 항목의 형태:
 #   id            기억 id. 코드·에셋·i18n 키가 전부 이 값을 쓴다.
@@ -90,12 +98,52 @@ memories:
       minigame: photo-wipe
       resultScript: frame-photo
       replayStill: /assets/images/mg-photo-wipe-phase-1.webp
-    # 2차 조사: 흩어진 사진 조각을 맞추면 그늘에 묻혔던 가족 얼굴이 드러난다
+    # 2차 조사: 흩어진 사진 조각을 맞추면 그늘에 묻혔던 가족 얼굴이 드러난다.
+    #
+    # 2막 추리의 두 번째 칸이다 (docs/content-design.md 4장). 거실에서 나갈 준비를
+    # 하다가(fridge·duffel) 켜지고, 여기서 "아빠가 뭔가 남겼다"를 인지해야 거실
+    # 단서(shoes·cards)가 열린다 — 먼지 닦기(1차)→얼굴 직시(2차)가 외면→직면의
+    # 물리적 은유이므로 순서를 풀면 추리의 동기가 사라진다.
     phase2:
       minigame: photo-puzzle
       resultScript: frame-photo-echo
-      unlockAfter: [radio]
+      unlockAfter: [radio, fridge, duffel]
       replayStill: /assets/images/mg-photo-wipe-phase-2.webp
+
+  # ─────────────────────────────────────────────── 2막 · 거실 (준비)
+  #
+  # 각성 직후. 아직 비밀은 모르고 "뭐라도 해야겠다"는 행동 의지뿐이라, 추리가
+  # 아니라 나갈 준비부터 한다. 여기서 컵라면·간편식이 여행 준비가 아니라
+  # 아들이 버틸 식량이었다는 재해석 복선이 깔린다.
+  - id: fridge
+    icon: Package
+    lore:
+      title:
+        ko: 채워둔 것들
+        en: What They Stocked
+        ja: 詰めてあったもの
+      phase2:
+        ko: 냉장고도 찬장도 아직 반이 남았다. 한 달을 버틸 만큼이 왜 집에 있었을까.
+        en: The fridge and the cupboard are still half full. Why was there a month of food in this house?
+        ja: 冷蔵庫も戸棚もまだ半分残っている。ひと月分の食料が、なぜこの家にあったんだろう。
+    phase2:
+      script: fridge-open
+      unlockAfter: [radio]
+
+  - id: duffel
+    icon: Bag
+    lore:
+      title:
+        ko: 챙길 것들
+        en: What to Take
+        ja: 持っていくもの
+      phase2:
+        ko: 야구 가방을 비우고 다시 쌌다. 이번엔 글러브가 아니라 물과 통조림이다.
+        en: I emptied my baseball bag and packed it again. Water and cans this time, not a glove.
+        ja: 野球バッグを空にして詰め直した。今度はグローブじゃなく、水と缶詰だ。
+    phase2:
+      script: duffel-pack
+      unlockAfter: [radio]
 
   # 컴퓨터는 유일한 2바퀴 전용 기억이다 — phase1이 없다.
   #
@@ -234,7 +282,67 @@ memories:
       minigame: ball-catch
       replayStill: /assets/images/mg-ball-catch-sunset-field.webp
     # 2차: 대사만 흐른다. 회전 미궁(angle-turn)은 거실 현관 잠금장치로 이사했다
-    # (docs/story.md 8장) — 여기 다시 붙이지 말 것.
+    # (docs/content-design.md 3-2) — 여기 다시 붙이지 말 것.
+    #
+    # 2막 추리의 네 번째 칸이다. 거실 단서 둘을 본 뒤에 열리고, 희망 대사와
+    # "냉장고 아래칸"이라는 다음 단서가 한 클릭에 겹친다.
     phase2:
       script: ball-echo
-      unlockAfter: [radio]
+      unlockAfter: [shoes, cards]
+
+  # ─────────────────────────────────────────────── 2막 · 거실 (단서)
+  #
+  # 액자에서 "아빠가 뭔가 남겼다"를 인지한 뒤에 열리는 둘. 순서는 상관없다.
+  # 인터랙션은 서로 다른 동작이다 — 신발장은 열기, 트럼프는 뒤집기
+  # (docs/content-design.md 4-1의 인터랙션 배분 원칙).
+  - id: shoes
+    icon: Sneaker
+    lore:
+      title:
+        ko: 두고 간 등산화
+        en: The Boots They Left
+        ja: 置いていった登山靴
+      phase2:
+        ko: 등산화는 신발장에 그대로다. 안 걷는 여행이라더니, 짐은 왜 그렇게 많았을까.
+        en: The hiking boots are still in the cabinet. A trip with no walking, they said — so why was there so much luggage?
+        ja: 登山靴は靴箱にそのままだ。歩かない旅行だと言っていたのに、荷物はなぜあんなに多かったんだろう。
+    phase2:
+      script: shoes-open
+      unlockAfter: [frame]
+
+  - id: cards
+    icon: Cards
+    lore:
+      title:
+        ko: 끝나지 않은 판
+        en: The Unfinished Hand
+        ja: 終わらなかった一局
+      phase2:
+        ko: 식탁에 그대로 있는 카드. 다음에 오면 마저 치자고 했으면서, 판은 그대로다.
+        en: The cards are still on the table. We'll finish it next time, they said. The hand never moved.
+        ja: 食卓に残ったままのカード。次に来たら続きをやろうと言っていたのに、局はそのままだ。
+    phase2:
+      script: cards-intro
+      minigame: card-odd
+      resultScript: cards-unfinished
+      unlockAfter: [frame]
+
+  # ─────────────────────────────────────────────── 2막 · 거실 (마지막)
+  #
+  # 2막의 끝이자 3막의 열쇠. 여기까지 오면 세 단서가 머릿속에서 맞물리고,
+  # "손대지 마"라던 냉장고 아래칸이 열린다. 완료되면 스토어가 작별의 회상
+  # (CUTSCENE_FAREWELL)을 틀고, 그 재생이 끝나는 자리에서 3막이 열린다.
+  - id: ampoule
+    icon: Syringe
+    lore:
+      title:
+        ko: 정체불명의 앰플
+        en: An Unmarked Ampoule
+        ja: 正体不明のアンプル
+      phase2:
+        ko: 라벨은 반쯤 지워져 읽을 수 없다. 답이 아니라 질문 하나를 손에 쥐었다.
+        en: The label is half worn away, unreadable. I am holding a question, not an answer.
+        ja: ラベルは半分消えていて読めない。答えではなく、問いをひとつ手にした。
+    phase2:
+      script: ampoule-note
+      unlockAfter: [ball]

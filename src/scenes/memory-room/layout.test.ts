@@ -19,6 +19,7 @@ import {
   LIVING_COLLIDERS,
   LIVING_SHELL_BOUNDS,
   MEMORY_PLACEMENTS,
+  MEMORY_SPACE,
   REFERENCE_ROOM_LAYOUT,
   ROOM_BOUNDS,
   ROOM_COLLIDERS,
@@ -31,27 +32,40 @@ import {
 const PLAYER_RADIUS = 0.38;
 const REACHABILITY_STEP = 0.05;
 
-function isWalkable(x: number, z: number) {
-  return ROOM_COLLIDERS.every((box) => {
-    const closestX = Math.max(box.minX, Math.min(x, box.maxX));
-    const closestZ = Math.max(box.minZ, Math.min(z, box.maxZ));
-    return (x - closestX) ** 2 + (z - closestZ) ** 2 >= PLAYER_RADIUS ** 2;
-  });
+function clearOf(colliders: readonly { minX: number; maxX: number; minZ: number; maxZ: number }[]) {
+  return (x: number, z: number) =>
+    colliders.every((box) => {
+      const closestX = Math.max(box.minX, Math.min(x, box.maxX));
+      const closestZ = Math.max(box.minZ, Math.min(z, box.maxZ));
+      return (x - closestX) ** 2 + (z - closestZ) ** 2 >= PLAYER_RADIUS ** 2;
+    });
 }
 
+const isWalkable = clearOf(ROOM_COLLIDERS);
+const isWalkableInLiving = clearOf(LIVING_COLLIDERS);
+
+/**
+ * 기억 앞에 설 수 있는 자리가 한 칸이라도 있는가.
+ *
+ * 공간마다 걷는 범위와 가구가 다르므로 어느 방의 물건인지부터 본다 —
+ * 거실 물건을 방의 격자로 훑으면 닿는 자리가 하나도 없다 (좌표가 벽 너머다).
+ */
 function hasReachableInteractionPoint(id: (typeof MEMORY_IDS)[number]) {
   const placement = MEMORY_PLACEMENTS[id];
+  const living = MEMORY_SPACE[id] === "living";
+  const bounds = living ? LIVING_BOUNDS : ROOM_BOUNDS;
+  const walkable = living ? isWalkableInLiving : isWalkable;
   for (
-    let x = ROOM_BOUNDS.minX + PLAYER_RADIUS;
-    x <= ROOM_BOUNDS.maxX - PLAYER_RADIUS;
+    let x = bounds.minX + PLAYER_RADIUS;
+    x <= bounds.maxX - PLAYER_RADIUS;
     x += REACHABILITY_STEP
   ) {
     for (
-      let z = ROOM_BOUNDS.minZ + PLAYER_RADIUS;
-      z <= ROOM_BOUNDS.maxZ - PLAYER_RADIUS;
+      let z = bounds.minZ + PLAYER_RADIUS;
+      z <= bounds.maxZ - PLAYER_RADIUS;
       z += REACHABILITY_STEP
     ) {
-      if (!isWalkable(x, z)) continue;
+      if (!walkable(x, z)) continue;
       if (
         Math.hypot(x - placement.position[0], z - placement.position[2]) <=
         placement.interactionRadius
@@ -110,21 +124,23 @@ describe("memory-room layout", () => {
     expect(MEMORY_PLACEMENTS.frame.rotation[1]).toBeCloseTo(-0.3);
   });
 
-  it("rests the bat barrel-down in the clear strip beside the door", () => {
+  it("rests the bat barrel-down beside the front door", () => {
+    // 배트는 3막의 물건이라 현관 옆에 선다 (docs/content-design.md 3-2)
     const bat = BAT_PLACEMENT;
     const modelLength = 0.864 * bat.scale;
     const barrelY = bat.position[1] + Math.cos(bat.rotation[2]) * modelLength;
-    const doorGap = ROOM_DOOR_POSITION[2] - bat.position[2];
-    const wallGap = bat.position[0] - ROOM_SHELL_BOUNDS.minX;
+    const doorGap = Math.abs(bat.position[2] - FRONT_DOOR_POSITION[2]);
+    const wallGap = bat.position[0] - LIVING_SHELL_BOUNDS.minX;
 
     expect(barrelY).toBeGreaterThan(0.05);
     expect(barrelY).toBeLessThan(0.25);
     expect(barrelY).toBeLessThan(bat.position[1]);
+    // 문 옆이되 문짝이 열리는 자리는 비운다
     expect(doorGap).toBeGreaterThan(0.82);
-    expect(doorGap).toBeLessThan(1.3);
-    expect(wallGap).toBeGreaterThan(0.5);
+    expect(doorGap).toBeLessThan(1.5);
+    expect(wallGap).toBeGreaterThan(0.3);
     expect(wallGap).toBeLessThan(0.9);
-    // 엔딩 카메라는 이제 배트가 아니라 거실 끝 현관문을 본다 (v2)
+    // 배트를 쥐고 여는 것은 현관문이다 — 엔딩 카메라도 그 문을 본다
     expect(
       Math.hypot(
         CAMERA_PRESETS.ending.target[0] - FRONT_DOOR_POSITION[0],

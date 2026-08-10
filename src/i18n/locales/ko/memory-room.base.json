@@ -21,6 +21,12 @@
         }
       ]
     },
+    "dad": {
+      "name": "아빠"
+    },
+    "mom": {
+      "name": "엄마"
+    },
     "broadcast": {
       "name": "긴급 재난 방송"
     },
@@ -55,6 +61,21 @@
     },
     "console": {
       "name": "게임기"
+    },
+    "fridge": {
+      "name": "냉장고"
+    },
+    "duffel": {
+      "name": "가방"
+    },
+    "shoes": {
+      "name": "신발장"
+    },
+    "cards": {
+      "name": "트럼프"
+    },
+    "ampoule": {
+      "name": "앰플"
     }
   }
 }

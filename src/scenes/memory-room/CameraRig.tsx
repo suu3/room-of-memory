@@ -39,7 +39,7 @@ const FOLLOW_LIMITS = {
  * 공간별로 한계를 갈라 문턱에서 스위치하면 목표점이 한 번에 수 유닛을 건너뛰어
  * 카메라가 출렁인다. 두 공간이 x로 이어져 있으므로 x 축 한계만 합치면 목표점이
  * 플레이어를 따라 연속으로 미끄러진다. 전환 연출이 따로 없는 이유다 — 문을
- * 넘는 순간은 컷이 아니라 이동이다 (docs/story.md 5-4).
+ * 넘는 순간은 컷이 아니라 이동이다 (docs/content-design.md 3-3).
  */
 const OPEN_FOLLOW_LIMITS = {
   ...FOLLOW_LIMITS,

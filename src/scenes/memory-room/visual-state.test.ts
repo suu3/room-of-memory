@@ -12,9 +12,14 @@ import {
   shouldHighlightMemory,
 } from "./visual-state";
 
-const FULL_RUN = { memoryTotal: 7, revisitTotal: 3 };
-const atCollected = (collected: number) => ({ ...FULL_RUN, collected, revisited: 0 });
-const atRevisited = (revisited: number) => ({ ...FULL_RUN, collected: 7, revisited });
+const MEMORY_TOTAL = 7;
+const atCollected = (collected: number) => ({ memoryTotal: MEMORY_TOTAL, collected, recovery: 0 });
+/** 2막 진행도(0~1) — 스토어의 actTwoProgress가 넘겨주는 값과 같은 축이다. */
+const atRecovery = (recovery: number) => ({
+  memoryTotal: MEMORY_TOTAL,
+  collected: MEMORY_TOTAL,
+  recovery,
+});
 
 describe("memory-room visual state", () => {
   it("highlights only an available memory within the player's interaction range", () => {
@@ -47,7 +52,7 @@ describe("memory-room visual state", () => {
     expect(ENTRY_LIGHT_LEVEL).toBeGreaterThan(0.5);
   });
 
-  it("1바퀴는 조사할수록 어두워지고 완주 지점이 바닥이다", () => {
+  it("1막은 조사할수록 어두워지고 완주 지점이 바닥이다", () => {
     const curve = [0, 2, 4, 6, 7].map((n) => roomLightLevel(atCollected(n)));
     for (let index = 1; index < curve.length; index += 1) {
       expect(curve[index]).toBeLessThan(curve[index - 1]);
@@ -55,22 +60,29 @@ describe("memory-room visual state", () => {
     expect(curve.at(-1)).toBe(0);
   });
 
-  it("2바퀴는 재조사할수록 밝아져 완성에서 최대가 된다", () => {
-    const curve = [0, 1, 2, 3].map((n) => roomLightLevel(atRevisited(n)));
+  it("2막은 추리가 진행될수록 밝아져 완성에서 최대가 된다", () => {
+    const curve = [0, 0.25, 0.5, 1].map((n) => roomLightLevel(atRecovery(n)));
     for (let index = 1; index < curve.length; index += 1) {
       expect(curve[index]).toBeGreaterThan(curve[index - 1]);
     }
     expect(curve.at(-1)).toBe(1);
   });
 
-  it("전환점에서 밝기가 끊기지 않는다 — 1바퀴 끝과 2바퀴 시작이 같은 값", () => {
-    expect(roomLightLevel(atCollected(7))).toBe(roomLightLevel(atRevisited(0)));
+  it("전환점에서 밝기가 끊기지 않는다 — 1막 끝과 2막 시작이 같은 값", () => {
+    expect(roomLightLevel(atCollected(7))).toBe(roomLightLevel(atRecovery(0)));
   });
 
-  it("금빛 배경은 2바퀴에서만 나온다", () => {
+  it("금빛 배경은 2막에서만 나온다", () => {
     expect(roomStageIndex(1, 1)).toBeLessThan(2);
     expect(roomStageIndex(ENTRY_LIGHT_LEVEL, 1)).toBeLessThan(2);
     expect(roomStageIndex(1, 2)).toBe(2);
+  });
+
+  it("2막은 dim 단계를 건너뛴다 — 그 단계의 독백은 1막의 말이다", () => {
+    // "심심하네, 뭐부터 해볼까"가 추리 중에 뜨면 2막의 톤이 무너진다
+    expect(roomStageIndex(0.1, 2)).toBe(0);
+    expect(roomStageIndex(0.3, 2)).toBe(2);
+    expect(roomStageIndex(0.5, 2)).toBe(2);
   });
 
   it("dims the room when the wall switch is off, without blacking it out", () => {

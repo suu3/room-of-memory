@@ -4,11 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import type { Group, MeshStandardMaterial } from "three";
 import { playSound } from "@/lib/audio";
-import {
-  selectEndingReady,
-  selectFrontDoorUnlocked,
-  useMemoryRoomStore,
-} from "@/store/memory-room";
+import { selectBatTaken, selectFrontDoorUnlocked, useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import {
   FRONT_DOOR_INTERACTION,
@@ -24,7 +20,7 @@ import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
 
 /**
- * 방문 너머의 거실 (docs/story.md 8장).
+ * 방문 너머의 거실 (docs/content-design.md 3-1).
  *
  * 아직 골격뿐이다 — 바닥·벽·현관문. 가구(소파·TV·식탁·신발장)와 미궁 문제는
  * 다음 단계에서 선다. 벽 치수는 RoomShell과 같은 값을 쓴다: 같은 집이라 벽
@@ -121,14 +117,17 @@ function ShellBox({
 }
 
 /**
- * 현관문 — 엔딩 트리거이자 회전 미궁(angle-turn)의 자리 (v2 기획 7장).
+ * 현관문 — 3막의 마지막 물건 (docs/content-design.md 3-2).
  *
- * 잠금이 안 풀렸으면 클릭이 잠금 화면(글자 세 쌍 미궁)을 연다 — 각도를 읽는
- * 법은 방의 탁상시계가 들고 있다. 잠금이 풀리고 2바퀴까지 다 돌면 금빛으로
- * 켜지고, 열면 엔딩이 시작된다.
+ * 잠금이 안 풀렸으면 클릭이 잠금 화면(글자 세 쌍 미궁, angle-turn)을 연다 —
+ * 각도를 읽는 법은 방의 탁상시계가 들고 있다. 도해가 30일 전에 자기 손으로
+ * 걸어 잠근 문이라, 나가려면 그걸 먼저 풀어야 한다.
+ *
+ * 금빛으로 켜지는 것은 **배트를 쥔 뒤**다. 배트는 앰플을 손에 넣어야 켜지므로
+ * (selectBatReady), 문이 열릴 때 도해의 손에는 배트와 앰플이 둘 다 있다.
  */
 function FrontDoor({ palette }: { palette: RoomPalette }) {
-  const ready = useMemoryRoomStore(selectEndingReady);
+  const ready = useMemoryRoomStore(selectBatTaken);
   const unlocked = useMemoryRoomStore(selectFrontDoorUnlocked);
   const started = useMemoryRoomStore((state) => state.endingStarted);
   const startEnding = useMemoryRoomStore((state) => state.startEnding);

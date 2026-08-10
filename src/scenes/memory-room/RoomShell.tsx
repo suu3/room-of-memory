@@ -1,6 +1,6 @@
 import type {} from "@react-three/fiber";
 import { playSound } from "@/lib/audio";
-import { useMemoryRoomStore } from "@/store/memory-room";
+import { selectDoorReady, useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { LightSwitch } from "./LightSwitch";
 import {
@@ -9,6 +9,7 @@ import {
   ROOM_SHELL_BOUNDS,
   ROOM_SHELL_CENTER,
 } from "./layout";
+import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 import { WindowView } from "./WindowView";
@@ -261,7 +262,7 @@ export function RoomShell({
   outsideDecay,
 }: {
   palette: RoomPalette;
-  /** 배트를 쥐었는가 — 문이 열린다. */
+  /** 방문이 열렸는가 — 2막이 시작됐다는 뜻이다. */
   doorOpen: boolean;
   /** 창밖이 얼마나 무너져 보이는지 (0=평범한 야경, 1=사태 이후). */
   outsideDecay: number;
@@ -273,6 +274,13 @@ export function RoomShell({
    */
   const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
   const nudgeDoor = useMemoryRoomStore((state) => state.nudgeDoor);
+  /*
+   * 라디오 목소리를 잡으면 문이 켜진다 — 그리고 여는 것은 플레이어다.
+   * 30일 만에 처음 문을 여는 순간을 자동으로 넘겨 버리면, 2막이 시작되는 이유가
+   * 도해의 결심이 아니라 진행도가 된다 (docs/content-design.md 2장).
+   */
+  const doorReady = useMemoryRoomStore(selectDoorReady);
+  const openRoomDoor = useMemoryRoomStore((state) => state.openRoomDoor);
 
   return (
     <group name="room-shell">
@@ -325,12 +333,10 @@ export function RoomShell({
       </CulledWall>
 
       {/*
-        문. 색은 늘 어둡다(navy) — 금빛 신호는 문이 아니라 옆의 배트가 맡는다
-        (EndingTrigger). 문까지 같이 빛나면 신호가 두 개가 되고, 쥐어야 하는 건
-        배트라는 게 흐려진다.
+        문. 색은 늘 어둡다(navy) — 금빛은 라디오 목소리를 잡은 뒤에만 잠깐 돈다.
 
-        닫혀 있는 동안은 눌러볼 수 있다 — 열리는 대신 안 여는 이유가 한 줄
-        흐른다 (DoorNudge). 잠긴 게 아니라 안 여는 것이라는 게 여기서 드러난다.
+        1막 내내 눌러볼 수 있고, 그때는 열리는 대신 안 여는 이유가 한 줄 흐른다
+        (DoorNudge). 잠긴 게 아니라 **안 여는** 것이라는 게 여기서 드러난다.
       */}
       {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
       <group
@@ -339,21 +345,34 @@ export function RoomShell({
         onClick={(event) => {
           if (doorOpen) return;
           event.stopPropagation();
+          if (doorReady) {
+            playSound("open");
+            openRoomDoor();
+            return;
+          }
           playSound("deny");
           nudgeDoor();
         }}
       >
         {/* 문짝만 경첩(왼쪽 문틀)을 축으로 열린다. 문틀·손잡이는 제자리에 남는다. */}
         <group position={[-DOOR_HINGE_X, 0, 0]} rotation={[0, doorOpen ? -1.15 : 0, 0]}>
-          <group position={[DOOR_HINGE_X, 0, 0]}>
-            <ShellBox
-              size={[1.45, 3.4, 0.12]}
-              position={[0, 0, 0]}
-              color={palette.navy}
-              castShadow
-            />
-            <ShellBox size={[0.11, 0.11, 0.1]} position={[0.48, 0, 0.1]} color={palette.ember} />
-          </group>
+          <MemoryGlowSelection selectionKey="room-door" tier="memory" enabled={doorReady}>
+            <group position={[DOOR_HINGE_X, 0, 0]}>
+              <ShellBox
+                size={[1.45, 3.4, 0.12]}
+                position={[0, 0, 0]}
+                color={palette.navy}
+                castShadow
+              />
+              <ShellBox
+                size={[0.11, 0.11, 0.1]}
+                position={[0.48, 0, 0.1]}
+                color={palette.ember}
+                emissive={doorReady ? palette.memory : undefined}
+                emissiveIntensity={doorReady ? 0.8 : 0}
+              />
+            </group>
+          </MemoryGlowSelection>
         </group>
         {DOOR_FRAME.map((part) => (
           <ShellBox key={part.position.join(":")} {...part} color={palette.ink} castShadow />

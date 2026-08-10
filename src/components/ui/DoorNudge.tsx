@@ -8,11 +8,11 @@ import { selectDoorReady, useMemoryRoomStore } from "@/store/memory-room";
 const SHOW_MS = 3200;
 
 /**
- * 닫힌 방문을 눌렀을 때 흐르는 한 줄 (v2 기획 4장 — 1Phase의 방문).
+ * 닫힌 방문을 눌렀을 때 흐르는 한 줄 (docs/content-design.md 3-1).
  *
- * 문이 안 열리는 이유를 말하는 자리다: 잠긴 게 아니라 **안 여는** 것. 라디오
- * 목소리를 들은 뒤에는 같은 문이 다른 줄을 흘린다 — 이제 이유가 문이 아니라
- * 배트에 있으니까.
+ * 1막 내내 문이 안 열리는 이유를 말하는 자리다: 잠긴 게 아니라 **안 여는** 것.
+ * 라디오 목소리를 들은 뒤에는 여기 오지 않는다 — 그때부터는 같은 클릭이 문을
+ * 연다 (RoomShell). 남은 줄은 문이 켜진 직후 한 박자 망설이는 순간의 것이다.
  */
 export function DoorNudge() {
   const { t } = useTranslation();

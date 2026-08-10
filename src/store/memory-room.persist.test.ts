@@ -11,7 +11,8 @@ describe("sanitizeProgress", () => {
         collected: [first, second],
         revisited: [first],
         doorOpened: false,
-        solvedPuzzles: ["card-odd"],
+        batTaken: false,
+        solvedPuzzles: ["angle-turn"],
         endingStarted: false,
         soundMuted: true,
         lightsOn: false,
@@ -21,7 +22,8 @@ describe("sanitizeProgress", () => {
       collected: [first, second],
       revisited: [first],
       doorOpened: false,
-      solvedPuzzles: ["card-odd"],
+      batTaken: false,
+      solvedPuzzles: ["angle-turn"],
       endingStarted: false,
       soundMuted: true,
       lightsOn: false,
@@ -59,13 +61,28 @@ describe("sanitizeProgress", () => {
   });
 
   it("refuses an ending that the save has not earned", () => {
+    // 엔딩은 배트를 쥔 뒤에만 시작될 수 있고, 배트는 앰플을 되찾아야 쥐어진다
     expect(sanitizeProgress({ collected: [first], endingStarted: true }).endingStarted).toBe(false);
     expect(
       sanitizeProgress({
         collected: MEMORIES.map((memory) => memory.id),
+        batTaken: true,
+        endingStarted: true,
+      }).endingStarted,
+    ).toBe(false);
+    expect(
+      sanitizeProgress({
+        collected: MEMORIES.map((memory) => memory.id),
+        revisited: ["ampoule"],
+        batTaken: true,
         endingStarted: true,
       }).endingStarted,
     ).toBe(true);
+  });
+
+  it("puts the bat back when the save has no ampoule", () => {
+    expect(sanitizeProgress({ batTaken: true }).batTaken).toBe(false);
+    expect(sanitizeProgress({ revisited: ["ampoule"], batTaken: true }).batTaken).toBe(true);
   });
 
   it("leaves the lights on unless the save says otherwise", () => {

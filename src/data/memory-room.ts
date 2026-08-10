@@ -99,5 +99,36 @@ export function phaseConfigOf(id: MemoryId, gamePhase: 1 | 2): MemoryPhaseConfig
  * 차지하는 유일한 자리다. 컷 내용은 content/cutscenes.yaml에 있다.
  */
 export const CUTSCENE_RADIO_BLACKOUT = "radio-blackout";
-/** 배트를 쥐었을 때 문이 열리기 직전의 두 줄. 끝나면 스토어가 방문을 연다 (grabBat). */
-export const CUTSCENE_BAT_FAREWELL = "bat-farewell";
+/** 앰플을 쥔 직후의 작별의 회상. 이 재생이 끝나면 2막이 닫히고 3막이 열린다. */
+export const CUTSCENE_FAREWELL = "farewell";
+/** 현관의 배트를 쥔 순간의 두 줄. 끝나면 스토어가 배트를 쥔 것으로 적는다 (takeBat). */
+export const CUTSCENE_BAT_GRIP = "bat-grip";
+
+/**
+ * 2막을 닫는 기억 — 이걸 되찾으면 3막이 열린다 (docs/content-design.md 2장).
+ *
+ * 이름을 코드에 박는 대신 여기 한 곳에만 둔다. 흐름은 content/memories.yaml이
+ * 소유하고, 코드는 "마지막 칸이 무엇인가"만 안다.
+ */
+export const ACT2_FINAL_MEMORY = "ampoule" as MemoryId;
+
+/**
+ * 2막의 필수 추리 체인. 앰플에서 `unlockAfter`를 거슬러 올라가 얻는다 —
+ * 목록을 손으로 적으면 YAML을 고칠 때마다 두 곳이 어긋난다.
+ *
+ * 이 체인 밖의 2차 조사(게임기·컴퓨터·폰)는 곁가지라 3막을 막지 않고, 밝기
+ * 상승 곡선의 분모에도 끼지 않는다 — 안 본 사람의 방이 덜 밝으면 곁가지가
+ * 곁가지가 아니게 된다.
+ */
+export const ACT2_CHAIN: MemoryId[] = (() => {
+  const chain: MemoryId[] = [];
+  const walk = (id: MemoryId) => {
+    if (chain.includes(id)) return;
+    const config = MEMORY_BY_ID[id]?.phase2;
+    if (!config) return;
+    for (const dep of config.unlockAfter ?? []) walk(dep);
+    chain.push(id);
+  };
+  walk(ACT2_FINAL_MEMORY);
+  return chain;
+})();

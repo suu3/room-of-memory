@@ -48,20 +48,46 @@ cutscenes:
           ja: え？ 誰だ？
 
   #
-  # 배트를 쥔 순간 — 문이 열리기 직전의 두 줄 (v2 기획 3장).
+  # 작별의 회상 — 앰플을 손에 쥔 직후 (docs/content-design.md 4장 순서 6).
   #
-  # 그림이 없다. 화면을 덮는 대신 방이 그대로 비친 채 대사창만 뜬다 — 떠나는
-  # 말은 회상이 아니라 지금 이 방에서 하는 말이라서다. 대사가 끝나면(건너뛰어도)
-  # 스토어가 방문을 연다 (grabBat).
+  # 그림이 없다. 화면을 덮는 대신 거실이 그대로 비친 채 대사창만 뜬다 — 일러스트가
+  # 화면을 통째로 차지하는 자리는 전환점(radio-blackout) 하나뿐이라는 원칙을
+  # 지킨다. 이 재생이 끝나면(건너뛰어도) 2막이 닫히고 3막이 열린다.
   #
-  # id를 바꾸면 src/data/memory-room.ts의 CUTSCENE_BAT_FAREWELL도 같이 고쳐야 한다.
-  bat-farewell:
+  # id를 바꾸면 src/data/memory-room.ts의 CUTSCENE_FAREWELL도 같이 고쳐야 한다.
+  farewell:
     - lines:
         - speaker: hero
-          ko: …여기에만 있으면 아무것도 해결되지 않아.
-          en: …Staying in here won't fix anything.
-          ja: …ここにいるだけじゃ、何も解決しない。
+          ko: 다녀올게, 하고 나갔어. 평소처럼.
+          en: "\"Back soon,\" they said, and left. Like always."
+          ja: 「行ってくるね」って出ていった。いつもみたいに。
         - speaker: hero
-          ko: 나가자.
-          en: Let's go.
-          ja: 出よう。
+          ko: 그게 마지막인 줄 알았으면 뭐라도 더 말했을 텐데.
+          en: If I'd known that was the last of it, I'd have said something more.
+          ja: あれが最後だと知っていたら、何かもっと言えたのに。
+        - speaker: hero
+          ko: …아니다. 두 분은 알고 있었으니까, 그래서 아무 말도 안 한 거겠지.
+          en: …No. They knew. That's exactly why they said nothing.
+          ja: …いや。二人は知ってたから、だから何も言わなかったんだ。
+        - speaker: hero
+          ko: 버리고 간 게 아니라, 지킨 거야.
+          en: They didn't leave me behind. They were keeping me.
+          ja: 見捨てたんじゃない。守ったんだ。
+
+  #
+  # 현관의 배트를 쥔 순간 — 3막의 두 줄.
+  #
+  # 여기도 그림이 없다. 대사가 끝나면(건너뛰어도) 스토어가 배트를 쥔 것으로
+  # 기록하고, 그때부터 현관문이 열린다 (takeBat).
+  #
+  # id를 바꾸면 src/data/memory-room.ts의 CUTSCENE_BAT_GRIP도 같이 고쳐야 한다.
+  bat-grip:
+    - lines:
+        - speaker: hero
+          ko: 3년 쓴 배트다. 이걸로 공만 쳤는데.
+          en: Three years with this bat. All I ever hit with it was a ball.
+          ja: 三年使ったバットだ。これで打ったのはボールだけだったのに。
+        - speaker: hero
+          ko: …가자.
+          en: …Let's go.
+          ja: …行こう。
