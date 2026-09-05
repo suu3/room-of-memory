@@ -7,7 +7,10 @@ import { ASSETS } from "./assets";
 it("loads the animated player even when the service worker cached the old placeholder", async () => {
   const origin = "https://room.example";
   const legacyUrl = `${origin}/assets/models/player-blocky.glb`;
-  const cached = new Map([[legacyUrl, new Response("legacy placeholder")]]);
+  const cached = new Map([
+    [legacyUrl, new Response("legacy placeholder")],
+    [`${legacyUrl}?v=rig-20260906`, new Response("previous rig without eye bones")],
+  ]);
   const bytes = readFileSync("public/assets/models/player-blocky.glb");
   let offline = false;
   let handleFetch: (event: {

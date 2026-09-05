@@ -30,6 +30,11 @@ function fixture() {
   const mesh = new SkinnedMesh(geometry, material);
   mesh.name = "character";
   scene.add(bone, mesh);
+  for (const name of ["eyeL", "eyeR"]) {
+    const eye = new Bone();
+    eye.name = name;
+    bone.add(eye);
+  }
   mesh.bind(new Skeleton([bone]));
   const clips = [
     new AnimationClip("Idle", 1, [new NumberKeyframeTrack("hips.position[y]", [0, 1], [1, 1])]),
@@ -83,5 +88,31 @@ describe("skinned player animation", () => {
   it("rejects a replacement that lacks a required animation", () => {
     const source = fixture();
     expect(() => createPlayerRig(source.scene, source.clips.slice(0, 1))).toThrow("Walk");
+  });
+
+  it("briefly closes both eyes, reopens them, and keeps blinking while walking or seated", () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
+    try {
+      const source = fixture();
+      const rig = createPlayerRig(source.scene, source.clips);
+      const left = rig.root.getObjectByName("eyeL");
+      const right = rig.root.getObjectByName("eyeR");
+      for (let frame = 0; frame < 280; frame++) updatePlayerRig(rig, 0, 0, 0.01);
+      expect(left?.scale.y).toBeCloseTo(1);
+      for (let frame = 0; frame < 9; frame++) updatePlayerRig(rig, 1, 1, 0.01);
+      expect(left?.scale.y).toBeLessThan(0.15);
+      expect(right?.scale.y).toBeCloseTo(left?.scale.y ?? 0);
+      expect(source.scene.getObjectByName("eyeL")?.scale.y).toBe(1);
+      for (let frame = 0; frame < 20; frame++) updatePlayerRig(rig, 0, 0, 0.01, 1);
+      expect(left?.scale.y).toBeCloseTo(1);
+      let lowest = 1;
+      for (let frame = 0; frame < 310; frame++) {
+        updatePlayerRig(rig, 0, 0, 0.01, 1);
+        lowest = Math.min(lowest, left?.scale.y ?? 1);
+      }
+      expect(lowest).toBeLessThan(0.15);
+    } finally {
+      random.mockRestore();
+    }
   });
 });

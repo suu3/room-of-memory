@@ -31,6 +31,12 @@ describe("shipped player GLB", () => {
     expect(asset.images[texture.extensions.EXT_texture_webp.source]).toBe(skin);
     expect(asset.nodes.some((node: { name: string }) => node.name === "head")).toBe(true);
     expect(asset.nodes.some((node: { name: string }) => node.name === "shin.L")).toBe(true);
+    for (const name of ["eye.L", "eye.R"]) {
+      expect(
+        asset.nodes.some((node: { name: string }) => node.name === name),
+        name,
+      ).toBe(true);
+    }
   });
 
   it("decodes the real compressed skin, stays at room scale, and animates both knees", async () => {

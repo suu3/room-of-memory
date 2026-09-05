@@ -28,7 +28,11 @@ export function createPlayerRig(scene: Object3D, clips: AnimationClip[]) {
   walk.setEffectiveWeight(0);
   sit.setEffectiveWeight(0);
   mixer.update(0);
-  return { root, mixer, idle, walk, sit };
+  const eyes = [root.getObjectByName("eyeL"), root.getObjectByName("eyeR")].filter(
+    (eye): eye is Object3D => eye !== undefined,
+  );
+  const blink = { elapsed: 0, next: 2.8 + Math.random() * 3.2, eyes };
+  return { root, mixer, idle, walk, sit, blink };
 }
 
 export type PlayerRig = ReturnType<typeof createPlayerRig>;
@@ -60,6 +64,19 @@ export function updatePlayerRig(
   rig.walk.setEffectiveWeight(walkWeight);
   rig.sit.setEffectiveWeight(sitWeight);
   rig.mixer.update(delta);
+  // Apply after the mixer so locomotion cannot overwrite eye scale.
+  const blink = rig.blink;
+  blink.elapsed += Math.max(0, delta);
+  const time = blink.elapsed - blink.next;
+  let closed = 0;
+  if (time >= 0 && time < 0.21) {
+    const progress = time < 0.07 ? time / 0.07 : time < 0.1 ? 1 : (0.21 - time) / 0.11;
+    closed = progress * progress * (3 - 2 * progress);
+  } else if (time >= 0.21) {
+    blink.elapsed = 0;
+    blink.next = 2.8 + Math.random() * 3.2;
+  }
+  for (const eye of blink.eyes) eye.scale.set(1 + closed * 0.12, 1 - closed * 0.94, 1);
 }
 
 export function disposePlayerRig(rig: PlayerRig) {
