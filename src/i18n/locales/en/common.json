@@ -345,7 +345,16 @@
     "tabLore": "Notes",
     "loreLocked": "An entry you have not uncovered yet",
     "lockedHint": "Unlocks when collected",
-    "loreStill": "{{name}} — what I saw then"
+    "loreStill": "{{name}} — what I saw then",
+    "modelAlt": "3D character model — drag to turn it",
+    "modelHint": "Drag or use the buttons to turn",
+    "pose": {
+      "stand": "Stand",
+      "walk": "Walk",
+      "sit": "Sit"
+    },
+    "turnLeft": "Turn left",
+    "turnRight": "Turn right"
   },
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",

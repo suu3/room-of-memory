@@ -345,7 +345,16 @@
     "tabLore": "記録",
     "loreLocked": "まだ調べていない記録",
     "lockedHint": "収集すると開きます",
-    "loreStill": "{{name}} — あのとき見た光景"
+    "loreStill": "{{name}} — あのとき見た光景",
+    "modelAlt": "3Dキャラクターモデル — ドラッグで回せる",
+    "modelHint": "ドラッグかボタンで回す",
+    "pose": {
+      "stand": "立つ",
+      "walk": "歩く",
+      "sit": "座る"
+    },
+    "turnLeft": "左に回す",
+    "turnRight": "右に回す"
   },
   "titleScreen": {
     "eyebrow": "A SHORT VISUAL NOVEL",
