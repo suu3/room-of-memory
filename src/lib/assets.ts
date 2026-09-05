@@ -6,8 +6,8 @@ export const ASSETS = {
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
     radio: "/assets/models/ch1-radio.glb",
-    /** 플레이어 아바타. 스켈레톤 없이 파트가 나뉘어 있어 모션은 코드가 만든다. */
-    playerBlocky: "/assets/models/player-blocky.glb",
+    /** 본·애니메이션 포함. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다. */
+    playerBlocky: "/assets/models/player-blocky.glb?v=rig-20260906",
     /** 방 소품 (가구 모델). 전부 밑면이 y=0에 정렬돼 있다. */
     computerScreen: "/assets/models/room-computer-screen.glb",
     computerKeyboard: "/assets/models/room-computer-keyboard.glb",
