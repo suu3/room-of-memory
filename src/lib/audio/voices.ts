@@ -32,7 +32,8 @@ export type VoiceId =
   | "phoneBeep"
   // 방 안의 곁가지 인터랙션 (서랍·의자)
   | "drawer"
-  | "chairDrag";
+  | "chairDrag"
+  | "sit";
 
 export type Waveform = "sine" | "triangle" | "square" | "sawtooth";
 
@@ -256,6 +257,14 @@ export const VOICES: Record<VoiceId, Voice> = {
   chairDrag: {
     tones: [{ from: 90, to: 70, waveform: "sine", delay: 0, duration: 0.3, gain: 0.09 }],
     noise: { delay: 0, duration: 0.34, gain: 0.14, highpass: 250, lowpass: 1800, attack: 0.07 },
+  },
+  /**
+   * 자리에 앉고 일어서는 소리. 의자 끄는 소리(chairDrag)와 달리 바닥이 아니라 몸이
+   * 내는 소리라, 마찰은 짧게 스치고 낮은 톤이 한 번 눌린다 — 쿠션이 꺼지는 몫이다.
+   */
+  sit: {
+    tones: [{ from: 120, to: 82, waveform: "sine", delay: 0, duration: 0.16, gain: 0.11 }],
+    noise: { delay: 0, duration: 0.2, gain: 0.13, highpass: 300, lowpass: 1400, attack: 0.06 },
   },
 };
 

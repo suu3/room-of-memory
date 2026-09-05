@@ -137,6 +137,23 @@ export function moveThroughZones(
   return result;
 }
 
+/**
+ * 그 자리에 몸이 설 수 있는가 — 걷기 영역 안이면서 어떤 가구 발자국에도 안 걸리는가.
+ *
+ * 이동은 축을 하나씩 푸는 경로라 "갈 수 있는가"를 이걸로 대신 재지 않는다. 어떤 자리가
+ * **원래 설 수 있는 자리인지**를 묻는 검사용이다 (앉는 자리까지 걸어갈 수 있는지 등).
+ */
+export function isWalkable(
+  x: number,
+  z: number,
+  radius: number,
+  zones: readonly Aabb2[],
+  obstacles: readonly Aabb2[],
+): boolean {
+  if (collides(x, z, radius, obstacles)) return false;
+  return zones.some((zone) => insideZone(x, z, radius, zone));
+}
+
 export function findNearestMemory(
   position: Vec2,
   targets: readonly ProximityTarget[],

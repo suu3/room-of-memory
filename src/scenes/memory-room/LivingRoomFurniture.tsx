@@ -1,8 +1,13 @@
 "use client";
 
 import type {} from "@react-three/fiber";
+import { useRef } from "react";
+import type { Group } from "three";
+import type { SeatId } from "@/types/seat";
+import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
+import { useSeat, useSeatPull } from "./use-seat";
 
 /**
  * 거실 가구 (docs/content-design.md 3-1). 전부 박스 조합 — 방(RoomFurniture)과
@@ -12,10 +17,14 @@ import type { Vec3Tuple } from "./types";
  * 소파의 눌린 자리, 꺼진 TV, 의자 하나가 빠진 식탁, 한 켤레만 남은 신발장.
  * 발자국(콜라이더)은 layout의 LIVING_COLLIDERS — 여기 좌표를 옮기면 거기도 같이.
  *
- * 만질 수 있는 것은 여기 없다. 2막에 조사하는 거실 물건(냉장고 문·아래칸,
+ * 조사할 수 있는 것은 여기 없다. 2막에 조사하는 거실 물건(냉장고 문·아래칸,
  * 신발장 문, 식탁 트럼프)은 기억이라 MemoryObjects가 이 위에 얹는다 — 가구는
  * 가구만 그리고, 여는 면의 테두리는 기억 쪽이 긋는다
  * (docs/content-design.md 4장).
+ *
+ * 예외는 **앉는 자리**다 (소파 쿠션 셋 · 식탁 의자 셋 · 피아노 걸상). 앉는 건 조사가
+ * 아니라 그냥 몸을 두는 일이라 기억으로 올릴 게 없고, 앉는 자리는 가구 그 자체다.
+ * 몸이 어디에 어떻게 놓이는지는 seats.ts가 갖는다.
  */
 
 interface BoxPart {
@@ -50,11 +59,14 @@ const SOFA_PARTS = [
   { size: [2.8, 0.85, 0.24], position: [-9.5, 0.72, -3.62], color: "slate" },
   { size: [0.26, 0.62, 1.0], position: [-10.77, 0.63, -3.15], color: "slate" },
   { size: [0.26, 0.62, 1.0], position: [-8.23, 0.63, -3.15], color: "slate" },
-  // 쿠션 셋 — 가운데(아빠 자리)만 낮고 어둡다
-  { size: [0.76, 0.18, 0.82], position: [-10.28, 0.51, -3.08], color: "dusk" },
-  { size: [0.76, 0.12, 0.82], position: [-9.5, 0.48, -3.08], color: "storm" },
-  { size: [0.76, 0.18, 0.82], position: [-8.72, 0.51, -3.08], color: "dusk" },
 ] as const satisfies readonly BoxPart[];
+
+/** 쿠션 셋 — 가운데(아빠 자리)만 낮고 어둡다. 하나가 곧 앉는 자리 하나다 (seats.ts). */
+const SOFA_CUSHIONS = [
+  { seat: "sofa-left", size: [0.76, 0.18, 0.82], position: [-10.28, 0.51, -3.08], color: "dusk" },
+  { seat: "sofa-center", size: [0.76, 0.12, 0.82], position: [-9.5, 0.48, -3.08], color: "storm" },
+  { seat: "sofa-right", size: [0.76, 0.18, 0.82], position: [-8.72, 0.51, -3.08], color: "dusk" },
+] as const satisfies readonly (BoxPart & { seat: SeatId })[];
 
 /**
  * TV와 받침장 — 앞벽(z=6.5) 쪽. 화면은 void — 이 방에서 가장 어두운 색이다.
@@ -94,9 +106,9 @@ export const DINING_SET = {
   backrest: { halfWidth: 0.22, halfThickness: 0.035, offsetZ: -0.21 },
   /** 의자 셋 — 둘은 제자리, 하나(도해 자리)는 빠져 나와 비스듬하다 */
   chairs: [
-    { position: [-14.5, 0, 3.8], rotationY: Math.PI / 2 },
-    { position: [-13.1, 0, 3.8], rotationY: -Math.PI / 2 },
-    { position: [-13.4, 0, 2.62], rotationY: Math.PI + 0.5 },
+    { seat: "dining-window", position: [-14.5, 0, 3.8], rotationY: Math.PI / 2 },
+    { seat: "dining-door", position: [-13.1, 0, 3.8], rotationY: -Math.PI / 2 },
+    { seat: "dining-pulled", position: [-13.4, 0, 2.62], rotationY: Math.PI + 0.5 },
   ],
 } as const;
 
@@ -111,18 +123,61 @@ const CHAIR_PART_TEMPLATE = [
   { size: [0.06, 0.56, 0.06], position: [0.17, 0.28, 0.17], color: "ink" },
 ] as const satisfies readonly BoxPart[];
 
+/**
+ * 식탁 의자 한 벌. 누르면 다가간 사람이 앉는다 — 상판 밑으로 밀어 넣은 둘은 앉는 김에
+ * 뒤로 빠진다 (seats.ts의 pull). 상판 윗면이 캐릭터 가슴 높이라, 안 빼면 몸이 상판을
+ * 뚫고 앉는다.
+ */
 function Chair({
   palette,
+  seat,
   position,
   rotationY = 0,
 }: {
   palette: RoomPalette;
+  seat: SeatId;
   position: Vec3Tuple;
   rotationY?: number;
 }) {
+  const groupRef = useRef<Group>(null);
+  const { glowing, handlers } = useSeat(seat);
+  useSeatPull(groupRef, seat, { x: position[0], z: position[2], rotationY });
+
   return (
-    <group position={position} rotation={[0, rotationY, 0]}>
-      <Boxes parts={CHAIR_PART_TEMPLATE} palette={palette} />
+    <group ref={groupRef} position={position} rotation={[0, rotationY, 0]} {...handlers}>
+      <MemoryGlowSelection selectionKey={seat} tier="prop" enabled={glowing}>
+        <Boxes parts={CHAIR_PART_TEMPLATE} palette={palette} />
+      </MemoryGlowSelection>
+    </group>
+  );
+}
+
+/** 소파 쿠션 한 장 = 앉는 자리 하나. 소파 몸통은 그대로 배경으로 남는다. */
+function SofaCushion({
+  palette,
+  cushion,
+}: {
+  palette: RoomPalette;
+  cushion: BoxPart & { seat: SeatId };
+}) {
+  const { glowing, handlers } = useSeat(cushion.seat);
+  return (
+    <group {...handlers}>
+      <MemoryGlowSelection selectionKey={cushion.seat} tier="prop" enabled={glowing}>
+        <Boxes parts={[cushion]} palette={palette} />
+      </MemoryGlowSelection>
+    </group>
+  );
+}
+
+/** 피아노 걸상 — 반쯤 빼놓은 그대로 앉는다. 무릎은 건반 뚜껑 아래로 들어간다. */
+function PianoBench({ palette }: { palette: RoomPalette }) {
+  const { glowing, handlers } = useSeat("piano-bench");
+  return (
+    <group {...handlers}>
+      <MemoryGlowSelection selectionKey="piano-bench" tier="prop" enabled={glowing}>
+        <Boxes parts={PIANO_BENCH_PARTS} palette={palette} />
+      </MemoryGlowSelection>
     </group>
   );
 }
@@ -186,7 +241,10 @@ const PIANO_PARTS = [
   { size: [0.09, 0.05, 0.14], position: [-14.85, 0.03, 5.96], color: "bone" },
   // 보면대 홈 — 본체 앞면에 가로줄 하나
   { size: [0.95, 0.05, 0.03], position: [-14.95, 1.13, 6.005], color: "slate" },
-  // 의자 — 반쯤 빼놓은 채다. 좌판 밑으로 다리가 1cm 파고든다
+] as const satisfies readonly BoxPart[];
+
+/** 걸상 — 반쯤 빼놓은 채다. 좌판 밑으로 다리가 1cm 파고든다. 앉는 자리라 따로 뗀다. */
+const PIANO_BENCH_PARTS = [
   { size: [0.56, 0.1, 0.34], position: [-14.95, 0.52, 5.38], color: "ink" },
   { size: [0.07, 0.48, 0.07], position: [-15.15, 0.24, 5.28], color: "slate" },
   { size: [0.07, 0.48, 0.07], position: [-14.75, 0.24, 5.28], color: "slate" },
@@ -226,13 +284,17 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
   return (
     <group name="living-room-furniture">
       <Boxes parts={SOFA_PARTS} palette={palette} />
+      {SOFA_CUSHIONS.map((cushion) => (
+        <SofaCushion key={cushion.seat} palette={palette} cushion={cushion} />
+      ))}
       <Boxes parts={TV_PARTS} palette={palette} />
       <Boxes parts={TABLE_PARTS} palette={palette} />
       {/* 배치는 DINING_SET.chairs — 상판·다리와의 간격을 테스트가 지키는 값이다 */}
       {DINING_SET.chairs.map((chair) => (
         <Chair
-          key={chair.position.join(":")}
+          key={chair.seat}
           palette={palette}
+          seat={chair.seat}
           position={chair.position}
           rotationY={chair.rotationY}
         />
@@ -240,6 +302,7 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
       <Boxes parts={SHOE_CABINET_PARTS} palette={palette} />
       <Boxes parts={FRIDGE_PARTS} palette={palette} />
       <Boxes parts={PIANO_PARTS} palette={palette} />
+      <PianoBench palette={palette} />
       <group
         position={PLUSH_BEAR_PLACEMENT.position}
         rotation={[0, PLUSH_BEAR_PLACEMENT.rotationY, 0]}

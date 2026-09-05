@@ -19,7 +19,6 @@ import {
   CABINET_TOP_PROPS,
   CABINET_TOP_Y,
   CHAIR_POSITION,
-  CHAIR_PULL,
   CHAIR_ROTATION,
   DESK_POSITION,
   DESK_ROTATION,
@@ -31,6 +30,7 @@ import { DeskClockClue, DrawerNoteClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
+import { usePrefersReducedMotion, useSeat, useSeatPull } from "./use-seat";
 
 // 컴퓨터(모니터·키보드·마우스)는 이제 가구가 아니라 기억 오브젝트다 —
 // MemoryObjects가 그리고 프리로드한다. 여기 다시 넣으면 두 개로 보인다.
@@ -190,19 +190,14 @@ function Desk({ palette }: FurnitureProps) {
  * 곁가지 인터랙션이 공통으로 쓰는 값들.
  *
  * 커튼과 달리 이쪽은 끌지 않고 한 번 눌러 여닫는다 — 커튼을 젖히는 건 밖을 보는
- * 이야기의 한 순간이라 손으로 하는 몸짓이 값을 하지만, 서랍과 의자는 방을 만지는
+ * 이야기의 한 순간이라 손으로 하는 몸짓이 값을 하지만, 서랍은 방을 만지는
  * 감각이라 몸짓까지 요구하면 품이 이야기보다 커진다.
  */
 const FURNITURE_NEAR_RADIUS = 2.1;
-/** 손을 떠난 뒤 목표에 붙는 속도. 의자는 무거우니 서랍보다 느리게 민다. */
+/** 손을 떠난 뒤 목표에 붙는 속도. */
 const DRAWER_LAMBDA = 6;
-const CHAIR_LAMBDA = 4.5;
 /** 모션을 끈 사람에게는 미끄러짐 없이 곧바로 옮겨 놓는다. */
 const REDUCED_LAMBDA = 18;
-
-function usePrefersReducedMotion(): boolean {
-  return useMemo(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches, []);
-}
 
 /**
  * 눌러서 여닫는 서랍. 캐비닛 두 칸과 협탁 한 칸이 같은 부품을 쓴다.
@@ -269,49 +264,31 @@ function Drawer({
   );
 }
 
-/** 책상 앞으로 붙어 있는 의자. 누르면 뒤로 물러나며 살짝 틀어진다. */
+/**
+ * 책상 앞으로 붙어 있는 의자. 누르면 다가간 사람이 앉는다 — 의자는 그 몫으로 먼저
+ * 뒤로 물러나며 살짝 틀어진다 (CHAIR_PULL).
+ *
+ * 예전에는 누르면 의자만 빠졌다 들어왔다. 앉는 동작이 생기면서 그 움직임은 앉는
+ * 몸짓의 일부가 됐다 — 밀어 넣은 채로 앉으면 상판 밑에 몸이 낀다 (seats.ts).
+ */
 function Chair({ palette }: FurnitureProps) {
-  const [pulled, setPulled] = useState(false);
   const groupRef = useRef<Group>(null);
-  const { hovered, handlers } = useGlowHover(true);
-  const near = useNearPlayer(CHAIR_POSITION[0], CHAIR_POSITION[2], FURNITURE_NEAR_RADIUS);
-  const reducedMotion = usePrefersReducedMotion();
-
-  useFrame((_, delta) => {
-    const group = groupRef.current;
-    if (!group) return;
-    const lambda = reducedMotion ? REDUCED_LAMBDA : CHAIR_LAMBDA;
-    // 책상은 의자의 -x 쪽에 있다 — 물러나는 건 +x.
-    group.position.x = MathUtils.damp(
-      group.position.x,
-      CHAIR_POSITION[0] + (pulled ? CHAIR_PULL.distance : 0),
-      lambda,
-      delta,
-    );
-    // 밀려나기만 하면 미끄러진 것처럼 보인다. 조금 틀어져야 누가 일어난 자리가 된다.
-    group.rotation.y = MathUtils.damp(
-      group.rotation.y,
-      CHAIR_ROTATION[1] + (pulled ? CHAIR_PULL.turn : 0),
-      lambda,
-      delta,
-    );
+  const { glowing, handlers } = useSeat("desk-chair");
+  useSeatPull(groupRef, "desk-chair", {
+    x: CHAIR_POSITION[0],
+    z: CHAIR_POSITION[2],
+    rotationY: CHAIR_ROTATION[1],
   });
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
     <group
       ref={groupRef}
       name="chair"
       position={CHAIR_POSITION}
       rotation={CHAIR_ROTATION}
       {...handlers}
-      onClick={(event) => {
-        event.stopPropagation();
-        playSound("chairDrag");
-        setPulled((current) => !current);
-      }}
     >
-      <MemoryGlowSelection selectionKey="chair" tier="prop" enabled={hovered || near}>
+      <MemoryGlowSelection selectionKey="chair" tier="prop" enabled={glowing}>
         <BoxParts parts={CHAIR_PARTS} palette={palette} />
       </MemoryGlowSelection>
     </group>

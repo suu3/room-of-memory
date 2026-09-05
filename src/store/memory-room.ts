@@ -16,6 +16,7 @@ import {
 import { CLUE_AFTER_MEMORY, type ClueId, PUZZLE_IDS, type PuzzleId } from "@/data/room-clues";
 import type { CutsceneCut, DialogueScriptLine } from "@/types/interaction";
 import type { MinigameResult } from "@/types/minigame";
+import type { SeatId } from "@/types/seat";
 
 /**
  * 조사의 차수. 1차 = 1막의 첫 조사, 2차 = 2막의 재조사다.
@@ -164,6 +165,14 @@ interface MemoryRoomState {
    */
   inLivingRoom: boolean;
   /**
+   * 지금 앉아 있는 자리 (없으면 서 있다).
+   *
+   * 위치와 같은 성격이라 저장하지 않는다 — 새로고침하면 방 한가운데에 서서 시작한다.
+   * 스토어에 드는 이유는 앉히는 쪽(가구)과 앉는 쪽(Player)이 트리에서 멀리 떨어져
+   * 있어서다. 진행에는 아무것도 남기지 않는다 (전등 스위치와 같은 곁가지 인터랙션).
+   */
+  seatedAt: SeatId | null;
+  /**
    * 지금 들여다보고 있는 단서 (책상 위 기록 노트 · 서랍 속 쪽지).
    *
    * 전등 스위치와 같은 배경 오브젝트라 진행에는 아무것도 남기지 않는다 — 저장도
@@ -227,6 +236,10 @@ interface MemoryRoomState {
   takeBat: () => void;
   /** 문턱을 넘었다고 알린다 — Player만 부른다. */
   setInLivingRoom: (inLivingRoom: boolean) => void;
+  /** 자리에 앉는다. 대사·미니게임이 떠 있으면 아무 일도 없다. */
+  sitOnSeat: (id: SeatId) => void;
+  /** 일어선다 — 앉기 전 서 있던 자리로 돌아간다 (몸의 자리는 Player가 기억한다). */
+  standUp: () => void;
   /** 미궁 문제를 붙잡는다. 이미 푼 문제나 다른 화면이 떠 있으면 아무 일도 없다. */
   openPuzzle: (id: PuzzleId) => void;
   /** 풀지 않고 내려놓는다 — 물건은 다시 클릭할 수 있다. */
@@ -569,6 +582,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       batTaken: false,
       endingStarted: false,
       inLivingRoom: false,
+      seatedAt: null,
       activeClue: null,
       activePuzzle: null,
       solvedPuzzles: [],
@@ -729,6 +743,11 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         }),
       setInLivingRoom: (inLivingRoom) =>
         set((state) => (state.inLivingRoom === inLivingRoom ? state : { inLivingRoom })),
+      sitOnSeat: (id) =>
+        set((state) =>
+          state.seatedAt === id || selectSceneInputLocked(state) ? state : { seatedAt: id },
+        ),
+      standUp: () => set((state) => (state.seatedAt === null ? state : { seatedAt: null })),
       openPuzzle: (id) =>
         set((state) => {
           // 다른 화면(대사·미니게임·재생·단서)이 떠 있으면 위에 얹지 않는다
@@ -771,6 +790,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           batTaken: false,
           endingStarted: false,
           inLivingRoom: false,
+          seatedAt: null,
           activeClue: null,
           activePuzzle: null,
           solvedPuzzles: [],

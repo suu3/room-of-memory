@@ -53,6 +53,39 @@ describe("scene input locks", () => {
   });
 });
 
+describe("앉기", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("자리에 앉고 일어선다", () => {
+    const store = useMemoryRoomStore.getState();
+    store.sitOnSeat("sofa-center");
+    expect(useMemoryRoomStore.getState().seatedAt).toBe("sofa-center");
+
+    // 앉은 채로 다른 자리를 누르면 그리로 옮겨 앉는다 — 일어서라고 두 번 시키지 않는다.
+    store.sitOnSeat("piano-bench");
+    expect(useMemoryRoomStore.getState().seatedAt).toBe("piano-bench");
+
+    store.standUp();
+    expect(useMemoryRoomStore.getState().seatedAt).toBe(null);
+  });
+
+  it("대사·미니게임이 떠 있으면 앉지 않는다", () => {
+    const store = useMemoryRoomStore.getState();
+    store.setUiLock("character-sheet", true);
+    store.sitOnSeat("desk-chair");
+
+    expect(useMemoryRoomStore.getState().seatedAt).toBe(null);
+  });
+
+  it("리셋하면 일어선다 — 몸은 시작 자리로 돌아간다", () => {
+    const store = useMemoryRoomStore.getState();
+    store.sitOnSeat("desk-chair");
+    store.reset();
+
+    expect(useMemoryRoomStore.getState().seatedAt).toBe(null);
+  });
+});
+
 describe("minigame result dialogue", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 

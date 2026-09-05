@@ -5,7 +5,13 @@ import { AnimationMixer, Box3, type SkinnedMesh, Vector3 } from "three";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
-import { PLAYER_TARGET_HEIGHT } from "./player-rig";
+import {
+  PLAYER_TARGET_HEIGHT,
+  SIT_CONTACT_Y,
+  SIT_CONTACT_Z,
+  SIT_LEG_Z,
+  SIT_TORSO_HALF_WIDTH,
+} from "./player-rig";
 
 const bytes = readFileSync(resolve("public/assets/models/player-blocky.glb"));
 const jsonLength = bytes.readUInt32LE(12);
@@ -110,5 +116,51 @@ describe("shipped player GLB", () => {
         }
       });
     }
+
+    /*
+     * 앉는 자리(seats.ts)는 전부 이 포즈의 실측값에서 나온다 — 좌면 높이도, 앞뒤 위치도.
+     * 리그를 다시 내보내면서 앉은 자세가 바뀌면 방 안의 의자 여덟 개가 한꺼번에 어긋나므로,
+     * 코드가 들고 있는 수치를 실제 GLB에 대고 확인한다.
+     */
+    mixer.stopAllAction();
+    const sitClip = gltf.animations.find((clip) => clip.name === "Sit");
+    if (!sitClip) throw new Error("Missing Sit clip");
+    mixer.clipAction(sitClip).play();
+    mixer.setTime(sitClip.duration * 0.5);
+    gltf.scene.updateMatrixWorld(true);
+    const sit = { contactY: Infinity, contactBack: Infinity, legBack: Infinity, torso: 0 };
+    const vertex = new Vector3();
+    // 좌면에 닿는 부분(엉덩이·허벅지)과 늘어지는 부분(무릎 아래)은 높이로 못 가른다 —
+    // 정강이가 허벅지 높이까지 올라온다. 각 정점이 가장 많이 매달린 본으로 가른다.
+    const CONTACT_BONES = new Set(["hips", "thighL", "thighR"]);
+    const LEG_BONES = new Set(["shinL", "shinR", "footL", "footR", "toeL", "toeR"]);
+    gltf.scene.traverse((object) => {
+      const mesh = object as SkinnedMesh;
+      if (!mesh.isSkinnedMesh) return;
+      const { skinIndex, skinWeight, position } = mesh.geometry.attributes;
+      for (let index = 0; index < position.count; index++) {
+        mesh.getVertexPosition(index, vertex);
+        vertex.applyMatrix4(mesh.matrixWorld);
+        let bone = 0;
+        let weight = -1;
+        for (let slot = 0; slot < 4; slot++) {
+          if (skinWeight.getComponent(index, slot) <= weight) continue;
+          weight = skinWeight.getComponent(index, slot);
+          bone = skinIndex.getComponent(index, slot);
+        }
+        const name = mesh.skeleton.bones[bone]?.name ?? "";
+        if (CONTACT_BONES.has(name)) {
+          sit.contactY = Math.min(sit.contactY, vertex.y);
+          sit.contactBack = Math.min(sit.contactBack, vertex.z);
+        } else if (LEG_BONES.has(name)) {
+          sit.legBack = Math.min(sit.legBack, vertex.z);
+        }
+        if (vertex.y < 0.7) sit.torso = Math.max(sit.torso, Math.abs(vertex.x));
+      }
+    });
+    expect(sit.contactY).toBeCloseTo(SIT_CONTACT_Y, 2);
+    expect(sit.contactBack).toBeCloseTo(SIT_CONTACT_Z.back, 2);
+    expect(sit.legBack).toBeCloseTo(SIT_LEG_Z.back, 2);
+    expect(sit.torso).toBeLessThanOrEqual(SIT_TORSO_HALF_WIDTH);
   });
 });
