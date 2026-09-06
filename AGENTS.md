@@ -27,6 +27,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `pnpm content:build` — `content/*.yaml` → 생성물 (대본/흐름을 고쳤으면 반드시 실행)
 - `pnpm content:check` — 생성물이 YAML과 맞는지 검사만 (쓰지 않음). `pnpm test`가 같은 검사를 포함한다
 - `pnpm design:lint` — DESIGN.md 토큰 검증
+- `pnpm model:prep <내보낸.glb> <이름>` — 블렌더 glb를 압축·검사해 `public/assets/models/`에 넣는다 (내보내기 설정은 `docs/model-export.md`)
 
 대본·흐름은 dev 서버의 `/admin`(로컬 전용 편집기)에서 폼으로 고칠 수도 있다. 저장하면 YAML과 생성물이 함께 갱신된다.
 

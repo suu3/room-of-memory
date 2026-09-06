@@ -18,7 +18,7 @@ export const ASSETS = {
     pottedPlant: "/assets/models/room-potted-plant.glb",
     pillow: "/assets/models/room-pillow.glb",
     /** 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있다. */
-    rabbitDoll: "/assets/models/rabbit-doll.glb",
+    rabbitDoll: "/assets/models/rabbit-doll.glb?v=fix-20260906",
   },
   images: {
     /** 로딩 애니메이션 (420x400, 5프레임 gif). */

@@ -18,7 +18,8 @@
     "prepare": "husky",
     "content:build": "node scripts/build-content.mjs",
     "content:check": "node scripts/build-content.mjs --check",
-    "audio:bgm": "node scripts/prepare-bgm.mjs"
+    "audio:bgm": "node scripts/prepare-bgm.mjs",
+    "model:prep": "node scripts/prepare-model.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
