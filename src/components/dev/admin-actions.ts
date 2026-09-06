@@ -87,7 +87,10 @@ export function setAdminDoor(open: boolean): void {
 }
 
 /**
- * 몸을 그 공간으로 옮긴다.
+ * 몸을 그 공간으로 옮긴다 — 타이틀 화면에서 눌러도 한 번에 그 자리에 서 있게 된다.
+ *
+ * 게임을 같이 시작하는 이유: 안 그러면 워프는 됐는데 화면은 여전히 타이틀이라 아무 일도
+ * 안 일어난 것처럼 보이고, 이어하기를 한 번 더 눌러야 한다.
  *
  * 거실로 갈 때는 방문도 같이 연다. 문이 닫혀 있으면 걷기 범위가 방 하나뿐이라
  * (Player의 CLOSED_ZONES) 거실 한복판에 떨어뜨려 놔도 한 발짝도 못 움직인다 —
@@ -95,6 +98,7 @@ export function setAdminDoor(open: boolean): void {
  */
 export function warpToSpace(space: AdminSpace): void {
   if (space === "living") setAdminDoor(true);
+  applyAdminPatch({ started: true });
   const spawn = ADMIN_SPAWNS[space];
   useMemoryRoomStore.getState().warpPlayer(spawn.x, spawn.z);
 }

@@ -62,6 +62,8 @@ describe("AdminPanel", () => {
     expect(useMemoryRoomStore.getState().warpTarget).toEqual(ADMIN_SPAWNS.living);
     // 문이 닫혀 있으면 걷기 범위가 방뿐이라 거실에 떨어뜨려도 한 발짝을 못 간다.
     expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
+    // 타이틀에서 눌러도 바로 그 자리에 서 있어야 한다 — 안 그러면 이어하기를 또 눌러야 한다.
+    expect(useMemoryRoomStore.getState().started).toBe(true);
 
     fireEvent.click(screen.getByRole("button", { name: "방" }));
     expect(useMemoryRoomStore.getState().warpTarget).toEqual(ADMIN_SPAWNS.room);
