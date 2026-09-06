@@ -119,6 +119,15 @@ try {
         "meshopt",
         "--simplify",
         "false",
+        /*
+         * palette는 재질이 5개 이상이면 색을 작은 webp 아틀라스로 구워 재질을 하나로
+         * 합친다. 드로우콜은 줄지만 색이 상수(baseColorFactor)에서 텍스처로 옮겨가서,
+         * 방이 재질 색을 직접 만지는 연출(수집 완료 이미시브·팔레트 대조)에서 손댈
+         * 자리가 사라진다. 게다가 아래 검사는 Node에서 도는 GLTFLoader라 이미지를
+         * 못 읽어 통째로 터진다 — 소품 하나에 얻을 것보다 잃는 게 크다.
+         */
+        "--palette",
+        "false",
         "--texture-compress",
         "webp",
       ]);

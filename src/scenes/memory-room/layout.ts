@@ -234,7 +234,7 @@ export const CLUE_PROPS = {
 export const MEMORY_PLACEMENTS = {
   console: {
     id: "console",
-    // 러그 위에 던져둔 휴대용 게임기. 사방이 트여 있어 다가가기 쉽다.
+    // 러그 위에 던져둔 게임패드. 사방이 트여 있어 다가가기 쉽다.
     position: [1.05, 0.03, 4.05],
     rotation: [0, -0.55, 0],
     scale: 1,

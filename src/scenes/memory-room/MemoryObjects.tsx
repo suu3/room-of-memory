@@ -29,7 +29,7 @@ import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-m
 import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
 import { radioSignalLevel } from "./radio-signal";
-import type { Vec3Tuple } from "./types";
+import type { EulerTuple, Vec3Tuple } from "./types";
 import { useCoverTexture } from "./use-cover-texture";
 import { useGlowHover } from "./use-glow-hover";
 import { memoryOpacity, shouldHighlightMemory } from "./visual-state";
@@ -39,7 +39,28 @@ import { memoryOpacity, shouldHighlightMemory } from "./visual-state";
 const MODEL_PATHS = {
   ball: ASSETS.models.baseball,
   radio: ASSETS.models.radio,
+  console: ASSETS.models.gamepad,
 } as const satisfies Partial<Record<MemoryId, string>>;
+
+/** 게임패드 glb 가로 3.06을 러그 위 소품 크기(0.5 안팎)로 줄이는 배율. */
+const GAMEPAD_SCALE = 0.16;
+/** glb 두께(z 0.92)의 절반. 눕히면 이 값이 높이의 절반이 되어, 이만큼 띄워야 밑면이 원점에 닿는다. */
+const GAMEPAD_HALF_THICKNESS = 0.46;
+
+/**
+ * glb 하나에만 필요한 자세. 배치표(MEMORY_PLACEMENTS)의 회전·배율은 프리미티브
+ * 대체물과 같이 쓰므로, 모델이 다른 자세로 들어왔을 때의 보정은 여기서 준다.
+ * 게임패드는 세워진 채(앞면 +z, 밑면 y=0) 내보내져서 앞면이 위를 보게 눕힌다.
+ */
+const MODEL_POSE = {
+  console: {
+    position: [0, GAMEPAD_HALF_THICKNESS * GAMEPAD_SCALE, 0],
+    rotation: [-Math.PI / 2, 0, 0],
+    scale: GAMEPAD_SCALE,
+  },
+} as const satisfies Partial<
+  Record<MemoryId, { position: Vec3Tuple; rotation: EulerTuple; scale: number }>
+>;
 
 /** 컴퓨터는 한 기억이 glb 세 개(모니터·키보드·마우스)로 이루어진다. */
 const COMPUTER_MODEL_PATHS = [
@@ -149,19 +170,30 @@ function LoadedGlb({ path, opacity, lit }: { path: string; opacity: number; lit?
 }
 
 function GlbMemoryModel({
+  id,
   path,
   fallback,
   opacity,
   onReady,
 }: {
+  id: MemoryId;
   path: string;
   fallback: ReactNode;
   opacity: number;
   onReady: () => void;
 }) {
+  const pose = MODEL_POSE[id as keyof typeof MODEL_POSE];
+  const model = <LoadedGlb path={path} opacity={opacity} />;
   return (
     <MemoryGlowVisualBoundary fallback={fallback} onVisible={onReady}>
-      <LoadedGlb path={path} opacity={opacity} />
+      {/* 자세 보정은 모델에만 — 대체 프리미티브는 배치표 기준으로 이미 맞춰져 있다 */}
+      {pose ? (
+        <group position={pose.position} rotation={pose.rotation} scale={pose.scale}>
+          {model}
+        </group>
+      ) : (
+        model
+      )}
     </MemoryGlowVisualBoundary>
   );
 }
@@ -172,15 +204,16 @@ interface VisualProps {
 }
 
 /**
- * 러그 위에 던져둔 휴대용 게임기. 몸통 · 화면 · 십자키 · 버튼 두 개.
- * 방의 다른 소품과 같은 박스 조형으로 짜서 따로 놀지 않게 했다.
+ * 러그 위에 던져둔 게임패드 — glb(ch1-gamepad)가 뜨기 전에 서는 대체물.
+ * 몸통 · 손잡이 둘 · 십자키 · 버튼 둘. 방의 다른 소품과 같은 박스 조형으로 짜서
+ * 따로 놀지 않게 했다. 원점은 밑면 한가운데(glb와 같다).
  */
-function Console({ palette, opacity }: VisualProps) {
+function Gamepad({ palette, opacity }: VisualProps) {
   const transparent = opacity < 1;
   return (
-    <group rotation={[-Math.PI / 2 + 0.16, 0, 0]}>
-      <mesh castShadow>
-        <boxGeometry args={[0.46, 0.26, 0.05]} />
+    <group>
+      <mesh position={[0, 0.045, -0.03]} castShadow>
+        <boxGeometry args={[0.44, 0.09, 0.2]} />
         <meshStandardMaterial
           color={palette.slate}
           roughness={0.5}
@@ -188,20 +221,20 @@ function Console({ palette, opacity }: VisualProps) {
           transparent={transparent}
         />
       </mesh>
-      {/* 켜진 화면 — 어두운 방에서 이 물건만 작게 빛난다 */}
-      <mesh position={[0, 0, 0.027]}>
-        <planeGeometry args={[0.24, 0.17]} />
-        <meshStandardMaterial
-          color={palette.paper}
-          emissive={palette.memory}
-          emissiveIntensity={0.35}
-          roughness={0.4}
-          opacity={opacity}
-          transparent={transparent}
-        />
-      </mesh>
-      <mesh position={[-0.16, 0, 0.028]}>
-        <boxGeometry args={[0.075, 0.075, 0.012]} />
+      {/* 손잡이 — 몸통 양 끝에서 앞(+z)으로 뻗는다 */}
+      {[-0.16, 0.16].map((x) => (
+        <mesh key={x} position={[x, 0.045, 0.08]} castShadow>
+          <boxGeometry args={[0.1, 0.09, 0.14]} />
+          <meshStandardMaterial
+            color={palette.ink}
+            roughness={0.6}
+            opacity={opacity}
+            transparent={transparent}
+          />
+        </mesh>
+      ))}
+      <mesh position={[-0.12, 0.096, -0.05]}>
+        <boxGeometry args={[0.06, 0.012, 0.06]} />
         <meshStandardMaterial
           color={palette.ink}
           roughness={0.6}
@@ -210,8 +243,8 @@ function Console({ palette, opacity }: VisualProps) {
         />
       </mesh>
       {[-0.03, 0.03].map((offset) => (
-        <mesh key={offset} position={[0.16, offset, 0.028]}>
-          <cylinderGeometry args={[0.022, 0.022, 0.012, 10]} />
+        <mesh key={offset} position={[0.12 + offset, 0.096, -0.05 - offset]}>
+          <cylinderGeometry args={[0.018, 0.018, 0.012, 10]} />
           <meshStandardMaterial
             color={palette.ember}
             roughness={0.55}
@@ -784,7 +817,7 @@ function DuffelMemory({ palette, opacity }: VisualProps) {
 function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId }) {
   switch (id) {
     case "console":
-      return <Console palette={palette} opacity={opacity} />;
+      return <Gamepad palette={palette} opacity={opacity} />;
     case "ball":
       return <Ball palette={palette} opacity={opacity} />;
     case "frame":
@@ -846,6 +879,7 @@ function MemoryVisual({
   return (
     <>
       <GlbMemoryModel
+        id={id}
         path={modelPath}
         fallback={fallback}
         opacity={opacity}
