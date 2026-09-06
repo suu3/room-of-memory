@@ -28,13 +28,35 @@ describe("shipped player GLB", () => {
       "StandUp",
       "Walk",
     ]);
-    const skin = asset.images.find((image: { name: string }) => image.name === "CH1.FACE");
-    expect(skin.bufferView).toBeTypeOf("number");
-    expect(skin.uri).toBeUndefined();
-    expect(skin.mimeType).toBe("image/webp");
-    const material = asset.materials.find((entry: { name: string }) => entry.name === "Material");
-    const texture = asset.textures[material.pbrMetallicRoughness.baseColorTexture.index];
-    expect(asset.images[texture.extensions.EXT_texture_webp.source]).toBe(skin);
+    /*
+     * 이미지는 이름이 아니라 **모양**으로 확인한다. 블렌더에서 다시 내보낼 때마다 이미지
+     * 이름이 바뀌는데(CH1.FACE → CH1 …), 정작 지켜야 하는 건 "밖으로 나간 경로 없이
+     * 파일 안에 webp로 들어 있는가"다. 외부 경로가 하나라도 남으면 그 텍스처는 배포에서
+     * 404가 되고 모델이 흰 판으로 뜬다.
+     */
+    expect(asset.images.length).toBeGreaterThan(0);
+    for (const image of asset.images as {
+      name: string;
+      uri?: string;
+      bufferView?: number;
+      mimeType?: string;
+    }[]) {
+      expect(image.uri, image.name).toBeUndefined();
+      expect(image.bufferView, image.name).toBeTypeOf("number");
+      expect(image.mimeType, image.name).toBe("image/webp");
+    }
+    // 색을 입은 면이 실제로 그 이미지를 가리키는가 (webp는 확장으로 붙는다)
+    const baseColor = (
+      asset.materials as { pbrMetallicRoughness?: { baseColorTexture?: { index: number } } }[]
+    )
+      .map((entry) => entry.pbrMetallicRoughness?.baseColorTexture?.index)
+      .filter((index): index is number => index !== undefined);
+    expect(baseColor.length).toBeGreaterThan(0);
+    for (const index of baseColor) {
+      const texture = asset.textures[index];
+      const source = texture.extensions?.EXT_texture_webp?.source ?? texture.source;
+      expect(asset.images[source], `texture ${index}`).toBeDefined();
+    }
     expect(asset.nodes.some((node: { name: string }) => node.name === "head")).toBe(true);
     expect(asset.nodes.some((node: { name: string }) => node.name === "shin.L")).toBe(true);
     for (const name of ["eye.L", "eye.R"]) {

@@ -1,6 +1,6 @@
 # Web player model
 
-`public/assets/models/player-blocky.glb` now contains the user-supplied chibi character, replacing the six-part placeholder. The file path is unchanged; the runtime URL uses `?v=blink-20260906` to bypass cached older rigs. Bump this version whenever replacing the model. It requires the updated `Player.tsx` and `player-animation.ts`; it is not compatible with the old mesh-pivot animator.
+`public/assets/models/player-blocky.glb` now contains the user-supplied chibi character, replacing the six-part placeholder. The file path is unchanged; the runtime URL carries a version (`?v=vest-20260906`) to bypass cached older rigs. Bump it whenever the file is replaced — a re-export that keeps the same URL is served from the old service-worker cache, which looks like the new model animating wrong. Re-exports from Blender arrive uncompressed and can carry an unused duplicate skin; running gltf-transform's meshopt pass both compresses (2.0MB → 585KB) and prunes it. It requires the updated `Player.tsx` and `player-animation.ts`; it is not compatible with the old mesh-pivot animator.
 
 - Height: 1.55 world units; feet at Y=0; front faces +Z.
 - Skin: 23 exported bones, including two independent eye bones; at most four normalized influences per vertex.

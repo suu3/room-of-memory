@@ -12,7 +12,8 @@
 | images/mg-ball-catch-impact.webp | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-frequency-tune-frame.webp | 사용자가 직접 넣은 라디오 일러스트(2026-08-04). 흰 배경·표시창을 알파로 도려낸 뒤 webp로 변환 | 미기재 (사용자 제공) | 미기재 |
 | images/mg-window-view-outside.webp | 사용자가 직접 넣은 창밖 일러스트(2026-08-04). webp로 변환 | 미기재 (사용자 제공) | 미기재 |
-| models/player-blocky.glb | 사용자 제공 `source.blend` (2026-09-06). 웹용 본·웨이트 정리, Idle/Walk/Sit/SitDown/StandUp 애니메이션 추가, Meshopt/WebP 압축 | 사용자 제공 모델 · 리깅/애니메이션 작업 Codex | 원본 라이선스 미기재 (사용자 제공) |
+| models/rabbit-doll.glb | 사용자 제공(2026-09-06). 밑면을 y=0에 맞추고 Meshopt 압축 (2.0MB → 33KB) | 미기재 (사용자 제공) | 원본 라이선스 미기재 |
+| models/player-blocky.glb | 사용자 제공 `source.blend` (2026-09-06). 웹용 본·웨이트 정리, Idle/Walk/Sit/SitDown/StandUp 애니메이션 추가, Meshopt/WebP 압축. 2026-09-06 조끼 뒷면 수정본으로 재교체(사용자 재내보내기 → Meshopt 재압축 2.0MB → 585KB) | 사용자 제공 모델 · 리깅/애니메이션 작업 Codex | 원본 라이선스 미기재 (사용자 제공) |
 | audio/bgm/bgm-room-winter-morning.ogg | https://pixabay.com/music/modern-classical-winter-morning-299362/ ("winter morning" — 256kbps mp3를 앞뒤 무음 트림 후 Vorbis q4로 재인코딩) | Tomomi_Kato | Pixabay Content License (크레딧 불요, 상업 이용 가능) |
 | audio/bgm/bgm-room-daylight.ogg | https://pixabay.com/ko/music/솔로-피아노-18021402-jazz-pop-piano-japan-afternoon-155522/ ("Jazz Pop Piano Japan Afternoon" — 1바퀴. `pnpm audio:bgm`으로 무음 트림 후 Vorbis q4) | Pixabay | Pixabay Content License (크레딧 불요, 상업 이용 가능) |
 | audio/bgm/bgm-room-second-light.ogg | https://pixabay.com/ko/music/현대-고전-hopeful-love-romantic-music-338664/ ("Hopeful Love Romantic Music" — 2바퀴. `pnpm audio:bgm`으로 무음 트림 후 Vorbis q4) | Pixabay | Pixabay Content License (크레딧 불요, 상업 이용 가능) |

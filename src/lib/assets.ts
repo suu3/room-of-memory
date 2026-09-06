@@ -7,7 +7,7 @@ export const ASSETS = {
     baseball: "/assets/models/ch1-baseball.glb",
     radio: "/assets/models/ch1-radio.glb",
     /** 본·애니메이션 포함. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다. */
-    playerBlocky: "/assets/models/player-blocky.glb?v=blink-20260906",
+    playerBlocky: "/assets/models/player-blocky.glb?v=vest-20260906",
     /** 방 소품 (가구 모델). 전부 밑면이 y=0에 정렬돼 있다. */
     computerScreen: "/assets/models/room-computer-screen.glb",
     computerKeyboard: "/assets/models/room-computer-keyboard.glb",
@@ -17,6 +17,8 @@ export const ASSETS = {
     rug: "/assets/models/room-rug.glb",
     pottedPlant: "/assets/models/room-potted-plant.glb",
     pillow: "/assets/models/room-pillow.glb",
+    /** 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있다. */
+    rabbitDoll: "/assets/models/rabbit-doll.glb",
   },
   images: {
     /** 로딩 애니메이션 (420x400, 5프레임 gif). */

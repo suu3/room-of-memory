@@ -1,9 +1,12 @@
 "use client";
 
+import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { useRef } from "react";
 import type { Group } from "three";
+import { ASSETS } from "@/lib/assets";
 import type { SeatId } from "@/types/seat";
+import { FurnitureModel } from "./FurnitureModel";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
@@ -26,6 +29,8 @@ import { useSeat, useSeatPull } from "./use-seat";
  * 아니라 그냥 몸을 두는 일이라 기억으로 올릴 게 없고, 앉는 자리는 가구 그 자체다.
  * 몸이 어디에 어떻게 놓이는지는 seats.ts가 갖는다.
  */
+
+useGLTF.preload(ASSETS.models.rabbitDoll, true, true);
 
 interface BoxPart {
   size: Vec3Tuple;
@@ -253,32 +258,16 @@ const PIANO_BENCH_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 /**
- * 커다란 곰인형 — 소파 옆 구석에 앉아 있다. 이 거실에서 유일하게 부드러운 물건.
- * 누구 것이었는지 말하지 않는다 — 셋이 살던 집에 남은, 아무도 안 치운 것 하나.
+ * 소파 옆 구석에 앉은 토끼 인형 (사용자 제공 glb). 이 거실에서 유일하게 부드러운 물건 —
+ * 누구 것이었는지 말하지 않는다. 셋이 살던 집에 남은, 아무도 안 치운 것 하나다.
  *
- * 로컬 원점이 엉덩이 중심이고 +z를 본다. 살짝 틀어 앉혀야 진열이 아니라
- * 놓아둔 것으로 읽힌다. 발자국은 layout의 LIVING_COLLIDERS(plush).
+ * 원래는 박스로 짜맞춘 곰인형이었다. 방의 다른 소품처럼 모델이 들어오면서 갈아끼웠고,
+ * 자리·발자국(LIVING_COLLIDERS의 plush)은 그대로 물려받았다.
+ *
+ * 배율은 인형 키(모델 3.32)를 1.1로 맞춘 값이다 — 소파 팔걸이(0.94)보다 조금 커야
+ * "커다란 인형"으로 읽힌다. 살짝 튼 것은 진열이 아니라 놓아둔 것으로 보이게 하는 몫.
  */
-const PLUSH_BEAR_PARTS = [
-  // 몸통과 배 — 배는 몸통 앞면을 물고 반 치수 나온다
-  { size: [0.6, 0.62, 0.42], position: [0, 0.31, 0], color: "bone" },
-  { size: [0.34, 0.3, 0.04], position: [0, 0.3, 0.215], color: "dusk" },
-  // 머리 — 몸통 위로 2cm 파고들어 얹힌다
-  { size: [0.46, 0.4, 0.38], position: [0, 0.8, 0], color: "bone" },
-  { size: [0.13, 0.13, 0.1], position: [-0.17, 1.02, 0], color: "bone" },
-  { size: [0.13, 0.13, 0.1], position: [0.17, 1.02, 0], color: "bone" },
-  // 주둥이 — 머리 앞면(0.19)에 5mm 파고들어 붙는다
-  { size: [0.18, 0.13, 0.05], position: [0, 0.76, 0.21], color: "dusk" },
-  // 팔 — 몸통 옆면을 2cm 물고 늘어져 있다
-  { size: [0.16, 0.42, 0.16], position: [-0.36, 0.32, 0], color: "bone" },
-  { size: [0.16, 0.42, 0.16], position: [0.36, 0.32, 0], color: "bone" },
-  // 다리 — 앉은 자세라 앞으로 뻗는다
-  { size: [0.18, 0.16, 0.4], position: [-0.17, 0.08, 0.3], color: "bone" },
-  { size: [0.18, 0.16, 0.4], position: [0.17, 0.08, 0.3], color: "bone" },
-] as const satisfies readonly BoxPart[];
-
-/** 곰인형의 자리 — 소파 왼쪽, 뒷벽 구석. 살짝 방 쪽으로 튼다. */
-const PLUSH_BEAR_PLACEMENT = { position: [-11.75, 0, -3.3], rotationY: 0.35 } as const;
+const PLUSH_PLACEMENT = { position: [-11.75, 0, -3.3] as Vec3Tuple, rotationY: 0.35, scale: 0.33 };
 
 export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
   return (
@@ -303,12 +292,12 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
       <Boxes parts={FRIDGE_PARTS} palette={palette} />
       <Boxes parts={PIANO_PARTS} palette={palette} />
       <PianoBench palette={palette} />
-      <group
-        position={PLUSH_BEAR_PLACEMENT.position}
-        rotation={[0, PLUSH_BEAR_PLACEMENT.rotationY, 0]}
-      >
-        <Boxes parts={PLUSH_BEAR_PARTS} palette={palette} />
-      </group>
+      <FurnitureModel
+        path={ASSETS.models.rabbitDoll}
+        position={PLUSH_PLACEMENT.position}
+        rotation={[0, PLUSH_PLACEMENT.rotationY, 0]}
+        scale={PLUSH_PLACEMENT.scale}
+      />
     </group>
   );
 }
