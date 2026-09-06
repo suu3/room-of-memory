@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { advanceSitProgress, lerpAngle, SIT_SECONDS, sitEase } from "./sit-motion";
+import {
+  advanceSitPhases,
+  advanceSitProgress,
+  lerpAngle,
+  SIT_SECONDS,
+  type SitPhases,
+  sitEase,
+} from "./sit-motion";
 
 describe("sit motion", () => {
   it("runs the progress to both ends in the transition time and stops there", () => {
@@ -30,6 +37,39 @@ describe("sit motion", () => {
     // 시작과 끝이 무르다 — 절반 지점까지 절반보다 덜 간다.
     expect(sitEase(0.25)).toBeLessThan(0.25);
     expect(sitEase(0.75)).toBeGreaterThan(0.75);
+  });
+
+  it("walks first and sits second, then unwinds in the other order", () => {
+    const phases: SitPhases = { travel: 0, sit: 0 };
+    const travelSeconds = 0.5;
+    const step = 1 / 60;
+
+    // 걷는 동안에는 앉지 않는다 — 걸으면서 접히면 미끄러져 들어가는 것과 같아진다.
+    for (let elapsed = 0; elapsed < travelSeconds - step; elapsed += step) {
+      advanceSitPhases(phases, true, step, travelSeconds, phases);
+      expect(phases.sit).toBe(0);
+      expect(phases.travel).toBeLessThanOrEqual(1);
+    }
+    for (let elapsed = 0; elapsed <= travelSeconds + SIT_SECONDS; elapsed += step) {
+      advanceSitPhases(phases, true, step, travelSeconds, phases);
+    }
+    expect(phases).toEqual({ travel: 1, sit: 1 });
+
+    // 일어설 때는 순서가 뒤집힌다 — 다 일어선 뒤에야 걸어 돌아온다.
+    advanceSitPhases(phases, false, step, travelSeconds, phases);
+    expect(phases.travel).toBe(1);
+    expect(phases.sit).toBeLessThan(1);
+    for (let elapsed = 0; elapsed <= travelSeconds + SIT_SECONDS + step; elapsed += step) {
+      advanceSitPhases(phases, false, step, travelSeconds, phases);
+    }
+    expect(phases).toEqual({ travel: 0, sit: 0 });
+  });
+
+  it("skips the walk when the seat is already underfoot", () => {
+    const phases: SitPhases = { travel: 0, sit: 0 };
+    advanceSitPhases(phases, true, 1 / 60, 0, phases);
+    expect(phases.travel).toBe(1);
+    expect(phases.sit).toBeGreaterThan(0);
   });
 
   it("turns the shorter way across the -π/π seam", () => {

@@ -1,5 +1,5 @@
 import type { SeatId } from "@/types/seat";
-import { CHAIR_POSITION, CHAIR_PULL } from "./layout";
+import { CHAIR_POSITION, CHAIR_PULL, CHAIR_SEAT } from "./layout";
 import { SIT_CONTACT_Y, SIT_LEG_Z } from "./player-rig";
 import type { Vec2 } from "./spatial";
 
@@ -61,10 +61,10 @@ const SEAT_REACH = 2.1;
  *
  * 앉으면 의자가 먼저 빠진다 (CHAIR_PULL). 밀어 넣은 채로 앉으면 상판(x -3.8부터) 아래로
  * 몸이 들어가고, 일어설 자리도 없다 — 사람도 의자를 빼고 앉는다.
- * 좌면은 CHAIR_PARTS 첫 항목(0.67 + 0.08, 1.05×1.05)에서 온다.
+ * 좌면 치수는 layout의 CHAIR_SEAT — 의자를 그리는 쪽과 같은 수를 본다.
  */
-const DESK_CHAIR_HALF_DEPTH = 0.525;
-const DESK_CHAIR_SEAT_Y = 0.75;
+const DESK_CHAIR_HALF_DEPTH = CHAIR_SEAT.half;
+const DESK_CHAIR_SEAT_Y = CHAIR_SEAT.topY;
 /** 등받이가 +x를 보고 서 있으므로(CHAIR_ROTATION) 정면은 -x, 빠진 만큼 틀어진다. */
 const DESK_CHAIR_FACING = -Math.PI / 2 + CHAIR_PULL.turn;
 const DESK_CHAIR_CENTER: Vec2 = {

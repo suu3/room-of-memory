@@ -110,7 +110,8 @@ export default function CharacterTurntable({
   return (
     <Canvas
       // 수첩은 종이 위다 — 방의 밤 조명이 아니라 밝은 실내 광으로 세운다.
-      camera={{ position: [0, 0.28, 2.75], fov: 30 }}
+      // 세로 화각 30°에서 키(1.55)가 다 들어오려면 3.4는 떨어져야 한다 — 2.75에서는 발이 잘렸다
+      camera={{ position: [0, 0.05, 3.4], fov: 30 }}
       gl={{ alpha: true, antialias: true }}
       dpr={[1, 2]}
       style={{ touchAction: "none" }}
@@ -118,8 +119,8 @@ export default function CharacterTurntable({
       <ambientLight intensity={1.35} />
       <directionalLight position={[2.5, 3.5, 3]} intensity={1.7} />
       <directionalLight position={[-3, 1.5, -2]} intensity={0.5} />
-      {/* 발이 y=0인 모델이라, 허리께(0.78)를 카메라 높이에 맞추려면 통째로 내린다 */}
-      <group position={[0, -0.78, 0]}>
+      {/* 발이 y=0인 모델이라, 몸 한가운데(0.78)를 화면 가운데에 두려면 통째로 내린다 */}
+      <group position={[0, -0.8, 0]}>
         <ViewerModel yawRef={yawRef} touchedAtRef={touchedAtRef} pose={pose} />
         {/* 발밑 그림자. 없으면 종이 위에 떠 있는 그림으로 보인다 */}
         <ContactShadows position={[0, 0.01, 0]} opacity={0.32} scale={3} blur={2.4} far={1.2} />

@@ -86,6 +86,16 @@ export const CHAIR_POSITION = [-3.3, 0, -1.2] as const;
 export const CHAIR_ROTATION = [0, Math.PI / 2, 0] as const;
 
 /**
+ * 책상 의자의 좌면. 의자를 그리는 쪽(RoomFurniture), 앉는 자리(seats), 발자국(아래
+ * ROOM_COLLIDERS)이 같은 수를 봐야 해서 여기 둔다.
+ *
+ * 원래 1.05×1.05에 높이 0.75였는데, 그 위에 앉히면 캐릭터가 좌면 앞턱에 걸터앉는
+ * 그림밖에 안 나왔다 — 이 리그는 엉덩이에서 무릎까지가 0.27뿐이라 좌면 절반도 못
+ * 채운다. 앉은 몸에 맞춰 줄였다: 이제 엉덩이가 좌면 가운데 언저리에 온다.
+ */
+export const CHAIR_SEAT = { half: 0.43, topY: 0.68, thickness: 0.14 } as const;
+
+/**
  * 의자를 책상에서 끌어낸 양. 책상은 의자의 -x 쪽에 있으므로 +x로 물러난다.
  *
  * 거리를 크게 잡지 않는 이유: ROOM_COLLIDERS의 의자 박스는 고정이라 의자만 움직이면
@@ -138,8 +148,8 @@ export const ROOM_COLLIDERS = [
   { minX: 3, maxX: 6.3, minZ: 0.1, maxZ: 5.6 }, // bed
   { minX: 0.15, maxX: 4.7, minZ: -3.35, maxZ: -2.25 }, // cabinet
   { minX: 6.3, maxX: 7.25, minZ: 0.3, maxZ: 1.2 }, // nightstand
-  // 의자 — CHAIR_POSITION의 좌석/등받이 발자국(±0.525)에서 살짝 안쪽으로 잡는다
-  { minX: -3.78, maxX: -2.82, minZ: -1.68, maxZ: -0.72 }, // chair
+  // 의자 — CHAIR_POSITION의 좌석/등받이 발자국(±CHAIR_SEAT.half)에서 살짝 안쪽으로 잡는다
+  { minX: -3.685, maxX: -2.915, minZ: -1.585, maxZ: -0.815 }, // chair
 ] as const satisfies readonly Aabb2[];
 
 /**

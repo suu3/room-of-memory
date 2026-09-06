@@ -9,6 +9,7 @@ import {
   CAMERA_PRESETS,
   CHAIR_POSITION,
   CHAIR_PULL,
+  CHAIR_SEAT,
   DESK_ROTATION,
   DOORWAY_ZONE,
   DRAWER_NOTE,
@@ -187,11 +188,13 @@ describe("memory-room layout", () => {
 
     expect(chair).toBeDefined();
     expect(isWalkable(CHAIR_POSITION[0], CHAIR_POSITION[2])).toBe(false);
-    // 좌석 발자국(±0.525)을 실제로 덮되 통로를 다 막을 만큼 부풀지 않는다
-    expect(chair?.maxX ?? 0).toBeGreaterThan(CHAIR_POSITION[0] + 0.4);
-    expect(chair?.minX ?? 0).toBeLessThan(CHAIR_POSITION[0] - 0.4);
-    expect(chair?.maxZ ?? 0).toBeGreaterThan(CHAIR_POSITION[2] + 0.4);
-    expect(chair?.minZ ?? 0).toBeLessThan(CHAIR_POSITION[2] - 0.4);
+    // 좌석 발자국(±CHAIR_SEAT.half)을 거의 다 덮되 통로를 막을 만큼 부풀지 않는다
+    const cover = CHAIR_SEAT.half - 0.06;
+    expect(chair?.maxX ?? 0).toBeGreaterThan(CHAIR_POSITION[0] + cover);
+    expect(chair?.minX ?? 0).toBeLessThan(CHAIR_POSITION[0] - cover);
+    expect(chair?.maxZ ?? 0).toBeGreaterThan(CHAIR_POSITION[2] + cover);
+    expect(chair?.minZ ?? 0).toBeLessThan(CHAIR_POSITION[2] - cover);
+    expect(chair?.maxX ?? 0).toBeLessThan(CHAIR_POSITION[0] + CHAIR_SEAT.half);
   });
 
   it("keeps every memory reachable without entering furniture", () => {
@@ -287,7 +290,7 @@ describe("memory-room layout", () => {
  * 눈에 띄지 않는 범위인지를 여기서 지킨다.
  */
 describe("pulled furniture", () => {
-  const CHAIR_SEAT_HALF = 0.525;
+  const CHAIR_SEAT_HALF = CHAIR_SEAT.half;
 
   it("keeps a fully open cabinet drawer inside the room", () => {
     // 캐비닛 몸통 앞면 + 나온 거리. 뒷벽 쪽 가구라 방 안으로만 나온다.

@@ -60,7 +60,7 @@ export function CharacterModelViewer() {
   }, []);
 
   return (
-    <figure className="mx-auto mt-8 w-full max-w-md">
+    <figure className="mt-8 w-full">
       {/*
         모눈 종이 위에 붙인 표본 칸. 뒤에 깔린 종이가 비쳐야 수첩에 끼운 것으로 읽혀서
         배경을 채우지 않는다 (Canvas도 alpha로 띄운다).
@@ -72,7 +72,7 @@ export function CharacterModelViewer() {
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        className="h-64 w-full cursor-grab touch-none rounded-lg border border-ink/10 bg-bone/25 active:cursor-grabbing sm:h-72"
+        className="h-72 w-full cursor-grab touch-none rounded-lg border border-ink/10 bg-bone/25 active:cursor-grabbing sm:h-96"
       >
         <CharacterTurntable yawRef={yawRef} touchedAtRef={touchedAtRef} pose={pose} />
       </div>

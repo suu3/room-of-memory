@@ -5,6 +5,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 import { type Group, MathUtils, Plane, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import {
   CURTAIN_TAP_SLOP,
   CURTAIN_X,
@@ -20,6 +21,7 @@ import {
   CABINET_TOP_Y,
   CHAIR_POSITION,
   CHAIR_ROTATION,
+  CHAIR_SEAT,
   DESK_POSITION,
   DESK_ROTATION,
   DRAWER_TRAVEL,
@@ -85,16 +87,28 @@ const DESK_PARTS = [
   { size: [1.3, 0.46, 1.4], position: [-1.05, 0.7, 0], color: "slate" },
 ] as const satisfies readonly BoxPart[];
 
-// 다리는 좌석 안으로, 등받이는 좌석 안으로 각각 파고든다.
+// 다리는 좌석 안으로, 등받이는 좌석 안으로 각각 파고든다. 좌면 치수는 layout의
+// CHAIR_SEAT — 앉는 자리(seats)와 발자국이 같은 수를 봐야 한다.
+const CHAIR_WIDTH = CHAIR_SEAT.half * 2;
+const CHAIR_SEAT_Y = CHAIR_SEAT.topY - CHAIR_SEAT.thickness / 2;
+const CHAIR_LEG_INSET = CHAIR_SEAT.half - 0.1;
 const CHAIR_PARTS = [
-  { size: [1.05, 0.16, 1.05], position: [0, 0.67, 0], color: "ink" },
-  { size: [0.14, 0.64, 0.14], position: [-0.41, 0.32, -0.41], color: "slate" },
-  { size: [0.14, 0.64, 0.14], position: [0.41, 0.32, -0.41], color: "slate" },
-  { size: [0.14, 0.64, 0.14], position: [-0.41, 0.32, 0.41], color: "slate" },
-  { size: [0.14, 0.64, 0.14], position: [0.41, 0.32, 0.41], color: "slate" },
-  // 등받이 뒷면(0.545)을 좌석 모서리(0.525) 뒤로 뺀다 — 두 면이 같은 평면에
+  {
+    size: [CHAIR_WIDTH, CHAIR_SEAT.thickness, CHAIR_WIDTH],
+    position: [0, CHAIR_SEAT_Y, 0],
+    color: "ink",
+  },
+  {
+    size: [0.12, 0.58, 0.12],
+    position: [-CHAIR_LEG_INSET, 0.29, -CHAIR_LEG_INSET],
+    color: "slate",
+  },
+  { size: [0.12, 0.58, 0.12], position: [CHAIR_LEG_INSET, 0.29, -CHAIR_LEG_INSET], color: "slate" },
+  { size: [0.12, 0.58, 0.12], position: [-CHAIR_LEG_INSET, 0.29, CHAIR_LEG_INSET], color: "slate" },
+  { size: [0.12, 0.58, 0.12], position: [CHAIR_LEG_INSET, 0.29, CHAIR_LEG_INSET], color: "slate" },
+  // 등받이 뒷면(0.45)을 좌석 모서리(0.43) 뒤로 뺀다 — 두 면이 같은 평면에
   // 놓이면 z-fighting으로 깜빡인다 (위 겹침 원칙)
-  { size: [1.05, 0.79, 0.16], position: [0, 1.06, 0.465], color: "dusk" },
+  { size: [CHAIR_WIDTH, 0.68, 0.14], position: [0, 0.96, 0.38], color: "dusk" },
 ] as const satisfies readonly BoxPart[];
 
 // 몸통 앞면 z=-2.53. 서랍판은 그 면을 물고, 손잡이는 서랍판 앞에 0.015 띄운다.
@@ -552,12 +566,21 @@ function Curtain({
   const releaseRef = useRef(onRelease);
   releaseRef.current = onRelease;
 
+  /*
+   * 커튼을 잡으면 캐릭터가 양팔을 든다 — 창가에 서 있을 때만이다. 방 저쪽에서 끌면
+   * 손이 닿을 리 없는 자리에서 팔만 들린다.
+   */
+  const setReach = useMemoryRoomStore((state) => state.setReach);
+  const nearRef = useRef(near);
+  nearRef.current = near;
+
   const endDrag = useCallback(() => {
     const drag = dragRef.current;
     if (!drag) return;
     dragRef.current = null;
+    setReach(false);
     releaseRef.current(side, !drag.moved);
-  }, [side]);
+  }, [side, setReach]);
 
   // 캔버스 밖에서 손을 떼도 커튼이 끌린 채로 굳지 않게 하는 안전망.
   useEffect(() => {
@@ -592,6 +615,7 @@ function Curtain({
         const startX = curtainPlaneX(event.ray);
         if (startX === null) return;
         dragRef.current = { pointerId: event.pointerId, startX, from: progress, moved: false };
+        if (nearRef.current) setReach(true);
       }}
       onPointerMove={(event) => {
         const drag = dragRef.current;

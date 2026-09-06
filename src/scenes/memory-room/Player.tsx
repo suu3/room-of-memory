@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { type Group, MathUtils, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
-import { selectSceneInputLocked, useMemoryRoomStore } from "@/store/memory-room";
+import { isReaching, selectSceneInputLocked, useMemoryRoomStore } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
 import {
   DOORWAY_ZONE,
@@ -24,7 +24,7 @@ import {
 import { captureMovementKeyDown, MOVEMENT_KEYS, resolveMovementInput } from "./player-input";
 import { STEP_RATE } from "./player-rig";
 import { SEATS, type Seat } from "./seats";
-import { advanceSitProgress, lerp, lerpAngle, sitEase } from "./sit-motion";
+import { advanceSitPhases, lerp, lerpAngle, type SitPhases, sitEase } from "./sit-motion";
 import { moveThroughZones, type Vec2 } from "./spatial";
 
 /** 발이 바닥에 닿는 높이. 충돌·근접 판정은 x/z만 보므로 y는 순수 시각값이다. */
@@ -36,6 +36,8 @@ const MAX_FRAME_DELTA = 0.05;
 const TURN_LAMBDA = 11;
 /** 걷기 강도가 붙고 빠지는 속도. 낮추면 멈춘 뒤에도 다리가 한참 흔들린다. */
 const WALK_BLEND_LAMBDA = 12;
+/** 팔이 올라가고 내려오는 속도. 걷기보다 느긋해야 손을 뻗는 동작으로 읽힌다. */
+const REACH_LAMBDA = 7;
 const cameraForward = new Vector3();
 const cameraRight = new Vector3();
 
@@ -72,20 +74,26 @@ export function Player({
   const resolvedInputRef = useRef<MovementAxes>({ horizontal: 0, vertical: 0 });
   const phaseRef = useRef(0);
   const walkRef = useRef(0);
+  const reachRef = useRef(0);
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
   /*
    * 앉기.
    *
-   * 자리는 스토어가 갖고(가구가 앉힌다), 몸이 그 자리로 미끄러지는 건 여기서 한다.
-   * `standing`은 앉기 직전에 서 있던 자리다 — 일어서면 정확히 거기로 돌아간다.
-   * 좌석은 콜라이더 안(의자 위)이라, 일어설 자리를 새로 찾는 대신 왔던 자리를 기억하는
-   * 편이 확실하다.
+   * 자리는 스토어가 갖고(가구가 앉힌다), 몸이 거기까지 가는 건 여기서 한다 — **걸어가서**
+   * 앉고, 일어선 다음 걸어 돌아온다 (sit-motion의 advanceSitPhases).
+   *
+   * `standing`은 앉기 직전에 서 있던 자리다. 좌석은 콜라이더 안(의자 위)이라 일어설
+   * 자리를 새로 찾는 대신 왔던 자리를 기억하는 편이 확실하다.
    */
   const seatedAt = useMemoryRoomStore((state) => state.seatedAt);
-  const sitRef = useRef(0);
-  const seatRef = useRef<{ seat: Seat; standing: { x: number; z: number; facing: number } } | null>(
-    null,
-  );
+  const phasesRef = useRef<SitPhases>({ travel: 0, sit: 0 });
+  const seatRef = useRef<{
+    seat: Seat;
+    standing: { x: number; z: number; facing: number };
+    /** 자리까지 걷는 데 걸리는 시간(초)과 걸어가는 방향. */
+    travelSeconds: number;
+    approach: number;
+  } | null>(null);
   const { scene, animations } = useGLTF(ASSETS.models.playerBlocky, true, true);
   const rig = useMemo(() => createPlayerRig(scene, animations), [scene, animations]);
 
@@ -111,8 +119,10 @@ export function Player({
     if (group) group.position.copy(PLAYER_START);
     if (facingRef.current) facingRef.current.rotation.y = 0;
     walkRef.current = 0;
+    reachRef.current = 0;
     phaseRef.current = 0;
-    sitRef.current = 0;
+    phasesRef.current.travel = 0;
+    phasesRef.current.sit = 0;
     seatRef.current = null;
     updatePlayerRig(rig, 0, 0, 0);
   }, [resetRevision, positionRef, rig]);
@@ -126,9 +136,16 @@ export function Player({
     const group = groupRef.current;
     const facing = facingRef.current;
     if (!group || !facing) return;
+    const seat = SEATS[seatedAt];
+    const toSeatX = seat.anchor.x - group.position.x;
+    const toSeatZ = seat.anchor.z - group.position.z;
+    const distance = Math.hypot(toSeatX, toSeatZ);
     seatRef.current = {
-      seat: SEATS[seatedAt],
+      seat,
       standing: { x: group.position.x, z: group.position.z, facing: facing.rotation.y },
+      // 한 걸음도 안 되는 거리면 걷는 시늉을 하지 않는다 — 제자리걸음이 더 어색하다.
+      travelSeconds: distance < 0.25 ? 0 : distance / PLAYER_SPEED,
+      approach: Math.atan2(toSeatX, toSeatZ),
     };
   }, [seatedAt]);
 
@@ -189,8 +206,11 @@ export function Player({
      */
     const seated = useMemoryRoomStore.getState().seatedAt !== null;
     if (seated && moving) useMemoryRoomStore.getState().standUp();
-    sitRef.current = advanceSitProgress(sitRef.current, seated, step);
-    const sitting = sitRef.current > 0;
+    const parked = seatRef.current;
+    const phases = parked
+      ? advanceSitPhases(phasesRef.current, seated, step, parked.travelSeconds, phasesRef.current)
+      : phasesRef.current;
+    const sitting = phases.travel > 0 || phases.sit > 0;
 
     if (moving && !seated && !sitting) {
       camera.getWorldDirection(cameraForward);
@@ -235,25 +255,47 @@ export function Player({
     }
 
     /*
-     * 앉는 동안의 몸. 자세(Idle↔Sit 가중치)와 자리를 같은 진행도로 옮긴다 — 따로 굴리면
-     * 다 앉은 몸이 아직 의자 옆에 서 있거나, 자리에 도착한 몸이 뒤늦게 접힌다.
+     * 자리로 가고 앉는 동안의 몸.
+     *
+     * 걷는 구간에서는 실제로 간 거리로 보폭을 돌린다 (평소 이동과 같은 계산) — 다리를
+     * 멈춘 채 미끄러져 들어가면 앉는 자세보다 그 미끄러짐이 먼저 눈에 걸린다.
+     * 앉는 구간에서만 몸이 좌면 높이로 내려앉고 의자 쪽으로 돌아선다.
      */
-    const eased = sitEase(sitRef.current);
-    const parked = seatRef.current;
+    const sitting01 = sitEase(phases.sit);
     if (parked) {
       const { anchor, bodyY, facing: seatFacing } = parked.seat;
-      const { standing } = parked;
-      group.position.x = lerp(standing.x, anchor.x, eased);
-      group.position.z = lerp(standing.z, anchor.z, eased);
-      group.position.y = lerp(0, bodyY, eased);
-      facing.rotation.y = lerpAngle(standing.facing, seatFacing, eased);
+      const { standing, approach } = parked;
+      const eased = sitEase(phases.travel);
+      const nextX = lerp(standing.x, anchor.x, eased);
+      const nextZ = lerp(standing.z, anchor.z, eased);
+      const traveled = Math.hypot(nextX - group.position.x, nextZ - group.position.z);
+      group.position.x = nextX;
+      group.position.z = nextZ;
+      group.position.y = lerp(0, bodyY, sitting01);
+      // 걸어갈 때는 가는 쪽을 보고(돌아올 때는 그 반대), 앉으면서 의자 쪽으로 돌아앉는다.
+      const walkFacing = seated ? approach : approach + Math.PI;
+      facing.rotation.y =
+        phases.sit > 0
+          ? lerpAngle(walkFacing, seatFacing, sitting01)
+          : dampAngle(facing.rotation.y, walkFacing, TURN_LAMBDA, delta);
       positionRef.current.copy(group.position);
-      // 다 일어섰으면 좌석을 놓는다 — 다음 걸음부터는 평소의 이동 경로로 돌아간다.
-      if (!seated && sitRef.current === 0) seatRef.current = null;
+      speed = step > 0 ? Math.min(1, traveled / (PLAYER_SPEED * step)) : 0;
+      phaseRef.current += STEP_RATE * traveled;
+      // 다 일어서서 제자리로 돌아왔으면 좌석을 놓는다 — 다음 걸음부터는 평소의 이동 경로다.
+      if (!seated && phases.travel === 0 && phases.sit === 0) seatRef.current = null;
     }
 
+    // 커튼을 잡고 있으면 양팔을 든다. 구독하지 않고 프레임마다 읽는다 — 드래그 한 번에
+    // 수십 번 바뀌는 값이라 구독하면 씬이 그만큼 리렌더된다.
+    reachRef.current = MathUtils.damp(
+      reachRef.current,
+      isReaching(useMemoryRoomStore.getState()) ? 1 : 0,
+      REACH_LAMBDA,
+      delta,
+    );
+
     walkRef.current = MathUtils.damp(walkRef.current, speed, WALK_BLEND_LAMBDA, delta);
-    updatePlayerRig(rig, phaseRef.current, walkRef.current, step, eased);
+    updatePlayerRig(rig, phaseRef.current, walkRef.current, step, sitting01, reachRef.current);
   });
 
   return (

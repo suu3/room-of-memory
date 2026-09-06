@@ -173,6 +173,15 @@ interface MemoryRoomState {
    */
   seatedAt: SeatId | null;
   /**
+   * 지금 손을 뻗고 있는가 — 커튼을 잡고 젖히는 동안 캐릭터가 양팔을 든다.
+   *
+   * 잡고 있는 동안은 `reachHeld`, 놓은 뒤에는 `reachUntil`까지 팔이 남는다 (탭으로
+   * 한 번에 젖힐 때는 잡는 순간이 짧아서, 팔이 올라가자마자 내려오면 든 줄도 모른다).
+   * 아무도 구독하지 않는다 — Player가 프레임마다 getState로 읽고 지나간다.
+   */
+  reachHeld: boolean;
+  reachUntil: number;
+  /**
    * 지금 들여다보고 있는 단서 (책상 위 기록 노트 · 서랍 속 쪽지).
    *
    * 전등 스위치와 같은 배경 오브젝트라 진행에는 아무것도 남기지 않는다 — 저장도
@@ -240,6 +249,8 @@ interface MemoryRoomState {
   sitOnSeat: (id: SeatId) => void;
   /** 일어선다 — 앉기 전 서 있던 자리로 돌아간다 (몸의 자리는 Player가 기억한다). */
   standUp: () => void;
+  /** 커튼을 잡았다/놓았다. 놓아도 팔은 잠깐 더 남는다. */
+  setReach: (held: boolean) => void;
   /** 미궁 문제를 붙잡는다. 이미 푼 문제나 다른 화면이 떠 있으면 아무 일도 없다. */
   openPuzzle: (id: PuzzleId) => void;
   /** 풀지 않고 내려놓는다 — 물건은 다시 클릭할 수 있다. */
@@ -583,6 +594,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       endingStarted: false,
       inLivingRoom: false,
       seatedAt: null,
+      reachHeld: false,
+      reachUntil: 0,
       activeClue: null,
       activePuzzle: null,
       solvedPuzzles: [],
@@ -748,6 +761,10 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           state.seatedAt === id || selectSceneInputLocked(state) ? state : { seatedAt: id },
         ),
       standUp: () => set((state) => (state.seatedAt === null ? state : { seatedAt: null })),
+      setReach: (held) =>
+        set(() =>
+          held ? { reachHeld: true } : { reachHeld: false, reachUntil: Date.now() + 600 },
+        ),
       openPuzzle: (id) =>
         set((state) => {
           // 다른 화면(대사·미니게임·재생·단서)이 떠 있으면 위에 얹지 않는다
@@ -791,6 +808,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           endingStarted: false,
           inLivingRoom: false,
           seatedAt: null,
+          reachHeld: false,
+          reachUntil: 0,
           activeClue: null,
           activePuzzle: null,
           solvedPuzzles: [],
@@ -847,6 +866,10 @@ export const selectBatReady = (state: Pick<MemoryRoomState, "revisited" | "batTa
   state.revisited.includes(ACT2_FINAL_MEMORY) && !state.batTaken;
 
 /** 배트를 쥐었는가 — 현관문이 이걸 본다. */
+/** 팔을 들고 있어야 하는가 — Player가 프레임마다 본다 (구독하지 않는다). */
+export const isReaching = (state: MemoryRoomState) =>
+  state.reachHeld || Date.now() < state.reachUntil;
+
 export const selectBatTaken = (state: MemoryRoomState) => state.batTaken;
 
 /** 방문이 열려 있는가 — 걷기 영역과 문짝 회전이 같이 본다. */
