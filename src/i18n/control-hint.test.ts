@@ -39,7 +39,7 @@ describe("useControlHint", () => {
   it("names the keys on a mouse-and-keyboard device", () => {
     const { result } = renderHook(() => useControlHint());
 
-    expect(result.current("titleScreen.howToMove")).toBe("이동 WASD");
+    expect(result.current("titleScreen.howToMove")).toBe("이동 클릭 · WASD");
     expect(result.current("minigame.ballCatch.prompt")).toBe("SPACE");
   });
 
@@ -47,7 +47,7 @@ describe("useControlHint", () => {
     stubPointer(true);
     const { result } = renderHook(() => useControlHint());
 
-    expect(result.current("titleScreen.howToMove")).toBe("이동 왼쪽 아래 조이스틱");
+    expect(result.current("titleScreen.howToMove")).toBe("이동 바닥 탭 · 조이스틱");
     expect(result.current("minigame.ballCatch.prompt")).toBe("터치");
   });
 
@@ -63,6 +63,6 @@ describe("useControlHint", () => {
     vi.stubGlobal("matchMedia", undefined);
     const { result } = renderHook(() => useControlHint());
 
-    expect(result.current("titleScreen.howToMove")).toBe("이동 WASD");
+    expect(result.current("titleScreen.howToMove")).toBe("이동 클릭 · WASD");
   });
 });

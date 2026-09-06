@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import { MovementJoystick } from "@/components/ui/MovementJoystick";
 import { RoomInteractionPrompt } from "@/components/ui/RoomInteractionPrompt";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
-import { useControlHint } from "@/i18n/control-hint";
+import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
 import {
@@ -98,6 +98,8 @@ export function RoomCanvas() {
   const { t: tRoom } = useTranslation("memoryRoom");
   // 키 안내는 기기를 따라간다 — 폰에는 누를 E도 WASD도 없다.
   const hint = useControlHint();
+  // 조이스틱은 손가락용이다. 마우스는 바닥을 눌러 걷고, 키보드는 그대로 남는다.
+  const pointerKind = usePointerKind();
   const playerPositionRef = useRef(PLAYER_START.clone());
   const movementInputRef = useRef<MovementAxes>({ horizontal: 0, vertical: 0 });
   const nearbyMemoryIdRef = useRef<MemoryId | null>(null);
@@ -516,12 +518,14 @@ export function RoomCanvas() {
         statuses={statuses}
         onInteract={interact}
       />
-      <MovementJoystick
-        inputRef={movementInputRef}
-        disabled={inputLocked}
-        label={hint("scene.moveHint")}
-        caption={t("scene.moveCaption")}
-      />
+      {pointerKind === "touch" && (
+        <MovementJoystick
+          inputRef={movementInputRef}
+          disabled={inputLocked}
+          label={hint("scene.moveHint")}
+          caption={t("scene.moveCaption")}
+        />
+      )}
     </div>
   );
 }

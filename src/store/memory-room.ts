@@ -184,6 +184,14 @@ interface MemoryRoomState {
    */
   warpTarget: { x: number; z: number } | null;
   /**
+   * 바닥을 눌러 걸어갈 자리 (없으면 걷고 있지 않다).
+   *
+   * 마우스만 쥔 사람의 이동 수단이다 — 이 방의 조작은 전부 "누르면 걸어가서 한다"
+   * (기억·의자·커튼·침대)라 바닥도 같은 규칙을 따른다. 도착하거나 막히거나 키로
+   * 걷기 시작하면 Player가 지운다. 위치와 같은 성격이라 저장하지 않는다.
+   */
+  walkTarget: { x: number; z: number } | null;
+  /**
    * 커튼을 잡는 몸짓 (없으면 잡고 있지 않다).
    *
    * 잡으면 Player가 창가로 **걸어가서** 벽을 보고 서고, 그제야(`arrived`) 팔을 들어
@@ -260,6 +268,10 @@ interface MemoryRoomState {
   sitOnSeat: (id: SeatId) => void;
   /** 일어선다 — 앉기 전 서 있던 자리로 돌아간다 (몸의 자리는 Player가 기억한다). */
   standUp: () => void;
+  /** 바닥의 (x, z)로 걸어간다. 앉아 있으면 일어나고, 커튼 몸짓은 접는다. 시작 전·대사 중이면 무시. */
+  walkTo: (x: number, z: number) => void;
+  /** 도착했거나 막혔거나 다른 입력이 끼어들었다 — Player만 부른다. */
+  clearWalk: () => void;
   /** 커튼을 잡는다 — 몸이 창가로 간다. 앉아 있거나 대사·미니게임이 떠 있으면 아무 일도 없다. */
   grabCurtain: (side: CurtainSide) => void;
   /** 커튼을 놓는다. 팔은 잠깐 더 남는다 (Player가 내린다). */
@@ -614,6 +626,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       inLivingRoom: false,
       seatedAt: null,
       warpTarget: null,
+      walkTarget: null,
       curtainGrab: null,
       activeClue: null,
       activePuzzle: null,
@@ -781,7 +794,15 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         ),
       standUp: () => set((state) => (state.seatedAt === null ? state : { seatedAt: null })),
       // 앉은 채로 옮기면 몸만 가고 의자는 남는다 — 옮기기 전에 일어선다.
-      warpPlayer: (x, z) => set({ warpTarget: { x, z }, seatedAt: null, curtainGrab: null }),
+      warpPlayer: (x, z) =>
+        set({ warpTarget: { x, z }, seatedAt: null, curtainGrab: null, walkTarget: null }),
+      walkTo: (x, z) =>
+        set((state) =>
+          !state.started || selectSceneInputLocked(state)
+            ? state
+            : { walkTarget: { x, z }, seatedAt: null, curtainGrab: null },
+        ),
+      clearWalk: () => set((state) => (state.walkTarget ? { walkTarget: null } : state)),
       grabCurtain: (side) =>
         set((state) =>
           state.seatedAt !== null || selectSceneInputLocked(state)
@@ -843,6 +864,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           inLivingRoom: false,
           seatedAt: null,
           warpTarget: null,
+          walkTarget: null,
           curtainGrab: null,
           activeClue: null,
           activePuzzle: null,

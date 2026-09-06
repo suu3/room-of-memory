@@ -1,13 +1,14 @@
 "use client";
 
-import { useFrame } from "@react-three/fiber";
-import { type MutableRefObject, useMemo, useRef } from "react";
+import { type ThreeEvent, useFrame } from "@react-three/fiber";
+import { type MutableRefObject, useCallback, useMemo, useRef } from "react";
 import {
   type AmbientLight,
   type DirectionalLight,
   MathUtils,
+  Plane,
   type PointLight,
-  type Vector3,
+  Vector3,
 } from "three";
 import type { MemoryId } from "@/data/memory-room";
 import {
@@ -43,6 +44,10 @@ import {
   roomLightValue,
 } from "./memory-room/visual-state";
 import { WindowLight } from "./memory-room/WindowLight";
+
+/** 바닥 평면(y=0). 클릭한 곳이 상판이든 벽이든, 광선이 이 평면과 만나는 자리로 걸어간다. */
+const FLOOR_PLANE = new Plane(new Vector3(0, 1, 0), 0);
+const floorHit = new Vector3();
 
 function StageLighting({
   lightLevel,
@@ -165,6 +170,19 @@ export function MemoryRoomScene({
   const collectedCount = useMemoryRoomStore(selectCollectedCount);
   const recovery = useMemoryRoomStore(selectActTwoProgress);
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
+  const walkTo = useMemoryRoomStore((state) => state.walkTo);
+  /*
+   * 바닥을 누르면 걸어간다. 만질 수 있는 것(기억·의자·커튼·문·스위치)은 저마다 클릭을
+   * 멈추므로(stopPropagation) 여기까지 오는 클릭은 "그냥 어딘가를 눌렀다"다. 카메라를
+   * 끄는 드래그는 RoomCanvas가 뒤따르는 click을 삼켜서 여기 오지 않는다.
+   */
+  const handleFloorClick = useCallback(
+    (event: ThreeEvent<MouseEvent>) => {
+      if (!event.ray.intersectPlane(FLOOR_PLANE, floorHit)) return;
+      walkTo(floorHit.x, floorHit.z);
+    },
+    [walkTo],
+  );
   const roomLight = roomLightLevel({
     collected: collectedCount,
     memoryTotal: MEMORY_TOTAL,
@@ -204,43 +222,46 @@ export function MemoryRoomScene({
           단면도가 된다 — 지금 서 있는 공간만 서 있고, 문턱을 넘는 순간 바뀐다.
           숨긴 방의 인터랙션은 근접 판정이 어차피 막는다 (다가갈 수 없는 거리다).
         */}
-        <group visible={!inLivingRoom}>
-          <RoomShell
-            palette={palette}
-            doorOpen={doorOpened}
-            outsideDecay={outsideDecay({
-              collected: collectedCount,
-              memoryTotal: MEMORY_TOTAL,
-              phase: gamePhase,
-            })}
-          />
-          {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
-          <RoomDecor palette={palette} />
-          <RoomFurniture
-            palette={palette}
-            curtainPull={curtainPull}
-            onCurtainPull={onCurtainPull}
-            onCurtainRelease={onCurtainRelease}
-          />
-          <MemoryObjects
-            space="room"
-            palette={palette}
-            nearbyMemoryId={nearbyMemoryId}
-            onInteract={onInteract}
-          />
-        </group>
-        {/* 방문 너머 — 2막에 문이 열리면 걸어 나갈 수 있다 */}
-        <group visible={inLivingRoom}>
-          <LivingRoomShell palette={palette} />
-          <LivingRoomFurniture palette={palette} />
-          <MemoryObjects
-            space="living"
-            palette={palette}
-            nearbyMemoryId={nearbyMemoryId}
-            onInteract={onInteract}
-          />
-          {/* 현관 옆 배트 — 앰플을 쥐면 켜지는 3막 트리거 */}
-          <EndingTrigger palette={palette} />
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
+        <group name="walkable" onClick={handleFloorClick}>
+          <group visible={!inLivingRoom}>
+            <RoomShell
+              palette={palette}
+              doorOpen={doorOpened}
+              outsideDecay={outsideDecay({
+                collected: collectedCount,
+                memoryTotal: MEMORY_TOTAL,
+                phase: gamePhase,
+              })}
+            />
+            {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
+            <RoomDecor palette={palette} />
+            <RoomFurniture
+              palette={palette}
+              curtainPull={curtainPull}
+              onCurtainPull={onCurtainPull}
+              onCurtainRelease={onCurtainRelease}
+            />
+            <MemoryObjects
+              space="room"
+              palette={palette}
+              nearbyMemoryId={nearbyMemoryId}
+              onInteract={onInteract}
+            />
+          </group>
+          {/* 방문 너머 — 2막에 문이 열리면 걸어 나갈 수 있다 */}
+          <group visible={inLivingRoom}>
+            <LivingRoomShell palette={palette} />
+            <LivingRoomFurniture palette={palette} />
+            <MemoryObjects
+              space="living"
+              palette={palette}
+              nearbyMemoryId={nearbyMemoryId}
+              onInteract={onInteract}
+            />
+            {/* 현관 옆 배트 — 앰플을 쥐면 켜지는 3막 트리거 */}
+            <EndingTrigger palette={palette} />
+          </group>
         </group>
       </MemoryGlowRoot>
       {/*

@@ -87,6 +87,47 @@ describe("앉기", () => {
   });
 });
 
+describe("바닥 클릭 이동", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("시작한 뒤에만 목표가 잡히고, 앉아 있던 몸은 일어나고 커튼 몸짓은 접힌다", () => {
+    const store = useMemoryRoomStore.getState();
+    store.walkTo(1, 2);
+    expect(useMemoryRoomStore.getState().walkTarget).toBe(null);
+
+    store.startGame();
+    store.sitOnSeat("desk-chair");
+    store.walkTo(1, 2);
+    expect(useMemoryRoomStore.getState().walkTarget).toEqual({ x: 1, z: 2 });
+    expect(useMemoryRoomStore.getState().seatedAt).toBe(null);
+
+    store.grabCurtain("left");
+    store.walkTo(3, 4);
+    expect(useMemoryRoomStore.getState().curtainGrab).toBe(null);
+    expect(useMemoryRoomStore.getState().walkTarget).toEqual({ x: 3, z: 4 });
+
+    store.clearWalk();
+    expect(useMemoryRoomStore.getState().walkTarget).toBe(null);
+  });
+
+  it("대사 중이면 걷지 않고, 워프·리셋은 목표를 지운다", () => {
+    const store = useMemoryRoomStore.getState();
+    store.startGame();
+    store.setUiLock("character-sheet", true);
+    store.walkTo(1, 2);
+    expect(useMemoryRoomStore.getState().walkTarget).toBe(null);
+    store.setUiLock("character-sheet", false);
+
+    store.walkTo(1, 2);
+    store.warpPlayer(0, 0);
+    expect(useMemoryRoomStore.getState().walkTarget).toBe(null);
+
+    store.walkTo(1, 2);
+    store.reset();
+    expect(useMemoryRoomStore.getState().walkTarget).toBe(null);
+  });
+});
+
 describe("커튼 잡기", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 

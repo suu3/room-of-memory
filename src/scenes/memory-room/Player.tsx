@@ -35,6 +35,7 @@ import {
   sitEase,
 } from "./sit-motion";
 import { moveThroughZones, type Vec2 } from "./spatial";
+import { isWalkBlocked, stepToward } from "./walk-to";
 
 /** 발이 바닥에 닿는 높이. 충돌·근접 판정은 x/z만 보므로 y는 순수 시각값이다. */
 export const PLAYER_START = new Vector3(0, 0, 2.35);
@@ -121,6 +122,15 @@ export function Player({
    * 남는다 — 커튼을 젖히고 창밖을 보는 자리라 돌아올 이유가 없다.
    */
   const curtainGrab = useMemoryRoomStore((state) => state.curtainGrab);
+  /*
+   * 바닥 클릭으로 걷기. 목표는 스토어가 들고(바닥이 준다) 걸음은 여기서 뗀다 — 키·조이스틱과
+   * 같은 이동 경로(moveThroughZones)를 타서 가구에 걸리면 미끄러지다 서고, 키를 누르면 잊는다.
+   */
+  const walkTarget = useMemoryRoomStore((state) => state.walkTarget);
+  const walkTargetRef = useRef<Vec2 | null>(null);
+  useEffect(() => {
+    walkTargetRef.current = walkTarget ? { x: walkTarget.x, z: walkTarget.z } : null;
+  }, [walkTarget]);
   const grabRef = useRef<{
     standing: { x: number; z: number };
     travelSeconds: number;
@@ -161,6 +171,7 @@ export function Player({
     phasesRef.current.sit = 0;
     seatRef.current = null;
     grabRef.current = null;
+    walkTargetRef.current = null;
     updatePlayerRig(rig, 0, 0, 0);
   }, [resetRevision, positionRef, rig]);
 
@@ -181,6 +192,7 @@ export function Player({
     useMemoryRoomStore.getState().setInLivingRoom(warpTarget.x < ROOM_SHELL_BOUNDS.minX);
     seatRef.current = null;
     grabRef.current = null;
+    walkTargetRef.current = null;
     if (lieRef.current) lieRef.current.rotation.x = 0;
     phasesRef.current.travel = 0;
     phasesRef.current.sit = 0;
@@ -323,17 +335,17 @@ export function Player({
     const grab = grabRef.current;
     const grabState = grab ? useMemoryRoomStore.getState().curtainGrab : null;
 
-    if (moving && !seated && !sitting) {
-      camera.getWorldDirection(cameraForward);
-      cameraForward.y = 0;
-      cameraForward.normalize();
-      cameraRight.crossVectors(cameraForward, camera.up).normalize();
+    // 키·조이스틱으로 걷기 시작하면 클릭 목표는 잊는다 — 손이 직접 잡은 쪽이 우선이다.
+    if (moving && walkTargetRef.current) {
+      walkTargetRef.current = null;
+      useMemoryRoomStore.getState().clearWalk();
+    }
 
-      const frameDistance = PLAYER_SPEED * step;
-      const movementDelta = deltaRef.current;
-      movementDelta.x = (cameraRight.x * horizontal + cameraForward.x * vertical) * frameDistance;
-      movementDelta.z = (cameraRight.z * horizontal + cameraForward.z * vertical) * frameDistance;
-
+    /**
+     * 몸을 `movementDelta`만큼 옮긴다 (가구·벽에 걸리면 미끄러진다). 키 이동과 클릭 이동이
+     * 같은 길을 타야 한다 — 실제로 간 거리를 돌려주고, 걸음 애니메이션은 그 거리로 돈다.
+     */
+    const walkBy = (movementDelta: Vec2): number => {
       const origin = originRef.current;
       origin.x = group.position.x;
       origin.z = group.position.z;
@@ -362,7 +374,34 @@ export function Player({
       // 조이스틱은 아날로그라 살살 밀면 천천히 간다 — 보폭도 같이 느려져야 발이 안 미끄러진다.
       const traveled = Math.hypot(result.x - origin.x, result.z - origin.z);
       speed = step > 0 ? Math.min(1, traveled / (PLAYER_SPEED * step)) : 0;
-      phaseRef.current += STEP_RATE * PLAYER_SPEED * speed * step;
+      phaseRef.current += STEP_RATE * traveled;
+      return traveled;
+    };
+
+    if (moving && !seated && !sitting) {
+      camera.getWorldDirection(cameraForward);
+      cameraForward.y = 0;
+      cameraForward.normalize();
+      cameraRight.crossVectors(cameraForward, camera.up).normalize();
+
+      const frameDistance = PLAYER_SPEED * step;
+      const movementDelta = deltaRef.current;
+      movementDelta.x = (cameraRight.x * horizontal + cameraForward.x * vertical) * frameDistance;
+      movementDelta.z = (cameraRight.z * horizontal + cameraForward.z * vertical) * frameDistance;
+      walkBy(movementDelta);
+    } else if (walkTargetRef.current && !locked && !seated && !sitting && !grab) {
+      // 클릭한 자리로 곧장 걷는다. 도착했거나 정면으로 막혔으면 거기서 선다.
+      const intended = stepToward(
+        group.position,
+        walkTargetRef.current,
+        PLAYER_SPEED * step,
+        deltaRef.current,
+      );
+      const traveled = intended > 0 ? walkBy(deltaRef.current) : 0;
+      if (intended === 0 || isWalkBlocked(intended, traveled)) {
+        walkTargetRef.current = null;
+        useMemoryRoomStore.getState().clearWalk();
+      }
     }
 
     /*
