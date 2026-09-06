@@ -7,7 +7,7 @@ export const ASSETS = {
     baseball: "/assets/models/ch1-baseball.glb",
     radio: "/assets/models/ch1-radio.glb",
     /** 본·애니메이션 포함. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다. */
-    playerBlocky: "/assets/models/player-blocky.glb?v=vest-20260906",
+    playerBlocky: "/assets/models/player-blocky.glb?v=sheet-20260906",
     /** 방 소품 (가구 모델). 전부 밑면이 y=0에 정렬돼 있다. */
     computerScreen: "/assets/models/room-computer-screen.glb",
     computerKeyboard: "/assets/models/room-computer-keyboard.glb",

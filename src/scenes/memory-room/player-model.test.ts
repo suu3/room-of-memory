@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { AnimationMixer, Box3, type SkinnedMesh, Vector3 } from "three";
+import { AnimationMixer, Box3, Color, type SkinnedMesh, Vector3 } from "three";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
@@ -94,6 +94,24 @@ describe("shipped player GLB", () => {
       buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length),
       "",
     );
+    // The shipped mesh must retain the sheet palette, not revert to the brown/yellow atlas.
+    for (const hex of ["#303744", "#817989", "#cad2dd", "#414e63"]) {
+      const expected = new Color(hex);
+      let matches = 0;
+      gltf.scene.traverse((object) => {
+        const colors = (object as SkinnedMesh).geometry?.getAttribute("color");
+        if (!colors) return;
+        for (let i = 0; i < colors.count; i++) {
+          if (
+            Math.abs(colors.getX(i) - expected.r) < 0.002 &&
+            Math.abs(colors.getY(i) - expected.g) < 0.002 &&
+            Math.abs(colors.getZ(i) - expected.b) < 0.002
+          )
+            matches++;
+        }
+      });
+      expect(matches, `character-sheet color ${hex}`).toBeGreaterThan(100);
+    }
     const mixer = new AnimationMixer(gltf.scene);
     const idleClip = gltf.animations.find((clip) => clip.name === "Idle");
     const walkClip = gltf.animations.find((clip) => clip.name === "Walk");

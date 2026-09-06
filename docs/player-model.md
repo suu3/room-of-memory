@@ -4,9 +4,15 @@
 
 - Height: 1.55 world units; feet at Y=0; front faces +Z.
 - Skin: 23 exported bones, including two independent eye bones; at most four normalized influences per vertex.
-- Mesh: approximately 55,000 triangles, nine primitives; Meshopt compressed.
+- Mesh: approximately 55,000 triangles, two primitives; Meshopt compressed.
 - Textures: the original 1024×1024 `CH1.FACE.png` is embedded as WebP, along with a small clothing/hair palette. No external image URL or local image path is required.
 - Clips: `Idle`, `Walk`, `Sit`, `SitDown`, `StandUp`.
+
+## Character-sheet colors (2026-09-06)
+
+The current runtime revision is `?v=sheet-20260906`, replacing the earlier `vest-20260906` revision. The supplied `character-hero-sheet.webp` is the color reference: hair/eyebrows `#303744`, vest `#817989`, shirt `#cad2dd`, trousers `#414e63`, and cuffs `#30303e` (sRGB). These colors are stored as linear `COLOR_0` vertex attributes on the existing clothing/hair primitive, with a white material base factor; the older warm palette texture is no longer sampled. The face texture and its blush/shading are unchanged. Material roughness is 0.78 to soften the previously shiny hair. Room lighting is unchanged.
+
+This is a color-only update: original geometry, UVs, weights, skin and animation accessors are preserved. Meshopt compression remains enabled, with two draw calls and a total GLB size of approximately 590 KB (previously 585 KB). A before-model backup and the recoloring script are in `<workspace>/sd/sheet-palette-20260906/`; existing Blender sources are untouched. Subsequent Blender exports must retain these vertex colors or reapply this palette and bump the runtime URL revision.
 
 The game blends Idle/Walk according to actual movement, preserving the supplied materials. Skeletons are cloned with Three.js `SkeletonUtils.clone`; cached geometry and materials are shared and must not be disposed by individual player instances. See the [Three.js cloning documentation](https://threejs.org/docs/pages/module-SkeletonUtils.html).
 
