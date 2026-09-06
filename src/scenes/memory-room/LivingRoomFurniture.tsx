@@ -264,10 +264,11 @@ const PIANO_BENCH_PARTS = [
  * 원래는 박스로 짜맞춘 곰인형이었다. 방의 다른 소품처럼 모델이 들어오면서 갈아끼웠고,
  * 자리·발자국(LIVING_COLLIDERS의 plush)은 그대로 물려받았다.
  *
- * 배율은 인형 키(모델 3.32)를 1.1로 맞춘 값이다 — 소파 팔걸이(0.94)보다 조금 커야
- * "커다란 인형"으로 읽힌다. 살짝 튼 것은 진열이 아니라 놓아둔 것으로 보이게 하는 몫.
+ * 배율은 인형 키(모델 3.32)를 1.5로 맞춘 값이다 — 캐릭터(1.55)와 눈높이가 맞아야
+ * "커다란 인형"으로 읽힌다. 발자국(LIVING_COLLIDERS의 plush, 1.1×1.1)은 이 크기에서도
+ * 인형을 다 덮는다. 살짝 튼 것은 진열이 아니라 놓아둔 것으로 보이게 하는 몫.
  */
-const PLUSH_PLACEMENT = { position: [-11.75, 0, -3.3] as Vec3Tuple, rotationY: 0.35, scale: 0.33 };
+const PLUSH_PLACEMENT = { position: [-11.75, 0, -3.3] as Vec3Tuple, rotationY: 0.35, scale: 0.45 };
 
 export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
   return (
