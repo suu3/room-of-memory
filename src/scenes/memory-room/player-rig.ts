@@ -15,8 +15,8 @@ export const STEP_RATE = 3.2;
 /** 좌면에 닿는 높이 (허벅지 밑면). 리그 루트를 `좌면 - 이 값`에 두면 몸이 좌면에 앉는다. */
 export const SIT_CONTACT_Y = 0.211;
 
-/** 좌면에 얹히는 접촉면의 앞뒤 범위 — 엉덩이 뒤부터 허벅지 앞까지. */
-export const SIT_CONTACT_Z = { back: -0.259, front: 0.099 } as const;
+/** 좌면에 얹히는 외곽의 앞뒤 범위 — 둥근 니트 뒷밑단을 포함한 실측값. */
+export const SIT_CONTACT_Z = { back: -0.269, front: 0.099 } as const;
 
 /** 무릎 아래(정강이·발)가 차지하는 앞뒤 범위. 전부 좌면 앞턱보다 앞에 있어야 한다. */
 export const SIT_LEG_Z = { back: -0.047, front: 0.223 } as const;
