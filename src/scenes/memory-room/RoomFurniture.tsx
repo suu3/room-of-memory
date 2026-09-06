@@ -5,8 +5,9 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 import { type Group, MathUtils, Plane, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
-import { useMemoryRoomStore } from "@/store/memory-room";
+import { isAtCurtain, useMemoryRoomStore } from "@/store/memory-room";
 import {
+  CURTAIN_NEAR_RADIUS,
   CURTAIN_TAP_SLOP,
   CURTAIN_X,
   type CurtainPull,
@@ -162,15 +163,6 @@ function curtainPlaneX(ray: { intersectPlane: (plane: Plane, target: Vector3) =>
   return ray.intersectPlane(CURTAIN_PLANE, curtainHit)?.x ?? null;
 }
 
-/**
- * 커튼이 켜지기 시작하는 거리.
- *
- * 커튼은 뒷벽에 붙어 있어(z=-3.72) 플레이어가 아무리 다가가도 z로 0.8쯤은 떨어져
- * 선다. 창문 기억의 반경(1.6)보다 넉넉히 잡아야 "창가에 왔다" 싶은 자리에서
- * 양쪽 커튼이 함께 켜진다 — 한 쪽만 켜지면 나머지 한 쪽이 있는 줄 모른다.
- */
-const CURTAIN_NEAR_RADIUS = 2.1;
-
 const CURTAIN_FOLD_PARTS = [
   { size: [0.82, 2.9, 0.16], position: [-0.52, 0, -0.02], color: "navy" },
   { size: [0.82, 2.9, 0.18], position: [0, 0, 0.03], color: "navy" },
@@ -183,10 +175,17 @@ function BoxParts({ parts, palette }: { parts: readonly BoxPart[]; palette: Room
   ));
 }
 
+/**
+ * 침대. 누르면 옆으로 걸어가 올라가서 눕는다 (seats.ts의 bed) — 의자와 같은 훅이라
+ * 다가가야 하고, 누워 있을 때 다시 누르면 일어난다.
+ */
 function Bed({ palette }: FurnitureProps) {
+  const { glowing, handlers } = useSeat("bed");
   return (
-    <group name="bed">
-      <BoxParts parts={BED_PARTS} palette={palette} />
+    <group name="bed" {...handlers}>
+      <MemoryGlowSelection selectionKey="bed" tier="prop" enabled={glowing}>
+        <BoxParts parts={BED_PARTS} palette={palette} />
+      </MemoryGlowSelection>
     </group>
   );
 }
@@ -540,8 +539,8 @@ function Curtain({
   progress: number;
   /** 이번 프레임까지 끌어온 진행도(0~1). */
   onPull: (side: CurtainSide, progress: number) => void;
-  /** `tapped`면 끌지 않고 누르기만 한 것 — 진행도를 그대로 뒤집는다. */
-  onRelease: (side: CurtainSide, tapped: boolean) => void;
+  /** 손을 뗐다. `progress`는 놓는 순간의 진행도, `tapped`면 끌지 않고 누르기만 한 것 — 그대로 뒤집는다. */
+  onRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
 }) {
   const groupRef = useRef<Group>(null);
   const { hovered, handlers } = useGlowHover(true);
@@ -563,24 +562,49 @@ function Curtain({
     from: number;
     moved: boolean;
   } | null>(null);
+  const pullRef = useRef(onPull);
+  pullRef.current = onPull;
   const releaseRef = useRef(onRelease);
   releaseRef.current = onRelease;
+  /** 마지막으로 알린 진행도 — 놓을 때 어디서 놓았는지 알려 주기 위해서. */
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
 
   /*
-   * 커튼을 잡으면 캐릭터가 양팔을 든다 — 창가에 서 있을 때만이다. 방 저쪽에서 끌면
-   * 손이 닿을 리 없는 자리에서 팔만 들린다.
+   * 커튼을 잡으면 캐릭터가 창가로 걸어가 벽을 보고 서서 양팔을 든다 (Player). 커튼은
+   * 몸이 **닿은 뒤에야** 손을 따른다 — 그 전에 끌거나 놓은 것은 여기 담아 두었다가
+   * 닿는 프레임에 흘려보낸다. 방 저쪽에서 누르면 의자처럼 거절한다: 손이 닿을 리 없는
+   * 자리에서 커튼이 혼자 열리면 안 된다.
    */
-  const setReach = useMemoryRoomStore((state) => state.setReach);
+  const grabCurtain = useMemoryRoomStore((state) => state.grabCurtain);
+  const releaseCurtain = useMemoryRoomStore((state) => state.releaseCurtain);
+  const pendingRef = useRef<{ pull: number | null; release: boolean | null }>({
+    pull: null,
+    release: null,
+  });
   const nearRef = useRef(near);
   nearRef.current = near;
+
+  const pull = useCallback(
+    (next: number) => {
+      progressRef.current = next;
+      pullRef.current(side, next);
+    },
+    [side],
+  );
 
   const endDrag = useCallback(() => {
     const drag = dragRef.current;
     if (!drag) return;
     dragRef.current = null;
-    setReach(false);
-    releaseRef.current(side, !drag.moved);
-  }, [side, setReach]);
+    releaseCurtain();
+    const tapped = !drag.moved;
+    if (isAtCurtain(useMemoryRoomStore.getState())) {
+      releaseRef.current(side, progressRef.current, tapped);
+    } else {
+      pendingRef.current.release = tapped;
+    }
+  }, [side, releaseCurtain]);
 
   // 캔버스 밖에서 손을 떼도 커튼이 끌린 채로 굳지 않게 하는 안전망.
   useEffect(() => {
@@ -595,6 +619,21 @@ function Curtain({
   useFrame((_, delta) => {
     const group = groupRef.current;
     if (!group) return;
+    // 몸이 창가에 닿기 전에 끌거나 놓은 것을 이제 흘려보낸다. 몸짓이 도중에 접혔으면 버린다.
+    const pending = pendingRef.current;
+    if (pending.pull !== null || pending.release !== null) {
+      const state = useMemoryRoomStore.getState();
+      if (isAtCurtain(state)) {
+        if (pending.pull !== null) pull(pending.pull);
+        if (pending.release !== null)
+          releaseRef.current(side, progressRef.current, pending.release);
+        pending.pull = null;
+        pending.release = null;
+      } else if (state.curtainGrab === null) {
+        pending.pull = null;
+        pending.release = null;
+      }
+    }
     // 끌고 있는 동안에는 손을 그대로 따라가고, 놓은 뒤에만 부드럽게 붙는다.
     const goal = curtainX(side, progress);
     group.position.x = dragRef.current
@@ -610,12 +649,17 @@ function Curtain({
       {...handlers}
       onPointerDown={(event) => {
         event.stopPropagation();
-        // 포인터를 잡아둬야 커튼 밖으로 손이 나가도 드래그가 이어진다.
-        (event.target as Element | null)?.setPointerCapture?.(event.pointerId);
         const startX = curtainPlaneX(event.ray);
         if (startX === null) return;
+        // 다가가야 잡을 수 있다. 앉아 있거나 대사 중이면 스토어가 잡기를 거절한다.
+        grabCurtain(side);
+        if (!nearRef.current || !useMemoryRoomStore.getState().curtainGrab?.held) {
+          playSound("deny");
+          return;
+        }
+        // 포인터를 잡아둬야 커튼 밖으로 손이 나가도 드래그가 이어진다.
+        (event.target as Element | null)?.setPointerCapture?.(event.pointerId);
         dragRef.current = { pointerId: event.pointerId, startX, from: progress, moved: false };
-        if (nearRef.current) setReach(true);
       }}
       onPointerMove={(event) => {
         const drag = dragRef.current;
@@ -626,7 +670,9 @@ function Curtain({
         // 손이 이 폭을 넘긴 적이 있으면 그 뒤로는 계속 드래그다 — 되돌아왔다고 탭이 되면
         // 끌다 만 커튼이 엉뚱하게 뒤집힌다.
         if (Math.abs(x - drag.startX) >= CURTAIN_TAP_SLOP) drag.moved = true;
-        onPull(side, pullProgress(side, x - drag.startX, drag.from));
+        const next = pullProgress(side, x - drag.startX, drag.from);
+        if (isAtCurtain(useMemoryRoomStore.getState())) pull(next);
+        else pendingRef.current.pull = next;
       }}
       onPointerUp={(event) => {
         if (!dragRef.current) return;
@@ -653,7 +699,7 @@ export function RoomFurniture({
 }: FurnitureProps & {
   curtainPull: CurtainPull;
   onCurtainPull: (side: CurtainSide, progress: number) => void;
-  onCurtainRelease: (side: CurtainSide, tapped: boolean) => void;
+  onCurtainRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
 }) {
   return (
     <group name="room-furniture">

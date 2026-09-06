@@ -9,8 +9,16 @@ import {
   ROOM_COLLIDERS,
   ROOM_SHELL_BOUNDS,
 } from "./layout";
-import { SIT_CONTACT_Y, SIT_CONTACT_Z, SIT_LEG_Z, SIT_TORSO_HALF_WIDTH } from "./player-rig";
-import { SEAT_HALF_DEPTH, SEAT_IDS, SEATS } from "./seats";
+import {
+  LIE_BACK_Z,
+  LIE_HEAD,
+  LIE_TILT,
+  SIT_CONTACT_Y,
+  SIT_CONTACT_Z,
+  SIT_LEG_Z,
+  SIT_TORSO_HALF_WIDTH,
+} from "./player-rig";
+import { SEAT_HALF_DEPTH, SEAT_IDS, SEATS, SIT_SEAT_IDS } from "./seats";
 import { isWalkable } from "./spatial";
 
 /** Player.tsx의 값 — 여기서 다시 부르지 않고 같은 수치를 쓴다. */
@@ -19,7 +27,7 @@ const ZONES = [ROOM_BOUNDS, DOORWAY_ZONE, LIVING_BOUNDS] as const;
 const COLLIDERS = [...ROOM_COLLIDERS, ...LIVING_COLLIDERS] as const;
 
 /** 좌면 기준 앞뒤 좌표계로 옮긴다 — 앞(+)이 몸이 바라보는 쪽이다. */
-function alongFacing(id: SeatId): { anchor: number; halfDepth: number } {
+function alongFacing(id: Exclude<SeatId, "bed">): { anchor: number; halfDepth: number } {
   const seat = SEATS[id];
   const center = seat.pull
     ? { x: seat.near.x + seat.pull.x, z: seat.near.z + seat.pull.z }
@@ -31,10 +39,11 @@ function alongFacing(id: SeatId): { anchor: number; halfDepth: number } {
 
 describe("seats", () => {
   it("keeps every seat id in the registry with a body above the floor", () => {
-    expect(SEAT_IDS.length).toBe(8);
-    for (const id of SEAT_IDS) {
+    expect(SEAT_IDS.length).toBe(9);
+    expect(SIT_SEAT_IDS.length).toBe(8);
+    for (const id of SEAT_IDS) expect(SEATS[id].id, id).toBe(id);
+    for (const id of SIT_SEAT_IDS) {
       const seat = SEATS[id];
-      expect(seat.id, id).toBe(id);
       // 좌면이 몸의 접촉 높이보다 낮으면 바닥을 뚫고 앉는다.
       expect(seat.bodyY, id).toBeGreaterThan(0);
       expect(seat.bodyY + SIT_CONTACT_Y, id).toBeLessThan(1);
@@ -47,7 +56,8 @@ describe("seats", () => {
    * 앞으로 빼면 엉덩이가 허공에 뜬다. 두 경계를 여기서 지킨다.
    */
   it("hangs the lower legs past the seat edge while the hips stay on the seat", () => {
-    for (const id of SEAT_IDS) {
+    for (const id of SIT_SEAT_IDS) {
+      if (id === "bed") continue;
       const { anchor, halfDepth } = alongFacing(id);
       // 정강이·발은 전부 앞턱 밖 (좌면은 -halfDepth ~ +halfDepth).
       expect(anchor + SIT_LEG_Z.back, id).toBeGreaterThan(halfDepth);
@@ -76,6 +86,45 @@ describe("seats", () => {
       );
       expect(reachable, id).toBe(true);
     }
+  });
+
+  /*
+   * 침대는 눕는 자리다. 옆에 서는 자리(approach)는 걸을 수 있어야 하고, 눕는 자리(anchor)는
+   * 침대 발자국 안이어야 하며, 눕힌 머리는 베개 위에 와야 한다. 수치는 RoomFurniture의
+   * BED_PARTS(매트리스 윗면 0.81, 베개 z 0.88~2.13 · 윗면 1.02)와 같은 것을 본다.
+   */
+  it("lies on the bed with the head on the pillow, entered from a standing spot beside it", () => {
+    const bed = SEATS.bed;
+    const bedFootprint = ROOM_COLLIDERS[1];
+    expect(bed.pose).toBe("lie");
+    expect(bed.approach).toBeDefined();
+    const approach = bed.approach ?? bed.anchor;
+    expect(isWalkable(approach.x, approach.z, PLAYER_RADIUS, ZONES, COLLIDERS)).toBe(true);
+    expect(bed.anchor.x).toBeGreaterThan(bedFootprint.minX);
+    expect(bed.anchor.x).toBeLessThan(bedFootprint.maxX);
+    expect(bed.anchor.z).toBeGreaterThan(bedFootprint.minZ);
+    expect(bed.anchor.z).toBeLessThan(bedFootprint.maxZ);
+    // 발 원점을 축으로 (π/2 - LIE_TILT)만큼 뒤로 젖힌 몸: 로컬 (y, z) → 월드 (z, y)
+    const lean = Math.PI / 2 - LIE_TILT;
+    const world = (localY: number, localZ: number) => ({
+      z: bed.anchor.z - localY * Math.sin(lean) + localZ * Math.cos(lean),
+      y: bed.bodyY + localY * Math.cos(lean) + localZ * Math.sin(lean),
+    });
+    const headCenter = world(LIE_HEAD.centerY, 0);
+    const headBack = world(LIE_HEAD.centerY, LIE_HEAD.backZ);
+    const headTop = world(LIE_HEAD.topY, 0);
+    const PILLOW = { minZ: 0.875, maxZ: 2.125, topY: 1.02 };
+    expect(headCenter.z).toBeGreaterThan(PILLOW.minZ);
+    expect(headCenter.z).toBeLessThan(PILLOW.maxZ);
+    // 머리 꼭대기가 헤드보드 앞면(0.43)을 넘어가지 않는다
+    expect(headTop.z).toBeGreaterThan(0.43);
+    // 뒤통수는 베개 속으로 조금 잠기되(위에서 보면 파묻힌다) 베개 밑으로 꺼지지는 않는다
+    expect(headBack.y).toBeLessThan(PILLOW.topY);
+    expect(headBack.y).toBeGreaterThan(bed.bodyY);
+    // 등은 매트리스 위에 있다 (이불 두께만큼 뜨는 건 허용)
+    const torsoBack = world(0.65, LIE_BACK_Z);
+    expect(torsoBack.y).toBeGreaterThanOrEqual(bed.bodyY - 0.01);
+    expect(torsoBack.y).toBeLessThan(bed.bodyY + 0.15);
   });
 
   it("places each seat in the space its furniture stands in", () => {

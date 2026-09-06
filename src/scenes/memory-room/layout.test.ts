@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MEMORY_IDS } from "@/data/memory-room";
+import { CURTAIN_NEAR_RADIUS, CURTAIN_X } from "./curtain-motion";
 import {
   BAT_PLACEMENT,
   CABINET_BODY,
@@ -10,6 +11,7 @@ import {
   CHAIR_POSITION,
   CHAIR_PULL,
   CHAIR_SEAT,
+  CURTAIN_STAND,
   DESK_ROTATION,
   DOORWAY_ZONE,
   DRAWER_NOTE,
@@ -199,6 +201,23 @@ describe("memory-room layout", () => {
 
   it("keeps every memory reachable without entering furniture", () => {
     expect(MEMORY_IDS.filter((id) => !hasReachableInteractionPoint(id))).toEqual([]);
+  });
+
+  /*
+   * 커튼을 잡으면 몸이 여기로 걸어가 벽을 보고 선다. 설 수 없는 자리면 캐비닛 속에 서고,
+   * 커튼의 근접 반경 밖이면 한 쪽을 젖히고 선 자리에서 다른 쪽을 잡지 못한다.
+   */
+  it("gives the curtains a standing spot in front of the cabinet", () => {
+    expect(isWalkable(CURTAIN_STAND.x, CURTAIN_STAND.z)).toBe(true);
+    expect(CURTAIN_STAND.x).toBeCloseTo(MEMORY_PLACEMENTS.window.position[0], 5);
+    expect(CURTAIN_STAND.facing).toBeCloseTo(Math.PI, 5);
+    for (const side of ["left", "right"] as const) {
+      const distance = Math.hypot(
+        CURTAIN_X[side].closed - CURTAIN_STAND.x,
+        -3.72 - CURTAIN_STAND.z,
+      );
+      expect(distance, side).toBeLessThan(CURTAIN_NEAR_RADIUS);
+    }
   });
 
   /*

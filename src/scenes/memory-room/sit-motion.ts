@@ -8,6 +8,8 @@
 
 /** 앉기/일어서기에 걸리는 시간(초). 클립이 쓰던 0.83보다 짧게 — 앉는 건 기다릴 일이 아니다. */
 export const SIT_SECONDS = 0.55;
+/** 눕기/일어나기에 걸리는 시간(초). 침대 옆에서 한가운데까지 올라가며 몸이 돌아눕는다 — 앉기보다 길다. */
+export const LIE_SECONDS = 0.9;
 
 export function advanceSitProgress(current: number, seated: boolean, delta: number): number {
   const step = Math.max(0, delta) / SIT_SECONDS;
@@ -36,14 +38,16 @@ export function advanceSitPhases(
   /** 자리까지 걷는 데 걸리는 시간(초). 이미 그 자리면 0 — 걷는 구간을 건너뛴다. */
   travelSeconds: number,
   out: SitPhases,
+  /** 앉는(눕는) 구간에 걸리는 시간(초). */
+  sitSeconds = SIT_SECONDS,
 ): SitPhases {
   const step = Math.max(0, delta);
   let { travel, sit } = current;
   if (seated) {
     travel = travelSeconds <= 0 ? 1 : Math.min(1, travel + step / travelSeconds);
-    if (travel >= 1) sit = Math.min(1, sit + step / SIT_SECONDS);
+    if (travel >= 1) sit = Math.min(1, sit + step / sitSeconds);
   } else {
-    sit = Math.max(0, sit - step / SIT_SECONDS);
+    sit = Math.max(0, sit - step / sitSeconds);
     if (sit <= 0) travel = travelSeconds <= 0 ? 0 : Math.max(0, travel - step / travelSeconds);
   }
   out.travel = travel;

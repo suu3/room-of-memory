@@ -164,13 +164,15 @@ export function RoomCanvas() {
   );
 
   const handleCurtainRelease = useCallback(
-    (side: CurtainSide, tapped: boolean) => {
-      const settled = releaseProgress(curtainPull[side], tapped);
+    // 진행도는 커튼이 준다 — 몸이 창가에 닿기를 기다렸다가 끌기와 놓기가 같은 프레임에
+    // 흘러들 수 있어서, 여기 상태를 읽으면 끌기 전 값을 본다.
+    (side: CurtainSide, progress: number, tapped: boolean) => {
+      const settled = releaseProgress(progress, tapped);
       // 커튼이 실제로 자리를 옮길 때만 소리를 낸다 — 끌다 말고 도로 붙는 건 아무 일도 아니다
-      if (settled !== curtainPull[side]) playSound("wipe");
+      if (settled !== progress) playSound("wipe");
       setPull((pull) => ({ ...pull, [side]: settled }));
     },
-    [curtainPull, setPull],
+    [setPull],
   );
 
   /** 키보드·프롬프트 버튼 경로 — 드래그를 못 하는 사용자를 위해 양쪽을 한 번에 젖힌다. */

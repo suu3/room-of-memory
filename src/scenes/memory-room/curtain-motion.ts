@@ -1,9 +1,21 @@
-export type CurtainSide = "left" | "right";
+import type { CurtainSide } from "@/types/curtain";
+
+export type { CurtainSide };
 
 export const CURTAIN_X = {
   left: { closed: 0.22, open: -0.55 },
   right: { closed: 2.08, open: 2.85 },
 } as const;
+
+/**
+ * 커튼이 켜지고 잡히는 거리 (닫혀 있을 때의 자리 기준).
+ *
+ * 커튼은 뒷벽에 붙어 있고(z=-3.72) 그 앞에 캐비닛이 있어 플레이어는 z로 1.9쯤 떨어져
+ * 선다 (layout의 CURTAIN_STAND). 창문 기억의 반경(1.6)보다 넉넉히 잡아야 "창가에 왔다"
+ * 싶은 자리에서 양쪽 커튼이 함께 켜지고 — 한 쪽만 켜지면 나머지 한 쪽이 있는 줄 모른다 —
+ * 한 쪽을 젖히고 선 자리에서 다른 쪽도 잡힌다 (서는 자리에서 양쪽 손잡이까지 2.13).
+ */
+export const CURTAIN_NEAR_RADIUS = 2.3;
 
 export function curtainTargetX(side: CurtainSide, open: boolean) {
   return CURTAIN_X[side][open ? "open" : "closed"];

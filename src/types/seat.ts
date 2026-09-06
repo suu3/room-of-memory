@@ -12,4 +12,5 @@ export type SeatId =
   | "dining-window"
   | "dining-door"
   | "dining-pulled"
-  | "piano-bench";
+  | "piano-bench"
+  | "bed";

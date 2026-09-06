@@ -143,6 +143,13 @@ export const CABINET_TOP_BOUNDS: Aabb2 = {
 
 export const ROOM_BOUNDS: Aabb2 = { minX: -5.55, maxX: 7.55, minZ: -3.55, maxZ: 6.05 };
 
+/**
+ * 커튼을 잡으면 몸이 가서 서는 자리 — 창 한가운데(x는 window 기억과 같다), 캐비닛
+ * 바로 앞. 벽(-z)을 보고 서서 캐비닛 너머로 팔을 뻗는다. z는 캐비닛 발자국(maxZ -2.25)에
+ * 플레이어 반지름(0.38)과 여유를 더한 값이다.
+ */
+export const CURTAIN_STAND = { x: 1.15, z: -1.8, facing: Math.PI } as const;
+
 export const ROOM_COLLIDERS = [
   { minX: -5.48, maxX: -3.72, minZ: -3.35, maxZ: 0.95 }, // desk
   { minX: 3, maxX: 6.3, minZ: 0.1, maxZ: 5.6 }, // bed

@@ -13,6 +13,7 @@ import {
   actOf,
   actTwoProgress,
   hotspotStatus,
+  isAtCurtain,
   openCutscene,
   selectBatReady,
   selectDoorReady,
@@ -83,6 +84,57 @@ describe("앉기", () => {
     store.reset();
 
     expect(useMemoryRoomStore.getState().seatedAt).toBe(null);
+  });
+});
+
+describe("커튼 잡기", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("잡으면 창가로 가는 몸짓이 시작되고, 닿아야 커튼이 손을 따른다", () => {
+    const store = useMemoryRoomStore.getState();
+    store.grabCurtain("left");
+    expect(useMemoryRoomStore.getState().curtainGrab).toEqual({
+      side: "left",
+      held: true,
+      arrived: false,
+    });
+    expect(isAtCurtain(useMemoryRoomStore.getState())).toBe(false);
+
+    store.arriveAtCurtain();
+    expect(isAtCurtain(useMemoryRoomStore.getState())).toBe(true);
+
+    // 놓아도 몸짓은 남는다 — 팔을 내리는 건 Player가 끝낸다.
+    store.releaseCurtain();
+    expect(useMemoryRoomStore.getState().curtainGrab).toEqual({
+      side: "left",
+      held: false,
+      arrived: true,
+    });
+    store.endCurtainGrab();
+    expect(useMemoryRoomStore.getState().curtainGrab).toBe(null);
+  });
+
+  it("앉아 있거나 대사 중이면 잡지 않는다", () => {
+    const store = useMemoryRoomStore.getState();
+    store.sitOnSeat("desk-chair");
+    store.grabCurtain("right");
+    expect(useMemoryRoomStore.getState().curtainGrab).toBe(null);
+
+    store.standUp();
+    store.setUiLock("character-sheet", true);
+    store.grabCurtain("right");
+    expect(useMemoryRoomStore.getState().curtainGrab).toBe(null);
+  });
+
+  it("리셋과 워프는 몸짓을 지운다", () => {
+    const store = useMemoryRoomStore.getState();
+    store.grabCurtain("left");
+    store.warpPlayer(0, 0);
+    expect(useMemoryRoomStore.getState().curtainGrab).toBe(null);
+
+    store.grabCurtain("left");
+    store.reset();
+    expect(useMemoryRoomStore.getState().curtainGrab).toBe(null);
   });
 });
 

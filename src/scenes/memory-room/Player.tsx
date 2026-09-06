@@ -5,9 +5,10 @@ import { useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { type Group, MathUtils, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
-import { isReaching, selectSceneInputLocked, useMemoryRoomStore } from "@/store/memory-room";
+import { selectSceneInputLocked, useMemoryRoomStore } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
 import {
+  CURTAIN_STAND,
   DOORWAY_ZONE,
   LIVING_BOUNDS,
   LIVING_COLLIDERS,
@@ -22,9 +23,17 @@ import {
   updatePlayerRig,
 } from "./player-animation";
 import { captureMovementKeyDown, MOVEMENT_KEYS, resolveMovementInput } from "./player-input";
-import { STEP_RATE } from "./player-rig";
+import { LIE_TILT, STEP_RATE } from "./player-rig";
 import { SEATS, type Seat } from "./seats";
-import { advanceSitPhases, lerp, lerpAngle, type SitPhases, sitEase } from "./sit-motion";
+import {
+  advanceSitPhases,
+  LIE_SECONDS,
+  lerp,
+  lerpAngle,
+  SIT_SECONDS,
+  type SitPhases,
+  sitEase,
+} from "./sit-motion";
 import { moveThroughZones, type Vec2 } from "./spatial";
 
 /** 발이 바닥에 닿는 높이. 충돌·근접 판정은 x/z만 보므로 y는 순수 시각값이다. */
@@ -38,6 +47,13 @@ const TURN_LAMBDA = 11;
 const WALK_BLEND_LAMBDA = 12;
 /** 팔이 올라가고 내려오는 속도. 걷기보다 느긋해야 손을 뻗는 동작으로 읽힌다. */
 const REACH_LAMBDA = 7;
+/**
+ * 커튼을 놓은 뒤 팔이 남아 있는 시간(초). 한 번 눌러 젖힐 때는 잡는 순간이 짧아서,
+ * 팔이 올라가자마자 내려오면 든 줄도 모른다.
+ */
+const REACH_LINGER_SECONDS = 0.9;
+/** 한 걸음도 안 되는 거리면 걷는 시늉을 하지 않는다 — 제자리걸음이 더 어색하다. */
+const MIN_TRAVEL_DISTANCE = 0.25;
 const cameraForward = new Vector3();
 const cameraRight = new Vector3();
 
@@ -67,6 +83,8 @@ export function Player({
 }) {
   const groupRef = useRef<Group>(null);
   const facingRef = useRef<Group>(null);
+  /** 눕는 회전(침대). 바라보는 방향 안쪽에서 몸을 뒤로 젖힌다. */
+  const lieRef = useRef<Group>(null);
   const keysRef = useRef(new Set<string>());
   const originRef = useRef<Vec2>({ x: PLAYER_START.x, z: PLAYER_START.z });
   const deltaRef = useRef<Vec2>({ x: 0, z: 0 });
@@ -94,6 +112,23 @@ export function Player({
     travelSeconds: number;
     approach: number;
   } | null>(null);
+  /*
+   * 커튼 잡기.
+   *
+   * 잡으면 창가(CURTAIN_STAND)로 **걸어가서** 벽을 보고 선 다음에야 팔을 든다 — 앉기와
+   * 같은 걸음이다. 커튼은 도착(arriveAtCurtain)을 보고서야 손을 따른다. 놓으면 팔이
+   * 잠깐 남았다가 내려오고, 다 내려오면 몸짓을 지운다(endCurtainGrab). 몸은 그 자리에
+   * 남는다 — 커튼을 젖히고 창밖을 보는 자리라 돌아올 이유가 없다.
+   */
+  const curtainGrab = useMemoryRoomStore((state) => state.curtainGrab);
+  const grabRef = useRef<{
+    standing: { x: number; z: number };
+    travelSeconds: number;
+    approach: number;
+    travel: number;
+    /** 놓은 뒤 팔을 든 채 지난 시간. */
+    linger: number;
+  } | null>(null);
   const { scene, animations } = useGLTF(ASSETS.models.playerBlocky, true, true);
   const rig = useMemo(() => createPlayerRig(scene, animations), [scene, animations]);
 
@@ -118,12 +153,14 @@ export function Player({
     const group = groupRef.current;
     if (group) group.position.copy(PLAYER_START);
     if (facingRef.current) facingRef.current.rotation.y = 0;
+    if (lieRef.current) lieRef.current.rotation.x = 0;
     walkRef.current = 0;
     reachRef.current = 0;
     phaseRef.current = 0;
     phasesRef.current.travel = 0;
     phasesRef.current.sit = 0;
     seatRef.current = null;
+    grabRef.current = null;
     updatePlayerRig(rig, 0, 0, 0);
   }, [resetRevision, positionRef, rig]);
 
@@ -143,6 +180,8 @@ export function Player({
     positionRef.current.copy(group.position);
     useMemoryRoomStore.getState().setInLivingRoom(warpTarget.x < ROOM_SHELL_BOUNDS.minX);
     seatRef.current = null;
+    grabRef.current = null;
+    if (lieRef.current) lieRef.current.rotation.x = 0;
     phasesRef.current.travel = 0;
     phasesRef.current.sit = 0;
     walkRef.current = 0;
@@ -158,17 +197,52 @@ export function Player({
     const facing = facingRef.current;
     if (!group || !facing) return;
     const seat = SEATS[seatedAt];
-    const toSeatX = seat.anchor.x - group.position.x;
-    const toSeatZ = seat.anchor.z - group.position.z;
+    // 창가로 가던 중이면 그 몸짓은 접는다 — 두 목표를 동시에 쫓으면 몸이 둘로 갈린다.
+    if (grabRef.current) {
+      useMemoryRoomStore.getState().endCurtainGrab();
+      grabRef.current = null;
+    }
+    // 걸어가는 목표는 앉는 자리가 아니라 그 앞에 서는 자리다 (침대는 옆에 선다).
+    const spot = seat.approach ?? seat.anchor;
+    const toSeatX = spot.x - group.position.x;
+    const toSeatZ = spot.z - group.position.z;
     const distance = Math.hypot(toSeatX, toSeatZ);
     seatRef.current = {
       seat,
       standing: { x: group.position.x, z: group.position.z, facing: facing.rotation.y },
-      // 한 걸음도 안 되는 거리면 걷는 시늉을 하지 않는다 — 제자리걸음이 더 어색하다.
-      travelSeconds: distance < 0.25 ? 0 : distance / PLAYER_SPEED,
+      travelSeconds: distance < MIN_TRAVEL_DISTANCE ? 0 : distance / PLAYER_SPEED,
       approach: Math.atan2(toSeatX, toSeatZ),
     };
   }, [seatedAt]);
+
+  /*
+   * 커튼을 잡으면 그 순간 서 있던 자리에서 창가까지의 걸음을 잰다. 이미 걸어가는 중이면
+   * (같은 몸짓 안에서 다른 쪽 커튼을 잡았다) 그대로 둔다 — 도착 판정이 이어서 처리한다.
+   */
+  useEffect(() => {
+    if (curtainGrab === null) {
+      grabRef.current = null;
+      return;
+    }
+    if (grabRef.current) return;
+    const group = groupRef.current;
+    if (!group) return;
+    // 앉으러 가는 도중이면 몸이 둘로 갈린다 — 그 몸짓은 없던 일로 한다.
+    if (seatRef.current) {
+      useMemoryRoomStore.getState().endCurtainGrab();
+      return;
+    }
+    const toStandX = CURTAIN_STAND.x - group.position.x;
+    const toStandZ = CURTAIN_STAND.z - group.position.z;
+    const distance = Math.hypot(toStandX, toStandZ);
+    grabRef.current = {
+      standing: { x: group.position.x, z: group.position.z },
+      travelSeconds: distance < MIN_TRAVEL_DISTANCE ? 0 : distance / PLAYER_SPEED,
+      approach: Math.atan2(toStandX, toStandZ),
+      travel: 0,
+      linger: 0,
+    };
+  }, [curtainGrab]);
 
   useEffect(() => {
     const keys = keysRef.current;
@@ -228,10 +302,26 @@ export function Player({
     const seated = useMemoryRoomStore.getState().seatedAt !== null;
     if (seated && moving) useMemoryRoomStore.getState().standUp();
     const parked = seatRef.current;
+    const lying = parked?.seat.pose === "lie";
     const phases = parked
-      ? advanceSitPhases(phasesRef.current, seated, step, parked.travelSeconds, phasesRef.current)
+      ? advanceSitPhases(
+          phasesRef.current,
+          seated,
+          step,
+          parked.travelSeconds,
+          phasesRef.current,
+          lying ? LIE_SECONDS : SIT_SECONDS,
+        )
       : phasesRef.current;
     const sitting = phases.travel > 0 || phases.sit > 0;
+
+    // 창가로 가는 도중에 걸으려 들면 그 몸짓은 접는다 — 손이 갇히면 안 된다 (앉기와 같다).
+    if (moving && grabRef.current) {
+      useMemoryRoomStore.getState().endCurtainGrab();
+      grabRef.current = null;
+    }
+    const grab = grabRef.current;
+    const grabState = grab ? useMemoryRoomStore.getState().curtainGrab : null;
 
     if (moving && !seated && !sitting) {
       camera.getWorldDirection(cameraForward);
@@ -285,10 +375,12 @@ export function Player({
     const sitting01 = sitEase(phases.sit);
     if (parked) {
       const { anchor, bodyY, facing: seatFacing } = parked.seat;
+      const spot = parked.seat.approach ?? anchor;
       const { standing, approach } = parked;
       const eased = sitEase(phases.travel);
-      const nextX = lerp(standing.x, anchor.x, eased);
-      const nextZ = lerp(standing.z, anchor.z, eased);
+      // 걷는 구간은 서는 자리까지, 앉는(눕는) 구간은 거기서 앉는 자리까지 — 의자는 둘이 같다.
+      const nextX = lerp(lerp(standing.x, spot.x, eased), anchor.x, sitting01);
+      const nextZ = lerp(lerp(standing.z, spot.z, eased), anchor.z, sitting01);
       const traveled = Math.hypot(nextX - group.position.x, nextZ - group.position.z);
       group.position.x = nextX;
       group.position.z = nextZ;
@@ -299,30 +391,78 @@ export function Player({
         phases.sit > 0
           ? lerpAngle(walkFacing, seatFacing, sitting01)
           : dampAngle(facing.rotation.y, walkFacing, TURN_LAMBDA, delta);
+      // 눕는 자리는 앉는 구간에 몸을 뒤로 젖힌다 — 발 원점을 축으로 머리가 베개 쪽으로 간다.
+      if (lieRef.current) {
+        lieRef.current.rotation.x = lying ? -(Math.PI / 2 - LIE_TILT) * sitting01 : 0;
+      }
       positionRef.current.copy(group.position);
-      speed = step > 0 ? Math.min(1, traveled / (PLAYER_SPEED * step)) : 0;
-      phaseRef.current += STEP_RATE * traveled;
+      // 침대에 올라가는 미끄러짐은 걸음이 아니다 — 다리는 걷는 구간에서만 돈다.
+      if (phases.sit === 0) {
+        speed = step > 0 ? Math.min(1, traveled / (PLAYER_SPEED * step)) : 0;
+        phaseRef.current += STEP_RATE * traveled;
+      }
       // 다 일어서서 제자리로 돌아왔으면 좌석을 놓는다 — 다음 걸음부터는 평소의 이동 경로다.
       if (!seated && phases.travel === 0 && phases.sit === 0) seatRef.current = null;
     }
 
-    // 커튼을 잡고 있으면 양팔을 든다. 구독하지 않고 프레임마다 읽는다 — 드래그 한 번에
-    // 수십 번 바뀌는 값이라 구독하면 씬이 그만큼 리렌더된다.
-    reachRef.current = MathUtils.damp(
-      reachRef.current,
-      isReaching(useMemoryRoomStore.getState()) ? 1 : 0,
-      REACH_LAMBDA,
-      delta,
-    );
+    /*
+     * 창가로 가서 커튼을 잡는 몸. 걸어가는 동안은 가는 쪽을 보고, 닿으면 벽을 보고 선다.
+     * 닿은 것을 스토어에 알려야 커튼이 손을 따르기 시작한다.
+     */
+    if (grab && grabState) {
+      grab.travel =
+        grab.travelSeconds <= 0 ? 1 : Math.min(1, grab.travel + step / grab.travelSeconds);
+      const eased = sitEase(grab.travel);
+      const nextX = lerp(grab.standing.x, CURTAIN_STAND.x, eased);
+      const nextZ = lerp(grab.standing.z, CURTAIN_STAND.z, eased);
+      const traveled = Math.hypot(nextX - group.position.x, nextZ - group.position.z);
+      group.position.x = nextX;
+      group.position.z = nextZ;
+      positionRef.current.copy(group.position);
+      facing.rotation.y = dampAngle(
+        facing.rotation.y,
+        grab.travel < 1 ? grab.approach : CURTAIN_STAND.facing,
+        TURN_LAMBDA,
+        delta,
+      );
+      speed = step > 0 ? Math.min(1, traveled / (PLAYER_SPEED * step)) : 0;
+      phaseRef.current += STEP_RATE * traveled;
+      if (grab.travel >= 1) {
+        if (!grabState.arrived) useMemoryRoomStore.getState().arriveAtCurtain();
+        if (grabState.held) {
+          grab.linger = 0;
+        } else {
+          grab.linger += step;
+          if (grab.linger >= REACH_LINGER_SECONDS) {
+            useMemoryRoomStore.getState().endCurtainGrab();
+            grabRef.current = null;
+          }
+        }
+      }
+    }
+
+    // 창가에 닿아 있는 동안 양팔을 든다. 프레임마다 ref로 읽는다 — 드래그 한 번에 수십 번
+    // 바뀌는 값이라 구독하면 씬이 그만큼 리렌더된다.
+    const reaching = grabRef.current !== null && grabRef.current.travel >= 1;
+    reachRef.current = MathUtils.damp(reachRef.current, reaching ? 1 : 0, REACH_LAMBDA, delta);
 
     walkRef.current = MathUtils.damp(walkRef.current, speed, WALK_BLEND_LAMBDA, delta);
-    updatePlayerRig(rig, phaseRef.current, walkRef.current, step, sitting01, reachRef.current);
+    updatePlayerRig(
+      rig,
+      phaseRef.current,
+      walkRef.current,
+      step,
+      lying ? 0 : sitting01,
+      reachRef.current,
+    );
   });
 
   return (
     <group ref={groupRef} name="player" position={PLAYER_START}>
       <group ref={facingRef}>
-        <primitive object={rig.root} dispose={null} />
+        <group ref={lieRef}>
+          <primitive object={rig.root} dispose={null} />
+        </group>
       </group>
     </group>
   );
