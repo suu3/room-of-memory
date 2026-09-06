@@ -173,6 +173,16 @@ interface MemoryRoomState {
    */
   seatedAt: SeatId | null;
   /**
+   * 몸을 옮기라는 신호 (개발 도구 전용).
+   *
+   * 위치는 스토어에 없다 — Player 그룹의 변환에만 있어서, 스토어를 아무리 고쳐도 몸은
+   * 제자리다. `inLivingRoom`만 켜면 거실이 그려지는데 몸은 방에 서 있어서 카메라가 벽
+   * 속을 비춘다. 그래서 "어디로 가라"를 여기 두고 Player가 그걸 보고 자기 몸을 옮긴다.
+   *
+   * 부를 때마다 새 객체라 같은 좌표를 다시 눌러도 신호가 다시 간다. 저장하지 않는다.
+   */
+  warpTarget: { x: number; z: number } | null;
+  /**
    * 지금 손을 뻗고 있는가 — 커튼을 잡고 젖히는 동안 캐릭터가 양팔을 든다.
    *
    * 잡고 있는 동안은 `reachHeld`, 놓은 뒤에는 `reachUntil`까지 팔이 남는다 (탭으로
@@ -251,6 +261,8 @@ interface MemoryRoomState {
   standUp: () => void;
   /** 커튼을 잡았다/놓았다. 놓아도 팔은 잠깐 더 남는다. */
   setReach: (held: boolean) => void;
+  /** 몸을 그 자리로 옮긴다 (개발 도구). 걷는 연출 없이 그냥 서 있게 된다. */
+  warpPlayer: (x: number, z: number) => void;
   /** 미궁 문제를 붙잡는다. 이미 푼 문제나 다른 화면이 떠 있으면 아무 일도 없다. */
   openPuzzle: (id: PuzzleId) => void;
   /** 풀지 않고 내려놓는다 — 물건은 다시 클릭할 수 있다. */
@@ -594,6 +606,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       endingStarted: false,
       inLivingRoom: false,
       seatedAt: null,
+      warpTarget: null,
       reachHeld: false,
       reachUntil: 0,
       activeClue: null,
@@ -761,6 +774,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           state.seatedAt === id || selectSceneInputLocked(state) ? state : { seatedAt: id },
         ),
       standUp: () => set((state) => (state.seatedAt === null ? state : { seatedAt: null })),
+      // 앉은 채로 옮기면 몸만 가고 의자는 남는다 — 옮기기 전에 일어선다.
+      warpPlayer: (x, z) => set({ warpTarget: { x, z }, seatedAt: null }),
       setReach: (held) =>
         set(() =>
           held ? { reachHeld: true } : { reachHeld: false, reachUntil: Date.now() + 600 },
@@ -808,6 +823,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           endingStarted: false,
           inLivingRoom: false,
           seatedAt: null,
+          warpTarget: null,
           reachHeld: false,
           reachUntil: 0,
           activeClue: null,

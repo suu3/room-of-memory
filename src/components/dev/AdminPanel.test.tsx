@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { AdminPanel } from "./AdminPanel";
+import { ADMIN_SPAWNS } from "./admin-actions";
 
 describe("AdminPanel", () => {
   beforeEach(() => {
@@ -49,6 +50,46 @@ describe("AdminPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^console/ }));
     expect(useMemoryRoomStore.getState().collected).toEqual(["console"]);
+  });
+
+  it("warps the body to the living room and opens the door on the way", () => {
+    render(<AdminPanel />);
+    fireEvent.click(screen.getByRole("button", { name: "DEV" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "거실" }));
+
+    // 몸의 자리는 스토어에 없다 — 패널은 "여기로 가라"는 신호만 남기고 Player가 옮긴다.
+    expect(useMemoryRoomStore.getState().warpTarget).toEqual(ADMIN_SPAWNS.living);
+    // 문이 닫혀 있으면 걷기 범위가 방뿐이라 거실에 떨어뜨려도 한 발짝을 못 간다.
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: "방" }));
+    expect(useMemoryRoomStore.getState().warpTarget).toEqual(ADMIN_SPAWNS.room);
+  });
+
+  it("actually opens the door from the checkbox", () => {
+    render(<AdminPanel />);
+    fireEvent.click(screen.getByRole("button", { name: "DEV" }));
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "doorOpened" }));
+
+    /*
+     * 문은 라디오 목소리를 들은 저장본에서만 열린 채로 남는다(sanitizeProgress). 전제를
+     * 안 채우면 체크박스가 켜지자마자 도로 꺼져서, 도구가 아무 일도 안 하는 것처럼 보인다.
+     */
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
+    expect(useMemoryRoomStore.getState().revisited).toContain("radio");
+  });
+
+  it("stands the player up before moving them", () => {
+    render(<AdminPanel />);
+    fireEvent.click(screen.getByRole("button", { name: "DEV" }));
+    useMemoryRoomStore.getState().sitOnSeat("desk-chair");
+
+    fireEvent.click(screen.getByRole("button", { name: "거실" }));
+
+    // 앉은 채로 옮기면 몸만 가고 의자는 방에 남는다.
+    expect(useMemoryRoomStore.getState().seatedAt).toBe(null);
   });
 
   it("toggles the ending flag", () => {

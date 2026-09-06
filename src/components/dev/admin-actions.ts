@@ -3,6 +3,9 @@ import type { PuzzleId } from "@/data/room-clues";
 import { sanitizeProgress, useMemoryRoomStore } from "@/store/memory-room";
 import { cycleMemory } from "./admin-progress";
 
+/** 방문을 여는 열쇠가 되는 기억 — 이걸 되찾아야 문이 열린다 (sanitizeProgress). */
+const DOOR_KEY_MEMORY = "radio" as MemoryId;
+
 /** 어드민 패널이 한 번에 밀어 넣는 진행. 안 적은 항목은 지금 값을 그대로 둔다. */
 export interface AdminPatch {
   collected?: MemoryId[];
@@ -47,6 +50,53 @@ export function applyAdminPatch(patch: AdminPatch): void {
     ...sanitizeProgress(merged),
     ...(started === undefined ? {} : { started }),
   });
+}
+
+/**
+ * 패널이 몸을 떨어뜨리는 자리.
+ *
+ * 방은 게임의 시작 자리, 거실은 문간을 막 지난 자리다 — 그 공간에 들어섰을 때 실제로
+ * 서게 되는 곳이라야 그 뒤로 걸어 다닐 수 있다(가구 발자국 밖, 걷기 범위 안).
+ */
+export const ADMIN_SPAWNS = {
+  room: { x: 0, z: 2.35 },
+  living: { x: -7, z: 5.2 },
+} as const;
+
+export type AdminSpace = keyof typeof ADMIN_SPAWNS;
+
+/**
+ * 방문을 열고 닫는다.
+ *
+ * `doorOpened: true`만 밀어 넣으면 아무 일도 안 일어난다 — sanitizeProgress가 **라디오
+ * 목소리를 들은 저장본에서만** 문을 열어 두기 때문이다(진짜 규칙이 그렇다). 그래서 문을
+ * 열 때는 그 전제(라디오 1·2차)까지 같이 채운다. 패널의 기억 격자에 radio가 2로 켜지는
+ * 것으로 무엇이 함께 채워졌는지 눈에 보인다.
+ */
+export function setAdminDoor(open: boolean): void {
+  const { collected, revisited } = useMemoryRoomStore.getState();
+  if (!open) {
+    applyAdminPatch({ doorOpened: false });
+    return;
+  }
+  applyAdminPatch({
+    collected: collected.includes(DOOR_KEY_MEMORY) ? collected : [...collected, DOOR_KEY_MEMORY],
+    revisited: revisited.includes(DOOR_KEY_MEMORY) ? revisited : [...revisited, DOOR_KEY_MEMORY],
+    doorOpened: true,
+  });
+}
+
+/**
+ * 몸을 그 공간으로 옮긴다.
+ *
+ * 거실로 갈 때는 방문도 같이 연다. 문이 닫혀 있으면 걷기 범위가 방 하나뿐이라
+ * (Player의 CLOSED_ZONES) 거실 한복판에 떨어뜨려 놔도 한 발짝도 못 움직인다 —
+ * 개발 도구가 사람을 가둬 놓는 꼴이 된다.
+ */
+export function warpToSpace(space: AdminSpace): void {
+  if (space === "living") setAdminDoor(true);
+  const spawn = ADMIN_SPAWNS[space];
+  useMemoryRoomStore.getState().warpPlayer(spawn.x, spawn.z);
 }
 
 /** 기억 하나를 다음 단계로. 패널의 셀 클릭이 부른다. */

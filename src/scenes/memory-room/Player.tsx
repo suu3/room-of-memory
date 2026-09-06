@@ -128,6 +128,27 @@ export function Player({
   }, [resetRevision, positionRef, rig]);
 
   /*
+   * 개발 도구가 몸을 옮긴다 (AdminPanel의 방/거실 버튼).
+   *
+   * 위치는 이 그룹의 변환에만 있으므로 스토어 혼자서는 못 옮긴다 — 신호를 받아 여기서
+   * 옮기고, 어느 공간에 들어왔는지도 같이 알린다(공유벽 컬링과 카메라가 그걸 본다).
+   * 걷던 상태·앉던 상태는 같이 정리한다: 자리로 걸어가던 도중에 옮겨지면 몸이 옛 목표를
+   * 향해 다시 미끄러져 돌아간다.
+   */
+  const warpTarget = useMemoryRoomStore((state) => state.warpTarget);
+  useEffect(() => {
+    const group = groupRef.current;
+    if (warpTarget === null || !group) return;
+    group.position.set(warpTarget.x, 0, warpTarget.z);
+    positionRef.current.copy(group.position);
+    useMemoryRoomStore.getState().setInLivingRoom(warpTarget.x < ROOM_SHELL_BOUNDS.minX);
+    seatRef.current = null;
+    phasesRef.current.travel = 0;
+    phasesRef.current.sit = 0;
+    walkRef.current = 0;
+  }, [warpTarget, positionRef]);
+
+  /*
    * 앉으라는 신호가 오면 그 순간 서 있던 자리를 붙잡아 둔다. 일어설 때는 목표만
    * 되돌리면 되므로(진행도가 0으로 흐른다) 좌석 정보는 다 돌아올 때까지 남겨 둔다.
    */

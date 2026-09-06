@@ -4,7 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MEMORIES } from "@/data/memory-room";
 import { PUZZLE_IDS } from "@/data/room-clues";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { applyAdminPatch, cycleAdminMemory } from "./admin-actions";
+import {
+  type AdminSpace,
+  applyAdminPatch,
+  cycleAdminMemory,
+  setAdminDoor,
+  warpToSpace,
+} from "./admin-actions";
 import { memoryStage } from "./admin-progress";
 
 /** 펼침 여부만 기억한다. 진행 저장본(rom-progress)과 섞이면 안 되므로 열쇠를 따로 쓴다. */
@@ -14,6 +20,12 @@ const OPEN_KEY = "rom-dev-admin-open";
 const TOGGLE_KEY = "`";
 
 const STAGE_LABEL = { none: "·", collected: "1", revisited: "2" } as const;
+
+/** 몸을 옮길 공간. 라벨은 화면에 뜨는 글자이자 버튼 이름이다. */
+const SPACES: readonly { id: AdminSpace; label: string }[] = [
+  { id: "room", label: "방" },
+  { id: "living", label: "거실" },
+];
 
 export function AdminPanel() {
   const [open, setOpen] = useState(false);
@@ -107,12 +119,27 @@ export function AdminPanel() {
             })}
           </div>
 
+          {/* 몸을 옮긴다. 위치는 스토어에 없어서 체크박스로는 안 되고 신호를 보내야 한다 */}
+          <div className="flex items-center gap-1">
+            <span className="text-fog">warp</span>
+            {SPACES.map((space) => (
+              <button
+                key={space.id}
+                type="button"
+                onClick={() => warpToSpace(space.id)}
+                className="cursor-pointer rounded-sm bg-night px-2 py-1 text-bone"
+              >
+                {space.label}
+              </button>
+            ))}
+          </div>
+
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               aria-label="doorOpened"
               checked={doorOpened}
-              onChange={(event) => applyAdminPatch({ doorOpened: event.target.checked })}
+              onChange={(event) => setAdminDoor(event.target.checked)}
             />
             door
           </label>
