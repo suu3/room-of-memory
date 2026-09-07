@@ -14,7 +14,7 @@ export const ASSETS = {
      */
     smartphone: "/assets/models/ch1-smartphone.glb",
     /** 본·애니메이션 포함. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다. */
-    playerBlocky: "/assets/models/player-blocky.glb?v=backed80-20260907",
+    playerBlocky: "/assets/models/player-blocky.glb?v=rounded-back80-20260908",
     /** 방 소품 (가구 모델). 전부 밑면이 y=0에 정렬돼 있다. */
     computerScreen: "/assets/models/room-computer-screen.glb",
     computerKeyboard: "/assets/models/room-computer-keyboard.glb",
@@ -24,7 +24,7 @@ export const ASSETS = {
     rug: "/assets/models/room-rug.glb",
     pottedPlant: "/assets/models/room-potted-plant.glb",
     /** 침대 베개 (사용자 제공, 흰색 재질은 코드로 입혀 Meshopt 압축). 밑면 y=0, 2.0×1.12×2.0이라 씬에서 납작하게 줄인다. */
-    pillow: "/assets/models/room-pillow.glb?v=puffed-20260907",
+    pillow: "/assets/models/room-pillow.glb?v=rect-20260908",
     /** 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있다. */
     rabbitDoll: "/assets/models/rabbit-doll.glb?v=fix-20260906",
   },

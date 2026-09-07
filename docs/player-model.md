@@ -4,19 +4,19 @@
 
 - Height: 1.55 world units; feet at Y=0; front faces +Z.
 - Skin: 23 exported bones, including two independent eye bones; at most four normalized influences per vertex.
-- Mesh: 96,836 triangles, two primitives; Meshopt compressed.
+- Mesh: 96,324 triangles, two primitives; Meshopt compressed.
 - Textures: the original 1024×1024 `CH1.FACE.png` is embedded as WebP, along with a small clothing/hair palette. No external image URL or local image path is required.
 - Clips: `Idle`, `Walk`, `Sit`, `SitDown`, `StandUp`.
 
-## Back the original 80% lock without trimming its shape (2026-09-07)
+## Round the rear of the large fringe toward the face (2026-09-08)
 
-Current revision: `?v=backed80-20260907`. The shell replacement was rejected because it changed the visible cut and tip. All 21 original mesh objects are restored from the approved root50 model, with vertex coordinates, polygon topology and weights verified unchanged. This retains the original 80% lock, tip and root bridge.
+Current revision: `?v=rounded-back80-20260908`. Start from the user's restored root50 runtime, verified byte-for-byte against the saved source export. All 21 original mesh objects retain their coordinates, polygons and weights. The original front contour, tip, 20:80 split and approved upper connection remain in place.
 
-A separate head-weighted `Hair_Center_80pct_InnerBacking` now fills the exposed region from behind. Its smooth closed surface follows the strand and extends beneath the inner edge where the malformed cap previously exposed skin. The backing is editable independently in the Blender source. This is an additive repair; the original cap and outer mesh remain intact.
+`Hair_Center_80pct_RoundedBack` adds a closed, curved rear volume. Oval sections follow the original strand width; their rear depth is guided by ray intersections with the actual face surface, rolling into the face with a small buried overlap. The ends taper, and the added right/front region is constrained behind the original front surface. This adds depth toward the face without the earlier sideways expansion or whole-lock replacement.
 
-Runtime: 96,836 triangles, two primitives, 858 KiB. Browser comparisons use the game Three.js/Meshopt loader at both three-quarter angles. A ray through the photographed slit hits skin in the original and hair in the corrected model. All 16 model/animation/cache/seat checks pass, and all five clips are preserved.
+The head-weighted volume is editable separately. Source: `work/round_hair_back.py`, based on `work/before-shell-fix.blend`. The earlier `rebuild_closed80.py` and `line_original80.py` are rejected versions, not the current source.
 
-Latest editable sources are in `<workspace>/2026-09-06/0/outputs/`; latest comparison: `hair-original-with-backing.png`. Generation: `work/line_original80.py`, based on `work/before-shell-fix.blend`. The rejected `rebuild_closed80.py` is not the current source.
+Runtime: 96,324 triangles, two primitives, 860 KiB. Validation: all original mesh hashes unchanged, new volume manifold, all five clips retained, 16 model/animation/cache/seat checks pass. Browser comparisons through the game Three.js/Meshopt loader cover the photographed angle and both side views. Latest images: `hair-rounded-back-preview.png`, `hair-rounded-back-inner-side.png` and `hair-rounded-back-side.png` in `<workspace>/2026-09-06/0/outputs/`.
 
 ## Extend the connected root another 10% (2026-09-07)
 

@@ -74,14 +74,17 @@ const BED_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 /*
- * 베개 glb(room-pillow)는 클로스 시뮬로 부풀린 정사각 2.0 × 1.12 × 2.0에 밑면 y=0. 비율은
- * 그대로 두고(0.6배 → 1.2 × 0.67 × 1.2) 매트리스에 파묻히게 놓는다 — 누운 머리는 뒤통수가
+ * 베개 glb(room-pillow)는 클로스 시뮬로 부풀린 직사각 2.12 × 1.12 × 3.39에 밑면 y=0. 긴 축이
+ * 모델의 z라 y축으로 90° 돌려 침대 가로(x)로 눕힌다. 비율은 그대로 두고(0.6배 → 가로 2.04 ×
+ * 높이 0.67 × 세로 1.27, 매트리스 폭 3.02 안) 매트리스에 파묻히게 놓는다 — 누운 머리는 뒤통수가
  * 매트리스 위 0.1쯤에 오는데(player-rig의 LIE_TILT), 베개를 그냥 얹으면 윗면이 1.48이라
  * 머리가 통째로 잠긴다. 밑면을 0.43까지 내리면 윗면이 1.1이라 머리가 베개 위에 얹히고,
  * 아래쪽은 매트리스·프레임 상자 안이라 보이지 않는다. 눌린 베개로 읽힌다.
- * 머리판(z 0.43)에 닿지 않고 z 0.9~2.1에 놓인다 — 폰(layout의 phone, z 2.9)과도 안 겹친다.
+ * 머리판(z 0.43)에 닿지 않고 z 0.87~2.13에 놓인다 — 폰(layout의 phone, z 2.9)과도 안 겹친다.
  */
 const BED_PILLOW_SCALE = 0.6;
+/** 긴 축(모델 z)을 침대 가로(x)로. */
+const BED_PILLOW_ROTATION = [0, Math.PI / 2, 0] as const;
 /** 베개 밑면 y. 매트리스 윗면(0.81)보다 이만큼 아래로 꺼뜨린다. */
 const BED_PILLOW_SINK = 0.38;
 const BED_PILLOW_POSITION = [
@@ -206,6 +209,7 @@ function Bed({ palette }: FurnitureProps) {
         <FurnitureModel
           path={ASSETS.models.pillow}
           position={BED_PILLOW_POSITION}
+          rotation={BED_PILLOW_ROTATION}
           scale={BED_PILLOW_SCALE}
         />
       </MemoryGlowSelection>
