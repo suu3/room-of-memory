@@ -8,8 +8,13 @@ export const ASSETS = {
     radio: "/assets/models/ch1-radio.glb",
     /** 러그 위 게임패드 (사용자 제공, Meshopt 압축). 원본은 세워진 자세(앞면 +z, 밑면 y=0)라 씬에서 눕힌다. */
     gamepad: "/assets/models/ch1-gamepad.glb",
+    /**
+     * 침대 위 스마트폰 (사용자 제공, Meshopt 압축). 세워진 자세(화면 +z, 밑면 y=0)라 씬에서
+     * 눕힌다. 화면 메쉬에는 재질이 안 붙어 있어 코드가 입힌다 (MemoryObjects의 MODEL_MATERIALS).
+     */
+    smartphone: "/assets/models/ch1-smartphone.glb",
     /** 본·애니메이션 포함. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다. */
-    playerBlocky: "/assets/models/player-blocky.glb?v=root50-20260907",
+    playerBlocky: "/assets/models/player-blocky.glb?v=backed80-20260907",
     /** 방 소품 (가구 모델). 전부 밑면이 y=0에 정렬돼 있다. */
     computerScreen: "/assets/models/room-computer-screen.glb",
     computerKeyboard: "/assets/models/room-computer-keyboard.glb",

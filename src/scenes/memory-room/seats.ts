@@ -31,6 +31,12 @@ export interface Seat {
    * 곧장 들어가도 된다). 침대는 옆에 섰다가 눕는 동작 중에 anchor로 올라간다.
    */
   approach?: Vec2;
+  /**
+   * 눕기 전에 걸터앉는 자리 (눕는 자리에만). 가장자리에 앉았다가 발을 올리며 anchor로
+   * 눕는다 — 서서 곧장 뒤로 넘어가면 사람이 눕는 걸로 안 읽힌다 (sit-motion의 liePhasesOf).
+   * 앉는 자리이므로 좌면 앞턱 규칙을 탄다.
+   */
+  perch?: { x: number; z: number; bodyY: number; facing: number };
   /** 앉으면 몸이 놓이는 높이 = 좌면 - SIT_CONTACT_Y. */
   bodyY: number;
   /** 앉으면 바라보는 방향(rad). 모델 정면이 +Z라 (sin, cos)가 곧 정면 벡터다. */
@@ -96,6 +102,18 @@ const BED_PILLOW_CENTER_Z = 1.5;
 const BED_LIE_Z = BED_PILLOW_CENTER_Z + LIE_HEAD.centerY * Math.cos(LIE_TILT);
 /** 침대 옆에서 올라서는 자리 — 침대 발자국(x 3.0)에서 플레이어 반지름만큼 물러선 곳. */
 const BED_APPROACH: Vec2 = { x: 2.55, z: BED_LIE_Z };
+/** 매트리스 왼쪽 변 — 방 쪽에서 걸터앉는 앞턱. */
+const BED_MATTRESS_MIN_X = 3.14;
+/**
+ * 눕기 전에 걸터앉는 자리. 앞턱에 정강이를 걸치고 방 쪽(-x)을 보고 앉는다 — 의자와 같은
+ * 앞턱 규칙이라 엉덩이는 매트리스 위, 무릎 아래는 밖이다. 발은 바닥에서 뜬다 (다른 좌면과 같다).
+ */
+const BED_PERCH = {
+  x: BED_MATTRESS_MIN_X - seatOffsetFromCenter(0),
+  z: BED_LIE_Z,
+  bodyY: BED_MATTRESS_TOP_Y - SIT_CONTACT_Y,
+  facing: -Math.PI / 2,
+} as const;
 
 /*
  * ── 거실: 소파 ──────────────────────────────────────────────────
@@ -179,6 +197,7 @@ export const SEATS: Record<SeatId, Seat> = {
     pose: "lie",
     anchor: { x: BED_CENTER_X, z: BED_LIE_Z },
     approach: BED_APPROACH,
+    perch: BED_PERCH,
     bodyY: BED_MATTRESS_TOP_Y,
     facing: 0,
     // 침대 옆면 한가운데 — 반대편(창가 쪽)은 벽이라 어차피 못 선다.

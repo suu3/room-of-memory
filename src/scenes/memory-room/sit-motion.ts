@@ -8,8 +8,32 @@
 
 /** 앉기/일어서기에 걸리는 시간(초). 클립이 쓰던 0.83보다 짧게 — 앉는 건 기다릴 일이 아니다. */
 export const SIT_SECONDS = 0.55;
-/** 눕기/일어나기에 걸리는 시간(초). 침대 옆에서 한가운데까지 올라가며 몸이 돌아눕는다 — 앉기보다 길다. */
-export const LIE_SECONDS = 0.9;
+/** 눕기/일어나기에 걸리는 시간(초). 가장자리에 걸터앉는 토막과 발을 올리며 눕는 토막을 합친 값 — 앉기보다 길다. */
+export const LIE_SECONDS = 1.5;
+/** 눕기 진행도 가운데 걸터앉기가 차지하는 몫. 나머지가 젖히는 몫이다. */
+export const LIE_PERCH_SHARE = 0.4;
+
+/**
+ * 눕는 동작의 두 토막.
+ *
+ * 서 있다가 판자처럼 뒤로 넘어가면 사람이 눕는 걸로 안 읽힌다 — 침대 가장자리에
+ * **걸터앉고**(perch), 그 다음에 발을 올리며 **뒤로 눕는다**(recline). 일어날 때는
+ * 거꾸로 상체를 세워 걸터앉은 다음 일어선다. advanceSitPhases의 sit 진행도 하나를
+ * 둘로 가른 것이라 시간 계산은 그대로 쓴다.
+ */
+export interface LiePhases {
+  /** 걸터앉은 정도 (0=서 있음, 1=가장자리에 앉음). */
+  perch: number;
+  /** 젖힌 정도 (0=걸터앉음, 1=누움). perch가 1이 된 뒤에야 오른다. */
+  recline: number;
+}
+
+export function liePhasesOf(sit: number, out: LiePhases): LiePhases {
+  const clamped = Math.max(0, Math.min(1, sit));
+  out.perch = Math.min(1, clamped / LIE_PERCH_SHARE);
+  out.recline = Math.max(0, (clamped - LIE_PERCH_SHARE) / (1 - LIE_PERCH_SHARE));
+  return out;
+}
 
 export function advanceSitProgress(current: number, seated: boolean, delta: number): number {
   const step = Math.max(0, delta) / SIT_SECONDS;

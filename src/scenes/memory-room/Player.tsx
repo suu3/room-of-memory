@@ -28,8 +28,10 @@ import { SEATS, type Seat } from "./seats";
 import {
   advanceSitPhases,
   LIE_SECONDS,
+  type LiePhases,
   lerp,
   lerpAngle,
+  liePhasesOf,
   SIT_SECONDS,
   type SitPhases,
   sitEase,
@@ -106,6 +108,8 @@ export function Player({
    */
   const seatedAt = useMemoryRoomStore((state) => state.seatedAt);
   const phasesRef = useRef<SitPhases>({ travel: 0, sit: 0 });
+  /** 눕는 자리에서 sit 진행도를 걸터앉기·젖히기로 가른 것. 프레임마다 채워 쓴다. */
+  const liePhasesRef = useRef<LiePhases>({ perch: 0, recline: 0 });
   const seatRef = useRef<{
     seat: Seat;
     standing: { x: number; z: number; facing: number };
@@ -412,28 +416,57 @@ export function Player({
      * 앉는 구간에서만 몸이 좌면 높이로 내려앉고 의자 쪽으로 돌아선다.
      */
     const sitting01 = sitEase(phases.sit);
+    // 리그에 넘길 Sit 가중치. 눕는 자리는 걸터앉았다가 젖히면서 다시 편다 — 아래서 갈라진다.
+    let sitWeight = sitting01;
     if (parked) {
-      const { anchor, bodyY, facing: seatFacing } = parked.seat;
+      const { anchor, bodyY, facing: seatFacing, perch } = parked.seat;
       const spot = parked.seat.approach ?? anchor;
       const { standing, approach } = parked;
       const eased = sitEase(phases.travel);
-      // 걷는 구간은 서는 자리까지, 앉는(눕는) 구간은 거기서 앉는 자리까지 — 의자는 둘이 같다.
-      const nextX = lerp(lerp(standing.x, spot.x, eased), anchor.x, sitting01);
-      const nextZ = lerp(lerp(standing.z, spot.z, eased), anchor.z, sitting01);
+      /*
+       * 눕는 자리는 앉는 구간이 둘로 갈린다 (sit-motion의 liePhasesOf): 가장자리(perch)에
+       * 걸터앉고, 그 다음에야 발을 올리며 뒤로 눕는다(recline). 서서 판자처럼 넘어가던
+       * 그림을 앉았다 눕는 순서로 바꾼 것이다. 의자는 걸터앉는 자리가 곧 앉는 자리라
+       * 두 번째 토막이 없다.
+       */
+      let settle01 = sitting01;
+      let recline01 = 0;
+      if (lying) {
+        const split = liePhasesOf(phases.sit, liePhasesRef.current);
+        settle01 = sitEase(split.perch);
+        recline01 = sitEase(split.recline);
+      }
+      const perchX = perch?.x ?? anchor.x;
+      const perchZ = perch?.z ?? anchor.z;
+      const perchY = perch?.bodyY ?? bodyY;
+      const perchFacing = perch?.facing ?? seatFacing;
+      // 걷는 구간은 서는 자리까지, 앉는 구간은 거기서 걸터앉는 자리까지, 눕는 구간은 다시 눕는 자리까지.
+      const nextX = lerp(
+        lerp(lerp(standing.x, spot.x, eased), perchX, settle01),
+        anchor.x,
+        recline01,
+      );
+      const nextZ = lerp(
+        lerp(lerp(standing.z, spot.z, eased), perchZ, settle01),
+        anchor.z,
+        recline01,
+      );
       const traveled = Math.hypot(nextX - group.position.x, nextZ - group.position.z);
       group.position.x = nextX;
       group.position.z = nextZ;
-      group.position.y = lerp(0, bodyY, sitting01);
+      group.position.y = lerp(lerp(0, perchY, settle01), bodyY, recline01);
       // 걸어갈 때는 가는 쪽을 보고(돌아올 때는 그 반대), 앉으면서 의자 쪽으로 돌아앉는다.
       const walkFacing = seated ? approach : approach + Math.PI;
       facing.rotation.y =
         phases.sit > 0
-          ? lerpAngle(walkFacing, seatFacing, sitting01)
+          ? lerpAngle(lerpAngle(walkFacing, perchFacing, settle01), seatFacing, recline01)
           : dampAngle(facing.rotation.y, walkFacing, TURN_LAMBDA, delta);
-      // 눕는 자리는 앉는 구간에 몸을 뒤로 젖힌다 — 발 원점을 축으로 머리가 베개 쪽으로 간다.
+      // 눕는 자리는 젖히는 토막에 몸을 뒤로 눕힌다 — 발 원점을 축으로 머리가 베개 쪽으로 간다.
       if (lieRef.current) {
-        lieRef.current.rotation.x = lying ? -(Math.PI / 2 - LIE_TILT) * sitting01 : 0;
+        lieRef.current.rotation.x = lying ? -(Math.PI / 2 - LIE_TILT) * recline01 : 0;
       }
+      // 젖히는 동안 다리를 편다 — 다 누우면 Idle을 눕힌 자세다.
+      sitWeight = settle01 * (1 - recline01);
       positionRef.current.copy(group.position);
       // 침대에 올라가는 미끄러짐은 걸음이 아니다 — 다리는 걷는 구간에서만 돈다.
       if (phases.sit === 0) {
@@ -486,14 +519,7 @@ export function Player({
     reachRef.current = MathUtils.damp(reachRef.current, reaching ? 1 : 0, REACH_LAMBDA, delta);
 
     walkRef.current = MathUtils.damp(walkRef.current, speed, WALK_BLEND_LAMBDA, delta);
-    updatePlayerRig(
-      rig,
-      phaseRef.current,
-      walkRef.current,
-      step,
-      lying ? 0 : sitting01,
-      reachRef.current,
-    );
+    updatePlayerRig(rig, phaseRef.current, walkRef.current, step, sitWeight, reachRef.current);
   });
 
   return (

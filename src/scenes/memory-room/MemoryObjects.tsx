@@ -9,7 +9,14 @@ import {
   useRef,
   useState,
 } from "react";
-import type { Color, Group, Material, Mesh, MeshStandardMaterial, PointLight } from "three";
+import {
+  type Color,
+  type Group,
+  type Material,
+  type Mesh,
+  MeshStandardMaterial,
+  type PointLight,
+} from "three";
 import { MEMORIES, type MemoryId, phaseConfigOf } from "@/data/memory-room";
 import { CLUE_AFTER_MEMORY, type ClueId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
@@ -40,6 +47,7 @@ const MODEL_PATHS = {
   ball: ASSETS.models.baseball,
   radio: ASSETS.models.radio,
   console: ASSETS.models.gamepad,
+  phone: ASSETS.models.smartphone,
 } as const satisfies Partial<Record<MemoryId, string>>;
 
 /** 게임패드 glb 가로 3.06을 러그 위 소품 크기(0.5 안팎)로 줄이는 배율. */
@@ -47,10 +55,19 @@ const GAMEPAD_SCALE = 0.16;
 /** glb 두께(z 0.92)의 절반. 눕히면 이 값이 높이의 절반이 되어, 이만큼 띄워야 밑면이 원점에 닿는다. */
 const GAMEPAD_HALF_THICKNESS = 0.46;
 
+/** 스마트폰 glb 높이 3.80을 대체물(PhoneMemory) 높이 0.72에 맞추는 배율. 가로는 0.39가 되어 폰 비율이 산다. */
+const PHONE_SCALE = 0.19;
+/** glb 두께(z 0.092)의 절반. 원점이 밑면 가운데라 두께 방향으로는 이미 중심에 있다. */
+const PHONE_MODEL_HALF_THICKNESS = 0.046;
+/** 대체물 두께 0.16의 절반. 배치표의 y가 이 두께로 매트리스에 닿게 잡혀 있어, 더 얇은 glb는 그 차이만큼 내린다. */
+const PHONE_FALLBACK_HALF_THICKNESS = 0.08;
+/** 대체물이 세워 든 자세로 갖고 있는 기울기. 배치표의 회전이 이걸 상쇄하도록 잡혀 있어 glb도 같이 기울여야 화면이 천장을 본다. */
+const PHONE_VISUAL_TILT = -0.18;
+
 /**
  * glb 하나에만 필요한 자세. 배치표(MEMORY_PLACEMENTS)의 회전·배율은 프리미티브
  * 대체물과 같이 쓰므로, 모델이 다른 자세로 들어왔을 때의 보정은 여기서 준다.
- * 게임패드는 세워진 채(앞면 +z, 밑면 y=0) 내보내져서 앞면이 위를 보게 눕힌다.
+ * 게임패드와 폰은 세워진 채(앞면 +z, 밑면 y=0) 내보내져서 앞면이 위를 보게 눕힌다.
  */
 const MODEL_POSE = {
   console: {
@@ -58,9 +75,38 @@ const MODEL_POSE = {
     rotation: [-Math.PI / 2, 0, 0],
     scale: GAMEPAD_SCALE,
   },
+  phone: {
+    // 배치표 회전을 거치면 로컬 -z가 매트리스 쪽이다 — 대체물 밑면이 닿던 깊이까지 얇은 만큼 더 내린다.
+    position: [0, 0, PHONE_MODEL_HALF_THICKNESS * PHONE_SCALE - PHONE_FALLBACK_HALF_THICKNESS],
+    rotation: [PHONE_VISUAL_TILT, 0, 0],
+    scale: PHONE_SCALE,
+  },
 } as const satisfies Partial<
   Record<MemoryId, { position: Vec3Tuple; rotation: EulerTuple; scale: number }>
 >;
+
+/**
+ * 폰 glb는 화면 메쉬에 재질이 안 붙어 나온다 — GLTFLoader가 이름 없는 기본 재질(흰색·금속성 1)을
+ * 끼우는데, 그대로면 방 조명 아래서 검게 죽는다. 대체물(PhoneMemory)과 같은 종이색 화면을
+ * 입힌다. 몸통처럼 재질이 붙어 나온 메쉬는 그대로 복제한다.
+ */
+function remakePhoneMaterial(material: Material, palette: RoomPalette): Material {
+  if (material.name !== "") return material.clone();
+  const screen = new MeshStandardMaterial({ color: palette.paper, roughness: 0.45, metalness: 0 });
+  screen.name = "phone-screen";
+  return screen;
+}
+
+/** glb 재질에 손을 대야 하는 기억. 없으면 재질을 그대로 복제한다. */
+const MODEL_MATERIALS = {
+  phone: remakePhoneMaterial,
+} as const satisfies Partial<
+  Record<MemoryId, (material: Material, palette: RoomPalette) => Material>
+>;
+
+function cloneMaterial(material: Material): Material {
+  return material.clone();
+}
 
 /** 컴퓨터는 한 기억이 glb 세 개(모니터·키보드·마우스)로 이루어진다. */
 const COMPUTER_MODEL_PATHS = [
@@ -126,24 +172,35 @@ function setMaterialOpacity(material: Material, opacity: number) {
   material.needsUpdate = true;
 }
 
-function LoadedGlb({ path, opacity, lit }: { path: string; opacity: number; lit?: boolean }) {
+function LoadedGlb({
+  path,
+  opacity,
+  lit,
+  remakeMaterial,
+}: {
+  path: string;
+  opacity: number;
+  lit?: boolean;
+  /** 재질을 바꿔 끼워야 하는 모델의 몫 (MODEL_MATERIALS). 없으면 lit 여부로 고른다. */
+  remakeMaterial?: (material: Material) => Material;
+}) {
   // The third argument explicitly enables the MeshoptDecoder configured by Drei's useGLTF.
   const { scene } = useGLTF(path, true, true);
   const cloned = useMemo(() => {
     const copy = scene.clone(true);
+    // 가구킷은 unlit이라 방 조명을 무시한다 — lit이면 조명 받는 재질로 갈아끼운다.
+    const remake = remakeMaterial ?? (lit ? toLitMaterial : cloneMaterial);
     copy.traverse((object) => {
       const mesh = object as Mesh;
       if (!mesh.isMesh) return;
       mesh.castShadow = true;
-      // 가구킷은 unlit이라 방 조명을 무시한다 — lit이면 조명 받는 재질로 갈아끼운다.
-      const remake = lit ? toLitMaterial : (material: Material) => material.clone();
       mesh.material = Array.isArray(mesh.material)
         ? mesh.material.map(remake)
         : remake(mesh.material);
     });
     // 일부 glb는 원점이 모서리에 있다 — 배치 좌표가 중심을 뜻하도록 맞춘다.
     return centerModelXZ(copy);
-  }, [scene, lit]);
+  }, [scene, lit, remakeMaterial]);
 
   useLayoutEffect(() => {
     cloned.traverse((object) => {
@@ -174,16 +231,23 @@ function GlbMemoryModel({
   path,
   fallback,
   opacity,
+  palette,
   onReady,
 }: {
   id: MemoryId;
   path: string;
   fallback: ReactNode;
   opacity: number;
+  palette: RoomPalette;
   onReady: () => void;
 }) {
   const pose = MODEL_POSE[id as keyof typeof MODEL_POSE];
-  const model = <LoadedGlb path={path} opacity={opacity} />;
+  const remakeModelMaterial = MODEL_MATERIALS[id as keyof typeof MODEL_MATERIALS];
+  const remakeMaterial = useMemo(
+    () => remakeModelMaterial && ((material: Material) => remakeModelMaterial(material, palette)),
+    [remakeModelMaterial, palette],
+  );
+  const model = <LoadedGlb path={path} opacity={opacity} remakeMaterial={remakeMaterial} />;
   return (
     <MemoryGlowVisualBoundary fallback={fallback} onVisible={onReady}>
       {/* 자세 보정은 모델에만 — 대체 프리미티브는 배치표 기준으로 이미 맞춰져 있다 */}
@@ -883,6 +947,7 @@ function MemoryVisual({
         path={modelPath}
         fallback={fallback}
         opacity={opacity}
+        palette={palette}
         onReady={onModelReady}
       />
       {overlays}

@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   advanceSitPhases,
   advanceSitProgress,
+  LIE_PERCH_SHARE,
+  type LiePhases,
   lerpAngle,
+  liePhasesOf,
   SIT_SECONDS,
   type SitPhases,
   sitEase,
@@ -70,6 +73,24 @@ describe("sit motion", () => {
     advanceSitPhases(phases, true, 1 / 60, 0, phases);
     expect(phases.travel).toBe(1);
     expect(phases.sit).toBeGreaterThan(0);
+  });
+
+  it("perches on the edge first and only then reclines, unwinding in the other order", () => {
+    const out: LiePhases = { perch: 0, recline: 0 };
+    expect(liePhasesOf(0, out)).toEqual({ perch: 0, recline: 0 });
+    // 걸터앉는 동안에는 젖히지 않는다 — 서서 넘어가는 그림이 돌아온다.
+    liePhasesOf(LIE_PERCH_SHARE / 2, out);
+    expect(out.perch).toBeCloseTo(0.5, 5);
+    expect(out.recline).toBe(0);
+    expect(liePhasesOf(LIE_PERCH_SHARE, out)).toEqual({ perch: 1, recline: 0 });
+    // 다 앉은 뒤에야 젖힌다 — 젖히는 동안 걸터앉은 자세는 그대로다.
+    liePhasesOf((1 + LIE_PERCH_SHARE) / 2, out);
+    expect(out.perch).toBe(1);
+    expect(out.recline).toBeCloseTo(0.5, 5);
+    expect(liePhasesOf(1, out)).toEqual({ perch: 1, recline: 1 });
+    // 진행도가 범위를 벗어나도 양 끝에 머문다.
+    expect(liePhasesOf(1.5, out)).toEqual({ perch: 1, recline: 1 });
+    expect(liePhasesOf(-1, out)).toEqual({ perch: 0, recline: 0 });
   });
 
   it("turns the shorter way across the -π/π seam", () => {

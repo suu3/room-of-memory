@@ -302,7 +302,8 @@ export const MEMORY_PLACEMENTS = {
      * 상호작용 반경 밖으로 밀려난다. z는 베개(z≤2.13)를 피해 발치 쪽으로.
      *
      * 회전의 X는 -π/2 + 0.18 — 뒤쪽 0.18은 PhoneMemory가 세워 든 자세로 갖고 있는
-     * 기울기를 상쇄하는 몫이라, 합치면 정확히 화면이 천장을 보고 눕는다.
+     * 기울기를 상쇄하는 몫이라, 합치면 정확히 화면이 천장을 보고 눕는다. glb(ch1-smartphone)는
+     * MemoryObjects의 MODEL_POSE가 같은 기울기와 두께 차이를 맞춘다.
      */
     position: [3.55, 0.86, 2.9],
     rotation: [-Math.PI / 2 + 0.18, 0, 0.42],

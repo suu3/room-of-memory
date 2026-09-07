@@ -127,6 +127,26 @@ describe("seats", () => {
     expect(torsoBack.y).toBeLessThan(bed.bodyY + 0.15);
   });
 
+  /*
+   * 눕기 전에 걸터앉는 자리. 의자와 같은 앞턱 규칙이다 — 매트리스 왼쪽 변(x 3.14)에
+   * 엉덩이는 올라가 있고 무릎 아래는 밖으로 나와야 한다. 방 쪽(-x)을 보고 앉는다.
+   */
+  it("perches on the mattress edge facing the room before lying down", () => {
+    const bed = SEATS.bed;
+    const MATTRESS = { minX: 3.14, topY: 0.81 };
+    const perch = bed.perch;
+    expect(perch).toBeDefined();
+    if (!perch) return;
+    expect(perch.facing).toBeCloseTo(-Math.PI / 2, 5);
+    // 로컬 z(정면)를 월드 x로 — 정면이 -x라 앞으로 갈수록 x가 준다
+    const worldX = (localZ: number) => perch.x + Math.sin(perch.facing) * localZ;
+    expect(worldX(SIT_LEG_Z.back)).toBeLessThan(MATTRESS.minX);
+    expect(worldX(SIT_CONTACT_Z.back)).toBeGreaterThan(MATTRESS.minX);
+    expect(perch.bodyY + SIT_CONTACT_Y).toBeCloseTo(MATTRESS.topY, 5);
+    // 젖힐 때 발 원점이 x로만 옮겨 가도록 z는 눕는 자리와 같다
+    expect(perch.z).toBe(bed.anchor.z);
+  });
+
   it("places each seat in the space its furniture stands in", () => {
     for (const id of SEAT_IDS) {
       const seat = SEATS[id];

@@ -4,13 +4,23 @@
 
 - Height: 1.55 world units; feet at Y=0; front faces +Z.
 - Skin: 23 exported bones, including two independent eye bones; at most four normalized influences per vertex.
-- Mesh: 83,912 triangles, two primitives; Meshopt compressed.
+- Mesh: 96,836 triangles, two primitives; Meshopt compressed.
 - Textures: the original 1024×1024 `CH1.FACE.png` is embedded as WebP, along with a small clothing/hair palette. No external image URL or local image path is required.
 - Clips: `Idle`, `Walk`, `Sit`, `SitDown`, `StandUp`.
 
+## Back the original 80% lock without trimming its shape (2026-09-07)
+
+Current revision: `?v=backed80-20260907`. The shell replacement was rejected because it changed the visible cut and tip. All 21 original mesh objects are restored from the approved root50 model, with vertex coordinates, polygon topology and weights verified unchanged. This retains the original 80% lock, tip and root bridge.
+
+A separate head-weighted `Hair_Center_80pct_InnerBacking` now fills the exposed region from behind. Its smooth closed surface follows the strand and extends beneath the inner edge where the malformed cap previously exposed skin. The backing is editable independently in the Blender source. This is an additive repair; the original cap and outer mesh remain intact.
+
+Runtime: 96,836 triangles, two primitives, 858 KiB. Browser comparisons use the game Three.js/Meshopt loader at both three-quarter angles. A ray through the photographed slit hits skin in the original and hair in the corrected model. All 16 model/animation/cache/seat checks pass, and all five clips are preserved.
+
+Latest editable sources are in `<workspace>/2026-09-06/0/outputs/`; latest comparison: `hair-original-with-backing.png`. Generation: `work/line_original80.py`, based on `work/before-shell-fix.blend`. The rejected `rebuild_closed80.py` is not the current source.
+
 ## Extend the connected root another 10% (2026-09-07)
 
-Current revision: `?v=root50-20260907`. The approved root bridge extends another 0.04 Blender units downward, from z=1.34 to z=1.30, closing approximately the upper 50% of the visible 20:80 part in total. The lower split and tips retain their approved shape. The connection retreats under the small lock at its lower end and overlaps only a narrow strip of the large lock.
+Earlier revision: `?v=root50-20260907`. The approved root bridge extends another 0.04 Blender units downward, from z=1.34 to z=1.30, closing approximately the upper 50% of the visible 20:80 part in total. The lower split and tips retain their approved shape. The connection retreats under the small lock at its lower end and overlaps only a narrow strip of the large lock.
 
 The bridge is an editable island inside `Hair_Center_80pct`. Existing large-lock coordinates and custom normals are retained, as are all other 20 meshes (hash comparison), clothes, rig and five clips. Source: `work/join_hair_root.py`, starting from `work/approved-restored80.blend`. The preceding approved connection is backed up in `work/approved-root40.blend`.
 
