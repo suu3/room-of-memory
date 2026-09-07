@@ -28,9 +28,9 @@ import {
   DRAWER_TRAVEL,
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
-import { BED_CENTER_X, BED_MATTRESS_TOP_Y, BED_PILLOW_CENTER_Z } from "./seats";
 import type { RoomPalette } from "./palette";
 import { DeskClockClue, DrawerNoteClue } from "./RoomClues";
+import { BED_CENTER_X, BED_MATTRESS_TOP_Y, BED_PILLOW_CENTER_Z } from "./seats";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
