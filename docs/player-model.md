@@ -4,17 +4,17 @@
 
 - Height: 1.55 world units; feet at Y=0; front faces +Z.
 - Skin: 23 exported bones, including two independent eye bones; at most four normalized influences per vertex.
-- Mesh: 83,850 triangles, two primitives; Meshopt compressed.
+- Mesh: 83,874 triangles, two primitives; Meshopt compressed.
 - Textures: the original 1024×1024 `CH1.FACE.png` is embedded as WebP, along with a small clothing/hair palette. No external image URL or local image path is required.
 - Clips: `Idle`, `Walk`, `Sit`, `SitDown`, `StandUp`.
 
 ## Extend the connected root another 10% (2026-09-07)
 
-Current revision: `?v=root20-20260907`. The approved root bridge extends another 0.04 Blender units downward, from z=1.46 to z=1.42, closing approximately the upper 20% of the visible 20:80 part in total. The lower split and tips retain their approved shape. The connection retreats under the small lock at its lower end and overlaps only a narrow strip of the large lock.
+Current revision: `?v=root30-20260907`. The approved root bridge extends another 0.04 Blender units downward, from z=1.42 to z=1.38, closing approximately the upper 30% of the visible 20:80 part in total. The lower split and tips retain their approved shape. The connection retreats under the small lock at its lower end and overlaps only a narrow strip of the large lock.
 
-The bridge is an editable island inside `Hair_Center_80pct`. Existing large-lock coordinates and custom normals are retained, as are all other 20 meshes (hash comparison), clothes, rig and five clips. Source: `work/join_hair_root.py`, starting from `work/approved-restored80.blend`. The preceding approved connection is backed up in `work/approved-root10.blend`.
+The bridge is an editable island inside `Hair_Center_80pct`. Existing large-lock coordinates and custom normals are retained, as are all other 20 meshes (hash comparison), clothes, rig and five clips. Source: `work/join_hair_root.py`, starting from `work/approved-restored80.blend`. The preceding approved connection is backed up in `work/approved-root20.blend`.
 
-Runtime: 83,850 triangles, two primitives, 795 KiB. The compressed GLB was decoded and rendered for visual review; all 15 model/animation/cache/seat checks passed. Latest output images: `hair-root20.png` and `root20-before-after.png`. Editable sources remain in the outputs directory described below.
+Runtime: 83,874 triangles, two primitives, 795 KiB. The compressed GLB was decoded and rendered for visual review; all 15 model/animation/cache/seat checks passed. Latest output images: `hair-root30.png` and `root30-before-after.png`. Editable sources remain in the outputs directory described below.
 
 ## Restore only the large 80% center lock (earlier revision, 2026-09-07)
 
