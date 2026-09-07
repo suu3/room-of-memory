@@ -28,6 +28,7 @@ import {
   DRAWER_TRAVEL,
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
+import { BED_CENTER_X, BED_MATTRESS_TOP_Y, BED_PILLOW_CENTER_Z } from "./seats";
 import type { RoomPalette } from "./palette";
 import { DeskClockClue, DrawerNoteClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
@@ -42,6 +43,7 @@ const ROOM_PROP_PATHS = [
   ASSETS.models.books,
   ASSETS.models.rug,
   ASSETS.models.pottedPlant,
+  ASSETS.models.pillow,
 ] as const;
 
 for (const path of ROOM_PROP_PATHS) useGLTF.preload(path, true, true);
@@ -69,8 +71,17 @@ const BED_PARTS = [
   { size: [3.15, 0.35, 5.25], position: [4.65, 0.28, 2.9], color: "ink" },
   { size: [3.02, 0.42, 5.05], position: [4.65, 0.6, 2.86], color: "slate" },
   { size: [3.22, 1.4, 0.22], position: [4.65, 0.95, 0.32], color: "ink" },
-  { size: [2.35, 0.24, 1.25], position: [4.65, 0.9, 1.5], color: "paper" },
 ] as const satisfies readonly BoxPart[];
+
+/*
+ * 베개 glb(room-pillow)는 클로스 시뮬로 부풀린 정사각 2.0 × 1.12 × 2.0에 밑면 y=0. 그대로
+ * 줄이면 폭에 비해 너무 두꺼워서(폭의 절반) 축마다 다르게 누른다 — 1.6 × 0.28 × 1.6.
+ * 두께 0.28은 예전 상자 베개(0.24)와 비슷해 누운 머리가 베개 안에 파묻히지 않는다.
+ * 머리판(z 0.43)에 닿지 않고 z 0.7~2.3에 놓인다 — 폰(layout의 phone, z 2.9)과도 안 겹친다.
+ * y는 매트리스 윗면(0.81)보다 살짝 아래 — 평평한 밑면이 윗면과 같은 높이에 있으면 z-fighting.
+ */
+const BED_PILLOW_SCALE = [0.8, 0.25, 0.8] as const;
+const BED_PILLOW_POSITION = [BED_CENTER_X, BED_MATTRESS_TOP_Y - 0.01, BED_PILLOW_CENTER_Z] as const;
 
 /*
  * z-fighting 방지 원칙: 맞닿는 두 박스의 면이 같은 좌표에 놓이면 깊이값이 같아져
@@ -185,6 +196,11 @@ function Bed({ palette }: FurnitureProps) {
     <group name="bed" {...handlers}>
       <MemoryGlowSelection selectionKey="bed" tier="prop" enabled={glowing}>
         <BoxParts parts={BED_PARTS} palette={palette} />
+        <FurnitureModel
+          path={ASSETS.models.pillow}
+          position={BED_PILLOW_POSITION}
+          scale={BED_PILLOW_SCALE}
+        />
       </MemoryGlowSelection>
     </group>
   );

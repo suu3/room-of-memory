@@ -23,7 +23,8 @@ export const ASSETS = {
     books: "/assets/models/room-books.glb",
     rug: "/assets/models/room-rug.glb",
     pottedPlant: "/assets/models/room-potted-plant.glb",
-    pillow: "/assets/models/room-pillow.glb",
+    /** 침대 베개 (사용자 제공, 흰색 재질은 코드로 입혀 Meshopt 압축). 밑면 y=0, 2.0×1.12×2.0이라 씬에서 납작하게 줄인다. */
+    pillow: "/assets/models/room-pillow.glb?v=puffed-20260907",
     /** 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있다. */
     rabbitDoll: "/assets/models/rabbit-doll.glb?v=fix-20260906",
   },

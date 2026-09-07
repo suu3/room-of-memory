@@ -12,6 +12,7 @@
 | images/mg-ball-catch-impact.webp | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-frequency-tune-frame.webp | 사용자가 직접 넣은 라디오 일러스트(2026-08-04). 흰 배경·표시창을 알파로 도려낸 뒤 webp로 변환 | 미기재 (사용자 제공) | 미기재 |
 | images/mg-window-view-outside.webp | 사용자가 직접 넣은 창밖 일러스트(2026-08-04). webp로 변환 | 미기재 (사용자 제공) | 미기재 |
+| models/room-pillow.glb | 프로젝트 제작자가 직접 만든 베개 모델(2026-09-07, 클로스 시뮬 결과를 구운 pillow.glb). 재질이 없어 흰색(baseColor 1,1,1) 재질을 넣은 뒤 `pnpm model:prep`으로 밑면을 y=0에 맞추고 Meshopt 압축 (145KB → 30KB) | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
 | models/ch1-gamepad.glb | 프로젝트 제작자가 직접 만든 게임패드 모델(2026-09-06). `pnpm model:prep`으로 밑면을 y=0에 맞추고 Meshopt 압축 (835KB → 167KB). 세워진 자세로 내보내져 씬에서 눕힌다 | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
 | models/ch1-smartphone.glb | 프로젝트 제작자가 직접 만든 스마트폰 모델(2026-09-07, 원본 smartphone.glb). `pnpm model:prep`으로 밑면을 y=0에 맞추고 Meshopt 압축 (61KB → 18KB). 세워진 자세로 내보내져 씬에서 눕히고, 화면 메쉬에 재질이 없어 코드가 종이색 화면을 입힌다 | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
 | models/rabbit-doll.glb | 프로젝트 제작자가 직접 만든 모델(2026-09-06). 밑면을 y=0에 맞추고 Meshopt 압축 (99KB → 33KB) | suu3 (프로젝트 제작자) | 프로젝트 저작물 |

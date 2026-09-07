@@ -9,7 +9,8 @@ interface FurnitureModelProps {
   path: string;
   position: Vec3Tuple;
   rotation?: EulerTuple;
-  scale: number;
+  /** 축마다 다르게 주면 납작하게 눌러 놓을 수 있다 (베개). */
+  scale: number | Vec3Tuple;
 }
 
 /**

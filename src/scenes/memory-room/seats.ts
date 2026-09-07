@@ -92,12 +92,13 @@ const DESK_CHAIR_CENTER: Vec2 = {
  * ── 방: 침대 ────────────────────────────────────────────────────
  *
  * 유일하게 눕는 자리. 매트리스(RoomFurniture BED_PARTS 둘째 상자: 윗면 0.81, x 3.14~6.16,
- * z 0.34~5.39) 한가운데에 등을 대고 머리는 베개(z 0.88~2.13, 윗면 1.02) 위에 온다.
+ * z 0.34~5.39) 한가운데에 등을 대고 머리는 베개(RoomFurniture의 Bed가 놓는 glb) 위에 온다.
  * 발 원점이 `anchor`에 오고 몸은 거기서 -z로 눕는다 (facing 0 = 정면 +z를 위로).
  */
-const BED_MATTRESS_TOP_Y = 0.81;
-const BED_CENTER_X = 4.65;
-const BED_PILLOW_CENTER_Z = 1.5;
+export const BED_MATTRESS_TOP_Y = 0.81;
+export const BED_CENTER_X = 4.65;
+/** 베개 한가운데 z — 머리가 여기 오도록 눕는 자리를 잡고, 가구도 같은 자리에 베개를 놓는다. */
+export const BED_PILLOW_CENTER_Z = 1.5;
 /** 발 원점 z — 눕힌 머리 중심(로컬 y 1.2)이 베개 한가운데에 오는 자리. */
 const BED_LIE_Z = BED_PILLOW_CENTER_Z + LIE_HEAD.centerY * Math.cos(LIE_TILT);
 /** 침대 옆에서 올라서는 자리 — 침대 발자국(x 3.0)에서 플레이어 반지름만큼 물러선 곳. */
