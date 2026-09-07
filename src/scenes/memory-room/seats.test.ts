@@ -113,7 +113,8 @@ describe("seats", () => {
     const headCenter = world(LIE_HEAD.centerY, 0);
     const headBack = world(LIE_HEAD.centerY, LIE_HEAD.backZ);
     const headTop = world(LIE_HEAD.topY, 0);
-    const PILLOW = { minZ: 0.875, maxZ: 2.125, topY: 1.02 };
+    // RoomFurniture의 Bed: 0.42배 베개(세로 0.89)를 z 1.5에, 밑면을 매트리스 아래 0.16으로 → 윗면 1.12
+    const PILLOW = { minZ: 1.055, maxZ: 1.945, topY: 1.12 };
     expect(headCenter.z).toBeGreaterThan(PILLOW.minZ);
     expect(headCenter.z).toBeLessThan(PILLOW.maxZ);
     // 머리 꼭대기가 헤드보드 앞면(0.43)을 넘어가지 않는다
