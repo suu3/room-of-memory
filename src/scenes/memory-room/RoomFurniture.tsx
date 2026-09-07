@@ -74,14 +74,21 @@ const BED_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 /*
- * 베개 glb(room-pillow)는 클로스 시뮬로 부풀린 정사각 2.0 × 1.12 × 2.0에 밑면 y=0. 그대로
- * 줄이면 폭에 비해 너무 두꺼워서(폭의 절반) 축마다 다르게 누른다 — 1.6 × 0.28 × 1.6.
- * 두께 0.28은 예전 상자 베개(0.24)와 비슷해 누운 머리가 베개 안에 파묻히지 않는다.
- * 머리판(z 0.43)에 닿지 않고 z 0.7~2.3에 놓인다 — 폰(layout의 phone, z 2.9)과도 안 겹친다.
- * y는 매트리스 윗면(0.81)보다 살짝 아래 — 평평한 밑면이 윗면과 같은 높이에 있으면 z-fighting.
+ * 베개 glb(room-pillow)는 클로스 시뮬로 부풀린 정사각 2.0 × 1.12 × 2.0에 밑면 y=0. 비율은
+ * 그대로 두고(0.6배 → 1.2 × 0.67 × 1.2) 매트리스에 파묻히게 놓는다 — 누운 머리는 뒤통수가
+ * 매트리스 위 0.1쯤에 오는데(player-rig의 LIE_TILT), 베개를 그냥 얹으면 윗면이 1.48이라
+ * 머리가 통째로 잠긴다. 밑면을 0.43까지 내리면 윗면이 1.1이라 머리가 베개 위에 얹히고,
+ * 아래쪽은 매트리스·프레임 상자 안이라 보이지 않는다. 눌린 베개로 읽힌다.
+ * 머리판(z 0.43)에 닿지 않고 z 0.9~2.1에 놓인다 — 폰(layout의 phone, z 2.9)과도 안 겹친다.
  */
-const BED_PILLOW_SCALE = [0.8, 0.25, 0.8] as const;
-const BED_PILLOW_POSITION = [BED_CENTER_X, BED_MATTRESS_TOP_Y - 0.01, BED_PILLOW_CENTER_Z] as const;
+const BED_PILLOW_SCALE = 0.6;
+/** 베개 밑면 y. 매트리스 윗면(0.81)보다 이만큼 아래로 꺼뜨린다. */
+const BED_PILLOW_SINK = 0.38;
+const BED_PILLOW_POSITION = [
+  BED_CENTER_X,
+  BED_MATTRESS_TOP_Y - BED_PILLOW_SINK,
+  BED_PILLOW_CENTER_Z,
+] as const;
 
 /*
  * z-fighting 방지 원칙: 맞닿는 두 박스의 면이 같은 좌표에 놓이면 깊이값이 같아져
