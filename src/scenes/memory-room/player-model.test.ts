@@ -67,7 +67,13 @@ describe("shipped player GLB", () => {
     }
   });
 
-  it("decodes the real compressed skin, stays at room scale, and animates both knees", async () => {
+  /*
+   * 실제 GLB(880KB)를 Meshopt로 풀고 스킨·애니메이션까지 돈다 — 로컬에서 2.5초, CI 러너에서는
+   * 기본 5초를 넘긴다 (CI #141이 이것 하나로 빨갔다). 느린 테스트가 맞으니 시간을 넉넉히 준다.
+   */
+  it("decodes the real compressed skin, stays at room scale, and animates both knees", {
+    timeout: 30_000,
+  }, async () => {
     // Node has no image decoder. Only skip texture loading; use the actual mesh,
     // inverse bind matrices, compressed buffers and animation data unchanged.
     const model = structuredClone(asset);
