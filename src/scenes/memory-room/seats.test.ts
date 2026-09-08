@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SeatId } from "@/types/seat";
+import { BED_HEADBOARD_FRONT_Z, BED_MATTRESS, BED_PILLOW } from "./bed";
 import { DINING_SET } from "./LivingRoomFurniture";
 import {
   DOORWAY_ZONE,
@@ -90,8 +91,8 @@ describe("seats", () => {
 
   /*
    * 침대는 눕는 자리다. 옆에 서는 자리(approach)는 걸을 수 있어야 하고, 눕는 자리(anchor)는
-   * 침대 발자국 안이어야 하며, 눕힌 머리는 베개 위에 와야 한다. 수치는 RoomFurniture의
-   * BED_PARTS(매트리스 윗면 0.81, 베개 z 0.88~2.13 · 윗면 1.02)와 같은 것을 본다.
+   * 침대 발자국 안이어야 하며, 눕힌 머리는 베개 위에 와야 한다. 수치는 bed.ts(침대 glb
+   * 실측 × 배치)에서 온다 — BedModel이 그리는 것과 같은 수다.
    */
   it("lies on the bed with the head on the pillow, entered from a standing spot beside it", () => {
     const bed = SEATS.bed;
@@ -113,14 +114,13 @@ describe("seats", () => {
     const headCenter = world(LIE_HEAD.centerY, 0);
     const headBack = world(LIE_HEAD.centerY, LIE_HEAD.backZ);
     const headTop = world(LIE_HEAD.topY, 0);
-    // RoomFurniture의 Bed: 0.42배 베개(세로 0.89)를 z 1.5에, 밑면을 매트리스 아래 0.16으로 → 윗면 1.12
-    const PILLOW = { minZ: 1.055, maxZ: 1.945, topY: 1.12 };
-    expect(headCenter.z).toBeGreaterThan(PILLOW.minZ);
-    expect(headCenter.z).toBeLessThan(PILLOW.maxZ);
-    // 머리 꼭대기가 헤드보드 앞면(0.43)을 넘어가지 않는다
-    expect(headTop.z).toBeGreaterThan(0.43);
+    expect(bed.bodyY).toBeCloseTo(BED_MATTRESS.topY, 5);
+    expect(headCenter.z).toBeGreaterThan(BED_PILLOW.minZ);
+    expect(headCenter.z).toBeLessThan(BED_PILLOW.maxZ);
+    // 머리 꼭대기가 머리판 앞면을 넘어가지 않는다
+    expect(headTop.z).toBeGreaterThan(BED_HEADBOARD_FRONT_Z);
     // 뒤통수는 베개 속으로 조금 잠기되(위에서 보면 파묻힌다) 베개 밑으로 꺼지지는 않는다
-    expect(headBack.y).toBeLessThan(PILLOW.topY);
+    expect(headBack.y).toBeLessThan(BED_PILLOW.topY);
     expect(headBack.y).toBeGreaterThan(bed.bodyY);
     // 등은 매트리스 위에 있다 (이불 두께만큼 뜨는 건 허용)
     const torsoBack = world(0.65, LIE_BACK_Z);
@@ -129,12 +129,12 @@ describe("seats", () => {
   });
 
   /*
-   * 눕기 전에 걸터앉는 자리. 의자와 같은 앞턱 규칙이다 — 매트리스 왼쪽 변(x 3.14)에
+   * 눕기 전에 걸터앉는 자리. 의자와 같은 앞턱 규칙이다 — 매트리스 왼쪽 변(방 쪽)에
    * 엉덩이는 올라가 있고 무릎 아래는 밖으로 나와야 한다. 방 쪽(-x)을 보고 앉는다.
    */
   it("perches on the mattress edge facing the room before lying down", () => {
     const bed = SEATS.bed;
-    const MATTRESS = { minX: 3.14, topY: 0.81 };
+    const MATTRESS = BED_MATTRESS;
     const perch = bed.perch;
     expect(perch).toBeDefined();
     if (!perch) return;

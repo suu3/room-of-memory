@@ -15,6 +15,19 @@ const PlayerPositionContext = createContext<{ current: Vector3 } | null>(null);
 
 export const PlayerPositionProvider = PlayerPositionContext.Provider;
 
+/** 씬 밖(테스트·프로바이더 바깥)에서 꺼내면 아무 데도 없는 자리 — 근접 판정이 전부 거짓이 된다. */
+const NOWHERE: { current: { x: number; y: number; z: number } } = {
+  current: { x: Number.NaN, y: Number.NaN, z: Number.NaN },
+};
+
+/**
+ * 플레이어 위치 ref. 매 프레임(useFrame) 읽는 쪽이 쓴다 — 값이 아니라 ref라
+ * 읽어도 리렌더가 나지 않는다. 켜짐/꺼짐만 필요하면 useNearPlayer가 낫다.
+ */
+export function usePlayerPosition(): { current: { x: number; y: number; z: number } } {
+  return useContext(PlayerPositionContext) ?? NOWHERE;
+}
+
 /**
  * 근접 판정 주기(ms). 매 프레임 재지 않는다 — useFrame에서 setState는 금지고
  * (.claude/rules/r3f.md), 켜졌다/꺼졌다만 알면 되는 값이라 100ms면 충분히 촘촘하다.

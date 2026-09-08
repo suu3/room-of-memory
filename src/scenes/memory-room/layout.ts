@@ -1,4 +1,5 @@
 import type { MemoryId } from "@/data/memory-room";
+import { BED_COLLIDER } from "./bed";
 import type { Aabb2, CameraPreset, EulerTuple, MemoryPlacement, Vec3Tuple } from "./types";
 
 export const ROOM_SHELL_BOUNDS: Aabb2 = { minX: -6, maxX: 8, minZ: -4, maxZ: 6.5 };
@@ -15,6 +16,57 @@ export const REFERENCE_ROOM_LAYOUT = {
 } as const;
 export const ROOM_DOOR_POSITION = [ROOM_SHELL_BOUNDS.minX + 0.14, 1.7, 5.35] as const;
 export const ROOM_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
+
+/**
+ * 방문 문짝. 경첩은 문틀 왼기둥 안쪽(문 로컬 -x로 hingeOffset)이고, 열리면 openAngle만큼
+ * 방 안쪽(+x)으로 꺾여 선다. RoomShell이 이대로 그리고, 아래 OPEN_DOOR_LEAF_COLLIDERS가
+ * 같은 판을 막는다. 현관문도 같은 각도로 연다 (LivingRoomShell).
+ *
+ * 83°까지 여는 이유: 66°(1.15)로 비스듬히 두면 판이 문간 통로로 1/3쯤 들어와서, 콜라이더를
+ * 두는 순간 문 한가운데를 향해 걷는 몸이 판에 걸려 선다. 앞벽에 거의 붙게 열어 두면
+ * 통로(z 5.08~5.45)가 몸 지름보다 넓게 남는다.
+ */
+export const ROOM_DOOR_LEAF = {
+  width: 1.45,
+  height: 3.4,
+  thickness: 0.12,
+  hingeOffset: 0.73,
+  openAngle: 1.45,
+} as const;
+
+/**
+ * 열린 문짝의 발자국 — 문이 열려 있을 때만 콜라이더에 든다 (Player). 없으면 문간을
+ * 지나는 몸이 문짝을 뚫는다.
+ *
+ * 문은 y축 +90°로 서 있어(ROOM_DOOR_ROTATION) 문 로컬 x가 월드 -z다: 경첩은 문 중심에서
+ * +z로 hingeOffset, 열린 판은 경첩에서 (sin a, -cos a) 방향으로 width만큼 뻗는다.
+ * 살짝 기운 판이라 AABB 하나로 감싸면 판보다 두꺼운 벽이 된다 — 판을 따라 상자 둘로 잇는다.
+ */
+function openDoorLeafColliders(): readonly Aabb2[] {
+  const { width, thickness, hingeOffset, openAngle } = ROOM_DOOR_LEAF;
+  const hinge = { x: ROOM_DOOR_POSITION[0], z: ROOM_DOOR_POSITION[2] + hingeOffset };
+  const direction = { x: Math.sin(openAngle), z: -Math.cos(openAngle) };
+  /** 판 두께의 절반에 판정 여유를 더한 값. */
+  const pad = thickness / 2 + 0.02;
+  const segments = 2;
+  const boxes: Aabb2[] = [];
+  for (let index = 0; index < segments; index += 1) {
+    const from = (width * index) / segments;
+    const to = (width * (index + 1)) / segments;
+    const x0 = hinge.x + direction.x * from;
+    const x1 = hinge.x + direction.x * to;
+    const z0 = hinge.z + direction.z * from;
+    const z1 = hinge.z + direction.z * to;
+    boxes.push({
+      minX: Math.min(x0, x1) - pad,
+      maxX: Math.max(x0, x1) + pad,
+      minZ: Math.min(z0, z1) - pad,
+      maxZ: Math.max(z0, z1) + pad,
+    });
+  }
+  return boxes;
+}
+export const OPEN_DOOR_LEAF_COLLIDERS = openDoorLeafColliders();
 
 /*
  * ---------------------------------------------------------------- 거실 (v2)
@@ -152,7 +204,7 @@ export const CURTAIN_STAND = { x: 1.15, z: -1.8, facing: Math.PI } as const;
 
 export const ROOM_COLLIDERS = [
   { minX: -5.48, maxX: -3.72, minZ: -3.35, maxZ: 0.95 }, // desk
-  { minX: 3, maxX: 6.3, minZ: 0.1, maxZ: 5.6 }, // bed
+  BED_COLLIDER, // 침대 — 발자국은 bed.ts가 glb 실측에서 낸다
   { minX: 0.15, maxX: 4.7, minZ: -3.35, maxZ: -2.25 }, // cabinet
   { minX: 6.3, maxX: 7.25, minZ: 0.3, maxZ: 1.2 }, // nightstand
   // 의자 — CHAIR_POSITION의 좌석/등받이 발자국(±CHAIR_SEAT.half)에서 살짝 안쪽으로 잡는다
@@ -294,18 +346,23 @@ export const MEMORY_PLACEMENTS = {
   phone: {
     id: "phone",
     /*
-     * 침대에 던져둔 폰. 매트리스 윗면은 y=0.81이고, 눕히면 두께의 절반(0.04)만큼
-     * 떠야 하므로 원점은 0.86이다.
+     * 침대 발치에 던져둔 폰. 이불 위에 놓인다 — 이불 윗면은 y=0.847(bed.ts의
+     * BED_BLANKET_TOP_Y)이고, 눕히면 두께의 절반(0.04)만큼 떠야 하므로 원점은 0.885다.
+     * 발치 끝 자락은 이불이 접혀도(BED_BLANKET_FOLDED_Z.max 너머) 같은 두께로 평평해서
+     * 폰이 뭉치에 파묻히지도, 허공에 뜨지도 않는다.
      *
-     * x는 침대 왼쪽 변(3.14)에 붙인다 — 침대는 통째로 콜라이더라 위로 올라갈 수 없고,
-     * 안쪽에 두면 콜라이더 밖에서 닿을 수 있는 가장 가까운 자리(x=2.62)에서
-     * 상호작용 반경 밖으로 밀려난다. z는 베개(z≤2.1)를 피해 발치 쪽으로.
+     * x는 매트리스 왼쪽 변(3.59)에 붙인다 — 침대는 통째로 콜라이더라 위로 올라갈 수 없고,
+     * 안쪽에 두면 콜라이더 밖에서 닿을 수 있는 가장 가까운 자리(x=3.02)에서
+     * 상호작용 반경 밖으로 밀려난다. 발치인 이유는 하나 더 있다: 기억 오브젝트는
+     * 상호작용 반경만 한 보이지 않는 구로 클릭을 받는데(MemoryObjects의 memory-hit),
+     * 침대 한가운데 두면 그 구가 매트리스를 거의 다 덮어 침대를 눌러도 폰이 눌린다.
+     * 발치에 두면 머리 쪽 절반(베개·머리판)이 침대 클릭으로 남는다.
      *
      * 회전의 X는 -π/2 + 0.18 — 뒤쪽 0.18은 PhoneMemory가 세워 든 자세로 갖고 있는
      * 기울기를 상쇄하는 몫이라, 합치면 정확히 화면이 천장을 보고 눕는다. glb(ch1-smartphone)는
      * MemoryObjects의 MODEL_POSE가 같은 기울기와 두께 차이를 맞춘다.
      */
-    position: [3.55, 0.86, 2.9],
+    position: [4.0, 0.885, 3.9],
     rotation: [-Math.PI / 2 + 0.18, 0, 0.42],
     // 손에 쥐는 물건 치고 너무 컸다 — 게임기(가로 0.46)보다 작아야 폰으로 읽힌다
     scale: 0.5,
@@ -414,7 +471,7 @@ export const CAMERA_PRESETS = {
   radio: { position: [-1.1, 2.5, 2.1], target: [-4.05, 1.31, 0.1] },
   // 라디오와 같은 통로에서 책상 안쪽(모니터)을 비스듬히 본다
   computer: { position: [-0.9, 2.7, 1.1], target: [-4.6, 1.5, -0.95] },
-  phone: { position: [6.75, 2.65, 6.25], target: [3.55, 0.95, 2.75] },
+  phone: { position: [6.75, 2.65, 6.25], target: [4.0, 0.95, 3.6] },
   calendar: { position: [-1.1, 3.6, 3.2], target: [-5.75, 2.5, 0.9] },
   ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },
   /*

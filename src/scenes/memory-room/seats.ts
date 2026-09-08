@@ -1,4 +1,5 @@
 import type { SeatId } from "@/types/seat";
+import { BED_COLLIDER, BED_MATTRESS, BED_ORIGIN, BED_PILLOW } from "./bed";
 import { CHAIR_POSITION, CHAIR_PULL, CHAIR_SEAT } from "./layout";
 import { LIE_HEAD, LIE_TILT, SIT_CONTACT_Y, SIT_LEG_Z } from "./player-rig";
 import type { Vec2 } from "./spatial";
@@ -91,26 +92,24 @@ const DESK_CHAIR_CENTER: Vec2 = {
 /*
  * ── 방: 침대 ────────────────────────────────────────────────────
  *
- * 유일하게 눕는 자리. 매트리스(RoomFurniture BED_PARTS 둘째 상자: 윗면 0.81, x 3.14~6.16,
- * z 0.34~5.39) 한가운데에 등을 대고 머리는 베개(RoomFurniture의 Bed가 놓는 glb) 위에 온다.
- * 발 원점이 `anchor`에 오고 몸은 거기서 -z로 눕는다 (facing 0 = 정면 +z를 위로).
+ * 유일하게 눕는 자리. 치수는 전부 bed.ts(침대 glb 실측 × 배치)에서 온다 — 매트리스
+ * 한가운데에 등을 대고 머리는 베개 위에 온다. 발 원점이 `anchor`에 오고 몸은 거기서
+ * -z로 눕는다 (facing 0 = 정면 +z를 위로).
  */
-export const BED_MATTRESS_TOP_Y = 0.81;
-export const BED_CENTER_X = 4.65;
-/** 베개 한가운데 z — 머리가 여기 오도록 눕는 자리를 잡고, 가구도 같은 자리에 베개를 놓는다. */
-export const BED_PILLOW_CENTER_Z = 1.5;
+const BED_MATTRESS_TOP_Y = BED_MATTRESS.topY;
 /** 발 원점 z — 눕힌 머리 중심(로컬 y 1.2)이 베개 한가운데에 오는 자리. */
-const BED_LIE_Z = BED_PILLOW_CENTER_Z + LIE_HEAD.centerY * Math.cos(LIE_TILT);
-/** 침대 옆에서 올라서는 자리 — 침대 발자국(x 3.0)에서 플레이어 반지름만큼 물러선 곳. */
-const BED_APPROACH: Vec2 = { x: 2.55, z: BED_LIE_Z };
-/** 매트리스 왼쪽 변 — 방 쪽에서 걸터앉는 앞턱. */
-const BED_MATTRESS_MIN_X = 3.14;
+const BED_LIE_Z = BED_PILLOW.centerZ + LIE_HEAD.centerY * Math.cos(LIE_TILT);
+/** 다가서는 자리와 침대 발자국 사이에 두는 거리 — 플레이어 반지름(0.38)에 여유를 더한 값. */
+const BED_STAND_OFF = 0.45;
+/** 침대 옆에서 올라서는 자리 — 침대 발자국(BED_COLLIDER)에서 플레이어 반지름만큼 물러선 곳. */
+const BED_APPROACH: Vec2 = { x: BED_COLLIDER.minX - BED_STAND_OFF, z: BED_LIE_Z };
 /**
- * 눕기 전에 걸터앉는 자리. 앞턱에 정강이를 걸치고 방 쪽(-x)을 보고 앉는다 — 의자와 같은
- * 앞턱 규칙이라 엉덩이는 매트리스 위, 무릎 아래는 밖이다. 발은 바닥에서 뜬다 (다른 좌면과 같다).
+ * 눕기 전에 걸터앉는 자리. 매트리스 왼쪽 변(방 쪽)에 정강이를 걸치고 방 쪽(-x)을 보고
+ * 앉는다 — 의자와 같은 앞턱 규칙이라 엉덩이는 매트리스 위, 무릎 아래는 밖이다. 발은
+ * 바닥에서 뜬다 (다른 좌면과 같다).
  */
 const BED_PERCH = {
-  x: BED_MATTRESS_MIN_X - seatOffsetFromCenter(0),
+  x: BED_MATTRESS.minX - seatOffsetFromCenter(0),
   z: BED_LIE_Z,
   bodyY: BED_MATTRESS_TOP_Y - SIT_CONTACT_Y,
   facing: -Math.PI / 2,
@@ -196,13 +195,13 @@ export const SEATS: Record<SeatId, Seat> = {
     id: "bed",
     space: "room",
     pose: "lie",
-    anchor: { x: BED_CENTER_X, z: BED_LIE_Z },
+    anchor: { x: BED_ORIGIN.x, z: BED_LIE_Z },
     approach: BED_APPROACH,
     perch: BED_PERCH,
     bodyY: BED_MATTRESS_TOP_Y,
     facing: 0,
     // 침대 옆면 한가운데 — 반대편(창가 쪽)은 벽이라 어차피 못 선다.
-    near: { x: 3.0, z: BED_LIE_Z },
+    near: { x: BED_COLLIDER.minX, z: BED_LIE_Z },
     reach: SEAT_REACH,
   },
   "sofa-left": sofaSeat("sofa-left", -10.28, SOFA_SIDE_SEAT_Y),

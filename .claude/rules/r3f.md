@@ -9,6 +9,7 @@
 
 - `useFrame` 안에서 `setState` 금지. ref를 직접 변이하거나 zustand의 transient subscribe(`store.subscribe`)를 쓴다.
 - 루프 안에서 `new Vector3()` 등 객체 생성 금지 — 모듈 스코프나 `useMemo`로 재사용.
+- `useMemo` 안에서 ref를 세팅하지 않는다 (예: 모델을 clone하며 특정 메쉬를 `ref.current`에 담기). 개발 모드 StrictMode는 useMemo를 두 번 부르고 두 번째 결과를 버리므로 ref가 화면에 없는 복제본을 가리킨다 — 필요한 메쉬는 useMemo의 반환값에 함께 담는다 (BedModel의 blanket).
 - 머티리얼/지오메트리는 컴포넌트 간 공유 가능하면 `useMemo` 또는 모듈 스코프로 공유.
 - 모델 로드는 `useGLTF`(drei), 프리로드는 `useGLTF.preload(path)`. 씬 전환에 쓰는 모델은 반드시 preload.
 - 언마운트되는 커스텀 지오메트리/머티리얼/텍스처는 dispose 확인 (r3f 자동 dispose에 의존하되, 수동 생성분은 직접).

@@ -6,6 +6,7 @@ import { type Group, MathUtils, Plane, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import { isAtCurtain, useMemoryRoomStore } from "@/store/memory-room";
+import { BedModel } from "./BedModel";
 import {
   CURTAIN_NEAR_RADIUS,
   CURTAIN_TAP_SLOP,
@@ -30,7 +31,6 @@ import {
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { DeskClockClue, DrawerNoteClue } from "./RoomClues";
-import { BED_CENTER_X, BED_MATTRESS_TOP_Y, BED_PILLOW_CENTER_Z } from "./seats";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
@@ -38,12 +38,12 @@ import { usePrefersReducedMotion, useSeat, useSeatPull } from "./use-seat";
 
 // 컴퓨터(모니터·키보드·마우스)는 이제 가구가 아니라 기억 오브젝트다 —
 // MemoryObjects가 그리고 프리로드한다. 여기 다시 넣으면 두 개로 보인다.
+// 침대(프레임·베개·이불 한 모델)는 BedModel이 그리고 프리로드한다.
 const ROOM_PROP_PATHS = [
   ASSETS.models.deskLamp,
   ASSETS.models.books,
   ASSETS.models.rug,
   ASSETS.models.pottedPlant,
-  ASSETS.models.pillow,
 ] as const;
 
 for (const path of ROOM_PROP_PATHS) useGLTF.preload(path, true, true);
@@ -66,33 +66,6 @@ function FurnitureBox({ part, palette }: { part: BoxPart; palette: RoomPalette }
     </mesh>
   );
 }
-
-const BED_PARTS = [
-  { size: [3.15, 0.35, 5.25], position: [4.65, 0.28, 2.9], color: "ink" },
-  { size: [3.02, 0.42, 5.05], position: [4.65, 0.6, 2.86], color: "slate" },
-  { size: [3.22, 1.4, 0.22], position: [4.65, 0.95, 0.32], color: "ink" },
-] as const satisfies readonly BoxPart[];
-
-/*
- * 베개 glb(room-pillow)는 클로스 시뮬로 부풀린 직사각 2.12 × 1.12 × 3.39에 밑면 y=0. 긴 축이
- * 모델의 z라 y축으로 90° 돌려 침대 가로(x)로 눕힌다. 비율은 누르지 않고 그대로 둔다
- * (0.42배 → 가로 1.42 × 높이 0.47 × 세로 0.89, 매트리스 폭 3.02의 절반쯤 — 1인용 베개 비율).
- * 누운 머리는 뒤통수가 매트리스 위 0.13쯤에 오므로(player-rig의 LIE_TILT) 베개 윗면은 1.1
- * 근처여야 머리가 베개 위에 얹힌다. 그래서 밑면을 매트리스 아래로 조금 내린다 — 대신 높이의
- * 2/3(0.31)는 매트리스 위로 나와 부풀린 옆면이 보인다. 더 크게 두면 그만큼 더 묻혀서
- * 윗면 슬래브만 남아 눌린 판처럼 읽힌다 (2.04 × 0.67에 0.38 묻혔을 때 그랬다).
- * 머리판(z 0.43)에 닿지 않고 z 1.06~1.94에 놓인다 — 폰(layout의 phone, z 2.9)과도 안 겹친다.
- */
-const BED_PILLOW_SCALE = 0.42;
-/** 긴 축(모델 z)을 침대 가로(x)로. */
-const BED_PILLOW_ROTATION = [0, Math.PI / 2, 0] as const;
-/** 베개 밑면 y. 매트리스 윗면(0.81)보다 이만큼 아래로 꺼뜨린다 → 윗면 1.12. */
-const BED_PILLOW_SINK = 0.16;
-const BED_PILLOW_POSITION = [
-  BED_CENTER_X,
-  BED_MATTRESS_TOP_Y - BED_PILLOW_SINK,
-  BED_PILLOW_CENTER_Z,
-] as const;
 
 /*
  * z-fighting 방지 원칙: 맞닿는 두 박스의 면이 같은 좌표에 놓이면 깊이값이 같아져
@@ -199,20 +172,22 @@ function BoxParts({ parts, palette }: { parts: readonly BoxPart[]; palette: Room
 
 /**
  * 침대. 누르면 옆으로 걸어가 올라가서 눕는다 (seats.ts의 bed) — 의자와 같은 훅이라
- * 다가가야 하고, 누워 있을 때 다시 누르면 일어난다.
+ * 다가가야 하고, 누워 있을 때 다시 누르면 일어난다. 모양과 이불 접힘은 BedModel.
  */
 function Bed({ palette }: FurnitureProps) {
   const { glowing, handlers } = useSeat("bed");
+  // 모델이 글로우가 켜진 뒤에 붙으면 선택이 비어 있다 — 붙을 때마다 다시 훑게 한다.
+  const [modelVersion, setModelVersion] = useState(0);
+  const handleModelReady = useCallback(() => setModelVersion((version) => version + 1), []);
   return (
     <group name="bed" {...handlers}>
-      <MemoryGlowSelection selectionKey="bed" tier="prop" enabled={glowing}>
-        <BoxParts parts={BED_PARTS} palette={palette} />
-        <FurnitureModel
-          path={ASSETS.models.pillow}
-          position={BED_PILLOW_POSITION}
-          rotation={BED_PILLOW_ROTATION}
-          scale={BED_PILLOW_SCALE}
-        />
+      <MemoryGlowSelection
+        selectionKey="bed"
+        tier="prop"
+        enabled={glowing}
+        selectionVersion={modelVersion}
+      >
+        <BedModel palette={palette} onModelReady={handleModelReady} />
       </MemoryGlowSelection>
     </group>
   );

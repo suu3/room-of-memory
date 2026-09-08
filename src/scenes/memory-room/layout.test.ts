@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MEMORY_IDS } from "@/data/memory-room";
+import { BED_BLANKET_FOLDED_Z, BED_BLANKET_TOP_Y, BED_FOOTPRINT, BED_MATTRESS } from "./bed";
 import { CURTAIN_NEAR_RADIUS, CURTAIN_X } from "./curtain-motion";
 import {
   BAT_PLACEMENT,
@@ -23,14 +24,17 @@ import {
   LIVING_SHELL_BOUNDS,
   MEMORY_PLACEMENTS,
   MEMORY_SPACE,
+  OPEN_DOOR_LEAF_COLLIDERS,
   REFERENCE_ROOM_LAYOUT,
   ROOM_BOUNDS,
   ROOM_COLLIDERS,
+  ROOM_DOOR_LEAF,
   ROOM_DOOR_POSITION,
   ROOM_DOOR_ROTATION,
   ROOM_SHELL_BOUNDS,
   ROOM_SHELL_CENTER,
 } from "./layout";
+import { isWalkable as standsClear } from "./spatial";
 
 const PLAYER_RADIUS = 0.38;
 const REACHABILITY_STEP = 0.05;
@@ -163,10 +167,60 @@ describe("memory-room layout", () => {
     expect(ROOM_DOOR_ROTATION[1]).toBeCloseTo(Math.PI / 2);
   });
 
-  it("gives the bed the larger reference footprint", () => {
+  it("gives the bed the larger reference footprint, wrapped in its collider", () => {
     const bed = ROOM_COLLIDERS[1];
-    expect(bed.maxX - bed.minX).toBeGreaterThanOrEqual(3.2);
-    expect(bed.maxZ - bed.minZ).toBeGreaterThanOrEqual(5.4);
+    // 콜라이더는 glb 발자국을 감싸되 그 둘레로 손가락 한 마디 이상 벌어지지 않는다
+    expect(bed.minX).toBeLessThan(BED_FOOTPRINT.minX);
+    expect(bed.maxX).toBeGreaterThan(BED_FOOTPRINT.maxX);
+    expect(bed.minZ).toBeLessThan(BED_FOOTPRINT.minZ);
+    expect(bed.maxZ).toBeGreaterThan(BED_FOOTPRINT.maxZ);
+    expect(BED_FOOTPRINT.minX - bed.minX).toBeLessThan(0.2);
+    expect(bed.maxZ - BED_FOOTPRINT.maxZ).toBeLessThan(0.2);
+    // 긴 축이 z — 머리판이 창가 쪽이다
+    expect(bed.maxZ - bed.minZ).toBeGreaterThan(bed.maxX - bed.minX);
+    // 방에서 가장 큰 가구다
+    const area = (box: { minX: number; maxX: number; minZ: number; maxZ: number }) =>
+      (box.maxX - box.minX) * (box.maxZ - box.minZ);
+    for (const other of ROOM_COLLIDERS) {
+      if (other !== bed) expect(area(bed)).toBeGreaterThan(area(other));
+    }
+  });
+
+  /*
+   * 열린 문짝은 방 안쪽으로 젖혀져 문간 앞에 선다. 콜라이더가 그 판을 감싸되, 문 한가운데를
+   * 향해 걷는 몸이 지나갈 통로는 남아야 한다 — 판을 앞벽에 거의 붙게(83°) 여는 이유다.
+   */
+  it("blocks the open door leaf without sealing the doorway", () => {
+    expect(ROOM_DOOR_ROTATION[1]).toBeCloseTo(Math.PI / 2, 5);
+    const { width, hingeOffset, openAngle } = ROOM_DOOR_LEAF;
+    const hinge = { x: ROOM_DOOR_POSITION[0], z: ROOM_DOOR_POSITION[2] + hingeOffset };
+    const tip = {
+      x: hinge.x + Math.sin(openAngle) * width,
+      z: hinge.z - Math.cos(openAngle) * width,
+    };
+    // 판은 방 안쪽(+x)에, 앞벽(maxZ) 안에 선다
+    expect(tip.x).toBeGreaterThan(ROOM_SHELL_BOUNDS.minX + 1);
+    expect(tip.z).toBeLessThan(ROOM_SHELL_BOUNDS.maxZ);
+    // 상자들이 경첩부터 판 끝까지 잇는다
+    const minX = Math.min(...OPEN_DOOR_LEAF_COLLIDERS.map((box) => box.minX));
+    const maxX = Math.max(...OPEN_DOOR_LEAF_COLLIDERS.map((box) => box.maxX));
+    expect(minX).toBeLessThan(hinge.x);
+    expect(maxX).toBeGreaterThan(tip.x);
+    const zones = [ROOM_BOUNDS, DOORWAY_ZONE, LIVING_BOUNDS] as const;
+    const blocked = [...ROOM_COLLIDERS, ...OPEN_DOOR_LEAF_COLLIDERS] as const;
+    // 판 한가운데에는 설 수 없다
+    const middle = { x: (hinge.x + tip.x) / 2, z: (hinge.z + tip.z) / 2 };
+    expect(standsClear(middle.x, middle.z, PLAYER_RADIUS, zones, blocked)).toBe(false);
+    // 문 한가운데(z 5.35)를 지나는 길은 문턱 양쪽에서 열려 있다
+    for (const x of [
+      ROOM_SHELL_BOUNDS.minX - 0.6,
+      ROOM_SHELL_BOUNDS.minX,
+      ROOM_SHELL_BOUNDS.minX + 0.6,
+    ]) {
+      expect(standsClear(x, ROOM_DOOR_POSITION[2], PLAYER_RADIUS, zones, blocked), `x=${x}`).toBe(
+        true,
+      );
+    }
   });
 
   it("rotates the desk along the left wall and tucks in the chair", () => {
@@ -272,10 +326,10 @@ describe("memory-room layout", () => {
   });
 
   /*
-   * 스마트폰은 침대에 던져둔 물건이다. 매트리스 판은 RoomFurniture의 BED_PARTS —
-   * 중심 [4.65, 0.6, 2.86], 크기 3.02 x 0.42 x 5.05라 윗면이 y=0.81이다.
+   * 스마트폰은 침대에 던져둔 물건이다. 매트리스는 bed.ts(침대 glb 실측 × 배치)의 것 —
+   * 위에 펼쳐진 이불(BED_BLANKET_TOP_Y)에 얹힌다.
    */
-  const MATTRESS = { minX: 3.14, maxX: 6.16, minZ: 0.335, maxZ: 5.385, topY: 0.81 } as const;
+  const MATTRESS = BED_MATTRESS;
   /** 눕힌 폰이 원점에서 뻗는 최대 거리 — 본체 길이의 절반(0.18)에 중심 오프셋(0.17)을 더한 값. */
   const PHONE_REACH = 0.36;
   /** 눕힌 폰의 두께 절반 (본체 0.16에 scale 0.5). */
@@ -291,10 +345,14 @@ describe("memory-room layout", () => {
     expect(phone.position[2] - PHONE_REACH).toBeGreaterThan(MATTRESS.minZ);
     expect(phone.position[2] + PHONE_REACH).toBeLessThan(MATTRESS.maxZ);
 
-    // 매트리스 위에 놓이되 눈에 띄게 뜨지는 않는다
+    // 펼친 이불 위에 놓이되 눈에 띄게 뜨지는 않는다 — 이불이 접혀 나가도 폰 두께 안이다
     const baseY = phone.position[1] - PHONE_HALF_THICKNESS;
-    expect(baseY).toBeGreaterThanOrEqual(MATTRESS.topY);
+    expect(baseY).toBeGreaterThanOrEqual(BED_BLANKET_TOP_Y - 0.005);
     expect(baseY - MATTRESS.topY).toBeLessThan(0.05);
+    // 접힌 이불 뭉치 밖 — 원점이 뭉치가 끝난 평평한 자락 위에 있다 (본체는 원점에서 0.35까지라 매트리스 끝 안)
+    const onFoldedFlatTail = phone.position[2] > BED_BLANKET_FOLDED_Z.max;
+    const beforeFold = phone.position[2] + PHONE_REACH < BED_BLANKET_FOLDED_Z.min;
+    expect(onFoldedFlatTail || beforeFold).toBe(true);
 
     // 화면이 천장을 본다 — 세워 든 자세로 침대에 서 있으면 안 된다
     expect(phone.rotation[0] + PHONE_VISUAL_TILT).toBeCloseTo(-Math.PI / 2, 5);
