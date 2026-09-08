@@ -1,7 +1,7 @@
 "use client";
 
-import { type ThreeEvent, useFrame } from "@react-three/fiber";
-import { type MutableRefObject, useCallback, useMemo, useRef } from "react";
+import { type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
+import { type MutableRefObject, useCallback, useEffect, useMemo, useRef } from "react";
 import {
   type AmbientLight,
   type DirectionalLight,
@@ -23,6 +23,7 @@ import { CameraRig } from "./memory-room/CameraRig";
 import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
 import { EndingTrigger } from "./memory-room/EndingTrigger";
+import { visibleHitsOnly } from "./memory-room/event-visibility";
 import { LivingRoomFurniture } from "./memory-room/LivingRoomFurniture";
 import { LivingRoomShell } from "./memory-room/LivingRoomShell";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
@@ -171,6 +172,15 @@ export function MemoryRoomScene({
   const recovery = useMemoryRoomStore(selectActTwoProgress);
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
   const walkTo = useMemoryRoomStore((state) => state.walkTo);
+  /*
+   * 숨긴 공간은 클릭도 받지 않는다 (event-visibility). 방은 카메라와 거실 사이에 있어서,
+   * 이 필터가 없으면 거실 바닥을 눌러도 숨은 방의 야구공이 먼저 눌린다.
+   */
+  const setEvents = useThree((state) => state.setEvents);
+  useEffect(() => {
+    setEvents({ filter: visibleHitsOnly });
+    return () => setEvents({ filter: undefined });
+  }, [setEvents]);
   /*
    * 바닥을 누르면 걸어간다. 만질 수 있는 것(기억·의자·커튼·문·스위치)은 저마다 클릭을
    * 멈추므로(stopPropagation) 여기까지 오는 클릭은 "그냥 어딘가를 눌렀다"다. 카메라를
