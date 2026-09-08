@@ -4,6 +4,7 @@ import { selectDoorReady, useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { LightSwitch } from "./LightSwitch";
 import {
+  ROOM_DOOR_LEAF,
   ROOM_DOOR_POSITION,
   ROOM_DOOR_ROTATION,
   ROOM_SHELL_BOUNDS,
@@ -151,7 +152,7 @@ const FRONT_WALL_UPPER = endWall(ROOM_SHELL_BOUNDS.maxZ, WALL_STUB_TOP_Y, WALL_Y
  * 걸어 나가야 하므로 벽에 진짜 구멍을 낸다. 구멍 가장자리는 문틀(기둥 ±0.82,
  * 상인방 y≈3.42~3.60) 뒤에 숨는 크기로 잡는다 — 단면이 보이면 안 된다.
  */
-const DOOR_HOLE_Z = {
+export const DOOR_HOLE_Z = {
   min: ROOM_DOOR_POSITION[2] - 0.82,
   max: ROOM_DOOR_POSITION[2] + 0.82,
 } as const;
@@ -225,8 +226,8 @@ const WINDOW_FRAME = [
   { size: [0.1, 2.48, 0.13], position: [0, 0, 0.02] },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
-/** 문짝이 도는 축 — 왼쪽 문틀 안쪽. */
-const DOOR_HINGE_X = 0.73;
+/** 문짝이 도는 축 — 왼쪽 문틀 안쪽. 콜라이더(layout의 OPEN_DOOR_LEAF_COLLIDERS)와 같은 수다. */
+const DOOR_HINGE_X = ROOM_DOOR_LEAF.hingeOffset;
 
 const DOOR_FRAME = [
   { size: [0.18, 3.62, 0.18], position: [-0.82, 0.09, 0] },
@@ -355,11 +356,14 @@ export function RoomShell({
         }}
       >
         {/* 문짝만 경첩(왼쪽 문틀)을 축으로 열린다. 문틀·손잡이는 제자리에 남는다. */}
-        <group position={[-DOOR_HINGE_X, 0, 0]} rotation={[0, doorOpen ? -1.15 : 0, 0]}>
+        <group
+          position={[-DOOR_HINGE_X, 0, 0]}
+          rotation={[0, doorOpen ? -ROOM_DOOR_LEAF.openAngle : 0, 0]}
+        >
           <MemoryGlowSelection selectionKey="room-door" tier="memory" enabled={doorReady}>
             <group position={[DOOR_HINGE_X, 0, 0]}>
               <ShellBox
-                size={[1.45, 3.4, 0.12]}
+                size={[ROOM_DOOR_LEAF.width, ROOM_DOOR_LEAF.height, ROOM_DOOR_LEAF.thickness]}
                 position={[0, 0, 0]}
                 color={palette.navy}
                 castShadow

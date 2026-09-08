@@ -12,9 +12,12 @@ import {
   FRONT_DOOR_ROTATION,
   LIVING_SHELL_BOUNDS,
   LIVING_SHELL_CENTER,
+  ROOM_DOOR_LEAF,
+  ROOM_DOOR_POSITION,
 } from "./layout";
 import { approach } from "./memory-motion";
 import type { RoomPalette } from "./palette";
+import { DOOR_HOLE_Z } from "./RoomShell";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
@@ -88,6 +91,63 @@ const DOOR_FRAME = [
   { size: [1.82, 0.18, 0.18], position: [0, 1.81, 0] },
 ] as const satisfies readonly ShellPart[];
 
+/*
+ * 방으로 돌아가는 문간 — 공유벽(x = LIVING_SHELL_BOUNDS.maxX)의 거실 쪽 얼굴.
+ *
+ * 거실에 있는 동안 방은 통째로 숨는다(MemoryRoomScene). 그러면 공유벽과 방문도 같이
+ * 사라져 거실의 +x 변은 바닥이 허공으로 끊긴 단면이 되고, 어디로 되돌아가는지 읽을 수
+ * 없었다. 그래서 그 변에 거실 것을 따로 세운다: 다른 세 면과 같은 굽도리(문 자리는
+ * 비운다)와 문턱에 고인 방의 빛. 문틀·문짝은 그리지 않는다 — 이 변은 카메라 쪽이라
+ * 키 큰 문틀이 거실을 가리고, 문짝은 숨은 방의 허공에 뜬 판이 된다. 방에 있는 동안은
+ * 거실이 통째로 숨으므로 방의 왼벽과 겹쳐 깜빡일 일은 없다.
+ *
+ * 누르는 물건은 아니다 — 문턱을 넘으면 방이다.
+ */
+const SHARED_WALL_X = LIVING_SHELL_BOUNDS.maxX;
+
+/** 공유벽 굽도리 한 토막 — 방의 왼벽 굽도리와 같은 자리에서 문 개구부(DOOR_HOLE_Z)를 비운다. */
+function sharedWallStub(minZ: number, maxZ: number): ShellPart {
+  return {
+    size: [WALL_THICKNESS, WALL_STUB_TOP_Y - WALL_Y.min, maxZ - minZ],
+    position: [SHARED_WALL_X, (WALL_Y.min + WALL_STUB_TOP_Y) / 2, (minZ + maxZ) / 2],
+  };
+}
+
+export const ROOM_DOORWAY_STUBS = [
+  sharedWallStub(LIVING_SHELL_BOUNDS.minZ, DOOR_HOLE_Z.min),
+  sharedWallStub(DOOR_HOLE_Z.max, LIVING_SHELL_BOUNDS.maxZ),
+] as const satisfies readonly ShellPart[];
+
+/** 문턱 안쪽 거실 바닥에 고인 빛 — 방에서 새어 나온다. 문틀 폭보다 조금 좁게. */
+const THRESHOLD_GLOW: ShellPart = {
+  size: [1.1, 0.02, DOOR_HOLE_Z.max - DOOR_HOLE_Z.min - 0.24],
+  position: [SHARED_WALL_X - 0.7, 0.012, ROOM_DOOR_POSITION[2]],
+};
+
+function RoomDoorway({ palette }: { palette: RoomPalette }) {
+  return (
+    <group name="room-doorway">
+      {ROOM_DOORWAY_STUBS.map((part) => (
+        <ShellBox key={part.position.join(":")} part={part} color={palette.bone} />
+      ))}
+      <ShellBox
+        part={THRESHOLD_GLOW}
+        color={palette.memory}
+        emissive={palette.memory}
+        emissiveIntensity={0.45}
+      />
+      {/* 방에서 문간으로 떨어지는 빛 — 현관 쪽 빛과 같은 문법, 방향만 반대다 */}
+      <pointLight
+        position={[SHARED_WALL_X - 0.6, 2.2, ROOM_DOOR_POSITION[2]]}
+        color={palette.memory}
+        intensity={0.55}
+        distance={6}
+        decay={2}
+      />
+    </group>
+  );
+}
+
 /** 준비 전에도 아주 옅게 빛난다 — "저 문이 출구다"까지만 말한다 (배트와 같은 문법). */
 const DORMANT_EMISSIVE = 0.04;
 const READY_EMISSIVE = 0.65;
@@ -147,7 +207,7 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
     const leaf = leafRef.current;
     if (!leaf) return;
     // 열리는 각도는 방문과 같은 문법 — 다만 밖으로 민다
-    leaf.rotation.y = approach(leaf.rotation.y, started ? 1.15 : 0, 4, delta);
+    leaf.rotation.y = approach(leaf.rotation.y, started ? ROOM_DOOR_LEAF.openAngle : 0, 4, delta);
     glowRef.current = approach(
       glowRef.current,
       clickable && (hovered || near) ? READY_EMISSIVE : ready ? 0.3 : DORMANT_EMISSIVE,
@@ -256,6 +316,7 @@ export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
       </CulledWall>
 
       <FrontDoor palette={palette} />
+      <RoomDoorway palette={palette} />
 
       {/* 현관 쪽에서 새어 드는 빛 — 방문 밑 금빛 틈의 출처가 여기다 */}
       <pointLight
