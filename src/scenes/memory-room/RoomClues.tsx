@@ -116,13 +116,13 @@ export function DrawerNoteClue({ palette, open }: { palette: RoomPalette; open: 
       <group position={DRAWER_NOTE.position} rotation={DRAWER_NOTE.rotation}>
         <mesh castShadow>
           <boxGeometry args={DRAWER_NOTE.size} />
-          <meshStandardMaterial color={palette.paper} roughness={0.9} />
+          <meshStandardMaterial color={palette.linen} roughness={0.9} />
         </mesh>
         {/* 적힌 글씨 대신 잉크 두 줄 — 이게 없으면 흰 조각으로만 읽힌다 */}
         {NOTE_INK_LINES.map((offsetZ) => (
           <mesh key={offsetZ} position={[0, DRAWER_NOTE.size[1] / 2 + 0.002, offsetZ]}>
             <boxGeometry args={[DRAWER_NOTE.size[0] * 0.62, 0.002, 0.012]} />
-            <meshStandardMaterial color={palette.ink} roughness={0.9} />
+            <meshStandardMaterial color={palette.frame} roughness={0.9} />
           </mesh>
         ))}
       </group>

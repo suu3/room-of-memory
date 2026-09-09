@@ -4,6 +4,7 @@ import { ArrowRight } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { BUTTON_PRIMARY } from "./ui-classes";
 
 /** 문이 열리는 걸 보여주고 나서 화면을 덮는다 — 배트를 쥔 손과 문이 이어져 보이도록. */
 const DOOR_BEAT_MS = 1800;
@@ -47,20 +48,14 @@ export function EndingScreen() {
     >
       {showCard ? (
         <div className="flex animate-fade-rise flex-col items-center gap-7 text-center">
-          <p className="font-pixel text-xs tracking-[0.4em] text-memory/80">
-            {t("ending.eyebrow")}
-          </p>
-          <h2 className="max-w-lg break-ko text-pretty text-3xl font-bold leading-snug tracking-tight text-paper md:text-4xl">
+          <p className="font-pixel text-xs tracking-[0.3em] text-memory">{t("ending.eyebrow")}</p>
+          <h2 className="max-w-lg break-ko text-pretty font-pixel text-3xl leading-snug text-ivory md:text-4xl">
             {t("ending.line")}
           </h2>
-          <p className="max-w-md break-ko text-pretty text-sm leading-relaxed text-bone/55">
+          <p className="max-w-md break-ko text-pretty text-sm leading-normal text-fog">
             {t("ending.note")}
           </p>
-          <button
-            type="button"
-            onClick={reset}
-            className="mt-2 flex cursor-pointer items-center gap-2 rounded-full bg-paper px-9 py-3 text-sm font-bold tracking-[0.2em] text-ink shadow-panel transition-transform hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
-          >
+          <button type="button" onClick={reset} className={`${BUTTON_PRIMARY} mt-2 px-8 py-3`}>
             {t("ending.again")}
             <ArrowRight size={15} weight="bold" />
           </button>

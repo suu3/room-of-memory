@@ -128,7 +128,7 @@ function RoomDoorway({ palette }: { palette: RoomPalette }) {
   return (
     <group name="room-doorway">
       {ROOM_DOORWAY_STUBS.map((part) => (
-        <ShellBox key={part.position.join(":")} part={part} color={palette.bone} />
+        <ShellBox key={part.position.join(":")} part={part} color={palette.trim} />
       ))}
       <ShellBox
         part={THRESHOLD_GLOW}
@@ -240,7 +240,7 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
         <FrontDoorLeaf palette={palette} ready={ready} glowRef={glowRef} />
       </group>
       {DOOR_FRAME.map((part) => (
-        <ShellBox key={part.position.join(":")} part={part} color={palette.ink} />
+        <ShellBox key={part.position.join(":")} part={part} color={palette.frame} />
       ))}
     </group>
   );
@@ -268,7 +268,7 @@ function FrontDoorLeaf({
         <boxGeometry args={[1.45, 3.4, 0.12]} />
         <meshStandardMaterial
           ref={materialRef}
-          color={ready ? palette.memory : palette.dusk}
+          color={ready ? palette.memory : palette.wood}
           emissive={palette.memory}
           emissiveIntensity={DORMANT_EMISSIVE}
           roughness={0.82}
@@ -276,7 +276,7 @@ function FrontDoorLeaf({
       </mesh>
       <mesh position={[0.48, 0, 0.1]}>
         <boxGeometry args={[0.11, 0.11, 0.1]} />
-        <meshStandardMaterial color={palette.ember} roughness={0.82} />
+        <meshStandardMaterial color={palette.amber} roughness={0.82} />
       </mesh>
     </>
   );
@@ -284,9 +284,9 @@ function FrontDoorLeaf({
 
 export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
   /*
-   * 색이 방과 다르다 — 방은 도해 취향의 어두운 남색(slate) 벽인데, 거실은 부모님이
-   * 꾸민 밝은 벽지(paper)다. 문 하나 건넜을 뿐인데 공기가 달라지는 게 이 색 차이가
-   * 하는 일의 전부다. 바닥은 장판 느낌의 따뜻한 올리브.
+   * 색이 방과 다르다 — 방은 도해 취향의 깊은 네이비 벽인데, 거실은 부모님이
+   * 꾸민 밝은 벽지(linen)다. 문 하나 건넜을 뿐인데 공기가 달라지는 게 이 색 차이가
+   * 하는 일의 전부다. 바닥은 마루 느낌의 우드.
    */
   return (
     <group name="living-room-shell">
@@ -294,25 +294,25 @@ export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
         <ShellBox
           key={part.position.join(":")}
           part={part}
-          color={index === 0 ? palette.ink : palette.void}
+          color={index === 0 ? palette.frame : palette.void}
         />
       ))}
-      <ShellBox part={FLOOR} color={palette.olive} />
+      <ShellBox part={FLOOR} color={palette.wood} />
 
       {BASE_WALLS.map((part) => (
-        <ShellBox key={part.position.join(":")} part={part} color={palette.bone} />
+        <ShellBox key={part.position.join(":")} part={part} color={palette.trim} />
       ))}
 
       {/* 걷히는 규칙은 방과 같되, 중심이 거실이다 — 카메라가 거실의 어느 쪽에
           있느냐로 계산해야 앞벽만 걷히고 뒷벽·현관벽은 서 있는다 */}
       <CulledWall side="back" center={LIVING_SHELL_CENTER}>
-        <ShellBox part={BACK_WALL_UPPER} color={palette.paper} />
+        <ShellBox part={BACK_WALL_UPPER} color={palette.linen} />
       </CulledWall>
       <CulledWall side="front" center={LIVING_SHELL_CENTER}>
-        <ShellBox part={FRONT_WALL_UPPER} color={palette.paper} />
+        <ShellBox part={FRONT_WALL_UPPER} color={palette.linen} />
       </CulledWall>
       <CulledWall side="left" center={LIVING_SHELL_CENTER}>
-        <ShellBox part={LEFT_WALL_UPPER} color={palette.paper} />
+        <ShellBox part={LEFT_WALL_UPPER} color={palette.linen} />
       </CulledWall>
 
       <FrontDoor palette={palette} />

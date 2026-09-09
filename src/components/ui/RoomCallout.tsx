@@ -45,8 +45,8 @@ export function RoomCallout() {
   if (!visible) return null;
 
   return (
-    <p className="pointer-events-none absolute bottom-20 left-1/2 z-10 w-full max-w-xl -translate-x-1/2 animate-fade-rise break-ko text-pretty px-4 text-center font-pixel text-lg text-memory">
-      「 {t("callout.frame")} 」
+    <p className="monologue-text pointer-events-none absolute bottom-20 left-1/2 z-10 w-full max-w-xl -translate-x-1/2 animate-fade-rise break-ko text-pretty px-4 text-center font-pixel text-lg leading-normal text-memory">
+      {t("callout.frame")}
     </p>
   );
 }

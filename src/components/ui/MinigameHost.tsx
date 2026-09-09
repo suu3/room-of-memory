@@ -9,6 +9,7 @@ import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
 import { SuccessBurst } from "./SuccessBurst";
+import { BUTTON_PRIMARY, HUD_ICON_BUTTON_SOLID, PANEL_DARK } from "./ui-classes";
 
 /**
  * overlay 모드 미니게임 호스트. canvas 모드는 3D 씬 도입 전까지 스킵 처리(진행이
@@ -132,7 +133,7 @@ export function MinigameHost() {
                 playSound("close");
                 cancelMinigame();
               }}
-              className="absolute right-4 top-4 z-10 grid size-11 cursor-pointer place-items-center rounded-full border border-bone/40 bg-scene-void/70 text-xl font-bold leading-none text-bone backdrop-blur-sm transition-all hover:border-bone hover:text-paper active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+              className={`absolute right-4 top-4 z-10 ${HUD_ICON_BUTTON_SOLID}`}
             >
               <X size={20} weight="bold" />
             </button>
@@ -151,11 +152,13 @@ export function MinigameHost() {
               />
             </Suspense>
           ) : (
-            <div className="w-[38rem] max-w-[94vw] animate-fade-rise rounded-xl border border-bone bg-paper p-8 text-center shadow-panel">
-              <h2 className="break-ko text-2xl font-bold tracking-tight text-ink">
+            <div
+              className={`w-[38rem] max-w-[94vw] animate-fade-rise p-6 text-center sm:p-8 ${PANEL_DARK}`}
+            >
+              <h2 className="break-ko text-xl font-medium leading-snug text-ivory">
                 {t(hosted.titleKey)}
               </h2>
-              <p className="mt-3 break-ko text-pretty text-base leading-relaxed text-ink/70">
+              <p className="mt-3 break-ko text-pretty text-[0.9375rem] leading-normal text-fog">
                 {hint(hosted.helpKey)}
               </p>
               {/*
@@ -168,9 +171,9 @@ export function MinigameHost() {
                   {hosted.rulesKeys.map((key) => (
                     <li
                       key={key}
-                      className="flex gap-2 break-ko text-pretty text-sm leading-relaxed text-ink/60"
+                      className="flex gap-2 break-ko text-pretty text-sm leading-normal text-fog"
                     >
-                      <span className="shrink-0 font-bold text-memory" aria-hidden>
+                      <span className="shrink-0 font-medium text-memory" aria-hidden>
                         ·
                       </span>
                       <span>{hint(key)}</span>
@@ -185,7 +188,7 @@ export function MinigameHost() {
                   playSound("select");
                   setStartedKey(activeKey);
                 }}
-                className="mt-7 cursor-pointer rounded-full bg-ink px-10 py-2.5 text-base font-bold tracking-widest text-paper transition-all hover:bg-ink/85 active:translate-y-px active:bg-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+                className={`${BUTTON_PRIMARY} mt-7 px-8 py-3 text-base`}
               >
                 {t("minigame.start")}
               </button>

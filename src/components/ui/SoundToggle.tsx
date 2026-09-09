@@ -4,6 +4,7 @@ import { SpeakerSimpleHigh, SpeakerSimpleSlash } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { HUD_ICON_BUTTON } from "./ui-classes";
 
 /**
  * 소리 on/off. HUD 메뉴 안에 있던 걸 밖으로 꺼냈다.
@@ -34,14 +35,12 @@ export function SoundToggle() {
       }}
       // 꺼져 있을 때 글자색을 죽인다. 빗금 아이콘만으로도 읽히지만, 작은 아이콘 하나가
       // 유일한 표시라 상태를 색으로도 한 번 더 말해 준다.
-      className={`grid size-10 cursor-pointer place-items-center rounded-full border border-bone bg-paper shadow-chip transition-all hover:-translate-y-0.5 hover:border-memory hover:text-ink active:translate-y-0 active:scale-95 ${
-        soundMuted ? "text-ink/40" : "text-ink/80"
-      }`}
+      className={`${HUD_ICON_BUTTON} ${soundMuted ? "text-ash" : ""}`}
     >
       {soundMuted ? (
-        <SpeakerSimpleSlash size={18} weight="bold" />
+        <SpeakerSimpleSlash size={20} weight="bold" />
       ) : (
-        <SpeakerSimpleHigh size={18} weight="bold" />
+        <SpeakerSimpleHigh size={20} weight="bold" />
       )}
     </button>
   );

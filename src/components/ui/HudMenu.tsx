@@ -6,16 +6,21 @@ import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
+import {
+  BACKDROP,
+  BUTTON_DESTRUCTIVE,
+  BUTTON_QUIET,
+  CHIP_BASE,
+  CHIP_IDLE,
+  CHIP_SELECTED,
+  HUD_ICON_BUTTON,
+  MENU_ITEM,
+  PANEL_DARK,
+  SECTION_LABEL,
+} from "./ui-classes";
 
-const ITEM_CLASS =
-  "block w-full cursor-pointer rounded-md px-2.5 py-2 text-left text-xs font-bold tracking-widest text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink active:bg-ink/10";
-
-/** 한 줄에 둘이 나눠 앉는 항목 — 폭만 반씩, 나머지는 ITEM_CLASS와 같다. */
-const PAIR_ITEM_CLASS =
-  "flex-1 cursor-pointer rounded-md px-2.5 py-2 text-left text-xs font-bold tracking-widest text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink active:bg-ink/10";
-
-const CHIP_CLASS =
-  "cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-xs font-bold tracking-widest text-ink/60 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5";
+/** 한 줄에 둘이 나눠 앉는 항목 — 폭만 반씩, 나머지는 MENU_ITEM과 같다. */
+const PAIR_ITEM_CLASS = `${MENU_ITEM} flex-1 justify-center text-center`;
 
 export function HudMenu() {
   const { t } = useTranslation();
@@ -60,22 +65,19 @@ export function HudMenu() {
         }}
         aria-expanded={open}
         aria-label={open ? t("menu.close") : t("menu.open")}
-        className="grid size-10 cursor-pointer place-items-center rounded-full border border-bone bg-paper text-ink/80 shadow-chip transition-all hover:-translate-y-0.5 hover:border-memory hover:text-ink active:translate-y-0 active:scale-95"
+        // 열려 있는 동안은 패널과 같은 표면으로 서서 "이 버튼이 저 패널의 것"임을 말한다
+        className={`${HUD_ICON_BUTTON} ${open ? "border-line bg-surface text-ivory" : ""}`}
       >
-        {open ? <X size={18} weight="bold" /> : <List size={18} weight="bold" />}
+        {open ? <X size={20} weight="bold" /> : <List size={20} weight="bold" />}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-68 animate-fade-rise rounded-xl border border-bone bg-paper p-5 shadow-panel">
-          <p className="px-0.5 text-xs font-bold tracking-widest text-ink/50">
-            {t("language.label")}
-          </p>
+        <div className={`absolute right-0 top-full mt-2 w-68 animate-fade-rise p-4 ${PANEL_DARK}`}>
+          <p className={`px-1 ${SECTION_LABEL}`}>{t("language.label")}</p>
           <div className="mt-2">
-            <LanguageToggle />
+            <LanguageToggle tone="dark" />
           </div>
-          <p className="mt-4 px-0.5 text-xs font-bold tracking-widest text-ink/50">
-            {t("difficulty.label")}
-          </p>
+          <p className={`mt-4 px-1 ${SECTION_LABEL}`}>{t("difficulty.label")}</p>
           {/* 이지=스킵 열림, 보통=스킵 숨김. 게이트는 useSkipEligible 한 곳 (minigames/shell) */}
           <fieldset className="mt-2 flex gap-1.5">
             <legend className="sr-only">{t("difficulty.label")}</legend>
@@ -88,23 +90,19 @@ export function HudMenu() {
                   setDifficulty(mode);
                 }}
                 aria-pressed={difficulty === mode}
-                className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-bold tracking-widest transition-colors ${
-                  difficulty === mode
-                    ? "border-ink bg-ink text-paper"
-                    : "border-ink/15 text-ink/60 hover:border-ink/40 hover:text-ink active:bg-ink/5"
-                }`}
+                className={`${CHIP_BASE} ${difficulty === mode ? CHIP_SELECTED : CHIP_IDLE}`}
               >
                 {t(`difficulty.${mode}`)}
               </button>
             ))}
           </fieldset>
           {/* 어느 쪽이 켜져 있는지 말로도 남긴다 — 칩 두 개만으로는 뜻이 안 읽힌다 */}
-          <p className="mt-1.5 px-0.5 text-[0.6875rem] leading-relaxed text-ink/45">
+          <p className="mt-1.5 break-ko px-1 text-xs leading-normal text-ash">
             {t(difficulty === "easy" ? "difficulty.easyHint" : "difficulty.normalHint")}
           </p>
           {/* 소리 on/off는 메뉴 밖으로 나갔다 — SoundToggle 참고. */}
           {/* 수첩은 여기 없다 — 오른쪽 가장자리 손잡이(NotebookTab)가 유일한 입구다. */}
-          <div className="my-3 h-px bg-ink/10" />
+          <div className="my-3 h-px bg-line" />
           {/* 만든 사람 · 피드백은 성격이 같은 부속 화면이라 한 줄에 나란히 둔다 */}
           <div className="flex items-center">
             <button
@@ -118,7 +116,7 @@ export function HudMenu() {
             >
               {t("hud.contact")}
             </button>
-            <span aria-hidden className="mx-1 h-3.5 w-px flex-none bg-ink/15" />
+            <span aria-hidden className="mx-1 h-3.5 w-px flex-none bg-line" />
             <button
               type="button"
               onClick={() => {
@@ -131,13 +129,15 @@ export function HudMenu() {
               {t("feedback.title")}
             </button>
           </div>
+          {/* 리셋은 다른 항목과 갈라 세운다 — 되돌릴 수 없는 유일한 항목이다 */}
+          <div className="my-3 h-px bg-line" />
           <button
             type="button"
             onClick={() => {
               setOpen(false);
               setConfirming(true);
             }}
-            className={ITEM_CLASS}
+            className={`${MENU_ITEM} text-ash hover:text-ember`}
           >
             {t("hud.reset")}
           </button>
@@ -145,35 +145,36 @@ export function HudMenu() {
       )}
 
       {confirming && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center overflow-hidden p-4 bg-scene-void/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-30 flex items-center justify-center overflow-hidden p-4">
+          <div aria-hidden className={BACKDROP} />
           <div
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="reset-dialog-title"
-            className="w-full max-w-md animate-fade-rise rounded-xl border border-bone bg-paper p-7 shadow-panel"
+            className={`relative w-full max-w-md animate-fade-rise p-6 ${PANEL_DARK}`}
           >
             <div className="flex items-start gap-3.5">
               {/* 되돌릴 수 없는 동작이라 아이콘으로 먼저 걸러준다 — 텍스트가 이미 설명하므로 장식 */}
               <span
                 aria-hidden
-                className="grid size-9 flex-none place-items-center rounded-full bg-ember/12 text-ember"
+                className="grid size-9 flex-none place-items-center rounded-full bg-ember/20 text-ember"
               >
                 <Warning size={19} weight="fill" />
               </span>
               <div className="min-w-0">
                 <h2
                   id="reset-dialog-title"
-                  className="break-ko text-base font-bold tracking-tight text-ink"
+                  className="break-ko text-base font-medium leading-snug text-ivory"
                 >
                   {t("reset.title")}
                 </h2>
-                <p className="mt-2.5 break-ko text-pretty text-sm leading-relaxed text-ink/70">
+                <p className="mt-2 break-ko text-pretty text-sm leading-normal text-fog">
                   {t("reset.body")}
                 </p>
               </div>
             </div>
             <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={() => setConfirming(false)} className={CHIP_CLASS}>
+              <button type="button" onClick={() => setConfirming(false)} className={BUTTON_QUIET}>
                 {t("reset.cancel")}
               </button>
               <button
@@ -183,7 +184,7 @@ export function HudMenu() {
                   reset();
                   setConfirming(false);
                 }}
-                className="cursor-pointer rounded-full bg-ink px-4 py-1.5 text-xs font-bold tracking-widest text-paper transition-all hover:bg-ink/85 active:translate-y-px active:bg-ink"
+                className={BUTTON_DESTRUCTIVE}
               >
                 {t("reset.confirm")}
               </button>

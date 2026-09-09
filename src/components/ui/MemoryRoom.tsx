@@ -111,11 +111,11 @@ export function MemoryRoom() {
         자리에서 한 줄씩 알린다.
       */}
       {isDoorReady && !endingStarted ? (
-        <p className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.3em] text-memory/80">
+        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory">
           {t("door.ready")}
         </p>
       ) : isBatReady && !endingStarted ? (
-        <p className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.3em] text-memory/80">
+        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory">
           {t("door.exitReady")}
         </p>
       ) : null}
@@ -132,21 +132,22 @@ export function MemoryRoom() {
       />
       <div aria-hidden className="film-grain pointer-events-none absolute inset-0" />
 
-      {/* 타이틀 + 진행 — 아래쪽 칩과 숫자가 겹치던 걸 하나로 합쳤다 */}
+      {/*
+        타이틀 + 진행. 밝은 캡슐 없이 장면 위에 글자만 얹는다 — 그림자(.monologue-text)가
+        밝은 물건 위에서도 글자를 세운다. 진행은 가는 분절 막대와 숫자 하나다.
+      */}
       {started && (
-        <header className="absolute left-6 top-6 z-10 flex flex-col gap-3">
-          <div className="w-fit rounded-xl border border-bone bg-paper px-5 py-2 shadow-chip">
-            <h1 className="text-lg font-bold tracking-tight text-ink">{t("title")}</h1>
-          </div>
-          <div className="flex flex-col gap-2 pl-1">
-            <div className="flex items-baseline gap-2.5">
-              <span className="text-[0.625rem] font-bold uppercase tracking-[0.22em] text-fog">
-                {t("hud.scattered")}
-              </span>
+        <header className="monologue-text absolute left-4 top-4 z-10 flex flex-col gap-2 md:left-6 md:top-6">
+          <h1 className="text-base font-medium leading-snug tracking-tight text-ivory md:text-[1.0625rem]">
+            {t("title")}
+          </h1>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xs font-medium text-fog">{t("hud.memoryCount")}</span>
               {/* 모은 개수가 이 화면의 유일한 진행 지표다 — 라벨보다 확실히 앞으로 나와야 한다 */}
-              <span className="font-pixel text-bone/40">
-                <span className="text-xl font-bold text-memory">{count}</span>
-                <span className="text-sm"> / {roundMemories.length}</span>
+              <span className="text-xs tabular-nums text-fog">
+                <span className="text-base font-medium text-memory">{count}</span>
+                <span> / {roundMemories.length}</span>
               </span>
             </div>
             {/* 기억 하나당 한 칸 — 모을수록 금빛이 왼쪽부터 찬다 */}
@@ -155,8 +156,8 @@ export function MemoryRoom() {
                 <span
                   key={memory.id}
                   aria-hidden
-                  className={`h-1 w-7 rounded-full transition-colors duration-700 ${
-                    roundDone.includes(memory.id) ? "bg-memory shadow-slot-glow" : "bg-bone/18"
+                  className={`h-0.5 w-6 rounded-full transition-colors duration-700 ${
+                    roundDone.includes(memory.id) ? "bg-memory" : "bg-ivory/25"
                   }`}
                 />
               ))}
@@ -170,10 +171,9 @@ export function MemoryRoom() {
       {started && (
         /*
          * 가로가 아니라 세로로 쌓는다. 제일 좁은 폰(360px)에서 헤더(기억 진행 바)
-         * 오른쪽 끝과 메뉴 버튼 사이가 48px인데, 버튼 하나(40px)와 간격(8px)을
-         * 나란히 넣으면 딱 48px이라 여백이 0이 된다 — 헤더와 맞닿는다.
+         * 오른쪽 끝과 메뉴 버튼 사이가 좁아, 버튼 둘(44px)을 나란히 넣으면 헤더와 맞닿는다.
          */
-        <div className="absolute right-6 top-6 z-30 flex flex-col items-end gap-2">
+        <div className="absolute right-3 top-3 z-30 flex flex-col items-end gap-1 md:right-5 md:top-5">
           {/*
             메뉴 드롭다운은 햄버거 바로 아래(top-full + mt-2)로 열리는데, 그 자리가
             소리 버튼 자리와 정확히 겹친다. 메뉴 쪽을 위로 올려 두지 않으면 열린 패널

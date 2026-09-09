@@ -232,7 +232,7 @@ function Aftermath({
               rotation={[0, 0, shard.tilt]}
             >
               <planeGeometry args={[shard.size, shard.size * 0.45]} />
-              <meshBasicMaterial color={palette.bone} />
+              <meshBasicMaterial color={palette.linen} />
             </mesh>
           ))
         : null}
@@ -279,12 +279,12 @@ export function WindowView({ palette, decay, center, width, height }: WindowView
       </mesh>
 
       <group position={[0, 0, LAYER_Z.stars]}>
-        <Stars span={viewWidth} height={viewHeight} color={palette.bone} />
+        <Stars span={viewWidth} height={viewHeight} color={palette.linen} />
       </group>
 
       <mesh position={[viewWidth * 0.26, viewHeight * 0.3, LAYER_Z.moon]}>
         <circleGeometry args={[0.26, 24]} />
-        <meshBasicMaterial color={palette.paper} />
+        <meshBasicMaterial color={palette.linen} />
       </mesh>
 
       {/* 판 밑면이 원점에 오도록 내려 세운다 — 건물은 밑에서 위로 자란다. */}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BUTTON_QUIET, PANEL_DARK } from "@/components/ui/ui-classes";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import type { MinigameResult } from "@/types/minigame";
 
@@ -52,9 +53,9 @@ export function MinigameStat({
 }) {
   return (
     <span className="flex items-baseline gap-1.5">
-      <span className="text-sm font-bold tracking-wide text-ink/50">{label}</span>
+      <span className="text-sm font-medium text-fog">{label}</span>
       <span
-        className={`text-xl font-bold tabular-nums ${
+        className={`text-xl font-medium tabular-nums ${
           tone === "warning" ? "text-ember" : "text-memory"
         }`}
       >
@@ -87,24 +88,24 @@ export function MinigameShell({
 
   return (
     <div
-      className={`${size === "lg" ? "w-[54rem]" : "w-[38rem]"} max-w-[94vw] animate-fade-rise rounded-xl border border-bone bg-paper p-5 shadow-panel sm:p-7`}
+      className={`${size === "lg" ? "w-[54rem]" : "w-[38rem]"} max-w-[94vw] animate-fade-rise p-5 sm:p-6 ${PANEL_DARK}`}
     >
       <div className="flex items-baseline justify-between gap-3">
         {/* 제목은 좁아지면 접히고, 스킵 버튼은 접근성 장치라 절대 눌리지 않는다 */}
-        <h2 className="min-w-0 break-ko text-2xl font-bold tracking-tight text-ink">{title}</h2>
+        <h2 className="min-w-0 break-ko text-xl font-medium leading-snug text-ivory">{title}</h2>
         {skipVisible && (
           <button
             type="button"
             onClick={onSkip}
-            className="shrink-0 cursor-pointer whitespace-nowrap rounded-full border border-ink/15 px-4 py-1.5 text-sm font-bold tracking-widest text-ink/60 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5"
+            className={`${BUTTON_QUIET} shrink-0 whitespace-nowrap px-3 py-1.5`}
           >
             {t("minigame.skip")}
           </button>
         )}
       </div>
-      <p className="mt-2.5 break-ko text-pretty text-base leading-relaxed text-ink/70">{help}</p>
+      <p className="mt-2 break-ko text-pretty text-[0.9375rem] leading-normal text-fog">{help}</p>
       {stats && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-base font-bold text-ink/70">
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-base font-medium text-fog">
           {stats}
         </div>
       )}

@@ -7,6 +7,7 @@ import {
   ROOM_LIGHT_RAMP,
   ROOM_LIGHTING,
   roomLightLevel,
+  roomLightMix,
   roomLightValue,
   roomStageIndex,
   shouldHighlightMemory,
@@ -135,5 +136,31 @@ describe("outsideDecay", () => {
     expect(outsideDecay({ collected: 99, memoryTotal, phase: 1 })).toBe(1);
     expect(outsideDecay({ collected: -3, memoryTotal, phase: 1 })).toBe(0);
     expect(outsideDecay({ collected: 1, memoryTotal: 0, phase: 1 })).toBe(1);
+  });
+});
+
+describe("roomLightMix", () => {
+  const total = 7;
+  const act1 = (collected: number) => roomLightMix({ memoryTotal: total, collected, recovery: 0 });
+  const act2 = (recovery: number) =>
+    roomLightMix({ memoryTotal: total, collected: total, recovery });
+
+  it("1막에는 볕이 없고 간접광만 깎인다", () => {
+    expect(act1(0).warm).toBe(0);
+    expect(act1(0).cool).toBeCloseTo(ENTRY_LIGHT_LEVEL);
+    expect(act1(4).cool).toBeLessThan(act1(0).cool);
+    expect(act1(7).cool).toBe(0);
+  });
+
+  it("2막에는 볕이 회복도를 따르고 간접광은 낮게 남는다", () => {
+    expect(act2(0.5).warm).toBe(0.5);
+    expect(act2(1).warm).toBe(1);
+    // 되찾아도 방 전체가 밝아지지는 않는다 — 구석은 차갑게 남는다
+    expect(act2(1).cool).toBeLessThan(ENTRY_LIGHT_LEVEL / 2);
+    expect(act2(1).cool).toBeGreaterThan(act2(0).cool);
+  });
+
+  it("전환점에서 두 축 모두 이어진다", () => {
+    expect(act1(7)).toEqual(act2(0));
   });
 });

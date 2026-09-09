@@ -182,7 +182,7 @@ export function PlaybackScene() {
 
       {/* 무엇을 되짚는 중인지 — 다시보기는 진행이 아니라 열람이라 제목이 필요하다 */}
       {!isCutscene && active.memoryId && (
-        <p className="pointer-events-none absolute left-1/2 top-8 z-10 -translate-x-1/2 font-pixel text-[0.6875rem] tracking-[0.3em] text-memory/75">
+        <p className="pointer-events-none absolute left-1/2 top-8 z-10 -translate-x-1/2 font-pixel text-xs tracking-[0.2em] text-memory">
           {t("playback.replayTitle", {
             name: tRoom(`memories.${active.memoryId}.name` as ParseKeys<"memoryRoom">),
           })}
@@ -198,7 +198,7 @@ export function PlaybackScene() {
         <button
           type="button"
           onClick={endPlayback}
-          className="absolute bottom-6 right-6 z-10 cursor-pointer rounded-full border border-bone/25 px-4 py-1.5 font-pixel text-[0.625rem] tracking-[0.3em] text-bone/45 transition-colors hover:border-bone/60 hover:text-bone focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+          className="absolute bottom-6 right-6 z-10 cursor-pointer rounded-sm border border-line px-3 py-1.5 font-pixel text-xs tracking-[0.2em] text-fog/70 transition-colors duration-150 hover:border-fog/40 hover:text-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
           {t(isCutscene ? "playback.skip" : "playback.close")}
         </button>

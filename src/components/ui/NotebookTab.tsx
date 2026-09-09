@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { memoriesForPhase } from "@/data/memory-room";
 import { playSound } from "@/lib/audio";
 import { gamePhaseOf, selectCollected, useMemoryRoomStore } from "@/store/memory-room";
+import { FOCUS_RING } from "./ui-classes";
 
 /**
  * 화면 오른쪽 가장자리의 "기억 수집" 손잡이. 예전에는 자체 드로어(목록 + 다시보기)를
@@ -33,12 +34,13 @@ export function NotebookTab() {
         setCharacterSheetOpen(true, "lore");
       }}
       aria-label={t("panel.open")}
-      className="absolute right-0 top-1/2 z-30 flex h-30 w-9 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-2 rounded-l-lg border border-r-0 border-bone bg-paper shadow-chip transition-transform hover:-translate-x-0.5 active:translate-x-0"
+      // 손잡이는 장면 가장자리에 붙은 어두운 탭이다 — 밝은 종이 덩어리가 떠 있으면 안 된다
+      className={`absolute right-0 top-1/2 z-30 flex h-30 w-11 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-2 rounded-l-md border border-r-0 border-line bg-surface text-fog transition-colors duration-150 hover:bg-surface-strong hover:text-ivory active:bg-surface-strong ${FOCUS_RING}`}
     >
-      <span className="text-xs font-bold tracking-widest text-ink [writing-mode:vertical-rl]">
+      <span className="text-xs font-medium tracking-[0.06em] [writing-mode:vertical-rl]">
         {t("panel.title")}
       </span>
-      <span className="grid h-4 min-w-4 place-items-center rounded-full bg-memory px-1 text-xs font-bold text-night">
+      <span className="grid h-4 min-w-4 place-items-center rounded-sm bg-memory px-1 text-xs font-medium tabular-nums text-night">
         {count}
       </span>
     </button>

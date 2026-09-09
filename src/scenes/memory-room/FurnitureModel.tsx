@@ -11,6 +11,11 @@ interface FurnitureModelProps {
   rotation?: EulerTuple;
   /** 축마다 다르게 주면 납작하게 눌러 놓을 수 있다 (베개). */
   scale: number | Vec3Tuple;
+  /**
+   * 재질 이름 → 팔레트 색. 킷의 원색이 방의 팔레트와 부딪히는 모델(빨간 러그)만 쓴다.
+   * 이름이 없는 재질은 원색 그대로다 — 텍스처가 있는 모델에 색을 곱하는 일은 없다.
+   */
+  materialColors?: Readonly<Record<string, string>>;
 }
 
 /**
@@ -30,27 +35,34 @@ export function toLitMaterial(material: Material): Material {
   return lit;
 }
 
-function LoadedFurniture({ path, position, rotation, scale }: FurnitureModelProps) {
+function LoadedFurniture({ path, position, rotation, scale, materialColors }: FurnitureModelProps) {
   const { scene } = useGLTF(path, true, true);
 
   /*
    * 가구킷 glb는 KHR_materials_unlit이라 GLTFLoader가 MeshBasicMaterial을 만든다.
    * 그대로 두면 방이 아무리 어두워져도 소품만 원래 밝기로 떠 있어서 붙여넣은 것처럼 보인다.
-   * 색은 그대로 두고 조명 받는 재질로 갈아끼운다.
+   * 색은 그대로 두고 조명 받는 재질로 갈아끼운다 — materialColors에 이름이 있는 재질만
+   * 팔레트 색으로 바꾼다.
    */
   const cloned = useMemo(() => {
     const copy = scene.clone(true);
+    const remake = (material: Material) => {
+      const lit = toLitMaterial(material);
+      const override = materialColors?.[material.name];
+      if (override && lit instanceof MeshStandardMaterial) lit.color.set(override);
+      return lit;
+    };
     copy.traverse((object) => {
       const mesh = object as Mesh;
       if (!mesh.isMesh) return;
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       mesh.material = Array.isArray(mesh.material)
-        ? mesh.material.map(toLitMaterial)
-        : toLitMaterial(mesh.material);
+        ? mesh.material.map(remake)
+        : remake(mesh.material);
     });
     return centerModelXZ(copy);
-  }, [scene]);
+  }, [scene, materialColors]);
 
   useEffect(
     () => () => {

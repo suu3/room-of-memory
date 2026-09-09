@@ -1,129 +1,197 @@
 ---
 name: Room of Memory
-version: 0.3.0
+version: 0.4.0
 colors:
-  primary: "#B89A5E"
-  memory: "#B89A5E"
-  ember: "#9E5244"
-  ink: "#20222A"
-  night: "#0B111A"
-  paper: "#EFE7D6"
-  bone: "#D8D0C2"
-  fog: "#9A8B72"
+  primary: "#D5AE78"
+  memory: "#D5AE78"
+  ember: "#B8655A"
+  night: "#0B1320"
+  ivory: "#E8E9E5"
+  fog: "#B8C1CD"
+  ash: "#929EAF"
+  paper: "#E5E0D6"
+  card: "#F0EBE2"
+  bone: "#D3CFC6"
+  ink: "#303946"
+  graphite: "#626975"
 typography:
   display:
+    fontFamily: Galmuri14
+    fontSize: 3.5rem
+    fontWeight: 400
+    lineHeight: 1.15
+  heading:
     fontFamily: Pretendard
-    fontSize: 2.5rem
-    fontWeight: 700
-    lineHeight: 1.2
+    fontSize: 1.0625rem
+    fontWeight: 500
+    lineHeight: 1.4
   dialogue:
     fontFamily: Pretendard
-    fontSize: 1.125rem
+    fontSize: 1.0625rem
     fontWeight: 400
-    lineHeight: 1.8
+    lineHeight: 1.75
   speaker:
     fontFamily: Pretendard
     fontSize: 0.875rem
-    fontWeight: 700
-    letterSpacing: 0.06em
+    fontWeight: 500
+    letterSpacing: 0.02em
   ui:
     fontFamily: Pretendard
-    fontSize: 0.75rem
+    fontSize: 0.875rem
     fontWeight: 500
-    letterSpacing: 0.1em
+    letterSpacing: 0.01em
+  caption:
+    fontFamily: Pretendard
+    fontSize: 0.8125rem
+    fontWeight: 400
+    lineHeight: 1.5
   monologue:
     fontFamily: Galmuri14
-    fontSize: 1.5rem
+    fontSize: 1.375rem
     fontWeight: 400
+    lineHeight: 1.5
   pixel:
     fontFamily: Galmuri14
     fontSize: 0.75rem
     fontWeight: 400
 rounded:
   sm: 6px
-  md: 12px
-  lg: 20px
+  md: 8px
+  lg: 10px
 spacing:
   xs: 4px
   sm: 8px
-  md: 16px
-  lg: 32px
-  xl: 64px
+  md: 12px
+  lg: 16px
+  xl: 24px
+  2xl: 32px
+  3xl: 48px
 components:
+  panel-dark:
+    backgroundColor: "{colors.night}"
+    textColor: "{colors.ivory}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.md}"
+    padding: "{spacing.xl}"
   dialogue-box:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink}"
+    backgroundColor: "{colors.night}"
+    textColor: "{colors.ivory}"
     typography: "{typography.dialogue}"
     rounded: "{rounded.lg}"
-    padding: "{spacing.lg}"
-  memory-slot-empty:
-    backgroundColor: "{colors.bone}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
+    padding: "{spacing.xl}"
   speaker-label:
-    textColor: "{colors.ink}"
+    textColor: "{colors.fog}"
     typography: "{typography.speaker}"
   monologue:
-    textColor: "{colors.fog}"
+    textColor: "{colors.ivory}"
     typography: "{typography.monologue}"
-  choice-button:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink}"
-    typography: "{typography.ui}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.md}"
-  choice-button-hover:
+  button-primary:
     backgroundColor: "{colors.memory}"
     textColor: "{colors.night}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.sm}"
+    padding: "{spacing.sm}"
+  button-quiet:
+    textColor: "{colors.fog}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.sm}"
+    padding: "{spacing.sm}"
+  button-destructive:
+    backgroundColor: "{colors.ember}"
+    textColor: "{colors.ivory}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.sm}"
+    padding: "{spacing.sm}"
   progress-count:
     textColor: "{colors.memory}"
     typography: "{typography.ui}"
+  panel-paper:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.lg}"
+    padding: "{spacing.xl}"
+  paper-card:
+    backgroundColor: "{colors.card}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.sm}"
+    padding: "{spacing.md}"
+  paper-muted:
+    textColor: "{colors.graphite}"
+    typography: "{typography.caption}"
 ---
 
 ## Overview
 
-Room of Memory는 3D 공간을 돌아다니며 기억의 조각을 마주하는 짧은 비주얼 노벨이다. 좀비 사태로 무너진 세계, 자기 방에 오래 고립된 야구부 고등학생 '도현'의 방이 무대다. 화면의 대부분은 3D 씬이 차지하고, UI는 도현의 수첩에서 뜯어낸 종이 조각처럼 어두운 씬 위에 붙는다(스크랩북 메타포) — 항상 씬이 주인공이다.
+Room of Memory는 3D 공간을 돌아다니며 기억의 조각을 마주하는 짧은 비주얼 노벨이다. 좀비 사태로 무너진 세계, 자기 방에 오래 고립된 야구부 고등학생 '도현'의 방이 무대다. 화면의 대부분은 3D 씬이 차지하고, UI는 어두운 방 위에 얹힌 얇은 유리처럼 물러서 있다 — 항상 씬이 주인공이다.
 
-UI 패널은 밝은 크림 종이(paper) 바탕에 잉크(ink) 텍스트, 라운드({rounded.md}~{rounded.lg}), **1px bone 헤어라인**을 기본으로 한다. 분리감은 테두리 두께가 아니라 그림자로 만든다. 어둡고 무거운 오버레이는 쓰지 않는다: 따뜻한 종이 UI와 쓸쓸한 씬의 대비가 이 게임의 정서다.
+방향은 **'어두운 공간에서 따뜻한 빛이 돋보이는, 절제된 인디 서사 탐색'**이다. 방은 '모든 물건이 어두운 방'이 아니라 '고유색을 가진 물건들이 낮은 조도 속에 있는 방'이다. 벽은 깊은 네이비, 바닥은 그보다 밝은 슬레이트, 가구는 차분한 우드, 침구는 회청색이고, 앰버·테라코타·세이지가 작은 소품에만 드문드문 있다. 가구 자체를 주황으로 칠하지 않는다 — 따뜻한 빛이 닿을 때만 꿀빛으로 보여야 한다.
 
-금지: **점선(dashed) 테두리**, **패널 기울이기(rotate/skew)**, **2px 이상 테두리**. 손으로 붙인 스티커 흉내는 화면을 산만하게 만든다 — 정렬된 종이 패널이 기본이다.
+UI는 두 재질뿐이다. **어두운 패널**(night의 반투명 표면 + ivory 글자 + 1px line 경계)이 메뉴·대사창·설정·미니게임 셸을 맡고, **종이 패널**(paper/card + ink)은 수첩 하나에만 남긴다. 밝은 크림 캡슐이 장면 위로 떠다니지 않게 한다.
 
-무드: 따뜻했던 일상이 바랜 느낌. 색 바랜 크림/세피아 톤과 어두운 네이비 그림자, 포인트는 금빛 하나. 종이 질감·필름 그레인. 공포가 아니라 쓸쓸함과 그리움.
+금지: **점선(dashed) 테두리**, **패널 기울이기(rotate/skew)**, **2px 이상 테두리**, **큰 pill 버튼과 과한 라운드**, **컨테이너 opacity로 글자까지 흐리게 하기**.
+
+무드: 차가운 어둠 속에 평범한 생활의 색이 남아 있고, 라디오 이후 창에서 드는 국소적인 따뜻한 빛이 감정으로 느껴지는 방. 공포가 아니라 쓸쓸함과 그리움.
 
 ## Colors
 
-- **primary / memory** — 같은 값(금빛). 이 게임의 시그니처 컬러. 기억(수집 대상), 커튼 틈의 빛, 인터랙션 가능한 대상에만 쓴다. 기억을 모을수록 화면에서 이 색의 비중이 늘어나는 것이 핵심 연출이므로, 장식으로 남용하면 연출이 죽는다.
-  - **인터랙션 글로우는 두 등급으로 가른다.** 색상(hue)은 둘 다 금빛이되 양을 다르게 준다 — 색을 갈라 버리면 "만질 수 있다"는 신호가 두 갈래로 읽힌다.
-    - **기억 등급** (기억 오브젝트, 엔딩 배트): 또렷한 윤곽선 + 숨쉬는 헤일로가 겹치고, 가구에 가려져도 벽 너머로 비친다. 바닥 고리·마름모 표식도 이 등급에만 붙는다.
-    - **곁가지 등급** (서랍·의자·커튼·전등 스위치): 채도와 밝기를 낮춘 번짐 한 겹만. 펄스 없음, 벽 투과 없음. 진행에 끼지 않는 물건이 이야기인 척하면 금빛 비중이 진행과 무관하게 늘 차 있게 된다.
-- **ember** — 벽돌빛. **UI 구조(테두리·구분선·버튼·카운트)에는 쓰지 않는다.** 화면 하나에 한 곳 이하로, 3D 씬 소품(액자 사진, 달력 표시 등)의 액센트로만 남긴다. 예외는 **되돌릴 수 없는 동작의 경고**(리셋 확인 등) — 경고에는 경고색이 필요하고, 팔레트에서 그 역할을 할 수 있는 유일한 토큰이다. 버튼·테두리·구분선·카운트에 쓰던 자리는 ink(구조)와 memory(진행)가 대신한다. 원 목업 값은 #A85B4E이나, paper 텍스트와의 대비를 WCAG AA(4.5:1)로 맞추기 위해 #9E5244로 조정했다.
-- **ink** — 종이 패널 위 본문 텍스트(펜 잉크). 옅은 보조 텍스트는 ink의 60~75% 불투명으로.
-- **night** — 페이지 바탕. 순수 검정 대신 이 값으로 3D 씬의 어둠과 톤을 맞춘다.
-- **paper / bone** — 종이 패널 바탕(paper)과 그 테두리·바랜 크림(bone) 쌍. 어두운 씬 위에 직접 얹는 텍스트(혼잣말 등)에도 bone을 쓴다.
-- **fog** — 세피아 보조 텍스트. 어두운 씬 위 전용 — paper 위에서는 대비가 부족하므로 ink 불투명 변형을 쓴다.
+### 어두운 표면 위 (UI 기본)
 
-### 씬 라이팅 램프
+- **night** — 화면 바탕이자 모든 어두운 표면의 재료. 표면은 이 색을 얼마나 남기느냐로만 갈린다 (`globals.css`의 `--color-surface` 84% / `--color-surface-strong` 92% / `--color-surface-subtle` 40%). 경계선은 `--color-line`(#D3DEEC 14%) 하나다.
+- **ivory** — 어두운 표면 위 주요 텍스트. 혼잣말·대사 본문·제목.
+- **fog** — 보조 텍스트 (화자명, 안내, 라벨). **ash** — 비필수 정보 (자간 라벨, 잠금 안내).
+- **primary / memory** — 앰버. 이 게임의 시그니처 컬러이자 **선택·포커스·진행·핵심 행동**에만 쓰는 색이다. 모든 테두리나 문장에 두르지 않는다. 3D에서는 기억 오브젝트의 글로우와 창으로 드는 빛의 색이기도 하다 (`resolveRoomPalette`가 같은 토큰을 읽는다).
+  - **인터랙션 글로우는 두 등급으로 가른다.** 색상(hue)은 둘 다 앰버되 양을 다르게 준다.
+    - **기억 등급** (기억 오브젝트, 엔딩 배트): 또렷한 윤곽선 + 숨쉬는 헤일로. 근접·hover·focus 대상만 더 명확하게 켜진다.
+    - **곁가지 등급** (서랍·의자·커튼·전등 스위치): 윤곽선 한 줄만. 펄스 없음, 벽 투과 없음.
+- **ember** — 경고색. **되돌릴 수 없는 동작**(리셋·새 게임 확인)과 실패 상태에만. UI 구조(테두리·구분선·카운트)에는 쓰지 않는다. 어두운 표면 위 글자로 AA(4.5:1)가 나오는 값으로 잡았다 — 종이 위 본문 글자로는 쓰지 않는다 (큰 글리프만 허용).
 
-방의 밝기 3단계(어둠 → 어스름 → 금빛)를 만드는 그라디언트 스톱. UI 토큰이 아니라 씬 아트워크 값이며, `globals.css`의 `--color-scene-*`로만 노출한다.
+### 종이 위 (수첩 전용)
+
+- **paper / card** — 수첩 페이지(paper)와 그 위에 붙은 기록 카드(card). 누런 기운을 걷어낸 리넨 톤이다.
+- **bone** — 종이 위 옅은 경계·비활성 칸. 어두운 표면에는 쓰지 않는다.
+- **ink / graphite** — 종이 위 주요 텍스트(ink)와 보조 텍스트(graphite). 잠긴 기록은 본문 대신 낮은 대비의 자리표시(bone 막대)로 두고, 미수집 본문을 화면·접근성 트리 어디에도 싣지 않는다.
+
+### 3D 재질 팔레트
+
+씬의 재질색. UI 토큰이 아니라 씬 아트워크 값이며, `globals.css`의 `--color-scene-*`로만 노출하고 `src/scenes/memory-room/palette.ts`가 읽는다. **CSS 색과 3D 재질색을 한 토큰으로 공유하지 않는다** — 재질은 조명과 톤매핑을 거쳐 화면에 닿는다. 텍스처가 있는 glb(캐릭터, 가구킷)에는 이 색을 곱하지 않는다.
 
 | 토큰 | 값 | 용도 |
 |---|---|---|
-| scene-slate | #1C2A38 | 1단계 중단 / 2단계 하단 |
-| scene-mist | #16212C | (예비 어둠 톤 — 현재 미사용) |
-| scene-deep | #0F181E | 바닥 하단, 칩 바탕 |
-| scene-storm | #2A3D48 | 1·2단계 상단, 미니게임 필드 |
-| scene-abyss | #121C24 | 1단계 하단 |
-| scene-olive | #4A4436 | 3단계 상단 (금빛이 스민 벽) |
-| scene-dusk | #2E3540 | 2·3단계 중단, 미니게임 패널 |
-| scene-coal | #17202A | 3단계 하단 |
-| scene-navy | #161F28 | 바닥 상단, 문 활성 텍스트 |
-| scene-void | #060A10 | 비네트 |
+| scene-wall | #34465E | 벽 (깊고 저채도인 네이비) |
+| scene-wall-faded | #3D5069 | 포스터를 떼어낸 자국 — 벽보다 한 톤 밝다 |
+| scene-floor | #626C7D | 바닥 (벽보다 밝은 슬레이트) |
+| scene-wood | #998572 | 책상·의자·선반·침대 프레임 |
+| scene-frame | #354052 | 가구 다리·문짝·기기 몸통 (어두운 구조) |
+| scene-fabric | #6C809E | 침구·커튼·쿠션 (회청) |
+| scene-linen | #BAB4A7 | 러그 위 방석·베개·종이·사진 |
+| scene-trim | #A4A6A1 | 걸레받이·창틀·손잡이·기기 판 |
+| scene-accent-amber | #BC9363 | 트로피, 문 손잡이 |
+| scene-accent-clay | #A57565 | 달력 띠·안테나·실밥·운동화 |
+| scene-accent-sage | #809289 | 포스터 색면·수납상자·가방 |
+
+광원색은 재질이 아니라 따로 둔다: **scene-daylight** #C4D0DE (차가운 간접광), **scene-sun** #F3C98E (창으로 드는 볕).
+
+### 씬 라이팅 램프 (CSS)
+
+캔버스 아래 배경 그라디언트와 미니게임 필드가 쓰는 어둠 톤. 3D 재질과 무관하다.
+
+| 토큰 | 값 | 용도 |
+|---|---|---|
+| scene-slate | #1C2A38 | 배경 그라디언트 중단 |
+| scene-mist | #16212C | (예비 어둠 톤) |
+| scene-deep | #0F181E | 배경 하단, 조이스틱 바탕 |
+| scene-storm | #2A3D48 | 미니게임 필드 |
+| scene-abyss | #121C24 | 미니게임 필드 (어두운 쪽) |
+| scene-olive | #4A4436 | 액자 미니게임 틀 |
+| scene-dusk | #2E3540 | 기기 화면 속 말풍선·모니터 몸통 |
+| scene-coal | #17202A | 기기 화면 하단바 |
+| scene-navy | #161F28 | 기기 화면 본문 |
+| scene-void | #060A10 | 비네트, 모달 백드롭, 기기 화면 유리 |
 
 ### 기기 화면
 
 **켜진 액정**에만 쓰는 중립 회백색. `globals.css`의 `--color-screen-*`로만 노출한다.
-
-방의 UI는 도현의 수첩에서 뜯어낸 종이라 따뜻한 크림(paper/bone)이지만, 화면 속 화면까지 크림으로 깔면 액정이 누렇게 뜬다 — 켜진 기계는 차가워야 방의 종이와 갈린다. 종이 UI(대사창·수첩·쪽지·달력)에는 절대 쓰지 않는다.
 
 | 토큰 | 값 | 용도 |
 |---|---|---|
@@ -133,31 +201,45 @@ UI 패널은 밝은 크림 종이(paper) 바탕에 잉크(ink) 텍스트, 라운
 
 ## Typography
 
-본문 서체는 Pretendard(셀프호스팅 가변폰트), 포인트는 Galmuri14(셀프호스팅 픽셀 폰트, OFL) 두 개로 통일한다.
+본문 서체는 Pretendard(셀프호스팅 가변폰트), 포인트는 Galmuri14(셀프호스팅 픽셀 폰트, OFL) 두 개로 통일한다. 새 폰트는 받지 않는다.
 
-- **dialogue** — 대사 본문. 행간 1.8은 읽는 속도를 늦추기 위한 의도적 선택이므로 줄이지 않는다.
-- **monologue** — 화면 상단 혼잣말. Galmuri14 픽셀 폰트, 1.5rem. (아웃라인 폰트라 크기는 자유지만, 본문 dialogue보다 크게 유지한다.)
-- **speaker** — 화자 이름. ember 칩 위에 얹는다.
-- **pixel** — 기억 항목의 한 줄 요약, 메모. 게임 픽셀 에셋과 톤을 맞추는 도현의 기록 서체. 0.75rem. 시스템 메시지에는 쓰지 않는다.
-- **ui** — HUD 라벨. 자간을 넓혀(0.1em+) 라벨임을 드러낸다.
-- **display** — 챕터 타이틀, 엔딩 카드 등 큰 화면 전환에만.
+- **display** — 메인 타이틀. 픽셀 폰트 48~64px.
+- **heading** — 인게임 제목(HUD의 '기억의 방', 패널 제목). 16~18px / 500.
+- **monologue** — 화면 상단 혼잣말. 픽셀 폰트, 모바일 20px, 데스크톱 22~24px, 행간 1.5. 픽셀 폰트는 제목과 짧은 독백에만 쓴다.
+- **dialogue** — 조사 대사 본문. 16~18px / 1.75. 행간을 줄이지 않는다.
+- **speaker** — 화자 이름. 대사창 안 fog 라벨.
+- **ui** — 메뉴·버튼. 14px / 500. 긴 한국어 본문에 과한 자간을 주지 않는다 (라벨성 텍스트만 0.1em 이하).
+- **caption** — 보조 안내. 12~13px / 1.5.
+- **pixel** — 기억 항목의 한 줄 요약, 메모. 시스템 메시지에는 쓰지 않는다.
 
 ## Texture
 
 - **필름 그레인** — SVG feTurbulence 노이즈를 `mix-blend-mode: overlay`, opacity 0.13으로 씬 전체에 1장. UI 패널 위에는 얹지 않는다.
-- **헤어라인** — 구분선은 1px 실선(`ink/10`)만 쓴다. 점선은 쓰지 않는다.
-- **비네트** — scene-void 라디얼. 기억을 모을수록 옅어진다 (0.55 → 0.3). 1단계도 "밝았던 방이 바랜" 정도로만 어둡게 — 완전한 암전은 쓰지 않는다.
+- **헤어라인** — 어두운 표면에서는 `line`, 종이에서는 `ink/10`의 1px 실선만. 점선은 쓰지 않는다.
+- **비네트** — scene-void 라디얼. 밝기에 따라 0.62 → 0.24. 화면 위 검정 오버레이만 진하게 만드는 방식으로 어둠을 만들지 않는다 — 어둠은 씬 조명이 만든다.
+- **수첩 모눈·테이프** — ink 5%의 격자와 bone 테이프. 내용보다 튀지 않는 대비로만.
+
+## Lighting
+
+방의 밝기는 진행도 하나가 정한다 (별도 상태 머신 없음). `roomLightMix`(visual-state)가 진행도를 **차가운 간접광**과 **따뜻한 창빛** 두 축으로 가른다.
+
+1. **시작** — 커튼을 닫은 낮의 평범한 방. 차가운 간접광이 약하게 남아 캐릭터·이동 공간·조사 대상이 구별된다.
+2. **조사 진행** — 간접광과 채움광이 줄고 그림자가 깊어진다. 윤곽은 남긴다.
+3. **가장 어두운 지점** — 어둠과 고립감이 가장 강하다. 캐릭터가 배경에 묻히거나 조사 대상을 못 찾는 상태는 피한다.
+4. **라디오 이후** — 방 전체 ambient를 올리지 않는다. 창 방향에서 드는 따뜻한 directional 광원이 뒷벽의 창 개구부를 통해 책상 일부·바닥 일부에 닿는다. 구석은 차갑고 어둡게 남는다.
+5. **엔딩 직전** — 회복 진행에 맞춰 따뜻한 빛의 강도와 창가 point light의 범위가 늘어난다. 방 전체가 주황이 되거나 그림자가 사라지지 않게 한다.
 
 ## Motion
 
-- UI 등장/퇴장은 opacity + 미세한 translate로, 200~300ms. 튀는 스프링 애니메이션은 이 게임의 톤과 맞지 않는다.
-- 방이 밝아지는 전환(배경/빛줄기/워시)은 800~1200ms의 느린 크로스페이드 — 조명이 바뀌는 것이지 화면이 바뀌는 것이 아니다.
-- 미수집 기억 핫스팟은 2.4s 주기의 느린 글로우 펄스. 수집하면 펄스를 멈추고 가라앉힌다.
+- hover/focus 120~180ms, 패널 전환 180~240ms, 독백 전환 250~350ms. 조명 전환은 damp(1.5~3초).
+- 튀는 bounce·버튼 확대·반복적인 glow는 쓰지 않는다. hover에서 테두리를 새로 그려 레이아웃이 움직이지 않게 한다 (테두리는 늘 있고 색만 바뀐다).
+- `prefers-reduced-motion`이면 패널 등장은 translate 없이 밝기만, 반복 애니메이션은 멈춘다.
 - 텍스트는 타자기식 출력(글자 단위 reveal)을 기본으로 하고, 클릭 시 즉시 완성한다.
 - 카메라 전환은 컷이 아니라 damp/lerp 이동을 기본으로 한다.
 
 ## Accessibility
 
-- 텍스트 대비는 WCAG AA 이상 (ink on paper 12.9:1, paper on ember 4.6:1). fog는 paper 위 텍스트로 쓰지 않는다.
-- 모든 인터랙션은 키보드로도 가능해야 한다 (Tab으로 핫스팟 이동, Space/Enter = 진행, 숫자 = 선택지).
-- 핫스팟 글로우 등 반복 애니메이션은 정보 전달을 색/애니메이션에만 의존하지 않는다 (라벨 텍스트 병기).
+- 텍스트 대비는 WCAG AA 이상 (ivory on night 15:1, fog on night 10:1, ink on paper 9:1, ivory on ember 4.6:1).
+- 모든 인터랙션은 키보드로도 가능해야 한다 (Tab으로 핫스팟 이동, Space/Enter = 진행, 숫자 = 선택지). hover만으로 기능을 제공하지 않는다.
+- 상태는 색만으로 구분하지 않는다 (선택 표식 ▶, aria-pressed, 라벨 텍스트 병기).
+- 포커스 표시는 memory 2px 아웃라인(offset 2px)으로 통일한다.

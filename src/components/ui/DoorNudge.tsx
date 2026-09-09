@@ -33,9 +33,9 @@ export function DoorNudge() {
     <p
       // 두드릴 때마다 새로 떠오른다 — key가 바뀌어야 애니메이션이 다시 돈다
       key={nudgedAt}
-      className="pointer-events-none absolute bottom-20 left-1/2 z-10 w-full max-w-xl -translate-x-1/2 animate-fade-rise break-ko text-pretty px-4 text-center font-pixel text-lg text-fog"
+      className="monologue-text pointer-events-none absolute bottom-20 left-1/2 z-10 w-full max-w-xl -translate-x-1/2 animate-fade-rise break-ko text-pretty px-4 text-center font-pixel text-lg leading-normal text-ivory"
     >
-      「 {t(doorReady ? "door.nudgeBat" : "door.nudgeStay")} 」
+      {t(doorReady ? "door.nudgeBat" : "door.nudgeStay")}
     </p>
   );
 }

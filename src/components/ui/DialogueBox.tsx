@@ -14,6 +14,7 @@ import {
 } from "@/store/memory-room";
 import { CharacterPortrait } from "./CharacterPortrait";
 import { hasPortrait } from "./character-portrait";
+import { PANEL_DIALOGUE } from "./ui-classes";
 
 /**
  * 화면 전체를 덮는 넘기기 버튼의 표식. Enter 핸들러가 "이건 내 버튼"이라고
@@ -112,7 +113,7 @@ export function DialogueBox() {
       />
 
       {/* 창 자체는 보여주기만 한다 — 클릭은 뒤의 전체 화면 버튼이 받는다 */}
-      <div className="pointer-events-none absolute bottom-8 left-1/2 w-full max-w-4xl -translate-x-1/2 animate-fade-rise px-4">
+      <div className="pointer-events-none absolute bottom-6 left-1/2 w-full max-w-[840px] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-8">
         <div className="relative">
           {/*
             얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다.
@@ -122,16 +123,18 @@ export function DialogueBox() {
           {!playbackLine && hasPortrait(scriptLine.speaker) && (
             <CharacterPortrait expression={scriptLine.expression ?? "neutral"} talking={!done} />
           )}
-          {/* 좁은 화면에서는 여백을 줄여 본문 폭을 확보한다 — 한 줄에 담기는 어절이 늘어난다 */}
-          <div className="relative rounded-xl border border-bone bg-paper px-5 pb-5 pt-4 text-left shadow-overlay sm:px-8 sm:pb-6 sm:pt-5">
+          {/* 차분한 네이비 패널 + 아이보리 본문. 좁은 화면에서는 여백을 줄여 본문 폭을 확보한다 */}
+          <div
+            className={`relative px-5 pb-4 pt-4 text-left sm:px-6 sm:pb-5 sm:pt-5 ${PANEL_DIALOGUE}`}
+          >
             {/* 화자 이름은 패널 안 라벨로 — 초상이 있어 별도 칩이나 소개 문구는 군더더기다 */}
             <div className="flex items-center gap-2.5">
-              <span className="text-sm font-bold tracking-wide text-ink">{speakerName}</span>
-              <span aria-hidden className="h-px flex-1 bg-ink/12" />
+              <span className="text-sm font-medium text-fog">{speakerName}</span>
+              <span aria-hidden className="h-px flex-1 bg-line" />
             </div>
             <p
               key={lineKey}
-              className="mt-4 min-h-20 break-ko text-pretty text-base leading-dialogue text-ink sm:text-lg"
+              className="mt-3 min-h-20 break-ko text-pretty text-base leading-dialogue text-ivory sm:text-[1.0625rem]"
             >
               {typed}
             </p>

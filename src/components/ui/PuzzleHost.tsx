@@ -7,6 +7,7 @@ import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { SuccessBurst } from "./SuccessBurst";
+import { HUD_ICON_BUTTON_SOLID } from "./ui-classes";
 
 /**
  * 미궁 문제 호스트 — 기억 인터랙션 밖에서 도는 미니게임 (거실의 식탁 트럼프,
@@ -70,7 +71,7 @@ export function PuzzleHost() {
                 playSound("close");
                 closePuzzle();
               }}
-              className="absolute right-4 top-4 z-10 grid size-11 cursor-pointer place-items-center rounded-full border border-bone/40 bg-scene-void/70 text-xl font-bold leading-none text-bone backdrop-blur-sm transition-all hover:border-bone hover:text-paper active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+              className={`absolute right-4 top-4 z-10 ${HUD_ICON_BUTTON_SOLID}`}
             >
               <X size={20} weight="bold" />
             </button>

@@ -60,17 +60,17 @@ function Boxes({ parts, palette }: { parts: readonly BoxPart[]; palette: RoomPal
  */
 const SOFA_PARTS = [
   // 몸통·등받이·팔걸이
-  { size: [2.8, 0.42, 1.0], position: [-9.5, 0.21, -3.15], color: "ink" },
-  { size: [2.8, 0.85, 0.24], position: [-9.5, 0.72, -3.62], color: "slate" },
-  { size: [0.26, 0.62, 1.0], position: [-10.77, 0.63, -3.15], color: "slate" },
-  { size: [0.26, 0.62, 1.0], position: [-8.23, 0.63, -3.15], color: "slate" },
+  { size: [2.8, 0.42, 1.0], position: [-9.5, 0.21, -3.15], color: "frame" },
+  { size: [2.8, 0.85, 0.24], position: [-9.5, 0.72, -3.62], color: "fabric" },
+  { size: [0.26, 0.62, 1.0], position: [-10.77, 0.63, -3.15], color: "fabric" },
+  { size: [0.26, 0.62, 1.0], position: [-8.23, 0.63, -3.15], color: "fabric" },
 ] as const satisfies readonly BoxPart[];
 
 /** 쿠션 셋 — 가운데(아빠 자리)만 낮고 어둡다. 하나가 곧 앉는 자리 하나다 (seats.ts). */
 const SOFA_CUSHIONS = [
-  { seat: "sofa-left", size: [0.76, 0.18, 0.82], position: [-10.28, 0.51, -3.08], color: "dusk" },
-  { seat: "sofa-center", size: [0.76, 0.12, 0.82], position: [-9.5, 0.48, -3.08], color: "storm" },
-  { seat: "sofa-right", size: [0.76, 0.18, 0.82], position: [-8.72, 0.51, -3.08], color: "dusk" },
+  { seat: "sofa-left", size: [0.76, 0.18, 0.82], position: [-10.28, 0.51, -3.08], color: "fabric" },
+  { seat: "sofa-center", size: [0.76, 0.12, 0.82], position: [-9.5, 0.48, -3.08], color: "frame" },
+  { seat: "sofa-right", size: [0.76, 0.18, 0.82], position: [-8.72, 0.51, -3.08], color: "fabric" },
 ] as const satisfies readonly (BoxPart & { seat: SeatId })[];
 
 /**
@@ -78,10 +78,10 @@ const SOFA_CUSHIONS = [
  * 마지막에 보던 채널이 꺼진 채 그대로라는 설정이라 아무것도 비추지 않는다.
  */
 const TV_PARTS = [
-  { size: [2.4, 0.5, 0.5], position: [-9.5, 0.25, 6.2], color: "dusk" },
+  { size: [2.4, 0.5, 0.5], position: [-9.5, 0.25, 6.2], color: "wood" },
   // 다리 없는 평판 TV. 받침장 위에 얹혀 화면이 소파를 본다
   { size: [1.9, 1.08, 0.09], position: [-9.5, 1.12, 6.28], color: "void" },
-  { size: [0.5, 0.06, 0.3], position: [-9.5, 0.53, 6.25], color: "ink" },
+  { size: [0.5, 0.06, 0.3], position: [-9.5, 0.53, 6.25], color: "frame" },
 ] as const satisfies readonly BoxPart[];
 
 /**
@@ -89,11 +89,11 @@ const TV_PARTS = [
  * 빠진 의자가 도해 자리다 — 마지막으로 일어난 사람이 안 밀어 넣었다.
  */
 const TABLE_PARTS = [
-  { size: [1.6, 0.09, 1.6], position: [-13.8, 0.93, 3.8], color: "dusk" },
-  { size: [0.14, 0.9, 0.14], position: [-14.5, 0.45, 3.1], color: "ink" },
-  { size: [0.14, 0.9, 0.14], position: [-13.1, 0.45, 3.1], color: "ink" },
-  { size: [0.14, 0.9, 0.14], position: [-14.5, 0.45, 4.5], color: "ink" },
-  { size: [0.14, 0.9, 0.14], position: [-13.1, 0.45, 4.5], color: "ink" },
+  { size: [1.6, 0.09, 1.6], position: [-13.8, 0.93, 3.8], color: "wood" },
+  { size: [0.14, 0.9, 0.14], position: [-14.5, 0.45, 3.1], color: "frame" },
+  { size: [0.14, 0.9, 0.14], position: [-13.1, 0.45, 3.1], color: "frame" },
+  { size: [0.14, 0.9, 0.14], position: [-14.5, 0.45, 4.5], color: "frame" },
+  { size: [0.14, 0.9, 0.14], position: [-13.1, 0.45, 4.5], color: "frame" },
 ] as const satisfies readonly BoxPart[];
 
 /**
@@ -119,13 +119,13 @@ export const DINING_SET = {
 
 /** 의자 한 벌 — 좌판·등받이·다리 네 개. 원점이 좌판 중심이라 통째로 옮긴다. */
 const CHAIR_PART_TEMPLATE = [
-  { size: [0.44, 0.07, 0.44], position: [0, 0.56, 0], color: "slate" },
+  { size: [0.44, 0.07, 0.44], position: [0, 0.56, 0], color: "wood" },
   // 등받이 뒷면(-0.245)을 좌판 모서리(-0.22) 뒤로 뺀다 — 같은 평면이면 깜빡인다
-  { size: [0.44, 0.5, 0.07], position: [0, 0.87, -0.21], color: "slate" },
-  { size: [0.06, 0.56, 0.06], position: [-0.17, 0.28, -0.17], color: "ink" },
-  { size: [0.06, 0.56, 0.06], position: [0.17, 0.28, -0.17], color: "ink" },
-  { size: [0.06, 0.56, 0.06], position: [-0.17, 0.28, 0.17], color: "ink" },
-  { size: [0.06, 0.56, 0.06], position: [0.17, 0.28, 0.17], color: "ink" },
+  { size: [0.44, 0.5, 0.07], position: [0, 0.87, -0.21], color: "wood" },
+  { size: [0.06, 0.56, 0.06], position: [-0.17, 0.28, -0.17], color: "frame" },
+  { size: [0.06, 0.56, 0.06], position: [0.17, 0.28, -0.17], color: "frame" },
+  { size: [0.06, 0.56, 0.06], position: [-0.17, 0.28, 0.17], color: "frame" },
+  { size: [0.06, 0.56, 0.06], position: [0.17, 0.28, 0.17], color: "frame" },
 ] as const satisfies readonly BoxPart[];
 
 /**
@@ -193,13 +193,13 @@ function PianoBench({ palette }: { palette: RoomPalette }) {
  * 빈 자리가 보여야 해서, 남은 한 켤레를 한쪽에 몰아 둔다.
  */
 const SHOE_CABINET_PARTS = [
-  { size: [0.5, 1.06, 1.9], position: [-16.16, 0.53, -0.68], color: "dusk" },
-  { size: [0.56, 0.05, 1.96], position: [-16.16, 1.08, -0.68], color: "slate" },
+  { size: [0.5, 1.06, 1.9], position: [-16.16, 0.53, -0.68], color: "wood" },
+  { size: [0.56, 0.05, 1.96], position: [-16.16, 1.08, -0.68], color: "linen" },
   // 문짝 자국 — 통짜 상자로는 장이 아니라 궤짝으로 읽혀서 세로줄 하나를 긋는다
-  { size: [0.03, 0.86, 0.02], position: [-15.9, 0.5, -0.68], color: "ink" },
+  { size: [0.03, 0.86, 0.02], position: [-15.9, 0.5, -0.68], color: "frame" },
   // 남은 운동화 한 켤레 (도해 것). 나란하지 않고 살짝 어긋나 있다
-  { size: [0.13, 0.09, 0.32], position: [-15.62, 0.05, 0.12], color: "ember" },
-  { size: [0.13, 0.09, 0.32], position: [-15.46, 0.05, 0.04], color: "ember" },
+  { size: [0.13, 0.09, 0.32], position: [-15.62, 0.05, 0.12], color: "clay" },
+  { size: [0.13, 0.09, 0.32], position: [-15.46, 0.05, 0.04], color: "clay" },
 ] as const satisfies readonly BoxPart[];
 
 /**
@@ -212,16 +212,16 @@ const SHOE_CABINET_PARTS = [
  */
 const FRIDGE_PARTS = [
   // 받침 — 몸통보다 물려 있어 바닥에서 살짝 뜬 것처럼 보인다
-  { size: [0.8, 0.18, 0.56], position: [-15.32, 0.09, -3.58], color: "ink" },
-  { size: [0.92, 1.84, 0.68], position: [-15.32, 1.09, -3.58], color: "paper" },
+  { size: [0.8, 0.18, 0.56], position: [-15.32, 0.09, -3.58], color: "frame" },
+  { size: [0.92, 1.84, 0.68], position: [-15.32, 1.09, -3.58], color: "trim" },
   // 냉동칸 경계 — 몸통보다 사방 한 치수 커서 어두운 줄로 드러난다
-  { size: [0.94, 0.035, 0.7], position: [-15.32, 1.45, -3.58], color: "dusk" },
+  { size: [0.94, 0.035, 0.7], position: [-15.32, 1.45, -3.58], color: "frame" },
   // 손잡이 둘 — 문 앞면(z -3.24)에 5mm 파고들어 붙는다 (맞닿는 면 공유 금지)
-  { size: [0.05, 0.3, 0.05], position: [-14.98, 1.0, -3.22], color: "slate" },
-  { size: [0.05, 0.22, 0.05], position: [-14.98, 1.72, -3.22], color: "slate" },
+  { size: [0.05, 0.3, 0.05], position: [-14.98, 1.0, -3.22], color: "frame" },
+  { size: [0.05, 0.22, 0.05], position: [-14.98, 1.72, -3.22], color: "frame" },
   // 메모와 자석 — 종이는 문에, 자석은 종이 위에 겹쳐 물린다
-  { size: [0.18, 0.22, 0.02], position: [-15.45, 1.05, -3.235], color: "bone" },
-  { size: [0.055, 0.055, 0.025], position: [-15.45, 1.185, -3.215], color: "ember" },
+  { size: [0.18, 0.22, 0.02], position: [-15.45, 1.05, -3.235], color: "linen" },
+  { size: [0.055, 0.055, 0.025], position: [-15.45, 1.185, -3.215], color: "clay" },
 ] as const satisfies readonly BoxPart[];
 
 /**
@@ -233,28 +233,28 @@ const FRIDGE_PARTS = [
  */
 const PIANO_PARTS = [
   // 본체 — 뒷면(6.42)이 벽 안쪽 면(6.41)에 1cm 파고든다 (냉장고와 같은 규칙)
-  { size: [1.5, 1.32, 0.42], position: [-14.95, 0.66, 6.21], color: "ink" },
+  { size: [1.5, 1.32, 0.42], position: [-14.95, 0.66, 6.21], color: "frame" },
   // 윗판 — 본체보다 살짝 넓어 어두운 실루엣에 모서리 한 줄을 만든다
-  { size: [1.54, 0.06, 0.46], position: [-14.95, 1.34, 6.2], color: "slate" },
+  { size: [1.54, 0.06, 0.46], position: [-14.95, 1.34, 6.2], color: "wood" },
   // 닫힌 건반 뚜껑 — 본체 앞면(6.00)을 물고 앞으로 나온다
-  { size: [1.5, 0.14, 0.26], position: [-14.95, 0.92, 5.93], color: "slate" },
+  { size: [1.5, 0.14, 0.26], position: [-14.95, 0.92, 5.93], color: "wood" },
   // 뚜껑을 받치는 앞다리 둘 — 위로 5mm 파고들어 뚜껑에 붙는다
-  { size: [0.1, 0.85, 0.1], position: [-15.6, 0.43, 5.95], color: "ink" },
-  { size: [0.1, 0.85, 0.1], position: [-14.3, 0.43, 5.95], color: "ink" },
+  { size: [0.1, 0.85, 0.1], position: [-15.6, 0.43, 5.95], color: "frame" },
+  { size: [0.1, 0.85, 0.1], position: [-14.3, 0.43, 5.95], color: "frame" },
   // 페달 한 쌍 — 본체 앞면 아래
-  { size: [0.09, 0.05, 0.14], position: [-15.05, 0.03, 5.96], color: "bone" },
-  { size: [0.09, 0.05, 0.14], position: [-14.85, 0.03, 5.96], color: "bone" },
+  { size: [0.09, 0.05, 0.14], position: [-15.05, 0.03, 5.96], color: "trim" },
+  { size: [0.09, 0.05, 0.14], position: [-14.85, 0.03, 5.96], color: "trim" },
   // 보면대 홈 — 본체 앞면에 가로줄 하나
-  { size: [0.95, 0.05, 0.03], position: [-14.95, 1.13, 6.005], color: "slate" },
+  { size: [0.95, 0.05, 0.03], position: [-14.95, 1.13, 6.005], color: "wood" },
 ] as const satisfies readonly BoxPart[];
 
 /** 걸상 — 반쯤 빼놓은 채다. 좌판 밑으로 다리가 1cm 파고든다. 앉는 자리라 따로 뗀다. */
 const PIANO_BENCH_PARTS = [
-  { size: [0.56, 0.1, 0.34], position: [-14.95, 0.52, 5.38], color: "ink" },
-  { size: [0.07, 0.48, 0.07], position: [-15.15, 0.24, 5.28], color: "slate" },
-  { size: [0.07, 0.48, 0.07], position: [-14.75, 0.24, 5.28], color: "slate" },
-  { size: [0.07, 0.48, 0.07], position: [-15.15, 0.24, 5.48], color: "slate" },
-  { size: [0.07, 0.48, 0.07], position: [-14.75, 0.24, 5.48], color: "slate" },
+  { size: [0.56, 0.1, 0.34], position: [-14.95, 0.52, 5.38], color: "wood" },
+  { size: [0.07, 0.48, 0.07], position: [-15.15, 0.24, 5.28], color: "frame" },
+  { size: [0.07, 0.48, 0.07], position: [-14.75, 0.24, 5.28], color: "frame" },
+  { size: [0.07, 0.48, 0.07], position: [-15.15, 0.24, 5.48], color: "frame" },
+  { size: [0.07, 0.48, 0.07], position: [-14.75, 0.24, 5.48], color: "frame" },
 ] as const satisfies readonly BoxPart[];
 
 /**

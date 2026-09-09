@@ -10,22 +10,69 @@ const LOCKED_MEMORY_OPACITY = 0.45;
  * 예전에는 수집 개수만 보고 단조 증가시켰는데, 기획의 V자 감정선
  * (평범 → 어둠 → 희망)과 정반대였다.
  */
+export const ROOM_LIGHTING = {
+  /** 천장 전등(point light)의 최대 세기. 전등 램프의 윗끝이다. */
+  ceilingFill: 28,
+  /** 하늘-바닥 반구광의 최대 세기. */
+  hemisphereFill: 1.25,
+} as const;
+
+/**
+ * 빛은 두 축이다 (DESIGN.md > Lighting).
+ *
+ * - **cool** — 차가운 간접광(ambient·반구·키·전등). 1막에 깎이고, 2막에도 낮게 남는다.
+ *   되찾는다고 방 전체가 밝아지면 안 된다 — 구석은 차갑고 어둡게 남아야 한다.
+ * - **warm** — 창으로 드는 볕(창가 point light·directional 볕·광선·먼지). 1막에는 없고
+ *   2막 회복도를 그대로 따른다. 실제 창 경로로 책상 일부·바닥 일부에만 닿는다.
+ *
+ * 램프 값은 그 축의 0과 1에서의 값이다. `roomLightValue`로 보간한다.
+ */
 export const ROOM_LIGHT_RAMP = {
-  ambient: [1.15, 3.6],
-  key: [1.9, 5.6],
-  windowGlow: [0.5, 2.9],
+  /* cool — 바닥값은 실루엣과 조사 대상이 남는 최저치, 윗값은 커튼 닫은 낮의 방 */
+  ambient: [0.3, 2.6],
+  key: [0.25, 3.6],
+  hemisphere: [0.2, ROOM_LIGHTING.hemisphereFill],
+  lamp: [4, ROOM_LIGHTING.ceilingFill],
+  /* warm */
+  windowGlow: [0.35, 4],
+  /** 창 방향의 directional 볕. 뒷벽의 창 개구부가 그림자로 모양을 만든다. */
+  sun: [0, 5],
   /** 떠도는 먼지의 불투명도. 빛이 강할수록 걸리는 먼지가 많아 보인다. */
-  dust: [0.16, 0.6],
+  dust: [0.14, 0.6],
   /** 창 광선의 세기. 먼지가 아니라 이 값이 "빛이 든다"는 인상을 만든다. */
-  windowLight: [0.2, 1.15],
+  windowLight: [0.15, 1],
+  /* overall */
   /** 비네트. 어두울수록 가장자리가 조여든다. */
   vignette: [0.62, 0.24],
 } as const;
 
-export const ROOM_LIGHTING = {
-  ceilingFill: 28,
-  hemisphereFill: 1.25,
-} as const;
+export interface RoomLightMix {
+  /** 차가운 간접광의 양 (0~1) */
+  cool: number;
+  /** 창으로 드는 볕의 양 (0~1) */
+  warm: number;
+}
+
+/**
+ * 2막에서 간접광이 되돌아오는 상한. 되찾을수록 아주 조금만 트인다 — 온기는 볕이
+ * 맡고, 간접광은 그림자를 지키는 몫이다.
+ */
+const ACT2_COOL_CEILING = 0.16;
+
+/**
+ * 진행도를 두 빛의 양으로 가른다.
+ *
+ * 1막: cool은 `roomLightLevel`과 같은 곡선으로 깎이고 warm은 없다.
+ * 2막: warm이 회복도를 그대로 따르고, cool은 바닥에서 아주 조금만 올라온다.
+ * 전환점(1막 완주 = 2막 0)에서 두 축 모두 0으로 이어진다.
+ */
+export function roomLightMix(input: RoomLightInput): RoomLightMix {
+  if (input.collected < input.memoryTotal) {
+    return { cool: roomLightLevel(input), warm: 0 };
+  }
+  const recovery = Math.min(1, Math.max(0, input.recovery));
+  return { cool: ACT2_COOL_CEILING * recovery, warm: recovery };
+}
 
 /**
  * 1바퀴 진입 시점의 밝기. 기획상 "평범한 밝기 — 어둡지 않다. 그냥 낮의 남고생 방".

@@ -19,6 +19,10 @@ const SWAP_FADE_MS = 320;
  * 않는다** — 단계는 기억을 하나 완료하는 순간에 넘어가는데, 그때 줄이 통째로
  * 사라졌다 다시 찍히면 대사창이 닫히는 것과 겹쳐서 화면이 깜빡인 것처럼 보인다.
  * 옛 줄을 한 박자 물러나게 한 뒤에 새 줄을 들인다.
+ *
+ * 대사창도 토스트도 아니다 — 상자·화자·꼬리 없이 아이보리 글자만 어둠 위에 선다.
+ * 그림자 두 겹(.monologue-text)이 밝은 물건 위에서도 글자를 세우고, 그래도 모자란
+ * 자리는 경계 없는 어둠(.monologue-veil)이 글자 뒤에만 옅게 깔린다.
  */
 export function Monologue({ stageId }: { stageId: StageId }) {
   const { t: tRoom } = useTranslation("memoryRoom");
@@ -38,14 +42,19 @@ export function Monologue({ stageId }: { stageId: StageId }) {
   }, [stageId, shown]);
 
   return (
-    <div className="pointer-events-none absolute left-1/2 top-32 z-10 w-full max-w-2xl -translate-x-1/2 px-4 text-center md:top-16">
+    /*
+     * HUD(왼쪽 위 제목·진행, 오른쪽 위 버튼) 아래에 선다. 폰에서는 HUD가 두 줄이라
+     * 더 내려오고, 넓은 화면에서는 가운데 640px이 HUD 양끝과 겹치지 않는 높이까지 올린다.
+     */
+    <div className="pointer-events-none absolute left-1/2 top-28 z-10 w-[min(640px,calc(100vw-32px))] -translate-x-1/2 text-center md:top-24 lg:top-16">
+      <span aria-hidden className="monologue-veil absolute -inset-x-10 -inset-y-5 -z-10" />
       {/* 좁은 화면에서는 한 줄이 안 나온다 — 글자를 줄이고, 넘칠 땐 어절 단위로 접는다 */}
       <p
-        className={`animate-fade-rise break-ko text-pretty font-pixel text-xl text-fog transition-opacity duration-300 sm:text-2xl ${
+        className={`monologue-text animate-fade-rise break-ko text-pretty font-pixel text-xl leading-normal text-ivory transition-opacity duration-300 sm:text-[1.375rem] md:text-2xl ${
           leaving ? "opacity-0" : "opacity-100"
         }`}
       >
-        「 {monologue} 」
+        {monologue}
       </p>
     </div>
   );

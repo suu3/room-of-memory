@@ -9,6 +9,7 @@ import { useMemoryRoomStore } from "@/store/memory-room";
 import { LanguageToggle } from "./LanguageToggle";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { RisingDust } from "./RisingDust";
+import { BACKDROP, BUTTON_DESTRUCTIVE, BUTTON_QUIET, PANEL_DARK } from "./ui-classes";
 
 /**
  * 시작 버튼을 누르고 방이 드러나기까지 로딩 화면을 보여주는 시간.
@@ -25,7 +26,7 @@ const ENTER_DELAY_MS = 260;
  * 금빛 글로우는 globals.css의 .title-menu-item이 얹는다.
  */
 const MENU_ITEM_CLASS =
-  "title-menu-item group relative w-full cursor-pointer rounded-full px-10 py-2.5 text-center font-pixel text-xl tracking-[0.08em] text-bone/75 transition-colors hover:text-memory focus-visible:text-memory focus-visible:outline-none active:text-memory";
+  "title-menu-item group relative w-full cursor-pointer rounded-sm px-10 py-2.5 text-center font-pixel text-xl tracking-[0.06em] text-ivory/80 transition-colors duration-150 hover:text-memory focus-visible:text-memory focus-visible:outline-none active:text-memory";
 
 /** hover/focus에만 떠오르는 선택 표식. 라벨은 가운데 그대로 두고 왼쪽에 얹는다. */
 function MenuMarker() {
@@ -201,7 +202,7 @@ export function TitleScreen() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(68% 54% at 50% 46%, color-mix(in srgb, var(--color-scene-void) 88%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 62%, transparent) 55%, color-mix(in srgb, var(--color-scene-void) 34%, transparent) 100%)",
+              "radial-gradient(68% 54% at 50% 46%, color-mix(in srgb, var(--color-scene-void) 72%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 48%, transparent) 55%, color-mix(in srgb, var(--color-scene-void) 22%, transparent) 100%)",
           }}
         />
 
@@ -214,10 +215,10 @@ export function TitleScreen() {
           <p className="font-pixel text-sm tracking-[0.45em] text-memory/80">
             {t("titleScreen.eyebrow")}
           </p>
-          <h1 className="title-logo break-ko font-pixel text-5xl text-paper md:text-6xl">
+          <h1 className="title-logo break-ko font-pixel text-5xl leading-tight text-ivory md:text-6xl">
             {t("title")}
           </h1>
-          <p className="mt-1 max-w-md break-ko text-pretty text-sm leading-relaxed text-bone/60">
+          <p className="mt-1 max-w-md break-ko text-pretty text-sm leading-normal text-fog">
             {t("titleScreen.tagline")}
           </p>
         </div>
@@ -249,7 +250,7 @@ export function TitleScreen() {
 
         {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
         {hasSave ? (
-          <p className="relative -mt-4 text-[0.6875rem] font-bold tracking-[0.18em] text-memory/70">
+          <p className="relative -mt-4 text-xs font-medium tracking-[0.06em] text-memory">
             {t("titleScreen.saved", { count: collectedCount })}
           </p>
         ) : null}
@@ -259,7 +260,7 @@ export function TitleScreen() {
           아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다 — 덩어리째 줄바꿈되도록 flex로
           나눈다. 문구는 기기를 따라간다 — 폰에서 WASD를 읽어 봐야 누를 키가 없다.
         */}
-        <div className="relative flex max-w-md flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs leading-relaxed tracking-wider text-bone/40">
+        <div className="relative flex max-w-md flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs leading-normal text-fog/90">
           <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
           <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
         </div>
@@ -272,39 +273,35 @@ export function TitleScreen() {
 
       {/* 새 게임 확인 — 저장을 지우는 되돌릴 수 없는 동작이라 경고색(ember)이 선다 */}
       {confirming && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-scene-void/70 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4">
+          <div aria-hidden className={BACKDROP} />
           <div
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="new-game-dialog-title"
-            className="w-full max-w-md animate-fade-rise rounded-xl border border-bone bg-paper p-7 shadow-panel"
+            className={`relative w-full max-w-md animate-fade-rise p-6 ${PANEL_DARK}`}
           >
             <div className="flex items-start gap-3.5">
               <span
                 aria-hidden
-                className="grid size-9 flex-none place-items-center rounded-full bg-ember/12 text-ember"
+                className="grid size-9 flex-none place-items-center rounded-full bg-ember/20 text-ember"
               >
                 <Warning size={19} weight="fill" />
               </span>
               <div className="min-w-0">
                 <h2
                   id="new-game-dialog-title"
-                  className="break-ko text-base font-bold tracking-tight text-ink"
+                  className="break-ko text-base font-medium leading-snug text-ivory"
                 >
                   {t("titleScreen.newGameTitle")}
                 </h2>
-                <p className="mt-2.5 break-ko text-pretty text-sm leading-relaxed text-ink/70">
+                <p className="mt-2 break-ko text-pretty text-sm leading-normal text-fog">
                   {t("titleScreen.newGameBody", { count: collectedCount })}
                 </p>
               </div>
             </div>
             <div className="mt-5 flex justify-end gap-2">
-              <button
-                ref={cancelRef}
-                type="button"
-                onClick={closeConfirm}
-                className="cursor-pointer rounded-full border border-ink/15 px-4 py-1.5 text-xs font-bold tracking-widest text-ink/60 transition-all hover:border-ink/40 hover:text-ink active:translate-y-px active:bg-ink/5"
-              >
+              <button ref={cancelRef} type="button" onClick={closeConfirm} className={BUTTON_QUIET}>
                 {t("titleScreen.newGameCancel")}
               </button>
               <button
@@ -314,7 +311,7 @@ export function TitleScreen() {
                   reset();
                   enterGame();
                 }}
-                className="cursor-pointer rounded-full bg-ink px-4 py-1.5 text-xs font-bold tracking-widest text-paper transition-all hover:bg-ink/85 active:translate-y-px active:bg-ink"
+                className={BUTTON_DESTRUCTIVE}
               >
                 {t("titleScreen.newGameConfirm")}
               </button>

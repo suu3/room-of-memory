@@ -112,7 +112,7 @@ export function AngleTurnMinigame({ onComplete, onSettled }: MinigameProps) {
       skipVisible={skipEligible && !solved}
       onSkip={() => complete({ cleared: true, score: attempts })}
     >
-      <div className="rounded-lg border border-bone bg-paper/60 p-5 sm:p-6">
+      <div className="rounded-md border border-ink/12 bg-paper p-5 sm:p-6">
         <ul className="flex flex-col gap-4 sm:gap-5">
           {PAIRS.map((pair) => (
             <TurnRow key={pair.from} from={pair.from} to={pair.to} />

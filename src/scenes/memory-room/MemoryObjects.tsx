@@ -92,7 +92,7 @@ const MODEL_POSE = {
  */
 function remakePhoneMaterial(material: Material, palette: RoomPalette): Material {
   if (material.name !== "") return material.clone();
-  const screen = new MeshStandardMaterial({ color: palette.paper, roughness: 0.45, metalness: 0 });
+  const screen = new MeshStandardMaterial({ color: palette.linen, roughness: 0.45, metalness: 0 });
   screen.name = "phone-screen";
   return screen;
 }
@@ -279,7 +279,7 @@ function Gamepad({ palette, opacity }: VisualProps) {
       <mesh position={[0, 0.045, -0.03]} castShadow>
         <boxGeometry args={[0.44, 0.09, 0.2]} />
         <meshStandardMaterial
-          color={palette.slate}
+          color={palette.frame}
           roughness={0.5}
           opacity={opacity}
           transparent={transparent}
@@ -290,7 +290,7 @@ function Gamepad({ palette, opacity }: VisualProps) {
         <mesh key={x} position={[x, 0.045, 0.08]} castShadow>
           <boxGeometry args={[0.1, 0.09, 0.14]} />
           <meshStandardMaterial
-            color={palette.ink}
+            color={palette.frame}
             roughness={0.6}
             opacity={opacity}
             transparent={transparent}
@@ -300,7 +300,7 @@ function Gamepad({ palette, opacity }: VisualProps) {
       <mesh position={[-0.12, 0.096, -0.05]}>
         <boxGeometry args={[0.06, 0.012, 0.06]} />
         <meshStandardMaterial
-          color={palette.ink}
+          color={palette.frame}
           roughness={0.6}
           opacity={opacity}
           transparent={transparent}
@@ -310,7 +310,7 @@ function Gamepad({ palette, opacity }: VisualProps) {
         <mesh key={offset} position={[0.12 + offset, 0.096, -0.05 - offset]}>
           <cylinderGeometry args={[0.018, 0.018, 0.012, 10]} />
           <meshStandardMaterial
-            color={palette.ember}
+            color={palette.clay}
             roughness={0.55}
             opacity={opacity}
             transparent={transparent}
@@ -326,7 +326,7 @@ function Ball({ palette, opacity }: VisualProps) {
     <mesh castShadow>
       <sphereGeometry args={[1, 24, 16]} />
       <meshStandardMaterial
-        color={palette.paper}
+        color={palette.linen}
         roughness={0.65}
         opacity={opacity}
         transparent={opacity < 1}
@@ -343,7 +343,7 @@ function BallSeam({ palette, opacity }: VisualProps) {
   return (
     <mesh geometry={geometry} castShadow>
       <meshStandardMaterial
-        color={palette.ember}
+        color={palette.clay}
         roughness={0.7}
         opacity={opacity}
         transparent={opacity < 1}
@@ -410,7 +410,7 @@ function Frame({ palette, opacity }: VisualProps) {
         <mesh key={bar.position.join(":")} position={bar.position} castShadow>
           <boxGeometry args={bar.size} />
           <meshStandardMaterial
-            color={palette.bone}
+            color={palette.wood}
             roughness={0.62}
             opacity={opacity}
             transparent={opacity < 1}
@@ -420,7 +420,7 @@ function Frame({ palette, opacity }: VisualProps) {
       <mesh position={[0, 0, -FRAME_DEPTH / 2]} castShadow>
         <boxGeometry args={[FRAME_WIDTH, FRAME_HEIGHT, 0.012]} />
         <meshStandardMaterial
-          color={palette.ink}
+          color={palette.frame}
           roughness={0.75}
           opacity={opacity}
           transparent={opacity < 1}
@@ -438,7 +438,7 @@ function Frame({ palette, opacity }: VisualProps) {
         <planeGeometry args={[FRAME_OPENING_WIDTH, FRAME_OPENING_HEIGHT]} />
         <meshStandardMaterial
           map={photo}
-          color={palette.paper}
+          color={palette.linen}
           emissive={palette.memory}
           emissiveIntensity={0.1}
           roughness={0.85}
@@ -449,7 +449,7 @@ function Frame({ palette, opacity }: VisualProps) {
       <mesh position={[0, -FRAME_HEIGHT * 0.2, -0.085]} rotation={[0.38, 0, 0]} castShadow>
         <boxGeometry args={[0.11, FRAME_HEIGHT * 0.68, 0.014]} />
         <meshStandardMaterial
-          color={palette.ink}
+          color={palette.frame}
           roughness={0.8}
           opacity={opacity}
           transparent={opacity < 1}
@@ -472,7 +472,7 @@ function WindowMemory({ palette, opacity }: VisualProps) {
     <mesh position={[0, 0, 0.04]}>
       <planeGeometry args={[2.55, 2.1]} />
       <meshStandardMaterial
-        color={palette.bone}
+        color={palette.linen}
         emissive={palette.memory}
         emissiveIntensity={0.06}
         opacity={0.07 * opacity}
@@ -489,7 +489,7 @@ function RadioMemory({ palette, opacity }: VisualProps) {
       <mesh position={[0, 0.28, 0]} castShadow>
         <boxGeometry args={[0.92, 0.56, 0.4]} />
         <meshStandardMaterial
-          color={palette.ink}
+          color={palette.frame}
           roughness={0.68}
           opacity={opacity}
           transparent={opacity < 1}
@@ -499,7 +499,7 @@ function RadioMemory({ palette, opacity }: VisualProps) {
         <mesh key={x} position={[x, 0.29, 0.215]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.11, 0.11, 0.07, 16]} />
           <meshStandardMaterial
-            color={palette.bone}
+            color={palette.trim}
             roughness={0.6}
             opacity={opacity}
             transparent={opacity < 1}
@@ -509,7 +509,7 @@ function RadioMemory({ palette, opacity }: VisualProps) {
       <mesh position={[0.3, 0.78, 0]} rotation={[0, 0, -0.42]} castShadow>
         <cylinderGeometry args={[0.018, 0.018, 0.62, 8]} />
         <meshStandardMaterial
-          color={palette.ember}
+          color={palette.clay}
           roughness={0.5}
           opacity={opacity}
           transparent={opacity < 1}
@@ -573,7 +573,7 @@ function PhoneMemory({ palette, opacity }: VisualProps) {
       <mesh position={[0, 0.34, 0]} castShadow>
         <boxGeometry args={[0.48, 0.72, 0.16]} />
         <meshStandardMaterial
-          color={palette.slate}
+          color={palette.frame}
           roughness={0.55}
           opacity={opacity}
           transparent={opacity < 1}
@@ -582,7 +582,7 @@ function PhoneMemory({ palette, opacity }: VisualProps) {
       <mesh position={[0, 0.37, 0.085]}>
         <planeGeometry args={[0.37, 0.52]} />
         <meshStandardMaterial
-          color={palette.paper}
+          color={palette.linen}
           roughness={0.45}
           opacity={opacity}
           transparent={opacity < 1}
@@ -598,7 +598,7 @@ function CalendarMemory({ palette, opacity }: VisualProps) {
       <mesh position={[0, 0, 0.025]}>
         <planeGeometry args={[0.82, 1]} />
         <meshStandardMaterial
-          color={palette.paper}
+          color={palette.linen}
           roughness={0.92}
           opacity={opacity}
           transparent={opacity < 1}
@@ -607,7 +607,7 @@ function CalendarMemory({ palette, opacity }: VisualProps) {
       <mesh position={[0, 0.37, 0.04]}>
         <planeGeometry args={[0.82, 0.24]} />
         <meshStandardMaterial
-          color={palette.ember}
+          color={palette.clay}
           roughness={0.75}
           opacity={opacity}
           transparent={opacity < 1}
@@ -617,7 +617,7 @@ function CalendarMemory({ palette, opacity }: VisualProps) {
         <mesh key={`${dot.x}:${dot.y}`} position={[dot.x, dot.y, 0.045]}>
           <circleGeometry args={[0.026, 10]} />
           <meshStandardMaterial
-            color={palette.ink}
+            color={palette.frame}
             roughness={0.8}
             opacity={opacity}
             transparent={opacity < 1}
@@ -654,7 +654,7 @@ function ComputerPrimitive({ palette, opacity }: VisualProps) {
         <mesh position={[0, 0.45, 0]} castShadow>
           <boxGeometry args={[0.95, 0.62, 0.07]} />
           <meshStandardMaterial
-            color={palette.slate}
+            color={palette.frame}
             roughness={0.55}
             opacity={opacity}
             transparent={transparent}
@@ -675,7 +675,7 @@ function ComputerPrimitive({ palette, opacity }: VisualProps) {
         <mesh position={[0, 0.06, 0]} castShadow>
           <boxGeometry args={[0.3, 0.12, 0.22]} />
           <meshStandardMaterial
-            color={palette.slate}
+            color={palette.frame}
             roughness={0.6}
             opacity={opacity}
             transparent={transparent}
@@ -686,7 +686,7 @@ function ComputerPrimitive({ palette, opacity }: VisualProps) {
         <mesh position={[0, 0.02, 0]} castShadow>
           <boxGeometry args={[0.72, 0.04, 0.26]} />
           <meshStandardMaterial
-            color={palette.bone}
+            color={palette.trim}
             roughness={0.7}
             opacity={opacity}
             transparent={transparent}
@@ -767,17 +767,17 @@ function DoorOutline({
 
 /** 냉장실 문 — 열면 아직 반이나 남은 식량이 나온다. */
 function FridgeDoorMemory({ palette, opacity }: VisualProps) {
-  return <DoorOutline width={0.86} height={0.7} color={palette.paper} opacity={opacity} />;
+  return <DoorOutline width={0.86} height={0.7} color={palette.linen} opacity={opacity} />;
 }
 
 /** 냉장고 아래칸 — "손대지 마"라던 칸. 앰플이 여기 있다. */
 function FridgeDrawerMemory({ palette, opacity }: VisualProps) {
-  return <DoorOutline width={0.86} height={0.38} color={palette.paper} opacity={opacity} />;
+  return <DoorOutline width={0.86} height={0.38} color={palette.linen} opacity={opacity} />;
 }
 
 /** 신발장 문 — 두고 간 등산화가 그대로 있다. */
 function ShoeCabinetMemory({ palette, opacity }: VisualProps) {
-  return <DoorOutline width={1.7} height={0.86} color={palette.dusk} opacity={opacity} />;
+  return <DoorOutline width={1.7} height={0.86} color={palette.wood} opacity={opacity} />;
 }
 
 /**
@@ -795,7 +795,7 @@ function TableCardsMemory({ palette, opacity }: VisualProps) {
       <mesh position={[-0.15, 0.025, -0.02]} castShadow>
         <boxGeometry args={[0.2, 0.05, 0.28]} />
         <meshStandardMaterial
-          color={palette.bone}
+          color={palette.trim}
           roughness={0.7}
           opacity={opacity}
           transparent={transparent}
@@ -805,7 +805,7 @@ function TableCardsMemory({ palette, opacity }: VisualProps) {
         <mesh key={`${x}:${z}`} position={[x, 0.004, z]} rotation={[0, turn, 0]} castShadow>
           <boxGeometry args={[0.18, 0.008, 0.26]} />
           <meshStandardMaterial
-            color={palette.paper}
+            color={palette.linen}
             roughness={0.7}
             opacity={opacity}
             transparent={transparent}
@@ -838,7 +838,7 @@ function DuffelMemory({ palette, opacity }: VisualProps) {
       <mesh rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
         <cylinderGeometry args={[0.19, 0.19, 0.62, 12]} />
         <meshStandardMaterial
-          color={palette.olive ?? palette.dusk}
+          color={palette.sage}
           roughness={0.9}
           opacity={opacity}
           transparent={transparent}
@@ -848,7 +848,7 @@ function DuffelMemory({ palette, opacity }: VisualProps) {
       <mesh position={[0, 0.16, 0]} rotation={[0.12, 0, 0]} castShadow>
         <boxGeometry args={[0.5, 0.06, 0.09]} />
         <meshStandardMaterial
-          color={palette.ink}
+          color={palette.frame}
           roughness={0.85}
           opacity={opacity}
           transparent={transparent}
@@ -858,7 +858,7 @@ function DuffelMemory({ palette, opacity }: VisualProps) {
       <mesh position={[0, 0.185, 0.03]} castShadow={false}>
         <boxGeometry args={[0.56, 0.012, 0.02]} />
         <meshStandardMaterial
-          color={palette.bone}
+          color={palette.trim}
           roughness={0.6}
           opacity={opacity}
           transparent={transparent}
@@ -868,7 +868,7 @@ function DuffelMemory({ palette, opacity }: VisualProps) {
       <mesh position={[-0.28, -0.02, 0.02]} castShadow>
         <boxGeometry args={[0.1, 0.24, 0.3]} />
         <meshStandardMaterial
-          color={palette.slate}
+          color={palette.frame}
           roughness={0.9}
           opacity={opacity}
           transparent={transparent}

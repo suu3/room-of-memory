@@ -75,7 +75,7 @@ function SpecialMeter({ charged }: { charged: number }) {
       {SPECIAL_SLOTS.map((key, slot) => (
         <span
           key={key}
-          className={`size-1.5 rounded-full ${slot < charged ? "bg-memory" : "bg-ink/20"}`}
+          className={`size-1.5 rounded-full ${slot < charged ? "bg-memory" : "bg-ivory/20"}`}
         />
       ))}
     </span>
@@ -557,18 +557,18 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
               type="button"
               disabled={!live || resolved !== null || spent}
               onClick={() => answerRef.current(move)}
-              className={`rounded-md border border-ink/15 px-4 py-2.5 tracking-wide text-ink transition-all focus-visible:outline-2 focus-visible:outline-memory focus-visible:outline-offset-2 enabled:cursor-pointer enabled:hover:border-ink/40 enabled:hover:bg-ink/5 enabled:active:translate-y-px disabled:opacity-45 ${
-                resolved?.player === move ? "border-ink/40 bg-ink/5 opacity-100" : ""
+              className={`rounded-sm border border-line px-4 py-2.5 text-ivory transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-memory focus-visible:outline-offset-2 enabled:cursor-pointer enabled:hover:border-fog/40 enabled:hover:bg-ivory/8 disabled:opacity-45 ${
+                resolved?.player === move ? "border-fog/50 bg-ivory/10 opacity-100" : ""
               }`}
             >
               <span className="flex items-center justify-center gap-2 font-bold text-base">
                 <span>
-                  <span className="font-pixel text-ink/45 text-xs">{MOVE_KEYS[index]}</span>{" "}
+                  <span className="font-pixel text-fog/80 text-xs">{MOVE_KEYS[index]}</span>{" "}
                   {t(`minigame.fighterDuel.move.${move}`)}
                 </span>
                 {costsMeter && <SpecialMeter charged={state.special} />}
               </span>
-              <span className="mt-0.5 block break-ko text-[0.6875rem] text-ink/50">
+              <span className="mt-0.5 block break-ko text-[0.6875rem] text-fog">
                 {t("minigame.fighterDuel.beats", {
                   move: t(`minigame.fighterDuel.move.${beats(move)}`),
                 })}
@@ -582,7 +582,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
           );
         })}
       </div>
-      <p className="mt-2.5 break-ko text-pretty text-center text-sm text-ink/55">
+      <p className="mt-2.5 break-ko text-pretty text-center text-sm text-fog">
         {t("minigame.fighterDuel.hint")}
       </p>
     </MinigameShell>

@@ -92,7 +92,7 @@ function ViewerModel({
       <primitive object={rig.root} dispose={null} />
       <mesh ref={stoolRef} position={STOOL_POSITION} visible={false} castShadow>
         <boxGeometry args={STOOL_SIZE} />
-        <meshStandardMaterial color={palette.dusk} roughness={0.78} transparent opacity={0} />
+        <meshStandardMaterial color={palette.wood} roughness={0.78} transparent opacity={0} />
       </mesh>
     </group>
   );

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { MEMORY_BY_ID, MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
+import { BUTTON_QUIET_PAPER } from "./ui-classes";
 
 /**
  * 도해가 남긴 기록. 조사 오브젝트 하나가 항목 하나를 연다 (1:1).
@@ -56,32 +57,30 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
               것인데, 이보다 크면 글줄이 눕는 게 눈에 띄어 읽기가 나빠진다.
             */}
             <article
-              className={`relative flex h-full flex-col rounded-sm border border-ink/12 bg-paper p-2.5 ring-1 ring-ink/5 ${
+              className={`relative flex h-full flex-col rounded-sm border border-ink/10 bg-card p-2.5 ${
                 index % 2 === 0 ? "rotate-[-0.6deg]" : "rotate-[0.6deg]"
               }`}
             >
               {/* 종이에 붙인 마스킹 테이프. mix-blend-multiply라 밑의 모눈이 비쳐 보인다 */}
               <span
                 aria-hidden
-                className="-top-2 -translate-x-1/2 -rotate-2 absolute left-1/2 h-4 w-14 rounded-[1px] bg-bone/80 mix-blend-multiply"
+                className="-top-2 -translate-x-1/2 -rotate-2 absolute left-1/2 h-4 w-14 rounded-[1px] bg-bone/55 mix-blend-multiply"
               />
 
               <LoreStill id={id} name={name} unlocked={unlocked} still={phase?.replayStill} />
 
               {/*
-                잠긴 항목은 제목도 흐린다 — 제목만 봐도 무슨 일이 있었는지 짐작된다.
-                제목 칸 자체는 비우지 않는다: 흐린 글자를 aria-hidden으로 덮고
+                잠긴 항목은 제목도 싣지 않는다 — 제목만 봐도 무슨 일이 있었는지 짐작된다.
+                제목 칸 자체는 비우지 않는다: 낮은 대비의 자리표시를 aria-hidden으로 두고
                 스크린리더에는 "왜 잠겼는지"를 대신 읽힌다 (BlurredValue와 같은 방식).
               */}
-              <h3 className="mt-2.5 font-bold text-[0.625rem] text-ink/40 uppercase tracking-[0.18em]">
+              <h3 className="mt-2.5 text-xs font-medium tracking-[0.06em] text-graphite">
                 {unlocked ? (
                   tRoom(`lore.${id}.title` as ParseKeys<"memoryRoom">)
                 ) : (
                   <>
                     <span className="sr-only">{t("characterSheet.loreLocked")}</span>
-                    <span aria-hidden className="block select-none blur-[4px]">
-                      {tRoom(`lore.${id}.title` as ParseKeys<"memoryRoom">)}
-                    </span>
+                    <span aria-hidden className="block h-2.5 w-20 rounded-sm bg-bone/70" />
                   </>
                 )}
               </h3>
@@ -89,7 +88,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
               {/* mt-auto가 아니라 flex-1 — 카드 높이가 달라도 다시보기 줄이 바닥에 맞는다 */}
               <div className="mt-1.5 flex-1">
                 {unlocked ? (
-                  <p className="block animate-fade-rise break-ko text-pretty text-ink/80 text-sm leading-relaxed">
+                  <p className="block animate-fade-rise break-ko text-pretty text-ink text-sm leading-normal">
                     {tRoom(bodyKey)}
                   </p>
                 ) : (
@@ -110,7 +109,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
                     replayMemory(id);
                   }}
                   aria-label={t("panel.replay", { name })}
-                  className="mt-3 flex cursor-pointer items-center gap-1 self-end rounded-sm border border-ink/15 px-1.5 py-0.5 font-bold text-[0.6875rem] text-ink/45 tracking-wide transition-colors hover:border-memory hover:text-memory focus-visible:outline-2 focus-visible:outline-memory focus-visible:outline-offset-2"
+                  className={`${BUTTON_QUIET_PAPER} mt-3 self-end px-2 py-1 text-xs`}
                 >
                   <ArrowCounterClockwise size={11} weight="bold" />
                   {t("panel.replayAction")}
@@ -153,7 +152,7 @@ function LoreStill({
     return (
       <div
         aria-hidden
-        className="relative aspect-[4/3] w-full rounded-[2px] border border-ink/10 border-dashed bg-bone/25"
+        className="relative aspect-[4/3] w-full rounded-[2px] border border-ink/10 bg-bone/40"
       >
         {/* 네 귀퉁이의 사진 홀더 — 사진만 빠져 있다는 신호 */}
         {[
@@ -162,7 +161,7 @@ function LoreStill({
           "left-1.5 bottom-1.5 border-b-2 border-l-2",
           "right-1.5 bottom-1.5 border-b-2 border-r-2",
         ].map((corner) => (
-          <span key={corner} className={`absolute size-3.5 border-ink/20 ${corner}`} />
+          <span key={corner} className={`absolute size-3.5 border-ink/15 ${corner}`} />
         ))}
       </div>
     );
@@ -172,7 +171,7 @@ function LoreStill({
     return (
       <div
         aria-hidden
-        className="grid aspect-[4/3] w-full place-items-center rounded-[2px] border border-memory/25 bg-memory/10 text-memory/70"
+        className="grid aspect-[4/3] w-full place-items-center rounded-[2px] border border-ink/10 bg-bone/40 text-graphite"
       >
         <Icon size={40} weight="duotone" />
       </div>

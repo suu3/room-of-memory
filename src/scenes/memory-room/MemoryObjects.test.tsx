@@ -6,21 +6,26 @@ import { InteractiveMemory } from "./MemoryObjects";
 import type { RoomPalette } from "./palette";
 
 const TEST_PALETTE = {
-  ink: "#171717",
-  paper: "#e8e1d1",
-  bone: "#c8bda5",
-  memory: "#b89a5e",
-  ember: "#8a4935",
-  slate: "#30343b",
-  mist: "#a8afb4",
-  deep: "#11141a",
-  dusk: "#3f3a43",
-  navy: "#27313d",
-  olive: "#55533d",
+  memory: "#d5ae78",
+  ember: "#b8655a",
+  wall: "#34465e",
+  wallFaded: "#3d5069",
+  floor: "#626c7d",
+  wood: "#998572",
+  frame: "#354052",
+  fabric: "#6c809e",
+  linen: "#bab4a7",
+  trim: "#a4a6a1",
+  amber: "#bc9363",
+  clay: "#a57565",
+  sage: "#809289",
   storm: "#2a3d48",
   abyss: "#121c24",
   coal: "#17202a",
+  deep: "#0f181e",
   void: "#060a10",
+  daylight: "#c4d0de",
+  sun: "#f3c98e",
 } satisfies RoomPalette;
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;

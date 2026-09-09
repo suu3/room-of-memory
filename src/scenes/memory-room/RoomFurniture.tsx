@@ -52,6 +52,8 @@ interface BoxPart {
   size: Vec3Tuple;
   position: Vec3Tuple;
   color: keyof RoomPalette;
+  /** 볕을 가리지 않는 얇은 천(커튼). 기본은 그림자를 드리운다. */
+  castShadow?: boolean;
 }
 
 interface FurnitureProps {
@@ -60,7 +62,7 @@ interface FurnitureProps {
 
 function FurnitureBox({ part, palette }: { part: BoxPart; palette: RoomPalette }) {
   return (
-    <mesh position={part.position} castShadow receiveShadow>
+    <mesh position={part.position} castShadow={part.castShadow ?? true} receiveShadow>
       <boxGeometry args={part.size} />
       <meshStandardMaterial color={palette[part.color]} roughness={0.78} />
     </mesh>
@@ -75,12 +77,12 @@ function FurnitureBox({ part, palette }: { part: BoxPart; palette: RoomPalette }
 
 // 상판 윗면 y=1.11. 다리는 상판 안으로 0.06 파고든다.
 const DESK_PARTS = [
-  { size: [4.1, 0.2, 1.6], position: [0, 1.01, 0], color: "dusk" },
-  { size: [0.22, 0.98, 0.22], position: [-1.87, 0.49, -0.6], color: "ink" },
-  { size: [0.22, 0.98, 0.22], position: [1.87, 0.49, -0.6], color: "ink" },
-  { size: [0.22, 0.98, 0.22], position: [-1.87, 0.49, 0.6], color: "ink" },
-  { size: [0.22, 0.98, 0.22], position: [1.87, 0.49, 0.6], color: "ink" },
-  { size: [1.3, 0.46, 1.4], position: [-1.05, 0.7, 0], color: "slate" },
+  { size: [4.1, 0.2, 1.6], position: [0, 1.01, 0], color: "wood" },
+  { size: [0.22, 0.98, 0.22], position: [-1.87, 0.49, -0.6], color: "frame" },
+  { size: [0.22, 0.98, 0.22], position: [1.87, 0.49, -0.6], color: "frame" },
+  { size: [0.22, 0.98, 0.22], position: [-1.87, 0.49, 0.6], color: "frame" },
+  { size: [0.22, 0.98, 0.22], position: [1.87, 0.49, 0.6], color: "frame" },
+  { size: [1.3, 0.46, 1.4], position: [-1.05, 0.7, 0], color: "wood" },
 ] as const satisfies readonly BoxPart[];
 
 // 다리는 좌석 안으로, 등받이는 좌석 안으로 각각 파고든다. 좌면 치수는 layout의
@@ -92,25 +94,25 @@ const CHAIR_PARTS = [
   {
     size: [CHAIR_WIDTH, CHAIR_SEAT.thickness, CHAIR_WIDTH],
     position: [0, CHAIR_SEAT_Y, 0],
-    color: "ink",
+    color: "wood",
   },
   {
     size: [0.12, 0.58, 0.12],
     position: [-CHAIR_LEG_INSET, 0.29, -CHAIR_LEG_INSET],
-    color: "slate",
+    color: "frame",
   },
-  { size: [0.12, 0.58, 0.12], position: [CHAIR_LEG_INSET, 0.29, -CHAIR_LEG_INSET], color: "slate" },
-  { size: [0.12, 0.58, 0.12], position: [-CHAIR_LEG_INSET, 0.29, CHAIR_LEG_INSET], color: "slate" },
-  { size: [0.12, 0.58, 0.12], position: [CHAIR_LEG_INSET, 0.29, CHAIR_LEG_INSET], color: "slate" },
+  { size: [0.12, 0.58, 0.12], position: [CHAIR_LEG_INSET, 0.29, -CHAIR_LEG_INSET], color: "frame" },
+  { size: [0.12, 0.58, 0.12], position: [-CHAIR_LEG_INSET, 0.29, CHAIR_LEG_INSET], color: "frame" },
+  { size: [0.12, 0.58, 0.12], position: [CHAIR_LEG_INSET, 0.29, CHAIR_LEG_INSET], color: "frame" },
   // 등받이 뒷면(0.45)을 좌석 모서리(0.43) 뒤로 뺀다 — 두 면이 같은 평면에
   // 놓이면 z-fighting으로 깜빡인다 (위 겹침 원칙)
-  { size: [CHAIR_WIDTH, 0.68, 0.14], position: [0, 0.96, 0.38], color: "dusk" },
+  { size: [CHAIR_WIDTH, 0.68, 0.14], position: [0, 0.96, 0.38], color: "wood" },
 ] as const satisfies readonly BoxPart[];
 
 // 몸통 앞면 z=-2.53. 서랍판은 그 면을 물고, 손잡이는 서랍판 앞에 0.015 띄운다.
 // 몸통은 layout의 CABINET_BODY를 그대로 쓴다 — 상판 위 기억 오브젝트와 같은 수치를 봐야 한다.
 const CABINET_BODY_PARTS = [
-  { ...CABINET_BODY, color: "dusk" },
+  { ...CABINET_BODY, color: "wood" },
 ] as const satisfies readonly BoxPart[];
 
 /*
@@ -120,28 +122,28 @@ const CABINET_BODY_PARTS = [
  */
 const CABINET_DRAWERS = [
   [
-    { size: [2.08, 0.92, 0.06], position: [1.23, 0.58, -2.53], color: "slate" },
-    { size: [0.12, 0.12, 0.05], position: [2.14, 0.58, -2.46], color: "bone" },
+    { size: [2.08, 0.92, 0.06], position: [1.23, 0.58, -2.53], color: "wood" },
+    { size: [0.12, 0.12, 0.05], position: [2.14, 0.58, -2.46], color: "trim" },
   ],
   [
-    { size: [2.08, 0.92, 0.06], position: [3.47, 0.58, -2.53], color: "slate" },
-    { size: [0.12, 0.12, 0.05], position: [2.56, 0.58, -2.46], color: "bone" },
+    { size: [2.08, 0.92, 0.06], position: [3.47, 0.58, -2.53], color: "wood" },
+    { size: [0.12, 0.12, 0.05], position: [2.56, 0.58, -2.46], color: "trim" },
   ],
 ] as const satisfies readonly (readonly BoxPart[])[];
 
 // 몸통 앞면 z=1.16. 캐비닛과 같은 규칙.
 const NIGHTSTAND_BODY_PARTS = [
-  { size: [0.9, 0.95, 0.82], position: [6.8, 0.48, 0.75], color: "dusk" },
+  { size: [0.9, 0.95, 0.82], position: [6.8, 0.48, 0.75], color: "wood" },
 ] as const satisfies readonly BoxPart[];
 
 const NIGHTSTAND_DRAWER = [
-  { size: [0.72, 0.28, 0.06], position: [6.8, 0.72, 1.16], color: "slate" },
-  { size: [0.16, 0.08, 0.05], position: [6.8, 0.72, 1.225], color: "bone" },
+  { size: [0.72, 0.28, 0.06], position: [6.8, 0.72, 1.16], color: "wood" },
+  { size: [0.16, 0.08, 0.05], position: [6.8, 0.72, 1.225], color: "trim" },
 ] as const satisfies readonly BoxPart[];
 
 const SHELF_PARTS = [
-  { size: [0.5, 0.12, 2.1], position: [-5.65, 2.95, -1.4], color: "dusk" },
-  { size: [2.1, 0.12, 0.5], position: [4.35, 2.8, -3.65], color: "dusk" },
+  { size: [0.5, 0.12, 2.1], position: [-5.65, 2.95, -1.4], color: "wood" },
+  { size: [2.1, 0.12, 0.5], position: [4.35, 2.8, -3.65], color: "wood" },
 ] as const satisfies readonly BoxPart[];
 
 /**
@@ -159,9 +161,9 @@ function curtainPlaneX(ray: { intersectPlane: (plane: Plane, target: Vector3) =>
 }
 
 const CURTAIN_FOLD_PARTS = [
-  { size: [0.82, 2.9, 0.16], position: [-0.52, 0, -0.02], color: "navy" },
-  { size: [0.82, 2.9, 0.18], position: [0, 0, 0.03], color: "navy" },
-  { size: [0.82, 2.9, 0.16], position: [0.52, 0, -0.02], color: "navy" },
+  { size: [0.82, 2.9, 0.16], position: [-0.52, 0, -0.02], color: "fabric", castShadow: false },
+  { size: [0.82, 2.9, 0.18], position: [0, 0, 0.03], color: "fabric", castShadow: false },
+  { size: [0.82, 2.9, 0.16], position: [0.52, 0, -0.02], color: "fabric", castShadow: false },
 ] as const satisfies readonly BoxPart[];
 
 function BoxParts({ parts, palette }: { parts: readonly BoxPart[]; palette: RoomPalette }) {
@@ -449,30 +451,30 @@ function DeskClock({ palette }: FurnitureProps) {
       <group name="desk-clock" position={CLOCK_CENTER}>
         <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
           <cylinderGeometry args={[0.28, 0.28, 0.1, 24]} />
-          <meshStandardMaterial color={palette.bone} roughness={0.72} />
+          <meshStandardMaterial color={palette.trim} roughness={0.72} />
         </mesh>
         <mesh position={[0, 0, CLOCK_FACE_Z]}>
           <circleGeometry args={[0.2, 24]} />
-          <meshStandardMaterial color={palette.paper} roughness={0.8} />
+          <meshStandardMaterial color={palette.linen} roughness={0.8} />
         </mesh>
         <ClockHand
           angle={HOUR_ANGLE}
           length={0.11}
           width={0.022}
           z={CLOCK_FACE_Z + 0.008}
-          color={palette.ink}
+          color={palette.frame}
         />
         <ClockHand
           angle={MINUTE_ANGLE}
           length={0.16}
           width={0.016}
           z={CLOCK_FACE_Z + 0.014}
-          color={palette.ink}
+          color={palette.frame}
         />
         {/* 바늘이 만나는 축 — 두 바늘이 그냥 겹쳐 있으면 십자 무늬로 보인다 */}
         <mesh position={[0, 0, CLOCK_FACE_Z + 0.022]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.018, 0.018, 0.01, 10]} />
-          <meshStandardMaterial color={palette.ember} roughness={0.6} />
+          <meshStandardMaterial color={palette.clay} roughness={0.6} />
         </mesh>
       </group>
     </DeskClockClue>
@@ -488,11 +490,11 @@ function CabinetAccessories({ palette }: FurnitureProps) {
         scale={1.08}
       />
       <FurnitureBox
-        part={{ size: [0.72, 0.34, 0.45], position: [storageBox.x, 1.32, -2.82], color: "navy" }}
+        part={{ size: [0.72, 0.34, 0.45], position: [storageBox.x, 1.32, -2.82], color: "sage" }}
         palette={palette}
       />
       <FurnitureBox
-        part={{ size: [0.22, 0.22, 0.04], position: [storageBox.x, 1.56, -2.79], color: "paper" }}
+        part={{ size: [0.22, 0.22, 0.04], position: [storageBox.x, 1.56, -2.79], color: "linen" }}
         palette={palette}
       />
       <DeskClock palette={palette} />
@@ -501,16 +503,30 @@ function CabinetAccessories({ palette }: FurnitureProps) {
 }
 
 function FloorAccessories({ palette }: FurnitureProps) {
+  /*
+   * 러그의 킷 원색은 빨강이라 방에서 혼자 튄다. 바탕은 리넨, 테두리는 테라코타로 —
+   * 재질 이름(carpet · carpetDarker)은 glb에 박혀 있는 것이다. 팔레트가 바뀌면 같이 바뀌게
+   * 메모해 둔다 (FurnitureModel이 재질을 useMemo 안에서 만들어서 참조가 고정돼야 한다).
+   */
+  const rugColors = useMemo(
+    () => ({ carpet: palette.linen, carpetDarker: palette.clay }),
+    [palette.linen, palette.clay],
+  );
   return (
     <group name="floor-accessories">
       {/* 러그는 두께가 0.01뿐이라 바닥과 겹치지 않게 살짝 띄운다 */}
-      <FurnitureModel path={ASSETS.models.rug} position={[0.2, 0.012, 3.65]} scale={2.1} />
+      <FurnitureModel
+        path={ASSETS.models.rug}
+        position={[0.2, 0.012, 3.65]}
+        scale={2.1}
+        materialColors={rugColors}
+      />
       <FurnitureBox
-        part={{ size: [0.62, 0.13, 1.02], position: [-0.12, 0.12, 3.52], color: "bone" }}
+        part={{ size: [0.62, 0.13, 1.02], position: [-0.12, 0.12, 3.52], color: "linen" }}
         palette={palette}
       />
       <FurnitureBox
-        part={{ size: [0.62, 0.13, 1.02], position: [0.6, 0.12, 3.52], color: "bone" }}
+        part={{ size: [0.62, 0.13, 1.02], position: [0.6, 0.12, 3.52], color: "linen" }}
         palette={palette}
       />
     </group>

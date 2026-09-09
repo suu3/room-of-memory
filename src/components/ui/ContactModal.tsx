@@ -4,6 +4,7 @@ import { ArrowUpRight, X } from "@phosphor-icons/react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { BACKDROP, FOCUS_RING, PANEL_DARK } from "./ui-classes";
 
 /** 연락 수단. 새 항목은 여기에만 추가하면 목록이 따라간다. */
 export const CONTACT_LINKS = [
@@ -19,23 +20,23 @@ export function ContactLinks() {
     <div className="flex flex-col gap-5">
       <ul className="flex flex-col">
         {CONTACT_LINKS.map((link) => (
-          <li key={link.label} className="border-t border-ink/10 last:border-b">
+          <li key={link.label} className="border-t border-line last:border-b">
             <a
               href={link.href}
               target={link.href.startsWith("http") ? "_blank" : undefined}
               rel="noreferrer"
-              className="group flex items-center justify-between gap-4 py-4 transition-colors active:bg-ink/5"
+              className={`group flex items-center justify-between gap-4 py-4 transition-colors active:bg-ivory/8 ${FOCUS_RING}`}
             >
-              <span className="shrink-0 text-xs font-bold uppercase tracking-[0.18em] text-ink/45">
+              <span className="shrink-0 text-xs font-medium tracking-[0.06em] text-ash">
                 {link.label}
               </span>
               {/* 메일 주소는 어절이 없다 — 좁아지면 어디서든 접히게 두는 편이 잘린 것보다 낫다 */}
-              <span className="flex min-w-0 items-center gap-2 break-ko text-right text-sm text-ink/80 transition-colors group-hover:text-ink">
+              <span className="flex min-w-0 items-center gap-2 break-ko text-right text-sm text-fog transition-colors group-hover:text-ivory">
                 {link.value}
                 <ArrowUpRight
                   size={14}
                   weight="bold"
-                  className="text-ink/30 transition-colors group-hover:text-memory"
+                  className="text-ash transition-colors group-hover:text-memory"
                 />
               </span>
             </a>
@@ -43,7 +44,7 @@ export function ContactLinks() {
         ))}
       </ul>
       {/* 지원사업 표기 — 요란하지 않게, 크레딧을 열어본 사람에게만 보인다 */}
-      <p className="break-ko text-xs leading-relaxed text-ink/35">{t("contact.support")}</p>
+      <p className="break-ko text-xs leading-normal text-ash">{t("contact.support")}</p>
     </div>
   );
 }
@@ -81,23 +82,23 @@ export function ContactModal() {
         type="button"
         aria-label={t("contact.close")}
         onClick={() => setOpen(false)}
-        className="absolute inset-0 cursor-pointer bg-scene-void/70 backdrop-blur-sm"
+        className={`cursor-pointer ${BACKDROP}`}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={t("contact.title")}
-        className="relative w-full max-w-xl animate-fade-rise rounded-xl border border-bone bg-paper p-6 shadow-panel sm:p-8"
+        className={`relative w-full max-w-xl animate-fade-rise p-6 sm:p-8 ${PANEL_DARK}`}
       >
         <div className="flex items-start justify-between gap-4">
-          <h2 className="min-w-0 break-ko text-2xl font-bold tracking-tight text-ink">
+          <h2 className="min-w-0 break-ko text-xl font-medium leading-snug text-ivory">
             {t("contact.title")}
           </h2>
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label={t("contact.close")}
-            className="cursor-pointer text-ink/60 transition-colors hover:text-ink active:text-ink/80"
+            className={`cursor-pointer text-fog transition-colors hover:text-ivory active:text-ivory/80 ${FOCUS_RING}`}
           >
             <X size={18} weight="bold" />
           </button>

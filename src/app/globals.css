@@ -2,15 +2,31 @@
 
 /* Tokens mirror DESIGN.md — change there first, then here (pnpm design:lint). */
 @theme {
-  --color-ink: #20222a;
-  --color-night: #0b111a;
-  --color-paper: #efe7d6;
-  --color-bone: #d8d0c2;
-  --color-memory: #b89a5e;
-  --color-ember: #9e5244;
-  --color-fog: #9a8b72;
+  /* 어두운 표면 위 — 화면 바탕과 그 위의 글자 (DESIGN.md > Colors) */
+  --color-night: #0b1320;
+  --color-ivory: #e8e9e5;
+  --color-fog: #b8c1cd;
+  --color-ash: #929eaf;
+  --color-memory: #d5ae78;
+  --color-ember: #b8655a;
+  /* 종이 위 — 수첩만 쓴다 */
+  --color-paper: #e5e0d6;
+  --color-card: #f0ebe2;
+  --color-bone: #d3cfc6;
+  --color-ink: #303946;
+  --color-graphite: #626975;
 
-  /* 씬 라이팅 램프 — DESIGN.md > Colors > 씬 라이팅 램프 */
+  /*
+   * 어두운 표면과 경계선. night를 얼마나 남기느냐로만 갈린다 — 표면의 불투명도를
+   * 낮추는 것이지 그 위 글자까지 흐리게 하는 것이 아니므로, 컨테이너 opacity 대신
+   * 이 배경색을 쓴다.
+   */
+  --color-surface: color-mix(in srgb, var(--color-night) 84%, transparent);
+  --color-surface-strong: color-mix(in srgb, var(--color-night) 92%, transparent);
+  --color-surface-subtle: color-mix(in srgb, var(--color-night) 40%, transparent);
+  --color-line: color-mix(in srgb, #d3deec 14%, transparent);
+
+  /* 씬 라이팅 램프 — DESIGN.md > Colors > 씬 라이팅 램프 (CSS 배경·미니게임 필드) */
   --color-scene-slate: #1c2a38;
   --color-scene-mist: #16212c;
   --color-scene-deep: #0f181e;
@@ -22,6 +38,26 @@
   --color-scene-navy: #161f28;
   --color-scene-void: #060a10;
 
+  /*
+   * 3D 재질 팔레트 — DESIGN.md > Colors > 3D 재질. UI 토큰과 갈라 둔다:
+   * 재질색은 조명·톤매핑을 거쳐 화면에 닿으므로 UI 색과 같은 값을 공유하면 어느 한쪽이
+   * 틀어진다. `resolveRoomPalette`(scenes/memory-room/palette.ts)만 읽는다.
+   */
+  --color-scene-wall: #34465e;
+  --color-scene-wall-faded: #3d5069;
+  --color-scene-floor: #626c7d;
+  --color-scene-wood: #998572;
+  --color-scene-frame: #354052;
+  --color-scene-fabric: #6c809e;
+  --color-scene-linen: #bab4a7;
+  --color-scene-trim: #a4a6a1;
+  --color-scene-amber: #bc9363;
+  --color-scene-clay: #a57565;
+  --color-scene-sage: #809289;
+  /* 광원색. 재질이 아니라 빛이라 따로 둔다 — 차가운 간접광과 창으로 드는 볕 */
+  --color-scene-daylight: #c4d0de;
+  --color-scene-sun: #f3c98e;
+
   /* 기기 화면 — DESIGN.md > Colors > 기기 화면 */
   --color-screen-glass: #f4f5f7;
   --color-screen-chrome: #e2e5ea;
@@ -30,9 +66,10 @@
   --font-sans: var(--font-pretendard), "Pretendard", "Hiragino Sans", "Yu Gothic", sans-serif;
   --font-pixel: var(--font-galmuri), "Galmuri14", "Hiragino Sans", sans-serif;
 
+  /* 작은 컨트롤 6 · 메뉴/패널 8 · 대사창/수첩 10. 큰 알약과 과한 라운드는 쓰지 않는다 */
   --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
 
   --shadow-chip: 0 4px 12px rgb(6 10 16 / 0.5);
   --shadow-overlay: 0 14px 34px rgb(4 7 12 / 0.55);
@@ -42,11 +79,12 @@
     inset 0 0 18px color-mix(in srgb, var(--color-memory) 20%, transparent);
   --shadow-slot-glow: 0 0 12px color-mix(in srgb, var(--color-memory) 25%, transparent);
 
-  --leading-dialogue: 1.8;
+  --leading-dialogue: 1.75;
 
   --animate-hotspot-glow: hotspot-glow 2.4s ease-in-out infinite;
   --animate-bob-arrow: bob-arrow 1.3s ease-in-out infinite;
-  --animate-fade-rise: fade-rise 0.3s ease-out both;
+  /* 패널 등장 — DESIGN.md > Motion (180~240ms) */
+  --animate-fade-rise: fade-rise 0.22s ease-out both;
   --animate-loading-sweep: loading-sweep 1.6s ease-in-out infinite;
   /*
    * 부팅 커튼이 걷히는 동작 (BootCurtain). 방의 창 커튼과 같은 몸짓이라 위로 접혀
@@ -417,16 +455,16 @@
 
 body {
   background: var(--color-night);
-  color: var(--color-bone);
+  color: var(--color-ivory);
 }
 
 /*
- * 스크롤바 — 기본은 어두운 씬 위(bone 계열), 종이 패널 안에서는 `.scroll-paper`로
+ * 스크롤바 — 기본은 어두운 씬 위(ivory 계열), 종이 패널 안에서는 `.scroll-paper`로
  * 잉크 계열로 뒤집는다. 색은 변수 하나로만 바꾸므로 규칙은 한 벌이면 된다.
  */
 :root {
-  --scrollbar-thumb: color-mix(in srgb, var(--color-bone) 26%, transparent);
-  --scrollbar-thumb-hover: color-mix(in srgb, var(--color-bone) 46%, transparent);
+  --scrollbar-thumb: color-mix(in srgb, var(--color-ivory) 26%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--color-ivory) 46%, transparent);
 }
 
 .scroll-paper {
@@ -488,8 +526,8 @@ body {
   background:
     radial-gradient(
       78% 62% at 64% 28%,
-      color-mix(in srgb, var(--color-memory) 34%, transparent) 0%,
-      color-mix(in srgb, var(--color-memory) 14%, transparent) 38%,
+      color-mix(in srgb, var(--color-memory) 22%, transparent) 0%,
+      color-mix(in srgb, var(--color-memory) 9%, transparent) 38%,
       transparent 78%
     ),
     radial-gradient(
@@ -539,14 +577,34 @@ body {
   background-image:
     repeating-linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--color-ink) 7%, transparent) 0 1px,
+      color-mix(in srgb, var(--color-ink) 5%, transparent) 0 1px,
       transparent 1px 24px
     ),
     repeating-linear-gradient(
       to right,
-      color-mix(in srgb, var(--color-ink) 7%, transparent) 0 1px,
+      color-mix(in srgb, var(--color-ink) 5%, transparent) 0 1px,
       transparent 1px 24px
     );
+}
+
+/*
+ * 혼잣말 — 배경 없는 아이보리 글자. 어두운 그림자 두 겹이 밝은 오브젝트 위에서도
+ * 글자를 세운다 (대사창·토스트처럼 보이면 안 되는 자리라 상자를 두지 않는다).
+ * 그래도 모자란 밝은 자리는 .monologue-veil이 경계 없는 어둠을 글자 뒤에만 깐다.
+ */
+.monologue-text {
+  text-shadow:
+    0 2px 5px rgb(5 10 18 / 0.85),
+    0 0 16px rgb(5 10 18 / 0.45);
+}
+
+.monologue-veil {
+  background: radial-gradient(
+    60% 100% at 50% 50%,
+    color-mix(in srgb, var(--color-night) 42%, transparent) 0%,
+    color-mix(in srgb, var(--color-night) 18%, transparent) 55%,
+    transparent 100%
+  );
 }
 
 /* 제본 옆으로 지는 접힘 그림자 — 종이가 안쪽으로 말려 들어가는 자리 */
@@ -664,8 +722,8 @@ body {
  */
 .title-logo {
   text-shadow:
-    0 0 18px color-mix(in srgb, var(--color-memory) 30%, transparent),
-    0 0 56px color-mix(in srgb, var(--color-memory) 18%, transparent);
+    0 2px 6px rgb(5 10 18 / 0.7),
+    0 0 40px color-mix(in srgb, var(--color-memory) 16%, transparent);
 }
 
 /*
@@ -677,6 +735,16 @@ body {
   text-shadow: 0 0 16px color-mix(in srgb, var(--color-memory) 55%, transparent);
 }
 
+
+/* 모션을 끈 판의 패널 등장 — translate 없이 밝기만 */
+@keyframes fade-only {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 /* 모션을 끈 판에서 부팅 커튼이 걷히는 방식 (@media prefers-reduced-motion) */
 @keyframes boot-curtain-fade {
@@ -696,6 +764,16 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* 패널 등장은 자리 이동 없이 밝기만, 반복되는 숨쉬기·까딱임은 멈춘다 */
+  .animate-fade-rise {
+    animation: fade-only 0.16s ease-out both;
+  }
+
+  .animate-bob-arrow,
+  .animate-hotspot-glow {
+    animation: none;
+  }
+
   /*
    * 넘김은 없애지 않고 아주 짧게 줄인다. 완전히 끄면 장이 순간이동해서 몇 장을
    * 넘겼는지 알 수 없는데, 이 미니게임은 "넘기는 동작" 자체가 내용이다.

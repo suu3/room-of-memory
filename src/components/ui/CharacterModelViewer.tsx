@@ -19,7 +19,7 @@ const DRAG_TO_RADIANS = 0.011;
 const KEY_STEP = Math.PI / 12;
 
 const TURN_BUTTON =
-  "cursor-pointer rounded-md border border-ink/10 bg-bone/40 p-1.5 text-ink/50 transition-colors hover:text-ink active:bg-bone/70";
+  "cursor-pointer rounded-sm border border-ink/10 bg-bone/40 p-1.5 text-graphite transition-colors hover:text-ink active:bg-bone/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory";
 
 /**
  * 수첩 프로필에 붙는 3D 뷰어. 끌어서 돌려보고, 서다·걷다·앉다를 눌러 자세를 바꾼다. 손을 떼고 잠깐 두면 저 혼자 돈다.
@@ -103,19 +103,17 @@ export function CharacterModelViewer() {
               type="button"
               aria-pressed={pose === id}
               onClick={() => setPose(id)}
-              className={`cursor-pointer rounded-md border px-2.5 py-1 text-[0.625rem] font-bold tracking-widest transition-colors ${
+              className={`cursor-pointer rounded-sm border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
                 pose === id
-                  ? "border-ink/15 bg-ink/85 text-paper"
-                  : "border-ink/10 bg-bone/40 text-ink/50 hover:text-ink active:bg-bone/70"
+                  ? "border-ink/40 bg-ink/10 text-ink"
+                  : "border-ink/10 bg-bone/40 text-graphite hover:text-ink active:bg-bone/70"
               }`}
             >
               {t(`characterSheet.pose.${id}` as const)}
             </button>
           ))}
         </div>
-        <span className="w-full text-[0.625rem] tracking-wide text-ink/40">
-          {t("characterSheet.modelHint")}
-        </span>
+        <span className="w-full text-xs text-graphite">{t("characterSheet.modelHint")}</span>
       </figcaption>
     </figure>
   );

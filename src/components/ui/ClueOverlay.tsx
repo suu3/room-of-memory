@@ -16,6 +16,7 @@ import {
 import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
 import { SUIT_GLYPH, SUITS, suitColor } from "@/minigames/card-odd/cards";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { BUTTON_QUIET, PANEL_PAPER } from "./ui-classes";
 
 /** 서랍 속 쪽지에 적힌 줄. 아빠가 급히 적은 메모라 세 줄이 전부다. */
 const NOTE_LINES = ["clue.drawerNote.l1", "clue.drawerNote.l2", "clue.drawerNote.l3"] as const;
@@ -97,7 +98,7 @@ export function ClueOverlay() {
         type="button"
         aria-label={t("clue.close")}
         onClick={closeClue}
-        className="absolute inset-0 cursor-pointer bg-scene-void/70 backdrop-blur-sm"
+        className="absolute inset-0 cursor-pointer bg-scene-void/60 backdrop-blur-[2px]"
       />
       <div
         role="dialog"
@@ -110,7 +111,7 @@ export function ClueOverlay() {
           type="button"
           onClick={closeClue}
           aria-label={t("clue.close")}
-          className="absolute -top-11 right-0 flex cursor-pointer items-center gap-1.5 rounded-full border border-bone/25 px-3.5 py-1.5 text-xs font-bold tracking-widest text-bone/70 transition-colors hover:border-bone/60 hover:text-paper"
+          className={`${BUTTON_QUIET} absolute -top-12 right-0 px-3 py-1.5`}
         >
           <X size={14} weight="bold" />
           {t("clue.close")}
@@ -126,7 +127,7 @@ export function ClueOverlay() {
           <WallCalendar />
         )}
 
-        <p className="mt-4 break-ko text-pretty text-center text-sm leading-relaxed text-bone/60">
+        <p className="monologue-text mt-4 break-ko text-pretty text-center text-sm leading-normal text-fog">
           {t(captionKey)}
         </p>
       </div>
@@ -160,10 +161,10 @@ function FoldedNote() {
             key={key}
             className={`break-ko text-pretty leading-relaxed ${
               index === 0
-                ? "text-lg font-bold tracking-wide text-ink"
+                ? "text-lg font-medium text-ink"
                 : index === NOTE_LINES.length - 1
-                  ? "self-end text-sm text-ink/45"
-                  : "text-base text-ink/80"
+                  ? "self-end text-sm text-graphite"
+                  : "text-base text-ink"
             }`}
           >
             {t(key)}
@@ -185,8 +186,8 @@ function ShelfBook() {
   const { t } = useTranslation();
 
   return (
-    <div className="rounded-xl border border-bone bg-paper p-6 shadow-panel sm:p-8">
-      <p className="border-b border-ink/10 pb-3 text-sm font-bold tracking-widest text-ink/45">
+    <div className={`p-6 sm:p-8 ${PANEL_PAPER}`}>
+      <p className="border-b border-ink/10 pb-3 text-sm font-medium text-graphite">
         {t("clue.shelfBook.heading")}
       </p>
       {/* 색은 글로 적지 않고 문양을 제 색으로 찍어서 보여준다 — 보면 아는 것을 설명하지 않는다 */}
@@ -204,7 +205,7 @@ function ShelfBook() {
       </ul>
       <div className="flex flex-col gap-2 border-t border-ink/10 pt-4">
         {BOOK_LINES.map((key) => (
-          <p key={key} className="break-ko text-pretty text-base leading-relaxed text-ink/80">
+          <p key={key} className="break-ko text-pretty text-base leading-relaxed text-ink">
             {t(key)}
           </p>
         ))}
@@ -229,8 +230,8 @@ function DeskClock() {
   const { t } = useTranslation();
 
   return (
-    <div className="rounded-xl border border-bone bg-paper p-6 shadow-panel sm:p-8">
-      <p className="border-b border-ink/10 pb-3 text-sm font-bold tracking-widest text-ink/45">
+    <div className={`p-6 sm:p-8 ${PANEL_PAPER}`}>
+      <p className="border-b border-ink/10 pb-3 text-sm font-medium text-graphite">
         {t("clue.deskClock.heading")}
       </p>
       <svg
@@ -278,7 +279,7 @@ function DeskClock() {
         />
         <path d="M 29 17 l -11 -1 l 6 10 z" className="fill-memory" />
       </svg>
-      <p className="break-ko text-pretty border-t border-ink/10 pt-4 text-base leading-relaxed text-ink/80">
+      <p className="break-ko text-pretty border-t border-ink/10 pt-4 text-base leading-relaxed text-ink">
         {t("clue.deskClock.l1")}
       </p>
     </div>
@@ -308,20 +309,20 @@ function WallCalendar() {
   };
 
   return (
-    <div className="rounded-xl border border-bone bg-paper p-5 shadow-panel sm:p-6">
+    <div className={`p-5 sm:p-6 ${PANEL_PAPER}`}>
       <div className="flex items-center justify-between gap-3 border-b border-ink/10 pb-3">
         <button
           type="button"
           aria-label={t("minigame.calendarFlip.prev")}
           onClick={() => turn(-1)}
           disabled={month === FIRST_MONTH}
-          className="cursor-pointer rounded-full p-1.5 text-ink/50 transition-colors hover:bg-ink/5 hover:text-ink disabled:cursor-default disabled:opacity-25"
+          className="cursor-pointer rounded-full p-1.5 text-graphite transition-colors hover:bg-ink/5 hover:text-ink disabled:cursor-default disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
           <CaretLeft size={20} weight="bold" />
         </button>
         <p className="flex items-baseline gap-2">
-          <span className="text-sm font-bold tracking-widest text-ink/45">{CALENDAR_YEAR}</span>
-          <span className="font-pixel text-2xl font-bold text-ink">
+          <span className="text-sm font-medium text-graphite">{CALENDAR_YEAR}</span>
+          <span className="font-pixel text-2xl text-ink">
             {t("minigame.calendarFlip.month", { value: month })}
           </span>
         </p>
@@ -330,7 +331,7 @@ function WallCalendar() {
           aria-label={t("minigame.calendarFlip.next")}
           onClick={() => turn(1)}
           disabled={month === LAST_DATED_MONTH}
-          className="cursor-pointer rounded-full p-1.5 text-ink/50 transition-colors hover:bg-ink/5 hover:text-ink disabled:cursor-default disabled:opacity-25"
+          className="cursor-pointer rounded-full p-1.5 text-graphite transition-colors hover:bg-ink/5 hover:text-ink disabled:cursor-default disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
           <CaretRight size={20} weight="bold" />
         </button>

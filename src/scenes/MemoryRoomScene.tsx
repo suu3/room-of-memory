@@ -5,7 +5,9 @@ import { type MutableRefObject, useCallback, useEffect, useMemo, useRef } from "
 import {
   type AmbientLight,
   type DirectionalLight,
+  type HemisphereLight,
   MathUtils,
+  Object3D,
   Plane,
   type PointLight,
   Vector3,
@@ -29,7 +31,7 @@ import { LivingRoomShell } from "./memory-room/LivingRoomShell";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
 import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
 import { Player } from "./memory-room/Player";
-import { resolveRoomPalette } from "./memory-room/palette";
+import { type RoomPalette, resolveRoomPalette } from "./memory-room/palette";
 import { RoomDecor } from "./memory-room/RoomDecor";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
@@ -40,8 +42,7 @@ import {
   lampScaled,
   outsideDecay,
   ROOM_LIGHT_RAMP,
-  ROOM_LIGHTING,
-  roomLightLevel,
+  roomLightMix,
   roomLightValue,
 } from "./memory-room/visual-state";
 import { WindowLight } from "./memory-room/WindowLight";
@@ -50,87 +51,166 @@ import { WindowLight } from "./memory-room/WindowLight";
 const FLOOR_PLANE = new Plane(new Vector3(0, 1, 0), 0);
 const floorHit = new Vector3();
 
+/*
+ * 창으로 드는 볕의 방향. 창(뒷벽 x≈1.15, z=-3.88) 바깥 위에서 방 안쪽 왼편 —
+ * 책상(x -5.4~-3.8)과 그 앞 바닥 — 을 향한다. 뒷벽 조각이 그림자를 드리우므로
+ * 볕은 창 개구부 모양으로만 들어오고, 위쪽 창을 지난 빛이 책상 상판에, 아래쪽 창을
+ * 지난 빛이 캐비닛 왼편 바닥에 닿는다. 실제 창의 경로다 — 허공의 광선이 아니라
+ * 표면에 닿는 빛과 그림자의 대비가 우선이다 (DESIGN.md > Lighting).
+ */
+const SUN_POSITION: [number, number, number] = [7.15, 6.5, -7.2];
+const SUN_TARGET: [number, number, number] = [-4.35, 0.5, -0.4];
+/** 그림자 카메라의 반폭. 방 전체(x -6~8, z -4~6.5)가 비스듬한 축에서도 다 들어와야 한다 — 밖으로 나간 자리는 그림자 없이 볕을 받아 엉뚱한 구석이 밝아진다. */
+const SUN_SHADOW_EXTENT = 15;
+/** 커튼이 닫혀 있을 때 남는 볕의 몫. 얇은 천이라 다 막지는 못하고 흐려질 뿐이다. */
+const CURTAIN_SUN_FACTOR = 0.6;
+/** 창가 point light의 닿는 거리. 되찾을수록 볕의 범위가 넓어진다. */
+const WINDOW_GLOW_REACH: readonly [number, number] = [5, 9];
+/** 조명이 목표값을 따라가는 속도 — 1.5~3초 안에 자리 잡는다. */
+const LIGHT_LAMBDA = 2.2;
+
 function StageLighting({
-  lightLevel,
+  cool,
+  warm,
   lightsOn,
-  memoryColor,
-  fillColor,
-  groundColor,
+  curtainsOpen,
+  inLivingRoom,
+  palette,
 }: {
-  /** 0=바닥, 1=완성. 1바퀴는 깎이고 2바퀴는 채워진다. */
-  lightLevel: number;
+  /** 차가운 간접광의 양 (0~1). 1막에 깎이고 2막에도 낮게 남는다. */
+  cool: number;
+  /** 창으로 드는 볕의 양 (0~1). 2막 회복도를 따른다. */
+  warm: number;
   /** 벽의 전등 스위치. 꺼도 창으로 드는 빛은 남는다. */
   lightsOn: boolean;
-  memoryColor: string;
-  fillColor: string;
-  groundColor: string;
+  /** 커튼이 열렸는가 — 닫히면 볕이 흐려진다. */
+  curtainsOpen: boolean;
+  /** 거실에는 창이 없다 — 볕은 방의 것이다. */
+  inLivingRoom: boolean;
+  palette: RoomPalette;
 }) {
   const ambientRef = useRef<AmbientLight>(null);
+  const hemisphereRef = useRef<HemisphereLight>(null);
   const keyRef = useRef<DirectionalLight>(null);
+  const lampRef = useRef<PointLight>(null);
   const windowGlowRef = useRef<PointLight>(null);
-  const initialLevel = useRef(lightLevel).current;
+  const sunRef = useRef<DirectionalLight>(null);
+  const sunTarget = useMemo(() => {
+    const target = new Object3D();
+    target.position.set(...SUN_TARGET);
+    return target;
+  }, []);
+  const initial = useRef({ cool, warm }).current;
+
+  const sunGoal =
+    roomLightValue(ROOM_LIGHT_RAMP.sun, warm) *
+    (curtainsOpen ? 1 : CURTAIN_SUN_FACTOR) *
+    (inLivingRoom ? 0 : 1);
 
   useFrame((_, delta) => {
     const ambient = ambientRef.current;
+    const hemisphere = hemisphereRef.current;
     const key = keyRef.current;
+    const lamp = lampRef.current;
     const windowGlow = windowGlowRef.current;
-    if (!ambient || !key || !windowGlow) return;
+    const sun = sunRef.current;
+    if (!ambient || !hemisphere || !key || !lamp || !windowGlow || !sun) return;
 
-    // 전등이 만드는 두 빛만 스위치를 탄다 — 창으로 드는 빛(windowGlow)은 그대로다
-    ambient.intensity = MathUtils.damp(
+    const follow = (current: number, goal: number) =>
+      MathUtils.damp(current, goal, LIGHT_LAMBDA, delta);
+
+    // 방 안의 빛(간접광·전등)만 스위치를 탄다 — 창으로 드는 볕은 스위치와 무관하다
+    ambient.intensity = follow(
       ambient.intensity,
-      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.ambient, lightLevel), lightsOn),
-      4,
-      delta,
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.ambient, cool), lightsOn),
     );
-    key.intensity = MathUtils.damp(
+    hemisphere.intensity = follow(
+      hemisphere.intensity,
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.hemisphere, cool), lightsOn),
+    );
+    key.intensity = follow(
       key.intensity,
-      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.key, lightLevel), lightsOn),
-      4,
-      delta,
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.key, cool), lightsOn),
     );
-    windowGlow.intensity = MathUtils.damp(
+    lamp.intensity = follow(
+      lamp.intensity,
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.lamp, cool), lightsOn),
+    );
+    windowGlow.intensity = follow(
       windowGlow.intensity,
-      roomLightValue(ROOM_LIGHT_RAMP.windowGlow, lightLevel),
-      4,
-      delta,
+      roomLightValue(ROOM_LIGHT_RAMP.windowGlow, warm),
     );
+    windowGlow.distance = follow(windowGlow.distance, roomLightValue(WINDOW_GLOW_REACH, warm));
+    sun.intensity = follow(sun.intensity, sunGoal);
+    // 세기가 0인 볕은 그림자 패스도 돌리지 않는다
+    sun.visible = sun.intensity > 0.01;
   });
 
   return (
     <>
       <ambientLight
         ref={ambientRef}
-        intensity={roomLightValue(ROOM_LIGHT_RAMP.ambient, initialLevel)}
+        color={palette.daylight}
+        intensity={roomLightValue(ROOM_LIGHT_RAMP.ambient, initial.cool)}
       />
       <hemisphereLight
-        color={fillColor}
-        groundColor={groundColor}
-        intensity={ROOM_LIGHTING.hemisphereFill}
+        ref={hemisphereRef}
+        color={palette.daylight}
+        groundColor={palette.deep}
+        intensity={roomLightValue(ROOM_LIGHT_RAMP.hemisphere, initial.cool)}
       />
+      {/* 차가운 키 — 커튼 너머의 낮. 앞 위에서 내려와 윤곽을 세운다 */}
       <directionalLight
         ref={keyRef}
         position={[3, 8, 5]}
-        intensity={roomLightValue(ROOM_LIGHT_RAMP.key, initialLevel)}
+        color={palette.daylight}
+        intensity={roomLightValue(ROOM_LIGHT_RAMP.key, initial.cool)}
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
+      {/* 천장 전등 — 스위치가 끄는 빛의 본체 */}
       <pointLight
-        ref={windowGlowRef}
-        position={[1.2, 3.1, -3.2]}
-        color={memoryColor}
-        intensity={roomLightValue(ROOM_LIGHT_RAMP.windowGlow, initialLevel)}
-        distance={8}
-        decay={2}
-      />
-      <pointLight
+        ref={lampRef}
         position={[0, 4.2, 0.8]}
-        color={fillColor}
-        intensity={ROOM_LIGHTING.ceilingFill}
+        color={palette.linen}
+        intensity={roomLightValue(ROOM_LIGHT_RAMP.lamp, initial.cool)}
         distance={13}
         decay={2}
       />
+      {/* 창가에 고이는 볕 — 커튼을 통과한 산광. 되찾을수록 멀리까지 닿는다 */}
+      <pointLight
+        ref={windowGlowRef}
+        position={[1.2, 3.1, -3.2]}
+        color={palette.sun}
+        intensity={roomLightValue(ROOM_LIGHT_RAMP.windowGlow, initial.warm)}
+        distance={roomLightValue(WINDOW_GLOW_REACH, initial.warm)}
+        decay={2}
+      />
+      {/*
+        창으로 드는 볕. 이 씬의 두 번째이자 마지막 그림자 광원이다 — 뒷벽이 창 모양으로
+        가리고, 책상·의자·몸이 그 빛 안에서 그림자를 드리운다.
+      */}
+      <directionalLight
+        ref={sunRef}
+        position={SUN_POSITION}
+        target={sunTarget}
+        color={palette.sun}
+        intensity={0}
+        visible={false}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-left={-SUN_SHADOW_EXTENT}
+        shadow-camera-right={SUN_SHADOW_EXTENT}
+        shadow-camera-top={SUN_SHADOW_EXTENT}
+        shadow-camera-bottom={-SUN_SHADOW_EXTENT}
+        shadow-camera-near={0.5}
+        shadow-camera-far={30}
+        shadow-bias={-0.0004}
+        shadow-normalBias={0.03}
+      />
+      <primitive object={sunTarget} />
     </>
   );
 }
@@ -193,7 +273,7 @@ export function MemoryRoomScene({
     },
     [walkTo],
   );
-  const roomLight = roomLightLevel({
+  const mix = roomLightMix({
     collected: collectedCount,
     memoryTotal: MEMORY_TOTAL,
     recovery,
@@ -201,19 +281,21 @@ export function MemoryRoomScene({
   /*
    * 밝기는 진행도가 정하고 공간이 정하지 않는다 — 다만 거실은 한 단계 낮게
    * 출발한다 (docs/content-design.md 5장). 여기서 한 번만 깎아 두면 조명·창빛·
-   * 비네트가 전부 같은 값을 본다.
+   * 먼지가 전부 같은 값을 본다. 볕(warm)은 방의 창에서 오므로 거실에서는 꺼진다.
    */
-  const lightLevel = inLivingRoom ? Math.max(0, roomLight - LIVING_ROOM_LIGHT_OFFSET) : roomLight;
+  const cool = inLivingRoom ? Math.max(0, mix.cool - LIVING_ROOM_LIGHT_OFFSET) : mix.cool;
+  const warm = mix.warm;
 
   return (
     // 커튼·전등 스위치처럼 표식 없이 근접으로만 켜지는 것들이 플레이어 위치를 본다
     <PlayerPositionProvider value={playerPositionRef}>
       <StageLighting
-        lightLevel={lightLevel}
+        cool={cool}
+        warm={warm}
         lightsOn={lightsOn}
-        memoryColor={palette.memory}
-        fillColor={palette.paper}
-        groundColor={palette.deep}
+        curtainsOpen={curtainsOpen}
+        inLivingRoom={inLivingRoom}
+        palette={palette}
       />
       {/*
         방의 몸통은 통째로 글로우 루트 안에 둔다.
@@ -283,14 +365,14 @@ export function MemoryRoomScene({
       <group visible={!inLivingRoom}>
         {/* 글로우 루트 밖 — 빛·먼지는 아웃라인 선택 대상이 아니다 */}
         <WindowLight
-          color={palette.memory}
-          intensity={roomLightValue(ROOM_LIGHT_RAMP.windowLight, lightLevel)}
+          color={palette.sun}
+          intensity={roomLightValue(ROOM_LIGHT_RAMP.windowLight, warm)}
           curtainsOpen={curtainsOpen}
         />
         {/* 먼지는 빛줄기 안의 반짝임이라 커튼이 닫히면 같이 사라져야 한다 */}
         <DustMotes
-          color={palette.memory}
-          opacity={curtainsOpen ? roomLightValue(ROOM_LIGHT_RAMP.dust, lightLevel) : 0}
+          color={palette.sun}
+          opacity={curtainsOpen ? roomLightValue(ROOM_LIGHT_RAMP.dust, warm) : 0}
         />
       </group>
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />

@@ -62,7 +62,7 @@ export function CharacterSheetModal() {
         type="button"
         aria-label={t("characterSheet.close")}
         onClick={() => setOpen(false)}
-        className="absolute inset-0 cursor-pointer bg-scene-void/70"
+        className="absolute inset-0 cursor-pointer bg-scene-void/60"
       />
       {/*
         이름이 "수첩"이면 수첩처럼 보여야 한다 — 낱장 종이에 이름만 바꾸면 껍데기와
@@ -73,12 +73,12 @@ export function CharacterSheetModal() {
         role="dialog"
         aria-modal="true"
         aria-label={t("characterSheet.title")}
-        className="relative flex max-h-full w-full max-w-5xl animate-fade-rise overflow-hidden rounded-xl border border-bone bg-paper shadow-panel"
+        className="relative flex max-h-full w-full max-w-5xl animate-fade-rise overflow-hidden rounded-lg border border-ink/12 bg-paper text-ink shadow-panel"
       >
         {/* 제본 여백. 구멍이 뚫린 이 폭만큼 페이지가 오른쪽에서 시작한다 */}
         <div
           aria-hidden
-          className="notebook-punch w-9 flex-none border-r border-ink/10 bg-bone/30 sm:w-10"
+          className="notebook-punch w-9 flex-none border-r border-ink/10 bg-bone/40 sm:w-10"
         />
         {/* 접힘 그림자는 페이지 위에 얹는다 — 스크롤을 따라 움직이면 접힌 자국이 아니다 */}
         <div
@@ -94,7 +94,7 @@ export function CharacterSheetModal() {
           <div className="flex flex-none items-end justify-between gap-3 px-5 pt-4">
             {/* 이름만 — 나이·소속은 아래에서 가려두는 항목이라 헤더에 적으면 가리는 의미가 없다 */}
             <div className="flex min-w-0 items-end gap-5">
-              <span className="truncate pb-1.5 text-sm font-bold tracking-wide text-ink">
+              <span className="truncate pb-1.5 text-sm font-medium text-ink">
                 {tRoom("characters.hero.name")}
               </span>
               <div
@@ -109,10 +109,10 @@ export function CharacterSheetModal() {
                     role="tab"
                     aria-selected={tab === id}
                     onClick={() => setTab(id)}
-                    className={`cursor-pointer rounded-t-md border px-3 py-1 text-xs font-bold tracking-widest transition-colors ${
+                    className={`cursor-pointer rounded-t-md border px-3 py-1.5 text-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
                       tab === id
                         ? "border-ink/15 border-b-transparent bg-paper text-ink"
-                        : "border-transparent bg-bone/50 text-ink/45 hover:text-ink active:bg-bone/70"
+                        : "border-transparent bg-bone/50 text-graphite hover:text-ink active:bg-bone/70"
                     }`}
                   >
                     {t(id === "profile" ? "characterSheet.tabProfile" : "characterSheet.tabLore")}
@@ -124,7 +124,7 @@ export function CharacterSheetModal() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label={t("characterSheet.close")}
-              className="flex-none cursor-pointer pb-1.5 text-ink/60 transition-colors hover:text-ink active:text-ink/80"
+              className="flex-none cursor-pointer pb-1.5 text-graphite transition-colors hover:text-ink active:text-ink/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
             >
               <X size={18} weight="bold" />
             </button>
@@ -162,14 +162,14 @@ export function CharacterSheetModal() {
                         key={row.index}
                         className="border-t border-ink/10 py-3.5 first:border-t-0 first:pt-0"
                       >
-                        <dt className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-ink/40">
+                        <dt className="text-xs font-medium tracking-[0.06em] text-graphite">
                           {tRoom(
                             `characters.hero.profile.${row.index}.label` as ParseKeys<"memoryRoom">,
                           )}
                         </dt>
                         <dd>
                           {revealed ? (
-                            <span className="mt-1.5 block animate-fade-rise break-ko text-pretty text-sm leading-relaxed text-ink/80">
+                            <span className="mt-1.5 block animate-fade-rise break-ko text-pretty text-sm leading-normal text-ink">
                               {tRoom(
                                 `characters.hero.profile.${row.index}.value` as ParseKeys<"memoryRoom">,
                               )}

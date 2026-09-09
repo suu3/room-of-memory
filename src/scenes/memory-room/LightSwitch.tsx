@@ -63,13 +63,13 @@ export function LightSwitch({ palette }: { palette: RoomPalette }) {
         {/* 벽에 붙는 판 */}
         <mesh castShadow>
           <boxGeometry args={plateSize} />
-          <meshStandardMaterial color={palette.bone} roughness={0.6} />
+          <meshStandardMaterial color={palette.trim} roughness={0.6} />
         </mesh>
         {/* 젖혀지는 토글. 판 앞면에 얹혀 위아래로 기운다 */}
         <group ref={rockerRef} position={[0, 0, plateSize[2] / 2]}>
           <mesh position={[0, 0, rockerSize[2] / 2]}>
             <boxGeometry args={rockerSize} />
-            <meshStandardMaterial color={palette.paper} roughness={0.45} />
+            <meshStandardMaterial color={palette.linen} roughness={0.45} />
           </mesh>
         </group>
       </MemoryGlowSelection>

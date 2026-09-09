@@ -19,9 +19,9 @@ useGLTF.preload(ASSETS.models.books, true, true);
  * 벽이 통짜 단색이면 방이 아니라 상자로 읽힌다 — 도현이 이 방에서 살았다는 증거는
  * 가구가 아니라 벽에 남는다: 붙였다 뗀 포스터 자국, 야구부 페넌트, 선반의 트로피.
  *
- * 색은 바랜 톤(bone/paper/navy/dusk/slate)으로만 짠다. memory(금빛)는
- * "만질 수 있는 기억"에만 쓰는 색이라 장식에 뿌리면 연출이 죽고(DESIGN.md),
- * ember는 이미 문 손잡이가 쓰고 있다.
+ * 색은 재질 팔레트(linen/sage/clay/fabric/trim)로만 짠다. memory(앰버 글로우)는
+ * "만질 수 있는 기억"에만 쓰는 색이라 장식에 뿌리면 연출이 죽는다 (DESIGN.md).
+ * 앰버 재질은 트로피 하나에만 — 작은 소품에 제한적으로.
  */
 
 /** 벽 안쪽 면. 벽 두께 0.18의 절반만큼 중심에서 안으로 들어온 자리다. */
@@ -106,9 +106,9 @@ function backPoster(
   field: keyof RoomPalette,
 ): DecorBox[] {
   return [
-    backWall(x, y, width, height, "bone"),
+    backWall(x, y, width, height, "linen"),
     backWall(x, y, width - 0.12, height - 0.12, field, 0.06),
-    backWall(x, y - height * 0.2, width - 0.34, height * 0.09, "bone", 0.08),
+    backWall(x, y - height * 0.2, width - 0.34, height * 0.09, "linen", 0.08),
   ];
 }
 
@@ -120,9 +120,9 @@ function leftPoster(
   field: keyof RoomPalette,
 ): DecorBox[] {
   return [
-    leftWall(z, y, width, height, "bone"),
+    leftWall(z, y, width, height, "linen"),
     leftWall(z, y, width - 0.12, height - 0.12, field, 0.06),
-    leftWall(z - width * 0.16, y, width * 0.09, height - 0.34, "bone", 0.08),
+    leftWall(z - width * 0.16, y, width * 0.09, height - 0.34, "linen", 0.08),
   ];
 }
 
@@ -132,8 +132,8 @@ function leftPoster(
  * mist(#16212C)로 잡았다가 되돌렸다 — 벽보다 어두워서 자국이 아니라 그늘로 보였다.
  */
 const BACK_FADED_MARKS = [
-  backWall(-1.15, 2.45, 0.92, 1.2, "dusk"),
-  backWall(6.5, 1.65, 1.05, 1.35, "dusk"),
+  backWall(-1.15, 2.45, 0.92, 1.2, "wallFaded"),
+  backWall(6.5, 1.65, 1.05, 1.35, "wallFaded"),
 ] as const satisfies readonly DecorBox[];
 
 /**
@@ -142,7 +142,7 @@ const BACK_FADED_MARKS = [
  * 프레임마다 어느 쪽이 앞인지 뒤집히며 깜빡였다. 포스터 왼쪽 빈자리로 물린다.
  */
 const LEFT_FADED_MARKS = [
-  leftWall(0.35, 1.5, 1.15, 1.45, "dusk"),
+  leftWall(0.35, 1.5, 1.15, 1.45, "wallFaded"),
 ] as const satisfies readonly DecorBox[];
 
 /**
@@ -153,11 +153,11 @@ const LEFT_FADED_MARKS = [
  * 걸려 있어야 방이 차갑게만 안 보여서 넣었다 — memory 금빛을 쓸 수 없는 자리의 대타다.
  */
 const BACK_POSTERS = [
-  ...backPoster(-4.6, 3.3, 1.3, 1.7, "storm"),
-  ...backPoster(6.5, 3.35, 1.25, 1.65, "olive"),
+  ...backPoster(-4.6, 3.3, 1.3, 1.7, "sage"),
+  ...backPoster(6.5, 3.35, 1.25, 1.65, "clay"),
 ] satisfies DecorBox[];
 
-const LEFT_POSTERS = [...leftPoster(2.65, 2.9, 1.5, 1.9, "storm")] satisfies DecorBox[];
+const LEFT_POSTERS = [...leftPoster(2.65, 2.9, 1.5, 1.9, "sage")] satisfies DecorBox[];
 
 /**
  * 테이프로 붙인 사진 넉 장. 야구부 시절 사진이라는 설정이라 나란히 한 줄로 둔다.
@@ -166,9 +166,9 @@ const LEFT_POSTERS = [...leftPoster(2.65, 2.9, 1.5, 1.9, "storm")] satisfies Dec
  */
 const PHOTO_STRIP = [-2.95, -2.55, -2.15, -1.75].flatMap((x) => [
   // paper(#EFE7D6)는 이 거리에서 조명까지 받아 흰 블록으로 튄다 — 한 톤 낮춘다
-  backWall(x, 3.42, 0.28, 0.28, "bone"),
+  backWall(x, 3.42, 0.28, 0.28, "linen"),
   // 위쪽에 붙인 마스킹테이프 한 조각. 사진보다 어두워야 사진이 주인공으로 남는다
-  backWall(x, 3.58, 0.13, 0.07, "dusk", 0.07),
+  backWall(x, 3.58, 0.13, 0.07, "trim", 0.07),
 ]) satisfies DecorBox[];
 
 /**
@@ -177,8 +177,8 @@ const PHOTO_STRIP = [-2.95, -2.55, -2.15, -1.75].flatMap((x) => [
  * 어두운 줄을 넣는 쪽으로 뒤집는다.
  */
 const PENNANT = [
-  backWall(4.3, 4.05, 1.9, 0.46, "bone"),
-  backWall(4.3, 4.05, 1.7, 0.12, "navy", 0.06),
+  backWall(4.3, 4.05, 1.9, 0.46, "linen"),
+  backWall(4.3, 4.05, 1.7, 0.12, "clay", 0.06),
 ] as const satisfies readonly DecorBox[];
 
 /**
@@ -186,27 +186,27 @@ const PENNANT = [
  * 볼 것을 둔다. 침대 머리맡(x 3.1~6.2) 위가 가장 크게 비어 있다.
  */
 const FRONT_WALL_DECOR = [
-  frontWall(4.6, 3.2, 1.4, 1.8, "bone"),
-  frontWall(4.6, 3.2, 1.28, 1.68, "storm", 0.06),
-  frontWall(4.6, 2.84, 1.06, 0.16, "bone", 0.08),
+  frontWall(4.6, 3.2, 1.4, 1.8, "linen"),
+  frontWall(4.6, 3.2, 1.28, 1.68, "sage", 0.06),
+  frontWall(4.6, 2.84, 1.06, 0.16, "linen", 0.08),
   // 옷걸이 못 세 개와 걸린 옷 한 벌
-  frontWall(-1.4, 2.4, 1.5, 0.12, "dusk"),
-  frontWall(-1.85, 2.32, 0.1, 0.14, "bone", 0.06),
-  frontWall(-1.4, 2.32, 0.1, 0.14, "bone", 0.06),
-  frontWall(-0.95, 2.32, 0.1, 0.14, "bone", 0.06),
-  frontWall(-1.4, 1.72, 0.72, 1.06, "navy", 0.09),
-  frontWall(1.6, 1.9, 0.85, 1.1, "dusk"),
+  frontWall(-1.4, 2.4, 1.5, 0.12, "wood"),
+  frontWall(-1.85, 2.32, 0.1, 0.14, "trim", 0.06),
+  frontWall(-1.4, 2.32, 0.1, 0.14, "trim", 0.06),
+  frontWall(-0.95, 2.32, 0.1, 0.14, "trim", 0.06),
+  frontWall(-1.4, 1.72, 0.72, 1.06, "fabric", 0.09),
+  frontWall(1.6, 1.9, 0.85, 1.1, "wallFaded"),
 ] as const satisfies readonly DecorBox[];
 
 /**
  * 오른쪽 벽 — 침대 머리 쪽. 야구 스코어보드를 흉내 낸 판과 빛바랜 자국.
  */
 const RIGHT_WALL_DECOR = [
-  rightWall(2.4, 3.05, 2.0, 1.15, "bone"),
-  rightWall(2.4, 3.05, 1.86, 1.01, "navy", 0.06),
-  rightWall(2.4, 3.28, 1.6, 0.14, "bone", 0.08),
-  rightWall(2.4, 2.9, 1.6, 0.14, "bone", 0.08),
-  rightWall(-1.5, 2.5, 1.0, 1.3, "dusk"),
+  rightWall(2.4, 3.05, 2.0, 1.15, "linen"),
+  rightWall(2.4, 3.05, 1.86, 1.01, "frame", 0.06),
+  rightWall(2.4, 3.28, 1.6, 0.14, "linen", 0.08),
+  rightWall(2.4, 2.9, 1.6, 0.14, "linen", 0.08),
+  rightWall(-1.5, 2.5, 1.0, 1.3, "wallFaded"),
 ] as const satisfies readonly DecorBox[];
 
 /**
@@ -216,7 +216,7 @@ const RIGHT_WALL_DECOR = [
  * LightSwitch(RoomShell의 왼벽)로 옮겨갔다 — 여기 두면 둘이 겹쳐 두 개가 된다.
  */
 const WALL_FITTINGS = [
-  leftWall(-3.05, 0.44, 0.22, 0.16, "bone", 0.05),
+  leftWall(-3.05, 0.44, 0.22, 0.16, "trim", 0.05),
 ] as const satisfies readonly DecorBox[];
 
 /** 뒷벽 선반(윗면 y=2.86) 위. 왼쪽 벽 선반은 윗면 y=3.01. */
@@ -225,14 +225,14 @@ const LEFT_SHELF_TOP_Y = 3.01;
 
 /** 선반에 세워 꽂은 책들. 높이를 조금씩 달리해야 책장처럼 읽힌다. */
 const SHELF_BOOKS = [
-  { x: 4.72, height: 0.42, color: "navy" },
-  { x: 4.86, height: 0.48, color: "bone" },
-  { x: 4.99, height: 0.39, color: "dusk" },
-  { x: 5.12, height: 0.46, color: "slate" },
+  { x: 4.72, height: 0.42, color: "fabric" },
+  { x: 4.86, height: 0.48, color: "linen" },
+  { x: 4.99, height: 0.39, color: "clay" },
+  { x: 5.12, height: 0.46, color: "sage" },
 ] as const satisfies readonly { x: number; height: number; color: keyof RoomPalette }[];
 
 /**
- * 집어 들 수 있는 한 권. 밝은 색(bone)이라 네 권 중 눈에 먼저 걸리는 책이고,
+ * 집어 들 수 있는 한 권. 밝은 색(linen)이라 네 권 중 눈에 먼저 걸리는 책이고,
  * 다가감 판정도 이 x를 기준으로 잡혀 있다 (layout의 CLUE_PROPS.shelfBook).
  */
 const CLUE_BOOK_X = 4.86;
@@ -285,23 +285,23 @@ function DecorBoxes({ parts, palette }: { parts: readonly DecorBox[]; palette: R
 
 /**
  * 야구부 트로피. 받침 → 기둥 → 컵 순으로 쌓는다.
- * 금빛(memory)을 쓰고 싶은 자리지만 그 색은 기억 오브젝트 전용이라, 바랜 크림으로 둔다 —
- * 우승컵도 이 방에서는 빛을 잃은 지 오래라는 편이 이야기에도 맞는다.
+ * 재질 팔레트의 앰버 — 방에서 앰버를 받는 몇 안 되는 소품이다. 빛이 닿을 때만
+ * 꿀빛으로 서고, 어둠 속에서는 바랜 놋쇠로 가라앉는다.
  */
 function Trophy({ palette, position }: { palette: RoomPalette; position: Vec3Tuple }) {
   return (
     <group name="trophy" position={position}>
       <mesh position={[0, 0.05, 0]} castShadow>
         <boxGeometry args={[0.24, 0.1, 0.24]} />
-        <meshStandardMaterial color={palette.dusk} roughness={0.8} />
+        <meshStandardMaterial color={palette.frame} roughness={0.8} />
       </mesh>
       <mesh position={[0, 0.16, 0]} castShadow>
         <cylinderGeometry args={[0.035, 0.045, 0.13, 12]} />
-        <meshStandardMaterial color={palette.bone} roughness={0.62} />
+        <meshStandardMaterial color={palette.amber} roughness={0.62} />
       </mesh>
       <mesh position={[0, 0.29, 0]} castShadow>
         <cylinderGeometry args={[0.13, 0.07, 0.17, 12]} />
-        <meshStandardMaterial color={palette.bone} roughness={0.62} />
+        <meshStandardMaterial color={palette.amber} roughness={0.62} />
       </mesh>
     </group>
   );

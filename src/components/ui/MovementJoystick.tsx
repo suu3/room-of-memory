@@ -75,7 +75,7 @@ export function MovementJoystick({
       disabled={disabled}
       // group: 아래 캡션이 비활성 상태를 같이 따라가게 한다
       // 잠겼을 때는 완전히 사라진다 — 좁은 화면에서 대사창과 겹쳐 보이는 걸 막는다
-      className="group absolute bottom-24 left-4 z-20 size-28 touch-none select-none rounded-full border border-bone/40 bg-scene-deep/75 shadow-chip backdrop-blur-sm transition-opacity duration-200 disabled:pointer-events-none disabled:opacity-0 md:left-6"
+      className="group absolute bottom-24 left-4 z-20 size-28 touch-none select-none rounded-full border border-line bg-surface shadow-chip transition-opacity duration-200 disabled:pointer-events-none disabled:opacity-0 md:left-6"
       onPointerDown={(event) => {
         if (disabled) return;
         event.preventDefault();
@@ -94,18 +94,18 @@ export function MovementJoystick({
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-3 rounded-full border border-bone/25"
+        className="pointer-events-none absolute inset-3 rounded-full border border-line"
       />
       <span aria-hidden className="pointer-events-none absolute inset-0 grid place-items-center">
         <span
-          className="size-12 rounded-full border border-bone bg-paper/90 shadow-chip"
+          className="size-12 rounded-full border border-ivory/40 bg-ivory/85 shadow-chip"
           style={{ transform: `translate3d(${knobOffset.x}px, ${knobOffset.y}px, 0)` }}
         />
       </span>
       {/* 무엇을 하는 UI인지 화면 안에서 알려준다 — 별도 도움말 화면을 두지 않는다 */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -bottom-6 left-1/2 w-max -translate-x-1/2 text-[0.625rem] font-bold tracking-[0.18em] text-bone/55"
+        className="monologue-text pointer-events-none absolute -bottom-6 left-1/2 w-max -translate-x-1/2 text-xs font-medium tracking-[0.06em] text-fog"
       >
         {caption}
       </span>

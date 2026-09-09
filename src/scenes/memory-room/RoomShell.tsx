@@ -289,20 +289,26 @@ export function RoomShell({
         <ShellBox
           key={part.position.join(":")}
           {...part}
-          color={index === 0 ? palette.ink : palette.void}
+          color={index === 0 ? palette.frame : palette.void}
         />
       ))}
 
-      <ShellBox {...SHELL.floor} color={palette.mist} receiveShadow />
+      <ShellBox {...SHELL.floor} color={palette.floor} receiveShadow />
 
       {/* 네 면의 굽도리 — 늘 남는다 (왼벽은 문 개구부에서 끊긴 두 조각) */}
       {[...BASE_WALLS, ...LEFT_BASE_SEGMENTS].map((part) => (
-        <ShellBox key={part.position.join(":")} {...part} color={palette.slate} receiveShadow />
+        <ShellBox key={part.position.join(":")} {...part} color={palette.wall} receiveShadow />
       ))}
 
       <CulledWall side="back">
         {BACK_WALL_SEGMENTS.map((part) => (
-          <ShellBox key={part.position.join(":")} {...part} color={palette.slate} receiveShadow />
+          <ShellBox
+            key={part.position.join(":")}
+            {...part}
+            color={palette.wall}
+            castShadow
+            receiveShadow
+          />
         ))}
         {/* 창밖 풍경도 뒷벽에 속한다 — 벽이 스러졌는데 풍경만 남으면 허공에 뜬 판이 된다 */}
         <WindowView
@@ -314,27 +320,27 @@ export function RoomShell({
         />
         <group position={WINDOW_CENTER}>
           {WINDOW_FRAME.map((part) => (
-            <ShellBox key={part.position.join(":")} {...part} color={palette.bone} castShadow />
+            <ShellBox key={part.position.join(":")} {...part} color={palette.trim} castShadow />
           ))}
         </group>
       </CulledWall>
 
       <CulledWall side="left" hidden={inLivingRoom}>
         {LEFT_WALL_SEGMENTS.map((part) => (
-          <ShellBox key={part.position.join(":")} {...part} color={palette.slate} receiveShadow />
+          <ShellBox key={part.position.join(":")} {...part} color={palette.wall} receiveShadow />
         ))}
         {/* 벽에 붙은 물건이라 벽과 함께 스러져야 한다 — 밖에 두면 허공에 뜬다 */}
         <LightSwitch palette={palette} />
       </CulledWall>
       <CulledWall side="front">
-        <ShellBox {...FRONT_WALL_UPPER} color={palette.slate} receiveShadow />
+        <ShellBox {...FRONT_WALL_UPPER} color={palette.wall} receiveShadow />
       </CulledWall>
       <CulledWall side="right">
-        <ShellBox {...RIGHT_WALL_UPPER} color={palette.slate} receiveShadow />
+        <ShellBox {...RIGHT_WALL_UPPER} color={palette.wall} receiveShadow />
       </CulledWall>
 
       {/*
-        문. 색은 늘 어둡다(navy) — 금빛은 라디오 목소리를 잡은 뒤에만 잠깐 돈다.
+        문. 색은 늘 어둡다(frame) — 금빛은 라디오 목소리를 잡은 뒤에만 잠깐 돈다.
 
         1막 내내 눌러볼 수 있고, 그때는 열리는 대신 안 여는 이유가 한 줄 흐른다
         (DoorNudge). 잠긴 게 아니라 **안 여는** 것이라는 게 여기서 드러난다.
@@ -365,13 +371,13 @@ export function RoomShell({
               <ShellBox
                 size={[ROOM_DOOR_LEAF.width, ROOM_DOOR_LEAF.height, ROOM_DOOR_LEAF.thickness]}
                 position={[0, 0, 0]}
-                color={palette.navy}
+                color={palette.frame}
                 castShadow
               />
               <ShellBox
                 size={[0.11, 0.11, 0.1]}
                 position={[0.48, 0, 0.1]}
-                color={palette.ember}
+                color={palette.amber}
                 emissive={doorReady ? palette.memory : undefined}
                 emissiveIntensity={doorReady ? 0.8 : 0}
               />
@@ -379,7 +385,7 @@ export function RoomShell({
           </MemoryGlowSelection>
         </group>
         {DOOR_FRAME.map((part) => (
-          <ShellBox key={part.position.join(":")} {...part} color={palette.ink} castShadow />
+          <ShellBox key={part.position.join(":")} {...part} color={palette.wood} castShadow />
         ))}
         {/* 문틈으로 새는 빛 — 거실에서 오는 빛이다 (v2). 문이 열리면 틈 자체가
             사라지므로 같이 사라진다. doorReady 금빛과 헷갈리지 않게 세기를 낮게. */}
@@ -397,11 +403,11 @@ export function RoomShell({
       <ShellBox
         size={[SHELL_WIDTH - 0.32, 0.3, 0.14]}
         position={[SHELL_CENTER_X, 0.15, ROOM_SHELL_BOUNDS.minZ + 0.16]}
-        color={palette.bone}
+        color={palette.trim}
         castShadow
         receiveShadow
       />
-      <ShellBox {...LEFT_SKIRTING} color={palette.bone} castShadow receiveShadow />
+      <ShellBox {...LEFT_SKIRTING} color={palette.trim} castShadow receiveShadow />
     </group>
   );
 }

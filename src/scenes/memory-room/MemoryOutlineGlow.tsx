@@ -139,7 +139,8 @@ const INNER_SELECTION_LAYER = 11;
 const OUTER_SELECTION_LAYER = 12;
 
 export function createMemoryOutlineSettings(color: string) {
-  const edgeColor = new Color(color).offsetHSL(0, -0.08, 0.16).getHex();
+  // 앰버가 밝아진 만큼(#D5AE78) 들어 올리는 폭을 줄인다 — 더 올리면 윤곽이 흰 줄로 뜬다
+  const edgeColor = new Color(color).offsetHSL(0, -0.05, 0.06).getHex();
   // 가려진 쪽 테두리는 한 단계 어둡게 — 벽 너머까지 같은 밝기로 타오르지 않게 한다.
   const hiddenEdgeColor = new Color(color).offsetHSL(0, -0.12, -0.12).getHex();
 
@@ -162,7 +163,7 @@ export function createMemoryOutlineSettings(color: string) {
     // 섞이면 곁가지 윤곽이 방 전체를 뚫고 나온다.
     outer: {
       blur: true,
-      edgeStrength: 11,
+      edgeStrength: 8,
       kernelSize: KERNEL_SIZE_VERY_LARGE,
       pulseSpeed: 0.45,
       resolutionScale: 0.5,

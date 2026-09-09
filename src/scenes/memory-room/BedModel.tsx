@@ -14,17 +14,17 @@ useGLTF.preload(ASSETS.models.bed, true, true);
 
 /**
  * 부품 노드 이름 → 팔레트 색. glb에는 재질이 없어(블렌더에서 안 입혔다) 여기서 입힌다.
- * 이름 규약은 bed.ts 머리 주석. 프레임 계열은 예전 상자 침대와 같은 잉크색, 매트리스는
- * 슬레이트, 베개는 종이색, 이불은 매트리스와 갈라 보이게 올리브.
+ * 이름 규약은 bed.ts 머리 주석. 프레임 계열은 우드, 매트리스(시트)는 회백, 베개는 리넨,
+ * 이불은 회청 천 — 방의 침구는 회청색이다 (DESIGN.md > 3D 재질 팔레트).
  */
 const PART_COLORS = {
-  frame: "ink",
-  base: "ink",
-  headboard: "ink",
-  footboard: "ink",
-  mattress: "slate",
-  pillow: "paper",
-  blanket: "olive",
+  frame: "wood",
+  base: "wood",
+  headboard: "wood",
+  footboard: "wood",
+  mattress: "trim",
+  pillow: "linen",
+  blanket: "fabric",
 } as const satisfies Record<string, keyof RoomPalette>;
 type BedPart = keyof typeof PART_COLORS;
 const BED_PARTS = Object.keys(PART_COLORS) as readonly BedPart[];
