@@ -68,8 +68,8 @@
     "support": "Made with support from the Gyeonggi Youth Gap Year Program."
   },
   "notFound": {
-    "title": "There is no room here",
-    "body": "The address is wrong, or this place is gone."
+    "title": "You took a wrong turn",
+    "body": "There is nothing at this address. Let's head back to the room."
   },
   "minigame": {
     "start": "Start",

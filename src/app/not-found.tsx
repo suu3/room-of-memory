@@ -6,7 +6,7 @@ import { RisingDust } from "@/components/ui/RisingDust";
 import { BUTTON_QUIET } from "@/components/ui/ui-classes";
 
 /**
- * 없는 주소. 타이틀 화면과 같은 문법이다 — 어두운 바탕, 떠오르는 먼지, 픽셀 서체 제목
+ * 없는 주소 — "길을 잘못 들었어요". 타이틀 화면과 같은 문법이다: 어두운 바탕, 떠오르는 먼지, 픽셀 서체 제목
  * 아래 조용한 한 줄. 방(3D)은 띄우지 않는다: 여기는 방이 없는 곳이라는 게 이 화면의
  * 말이고, 캔버스를 세우면 돌아가는 길보다 그 자리가 무거워진다.
  */
