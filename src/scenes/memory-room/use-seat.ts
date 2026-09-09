@@ -32,7 +32,8 @@ export function useSeat(id: SeatId) {
   const sitOnSeat = useMemoryRoomStore((state) => state.sitOnSeat);
   const standUp = useMemoryRoomStore((state) => state.standUp);
   const near = useNearPlayer(seat.near.x, seat.near.z, seat.reach);
-  const { hovered, handlers } = useGlowHover(true);
+  // 멀리서 누르면 거절하므로 멀리서는 호버·커서도 켜지 않는다 — 빛나면 앉을 수 있어야 한다
+  const { handlers } = useGlowHover(near || occupied);
 
   const onClick = useCallback(
     (event: ThreeEvent<MouseEvent>) => {
@@ -60,10 +61,10 @@ export function useSeat(id: SeatId) {
     () => ({
       occupied,
       /** 앉아 있는 동안에도 켜 둔다 — 다시 누르면 일어난다는 표시다. */
-      glowing: hovered || near || occupied,
+      glowing: near || occupied,
       handlers: { ...handlers, onClick },
     }),
-    [handlers, hovered, near, occupied, onClick],
+    [handlers, near, occupied, onClick],
   );
 }
 

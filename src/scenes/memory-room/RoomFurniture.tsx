@@ -2,7 +2,14 @@ import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { useFrame } from "@react-three/fiber";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type Group, MathUtils, Plane, Vector3 } from "three";
+import {
+  type Group,
+  MathUtils,
+  type MeshStandardMaterial,
+  Plane,
+  type PointLight,
+  Vector3,
+} from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import { isAtCurtain, useMemoryRoomStore } from "@/store/memory-room";
@@ -368,16 +375,94 @@ function Shelves({ palette }: FurnitureProps) {
 const DESK_PROP_SCALE = 3.1;
 const DESK_TOP_Y = 1.11;
 
-function DeskAccessories(_: FurnitureProps) {
+/** 스탠드가 책상 위에 서는 자리 (책상 로컬). glb 높이 0.29 × 배율 3.1 ≈ 0.9. */
+const LAMP_LOCAL: Vec3Tuple = [1.42, DESK_TOP_Y, -0.3];
+/** 갓 안의 전구 높이 — 상판에서 이만큼 위. */
+const LAMP_BULB_HEIGHT = 0.64;
+/**
+ * 스탠드의 월드 x·z. 책상은 Y 90° 돌아 있어 로컬 (x, z) → 월드 (z, -x)다 — 다가감 판정은
+ * 월드 좌표로 재므로 로컬 자리를 한 번 돌려 둔다.
+ */
+const LAMP_WORLD = [DESK_POSITION[0] + LAMP_LOCAL[2], DESK_POSITION[2] - LAMP_LOCAL[0]] as const;
+/** 켰을 때의 세기. 천장 전등(최대 28, 거리 13)보다 훨씬 작고 가까운 빛이다. */
+const LAMP_INTENSITY = 5;
+const LAMP_REACH = 4.5;
+
+/**
+ * 책상 스탠드. 다가가서 누르면 켜지고 다시 누르면 꺼진다 — 전등 스위치·서랍과 같은
+ * 곁가지라 진행에도 저장에도 남지 않는다. 불은 갓 안의 전구(emissive)와 point light
+ * 하나로, 값은 프레임마다 damp로 따라간다 (툭 켜지면 스위치가 아니라 버그로 읽힌다).
+ */
+function DeskLamp({ palette }: FurnitureProps) {
+  const [on, setOn] = useState(false);
+  const near = useNearPlayer(LAMP_WORLD[0], LAMP_WORLD[1], FURNITURE_NEAR_RADIUS);
+  // 다가갔을 때만 호버·커서가 산다 — 멀리서 누르면 거절하므로 멀리서 빛나면 안 된다
+  const { handlers } = useGlowHover(near);
+  const lightRef = useRef<PointLight>(null);
+  const bulbRef = useRef<MeshStandardMaterial>(null);
+
+  useFrame((_, delta) => {
+    const light = lightRef.current;
+    const bulb = bulbRef.current;
+    if (!light || !bulb) return;
+    light.intensity = MathUtils.damp(light.intensity, on ? LAMP_INTENSITY : 0, 6, delta);
+    bulb.emissiveIntensity = MathUtils.damp(bulb.emissiveIntensity, on ? 1.4 : 0, 6, delta);
+    light.visible = light.intensity > 0.01;
+  });
+
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
+    <group
+      name="desk-lamp"
+      {...handlers}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (!near) {
+          playSound("deny");
+          return;
+        }
+        // 딸깍은 조작음이라 방 밝기와 무관하게 늘 같은 크기로 울린다 (LightSwitch와 같다)
+        playSound("select");
+        setOn((current) => !current);
+      }}
+    >
+      <MemoryGlowSelection selectionKey="desk-lamp" tier="prop" enabled={near}>
+        <FurnitureModel
+          path={ASSETS.models.deskLamp}
+          position={LAMP_LOCAL}
+          scale={DESK_PROP_SCALE}
+        />
+      </MemoryGlowSelection>
+      {/* 갓 안의 전구 — 켜지면 갓이 안에서부터 데워진다 */}
+      <mesh position={[LAMP_LOCAL[0], LAMP_LOCAL[1] + LAMP_BULB_HEIGHT, LAMP_LOCAL[2]]}>
+        <sphereGeometry args={[0.055, 10, 8]} />
+        <meshStandardMaterial
+          ref={bulbRef}
+          color={palette.linen}
+          emissive={palette.sun}
+          emissiveIntensity={0}
+          roughness={0.6}
+        />
+      </mesh>
+      <pointLight
+        ref={lightRef}
+        position={[LAMP_LOCAL[0], LAMP_LOCAL[1] + LAMP_BULB_HEIGHT, LAMP_LOCAL[2]]}
+        color={palette.sun}
+        intensity={0}
+        visible={false}
+        distance={LAMP_REACH}
+        decay={2}
+      />
+    </group>
+  );
+}
+
+function DeskAccessories({ palette }: FurnitureProps) {
   // 컴퓨터 세트(모니터·키보드·마우스)는 기억 오브젝트로 승격됐다 —
   // MemoryObjects의 ComputerMemory가 같은 자리(월드 좌표)에 그린다.
   return (
     <group name="desk-accessories">
-      <FurnitureModel
-        path={ASSETS.models.deskLamp}
-        position={[1.42, DESK_TOP_Y, -0.3]}
-        scale={DESK_PROP_SCALE}
-      />
+      <DeskLamp palette={palette} />
       <FurnitureModel
         path={ASSETS.models.books}
         position={[1.05, DESK_TOP_Y, 0.34]}
@@ -562,14 +647,15 @@ function Curtain({
   onRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
 }) {
   const groupRef = useRef<Group>(null);
-  const { hovered, handlers } = useGlowHover(true);
   /*
-   * 다가가면 빛난다.
+   * 다가가면 빛난다. 호버·커서도 다가갔을 때만 켠다 — 멀리서 잡을 수 없는 물건이
+   * 멀리서 빛나면 "만질 수 있다"는 거짓말이 된다.
    *
    * 기준점은 커튼이 지금 있는 자리가 아니라 닫혀 있을 때의 자리다. 젖히는 도중에
    * 판정 원이 손을 따라 미끄러지면, 당기다 말고 반경 밖으로 나가 빛이 꺼진다.
    */
   const near = useNearPlayer(CURTAIN_X[side].closed, CURTAIN_Z, CURTAIN_NEAR_RADIUS);
+  const { handlers } = useGlowHover(near);
   const reducedMotion = useMemo(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     [],
@@ -703,7 +789,7 @@ function Curtain({
       // 곧바로 드래그가 취소돼 한 칸도 못 움직였다. 포인터 캡처가 잡혀 있으므로
       // 밖으로 나가도 move/up은 계속 들어온다.
     >
-      <MemoryGlowSelection selectionKey={`curtain-${side}`} tier="prop" enabled={hovered || near}>
+      <MemoryGlowSelection selectionKey={`curtain-${side}`} tier="prop" enabled={near}>
         <BoxParts parts={CURTAIN_FOLD_PARTS} palette={palette} />
       </MemoryGlowSelection>
     </group>
