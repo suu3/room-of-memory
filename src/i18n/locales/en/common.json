@@ -67,6 +67,10 @@
     "close": "Close credits",
     "support": "Made with support from the Gyeonggi Youth Gap Year Program."
   },
+  "notFound": {
+    "title": "There is no room here",
+    "body": "The address is wrong, or this place is gone."
+  },
   "minigame": {
     "start": "Start",
     "skip": "Skip",
