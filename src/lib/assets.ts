@@ -34,8 +34,8 @@ export const ASSETS = {
     rabbitDoll: "/assets/models/rabbit-doll.glb?v=fix-20260906",
   },
   images: {
-    /** 로딩 애니메이션 (420x400, 5프레임 gif). */
-    uiLoading: "/assets/images/ui-loading.gif",
+    /** 로딩 애니메이션 (420x400, 8프레임, 프레임당 140ms). */
+    uiLoading: "/assets/images/ui-loading.gif?v=20260910-grounded-bounce",
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp",
     mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp",
