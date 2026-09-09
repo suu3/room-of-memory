@@ -221,12 +221,10 @@ export function TitleScreen() {
         {/* 밑에서 떠오르는 먼지 — 부팅 커튼과 같은 공기가 타이틀까지 이어진다 */}
         <RisingDust count={22} />
 
-        {/* 로고 블록. 눈썹 문구는 제목에 붙은 라벨이지 따로 하는 말이 아니고,
-            타이틀은 게임 픽셀 서체(Galmuri14)로 세워 인디게임 로고처럼 읽힌다 */}
+        {/* 로고 블록. 제목은 게임 픽셀 서체(Galmuri14)로 세워 인디게임 로고처럼 읽힌다.
+            그 위에 있던 영문 장르 라벨은 걷었다 — 제목과 한 줄 소개면 충분하고, 앰버는
+            선택(▶)의 자리로만 남긴다 */}
         <div className="relative flex flex-col items-center gap-3 text-center">
-          <p className="font-pixel text-sm tracking-[0.45em] text-memory/80">
-            {t("titleScreen.eyebrow")}
-          </p>
           <h1 className="title-logo break-ko font-pixel text-5xl leading-tight text-ivory md:text-6xl">
             {t("title")}
           </h1>

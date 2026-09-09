@@ -364,7 +364,6 @@
     "turnRight": "右に回す"
   },
   "titleScreen": {
-    "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "閉じた部屋に散らばった記憶を、ひとつずつ取り戻す物語。",
     "start": "はじめから",
     "loading": "部屋を準備しています… {{percent}}%",

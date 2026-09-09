@@ -364,7 +364,6 @@
     "turnRight": "오른쪽으로 돌리기"
   },
   "titleScreen": {
-    "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
     "start": "새 게임",
     "loading": "방을 준비하고 있어요… {{percent}}%",

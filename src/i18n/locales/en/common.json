@@ -364,7 +364,6 @@
     "turnRight": "Turn right"
   },
   "titleScreen": {
-    "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "Gather the memories scattered across a room that never opened.",
     "start": "New Game",
     "loading": "Getting the room ready… {{percent}}%",
