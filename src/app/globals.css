@@ -676,70 +676,6 @@ body {
 }
 
 /*
- * 부팅 커튼의 천 (BootCurtain).
- *
- * 처음에는 세로 줄무늬였는데 천이 아니라 바코드로 보였다. 주름은 선이 아니라 **면의
- * 명암**이다 — 골에서 마루로 빛이 서서히 돌아나가야 원통형 천으로 읽힌다. 그래서
- * 색이 딱 끊기는 구간(`X 0 18px` 같은 쌍)을 하나도 쓰지 않고 전부 번지는 전이로만 쌓았다.
- *
- * 한 주기 안에 깊은 골과 얕은 골을 하나씩 넣어 폭을 어긋나게 뒀다. 같은 폭이
- * 반복되면 아무리 부드러워도 눈이 규칙을 먼저 읽는다. 첫 스톱과 끝 스톱은 같은 값이라
- * 주기가 이어지는 자리에 이음매가 남지 않는다.
- *
- * 스톱을 px가 아니라 **%로 적는 이유**는 주기 폭이 화면마다 달라지기 때문이다(아래
- * background-size). px로 적어 두면 폭을 줄인 순간 마지막 스톱이 타일 밖으로 밀려나
- * 주름이 중간에서 잘리고 이음매가 드러난다.
- *
- * 마루(밝은 쪽)는 slate가 아니라 storm이다. slate 30%는 night 배경 위에서 골과의 차이가
- * 거의 없어 주름이 아니라 노이즈로 보였다 — 천이 원통으로 읽히려면 마루가 확실히 서야 한다.
- *
- * 여기에 위쪽 어둠(천이 뭉쳐 걸린 자리)과 양옆 그늘을 얹는다. 주름만 있으면 무늬를
- * 넣은 판때기고, 가장자리와 위가 눌려야 드리운 천이 된다.
- */
-.boot-curtain-cloth {
-  background-image:
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--color-scene-void) 88%, transparent) 0%,
-      color-mix(in srgb, var(--color-scene-storm) 42%, transparent) 20%,
-      color-mix(in srgb, var(--color-scene-void) 85%, transparent) 37%,
-      color-mix(in srgb, var(--color-scene-void) 38%, transparent) 51%,
-      color-mix(in srgb, var(--color-scene-storm) 26%, transparent) 70%,
-      color-mix(in srgb, var(--color-scene-void) 88%, transparent) 100%
-    ),
-    /*
-     * 양옆 그늘. 폭을 %가 아니라 vw로 잡는다 — %로 두면 좁은 화면에서도 같은 비율을
-     * 먹어서, 주름이 몇 개 안 남은 판을 그늘이 통째로 지운다.
-     */
-    linear-gradient(
-      to right,
-      var(--color-scene-void) 0,
-      transparent clamp(28px, 14vw, 220px),
-      transparent calc(100% - clamp(28px, 14vw, 220px)),
-      var(--color-scene-void) 100%
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--color-scene-void) 78%, transparent) 0%,
-      color-mix(in srgb, var(--color-scene-void) 30%, transparent) 14%,
-      transparent 40%
-    );
-  /*
-   * 주름만 반복하고 나머지 두 겹은 화면에 한 번씩 편다.
-   *
-   * 주기 폭을 210px에 고정하면 폰(375px)에는 두 주름이 채 안 들어가서 커튼이 아니라
-   * 어두운 그라디언트 한 장이 된다. 화면 폭에 묶어 두면 폰에서는 네 겹 언저리, 넓은
-   * 화면에서는 그보다 더 많아진다 — 핵심은 최댓값 고정이 아니라 좁은 화면에서 두 겹
-   * 밑으로 떨어지지 않게 하는 것이다.
-   */
-  background-size:
-    clamp(96px, 13vw, 210px) 100%,
-    100% 100%,
-    100% 100%;
-  background-repeat: repeat-x, no-repeat, no-repeat;
-}
-
-/*
  * 먼지 한 알의 헤일로 (BootCurtain).
  *
  * 번지는 폭만 인라인으로 받고 색은 여기서 정한다. box-shadow를 통째로 인라인으로
@@ -749,16 +685,6 @@ body {
  */
 .boot-dust {
   box-shadow: 0 0 var(--dust-blur) color-mix(in srgb, var(--color-memory) 55%, transparent);
-}
-
-/* 커튼 밑단으로 새어 나오는 방의 빛. 저 너머에 이미 방이 있다고 말하는 층이다 */
-.boot-curtain-hem {
-  background: linear-gradient(
-    to top,
-    color-mix(in srgb, var(--color-memory) 20%, transparent) 0%,
-    color-mix(in srgb, var(--color-memory) 6%, transparent) 42%,
-    transparent 100%
-  );
 }
 
 /*

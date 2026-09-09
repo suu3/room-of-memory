@@ -20,7 +20,10 @@
     "title": "기억 수집",
     "open": "수첩 열기 — 기억 수집",
     "replay": "{{name}} 다시 보기",
-    "replayAction": "다시보기"
+    "replayAction": "다시보기",
+    "prevPage": "이전 장",
+    "nextPage": "다음 장",
+    "pages": "기록 장 넘기기"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 수집한 기억",
@@ -43,7 +46,7 @@
     "placeholder": "어두운 3D 방 씬 (placeholder)"
   },
   "scene": {
-    "loading": "방을 불러오는 중…",
+    "loading": "방을 준비하고 있어요…",
     "webglFallback": "이 기기에서는 3D 방을 표시할 수 없습니다.",
     "moveHint": "클릭한 곳으로 이동 · WASD",
     "moveHint_touch": "바닥을 탭하거나 조이스틱으로 이동",
@@ -364,7 +367,7 @@
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
     "start": "새 게임",
-    "loading": "방을 불러오는 중… {{percent}}%",
+    "loading": "방을 준비하고 있어요… {{percent}}%",
     "howTo": "방을 자유롭게 돌아다니며 기억이 걸린 물건을 찾아 조사하세요.",
     "howToMove": "이동 클릭 · WASD",
     "howToMove_touch": "이동 바닥 탭 · 조이스틱",

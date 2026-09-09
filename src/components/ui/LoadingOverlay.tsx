@@ -6,7 +6,7 @@ import { LoadingIndicator } from "./LoadingIndicator";
 export function LoadingOverlay({ label }: { label: string }) {
   return (
     <div
-      className="absolute inset-0 z-20 grid place-items-center bg-scene-void/85 backdrop-blur-sm"
+      className="absolute inset-0 z-20 grid place-items-center bg-scene-void/85 backdrop-blur-[2px]"
       role="status"
       aria-live="polite"
       aria-label={label}

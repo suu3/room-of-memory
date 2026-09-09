@@ -20,7 +20,10 @@
     "title": "記憶コレクション",
     "open": "手帳を開く — 記憶コレクション",
     "replay": "{{name}} をもう一度見る",
-    "replayAction": "もう一度"
+    "replayAction": "もう一度",
+    "prevPage": "前のページ",
+    "nextPage": "次のページ",
+    "pages": "記録のページ送り"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — 収集した記憶",
@@ -43,7 +46,7 @@
     "placeholder": "暗い3D部屋シーン (placeholder)"
   },
   "scene": {
-    "loading": "部屋を読み込み中…",
+    "loading": "部屋を準備しています…",
     "webglFallback": "この端末では3Dの部屋を表示できません。",
     "moveHint": "クリックした場所へ移動 · WASD",
     "moveHint_touch": "床をタップかスティックで移動",
@@ -364,7 +367,7 @@
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "閉じた部屋に散らばった記憶を、ひとつずつ取り戻す物語。",
     "start": "はじめから",
-    "loading": "部屋を読み込み中… {{percent}}%",
+    "loading": "部屋を準備しています… {{percent}}%",
     "howTo": "部屋を自由に歩き、記憶が残る物を調べてください。",
     "howToMove": "移動 クリック · WASD",
     "howToMove_touch": "移動 床をタップ · スティック",

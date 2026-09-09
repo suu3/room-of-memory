@@ -20,7 +20,10 @@
     "title": "Collected Memories",
     "open": "Open the notebook — collected memories",
     "replay": "Replay {{name}}",
-    "replayAction": "Replay"
+    "replayAction": "Replay",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "pages": "Turn record pages"
   },
   "hotspot": {
     "collectedLabel": "{{name}} — collected memory",
@@ -43,7 +46,7 @@
     "placeholder": "Dark 3D room scene (placeholder)"
   },
   "scene": {
-    "loading": "Loading the room…",
+    "loading": "Getting the room ready…",
     "webglFallback": "The 3D room cannot be displayed on this device.",
     "moveHint": "Click where to go · WASD",
     "moveHint_touch": "Tap the floor or use the joystick",
@@ -364,7 +367,7 @@
     "eyebrow": "A SHORT VISUAL NOVEL",
     "tagline": "Gather the memories scattered across a room that never opened.",
     "start": "New Game",
-    "loading": "Loading the room… {{percent}}%",
+    "loading": "Getting the room ready… {{percent}}%",
     "howTo": "Wander the room and examine the objects a memory still clings to.",
     "howToMove": "Move click · WASD",
     "howToMove_touch": "Move tap the floor · joystick",

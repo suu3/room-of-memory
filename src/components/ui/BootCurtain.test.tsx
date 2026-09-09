@@ -53,7 +53,7 @@ describe("BootCurtain", () => {
 
     expect(percent()).toBeGreaterThan(35);
     expect(percent()).toBeLessThanOrEqual(40);
-    expect(screen.getByText(`Loading the room… ${percent()}%`)).toBeTruthy();
+    expect(screen.getByText(`Getting the room ready… ${percent()}%`)).toBeTruthy();
   });
 
   it("계단으로 튀지 않는다 — 한 프레임 만에 보고값에 닿지 않는다", () => {

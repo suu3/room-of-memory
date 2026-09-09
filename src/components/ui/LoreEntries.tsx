@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowCounterClockwise } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, CaretLeft, CaretRight } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import Image from "next/image";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MEMORY_BY_ID, MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
@@ -23,12 +24,21 @@ import { BUTTON_QUIET_PAPER } from "./ui-classes";
  * **모으는 곳**이기 때문이다. 빈 자리가 그림으로 남아야 몇 개를 아직 못 채웠는지가
  * 글자를 세지 않고 보인다.
  *
+ * 한 장에 여섯 칸씩 넘겨 본다 — 열세 장을 한 판에 세우면 스크랩북이 아니라 스크롤
+ * 피드가 된다. 장은 수첩처럼 앞뒤로만 넘기고, 몇 장째인지는 숫자로 적는다.
+ *
  * 열린 항목마다 다시보기가 붙는다. 미니게임을 다시 여는 게 아니라 그때의 대사와
  * 그림만 되짚는 재생이라(store의 buildMemoryReplay), 기록을 읽다 "그때 뭐라고
  * 했더라"로 이어지는 길이 끊기지 않는다.
  */
+/** 한 장에 싣는 기록 수. 넓은 화면 3열·좁은 화면 2열 어느 쪽에서도 줄이 딱 맞는다. */
+const PAGE_SIZE = 6;
+const PAGE_COUNT = Math.ceil(MEMORY_IDS.length / PAGE_SIZE);
+
 export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
   const { t } = useTranslation();
+  const [page, setPage] = useState(0);
+  const pageIds = MEMORY_IDS.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const { t: tRoom } = useTranslation("memoryRoom");
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
@@ -36,90 +46,120 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
 
   // 모바일도 두 칸 — 한 칸이면 카드가 화면을 통째로 먹어 스크랩북이 아니라 피드가 된다
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
-      {MEMORY_IDS.map((id, index) => {
-        const memory = MEMORY_BY_ID[id];
-        const unlocked = collected.includes(id) || revisited.includes(id);
-        /*
-         * 어느 바퀴의 문장을 세울지. 1바퀴가 없는 기억(컴퓨터)은 처음부터 2바퀴
-         * 문장만 있으므로 잠긴 동안에도 그쪽을 흐려 세운다 — phase1 키를 찾으면
-         * 번역이 없어 키 문자열이 그대로 카드에 박힌다.
-         */
-        const rewritten = !memory.phase1 || (revisited.includes(id) && Boolean(memory.phase2));
-        const phase = rewritten ? memory.phase2 : memory.phase1;
-        const bodyKey = `lore.${id}.${rewritten ? "phase2" : "phase1"}` as ParseKeys<"memoryRoom">;
-        const name = tRoom(`memories.${id}.name` as ParseKeys<"memoryRoom">);
+    <div className="flex flex-col gap-4">
+      <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
+        {pageIds.map((id, index) => {
+          const memory = MEMORY_BY_ID[id];
+          const unlocked = collected.includes(id) || revisited.includes(id);
+          /*
+           * 어느 바퀴의 문장을 세울지. 1바퀴가 없는 기억(컴퓨터)은 처음부터 2바퀴
+           * 문장만 있으므로 잠긴 동안에도 그쪽을 흐려 세운다 — phase1 키를 찾으면
+           * 번역이 없어 키 문자열이 그대로 카드에 박힌다.
+           */
+          const rewritten = !memory.phase1 || (revisited.includes(id) && Boolean(memory.phase2));
+          const phase = rewritten ? memory.phase2 : memory.phase1;
+          const bodyKey =
+            `lore.${id}.${rewritten ? "phase2" : "phase1"}` as ParseKeys<"memoryRoom">;
+          const name = tRoom(`memories.${id}.name` as ParseKeys<"memoryRoom">);
 
-        return (
-          <li key={id}>
-            {/*
+          return (
+            <li key={id}>
+              {/*
               카드를 아주 조금 기울인다 (±0.6°). 손으로 붙인 것처럼 보이게 하려는
               것인데, 이보다 크면 글줄이 눕는 게 눈에 띄어 읽기가 나빠진다.
             */}
-            <article
-              className={`relative flex h-full flex-col rounded-sm border border-ink/10 bg-card p-2.5 ${
-                index % 2 === 0 ? "rotate-[-0.6deg]" : "rotate-[0.6deg]"
-              }`}
-            >
-              {/* 종이에 붙인 마스킹 테이프. mix-blend-multiply라 밑의 모눈이 비쳐 보인다 */}
-              <span
-                aria-hidden
-                className="-top-2 -translate-x-1/2 -rotate-2 absolute left-1/2 h-4 w-14 rounded-[1px] bg-bone/55 mix-blend-multiply"
-              />
+              <article
+                className={`relative flex h-full flex-col rounded-sm border border-ink/10 bg-card p-2.5 ${
+                  index % 2 === 0 ? "rotate-[-0.6deg]" : "rotate-[0.6deg]"
+                }`}
+              >
+                {/* 종이에 붙인 마스킹 테이프. mix-blend-multiply라 밑의 모눈이 비쳐 보인다 */}
+                <span
+                  aria-hidden
+                  className="-top-2 -translate-x-1/2 -rotate-2 absolute left-1/2 h-4 w-14 rounded-[1px] bg-bone/55 mix-blend-multiply"
+                />
 
-              <LoreStill id={id} name={name} unlocked={unlocked} still={phase?.replayStill} />
+                <LoreStill id={id} name={name} unlocked={unlocked} still={phase?.replayStill} />
 
-              {/*
+                {/*
                 잠긴 항목은 제목도 싣지 않는다 — 제목만 봐도 무슨 일이 있었는지 짐작된다.
                 제목 칸 자체는 비우지 않는다: 낮은 대비의 자리표시를 aria-hidden으로 두고
                 스크린리더에는 "왜 잠겼는지"를 대신 읽힌다 (BlurredValue와 같은 방식).
               */}
-              <h3 className="mt-2.5 text-xs font-medium tracking-[0.06em] text-graphite">
-                {unlocked ? (
-                  tRoom(`lore.${id}.title` as ParseKeys<"memoryRoom">)
-                ) : (
-                  <>
-                    <span className="sr-only">{t("characterSheet.loreLocked")}</span>
-                    <span aria-hidden className="block h-2.5 w-20 rounded-sm bg-bone/70" />
-                  </>
-                )}
-              </h3>
+                <h3 className="mt-2.5 text-xs font-medium tracking-[0.06em] text-graphite">
+                  {unlocked ? (
+                    tRoom(`lore.${id}.title` as ParseKeys<"memoryRoom">)
+                  ) : (
+                    <>
+                      <span className="sr-only">{t("characterSheet.loreLocked")}</span>
+                      <span aria-hidden className="block h-2.5 w-20 rounded-sm bg-bone/70" />
+                    </>
+                  )}
+                </h3>
 
-              {/* mt-auto가 아니라 flex-1 — 카드 높이가 달라도 다시보기 줄이 바닥에 맞는다 */}
-              <div className="mt-1.5 flex-1">
-                {unlocked ? (
-                  <p className="block animate-fade-rise break-ko text-pretty text-ink text-sm leading-normal">
-                    {tRoom(bodyKey)}
-                  </p>
-                ) : (
-                  <BlurredValue
-                    text={tRoom(bodyKey)}
-                    label={t("characterSheet.loreLocked")}
-                    hint={t("characterSheet.lockedHint")}
-                  />
-                )}
-              </div>
+                {/* mt-auto가 아니라 flex-1 — 카드 높이가 달라도 다시보기 줄이 바닥에 맞는다 */}
+                <div className="mt-1.5 flex-1">
+                  {unlocked ? (
+                    <p className="block animate-fade-rise break-ko text-pretty text-ink text-sm leading-normal">
+                      {tRoom(bodyKey)}
+                    </p>
+                  ) : (
+                    <BlurredValue
+                      text={tRoom(bodyKey)}
+                      label={t("characterSheet.loreLocked")}
+                      hint={t("characterSheet.lockedHint")}
+                    />
+                  )}
+                </div>
 
-              {unlocked && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    // 수첩을 닫아야 재생이 보인다 — 모달이 위를 덮고 있다
-                    onReplay?.();
-                    replayMemory(id);
-                  }}
-                  aria-label={t("panel.replay", { name })}
-                  className={`${BUTTON_QUIET_PAPER} mt-3 self-end px-2 py-1 text-xs`}
-                >
-                  <ArrowCounterClockwise size={11} weight="bold" />
-                  {t("panel.replayAction")}
-                </button>
-              )}
-            </article>
-          </li>
-        );
-      })}
-    </ul>
+                {unlocked && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // 수첩을 닫아야 재생이 보인다 — 모달이 위를 덮고 있다
+                      onReplay?.();
+                      replayMemory(id);
+                    }}
+                    aria-label={t("panel.replay", { name })}
+                    className={`${BUTTON_QUIET_PAPER} mt-3 self-end px-2 py-1 text-xs`}
+                  >
+                    <ArrowCounterClockwise size={11} weight="bold" />
+                    {t("panel.replayAction")}
+                  </button>
+                )}
+              </article>
+            </li>
+          );
+        })}
+      </ul>
+      {/* 장 넘김 — 수첩처럼 앞뒤로만. 몇 장째인지는 숫자로 적어 색만으로 말하지 않는다 */}
+      <nav
+        aria-label={t("panel.pages")}
+        className="flex items-center justify-center gap-4 border-t border-ink/10 pt-3"
+      >
+        <button
+          type="button"
+          onClick={() => setPage((current) => Math.max(0, current - 1))}
+          disabled={page === 0}
+          aria-label={t("panel.prevPage")}
+          className={`${BUTTON_QUIET_PAPER} px-2 py-1.5`}
+        >
+          <CaretLeft size={14} weight="bold" />
+        </button>
+        <span className="text-xs font-medium tabular-nums text-graphite" aria-live="polite">
+          {page + 1} / {PAGE_COUNT}
+        </span>
+        <button
+          type="button"
+          onClick={() => setPage((current) => Math.min(PAGE_COUNT - 1, current + 1))}
+          disabled={page === PAGE_COUNT - 1}
+          aria-label={t("panel.nextPage")}
+          className={`${BUTTON_QUIET_PAPER} px-2 py-1.5`}
+        >
+          <CaretRight size={14} weight="bold" />
+        </button>
+      </nav>
+    </div>
   );
 }
 
