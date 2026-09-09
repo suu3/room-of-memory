@@ -21,6 +21,8 @@
    * 낮추는 것이지 그 위 글자까지 흐리게 하는 것이 아니므로, 컨테이너 opacity 대신
    * 이 배경색을 쓴다.
    */
+  /* 미니게임 프레임 — 게임 화면보다 조금 밝은 청회색이라 화면과 틀이 한 덩어리로 안 보인다 */
+  --color-panel: #172330;
   --color-surface: color-mix(in srgb, var(--color-night) 84%, transparent);
   --color-surface-strong: color-mix(in srgb, var(--color-night) 92%, transparent);
   --color-surface-subtle: color-mix(in srgb, var(--color-night) 40%, transparent);
@@ -37,6 +39,8 @@
   --color-scene-coal: #17202a;
   --color-scene-navy: #161f28;
   --color-scene-void: #060a10;
+  /* 야구 미니게임 하늘 띠를 눌러 앉히는 회갈색 (겨자색 원화 위에 color 블렌드) */
+  --color-scene-khaki: #82765f;
 
   /*
    * 3D 재질 팔레트 — DESIGN.md > Colors > 3D 재질. UI 토큰과 갈라 둔다:
@@ -66,7 +70,8 @@
   --font-sans: var(--font-pretendard), "Pretendard", "Hiragino Sans", "Yu Gothic", sans-serif;
   --font-pixel: var(--font-galmuri), "Galmuri14", "Hiragino Sans", sans-serif;
 
-  /* 작은 컨트롤 6 · 메뉴/패널 8 · 대사창/수첩 10. 큰 알약과 과한 라운드는 쓰지 않는다 */
+  /* 대사창/게임 화면 4 · 작은 컨트롤 6 · 메뉴/패널 8 · 수첩 10. 큰 알약과 과한 라운드는 쓰지 않는다 */
+  --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
@@ -596,6 +601,46 @@ body {
   text-shadow:
     0 2px 5px rgb(5 10 18 / 0.85),
     0 0 16px rgb(5 10 18 / 0.45);
+}
+
+/*
+ * 대사창 — 공간에 깔리는 어두운 자막 패널. 사방 테두리와 큰 라운드가 있으면 조립된
+ * 카드로 읽힌다. 위는 조금 비치고 아래로 갈수록 짙어지는 그라데이션에, 위쪽에만 아주
+ * 옅은 앰버 선 하나. 미니게임 프레임(경계가 또렷한 틀)·혼잣말(배경 없음)과 갈리는 자리다.
+ */
+.dialogue-panel {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-night) 80%, transparent),
+    color-mix(in srgb, var(--color-scene-void) 96%, transparent)
+  );
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-memory) 16%, transparent);
+  border-radius: var(--radius-xs);
+  padding: 18px 24px 22px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+}
+
+/* 대사창 초상 — 아래쪽을 패널 속으로 스며들게 한다. 원화의 밑단이 판으로 서지 않게. */
+.portrait-fade {
+  mask-image: linear-gradient(to bottom, black 72%, transparent 100%);
+}
+
+/*
+ * 야구 미니게임 하늘 띠. 원화(mg-ball-catch-sunset-field)의 겨자색 노을을 지우지 않고
+ * color 블렌드로 색상만 회갈색으로 눌러 앉힌다 — 명도는 원화 그대로라 흙·아이보리는 안 변한다.
+ * 앰버는 타이밍 링과 성공 피드백의 몫으로 남긴다.
+ */
+.ball-catch-sky {
+  background: linear-gradient(
+    to bottom,
+    transparent 16%,
+    var(--color-scene-khaki) 26%,
+    var(--color-scene-khaki) 46%,
+    transparent 54%
+  );
+  mix-blend-mode: color;
+  opacity: 0.9;
 }
 
 .monologue-veil {

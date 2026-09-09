@@ -6,6 +6,7 @@ colors:
   memory: "#D5AE78"
   ember: "#B8655A"
   night: "#0B1320"
+  panel: "#172330"
   ivory: "#E8E9E5"
   fog: "#B8C1CD"
   ash: "#929EAF"
@@ -55,6 +56,7 @@ typography:
     fontSize: 0.75rem
     fontWeight: 400
 rounded:
+  xs: 4px
   sm: 6px
   md: 8px
   lg: 10px
@@ -77,10 +79,16 @@ components:
     backgroundColor: "{colors.night}"
     textColor: "{colors.ivory}"
     typography: "{typography.dialogue}"
-    rounded: "{rounded.lg}"
+    rounded: "{rounded.xs}"
+    padding: "{spacing.xl}"
+  minigame-frame:
+    backgroundColor: "{colors.panel}"
+    textColor: "{colors.ivory}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.md}"
     padding: "{spacing.xl}"
   speaker-label:
-    textColor: "{colors.fog}"
+    textColor: "{colors.memory}"
     typography: "{typography.speaker}"
   monologue:
     textColor: "{colors.ivory}"
@@ -127,7 +135,16 @@ Room of Memory는 3D 공간을 돌아다니며 기억의 조각을 마주하는 
 
 방향은 **'어두운 공간에서 따뜻한 빛이 돋보이는, 절제된 인디 서사 탐색'**이다. 방은 '모든 물건이 어두운 방'이 아니라 '고유색을 가진 물건들이 낮은 조도 속에 있는 방'이다. 벽은 깊은 네이비, 바닥은 그보다 밝은 슬레이트, 가구는 차분한 우드, 침구는 회청색이고, 앰버·테라코타·세이지가 작은 소품에만 드문드문 있다. 가구 자체를 주황으로 칠하지 않는다 — 따뜻한 빛이 닿을 때만 꿀빛으로 보여야 한다.
 
-UI는 두 재질뿐이다. **어두운 패널**(night의 반투명 표면 + ivory 글자 + 1px line 경계)이 메뉴·대사창·설정·미니게임 셸을 맡고, **종이 패널**(paper/card + ink)은 수첩 하나에만 남긴다. 밝은 크림 캡슐이 장면 위로 떠다니지 않게 한다.
+UI는 두 재질뿐이다. **어두운 패널**(night의 반투명 표면 + ivory 글자 + 1px line 경계)이 메뉴·설정·모달을 맡고, **종이 패널**(paper/card + ink)은 수첩 하나에만 남긴다. 밝은 크림 캡슐이 장면 위로 떠다니지 않게 한다.
+
+같은 팔레트라도 **화면의 역할에 따라 모양이 갈린다** — 전부 같은 네이비 사각 패널이면 웹 모달로 읽힌다.
+
+| 영역 | 톤 | 모양 |
+|---|---|---|
+| 시작 화면 | 고요한 타이틀 | 방을 흐리지 않고 제목 뒤 가운데만 옅게 누른다. 기본 선택(첫 항목)만 아이보리 + 앰버 ▶, 나머지는 한 단계 낮은 밝기. 언어는 상자 없이 글자와 밑줄 |
+| 혼잣말 | 공간 위의 글자 | 배경 없음, 그림자만 |
+| 대사창 | 공간에 깔리는 자막 | 사방 테두리·긴 가로선 없음. 위쪽만 앰버 16% 선, 라운드 4px, 위가 조금 비치고 아래로 짙어지는 그라데이션(`.dialogue-panel`). 화자명은 작은 앰버, 초상은 패널 뒤에서 스며 올라온다 |
+| 미니게임 | 경계가 또렷한 도구의 틀 | 게임 화면보다 한 톤 밝은 청회색(panel) 프레임, 라운드 8px. 설명 영역은 얇게(18px 24px), 게임 화면(라운드 4px)이 주인공. 키 이름은 키캡으로 분리, 닫기는 프레임 우측 상단 |
 
 금지: **점선(dashed) 테두리**, **패널 기울이기(rotate/skew)**, **2px 이상 테두리**, **큰 pill 버튼과 과한 라운드**, **컨테이너 opacity로 글자까지 흐리게 하기**.
 
@@ -137,6 +154,7 @@ UI는 두 재질뿐이다. **어두운 패널**(night의 반투명 표면 + ivor
 
 ### 어두운 표면 위 (UI 기본)
 
+- **panel** — 미니게임 프레임의 불투명 청회색. 게임 화면보다 조금 밝아 틀과 화면이 한 덩어리로 안 보인다.
 - **night** — 화면 바탕이자 모든 어두운 표면의 재료. 표면은 이 색을 얼마나 남기느냐로만 갈린다 (`globals.css`의 `--color-surface` 84% / `--color-surface-strong` 92% / `--color-surface-subtle` 40%). 경계선은 `--color-line`(#D3DEEC 14%) 하나다.
 - **ivory** — 어두운 표면 위 주요 텍스트. 혼잣말·대사 본문·제목.
 - **fog** — 보조 텍스트 (화자명, 안내, 라벨). **ash** — 비필수 정보 (자간 라벨, 잠금 안내).
@@ -188,6 +206,7 @@ UI는 두 재질뿐이다. **어두운 패널**(night의 반투명 표면 + ivor
 | scene-coal | #17202A | 기기 화면 하단바 |
 | scene-navy | #161F28 | 기기 화면 본문 |
 | scene-void | #060A10 | 비네트, 모달 백드롭, 기기 화면 유리 |
+| scene-khaki | #82765F | 야구 미니게임 하늘 띠 — 원화의 겨자색을 color 블렌드로 눌러 앉힌다 |
 
 ### 기기 화면
 
@@ -207,7 +226,7 @@ UI는 두 재질뿐이다. **어두운 패널**(night의 반투명 표면 + ivor
 - **heading** — 인게임 제목(HUD의 '기억의 방', 패널 제목). 16~18px / 500.
 - **monologue** — 화면 상단 혼잣말. 픽셀 폰트, 모바일 20px, 데스크톱 22~24px, 행간 1.5. 픽셀 폰트는 제목과 짧은 독백에만 쓴다.
 - **dialogue** — 조사 대사 본문. 16~18px / 1.75. 행간을 줄이지 않는다.
-- **speaker** — 화자 이름. 대사창 안 fog 라벨.
+- **speaker** — 화자 이름. 대사창 안 작은 앰버(13px) 라벨.
 - **ui** — 메뉴·버튼. 14px / 500. 긴 한국어 본문에 과한 자간을 주지 않는다 (라벨성 텍스트만 0.1em 이하).
 - **caption** — 보조 안내. 12~13px / 1.5.
 - **pixel** — 기억 항목의 한 줄 요약, 메모. 시스템 메시지에는 쓰지 않는다.

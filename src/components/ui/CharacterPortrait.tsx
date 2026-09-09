@@ -30,7 +30,8 @@ export function CharacterPortrait({ expression, talking }: CharacterPortraitProp
       // 아래 20px을 대사창 뒤로 밀어 넣는다 — 얼굴 크롭이 끊긴 자리가 패널에 가려진다.
       // 모바일에서도 화자를 보여준다. 폭을 줄여 대사 텍스트를 가리지 않게만 한다.
       // z-0: 대사창(z-auto)이 초상 아래쪽을 덮는 VN 레이어링
-      className="pointer-events-none absolute -top-27 left-3 z-0 h-32 w-26 animate-fade-rise sm:-top-39 sm:h-44 sm:w-35 md:-top-51 md:h-56 md:w-45"
+      // 밑단은 패널 속으로 스며든다 (.portrait-fade) — 초상이 패널 뒤에서 올라오는 것으로 읽혀야 한다
+      className="portrait-fade pointer-events-none absolute -top-27 left-3 z-0 h-32 w-26 animate-fade-rise sm:-top-39 sm:h-44 sm:w-35 md:-top-51 md:h-56 md:w-45"
     >
       {/*
         바닥은 항상 불투명하게 둔다. 전환 중에도 실루엣이 꽉 차 있어야

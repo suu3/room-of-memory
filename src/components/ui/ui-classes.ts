@@ -14,9 +14,10 @@ export const FOCUS_RING =
 
 /** 어두운 패널 — 메뉴·설정·미니게임 셸·모달. */
 export const PANEL_DARK = "rounded-md border border-line bg-surface text-ivory shadow-panel";
-/** 대사창 — 더 불투명하고 모서리가 조금 더 둥글다. */
-export const PANEL_DIALOGUE =
-  "rounded-lg border border-line bg-surface-strong text-ivory shadow-overlay";
+/** 대사창 — 공간에 깔리는 어두운 자막 패널. 모양은 globals.css의 .dialogue-panel. */
+export const PANEL_DIALOGUE = "dialogue-panel text-ivory";
+/** 미니게임 프레임 — 경계가 또렷한 도구의 틀. 게임 화면보다 한 톤 밝은 청회색. */
+export const PANEL_FRAME = "rounded-md border border-line bg-panel text-ivory shadow-panel";
 /** 종이 패널 — 수첩과 방에서 집어 든 종이. */
 export const PANEL_PAPER = "rounded-lg border border-ink/12 bg-paper text-ink shadow-panel";
 

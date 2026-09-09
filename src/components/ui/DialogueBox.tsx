@@ -123,18 +123,22 @@ export function DialogueBox() {
           {!playbackLine && hasPortrait(scriptLine.speaker) && (
             <CharacterPortrait expression={scriptLine.expression ?? "neutral"} talking={!done} />
           )}
-          {/* 차분한 네이비 패널 + 아이보리 본문. 좁은 화면에서는 여백을 줄여 본문 폭을 확보한다 */}
-          <div
-            className={`relative px-5 pb-4 pt-4 text-left sm:px-6 sm:pb-5 sm:pt-5 ${PANEL_DIALOGUE}`}
-          >
-            {/* 화자 이름은 패널 안 라벨로 — 초상이 있어 별도 칩이나 소개 문구는 군더더기다 */}
-            <div className="flex items-center gap-2.5">
-              <span className="text-sm font-medium text-fog">{speakerName}</span>
-              <span aria-hidden className="h-px flex-1 bg-line" />
-            </div>
+          {/*
+            공간에 깔리는 어두운 자막 패널 (.dialogue-panel). 사방 테두리·긴 가로선·큰 라운드는
+            없다 — 조립된 카드가 아니라 화면 아래에 깔린 자막이어야 한다.
+          */}
+          <div className={`relative text-left ${PANEL_DIALOGUE}`}>
+            {/* 화자 이름은 작은 앰버 라벨 하나 — 초상이 있어 별도 칩이나 소개 문구는 군더더기다 */}
+            <span className="block text-[13px] font-medium leading-none text-memory">
+              {speakerName}
+            </span>
+            {/*
+              두 줄 높이를 늘 확보한다 — 한 줄 대사에서 창이 줄었다 다음 줄에서 늘면 글이
+              아니라 창이 움직이는 것으로 읽힌다. 그 이상은 문장이 길 때만 자란다.
+            */}
             <p
               key={lineKey}
-              className="mt-3 min-h-20 break-ko text-pretty text-base leading-dialogue text-ivory sm:text-[1.0625rem]"
+              className="mt-2.5 min-h-[3.75rem] break-ko text-pretty text-base leading-dialogue text-ivory sm:text-[1.0625rem]"
             >
               {typed}
             </p>

@@ -62,31 +62,34 @@ export function PuzzleHost() {
             closePuzzle();
           }}
         >
-          {!sealed && (
-            <button
-              type="button"
-              aria-label={t("minigame.close")}
-              onPointerDown={(event) => event.stopPropagation()}
-              onClick={() => {
-                playSound("close");
-                closePuzzle();
-              }}
-              className={`absolute right-4 top-4 z-10 ${HUD_ICON_BUTTON_SOLID}`}
-            >
-              <X size={20} weight="bold" />
-            </button>
-          )}
-          <Suspense fallback={null}>
-            <Minigame
-              gamePhase={2}
-              onSettled={() => setSettledId(active)}
-              onComplete={(result) => {
-                playSound(result.cleared ? "success" : "fail");
-                if (result.cleared && !result.celebrated) setBurstId((id) => id + 1);
-                finishPuzzle(result);
-              }}
-            />
-          </Suspense>
+          {/* 닫기는 프레임 우측 상단 모서리에 — 화면 구석에 두면 틀과 떨어져 떠 있는다 */}
+          <div className="relative">
+            {!sealed && (
+              <button
+                type="button"
+                aria-label={t("minigame.close")}
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={() => {
+                  playSound("close");
+                  closePuzzle();
+                }}
+                className={`absolute right-3 top-3 z-10 ${HUD_ICON_BUTTON_SOLID}`}
+              >
+                <X size={20} weight="bold" />
+              </button>
+            )}
+            <Suspense fallback={null}>
+              <Minigame
+                gamePhase={2}
+                onSettled={() => setSettledId(active)}
+                onComplete={(result) => {
+                  playSound(result.cleared ? "success" : "fail");
+                  if (result.cleared && !result.celebrated) setBurstId((id) => id + 1);
+                  finishPuzzle(result);
+                }}
+              />
+            </Suspense>
+          </div>
         </div>
       )}
     </>

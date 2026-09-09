@@ -1,7 +1,13 @@
 "use client";
 
 import { Warning } from "@phosphor-icons/react";
-import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  type KeyboardEvent as ReactKeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
@@ -26,14 +32,21 @@ const ENTER_DELAY_MS = 260;
  * 금빛 글로우는 globals.css의 .title-menu-item이 얹는다.
  */
 const MENU_ITEM_CLASS =
-  "title-menu-item group relative w-full cursor-pointer rounded-sm px-10 py-2.5 text-center font-pixel text-xl tracking-[0.06em] text-ivory/80 transition-colors duration-150 hover:text-memory focus-visible:text-memory focus-visible:outline-none active:text-memory";
+  "title-menu-item group relative w-full cursor-pointer rounded-sm px-10 py-2.5 text-center font-pixel text-xl tracking-[0.06em] transition-colors duration-150 focus-visible:outline-none";
 
-/** hover/focus에만 떠오르는 선택 표식. 라벨은 가운데 그대로 두고 왼쪽에 얹는다. */
-function MenuMarker() {
+/**
+ * 선택 표식. 라벨은 가운데 그대로 두고 왼쪽에 얹는다. 기본 선택(첫 항목)에는 늘 붙어
+ * 있고, 나머지는 hover·키보드 선택에서만 떠오른다 — 금빛은 고른 것 하나의 자리다.
+ */
+function MenuMarker({ always }: { always: boolean }) {
   return (
     <span
       aria-hidden
-      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-memory opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+      className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-memory transition-opacity ${
+        always
+          ? "opacity-100"
+          : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+      }`}
     >
       ▶
     </span>
@@ -191,18 +204,17 @@ export function TitleScreen() {
        * 읽고 Tab이 그리로 들어간다.
        */
       inert={!booted}
-      className="absolute inset-0 z-40 overflow-y-auto overscroll-contain backdrop-blur-[2px]"
+      className="absolute inset-0 z-40 overflow-y-auto overscroll-contain"
     >
       <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-6 py-10">
-        {/* 글자 뒤만 눌러 주는 어둠. 방 가장자리는 그대로 드러난다.
-            베일은 방을 가리는 게 아니라 글씨를 읽히게 하는 정도까지만 — 흐림을 줄이고
-            어둠은 가운데로 모아(radial) 글자 뒤만 눌러 준다. */}
+        {/* 글자 뒤 가운데만 은은하게 눌러 주는 어둠. 방은 흐리지 않고 윤곽 그대로 둔다 —
+            방이 배경의 얼룩이 아니라 이 화면의 공간이어야 한다. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(68% 54% at 50% 46%, color-mix(in srgb, var(--color-scene-void) 72%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 48%, transparent) 55%, color-mix(in srgb, var(--color-scene-void) 22%, transparent) 100%)",
+              "radial-gradient(46% 42% at 50% 46%, color-mix(in srgb, var(--color-scene-void) 70%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 42%, transparent) 55%, transparent 100%)",
           }}
         />
 
@@ -233,27 +245,28 @@ export function TitleScreen() {
           className="relative flex w-56 flex-col items-stretch gap-1"
         >
           {items.map((item, index) => (
-            <button
-              key={item.key}
-              ref={(el) => {
-                itemsRef.current[index] = el;
-              }}
-              type="button"
-              onClick={item.onSelect}
-              className={MENU_ITEM_CLASS}
-            >
-              <MenuMarker />
-              {item.label}
-            </button>
+            <Fragment key={item.key}>
+              <button
+                ref={(el) => {
+                  itemsRef.current[index] = el;
+                }}
+                type="button"
+                onClick={item.onSelect}
+                // 첫 항목이 기본 선택이다 — 아이보리에 앰버 표식이 늘 붙고, 나머지는 한 단계 낮다
+                className={`${MENU_ITEM_CLASS} ${index === 0 ? "text-ivory" : "text-ivory/55 hover:text-ivory focus-visible:text-ivory active:text-ivory"}`}
+              >
+                <MenuMarker always={index === 0} />
+                {item.label}
+              </button>
+              {/* 이어하는 판이면 어디까지 왔는지 이어하기 바로 아래에 — 무엇의 설명인지 붙어 있어야 한다 */}
+              {hasSave && index === 0 ? (
+                <p className="-mt-1 mb-1 text-center text-xs text-fog">
+                  {t("titleScreen.saved", { count: collectedCount })}
+                </p>
+              ) : null}
+            </Fragment>
           ))}
         </nav>
-
-        {/* 이어하는 판이면 어디까지 왔는지 알려준다 — 눌러 보고 알게 하면 늦다 */}
-        {hasSave ? (
-          <p className="relative -mt-4 text-xs font-medium tracking-[0.06em] text-memory">
-            {t("titleScreen.saved", { count: collectedCount })}
-          </p>
-        ) : null}
 
         {/*
           조작 안내는 "이동"과 "조사" 두 덩어리다. 한 문장으로 이어 두면 좁은 화면에서
@@ -267,7 +280,7 @@ export function TitleScreen() {
 
         {/* 게임 바깥의 것(언어)은 메뉴와 떼어 흐름의 마지막에 둔다 */}
         <footer className="relative mt-4 flex flex-col items-center gap-2">
-          <LanguageToggle tone="dark" />
+          <LanguageToggle tone="bare" />
         </footer>
       </div>
 

@@ -133,7 +133,10 @@ export function PlaybackScene() {
       <div
         className={`absolute inset-0 grid place-items-center transition-opacity duration-700 ${
           stage === "cuts" ? "opacity-100" : "opacity-0"
-        } ${isCutscene ? "" : "pb-56"}`}
+        } ${
+          // 다시보기 스틸은 위로는 제목 아래, 아래로는 대사창 위 한 뼘(24px 안팎)을 비운다
+          isCutscene ? "" : "pt-16 pb-60"
+        }`}
       >
         {showPlate && (
           <div
@@ -150,8 +153,9 @@ export function PlaybackScene() {
                 alt=""
                 draggable={false}
                 onError={() => setMissing((ids) => (ids.includes(image) ? ids : [...ids, image]))}
+                // 다시보기 스틸은 통째로 보인다 — 잘라 채우면 사진 윗단이 화면 밖으로 나간다
                 className={`absolute inset-0 size-full select-none ${
-                  cut?.fit === "contain" ? "object-contain" : "object-cover"
+                  cut?.fit === "contain" || !isCutscene ? "object-contain" : "object-cover"
                 }`}
               />
             )}

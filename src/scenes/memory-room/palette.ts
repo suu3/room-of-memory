@@ -73,14 +73,48 @@ const TOKEN_BY_KEY = {
   sun: "--color-scene-sun",
 } as const satisfies Record<keyof RoomPalette, string>;
 
+/**
+ * globals.css의 값을 그대로 옮긴 폴백. 개발 서버에서 CSS 청크가 캔버스보다 늦게 붙으면
+ * 토큰이 빈 문자열로 읽히고, 그 값을 받은 캔버스 그라디언트(addColorStop)가 던져서
+ * 방이 통째로 사라졌다. 토큰이 비어 있을 때만 쓰고, 값을 바꿀 때는 CSS와 같이 고친다.
+ */
+const FALLBACK: Record<keyof RoomPalette, string> = {
+  memory: "#d5ae78",
+  ember: "#b8655a",
+  wall: "#34465e",
+  wallFaded: "#3d5069",
+  floor: "#626c7d",
+  wood: "#998572",
+  frame: "#354052",
+  fabric: "#6c809e",
+  linen: "#bab4a7",
+  trim: "#a4a6a1",
+  amber: "#bc9363",
+  clay: "#a57565",
+  sage: "#809289",
+  storm: "#2a3d48",
+  abyss: "#121c24",
+  coal: "#17202a",
+  deep: "#0f181e",
+  void: "#060a10",
+  daylight: "#c4d0de",
+  sun: "#f3c98e",
+};
+
 export function resolveRoomPalette(): RoomPalette {
   const styles = getComputedStyle(document.documentElement);
-  const read = (token: string) => styles.getPropertyValue(token).trim();
+  const read = (key: keyof RoomPalette) => {
+    const value = styles.getPropertyValue(TOKEN_BY_KEY[key]).trim();
+    if (value !== "") return value;
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        `씬 팔레트 토큰 ${TOKEN_BY_KEY[key]}이 비어 있어 폴백을 쓴다 — CSS가 아직 안 붙었는가?`,
+      );
+    }
+    return FALLBACK[key];
+  };
 
   return Object.fromEntries(
-    (Object.keys(TOKEN_BY_KEY) as (keyof RoomPalette)[]).map((key) => [
-      key,
-      read(TOKEN_BY_KEY[key]),
-    ]),
+    (Object.keys(TOKEN_BY_KEY) as (keyof RoomPalette)[]).map((key) => [key, read(key)]),
   ) as Record<keyof RoomPalette, string>;
 }

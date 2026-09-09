@@ -7,9 +7,10 @@ import { phaseConfigOf } from "@/data/memory-room";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
+import { MinigameHelp } from "@/minigames/shell";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
 import { SuccessBurst } from "./SuccessBurst";
-import { BUTTON_PRIMARY, HUD_ICON_BUTTON_SOLID, PANEL_DARK } from "./ui-classes";
+import { BUTTON_PRIMARY, HUD_ICON_BUTTON_SOLID, PANEL_FRAME } from "./ui-classes";
 
 /**
  * overlay 모드 미니게임 호스트. canvas 모드는 3D 씬 도입 전까지 스킵 처리(진행이
@@ -113,7 +114,8 @@ export function MinigameHost() {
           inert={resultStage}
           className={`absolute inset-0 z-40 grid place-items-center ${
             // 탐색형은 방을 덜 가린다 — 물건을 든 채로도 방이 보여야 "그 방 안"이다.
-            bare ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-sm"
+            // 뒤쪽 방이 완전히 사라질 만큼 뭉개지 않는다 (3px)
+            bare ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-[3px]"
           } ${resultStage ? "bg-scene-void/75 pb-56" : bare ? "" : "bg-scene-void/40"}`}
           onPointerDown={(event) => {
             if (event.target !== event.currentTarget || sealed || started) return;
@@ -123,44 +125,49 @@ export function MinigameHost() {
           {/*
             닫기. 백드롭이 잠긴 동안 유일하게 남는 출구라 늘 보인다 — 스킵(건너뛰기)은
             일정 시간이 지나야 뜨고 의미도 다르다(스킵은 수집으로 친다, 닫기는 아니다).
+            프레임이 있는 게임은 그 우측 상단 모서리에 모으고, 틀 없이 물건만 떠오르는
+            탐색형은 화면 구석에 둔다.
           */}
-          {started && !sealed && (
-            <button
-              type="button"
-              aria-label={t("minigame.close")}
-              onPointerDown={(event) => event.stopPropagation()}
-              onClick={() => {
-                playSound("close");
-                cancelMinigame();
-              }}
-              className={`absolute right-4 top-4 z-10 ${HUD_ICON_BUTTON_SOLID}`}
-            >
-              <X size={20} weight="bold" />
-            </button>
-          )}
           {started ? (
-            <Suspense fallback={null}>
-              <Minigame
-                gamePhase={active.gamePhase}
-                stage={resultStage ? "result" : "play"}
-                onSettled={() => setSettledKey(activeKey)}
-                onComplete={(result) => {
-                  playSound(result.cleared ? "success" : "fail");
-                  if (result.cleared && !result.celebrated) setBurstId((id) => id + 1);
-                  finishMinigame(result);
-                }}
-              />
-            </Suspense>
+            <div className="relative">
+              {!sealed && (
+                <button
+                  type="button"
+                  aria-label={t("minigame.close")}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={() => {
+                    playSound("close");
+                    cancelMinigame();
+                  }}
+                  className={`${bare ? "fixed right-4 top-4" : "absolute right-3 top-3"} z-10 ${HUD_ICON_BUTTON_SOLID}`}
+                >
+                  <X size={20} weight="bold" />
+                </button>
+              )}
+              <Suspense fallback={null}>
+                <Minigame
+                  gamePhase={active.gamePhase}
+                  stage={resultStage ? "result" : "play"}
+                  onSettled={() => setSettledKey(activeKey)}
+                  onComplete={(result) => {
+                    playSound(result.cleared ? "success" : "fail");
+                    if (result.cleared && !result.celebrated) setBurstId((id) => id + 1);
+                    finishMinigame(result);
+                  }}
+                />
+              </Suspense>
+            </div>
           ) : (
             <div
-              className={`w-[38rem] max-w-[94vw] animate-fade-rise p-6 text-center sm:p-8 ${PANEL_DARK}`}
+              className={`w-[38rem] max-w-[94vw] animate-fade-rise p-6 text-center sm:p-8 ${PANEL_FRAME}`}
             >
               <h2 className="break-ko text-xl font-medium leading-snug text-ivory">
                 {t(hosted.titleKey)}
               </h2>
-              <p className="mt-3 break-ko text-pretty text-[0.9375rem] leading-normal text-fog">
-                {hint(hosted.helpKey)}
-              </p>
+              <MinigameHelp
+                help={hint(hosted.helpKey)}
+                className="mt-3 break-ko text-pretty text-[0.9375rem] leading-normal text-fog"
+              />
               {/*
                 플레이 방법. 카드가 가운데 정렬이라 목록만 왼쪽으로 세운다 —
                 가운데 정렬된 여러 줄은 줄머리가 들쭉날쭉해서 읽는 순서가 안 잡힌다.
