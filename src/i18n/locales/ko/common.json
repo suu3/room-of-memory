@@ -7,7 +7,15 @@
     "contact": "만든 사람",
     "reset": "리셋",
     "soundOn": "소리 켜짐",
-    "soundOff": "소리 꺼짐"
+    "soundOff": "소리 꺼짐",
+    "guide": {
+      "examine": "빛나는 물건을 클릭해 조사하세요",
+      "examine_touch": "빛나는 물건을 탭해 조사하세요",
+      "door": "빛나는 방문을 열고 나가 보세요",
+      "revisit": "물건을 다시 조사해 그날을 되짚으세요",
+      "bat": "현관 옆 배트를 집으세요",
+      "exit": "현관문으로 나가세요"
+    }
   },
   "door": {
     "locked": "잠긴 문",

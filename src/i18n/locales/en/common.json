@@ -7,7 +7,15 @@
     "contact": "Credits",
     "reset": "Reset",
     "soundOn": "Sound on",
-    "soundOff": "Sound off"
+    "soundOff": "Sound off",
+    "guide": {
+      "examine": "Click a glowing object to examine it",
+      "examine_touch": "Tap a glowing object to examine it",
+      "door": "Open the glowing door and step out",
+      "revisit": "Examine things again to retrace that day",
+      "bat": "Pick up the bat by the front door",
+      "exit": "Leave through the front door"
+    }
   },
   "door": {
     "locked": "Locked Door",

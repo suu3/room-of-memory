@@ -31,6 +31,7 @@ import { DialogueBox } from "./DialogueBox";
 import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
 import { FeedbackModal } from "./FeedbackModal";
+import { HudGuide } from "./HudGuide";
 import { HudMenu } from "./HudMenu";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
@@ -184,6 +185,8 @@ export function MemoryRoom() {
                 />
               ))}
             </div>
+            {/* 지금 할 일 한 줄: 막마다 문구가 바뀐다 (HudGuide) */}
+            <HudGuide />
           </div>
         </header>
       )}
