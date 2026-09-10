@@ -338,9 +338,8 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
           <SofaCushion key={cushion.seat} palette={palette} cushion={cushion} />
         ))}
       </LivingPiece>
-      <LivingPiece anchor={LIVING_ANCHORS.tv}>
-        <Boxes parts={TV_PARTS} palette={palette} />
-      </LivingPiece>
+      {/* TV는 1배 그대로: 키운 소파와 마주 보는 비율이 이쪽이 맞다 */}
+      <Boxes parts={TV_PARTS} palette={palette} />
       <LivingPiece anchor={LIVING_ANCHORS.dining} at={LIVING_DINING_CENTER}>
         <Boxes parts={TABLE_PARTS} palette={palette} />
       </LivingPiece>

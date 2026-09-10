@@ -114,7 +114,8 @@ export const DOORWAY_ZONE: Aabb2 = { minX: -7.4, maxX: -4.6, minZ: 4.7, maxZ: 6.
  */
 /**
  * 거실 가구 배율. 실측 비율로 짠 가구(소파 2.8m, 냉장고 1.8m)가 10.5m 거실에서는
- * 미니어처처럼 작아 보여 통째로 키운다. 배트(BAT_PLACEMENT)와 문은 제외.
+ * 미니어처처럼 작아 보여 통째로 키운다. 배트(BAT_PLACEMENT)·문·TV는 제외
+ * (TV는 1배가 소파와의 비율이 맞아 원래 크기로 둔다).
  *
  * 부품 좌표는 LivingRoomFurniture에 1배 기준으로 남겨 두고, 그리는 쪽이 가구마다
  * 정한 **바닥 기준점**(벽에 붙은 가구는 벽 면)을 축으로 키운다. 발자국·좌석·기억
@@ -128,7 +129,6 @@ export const LIVING_FURNITURE_SCALE = 1.3;
  */
 export const LIVING_ANCHORS = {
   sofa: [-9.5, -4],
-  tv: [-9.5, 6.5],
   dining: [-13.8, 3.8],
   shoeCabinet: [-16.5, 0.27],
   fridge: [-15.32, -4],
@@ -185,7 +185,7 @@ export const LIVING_DINING_CHAIRS = [
 /** 발자국은 1배 값을 적고 가구와 같은 기준점으로 키운다. 인형만 키운 소파 옆으로 손수 옮겼다. */
 export const LIVING_COLLIDERS = [
   scaleLivingAabb(LIVING_ANCHORS.sofa, { minX: -10.95, maxX: -8.05, minZ: -4, maxZ: -2.2 }), // sofa
-  scaleLivingAabb(LIVING_ANCHORS.tv, { minX: -10.75, maxX: -8.25, minZ: 5.9, maxZ: 6.5 }), // tv stand
+  { minX: -10.75, maxX: -8.25, minZ: 5.9, maxZ: 6.5 }, // tv stand (1배 그대로)
   scaleLivingAabb(
     LIVING_ANCHORS.dining,
     { minX: -14.75, maxX: -12.85, minZ: 2.3, maxZ: 4.75 },
@@ -385,6 +385,9 @@ export const CLUE_PROPS = {
   },
 } as const;
 
+/** 소파 앞 야구 가방의 배율. 가구(1.3)보다 크게 잡아야 바닥에서 눈에 든다. */
+const DUFFEL_SCALE = 1.6;
+
 /** 거실 가구 위에 얹는 기억의 자리: 1배 좌표를 가구와 같은 기준점으로 키운다. */
 function livingSpot(anchor: readonly [number, number], x: number, y: number, z: number): Vec3Tuple {
   const [sx, sz] = scaleLivingPoint(anchor, x, z);
@@ -512,13 +515,14 @@ export const MEMORY_PLACEMENTS = {
     id: "duffel",
     // 소파 앞 바닥에 던져둔 야구 가방. 사방이 트여 있어 다가가기 쉽다. 키운 소파의
     // 앞턱(z -2.25)에서 한 걸음 앞: 붙이면 클릭 구가 가운데 쿠션의 앉는 자리를 문다.
+    // 가구 배율보다 더 키운다: 바닥에 홀로 놓인 물건이라 같은 배율로는 작아 보인다.
     // 몸통 반지름(0.19×배율)만큼 띄워 바닥에 얹는다.
-    // 클릭 구는 가방(길이 0.8)만 덮는 0.7: 1.3이면 소파 왼쪽 쿠션까지 덮어 앉지 못한다
-    position: [-9.5, 0.19 * LIVING_FURNITURE_SCALE + 0.01, -1.25],
+    // 클릭 구는 가방(길이 1.0)만 덮는 0.8: 더 크면 소파 쿠션의 앉는 자리까지 덮어 앉지 못한다
+    position: [-9.5, 0.19 * DUFFEL_SCALE + 0.01, -1.15],
     rotation: [0, 0.42, 0],
-    scale: LIVING_FURNITURE_SCALE,
+    scale: DUFFEL_SCALE,
     interactionRadius: 1.3,
-    hitRadius: 0.7,
+    hitRadius: 0.8,
   },
   shoes: {
     id: "shoes",
@@ -596,7 +600,7 @@ export const CAMERA_PRESETS = {
    */
   // 거실 기억의 시선은 키운 가구의 자리(MEMORY_PLACEMENTS)를 본다
   fridge: { position: [-12.7, 3.2, -0.5], target: [-15.32, 1.5, -3.0] },
-  duffel: { position: [-6.9, 2.2, 1.3], target: [-9.5, 0.3, -1.25] },
+  duffel: { position: [-6.9, 2.2, 1.4], target: [-9.5, 0.35, -1.15] },
   shoes: { position: [-13.2, 2.6, 1.3], target: [-15.73, 0.75, -0.97] },
   cards: { position: [-10.6, 2.8, 6.0], target: [-13.2, 1.3, 3.4] },
   ampoule: { position: [-13.0, 2.4, -0.8], target: [-15.32, 0.6, -3.0] },
