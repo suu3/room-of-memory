@@ -10,11 +10,11 @@ import { SuccessBurst } from "./SuccessBurst";
 import { HUD_ICON_BUTTON_SOLID } from "./ui-classes";
 
 /**
- * 미궁 문제 호스트 — 기억 인터랙션 밖에서 도는 미니게임 (거실의 식탁 트럼프,
+ * 미궁 문제 호스트: 기억 인터랙션 밖에서 도는 미니게임 (거실의 식탁 트럼프,
  * 현관 잠금장치).
  *
  * MinigameHost와 닮았지만 더 단순하다: 시작 카드가 없고(미궁은 규칙 설명이
- * 없는 게 규칙이라 카드에 적을 것도 없다 — 그림을 바로 들이민다), 결과 대사
+ * 없는 게 규칙이라 카드에 적을 것도 없다. 그림을 바로 들이민다), 결과 대사
  * 단계도 없다(대사가 안 딸린다). 풀리면 solvedPuzzles에 남고 그걸로 끝이다.
  */
 export function PuzzleHost() {
@@ -22,7 +22,7 @@ export function PuzzleHost() {
   const active = useMemoryRoomStore((state) => state.activePuzzle);
   const finishPuzzle = useMemoryRoomStore((state) => state.finishPuzzle);
   const closePuzzle = useMemoryRoomStore((state) => state.closePuzzle);
-  /** 결과가 확정돼 더는 닫을 수 없는 문제 id (onSettled — src/types/minigame.ts). */
+  /** 결과가 확정돼 더는 닫을 수 없는 문제 id (onSettled: src/types/minigame.ts). */
   const [settledId, setSettledId] = useState<string | null>(null);
   const [burstId, setBurstId] = useState(0);
 
@@ -30,7 +30,7 @@ export function PuzzleHost() {
   const hosted = definition?.mode === "overlay" ? definition : undefined;
   const sealed = settledId !== null && settledId === active;
 
-  // 미등록 id로는 판을 세울 수 없다 — 조용히 닫아서 진행이 막히지 않게 한다
+  // 미등록 id로는 판을 세울 수 없다. 조용히 닫아서 진행이 막히지 않게 한다
   useEffect(() => {
     if (active && !hosted) closePuzzle();
   }, [active, hosted, closePuzzle]);
@@ -57,12 +57,12 @@ export function PuzzleHost() {
         <div
           className="absolute inset-0 z-40 grid place-items-center bg-scene-void/40 backdrop-blur-sm"
           onPointerDown={(event) => {
-            // 입력칸이 있는 문제라 판이 서면 백드롭으로는 안 닫힌다 — 닫기 버튼만 남는다
+            // 입력칸이 있는 문제라 판이 서면 백드롭으로는 안 닫힌다. 닫기 버튼만 남는다
             if (event.target !== event.currentTarget || sealed) return;
             closePuzzle();
           }}
         >
-          {/* 닫기는 프레임 우측 상단 모서리에 — 화면 구석에 두면 틀과 떨어져 떠 있는다 */}
+          {/* 닫기는 프레임 우측 상단 모서리에: 화면 구석에 두면 틀과 떨어져 떠 있는다 */}
           <div className="relative">
             {!sealed && (
               <button

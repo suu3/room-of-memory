@@ -15,7 +15,7 @@ import {
 
 const MEMORY_TOTAL = 7;
 const atCollected = (collected: number) => ({ memoryTotal: MEMORY_TOTAL, collected, recovery: 0 });
-/** 2막 진행도(0~1) — 스토어의 actTwoProgress가 넘겨주는 값과 같은 축이다. */
+/** 2막 진행도(0~1): 스토어의 actTwoProgress가 넘겨주는 값과 같은 축이다. */
 const atRecovery = (recovery: number) => ({
   memoryTotal: MEMORY_TOTAL,
   collected: MEMORY_TOTAL,
@@ -39,7 +39,7 @@ describe("memory-room visual state", () => {
     expect(shouldHighlightMemory("done", "console", null, true)).toBe(false);
   });
 
-  it("이 바퀴에 없는 기억은 흐리지 않는다 — 잠긴 게 아니라 가구다", () => {
+  it("이 바퀴에 없는 기억은 흐리지 않는다. 잠긴 게 아니라 가구다", () => {
     // 1바퀴의 컴퓨터: phase1이 없어 status는 locked지만 이 바퀴의 물건이 아니다
     expect(memoryOpacity("locked", false)).toBe(1);
     // 같은 바퀴 안에서 순서를 기다리는 기억은 흐려야 "곧 열린다"가 보인다
@@ -69,7 +69,7 @@ describe("memory-room visual state", () => {
     expect(curve.at(-1)).toBe(1);
   });
 
-  it("전환점에서 밝기가 끊기지 않는다 — 1막 끝과 2막 시작이 같은 값", () => {
+  it("전환점에서 밝기가 끊기지 않는다. 1막 끝과 2막 시작이 같은 값", () => {
     expect(roomLightLevel(atCollected(7))).toBe(roomLightLevel(atRecovery(0)));
   });
 
@@ -79,7 +79,7 @@ describe("memory-room visual state", () => {
     expect(roomStageIndex(1, 2)).toBe(2);
   });
 
-  it("2막은 dim 단계를 건너뛴다 — 그 단계의 독백은 1막의 말이다", () => {
+  it("2막은 dim 단계를 건너뛴다. 그 단계의 독백은 1막의 말이다", () => {
     // "심심하네, 뭐부터 해볼까"가 추리 중에 뜨면 2막의 톤이 무너진다
     expect(roomStageIndex(0.1, 2)).toBe(0);
     expect(roomStageIndex(0.3, 2)).toBe(2);
@@ -90,7 +90,7 @@ describe("memory-room visual state", () => {
     // 완전히 0이면 스위치를 다시 누를 수조차 없다
     expect(lampScaled(1, false)).toBeGreaterThan(0);
     expect(lampScaled(1, false)).toBeLessThan(lampScaled(1, true));
-    // 켜져 있을 때는 아무것도 건드리지 않는다 — 기존 밝기가 그대로여야 한다
+    // 켜져 있을 때는 아무것도 건드리지 않는다. 기존 밝기가 그대로여야 한다
     expect(lampScaled(0.62, true)).toBe(0.62);
     expect(lampScaled(0, false)).toBe(0);
   });
@@ -103,7 +103,7 @@ describe("memory-room visual state", () => {
       expect(roomLightValue(ramp, -1)).toBe(ramp[0]);
       expect(roomLightValue(ramp, 2)).toBe(ramp[1]);
     }
-    // 비네트만 반대 방향 — 어두울수록 조여든다
+    // 비네트만 반대 방향: 어두울수록 조여든다
     expect(ROOM_LIGHT_RAMP.vignette[0]).toBeGreaterThan(ROOM_LIGHT_RAMP.vignette[1]);
   });
 
@@ -127,7 +127,7 @@ describe("outsideDecay", () => {
     expect(outsideDecay({ collected: memoryTotal, memoryTotal, phase: 1 })).toBe(1);
   });
 
-  it("stays at the bottom through the second loop — the room brightens, the street does not", () => {
+  it("stays at the bottom through the second loop: the room brightens, the street does not", () => {
     expect(outsideDecay({ collected: 0, memoryTotal, phase: 2 })).toBe(1);
     expect(outsideDecay({ collected: memoryTotal, memoryTotal, phase: 2 })).toBe(1);
   });
@@ -155,7 +155,7 @@ describe("roomLightMix", () => {
   it("2막에는 볕이 회복도를 따르고 간접광은 낮게 남는다", () => {
     expect(act2(0.5).warm).toBe(0.5);
     expect(act2(1).warm).toBe(1);
-    // 되찾아도 방 전체가 밝아지지는 않는다 — 구석은 차갑게 남는다
+    // 되찾아도 방 전체가 밝아지지는 않는다. 구석은 차갑게 남는다
     expect(act2(1).cool).toBeLessThan(ENTRY_LIGHT_LEVEL / 2);
     expect(act2(1).cool).toBeGreaterThan(act2(0).cool);
   });

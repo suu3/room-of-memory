@@ -17,7 +17,7 @@ import { useEffect, useRef, useState } from "react";
  *
  * 기어오르는 데는 상한이 있다. 아직 아무것도 안 받았는데 90%를 그리면 그건 거짓말이고,
  * 남은 10%에서 영원히 기다리는 것이 계단보다 나쁘다. 남은 구간의 몫으로 잘라 두면
- * 상한이 저절로 감속한다 — 0%에서는 38%까지, 80%에서는 88%까지.
+ * 상한이 저절로 감속한다. 0%에서는 38%까지, 80%에서는 88%까지.
  */
 
 /** 보고가 앞서 있을 때 따라붙는 속도(1/초). 계단 하나를 0.3초쯤에 삼킨다. */
@@ -26,7 +26,7 @@ const CATCH_UP_LAMBDA = 7;
 /**
  * 다 받은 뒤 100%까지 닫는 속도(1/초).
  *
- * 따라붙는 속도보다 빠르다. 이 구간은 커튼이 걷히기를 기다리는 시간이라 — 바를
+ * 따라붙는 속도보다 빠르다. 이 구간은 커튼이 걷히기를 기다리는 시간이라: 바를
  * 다 채우는 걸 보여주는 값어치는 있지만, 그 이상 붙들고 있으면 그냥 지연이다.
  */
 const FINISH_LAMBDA = 12;
@@ -40,7 +40,7 @@ const CREEP_SHARE = 0.38;
 /**
  * 목표와 이만큼 가까워지면 붙여 버린다.
  *
- * 지수 감쇠는 목표에 영원히 도달하지 않는다 — 못을 박아 두지 않으면 100%가 0.9998에
+ * 지수 감쇠는 목표에 영원히 도달하지 않는다. 못을 박아 두지 않으면 100%가 0.9998에
  * 멈춰 서고, 그걸 기다리는 커튼도 같이 안 걷힌다.
  */
 const SNAP = 0.002;
@@ -77,14 +77,14 @@ export function advanceLoadProgress({
   const lambda = behind ? CATCH_UP_LAMBDA : CREEP_LAMBDA;
 
   const next = damp(shown, goal, lambda, deltaSeconds);
-  // 되감기 금지 — 바가 뒤로 가면 다 됐다고 생각한 사람이 다시 기다린다.
+  // 되감기 금지: 바가 뒤로 가면 다 됐다고 생각한 사람이 다시 기다린다.
   if (next <= shown) return shown;
   return goal - next < SNAP ? goal : next;
 }
 
 /**
  * 보고값을 흐르는 값으로 바꿔 준다. 프레임마다 setState 하지만 여기는 DOM이라
- * 괜찮다 — useFrame 안에서 금지된 것과는 다른 자리다 (.claude/rules/r3f.md).
+ * 괜찮다. useFrame 안에서 금지된 것과는 다른 자리다 (.claude/rules/r3f.md).
  *
  * 다 차면 루프를 놓는다. 로딩이 끝난 뒤에도 rAF가 돌고 있으면 방이 그 프레임을 나눠 쓴다.
  */
@@ -96,7 +96,7 @@ export function useSmoothLoadProgress(target: number): number {
 
   useEffect(() => {
     let frame = 0;
-    /** 첫 프레임에는 흐른 시간을 모른다 — 기준 시각만 잡고 값은 건드리지 않는다. */
+    /** 첫 프레임에는 흐른 시간을 모른다. 기준 시각만 잡고 값은 건드리지 않는다. */
     let last: number | null = null;
 
     const tick = (now: number) => {

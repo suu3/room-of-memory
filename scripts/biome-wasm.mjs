@@ -1,5 +1,5 @@
 /*
- * 스테이징된 파일을 Biome로 검사한다 — 단, CLI가 아니라 WASM 빌드로.
+ * 스테이징된 파일을 Biome로 검사한다. 단, CLI가 아니라 WASM 빌드로.
  *
  * `biome.exe`는 서명이 없어서 Windows Smart App Control이 실행 자체를 막는다
  * ("An Application Control policy has blocked this file"). SAC는 예외 목록이
@@ -48,11 +48,11 @@ function git(args) {
 
 /*
  * 기본은 스테이징된 것만(훅), `--all`이면 git이 아는 파일 전부(`pnpm lint:wasm`).
- * 스테이징 모드에서는 워킹 트리가 아니라 **스테이징된 내용**을 읽는다 — 커밋되는
+ * 스테이징 모드에서는 워킹 트리가 아니라 **스테이징된 내용**을 읽는다. 커밋되는
  * 것이 그것이고, CLI의 `biome check --staged`도 그렇게 본다.
  */
 const CHECK_ALL = process.argv.includes("--all");
-/** `biome check --write`에 해당. 안전한 수정만 적용한다 — 훅에서는 쓰지 않는다. */
+/** `biome check --write`에 해당. 안전한 수정만 적용한다. 훅에서는 쓰지 않는다. */
 const WRITE = process.argv.includes("--write");
 
 function listFiles() {
@@ -73,7 +73,7 @@ function contentOf(file) {
  * Biome의 도메인(react/next/test)은 CLI가 package.json 의존성을 보고 알아서 켠다.
  * WASM 워크스페이스에는 파일 시스템이 없어 그 감지가 통째로 빠지고, 그러면
  * useExhaustiveDependencies·noArrayIndexKey 같은 react 도메인 규칙이 조용히 안
- * 돈다 — 규칙이 안 도니 그 규칙을 향한 biome-ignore가 전부 "쓸모없는 억제"로
+ * 돈다. 규칙이 안 도니 그 규칙을 향한 biome-ignore가 전부 "쓸모없는 억제"로
  * 잘못 잡히기까지 한다. 그래서 감지를 여기서 대신 해 준다.
  */
 const DOMAIN_BY_DEPENDENCY = { next: "next", react: "react", vitest: "test" };
@@ -94,7 +94,7 @@ function detectDomains() {
 function loadConfiguration() {
   const raw = JSON.parse(readFileSync(CONFIG_PATH, "utf8"));
   // $schema는 편집기용 힌트라 워크스페이스가 모르는 키다. vcs는 파일 시스템을
-  // 전제하므로 WASM 워크스페이스에서는 뺀다 — 제외는 아래에서 직접 처리한다.
+  // 전제하므로 WASM 워크스페이스에서는 뺀다. 제외는 아래에서 직접 처리한다.
   const { $schema, vcs, ...configuration } = raw;
   const excludes = (configuration.files?.includes ?? [])
     .filter((pattern) => pattern.startsWith("!"))
@@ -123,7 +123,7 @@ if (files.length === 0) {
 
 /*
  * 진단을 한 줄로 찍는다. js-api의 printDiagnostics는 이름과 달리 HTML을 뱉어서
- * 터미널에서는 태그만 쏟아진다 — 훅이 읽히려면 파일:줄:칸과 규칙 이름이면 된다.
+ * 터미널에서는 태그만 쏟아진다. 훅이 읽히려면 파일:줄:칸과 규칙 이름이면 된다.
  */
 function formatDiagnostic(file, source, diagnostic) {
   const [start] = diagnostic.location?.span ?? [];
@@ -189,14 +189,14 @@ biome.shutdown();
 
 if (WRITE) {
   process.stderr.write(
-    `✔ Biome(WASM) 수정 — ${fixedCount}개 고침 / 검사한 파일 ${files.length}개.\n`,
+    `✔ Biome(WASM) 수정: ${fixedCount}개 고침 / 검사한 파일 ${files.length}개.\n`,
   );
   process.exit(0);
 }
 
 if (failed) {
-  process.stderr.write(`\n✖ Biome(WASM) 검사에서 막혔습니다 — 검사한 파일 ${files.length}개.\n`);
+  process.stderr.write(`\n✖ Biome(WASM) 검사에서 막혔습니다. 검사한 파일 ${files.length}개.\n`);
   process.exit(1);
 }
 
-process.stderr.write(`✔ Biome(WASM) 통과 — 검사한 파일 ${files.length}개.\n`);
+process.stderr.write(`✔ Biome(WASM) 통과: 검사한 파일 ${files.length}개.\n`);

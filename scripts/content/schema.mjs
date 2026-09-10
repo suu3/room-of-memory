@@ -2,7 +2,7 @@
  * 콘텐츠 저작 파일(content/*.yaml)의 스키마 상수.
  *
  * 로더·검증기·생성기와 어드민이 같은 값을 본다. 새 화자나 새 아이콘을 쓰려면
- * 여기 먼저 추가한다 — 오타가 빌드까지 가지 않게 막는 관문이다.
+ * 여기 먼저 추가한다. 오타가 빌드까지 가지 않게 막는 관문이다.
  */
 
 /** i18n 리소스가 있는 언어. 모든 대사는 이 셋을 전부 채워야 한다. */
@@ -48,8 +48,22 @@ export const ICONS = [
   "Television",
 ];
 
-/** 방 단계 id. src/data/memory-room.ts의 ROOM_STAGES와 순서·이름이 같아야 한다. */
-export const STAGE_IDS = ["dark", "dim", "gold"];
+/**
+ * 독백 구간 id. 진행도(조사 개수)로 갈리며, 어느 구간을 쓸지는
+ * src/data/monologue.ts의 monologueIdFor가 정한다. 거기 MONOLOGUE_IDS와 같아야 한다.
+ */
+export const STAGE_IDS = [
+  "p1-0",
+  "p1-1",
+  "p1-3",
+  "p1-5",
+  "p1-7",
+  "p2-0",
+  "p2-1",
+  "p2-4",
+  "p2-8",
+  "p2-11",
+];
 
 /** 저작 파일과 그 안의 최상위 키. */
 export const SOURCES = {
@@ -65,5 +79,5 @@ export const PHASE_KEYS = ["script", "minigame", "resultScript", "unlockAfter", 
 /** 기억 항목에서 허용하는 키. */
 export const MEMORY_KEYS = ["id", "icon", "lore", "phase1", "phase2"];
 
-/** id로 쓸 수 있는 형태 — kebab-case. 파일명·i18n 키·CSS 선택자에 그대로 들어간다. */
+/** id로 쓸 수 있는 형태: kebab-case. 파일명·i18n 키·CSS 선택자에 그대로 들어간다. */
 export const ID_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;

@@ -3,6 +3,7 @@
 import type { ParseKeys } from "i18next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
 import { playSound, startNoiseBed } from "@/lib/audio";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 
@@ -12,14 +13,88 @@ const STATIC_MS = 1100;
 const BLACKOUT_MS = 900;
 
 /**
- * 컷씬이 도는 세 국면. 그림이 뜨기 전에 라디오가 확실히 죽어야 한다 —
+ * 컷씬이 도는 세 국면. 그림이 뜨기 전에 라디오가 확실히 죽어야 한다.
  * 나중의 재점화가 이질적으로 들리려면 "꺼졌다"가 먼저 성립해야 하기 때문이다.
  * 다시보기에는 도입이 없으므로 곧장 "cuts"에서 시작한다.
  */
 type Stage = "static" | "blackout" | "cuts";
 
+/** 파형 막대 수. 화면 폭을 채울 만큼이면서 막대 하나가 픽셀로 읽히는 굵기. */
+const WAVE_BARS = 56;
 /**
- * 대사와 그림만으로 도는 장면 — 전환 컷씬과 다시보기가 이 화면을 함께 쓴다.
+ * 막대마다 다른 지연·높이. 난수를 쓰지 않는다: 렌더마다 파형이 달라지면 리렌더 때
+ * 화면이 툭툭 튀고, 서버·클라이언트 첫 그림도 어긋난다. 정해진 수열이면 늘 같다.
+ */
+const WAVE_SHAPE = Array.from({ length: WAVE_BARS }, (_, index) => {
+  const phase = Math.sin(index * 12.9898) * 43758.5453;
+  const noise = phase - Math.floor(phase);
+  // 가운데가 높고 양끝이 낮은 봉우리 위에 잡음을 얹는다
+  const envelope = 0.35 + 0.65 * Math.sin((index / (WAVE_BARS - 1)) * Math.PI);
+  return { delay: noise * 1.9, height: 0.25 + 0.75 * envelope * (0.55 + 0.45 * noise) };
+});
+
+/**
+ * 그림이 아직 없는 컷 뒤에 까는 신호의 그림: 어두운 판 위의 파형, 스캔라인, 잡히다 말다
+ * 하는 라디오 램프. 게임 전체의 전환점(라디오 너머 첫 목소리)이 회색 판 하나로 지나가면
+ * 안 된다. 일러스트가 리포에 들어오면 그 위에 얹혀 이 층을 덮는다.
+ *
+ * 방송이 끊기는 도입(static)에서는 파형이 붉게 흔들리고, 목소리가 드는 컷에서는
+ * 금빛으로 가라앉는다. 같은 파형이 색만 바꿔 "죽은 신호"와 "다시 든 신호"를 가른다.
+ */
+function SignalVisual({ tone }: { tone: "dying" | "alive" }) {
+  const bar = tone === "dying" ? "bg-ember/70" : "bg-memory/80";
+  return (
+    <div aria-hidden className="absolute inset-0 overflow-hidden bg-scene-abyss">
+      {/* 가운데로 모이는 어둠. 그림 없는 판이 통짜 단색으로 읽히지 않게 */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(70% 55% at 50% 50%, color-mix(in srgb, var(--color-scene-storm) 85%, transparent) 0%, transparent 100%)",
+        }}
+      />
+      {/* 파형: 가운데 축을 두고 위아래로 대칭이라 막대는 세로 중앙에서 자란다 */}
+      <div className="absolute inset-x-[8%] top-1/2 flex h-[38%] -translate-y-1/2 items-center gap-[0.35%]">
+        {WAVE_SHAPE.map((shape, index) => (
+          <span
+            // biome-ignore lint/suspicious/noArrayIndexKey: 고정 길이 파형이라 자리 자체가 정체성이다.
+            key={index}
+            className={`animate-signal-wave block h-full flex-1 rounded-full ${bar}`}
+            style={{
+              animationDelay: `-${shape.delay.toFixed(2)}s`,
+              maxHeight: `${(shape.height * 100).toFixed(1)}%`,
+            }}
+          />
+        ))}
+      </div>
+      {/* 다이얼 눈금: 파형 아래 가는 줄 하나와 잘게 찍힌 눈금 */}
+      <div className="absolute inset-x-[8%] top-[72%] h-px bg-ivory/20" />
+      <div className="absolute inset-x-[8%] top-[72%] flex justify-between">
+        {Array.from({ length: 21 }, (_, index) => (
+          <span
+            // biome-ignore lint/suspicious/noArrayIndexKey: 눈금은 같은 것의 반복이다.
+            key={index}
+            className={`w-px bg-ivory/30 ${index % 5 === 0 ? "h-3" : "h-1.5"}`}
+          />
+        ))}
+      </div>
+      {/* 램프: 잡히다 말다 하는 신호. 도입에서는 붉게, 목소리가 들면 금빛으로 */}
+      <span
+        className={`animate-signal-lamp absolute left-[8%] top-[80%] size-2.5 rounded-full blur-[1px] ${
+          tone === "dying" ? "bg-ember" : "bg-memory"
+        }`}
+      />
+      <span className="absolute left-[11%] top-[79.4%] font-pixel text-[0.6rem] tracking-[0.3em] text-ivory/45">
+        {tone === "dying" ? "NO SIGNAL" : "SIGNAL"}
+      </span>
+      {/* 게임기 화면과 같은 주사선. 파형이 그림이 아니라 기계의 화면으로 읽히게 */}
+      <span className="duel-scanline pointer-events-none absolute inset-0 opacity-30" />
+    </div>
+  );
+}
+
+/**
+ * 대사와 그림만으로 도는 장면: 전환 컷씬과 다시보기가 이 화면을 함께 쓴다.
  *
  * 대사는 여기서 그리지 않는다. 기존 대사창(DialogueBox)이 재생 대사도 받으므로,
  * 이 컴포넌트가 맡는 건 그림과 정적, 그리고 컷씬이라면 라디오가 꺼지는 첫 비트뿐이다.
@@ -41,7 +116,7 @@ export function PlaybackScene() {
   const isCutscene = active?.kind === "cutscene";
   /**
    * 그림 없는 컷씬 (배트의 작별 대사). 화면을 덮는 대신 방이 비친 채 대사창만
-   * 뜬다 — 떠나는 말은 회상이 아니라 지금 이 방에서 하는 말이라서다.
+   * 뜬다. 떠나는 말은 회상이 아니라 지금 이 방에서 하는 말이라서다.
    */
   const bare = isCutscene && active.cuts.every((each) => each.image === undefined);
   /** 재생이 바뀔 때마다 도입을 다시 돌리기 위한 열쇠. */
@@ -49,7 +124,7 @@ export function PlaybackScene() {
   const cut = active?.cuts[active.cutIndex];
 
   /*
-   * 컷씬이 열릴 때마다 처음부터 — 방송이 끊기고, 잠깐 아무것도 없다가, 그림이 뜬다.
+   * 컷씬이 열릴 때마다 처음부터: 방송이 끊기고, 잠깐 아무것도 없다가, 그림이 뜬다.
    * 도입이 끝나면 스토어의 intro를 내려 대사창이 첫 컷 위에 올라오게 한다.
    *
    * 단, 도입은 재생이 intro를 달고 열렸을 때만이다. 지직거리다 꺼지는 비트는
@@ -95,7 +170,7 @@ export function PlaybackScene() {
     return () => window.clearTimeout(timer);
   }, [holding, holdMs, advancePlayback]);
 
-  // 다시보기는 Esc로 닫힌다 — 되짚어 보다 그만두는 데 확인이 필요할 이유가 없다
+  // 다시보기는 Esc로 닫힌다. 되짚어 보다 그만두는 데 확인이 필요할 이유가 없다
   useEffect(() => {
     if (!active || isCutscene) return;
     const onKey = (event: KeyboardEvent) => {
@@ -110,23 +185,23 @@ export function PlaybackScene() {
   const image = cut?.image;
   const showImage = stage === "cuts" && image !== undefined && !missing.includes(image);
   /**
-   * 컷씬에서는 그림이 아직 없어도 자리를 지킨다 — 다시보기는 보여줄 게 없으면 비운다.
-   * 애초에 그림 없이 설계된 컷씬(bare)은 판도 세우지 않는다 — 회색 판은 "올 그림"의
+   * 컷씬에서는 그림이 아직 없어도 자리를 지킨다. 다시보기는 보여줄 게 없으면 비운다.
+   * 애초에 그림 없이 설계된 컷씬(bare)은 판도 세우지 않는다. 회색 판은 "올 그림"의
    * 자리이지, 없는 그림의 자리가 아니다.
    */
   const showPlate = stage === "cuts" && ((isCutscene && !bare) || image !== undefined);
 
   return (
     // z-40: 미니게임과 같은 층. 재생은 인터랙션이 닫힌 뒤에 열려 둘이 겹치지 않는다.
-    // 대사창(z-50)은 이 위에 뜬다 — 그림 위에 글이 얹히는 것이 이 연출의 형태다.
+    // 대사창(z-50)은 이 위에 뜬다. 그림 위에 글이 얹히는 것이 이 연출의 형태다.
     <div
       className={`absolute inset-0 z-40 ${
-        // 그림 없는 컷씬은 방을 살짝 눌러만 둔다 — 말하는 곳이 이 방이라서다
+        // 그림 없는 컷씬은 방을 살짝 눌러만 둔다. 말하는 곳이 이 방이라서다
         isCutscene && !bare ? "bg-scene-void" : "bg-scene-void/80 backdrop-blur-sm"
       }`}
     >
       {/*
-        컷 그림. 컷씬 일러스트가 아직 없으면 회색 판이 그대로 남는다 — 파일이 들어오는
+        컷 그림. 컷씬 일러스트가 아직 없으면 회색 판이 그대로 남는다. 파일이 들어오는
         순간 이 자리에 그대로 들어차므로 구도를 미리 잡아둘 필요가 없다.
         다시보기 스틸은 대사창 자리를 비우고 그 위에 선다.
       */}
@@ -146,6 +221,20 @@ export function PlaybackScene() {
                 : "max-w-[min(88%,92svh)]"
             }`}
           >
+            {/*
+              컷씬은 그림이 없어도 빈 판으로 두지 않는다. 신호의 그림이 판을 채우고,
+              일러스트가 있으면 그 위에 얹혀 이 층을 가린다. 다시보기는 스틸이 없으면
+              판 자체를 세우지 않으므로(showPlate) 여기 오지 않는다.
+            */}
+            {isCutscene && (
+              <SignalVisual
+                tone={
+                  active.cutsceneId === CUTSCENE_RADIO_BLACKOUT && active.cutIndex < 2
+                    ? "dying"
+                    : "alive"
+                }
+              />
+            )}
             {showImage && (
               /* biome-ignore lint/performance/noImgElement: 파일이 없을 때 onError로 회색 판에 떨어져야 해서 최적화 파이프라인을 타지 않는다. */
               <img
@@ -153,7 +242,7 @@ export function PlaybackScene() {
                 alt=""
                 draggable={false}
                 onError={() => setMissing((ids) => (ids.includes(image) ? ids : [...ids, image]))}
-                // 다시보기 스틸은 통째로 보인다 — 잘라 채우면 사진 윗단이 화면 밖으로 나간다
+                // 다시보기 스틸은 통째로 보인다. 잘라 채우면 사진 윗단이 화면 밖으로 나간다
                 className={`absolute inset-0 size-full select-none ${
                   cut?.fit === "contain" || !isCutscene ? "object-contain" : "object-cover"
                 }`}
@@ -172,7 +261,7 @@ export function PlaybackScene() {
       />
 
       {/*
-        화면 가장자리를 조여 그림을 가운데로 모은다 — 방 비네트와 같은 처방.
+        화면 가장자리를 조여 그림을 가운데로 모은다. 방 비네트와 같은 처방.
         방(75%)보다 옅게 잡는다: 여기서는 비네트가 그림 자체를 먹어치우면 안 된다.
       */}
       <div
@@ -184,7 +273,7 @@ export function PlaybackScene() {
         }}
       />
 
-      {/* 무엇을 되짚는 중인지 — 다시보기는 진행이 아니라 열람이라 제목이 필요하다 */}
+      {/* 무엇을 되짚는 중인지: 다시보기는 진행이 아니라 열람이라 제목이 필요하다 */}
       {!isCutscene && active.memoryId && (
         <p className="pointer-events-none absolute left-1/2 top-8 z-10 -translate-x-1/2 font-pixel text-xs tracking-[0.2em] text-memory">
           {t("playback.replayTitle", {
@@ -194,15 +283,15 @@ export function PlaybackScene() {
       )}
 
       {/*
-        나가는 문. 컷씬에서는 접근성 장치인 건너뛰기이고, 다시보기에서는 그냥 닫기다 —
-        건너뛸 진행이 없으니 같은 말을 쓰면 안 된다. 컷씬 쪽은 이 장면의 무게를
-        깎지 않도록 구석에서 흐리게 서 있는다.
+        나가는 문. 컷씬에서는 접근성 장치인 건너뛰기이고, 다시보기에서는 그냥 닫기다.
+        건너뛸 진행이 없으니 같은 말을 쓰면 안 된다. 구석에 서 있되 흐리지는 않다.
+        어두운 그림 위에서 안 보이는 건너뛰기는 접근성 장치가 아니라 장식이다.
       */}
       {stage === "cuts" && (
         <button
           type="button"
           onClick={endPlayback}
-          className="absolute bottom-6 right-6 z-10 cursor-pointer rounded-sm border border-line px-3 py-1.5 font-pixel text-xs tracking-[0.2em] text-fog/70 transition-colors duration-150 hover:border-fog/40 hover:text-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+          className="absolute bottom-6 right-6 z-10 cursor-pointer rounded-sm border border-fog/50 bg-night/80 px-3.5 py-2 font-pixel text-xs tracking-[0.2em] text-ivory shadow-chip transition-colors duration-150 hover:border-ivory/70 hover:bg-night focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
           {t(isCutscene ? "playback.skip" : "playback.close")}
         </button>

@@ -3,7 +3,7 @@ import { MEMORIES } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { applyAdminPatch, cycleAdminMemory } from "./admin-actions";
 
-/** 1바퀴에 모을 수 있는 기억 전부 — 방문이 열리는 조건이 이 개수를 다 채우는 것이다. */
+/** 1바퀴에 모을 수 있는 기억 전부: 방문이 열리는 조건이 이 개수를 다 채우는 것이다. */
 const PHASE1_IDS = MEMORIES.filter((memory) => memory.phase1).map((memory) => memory.id);
 
 describe("applyAdminPatch", () => {
@@ -17,7 +17,7 @@ describe("applyAdminPatch", () => {
   });
 
   it("drops a door opened without the radio revisited", () => {
-    // sanitizeProgress의 불변식 — 라디오 목소리를 듣기 전에는 방문이 열릴 수 없다
+    // sanitizeProgress의 불변식: 라디오 목소리를 듣기 전에는 방문이 열릴 수 없다
     applyAdminPatch({ collected: PHASE1_IDS, doorOpened: true });
     expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
   });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { NATIONALS_DATE } from "@/data/room-clues";
 import {
   CALENDAR_MONTHS,
   CALENDAR_YEAR,
@@ -7,12 +8,15 @@ import {
   FIRST_MONTH,
   firstWeekday,
   flipMonth,
+  hasNote,
   INCIDENT_DATE,
   isAftermath,
   isIncidentDay,
   isLastPage,
   LAST_MONTH,
+  MONTH_NOTES,
   monthCells,
+  notesOf,
   START_MONTH,
   survivedDays,
   TALLY_PER_MARK,
@@ -61,7 +65,7 @@ describe("calendar-flip pages", () => {
     expect(isAftermath(INCIDENT_DATE.month - 1)).toBe(false);
     expect(isAftermath(INCIDENT_DATE.month + 1)).toBe(true);
 
-    // 사건 전 달에는 셀 날이 없다 — 아직 세는 삶이 아니었다
+    // 사건 전 달에는 셀 날이 없다. 아직 세는 삶이 아니었다
     expect(survivedDays(CALENDAR_YEAR, INCIDENT_DATE.month)).toBe(0);
     expect(survivedDays(CALENDAR_YEAR, INCIDENT_DATE.month + 1)).toBe(
       daysInMonth(CALENDAR_YEAR, INCIDENT_DATE.month + 1),
@@ -91,7 +95,7 @@ describe("calendar-flip pages", () => {
   it("treats reaching the last sheet as having seen it all", () => {
     expect(isLastPage(START_MONTH)).toBe(false);
     expect(isLastPage(LAST_MONTH)).toBe(true);
-    // 첫 장은 사건보다 앞이어야 한다 — 열자마자 결말이면 넘길 이유가 없다
+    // 첫 장은 사건보다 앞이어야 한다. 열자마자 결말이면 넘길 이유가 없다
     expect(START_MONTH).toBeLessThan(INCIDENT_DATE.month);
   });
 
@@ -101,5 +105,25 @@ describe("calendar-flip pages", () => {
     expect(CALENDAR_YEAR).toBe(2026);
     // 2026-10-19는 월요일(1)
     expect(new Date(CALENDAR_YEAR, INCIDENT_DATE.month - 1, INCIDENT_DATE.day).getDay()).toBe(1);
+  });
+
+  it("fills the ordinary months with pencil notes so the tally sheet has something to contrast", () => {
+    // 7~9월이 빈 달력이면 사건까지 가는 길에 읽히는 게 없다
+    for (const month of [7, 8, 9]) {
+      expect(notesOf(month).length).toBeGreaterThan(0);
+    }
+    // 메모는 그 달에 실제로 있는 날에만
+    for (const [month, notes] of Object.entries(MONTH_NOTES)) {
+      for (const note of notes) {
+        expect(note.day).toBeGreaterThanOrEqual(1);
+        expect(note.day).toBeLessThanOrEqual(daysInMonth(CALENDAR_YEAR, Number(month)));
+        expect(hasNote(Number(month), note.day)).toBe(true);
+      }
+    }
+    // 색이 있는 표시(사건·전국대회)와 연필 메모는 같은 날에 겹치지 않는다
+    expect(hasNote(INCIDENT_DATE.month, INCIDENT_DATE.day)).toBe(false);
+    expect(hasNote(NATIONALS_DATE.month, NATIONALS_DATE.day)).toBe(false);
+    // 여행 메모는 컴퓨터 메일("10월 15일 잘 도착했다")보다 앞에 선다
+    expect(notesOf(10).some((note) => note.key === "trip" && note.day < 15)).toBe(true);
   });
 });

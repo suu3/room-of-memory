@@ -54,7 +54,7 @@ const isWalkableInLiving = clearOf(LIVING_COLLIDERS);
 /**
  * 기억 앞에 설 수 있는 자리가 한 칸이라도 있는가.
  *
- * 공간마다 걷는 범위와 가구가 다르므로 어느 방의 물건인지부터 본다 —
+ * 공간마다 걷는 범위와 가구가 다르므로 어느 방의 물건인지부터 본다.
  * 거실 물건을 방의 격자로 훑으면 닿는 자리가 하나도 없다 (좌표가 벽 너머다).
  */
 function hasReachableInteractionPoint(id: (typeof MEMORY_IDS)[number]) {
@@ -147,7 +147,7 @@ describe("memory-room layout", () => {
     expect(doorGap).toBeLessThan(1.5);
     expect(wallGap).toBeGreaterThan(0.3);
     expect(wallGap).toBeLessThan(0.9);
-    // 배트를 쥐고 여는 것은 현관문이다 — 엔딩 카메라도 그 문을 본다
+    // 배트를 쥐고 여는 것은 현관문이다. 엔딩 카메라도 그 문을 본다
     expect(
       Math.hypot(
         CAMERA_PRESETS.ending.target[0] - FRONT_DOOR_POSITION[0],
@@ -176,7 +176,7 @@ describe("memory-room layout", () => {
     expect(bed.maxZ).toBeGreaterThan(BED_FOOTPRINT.maxZ);
     expect(BED_FOOTPRINT.minX - bed.minX).toBeLessThan(0.2);
     expect(bed.maxZ - BED_FOOTPRINT.maxZ).toBeLessThan(0.2);
-    // 긴 축이 z — 머리판이 창가 쪽이다
+    // 긴 축이 z: 머리판이 창가 쪽이다
     expect(bed.maxZ - bed.minZ).toBeGreaterThan(bed.maxX - bed.minX);
     // 방에서 가장 큰 가구다
     const area = (box: { minX: number; maxX: number; minZ: number; maxZ: number }) =>
@@ -188,7 +188,7 @@ describe("memory-room layout", () => {
 
   /*
    * 열린 문짝은 방 안쪽으로 젖혀져 문간 앞에 선다. 콜라이더가 그 판을 감싸되, 문 한가운데를
-   * 향해 걷는 몸이 지나갈 통로는 남아야 한다 — 판을 앞벽에 거의 붙게(83°) 여는 이유다.
+   * 향해 걷는 몸이 지나갈 통로는 남아야 한다. 판을 앞벽에 거의 붙게(83°) 여는 이유다.
    */
   it("blocks the open door leaf without sealing the doorway", () => {
     expect(ROOM_DOOR_ROTATION[1]).toBeCloseTo(Math.PI / 2, 5);
@@ -277,7 +277,7 @@ describe("memory-room layout", () => {
   /*
    * 액자는 캐비닛 상판에 얹는 물건이다. 예전 좌표는 액자를 상판 위 수납상자
    * (x 1.89~2.61) 속에 통째로 파묻었다. 아래 값은 MemoryObjects.tsx의 시각 요소 크기다.
-   * (스마트폰도 여기 있었지만 침대로 옮겼다 — 아래 매트리스 테스트가 맡는다.)
+   * (스마트폰도 여기 있었지만 침대로 옮겼다. 아래 매트리스 테스트가 맡는다.)
    */
   const CABINET_TOP_MEMORIES = [
     // 액자: 폭 0.52, 받침까지 합친 최저점이 로컬 y = -0.2244
@@ -308,7 +308,7 @@ describe("memory-room layout", () => {
       expect(box.minZ).toBeGreaterThan(CABINET_TOP_BOUNDS.minZ);
       expect(box.maxZ).toBeLessThan(CABINET_TOP_BOUNDS.maxZ);
 
-      // 밑면은 상판을 아주 살짝만 파고든다 — 딱 맞추면 면이 겹쳐 깜빡이고,
+      // 밑면은 상판을 아주 살짝만 파고든다. 딱 맞추면 면이 겹쳐 깜빡이고,
       // 많이 파고들면 물건이 상판을 뚫고 내려간 것처럼 보인다.
       expect(box.baseY).toBeLessThan(CABINET_TOP_Y);
       expect(CABINET_TOP_Y - box.baseY).toBeLessThan(0.05);
@@ -326,11 +326,11 @@ describe("memory-room layout", () => {
   });
 
   /*
-   * 스마트폰은 침대에 던져둔 물건이다. 매트리스는 bed.ts(침대 glb 실측 × 배치)의 것 —
+   * 스마트폰은 침대에 던져둔 물건이다. 매트리스는 bed.ts(침대 glb 실측 × 배치)의 것:
    * 위에 펼쳐진 이불(BED_BLANKET_TOP_Y)에 얹힌다.
    */
   const MATTRESS = BED_MATTRESS;
-  /** 눕힌 폰이 원점에서 뻗는 최대 거리 — 본체 길이의 절반(0.18)에 중심 오프셋(0.17)을 더한 값. */
+  /** 눕힌 폰이 원점에서 뻗는 최대 거리: 본체 길이의 절반(0.18)에 중심 오프셋(0.17)을 더한 값. */
   const PHONE_REACH = 0.36;
   /** 눕힌 폰의 두께 절반 (본체 0.16에 scale 0.5). */
   const PHONE_HALF_THICKNESS = 0.04;
@@ -345,16 +345,16 @@ describe("memory-room layout", () => {
     expect(phone.position[2] - PHONE_REACH).toBeGreaterThan(MATTRESS.minZ);
     expect(phone.position[2] + PHONE_REACH).toBeLessThan(MATTRESS.maxZ);
 
-    // 펼친 이불 위에 놓이되 눈에 띄게 뜨지는 않는다 — 이불이 접혀 나가도 폰 두께 안이다
+    // 펼친 이불 위에 놓이되 눈에 띄게 뜨지는 않는다. 이불이 접혀 나가도 폰 두께 안이다
     const baseY = phone.position[1] - PHONE_HALF_THICKNESS;
     expect(baseY).toBeGreaterThanOrEqual(BED_BLANKET_TOP_Y - 0.005);
     expect(baseY - MATTRESS.topY).toBeLessThan(0.05);
-    // 접힌 이불 뭉치 밖 — 원점이 뭉치가 끝난 평평한 자락 위에 있다 (본체는 원점에서 0.35까지라 매트리스 끝 안)
+    // 접힌 이불 뭉치 밖: 원점이 뭉치가 끝난 평평한 자락 위에 있다 (본체는 원점에서 0.35까지라 매트리스 끝 안)
     const onFoldedFlatTail = phone.position[2] > BED_BLANKET_FOLDED_Z.max;
     const beforeFold = phone.position[2] + PHONE_REACH < BED_BLANKET_FOLDED_Z.min;
     expect(onFoldedFlatTail || beforeFold).toBe(true);
 
-    // 화면이 천장을 본다 — 세워 든 자세로 침대에 서 있으면 안 된다
+    // 화면이 천장을 본다. 세워 든 자세로 침대에 서 있으면 안 된다
     expect(phone.rotation[0] + PHONE_VISUAL_TILT).toBeCloseTo(-Math.PI / 2, 5);
     // 손에 쥐는 물건이다. 게임기(가로 0.46)보다 커 보이면 폰으로 안 읽힌다
     expect(phone.scale * 0.48).toBeLessThan(0.46);
@@ -363,7 +363,7 @@ describe("memory-room layout", () => {
 
 /**
  * 서랍과 의자는 움직이지만 ROOM_COLLIDERS는 고정이다. 움직인 자리가 콜라이더에서
- * 너무 멀어지면 플레이어가 가구를 뚫고 지나가는 것처럼 보인다 — 그 어긋남이
+ * 너무 멀어지면 플레이어가 가구를 뚫고 지나가는 것처럼 보인다. 그 어긋남이
  * 눈에 띄지 않는 범위인지를 여기서 지킨다.
  */
 describe("pulled furniture", () => {
@@ -415,7 +415,7 @@ describe("clue props", () => {
     const [, noteY, noteZ] = DRAWER_NOTE.position;
     const [width, thickness, depth] = DRAWER_NOTE.size;
     const turn = DRAWER_NOTE.rotation[1];
-    // 돌아간 종이는 z로 두꺼워진다 — 축에 나란한 반깊이로 재면 여유를 잘못 센다
+    // 돌아간 종이는 z로 두꺼워진다. 축에 나란한 반깊이로 재면 여유를 잘못 센다
     const halfDepth =
       (depth / 2) * Math.abs(Math.cos(turn)) + (width / 2) * Math.abs(Math.sin(turn));
     const drawerFaceTopY = 0.72 + 0.28 / 2;
@@ -431,7 +431,7 @@ describe("clue props", () => {
 });
 
 /**
- * 거실 (v2). 가구 발자국이 두 통로를 막으면 게임이 물리적으로 막힌다 —
+ * 거실 (v2). 가구 발자국이 두 통로를 막으면 게임이 물리적으로 막힌다.
  * 문간에서 나오는 길과, 엔딩으로 가는 현관문 앞.
  */
 describe("living room layout", () => {
@@ -458,7 +458,7 @@ describe("living room layout", () => {
   it("leaves room to stand in front of the front door", () => {
     /*
      * 현관문 상호작용 반경 안에, 가구에 안 닿고 설 수 있는 자리가 있어야 한다.
-     * 문 바로 앞(x로 지름만큼 떨어진 지점)이 그 자리다 — 여기가 어떤 가구
+     * 문 바로 앞(x로 지름만큼 떨어진 지점)이 그 자리다. 여기가 어떤 가구
      * 발자국과도 겹치지 않는지 본다.
      */
     const standX = FRONT_DOOR_POSITION[0] + PLAYER_DIAMETER;

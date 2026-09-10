@@ -73,7 +73,7 @@ export async function writeGenerated(output) {
 /**
  * 어드민이 넘긴 콘텐츠를 검증하고, 통과하면 YAML과 생성물을 함께 쓴다.
  *
- * 검증에 걸리면 아무것도 쓰지 않는다 — 반쯤 저장된 상태로 게임이 깨지는 것보다
+ * 검증에 걸리면 아무것도 쓰지 않는다. 반쯤 저장된 상태로 게임이 깨지는 것보다
  * 어드민 화면에 빨간 줄이 뜨는 편이 낫다.
  */
 export async function saveContent(content) {
@@ -81,7 +81,7 @@ export async function saveContent(content) {
   if (built.issues.length > 0) return { ok: false, issues: built.issues, written: [] };
 
   /*
-   * YAML을 먼저 전부 만들어 보고 나서 쓴다 — 한 파일이 직렬화에서 터졌을 때
+   * YAML을 먼저 전부 만들어 보고 나서 쓴다. 한 파일이 직렬화에서 터졌을 때
    * 앞의 파일만 저장된 상태로 남지 않게.
    */
   const sources = await Promise.all(

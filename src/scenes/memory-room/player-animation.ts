@@ -12,7 +12,7 @@ import { clone } from "three/addons/utils/SkeletonUtils.js";
 /*
  * 손을 뻗는 몸짓 (커튼을 젖힐 때).
  *
- * 클립을 하나 더 굽는 대신 믹서가 끝난 뒤 팔뼈를 돌린다 — 눈 깜빡임과 같은 방식이다.
+ * 클립을 하나 더 굽는 대신 믹서가 끝난 뒤 팔뼈를 돌린다. 눈 깜빡임과 같은 방식이다.
  * 걷든 앉든 그 위에 얹히므로 자세마다 클립을 따로 만들 필요가 없다.
  *
  * 축은 **몸의 앞뒤**(리그 루트의 X)다. 월드 X를 그대로 쓰면 캐릭터가 어느 쪽을 보든
@@ -115,7 +115,7 @@ export function updatePlayerRig(
     blink.next = 2.8 + Math.random() * 3.2;
   }
   for (const eye of blink.eyes) eye.scale.set(1 + closed * 0.12, 1 - closed * 0.94, 1);
-  // 팔도 믹서 이후다 — 걷기·앉기 클립이 덮어쓰지 못하게.
+  // 팔도 믹서 이후다. 걷기·앉기 클립이 덮어쓰지 못하게.
   const reach = Math.max(0, Math.min(1, reaching));
   if (reach > 0) {
     for (const bone of rig.reach.upper) reachBone(rig.root, bone, REACH_UPPER_ARM * reach);

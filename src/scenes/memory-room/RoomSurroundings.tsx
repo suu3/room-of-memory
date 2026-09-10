@@ -10,7 +10,7 @@ import type { RoomPalette } from "./palette";
  * 방 **바깥**.
  *
  * 방은 받침 위에 놓인 디오라마인데(RoomShell의 PLINTH), 그 받침 둘레가 통째로 비어
- * 있었다 — 캔버스 뒤에 깔린 CSS 그라디언트(.room-backdrop) 하나가 배경의 전부라,
+ * 있었다. 캔버스 뒤에 깔린 CSS 그라디언트(.room-backdrop) 하나가 배경의 전부라,
  * 카메라를 돌리거나 타이틀에서 모형 전체를 잡을 때 방이 검은 판에 얹힌 것처럼 보였다.
  *
  * 여기 세우는 것은 **티끌 한 겹뿐이다** (OuterDrift). 방 밖에도 공기가 있다는 것만
@@ -21,7 +21,7 @@ import type { RoomPalette } from "./palette";
  * 올린 모형"이 되고, 그 인상은 이 게임이 하려는 말과 다르다. 발밑이 없는 편이 낫다.
  *
  * 조명을 안 받는다. 방의 밝기는 진행에 따라 V자를 그리는데(ROOM_LIGHT_RAMP), 바깥까지
- * 같이 어두워지면 모형이 배경에 묻혀 실루엣을 잃는다 — 창밖 풍경을 meshBasicMaterial로만
+ * 같이 어두워지면 모형이 배경에 묻혀 실루엣을 잃는다. 창밖 풍경을 meshBasicMaterial로만
  * 세운 것과 같은 이유다 (WindowView).
  */
 
@@ -40,7 +40,7 @@ const OUTER = {
 } as const;
 
 /**
- * 방의 발자국 + 여유. 이 안쪽 x·z에 떨어진 티끌은 벽 위로만 올려 보낸다 —
+ * 방의 발자국 + 여유. 이 안쪽 x·z에 떨어진 티끌은 벽 위로만 올려 보낸다.
  * 방 안에는 이미 창빛에 걸린 먼지가 있고(DustMotes), 무엇보다 **창을 통해 보인다**.
  * 창밖은 배경막이 맡은 그림이라 그 앞에 티끌이 지나가면 원경이 깨진다.
  */
@@ -54,7 +54,7 @@ const FOOTPRINT = {
 /** 벽 꼭대기(4.7) 위로 이만큼 띄운 뒤부터 티끌을 놓는다. */
 const ABOVE_WALLS_Y = 6.2;
 
-/** 화면상 지름(css px). 방 안 먼지보다 작고 흐리다 — 여기는 배경이지 주인공이 아니다. */
+/** 화면상 지름(css px). 방 안 먼지보다 작고 흐리다. 여기는 배경이지 주인공이 아니다. */
 const DRIFT_MIN_SIZE = 1.2;
 const DRIFT_SIZE_RANGE = 5.5;
 
@@ -98,7 +98,7 @@ function createDrift(): DriftBuffers {
     bands[index * 2] = bandBottom;
     bands[index * 2 + 1] = bandHeight;
 
-    // 세제곱 편향 — 대부분 작고 또렷하고 가끔 크고 흐리다 (DustMotes와 같은 분포).
+    // 세제곱 편향: 대부분 작고 또렷하고 가끔 크고 흐리다 (DustMotes와 같은 분포).
     const bulk = Math.random() ** 3;
     sizes[index] = DRIFT_MIN_SIZE + bulk * DRIFT_SIZE_RANGE;
     glows[index] = lerp(0.85, 0.22, bulk);
@@ -140,7 +140,7 @@ const VERTEX_SHADER = /* glsl */ `
     // 직교 카메라라 gl_PointSize가 곧 화면 픽셀이다. dpr을 곱해야 기기가 달라도 같다.
     gl_PointSize = aSize * uPixelRatio;
 
-    // 구간 끝에서 스러진다 — 허공에서 툭 나타났다 툭 사라지면 낱알로 안 읽힌다.
+    // 구간 끝에서 스러진다. 허공에서 툭 나타났다 툭 사라지면 낱알로 안 읽힌다.
     float edge = min(travel, aBand.y - travel) / (aBand.y * 0.28);
     float twinkle = 0.6 + 0.4 * sin(uTime * (0.3 + aSway * 1.4) + aPhase * 2.7);
     vFade = clamp(edge, 0.0, 1.0) * twinkle;
@@ -175,7 +175,7 @@ function OuterDrift({ color, opacity }: { color: string; opacity: number }) {
   const materialRef = useRef<ShaderMaterial>(null);
   const pixelRatio = useThree((state) => state.viewport.dpr);
   const drift = useMemo(createDrift, []);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: 초기값 전용 — 이후 갱신은 아래 effect와 useFrame이 맡는다.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 초기값 전용: 이후 갱신은 아래 effect와 useFrame이 맡는다.
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
@@ -225,7 +225,7 @@ function OuterDrift({ color, opacity }: { color: string; opacity: number }) {
   );
 }
 
-/** 둘레 티끌의 밝기. 방 안 먼지보다 옅다 — 배경이 주인공보다 밝으면 안 된다. */
+/** 둘레 티끌의 밝기. 방 안 먼지보다 옅다. 배경이 주인공보다 밝으면 안 된다. */
 const DRIFT_OPACITY = 0.55;
 
 export function RoomSurroundings({ palette }: { palette: RoomPalette }) {

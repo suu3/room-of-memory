@@ -19,6 +19,6 @@ fi
 # CLI(`biome check --staged`)가 아니라 WASM 판을 쓴다. biome.exe는 서명이 없어서
 # Windows Smart App Control이 실행 자체를 막고("An Application Control policy has
 # blocked this file"), SAC는 예외 목록이 없으며 한 번 끄면 Windows 재설치 전까지
-# 다시 켤 수 없다. 훅이 도는 게 보안 설정을 무르는 것보다 낫다 — WASM은 node 안에서
+# 다시 켤 수 없다. 훅이 도는 게 보안 설정을 무르는 것보다 낫다. WASM은 node 안에서
 # 돌아 SAC가 볼 exe가 없고, 같은 2.5.2라 판정도 같다. 자세한 내용은 스크립트 머리말.
 node scripts/biome-wasm.mjs

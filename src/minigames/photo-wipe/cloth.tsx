@@ -1,6 +1,6 @@
 /**
  * 사진을 닦는 행주 커서. 커서 자체가 행주라서 별도 스프라이트를 겹치지 않는다.
- * 색은 DESIGN.md 팔레트(scene-storm / memory / bone / night)에서 그대로 가져왔다 —
+ * 색은 DESIGN.md 팔레트(scene-storm / memory / bone / night)에서 그대로 가져왔다.
  * 커서는 CSS 변수를 못 읽어서 데이터 URI 안에 값이 박혀야 한다.
  */
 const CLOTH_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
@@ -16,5 +16,5 @@ const CLOTH_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48
 
 const CLOTH_DATA_URI = `data:image/svg+xml,${encodeURIComponent(CLOTH_SVG)}`;
 
-/** 캔버스 위 커서. 핫스팟은 행주 한가운데 — 닦이는 원의 중심과 맞춘다. */
+/** 캔버스 위 커서. 핫스팟은 행주 한가운데: 닦이는 원의 중심과 맞춘다. */
 export const CLOTH_CURSOR = `url("${CLOTH_DATA_URI}") 24 24, crosshair`;

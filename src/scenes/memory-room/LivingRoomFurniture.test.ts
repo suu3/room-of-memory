@@ -23,7 +23,7 @@ function backrestCorners(chair: (typeof DINING_SET.chairs)[number]) {
   ]) as [number, number][];
 }
 
-/** 분리축 판정 — 두 볼록 사각형이 겹치는가. 축은 양쪽 변의 법선 넷이면 충분하다. */
+/** 분리축 판정: 두 볼록 사각형이 겹치는가. 축은 양쪽 변의 법선 넷이면 충분하다. */
 function convexOverlap(a: readonly [number, number][], b: readonly [number, number][]) {
   for (const poly of [a, b]) {
     for (let i = 0; i < poly.length; i += 1) {
@@ -36,7 +36,7 @@ function convexOverlap(a: readonly [number, number][], b: readonly [number, numb
       };
       const [aMin, aMax] = project(a);
       const [bMin, bMax] = project(b);
-      if (aMax < bMin || bMax < aMin) return false; // 분리축 발견 — 안 겹친다
+      if (aMax < bMin || bMax < aMin) return false; // 분리축 발견: 안 겹친다
     }
   }
   return true;
@@ -53,7 +53,7 @@ describe("식탁과 의자", () => {
 
   it("등받이가 상판을 관통하지 않는다", () => {
     /*
-     * 등받이(y 0.62~1.12)와 상판 슬래브(y 0.885~0.975)는 높이가 항상 겹친다 —
+     * 등받이(y 0.62~1.12)와 상판 슬래브(y 0.885~0.975)는 높이가 항상 겹친다.
      * XZ 발자국만 안 겹치면 된다. 눈으로는 식탁 아래 그늘이라 뚫려도 안 보인다.
      */
     for (const chair of DINING_SET.chairs) {

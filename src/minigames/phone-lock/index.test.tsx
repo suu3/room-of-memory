@@ -32,7 +32,7 @@ describe("PhoneLockMinigame", () => {
 
     typeCode(PASSCODE);
 
-    // 문자가 한 통씩 도착한다 — 마지막 통까지 기다린다
+    // 문자가 한 통씩 도착한다. 마지막 통까지 기다린다
     const lastKey = MOM_MESSAGES[MOM_MESSAGES.length - 1].textKey;
     await screen.findByText(i18n.t(lastKey), undefined, { timeout: 4000 });
 
@@ -43,7 +43,7 @@ describe("PhoneLockMinigame", () => {
     expect(results).toEqual([{ cleared: true }]);
   });
 
-  it("틀리면 지워지고 다시 넣을 수 있다 — 실패로 닫히지 않는다", async () => {
+  it("틀리면 지워지고 다시 넣을 수 있다. 실패로 닫히지 않는다", async () => {
     const onComplete = vi.fn();
     render(<PhoneLockMinigame onComplete={onComplete} />);
 
@@ -86,7 +86,7 @@ describe("PhoneLockMinigame", () => {
     ).toBeTruthy();
   });
 
-  it("결과 대사 단계에서는 판이 멈춘 그림이다 — 문자는 전부 떠 있고 닫는 버튼은 없다", () => {
+  it("결과 대사 단계에서는 판이 멈춘 그림이다. 문자는 전부 떠 있고 닫는 버튼은 없다", () => {
     render(<PhoneLockMinigame onComplete={() => {}} stage="result" />);
 
     // stage=result는 이미 열린 뒤에만 온다… 는 보장이 없어도, 잠금화면이면 입력이 죽는다

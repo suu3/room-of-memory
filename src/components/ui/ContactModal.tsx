@@ -12,7 +12,7 @@ export const CONTACT_LINKS = [
   { label: "GitHub", value: "github.com/suu3", href: "https://github.com/suu3" },
 ] as const;
 
-/** 페이지와 모달이 같은 본문을 쓴다 — /contact로 직접 들어와도 내용이 갈리지 않는다. */
+/** 페이지와 모달이 같은 본문을 쓴다. /contact로 직접 들어와도 내용이 갈리지 않는다. */
 export function ContactLinks() {
   const { t } = useTranslation();
 
@@ -30,7 +30,7 @@ export function ContactLinks() {
               <span className="shrink-0 text-xs font-medium tracking-[0.06em] text-ash">
                 {link.label}
               </span>
-              {/* 메일 주소는 어절이 없다 — 좁아지면 어디서든 접히게 두는 편이 잘린 것보다 낫다 */}
+              {/* 메일 주소는 어절이 없다. 좁아지면 어디서든 접히게 두는 편이 잘린 것보다 낫다 */}
               <span className="flex min-w-0 items-center gap-2 break-ko text-right text-sm text-fog transition-colors group-hover:text-ivory">
                 {link.value}
                 <ArrowUpRight
@@ -43,7 +43,7 @@ export function ContactLinks() {
           </li>
         ))}
       </ul>
-      {/* 지원사업 표기 — 요란하지 않게, 크레딧을 열어본 사람에게만 보인다 */}
+      {/* 지원사업 표기: 요란하지 않게, 크레딧을 열어본 사람에게만 보인다 */}
       <p className="break-ko text-xs leading-normal text-ash">{t("contact.support")}</p>
     </div>
   );

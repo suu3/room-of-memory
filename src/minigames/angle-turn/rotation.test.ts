@@ -13,7 +13,7 @@ describe("PAIRS", () => {
 
   it("never asks the player to read a letter", () => {
     /*
-     * 한글이 섞여 있지만 뜻도 소리도 쓰이지 않는다 — 도형이 겹치는지만 보면 되므로
+     * 한글이 섞여 있지만 뜻도 소리도 쓰이지 않는다. 도형이 겹치는지만 보면 되므로
      * en/ja에서도 그대로 선다. 여기 낱글자 말고 단어가 들어오면 그 전제가 깨진다.
      */
     for (const pair of PAIRS) {

@@ -5,14 +5,14 @@ import { useEffect, useRef } from "react";
 /**
  * 미니게임을 클리어한 순간, 닦아낸 자리에서 금빛 입자가 천천히 떠올라 흩어진다.
  *
- * 처음에는 폭죽이었다 — 사방으로 터지고, 중력으로 떨어지고, 중앙에 섬광이 번쩍이고,
+ * 처음에는 폭죽이었다. 사방으로 터지고, 중력으로 떨어지고, 중앙에 섬광이 번쩍이고,
  * 색종이 조각(rect)과 줄무늬(streak)가 섞인. 기술적으로는 멀쩡했지만 재난 뒤 빈방에서
  * 먼지 낀 가족사진을 닦은 직후에 컨페티가 터지는 꼴이라 톤이 정면으로 어긋났다.
  * 여기서 필요한 건 축하가 아니라 "풀려났다"는 감각이라, 터지는 대신 떠오르게 했다.
  *
  * 그리는 방식은 DustMotes(빛줄기 먼지)와 같은 원칙이다: 모양 있는 조각을 그리지 않고
  * 부드러운 방사형 글로우 하나만 쓴다. 크기는 세제곱 분포라 대부분 작고 또렷하며 가끔
- * 크고 흐린 보케가 섞인다 — 크기가 고르면 눈이 곧바로 "패턴"으로 읽는다.
+ * 크고 흐린 보케가 섞인다. 크기가 고르면 눈이 곧바로 "패턴"으로 읽는다.
  */
 
 const PARTICLE_COUNT = 84;
@@ -29,7 +29,7 @@ interface Particle {
   offsetY: number;
   /** 위로 오르는 속도(px/s). 낱알마다 달라야 줄 맞춰 오르지 않는다. */
   rise: number;
-  /** 좌우 흔들림 — 메모의 "둥실둥실: sin". */
+  /** 좌우 흔들림: 메모의 "둥실둥실: sin". */
   swayAmplitude: number;
   swayFrequency: number;
   phase: number;
@@ -47,7 +47,7 @@ function tokenColor(name: string): string {
 
 /**
  * 토큰 hex를 알파 붙은 rgb()로. 그라디언트 끝점에 키워드 `transparent`를 쓰면
- * 캔버스가 rgba(0,0,0,0)으로 읽어서 검정을 거쳐 사라진다 — 금빛 번짐 둘레에
+ * 캔버스가 rgba(0,0,0,0)으로 읽어서 검정을 거쳐 사라진다. 금빛 번짐 둘레에
  * 거뭇한 테가 생긴다. 같은 색의 알파 0으로 끝내야 색을 유지한 채 꺼진다.
  */
 function withAlpha(color: string, alpha: number): string {
@@ -60,7 +60,7 @@ function withAlpha(color: string, alpha: number): string {
 
 /**
  * 색마다 하나씩 구워 두는 방사형 글로우. 입자마다 shadowBlur를 켜면 60fps에서
- * 확실히 버벅인다 — 미리 만든 그라디언트를 drawImage로 얹는 편이 훨씬 싸고 곱다.
+ * 확실히 버벅인다. 미리 만든 그라디언트를 drawImage로 얹는 편이 훨씬 싸고 곱다.
  *
  * 가운데를 좁고 밝게, 바깥을 길고 옅게 떨어뜨린다. 선형으로 떨어뜨리면 테두리가
  * 보이는 원반이 되어 "동그란 스티커"처럼 읽힌다.
@@ -83,7 +83,7 @@ function createGlowSprite(color: string): HTMLCanvasElement {
   return sprite;
 }
 
-/** 세제곱 편향 — 가운데가 촘촘하고 가장자리로 갈수록 성기다. */
+/** 세제곱 편향: 가운데가 촘촘하고 가장자리로 갈수록 성기다. */
 function centerBiased(): number {
   const raw = Math.random() * 2 - 1;
   return raw ** 3;
@@ -113,7 +113,7 @@ export function SuccessBurst({ onDone }: { onDone: () => void }) {
     canvas.height = height * dpr;
     context.scale(dpr, dpr);
 
-    // 금빛 위주. ember(주황)는 뺐다 — 두 색이 섞이면 축하 폭죽 쪽으로 다시 기운다.
+    // 금빛 위주. ember(주황)는 뺐다. 두 색이 섞이면 축하 폭죽 쪽으로 다시 기운다.
     const palette = [
       tokenColor("--color-memory"),
       tokenColor("--color-memory"),
@@ -141,7 +141,7 @@ export function SuccessBurst({ onDone }: { onDone: () => void }) {
         size: 7 + bulk * 27,
         glow: 0.85 - bulk * 0.5,
         color: palette[Math.floor(Math.random() * palette.length)],
-        // 앞쪽에 몰아 태운다 — 뒤늦게 태어난 입자는 다 오르기 전에 꺼진다
+        // 앞쪽에 몰아 태운다. 뒤늦게 태어난 입자는 다 오르기 전에 꺼진다
         birth: Math.random() ** 2 * durationS * 0.42,
         fadeSpan: FADE_SPAN_MIN + Math.random() * FADE_SPAN_RANGE,
       };
@@ -182,7 +182,7 @@ export function SuccessBurst({ onDone }: { onDone: () => void }) {
         const alpha = clamp01(age / 0.42) * clamp01((1 - progress) / p.fadeSpan) * p.glow;
         if (alpha <= 0.004) continue;
 
-        // 떠오르며 아주 조금 부푼다 — 초점에서 멀어지는 인상
+        // 떠오르며 아주 조금 부푼다. 초점에서 멀어지는 인상
         const drawn = p.size * (1 + age * 0.12);
         context.globalAlpha = alpha;
         const sprite = glowSprites.get(p.color);

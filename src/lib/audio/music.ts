@@ -13,14 +13,14 @@ import { foldLoopTail, musicCutoff, musicReverb, musicVolume } from "./music-cur
  *                          └→ convolver → wet ┴→ gain → master
  *
  * 밝기(0~1)가 컷오프·음량·리버브 세 개를 동시에 움직인다. 곡 파일은 절대 손대지
- * 않고 전부 재생 시점 이펙트다 — 커브는 music-curve.ts.
+ * 않고 전부 재생 시점 이펙트다. 커브는 music-curve.ts.
  *
  * 트랙은 두 개다(1바퀴·2바퀴). 갈아탈 때는 **새 트랙을 다 받은 뒤에** 겹쳐서
  * 건너간다. 먼저 끊고 받으면 그 사이가 빈 정적이 되고, 받기에 실패하면 아무것도
- * 없는 방이 된다 — 곡이 아직 리포에 없어도 게임이 조용해지면 안 된다.
+ * 없는 방이 된다. 곡이 아직 리포에 없어도 게임이 조용해지면 안 된다.
  *
  * 그래서 한 바퀴의 곡은 경로 하나가 아니라 **후보 목록**이다. 앞에서부터 받아
- * 보고 처음 성공한 것을 튼다 — 새 곡을 넣기 전에 경로를 먼저 박아 둬도 뒤에 선
+ * 보고 처음 성공한 것을 튼다. 새 곡을 넣기 전에 경로를 먼저 박아 둬도 뒤에 선
  * 자리 지킴이가 방을 채운다.
  */
 
@@ -29,7 +29,7 @@ const LOOP_CROSSFADE_S = 2.4;
 /** 밝기·덕킹 변화가 자리잡는 시간(초). 컷오프는 더 느리게 움직여야 자연스럽다. */
 const VOLUME_GLIDE_S = 0.6;
 const CUTOFF_GLIDE_S = 1.4;
-/** 리버브는 공간이 바뀌는 감각이라 가장 느리게 — 빨리 젖으면 이펙트로 들킨다. */
+/** 리버브는 공간이 바뀌는 감각이라 가장 느리게: 빨리 젖으면 이펙트로 들킨다. */
 const REVERB_GLIDE_S = 2;
 /** 정지·전환용 페이드. 뚝 끊으면 딸깍 소리가 난다. */
 const FADE_OUT_S = 1.2;
@@ -40,7 +40,7 @@ const SWAP_S = 2.2;
 const IMPULSE_S = 2.4;
 const IMPULSE_DECAY = 3.4;
 
-/** 한 바퀴의 곡 — 경로 하나, 또는 앞에서부터 시도할 후보 목록. */
+/** 한 바퀴의 곡: 경로 하나, 또는 앞에서부터 시도할 후보 목록. */
 export type MusicTrack = string | readonly string[];
 
 interface MusicVoice {
@@ -57,7 +57,7 @@ interface MusicVoice {
 let voice: MusicVoice | null = null;
 /** 재생 중인(또는 로딩 중인) 트랙의 요청 키. 같은 트랙 요청은 무시한다. */
 let currentRequest: string | null = null;
-/** 디코드 결과 캐시 — 리셋 후 다시 시작할 때 네트워크를 또 타지 않는다. */
+/** 디코드 결과 캐시: 리셋 후 다시 시작할 때 네트워크를 또 타지 않는다. */
 const buffers = new Map<string, AudioBuffer>();
 /** 한 번 실패한 트랙은 다시 안 받는다 (아직 리포에 없는 2바퀴 곡). */
 const missing = new Set<string>();
@@ -76,7 +76,7 @@ function targetVolume(): number {
  * 잔향 임펄스를 코드로 굽는다.
  *
  * 임펄스 파일을 에셋으로 넣는 방법도 있지만, 여기 필요한 건 특정 공간의 정확한
- * 울림이 아니라 "멀어진다"는 인상뿐이라 잡음을 지수로 재우는 것으로 충분하다 —
+ * 울림이 아니라 "멀어진다"는 인상뿐이라 잡음을 지수로 재우는 것으로 충분하다.
  * 수백 KB를 리포에 넣을 이유가 없다 (효과음을 합성으로 만드는 것과 같은 판단).
  */
 function reverbImpulse(context: AudioContext): AudioBuffer {
@@ -121,7 +121,7 @@ async function loadBuffer(context: AudioContext, src: string): Promise<AudioBuff
 /**
  * 후보를 앞에서부터 받아 처음 성공한 것을 돌려준다.
  *
- * 실패한 경로는 `missing`에 박혀 다시 시도하지 않는다 — 밝기가 바뀔 때마다
+ * 실패한 경로는 `missing`에 박혀 다시 시도하지 않는다. 밝기가 바뀔 때마다
  * 없는 파일에 요청을 날리면 콘솔이 404로 뒤덮인다.
  */
 async function loadFirst(context: AudioContext, candidates: readonly string[]) {
@@ -205,7 +205,7 @@ function buildVoice(
 /**
  * 트랙을 틀고 루프시킨다. 같은 트랙이 이미 돌고 있으면 아무 일도 하지 않는다.
  *
- * 후보를 여럿 주면 앞에서부터 받아 처음 성공한 것을 튼다 — 아직 리포에 없는 새 곡을
+ * 후보를 여럿 주면 앞에서부터 받아 처음 성공한 것을 튼다. 아직 리포에 없는 새 곡을
  * 앞에, 자리 지킴이를 뒤에 세우는 용도다.
  *
  * AudioContext가 아직 없으면(=첫 제스처 전) 조용히 넘어간다. 자동재생 정책상
@@ -231,14 +231,14 @@ export function startMusic(track: MusicTrack) {
       const { context, master } = graph;
       const outgoing = voice;
       const next = buildVoice(context, master, request, buffer);
-      // 새 곡을 올리면서 옛 곡을 내린다 — 사이에 빈 구간을 만들지 않는다
+      // 새 곡을 올리면서 옛 곡을 내린다. 사이에 빈 구간을 만들지 않는다
       next.gain.gain.setTargetAtTime(targetVolume(), context.currentTime, SWAP_S / 3);
       voice = next;
       if (outgoing) retire(outgoing, SWAP_S);
     })
     .catch((error) => {
       if (currentRequest === request) currentRequest = voice?.request ?? null;
-      // BGM이 없다고 게임이 멈추면 안 된다 — 돌던 곡이 있으면 그대로 흐른다
+      // BGM이 없다고 게임이 멈추면 안 된다. 돌던 곡이 있으면 그대로 흐른다
       console.warn(error);
     });
 }
@@ -253,7 +253,7 @@ export function stopMusic() {
 
 /**
  * 방 밝기(0~1)를 그대로 넘긴다. 1바퀴에서 깎이고 2바퀴에서 차오르는 V자가
- * 그대로 음색의 V자가 된다 — 곡은 바뀌어도 곡선은 하나다.
+ * 그대로 음색의 V자가 된다. 곡은 바뀌어도 곡선은 하나다.
  */
 export function setMusicLevel(next: number) {
   level = next;
@@ -276,7 +276,7 @@ export function setMusicDuck(next: number) {
 /**
  * 곡마다 다른 녹음 레벨을 맞춘다 (1=파일 그대로).
  *
- * 음량 곡선(musicVolume)은 곡이 몇 dB로 녹음됐는지 모른다 — 같은 밝기를 넣어도
+ * 음량 곡선(musicVolume)은 곡이 몇 dB로 녹음됐는지 모른다. 같은 밝기를 넣어도
  * 조용하게 마스터링된 곡은 조용하게 나온다. 그 차이를 여기서 먼저 없애야 곡선이
  * 두 바퀴에서 같은 뜻을 갖는다. 값은 곡을 바꿀 때 `pnpm audio:bgm`이 찍어 주는
  * LUFS로 다시 잡는다 (index.ts의 ROUND_TRIM).

@@ -32,7 +32,7 @@ describe("sanitizeProgress", () => {
   });
 
   it("falls back to easy when the saved difficulty is unknown", () => {
-    // 스킵을 숨기는 쪽(normal)이 잘못 살아나면 접근성 장치가 말없이 사라진다 —
+    // 스킵을 숨기는 쪽(normal)이 잘못 살아나면 접근성 장치가 말없이 사라진다.
     // 모르는 값은 스킵이 보이는 쪽으로 넘어진다
     expect(sanitizeProgress({ difficulty: "hardcore" }).difficulty).toBe("easy");
     expect(sanitizeProgress({}).difficulty).toBe("easy");
@@ -86,7 +86,7 @@ describe("sanitizeProgress", () => {
   });
 
   it("leaves the lights on unless the save says otherwise", () => {
-    // 불은 켜진 게 기본이다 — 저장본에 없거나 깨졌다고 어두운 방으로 떨어지면 안 된다
+    // 불은 켜진 게 기본이다. 저장본에 없거나 깨졌다고 어두운 방으로 떨어지면 안 된다
     expect(sanitizeProgress({}).lightsOn).toBe(true);
     expect(sanitizeProgress({ lightsOn: "nope" }).lightsOn).toBe(true);
     expect(sanitizeProgress({ lightsOn: false }).lightsOn).toBe(false);

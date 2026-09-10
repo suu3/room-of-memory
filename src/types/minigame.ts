@@ -1,5 +1,5 @@
 /**
- * Minigame contract — every minigame is a self-contained component that
+ * Minigame contract: every minigame is a self-contained component that
  * reports its outcome through `onComplete`. The VN engine (not the minigame)
  * decides what the result means: which node comes next, which flags get set.
  */
@@ -8,6 +8,13 @@ import type { ParseKeys } from "i18next";
 
 /** common 네임스페이스에서 유효한 번역 키만 허용. */
 export type CommonTextKey = ParseKeys<"common">;
+
+/**
+ * 난이도. 스토어의 Difficulty와 같은 값이지만 미니게임이 스토어에 기대지 않도록
+ * 호스트가 props로 내려준다. 스킵 게이트는 여전히 useSkipEligible 한 곳이 맡고,
+ * 이 값은 판 자체의 수치(대역 폭·바늘 속도·안타 수·피해량)에만 쓴다.
+ */
+export type MinigameDifficulty = "easy" | "normal";
 
 export interface MinigameResult {
   /** Did the player clear it? Failure is a valid outcome, not an error. */
@@ -31,15 +38,17 @@ export interface MinigameProps {
    * 호스트가 props로 내려준다. 기본값은 1.
    */
   gamePhase?: 1 | 2;
+  /** 난이도. 기본값 "easy". 수치를 난이도로 가르는 미니게임만 읽는다. */
+  difficulty?: MinigameDifficulty;
   /**
-   * Player asked to skip (accessibility requirement — every minigame must
+   * Player asked to skip (accessibility requirement: every minigame must
    * call onComplete({ cleared: true }) when skipped).
    */
   onSkip?: () => void;
   /**
    * 지금 화면이 무엇인가. 기본값 "play".
    *
-   * "result"는 판이 끝나고 결과 대사가 그 위에 뜬 상태다 — 미니게임 화면은 남지만
+   * "result"는 판이 끝나고 결과 대사가 그 위에 뜬 상태다. 미니게임 화면은 남지만
    * 더는 게임이 아니다. 이 단계에서 계속 애니메이션이 돌고 입력을 먹으면 대사가
    * 게임 위에 얹힌 것처럼 보이고, 키 입력이 대사 진행과 충돌한다. 결과 화면을
    * 따로 그리는 미니게임은 이 값을 보고 판을 멈춘 그림(정지 화면)으로 바꾼다.
@@ -69,7 +78,7 @@ export type MinigameMode = "canvas" | "overlay";
  * 화면에 어떻게 얹히는가.
  *
  * "panel"은 제목·조작법·스킵이 달린 미니게임 카드다. "bare"는 그 껍데기 없이
- * 오브젝트만 떠오른다 — 방탈출처럼 "물건을 집어서 들여다보는" 인터랙션은
+ * 오브젝트만 떠오른다. 방탈출처럼 "물건을 집어서 들여다보는" 인터랙션은
  * 시작 카드도 패널도 없어야 게임이 아니라 탐색으로 읽힌다.
  */
 export type MinigamePresentation = "panel" | "bare";
@@ -87,10 +96,15 @@ export interface MinigameDefinition {
   /**
    * 시작 카드에서 조작법 아래에 한 줄씩 펼쳐 보여줄 플레이 방법.
    *
-   * 한 줄 요약(helpKey)으로 규칙이 다 서는 게임은 비워 둔다 — 그런 게임에 목록을
+   * 한 줄 요약(helpKey)으로 규칙이 다 서는 게임은 비워 둔다. 그런 게임에 목록을
    * 붙이면 집는 데 3초 걸릴 인터랙션이 설명서를 읽는 일이 된다. 상성·페인트처럼
    * 모르면 첫 판을 통째로 버리게 되는 규칙이 있는 게임만 채운다.
    * 조작 안내와 같은 잣대로 `_touch` 변형이 있으면 그쪽이 쓰인다.
    */
   rulesKeys?: readonly CommonTextKey[];
+  /**
+   * 실패 결과 카드에 실을 한 줄 (캐릭터 톤). 비우면 공통 문구(minigame.result.failDefault).
+   * 실패가 없는 미니게임(탐색형)은 채울 이유가 없다.
+   */
+  failKey?: CommonTextKey;
 }

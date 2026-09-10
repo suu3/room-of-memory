@@ -12,7 +12,7 @@ import { CharacterModelViewer } from "./CharacterModelViewer";
 import { LoreEntries } from "./LoreEntries";
 
 /**
- * 시트에 싣는 항목. 사태 이전/이후의 성격 변화와 오브젝트 단서는 일부러 뺐다 —
+ * 시트에 싣는 항목. 사태 이전/이후의 성격 변화와 오브젝트 단서는 일부러 뺐다.
  * 플레이 전에 열어볼 수 있는 화면이라 이야기의 전제를 미리 흘리면 안 된다.
  *
  * `revealAt`은 이 항목이 열리는 데 필요한 수집 개수. 처음엔 전부 흐리게 덮여 있고,
@@ -35,7 +35,7 @@ export function CharacterSheetModal() {
   const setOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const collectedCount = useMemoryRoomStore(selectCollected).length;
-  // 탭은 스토어에 있다 — 오른쪽 "기억 수집" 탭이 기록 페이지를 지정해 열기 때문
+  // 탭은 스토어에 있다. 오른쪽 "기억 수집" 탭이 기록 페이지를 지정해 열기 때문
   const tab = useMemoryRoomStore((state) => state.characterSheetTab);
   const setTab = useMemoryRoomStore((state) => state.setCharacterSheetTab);
 
@@ -56,7 +56,7 @@ export function CharacterSheetModal() {
   if (!open) return null;
 
   return (
-    // grid가 아니라 flex — grid의 auto row는 내용만큼 늘어나서 max-h-full이 무력해진다
+    // grid가 아니라 flex: grid의 auto row는 내용만큼 늘어나서 max-h-full이 무력해진다
     <div className="absolute inset-0 z-30 flex items-center justify-center overflow-hidden p-4">
       <button
         type="button"
@@ -65,7 +65,7 @@ export function CharacterSheetModal() {
         className="absolute inset-0 cursor-pointer bg-scene-void/60"
       />
       {/*
-        이름이 "수첩"이면 수첩처럼 보여야 한다 — 낱장 종이에 이름만 바꾸면 껍데기와
+        이름이 "수첩"이면 수첩처럼 보여야 한다. 낱장 종이에 이름만 바꾸면 껍데기와
         알맹이가 어긋난다. 왼쪽에 링 제본 여백, 페이지에 모눈, 위쪽에 종이 인덱스 탭.
         전부 CSS다 (globals.css의 .notebook-*).
       */}
@@ -80,7 +80,7 @@ export function CharacterSheetModal() {
           aria-hidden
           className="notebook-punch w-9 flex-none border-r border-ink/10 bg-bone/40 sm:w-10"
         />
-        {/* 접힘 그림자는 페이지 위에 얹는다 — 스크롤을 따라 움직이면 접힌 자국이 아니다 */}
+        {/* 접힘 그림자는 페이지 위에 얹는다. 스크롤을 따라 움직이면 접힌 자국이 아니다 */}
         <div
           aria-hidden
           className="notebook-gutter pointer-events-none absolute left-9 top-0 z-20 h-full w-5 sm:left-10"
@@ -92,7 +92,7 @@ export function CharacterSheetModal() {
             덮어 페이지와 한 장으로 이어지고, 나머지는 뒤에 깔린 종이로 물러난다.
           */}
           <div className="flex flex-none items-end justify-between gap-3 px-5 pt-4">
-            {/* 이름만 — 나이·소속은 아래에서 가려두는 항목이라 헤더에 적으면 가리는 의미가 없다 */}
+            {/* 이름만: 나이·소속은 아래에서 가려두는 항목이라 헤더에 적으면 가리는 의미가 없다 */}
             <div className="flex min-w-0 items-end gap-5">
               <span className="truncate pb-1.5 text-sm font-medium text-ink">
                 {tRoom("characters.hero.name")}
@@ -130,16 +130,16 @@ export function CharacterSheetModal() {
             </button>
           </div>
           <div className="h-px flex-none bg-ink/10" />
-          {/* 시트는 세로로 길다 — 모달을 늘리지 말고 안쪽만 스크롤시킨다 */}
+          {/* 시트는 세로로 길다. 모달을 늘리지 말고 안쪽만 스크롤시킨다 */}
           {/*
-            overscroll-contain — 페이지 끝에 닿은 스크롤이 뒤로 새어 나가지 않게 한다.
+            overscroll-contain: 페이지 끝에 닿은 스크롤이 뒤로 새어 나가지 않게 한다.
             없으면 끝까지 넘긴 순간 스크롤이 조상으로 이어져(scroll chaining) 방이
             딸려 움직인다. 수첩을 보는 동안 뒤가 흔들리면 수첩이 화면 위에 얹힌
             종이가 아니라 페이지의 일부처럼 보인다.
           */}
           <div className="notebook-grid scroll-paper min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
             {tab === "lore" ? (
-              /* 갤러리는 3열까지 벌어진다 — 프로필처럼 2xl로 묶으면 카드가 눌린다 */
+              /* 갤러리는 3열까지 벌어진다. 프로필처럼 2xl로 묶으면 카드가 눌린다 */
               <div className="mx-auto max-w-4xl py-1">
                 <LoreEntries onReplay={() => setOpen(false)} />
               </div>

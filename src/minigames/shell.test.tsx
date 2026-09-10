@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { useSkipEligible } from "./shell";
 
-/** 훅의 판정을 글자로 내보내는 탐침 — 스킵 버튼이 뜰지 말지를 정하는 값 그대로다. */
+/** 훅의 판정을 글자로 내보내는 탐침: 스킵 버튼이 뜰지 말지를 정하는 값 그대로다. */
 function SkipProbe() {
   const eligible = useSkipEligible(1000);
   return <output>{eligible ? "skip-open" : "skip-hidden"}</output>;
@@ -43,7 +43,7 @@ describe("useSkipEligible의 난이도 게이트", () => {
   });
 
   it("게임 중에 난이도를 바꾸면 그 자리에서 반영된다", () => {
-    // 메뉴는 플레이 중에도 열린다 — 막힌 사람이 이지로 내리는 것이 이 설정의 존재 이유다
+    // 메뉴는 플레이 중에도 열린다. 막힌 사람이 이지로 내리는 것이 이 설정의 존재 이유다
     useMemoryRoomStore.setState({ difficulty: "normal" });
     render(<SkipProbe />);
     act(() => vi.advanceTimersByTime(1100));

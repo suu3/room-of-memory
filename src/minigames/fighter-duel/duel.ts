@@ -1,18 +1,34 @@
 /**
  * 격투 미니게임의 순수 규칙. 화면 없이 검증할 수 있게 계산만 모아둔다.
  *
- * 뼈대는 가위바위보식 삼각 상성이다 — 상대가 무엇을 낼지 예고(tell)를 보고 받아친다.
+ * 뼈대는 가위바위보식 삼각 상성이다. 상대가 무엇을 낼지 예고(tell)를 보고 받아친다.
  * 반사신경이 아니라 읽기 싸움이라 몇 초 안에 끝나고, 못 읽어도 이야기가 이어진다.
  *
  * 그 위에 격투 게임의 문법을 얹었다. 판수를 세는 대신 체력을 깎고, 연속으로
  * 읽어내면 더 아프게 들어가고(콤보), 빨리 읽으면 한 방이 커진다(간파).
- * 대신 상대는 예고를 도중에 바꾼다(페인트) — 서두르면 그 페인트에 당한다.
+ * 대신 상대는 예고를 도중에 바꾼다(페인트): 서두르면 그 페인트에 당한다.
  *
  * 이 셋이 하나의 선택으로 묶인다: **지금 낼 것인가, 한 박자 더 볼 것인가.**
  * 빨리 내면 간파 보너스, 기다리면 페인트에 안 속는다. 어느 쪽도 공짜가 아니다.
  */
 
+import type { MinigameDifficulty } from "@/types/minigame";
+
 export type Move = "strike" | "guard" | "throw";
+
+/**
+ * 난이도별 상대의 손맛. 이지는 상대 한 방이 70%다: 정답을 계속 내고도 5/100으로
+ * 겨우 이기는 판은 읽기 싸움이 아니라 소모전으로 읽혔다. 내 한 방은 그대로 둔다.
+ * 잘 읽으면 빨리 끝나는 쪽이 이지의 뜻이지, 상대가 약해 보이는 게 아니다.
+ */
+export interface DuelTuning {
+  rivalDamageScale: number;
+}
+
+export const DUEL_TUNINGS: Record<MinigameDifficulty, DuelTuning> = {
+  easy: { rivalDamageScale: 0.7 },
+  normal: { rivalDamageScale: 1 },
+};
 
 export const MOVES: readonly Move[] = ["strike", "guard", "throw"];
 
@@ -20,7 +36,7 @@ export const MOVES: readonly Move[] = ["strike", "guard", "throw"];
  * 무엇이 무엇을 이기는가. 공격 > 필살기 > 방어 > 공격.
  *
  * 필살기는 방어를 뚫고, 뜸을 들이는 필살기는 먼저 때리면 끊기고, 날아오는
- * 공격은 막힌다 — 세 변에 다 이유가 있어야 외우지 않고도 떠오른다.
+ * 공격은 막힌다. 세 변에 다 이유가 있어야 외우지 않고도 떠오른다.
  * (id는 코드가 쓰는 키라 strike/guard/throw 그대로. 화면 이름은 i18n에 있다.)
  */
 const BEATS: Record<Move, Move> = {
@@ -37,14 +53,14 @@ export function resolveRound(player: Move, opponent: Move): RoundOutcome {
 }
 
 /**
- * 이 수가 이기는 수. 버튼에 "○○를 이김"으로 적어 상성을 화면 안에 둔다 —
+ * 이 수가 이기는 수. 버튼에 "○○를 이김"으로 적어 상성을 화면 안에 둔다.
  * 외워야만 되는 규칙이면 2초 안에 안 떠오른다.
  */
 export function beats(move: Move): Move {
   return BEATS[move];
 }
 
-/** 상대 예고를 받아치는 수 — 화면의 힌트가 가리키는 정답. */
+/** 상대 예고를 받아치는 수: 화면의 힌트가 가리키는 정답. */
 export function counterTo(move: Move): Move {
   const counter = MOVES.find((candidate) => BEATS[candidate] === move);
   // BEATS는 전단사라 항상 답이 있다. 타입 좁히기용 기본값.
@@ -56,7 +72,7 @@ export function counterTo(move: Move): Move {
 export const MAX_HP = 100;
 
 /**
- * 한 방의 기본 대미지. 끊기지 않고 다섯 번을 읽어내면 KO, 다섯 번 맞으면 진다 —
+ * 한 방의 기본 대미지. 끊기지 않고 다섯 번을 읽어내면 KO, 다섯 번 맞으면 진다.
  * 판이 늘어지지 않으면서도 한 번 삐끗한 걸로 끝나지는 않는 길이.
  */
 export const BASE_DAMAGE = 16;
@@ -68,11 +84,11 @@ export const COMBO_CAP = 5;
 export const CRITICAL_SCALE = 1.5;
 
 /**
- * 상대의 기본 대미지와 라운드마다 붙는 가산 — 오래 끌수록 상대가 매워진다.
+ * 상대의 기본 대미지와 라운드마다 붙는 가산: 오래 끌수록 상대가 매워진다.
  *
  * 다섯 대에 쓰러지던 걸 여섯 대로 늘렸다. 읽기 싸움은 처음 한두 판을 버려 가며
  * 배우는 게임인데, 배우는 값이 그대로 패배면 규칙을 알기 전에 판이 끝난다.
- * 이기는 쪽(다섯 번)은 그대로 둔다 — 판이 늘어지면 그것대로 지친다.
+ * 이기는 쪽(다섯 번)은 그대로 둔다. 판이 늘어지면 그것대로 지친다.
  */
 export const RIVAL_BASE_DAMAGE = 15;
 export const RIVAL_RAMP = 2;
@@ -91,7 +107,7 @@ export const RIVAL_DAMAGE_CAP = 23;
  * 한 판에 필살기로만 이길 수 있는 라운드가 두어 번 온다. 세 번이면 제때 쓰는
  * 사람은 모자라지 않고, 아무 데나 쓰는 사람만 빈손이 된다.
  *
- * 다 쓰고 나면 방어 예고를 이길 수가 없다. 그게 이 제한의 값이다 — 대신 같이
+ * 다 쓰고 나면 방어 예고를 이길 수가 없다. 그게 이 제한의 값이다. 대신 같이
  * 방어해서 비기는 길은 항상 열려 있어서, 빈손이 사형선고는 아니다.
  */
 export const SPECIAL_USES = 3;
@@ -120,7 +136,7 @@ export function canUseSpecial(state: DuelState): boolean {
   return state.special >= SPECIAL_COST;
 }
 
-/** 이번 라운드를 치르고 난 남은 횟수. 쓴 만큼만 빠진다 — 채워 주는 길은 없다. */
+/** 이번 라운드를 치르고 난 남은 횟수. 쓴 만큼만 빠진다. 채워 주는 길은 없다. */
 export function nextSpecial(state: DuelState, resolution: RoundResolution): number {
   const spent = resolution.player === "throw" ? SPECIAL_COST : 0;
   return Math.max(0, state.special - spent);
@@ -142,25 +158,35 @@ export function heroDamage(combo: number, critical: boolean): number {
   return Math.round((BASE_DAMAGE + bonus) * (critical ? CRITICAL_SCALE : 1));
 }
 
-export function rivalDamage(round: number): number {
-  return Math.min(RIVAL_DAMAGE_CAP, RIVAL_BASE_DAMAGE + RIVAL_RAMP * round);
+export function rivalDamage(round: number, tuning: DuelTuning = DUEL_TUNINGS.normal): number {
+  return Math.round(
+    Math.min(RIVAL_DAMAGE_CAP, RIVAL_BASE_DAMAGE + RIVAL_RAMP * round) * tuning.rivalDamageScale,
+  );
 }
 
 /** 이 라운드에서 실제로 깎이는 체력. 0이면 아무도 안 맞았다는 뜻(무승부). */
-export function damageOf(state: DuelState, resolution: RoundResolution): number {
+export function damageOf(
+  state: DuelState,
+  resolution: RoundResolution,
+  tuning: DuelTuning = DUEL_TUNINGS.normal,
+): number {
   if (resolution.outcome === "win") return heroDamage(state.combo + 1, resolution.critical);
-  if (resolution.outcome === "lose") return rivalDamage(state.round);
+  if (resolution.outcome === "lose") return rivalDamage(state.round, tuning);
   return 0;
 }
 
 /**
  * 한 라운드 결과를 상태에 반영한다.
  *
- * 무승부는 아무도 안 맞지만 콤보도 안 끊는다 — 같은 수를 낸 건 읽기에 실패한
+ * 무승부는 아무도 안 맞지만 콤보도 안 끊는다. 같은 수를 낸 건 읽기에 실패한
  * 것이지 손해를 본 게 아니다. 여기서까지 콤보를 끊으면 운에 벌을 주는 게 된다.
  */
-export function applyRound(state: DuelState, resolution: RoundResolution): DuelState {
-  const damage = damageOf(state, resolution);
+export function applyRound(
+  state: DuelState,
+  resolution: RoundResolution,
+  tuning: DuelTuning = DUEL_TUNINGS.normal,
+): DuelState {
+  const damage = damageOf(state, resolution, tuning);
   const round = state.round + 1;
   const special = nextSpecial(state, resolution);
   if (resolution.outcome === "win") {
@@ -197,12 +223,12 @@ export function hpRatio(hp: number): number {
  * 첫 라운드의 예고 시간. 짧으면 반사신경 게임이 되고, 길면 긴장이 없다.
  *
  * 예고는 그림이 아니라 문장으로도 읽힌다("상대가 두 팔을 머리 위로 든다"). 읽고,
- * 삼각 상성에서 받아칠 수를 떠올리고, 버튼을 찾는 데 실제로 2초 가까이 걸린다 —
+ * 삼각 상성에서 받아칠 수를 떠올리고, 버튼을 찾는 데 실제로 2초 가까이 걸린다.
  * 1.7초로는 규칙을 아는 사람도 손이 먼저 가는 게임이 됐다. 여기서 재는 것은
  * 손 빠르기가 아니라 읽기라, 읽을 시간을 먼저 주고 그 위에서 조인다.
  */
 export const TELL_START_MS = 2600;
-/** 아무리 몰려도 여기보다 짧아지지 않는다 — 읽을 시간은 남겨 둔다. */
+/** 아무리 몰려도 여기보다 짧아지지 않는다. 읽을 시간은 남겨 둔다. */
 export const TELL_FLOOR_MS = 1600;
 export const TELL_STEP_MS = 60;
 /** 상대가 이 체력 아래로 떨어지면 각성한다. */
@@ -222,13 +248,13 @@ export function tellDurationMs(round: number, rivalHp: number): number {
   return Math.max(TELL_FLOOR_MS, byRound - rage);
 }
 
-/** 상대가 각성했는가 — 화면이 이걸 붉은 기색으로 알린다. */
+/** 상대가 각성했는가: 화면이 이걸 붉은 기색으로 알린다. */
 export function isEnraged(rivalHp: number): boolean {
   return rivalHp > 0 && hpRatio(rivalHp) <= RAGE_HP_RATIO;
 }
 
 /**
- * 간파 판정 시간. 예고가 화면에 뜬 순간부터 잰다 — 페인트로 자세가 바뀌면
+ * 간파 판정 시간. 예고가 화면에 뜬 순간부터 잰다. 페인트로 자세가 바뀌면
  * 거기서 다시 0이다. 바뀐 걸 빨리 읽어낸 것도 똑같이 읽어낸 것이다.
  */
 export const CRITICAL_MS = 700;
@@ -243,7 +269,7 @@ export function isCritical(elapsedMs: number): boolean {
  * 페인트가 나오기 시작하는 라운드(0-based). 첫 판은 규칙을 익히는 시간이다.
  *
  * 판이 다섯 판 안팎에서 끝나므로 확률을 아끼면 페인트를 한 번도 못 보고 이기는
- * 판이 생긴다 — 규칙의 절반을 못 만나는 셈이라 두 번째 판부터 꽤 자주 건다.
+ * 판이 생긴다. 규칙의 절반을 못 만나는 셈이라 두 번째 판부터 꽤 자주 건다.
  */
 export const FEINT_FROM_ROUND = 1;
 /** 예고 시간의 어느 지점에서 자세를 바꾸는가. 바꾼 뒤에 절반 넘게 남아야 한다. */
@@ -279,7 +305,7 @@ export function readHabit(history: readonly Move[]): Move | null {
 /**
  * 페인트로 바꿔 낼 수.
  *
- * 기본값은 "예고를 보고 받아칠 사람"을 잡는 수다 — 플레이어가 낼 counterTo(tell)를
+ * 기본값은 "예고를 보고 받아칠 사람"을 잡는 수다. 플레이어가 낼 counterTo(tell)를
  * 이기는 쪽. 여기에 버릇이 읽히면 그쪽을 우선한다: 같은 버튼만 누르면 페인트가
  * 정확히 그 버튼을 노린다. 무작위가 아니라 읽혀서 당하는 것이어야 분하다.
  */
@@ -287,14 +313,14 @@ export function feintTo(tell: Move, history: readonly Move[] = []): Move {
   const habit = readHabit(history);
   if (habit) {
     const punish = counterTo(habit);
-    // 예고와 같은 수면 페인트가 아니게 된다 — 그때는 기본값으로 돌아간다.
+    // 예고와 같은 수면 페인트가 아니게 된다. 그때는 기본값으로 돌아간다.
     if (punish !== tell) return punish;
   }
   return counterTo(counterTo(tell));
 }
 
 /**
- * 다음 상대 수. 인덱스로 정해지는 해시라 같은 판이면 같은 순서가 나온다 —
+ * 다음 상대 수. 인덱스로 정해지는 해시라 같은 판이면 같은 순서가 나온다.
  * 매번 뒤집히면 "읽었다"는 감각이 안 생긴다.
  */
 export function opponentMove(round: number, salt: number): Move {

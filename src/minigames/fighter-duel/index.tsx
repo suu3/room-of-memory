@@ -12,7 +12,9 @@ import {
   beats,
   CRITICAL_MS,
   canUseSpecial,
+  counterTo,
   DUEL_START,
+  DUEL_TUNINGS,
   type DuelState,
   damageOf,
   duelStatus,
@@ -52,9 +54,9 @@ const INTRO_MS = 900;
  */
 const STALL_MS = 400;
 const SKIP_AFTER_MS = 30_000;
-/** 이 체력 아래로 떨어지면 스킵을 열어 둔다 (접근성 — 두 번 맞으면 보인다). */
-const SKIP_AT_HP = 0.7;
-/** 1/2/3 — MOVES 순서와 같은 자리. */
+/** 이 체력 아래로 떨어지면 스킵을 열어 둔다 (접근성: 어느 난이도든 두 번 맞으면 보인다). */
+const SKIP_AT_HP = 0.78;
+/** 1/2/3: MOVES 순서와 같은 자리. */
 const MOVE_KEYS = ["1", "2", "3"] as const;
 /**
  * 도해 시트는 프레임 안에서 발이 상대 시트보다 높이 앉아 있어, 그대로 두면
@@ -66,7 +68,7 @@ const HERO_OFFSET_Y = 16;
 const SPECIAL_SLOTS = Array.from({ length: SPECIAL_USES }, (_, slot) => `special-${slot}`);
 
 /**
- * 남은 필살기 횟수. 숫자가 아니라 점으로 보여준다 — 판이 도는 중에 읽어야 해서
+ * 남은 필살기 횟수. 숫자가 아니라 점으로 보여준다. 판이 도는 중에 읽어야 해서
  * "두 번 남았다"보다 "두 개 켜져 있다"가 빠르다. 쓰면 꺼지고 다시 켜지지 않는다.
  */
 function SpecialMeter({ charged }: { charged: number }) {
@@ -82,7 +84,7 @@ function SpecialMeter({ charged }: { charged: number }) {
   );
 }
 
-/** 한 라운드가 끝난 자리에 남는 것 — 화면이 읽어서 자세·숫자·문구로 옮긴다. */
+/** 한 라운드가 끝난 자리에 남는 것: 화면이 읽어서 자세·숫자·문구로 옮긴다. */
 interface Resolved {
   /** 시간 안에 아무것도 안 냈으면 null. */
   player: Move | null;
@@ -114,17 +116,19 @@ function opponentPose(resolved: Resolved | null, tell: Move, over: boolean): Pos
 
 /**
  * 게임기 속 격투 게임. 상대가 다음 수를 자세로 예고하고, 그걸 받아치는 수를 낸다.
- * 공격 > 필살기 > 방어 > 공격 — 반사신경이 아니라 읽기 싸움이다.
- * 필살기만 횟수가 있어 세 수가 대등하지 않다 — 방어 예고를 이기려면 필살기가 남아 있어야 한다.
+ * 공격 > 필살기 > 방어 > 공격: 반사신경이 아니라 읽기 싸움이다.
+ * 필살기만 횟수가 있어 세 수가 대등하지 않다. 방어 예고를 이기려면 필살기가 남아 있어야 한다.
  *
  * 읽기만으로 끝나지 않게 세 가지가 얹혀 있다(규칙은 ./duel.ts):
  * 연속으로 읽어내면 세게 들어가고(콤보), 빨리 읽으면 한 방이 커지고(간파),
  * 대신 상대는 예고를 도중에 바꾼다(페인트). 서두를수록 크게 이기고 크게 당한다.
  */
-export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
+export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy" }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
+  // 상대의 손맛만 난이도를 탄다 (./duel.ts의 DUEL_TUNINGS)
+  const tuning = DUEL_TUNINGS[difficulty];
   // 판마다 순서가 달라야 외워서 이기지 않는다. 판 안에서는 고정 (읽는 재미).
   const [salt] = useState(() => Math.floor(Math.random() * 1000));
   const [state, setState] = useState<DuelState>(DUEL_START);
@@ -135,24 +139,24 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   const [feintAt, setFeintAt] = useState(0);
   const [resolved, setResolved] = useState<Resolved | null>(null);
   const [criticals, setCriticals] = useState(0);
-  /** 라운드 진행 열쇠 — 결과 연출이 끝나면 올라가고, 그때 다음 라운드가 짜인다. */
+  /** 라운드 진행 열쇠: 결과 연출이 끝나면 올라가고, 그때 다음 라운드가 짜인다. */
   const [roundKey, setRoundKey] = useState(0);
   const [live, setLive] = useState(false);
   const [over, setOver] = useState<"won" | "lost" | null>(null);
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
 
   const timerRef = useRef<HTMLDivElement>(null);
-  /** 이번 라운드의 시계. 0이면 "아직 첫 프레임을 못 봤다" — 그때까진 시간이 안 간다. */
+  /** 이번 라운드의 시계. 0이면 "아직 첫 프레임을 못 봤다". 그때까진 시간이 안 간다. */
   const roundStartRef = useRef(0);
   /** 직전 프레임 시각. 프레임 사이가 벌어지면 그만큼 화면이 멈춰 있었다는 뜻이다. */
   const lastFrameRef = useRef(0);
-  /** 지금 걸린 예고가 뜬 시각 — 간파는 여기서부터 잰다 (페인트면 다시 0). */
+  /** 지금 걸린 예고가 뜬 시각: 간파는 여기서부터 잰다 (페인트면 다시 0). */
   const tellShownRef = useRef(0);
   const feintDoneRef = useRef(false);
   const lockedRef = useRef(true);
   const liveRef = useRef(false);
   liveRef.current = live;
-  /** 플레이어가 낸 수의 이력 — 상대의 페인트가 이걸 읽는다. */
+  /** 플레이어가 낸 수의 이력: 상대의 페인트가 이걸 읽는다. */
   const historyRef = useRef<Move[]>([]);
   const pendingRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
 
@@ -176,7 +180,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   answerRef.current = (move) => {
     if (lockedRef.current || !liveRef.current) return;
     /*
-     * 게이지가 빈 필살기는 낸 것으로 치지 않는다 — 잠그지 않고 그대로 돌아가므로
+     * 게이지가 빈 필살기는 낸 것으로 치지 않는다. 잠그지 않고 그대로 돌아가므로
      * 같은 라운드에 다른 수를 낼 수 있다. 여기서 라운드를 잡아먹으면 "눌렀는데
      * 아무 일도 없이 한 판을 날렸다"가 된다.
      */
@@ -185,17 +189,17 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
     const opponent = shownRef.current;
     // 시간 안에 못 내면 그대로 맞는다.
     const outcome: RoundOutcome = move ? resolveRound(move, opponent) : "lose";
-    // 예고가 아직 안 그려졌으면(첫 프레임 전) 흐른 시간은 0이다 — 못 본 시간은 안 센다.
+    // 예고가 아직 안 그려졌으면(첫 프레임 전) 흐른 시간은 0이다. 못 본 시간은 안 센다.
     const sinceTell = tellShownRef.current === 0 ? 0 : performance.now() - tellShownRef.current;
     const critical = outcome === "win" && isCritical(sinceTell);
     const resolution = { player: move, opponent, outcome, critical };
-    const damage = damageOf(state, resolution);
-    const next = applyRound(state, resolution);
+    const damage = damageOf(state, resolution, tuning);
+    const next = applyRound(state, resolution, tuning);
     if (move) historyRef.current.push(move);
     setResolved({ ...resolution, damage });
     setState(next);
     if (critical) setCriticals((count) => count + 1);
-    // 라운드 결과는 타격으로 말한다 — 승패 스팅어(success/fail)는 판 전체가 끝날 때
+    // 라운드 결과는 타격으로 말한다. 승패 스팅어(success/fail)는 판 전체가 끝날 때
     // 호스트가 한 번만 울린다. 여기서까지 울리면 매 라운드가 결승처럼 들린다.
     playSound(
       outcome === "win"
@@ -235,7 +239,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // 새 라운드 — 예고가 뜨는 순간부터 시간을 잰다.
+  // 새 라운드: 예고가 뜨는 순간부터 시간을 잰다.
   // biome-ignore lint/correctness/useExhaustiveDependencies: roundKey는 값이 아니라 "다음 라운드로 넘어간다"는 신호로만 쓴다.
   useEffect(() => {
     if (!live) return;
@@ -244,7 +248,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
     setShown(nextPlan.tell);
     setResolved(null);
     setFeintAt(0);
-    // 시계는 여기서 시작하지 않는다 — 예고가 실제로 그려진 첫 프레임에 시작한다.
+    // 시계는 여기서 시작하지 않는다. 예고가 실제로 그려진 첫 프레임에 시작한다.
     roundStartRef.current = 0;
     tellShownRef.current = 0;
     feintDoneRef.current = false;
@@ -253,7 +257,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
     playSound("swingMiss", { variation: 0.08 });
   }, [roundKey, live, salt]);
 
-  // 남은 시간 바 — setState 없이 ref를 직접 민다. 페인트만 예외로 한 번 상태를 건드린다.
+  // 남은 시간 바: setState 없이 ref를 직접 민다. 페인트만 예외로 한 번 상태를 건드린다.
   useEffect(() => {
     let frame = 0;
     const loop = (now: number) => {
@@ -263,7 +267,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
        * 프레임 사이가 벌어지는 건 탭이 가려졌거나(rAF 자체가 멈춘다) 3D 씬·청크
        * 로드가 메인 스레드를 붙잡고 있었다는 뜻이다. 그 시간을 그냥 흘려보내면
        * 돌아온 첫 프레임에서 progress가 1을 넘어, 플레이어가 예고를 보지도 못한 채
-       * 라운드가 통째로 지나간다 — "시작하자마자 연패"가 이렇게 만들어졌다.
+       * 라운드가 통째로 지나간다. "시작하자마자 연패"가 이렇게 만들어졌다.
        */
       const gap = lastFrameRef.current === 0 ? 0 : now - lastFrameRef.current;
       lastFrameRef.current = now;
@@ -271,7 +275,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
 
       if (!lockedRef.current && liveRef.current) {
         const { durationMs, feint } = planRef.current;
-        // 예고가 처음 그려지는 프레임 — 여기가 이 라운드의 0초다
+        // 예고가 처음 그려지는 프레임: 여기가 이 라운드의 0초다
         if (roundStartRef.current === 0) {
           roundStartRef.current = now;
           tellShownRef.current = now;
@@ -318,9 +322,16 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   );
 
   const enraged = over === null && isEnraged(state.rivalHp);
+  /**
+   * 첫 라운드는 튜토리얼이다: 정답 버튼이 빛난다. 규칙을 세 줄로 읽고 곧장 2초 안에
+   * 받아치라는 건 배우기 전에 시험을 치르는 것이었다. 첫 판에는 페인트가 없으므로
+   * (FEINT_FROM_ROUND) 빛나는 버튼이 바뀔 일도 없다. 두 번째 라운드부터는 혼자 읽는다.
+   */
+  const tutorial = live && over === null && resolved === null && state.round === 0;
+  const tutorialAnswer = tutorial ? counterTo(shown) : null;
   const heroHit = resolved?.outcome === "lose";
   const rivalHit = resolved?.outcome === "win";
-  /** 간파 판정이 살아 있는 구간 — 게이지 오른쪽 끝의 눈금으로 보여준다. */
+  /** 간파 판정이 살아 있는 구간: 게이지 오른쪽 끝의 눈금으로 보여준다. */
   const criticalZone = Math.min(100, (CRITICAL_MS / plan.durationMs) * 100);
 
   return (
@@ -337,7 +348,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
       onSkip={skip}
       size="lg"
     >
-      {/* 체력 게이지 — 게임기 화면의 상단 띠. 무대와 붙어 하나의 화면으로 읽힌다 */}
+      {/* 체력 게이지: 게임기 화면의 상단 띠. 무대와 붙어 하나의 화면으로 읽힌다 */}
       <div className="flex items-start gap-4 rounded-t-md border-2 border-b-0 border-night bg-night/85 px-3 pb-2 pt-2 sm:px-5">
         <HealthBar
           hp={state.heroHp}
@@ -359,13 +370,13 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
 
       <div className="overflow-hidden rounded-b-md border-2 border-night bg-scene-abyss">
         <div
-          // 예고 글자가 위쪽 띠로 빠졌으니 둘 사이는 간격으로 벌린다 —
+          // 예고 글자가 위쪽 띠로 빠졌으니 둘 사이는 간격으로 벌린다.
           // justify-between이면 넓은 패널에서 양 끝으로 밀려 마주 본다는 느낌이 사라진다
           className={`relative flex h-64 items-end justify-center gap-8 bg-cover bg-center px-3 pb-6 sm:gap-40 sm:px-10 ${
             resolved && resolved.outcome !== "draw" ? "animate-batting-field-shake" : ""
           }`}
           style={{
-            // 무대 그림이 리포에 없으면 그 레이어만 못 그리고 아래 그라디언트가 남는다 —
+            // 무대 그림이 리포에 없으면 그 레이어만 못 그리고 아래 그라디언트가 남는다.
             // 배경은 이 폴백만으로도 충분해서 존재 확인을 따로 하지 않는다.
             backgroundImage: `url(${ASSETS.images.mgFighterDuelStage}), linear-gradient(var(--color-scene-storm), var(--color-scene-abyss) 78%)`,
           }}
@@ -403,7 +414,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
                 -{resolved.damage}
               </span>
             )}
-            {/* 콤보는 도해 쪽에 쌓인다 — 내가 이어가고 있다는 표시라 내 쪽에 붙어야 한다 */}
+            {/* 콤보는 도해 쪽에 쌓인다. 내가 이어가고 있다는 표시라 내 쪽에 붙어야 한다 */}
             {state.combo >= 2 && over === null && (
               <span
                 key={`${state.combo}-combo`}
@@ -416,7 +427,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
           </div>
 
           {/*
-            예고와 결과는 자세만으로 전하지 않는다 — 글로도 읽히고, 바뀌면 알린다.
+            예고와 결과는 자세만으로 전하지 않는다. 글로도 읽히고, 바뀌면 알린다.
 
             두 파이터 사이에 끼워 두면 좁은 화면에서 가운데 칸이 눌려 "상대가 어깨를
             뒤로 뺀다"가 네 줄로 접히고 스프라이트에 가린다. 무대 위쪽 띠로 띄워
@@ -453,7 +464,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
                   전에는 "상대가 어깨를 뒤로 뺀다"만 띄우고 그게 무슨 수인지는
                   플레이어가 옮겨야 했다. 자세를 읽고 → 수로 옮기고 → 상성을
                   떠올리고 → 버튼을 찾는 네 걸음을 2초 안에 하는 셈이라, 규칙을
-                  아는 사람도 손이 먼저 갔다. 이름을 크게 못박아 두 걸음을 지운다 —
+                  아는 사람도 손이 먼저 갔다. 이름을 크게 못박아 두 걸음을 지운다.
                   남는 건 "이 수를 이기는 버튼 찾기" 하나다.
                 */}
                 <span
@@ -521,7 +532,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
           )}
         </div>
 
-        {/* 남은 시간 — 색이 아니라 길이로 읽히게. 오른쪽 끝 눈금 안에서 내면 간파다 */}
+        {/* 남은 시간: 색이 아니라 길이로 읽히게. 오른쪽 끝 눈금 안에서 내면 간파다 */}
         <div className="relative h-1.5 w-full bg-night/60">
           <div ref={timerRef} className="h-full w-full origin-left bg-memory" />
           <span
@@ -534,7 +545,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
 
       {/*
         예고가 걸려 있지 않은 동안(시작 배너·결과 연출)은 버튼을 잠근다. 눌러도
-        아무 일이 없는 버튼은 "고장난 게임"으로 읽힌다 — 지금은 낼 차례가 아니라는
+        아무 일이 없는 버튼은 "고장난 게임"으로 읽힌다. 지금은 낼 차례가 아니라는
         걸 커서와 색으로 먼저 말해 준다.
       */}
       <div className="mt-3 grid grid-cols-3 gap-3">
@@ -547,9 +558,10 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
             정답 버튼을 대신 짚어 주지는 않는다. 짚어 주면 페인트가 무의미해지고
             (자세가 바뀌면 표시도 따라 바뀌므로) 읽기 싸움이 통째로 사라진다.
           */
-          /** 필살기만 게이지를 쓴다 — 빈 게이지면 낼 수 없다는 걸 버튼이 먼저 말한다. */
+          /** 필살기만 게이지를 쓴다. 빈 게이지면 낼 수 없다는 걸 버튼이 먼저 말한다. */
           const costsMeter = move === "throw";
           const spent = costsMeter && !canUseSpecial(state);
+          const guided = tutorialAnswer === move;
 
           return (
             <button
@@ -559,7 +571,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
               onClick={() => answerRef.current(move)}
               className={`rounded-sm border border-line px-4 py-2.5 text-ivory transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-memory focus-visible:outline-offset-2 enabled:cursor-pointer enabled:hover:border-fog/40 enabled:hover:bg-ivory/8 disabled:opacity-45 ${
                 resolved?.player === move ? "border-fog/50 bg-ivory/10 opacity-100" : ""
-              }`}
+              } ${guided ? "animate-hotspot-glow border-memory bg-memory/15 shadow-slot-glow" : ""}`}
             >
               <span className="flex items-center justify-center gap-2 font-bold text-base">
                 <span>
@@ -583,7 +595,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
         })}
       </div>
       <p className="mt-2.5 break-ko text-pretty text-center text-sm text-fog">
-        {t("minigame.fighterDuel.hint")}
+        {t(tutorial ? "minigame.fighterDuel.tutorialHint" : "minigame.fighterDuel.hint")}
       </p>
     </MinigameShell>
   );

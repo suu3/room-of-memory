@@ -23,7 +23,7 @@ import {
 const SKIP_AFTER_MS = 40_000;
 /** 섞는 수. 3×3에서 이 정도면 한눈에 답이 보이지도, 손이 지치지도 않는다. */
 const SCRAMBLE_MOVES = 24;
-/** 조각 하나가 잘라 쓸 배경의 크기 — 가로·세로 **둘 다** 격자 배수여야 한다. */
+/** 조각 하나가 잘라 쓸 배경의 크기: 가로·세로 **둘 다** 격자 배수여야 한다. */
 const TILE_BACKGROUND_SIZE = `${PUZZLE_SIZE * 100}% ${PUZZLE_SIZE * 100}%`;
 
 /**
@@ -67,7 +67,7 @@ const ARROW_DIRECTIONS: Record<string, SlideDirection> = {
  * 2차 조사에서 액자 사진을 맞춘다.
  *
  * 1차는 뿌연 유리를 닦는 게임이었다. 같은 액자를 또 닦게 하면 2바퀴가 1바퀴의
- * 재탕이 되므로, 여기서는 조각난 사진을 다시 맞춘다 — 흩어진 것을 제자리로
+ * 재탕이 되므로, 여기서는 조각난 사진을 다시 맞춘다. 흩어진 것을 제자리로
  * 돌려놓는 동작이 2바퀴의 주제와 같다.
  */
 export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
@@ -81,7 +81,7 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
   const aspect = usePhotoAspect(ASSETS.images.mgPhotoWipePhase2);
 
   /*
-   * 판을 한 번 민다. 못 미는 자리를 눌렀으면 아무 일도 일어나지 않는다 —
+   * 판을 한 번 민다. 못 미는 자리를 눌렀으면 아무 일도 일어나지 않는다.
    * 막힌 조각마다 실패음을 울리면 손이 바쁜 구간이 시끄러워진다.
    */
   const applyRef = useRef((_next: Board) => {});
@@ -147,12 +147,12 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
               disabled={!movable}
               aria-label={t("minigame.photoPuzzle.tile", { value: tile + 1 })}
               onClick={() => applyRef.current(moveAt(board, index))}
-              // 조각에도 바탕을 깔아 둔다 — 사진이 붙기 전에 빈 칸으로 비지 않게
+              // 조각에도 바탕을 깔아 둔다. 사진이 붙기 전에 빈 칸으로 비지 않게
               className={`rounded-xs transition-[opacity,transform] duration-150 ${
                 empty ? "bg-ivory/10" : "bg-bone"
               } ${movable ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory`}
               style={{
-                // 조각도 사진과 같은 비율이어야 한다 — 정사각 칸에 넣으면 사진이 눌린다
+                // 조각도 사진과 같은 비율이어야 한다. 정사각 칸에 넣으면 사진이 눌린다
                 aspectRatio: aspect,
                 ...(empty
                   ? null

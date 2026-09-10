@@ -11,10 +11,10 @@
  *     시작점에 접혀 구멍이 된다. 여기서 잘라두지 않으면 방에서 규칙적으로 소리가
  *     빈다.
  *  2. **Ogg Vorbis 인코딩** (품질 4 ≒ 128kbps). 3MB 한도(.claude/rules/assets.md)
- *     안에 들어가야 한다 — 넘으면 품질을 한 단계 낮춰 다시 굽는다.
+ *     안에 들어가야 한다. 넘으면 품질을 한 단계 낮춰 다시 굽는다.
  *  3. **라우드니스 측정.** 두 곡에 같은 음량 커브가 걸리므로 둘의 기준 레벨이
  *     어긋나면 2바퀴에서 갑자기 커지거나 작아진다. 값만 보고하고 건드리지는
- *     않는다 — 맞출지는 듣고 판단할 일이다.
+ *     않는다. 맞출지는 듣고 판단할 일이다.
  *
  * 음악 자체는 손대지 않는다. 열화(로우패스·리버브·덕킹)는 전부 재생 시점에
  * 걸린다 (src/lib/audio/music-curve.ts).
@@ -23,7 +23,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, renameSync, statSync, unlinkSync } from "node:fs";
 import path from "node:path";
 
-/** 넣을 수 있는 자리와 그 파일명 — src/lib/assets.ts의 bgm 후보 목록과 같아야 한다. */
+/** 넣을 수 있는 자리와 그 파일명: src/lib/assets.ts의 bgm 후보 목록과 같아야 한다. */
 const SLOTS = {
   daylight: "bgm-room-daylight.ogg",
   "second-light": "bgm-room-second-light.ogg",
@@ -54,7 +54,7 @@ function probe(file, entries) {
 
 /**
  * loudnorm 측정 패스에서 통합 라우드니스(LUFS)와 다이내믹 폭(LRA)을 뽑는다.
- * 필터 리포트는 stdout이 아니라 **stderr**로 나온다 — spawnSync로 둘 다 받는다.
+ * 필터 리포트는 stdout이 아니라 **stderr**로 나온다. spawnSync로 둘 다 받는다.
  */
 function measureLoudness(file) {
   const run = spawnSync(
@@ -89,7 +89,7 @@ mkdirSync(OUT_DIR, { recursive: true });
 
 const before = Number(probe(input, "format=duration"));
 
-// 앞은 silenceremove, 뒤는 뒤집어서 같은 필터를 다시 — ffmpeg에 뒤쪽 전용 트림이 없다
+// 앞은 silenceremove, 뒤는 뒤집어서 같은 필터를 다시: ffmpeg에 뒤쪽 전용 트림이 없다
 const trim = [
   `silenceremove=start_periods=1:start_threshold=${SILENCE_DB}:start_silence=0.05`,
   "areverse",
@@ -145,10 +145,10 @@ console.log(
 );
 if (measured) {
   console.log(
-    `  라우드니스 ${measured.lufs.toFixed(1)} LUFS — 두 곡이 3 LUFS 넘게 벌어지면 바퀴가 바뀔 때 한쪽이 튄다`,
+    `  라우드니스 ${measured.lufs.toFixed(1)} LUFS: 두 곡이 3 LUFS 넘게 벌어지면 바퀴가 바뀔 때 한쪽이 튄다`,
   );
   console.log(
-    `  다이내믹 ${measured.lra.toFixed(1)} LRA — 10을 넘으면 미니게임 중 18%로 눌렸을 때 조용한 대목이 사라진다`,
+    `  다이내믹 ${measured.lra.toFixed(1)} LRA: 10을 넘으면 미니게임 중 18%로 눌렸을 때 조용한 대목이 사라진다`,
   );
 }
 console.log(`\n다음: public/assets/CREDITS.md에 출처·라이선스를 적고, 들어보고`);

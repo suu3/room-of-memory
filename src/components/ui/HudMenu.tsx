@@ -19,7 +19,7 @@ import {
   SECTION_LABEL,
 } from "./ui-classes";
 
-/** 한 줄에 둘이 나눠 앉는 항목 — 폭만 반씩, 나머지는 MENU_ITEM과 같다. */
+/** 한 줄에 둘이 나눠 앉는 항목: 폭만 반씩, 나머지는 MENU_ITEM과 같다. */
 const PAIR_ITEM_CLASS = `${MENU_ITEM} flex-1 justify-center text-center`;
 
 export function HudMenu() {
@@ -73,11 +73,16 @@ export function HudMenu() {
 
       {open && (
         <div className={`absolute right-0 top-full mt-2 w-68 animate-fade-rise p-4 ${PANEL_DARK}`}>
-          <p className={`px-1 ${SECTION_LABEL}`}>{t("language.label")}</p>
+          {/* 눈에 보이는 라벨. 읽히는 이름은 각 fieldset의 legend라 여기서는 소리를 끈다. 둘 다 읽으면 "언어 선택 언어 선택" */}
+          <p aria-hidden className={`px-1 ${SECTION_LABEL}`}>
+            {t("language.label")}
+          </p>
           <div className="mt-2">
             <LanguageToggle tone="dark" />
           </div>
-          <p className={`mt-4 px-1 ${SECTION_LABEL}`}>{t("difficulty.label")}</p>
+          <p aria-hidden className={`mt-4 px-1 ${SECTION_LABEL}`}>
+            {t("difficulty.label")}
+          </p>
           {/* 이지=스킵 열림, 보통=스킵 숨김. 게이트는 useSkipEligible 한 곳 (minigames/shell) */}
           <fieldset className="mt-2 flex gap-1.5">
             <legend className="sr-only">{t("difficulty.label")}</legend>
@@ -96,12 +101,12 @@ export function HudMenu() {
               </button>
             ))}
           </fieldset>
-          {/* 어느 쪽이 켜져 있는지 말로도 남긴다 — 칩 두 개만으로는 뜻이 안 읽힌다 */}
+          {/* 어느 쪽이 켜져 있는지 말로도 남긴다. 칩 두 개만으로는 뜻이 안 읽힌다 */}
           <p className="mt-1.5 break-ko px-1 text-xs leading-normal text-ash">
             {t(difficulty === "easy" ? "difficulty.easyHint" : "difficulty.normalHint")}
           </p>
-          {/* 소리 on/off는 메뉴 밖으로 나갔다 — SoundToggle 참고. */}
-          {/* 수첩은 여기 없다 — 오른쪽 가장자리 손잡이(NotebookTab)가 유일한 입구다. */}
+          {/* 소리 on/off는 메뉴 밖으로 나갔다. SoundToggle 참고. */}
+          {/* 수첩은 여기 없다. 오른쪽 가장자리 손잡이(NotebookTab)가 유일한 입구다. */}
           <div className="my-3 h-px bg-line" />
           {/* 만든 사람 · 피드백은 성격이 같은 부속 화면이라 한 줄에 나란히 둔다 */}
           <div className="flex items-center">
@@ -129,7 +134,7 @@ export function HudMenu() {
               {t("feedback.title")}
             </button>
           </div>
-          {/* 리셋은 다른 항목과 갈라 세운다 — 되돌릴 수 없는 유일한 항목이다 */}
+          {/* 리셋은 다른 항목과 갈라 세운다. 되돌릴 수 없는 유일한 항목이다 */}
           <div className="my-3 h-px bg-line" />
           <button
             type="button"
@@ -154,7 +159,7 @@ export function HudMenu() {
             className={`relative w-full max-w-md animate-fade-rise p-6 ${PANEL_DARK}`}
           >
             <div className="flex items-start gap-3.5">
-              {/* 되돌릴 수 없는 동작이라 아이콘으로 먼저 걸러준다 — 텍스트가 이미 설명하므로 장식 */}
+              {/* 되돌릴 수 없는 동작이라 아이콘으로 먼저 걸러준다. 텍스트가 이미 설명하므로 장식 */}
               <span
                 aria-hidden
                 className="grid size-9 flex-none place-items-center rounded-full bg-ember/20 text-ember"

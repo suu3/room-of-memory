@@ -35,12 +35,12 @@ type Screen = "boot" | "lock" | "browse";
 
 /**
  * 창 왼쪽 위의 신호등 세 개. 이 판을 "컴퓨터 화면"으로 읽히게 하는 최소한의 장치다.
- * 색은 팔레트에서 가장 가까운 셋 — 새 색을 만들지 않는다 (DESIGN.md).
+ * 색은 팔레트에서 가장 가까운 셋: 새 색을 만들지 않는다 (DESIGN.md).
  */
 const TRAFFIC_LIGHTS = ["bg-ember", "bg-memory", "bg-scene-olive"] as const;
 
 /**
- * 책상 위 컴퓨터 — 2바퀴에 딱 한 번 열리는 조사.
+ * 책상 위 컴퓨터: 2바퀴에 딱 한 번 열리는 조사.
  *
  * 노트북 한 대가 화면 가운데에 열려 있고, 그 안에서 세 화면이 한 줄로 이어진다.
  *   boot   전원이 들어오고 진행 막대가 찬다. 아무 데나 누르면 건너뛴다
@@ -52,7 +52,7 @@ const TRAFFIC_LIGHTS = ["bg-ember", "bg-memory", "bg-scene-olive"] as const;
  * 못 찾아도 막다른 길은 아니다: 네 번 틀리거나 시간이 지나면 스킵이 떠서 그냥
  * 열어준다 (.claude/rules/minigames.md).
  *
- * 방은 어둡고 이 판만 밝다 — 화면이 켜졌다는 사실 자체가 이 장면의 사건이라,
+ * 방은 어둡고 이 판만 밝다. 화면이 켜졌다는 사실 자체가 이 장면의 사건이라,
  * 씬과 같은 톤으로 어둡게 깔면 아무것도 안 켜진 것처럼 보인다.
  */
 export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameProps) {
@@ -61,7 +61,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
   const complete = useOnceCompleter(onComplete);
 
   /*
-   * 결과 대사는 다 읽은 뒤에만 뜬다 — 그 단계로 새로 마운트되면 부팅부터 다시
+   * 결과 대사는 다 읽은 뒤에만 뜬다. 그 단계로 새로 마운트되면 부팅부터 다시
    * 돌 자리가 아니라 마지막으로 보던 화면이 멈춰 있어야 한다. 보통은 이미
    * "browse"인 채로 stage만 바뀌므로 이 초기값이 쓰이는 일은 드물다.
    */
@@ -73,7 +73,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
   const [pageIndex, setPageIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // 결과 대사가 위에 떠 있는 동안은 판을 멈춘 그림이다 — 입력도 연출도 없다.
+  // 결과 대사가 위에 떠 있는 동안은 판을 멈춘 그림이다. 입력도 연출도 없다.
   const frozen = stage === "result";
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
   const skipVisible = screen === "lock" && !frozen && (fails >= FAILS_BEFORE_SKIP || skipByTime);
@@ -102,10 +102,10 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
     return () => clearTimeout(timer);
   }, [screen, frozen, bootLine]);
 
-  /** 부팅을 건너뛴다 — 막대를 끝까지 채우고 다음 틱에 로그인 화면이 뜬다. */
+  /** 부팅을 건너뛴다. 막대를 끝까지 채우고 다음 틱에 로그인 화면이 뜬다. */
   const skipBoot = useCallback(() => setBootLine(BOOT_LINES.length), []);
 
-  // 로그인 화면이 뜨면 입력칸에 커서를 둔다 — 실제 컴퓨터가 그렇다
+  // 로그인 화면이 뜨면 입력칸에 커서를 둔다. 실제 컴퓨터가 그렇다
   useEffect(() => {
     if (screen === "lock" && !frozen) inputRef.current?.focus();
   }, [screen, frozen]);
@@ -123,7 +123,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
     setFails((count) => count + 1);
   }, [screen, wrong, frozen, entry, unlock]);
 
-  /** 숫자만 받는다 — 네 자리가 차면 실제 로그인 화면처럼 바로 검사한다. */
+  /** 숫자만 받는다. 네 자리가 차면 실제 로그인 화면처럼 바로 검사한다. */
   const typeEntry = useCallback(
     (raw: string) => {
       if (wrong || frozen) return;
@@ -142,7 +142,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
     [wrong, frozen, entry.length, unlock],
   );
 
-  // 틀린 입력은 흔들린 뒤에 지워진다 — 바로 지우면 뭐가 틀렸는지도 못 본다.
+  // 틀린 입력은 흔들린 뒤에 지워진다. 바로 지우면 뭐가 틀렸는지도 못 본다.
   useEffect(() => {
     if (!wrong) return;
     const timer = setTimeout(() => {
@@ -165,7 +165,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
   }, [frozen]);
 
   /*
-   * 키보드 경로. 잠금 화면은 입력칸이 스스로 키를 받으므로 여기서 가로채지 않는다 —
+   * 키보드 경로. 잠금 화면은 입력칸이 스스로 키를 받으므로 여기서 가로채지 않는다.
    * 창을 훑는 키(Space·→)만 읽는 화면의 몫이다.
    */
   useEffect(() => {
@@ -191,19 +191,19 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
   return (
     <div className="flex animate-fade-rise flex-col items-center gap-3">
       {/*
-        노트북 한 대. 베젤은 어둡게 두고 테두리에만 알루미늄 하이라이트를 남긴다 —
+        노트북 한 대. 베젤은 어둡게 두고 테두리에만 알루미늄 하이라이트를 남긴다.
         밝게 두면 켜진 화면과 색이 붙어서 판이 어디서 끝나는지 안 보인다.
       */}
       <div className="mx-auto w-[52rem] max-w-[94vw]">
         <div className="rounded-[1.1rem] bg-scene-dusk px-2.5 pb-2.5 pt-3.5 shadow-panel ring-1 ring-screen-chrome/20">
-          {/* 화면 위 카메라 — 점 하나가 이 판을 노트북으로 읽히게 한다 */}
+          {/* 화면 위 카메라: 점 하나가 이 판을 노트북으로 읽히게 한다 */}
           <span
             aria-hidden
             className="mx-auto mb-2 block size-1.5 rounded-full bg-screen-chrome/25"
           />
           <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-night">
             {screen === "boot" ? (
-              // 화면 전체가 "건너뛰기"다 — 로그를 다 읽을 이유는 없고, 기다리는
+              // 화면 전체가 "건너뛰기"다. 로그를 다 읽을 이유는 없고, 기다리는
               // 몇 초가 연출일 뿐이라 아무 데나 눌러 넘길 수 있어야 한다
               <button
                 type="button"
@@ -214,7 +214,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                 <span className="sr-only" role="status">
                   {t("minigame.computerBrowse.booting")}
                 </span>
-                {/* 전원이 들어온 표시 — 로고 대신 켜진 사각형 하나 */}
+                {/* 전원이 들어온 표시: 로고 대신 켜진 사각형 하나 */}
                 <span
                   aria-hidden
                   className="size-11 animate-pulse rounded-md border-2 border-screen-glass/40"
@@ -231,7 +231,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                 </span>
               </button>
             ) : screen === "lock" ? (
-              /* 로그인 화면 — 바탕화면이 흐릿하게 비치고 그 위에 계정 하나 */
+              /* 로그인 화면: 바탕화면이 흐릿하게 비치고 그 위에 계정 하나 */
               <div
                 className="flex size-full flex-col items-center justify-center gap-3 px-6"
                 style={{
@@ -286,9 +286,9 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                 </p>
               </div>
             ) : (
-              /* 창 하나가 통째로 화면을 채운다 — 바탕화면까지 그리면 읽을 판이 좁아진다 */
+              /* 창 하나가 통째로 화면을 채운다. 바탕화면까지 그리면 읽을 판이 좁아진다 */
               <div className="flex size-full flex-col bg-screen-glass">
-                {/* 제목줄 — 신호등 · 앱 이름 · 오프라인 표시 */}
+                {/* 제목줄: 신호등 · 앱 이름 · 오프라인 표시 */}
                 <div className="flex shrink-0 items-center gap-2 border-b border-ink/10 bg-screen-chrome px-3.5 py-2">
                   <span className="flex shrink-0 items-center gap-1.5" aria-hidden>
                     {TRAFFIC_LIGHTS.map((tone) => (
@@ -311,7 +311,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                   </span>
                 </div>
 
-                {/* 본문 — 저장된 사본 한 장 */}
+                {/* 본문: 저장된 사본 한 장 */}
                 <div className="min-h-0 flex-1 overflow-y-auto px-7 py-5">
                   <div key={page.id} className="animate-fade-rise">
                     <p className="text-[0.6875rem] tracking-wider text-ink/40">{t(page.dateKey)}</p>
@@ -335,7 +335,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                       ))}
                     </div>
 
-                    {/* 첨부 사진 — 파일은 없고 빈 판이 자리를 지킨다 (컷씬과 같은 규칙) */}
+                    {/* 첨부 사진: 파일은 없고 빈 판이 자리를 지킨다 (컷씬과 같은 규칙) */}
                     {page.attachments ? (
                       <div className="mt-5 flex flex-wrap gap-3">
                         {page.attachments.map((name) => (
@@ -358,7 +358,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                   </div>
                 </div>
 
-                {/* 하단 — 몇 장째인지와 다음 장 */}
+                {/* 하단: 몇 장째인지와 다음 장 */}
                 <div className="flex shrink-0 items-center justify-between border-t border-ink/10 bg-screen-chrome/70 px-3.5 py-2">
                   <span className="text-[0.6875rem] tabular-nums text-ink/40">
                     {pageIndex + 1} / {ARCHIVE_PAGES.length}
@@ -378,14 +378,14 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
             )}
           </div>
         </div>
-        {/* 힌지 아래로 살짝 보이는 받침 — 이게 있어야 판이 아니라 노트북으로 읽힌다 */}
+        {/* 힌지 아래로 살짝 보이는 받침: 이게 있어야 판이 아니라 노트북으로 읽힌다 */}
         <div
           aria-hidden
           className="mx-auto h-2 w-[32%] rounded-b-xl bg-scene-dusk ring-1 ring-screen-chrome/15"
         />
       </div>
 
-      {/* 화면마다 아래에 서는 것이 다르다 — 부팅은 아무것도, 잠금은 안내(+스킵),
+      {/* 화면마다 아래에 서는 것이 다르다. 부팅은 아무것도, 잠금은 안내(+스킵),
           읽기는 다 읽었을 때 닫는 버튼 */}
       {frozen || screen === "boot" ? null : (
         <div className="flex min-h-9 items-center gap-3">

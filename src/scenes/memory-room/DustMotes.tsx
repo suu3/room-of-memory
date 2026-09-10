@@ -13,7 +13,7 @@ import { MEMORY_PLACEMENTS } from "./layout";
  * 먼지는 빛 자체가 아니라 빛 속의 반짝임이므로, 빛줄기 밖으로 나가면 안 된다.
  *
  * 그림은 셰이더가 전부 맡는다. 기본 pointsMaterial은 점을 네모난 단색 픽셀로 찍어서
- * 결국 "사각형 점"으로 보였다 — 먼지는 초점이 안 맞은 빛이라, 넓게 번지는 헤일로 위에
+ * 결국 "사각형 점"으로 보였다. 먼지는 초점이 안 맞은 빛이라, 넓게 번지는 헤일로 위에
  * 작고 밝은 코어를 얹어야 반짝임으로 읽힌다. 움직임(상승·흔들림·명멸)도 정점 셰이더
  * 안에서 시간의 함수로 풀어, 매 프레임 CPU가 좌표 버퍼를 고쳐 쓰지 않는다.
  */
@@ -21,7 +21,7 @@ const MOTE_COUNT = 240;
 
 /**
  * 화면상 먼지 지름(css px)의 하한과, 세제곱 분포로 뽑는 추가분.
- * 대부분은 작고 또렷한 반짝임이고 가끔 크고 흐릿한 보케가 섞인다 —
+ * 대부분은 작고 또렷한 반짝임이고 가끔 크고 흐릿한 보케가 섞인다.
  * 크기가 다 같으면 눈이 "패턴"으로 읽어버려서 먼지처럼 안 보인다.
  */
 const MOTE_MIN_SIZE = 1.8;
@@ -30,7 +30,7 @@ const MOTE_SIZE_RANGE = 9;
 const WINDOW = MEMORY_PLACEMENTS.window.position;
 
 /**
- * 빛줄기 — 창(z≈-3.9)에서 방 안(+Z)으로 비스듬히 내려꽂힌다.
+ * 빛줄기: 창(z≈-3.9)에서 방 안(+Z)으로 비스듬히 내려꽂힌다.
  * t=0이 창가, t=1이 바닥에 닿는 끝.
  */
 const SHAFT = {
@@ -50,7 +50,7 @@ const SWAY_AMPLITUDE = 0.2;
 
 const lerp = (from: number, to: number, t: number) => from + (to - from) * t;
 
-/** 세제곱 편향 — 빛줄기 가운데가 촘촘하고 가장자리로 갈수록 성기다. */
+/** 세제곱 편향: 빛줄기 가운데가 촘촘하고 가장자리로 갈수록 성기다. */
 function centerBiased(): number {
   const raw = Math.random() * 2 - 1;
   return raw ** 3;
@@ -66,7 +66,7 @@ const VERTEX_SHADER = /* glsl */ `
   attribute float aPhase;
   attribute float aDrift; // 좌우 흔들림 속도
   attribute float aRise;  // 상승 속도
-  attribute float aGlow;  // 밝기 — 큰 알갱이일수록 흐리다(보케)
+  attribute float aGlow;  // 밝기: 큰 알갱이일수록 흐리다(보케)
 
   varying float vFade;
   varying float vGlow;
@@ -75,7 +75,7 @@ const VERTEX_SHADER = /* glsl */ `
     vec3 pos = position;
 
     // 제 구간 안에서만 오르내린다. mod로 감아 돌리면 위로 빠져나간 먼지가
-    // 저절로 아래에서 다시 올라온다 — 빛줄기 밖으로 새지 않는다.
+    // 저절로 아래에서 다시 올라온다. 빛줄기 밖으로 새지 않는다.
     float travel = mod(pos.y - aBand.x + uTime * aRise, aBand.y);
     pos.y = aBand.x + travel;
 
@@ -88,7 +88,7 @@ const VERTEX_SHADER = /* glsl */ `
     // 픽셀이라 dpr을 곱해야 기기가 달라져도 같은 크기로 보인다.
     gl_PointSize = aSize * uPixelRatio;
 
-    // 구간 끝에서 서서히 꺼진다 — 안 그러면 먼지가 허공에서 툭 나타났다 툭 사라진다.
+    // 구간 끝에서 서서히 꺼진다. 안 그러면 먼지가 허공에서 툭 나타났다 툭 사라진다.
     float edge = min(travel, aBand.y - travel) / (aBand.y * 0.3);
     float twinkle = 0.55 + 0.45 * sin(uTime * (0.7 + aDrift * 2.0) + aPhase * 3.1);
     vFade = clamp(edge, 0.0, 1.0) * twinkle;
@@ -170,14 +170,14 @@ export function DustMotes({ color, opacity }: { color: string; opacity: number }
   const materialRef = useRef<ShaderMaterial>(null);
   const pixelRatio = useThree((state) => state.viewport.dpr);
   const motes = useMemo(createMotes, []);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: 초기값 전용 — 이후 갱신은 아래 effect와 useFrame이 맡는다.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 초기값 전용: 이후 갱신은 아래 effect와 useFrame이 맡는다.
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uSway: { value: SWAY_AMPLITUDE },
       uPixelRatio: { value: pixelRatio },
       uColor: { value: new Color(color) },
-      // 첫 프레임부터 제 밝기로 시작한다 — 커튼이 이미 열린 채 들어오는 경우가 있다.
+      // 첫 프레임부터 제 밝기로 시작한다. 커튼이 이미 열린 채 들어오는 경우가 있다.
       uOpacity: { value: opacity },
     }),
     [],

@@ -22,7 +22,7 @@ import {
 /**
  * 지금 화면에서 뭘 하면 되는지 한 줄. 탭과 진행에 따라 바뀐다.
  *
- * 통화 기록 탭에서는 아무 말도 하지 않는다(null). 안내를 붙일 자리가 아니다 —
+ * 통화 기록 탭에서는 아무 말도 하지 않는다(null). 안내를 붙일 자리가 아니다.
  * 화면에 안 받은 전화가 줄줄이 떠 있는 것으로 이미 다 말했고, 거기에 한 줄을
  * 더 얹으면 화자가 플레이어를 부르는 것처럼 읽혀서 톤이 어긋난다.
  */
@@ -41,7 +41,7 @@ function Bubble({
   label,
 }: {
   message: ChatMessage;
-  /** 이미 번역된 본문 — 키가 아니라 화면에 찍을 문자열이다. */
+  /** 이미 번역된 본문: 키가 아니라 화면에 찍을 문자열이다. */
   text: string;
   label: string;
 }) {
@@ -63,7 +63,7 @@ function Bubble({
         >
           {text}
         </p>
-        {/* 안읽음 수가 시각 위에 선다 — 줄어들지 않는 이 숫자가 이 화면의 화자다 */}
+        {/* 안읽음 수가 시각 위에 선다. 줄어들지 않는 이 숫자가 이 화면의 화자다 */}
         <span
           className={`flex shrink-0 flex-col pb-1 text-[0.625rem] tabular-nums ${
             mine ? "items-end" : "items-start"
@@ -81,7 +81,7 @@ function Bubble({
  * 스마트폰을 확대해 그날의 기록을 읽는다.
  *
  * 단톡방은 클릭(또는 Space/↓)으로 첫 줄부터 한 줄씩 읽어 내려가고, 통화 기록
- * 탭을 열면 도해가 누구에게 몇 번이나 걸었는지 보인다. 둘 다 봐야 끝난다 —
+ * 탭을 열면 도해가 누구에게 몇 번이나 걸었는지 보인다. 둘 다 봐야 끝난다.
  * 한쪽만 보면 그날의 절반만 본 셈이라. 실패 조건은 두지 않았다. 읽는 게 목적인
  * 인터랙션이다.
  */
@@ -114,7 +114,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
     if (next === "calls") setSeenCalls(true);
   }, []);
 
-  // 새 줄이 아래에 붙는 화면이라 방금 열린 줄이 보이려면 바닥을 따라가야 한다 —
+  // 새 줄이 아래에 붙는 화면이라 방금 열린 줄이 보이려면 바닥을 따라가야 한다.
   // 실제 채팅앱이 새 메시지에 붙는 것과 같은 감각.
   // biome-ignore lint/correctness/useExhaustiveDependencies: revealed는 본문에서 읽지 않고 "줄이 늘었다"는 신호로만 쓴다.
   useEffect(() => {
@@ -154,7 +154,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
         }}
       >
         {tab === "chat" ? (
-          // 한 줄씩 붙는 대화창이라 role="log"가 맞는다 — 새 줄이 스크린리더에 읽힌다.
+          // 한 줄씩 붙는 대화창이라 role="log"가 맞는다. 새 줄이 스크린리더에 읽힌다.
           // 클릭은 다음 줄 넘기기. 키보드 경로는 창 전역 핸들러와 아래 "다음" 버튼이 맡는다.
           <div
             ref={scrollRef}
@@ -166,13 +166,13 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
               event.preventDefault();
               readNext();
             }}
-            // 휠을 아래로 굴려도 다음 줄이 열린다 — 읽어 내려가는 방향 그대로
+            // 휠을 아래로 굴려도 다음 줄이 열린다. 읽어 내려가는 방향 그대로
             onWheel={(event) => {
               if (event.deltaY > 0) readNext();
             }}
             className="size-full overflow-y-auto bg-scene-navy px-3 py-3.5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-memory"
           >
-            {/* 날짜가 대화의 머리에 선다 — 첫 줄부터 읽어 내려가는 화면이라 처음부터 보인다 */}
+            {/* 날짜가 대화의 머리에 선다. 첫 줄부터 읽어 내려가는 화면이라 처음부터 보인다 */}
             <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
               {t("minigame.phoneChat.date")}
             </p>
@@ -219,7 +219,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
       </PhoneShell>
 
       {/* 다 읽었을 때만 닫는 버튼이 뜬다. 그 전에 닫으면(바깥 클릭·Esc) 아무 일도
-          없었던 것처럼 다시 열 수 있다 — 방탈출 탐색이라 되돌아올 수 있어야 한다. */}
+          없었던 것처럼 다시 열 수 있다. 방탈출 탐색이라 되돌아올 수 있어야 한다. */}
       <div className="flex min-h-9 items-center gap-3">
         {done ? (
           <button

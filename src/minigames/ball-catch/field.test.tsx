@@ -10,6 +10,7 @@ describe("BallCatchField", () => {
       <BallCatchField
         ballRef={createRef<HTMLDivElement>()}
         shadowRef={createRef<HTMLDivElement>()}
+        nowRef={createRef<HTMLSpanElement>()}
         remainingMisses={2}
         maxMisses={5}
         feedback="hit"
@@ -21,6 +22,7 @@ describe("BallCatchField", () => {
           hits: "Hits 2 / 3",
           chances: "Chances",
           prompt: "Press Space",
+          now: "Now!",
           hit: "Perfect hit",
           early: "Too early",
           late: "Too late",

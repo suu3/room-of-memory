@@ -10,7 +10,7 @@ describe("roomLoadFraction", () => {
     expect(roomLoadFraction({ loaded: 3, total: 12, active: true })).toBe(0.25);
   });
 
-  it("큐가 비면 완료로 못을 박는다 — 반올림 때문에 0.99에 멈추지 않게", () => {
+  it("큐가 비면 완료로 못을 박는다. 반올림 때문에 0.99에 멈추지 않게", () => {
     expect(roomLoadFraction({ loaded: 11, total: 12, active: false })).toBe(1);
   });
 

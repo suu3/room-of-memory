@@ -10,7 +10,7 @@ import { AnswerKeypad, AnswerSlots } from "../answer-input";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 import { ANSWER_LENGTH, isCorrect, PAIRS } from "./rotation";
 
-/** 미궁 문제는 붙잡고 들여다보는 시간이 길다 — 스킵은 한참 뒤에야 내민다. */
+/** 미궁 문제는 붙잡고 들여다보는 시간이 길다. 스킵은 한참 뒤에야 내민다. */
 const SKIP_AFTER_MS = 90_000;
 const SETTLE_MS = 900;
 const NUDGE_MS = 320;
@@ -39,7 +39,7 @@ function TurnRow({ from, to }: { from: string; to: string }) {
  * 사인볼 2바퀴의 회전 미궁.
  *
  * 화면에 규칙이 없다. 무엇을 어떻게 돌리라는 말도, 답이 각도라는 말도 없이 글자
- * 세 쌍과 빈칸만 세운다 — "시계 방향으로 몇 도"를 읽는 법은 캐비닛 위 시계가
+ * 세 쌍과 빈칸만 세운다. "시계 방향으로 몇 도"를 읽는 법은 캐비닛 위 시계가
  * 들고 있다 (src/data/room-clues.ts).
  *
  * 시간을 재지 않는다. 들여다보는 시간이 곧 이 문제의 내용이다.
@@ -71,7 +71,7 @@ export function AngleTurnMinigame({ onComplete, onSettled }: MinigameProps) {
     playSound("success");
   };
 
-  // 틀린 답은 흔들림이 끝나면 통째로 비운다 — 지워서 고치는 게 아니라 처음부터
+  // 틀린 답은 흔들림이 끝나면 통째로 비운다. 지워서 고치는 게 아니라 처음부터
   // 다시 적는 문제다. 남겨두면 어느 자리가 틀렸는지 맞춰보라는 힌트가 된다.
   useEffect(() => {
     if (!rejected) return;
@@ -82,7 +82,7 @@ export function AngleTurnMinigame({ onComplete, onSettled }: MinigameProps) {
     return () => window.clearTimeout(timer);
   }, [rejected]);
 
-  // 슬롯을 다 채우면 스스로 확인한다 — 슬롯 UI에는 제출 버튼이 없다.
+  // 슬롯을 다 채우면 스스로 확인한다. 슬롯 UI에는 제출 버튼이 없다.
   const submitRef = useRef(submit);
   submitRef.current = submit;
   useEffect(() => {
@@ -129,7 +129,7 @@ export function AngleTurnMinigame({ onComplete, onSettled }: MinigameProps) {
       </div>
 
       {/*
-       * 자리수가 보이는 슬롯 + 화면 키패드. 빈 칸 수까지는 공짜 힌트다 — 각도의
+       * 자리수가 보이는 슬롯 + 화면 키패드. 빈 칸 수까지는 공짜 힌트다. 각도의
        * 규칙은 탁상시계가 들고 있다. 다 채우면 스스로 확인하므로 제출 버튼이 없다.
        */}
       <form

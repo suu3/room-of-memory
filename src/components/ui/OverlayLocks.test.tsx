@@ -8,7 +8,7 @@ import { CharacterSheetModal } from "./CharacterSheetModal";
 import { HudMenu } from "./HudMenu";
 import { NotebookTab } from "./NotebookTab";
 
-const NOTEBOOK_TAB_NAME = "Open the notebook — collected memories";
+const NOTEBOOK_TAB_NAME = "Open the notebook: collected memories";
 
 describe("room overlay input locks", () => {
   beforeAll(async () => {

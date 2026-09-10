@@ -68,7 +68,7 @@ describe("shipped player GLB", () => {
   });
 
   /*
-   * 실제 GLB(880KB)를 Meshopt로 풀고 스킨·애니메이션까지 돈다 — 로컬에서 2.5초, CI 러너에서는
+   * 실제 GLB(880KB)를 Meshopt로 풀고 스킨·애니메이션까지 돈다. 로컬에서 2.5초, CI 러너에서는
    * 기본 5초를 넘긴다 (CI #141이 이것 하나로 빨갔다). 느린 테스트가 맞으니 시간을 넉넉히 준다.
    */
   it("decodes the real compressed skin, stays at room scale, and animates both knees", {
@@ -164,7 +164,7 @@ describe("shipped player GLB", () => {
     }
 
     /*
-     * 앉는 자리(seats.ts)는 전부 이 포즈의 실측값에서 나온다 — 좌면 높이도, 앞뒤 위치도.
+     * 앉는 자리(seats.ts)는 전부 이 포즈의 실측값에서 나온다. 좌면 높이도, 앞뒤 위치도.
      * 리그를 다시 내보내면서 앉은 자세가 바뀌면 방 안의 의자 여덟 개가 한꺼번에 어긋나므로,
      * 코드가 들고 있는 수치를 실제 GLB에 대고 확인한다.
      */
@@ -176,7 +176,7 @@ describe("shipped player GLB", () => {
     gltf.scene.updateMatrixWorld(true);
     const sit = { contactY: Infinity, contactBack: Infinity, legBack: Infinity, torso: 0 };
     const vertex = new Vector3();
-    // 좌면에 닿는 부분(엉덩이·허벅지)과 늘어지는 부분(무릎 아래)은 높이로 못 가른다 —
+    // 좌면에 닿는 부분(엉덩이·허벅지)과 늘어지는 부분(무릎 아래)은 높이로 못 가른다.
     // 정강이가 허벅지 높이까지 올라온다. 각 정점이 가장 많이 매달린 본으로 가른다.
     const CONTACT_BONES = new Set(["hips", "thighL", "thighR"]);
     const LEG_BONES = new Set(["shinL", "shinR", "footL", "footR", "toeL", "toeR"]);

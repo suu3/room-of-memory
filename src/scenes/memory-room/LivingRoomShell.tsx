@@ -25,11 +25,11 @@ import { useNearPlayer } from "./use-near-player";
 /**
  * 방문 너머의 거실 (docs/content-design.md 3-1).
  *
- * 아직 골격뿐이다 — 바닥·벽·현관문. 가구(소파·TV·식탁·신발장)와 미궁 문제는
+ * 아직 골격뿐이다. 바닥·벽·현관문. 가구(소파·TV·식탁·신발장)와 미궁 문제는
  * 다음 단계에서 선다. 벽 치수는 RoomShell과 같은 값을 쓴다: 같은 집이라 벽
  * 높이·두께·굽도리가 다르면 문 하나 건넜을 뿐인데 다른 건물이 된다.
  *
- * +x 쪽 벽은 없다 — 방의 왼벽(x = ROOM_SHELL_BOUNDS.minX)이 그 자리다. 여기서
+ * +x 쪽 벽은 없다. 방의 왼벽(x = ROOM_SHELL_BOUNDS.minX)이 그 자리다. 여기서
  * 또 세우면 문간에 벽이 두 겹으로 서서 지나갈 때 z-fighting이 난다.
  */
 
@@ -69,7 +69,7 @@ const FLOOR: ShellPart = {
   position: [CENTER_X, -0.12, CENTER_Z],
 };
 
-/** 방과 같은 디오라마 받침 — 한 받침 위의 한 집으로 읽혀야 한다 (RoomShell의 PLINTH). */
+/** 방과 같은 디오라마 받침: 한 받침 위의 한 집으로 읽혀야 한다 (RoomShell의 PLINTH). */
 const PLINTH = [
   { size: [WIDTH + 0.5, 0.14, DEPTH + 0.5], position: [CENTER_X, -0.28, CENTER_Z] },
   { size: [WIDTH + 0.14, 0.55, DEPTH + 0.14], position: [CENTER_X, -0.6, CENTER_Z] },
@@ -92,20 +92,20 @@ const DOOR_FRAME = [
 ] as const satisfies readonly ShellPart[];
 
 /*
- * 방으로 돌아가는 문간 — 공유벽(x = LIVING_SHELL_BOUNDS.maxX)의 거실 쪽 얼굴.
+ * 방으로 돌아가는 문간: 공유벽(x = LIVING_SHELL_BOUNDS.maxX)의 거실 쪽 얼굴.
  *
  * 거실에 있는 동안 방은 통째로 숨는다(MemoryRoomScene). 그러면 공유벽과 방문도 같이
  * 사라져 거실의 +x 변은 바닥이 허공으로 끊긴 단면이 되고, 어디로 되돌아가는지 읽을 수
  * 없었다. 그래서 그 변에 거실 것을 따로 세운다: 다른 세 면과 같은 굽도리(문 자리는
- * 비운다)와 문턱에 고인 방의 빛. 문틀·문짝은 그리지 않는다 — 이 변은 카메라 쪽이라
+ * 비운다)와 문턱에 고인 방의 빛. 문틀·문짝은 그리지 않는다. 이 변은 카메라 쪽이라
  * 키 큰 문틀이 거실을 가리고, 문짝은 숨은 방의 허공에 뜬 판이 된다. 방에 있는 동안은
  * 거실이 통째로 숨으므로 방의 왼벽과 겹쳐 깜빡일 일은 없다.
  *
- * 누르는 물건은 아니다 — 문턱을 넘으면 방이다.
+ * 누르는 물건은 아니다. 문턱을 넘으면 방이다.
  */
 const SHARED_WALL_X = LIVING_SHELL_BOUNDS.maxX;
 
-/** 공유벽 굽도리 한 토막 — 방의 왼벽 굽도리와 같은 자리에서 문 개구부(DOOR_HOLE_Z)를 비운다. */
+/** 공유벽 굽도리 한 토막: 방의 왼벽 굽도리와 같은 자리에서 문 개구부(DOOR_HOLE_Z)를 비운다. */
 function sharedWallStub(minZ: number, maxZ: number): ShellPart {
   return {
     size: [WALL_THICKNESS, WALL_STUB_TOP_Y - WALL_Y.min, maxZ - minZ],
@@ -118,7 +118,7 @@ export const ROOM_DOORWAY_STUBS = [
   sharedWallStub(DOOR_HOLE_Z.max, LIVING_SHELL_BOUNDS.maxZ),
 ] as const satisfies readonly ShellPart[];
 
-/** 문턱 안쪽 거실 바닥에 고인 빛 — 방에서 새어 나온다. 문틀 폭보다 조금 좁게. */
+/** 문턱 안쪽 거실 바닥에 고인 빛: 방에서 새어 나온다. 문틀 폭보다 조금 좁게. */
 const THRESHOLD_GLOW: ShellPart = {
   size: [1.1, 0.02, DOOR_HOLE_Z.max - DOOR_HOLE_Z.min - 0.24],
   position: [SHARED_WALL_X - 0.7, 0.012, ROOM_DOOR_POSITION[2]],
@@ -136,7 +136,7 @@ function RoomDoorway({ palette }: { palette: RoomPalette }) {
         emissive={palette.memory}
         emissiveIntensity={0.45}
       />
-      {/* 방에서 문간으로 떨어지는 빛 — 현관 쪽 빛과 같은 문법, 방향만 반대다 */}
+      {/* 방에서 문간으로 떨어지는 빛: 현관 쪽 빛과 같은 문법, 방향만 반대다 */}
       <pointLight
         position={[SHARED_WALL_X - 0.6, 2.2, ROOM_DOOR_POSITION[2]]}
         color={palette.memory}
@@ -148,7 +148,7 @@ function RoomDoorway({ palette }: { palette: RoomPalette }) {
   );
 }
 
-/** 준비 전에도 아주 옅게 빛난다 — "저 문이 출구다"까지만 말한다 (배트와 같은 문법). */
+/** 준비 전에도 아주 옅게 빛난다. "저 문이 출구다"까지만 말한다 (배트와 같은 문법). */
 const DORMANT_EMISSIVE = 0.04;
 const READY_EMISSIVE = 0.65;
 
@@ -177,9 +177,9 @@ function ShellBox({
 }
 
 /**
- * 현관문 — 3막의 마지막 물건 (docs/content-design.md 3-2).
+ * 현관문: 3막의 마지막 물건 (docs/content-design.md 3-2).
  *
- * 잠금이 안 풀렸으면 클릭이 잠금 화면(글자 세 쌍 미궁, angle-turn)을 연다 —
+ * 잠금이 안 풀렸으면 클릭이 잠금 화면(글자 세 쌍 미궁, angle-turn)을 연다.
  * 각도를 읽는 법은 방의 탁상시계가 들고 있다. 도해가 30일 전에 자기 손으로
  * 걸어 잠근 문이라, 나가려면 그걸 먼저 풀어야 한다.
  *
@@ -206,7 +206,7 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
   useFrame((_, delta) => {
     const leaf = leafRef.current;
     if (!leaf) return;
-    // 열리는 각도는 방문과 같은 문법 — 다만 밖으로 민다
+    // 열리는 각도는 방문과 같은 문법: 다만 밖으로 민다
     leaf.rotation.y = approach(leaf.rotation.y, started ? ROOM_DOOR_LEAF.openAngle : 0, 4, delta);
     glowRef.current = approach(
       glowRef.current,
@@ -226,7 +226,7 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
         if (!clickable) return;
         event.stopPropagation();
         if (!unlocked) {
-          // 잠금 화면부터 — 문제가 풀려야 문이 열 물건이 된다
+          // 잠금 화면부터: 문제가 풀려야 문이 열 물건이 된다
           playSound("select");
           openPuzzle("angle-turn");
           return;
@@ -246,7 +246,7 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
   );
 }
 
-/** 문짝 — 금빛은 프레임마다 glowRef 값을 받아 올라온다 (재질 재생성 없이). */
+/** 문짝: 금빛은 프레임마다 glowRef 값을 받아 올라온다 (재질 재생성 없이). */
 function FrontDoorLeaf({
   palette,
   ready,
@@ -284,7 +284,7 @@ function FrontDoorLeaf({
 
 export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
   /*
-   * 색이 방과 다르다 — 방은 도해 취향의 깊은 네이비 벽인데, 거실은 부모님이
+   * 색이 방과 다르다. 방은 도해 취향의 깊은 네이비 벽인데, 거실은 부모님이
    * 꾸민 밝은 벽지(linen)다. 문 하나 건넜을 뿐인데 공기가 달라지는 게 이 색 차이가
    * 하는 일의 전부다. 바닥은 마루 느낌의 우드.
    */
@@ -303,7 +303,7 @@ export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
         <ShellBox key={part.position.join(":")} part={part} color={palette.trim} />
       ))}
 
-      {/* 걷히는 규칙은 방과 같되, 중심이 거실이다 — 카메라가 거실의 어느 쪽에
+      {/* 걷히는 규칙은 방과 같되, 중심이 거실이다. 카메라가 거실의 어느 쪽에
           있느냐로 계산해야 앞벽만 걷히고 뒷벽·현관벽은 서 있는다 */}
       <CulledWall side="back" center={LIVING_SHELL_CENTER}>
         <ShellBox part={BACK_WALL_UPPER} color={palette.linen} />
@@ -318,7 +318,7 @@ export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
       <FrontDoor palette={palette} />
       <RoomDoorway palette={palette} />
 
-      {/* 현관 쪽에서 새어 드는 빛 — 방문 밑 금빛 틈의 출처가 여기다 */}
+      {/* 현관 쪽에서 새어 드는 빛: 방문 밑 금빛 틈의 출처가 여기다 */}
       <pointLight
         position={[FRONT_DOOR_POSITION[0] + 0.8, 2.4, FRONT_DOOR_POSITION[2]]}
         color={palette.memory}

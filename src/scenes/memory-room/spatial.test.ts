@@ -79,7 +79,7 @@ describe("moveThroughZones", () => {
   });
 
   it("never jumps into a zone the walker is not standing in", () => {
-    // 방 왼벽에 붙어 서 있되 문간 z 밖 — 왼쪽으로 밀어도 거실로 순간이동하지 않는다
+    // 방 왼벽에 붙어 서 있되 문간 z 밖: 왼쪽으로 밀어도 거실로 순간이동하지 않는다
     const againstWall = { x: ROOM_BOUNDS.minX + RADIUS, z: 0 };
 
     const result = moveThroughZones(againstWall, { x: -1, z: 0 }, RADIUS, zones, []);
@@ -93,7 +93,7 @@ describe("zone continuity", () => {
 
   it("overlaps every seam wider than the player, so nobody wedges in a gap", () => {
     /*
-     * 문간 영역은 방·거실의 걷기 범위와 지름 이상 겹쳐야 한다 — 겹침이 그보다
+     * 문간 영역은 방·거실의 걷기 범위와 지름 이상 겹쳐야 한다. 겹침이 그보다
      * 얇으면 중심이 어느 영역에도 못 들어가는 틈이 생겨 문턱에서 몸이 끼인다.
      */
     expect(DOORWAY_ZONE.maxX - ROOM_BOUNDS.minX).toBeGreaterThan(DIAMETER);

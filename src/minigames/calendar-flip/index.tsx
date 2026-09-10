@@ -24,7 +24,7 @@ import { MonthGrid } from "./MonthGrid";
 /** 넘기는 애니메이션 길이. globals.css의 calendar-flip-*과 맞춘다. */
 const FLIP_MS = 380;
 
-/** 사건 이후 장 — 날짜 대신 버틴 날을 세는 正자만 남는다. */
+/** 사건 이후 장: 날짜 대신 버틴 날을 세는 正자만 남는다. */
 function TallySheet({ days, label }: { days: number; label: string }) {
   const { full, remainder } = tallyGroups(days);
   return (
@@ -53,7 +53,7 @@ function TallySheet({ days, label }: { days: number; label: string }) {
   );
 }
 
-/** 평범했던 달 — 날짜 격자. 표시된 날은 MonthGrid가 그린다. */
+/** 평범했던 달: 날짜 격자. 표시된 날은 MonthGrid가 그린다. */
 function MonthSheet({ month }: { month: number }) {
   return (
     <div className="h-64 overflow-hidden">
@@ -67,7 +67,7 @@ function MonthSheet({ month }: { month: number }) {
  *
  * 그림이 있으면 그림 한 장이 곧 그 달이고, 없으면 코드가 그리는 격자·正자 장이
  * 그대로 선다. 그림은 아직 리포에 없어도 되므로(.claude/rules/assets.md) 404가
- * 곧 고장이 되면 안 된다 — 못 받으면 조용히 대체 장이 그 자리를 지킨다.
+ * 곧 고장이 되면 안 된다. 못 받으면 조용히 대체 장이 그 자리를 지킨다.
  *
  * <img onError>로 떨어뜨리지 않는 이유는, 그러면 파일이 없을 때 깨진 그림 자리가
  * 한 번 보였다가 대체 장으로 바뀌기 때문이다. 대체 장을 먼저 세우고 그림이 실제로
@@ -126,7 +126,7 @@ function PageContent({ month }: { month: number }) {
   );
 }
 
-/** 달력 한 장 — 머리글(해·월)과 내용. 넘어가는 종이와 밑장이 같은 걸 쓴다. */
+/** 달력 한 장: 머리글(해·월)과 내용. 넘어가는 종이와 밑장이 같은 걸 쓴다. */
 function CalendarSheet({ month }: { month: number }) {
   const { t } = useTranslation();
 
@@ -157,7 +157,7 @@ interface Flip {
 /**
  * 벽에 걸린 달력을 한 장씩 넘겨본다.
  *
- * 이기고 지는 게임이 아니다 — 앞쪽은 평범한 달력이고, 사건이 있던 달을 지나면
+ * 이기고 지는 게임이 아니다. 앞쪽은 평범한 달력이고, 사건이 있던 달을 지나면
  * 날짜가 사라지고 버틴 날을 세는 正자만 남는다. 마지막 장까지 넘기면 다 본 것으로
  * 친다. 도중에 닫으면 아무 일도 없었던 것처럼 다시 열 수 있다 (방탈출 탐색).
  *
@@ -172,7 +172,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
   const doneRef = useRef(false);
 
   /*
-   * 넘김마다 올라가는 번호. 종이 엘리먼트의 key로 써서 매번 새로 마운트시킨다 —
+   * 넘김마다 올라가는 번호. 종이 엘리먼트의 key로 써서 매번 새로 마운트시킨다.
    * 달 조합(7→8)을 key로 삼으면 같은 넘김을 연달아 할 때 key가 겹쳐 애니메이션이
    * 처음부터 다시 돌지 않는다.
    */
@@ -197,7 +197,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
     [month],
   );
 
-  // 넘김이 끝나면 종이를 걷어낸다 — 그 자리엔 이미 같은 장이 밑장으로 서 있다.
+  // 넘김이 끝나면 종이를 걷어낸다. 그 자리엔 이미 같은 장이 밑장으로 서 있다.
   useEffect(() => {
     if (!flip) return;
     flipTimer.current = window.setTimeout(() => setFlip(null), FLIP_MS);
@@ -229,7 +229,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
 
   /*
    * 되돌리기는 넘김을 거꾸로 돌린 것이다. 키프레임을 한 벌 더 만드는 대신 방향만
-   * 뒤집으면, 그늘·그림자까지 저절로 짝이 맞는다 — 두 벌을 손으로 맞추다 어긋나는
+   * 뒤집으면, 그늘·그림자까지 저절로 짝이 맞는다. 두 벌을 손으로 맞추다 어긋나는
    * 자리를 아예 없앤다.
    */
   const reversed = flip?.direction === "prev" ? "[animation-direction:reverse]" : "";
@@ -249,7 +249,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
 
         {/* 벽걸이 달력 한 장 */}
         <div className="w-[19rem] max-w-[80vw]">
-          {/* 스프링 제본 — 넘어가는 종이가 매달리는 축이라 판 위에 그대로 둔다 */}
+          {/* 스프링 제본: 넘어가는 종이가 매달리는 축이라 판 위에 그대로 둔다 */}
           <div aria-hidden className="flex justify-center gap-3 pb-1">
             {Array.from({ length: 7 }, (_, index) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: 장식용 고리라 구분할 값이 없다.
@@ -260,19 +260,19 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
           {/*
             축(스프링) 위쪽은 잘라 낸다.
 
-            종이는 위쪽 축에 매달려 있어 아무리 돌아도 축에서부터 위로만 뻗는다 —
+            종이는 위쪽 축에 매달려 있어 아무리 돌아도 축에서부터 위로만 뻗는다.
             자르지 않으면 90도를 넘긴 종이가 달력 위에 통째로 선 채 남았다가 툭
             사라진다. 잘라 두면 링을 넘어가며 사라지는, 벽걸이 달력이 실제로 하는
-            모양이 된다. 위만 자르고 나머지 세 방향은 넓혀 둔다 — 판의 그림자까지
+            모양이 된다. 위만 자르고 나머지 세 방향은 넓혀 둔다. 판의 그림자까지
             같이 자르지 않으려고.
           */}
           <div className="[clip-path:inset(0_-100%_-100%_-100%)]">
             {/*
               넘김 무대. 밑장은 흐름을 따라가는 보통 요소라 높이를 정하고, 넘어가는
-              종이만 그 위에 절대배치로 겹친다 — 그래야 판 높이가 넘길 때마다 흔들리지 않는다.
+              종이만 그 위에 절대배치로 겹친다. 그래야 판 높이가 넘길 때마다 흔들리지 않는다.
 
               perspective는 900px, 소실점은 축과 같은 자리(위쪽 가운데)에 둔다. 판 너비의
-              세 배쯤이라야 아래 모서리가 보는 쪽으로 나오는 게 읽힌다 — 1400px에서는
+              세 배쯤이라야 아래 모서리가 보는 쪽으로 나오는 게 읽힌다. 1400px에서는
               거의 정사영이라 넘김이 아니라 세로로 접히는 블라인드처럼 보였다.
             */}
             <div className="relative [perspective-origin:50%_0] [perspective:900px]">
@@ -280,7 +280,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
 
               {flip && (
                 <>
-                  {/* 들린 종이가 밑장에 드리우는 그림자 — 종이의 발자국을 따라 걷힌다 */}
+                  {/* 들린 종이가 밑장에 드리우는 그림자: 종이의 발자국을 따라 걷힌다 */}
                   <div
                     key={`cast-${flip.key}`}
                     aria-hidden

@@ -33,13 +33,14 @@ function getFieldButton() {
 }
 
 /**
- * 클리어까지 필요한 5안타를 친다.
+ * 클리어까지 필요한 3안타(이지)를 친다.
  *
- * 라운드 길이는 안타를 칠 때마다 짧아진다(1700에서 150씩, 하한 1200). 다만
- * 다음 라운드 길이는 "그 안타를 칠 때의 catches" 기준이라 한 박자 늦게 반영된다 —
- * 그래서 1700이 두 번 나온다.
+ * 첫 공은 튜토리얼 피치라 느리다(1700 × 1.18 = 2006). 그 뒤 라운드 길이는 안타를
+ * 칠 때마다 짧아진다(1700에서 150씩, 하한 1200). 다만 다음 라운드 길이는 "그 안타를
+ * 칠 때의 catches" 기준이라 한 박자 늦게 반영된다. 판정 구간이 진행률 0.78~1.12라
+ * 기준 길이(1700)에 누르면 느린 공에도 맞는다.
  */
-const ROUND_DURATIONS = [1700, 1700, 1550, 1400, 1250];
+const ROUND_DURATIONS = [1700, 1700, 1550];
 
 function hitAllRounds() {
   ROUND_DURATIONS.forEach((duration, index) => {
@@ -104,22 +105,23 @@ describe("BallCatchMinigame", () => {
 
     expect(html).toContain(`src="${ASSETS.images.mgBallCatchSunsetField}"`);
     expect(html).toContain(`src="${ASSETS.images.mgBallCatchPitcher}"`);
-    expect(html).toContain("HITS 0 / 5");
+    expect(html).toContain("HITS 0 / 3");
     expect(html).toContain("Chances left");
     expect(html).toContain("5 / 5");
-    // 키보드 기기 기준 문구 — 터치 기기에서는 "TAP"으로 바뀐다 (src/i18n/control-hint.ts)
+    // 키보드 기기 기준 문구: 터치 기기에서는 "TAP"으로 바뀐다 (src/i18n/control-hint.ts)
     expect(html).toContain("SPACE");
   });
 
   it("renders the localized hit progress only once", () => {
     const html = renderToStaticMarkup(<BallCatchMinigame onComplete={() => {}} />);
 
-    expect(html.match(/0 \/ 5/g)).toHaveLength(1);
+    expect(html.match(/0 \/ 3/g)).toHaveLength(1);
   });
 
   it("uses a restrained ball path when reduced motion is preferred", () => {
     const defaultView = render(<BallCatchMinigame onComplete={() => {}} />);
-    runNextFrame(850);
+    // 첫 공은 튜토리얼 피치(2006ms): 그 절반이 정확히 진행률 0.5다
+    runNextFrame(1003);
     const defaultBall = defaultView.container.querySelector<HTMLDivElement>(
       `div[style*="${ASSETS.images.mgBallCatchBall}"]`,
     );
@@ -136,7 +138,7 @@ describe("BallCatchMinigame", () => {
     scheduledFrames.clear();
     reducedMotion = true;
     const reducedView = render(<BallCatchMinigame onComplete={() => {}} />);
-    runNextFrame(850);
+    runNextFrame(1003);
     const reducedBall = reducedView.container.querySelector<HTMLDivElement>(
       `div[style*="${ASSETS.images.mgBallCatchBall}"]`,
     );
@@ -229,7 +231,7 @@ describe("BallCatchMinigame", () => {
 
     advanceTime(1);
     expect(onComplete).toHaveBeenCalledOnce();
-    expect(onComplete).toHaveBeenCalledWith({ cleared: true, score: 5 });
+    expect(onComplete).toHaveBeenCalledWith({ cleared: true, score: 3 });
   });
 
   it("does not replay resolved-round feedback or change progress on repeat input", () => {
@@ -249,7 +251,7 @@ describe("BallCatchMinigame", () => {
     expect(
       document.querySelector<HTMLImageElement>(`img[src="${ASSETS.images.mgBallCatchImpact}"]`),
     ).toBe(impact);
-    expect(screen.getByText("HITS 1 / 5")).toBeTruthy();
+    expect(screen.getByText("HITS 1 / 3")).toBeTruthy();
     expect(onComplete).not.toHaveBeenCalled();
   });
 

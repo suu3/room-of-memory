@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BUTTON_PRIMARY } from "./ui-classes";
 
-/** 문이 열리는 걸 보여주고 나서 화면을 덮는다 — 배트를 쥔 손과 문이 이어져 보이도록. */
+/** 문이 열리는 걸 보여주고 나서 화면을 덮는다. 배트를 쥔 손과 문이 이어져 보이도록. */
 const DOOR_BEAT_MS = 1800;
 
 /**
@@ -14,7 +14,7 @@ const DOOR_BEAT_MS = 1800;
  *
  * 기획상 여기서 엔딩 영상이 재생되고, 영상의 마지막 컷(배트를 쥐고 문을 열고 나가는
  * 장면)이 방금 한 동작과 그대로 이어진다. 영상이 들어오기 전까지는 같은 자리에서
- * 같은 박자로 넘어가는 카드로 대신한다 — 영상이 준비되면 이 카드를 갈아끼우면 된다.
+ * 같은 박자로 넘어가는 카드로 대신한다. 영상이 준비되면 이 카드를 갈아끼우면 된다.
  */
 export function EndingScreen() {
   const { t } = useTranslation();

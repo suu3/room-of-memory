@@ -11,7 +11,7 @@ import { MEMORY_PLACEMENTS } from "./layout";
  * 먼지 입자만으로는 "점이 떠다닌다"로 읽히고 빛으로 보이지 않는다.
  * 실제로 빛줄기 볼륨을 그리고, 먼지는 그 안에서 반짝이는 역할만 맡긴다.
  *
- * 창밖으로 새어나가는 번짐은 여기 두지 않는다 — three는 투명 오브젝트를 항상
+ * 창밖으로 새어나가는 번짐은 여기 두지 않는다. three는 투명 오브젝트를 항상
  * 불투명 오브젝트 뒤에 그리므로, depthTest를 끈 스프라이트는 벽을 뚫고 방 위에
  * 덧칠된다. 그 워시는 캔버스 아래 DOM 레이어(.room-backdrop)가 담당한다.
  */
@@ -22,7 +22,7 @@ const WINDOW = MEMORY_PLACEMENTS.window.position;
  * 광선 판. 카메라 궤도가 ±0.32rad로 좁아 판 한 장으로도 볼륨처럼 읽힌다.
  *
  * 창(z=-3.88)과 커튼에 닿게 두면 그 위에 덧그려져 "빛이 창을 뚫는" 것처럼 보인다.
- * 위쪽 끝을 방 안쪽(z≈-3.3)에서 시작시켜 창 지오메트리와 아예 겹치지 않게 한다 —
+ * 위쪽 끝을 방 안쪽(z≈-3.3)에서 시작시켜 창 지오메트리와 아예 겹치지 않게 한다.
  * rotation.x=-1.02에서 local +Y는 (0, 0.523, -0.852)로 가므로
  * 중심 z=-0.74, 길이 6.0(반 3.0)이면 위쪽 끝이 z=-3.30이다.
  */
@@ -57,7 +57,7 @@ export function WindowLight({
 }: {
   color: string;
   intensity: number;
-  /** 커튼이 닫혀 있으면 빛이 들어올 이유가 없다 — 켜두면 "빛이 창을 뚫는" 것처럼 보인다. */
+  /** 커튼이 닫혀 있으면 빛이 들어올 이유가 없다. 켜두면 "빛이 창을 뚫는" 것처럼 보인다. */
   curtainsOpen: boolean;
 }) {
   const shaftTexture = useMemo(() => createShaftTexture(color), [color]);

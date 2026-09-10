@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { Vector3 } from "three";
 
 /**
- * 플레이어의 현재 위치. 매 프레임 바뀌므로 값이 아니라 ref로 흘린다 —
+ * 플레이어의 현재 위치. 매 프레임 바뀌므로 값이 아니라 ref로 흘린다.
  * 값으로 내리면 걸음마다 씬 전체가 리렌더된다.
  *
  * 씬 최상단(MemoryRoomScene)이 채우고, 방 안 아무 깊이에서나 꺼내 쓴다.
@@ -15,13 +15,13 @@ const PlayerPositionContext = createContext<{ current: Vector3 } | null>(null);
 
 export const PlayerPositionProvider = PlayerPositionContext.Provider;
 
-/** 씬 밖(테스트·프로바이더 바깥)에서 꺼내면 아무 데도 없는 자리 — 근접 판정이 전부 거짓이 된다. */
+/** 씬 밖(테스트·프로바이더 바깥)에서 꺼내면 아무 데도 없는 자리: 근접 판정이 전부 거짓이 된다. */
 const NOWHERE: { current: { x: number; y: number; z: number } } = {
   current: { x: Number.NaN, y: Number.NaN, z: Number.NaN },
 };
 
 /**
- * 플레이어 위치 ref. 매 프레임(useFrame) 읽는 쪽이 쓴다 — 값이 아니라 ref라
+ * 플레이어 위치 ref. 매 프레임(useFrame) 읽는 쪽이 쓴다. 값이 아니라 ref라
  * 읽어도 리렌더가 나지 않는다. 켜짐/꺼짐만 필요하면 useNearPlayer가 낫다.
  */
 export function usePlayerPosition(): { current: { x: number; y: number; z: number } } {
@@ -29,7 +29,7 @@ export function usePlayerPosition(): { current: { x: number; y: number; z: numbe
 }
 
 /**
- * 근접 판정 주기(ms). 매 프레임 재지 않는다 — useFrame에서 setState는 금지고
+ * 근접 판정 주기(ms). 매 프레임 재지 않는다. useFrame에서 setState는 금지고
  * (.claude/rules/r3f.md), 켜졌다/꺼졌다만 알면 되는 값이라 100ms면 충분히 촘촘하다.
  * RoomCanvas가 기억 근접을 재는 주기와 같은 값이다.
  */
@@ -51,7 +51,7 @@ export function isWithin(
  * 전등 스위치 같은 곁가지 인터랙션까지 표식을 달면 방이 표지판밭이 된다.
  * 대신 가까이 갔을 때만 은은히 빛나게 해서, 다가간 사람에게만 보이게 한다.
  *
- * 좌표를 배열이 아니라 x·z 낱개로 받는다 — 배열 리터럴을 넘기면 렌더마다 참조가
+ * 좌표를 배열이 아니라 x·z 낱개로 받는다. 배열 리터럴을 넘기면 렌더마다 참조가
  * 바뀌어 effect가 매번 다시 걸린다.
  */
 export function useNearPlayer(x: number, z: number, radius: number): boolean {

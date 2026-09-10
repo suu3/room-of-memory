@@ -20,14 +20,14 @@ import {
   PANEL_DARK,
 } from "./ui-classes";
 
-/** 성공은 상태로 남기지 않는다 — 모달을 닫고 토스트로 알린 뒤 idle로 돌아간다. */
+/** 성공은 상태로 남기지 않는다. 모달을 닫고 토스트로 알린 뒤 idle로 돌아간다. */
 type SendState = "idle" | "sending" | "failed" | "unconfigured";
 
 /** 토스트가 떠 있는 시간. 읽는 데 충분하고, 다음 조작을 가리기엔 짧게. */
 const TOAST_MS = 3200;
 
 /**
- * 진행 상태 요약 — 버그 재현에 필요한 최소한만 자동으로 붙인다.
+ * 진행 상태 요약: 버그 재현에 필요한 최소한만 자동으로 붙인다.
  * 개인정보가 아니라 게임 좌표다: 어디까지 왔고, 무슨 언어로, 어떤 화면에서.
  */
 function buildMeta(language: string): string {
@@ -44,7 +44,7 @@ function buildMeta(language: string): string {
 }
 
 /**
- * 피드백 모달. 접수는 /api/feedback이 구글 폼으로 넘긴다 — 응답은 폼에 연결된
+ * 피드백 모달. 접수는 /api/feedback이 구글 폼으로 넘긴다. 응답은 폼에 연결된
  * 스프레드시트에 쌓인다.
  *
  * 실패해도 본문을 지우지 않는다. 쓴 글이 날아가는 것이 이 폼의 최악이라,
@@ -91,7 +91,7 @@ export function FeedbackModal() {
         body: JSON.stringify({ category, body, email, meta: buildMeta(i18n.language) }),
       });
       if (response.ok) {
-        // 성공은 모달 안 문구가 아니라 토스트다 — 닫힌 뒤에도 "갔다"가 보여야 한다
+        // 성공은 모달 안 문구가 아니라 토스트다. 닫힌 뒤에도 "갔다"가 보여야 한다
         setSend("idle");
         setBody("");
         setEmail("");
@@ -99,7 +99,7 @@ export function FeedbackModal() {
         setToastVisible(true);
         return;
       }
-      // 폼이 아직 연결 안 된 배포 — 실패가 아니라 "준비 안 됨"으로 말한다
+      // 폼이 아직 연결 안 된 배포: 실패가 아니라 "준비 안 됨"으로 말한다
       setSend(response.status === 503 ? "unconfigured" : "failed");
     } catch {
       setSend("failed");
@@ -108,7 +108,7 @@ export function FeedbackModal() {
 
   return (
     <>
-      {/* 모달이 닫힌 뒤에 뜨는 확인 — 모달과 별개로 렌더해야 닫혀도 남는다 */}
+      {/* 모달이 닫힌 뒤에 뜨는 확인: 모달과 별개로 렌더해야 닫혀도 남는다 */}
       {toastVisible && (
         <div className="pointer-events-none absolute inset-x-0 bottom-10 z-50 flex justify-center">
           <p
@@ -199,7 +199,7 @@ export function FeedbackModal() {
               />
 
               <div className="flex items-center justify-between gap-3">
-                {/* 결과는 한 줄로 — sent만 초록 계열(memory) 없이 잉크로, 실패는 벽돌빛 */}
+                {/* 결과는 한 줄로: sent만 초록 계열(memory) 없이 잉크로, 실패는 벽돌빛 */}
                 <p
                   role="status"
                   className={`min-h-5 break-ko text-pretty text-xs ${

@@ -1,7 +1,7 @@
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes: APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
 # room-of-memory
@@ -10,24 +10,24 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Stack
 
-- **Next.js (App Router) + TypeScript** — Vercel 배포 전제
-- **three.js + @react-three/fiber + @react-three/drei + @react-three/postprocessing** — 3D 렌더링
-- **zustand** — 게임 상태 (현재 챕터/노드, 플래그, 설정)
-- **howler** — BGM/SFX
-- **Tailwind CSS v4** — DOM 오버레이 UI (대사창, 선택지, 메뉴)
-- **Biome** — lint + format (ESLint/Prettier 사용 금지)
+- **Next.js (App Router) + TypeScript**: Vercel 배포 전제
+- **three.js + @react-three/fiber + @react-three/drei + @react-three/postprocessing**: 3D 렌더링
+- **zustand**: 게임 상태 (현재 챕터/노드, 플래그, 설정)
+- **howler**: BGM/SFX
+- **Tailwind CSS v4**: DOM 오버레이 UI (대사창, 선택지, 메뉴)
+- **Biome**: lint + format (ESLint/Prettier 사용 금지)
 
 ## Commands
 
-- `pnpm dev` — dev 서버
-- `pnpm build` — 프로덕션 빌드 (머지 전 필수 통과)
-- `pnpm lint` / `pnpm lint:fix` — Biome 검사/자동수정
-- `pnpm lint:wasm` — Biome WASM 판으로 같은 검사. `biome.exe`가 실행되지 않는 환경용 (Windows Smart App Control은 서명 없는 실행 파일을 막는다). pre-commit 훅도 이 경로를 쓴다
-- `pnpm typecheck` — tsc --noEmit
-- `pnpm content:build` — `content/*.yaml` → 생성물 (대본/흐름을 고쳤으면 반드시 실행)
-- `pnpm content:check` — 생성물이 YAML과 맞는지 검사만 (쓰지 않음). `pnpm test`가 같은 검사를 포함한다
-- `pnpm design:lint` — DESIGN.md 토큰 검증
-- `pnpm model:prep <내보낸.glb> <이름>` — 블렌더 glb를 압축·검사해 `public/assets/models/`에 넣는다 (내보내기 설정은 `docs/model-export.md`)
+- `pnpm dev`: dev 서버
+- `pnpm build`: 프로덕션 빌드 (머지 전 필수 통과)
+- `pnpm lint` / `pnpm lint:fix`: Biome 검사/자동수정
+- `pnpm lint:wasm`: Biome WASM 판으로 같은 검사. `biome.exe`가 실행되지 않는 환경용 (Windows Smart App Control은 서명 없는 실행 파일을 막는다). pre-commit 훅도 이 경로를 쓴다
+- `pnpm typecheck`: tsc --noEmit
+- `pnpm content:build`: `content/*.yaml` → 생성물 (대본/흐름을 고쳤으면 반드시 실행)
+- `pnpm content:check`: 생성물이 YAML과 맞는지 검사만 (쓰지 않음). `pnpm test`가 같은 검사를 포함한다
+- `pnpm design:lint`: DESIGN.md 토큰 검증
+- `pnpm model:prep <내보낸.glb> <이름>`: 블렌더 glb를 압축·검사해 `public/assets/models/`에 넣는다 (내보내기 설정은 `docs/model-export.md`)
 
 대본·흐름은 dev 서버의 `/admin`(로컬 전용 편집기)에서 폼으로 고칠 수도 있다. 저장하면 YAML과 생성물이 함께 갱신된다.
 
@@ -35,18 +35,18 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 
 ## Architecture
 
-- `content/` — **대본과 게임 흐름의 단일 소스** (YAML). 사람이 고치는 곳은 여기다
-- `scripts/content/` — 콘텐츠 파이프라인 (읽기·검증·생성). 어드민과 `pnpm content:build`가 공유
-- `src/app/` — 라우트. 3D Canvas는 클라이언트 컴포넌트로 dynamic import
-- `src/app/admin/` — 로컬 전용 대본 편집기. `*.dev.tsx`라 프로덕션 빌드에는 라우트가 안 생긴다
-- `src/components/canvas/` — Canvas 내부에서만 쓰는 3D 컴포넌트
-- `src/components/ui/` — Canvas 밖 DOM 오버레이 (대사창, 선택지, HUD)
-- `src/scenes/` — 챕터별 3D 씬. 시나리오의 `scene` 키로 등록
-- `src/minigames/` — 미니게임. `src/types/minigame.ts` 계약을 만족, `index.ts` 레지스트리에 등록
-- `src/data/generated/` — **생성물. 직접 고치지 말 것** (`content/`에서 나온다)
-- `src/data/memory-room.ts` — 대본이 아닌 데이터 (방 단계 시각값 등) + 생성물 재수출
-- `src/store/` — zustand 스토어
-- `public/assets/` — 모든 에셋 (models/textures/audio/images/fonts). S3 등 외부 스토리지 없음, 전부 리포에 커밋
+- `content/`: **대본과 게임 흐름의 단일 소스** (YAML). 사람이 고치는 곳은 여기다
+- `scripts/content/`: 콘텐츠 파이프라인 (읽기·검증·생성). 어드민과 `pnpm content:build`가 공유
+- `src/app/`: 라우트. 3D Canvas는 클라이언트 컴포넌트로 dynamic import
+- `src/app/admin/`: 로컬 전용 대본 편집기. `*.dev.tsx`라 프로덕션 빌드에는 라우트가 안 생긴다
+- `src/components/canvas/`: Canvas 내부에서만 쓰는 3D 컴포넌트
+- `src/components/ui/`: Canvas 밖 DOM 오버레이 (대사창, 선택지, HUD)
+- `src/scenes/`: 챕터별 3D 씬. 시나리오의 `scene` 키로 등록
+- `src/minigames/`: 미니게임. `src/types/minigame.ts` 계약을 만족, `index.ts` 레지스트리에 등록
+- `src/data/generated/`: **생성물. 직접 고치지 말 것** (`content/`에서 나온다)
+- `src/data/memory-room.ts`: 대본이 아닌 데이터 (방 단계 시각값 등) + 생성물 재수출
+- `src/store/`: zustand 스토어
+- `public/assets/`: 모든 에셋 (models/textures/audio/images/fonts). S3 등 외부 스토리지 없음, 전부 리포에 커밋
 
 ## Design system
 
@@ -57,8 +57,8 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 ## Rules
 
 세부 규칙은 `.claude/rules/`에 분리되어 있음:
-- `r3f.md` — react-three-fiber 성능/구조 규칙
-- `assets.md` — 에셋 포맷, 용량 한도, 커밋 규칙
-- `visual-novel.md` — 시나리오 데이터 작성 규칙
-- `minigames.md` — 미니게임 구조/디자인/성능 규칙
-- `code-style.md` — TypeScript/Biome 컨벤션
+- `r3f.md`: react-three-fiber 성능/구조 규칙
+- `assets.md`: 에셋 포맷, 용량 한도, 커밋 규칙
+- `visual-novel.md`: 시나리오 데이터 작성 규칙
+- `minigames.md`: 미니게임 구조/디자인/성능 규칙
+- `code-style.md`: TypeScript/Biome 컨벤션

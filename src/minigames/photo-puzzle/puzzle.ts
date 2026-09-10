@@ -14,7 +14,7 @@ export const BLANK_TILE = TILE_COUNT - 1;
 /** board[자리] = 그 자리에 놓인 조각. 맞춘 상태는 자리와 조각이 같은 상태다. */
 export type Board = readonly number[];
 
-/** 조각이 미끄러지는 방향 — 방향키가 그대로 이 값이 된다. */
+/** 조각이 미끄러지는 방향: 방향키가 그대로 이 값이 된다. */
 export type SlideDirection = "up" | "down" | "left" | "right";
 
 export function solvedBoard(): Board {
@@ -29,7 +29,7 @@ export function blankIndex(board: Board): number {
   return board.indexOf(BLANK_TILE);
 }
 
-/** 빈칸과 자리를 맞바꿀 수 있는가 — 같은 행/열에서 딱 한 칸 떨어져 있어야 한다. */
+/** 빈칸과 자리를 맞바꿀 수 있는가: 같은 행/열에서 딱 한 칸 떨어져 있어야 한다. */
 export function canMove(board: Board, index: number): boolean {
   if (index < 0 || index >= TILE_COUNT) return false;
   const blank = blankIndex(board);
@@ -50,7 +50,7 @@ export function moveAt(board: Board, index: number): Board {
 
 /**
  * 그 방향으로 미끄러질 조각의 자리. "왼쪽"은 빈칸의 오른쪽 조각이 왼쪽으로
- * 밀려오는 것이다 — 화면에서 움직이는 방향과 키가 일치한다.
+ * 밀려오는 것이다. 화면에서 움직이는 방향과 키가 일치한다.
  */
 export function slideSource(board: Board, direction: SlideDirection): number {
   const blank = blankIndex(board);
@@ -105,11 +105,11 @@ export function scrambledBoard(moves: number, random: () => number): Board {
     const board = scramble(moves + attempt, random);
     if (!isSolved(board)) return board;
   }
-  // 여기까지 오면 무작위원이 상수를 뱉고 있다는 뜻 — 한 수만 밀어 정답만 피한다
+  // 여기까지 오면 무작위원이 상수를 뱉고 있다는 뜻: 한 수만 밀어 정답만 피한다
   return slide(solvedBoard(), "left");
 }
 
-/** 조각이 사진의 어느 부분인지 — CSS background-position(%)으로 그대로 쓴다. */
+/** 조각이 사진의 어느 부분인지: CSS background-position(%)으로 그대로 쓴다. */
 export function tileBackgroundPosition(tile: number): { x: number; y: number } {
   const span = PUZZLE_SIZE - 1;
   return {

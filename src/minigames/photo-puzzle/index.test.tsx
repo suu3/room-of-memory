@@ -26,7 +26,7 @@ describe("PhotoPuzzleMinigame", () => {
 
   it("sizes each tile's photo on both axes so the pieces do not overlap", () => {
     /*
-     * background-size에 값을 하나만 주면 세로는 auto가 된다 — 사진 비율대로 늘어난
+     * background-size에 값을 하나만 주면 세로는 auto가 된다. 사진 비율대로 늘어난
      * 높이를 0/50/100%로 나눠 잡으니 조각마다 위아래가 겹쳐 보였다. 두 축을 다 줘야
      * 격자 한 칸이 정확히 사진의 1/3씩을 자른다.
      */
@@ -50,7 +50,7 @@ describe("PhotoPuzzleMinigame", () => {
 
   it("keeps the grid on the photo's own proportions", () => {
     // jsdom은 이미지를 받아오지 않으므로 비율을 못 재고 정사각으로 남는다.
-    // 여기서 확인하는 건 "칸마다 비율이 걸려 있다"는 것 — 값은 실제 사진이 정한다.
+    // 여기서 확인하는 건 "칸마다 비율이 걸려 있다"는 것: 값은 실제 사진이 정한다.
     const { container } = render(<PhotoPuzzleMinigame onComplete={() => {}} />);
 
     for (const tile of container.querySelectorAll("button")) {

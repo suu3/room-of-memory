@@ -3,7 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { MathUtils, type OrthographicCamera, Vector3 } from "three";
-import { focusZoomFor } from "@/components/canvas/room-canvas-runtime";
+import { focusZoomFor, MIN_ROOM_ZOOM_SCALE } from "@/components/canvas/room-canvas-runtime";
 import type { MemoryId } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { CAMERA_PRESETS, LIVING_BOUNDS, ROOM_BOUNDS } from "./layout";
@@ -34,17 +34,38 @@ const FOLLOW_LIMITS = {
 } as const;
 
 /**
- * 방문이 열린 뒤의 추적 한계 — x만 거실 끝까지 는다 (v2).
+ * 방문이 열린 뒤의 추적 한계: x만 거실 끝까지 는다 (v2).
  *
  * 공간별로 한계를 갈라 문턱에서 스위치하면 목표점이 한 번에 수 유닛을 건너뛰어
  * 카메라가 출렁인다. 두 공간이 x로 이어져 있으므로 x 축 한계만 합치면 목표점이
- * 플레이어를 따라 연속으로 미끄러진다. 전환 연출이 따로 없는 이유다 — 문을
+ * 플레이어를 따라 연속으로 미끄러진다. 전환 연출이 따로 없는 이유다. 문을
  * 넘는 순간은 컷이 아니라 이동이다 (docs/content-design.md 3-3).
  */
 const OPEN_FOLLOW_LIMITS = {
   ...FOLLOW_LIMITS,
   minX: LIVING_BOUNDS.minX + FOLLOW_INSET,
 } as const;
+
+/**
+ * 축소했을 때 카메라가 향하는 공간의 가운데. 플레이어를 끝까지 따라가면 최대 축소에서
+ * 방이 화면 한쪽으로 쏠리고 반대쪽 절반이 빈 검정으로 남는다. 배율이 1에서 하한으로
+ * 내려가는 만큼 목표점을 플레이어에서 여기로 옮긴다. 방 전체를 보려고 축소한 것이니까.
+ */
+const ROOM_CENTER = {
+  x: (ROOM_BOUNDS.minX + ROOM_BOUNDS.maxX) / 2,
+  z: (ROOM_BOUNDS.minZ + ROOM_BOUNDS.maxZ) / 2,
+} as const;
+const LIVING_CENTER = {
+  x: (LIVING_BOUNDS.minX + LIVING_BOUNDS.maxX) / 2,
+  z: (LIVING_BOUNDS.minZ + LIVING_BOUNDS.maxZ) / 2,
+} as const;
+
+/** 배율(1 = 기본)이 얼마나 축소됐는가 (0 = 기본, 1 = 최대 축소). */
+export function zoomOutAmount(zoomScale: number): number {
+  const range = 1 - MIN_ROOM_ZOOM_SCALE;
+  if (range <= 0 || !Number.isFinite(zoomScale)) return 0;
+  return MathUtils.clamp((1 - zoomScale) / range, 0, 1);
+}
 
 /** 따라붙는 속도. 프리셋 전환(7)보다 느슨해야 걸을 때 화면이 덜 출렁인다. */
 const FOLLOW_LAMBDA = 3.2;
@@ -63,26 +84,29 @@ const ENTER_DURATION_S = 2.2;
  *
  * 멈춰 있는 3D는 렌더된 그림과 구별이 안 된다. 아주 느리게라도 돌면 "이건 진짜
  * 공간이고 들어갈 수 있다"가 한눈에 읽힌다. 폭은 사용자가 돌릴 수 있는 범위
- * (MAX_ROOM_ORBIT)보다 훨씬 좁게 — 타이틀에서 벽이 스러졌다 섰다 하면 산만하다.
+ * (MAX_ROOM_ORBIT)보다 훨씬 좁게: 타이틀에서 벽이 스러졌다 섰다 하면 산만하다.
  */
 const TITLE_DRIFT_AMPLITUDE = 0.16;
 const TITLE_DRIFT_PERIOD_S = 26;
 
-/** 카메라가 붙을 수 있는 대상 — 기억 오브젝트와 엔딩(문 옆 배트). */
+/** 카메라가 붙을 수 있는 대상: 기억 오브젝트와 엔딩(문 옆 배트). */
 export type CameraFocusId = MemoryId | "ending";
 
 export function CameraRig({
   focusId,
   roomZoom,
+  zoomScale = 1,
   orbitAzimuth,
   following,
   playerPositionRef,
 }: {
   focusId: CameraFocusId | null;
   roomZoom: number;
+  /** 사용자 배율 (1 = 기본). 축소할수록 목표점이 공간의 가운데로 옮겨 간다. */
+  zoomScale?: number;
   orbitAzimuth: number;
   /**
-   * 플레이어를 따라갈지. 타이틀 화면에서는 false — 방 모형 전체를 정면으로 잡아
+   * 플레이어를 따라갈지. 타이틀 화면에서는 false: 방 모형 전체를 정면으로 잡아
    * 놓고, 시작 버튼을 누르면 true가 되면서 카메라가 방 안으로 내려앉는다.
    * 전환 애니메이션은 따로 없다. 목표값이 바뀌면 아래 damp가 알아서 데려간다.
    */
@@ -113,13 +137,16 @@ export function CameraRig({
     const lambda = reducedMotion ? 18 : entering ? ENTER_LAMBDA : follows ? FOLLOW_LAMBDA : 7;
 
     if (follows) {
-      // 자유 이동 중 — 방 한가운데 고정이 아니라 플레이어를 따라본다.
+      // 자유 이동 중: 방 한가운데 고정이 아니라 플레이어를 따라본다.
       const player = playerPositionRef.current;
-      const limits = useMemoryRoomStore.getState().doorOpened ? OPEN_FOLLOW_LIMITS : FOLLOW_LIMITS;
+      const store = useMemoryRoomStore.getState();
+      const limits = store.doorOpened ? OPEN_FOLLOW_LIMITS : FOLLOW_LIMITS;
+      const center = store.inLivingRoom ? LIVING_CENTER : ROOM_CENTER;
+      const toCenter = zoomOutAmount(zoomScale);
       cameraTargetGoal.set(
-        MathUtils.clamp(player.x, limits.minX, limits.maxX),
+        MathUtils.lerp(MathUtils.clamp(player.x, limits.minX, limits.maxX), center.x, toCenter),
         FOLLOW_TARGET_Y,
-        MathUtils.clamp(player.z, limits.minZ, limits.maxZ),
+        MathUtils.lerp(MathUtils.clamp(player.z, limits.minZ, limits.maxZ), center.z, toCenter),
       );
     } else {
       cameraTargetGoal.set(preset.target[0], preset.target[1], preset.target[2]);
@@ -132,7 +159,7 @@ export function CameraRig({
         : Math.sin((state.clock.elapsedTime / TITLE_DRIFT_PERIOD_S) * Math.PI * 2) *
           TITLE_DRIFT_AMPLITUDE;
 
-    // 프리셋 위치를 타깃 기준으로 Y축 회전시킨다 — 타깃은 그대로라 구도 중심이 유지된다.
+    // 프리셋 위치를 타깃 기준으로 Y축 회전시킨다. 타깃은 그대로라 구도 중심이 유지된다.
     orbitOffset
       .set(
         preset.position[0] - preset.target[0],

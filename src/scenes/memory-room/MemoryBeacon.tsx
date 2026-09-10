@@ -25,7 +25,7 @@ import type { MemoryId } from "@/data/memory-room";
 const NEAR_SCALE = 1.35;
 const NEAR_BOOST = 1.9;
 
-/** 바닥 고리 반경. 상호작용 반경보다 조금 작게 — 고리를 밟으면 이미 닿는다. */
+/** 바닥 고리 반경. 상호작용 반경보다 조금 작게: 고리를 밟으면 이미 닿는다. */
 const RING_INNER = 0.42;
 const RING_OUTER = 0.56;
 
@@ -36,7 +36,7 @@ const DIAMOND_SIZE = 0.1;
 
 /**
  * 물건마다 마름모를 얼마나 더 띄울지. 기본값(0.52)은 책상 위 소품 기준이라,
- * 덩치가 크거나 벽에 붙은 것들은 따로 올려 준다 — 안 그러면 물건 속에 파묻힌다.
+ * 덩치가 크거나 벽에 붙은 것들은 따로 올려 준다. 안 그러면 물건 속에 파묻힌다.
  */
 const EXTRA_LIFT: Partial<Record<MemoryId, number>> = {
   window: 0.95,
@@ -52,7 +52,7 @@ export function MemoryBeacon({
   active,
   /** 플레이어가 상호작용 반경 안에 있는가. */
   near,
-  /** 물건이 놓인 높이 — 바닥 고리를 월드 바닥으로 되돌리는 데 쓴다. */
+  /** 물건이 놓인 높이: 바닥 고리를 월드 바닥으로 되돌리는 데 쓴다. */
   groundOffset,
 }: {
   id: MemoryId;
@@ -65,14 +65,14 @@ export function MemoryBeacon({
   const diamondRef = useRef<Group>(null);
   const ringMaterialRef = useRef<MeshBasicMaterial>(null);
   const diamondMaterialRef = useRef<MeshBasicMaterial>(null);
-  /** 켜짐 정도와 근접 정도. 둘 다 부드럽게 따라간다 — 툭 켜지면 눈에 거슬린다. */
+  /** 켜짐 정도와 근접 정도. 둘 다 부드럽게 따라간다. 툭 켜지면 눈에 거슬린다. */
   const shownRef = useRef(0);
   const nearRef = useRef(0);
   /** 표식이 도는 각도. 회전은 카메라를 돌려도 같은 속도로 보여야 해서 시간으로 센다. */
   const spinRef = useRef(0);
 
   const lift = DIAMOND_LIFT + (EXTRA_LIFT[id] ?? 0);
-  // 상호작용 반경이 물건마다 달라도 고리 크기는 같게 둔다 — 크기가 제각각이면
+  // 상호작용 반경이 물건마다 달라도 고리 크기는 같게 둔다. 크기가 제각각이면
   // 고리가 "표식"이 아니라 물건의 일부처럼 보인다.
   const ringArgs = useMemo(() => [RING_INNER, RING_OUTER, 28] as const, []);
 
@@ -81,7 +81,7 @@ export function MemoryBeacon({
     const diamond = diamondRef.current;
     if (!ring || !diamond) return;
 
-    // damp를 직접 쓰지 않는다 — 껐다 켤 때 0/1 양 끝에 정확히 닿아야
+    // damp를 직접 쓰지 않는다. 껐다 켤 때 0/1 양 끝에 정확히 닿아야
     // visible 토글이 깔끔하다.
     const shownGoal = active ? 1 : 0;
     shownRef.current += Math.min(1, delta * 5) * (shownGoal - shownRef.current);
@@ -113,7 +113,7 @@ export function MemoryBeacon({
 
   return (
     <group name={`beacon-${id}`}>
-      {/* 바닥 고리 — 물건이 얼마나 높이 있든 바닥에 눕는다 */}
+      {/* 바닥 고리: 물건이 얼마나 높이 있든 바닥에 눕는다 */}
       <mesh
         ref={ringRef}
         position={[0, -groundOffset + 0.03, 0]}

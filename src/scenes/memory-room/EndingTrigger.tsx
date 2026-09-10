@@ -16,7 +16,7 @@ import { useGlowHover } from "./use-glow-hover";
 
 useGLTF.preload(ASSETS.models.baseballBat, true, true);
 
-/** 준비되기 전의 배트가 내는 아주 옅은 빛 — "여기 뭔가 있다"까지만 말한다. */
+/** 준비되기 전의 배트가 내는 아주 옅은 빛: "여기 뭔가 있다"까지만 말한다. */
 const DORMANT_EMISSIVE = 0.06;
 const READY_EMISSIVE = 0.55;
 /** 쥐는 순간 배트가 화면에서 들려 나가는 시간 (초). 문이 열리는 박자보다 짧다. */
@@ -25,7 +25,7 @@ const TAKEN_DURATION = 0.45;
 const TAKEN_LIFT = 0.9;
 
 /**
- * 현관문 옆에 세워둔 배트 — 3막의 물건이다 (docs/content-design.md 3-2).
+ * 현관문 옆에 세워둔 배트: 3막의 물건이다 (docs/content-design.md 3-2).
  *
  * 앰플을 손에 넣어야(2막 완료) 켜지고, 쥐면 현관문이 열린다. 야구부였다는
  * 사실이 처음으로 쓸모를 갖는 자리이자, 도해가 밖을 어떻게 생각하고 있는지를
@@ -77,7 +77,7 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
     const group = motionRef.current;
     if (!group) return;
 
-    // 쥐었으면 배트는 손으로 딸려 나간다 — 문이 열리는 동안 벽에 그대로 서 있으면
+    // 쥐었으면 배트는 손으로 딸려 나간다. 문이 열리는 동안 벽에 그대로 서 있으면
     // "쥐었다"가 거짓말이 된다.
     if (started) {
       takenRef.current = Math.min(TAKEN_DURATION, takenRef.current + delta);
@@ -98,7 +98,7 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
     if (!ready || started) return;
     punchRef.current = 0;
     playSound("collect");
-    // 여기서 바로 쥐지 않는다 — 두 줄이 먼저고, 그 재생이 끝나야 손에 들어온다 (store.takeBat)
+    // 여기서 바로 쥐지 않는다. 두 줄이 먼저고, 그 재생이 끝나야 손에 들어온다 (store.takeBat)
     takeBat();
   }, [ready, started, takeBat]);
 
@@ -113,7 +113,7 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
       }}
     >
       {/*
-        쥘 수 있으면 거실 어디서 봐도 빛난다 — HUD가 "현관의 배트가 빛난다"고
+        쥘 수 있으면 거실 어디서 봐도 빛난다. HUD가 "현관의 배트가 빛난다"고
         말해 주는데 다가가야만 켜지면 그 말이 거짓이 된다. 아직 아닌 배트는
         원래대로 어둡다 (DORMANT_EMISSIVE).
       */}
@@ -125,7 +125,7 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
         </group>
       </MemoryGlowSelection>
       {/*
-        터치 판정 — 배트는 얇고 기울어진 메쉬라 모바일에서 정확히 짚기 어렵다.
+        터치 판정: 배트는 얇고 기울어진 메쉬라 모바일에서 정확히 짚기 어렵다.
         기억 오브젝트들의 memory-hit 구와 같은 방식으로, 쥘 수 있는 동안만
         투명한 구가 탭을 받아 준다 (글로우 선택 밖이라 윤곽선에는 안 잡힌다).
       */}

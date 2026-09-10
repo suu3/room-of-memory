@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { musicVolume } from "./music-curve";
 
 /**
- * 후보 목록 폴백만 본다 — 소리 자체는 브라우저 없이는 검증할 수 없고, 여기서
+ * 후보 목록 폴백만 본다. 소리 자체는 브라우저 없이는 검증할 수 없고, 여기서
  * 지켜야 하는 건 "아직 없는 곡을 경로에 박아 둬도 방이 조용해지지 않는다"는 계약뿐이다.
  * 오디오 노드는 연결만 되면 되는 껍데기로 세운다.
  */
@@ -88,7 +88,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-/** startMusic은 로딩을 기다리지 않는다 — 마이크로태스크를 비워 준다. */
+/** startMusic은 로딩을 기다리지 않는다. 마이크로태스크를 비워 준다. */
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("startMusic 후보 목록", () => {
@@ -159,19 +159,19 @@ describe("곡별 트림", () => {
     expect(scheduled).toEqual([musicVolume(0.62) * 1.35]);
   });
 
-  it("덕킹과 함께 걸린다 — 둘이 서로를 덮어쓰지 않는다", async () => {
+  it("덕킹과 함께 걸린다. 둘이 서로를 덮어쓰지 않는다", async () => {
     const { setMusicTrim, setMusicDuck } = await playing();
 
     setMusicTrim(1.35);
     scheduled.length = 0;
     setMusicDuck(0.42);
 
-    // 곱하는 순서가 코드와 달라 끝자리가 어긋난다 — 값이 맞는지만 본다
+    // 곱하는 순서가 코드와 달라 끝자리가 어긋난다. 값이 맞는지만 본다
     expect(scheduled).toHaveLength(1);
     expect(scheduled[0]).toBeCloseTo(musicVolume(0.62) * 1.35 * 0.42, 12);
   });
 
-  it("음수는 0으로 막는다 — 위상이 뒤집힌 소리를 낼 수는 없다", async () => {
+  it("음수는 0으로 막는다. 위상이 뒤집힌 소리를 낼 수는 없다", async () => {
     const { setMusicTrim } = await playing();
 
     scheduled.length = 0;

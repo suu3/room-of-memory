@@ -17,11 +17,11 @@ const TIME_LIMIT_S = 40;
 const SKIP_AFTER_MS = 15_000;
 /**
  * 파티클(rAF)이 멈춘 탭에서도 결과 대사로 넘어가게 하는 하드 폴백.
- * SuccessBurst가 스스로 끝나는 시간(2.3초)보다 넉넉히 뒤여야 한다 — 짧으면
+ * SuccessBurst가 스스로 끝나는 시간(2.3초)보다 넉넉히 뒤여야 한다. 짧으면
  * 정상적인 탭에서도 폴백이 먼저 터져 빛입자가 다 떠오르기 전에 잘린다.
  */
 const BURST_FALLBACK_MS = 2_900;
-/** 사진이 커진 만큼 헝겊도 키운다 — 한 번에 닦이는 비율은 그대로. */
+/** 사진이 커진 만큼 헝겊도 키운다. 한 번에 닦이는 비율은 그대로. */
 const WIPE_RADIUS = 42;
 /** 격자 한 칸의 목표 크기(px). 사진 비율이 달라도 셀 밀도가 비슷하게 유지된다. */
 const CELL_PX = 16;
@@ -47,7 +47,7 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
   const complete = useOnceCompleter(onComplete);
   const [progress, setProgress] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(TIME_LIMIT_S);
-  /** 프로스트 레이어를 그린 뒤에야 타이머가 돈다 — 로딩 시간을 플레이 시간에서 깎지 않는다. */
+  /** 프로스트 레이어를 그린 뒤에야 타이머가 돈다. 로딩 시간을 플레이 시간에서 깎지 않는다. */
   const [ready, setReady] = useState(false);
   /** 성공 직후 단계: 사진이 완전히 드러나고 결과 대사가 뜬다. 닫는 건 플레이어 몫. */
   const [revealed, setRevealed] = useState(false);
@@ -79,7 +79,7 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
       }
       setReady(true);
     };
-    // 이미지를 못 받아도 진행이 막히면 안 된다 — 프로스트 없이라도 플레이는 계속된다
+    // 이미지를 못 받아도 진행이 막히면 안 된다. 프로스트 없이라도 플레이는 계속된다
     const giveUp = () => {
       if (settled) return;
       settled = true;
@@ -97,13 +97,13 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
     };
   }, [photo]);
 
-  /** 성공(또는 스킵) — 남은 먼지를 전부 걷고 사진을 보여주는 단계로 넘어간다. */
+  /** 성공(또는 스킵): 남은 먼지를 전부 걷고 사진을 보여주는 단계로 넘어간다. */
   const revealRef = useRef(() => {});
   revealRef.current = () => {
     if (revealed) return;
     const context = canvasRef.current?.getContext("2d");
     context?.clearRect(0, 0, photo.width, photo.height);
-    // 여기서부터 파티클이 끝날 때까지 최대 2초 — 그 사이 바깥 클릭으로
+    // 여기서부터 파티클이 끝날 때까지 최대 2초: 그 사이 바깥 클릭으로
     // 다 닦은 사진이 수집도 안 된 채 사라지면 안 된다.
     onSettled?.();
     setRevealed(true);
@@ -121,7 +121,7 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
 
     const wiped = wipeCircle(gridRef.current, photo, x, y, WIPE_RADIUS);
     if (wiped - progressRef.current >= 0.01 || wiped >= CLEAR_RATIO) {
-      // 문지를 때마다 울리면 시끄럽다 — 5% 구간을 넘길 때만 한 번씩.
+      // 문지를 때마다 울리면 시끄럽다. 5% 구간을 넘길 때만 한 번씩.
       // 스무 번 울리는 동안 음높이가 고정이면 마찰이 아니라 계측음으로 들린다.
       if (Math.floor(wiped * 20) > Math.floor(progressRef.current * 20))
         playSound("wipe", { variation: 0.14 });
@@ -147,7 +147,7 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
     return () => clearInterval(timer);
   }, [complete, ready, revealed]);
 
-  // 파티클이 다 터진 뒤에 결과를 보고한다 — 결과 대사는 이 화면을 뒤에 두고 뜬다.
+  // 파티클이 다 터진 뒤에 결과를 보고한다. 결과 대사는 이 화면을 뒤에 두고 뜬다.
   // 파티클은 rAF 기반이라 탭이 백그라운드면 끝나지 않는다 → setTimeout 폴백을 함께 건다.
   useEffect(() => {
     if (!revealed) return;
@@ -161,7 +161,7 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
 
   /**
    * 손으로 문지르는 동작이라 마우스·터치 전용이다. 방향키로 헝겊을 옮기는 건
-   * "닦는다"는 감각과 맞지 않아서 뺐다 — 키보드 사용자는 스킵 버튼으로 넘어간다.
+   * "닦는다"는 감각과 맞지 않아서 뺐다. 키보드 사용자는 스킵 버튼으로 넘어간다.
    */
   const pointerWipe = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (event.type === "pointermove" && (event.buttons & 1) === 0) return;
@@ -219,7 +219,7 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
     >
       <PhotoFrame>
         {/*
-          원본 사진 (선명) — 닦인 영역으로 드러난다.
+          원본 사진 (선명): 닦인 영역으로 드러난다.
           원본 폭을 기본값으로 두되 좁은 화면에서는 줄어들게 한다. 캔버스는 이 이미지 위에
           absolute inset-0으로 겹치고, 닦기 좌표는 getBoundingClientRect 비율로 환산하므로
           표시 크기가 줄어도 판정은 그대로다.
@@ -234,13 +234,13 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
           /*
             먼지 막이 깔리기 전까지는 감춘다. useEffect는 브라우저가 한 번 그린
             뒤에 도니까, 캐시에 있는 사진이면 선명한 원본이 한 프레임 번쩍이고
-            그 위에 먼지가 덮인다 — 깜빡임이기도 하고 답을 미리 보여주는 것이기도 하다.
+            그 위에 먼지가 덮인다. 깜빡임이기도 하고 답을 미리 보여주는 것이기도 하다.
           */
           className={`block h-auto max-w-full ${ready ? "" : "invisible"}`}
           style={{ width: photo.width }}
         />
         {/*
-          프로스트 레이어 — 닦아서 지운다. 커서가 곧 행주다.
+          프로스트 레이어: 닦아서 지운다. 커서가 곧 행주다.
           size-full이 없으면 안 된다: 절대 배치된 <canvas>는 replaced element라
           width가 auto일 때 CSS가 intrinsic 크기(width 속성값 620px)를 그대로 쓴다.
           inset-0은 그걸 못 이겨서, 사진이 좁은 화면에 맞춰 줄어들어도 캔버스만

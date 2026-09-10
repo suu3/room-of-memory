@@ -12,7 +12,7 @@ export const CURTAIN_X = {
  *
  * 커튼은 뒷벽에 붙어 있고(z=-3.72) 그 앞에 캐비닛이 있어 플레이어는 z로 1.9쯤 떨어져
  * 선다 (layout의 CURTAIN_STAND). 창문 기억의 반경(1.6)보다 넉넉히 잡아야 "창가에 왔다"
- * 싶은 자리에서 양쪽 커튼이 함께 켜지고 — 한 쪽만 켜지면 나머지 한 쪽이 있는 줄 모른다 —
+ * 싶은 자리에서 양쪽 커튼이 함께 켜지고 (한 쪽만 켜지면 나머지 한 쪽이 있는 줄 모른다)
  * 한 쪽을 젖히고 선 자리에서 다른 쪽도 잡힌다 (서는 자리에서 양쪽 손잡이까지 2.13).
  */
 export const CURTAIN_NEAR_RADIUS = 2.3;
@@ -52,7 +52,7 @@ export function pullProgress(side: CurtainSide, deltaX: number, from: number): n
   return clamp01(from + gained);
 }
 
-/** 손을 뗐을 때 어디로 붙을지 — 충분히 당겼으면 끝까지, 아니면 도로 닫힌다. */
+/** 손을 뗐을 때 어디로 붙을지: 충분히 당겼으면 끝까지, 아니면 도로 닫힌다. */
 export function settleProgress(progress: number): number {
   return progress >= CURTAIN_SNAP_THRESHOLD ? 1 : 0;
 }
@@ -61,13 +61,13 @@ export function settleProgress(progress: number): number {
  * 끌지 않고 그냥 눌렀다고 볼 이동량(월드 x).
  *
  * 커튼은 젖히는 몸짓이 곧 조작이지만, 그렇다고 누르기만 해서는 아무 일도 안 일어나는
- * 물건이면 곤란하다 — 방의 다른 인터랙션(서랍·의자·전등 스위치)은 전부 한 번 누르면
+ * 물건이면 곤란하다. 방의 다른 인터랙션(서랍·의자·전등 스위치)은 전부 한 번 누르면
  * 여닫히고, 커튼만 "끌 줄 알아야 열리는" 물건이면 손이 어디까지 가야 하는지 알 수 없다.
  * 이 폭 안에서 손을 떼면 끌 생각이 없었던 것으로 보고 반대쪽으로 뒤집는다.
  */
 export const CURTAIN_TAP_SLOP = 0.1;
 
-/** 한 번 눌러 여닫기 — 젖혀져 있으면 닫고, 아니면 끝까지 젖힌다. */
+/** 한 번 눌러 여닫기: 젖혀져 있으면 닫고, 아니면 끝까지 젖힌다. */
 export function toggleProgress(progress: number): number {
   return progress >= CURTAIN_SNAP_THRESHOLD ? 0 : 1;
 }

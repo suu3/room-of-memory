@@ -42,7 +42,7 @@ const FRAME_STEP = 100;
 /** 간파 판정이 확실히 지난 시점. 창 길이가 바뀌어도 "빨리 못 낸 판"으로 남아야 한다. */
 const PAST_CRITICAL_MS = CRITICAL_MS + FRAME_STEP;
 
-/** 실제 브라우저처럼 프레임을 이어서 돌린다 — 마지막 프레임이 `timestamp`에 선다. */
+/** 실제 브라우저처럼 프레임을 이어서 돌린다. 마지막 프레임이 `timestamp`에 선다. */
 function runFramesUntil(timestamp: number) {
   for (let frame = now + FRAME_STEP; frame < timestamp; frame += FRAME_STEP) {
     runNextFrame(frame);
@@ -127,17 +127,17 @@ describe("FighterDuelMinigame", () => {
     expect(html.match(/value="100"/g)).toHaveLength(2);
   });
 
-  it("keeps the triangle on screen — each button says what it beats", () => {
+  it("keeps the triangle on screen: each button says what it beats", () => {
     /*
-     * UT: "공격 방어 뭐 이렇게 해, 잡기는 뭔지도 모르겠네" — 상성을 머리에 두면
+     * UT: "공격 방어 뭐 이렇게 해, 잡기는 뭔지도 모르겠네": 상성을 머리에 두면
      * 규칙을 아는 사람만 아는 게임이 된다. 버튼이 스스로 말해야 한다.
      */
     render(<FighterDuelMinigame onComplete={() => {}} />);
 
-    // 접근성 이름으로 찾는다 — 화면에 보이는 글자이자 스크린리더가 읽는 문장이다
+    // 접근성 이름으로 찾는다. 화면에 보이는 글자이자 스크린리더가 읽는 문장이다
     expect(screen.getByRole("button", { name: "1 Attack beats Special" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "2 Guard beats Attack" })).toBeTruthy();
-    // 필살기 버튼만 남은 게이지까지 읽힌다 — 눈으로는 칸, 스크린리더로는 문장
+    // 필살기 버튼만 남은 게이지까지 읽힌다. 눈으로는 칸, 스크린리더로는 문장
     expect(
       screen.getByRole("button", { name: `3 Special beats Guard ${SPECIAL_USES} specials left` }),
     ).toBeTruthy();
@@ -146,7 +146,7 @@ describe("FighterDuelMinigame", () => {
   it("names the move the opponent is telegraphing, not just the pose", () => {
     /*
      * 자세 문장만 띄우면 "자세 → 수 → 상성 → 버튼" 네 걸음을 예고 시간 안에 해야
-     * 한다. 이름을 못박아 두 걸음을 지운다 — 버튼에서 그 이름을 찾으면 끝이다.
+     * 한다. 이름을 못박아 두 걸음을 지운다. 버튼에서 그 이름을 찾으면 끝이다.
      */
     render(<FighterDuelMinigame onComplete={() => {}} />);
     advanceTime(INTRO_MS);
@@ -174,7 +174,7 @@ describe("FighterDuelMinigame", () => {
       advanceTime(RESULT_MS);
     }
 
-    // 세 번을 다 썼다 — 판이 끝날 때까지 다시 열리지 않는다
+    // 세 번을 다 썼다. 판이 끝날 때까지 다시 열리지 않는다
     expect(special().disabled).toBe(true);
 
     const heroBefore = heroHp();
@@ -184,7 +184,7 @@ describe("FighterDuelMinigame", () => {
     expect(rivalHp()).toBe(rivalBefore);
 
     /*
-     * 같은 라운드를 다른 수로 계속 낼 수 있다 — 막힌 필살기가 판을 잡아먹지 않았다.
+     * 같은 라운드를 다른 수로 계속 낼 수 있다. 막힌 필살기가 판을 잡아먹지 않았다.
      * 이겼는지로 재지 않는 이유: 방어 예고가 걸린 라운드라면 그걸 이기는 수가
      * 필살기뿐이라 이길 수가 없다. 그게 이 제한의 값이고, 여기서 볼 것은
      * "라운드가 아직 살아 있는가"다.
@@ -209,7 +209,7 @@ describe("FighterDuelMinigame", () => {
   it("holds the round until the opening banner clears", () => {
     render(<FighterDuelMinigame onComplete={() => {}} />);
 
-    // 배너가 떠 있는 동안 낸 수는 먹지 않는다 — 예고를 보기도 전이다
+    // 배너가 떠 있는 동안 낸 수는 먹지 않는다. 예고를 보기도 전이다
     fireEvent.keyDown(window, { key: "1" });
     expect(rivalHp()).toBe(MAX_HP);
 
@@ -218,10 +218,10 @@ describe("FighterDuelMinigame", () => {
   });
 
   it("locks the move buttons while there is nothing to answer", () => {
-    // UT: "버튼을 눌러도 아무 반응이 없다" — 낼 차례가 아닌 구간이 눌리는 것처럼 보였다.
+    // UT: "버튼을 눌러도 아무 반응이 없다". 낼 차례가 아닌 구간이 눌리는 것처럼 보였다.
     render(<FighterDuelMinigame onComplete={() => {}} />);
     /*
-     * 앞을 고정해서 찾는다 — 버튼마다 "무엇을 이기는가"가 같이 적혀 있어서
+     * 앞을 고정해서 찾는다. 버튼마다 "무엇을 이기는가"가 같이 적혀 있어서
      * /Attack/로는 방어 버튼("2 Guard beats Attack")까지 걸린다.
      */
     const strike = () => screen.getByRole("button", { name: /^1 Attack/ }) as HTMLButtonElement;
@@ -284,7 +284,7 @@ describe("FighterDuelMinigame", () => {
 
     // 2라운드부터 페인트가 걸린다 (roll 0 < feintChance). 전환은 프레임에서 일어난다.
     const before = currentTell();
-    // 시계는 예고가 그려지는 첫 프레임에 시작한다 — 그 프레임부터 재야 한다
+    // 시계는 예고가 그려지는 첫 프레임에 시작한다. 그 프레임부터 재야 한다
     runNextFrame(now);
     const roundStart = now;
     const duration = tellDurationMs(1, rivalHp());
@@ -293,7 +293,7 @@ describe("FighterDuelMinigame", () => {
     expect(currentTell()).not.toBe(before);
     expect(screen.getByText("They switched stance!")).toBeTruthy();
 
-    // 바뀐 자세를 받아치면 이긴다 — 처음 예고를 그대로 믿었으면 졌을 자리다
+    // 바뀐 자세를 받아치면 이긴다. 처음 예고를 그대로 믿었으면 졌을 자리다
     answerTell();
     expect(screen.getByText("Clean hit!")).toBeTruthy();
   });
@@ -329,7 +329,7 @@ describe("FighterDuelMinigame", () => {
     advanceTime(INTRO_MS);
     runNextFrame(now);
 
-    // 탭이 가려졌다 돌아온 자리 — 프레임이 통째로 비었다
+    // 탭이 가려졌다 돌아온 자리: 프레임이 통째로 비었다
     runNextFrame(now + 5_000);
 
     expect(screen.queryByText("Too slow…")).toBeNull();
@@ -345,7 +345,7 @@ describe("FighterDuelMinigame", () => {
     render(<FighterDuelMinigame onComplete={onComplete} />);
     advanceTime(INTRO_MS);
 
-    // 매번 간파로 받아친다 — 24 + 30 + 36 + 42 로 네 라운드 만에 끝난다
+    // 매번 간파로 받아친다. 24 + 30 + 36 + 42 로 네 라운드 만에 끝난다
     for (let round = 0; round < 4; round += 1) {
       answerTell();
       if (round < 3) advanceTime(RESULT_MS);
@@ -399,7 +399,7 @@ describe("FighterDuelMinigame", () => {
     advanceTime(INTRO_MS);
     expect(screen.queryByRole("button", { name: "Skip" })).toBeNull();
 
-    // 두 번 맞으면(시간 초과 포함) 스킵이 열린다 — 접근성 규칙상 실패가 막다른 길이면 안 된다
+    // 두 번 맞으면(시간 초과 포함) 스킵이 열린다. 접근성 규칙상 실패가 막다른 길이면 안 된다
     runNextFrame(now);
     runFramesUntil(now + tellDurationMs(0, MAX_HP));
     advanceTime(RESULT_MS);

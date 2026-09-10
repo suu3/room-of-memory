@@ -16,7 +16,7 @@ import { BUTTON_QUIET_PAPER } from "./ui-classes";
  * 해금을 "수집 개수"가 아니라 **그 오브젝트를 조사했는지**로 거는 것이 중요하다.
  * 개수로 걸면 라디오를 듣기 전에 사태의 정체가 열려서 반전이 무너진다.
  *
- * 2바퀴에서 다시 조사한 항목은 본문이 희망 톤으로 갈아끼워진다 —
+ * 2바퀴에서 다시 조사한 항목은 본문이 희망 톤으로 갈아끼워진다.
  * "같은 물건이 다르게 보인다"를 기록에도 적용한 것. 사진도 같이 바뀐다
  * (액자: 그늘에 묻힌 얼굴 → 드러난 얼굴).
  *
@@ -24,7 +24,7 @@ import { BUTTON_QUIET_PAPER } from "./ui-classes";
  * **모으는 곳**이기 때문이다. 빈 자리가 그림으로 남아야 몇 개를 아직 못 채웠는지가
  * 글자를 세지 않고 보인다.
  *
- * 한 장에 여섯 칸씩 넘겨 본다 — 열세 장을 한 판에 세우면 스크랩북이 아니라 스크롤
+ * 한 장에 여섯 칸씩 넘겨 본다. 열세 장을 한 판에 세우면 스크랩북이 아니라 스크롤
  * 피드가 된다. 장은 수첩처럼 앞뒤로만 넘기고, 몇 장째인지는 숫자로 적는다.
  *
  * 열린 항목마다 다시보기가 붙는다. 미니게임을 다시 여는 게 아니라 그때의 대사와
@@ -44,7 +44,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const replayMemory = useMemoryRoomStore((state) => state.replayMemory);
 
-  // 모바일도 두 칸 — 한 칸이면 카드가 화면을 통째로 먹어 스크랩북이 아니라 피드가 된다
+  // 모바일도 두 칸: 한 칸이면 카드가 화면을 통째로 먹어 스크랩북이 아니라 피드가 된다
   return (
     <div className="flex flex-col gap-4">
       <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
@@ -53,7 +53,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
           const unlocked = collected.includes(id) || revisited.includes(id);
           /*
            * 어느 바퀴의 문장을 세울지. 1바퀴가 없는 기억(컴퓨터)은 처음부터 2바퀴
-           * 문장만 있으므로 잠긴 동안에도 그쪽을 흐려 세운다 — phase1 키를 찾으면
+           * 문장만 있으므로 잠긴 동안에도 그쪽을 흐려 세운다. phase1 키를 찾으면
            * 번역이 없어 키 문자열이 그대로 카드에 박힌다.
            */
           const rewritten = !memory.phase1 || (revisited.includes(id) && Boolean(memory.phase2));
@@ -82,7 +82,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
                 <LoreStill id={id} name={name} unlocked={unlocked} still={phase?.replayStill} />
 
                 {/*
-                잠긴 항목은 제목도 싣지 않는다 — 제목만 봐도 무슨 일이 있었는지 짐작된다.
+                잠긴 항목은 제목도 싣지 않는다. 제목만 봐도 무슨 일이 있었는지 짐작된다.
                 제목 칸 자체는 비우지 않는다: 낮은 대비의 자리표시를 aria-hidden으로 두고
                 스크린리더에는 "왜 잠겼는지"를 대신 읽힌다 (BlurredValue와 같은 방식).
               */}
@@ -97,7 +97,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
                   )}
                 </h3>
 
-                {/* mt-auto가 아니라 flex-1 — 카드 높이가 달라도 다시보기 줄이 바닥에 맞는다 */}
+                {/* mt-auto가 아니라 flex-1: 카드 높이가 달라도 다시보기 줄이 바닥에 맞는다 */}
                 <div className="mt-1.5 flex-1">
                   {unlocked ? (
                     <p className="block animate-fade-rise break-ko text-pretty text-ink text-sm leading-normal">
@@ -116,7 +116,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
                   <button
                     type="button"
                     onClick={() => {
-                      // 수첩을 닫아야 재생이 보인다 — 모달이 위를 덮고 있다
+                      // 수첩을 닫아야 재생이 보인다. 모달이 위를 덮고 있다
                       onReplay?.();
                       replayMemory(id);
                     }}
@@ -132,7 +132,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
           );
         })}
       </ul>
-      {/* 장 넘김 — 수첩처럼 앞뒤로만. 몇 장째인지는 숫자로 적어 색만으로 말하지 않는다 */}
+      {/* 장 넘김: 수첩처럼 앞뒤로만. 몇 장째인지는 숫자로 적어 색만으로 말하지 않는다 */}
       <nav
         aria-label={t("panel.pages")}
         className="flex items-center justify-center gap-4 border-t border-ink/10 pt-3"
@@ -167,7 +167,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
  * 카드에 붙은 사진 한 장.
  *
  * 세 가지 상태가 있다. 아직 조사하지 않았으면 **빈 사진 자리**(모서리 홀더만 남은
- * 칸)다 — 아이콘조차 넣지 않는 이유는, 무엇이 들어올 자리인지까지 알려주면
+ * 칸)다. 아이콘조차 넣지 않는 이유는, 무엇이 들어올 자리인지까지 알려주면
  * "아직 모르는 물건"이라는 상태가 사라지기 때문이다.
  *
  * 조사했는데 그때 본 장면이 한 장으로 남지 않는 기억(게임기·라디오·폰·달력)은
@@ -194,7 +194,7 @@ function LoreStill({
         aria-hidden
         className="relative aspect-[4/3] w-full rounded-[2px] border border-ink/10 bg-bone/40"
       >
-        {/* 네 귀퉁이의 사진 홀더 — 사진만 빠져 있다는 신호 */}
+        {/* 네 귀퉁이의 사진 홀더: 사진만 빠져 있다는 신호 */}
         {[
           "left-1.5 top-1.5 border-l-2 border-t-2",
           "right-1.5 top-1.5 border-r-2 border-t-2",

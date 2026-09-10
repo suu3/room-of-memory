@@ -19,7 +19,7 @@ describe("printedColor", () => {
   it("flips the color only for the color flaw", () => {
     expect(printedColor({ suit: "heart", rank: 3, flaw: "color" })).toBe("black");
     expect(printedColor({ suit: "spade", rank: 3, flaw: "color" })).toBe("red");
-    // 대칭이 깨진 카드는 색까지 건드리면 단서가 둘이 된다 — 한 장은 한 규칙만 어긴다
+    // 대칭이 깨진 카드는 색까지 건드리면 단서가 둘이 된다. 한 장은 한 규칙만 어긴다
     expect(printedColor({ suit: "heart", rank: 3, flaw: "asymmetry" })).toBe("red");
   });
 });

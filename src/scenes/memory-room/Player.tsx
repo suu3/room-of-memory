@@ -17,6 +17,7 @@ import {
   ROOM_COLLIDERS,
   ROOM_SHELL_BOUNDS,
 } from "./layout";
+import { findPath } from "./pathfind";
 import {
   createPlayerRig,
   disposePlayerRig,
@@ -56,25 +57,25 @@ const REACH_LAMBDA = 7;
  * 팔이 올라가자마자 내려오면 든 줄도 모른다.
  */
 const REACH_LINGER_SECONDS = 0.9;
-/** 한 걸음도 안 되는 거리면 걷는 시늉을 하지 않는다 — 제자리걸음이 더 어색하다. */
+/** 한 걸음도 안 되는 거리면 걷는 시늉을 하지 않는다. 제자리걸음이 더 어색하다. */
 const MIN_TRAVEL_DISTANCE = 0.25;
 const cameraForward = new Vector3();
 const cameraRight = new Vector3();
 
 /**
- * 걷기 영역. 방문이 닫혀 있으면 방뿐이고, 열리면 문간과 거실이 이어진다 —
+ * 걷기 영역. 방문이 닫혀 있으면 방뿐이고, 열리면 문간과 거실이 이어진다.
  * 문 자체에 콜라이더가 없으므로 "문이 막는다"는 곧 "저 두 영역이 없다"이다.
  */
 const CLOSED_ZONES = [ROOM_BOUNDS] as const;
 const OPEN_ZONES = [ROOM_BOUNDS, DOORWAY_ZONE, LIVING_BOUNDS] as const;
-/** 가구 발자국은 두 공간 것을 늘 합쳐 본다 — 문이 닫혀 있으면 거실 쪽은 어차피 못 닿는다. */
+/** 가구 발자국은 두 공간 것을 늘 합쳐 본다. 문이 닫혀 있으면 거실 쪽은 어차피 못 닿는다. */
 const ALL_COLLIDERS = [...ROOM_COLLIDERS, ...LIVING_COLLIDERS] as const;
-/** 문이 열리면 방 안쪽으로 젖혀진 문짝도 막는다 — 없으면 문간을 지나는 몸이 문짝을 뚫는다. */
+/** 문이 열리면 방 안쪽으로 젖혀진 문짝도 막는다. 없으면 문간을 지나는 몸이 문짝을 뚫는다. */
 const OPEN_COLLIDERS = [...ALL_COLLIDERS, ...OPEN_DOOR_LEAF_COLLIDERS] as const;
 
 useGLTF.preload(ASSETS.models.playerBlocky, true, true);
 
-/** 최단 회전 방향으로 각도를 damp — -π/π 경계에서 한 바퀴 도는 걸 막는다. */
+/** 최단 회전 방향으로 각도를 damp: -π/π 경계에서 한 바퀴 도는 걸 막는다. */
 function dampAngle(current: number, target: number, lambda: number, delta: number): number {
   const shortest = MathUtils.euclideanModulo(target - current + Math.PI, Math.PI * 2) - Math.PI;
   return current + shortest * (1 - Math.exp(-lambda * delta));
@@ -103,7 +104,7 @@ export function Player({
   /*
    * 앉기.
    *
-   * 자리는 스토어가 갖고(가구가 앉힌다), 몸이 거기까지 가는 건 여기서 한다 — **걸어가서**
+   * 자리는 스토어가 갖고(가구가 앉힌다), 몸이 거기까지 가는 건 여기서 한다. **걸어가서**
    * 앉고, 일어선 다음 걸어 돌아온다 (sit-motion의 advanceSitPhases).
    *
    * `standing`은 앉기 직전에 서 있던 자리다. 좌석은 콜라이더 안(의자 위)이라 일어설
@@ -123,20 +124,38 @@ export function Player({
   /*
    * 커튼 잡기.
    *
-   * 잡으면 창가(CURTAIN_STAND)로 **걸어가서** 벽을 보고 선 다음에야 팔을 든다 — 앉기와
+   * 잡으면 창가(CURTAIN_STAND)로 **걸어가서** 벽을 보고 선 다음에야 팔을 든다. 앉기와
    * 같은 걸음이다. 커튼은 도착(arriveAtCurtain)을 보고서야 손을 따른다. 놓으면 팔이
    * 잠깐 남았다가 내려오고, 다 내려오면 몸짓을 지운다(endCurtainGrab). 몸은 그 자리에
-   * 남는다 — 커튼을 젖히고 창밖을 보는 자리라 돌아올 이유가 없다.
+   * 남는다. 커튼을 젖히고 창밖을 보는 자리라 돌아올 이유가 없다.
    */
   const curtainGrab = useMemoryRoomStore((state) => state.curtainGrab);
   /*
-   * 바닥 클릭으로 걷기. 목표는 스토어가 들고(바닥이 준다) 걸음은 여기서 뗀다 — 키·조이스틱과
+   * 바닥 클릭으로 걷기. 목표는 스토어가 들고(바닥이 준다) 걸음은 여기서 뗀다. 키·조이스틱과
    * 같은 이동 경로(moveThroughZones)를 타서 가구에 걸리면 미끄러지다 서고, 키를 누르면 잊는다.
    */
   const walkTarget = useMemoryRoomStore((state) => state.walkTarget);
-  const walkTargetRef = useRef<Vec2 | null>(null);
+  /**
+   * 목표까지의 경유점. 클릭할 때 한 번 찾는다(pathfind). 앞의 것부터 하나씩 지운다.
+   * 길이 없으면(방 밖을 눌렀다) 비어 있고, 스토어의 목표도 같이 지운다.
+   */
+  const walkTargetRef = useRef<Vec2[] | null>(null);
   useEffect(() => {
-    walkTargetRef.current = walkTarget ? { x: walkTarget.x, z: walkTarget.z } : null;
+    const group = groupRef.current;
+    if (!walkTarget || !group) {
+      walkTargetRef.current = null;
+      return;
+    }
+    const doorOpened = useMemoryRoomStore.getState().doorOpened;
+    const path = findPath(
+      { x: group.position.x, z: group.position.z },
+      { x: walkTarget.x, z: walkTarget.z },
+      PLAYER_RADIUS,
+      doorOpened ? OPEN_ZONES : CLOSED_ZONES,
+      doorOpened ? OPEN_COLLIDERS : ALL_COLLIDERS,
+    );
+    walkTargetRef.current = path;
+    if (!path) useMemoryRoomStore.getState().clearWalk();
   }, [walkTarget]);
   const grabRef = useRef<{
     standing: { x: number; z: number };
@@ -158,13 +177,13 @@ export function Player({
    * 리셋(HUD "처음으로"·엔딩 화면)마다 몸도 시작 자리로 돌아간다.
    *
    * 진행은 스토어가 지우지만 위치는 이 그룹의 변환에만 있어서, 안 돌리면 거실까지
-   * 걸어갔던 몸이 그 자리에 남는다 — 다음 "새 게임"이 닫힌 문 너머 거실에서
+   * 걸어갔던 몸이 그 자리에 남는다. 다음 "새 게임"이 닫힌 문 너머 거실에서
    * 시작되고, 방으로 돌아올 길이 없다 (엔딩이 거실 현관에서 나므로 완주 후
    * 새 게임이 정확히 이 꼴이 된다).
    */
   const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
   useEffect(() => {
-    // 값은 안 읽는다 — 리셋마다 다시 실행되게 하는 신호다 (MemoryOutlineGlow와 같은 패턴).
+    // 값은 안 읽는다. 리셋마다 다시 실행되게 하는 신호다 (MemoryOutlineGlow와 같은 패턴).
     void resetRevision;
     positionRef.current.copy(PLAYER_START);
     const group = groupRef.current;
@@ -185,7 +204,7 @@ export function Player({
   /*
    * 개발 도구가 몸을 옮긴다 (AdminPanel의 방/거실 버튼).
    *
-   * 위치는 이 그룹의 변환에만 있으므로 스토어 혼자서는 못 옮긴다 — 신호를 받아 여기서
+   * 위치는 이 그룹의 변환에만 있으므로 스토어 혼자서는 못 옮긴다. 신호를 받아 여기서
    * 옮기고, 어느 공간에 들어왔는지도 같이 알린다(공유벽 컬링과 카메라가 그걸 본다).
    * 걷던 상태·앉던 상태는 같이 정리한다: 자리로 걸어가던 도중에 옮겨지면 몸이 옛 목표를
    * 향해 다시 미끄러져 돌아간다.
@@ -216,7 +235,7 @@ export function Player({
     const facing = facingRef.current;
     if (!group || !facing) return;
     const seat = SEATS[seatedAt];
-    // 창가로 가던 중이면 그 몸짓은 접는다 — 두 목표를 동시에 쫓으면 몸이 둘로 갈린다.
+    // 창가로 가던 중이면 그 몸짓은 접는다. 두 목표를 동시에 쫓으면 몸이 둘로 갈린다.
     if (grabRef.current) {
       useMemoryRoomStore.getState().endCurtainGrab();
       grabRef.current = null;
@@ -236,7 +255,7 @@ export function Player({
 
   /*
    * 커튼을 잡으면 그 순간 서 있던 자리에서 창가까지의 걸음을 잰다. 이미 걸어가는 중이면
-   * (같은 몸짓 안에서 다른 쪽 커튼을 잡았다) 그대로 둔다 — 도착 판정이 이어서 처리한다.
+   * (같은 몸짓 안에서 다른 쪽 커튼을 잡았다) 그대로 둔다. 도착 판정이 이어서 처리한다.
    */
   useEffect(() => {
     if (curtainGrab === null) {
@@ -246,7 +265,7 @@ export function Player({
     if (grabRef.current) return;
     const group = groupRef.current;
     if (!group) return;
-    // 앉으러 가는 도중이면 몸이 둘로 갈린다 — 그 몸짓은 없던 일로 한다.
+    // 앉으러 가는 도중이면 몸이 둘로 갈린다. 그 몸짓은 없던 일로 한다.
     if (seatRef.current) {
       useMemoryRoomStore.getState().endCurtainGrab();
       return;
@@ -304,7 +323,7 @@ export function Player({
     if (!group || !facing) return;
 
     const step = Math.min(delta, MAX_FRAME_DELTA);
-    // 입력이 잠겨도 포즈는 계속 돈다 — 대사 중에 다리가 걷다 만 자세로 굳지 않게.
+    // 입력이 잠겨도 포즈는 계속 돈다. 대사 중에 다리가 걷다 만 자세로 굳지 않게.
     const locked = selectSceneInputLocked(useMemoryRoomStore.getState());
     const input = locked
       ? null
@@ -315,7 +334,7 @@ export function Player({
     let speed = 0;
 
     /*
-     * 앉아 있는 동안에는 걷지 않는다 — 대신 움직이려는 입력이 곧 일어서라는 신호다.
+     * 앉아 있는 동안에는 걷지 않는다. 대신 움직이려는 입력이 곧 일어서라는 신호다.
      * 자리에서 벗어나려면 의자를 다시 눌러야 한다면, 걸어 나가려던 손이 갇힌다.
      */
     const seated = useMemoryRoomStore.getState().seatedAt !== null;
@@ -334,7 +353,7 @@ export function Player({
       : phasesRef.current;
     const sitting = phases.travel > 0 || phases.sit > 0;
 
-    // 창가로 가는 도중에 걸으려 들면 그 몸짓은 접는다 — 손이 갇히면 안 된다 (앉기와 같다).
+    // 창가로 가는 도중에 걸으려 들면 그 몸짓은 접는다. 손이 갇히면 안 된다 (앉기와 같다).
     if (moving && grabRef.current) {
       useMemoryRoomStore.getState().endCurtainGrab();
       grabRef.current = null;
@@ -342,7 +361,7 @@ export function Player({
     const grab = grabRef.current;
     const grabState = grab ? useMemoryRoomStore.getState().curtainGrab : null;
 
-    // 키·조이스틱으로 걷기 시작하면 클릭 목표는 잊는다 — 손이 직접 잡은 쪽이 우선이다.
+    // 키·조이스틱으로 걷기 시작하면 클릭 목표는 잊는다. 손이 직접 잡은 쪽이 우선이다.
     if (moving && walkTargetRef.current) {
       walkTargetRef.current = null;
       useMemoryRoomStore.getState().clearWalk();
@@ -350,7 +369,7 @@ export function Player({
 
     /**
      * 몸을 `movementDelta`만큼 옮긴다 (가구·벽에 걸리면 미끄러진다). 키 이동과 클릭 이동이
-     * 같은 길을 타야 한다 — 실제로 간 거리를 돌려주고, 걸음 애니메이션은 그 거리로 돈다.
+     * 같은 길을 타야 한다. 실제로 간 거리를 돌려주고, 걸음 애니메이션은 그 거리로 돈다.
      */
     const walkBy = (movementDelta: Vec2): number => {
       const origin = originRef.current;
@@ -369,7 +388,7 @@ export function Player({
       group.position.z = result.z;
       positionRef.current.copy(group.position);
 
-      // 문턱(공유벽 x)을 넘으면 알린다 — 공유벽 컬링이 이 사실을 본다.
+      // 문턱(공유벽 x)을 넘으면 알린다. 공유벽 컬링이 이 사실을 본다.
       // setInLivingRoom은 값이 같으면 아무것도 안 하므로 프레임마다 불러도 싸다.
       useMemoryRoomStore.getState().setInLivingRoom(result.x < ROOM_SHELL_BOUNDS.minX);
 
@@ -379,7 +398,7 @@ export function Player({
         TURN_LAMBDA,
         delta,
       );
-      // 조이스틱은 아날로그라 살살 밀면 천천히 간다 — 보폭도 같이 느려져야 발이 안 미끄러진다.
+      // 조이스틱은 아날로그라 살살 밀면 천천히 간다. 보폭도 같이 느려져야 발이 안 미끄러진다.
       const traveled = Math.hypot(result.x - origin.x, result.z - origin.z);
       speed = step > 0 ? Math.min(1, traveled / (PLAYER_SPEED * step)) : 0;
       phaseRef.current += STEP_RATE * traveled;
@@ -398,29 +417,37 @@ export function Player({
       movementDelta.z = (cameraRight.z * horizontal + cameraForward.z * vertical) * frameDistance;
       walkBy(movementDelta);
     } else if (walkTargetRef.current && !locked && !seated && !sitting && !grab) {
-      // 클릭한 자리로 곧장 걷는다. 도착했거나 정면으로 막혔으면 거기서 선다.
-      const intended = stepToward(
-        group.position,
-        walkTargetRef.current,
-        PLAYER_SPEED * step,
-        deltaRef.current,
-      );
-      const traveled = intended > 0 ? walkBy(deltaRef.current) : 0;
-      if (intended === 0 || isWalkBlocked(intended, traveled)) {
+      // 경유점을 하나씩 따라 걷는다. 마지막 점에 닿았거나 정면으로 막혔으면 거기서 선다.
+      const waypoints = walkTargetRef.current;
+      const next = waypoints[0];
+      if (!next) {
         walkTargetRef.current = null;
         useMemoryRoomStore.getState().clearWalk();
+      } else {
+        const intended = stepToward(group.position, next, PLAYER_SPEED * step, deltaRef.current);
+        const traveled = intended > 0 ? walkBy(deltaRef.current) : 0;
+        if (intended === 0) {
+          waypoints.shift();
+          if (waypoints.length === 0) {
+            walkTargetRef.current = null;
+            useMemoryRoomStore.getState().clearWalk();
+          }
+        } else if (isWalkBlocked(intended, traveled)) {
+          walkTargetRef.current = null;
+          useMemoryRoomStore.getState().clearWalk();
+        }
       }
     }
 
     /*
      * 자리로 가고 앉는 동안의 몸.
      *
-     * 걷는 구간에서는 실제로 간 거리로 보폭을 돌린다 (평소 이동과 같은 계산) — 다리를
+     * 걷는 구간에서는 실제로 간 거리로 보폭을 돌린다 (평소 이동과 같은 계산): 다리를
      * 멈춘 채 미끄러져 들어가면 앉는 자세보다 그 미끄러짐이 먼저 눈에 걸린다.
      * 앉는 구간에서만 몸이 좌면 높이로 내려앉고 의자 쪽으로 돌아선다.
      */
     const sitting01 = sitEase(phases.sit);
-    // 리그에 넘길 Sit 가중치. 눕는 자리는 걸터앉았다가 젖히면서 다시 편다 — 아래서 갈라진다.
+    // 리그에 넘길 Sit 가중치. 눕는 자리는 걸터앉았다가 젖히면서 다시 편다. 아래서 갈라진다.
     let sitWeight = sitting01;
     if (parked) {
       const { anchor, bodyY, facing: seatFacing, perch } = parked.seat;
@@ -465,19 +492,19 @@ export function Player({
         phases.sit > 0
           ? lerpAngle(lerpAngle(walkFacing, perchFacing, settle01), seatFacing, recline01)
           : dampAngle(facing.rotation.y, walkFacing, TURN_LAMBDA, delta);
-      // 눕는 자리는 젖히는 토막에 몸을 뒤로 눕힌다 — 발 원점을 축으로 머리가 베개 쪽으로 간다.
+      // 눕는 자리는 젖히는 토막에 몸을 뒤로 눕힌다. 발 원점을 축으로 머리가 베개 쪽으로 간다.
       if (lieRef.current) {
         lieRef.current.rotation.x = lying ? -(Math.PI / 2 - LIE_TILT) * recline01 : 0;
       }
-      // 젖히는 동안 다리를 편다 — 다 누우면 Idle을 눕힌 자세다.
+      // 젖히는 동안 다리를 편다. 다 누우면 Idle을 눕힌 자세다.
       sitWeight = settle01 * (1 - recline01);
       positionRef.current.copy(group.position);
-      // 침대에 올라가는 미끄러짐은 걸음이 아니다 — 다리는 걷는 구간에서만 돈다.
+      // 침대에 올라가는 미끄러짐은 걸음이 아니다. 다리는 걷는 구간에서만 돈다.
       if (phases.sit === 0) {
         speed = step > 0 ? Math.min(1, traveled / (PLAYER_SPEED * step)) : 0;
         phaseRef.current += STEP_RATE * traveled;
       }
-      // 다 일어서서 제자리로 돌아왔으면 좌석을 놓는다 — 다음 걸음부터는 평소의 이동 경로다.
+      // 다 일어서서 제자리로 돌아왔으면 좌석을 놓는다. 다음 걸음부터는 평소의 이동 경로다.
       if (!seated && phases.travel === 0 && phases.sit === 0) seatRef.current = null;
     }
 
@@ -517,7 +544,7 @@ export function Player({
       }
     }
 
-    // 창가에 닿아 있는 동안 양팔을 든다. 프레임마다 ref로 읽는다 — 드래그 한 번에 수십 번
+    // 창가에 닿아 있는 동안 양팔을 든다. 프레임마다 ref로 읽는다. 드래그 한 번에 수십 번
     // 바뀌는 값이라 구독하면 씬이 그만큼 리렌더된다.
     const reaching = grabRef.current !== null && grabRef.current.travel >= 1;
     reachRef.current = MathUtils.damp(reachRef.current, reaching ? 1 : 0, REACH_LAMBDA, delta);

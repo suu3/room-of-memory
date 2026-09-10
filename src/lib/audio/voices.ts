@@ -18,7 +18,7 @@ export type VoiceId =
   | "fail"
   | "open"
   | "close"
-  // 미니게임 전용 — 공용 보이스를 돌려쓰면 손맛이 안 나는 자리들만 따로 판다.
+  // 미니게임 전용: 공용 보이스를 돌려쓰면 손맛이 안 나는 자리들만 따로 판다.
   | "batHit"
   | "swingMiss"
   | "punch"
@@ -53,7 +53,7 @@ export interface Tone {
 
 export interface Voice {
   tones: Tone[];
-  /** 짧은 노이즈 버스트 — 종이 넘김·먼지 같은 마찰음에 쓴다. */
+  /** 짧은 노이즈 버스트: 종이 넘김·먼지 같은 마찰음에 쓴다. */
   noise?: {
     delay: number;
     duration: number;
@@ -70,7 +70,7 @@ export interface Voice {
  * 음이름 대신 쓰는 값들. 라단조 5음계라 어떤 순서로 울려도 부딪히지 않는다.
  *
  * 원래는 한 옥타브 위(C5~C6)의 다장조였는데, 그 음역의 삼각파 아르페지오는
- * 아무리 짧게 잘라도 "코인 먹는 소리"로 들렸다 — 재난 뒤 빈방을 도는 게임의
+ * 아무리 짧게 잘라도 "코인 먹는 소리"로 들렸다. 재난 뒤 빈방을 도는 게임의
  * 톤과 정면으로 어긋난다. 옥타브를 내리고 장3도를 뺐다.
  */
 const A3 = 220;
@@ -89,7 +89,7 @@ function pluck(frequency: number, delay: number, gain = 0.34): Tone {
 }
 
 export const VOICES: Record<VoiceId, Voice> = {
-  /** 호버 — 있는 듯 없는 듯. 계속 울리는 소리라 제일 작다. */
+  /** 호버: 있는 듯 없는 듯. 계속 울리는 소리라 제일 작다. */
   hover: {
     tones: [{ from: E4, waveform: "sine", delay: 0, duration: 0.07, gain: 0.1 }],
   },
@@ -99,15 +99,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
   /**
    * 기억 수집. 이 게임에서 되찾는 건 좋기만 한 기억이 아니라서 밝게 해소하지
-   * 않는다 — 5도로 올라갔다 4도에 걸쳐 두면 "찾았다"까지만 말하고 멈춘다.
+   * 않는다. 5도로 올라갔다 4도에 걸쳐 두면 "찾았다"까지만 말하고 멈춘다.
    */
   collect: {
     tones: [pluck(D4, 0), pluck(A4, 0.09), pluck(C5, 0.18, 0.3)],
   },
   /**
-   * 종이 넘김 — 노이즈뿐이다. 원래는 낮은 사인 글라이드(320→190)를 종이의 "몸통"으로
+   * 종이 넘김: 노이즈뿐이다. 원래는 낮은 사인 글라이드(320→190)를 종이의 "몸통"으로
    * 같이 깔았는데, 마찰음보다 그 톤이 먼저 들려 종이가 아니라 "퉁" 하는 타격음으로
-   * 읽혔다. 종이 소리의 정체는 음정이 아니라 마찰이다 — 살짝 부풀었다(들리는 순간)
+   * 읽혔다. 종이 소리의 정체는 음정이 아니라 마찰이다. 살짝 부풀었다(들리는 순간)
    * 바로 잦아드는(넘어가는 순간) 밝은 노이즈 한 번이 정확하다.
    */
   flip: {
@@ -115,14 +115,14 @@ export const VOICES: Record<VoiceId, Voice> = {
     noise: { delay: 0, duration: 0.16, gain: 0.34, highpass: 1100, lowpass: 8500, attack: 0.045 },
   },
   /**
-   * 헝겊으로 유리를 문지르는 소리. flip과 같은 노이즈 기반이지만 성격이 반대다 —
+   * 헝겊으로 유리를 문지르는 소리. flip과 같은 노이즈 기반이지만 성격이 반대다.
    * 종이 넘김은 짧고 밝게 튀고(highpass 1800, 즉발), 닦기는 대역을 좁혀 둔하게 만든 뒤
    * 천천히 부풀렸다 사그라든다. 톤은 손이 유리에 닿는 몸통만 아주 작게 깐다.
    */
   wipe: {
     tones: [{ from: 220, to: 180, waveform: "sine", delay: 0, duration: 0.2, gain: 0.05 }],
     // 한 판에 스무 번 울리는 소리다. 한 번 듣기 좋은 크기로 맞추면 스무 번째에는
-    // 시끄럽다 — 반복 횟수만큼 깎아 둔다.
+    // 시끄럽다. 반복 횟수만큼 깎아 둔다.
     noise: { delay: 0, duration: 0.3, gain: 0.15, highpass: 600, lowpass: 3200, attack: 0.09 },
   },
   /** 안 되는 걸 눌렀을 때. 낮게 한 번. */
@@ -133,7 +133,7 @@ export const VOICES: Record<VoiceId, Voice> = {
   success: {
     tones: [pluck(A3, 0), pluck(E4, 0.09), pluck(A4, 0.18), pluck(D5, 0.3, 0.26)],
   },
-  /** 미니게임 실패 — 벌 주는 소리가 아니라 가라앉는 소리로. */
+  /** 미니게임 실패: 벌 주는 소리가 아니라 가라앉는 소리로. */
   fail: {
     tones: [
       { from: A4, to: A3, waveform: "triangle", delay: 0, duration: 0.34, gain: 0.3 },
@@ -149,7 +149,7 @@ export const VOICES: Record<VoiceId, Voice> = {
 
   /*
    * 여기부터 미니게임 전용. 위쪽 UI 보이스는 라단조 5음계로 "말을 거는" 소리지만,
-   * 아래는 대부분 무조(無調)다 — 배트도 주먹도 음정을 갖지 않는다. 대신 노이즈의
+   * 아래는 대부분 무조(無調)다. 배트도 주먹도 음정을 갖지 않는다. 대신 노이즈의
    * 대역과 톤 몸통의 깊이로 재질을 나눈다.
    */
 
@@ -162,7 +162,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     tones: [{ from: 180, to: 90, waveform: "triangle", delay: 0, duration: 0.11, gain: 0.26 }],
     noise: { delay: 0, duration: 0.09, gain: 0.34, highpass: 2400 },
   },
-  /** 헛스윙 — 맞은 소리가 아니라 지나간 소리. 부풀었다 사그라드는 바람만 남긴다. */
+  /** 헛스윙: 맞은 소리가 아니라 지나간 소리. 부풀었다 사그라드는 바람만 남긴다. */
   swingMiss: {
     tones: [{ from: 140, to: 110, waveform: "sine", delay: 0, duration: 0.18, gain: 0.07 }],
     noise: { delay: 0, duration: 0.22, gain: 0.2, highpass: 900, lowpass: 5200, attack: 0.08 },
@@ -173,7 +173,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     noise: { delay: 0, duration: 0.07, gain: 0.26, highpass: 700, lowpass: 3800 },
   },
   /**
-   * 간파해서 꽂은 한 방. punch를 더 낮게, 더 두껍게 — 같은 주먹이 아니라 더 깊이
+   * 간파해서 꽂은 한 방. punch를 더 낮게, 더 두껍게: 같은 주먹이 아니라 더 깊이
    * 들어갔다는 걸 대미지 숫자가 아니라 몸통 울림으로 먼저 알린다.
    */
   punchHeavy: {
@@ -184,7 +184,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     noise: { delay: 0, duration: 0.1, gain: 0.3, highpass: 600, lowpass: 4200 },
   },
   /**
-   * 상대가 예고 도중에 자세를 바꾸는 순간. 타격이 아니라 신호라 위로 튄다 —
+   * 상대가 예고 도중에 자세를 바꾸는 순간. 타격이 아니라 신호라 위로 튄다.
    * 아래로 떨어지는 소리는 전부 "맞았다"로 예약돼 있어서 헷갈리면 안 된다.
    */
   feint: {
@@ -213,7 +213,7 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
   /**
    * 방송이 끊기는 순간. 지직 한 번(노이즈)에 전원이 빠지는 하강음을 붙이고
-   * 0.3초 안에 전부 끝낸다 — 여운을 남기면 "뚝"이 아니라 "서서히"가 된다.
+   * 0.3초 안에 전부 끝낸다. 여운을 남기면 "뚝"이 아니라 "서서히"가 된다.
    * 뒤에 올 정적이 이 소리의 진짜 내용이다.
    */
   radioCut: {
@@ -222,7 +222,7 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
   /**
    * 꺼져 있던 라디오가 저 혼자 깨어나는 소리. 끊길 때의 하강음을 뒤집어 올리되
-   * 훨씬 작게 — 도해를 놀래키는 소리가 아니라 방 건너에서 겨우 들리는 기척이다.
+   * 훨씬 작게: 도해를 놀래키는 소리가 아니라 방 건너에서 겨우 들리는 기척이다.
    */
   radioWake: {
     tones: [{ from: 90, to: 210, waveform: "sawtooth", delay: 0.02, duration: 0.12, gain: 0.08 }],
@@ -230,7 +230,7 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
   /**
    * 옛날 폰 문자 알림. 그 시절 알림음은 대개 사각파 두 방이었고, 지금 귀에 거슬리는
-   * 그 얇음이 곧 시대감이다 — 부드럽게 다듬으면 오히려 폰이 아니게 된다.
+   * 그 얇음이 곧 시대감이다. 부드럽게 다듬으면 오히려 폰이 아니게 된다.
    */
   phoneBeep: {
     tones: [
@@ -251,7 +251,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     noise: { delay: 0, duration: 0.26, gain: 0.16, highpass: 400, lowpass: 2600, attack: 0.05 },
   },
   /**
-   * 의자를 바닥에 끄는 소리. 서랍보다 대역이 낮고 길다 — 나무 서랍은 미끄러지고
+   * 의자를 바닥에 끄는 소리. 서랍보다 대역이 낮고 길다. 나무 서랍은 미끄러지고
    * 의자 다리는 바닥을 긁는다. 방 안에서 나는 곁가지 소리라 조사·수집음보다 작다.
    */
   chairDrag: {
@@ -260,7 +260,7 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
   /**
    * 자리에 앉고 일어서는 소리. 의자 끄는 소리(chairDrag)와 달리 바닥이 아니라 몸이
-   * 내는 소리라, 마찰은 짧게 스치고 낮은 톤이 한 번 눌린다 — 쿠션이 꺼지는 몫이다.
+   * 내는 소리라, 마찰은 짧게 스치고 낮은 톤이 한 번 눌린다. 쿠션이 꺼지는 몫이다.
    */
   sit: {
     tones: [{ from: 120, to: 82, waveform: "sine", delay: 0, duration: 0.16, gain: 0.11 }],
@@ -272,7 +272,7 @@ export const VOICES: Record<VoiceId, Voice> = {
  * 보이스 전체를 위아래로 옮긴다. 같은 소리가 연달아 나는 자리(사진 닦기처럼
  * 진행률마다 울리는 것)에서 매번 똑같이 울리면 재생이 아니라 반복으로 들린다.
  *
- * 게인은 건드리지 않는다 — 음높이만 흔들어야 "같은 동작"으로 남는다. 노이즈의
+ * 게인은 건드리지 않는다. 음높이만 흔들어야 "같은 동작"으로 남는다. 노이즈의
  * 필터 주파수까지 같이 옮겨야 재질이 따라온다(대역만 고정되면 음정만 뜬 것처럼 들린다).
  */
 export function transposeVoice(voice: Voice, ratio: number): Voice {

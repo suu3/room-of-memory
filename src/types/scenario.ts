@@ -1,5 +1,5 @@
 /**
- * Scenario schema — the single contract between writing (data), UI (dialogue
+ * Scenario schema: the single contract between writing (data), UI (dialogue
  * overlay), and 3D (scene direction). Scenario data lives in
  * `src/data/scenario/*.ts` and must satisfy these types.
  */

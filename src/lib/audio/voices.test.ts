@@ -21,7 +21,7 @@ describe("synthesised sound voices", () => {
         expect(tone.gain, id).toBeLessThanOrEqual(1);
         expect(tone.duration, id).toBeGreaterThan(0);
         expect(tone.delay, id).toBeGreaterThanOrEqual(0);
-        // exponentialRampToValueAtTime은 0을 지날 수 없다 — 주파수는 항상 양수여야 한다
+        // exponentialRampToValueAtTime은 0을 지날 수 없다. 주파수는 항상 양수여야 한다
         expect(tone.from, id).toBeGreaterThan(0);
         if (tone.to !== undefined) expect(tone.to, id).toBeGreaterThan(0);
       }
@@ -51,7 +51,7 @@ describe("transposeVoice", () => {
   });
 
   it("moves tone frequencies and the noise band together", () => {
-    // 대역을 두고 음정만 옮기면 재질이 어긋난다 — 필터도 같은 비율로 따라가야 한다.
+    // 대역을 두고 음정만 옮기면 재질이 어긋난다. 필터도 같은 비율로 따라가야 한다.
     const moved = transposeVoice(VOICES.wipe, 2);
     expect(moved.tones[0].from).toBeCloseTo(VOICES.wipe.tones[0].from * 2, 5);
     expect(moved.tones[0].to ?? 0).toBeCloseTo((VOICES.wipe.tones[0].to ?? 0) * 2, 5);
@@ -74,7 +74,7 @@ describe("transposeVoice", () => {
 
   it("keeps every voice within the gain contract after the widest variation in use", () => {
     // photo-wipe의 0.14가 지금 제일 큰 변주다. 어느 쪽 끝으로 흔들려도 주파수는
-    // 양수여야 한다 — exponentialRampToValueAtTime이 0을 지날 수 없다.
+    // 양수여야 한다. exponentialRampToValueAtTime이 0을 지날 수 없다.
     for (const id of IDS) {
       for (const ratio of [0.86, 1.14]) {
         const moved = transposeVoice(VOICES[id], ratio);

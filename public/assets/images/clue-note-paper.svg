@@ -1,5 +1,5 @@
 <!--
-  서랍에서 꺼낸 쪽지 한 장 — 글씨는 없고 종이만 있는 판이다.
+  서랍에서 꺼낸 쪽지 한 장: 글씨는 없고 종이만 있는 판이다.
   본문은 i18n을 타야 해서 DOM이 위에 얹는다 (ClueOverlay의 FoldedNote).
 
   색은 DESIGN.md 토큰 값 그대로다: paper #EFE7D6, bone #D8D0C2, ink #20222A.
@@ -10,14 +10,14 @@
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" preserveAspectRatio="none" role="presentation">
   <defs>
-    <!-- 종이 안쪽이 바깥보다 아주 조금 밝다 — 평평한 색판으로 안 보이게 -->
+    <!-- 종이 안쪽이 바깥보다 아주 조금 밝다. 평평한 색판으로 안 보이게 -->
     <radialGradient id="sheet" cx="42%" cy="28%" r="86%">
       <stop offset="0%" stop-color="#F3EDE0" />
       <stop offset="62%" stop-color="#EFE7D6" />
       <stop offset="100%" stop-color="#E7E0CF" />
     </radialGradient>
 
-    <!-- 접힌 자국. 위쪽은 그늘, 아래쪽은 빛 — 한 번 접었다 편 종이의 단면 -->
+    <!-- 접힌 자국. 위쪽은 그늘, 아래쪽은 빛: 한 번 접었다 편 종이의 단면 -->
     <linearGradient id="crease" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#20222A" stop-opacity="0" />
       <stop offset="45%" stop-color="#20222A" stop-opacity="0.14" />
@@ -25,7 +25,7 @@
       <stop offset="100%" stop-color="#20222A" stop-opacity="0" />
     </linearGradient>
 
-    <!-- 종이 결. 아주 옅어야 한다 — 눈에 띄면 무늬지 결이 아니다 -->
+    <!-- 종이 결. 아주 옅어야 한다. 눈에 띄면 무늬지 결이 아니다 -->
     <filter id="grain" x="0" y="0" width="100%" height="100%">
       <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7" result="noise" />
       <feColorMatrix in="noise" type="saturate" values="0" />
@@ -54,7 +54,7 @@
       <rect width="640" height="400" fill="url(#sheet)" />
       <rect width="640" height="400" filter="url(#grain)" />
 
-      <!-- 접힌 자국 하나 — 서랍에 반으로 접어 넣어둔 종이 -->
+      <!-- 접힌 자국 하나: 서랍에 반으로 접어 넣어둔 종이 -->
       <rect x="0" y="244" width="640" height="18" fill="url(#crease)" />
 
       <!-- 찢긴 윗변 바로 아래의 그늘. 뜯긴 결이 두께로 읽히게 한다 -->

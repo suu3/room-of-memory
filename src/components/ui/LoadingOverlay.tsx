@@ -11,7 +11,7 @@ export function LoadingOverlay({ label }: { label: string }) {
       aria-live="polite"
       aria-label={label}
     >
-      {/* 실제 진행률을 알 수 없는 자리다 — percent를 주지 않으면 훑고 지나가는 바가 된다 */}
+      {/* 실제 진행률을 알 수 없는 자리다. percent를 주지 않으면 훑고 지나가는 바가 된다 */}
       <LoadingIndicator label={label} />
     </div>
   );

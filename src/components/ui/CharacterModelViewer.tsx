@@ -6,14 +6,14 @@ import { type PointerEvent as ReactPointerEvent, useCallback, useRef, useState }
 import { useTranslation } from "react-i18next";
 import type { ViewerPose } from "@/components/canvas/CharacterTurntable";
 
-/** Canvas는 클라이언트에서만 뜬다 (.claude/rules/r3f.md) — 수첩을 열 때 비로소 받는다. */
+/** Canvas는 클라이언트에서만 뜬다 (.claude/rules/r3f.md): 수첩을 열 때 비로소 받는다. */
 const CharacterTurntable = dynamic(() => import("@/components/canvas/CharacterTurntable"), {
   ssr: false,
 });
 
 const POSES = ["stand", "walk", "sit"] as const satisfies readonly ViewerPose[];
 
-/** 화면 가로폭 대비 회전량 — 창 하나를 가로지르면 한 바퀴 조금 넘게 돈다. */
+/** 화면 가로폭 대비 회전량: 창 하나를 가로지르면 한 바퀴 조금 넘게 돈다. */
 const DRAG_TO_RADIANS = 0.011;
 /** 버튼 한 번에 도는 각. 15°씩이면 마우스 없이도 뒤통수까지 열두 번이면 닿는다. */
 const KEY_STEP = Math.PI / 12;
@@ -24,7 +24,7 @@ const TURN_BUTTON =
 /**
  * 수첩 프로필에 붙는 3D 뷰어. 끌어서 돌려보고, 서다·걷다·앉다를 눌러 자세를 바꾼다. 손을 떼고 잠깐 두면 저 혼자 돈다.
  *
- * 각도는 state가 아니라 ref다 — 드래그마다 리렌더되면 Canvas가 통째로 다시 그려진다
+ * 각도는 state가 아니라 ref다. 드래그마다 리렌더되면 Canvas가 통째로 다시 그려진다
  * (.claude/rules/r3f.md의 "useFrame에서 setState 금지"와 같은 이유). 자세만 state로 두는데,
  * 버튼을 누르는 순간에만 바뀌고 그 값이 곧 버튼의 눌림 상태이기 때문이다.
  */

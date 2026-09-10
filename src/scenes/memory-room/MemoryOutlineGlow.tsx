@@ -19,14 +19,14 @@ import { Color, type Group, type Mesh, type Object3D } from "three";
 /**
  * 빛나는 방식의 두 등급.
  *
- * - `memory` — 기억 오브젝트와 엔딩 배트. 또렷한 윤곽선 + 숨쉬는 헤일로가 겹치고,
+ * - `memory`: 기억 오브젝트와 엔딩 배트. 또렷한 윤곽선 + 숨쉬는 헤일로가 겹치고,
  *   가구에 가려져도 벽 너머로 비친다. "이건 이야기다"라고 말하는 빛.
- * - `prop` — 서랍·의자·커튼·전등 스위치처럼 진행에 끼지 않는 곁가지. 윤곽선 한 줄만.
+ * - `prop`: 서랍·의자·커튼·전등 스위치처럼 진행에 끼지 않는 곁가지. 윤곽선 한 줄만.
  *   "만져진다"까지만 말하고 이야기인 척하지 않는다.
  *
  * DESIGN.md에서 금빛은 "기억을 모을수록 화면에서 비중이 늘어나는 것"이 핵심 연출이라
  * 했다. 곁가지가 기억과 같은 세기로 타오르면 그 비중이 진행과 무관하게 늘 차 있어
- * 연출이 죽는다 — 같은 색을 쓰되 등급으로 양을 가른다.
+ * 연출이 죽는다. 같은 색을 쓰되 등급으로 양을 가른다.
  */
 export type MemoryGlowTier = "memory" | "prop";
 
@@ -125,7 +125,7 @@ const KERNEL_SIZE_VERY_LARGE = 4;
  * OutlineEffect의 마스크 패스는 `camera.layers.set(layer)` 하나로 그릴 대상을
  * 고른다. 레이어가 겹치면 "누가 어느 선택에 들어 있는지"가 통째로 사라져서,
  * 곁가지를 넣은 적이 없는 헤일로 패스가 곁가지까지 같이 그린다. 그 패스는 xRay라
- * 커튼·서랍 윤곽이 벽과 가구를 뚫고 화면을 가로지르는 금빛 줄로 남는다 — 커튼처럼
+ * 커튼·서랍 윤곽이 벽과 가구를 뚫고 화면을 가로지르는 금빛 줄로 남는다. 커튼처럼
  * 큰 물건이 켜지는 순간(창문을 열었을 때)이 제일 크게 보인다.
  *
  * 겹친 레이어는 지우는 쪽도 망가뜨린다. 한 selection이 set/clear로 레이어를 끄면
@@ -139,16 +139,16 @@ const INNER_SELECTION_LAYER = 11;
 const OUTER_SELECTION_LAYER = 12;
 
 export function createMemoryOutlineSettings(color: string) {
-  // 앰버가 밝아진 만큼(#D5AE78) 들어 올리는 폭을 줄인다 — 더 올리면 윤곽이 흰 줄로 뜬다
+  // 앰버가 밝아진 만큼(#D5AE78) 들어 올리는 폭을 줄인다. 더 올리면 윤곽이 흰 줄로 뜬다
   const edgeColor = new Color(color).offsetHSL(0, -0.05, 0.06).getHex();
-  // 가려진 쪽 테두리는 한 단계 어둡게 — 벽 너머까지 같은 밝기로 타오르지 않게 한다.
+  // 가려진 쪽 테두리는 한 단계 어둡게: 벽 너머까지 같은 밝기로 타오르지 않게 한다.
   const hiddenEdgeColor = new Color(color).offsetHSL(0, -0.12, -0.12).getHex();
 
   return {
     composer: { autoClear: false, multisampling: 2 },
     edgeColor,
     hiddenEdgeColor,
-    // inner는 윤곽선, outer는 그 바깥으로 번지는 숨쉬는 광량 — 둘 다 약하면 화면에서 안 보인다.
+    // inner는 윤곽선, outer는 그 바깥으로 번지는 숨쉬는 광량: 둘 다 약하면 화면에서 안 보인다.
     inner: {
       blur: false,
       edgeStrength: 5,
@@ -159,7 +159,7 @@ export function createMemoryOutlineSettings(color: string) {
       xRay: false,
     },
     // xRay는 가구에 가려진 오브젝트도 은은하게 비쳐 보이게 해 근접 활성화를 읽히게 한다.
-    // 바로 그래서 이 패스의 대상은 레이어로 확실히 갈라 둬야 한다 — 곁가지가 여기
+    // 바로 그래서 이 패스의 대상은 레이어로 확실히 갈라 둬야 한다. 곁가지가 여기
     // 섞이면 곁가지 윤곽이 방 전체를 뚫고 나온다.
     outer: {
       blur: true,
@@ -209,7 +209,7 @@ export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: s
           hiddenEdgeColor={settings.hiddenEdgeColor}
           {...settings.inner}
         />
-        {/* 숨쉬는 헤일로 + 벽 너머 투과는 기억만 — 곁가지는 윤곽선 한 줄에서 멈춘다 */}
+        {/* 숨쉬는 헤일로 + 벽 너머 투과는 기억만: 곁가지는 윤곽선 한 줄에서 멈춘다 */}
         <Outline
           selection={selection.memory}
           visibleEdgeColor={settings.edgeColor}
@@ -224,7 +224,7 @@ export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: s
 /**
  * 안쪽 메시들을 아웃라인 글로우 선택 대상으로 등록한다.
  *
- * `tier`는 기본값을 두지 않는다 — 새 오브젝트를 달 때 "이게 이야기인가 곁가지인가"를
+ * `tier`는 기본값을 두지 않는다. 새 오브젝트를 달 때 "이게 이야기인가 곁가지인가"를
  * 한 번은 정하게 만드는 자리다. 빠뜨리면 조용히 기억처럼 타오르는 쪽이 더 나쁘다.
  */
 export function MemoryGlowSelection({
@@ -253,7 +253,7 @@ export function MemoryGlowSelection({
   return <group ref={groupRef}>{children}</group>;
 }
 
-/** 기억 오브젝트 전용 묶음 — 판정용 헬퍼는 글로우 밖에 두고 시각 요소만 빛낸다. */
+/** 기억 오브젝트 전용 묶음: 판정용 헬퍼는 글로우 밖에 두고 시각 요소만 빛낸다. */
 export function MemoryGlowLayers({
   selectionKey,
   enabled,

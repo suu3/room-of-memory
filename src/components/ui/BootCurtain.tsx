@@ -20,21 +20,22 @@ const MIN_SHOW_MS = 900;
 const GIVE_UP_MS = 12_000;
 
 /**
- * 커튼이 걷히는 시간(ms). globals.css의 --animate-boot-curtain-rise와 같아야 한다 —
+ * 커튼이 걷히는 시간(ms). globals.css의 --animate-boot-curtain-rise와 같아야 한다.
  * 애니메이션이 끝나기 전에 언마운트되면 화면이 뚝 끊긴다.
  */
 const RISE_MS = 1100;
 
 /**
- * 부팅 커튼 — 첫 화면. 방의 모델이 다 올 때까지 타이틀째로 덮고 있다가 위로 걷힌다.
+ * 부팅 커튼: 첫 화면. 방의 모델이 다 올 때까지 타이틀째로 덮고 있다가 위로 걷힌다.
  *
  * 그림은 타이틀 화면과 같은 문법이다: 어두운 바탕에 떠오르는 먼지, 픽셀 서체 제목,
- * 그 아래 달리는 도해와 분절 진행 막대 한 줄. 예전의 천 주름은 걷어냈다 — 커튼이라는
+ * 그 아래 달리는 도해와 분절 진행 막대 한 줄. 예전의 천 주름은 걷어냈다. 커튼이라는
  * 몸짓(위로 걷힘)만 남기고 판은 조용히 둔다.
  */
 export function BootCurtain() {
   const { t } = useTranslation();
   const booted = useMemoryRoomStore((state) => state.booted);
+  const started = useMemoryRoomStore((state) => state.started);
   const finishBoot = useMemoryRoomStore((state) => state.finishBoot);
   const loadProgress = useMemoryRoomStore((state) => state.roomLoadProgress);
   const [gaveUp, setGaveUp] = useState(false);
@@ -61,6 +62,12 @@ export function BootCurtain() {
     return () => window.clearTimeout(timer);
   }, [rising, finishBoot]);
 
+  // 게임이 이미 시작됐으면 커튼이 남아 있을 이유가 없다. 로딩 표시(progressbar)가
+  // 방 위에 계속 읽히는 걸 막는다. 정상 경로에서는 걷힌 뒤에야 시작할 수 있어 안 걸린다.
+  useEffect(() => {
+    if (started && !booted) finishBoot();
+  }, [started, booted, finishBoot]);
+
   if (booted) return null;
 
   return (
@@ -72,7 +79,7 @@ export function BootCurtain() {
       aria-live="polite"
       aria-label={t("scene.loading")}
     >
-      {/* 커튼 앞을 떠도는 먼지 — 타이틀 화면과 같은 층 (RisingDust) */}
+      {/* 커튼 앞을 떠도는 먼지: 타이틀 화면과 같은 층 (RisingDust) */}
       <RisingDust />
 
       {/* 방과 같은 필름 그레인. 로딩 화면이 게임 밖 화면처럼 보이지 않게 붙드는 층이다 */}
@@ -88,7 +95,7 @@ export function BootCurtain() {
         {/*
           퍼센트는 언제나 내건다. 예전에는 첫 모델이 도착하기 전까지 훑고 지나가는
           바를 돌렸는데, 이제 그리는 값이 스스로 기어오르므로(useSmoothLoadProgress)
-          0에 멈춰 서는 순간이 없다 — 모르는 척할 이유가 사라졌다.
+          0에 멈춰 서는 순간이 없다. 모르는 척할 이유가 사라졌다.
         */}
         <LoadingIndicator
           percent={loadPercent}

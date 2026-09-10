@@ -1,5 +1,5 @@
 /**
- * 기억의 방 데이터 — 대본과 흐름은 content/*.yaml이 소유한다.
+ * 기억의 방 데이터: 대본과 흐름은 content/*.yaml이 소유한다.
  *
  * 여기 남아 있는 것은 대본이 아닌 것들이다: 방 단계의 시각값(그라디언트·글로우),
  * 컷씬 id 상수, 그리고 흐름 데이터를 다루는 헬퍼. 기억 목록·해금 조건·대사는
@@ -16,7 +16,7 @@ export type { MemoryId };
 
 /**
  * 1바퀴에 조사할 수 있는 기억. phase1이 없는 기억(컴퓨터)은 1바퀴 내내 잠겨 있어
- * 여기 끼지 않는다 — 끼우면 절대 못 채우는 수를 분모로 삼는 셈이라 2바퀴가 영영
+ * 여기 끼지 않는다. 끼우면 절대 못 채우는 수를 분모로 삼는 셈이라 2바퀴가 영영
  * 안 열린다.
  */
 export const PHASE1_MEMORIES = MEMORIES.filter((memory) => memory.phase1);
@@ -28,7 +28,7 @@ export const MEMORY_GOAL = PHASE1_MEMORIES.length;
 export const PHASE2_MEMORIES = MEMORIES.filter((memory) => memory.phase2);
 
 /**
- * 이 바퀴에 모으는 기억들. 진행 표시와 기억 패널이 같은 목록을 본다 —
+ * 이 바퀴에 모으는 기억들. 진행 표시와 기억 패널이 같은 목록을 본다.
  * 두 바퀴는 모으는 대상이 다르므로 한 목록으로 합쳐 놓으면 2바퀴 내내
  * "영영 안 채워지는 칸"(창문·달력)이 남는다.
  */
@@ -54,8 +54,8 @@ export interface RoomStage {
  * 배경 그라디언트 3단계. 어느 단계를 쓸지는 밝기(0~1)와 바퀴 수가 정하며,
  * 그 판단은 `roomStageIndex`(src/scenes/memory-room/visual-state.ts)가 한다.
  *
- * 대본이 아니라 디자인 토큰이라 YAML로 내리지 않았다 — 단계별 독백 텍스트만
- * content/stages.yaml에 있다.
+ * 대본이 아니라 디자인 토큰이라 YAML로 내리지 않았다. 상단 독백은 이 단계가 아니라
+ * 조사 개수를 따른다 (content/stages.yaml, src/data/monologue.ts).
  */
 export const ROOM_STAGES: RoomStage[] = [
   {
@@ -95,7 +95,7 @@ export function phaseConfigOf(id: MemoryId, gamePhase: 1 | 2): MemoryPhaseConfig
 }
 
 /**
- * 재난방송이 끊긴 자리에서 도는 전환 컷씬 — 게임 중 일러스트가 화면을 통째로
+ * 재난방송이 끊긴 자리에서 도는 전환 컷씬: 게임 중 일러스트가 화면을 통째로
  * 차지하는 유일한 자리다. 컷 내용은 content/cutscenes.yaml에 있다.
  */
 export const CUTSCENE_RADIO_BLACKOUT = "radio-blackout";
@@ -105,7 +105,7 @@ export const CUTSCENE_FAREWELL = "farewell";
 export const CUTSCENE_BAT_GRIP = "bat-grip";
 
 /**
- * 2막을 닫는 기억 — 이걸 되찾으면 3막이 열린다 (docs/content-design.md 2장).
+ * 2막을 닫는 기억: 이걸 되찾으면 3막이 열린다 (docs/content-design.md 2장).
  *
  * 이름을 코드에 박는 대신 여기 한 곳에만 둔다. 흐름은 content/memories.yaml이
  * 소유하고, 코드는 "마지막 칸이 무엇인가"만 안다.
@@ -113,11 +113,11 @@ export const CUTSCENE_BAT_GRIP = "bat-grip";
 export const ACT2_FINAL_MEMORY = "ampoule" as MemoryId;
 
 /**
- * 2막의 필수 추리 체인. 앰플에서 `unlockAfter`를 거슬러 올라가 얻는다 —
+ * 2막의 필수 추리 체인. 앰플에서 `unlockAfter`를 거슬러 올라가 얻는다.
  * 목록을 손으로 적으면 YAML을 고칠 때마다 두 곳이 어긋난다.
  *
  * 이 체인 밖의 2차 조사(게임기·컴퓨터·폰)는 곁가지라 3막을 막지 않고, 밝기
- * 상승 곡선의 분모에도 끼지 않는다 — 안 본 사람의 방이 덜 밝으면 곁가지가
+ * 상승 곡선의 분모에도 끼지 않는다. 안 본 사람의 방이 덜 밝으면 곁가지가
  * 곁가지가 아니게 된다.
  */
 export const ACT2_CHAIN: MemoryId[] = (() => {

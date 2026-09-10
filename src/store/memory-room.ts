@@ -22,13 +22,13 @@ import type { SeatId } from "@/types/seat";
 /**
  * 조사의 차수. 1차 = 1막의 첫 조사, 2차 = 2막의 재조사다.
  *
- * 막(Act)과 다른 축이다 — 막은 "이야기가 어디까지 왔는가"이고 이건 "이 물건을
+ * 막(Act)과 다른 축이다. 막은 "이야기가 어디까지 왔는가"이고 이건 "이 물건을
  * 몇 번째로 보고 있는가"라, 콘텐츠(phase1/phase2)와 짝이 맞는 쪽은 이쪽이다.
  */
 export type GamePhase = 1 | 2;
 
 /**
- * 막 — 이야기의 단계이자 공간의 단계 (docs/content-design.md 2장).
+ * 막: 이야기의 단계이자 공간의 단계 (docs/content-design.md 2장).
  *
  *   1막 방(외면) · 2막 방↔거실(직면의 추리) · 3막 현관(세상)
  *
@@ -36,11 +36,11 @@ export type GamePhase = 1 | 2;
  */
 export type Act = 1 | 2 | 3;
 /**
- * 난이도 — 이지(기본)는 미니게임 스킵이 열리고, 보통은 숨는다.
+ * 난이도: 이지(기본)는 미니게임 스킵이 열리고, 보통은 숨는다.
  * 게이트는 useSkipEligible(src/minigames/shell.tsx) 한 곳이 담당한다.
  */
 export type Difficulty = "easy" | "normal";
-/** 수첩(캐릭터 시트)의 페이지 — 프로필과 기록(기억 스크랩북). */
+/** 수첩(캐릭터 시트)의 페이지: 프로필과 기록(기억 스크랩북). */
 export type CharacterSheetTab = "profile" | "lore";
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
@@ -60,19 +60,19 @@ export interface ActiveInteraction {
   phase: InteractionPhase;
   /** 재생 중인 대사 스크립트. 인트로 대사와 미니게임 결과 대사가 같은 대사창을 쓴다. */
   scriptId?: string;
-  /** 결과 대사 단계 — 대사창 뒤로 미니게임 화면이 그대로 남는다. */
+  /** 결과 대사 단계: 대사창 뒤로 미니게임 화면이 그대로 남는다. */
   keepMinigame?: boolean;
   lineIndex: number;
 }
 
 /**
- * 재생의 성격. 같은 기계를 쓰지만 화면의 태도가 다르다 — 컷씬은 방을 덮고
+ * 재생의 성격. 같은 기계를 쓰지만 화면의 태도가 다르다. 컷씬은 방을 덮고
  * 진행을 밀어붙이는 장면이고, 다시보기는 이미 지나간 것을 들춰 보는 것뿐이다.
  */
 export type PlaybackKind = "cutscene" | "replay";
 
 /**
- * 재생 중인 장면. 인터랙션과 같은 자리를 쓰지 않는다 — 여기에는 미니게임이 없고,
+ * 재생 중인 장면. 인터랙션과 같은 자리를 쓰지 않는다. 여기에는 미니게임이 없고,
  * 끝나도 진행이 바뀌지 않는다.
  *
  * 컷씬과 다시보기가 이 하나를 공유한다. 둘 다 "그림 한 장 위로 대사가 흐르고
@@ -82,7 +82,7 @@ export interface ActivePlayback {
   kind: PlaybackKind;
   /** 등록된 컷씬이면 그 id. 다시보기는 즉석에서 엮이므로 없다. */
   cutsceneId?: string;
-  /** 다시보기 대상 기억 — 무엇을 보고 있는지 화면에 적기 위해서. */
+  /** 다시보기 대상 기억: 무엇을 보고 있는지 화면에 적기 위해서. */
   memoryId?: MemoryId;
   /** 재생할 컷들. 레지스트리를 다시 뒤지지 않도록 펼쳐서 들고 있는다. */
   cuts: CutsceneCut[];
@@ -90,7 +90,7 @@ export interface ActivePlayback {
   lineIndex: number;
   /**
    * 첫 컷이 뜨기 전, 라디오가 지직거리다 꺼지는 도입 구간 (컷씬 전용).
-   * 이 동안에는 대사창도 그림도 뜨지 않는다 — 화면에 남는 건 끊기는 소리뿐이다.
+   * 이 동안에는 대사창도 그림도 뜨지 않는다. 화면에 남는 건 끊기는 소리뿐이다.
    */
   intro: boolean;
   /** 대사가 끝나고 그림만 남은 정적 구간 (CutsceneCut.holdMs). */
@@ -108,10 +108,10 @@ interface MemoryRoomState {
   activePlayback: ActivePlayback | null;
   /** DOM overlay sources currently blocking scene controls. */
   uiLocks: UiLockId[];
-  /** 캐릭터 시트 모달 — HUD 메뉴와 대사창 초상 두 곳에서 열리므로 스토어가 소유한다. */
+  /** 캐릭터 시트 모달: HUD 메뉴와 대사창 초상 두 곳에서 열리므로 스토어가 소유한다. */
   characterSheetOpen: boolean;
   /**
-   * 수첩이 펼쳐질 페이지. 여는 곳마다 목적이 다르다 — 오른쪽 "기억 수집" 탭은
+   * 수첩이 펼쳐질 페이지. 여는 곳마다 목적이 다르다. 오른쪽 "기억 수집" 탭은
    * 기록(스크랩북)으로, HUD 메뉴는 마지막으로 보던 페이지로 연다.
    */
   characterSheetTab: CharacterSheetTab;
@@ -120,7 +120,7 @@ interface MemoryRoomState {
   /**
    * 3D 에셋이 얼마나 들어왔는지 (0~1). 타이틀 화면의 로딩 바가 이걸 읽는다.
    *
-   * 진행이 아니라 이 세션의 사정이라 저장하지 않고, 리셋해도 되돌리지 않는다 —
+   * 진행이 아니라 이 세션의 사정이라 저장하지 않고, 리셋해도 되돌리지 않는다.
    * 한 번 받아 둔 모델은 타이틀로 돌아가도 그대로 있다.
    */
   roomLoadProgress: number;
@@ -128,39 +128,39 @@ interface MemoryRoomState {
    * 부팅 커튼이 다 걷혔는가. 에셋을 받는 동안 화면을 덮고 있다가 다 받으면 위로
    * 올라가고, 그 아래에서 타이틀 화면이 드러난다 (BootCurtain).
    *
-   * 이 페이지를 연 뒤 한 번뿐인 사건이라 **리셋해도 되돌리지 않는다** — 되돌리면
+   * 이 페이지를 연 뒤 한 번뿐인 사건이라 **리셋해도 되돌리지 않는다**. 되돌리면
    * 타이틀로 돌아갈 때마다 이미 받아 둔 방을 다시 받는 척하는 커튼이 내려온다.
    */
   booted: boolean;
   /** 연락처 모달. HUD 메뉴와 타이틀 화면 두 곳에서 열린다. */
   contactOpen: boolean;
-  /** 피드백 모달 — HUD 메뉴에서만 열린다 (플레이 전엔 보낼 피드백이 없다). */
+  /** 피드백 모달: HUD 메뉴에서만 열린다 (플레이 전엔 보낼 피드백이 없다). */
   feedbackOpen: boolean;
   /** Monotonic signal for local UI state that must close when progress resets. */
   resetRevision: number;
-  /** 효과음 음소거. 리셋해도 유지된다 — 언어 설정과 같은 성격의 환경설정이다. */
+  /** 효과음 음소거. 리셋해도 유지된다. 언어 설정과 같은 성격의 환경설정이다. */
   soundMuted: boolean;
   /** 난이도. 음소거처럼 환경설정이라 리셋해도 유지된다. */
   difficulty: Difficulty;
   /**
-   * 방의 전등. 진행과 무관한 배경 오브젝트라 수집·엔딩 조건에 전혀 끼지 않는다 —
+   * 방의 전등. 진행과 무관한 배경 오브젝트라 수집·엔딩 조건에 전혀 끼지 않는다.
    * 순전히 플레이어가 방을 만질 수 있다는 감각을 위한 스위치다.
    */
   lightsOn: boolean;
   /**
-   * 방문이 열렸는가 — 한 번 열리면 계속 열려 있다. 라디오 목소리를 들은 뒤에만
+   * 방문이 열렸는가: 한 번 열리면 계속 열려 있다. 라디오 목소리를 들은 뒤에만
    * 열 수 있고, **문이 열리는 것이 2막의 시작**이다 (docs/content-design.md 2장).
    */
   doorOpened: boolean;
   /**
-   * 현관의 배트를 쥐었는가 — 3막의 물건이다. 앰플을 손에 넣어야(2막 완료) 켜지고,
+   * 현관의 배트를 쥐었는가: 3막의 물건이다. 앰플을 손에 넣어야(2막 완료) 켜지고,
    * 쥐어야 현관문이 열린다 (docs/content-design.md 3-2).
    */
   batTaken: boolean;
-  /** 엔딩이 시작됐는가 — 거실 끝 현관문을 연 순간. */
+  /** 엔딩이 시작됐는가: 거실 끝 현관문을 연 순간. */
   endingStarted: boolean;
   /**
-   * 플레이어가 지금 거실에 있는가. 저장하지 않는다 — 위치에서 파생되는 값이고,
+   * 플레이어가 지금 거실에 있는가. 저장하지 않는다. 위치에서 파생되는 값이고,
    * 새로고침하면 방에서 다시 시작한다. 스토어에 드는 이유는 공유벽 컬링과 카메라가
    * Canvas 트리 곳곳에서 이 사실을 봐야 해서다 (Player가 문턱을 넘을 때만 갱신).
    */
@@ -168,7 +168,7 @@ interface MemoryRoomState {
   /**
    * 지금 앉아 있는 자리 (없으면 서 있다).
    *
-   * 위치와 같은 성격이라 저장하지 않는다 — 새로고침하면 방 한가운데에 서서 시작한다.
+   * 위치와 같은 성격이라 저장하지 않는다. 새로고침하면 방 한가운데에 서서 시작한다.
    * 스토어에 드는 이유는 앉히는 쪽(가구)과 앉는 쪽(Player)이 트리에서 멀리 떨어져
    * 있어서다. 진행에는 아무것도 남기지 않는다 (전등 스위치와 같은 곁가지 인터랙션).
    */
@@ -176,7 +176,7 @@ interface MemoryRoomState {
   /**
    * 몸을 옮기라는 신호 (개발 도구 전용).
    *
-   * 위치는 스토어에 없다 — Player 그룹의 변환에만 있어서, 스토어를 아무리 고쳐도 몸은
+   * 위치는 스토어에 없다. Player 그룹의 변환에만 있어서, 스토어를 아무리 고쳐도 몸은
    * 제자리다. `inLivingRoom`만 켜면 거실이 그려지는데 몸은 방에 서 있어서 카메라가 벽
    * 속을 비춘다. 그래서 "어디로 가라"를 여기 두고 Player가 그걸 보고 자기 몸을 옮긴다.
    *
@@ -186,7 +186,7 @@ interface MemoryRoomState {
   /**
    * 바닥을 눌러 걸어갈 자리 (없으면 걷고 있지 않다).
    *
-   * 마우스만 쥔 사람의 이동 수단이다 — 이 방의 조작은 전부 "누르면 걸어가서 한다"
+   * 마우스만 쥔 사람의 이동 수단이다. 이 방의 조작은 전부 "누르면 걸어가서 한다"
    * (기억·의자·커튼·침대)라 바닥도 같은 규칙을 따른다. 도착하거나 막히거나 키로
    * 걷기 시작하면 Player가 지운다. 위치와 같은 성격이라 저장하지 않는다.
    */
@@ -195,7 +195,7 @@ interface MemoryRoomState {
    * 커튼을 잡는 몸짓 (없으면 잡고 있지 않다).
    *
    * 잡으면 Player가 창가로 **걸어가서** 벽을 보고 서고, 그제야(`arrived`) 팔을 들어
-   * 커튼이 손을 따른다 — 도착 전에 젖혀지면 방 저쪽에서 커튼이 혼자 열린다. 놓아도
+   * 커튼이 손을 따른다. 도착 전에 젖혀지면 방 저쪽에서 커튼이 혼자 열린다. 놓아도
    * (`held: false`) 팔은 잠깐 남았다가 내려오고, 다 내려오면 Player가 지운다.
    * 앉기와 같은 성격이라 저장하지 않는다.
    */
@@ -203,36 +203,36 @@ interface MemoryRoomState {
   /**
    * 지금 들여다보고 있는 단서 (책상 위 기록 노트 · 서랍 속 쪽지).
    *
-   * 전등 스위치와 같은 배경 오브젝트라 진행에는 아무것도 남기지 않는다 — 저장도
+   * 전등 스위치와 같은 배경 오브젝트라 진행에는 아무것도 남기지 않는다. 저장도
    * 안 하고 수집·엔딩 조건에도 끼지 않는다. 스토어가 드는 이유는 하나: 만지는
    * 쪽은 Canvas 안의 3D 물건이고 펼쳐지는 쪽은 Canvas 밖 DOM이라, 둘을 잇는
    * 자리가 여기밖에 없다.
    */
   activeClue: ClueId | null;
   /**
-   * 지금 붙잡고 있는 미궁 문제 — 지금은 현관 잠금장치 하나뿐이다.
+   * 지금 붙잡고 있는 미궁 문제: 지금은 현관 잠금장치 하나뿐이다.
    *
    * 기억 인터랙션(activeInteraction)과 다른 자리인 이유: 미궁 문제는 기억이
    * 아니다. 수집·재조사에 안 세어지고, 대사도 안 딸리고, 완료는 solvedPuzzles에만
    * 남는다 (docs/content-design.md 3-2).
    */
   activePuzzle: PuzzleId | null;
-  /** 풀어낸 미궁 문제. 저장된다 — 현관 잠금(angle-turn)이 엔딩의 두 번째 조건이다. */
+  /** 풀어낸 미궁 문제. 저장된다. 현관 잠금(angle-turn)이 엔딩의 두 번째 조건이다. */
   solvedPuzzles: PuzzleId[];
   /**
    * 닫힌 방문을 마지막으로 두드린 시각 (0 = 아직). 문이 안 열리는 이유를 한 줄
-   * 혼잣말로 흘리는 신호다 (DoorNudge) — 잠긴 게 아니라 **안 여는** 것이라는 게
+   * 혼잣말로 흘리는 신호다 (DoorNudge): 잠긴 게 아니라 **안 여는** 것이라는 게
    * 대사로 드러나야 한다 (docs/content-design.md 3-1).
    */
   doorNudgedAt: number;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
-  /** 재생을 한 칸 진행한다 — 다음 줄 → 정적 → 다음 컷 → 종료 순. */
+  /** 재생을 한 칸 진행한다. 다음 줄 → 정적 → 다음 컷 → 종료 순. */
   advancePlayback: () => void;
   /** 재생을 통째로 닫는다 (끝까지 봤거나 건너뛰었거나). */
   endPlayback: () => void;
   finishMinigame: (result: MinigameResult) => void;
-  /** 미니게임을 완료 처리 없이 중단한다 (모달 닫기) — 핫스팟은 다시 클릭 가능. */
+  /** 미니게임을 완료 처리 없이 중단한다 (모달 닫기): 핫스팟은 다시 클릭 가능. */
   cancelMinigame: () => void;
   /** 수집한 기억을 다시 재생한다 (수집 상태는 그대로). */
   replayMemory: (id: MemoryId) => void;
@@ -243,7 +243,7 @@ interface MemoryRoomState {
   setContactOpen: (open: boolean) => void;
   setFeedbackOpen: (open: boolean) => void;
   startGame: () => void;
-  /** 로딩 진행률 보고. **올리기만 한다** — 뒤늦게 붙는 모델 때문에 바가 되감기면 안 된다. */
+  /** 로딩 진행률 보고. **올리기만 한다**. 뒤늦게 붙는 모델 때문에 바가 되감기면 안 된다. */
   setRoomLoadProgress: (progress: number) => void;
   /** 부팅 커튼이 다 올라갔다고 알린다. 되돌리는 짝은 없다. */
   finishBoot: () => void;
@@ -253,44 +253,44 @@ interface MemoryRoomState {
   openClue: (id: ClueId) => void;
   closeClue: () => void;
   /**
-   * 방문을 연다 — 30일 만에 처음으로. 라디오 목소리를 못 들었으면 아무 일도
+   * 방문을 연다. 30일 만에 처음으로. 라디오 목소리를 못 들었으면 아무 일도
    * 일어나지 않는다. 이 순간이 2막의 시작이다.
    */
   openRoomDoor: () => void;
   /**
-   * 현관의 배트를 쥔다 — 곧장 쥐는 게 아니라 두 줄(bat-grip)을 먼저 흘리고,
+   * 현관의 배트를 쥔다. 곧장 쥐는 게 아니라 두 줄(bat-grip)을 먼저 흘리고,
    * 그 재생이 끝나는 모든 경로(완주·스킵)에서 배트가 손에 들어온다.
    */
   takeBat: () => void;
-  /** 문턱을 넘었다고 알린다 — Player만 부른다. */
+  /** 문턱을 넘었다고 알린다. Player만 부른다. */
   setInLivingRoom: (inLivingRoom: boolean) => void;
   /** 자리에 앉는다. 대사·미니게임이 떠 있으면 아무 일도 없다. */
   sitOnSeat: (id: SeatId) => void;
-  /** 일어선다 — 앉기 전 서 있던 자리로 돌아간다 (몸의 자리는 Player가 기억한다). */
+  /** 일어선다. 앉기 전 서 있던 자리로 돌아간다 (몸의 자리는 Player가 기억한다). */
   standUp: () => void;
   /** 바닥의 (x, z)로 걸어간다. 앉아 있으면 일어나고, 커튼 몸짓은 접는다. 시작 전·대사 중이면 무시. */
   walkTo: (x: number, z: number) => void;
-  /** 도착했거나 막혔거나 다른 입력이 끼어들었다 — Player만 부른다. */
+  /** 도착했거나 막혔거나 다른 입력이 끼어들었다. Player만 부른다. */
   clearWalk: () => void;
-  /** 커튼을 잡는다 — 몸이 창가로 간다. 앉아 있거나 대사·미니게임이 떠 있으면 아무 일도 없다. */
+  /** 커튼을 잡는다. 몸이 창가로 간다. 앉아 있거나 대사·미니게임이 떠 있으면 아무 일도 없다. */
   grabCurtain: (side: CurtainSide) => void;
   /** 커튼을 놓는다. 팔은 잠깐 더 남는다 (Player가 내린다). */
   releaseCurtain: () => void;
-  /** 창가에 닿았다 — Player만 부른다. 이때부터 커튼이 손을 따른다. */
+  /** 창가에 닿았다. Player만 부른다. 이때부터 커튼이 손을 따른다. */
   arriveAtCurtain: () => void;
-  /** 팔을 다 내렸다 — Player만 부른다. 몸짓이 끝난다. */
+  /** 팔을 다 내렸다. Player만 부른다. 몸짓이 끝난다. */
   endCurtainGrab: () => void;
   /** 몸을 그 자리로 옮긴다 (개발 도구). 걷는 연출 없이 그냥 서 있게 된다. */
   warpPlayer: (x: number, z: number) => void;
   /** 미궁 문제를 붙잡는다. 이미 푼 문제나 다른 화면이 떠 있으면 아무 일도 없다. */
   openPuzzle: (id: PuzzleId) => void;
-  /** 풀지 않고 내려놓는다 — 물건은 다시 클릭할 수 있다. */
+  /** 풀지 않고 내려놓는다. 물건은 다시 클릭할 수 있다. */
   closePuzzle: () => void;
-  /** 문제가 끝났다 (클리어 또는 스킵 — 미니게임 계약상 스킵도 cleared다). */
+  /** 문제가 끝났다 (클리어 또는 스킵: 미니게임 계약상 스킵도 cleared다). */
   finishPuzzle: (result: MinigameResult) => void;
-  /** 닫힌 방문을 두드렸다 — 문이 열려 있으면 아무 일도 없다. */
+  /** 닫힌 방문을 두드렸다. 문이 열려 있으면 아무 일도 없다. */
   nudgeDoor: () => void;
-  /** 엔딩 시작 — 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
+  /** 엔딩 시작: 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
   startEnding: () => void;
   reset: () => void;
 }
@@ -307,7 +307,7 @@ export function gamePhaseOf(state: StateSnapshot): GamePhase {
  * 경계를 진행도(수집 개수)가 아니라 **물건과 문**이 긋는다. 1막의 끝(수집 완주)과
  * 2막의 시작(방문 개방) 사이에는 전환 시퀀스 한 덩어리가 들어가는데, 그 구간을
  * 어느 막으로 셀지 애매하면 밝기·BGM·혼잣말이 제각각 다른 답을 낸다.
- * 여기서 한 번만 정한다 — 전환 시퀀스는 아직 1막이다.
+ * 여기서 한 번만 정한다. 전환 시퀀스는 아직 1막이다.
  */
 export function actOf(state: StateSnapshot): Act {
   if (state.revisited.includes(ACT2_FINAL_MEMORY)) return 3;
@@ -318,7 +318,7 @@ export function actOf(state: StateSnapshot): Act {
  * 2막 추리가 얼마나 진행됐는가 (0~1). 밝기 상승 곡선의 분자·분모다.
  *
  * 세는 것은 필수 체인(ACT2_CHAIN)뿐이다. 곁가지(게임기·컴퓨터·폰)까지 분모에
- * 넣으면 그것들을 안 본 사람은 3막에 도착해도 방이 안 밝다 — 곁가지를 사실상
+ * 넣으면 그것들을 안 본 사람은 3막에 도착해도 방이 안 밝다. 곁가지를 사실상
  * 필수로 만드는 셈이다.
  */
 export function actTwoProgress(state: StateSnapshot): number {
@@ -333,7 +333,7 @@ export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus
     if (state.collected.includes(id)) return "done";
     const config = MEMORY_BY_ID[id].phase1;
     /*
-     * 1바퀴에 없는 기억(컴퓨터)은 잠겨 있다 — done이 아니라 locked다. done으로
+     * 1바퀴에 없는 기억(컴퓨터)은 잠겨 있다. done이 아니라 locked다. done으로
      * 두면 표식이 켜지고 다시보기까지 열려서, 아직 아무것도 안 본 물건이 이미
      * 본 것처럼 보인다.
      */
@@ -344,7 +344,7 @@ export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus
   const config = MEMORY_BY_ID[id].phase2;
   if (!config || state.revisited.includes(id)) return "done";
   /*
-   * 라디오 목소리만은 문보다 앞이다 — 그걸 들어야 문이 열리니까(selectDoorReady).
+   * 라디오 목소리만은 문보다 앞이다. 그걸 들어야 문이 열리니까(selectDoorReady).
    * 나머지 재조사는 전부 문 뒤에 있다: 문이 열리는 것이 2바퀴의 시작이고, 단서
    * 수집은 방과 거실을 오가는 일이어야 한다. 문도 안 열었는데 방 안에서 2바퀴가
    * 다 돌아가면 거실이 부록이 된다.
@@ -358,7 +358,7 @@ export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus
  * 이 단서를 지금 펼칠 수 있는가.
  *
  * 대부분은 늘 열려 있다 (서랍 속 쪽지 = 방에 처음부터 놓인 물건). 예외는 조사를
- * 마친 뒤에야 배경 오브젝트가 되는 달력이다 — 조사 전에 열면 미니게임이 보여줄
+ * 마친 뒤에야 배경 오브젝트가 되는 달력이다. 조사 전에 열면 미니게임이 보여줄
  * 것을 먼저 보여주는 셈이고, 그 안의 표시가 컴퓨터 비밀번호라 순서가 무너진다.
  */
 export function clueUnlocked(state: StateSnapshot, id: ClueId): boolean {
@@ -367,7 +367,7 @@ export function clueUnlocked(state: StateSnapshot, id: ClueId): boolean {
 }
 
 /**
- * 이 기억을 한 번이라도 봤는가 — 수첩·기억 패널·다시보기가 열어 줄지 정하는 기준.
+ * 이 기억을 한 번이라도 봤는가: 수첩·기억 패널·다시보기가 열어 줄지 정하는 기준.
  *
  * 대부분은 1바퀴 수집이 첫 관문이지만, 1바퀴가 없는 기억(컴퓨터)은 2바퀴 재조사가
  * 그 자리를 대신한다. collected만 보면 그 기억은 영영 잠긴 채로 남는다.
@@ -377,7 +377,7 @@ export function isSeen(state: StateSnapshot, id: MemoryId): boolean {
 }
 
 /**
- * 3막이 열렸는가 — 앰플을 손에 넣었다는 뜻이다.
+ * 3막이 열렸는가: 앰플을 손에 넣었다는 뜻이다.
  *
  * "2차 조사를 전부 마쳤는가"가 아니다. 곁가지(게임기·컴퓨터·폰)까지 강제하면
  * 선택 콘텐츠가 관문이 되고, 추리 체인을 끝낸 플레이어가 왜 문이 안 열리는지
@@ -388,7 +388,7 @@ export function endingReady(state: StateSnapshot): boolean {
 }
 
 /**
- * 지금 끝나는 재생이 배트를 쥐는 두 줄인가 — 그렇다면 배트가 같이 손에 들어와야
+ * 지금 끝나는 재생이 배트를 쥐는 두 줄인가: 그렇다면 배트가 같이 손에 들어와야
  * 한다. advancePlayback(완주)과 endPlayback(스킵) 두 출구가 같은 판정을 쓴다.
  */
 function batGripEnding(state: Pick<MemoryRoomState, "activePlayback" | "batTaken">): boolean {
@@ -399,7 +399,7 @@ function batGripEnding(state: Pick<MemoryRoomState, "activePlayback" | "batTaken
  * 컷씬 재생을 연다. 등록되지 않은 id면 null이라 진행이 막히지 않는다.
  *
  * `intro`(라디오가 지직거리다 꺼지는 도입 구간)는 전환 컷씬만의 것이라 기본이
- * false다 — 그림 없이 대사만 뜨는 컷씬(작별·배트)에 붙이면 아무 일도 안 일어나는
+ * false다. 그림 없이 대사만 뜨는 컷씬(작별·배트)에 붙이면 아무 일도 안 일어나는
  * 몇 초가 먼저 흐른다.
  */
 export function openCutscene(id: string, { intro = false } = {}): ActivePlayback | null {
@@ -417,13 +417,13 @@ export function openCutscene(id: string, { intro = false } = {}): ActivePlayback
 }
 
 /**
- * 다시보기 재생을 엮는다 — 미니게임은 빼고 그때의 대사와 그림만 잇는다.
+ * 다시보기 재생을 엮는다. 미니게임은 빼고 그때의 대사와 그림만 잇는다.
  *
  * 이미 푼 판을 다시 풀리는 것은 되짚기가 아니라 재도전이다. 기억 패널과 수첩은
  * "무엇을 봤는지"를 다시 보여주는 자리라, 손을 다시 쓰게 만들면 안 된다.
  *
  * 대사가 한 줄도 없는 기억(조사 자체가 미니게임뿐이었던 것들)은 그때 남긴
- * 기록을 나레이션으로 대신 세운다 — 눌렀는데 아무 일도 없는 줄을 만들지 않는다.
+ * 기록을 나레이션으로 대신 세운다. 눌렀는데 아무 일도 없는 줄을 만들지 않는다.
  */
 export function buildMemoryReplay(id: MemoryId, gamePhase: GamePhase): ActivePlayback | null {
   const config = phaseConfigOf(id, gamePhase);
@@ -448,7 +448,7 @@ export function buildMemoryReplay(id: MemoryId, gamePhase: GamePhase): ActivePla
     cuts: [{ image: config.replayStill, fit: "contain", lines }],
     cutIndex: 0,
     lineIndex: 0,
-    // 다시보기에는 도입이 없다 — 라디오가 꺼지는 비트는 그 컷씬만의 것이다
+    // 다시보기에는 도입이 없다. 라디오가 꺼지는 비트는 그 컷씬만의 것이다
     intro: false,
     holding: false,
   };
@@ -476,7 +476,7 @@ export function nextPlaybackStep(active: ActivePlayback): ActivePlayback | null 
   if (active.lineIndex + 1 < cut.lines.length) {
     return { ...active, lineIndex: active.lineIndex + 1 };
   }
-  // 마지막 줄을 넘겼다 — 정적이 걸린 컷이면 그림만 남기고 한 박자 쉰다
+  // 마지막 줄을 넘겼다. 정적이 걸린 컷이면 그림만 남기고 한 박자 쉰다
   if (cut.holdMs && cut.holdMs > 0) return { ...active, holding: true };
   return toNextCut();
 }
@@ -486,7 +486,7 @@ function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
     const collected = state.collected.includes(id) ? state.collected : [...state.collected, id];
     /*
      * 1바퀴를 방금 완주했다 = 라디오 재난방송이 막 끊긴 순간이다(라디오가 1바퀴의
-     * 마지막 관문이므로). 절망의 바닥에서 전환 컷씬으로 곧장 넘어간다 — 방을 한 번
+     * 마지막 관문이므로). 절망의 바닥에서 전환 컷씬으로 곧장 넘어간다. 방을 한 번
      * 둘러보게 두면 바닥의 밀도가 흩어진다.
      */
     const finished = collected.length >= MEMORY_GOAL;
@@ -500,7 +500,7 @@ function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
   }
   const revisited = state.revisited.includes(id) ? state.revisited : [...state.revisited, id];
   /*
-   * 앰플이 2막의 마지막 칸이다 — 쥐는 순간 작별의 회상이 곧장 뜬다. 거실을 한
+   * 앰플이 2막의 마지막 칸이다. 쥐는 순간 작별의 회상이 곧장 뜬다. 거실을 한
    * 바퀴 더 둘러보게 두면 발견의 밀도가 흩어지고, 3막이 열리는 이유가 물건이
    * 아니라 시간처럼 보인다 (docs/content-design.md 4장 순서 6).
    */
@@ -513,7 +513,7 @@ function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
 }
 
 /**
- * 저장되는 것 — 진행과 방의 상태뿐이다.
+ * 저장되는 것: 진행과 방의 상태뿐이다.
  *
  * 화면 상태(열린 모달, 진행 중인 인터랙션, uiLocks)는 저장하지 않는다. 대사 도중에
  * 탭을 닫았다가 돌아왔을 때 대사창이 반쯤 열린 채로 되살아나면 어디서 이어지는지
@@ -539,7 +539,7 @@ type PersistedProgress = Pick<
 const PERSIST_KEY = "rom-progress";
 /**
  * 2: 3막 개편. 배트가 방문 트리거에서 현관의 3막 물건으로 옮겨가고(batTaken),
- * 거실 추리 기억들이 생겼다. 옛 저장본은 sanitizeProgress가 걸러 낸다 —
+ * 거실 추리 기억들이 생겼다. 옛 저장본은 sanitizeProgress가 걸러 낸다.
  * doorOpened의 조건이 바뀌었을 뿐 진행 자체는 그대로 이어진다.
  */
 const PERSIST_VERSION = 2;
@@ -549,7 +549,7 @@ const PERSIST_VERSION = 2;
  *
  * 저장된 뒤에 기억 목록이 바뀌면(이름 변경·삭제) 없는 id가 남는다. 그대로 두면
  * 수집 개수가 실제보다 많아져 엔딩 조건이 잘못 열리거나, MEMORY_BY_ID 조회가
- * undefined를 물고 터진다. 모르는 id는 조용히 버린다 — 저장본이 조금 어긋났다고
+ * undefined를 물고 터진다. 모르는 id는 조용히 버린다. 저장본이 조금 어긋났다고
  * 게임을 못 하게 만드는 쪽이 더 나쁘다.
  */
 export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
@@ -567,21 +567,21 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
 
   /*
    * 1바퀴가 없는 기억(컴퓨터)은 collected에 들어갈 수 없다. 옛 저장본에는 들어
-   * 있으므로 여기서 턴다 — 남겨 두면 수집 개수가 목표를 넘어서 엔딩 조건이
+   * 있으므로 여기서 턴다. 남겨 두면 수집 개수가 목표를 넘어서 엔딩 조건이
    * 어긋난다.
    */
   const collected = ids(saved.collected).filter((id) => MEMORY_BY_ID[id].phase1);
   /*
-   * 2바퀴는 1바퀴를 마친 기억에만 붙는다 — 순서가 뒤집힌 저장본은 앞뒤가 맞게 자른다.
+   * 2바퀴는 1바퀴를 마친 기억에만 붙는다. 순서가 뒤집힌 저장본은 앞뒤가 맞게 자른다.
    * 단, 1바퀴가 아예 없는 기억(컴퓨터)은 collected에 들어갈 길이 없으므로 예외다.
    */
   const revisited = ids(saved.revisited).filter(
     (id) => collected.includes(id) || !MEMORY_BY_ID[id].phase1,
   );
 
-  // 방문은 라디오 목소리를 들은 뒤에만 열린다 — 조건이 안 맞는 저장본은 닫고 시작
+  // 방문은 라디오 목소리를 들은 뒤에만 열린다. 조건이 안 맞는 저장본은 닫고 시작
   const doorOpened = saved.doorOpened === true && revisited.includes("radio" as MemoryId);
-  // 배트는 3막의 물건이다 — 앰플이 없는 저장본에서 쥐고 있으면 손에서 내려놓는다
+  // 배트는 3막의 물건이다. 앰플이 없는 저장본에서 쥐고 있으면 손에서 내려놓는다
   const batTaken = saved.batTaken === true && revisited.includes(ACT2_FINAL_MEMORY);
 
   return {
@@ -594,9 +594,9 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
       : [],
     endingStarted: saved.endingStarted === true && batTaken,
     soundMuted: saved.soundMuted === true,
-    // 모르는 값은 스킵이 보이는 쪽(easy)으로 — normal이 잘못 살아나면 접근성 장치가 사라진다
+    // 모르는 값은 스킵이 보이는 쪽(easy)으로: normal이 잘못 살아나면 접근성 장치가 사라진다
     difficulty: saved.difficulty === "normal" ? "normal" : "easy",
-    // 불은 켜진 상태가 기본 — 저장본에 명시적으로 false일 때만 꺼진 채로 돌아온다
+    // 불은 켜진 상태가 기본: 저장본에 명시적으로 false일 때만 꺼진 채로 돌아온다
     lightsOn: saved.lightsOn !== false,
   };
 }
@@ -684,7 +684,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           const next = nextPlaybackStep(state.activePlayback);
           return {
             activePlayback: next,
-            // 두 줄이 다 흘렀으면 그때 배트가 손에 들어온다 — 재생의 끝이 곧 손잡이다
+            // 두 줄이 다 흘렀으면 그때 배트가 손에 들어온다. 재생의 끝이 곧 손잡이다
             ...(next === null && batGripEnding(state) ? { batTaken: true } : {}),
           };
         }),
@@ -693,7 +693,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           state.activePlayback
             ? {
                 activePlayback: null,
-                // 건너뛰어도 배트는 손에 들어온다 — 스킵은 유효한 결말이다
+                // 건너뛰어도 배트는 손에 들어온다. 스킵은 유효한 결말이다
                 ...(batGripEnding(state) ? { batTaken: true } : {}),
               }
             : state,
@@ -703,7 +703,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           const active = state.activeInteraction;
           if (active?.phase !== "minigame") return state;
           const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
-          // 클리어했으면 결과 대사로 — 미니게임 화면을 뒤에 남긴 채 대사창이 뜬다
+          // 클리어했으면 결과 대사로: 미니게임 화면을 뒤에 남긴 채 대사창이 뜬다
           if (result.cleared && interaction?.resultScriptId) {
             return {
               activeInteraction: {
@@ -718,7 +718,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           /*
            * 실패는 인터랙션을 닫되 수집으로 적지 않는다. 못 되찾은 기억을 되찾았다고
            * 적으면 진행도(n/7)와 방 밝기가 실제보다 앞서가고, 캐릭터 시트의 항목도
-           * 거저 열린다 — 미니게임을 푸는 의미가 사라진다.
+           * 거저 열린다. 미니게임을 푸는 의미가 사라진다.
            *
            * 핫스팟은 available로 남으므로 다시 눌러 재도전할 수 있다. 막다른 길이
            * 되지는 않는다. 스킵은 접근성 계약상 cleared: true라 이 갈래로 오지 않고
@@ -768,7 +768,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       setSoundMuted: (muted) => set({ soundMuted: muted }),
       setDifficulty: (difficulty) => set({ difficulty }),
       toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),
-      // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다 — 화면이 두 겹이 된다
+      // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다. 화면이 두 겹이 된다
       openClue: (id) =>
         set((state) =>
           state.activeInteraction || state.activePlayback || !clueUnlocked(state, id)
@@ -783,7 +783,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           if (!selectBatReady(state) || state.activePlayback || state.activeInteraction)
             return state;
           const playback = openCutscene(CUTSCENE_BAT_GRIP);
-          // 컷씬 데이터가 없으면(등록 누락) 대사 없이라도 쥐어진다 — 진행이 먼저다
+          // 컷씬 데이터가 없으면(등록 누락) 대사 없이라도 쥐어진다. 진행이 먼저다
           return playback ? { activePlayback: playback } : { batTaken: true };
         }),
       setInLivingRoom: (inLivingRoom) =>
@@ -793,7 +793,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           state.seatedAt === id || selectSceneInputLocked(state) ? state : { seatedAt: id },
         ),
       standUp: () => set((state) => (state.seatedAt === null ? state : { seatedAt: null })),
-      // 앉은 채로 옮기면 몸만 가고 의자는 남는다 — 옮기기 전에 일어선다.
+      // 앉은 채로 옮기면 몸만 가고 의자는 남는다. 옮기기 전에 일어선다.
       warpPlayer: (x, z) =>
         set({ warpTarget: { x, z }, seatedAt: null, curtainGrab: null, walkTarget: null }),
       walkTo: (x, z) =>
@@ -902,18 +902,18 @@ export const selectActTwoProgress = (state: MemoryRoomState) => actTwoProgress(s
 export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
 
 /**
- * 방문을 열 수 있는가 — 라디오 목소리를 들은 뒤, 아직 안 열었을 때.
+ * 방문을 열 수 있는가: 라디오 목소리를 들은 뒤, 아직 안 열었을 때.
  *
  * 순서가 정해져 있다: 1막 끝(라디오 방송·암전) → 라디오가 저 혼자 다시 켜짐 →
  * 목소리를 잡음(revisited) → 방문에 금빛이 돈다 → 열면 **그때가 2막의 시작**.
- * 문이 열리기 전의 방은 아직 1막이다 — 나머지 재조사도 문이 열려야 풀린다
+ * 문이 열리기 전의 방은 아직 1막이다. 나머지 재조사도 문이 열려야 풀린다
  * (hotspotStatus의 doorOpened 게이트).
  */
 export const selectDoorReady = (state: MemoryRoomState) =>
   state.revisited.includes("radio") && !state.doorOpened;
 
 /**
- * 현관의 배트를 쥘 수 있는가 — 앰플을 손에 넣은 뒤(3막), 아직 안 쥐었을 때.
+ * 현관의 배트를 쥘 수 있는가: 앰플을 손에 넣은 뒤(3막), 아직 안 쥐었을 때.
  *
  * 배트가 1막부터 현관에 서 있어도 켜지지 않는 이유다. 무기가 필요해지는 것은
  * 나갈 이유가 생긴 다음이고, 나갈 이유는 앰플이 만든다.
@@ -921,18 +921,18 @@ export const selectDoorReady = (state: MemoryRoomState) =>
 export const selectBatReady = (state: Pick<MemoryRoomState, "revisited" | "batTaken">) =>
   state.revisited.includes(ACT2_FINAL_MEMORY) && !state.batTaken;
 
-/** 배트를 쥐었는가 — 현관문이 이걸 본다. */
-/** 팔을 들고 있어야 하는가 — Player가 프레임마다 본다 (구독하지 않는다). */
-/** 커튼이 손을 따라도 되는가 — 몸이 창가에 닿은 뒤다. */
+/** 배트를 쥐었는가: 현관문이 이걸 본다. */
+/** 팔을 들고 있어야 하는가: Player가 프레임마다 본다 (구독하지 않는다). */
+/** 커튼이 손을 따라도 되는가: 몸이 창가에 닿은 뒤다. */
 export const isAtCurtain = (state: MemoryRoomState) => state.curtainGrab?.arrived === true;
 
 export const selectBatTaken = (state: MemoryRoomState) => state.batTaken;
 
-/** 방문이 열려 있는가 — 걷기 영역과 문짝 회전이 같이 본다. */
+/** 방문이 열려 있는가: 걷기 영역과 문짝 회전이 같이 본다. */
 export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;
 
 /**
- * 현관 잠금(angle-turn 미궁)이 풀렸는가 — 엔딩의 두 번째 조건이다.
+ * 현관 잠금(angle-turn 미궁)이 풀렸는가: 엔딩의 두 번째 조건이다.
  * 기억을 다 되찾아도(endingReady) 이게 안 풀리면 현관문은 잠금 화면을 연다.
  */
 export const selectFrontDoorUnlocked = (state: MemoryRoomState) =>
@@ -948,7 +948,7 @@ export const selectSceneInputLocked = (state: MemoryRoomState) =>
  *
  * 재난방송이 끊기면서 라디오는 확실히 죽는다. 2바퀴의 문은 도해가 다시 만지는 게
  * 아니라 라디오가 먼저 말을 거는 것이라, 컷씬이 끝난 자리에서 저절로 지직거린다.
- * 목소리를 잡고 나면(revisited) 더는 깜빡이지 않는다 — 할 말을 이미 했으니까.
+ * 목소리를 잡고 나면(revisited) 더는 깜빡이지 않는다. 할 말을 이미 했으니까.
  */
 export const selectRadioSignaling = (state: MemoryRoomState) =>
   gamePhaseOf(state) === 2 && !state.revisited.includes("radio") && state.activePlayback === null;
@@ -957,7 +957,7 @@ export const selectRadioSignaling = (state: MemoryRoomState) =>
  * BGM이 뒤로 물러나야 하는 정도를 정하는 축. 미니게임은 효과음이, 대사는 글이
  * 주인공이라 눌러야 하는 깊이가 다르다 (lib/audio의 useRoomMusic).
  *
- * 원시 문자열로 돌려준다 — 객체를 새로 만들면 zustand가 매 렌더 새 스냅샷으로 본다.
+ * 원시 문자열로 돌려준다. 객체를 새로 만들면 zustand가 매 렌더 새 스냅샷으로 본다.
  */
 export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogue" | "minigame" => {
   if (state.activeInteraction?.phase === "minigame" || state.activePuzzle !== null)
@@ -968,7 +968,7 @@ export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogu
 
 /**
  * 곡이 흐르고 있어야 하는가. 컷씬은 방송이 끊긴 정적 위에 서는 장면이라 곡도 같이
- * 멎는다 — 여기서 BGM이 계속 흐르면 "뚝 끊김"이 소리로 전달되지 않는다.
+ * 멎는다. 여기서 BGM이 계속 흐르면 "뚝 끊김"이 소리로 전달되지 않는다.
  */
 export const selectMusicPlaying = (state: MemoryRoomState) =>
   state.started && !state.endingStarted && state.activePlayback?.kind !== "cutscene";
@@ -977,7 +977,7 @@ export const selectMusicPlaying = (state: MemoryRoomState) =>
  * BGM이 몇 번째 곡을 틀어야 하는가. 곡은 막이 아니라 **전환 컷씬**을 기준으로
  * 둘로 갈린다 (docs/content-design.md 8장).
  *
- * gamePhaseOf(수집 완주 즉시 2)가 아니라 doorOpened를 본다 — 문이 열리는 것이
+ * gamePhaseOf(수집 완주 즉시 2)가 아니라 doorOpened를 본다. 문이 열리는 것이
  * 2막의 시작이다(selectDoorReady 주석). 수집 완료부터 문이 열리기까지의 구간
  * (라디오 목소리)은 아직 1막의 끝자락이라 곡도 1막 것이 남아야 한다.
  */
@@ -986,7 +986,7 @@ export const selectMusicPhase = (state: MemoryRoomState): 1 | 2 => (state.doorOp
 /** 2막 필수 추리 체인의 길이. 밝기 상승 구간의 분모다 (actTwoProgress). */
 export const ACT2_TOTAL = ACT2_CHAIN.length;
 
-/** 1막 조사 목표. 밝기 하강 구간의 분모다 — 데이터 쪽 MEMORY_GOAL과 같은 수. */
+/** 1막 조사 목표. 밝기 하강 구간의 분모다. 데이터 쪽 MEMORY_GOAL과 같은 수. */
 export const MEMORY_TOTAL = MEMORY_GOAL;
 
 /*

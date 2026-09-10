@@ -62,7 +62,7 @@ describe("앉기", () => {
     store.sitOnSeat("sofa-center");
     expect(useMemoryRoomStore.getState().seatedAt).toBe("sofa-center");
 
-    // 앉은 채로 다른 자리를 누르면 그리로 옮겨 앉는다 — 일어서라고 두 번 시키지 않는다.
+    // 앉은 채로 다른 자리를 누르면 그리로 옮겨 앉는다. 일어서라고 두 번 시키지 않는다.
     store.sitOnSeat("piano-bench");
     expect(useMemoryRoomStore.getState().seatedAt).toBe("piano-bench");
 
@@ -78,7 +78,7 @@ describe("앉기", () => {
     expect(useMemoryRoomStore.getState().seatedAt).toBe(null);
   });
 
-  it("리셋하면 일어선다 — 몸은 시작 자리로 돌아간다", () => {
+  it("리셋하면 일어선다. 몸은 시작 자리로 돌아간다", () => {
     const store = useMemoryRoomStore.getState();
     store.sitOnSeat("desk-chair");
     store.reset();
@@ -144,7 +144,7 @@ describe("커튼 잡기", () => {
     store.arriveAtCurtain();
     expect(isAtCurtain(useMemoryRoomStore.getState())).toBe(true);
 
-    // 놓아도 몸짓은 남는다 — 팔을 내리는 건 Player가 끝낸다.
+    // 놓아도 몸짓은 남는다. 팔을 내리는 건 Player가 끝낸다.
     store.releaseCurtain();
     expect(useMemoryRoomStore.getState().curtainGrab).toEqual({
       side: "left",
@@ -205,7 +205,7 @@ describe("minigame result dialogue", () => {
     useMemoryRoomStore.getState().beginInteraction("frame");
     useMemoryRoomStore.getState().finishMinigame({ cleared: false });
 
-    // 결과 대사도 없고 수집도 없다 — 못 되찾은 기억을 되찾았다고 적지 않는다
+    // 결과 대사도 없고 수집도 없다. 못 되찾은 기억을 되찾았다고 적지 않는다
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
     expect(useMemoryRoomStore.getState().collected).toEqual([]);
 
@@ -272,7 +272,7 @@ describe("수집한 기억 다시보기", () => {
     expect(playback?.cuts[0].lines).toEqual(SCRIPTS["ball-intro"].lines);
   });
 
-  /** 이 규칙이 이 기능의 전부다 — 되짚기가 재도전이 되면 안 된다. */
+  /** 이 규칙이 이 기능의 전부다. 되짚기가 재도전이 되면 안 된다. */
   it("미니게임을 다시 열지 않는다", () => {
     collectBall();
     useMemoryRoomStore.getState().replayMemory("ball");
@@ -280,7 +280,7 @@ describe("수집한 기억 다시보기", () => {
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
   });
 
-  it("결과 대사까지 이어 붙인다 — 미니게임만 빠진다", () => {
+  it("결과 대사까지 이어 붙인다. 미니게임만 빠진다", () => {
     useMemoryRoomStore.getState().beginInteraction("frame");
     pushToEnd("frame");
     useMemoryRoomStore.getState().replayMemory("frame");
@@ -300,7 +300,7 @@ describe("수집한 기억 다시보기", () => {
     expect(lines).toEqual([...SCRIPTS["console-intro"].lines, ...SCRIPTS["console-alone"].lines]);
   });
 
-  it("어떤 기억의 다시보기도 빈 줄로 서지 않는다 — 대사가 없으면 기록이 대신 선다", () => {
+  it("어떤 기억의 다시보기도 빈 줄로 서지 않는다. 대사가 없으면 기록이 대신 선다", () => {
     /*
      * 지금 대본은 모든 기억에 대사가 있어 lore 폴백이 실데이터로는 돌지 않지만,
      * 대본은 어드민에서 언제든 바뀐다. 대사를 다 비운 기억이 생겨도 다시보기가
@@ -358,7 +358,7 @@ describe("수집한 기억 다시보기", () => {
     expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
   });
 
-  it("다시보기 중에는 BGM이 멎지 않는다 — 정적은 컷씬의 것이다", () => {
+  it("다시보기 중에는 BGM이 멎지 않는다. 정적은 컷씬의 것이다", () => {
     useMemoryRoomStore.getState().startGame();
     collectBall();
     useMemoryRoomStore.getState().replayMemory("ball");
@@ -376,10 +376,10 @@ describe("수집한 기억 다시보기", () => {
   });
 });
 
-describe("3막 — 앰플 · 배트 · 현관문", () => {
+describe("3막: 앰플 · 배트 · 현관문", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  /** 2막 추리 체인을 끝낸 상태 — 앰플까지 손에 넣었다. */
+  /** 2막 추리 체인을 끝낸 상태: 앰플까지 손에 넣었다. */
   function finishActTwo() {
     useMemoryRoomStore.setState({
       collected: PHASE1_MEMORIES.map((memory) => memory.id),
@@ -388,7 +388,7 @@ describe("3막 — 앰플 · 배트 · 현관문", () => {
     });
   }
 
-  /** 현관 잠금(회전 미궁)을 푼 상태 — 문의 두 번째 조건. */
+  /** 현관 잠금(회전 미궁)을 푼 상태: 문의 두 번째 조건. */
   function unlockFrontDoor() {
     useMemoryRoomStore.setState({ solvedPuzzles: ["angle-turn"] });
   }
@@ -456,10 +456,10 @@ describe("3막 — 앰플 · 배트 · 현관문", () => {
   });
 });
 
-describe("2막 진행도 — 밝기 상승 곡선의 분모", () => {
+describe("2막 진행도: 밝기 상승 곡선의 분모", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  it("필수 체인만 센다 — 곁가지는 분자에도 분모에도 없다", () => {
+  it("필수 체인만 센다. 곁가지는 분자에도 분모에도 없다", () => {
     useMemoryRoomStore.setState({ revisited: ["radio", "computer", "console"] });
 
     // 셋을 봤지만 체인에 든 것은 라디오뿐이다
@@ -473,14 +473,14 @@ describe("2막 진행도 — 밝기 상승 곡선의 분모", () => {
   });
 
   it("체인은 앰플에서 거슬러 올라간 순서다", () => {
-    // 의존이 먼저 오고 앰플이 마지막 — 어느 칸도 자기 선행 조건보다 앞서지 않는다
+    // 의존이 먼저 오고 앰플이 마지막: 어느 칸도 자기 선행 조건보다 앞서지 않는다
     expect(ACT2_CHAIN[ACT2_CHAIN.length - 1]).toBe("ampoule");
     expect(ACT2_CHAIN).toContain("radio");
     expect(ACT2_CHAIN).not.toContain("computer");
   });
 });
 
-describe("1바퀴 마지막 관문 — 라디오", () => {
+describe("1바퀴 마지막 관문: 라디오", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   /** 라디오를 뺀 나머지를 다 조사한 상태. */
@@ -625,7 +625,7 @@ describe("전환 컷씬", () => {
   });
 });
 
-describe("현관의 배트 — 대사를 거쳐 손에 들어온다", () => {
+describe("현관의 배트: 대사를 거쳐 손에 들어온다", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   function readyForBat() {
@@ -643,7 +643,7 @@ describe("현관의 배트 — 대사를 거쳐 손에 들어온다", () => {
     expect(useMemoryRoomStore.getState().batTaken).toBe(false);
   });
 
-  it("쥐면 먼저 대사가 뜬다 — 라디오 도입 없이", () => {
+  it("쥐면 먼저 대사가 뜬다. 라디오 도입 없이", () => {
     readyForBat();
     useMemoryRoomStore.getState().takeBat();
 
@@ -668,7 +668,7 @@ describe("현관의 배트 — 대사를 거쳐 손에 들어온다", () => {
   });
 
   it("대사를 건너뛰어도 배트는 손에 들어온다", () => {
-    // 스킵은 유효한 결말이다 — 배트까지 같이 무르면 죽은 버튼이 된다
+    // 스킵은 유효한 결말이다. 배트까지 같이 무르면 죽은 버튼이 된다
     readyForBat();
     useMemoryRoomStore.getState().takeBat();
     useMemoryRoomStore.getState().endPlayback();
@@ -707,7 +707,7 @@ describe("현관의 배트 — 대사를 거쳐 손에 들어온다", () => {
   });
 });
 
-describe("2막 — 라디오가 유일한 관문, 그다음은 체인", () => {
+describe("2막: 라디오가 유일한 관문, 그다음은 체인", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   function startActTwo() {
@@ -725,7 +725,7 @@ describe("2막 — 라디오가 유일한 관문, 그다음은 체인", () => {
   });
 
   it("라디오 목소리를 잡아도 문을 열기 전에는 나머지가 잠겨 있다", () => {
-    // 문이 열리는 것이 2막의 시작이다 — 추리는 방과 거실을 오가는 일이라,
+    // 문이 열리는 것이 2막의 시작이다. 추리는 방과 거실을 오가는 일이라,
     // 문도 안 열었는데 방 안에서 2막이 다 돌면 거실이 부록이 된다
     startActTwo();
     useMemoryRoomStore.setState({ revisited: ["radio"] });
@@ -743,7 +743,7 @@ describe("2막 — 라디오가 유일한 관문, 그다음은 체인", () => {
 
     expect(hotspotStatus(state, "fridge")).toBe("available");
     expect(hotspotStatus(state, "duffel")).toBe("available");
-    // 액자는 준비를 마쳐야 켜진다 — 거실에서 방으로 부르는 고리다
+    // 액자는 준비를 마쳐야 켜진다. 거실에서 방으로 부르는 고리다
     expect(hotspotStatus(state, "frame")).toBe("locked");
   });
 
@@ -770,14 +770,14 @@ describe("2막 — 라디오가 유일한 관문, 그다음은 체인", () => {
     expect(hotspotStatus(useMemoryRoomStore.getState(), "ampoule")).toBe("available");
   });
 
-  it("곁가지는 라디오 뒤에 바로 열린다 — 체인을 기다리지 않는다", () => {
+  it("곁가지는 라디오 뒤에 바로 열린다. 체인을 기다리지 않는다", () => {
     startActTwo();
     useMemoryRoomStore.setState({ revisited: ["radio"], doorOpened: true });
     const state = useMemoryRoomStore.getState();
 
     expect(hotspotStatus(state, "console")).toBe("available");
     expect(hotspotStatus(state, "computer")).toBe("available");
-    // 폰만 한 칸 뒤다 — 컴퓨터의 여행 메일이 서야 엄마 문자가 근거를 얻는다
+    // 폰만 한 칸 뒤다. 컴퓨터의 여행 메일이 서야 엄마 문자가 근거를 얻는다
     expect(hotspotStatus(state, "phone")).toBe("locked");
     useMemoryRoomStore.setState({ revisited: ["radio", "computer"] });
     expect(hotspotStatus(useMemoryRoomStore.getState(), "phone")).toBe("available");
@@ -804,7 +804,7 @@ describe("2막 — 라디오가 유일한 관문, 그다음은 체인", () => {
   });
 });
 
-describe("미궁 문제 — 현관 잠금", () => {
+describe("미궁 문제: 현관 잠금", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   it("붙잡고 → 풀면 solvedPuzzles에 남고, 다시는 안 열린다", () => {
@@ -821,7 +821,7 @@ describe("미궁 문제 — 현관 잠금", () => {
     expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
   });
 
-  it("내려놓으면 아무것도 안 남는다 — 물건은 다시 클릭할 수 있다", () => {
+  it("내려놓으면 아무것도 안 남는다. 물건은 다시 클릭할 수 있다", () => {
     useMemoryRoomStore.getState().openPuzzle("angle-turn");
     useMemoryRoomStore.getState().closePuzzle();
 

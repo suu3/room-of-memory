@@ -1,14 +1,14 @@
 /**
  * 앉고 일어서는 동안의 진행도.
  *
- * SitDown/StandUp 클립을 재생하지 않고 Idle↔Sit 가중치를 이 진행도로 넘긴다 — 두 클립은
+ * SitDown/StandUp 클립을 재생하지 않고 Idle↔Sit 가중치를 이 진행도로 넘긴다. 두 클립은
  * 마지막 키프레임이 첫 포즈로 되돌아오게 내보내져 있어(선 자세로 튄다) 그대로는 못 쓴다.
  * 몸이 좌면으로 내려앉는 이동도 같은 진행도를 쓰므로, 자세와 자리가 항상 함께 간다.
  */
 
-/** 앉기/일어서기에 걸리는 시간(초). 클립이 쓰던 0.83보다 짧게 — 앉는 건 기다릴 일이 아니다. */
+/** 앉기/일어서기에 걸리는 시간(초). 클립이 쓰던 0.83보다 짧게: 앉는 건 기다릴 일이 아니다. */
 export const SIT_SECONDS = 0.55;
-/** 눕기/일어나기에 걸리는 시간(초). 가장자리에 걸터앉는 토막과 발을 올리며 눕는 토막을 합친 값 — 앉기보다 길다. */
+/** 눕기/일어나기에 걸리는 시간(초). 가장자리에 걸터앉는 토막과 발을 올리며 눕는 토막을 합친 값: 앉기보다 길다. */
 export const LIE_SECONDS = 1.5;
 /** 눕기 진행도 가운데 걸터앉기가 차지하는 몫. 나머지가 젖히는 몫이다. */
 export const LIE_PERCH_SHARE = 0.4;
@@ -16,7 +16,7 @@ export const LIE_PERCH_SHARE = 0.4;
 /**
  * 눕는 동작의 두 토막.
  *
- * 서 있다가 판자처럼 뒤로 넘어가면 사람이 눕는 걸로 안 읽힌다 — 침대 가장자리에
+ * 서 있다가 판자처럼 뒤로 넘어가면 사람이 눕는 걸로 안 읽힌다. 침대 가장자리에
  * **걸터앉고**(perch), 그 다음에 발을 올리며 **뒤로 눕는다**(recline). 일어날 때는
  * 거꾸로 상체를 세워 걸터앉은 다음 일어선다. advanceSitPhases의 sit 진행도 하나를
  * 둘로 가른 것이라 시간 계산은 그대로 쓴다.
@@ -43,7 +43,7 @@ export function advanceSitProgress(current: number, seated: boolean, delta: numb
 /**
  * 자리까지 가는 걸음과 앉는 동작, 두 구간.
  *
- * 처음에는 앉기 하나로만 굴렸는데, 몸이 걷지 않고 의자까지 미끄러져 들어갔다 — 앉는
+ * 처음에는 앉기 하나로만 굴렸는데, 몸이 걷지 않고 의자까지 미끄러져 들어갔다. 앉는
  * 자세보다 그 미끄러짐이 먼저 눈에 걸린다. 앉을 때는 **걸어가서 앉고**, 일어설 때는
  * **일어선 다음 걸어 돌아온다**. 두 구간이 겹치지 않는 것이 핵심이다: 걸으면서 접히거나
  * 앉은 채로 미끄러지면 원래 문제로 돌아간다.
@@ -59,7 +59,7 @@ export function advanceSitPhases(
   current: SitPhases,
   seated: boolean,
   delta: number,
-  /** 자리까지 걷는 데 걸리는 시간(초). 이미 그 자리면 0 — 걷는 구간을 건너뛴다. */
+  /** 자리까지 걷는 데 걸리는 시간(초). 이미 그 자리면 0: 걷는 구간을 건너뛴다. */
   travelSeconds: number,
   out: SitPhases,
   /** 앉는(눕는) 구간에 걸리는 시간(초). */
@@ -79,7 +79,7 @@ export function advanceSitPhases(
   return out;
 }
 
-/** 시작과 끝을 무르게 — 선형으로 섞으면 앉는 순간 몸이 툭 떨어진다. */
+/** 시작과 끝을 무르게: 선형으로 섞으면 앉는 순간 몸이 툭 떨어진다. */
 export function sitEase(progress: number): number {
   const clamped = Math.max(0, Math.min(1, progress));
   return clamped * clamped * (3 - 2 * clamped);
@@ -89,7 +89,7 @@ export function lerp(from: number, to: number, t: number): number {
   return from + (to - from) * t;
 }
 
-/** 최단 회전 방향으로 섞는다 — -π/π 경계에서 한 바퀴 도는 걸 막는다 (Player의 dampAngle과 같은 이유). */
+/** 최단 회전 방향으로 섞는다. -π/π 경계에서 한 바퀴 도는 걸 막는다 (Player의 dampAngle과 같은 이유). */
 export function lerpAngle(from: number, to: number, t: number): number {
   const shortest =
     ((((to - from + Math.PI) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) - Math.PI;

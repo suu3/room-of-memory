@@ -1,5 +1,5 @@
 /**
- * 이 파일은 생성물이다 — 직접 고치지 말 것.
+ * 이 파일은 생성물이다. 직접 고치지 말 것.
  *
  * 원본은 content/*.yaml, 생성은 `pnpm content:build` (dev 서버의 /admin에서
  * 저장해도 같은 것이 돈다). 손으로 고치면 다음 생성 때 그대로 덮인다.
@@ -23,7 +23,7 @@ import {
 import type { MemoryIcon } from "@/components/ui/icons";
 import type { Cutscene, DialogueScript, MemoryPhaseConfig } from "@/types/interaction";
 
-/** 기억 id — content/memories.yaml에 적힌 순서 그대로. 패널에도 이 순서로 뜬다. */
+/** 기억 id: content/memories.yaml에 적힌 순서 그대로. 패널에도 이 순서로 뜬다. */
 export const MEMORY_IDS = [
   "console",
   "window",
@@ -185,7 +185,7 @@ export const MEMORIES: MemoryItem[] = [
   },
 ];
 
-/** 대사 스크립트 레지스트리 — 본문은 i18n 리소스(memoryRoom.scripts.*)에 있다. */
+/** 대사 스크립트 레지스트리: 본문은 i18n 리소스(memoryRoom.scripts.*)에 있다. */
 export const SCRIPTS: Record<string, DialogueScript> = {
   "ball-intro": {
     id: "ball-intro",

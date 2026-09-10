@@ -8,7 +8,7 @@ import { useMemoryRoomStore } from "@/store/memory-room";
 import { MinigameHost } from "./MinigameHost";
 
 /**
- * 게임기(격투 게임)를 조사한 상태로 만든다 — 시작 카드가 뜨는 자리.
+ * 게임기(격투 게임)를 조사한 상태로 만든다. 시작 카드가 뜨는 자리.
  * 진입 대사(①)가 붙어 있으므로 대사를 끝까지 넘겨야 미니게임 페이즈에 닿는다.
  */
 function openConsole() {
@@ -51,11 +51,11 @@ describe("MinigameHost", () => {
   });
 
   it("lays out how to play on the start card, not just the one-line help", () => {
-    // UT: "격투 게임이 너무 어렵다" — 상성도 페인트도 모르고 들어가면 첫 판이 그냥 지나간다.
+    // UT: "격투 게임이 너무 어렵다". 상성도 페인트도 모르고 들어가면 첫 판이 그냥 지나간다.
     render(<MinigameHost />);
     openConsole();
 
-    // 상성은 순서만이 아니라 이유까지 — 임의의 규칙은 판이 도는 중에 안 떠오른다
+    // 상성은 순서만이 아니라 이유까지: 임의의 규칙은 판이 도는 중에 안 떠오른다
     expect(screen.getByText(/a special breaks through a guard/)).toBeTruthy();
     // 필살기가 무한이 아니라는 건 첫 판 전에 알아야 한다
     expect(screen.getByText(/three specials per match/)).toBeTruthy();
@@ -84,7 +84,7 @@ describe("MinigameHost", () => {
   it("결과 대사 중에는 밑에 깔린 판이 포커스를 못 잡는다", () => {
     /*
      * 결과 대사 단계에서 판은 대사창(z-50) 아래 그림으로만 남는다. 그런데 DOM에는
-     * 그대로 살아 있어서, 탭이 닿으면 안 보이는 버튼에 포커스가 잡힌다 — 그 상태로
+     * 그대로 살아 있어서, 탭이 닿으면 안 보이는 버튼에 포커스가 잡힌다. 그 상태로
      * Enter를 누르면 대사는 안 넘어가고 보이지도 않는 버튼이 눌린다.
      */
     render(<MinigameHost />);
@@ -96,7 +96,7 @@ describe("MinigameHost", () => {
       throw new Error("결과 대사 단계에 닿지 않았다");
     }
 
-    // 판을 얹는 층(z-40) 자체가 입력에서 빠져 있어야 한다 — 이 게임은 결과 단계에
+    // 판을 얹는 층(z-40) 자체가 입력에서 빠져 있어야 한다. 이 게임은 결과 단계에
     // 버튼을 안 남기지만, 남기는 미니게임이 생겨도 같은 층이 막아 준다
     const layer = document.querySelector("[inert]");
     expect(layer).not.toBeNull();

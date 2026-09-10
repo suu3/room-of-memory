@@ -1,5 +1,5 @@
 /**
- * 어드민 API — 로컬 dev 서버에만 존재한다.
+ * 어드민 API: 로컬 dev 서버에만 존재한다.
  *
  * 파일명이 `route.dev.ts`인 것이 방어선이다: next.config.ts가 dev에서만
  * `dev.ts`를 라우트 확장자로 치기 때문에, 프로덕션 빌드에는 이 라우트가 아예
@@ -42,6 +42,6 @@ export async function POST(request: Request) {
 
   const result = await saveContent(content);
 
-  // 검증에 걸린 저장은 실패지만 서버 잘못은 아니다 — 어드민이 문제 목록을 그대로 띄운다
+  // 검증에 걸린 저장은 실패지만 서버 잘못은 아니다. 어드민이 문제 목록을 그대로 띄운다
   return NextResponse.json(result, { status: result.ok ? 200 : 422 });
 }

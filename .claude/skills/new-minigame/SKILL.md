@@ -5,7 +5,7 @@ description: 새 미니게임(컴포넌트 + 레지스트리 등록 + 시나리�
 
 # 새 미니게임 스캐폴드
 
-인자: 미니게임 id (kebab-case, 예: `lock-pick`)와 한 줄 컨셉, 모드(canvas/overlay). 모드가 불분명하면 컨셉으로 판단한다 — 3D 오브젝트 조작이면 canvas, 카드·퍼즐·타이핑류면 overlay.
+인자: 미니게임 id (kebab-case, 예: `lock-pick`)와 한 줄 컨셉, 모드(canvas/overlay). 모드가 불분명하면 컨셉으로 판단한다. 3D 오브젝트 조작이면 canvas, 카드·퍼즐·타이핑류면 overlay.
 
 ## 절차
 

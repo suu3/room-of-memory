@@ -9,7 +9,7 @@ import { ASSETS } from "@/lib/assets";
  * (next/dist/docs > generate-metadata > Resource hints).
  */
 export function PreloadResources() {
-  // 로딩 오버레이의 gif — 이걸 받는 동안 로딩 화면이 비어 보이는 걸 막는다.
+  // 로딩 오버레이의 gif: 이걸 받는 동안 로딩 화면이 비어 보이는 걸 막는다.
   ReactDOM.preload(ASSETS.images.uiLoading, { as: "image" });
   return null;
 }

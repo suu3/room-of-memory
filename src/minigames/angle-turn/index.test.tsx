@@ -14,7 +14,7 @@ function setup(onComplete = vi.fn()) {
     onComplete,
     input,
     answer(text: string) {
-      // 슬롯 UI는 다 채우면 스스로 확인한다 — 별도 제출이 없다
+      // 슬롯 UI는 다 채우면 스스로 확인한다. 별도 제출이 없다
       fireEvent.change(input, { target: { value: text } });
     },
   };
@@ -57,7 +57,7 @@ describe("AngleTurnMinigame", () => {
 
   it("survives a language it was not written in", () => {
     /*
-     * 문제가 한글 낱글자를 쓰지만 읽을 필요가 없다는 게 이 퍼즐의 전제다 —
+     * 문제가 한글 낱글자를 쓰지만 읽을 필요가 없다는 게 이 퍼즐의 전제다.
      * 언어를 바꿔도 글자 세 쌍은 그대로 서 있어야 한다.
      */
     const { container } = setup();

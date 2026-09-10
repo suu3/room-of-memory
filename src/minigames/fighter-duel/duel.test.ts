@@ -128,7 +128,7 @@ describe("applyRound", () => {
   });
 
   it("ends in five reads in a row, four when all critical, and six clean hits taken", () => {
-    // 판이 얼마나 걸리는가는 규칙의 일부다 — 30초~2분 안에 끝나야 한다.
+    // 판이 얼마나 걸리는가는 규칙의 일부다. 30초~2분 안에 끝나야 한다.
     const rounds = (resolution: () => Parameters<typeof applyRound>[1]) => {
       let state = DUEL_START;
       let count = 0;
@@ -140,7 +140,7 @@ describe("applyRound", () => {
     };
     expect(rounds(() => won())).toEqual({ count: 5, status: "won" });
     expect(rounds(() => won(true))).toEqual({ count: 4, status: "won" });
-    // 지는 쪽이 한 대 더 길다 — 규칙을 배우는 판이 그대로 패배가 되지 않게.
+    // 지는 쪽이 한 대 더 길다. 규칙을 배우는 판이 그대로 패배가 되지 않게.
     expect(rounds(() => lost)).toEqual({ count: 6, status: "lost" });
   });
 });
@@ -332,7 +332,7 @@ describe("필살기 게이지", () => {
     expect(DUEL_START.special).toBe(SPECIAL_USES);
   });
 
-  it("never gives one back — not for a read, not for a landed special", () => {
+  it("never gives one back: not for a read, not for a landed special", () => {
     /*
      * 읽어낼 때마다 채워 주던 때는 잘 읽는 사람에게 사실상 무제한이라 제한이
      * 아니었다 (UT: "필살기는 횟수 제한 있어야 하지 않나"). 줄기만 해야 한다.
@@ -355,7 +355,7 @@ describe("필살기 게이지", () => {
     expect(applyRound(state, specialWhiffed).special).toBe(0);
   });
 
-  it("leaves the other two moves free — only the special is counted", () => {
+  it("leaves the other two moves free: only the special is counted", () => {
     const drained = { ...DUEL_START, special: 0 };
 
     expect(applyRound(drained, drew).special).toBe(0);

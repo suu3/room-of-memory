@@ -69,7 +69,7 @@ function MultiSelectionScene({
   );
 }
 
-/** 기억 하나와 곁가지 하나가 동시에 켜진 방 — 등급이 실제로 갈리는지 보는 자리. */
+/** 기억 하나와 곁가지 하나가 동시에 켜진 방: 등급이 실제로 갈리는지 보는 자리. */
 function MixedTierScene() {
   return (
     <MemoryGlowRoot color="#b89a5e">
@@ -164,7 +164,7 @@ describe("memory outline glow", () => {
      * 두 패스의 selection 레이어는 절대 같으면 안 된다. OutlineEffect는 마스크를
      * camera.layers 하나로만 고르므로, 같은 레이어를 쓰면 곁가지가 헤일로 패스에
      * 딸려 들어가고 그 패스는 xRay라 방을 뚫고 나온다. <Outline>의 기본값 10을
-     * 그대로 두면 정확히 이 상태가 된다 — 그래서 둘 다 명시한다.
+     * 그대로 두면 정확히 이 상태가 된다. 그래서 둘 다 명시한다.
      */
     expect(settings.inner.selectionLayer).not.toBe(settings.outer.selectionLayer);
     expect(settings.inner.selectionLayer).not.toBe(10);
@@ -192,7 +192,7 @@ describe("memory outline glow", () => {
     expect(drawer).toBeDefined();
     /*
      * 마스크는 레이어 하나로만 고른다. 곁가지에 헤일로 레이어까지 켜져 있으면
-     * 서랍·커튼 윤곽이 xRay 패스에 실려 벽과 가구를 뚫고 나온다 — 창문을 열었을 때
+     * 서랍·커튼 윤곽이 xRay 패스에 실려 벽과 가구를 뚫고 나온다. 창문을 열었을 때
      * 방을 가로지르던 금빛 줄이 이것이었다.
      */
     expect(drawer?.layers.isEnabled(contour.selection.layer)).toBe(true);
@@ -204,7 +204,7 @@ describe("memory outline glow", () => {
   it("keeps the outline to exactly two passes, one per glow tier", async () => {
     // 등급은 패스를 더 다는 게 아니라 선택을 갈라서 낸다. 패스가 늘면 레이어도
     // 같이 늘려야 하는데(위 selectionLayer 참고), 그걸 빠뜨리면 등급 구분이 조용히
-    // 무너진다 — 그래서 개수 자체를 고정해 둔다.
+    // 무너진다. 그래서 개수 자체를 고정해 둔다.
     const renderer = await ReactThreeTestRenderer.create(
       <MultiSelectionScene active={["bat", "ball"]} />,
       { gl: createTestWebGlRenderer },
@@ -295,12 +295,12 @@ describe("memory outline glow", () => {
     await waitFor(() => contourPass(outlineEffects(renderer)).selection.size === 2);
 
     const effects = outlineEffects(renderer);
-    // 윤곽선은 받는다 — 만질 수 있다는 신호는 곁가지에도 있어야 한다
+    // 윤곽선은 받는다. 만질 수 있다는 신호는 곁가지에도 있어야 한다
     expect([...contourPass(effects).selection].map(({ name }) => name).sort()).toEqual([
       "ball-visual",
       "bat-visual",
     ]);
-    // 헤일로는 못 받는다 — 곁가지가 기억처럼 숨쉬면 이야기인 척하는 게 된다
+    // 헤일로는 못 받는다. 곁가지가 기억처럼 숨쉬면 이야기인 척하는 게 된다
     expect(haloPass(effects).selection.size).toBe(0);
 
     await renderer.update(<MultiSelectionScene active={[]} tier="prop" />);

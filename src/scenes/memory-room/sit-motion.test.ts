@@ -37,7 +37,7 @@ describe("sit motion", () => {
     expect(sitEase(0)).toBe(0);
     expect(sitEase(1)).toBe(1);
     expect(sitEase(0.5)).toBeCloseTo(0.5, 5);
-    // 시작과 끝이 무르다 — 절반 지점까지 절반보다 덜 간다.
+    // 시작과 끝이 무르다. 절반 지점까지 절반보다 덜 간다.
     expect(sitEase(0.25)).toBeLessThan(0.25);
     expect(sitEase(0.75)).toBeGreaterThan(0.75);
   });
@@ -47,7 +47,7 @@ describe("sit motion", () => {
     const travelSeconds = 0.5;
     const step = 1 / 60;
 
-    // 걷는 동안에는 앉지 않는다 — 걸으면서 접히면 미끄러져 들어가는 것과 같아진다.
+    // 걷는 동안에는 앉지 않는다. 걸으면서 접히면 미끄러져 들어가는 것과 같아진다.
     for (let elapsed = 0; elapsed < travelSeconds - step; elapsed += step) {
       advanceSitPhases(phases, true, step, travelSeconds, phases);
       expect(phases.sit).toBe(0);
@@ -58,7 +58,7 @@ describe("sit motion", () => {
     }
     expect(phases).toEqual({ travel: 1, sit: 1 });
 
-    // 일어설 때는 순서가 뒤집힌다 — 다 일어선 뒤에야 걸어 돌아온다.
+    // 일어설 때는 순서가 뒤집힌다. 다 일어선 뒤에야 걸어 돌아온다.
     advanceSitPhases(phases, false, step, travelSeconds, phases);
     expect(phases.travel).toBe(1);
     expect(phases.sit).toBeLessThan(1);
@@ -78,12 +78,12 @@ describe("sit motion", () => {
   it("perches on the edge first and only then reclines, unwinding in the other order", () => {
     const out: LiePhases = { perch: 0, recline: 0 };
     expect(liePhasesOf(0, out)).toEqual({ perch: 0, recline: 0 });
-    // 걸터앉는 동안에는 젖히지 않는다 — 서서 넘어가는 그림이 돌아온다.
+    // 걸터앉는 동안에는 젖히지 않는다. 서서 넘어가는 그림이 돌아온다.
     liePhasesOf(LIE_PERCH_SHARE / 2, out);
     expect(out.perch).toBeCloseTo(0.5, 5);
     expect(out.recline).toBe(0);
     expect(liePhasesOf(LIE_PERCH_SHARE, out)).toEqual({ perch: 1, recline: 0 });
-    // 다 앉은 뒤에야 젖힌다 — 젖히는 동안 걸터앉은 자세는 그대로다.
+    // 다 앉은 뒤에야 젖힌다. 젖히는 동안 걸터앉은 자세는 그대로다.
     liePhasesOf((1 + LIE_PERCH_SHARE) / 2, out);
     expect(out.perch).toBe(1);
     expect(out.recline).toBeCloseTo(0.5, 5);

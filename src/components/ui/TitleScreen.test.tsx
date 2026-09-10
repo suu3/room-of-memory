@@ -8,14 +8,14 @@ import { useMemoryRoomStore } from "@/store/memory-room";
 import { TitleScreen } from "./TitleScreen";
 
 /**
- * 부팅 커튼은 리셋으로 다시 내려오지 않는다 (한 번 받은 모델은 그대로 있다) —
+ * 부팅 커튼은 리셋으로 다시 내려오지 않는다 (한 번 받은 모델은 그대로 있다).
  * 테스트끼리 새는 것을 막으려면 스토어를 직접 되돌려 놓아야 한다.
  */
 function setBooted(booted: boolean) {
   useMemoryRoomStore.setState({ booted });
 }
 
-/** 저장이 있는 판 — 기억 하나를 모아 둔 채 타이틀로 돌아온 상태. */
+/** 저장이 있는 판: 기억 하나를 모아 둔 채 타이틀로 돌아온 상태. */
 function setSaved() {
   useMemoryRoomStore.setState({ collected: ["radio" as MemoryId] });
 }
@@ -28,7 +28,7 @@ describe("TitleScreen", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     useMemoryRoomStore.getState().reset();
-    // 커튼이 걷힌 뒤가 기본이다 — 이 화면은 그때부터 보인다
+    // 커튼이 걷힌 뒤가 기본이다. 이 화면은 그때부터 보인다
     setBooted(true);
   });
 
@@ -69,7 +69,7 @@ describe("TitleScreen", () => {
 
   /*
    * 로딩은 이제 BootCurtain이 전부 맡는다 (BootCurtain.test.tsx). 이 화면은 커튼이
-   * 걷힌 뒤에만 보이므로 진행률을 알 필요가 없다 — 다만 걷히기 전에 미리 그려져
+   * 걷힌 뒤에만 보이므로 진행률을 알 필요가 없다. 다만 걷히기 전에 미리 그려져
    * 있으므로, 그동안 손이 닿지 않는지는 여기서 지킨다.
    */
   it("커튼이 걷히기 전에는 손이 닿지 않는다", () => {
@@ -127,7 +127,7 @@ describe("TitleScreen", () => {
     render(<TitleScreen />);
 
     fireEvent.click(screen.getByRole("button", { name: "New Game" }));
-    // 묻기만 했다 — 아직 아무것도 안 지워졌다
+    // 묻기만 했다. 아직 아무것도 안 지워졌다
     expect(screen.getByRole("alertdialog")).toBeTruthy();
     expect(useMemoryRoomStore.getState().collected).toEqual(["radio"]);
 
