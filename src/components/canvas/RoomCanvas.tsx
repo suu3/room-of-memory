@@ -364,10 +364,23 @@ export function RoomCanvas() {
     setOrbitAzimuth(next);
   }, []);
 
+  /**
+   * 잠기는 동안은 기본 구도로 돌아가고, 풀리면 **사용자가 잡아 둔 배율·각도로 돌아온다**.
+   * 예전에는 되돌리기만 해서, 미니게임 하나 끝날 때마다 줌이 기본값으로 튕겼다.
+   */
+  const savedViewRef = useRef<{ zoom: number; orbit: number } | null>(null);
   useEffect(() => {
-    if (!viewLocked) return;
-    applyZoomScale(1);
-    applyOrbit(0);
+    if (viewLocked) {
+      savedViewRef.current = { zoom: zoomScaleRef.current, orbit: orbitRef.current };
+      applyZoomScale(1);
+      applyOrbit(0);
+      return;
+    }
+    const saved = savedViewRef.current;
+    if (!saved) return;
+    savedViewRef.current = null;
+    applyZoomScale(saved.zoom);
+    applyOrbit(saved.orbit);
   }, [viewLocked, applyZoomScale, applyOrbit]);
 
   useEffect(() => {
@@ -503,6 +516,7 @@ export function RoomCanvas() {
               onCurtainPull={handleCurtainPull}
               onCurtainRelease={handleCurtainRelease}
               roomZoom={roomZoom * zoomScale}
+              zoomScale={zoomScale}
               orbitAzimuth={orbitAzimuth}
               following={started}
               onInteract={interact}
@@ -514,6 +528,7 @@ export function RoomCanvas() {
       <RoomInteractionPrompt
         nearbyMemoryId={nearbyMemoryId}
         nearbyLabel={nearbyLabel}
+        legend={t("hud.scattered")}
         labels={memoryButtonLabels}
         statuses={statuses}
         onInteract={interact}

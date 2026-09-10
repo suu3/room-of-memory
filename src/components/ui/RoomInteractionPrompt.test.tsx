@@ -35,6 +35,7 @@ function renderPrompt(availableIds: readonly MemoryId[], onInteract: (id: Memory
     <RoomInteractionPrompt
       nearbyMemoryId="console"
       nearbyLabel="Console 조사 · E"
+      legend="Memories in the room"
       labels={labels}
       statuses={statuses}
       onInteract={onInteract}
@@ -57,18 +58,24 @@ describe("RoomInteractionPrompt", () => {
     expect(screen.getByRole("button", { name: "Ball" })).toBeTruthy();
   });
 
-  it("enables available memories and disables unavailable memories", () => {
+  it("marks unavailable memories aria-disabled but keeps them focusable", () => {
+    // disabled는 포커스 순서에서 빠져 스크린리더가 그 물건이 있는지조차 모른다
     renderPrompt(["console", "radio"], () => {});
 
-    expect((screen.getByRole("button", { name: "Console" }) as HTMLButtonElement).disabled).toBe(
-      false,
+    expect(screen.getByRole("button", { name: "Console" }).getAttribute("aria-disabled")).toBe(
+      "false",
     );
-    expect((screen.getByRole("button", { name: "Radio" }) as HTMLButtonElement).disabled).toBe(
-      false,
+    expect(screen.getByRole("button", { name: "Radio" }).getAttribute("aria-disabled")).toBe(
+      "false",
     );
-    expect((screen.getByRole("button", { name: "Window" }) as HTMLButtonElement).disabled).toBe(
-      true,
-    );
+    const window = screen.getByRole("button", { name: "Window" }) as HTMLButtonElement;
+    expect(window.getAttribute("aria-disabled")).toBe("true");
+    expect(window.disabled).toBe(false);
+  });
+
+  it("names the list so it reads as the room's objects, not thirteen loose buttons", () => {
+    renderPrompt(["console"], () => {});
+    expect(screen.getByRole("group", { name: "Memories in the room" })).toBeTruthy();
   });
 
   it("dispatches the available button's MemoryId", () => {
@@ -85,8 +92,8 @@ describe("RoomInteractionPrompt", () => {
     // 이름에 이유를 담는 건 호출부(RoomCanvas)의 일이고, 여기는 그 이름을 지운다/남긴다만 정한다.
     renderPrompt(["console"], () => {});
 
-    const window = screen.getByRole("button", { name: "Window" }) as HTMLButtonElement;
-    expect(window.disabled).toBe(true);
+    const window = screen.getByRole("button", { name: "Window" });
+    expect(window.getAttribute("aria-disabled")).toBe("true");
     expect(screen.getAllByRole("button")).toHaveLength(Object.keys(labels).length);
   });
 

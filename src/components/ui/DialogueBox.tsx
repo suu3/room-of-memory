@@ -65,7 +65,8 @@ export function DialogueBox() {
   advanceRef.current = done ? advanceLine : skip;
 
   /*
-   * 화면 아무 데나 클릭하는 것 말고 Enter로도 넘어간다.
+   * 화면 아무 데나 클릭하는 것 말고 Enter와 Space로도 넘어간다. VN의 관례라 셋 중
+   * 무엇을 눌러도 같은 일이 일어나야 한다. 우하단 화살표는 표식이지 버튼이 아니다.
    *
    * 창 전역에서 캡처 단계로 받는다. 결과 대사 단계에서는 미니게임이 대사창 아래
    * 그대로 살아 있어서(MinigameHost의 resultStage), 버블 단계까지 흘려보내면 같은
@@ -80,7 +81,7 @@ export function DialogueBox() {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Enter" || event.repeat) return;
+      if ((event.key !== "Enter" && event.code !== "Space") || event.repeat) return;
       const target = event.target;
       const isOwnButton = target instanceof Element && target.closest(`[${ADVANCE_ATTR}]`) !== null;
       if (!isOwnButton && isInteractiveTarget(target)) return;
@@ -97,8 +98,10 @@ export function DialogueBox() {
   const speakerName = tRoom(`characters.${scriptLine.speaker}.name` as ParseKeys<"memoryRoom">);
 
   return (
-    // z-50: 미니게임 결과 대사일 때 미니게임 오버레이(z-40) 위로 올라와야 한다
-    <div className="absolute inset-0 z-50">
+    // z-50: 미니게임 결과 대사일 때 미니게임 오버레이(z-40) 위로 올라와야 한다.
+    // 세로가 짧은 화면(가로 폰)에서는 초상이 창 위로 올라갈 자리가 없다. 창을 뷰포트 안에
+    // 붙들어 두는 것이 우선이라, 넘치는 초상 쪽을 잘라 낸다 (overflow-hidden).
+    <div className="absolute inset-0 z-50 overflow-hidden">
       {/*
         화면 전체가 "다음" 버튼이다. 대사창 안만 눌리면 어디를 눌러야 하는지
         매번 겨냥해야 한다. 조작 대상이 하나뿐이라 컨트롤도 이 버튼 하나로 둔다.
@@ -112,8 +115,12 @@ export function DialogueBox() {
         className="absolute inset-0 cursor-pointer"
       />
 
-      {/* 창 자체는 보여주기만 한다. 클릭은 뒤의 전체 화면 버튼이 받는다 */}
-      <div className="pointer-events-none absolute bottom-6 left-1/2 w-full max-w-[840px] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-8">
+      {/*
+        창 자체는 보여주기만 한다. 클릭은 뒤의 전체 화면 버튼이 받는다.
+        아래쪽은 기기의 safe-area만큼 더 띄운다. 홈 바 뒤로 창이 밀려 들어가면
+        마지막 줄이 잘린다. 위쪽 여백(pt)은 초상의 자리다: 창 위로 온전히 올라와야 한다.
+      */}
+      <div className="pointer-events-none absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 w-full max-w-[840px] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-[max(2rem,env(safe-area-inset-bottom))]">
         <div className="relative">
           {/*
             얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다.

@@ -4,6 +4,8 @@ import type { HotspotStatus } from "@/store/memory-room";
 interface RoomInteractionPromptProps {
   nearbyMemoryId: MemoryId | null;
   nearbyLabel: string;
+  /** 목록의 이름. 스크린리더가 "버튼 열세 개"가 아니라 "방 안의 물건" 목록으로 읽게. */
+  legend: string;
   /** 버튼에 읽힐 이름. 조사할 수 없는 물건은 이유까지 담긴 문구가 온다. */
   labels: Record<MemoryId, string>;
   statuses: Record<MemoryId, HotspotStatus>;
@@ -20,6 +22,7 @@ interface RoomInteractionPromptProps {
 export function RoomInteractionPrompt({
   nearbyMemoryId,
   nearbyLabel,
+  legend,
   labels,
   statuses,
   onInteract,
@@ -32,17 +35,29 @@ export function RoomInteractionPrompt({
         </div>
       ) : null}
 
+      {/*
+        화면 밖의 목록이지만 진짜 버튼이다. onInteract는 RoomCanvas의 interact와 같아서
+        3D 물건을 누른 것과 똑같이 조사가 시작된다. 걸어가서 만질 필요가 없다.
+        조사할 수 없는 물건은 disabled가 아니라 aria-disabled로 둔다. disabled는
+        포커스 순서에서 빠져 스크린리더 사용자가 그 물건이 있는지조차 모른다.
+      */}
       <fieldset className="sr-only">
-        {MEMORY_IDS.map((id) => (
-          <button
-            key={id}
-            type="button"
-            disabled={statuses[id] !== "available"}
-            onClick={() => onInteract(id)}
-          >
-            {labels[id]}
-          </button>
-        ))}
+        <legend>{legend}</legend>
+        {MEMORY_IDS.map((id) => {
+          const available = statuses[id] === "available";
+          return (
+            <button
+              key={id}
+              type="button"
+              aria-disabled={!available}
+              onClick={() => {
+                if (available) onInteract(id);
+              }}
+            >
+              {labels[id]}
+            </button>
+          );
+        })}
       </fieldset>
     </>
   );

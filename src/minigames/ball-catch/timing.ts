@@ -1,4 +1,22 @@
+import type { MinigameDifficulty } from "@/types/minigame";
+
 export type SwingResult = "hit" | "early" | "late";
+
+/**
+ * 난이도별 판. 이지는 다섯 번의 기회 안에 세 번만 맞히면 된다. 다섯 번을 전부 맞혀야
+ * 하는 판은 무결점을 요구하는 셈이라, 라운드마다 빨라지는 공 앞에서 배우는 값이 곧
+ * 패배였다. 보통은 예전 그대로 다섯 번이다.
+ */
+export const SWING_TUNINGS: Record<MinigameDifficulty, { goal: number; maxMisses: number }> = {
+  easy: { goal: 3, maxMisses: 5 },
+  normal: { goal: 5, maxMisses: 5 },
+};
+
+/**
+ * 첫 투구의 속도 배율: 튜토리얼 피치다. 느린 공(PITCH_TEMPOS의 slow)과 같은 값이라
+ * 그 뒤의 변주 안에서 튀지 않는다. 링에 들어오는 순간 "지금!"이 같이 뜬다.
+ */
+export const TUTORIAL_SCALE = 1.18;
 
 export function classifySwing(progress: number, window: readonly [number, number]): SwingResult {
   if (progress < window[0]) return "early";

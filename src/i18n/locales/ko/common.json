@@ -2,6 +2,7 @@
   "title": "기억의 방",
   "hud": {
     "scattered": "방 안에 흩어진 기억",
+    "round": "{{value}}바퀴",
     "memoryCount": "기억",
     "contact": "만든 사람",
     "reset": "리셋",
@@ -89,7 +90,8 @@
     "frequencyTune": {
       "title": "주파수 맞추기",
       "help": "바늘이 밝은 구간을 지나는 순간 Space",
-      "help_touch": "바늘이 밝은 구간을 지날 때 화면 터치"
+      "help_touch": "바늘이 밝은 구간을 지날 때 화면 터치",
+      "fail": "…지직. 아직 안 잡히네."
     },
     "radioQuiz": {
       "question": "내가 방에 갇혀 있는 이유는, 무엇인가?",
@@ -101,7 +103,8 @@
     "photoWipe": {
       "title": "사진 닦기",
       "help": "마우스로 드래그해 먼지를 닦아내세요",
-      "help_touch": "손가락으로 문질러 먼지를 닦아내세요"
+      "help_touch": "손가락으로 문질러 먼지를 닦아내세요",
+      "fail": "먼지가 아직 남았다. …다시 닦자."
     },
     "ballCatch": {
       "title": "스윙!",
@@ -112,7 +115,9 @@
       "early": "빨랐어",
       "late": "늦었어",
       "hits": "안타 {{value}} / {{goal}}",
-      "chances": "남은 기회"
+      "chances": "남은 기회",
+      "fail": "아직 폼이 안 돌아왔네.",
+      "now": "지금!"
     },
     "fighterDuel": {
       "title": "격투 게임",
@@ -154,7 +159,9 @@
       },
       "beats": "{{move}}에 강함",
       "tellLabel": "상대의 수",
-      "specialLeft": "필살기 {{left}}번 남음"
+      "specialLeft": "필살기 {{left}}번 남음",
+      "fail": "졌다. …한 판 더 하면 되지.",
+      "tutorialHint": "첫 판은 연습: 빛나는 버튼이 정답입니다"
     },
     "labelSuccess": "성공",
     "labelMiss": "실패",
@@ -182,12 +189,36 @@
       "mark": {
         "incident": "{{month}}월 {{day}}일: 다 멈춘 날",
         "nationals": "{{month}}월 {{day}}일: 전국대회"
+      },
+      "note": {
+        "finals": "기말고사",
+        "practiceGame": "연습시합 vs 동성고",
+        "vacation": "여름방학",
+        "camp": "야구부 합숙",
+        "schoolStart": "개학",
+        "mockExam": "모의고사",
+        "dday60": "수능 D-60",
+        "trip": "엄마 아빠 여행 (5박)"
       }
     },
     "windowView": {
       "title": "창밖",
       "help": "커튼을 걷고 밖을 내다본다",
-      "close": "커튼을 닫는다"
+      "close": "커튼을 닫는다",
+      "lookHelp": "돋보기를 옮겨 창밖을 살펴보세요: 방향키 · Enter",
+      "lookHelp_touch": "창밖을 터치해 살펴보세요",
+      "spotsLabel": "창밖에서 찾은 것",
+      "spot": {
+        "smoke": "연기",
+        "stain": "도로의 자국",
+        "dark": "불 꺼진 창"
+      },
+      "line": {
+        "smoke": "멀리서 연기가 오른다. 며칠째인지도 모르겠다.",
+        "stain": "도로에 검붉은 자국. …저게 뭔지는 생각 안 하기로 했다.",
+        "dark": "건너편 창이 전부 캄캄하다. 저기도 아무도 없나."
+      },
+      "allFound": "…됐어. 그만 보자."
     },
     "phoneChat": {
       "title": "스마트폰",
@@ -341,6 +372,15 @@
     },
     "answer": {
       "backspace": "지우기"
+    },
+    "result": {
+      "clearedTitle": "기억을 되찾았다",
+      "recorded": "수첩에 기록됨",
+      "continue": "계속",
+      "failedTitle": "…이번엔 안 됐다",
+      "failDefault": "아직 손이 안 풀렸네. 한 번 더 해볼까.",
+      "retry": "다시 해보기",
+      "later": "나중에 하기"
     }
   },
   "characterSheet": {

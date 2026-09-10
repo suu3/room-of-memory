@@ -45,6 +45,7 @@ import {
   roomLightMix,
   roomLightValue,
 } from "./memory-room/visual-state";
+import { WalkMarker } from "./memory-room/WalkMarker";
 import { WindowLight } from "./memory-room/WindowLight";
 
 /** 바닥 평면(y=0). 클릭한 곳이 상판이든 벽이든, 광선이 이 평면과 만나는 자리로 걸어간다. */
@@ -225,6 +226,7 @@ export function MemoryRoomScene({
   onCurtainPull,
   onCurtainRelease,
   roomZoom,
+  zoomScale,
   orbitAzimuth,
   following,
   onInteract,
@@ -238,6 +240,8 @@ export function MemoryRoomScene({
   onCurtainPull: (side: CurtainSide, progress: number) => void;
   onCurtainRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
   roomZoom: number;
+  /** 사용자가 휠·핀치로 정한 배율 (1 = 기본). 축소할수록 카메라가 방 가운데로 물러난다. */
+  zoomScale: number;
   orbitAzimuth: number;
   /** 게임이 시작됐는가: 타이틀 구도(방 모형 전체)와 플레이 구도(플레이어 추적)를 가른다. */
   following: boolean;
@@ -375,11 +379,14 @@ export function MemoryRoomScene({
           opacity={curtainsOpen ? roomLightValue(ROOM_LIGHT_RAMP.dust, warm) : 0}
         />
       </group>
+      {/* 바닥 클릭의 목적지 링. 글로우 루트 밖: 만질 수 있는 것이 아니라 표식이다 */}
+      <WalkMarker color={palette.memory} />
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
       {/* 배트를 쥐면 카메라도 문 쪽으로 붙는다. 엔딩 영상의 첫 컷과 이어지는 구도 */}
       <CameraRig
         focusId={endingStarted ? "ending" : focusMemoryId}
         roomZoom={roomZoom}
+        zoomScale={zoomScale}
         orbitAzimuth={orbitAzimuth}
         following={following}
         playerPositionRef={playerPositionRef}

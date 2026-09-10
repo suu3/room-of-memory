@@ -46,6 +46,56 @@ export const CALENDAR_MONTHS: readonly number[] = Array.from(
 /** 正 한 글자가 세는 날 수. */
 export const TALLY_PER_MARK = 5;
 
+/**
+ * 평범했던 달에 연필로 적힌 메모. 문구는 i18n(minigame.calendarFlip.note.<key>)에 있다.
+ *
+ * 7~9월이 빈 달력이면 사건까지 가는 길이 길기만 하고 읽히는 건 없다. 시합·시험·방학이
+ * 적힌 석 달이 10월 19일의 붉은 동그라미와 11월의 正자를 대비시킨다. 10월의 여행 메모는
+ * 컴퓨터 메일("10월 15일 잘 도착했다")과 같은 날짜선 위에 선다.
+ * 전국대회(8월 12일)와 사건(10월 19일)은 여기 없다. 그 둘은 색이 있는 표시다.
+ */
+export type NoteKey =
+  | "finals"
+  | "practiceGame"
+  | "vacation"
+  | "camp"
+  | "schoolStart"
+  | "mockExam"
+  | "dday60"
+  | "trip";
+
+export interface MonthNote {
+  day: number;
+  key: NoteKey;
+}
+
+export const MONTH_NOTES: Record<number, readonly MonthNote[]> = {
+  7: [
+    { day: 3, key: "finals" },
+    { day: 18, key: "practiceGame" },
+    { day: 24, key: "vacation" },
+  ],
+  8: [
+    { day: 3, key: "camp" },
+    { day: 24, key: "schoolStart" },
+  ],
+  9: [
+    { day: 4, key: "mockExam" },
+    { day: 20, key: "dday60" },
+  ],
+  10: [{ day: 14, key: "trip" }],
+};
+
+/** 그 달의 메모 (없으면 빈 배열). */
+export function notesOf(month: number): readonly MonthNote[] {
+  return MONTH_NOTES[month] ?? [];
+}
+
+/** 그날에 메모가 있는가: 격자의 점 표시. */
+export function hasNote(month: number, day: number | null): boolean {
+  return day !== null && notesOf(month).some((note) => note.day === day);
+}
+
 export type FlipDirection = "next" | "prev";
 
 export function daysInMonth(year: number, month: number): number {

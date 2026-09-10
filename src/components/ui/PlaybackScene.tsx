@@ -3,6 +3,7 @@
 import type { ParseKeys } from "i18next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
 import { playSound, startNoiseBed } from "@/lib/audio";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 
@@ -17,6 +18,80 @@ const BLACKOUT_MS = 900;
  * 다시보기에는 도입이 없으므로 곧장 "cuts"에서 시작한다.
  */
 type Stage = "static" | "blackout" | "cuts";
+
+/** 파형 막대 수. 화면 폭을 채울 만큼이면서 막대 하나가 픽셀로 읽히는 굵기. */
+const WAVE_BARS = 56;
+/**
+ * 막대마다 다른 지연·높이. 난수를 쓰지 않는다: 렌더마다 파형이 달라지면 리렌더 때
+ * 화면이 툭툭 튀고, 서버·클라이언트 첫 그림도 어긋난다. 정해진 수열이면 늘 같다.
+ */
+const WAVE_SHAPE = Array.from({ length: WAVE_BARS }, (_, index) => {
+  const phase = Math.sin(index * 12.9898) * 43758.5453;
+  const noise = phase - Math.floor(phase);
+  // 가운데가 높고 양끝이 낮은 봉우리 위에 잡음을 얹는다
+  const envelope = 0.35 + 0.65 * Math.sin((index / (WAVE_BARS - 1)) * Math.PI);
+  return { delay: noise * 1.9, height: 0.25 + 0.75 * envelope * (0.55 + 0.45 * noise) };
+});
+
+/**
+ * 그림이 아직 없는 컷 뒤에 까는 신호의 그림: 어두운 판 위의 파형, 스캔라인, 잡히다 말다
+ * 하는 라디오 램프. 게임 전체의 전환점(라디오 너머 첫 목소리)이 회색 판 하나로 지나가면
+ * 안 된다. 일러스트가 리포에 들어오면 그 위에 얹혀 이 층을 덮는다.
+ *
+ * 방송이 끊기는 도입(static)에서는 파형이 붉게 흔들리고, 목소리가 드는 컷에서는
+ * 금빛으로 가라앉는다. 같은 파형이 색만 바꿔 "죽은 신호"와 "다시 든 신호"를 가른다.
+ */
+function SignalVisual({ tone }: { tone: "dying" | "alive" }) {
+  const bar = tone === "dying" ? "bg-ember/70" : "bg-memory/80";
+  return (
+    <div aria-hidden className="absolute inset-0 overflow-hidden bg-scene-abyss">
+      {/* 가운데로 모이는 어둠. 그림 없는 판이 통짜 단색으로 읽히지 않게 */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(70% 55% at 50% 50%, color-mix(in srgb, var(--color-scene-storm) 85%, transparent) 0%, transparent 100%)",
+        }}
+      />
+      {/* 파형: 가운데 축을 두고 위아래로 대칭이라 막대는 세로 중앙에서 자란다 */}
+      <div className="absolute inset-x-[8%] top-1/2 flex h-[38%] -translate-y-1/2 items-center gap-[0.35%]">
+        {WAVE_SHAPE.map((shape, index) => (
+          <span
+            // biome-ignore lint/suspicious/noArrayIndexKey: 고정 길이 파형이라 자리 자체가 정체성이다.
+            key={index}
+            className={`animate-signal-wave block h-full flex-1 rounded-full ${bar}`}
+            style={{
+              animationDelay: `-${shape.delay.toFixed(2)}s`,
+              maxHeight: `${(shape.height * 100).toFixed(1)}%`,
+            }}
+          />
+        ))}
+      </div>
+      {/* 다이얼 눈금: 파형 아래 가는 줄 하나와 잘게 찍힌 눈금 */}
+      <div className="absolute inset-x-[8%] top-[72%] h-px bg-ivory/20" />
+      <div className="absolute inset-x-[8%] top-[72%] flex justify-between">
+        {Array.from({ length: 21 }, (_, index) => (
+          <span
+            // biome-ignore lint/suspicious/noArrayIndexKey: 눈금은 같은 것의 반복이다.
+            key={index}
+            className={`w-px bg-ivory/30 ${index % 5 === 0 ? "h-3" : "h-1.5"}`}
+          />
+        ))}
+      </div>
+      {/* 램프: 잡히다 말다 하는 신호. 도입에서는 붉게, 목소리가 들면 금빛으로 */}
+      <span
+        className={`animate-signal-lamp absolute left-[8%] top-[80%] size-2.5 rounded-full blur-[1px] ${
+          tone === "dying" ? "bg-ember" : "bg-memory"
+        }`}
+      />
+      <span className="absolute left-[11%] top-[79.4%] font-pixel text-[0.6rem] tracking-[0.3em] text-ivory/45">
+        {tone === "dying" ? "NO SIGNAL" : "SIGNAL"}
+      </span>
+      {/* 게임기 화면과 같은 주사선. 파형이 그림이 아니라 기계의 화면으로 읽히게 */}
+      <span className="duel-scanline pointer-events-none absolute inset-0 opacity-30" />
+    </div>
+  );
+}
 
 /**
  * 대사와 그림만으로 도는 장면: 전환 컷씬과 다시보기가 이 화면을 함께 쓴다.
@@ -146,6 +221,20 @@ export function PlaybackScene() {
                 : "max-w-[min(88%,92svh)]"
             }`}
           >
+            {/*
+              컷씬은 그림이 없어도 빈 판으로 두지 않는다. 신호의 그림이 판을 채우고,
+              일러스트가 있으면 그 위에 얹혀 이 층을 가린다. 다시보기는 스틸이 없으면
+              판 자체를 세우지 않으므로(showPlate) 여기 오지 않는다.
+            */}
+            {isCutscene && (
+              <SignalVisual
+                tone={
+                  active.cutsceneId === CUTSCENE_RADIO_BLACKOUT && active.cutIndex < 2
+                    ? "dying"
+                    : "alive"
+                }
+              />
+            )}
             {showImage && (
               /* biome-ignore lint/performance/noImgElement: 파일이 없을 때 onError로 회색 판에 떨어져야 해서 최적화 파이프라인을 타지 않는다. */
               <img
@@ -195,14 +284,14 @@ export function PlaybackScene() {
 
       {/*
         나가는 문. 컷씬에서는 접근성 장치인 건너뛰기이고, 다시보기에서는 그냥 닫기다.
-        건너뛸 진행이 없으니 같은 말을 쓰면 안 된다. 컷씬 쪽은 이 장면의 무게를
-        깎지 않도록 구석에서 흐리게 서 있는다.
+        건너뛸 진행이 없으니 같은 말을 쓰면 안 된다. 구석에 서 있되 흐리지는 않다.
+        어두운 그림 위에서 안 보이는 건너뛰기는 접근성 장치가 아니라 장식이다.
       */}
       {stage === "cuts" && (
         <button
           type="button"
           onClick={endPlayback}
-          className="absolute bottom-6 right-6 z-10 cursor-pointer rounded-sm border border-line px-3 py-1.5 font-pixel text-xs tracking-[0.2em] text-fog/70 transition-colors duration-150 hover:border-fog/40 hover:text-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+          className="absolute bottom-6 right-6 z-10 cursor-pointer rounded-sm border border-fog/50 bg-night/80 px-3.5 py-2 font-pixel text-xs tracking-[0.2em] text-ivory shadow-chip transition-colors duration-150 hover:border-ivory/70 hover:bg-night focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
           {t(isCutscene ? "playback.skip" : "playback.close")}
         </button>

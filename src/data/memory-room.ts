@@ -54,8 +54,8 @@ export interface RoomStage {
  * 배경 그라디언트 3단계. 어느 단계를 쓸지는 밝기(0~1)와 바퀴 수가 정하며,
  * 그 판단은 `roomStageIndex`(src/scenes/memory-room/visual-state.ts)가 한다.
  *
- * 대본이 아니라 디자인 토큰이라 YAML로 내리지 않았다. 단계별 독백 텍스트만
- * content/stages.yaml에 있다.
+ * 대본이 아니라 디자인 토큰이라 YAML로 내리지 않았다. 상단 독백은 이 단계가 아니라
+ * 조사 개수를 따른다 (content/stages.yaml, src/data/monologue.ts).
  */
 export const ROOM_STAGES: RoomStage[] = [
   {

@@ -134,15 +134,13 @@ export function validateContent(content, { minigameIds = [] } = {}) {
   for (const stageId of STAGE_IDS) {
     const stage = stages[stageId];
     if (!isPlainObject(stage)) {
-      issues.push(`stages.${stageId}: 없다. 방 단계는 ${STAGE_IDS.join("/")} 셋 다 있어야 한다.`);
+      issues.push(`stages.${stageId}: 없다. 독백 구간은 ${STAGE_IDS.join("/")} 전부 있어야 한다.`);
       continue;
     }
-    for (const field of ["monologue", "dialogue"]) {
-      validateText(stage[field], `stages.${stageId}.${field}`, issues);
-    }
+    validateText(stage.monologue, `stages.${stageId}.monologue`, issues);
   }
   for (const stageId of Object.keys(stages)) {
-    if (!STAGE_IDS.includes(stageId)) issues.push(`stages.yaml: 모르는 단계 "${stageId}".`);
+    if (!STAGE_IDS.includes(stageId)) issues.push(`stages.yaml: 모르는 독백 구간 "${stageId}".`);
   }
 
   for (const phase of ["phase1", "phase2"]) {

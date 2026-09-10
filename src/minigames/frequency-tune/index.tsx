@@ -62,6 +62,7 @@ const LOCKED_STATIC = { floor: 0.09, spike: 0.32, everyMs: 220 };
 export function FrequencyTuneMinigame({
   onComplete,
   gamePhase = 1,
+  difficulty = "easy",
   stage = "play",
 }: MinigameProps) {
   const { t } = useTranslation();
@@ -72,7 +73,9 @@ export function FrequencyTuneMinigame({
   const bandBonus = bandBonusFor(gamePhase);
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
-  const [bandLeft, setBandLeft] = useState(() => randomBandLeft(bandWidthAt(0, bandBonus)));
+  const [bandLeft, setBandLeft] = useState(() =>
+    randomBandLeft(bandWidthAt(0, bandBonus, difficulty)),
+  );
   const [flash, setFlash] = useState<"hit" | "miss" | null>(null);
   /**
    * 결과 대사 단계: 판은 끝났고 화면만 남았다. 여기서는 바늘도 입력도 멈추고
@@ -122,16 +125,16 @@ export function FrequencyTuneMinigame({
     };
   }, []);
 
-  /** 이번 판의 목표 대역 폭: 명중할수록 좁아진다. */
-  const bandWidth = bandWidthAt(hits, bandBonus);
+  /** 이번 판의 목표 대역 폭: 명중할수록 좁아진다. 폭과 속도는 난이도가 정한다 (./difficulty.ts) */
+  const bandWidth = bandWidthAt(hits, bandBonus, difficulty);
 
   // 대역과 속도는 명중할 때마다 바뀐다. rAF 루프는 한 번만 도므로 최신 값을 ref로 받는다.
   const bandLeftRef = useRef(bandLeft);
   bandLeftRef.current = bandLeft;
   const bandWidthRef = useRef(bandWidth);
   bandWidthRef.current = bandWidth;
-  const periodRef = useRef(needlePeriodAt(hits));
-  periodRef.current = needlePeriodAt(hits);
+  const periodRef = useRef(needlePeriodAt(hits, difficulty));
+  periodRef.current = needlePeriodAt(hits, difficulty);
 
   // 바늘 애니메이션: setState 대신 ref 직접 변이 (60fps)
   useEffect(() => {
@@ -197,7 +200,7 @@ export function FrequencyTuneMinigame({
         return;
       }
       // 다음 대역은 좁아진 폭 기준으로 놓는다. 넓은 폭으로 뽑으면 다이얼 끝에 걸린다.
-      setBandLeft(randomBandLeft(bandWidthAt(next, bandBonus)));
+      setBandLeft(randomBandLeft(bandWidthAt(next, bandBonus, difficulty)));
       return;
     }
     const next = misses + 1;

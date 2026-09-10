@@ -3,17 +3,17 @@
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import { AdminPanel } from "@/components/dev/AdminPanel";
-import { MEMORY_GOAL, memoriesForPhase, ROOM_STAGES } from "@/data/memory-room";
+import { MEMORY_GOAL, memoriesForPhase } from "@/data/memory-room";
+import { monologueIdFor } from "@/data/monologue";
 import { useAudioRuntime, useRoomMusic } from "@/lib/audio";
 import {
   lampScaled,
   ROOM_LIGHT_RAMP,
   roomLightLevel,
   roomLightValue,
-  roomStageIndex,
 } from "@/scenes/memory-room/visual-state";
 import {
-  gamePhaseOf,
+  selectAct,
   selectActTwoProgress,
   selectBatReady,
   selectCollected,
@@ -61,22 +61,36 @@ export function MemoryRoom() {
   const revisited = useMemoryRoomStore((state) => state.revisited);
   // 밝기는 V자: 1막은 어두워지고 2막 추리로 되밝아진다 (docs/content-design.md 5장)
   const recovery = useMemoryRoomStore(selectActTwoProgress);
-  const phase = useMemoryRoomStore(gamePhaseOf);
   const lightLevel = roomLightLevel({
     collected: collected.length,
     memoryTotal: MEMORY_GOAL,
     recovery,
   });
-  const stage = ROOM_STAGES[roomStageIndex(lightLevel, phase)];
+  const act = useMemoryRoomStore(selectAct);
   /*
-   * 진행 표시는 이 차수에 조사하는 것만 센다. 2차는 대상이 갈리므로(컴퓨터·거실
-   * 물건이 새로 끼고 창문·달력이 빠진다) 1차 목록을 그대로 두면 영영 안 채워지는
+   * 진행 표시는 이 바퀴에 조사하는 것만 센다. 2바퀴는 대상이 갈리므로(컴퓨터·거실
+   * 물건이 새로 끼고 창문·달력이 빠진다) 1바퀴 목록을 그대로 두면 영영 안 채워지는
    * 칸이 남는다. 밝기의 분모는 또 다르다. 그쪽은 2막 **필수 체인**만 세므로
    * 곁가지를 건너뛴 플레이어도 3막에서 방이 다 밝다 (actTwoProgress).
+   *
+   * 바퀴가 바뀌는 자리는 수집 완주(gamePhase)가 아니라 **방문**(act)이다. 7개를 다
+   * 모은 순간 숫자가 0/11로 떨어지면 가장 힘들게 도달한 지점에서 성취가 통째로
+   * 사라진 것처럼 보인다. 문이 열리기 전까지는 "1바퀴 · 7/7"로 꽉 찬 채 남고,
+   * 라벨이 바퀴 수를 같이 말하므로 0/11이 리셋이 아니라 새 목록으로 읽힌다.
    */
-  const roundMemories = memoriesForPhase(phase);
-  const roundDone = phase === 1 ? collected : revisited;
+  const round: 1 | 2 = act === 1 ? 1 : 2;
+  const roundMemories = memoriesForPhase(round);
+  const roundDone = round === 1 ? collected : revisited;
   const count = roundMemories.filter((memory) => roundDone.includes(memory.id)).length;
+  // 대사창·컷씬·미니게임·단서가 떠 있는 동안 상단 독백은 물러난다. 말은 한 번에 하나만.
+  const monologueHidden = useMemoryRoomStore(
+    (state) =>
+      state.activeInteraction !== null ||
+      state.activePlayback !== null ||
+      state.activePuzzle !== null ||
+      state.activeClue !== null,
+  );
+  const monologueId = useMemoryRoomStore(monologueIdFor);
   const isBatReady = useMemoryRoomStore(selectBatReady);
   const isDoorReady = useMemoryRoomStore(selectDoorReady);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
@@ -143,21 +157,29 @@ export function MemoryRoom() {
           </h1>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-baseline gap-2">
-              <span className="text-xs font-medium text-fog">{t("hud.memoryCount")}</span>
+              <span className="text-xs font-medium text-fog">
+                {t("hud.round", { value: round })}
+                <span aria-hidden> · </span>
+                {t("hud.memoryCount")}
+              </span>
               {/* 모은 개수가 이 화면의 유일한 진행 지표다. 라벨보다 확실히 앞으로 나와야 한다 */}
               <span className="text-xs tabular-nums text-fog">
                 <span className="text-base font-medium text-memory">{count}</span>
                 <span> / {roundMemories.length}</span>
               </span>
             </div>
-            {/* 기억 하나당 한 칸: 모을수록 금빛이 왼쪽부터 찬다 */}
+            {/*
+              기억 하나당 한 칸: 모을수록 금빛이 왼쪽부터 찬다. 칸은 개수만 세고 어느
+              기억인지는 모른다. 기억마다 칸을 고정하면 조사 순서에 따라 가운데가 먼저
+              차서 "순서대로 안 찬다"로 읽힌다.
+            */}
             <div className="flex gap-1">
-              {roundMemories.map((memory) => (
+              {roundMemories.map((memory, index) => (
                 <span
                   key={memory.id}
                   aria-hidden
                   className={`h-0.5 w-6 rounded-full transition-colors duration-700 ${
-                    roundDone.includes(memory.id) ? "bg-memory" : "bg-ivory/25"
+                    index < count ? "bg-memory" : "bg-ivory/25"
                   }`}
                 />
               ))}
@@ -188,10 +210,10 @@ export function MemoryRoom() {
 
       {started && (
         <>
-          {/* 혼잣말: 단계가 바뀌면 Monologue가 스스로 옛 줄을 물리고 새로 찍는다.
+          {/* 혼잣말: 구간이 바뀌면 Monologue가 스스로 옛 줄을 물리고 새로 찍는다.
               key로 강제 리마운트하면 기억을 완료하는 순간 줄이 통째로 사라졌다
               다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다 */}
-          <Monologue stageId={stage.id} />
+          <Monologue monologueId={monologueId} hidden={monologueHidden} />
 
           {/* 컷씬·다시보기: 대사창(z-50)보다 아래에 깔려 그림 위로 글이 얹힌다 */}
           <PlaybackScene />

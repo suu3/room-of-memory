@@ -56,9 +56,9 @@ export interface ContentCut {
   lines: ContentLine[];
 }
 
+/** 진행도 독백 한 구간 (content/stages.yaml). 구간 선택은 src/data/monologue.ts. */
 export interface ContentStage {
   monologue: LocalizedText;
-  dialogue: LocalizedText;
 }
 
 /** content/*.yaml 네 개를 합친 모습. 어드민이 통째로 주고받는 단위다. */

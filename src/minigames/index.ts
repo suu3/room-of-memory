@@ -15,6 +15,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     ),
     titleKey: "minigame.frequencyTune.title",
     helpKey: "minigame.frequencyTune.help",
+    failKey: "minigame.frequencyTune.fail",
   },
   "radio-quiz": {
     id: "radio-quiz",
@@ -24,6 +25,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     component: lazy(() => import("./radio-quiz").then((m) => ({ default: m.RadioQuizMinigame }))),
     titleKey: "minigame.frequencyTune.title",
     helpKey: "minigame.frequencyTune.help",
+    failKey: "minigame.frequencyTune.fail",
   },
   "photo-wipe": {
     id: "photo-wipe",
@@ -31,6 +33,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     component: lazy(() => import("./photo-wipe").then((m) => ({ default: m.PhotoWipeMinigame }))),
     titleKey: "minigame.photoWipe.title",
     helpKey: "minigame.photoWipe.help",
+    failKey: "minigame.photoWipe.fail",
   },
   "photo-puzzle": {
     id: "photo-puzzle",
@@ -97,6 +100,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
      * 규칙은 카드에 적지 않는다.
      */
     rulesKeys: ["minigame.fighterDuel.rules.triangle", "minigame.fighterDuel.rules.special"],
+    failKey: "minigame.fighterDuel.fail",
   },
   "window-view": {
     id: "window-view",
@@ -132,6 +136,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     component: lazy(() => import("./ball-catch").then((m) => ({ default: m.BallCatchMinigame }))),
     titleKey: "minigame.ballCatch.title",
     helpKey: "minigame.ballCatch.help",
+    failKey: "minigame.ballCatch.fail",
   },
 };
 

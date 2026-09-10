@@ -12,7 +12,9 @@ import {
   beats,
   CRITICAL_MS,
   canUseSpecial,
+  counterTo,
   DUEL_START,
+  DUEL_TUNINGS,
   type DuelState,
   damageOf,
   duelStatus,
@@ -52,8 +54,8 @@ const INTRO_MS = 900;
  */
 const STALL_MS = 400;
 const SKIP_AFTER_MS = 30_000;
-/** 이 체력 아래로 떨어지면 스킵을 열어 둔다 (접근성: 두 번 맞으면 보인다). */
-const SKIP_AT_HP = 0.7;
+/** 이 체력 아래로 떨어지면 스킵을 열어 둔다 (접근성: 어느 난이도든 두 번 맞으면 보인다). */
+const SKIP_AT_HP = 0.78;
 /** 1/2/3: MOVES 순서와 같은 자리. */
 const MOVE_KEYS = ["1", "2", "3"] as const;
 /**
@@ -121,10 +123,12 @@ function opponentPose(resolved: Resolved | null, tell: Move, over: boolean): Pos
  * 연속으로 읽어내면 세게 들어가고(콤보), 빨리 읽으면 한 방이 커지고(간파),
  * 대신 상대는 예고를 도중에 바꾼다(페인트). 서두를수록 크게 이기고 크게 당한다.
  */
-export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
+export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy" }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
+  // 상대의 손맛만 난이도를 탄다 (./duel.ts의 DUEL_TUNINGS)
+  const tuning = DUEL_TUNINGS[difficulty];
   // 판마다 순서가 달라야 외워서 이기지 않는다. 판 안에서는 고정 (읽는 재미).
   const [salt] = useState(() => Math.floor(Math.random() * 1000));
   const [state, setState] = useState<DuelState>(DUEL_START);
@@ -189,8 +193,8 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
     const sinceTell = tellShownRef.current === 0 ? 0 : performance.now() - tellShownRef.current;
     const critical = outcome === "win" && isCritical(sinceTell);
     const resolution = { player: move, opponent, outcome, critical };
-    const damage = damageOf(state, resolution);
-    const next = applyRound(state, resolution);
+    const damage = damageOf(state, resolution, tuning);
+    const next = applyRound(state, resolution, tuning);
     if (move) historyRef.current.push(move);
     setResolved({ ...resolution, damage });
     setState(next);
@@ -318,6 +322,13 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
   );
 
   const enraged = over === null && isEnraged(state.rivalHp);
+  /**
+   * 첫 라운드는 튜토리얼이다: 정답 버튼이 빛난다. 규칙을 세 줄로 읽고 곧장 2초 안에
+   * 받아치라는 건 배우기 전에 시험을 치르는 것이었다. 첫 판에는 페인트가 없으므로
+   * (FEINT_FROM_ROUND) 빛나는 버튼이 바뀔 일도 없다. 두 번째 라운드부터는 혼자 읽는다.
+   */
+  const tutorial = live && over === null && resolved === null && state.round === 0;
+  const tutorialAnswer = tutorial ? counterTo(shown) : null;
   const heroHit = resolved?.outcome === "lose";
   const rivalHit = resolved?.outcome === "win";
   /** 간파 판정이 살아 있는 구간: 게이지 오른쪽 끝의 눈금으로 보여준다. */
@@ -550,6 +561,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
           /** 필살기만 게이지를 쓴다. 빈 게이지면 낼 수 없다는 걸 버튼이 먼저 말한다. */
           const costsMeter = move === "throw";
           const spent = costsMeter && !canUseSpecial(state);
+          const guided = tutorialAnswer === move;
 
           return (
             <button
@@ -559,7 +571,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
               onClick={() => answerRef.current(move)}
               className={`rounded-sm border border-line px-4 py-2.5 text-ivory transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-memory focus-visible:outline-offset-2 enabled:cursor-pointer enabled:hover:border-fog/40 enabled:hover:bg-ivory/8 disabled:opacity-45 ${
                 resolved?.player === move ? "border-fog/50 bg-ivory/10 opacity-100" : ""
-              }`}
+              } ${guided ? "animate-hotspot-glow border-memory bg-memory/15 shadow-slot-glow" : ""}`}
             >
               <span className="flex items-center justify-center gap-2 font-bold text-base">
                 <span>
@@ -583,7 +595,7 @@ export function FighterDuelMinigame({ onComplete, onSettled }: MinigameProps) {
         })}
       </div>
       <p className="mt-2.5 break-ko text-pretty text-center text-sm text-fog">
-        {t("minigame.fighterDuel.hint")}
+        {t(tutorial ? "minigame.fighterDuel.tutorialHint" : "minigame.fighterDuel.hint")}
       </p>
     </MinigameShell>
   );

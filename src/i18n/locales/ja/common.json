@@ -2,6 +2,7 @@
   "title": "記憶の部屋",
   "hud": {
     "scattered": "部屋に散らばった記憶",
+    "round": "{{value}}周目",
     "memoryCount": "記憶",
     "contact": "制作者",
     "reset": "リセット",
@@ -89,7 +90,8 @@
     "frequencyTune": {
       "title": "周波数を合わせる",
       "help": "針が明るい帯を通る瞬間に: Space",
-      "help_touch": "針が明るい帯を通る瞬間に画面をタップ"
+      "help_touch": "針が明るい帯を通る瞬間に画面をタップ",
+      "fail": "…ザザッ。まだ拾えないな。"
     },
     "radioQuiz": {
       "question": "俺がこの部屋に閉じ込められている理由は、何だ？",
@@ -101,7 +103,8 @@
     "photoWipe": {
       "title": "写真を拭く",
       "help": "マウスでドラッグしてほこりを拭き取ってください",
-      "help_touch": "指でこすってほこりを拭き取ってください"
+      "help_touch": "指でこすってほこりを拭き取ってください",
+      "fail": "まだほこりが残ってる。…もう一度拭こう。"
     },
     "ballCatch": {
       "title": "スイング！",
@@ -112,7 +115,9 @@
       "early": "早い",
       "late": "遅い",
       "hits": "ヒット {{value}} / {{goal}}",
-      "chances": "残り"
+      "chances": "残り",
+      "fail": "まだフォームが戻ってないな。",
+      "now": "今だ！"
     },
     "fighterDuel": {
       "title": "格闘ゲーム",
@@ -154,7 +159,9 @@
       },
       "beats": "{{move}}に強い",
       "tellLabel": "相手の手",
-      "specialLeft": "必殺技 残り{{left}}回"
+      "specialLeft": "必殺技 残り{{left}}回",
+      "fail": "負けた。…もう一回やればいい。",
+      "tutorialHint": "最初のラウンドは練習：光っているボタンが正解です"
     },
     "labelSuccess": "成功",
     "labelMiss": "失敗",
@@ -182,12 +189,36 @@
       "mark": {
         "incident": "{{month}}月{{day}}日: 全部止まった日",
         "nationals": "{{month}}月{{day}}日: 全国大会"
+      },
+      "note": {
+        "finals": "期末テスト",
+        "practiceGame": "練習試合 vs 東星高",
+        "vacation": "夏休み",
+        "camp": "野球部合宿",
+        "schoolStart": "始業",
+        "mockExam": "模試",
+        "dday60": "修能 D-60",
+        "trip": "父さん母さん旅行（5泊）"
       }
     },
     "windowView": {
       "title": "窓の外",
       "help": "カーテンを開けて外を見る",
-      "close": "カーテンを閉じる"
+      "close": "カーテンを閉じる",
+      "lookHelp": "レンズを動かして外を調べる：矢印キー · Enter",
+      "lookHelp_touch": "外の景色をタッチして調べる",
+      "spotsLabel": "外で見つけたもの",
+      "spot": {
+        "smoke": "煙",
+        "stain": "道路の跡",
+        "dark": "明かりの消えた窓"
+      },
+      "line": {
+        "smoke": "遠くで煙が上がっている。何日目かも分からない。",
+        "stain": "道路に黒ずんだ赤い跡。…あれが何かは考えないことにした。",
+        "dark": "向かいの窓が全部真っ暗だ。あそこにも誰もいないのか。"
+      },
+      "allFound": "…もういい。見るのはやめよう。"
     },
     "phoneChat": {
       "title": "スマートフォン",
@@ -341,6 +372,15 @@
     },
     "answer": {
       "backspace": "消す"
+    },
+    "result": {
+      "clearedTitle": "記憶を取り戻した",
+      "recorded": "手帳に記録した",
+      "continue": "続ける",
+      "failedTitle": "…今回はダメだった",
+      "failDefault": "まだ手が動かないな。もう一回やってみるか。",
+      "retry": "もう一度",
+      "later": "あとにする"
     }
   },
   "characterSheet": {

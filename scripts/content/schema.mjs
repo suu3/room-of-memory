@@ -48,8 +48,22 @@ export const ICONS = [
   "Television",
 ];
 
-/** 방 단계 id. src/data/memory-room.ts의 ROOM_STAGES와 순서·이름이 같아야 한다. */
-export const STAGE_IDS = ["dark", "dim", "gold"];
+/**
+ * 독백 구간 id. 진행도(조사 개수)로 갈리며, 어느 구간을 쓸지는
+ * src/data/monologue.ts의 monologueIdFor가 정한다. 거기 MONOLOGUE_IDS와 같아야 한다.
+ */
+export const STAGE_IDS = [
+  "p1-0",
+  "p1-1",
+  "p1-3",
+  "p1-5",
+  "p1-7",
+  "p2-0",
+  "p2-1",
+  "p2-4",
+  "p2-8",
+  "p2-11",
+];
 
 /** 저작 파일과 그 안의 최상위 키. */
 export const SOURCES = {

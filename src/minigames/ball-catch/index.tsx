@@ -15,11 +15,11 @@ import {
   type PitchTempoKey,
   remainingChances,
   roundDuration,
+  SWING_TUNINGS,
   type SwingResult,
+  TUTORIAL_SCALE,
 } from "./timing";
 
-const GOAL_CATCHES = 5;
-const MAX_MISSES = 5;
 const SKIP_AFTER_MS = 30_000;
 const SKIP_AFTER_MISSES = 3;
 const ROUND_GAP_MS = 550;
@@ -44,22 +44,32 @@ interface Round {
   resolved: boolean;
   /** 타격 성공 시각: 있으면 공이 날아가는 연출을 재생한다 */
   hitAt?: number;
+  /** 첫 투구: 느리게 오고, 링에 겹치는 순간 "지금!"이 뜬다 */
+  tutorial?: boolean;
 }
 
-function newRound(duration: number, lastSide: PitchSide): Round & { side: PitchSide } {
+function newRound(
+  duration: number,
+  lastSide: PitchSide,
+  tutorial = false,
+): Round & { side: PitchSide } {
   const { startX, side } = nextPitch(lastSide, Math.random());
-  return { start: performance.now(), duration, startX, resolved: false, side };
+  return { start: performance.now(), duration, startX, resolved: false, side, tutorial };
 }
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
   return target instanceof Element && target.closest(INTERACTIVE_TARGET_SELECTOR) !== null;
 }
 
-/** 멀리서 날아와 커지는 공이 점선 링에 겹치는 순간 Space로 배트를 휘두른다. 5회 맞히면 클리어. */
-export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
+/**
+ * 멀리서 날아와 커지는 공이 점선 링에 겹치는 순간 Space로 배트를 휘두른다.
+ * 이지는 세 번, 보통은 다섯 번 맞히면 클리어 (./timing.ts의 SWING_TUNINGS).
+ */
+export function BallCatchMinigame({ onComplete, onSettled, difficulty = "easy" }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
+  const { goal: GOAL_CATCHES, maxMisses: MAX_MISSES } = SWING_TUNINGS[difficulty];
   const [catches, setCatches] = useState(0);
   const [misses, setMisses] = useState(0);
   const [feedback, setFeedback] = useState<SwingResult | null>(null);
@@ -68,12 +78,14 @@ export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
   const [swingId, setSwingId] = useState(0);
   const ballRef = useRef<HTMLDivElement>(null);
   const shadowRef = useRef<HTMLDivElement>(null);
+  /** "지금!" 표식: 첫 투구가 링에 겹치는 동안만 켜진다. rAF에서 ref로 켜고 끈다 */
+  const nowRef = useRef<HTMLSpanElement>(null);
   /** 직전 공이 어느 쪽에서 왔는지: 다음 공은 반대편에서 온다. */
   const lastSideRef = useRef<PitchSide>(1);
-  /** 직전 구종: 다음 공은 이것 말고 다른 속도로 온다. */
-  const lastTempoRef = useRef<PitchTempoKey>("normal");
-  // 첫 공은 기준 속도로 던진다. 뭐가 빠르고 느린지 견줄 게 있어야 변주가 변주로 읽힌다
-  const roundRef = useRef<Round>(newRound(roundDuration(0, 1), -1));
+  /** 직전 구종: 다음 공은 이것 말고 다른 속도로 온다. 첫 공이 느린 공이라 여기서 시작한다 */
+  const lastTempoRef = useRef<PitchTempoKey>("slow");
+  // 첫 공은 튜토리얼 피치: 느리게 던지고 링에 겹치는 순간을 글자로 짚어 준다
+  const roundRef = useRef<Round>(newRound(roundDuration(0, TUTORIAL_SCALE), -1, true));
   const pendingTimeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
 
@@ -202,6 +214,16 @@ export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
         shadow.style.opacity = hidden ? "0" : `${0.15 + 0.4 * clamped}`;
         shadow.style.transform = `translate(-50%, -50%) scale(${0.5 + 0.7 * clamped})`;
       }
+      // 첫 투구: 링에 겹치는 구간에서만 "지금!"이 켜진다. 타이밍을 글자로 한 번 짚어 준다
+      const nowMark = nowRef.current;
+      if (nowMark) {
+        const inWindow =
+          round.tutorial === true &&
+          !round.resolved &&
+          progress >= CATCH_WINDOW[0] &&
+          progress <= CATCH_WINDOW[1];
+        nowMark.style.opacity = inWindow ? "1" : "0";
+      }
       if (!round.resolved && progress >= CATCH_WINDOW[1]) {
         // 놓친 공 (드롭)
         round.resolved = true;
@@ -257,6 +279,7 @@ export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
       <BallCatchField
         ballRef={ballRef}
         shadowRef={shadowRef}
+        nowRef={nowRef}
         remainingMisses={remainingChances(misses, MAX_MISSES)}
         maxMisses={MAX_MISSES}
         feedback={feedback}
@@ -268,6 +291,7 @@ export function BallCatchMinigame({ onComplete, onSettled }: MinigameProps) {
           hits: t("minigame.ballCatch.hits", { value: catches, goal: GOAL_CATCHES }),
           chances: t("minigame.ballCatch.chances"),
           prompt: hint("minigame.ballCatch.prompt"),
+          now: t("minigame.ballCatch.now"),
           hit: t("minigame.feedback.hit"),
           early: t("minigame.ballCatch.early"),
           late: t("minigame.ballCatch.late"),

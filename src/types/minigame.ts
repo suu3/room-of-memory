@@ -9,6 +9,13 @@ import type { ParseKeys } from "i18next";
 /** common 네임스페이스에서 유효한 번역 키만 허용. */
 export type CommonTextKey = ParseKeys<"common">;
 
+/**
+ * 난이도. 스토어의 Difficulty와 같은 값이지만 미니게임이 스토어에 기대지 않도록
+ * 호스트가 props로 내려준다. 스킵 게이트는 여전히 useSkipEligible 한 곳이 맡고,
+ * 이 값은 판 자체의 수치(대역 폭·바늘 속도·안타 수·피해량)에만 쓴다.
+ */
+export type MinigameDifficulty = "easy" | "normal";
+
 export interface MinigameResult {
   /** Did the player clear it? Failure is a valid outcome, not an error. */
   cleared: boolean;
@@ -31,6 +38,8 @@ export interface MinigameProps {
    * 호스트가 props로 내려준다. 기본값은 1.
    */
   gamePhase?: 1 | 2;
+  /** 난이도. 기본값 "easy". 수치를 난이도로 가르는 미니게임만 읽는다. */
+  difficulty?: MinigameDifficulty;
   /**
    * Player asked to skip (accessibility requirement: every minigame must
    * call onComplete({ cleared: true }) when skipped).
@@ -93,4 +102,9 @@ export interface MinigameDefinition {
    * 조작 안내와 같은 잣대로 `_touch` 변형이 있으면 그쪽이 쓰인다.
    */
   rulesKeys?: readonly CommonTextKey[];
+  /**
+   * 실패 결과 카드에 실을 한 줄 (캐릭터 톤). 비우면 공통 문구(minigame.result.failDefault).
+   * 실패가 없는 미니게임(탐색형)은 채울 이유가 없다.
+   */
+  failKey?: CommonTextKey;
 }

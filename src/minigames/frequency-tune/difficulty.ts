@@ -5,10 +5,43 @@
  * 대역이 좁아지고 바늘이 빨라져서, 뒤로 갈수록 "겨우 잡는" 판이 되게 한다.
  */
 
+import type { MinigameDifficulty } from "@/types/minigame";
+
 /** 클리어에 필요한 명중 횟수. */
 export const GOAL_HITS = 5;
-/** 이만큼 놓치면 실패: 실패도 유효한 결말이다(.claude/rules/minigames.md). */
-export const MAX_MISSES = 5;
+/**
+ * 이만큼 놓치면 실패: 실패도 유효한 결말이다(.claude/rules/minigames.md).
+ *
+ * 다섯이었다. 실측으로 유효 입력창이 130ms 남짓이던 판에서 다섯 번은 배우기도 전에
+ * 끝나는 수였다. 여덟이면 첫 두어 번을 리듬을 재는 데 쓰고도 판이 남는다.
+ */
+export const MAX_MISSES = 8;
+
+/**
+ * 난이도별 다이얼. 대역 폭은 %(다이얼 전체 20MHz 기준: 5% = 1MHz), 주기는 바늘이
+ * 한 번 왕복하는 시간이다.
+ *
+ * 이지: 4MHz(20%)에서 시작해 2.8MHz까지, 바늘은 보통의 60% 속도. 유효 입력창이
+ * 400ms 안팎이라 보고 누를 수 있다. 보통: 3MHz(15%)에서 2MHz까지, 예전 속도 그대로.
+ * 예전의 14%→8%는 "이지"라는 이름으로 보통보다 어려운 판이었다.
+ */
+export interface DialTuning {
+  /** 첫 판의 목표 대역 폭 (%). */
+  bandMax: number;
+  /** 마지막 판의 목표 대역 폭 (%): 이 아래로는 눈으로 조준이 안 된다. */
+  bandMin: number;
+  /** 첫 판의 바늘 왕복 주기 (ms). */
+  periodMax: number;
+  /** 마지막 판의 주기 (ms): 이보다 빠르면 반응이 아니라 운이 된다. */
+  periodMin: number;
+}
+
+export const DIAL_TUNINGS: Record<MinigameDifficulty, DialTuning> = {
+  easy: { bandMax: 20, bandMin: 14, periodMax: 7000, periodMin: 4300 },
+  normal: { bandMax: 15, bandMin: 10, periodMax: 4200, periodMin: 2600 },
+};
+
+export const DEFAULT_DIFFICULTY: MinigameDifficulty = "easy";
 
 /**
  * 2바퀴에서 같은 다이얼을 다시 돌린다. 판 수를 줄이고 대역을 넓혀 두는 이유는
@@ -29,28 +62,37 @@ export function bandBonusFor(gamePhase: 1 | 2): number {
   return gamePhase === 2 ? SECOND_ROUND_BAND_BONUS : 0;
 }
 
-/** 첫 판의 목표 대역 폭 (%). */
-export const BAND_WIDTH_MAX = 14;
-/** 마지막 판의 목표 대역 폭 (%): 이 아래로는 눈으로 조준이 안 된다. */
-export const BAND_WIDTH_MIN = 8;
+/** 기본 난이도(이지)의 첫 판 대역 폭 (%). 테스트와 조준 가능 하한 검사가 이 값을 본다. */
+export const BAND_WIDTH_MAX = DIAL_TUNINGS.easy.bandMax;
+/** 기본 난이도의 마지막 판 대역 폭 (%). */
+export const BAND_WIDTH_MIN = DIAL_TUNINGS.easy.bandMin;
 /** 명중 1회당 좁아지는 폭 (%). */
 const BAND_WIDTH_STEP = 1.5;
 
-/** 첫 판의 바늘 왕복 주기 (ms). */
-export const NEEDLE_PERIOD_MAX_MS = 4200;
-/** 마지막 판의 주기 (ms): 이보다 빠르면 반응이 아니라 운이 된다. */
-export const NEEDLE_PERIOD_MIN_MS = 2600;
+/** 기본 난이도의 첫 판 주기 (ms). */
+export const NEEDLE_PERIOD_MAX_MS = DIAL_TUNINGS.easy.periodMax;
+/** 기본 난이도의 마지막 판 주기 (ms). */
+export const NEEDLE_PERIOD_MIN_MS = DIAL_TUNINGS.easy.periodMin;
 /** 명중 1회당 줄어드는 주기 (ms). */
 const NEEDLE_SPEEDUP_MS = 400;
 
 /** 지금까지 명중한 횟수에 대한 목표 대역 폭 (%). */
-export function bandWidthAt(hits: number, bandBonus = 0): number {
-  return Math.max(BAND_WIDTH_MIN, BAND_WIDTH_MAX - hits * BAND_WIDTH_STEP) + bandBonus;
+export function bandWidthAt(
+  hits: number,
+  bandBonus = 0,
+  difficulty: MinigameDifficulty = DEFAULT_DIFFICULTY,
+): number {
+  const tuning = DIAL_TUNINGS[difficulty];
+  return Math.max(tuning.bandMin, tuning.bandMax - hits * BAND_WIDTH_STEP) + bandBonus;
 }
 
 /** 지금까지 명중한 횟수에 대한 바늘 왕복 주기 (ms). */
-export function needlePeriodAt(hits: number): number {
-  return Math.max(NEEDLE_PERIOD_MIN_MS, NEEDLE_PERIOD_MAX_MS - hits * NEEDLE_SPEEDUP_MS);
+export function needlePeriodAt(
+  hits: number,
+  difficulty: MinigameDifficulty = DEFAULT_DIFFICULTY,
+): number {
+  const tuning = DIAL_TUNINGS[difficulty];
+  return Math.max(tuning.periodMin, tuning.periodMax - hits * NEEDLE_SPEEDUP_MS);
 }
 
 /** 다이얼 양 끝에 붙지 않는 위치로 목표 대역을 놓는다. */

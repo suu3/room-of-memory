@@ -2,6 +2,7 @@
   "title": "Room of Memory",
   "hud": {
     "scattered": "Memories scattered around the room",
+    "round": "Round {{value}}",
     "memoryCount": "Memories",
     "contact": "Credits",
     "reset": "Reset",
@@ -89,7 +90,8 @@
     "frequencyTune": {
       "title": "Tune the Frequency",
       "help": "The moment the needle crosses the lit band: Space",
-      "help_touch": "Tap the moment the needle crosses the lit band"
+      "help_touch": "Tap the moment the needle crosses the lit band",
+      "fail": "…Kssht. Still can't catch it."
     },
     "radioQuiz": {
       "question": "Why am I trapped in this room?",
@@ -101,7 +103,8 @@
     "photoWipe": {
       "title": "Wipe the Photo",
       "help": "Drag with the mouse to wipe the dust away",
-      "help_touch": "Swipe with a finger to wipe the dust away"
+      "help_touch": "Swipe with a finger to wipe the dust away",
+      "fail": "There's still dust on it. …Let me wipe again."
     },
     "ballCatch": {
       "title": "Swing!",
@@ -112,7 +115,9 @@
       "early": "EARLY",
       "late": "LATE",
       "hits": "HITS {{value}} / {{goal}}",
-      "chances": "Chances left"
+      "chances": "Chances left",
+      "fail": "My swing isn't back yet.",
+      "now": "NOW!"
     },
     "fighterDuel": {
       "title": "Fighting Game",
@@ -154,7 +159,9 @@
       },
       "beats": "beats {{move}}",
       "tellLabel": "Opponent",
-      "specialLeft": "{{left}} specials left"
+      "specialLeft": "{{left}} specials left",
+      "fail": "Lost. …One more round, then.",
+      "tutorialHint": "First round is practice: the glowing button is the answer"
     },
     "labelSuccess": "HITS",
     "labelMiss": "MISS",
@@ -182,12 +189,36 @@
       "mark": {
         "incident": "{{month}}/{{day}}: the day it all stopped",
         "nationals": "{{month}}/{{day}}: the national tournament"
+      },
+      "note": {
+        "finals": "Finals",
+        "practiceGame": "Practice game vs Dongsung",
+        "vacation": "Summer break",
+        "camp": "Baseball camp",
+        "schoolStart": "School starts",
+        "mockExam": "Mock exam",
+        "dday60": "CSAT D-60",
+        "trip": "Mom & Dad's trip (5 nights)"
       }
     },
     "windowView": {
       "title": "Outside",
       "help": "Draw the curtain and look outside",
-      "close": "Close the curtain"
+      "close": "Close the curtain",
+      "lookHelp": "Move the lens over the view: arrow keys · Enter",
+      "lookHelp_touch": "Touch the view to look closer",
+      "spotsLabel": "What you found outside",
+      "spot": {
+        "smoke": "Smoke",
+        "stain": "Marks on the road",
+        "dark": "Dark windows"
+      },
+      "line": {
+        "smoke": "Smoke rising far away. I've lost count of the days.",
+        "stain": "Dark red marks on the road. …I decided not to think about what they are.",
+        "dark": "Every window across the street is dark. Is nobody there either."
+      },
+      "allFound": "…Enough. Let's stop looking."
     },
     "phoneChat": {
       "title": "The phone",
@@ -341,6 +372,15 @@
     },
     "answer": {
       "backspace": "Delete"
+    },
+    "result": {
+      "clearedTitle": "MEMORY RECOVERED",
+      "recorded": "Written in the notebook",
+      "continue": "Continue",
+      "failedTitle": "…NOT THIS TIME",
+      "failDefault": "My hands aren't warmed up yet. One more try?",
+      "retry": "Try again",
+      "later": "Maybe later"
     }
   },
   "characterSheet": {

@@ -1048,27 +1048,17 @@ function LoreTab({
           key={id}
           open={cards.isOpen(id)}
           onToggle={() => cards.toggle(id)}
-          summary="독백 · 대사"
-          title={<span className="font-mono">stage · {id}</span>}
+          summary="진행도 독백"
+          title={<span className="font-mono">monologue · {id}</span>}
         >
           <div className="flex flex-col gap-4">
             <LocalizedInput
-              label="독백"
+              label="독백 (조사 개수 구간: p1-n은 1바퀴 n개부터, p2-n은 2바퀴 n개부터)"
               value={stage.monologue}
               onChange={(monologue) =>
                 onChange({
                   ...content,
                   stages: { ...content.stages, [id]: { ...stage, monologue } },
-                })
-              }
-            />
-            <LocalizedInput
-              label="대사 (아직 쓰이는 곳 없음)"
-              value={stage.dialogue}
-              onChange={(dialogue) =>
-                onChange({
-                  ...content,
-                  stages: { ...content.stages, [id]: { ...stage, dialogue } },
                 })
               }
             />

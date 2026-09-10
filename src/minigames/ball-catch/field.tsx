@@ -5,6 +5,8 @@ import type { SwingResult } from "./timing";
 export interface BallCatchFieldProps {
   ballRef: React.RefObject<HTMLDivElement | null>;
   shadowRef: React.RefObject<HTMLDivElement | null>;
+  /** 첫 투구의 "지금!" 표식. 켜고 끄는 건 rAF 루프가 ref로 한다 */
+  nowRef: React.RefObject<HTMLSpanElement | null>;
   remainingMisses: number;
   maxMisses: number;
   feedback: SwingResult | null;
@@ -16,6 +18,7 @@ export interface BallCatchFieldProps {
     hits: string;
     chances: string;
     prompt: string;
+    now: string;
     hit: string;
     early: string;
     late: string;
@@ -31,6 +34,7 @@ const feedbackTone: Record<SwingResult, string> = {
 export function BallCatchField({
   ballRef,
   shadowRef,
+  nowRef,
   remainingMisses,
   maxMisses,
   feedback,
@@ -84,6 +88,16 @@ export function BallCatchField({
         <span className="absolute bottom-0 left-0 size-5 border-b-2 border-l-2 border-memory" />
         <span className="absolute bottom-0 right-0 size-5 border-b-2 border-r-2 border-memory" />
       </div>
+
+      {/* 첫 투구의 타이밍 표식: 링 바로 위에서 공이 링에 든 동안만 켜진다 */}
+      <span
+        ref={nowRef}
+        aria-hidden
+        className="absolute left-1/2 top-[52%] -translate-x-1/2 font-pixel text-lg tracking-widest text-memory drop-shadow-lg transition-opacity duration-100"
+        style={{ opacity: 0 }}
+      >
+        {labels.now}
+      </span>
 
       <div
         ref={ballRef}

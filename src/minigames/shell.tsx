@@ -137,7 +137,8 @@ export function MinigameShell({
       className={`${size === "lg" ? "w-[54rem]" : "w-[38rem]"} max-w-[94vw] animate-fade-rise ${PANEL_FRAME}`}
     >
       <div className="px-6 pt-[18px]">
-        <div className="flex items-baseline justify-between gap-3">
+        {/* 오른쪽 끝은 호스트의 닫기 버튼 자리(44px)다. 스킵이 그 밑에 깔리지 않게 비운다 */}
+        <div className="flex items-baseline justify-between gap-3 pr-12">
           {/* 제목은 좁아지면 접히고, 스킵 버튼은 접근성 장치라 절대 눌리지 않는다 */}
           <h2 className="min-w-0 break-ko text-lg font-semibold leading-snug text-ivory">
             {title}

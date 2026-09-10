@@ -225,6 +225,7 @@ function QuizBoard({
 export function RadioQuizMinigame({
   onComplete,
   gamePhase = 1,
+  difficulty = "easy",
   stage = "play",
   onSettled,
 }: MinigameProps) {
@@ -240,6 +241,7 @@ export function RadioQuizMinigame({
     return (
       <FrequencyTuneMinigame
         gamePhase={gamePhase}
+        difficulty={difficulty}
         onComplete={(result) => {
           if (!result.cleared) {
             complete(result);

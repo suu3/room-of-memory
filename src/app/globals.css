@@ -136,6 +136,13 @@
   --animate-page-nudge: page-nudge 0.3s ease-out both;
   /* 끊기기 직전의 방송. 고르지 않은 박자로 흔들려야 신호가 죽어가는 것으로 읽힌다 */
   --animate-signal-static: signal-static 0.24s steps(3, end) infinite;
+  /*
+   * 전환 컷씬의 파형 (PlaybackScene의 SignalVisual). 그림이 아직 없는 컷에서 화면을
+   * 채우는 유일한 움직임이라, 막대마다 지연을 달리 줘서 한 덩어리로 출렁이지 않게 한다.
+   */
+  --animate-signal-wave: signal-wave 1.9s ease-in-out infinite;
+  /* 라디오 램프: 잡히다 말다 하는 신호. 고른 박자로 숨쉬면 기계가 멀쩡한 것처럼 보인다 */
+  --animate-signal-lamp: signal-lamp 2.6s steps(6, end) infinite;
 
   /*
    * 격투 미니게임. 격투 게임의 연출은 전부 "한 프레임 안에 알아채야 하는 것"이라
@@ -341,6 +348,41 @@
     }
     70% {
       transform: translateX(var(--spacing));
+    }
+  }
+
+  @keyframes signal-wave {
+    0%,
+    100% {
+      transform: scaleY(0.18);
+    }
+    35% {
+      transform: scaleY(1);
+    }
+    55% {
+      transform: scaleY(0.42);
+    }
+    75% {
+      transform: scaleY(0.8);
+    }
+  }
+
+  @keyframes signal-lamp {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    30% {
+      opacity: 0.9;
+    }
+    45% {
+      opacity: 0.35;
+    }
+    60% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 0.2;
     }
   }
 
@@ -621,6 +663,21 @@ body {
   box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
 }
 
+/*
+ * 창밖 그림 위의 밤. 원화(mg-window-view-outside)는 주황 노을인데 같은 시각의 방은
+ * 한밤중이다. 그림을 다시 그리는 대신 유리 위에 밤의 색을 곱한다. 명도는 위쪽(하늘)에서
+ * 가장 많이 깎이고 아래쪽(도로)은 덜 깎여, 짚어야 하는 자국이 어둠에 묻히지 않는다.
+ */
+.window-night {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-scene-abyss) 92%, transparent) 0%,
+    color-mix(in srgb, var(--color-scene-dusk) 78%, transparent) 55%,
+    color-mix(in srgb, var(--color-scene-storm) 62%, transparent) 100%
+  );
+  mix-blend-mode: multiply;
+}
+
 /* 대사창 초상: 아래쪽을 패널 속으로 스며들게 한다. 원화의 밑단이 판으로 서지 않게. */
 .portrait-fade {
   mask-image: linear-gradient(to bottom, black 72%, transparent 100%);
@@ -743,6 +800,12 @@ body {
   .animate-bob-arrow,
   .animate-hotspot-glow {
     animation: none;
+  }
+
+  /* 파형은 멈춰 서고, 램프만 느리게 깜빡인다. 정지된 파형도 "신호"로는 읽힌다 */
+  .animate-signal-wave {
+    animation: none;
+    transform: scaleY(0.5);
   }
 
   /*

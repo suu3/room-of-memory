@@ -144,10 +144,10 @@ export function roomLightValue(ramp: readonly [number, number], level: number): 
  * 배경 그라디언트 단계. 1막은 평범(dim) → 어둠(dark)만 오가고,
  * 금빛(gold)은 2막에서 되찾기 시작했을 때만 나온다.
  *
- * 2막은 dim을 건너뛴다. 단계마다 독백이 붙어 있는데(content/stages.yaml) dim의
- * 줄은 "심심하네, 뭐부터 해볼까". 할 일이 없던 1막의 말이다. 추리 중에 그게
- * 다시 뜨면 2막의 톤(직면)이 통째로 무너진다. 바닥에서 곧장 온기로 넘어가는 편이
- * 기획의 "정적 위에 새로 드는 다른 온기"와도 맞는다 (docs/content-design.md 8장).
+ * 2막은 dim을 건너뛴다. 평범한 낮의 방은 1막의 것이고, 추리 중에 그게 다시 뜨면
+ * 2막의 톤(직면)이 무너진다. 바닥에서 곧장 온기로 넘어가는 편이 기획의
+ * "정적 위에 새로 드는 다른 온기"와도 맞는다 (docs/content-design.md 8장).
+ * 상단 독백은 이 단계와 무관하게 조사 개수를 따른다 (src/data/monologue.ts).
  */
 export function roomStageIndex(level: number, phase: 1 | 2): number {
   if (phase === 1) return level > 0.34 ? 1 : 0;

@@ -73,11 +73,16 @@ export function HudMenu() {
 
       {open && (
         <div className={`absolute right-0 top-full mt-2 w-68 animate-fade-rise p-4 ${PANEL_DARK}`}>
-          <p className={`px-1 ${SECTION_LABEL}`}>{t("language.label")}</p>
+          {/* 눈에 보이는 라벨. 읽히는 이름은 각 fieldset의 legend라 여기서는 소리를 끈다. 둘 다 읽으면 "언어 선택 언어 선택" */}
+          <p aria-hidden className={`px-1 ${SECTION_LABEL}`}>
+            {t("language.label")}
+          </p>
           <div className="mt-2">
             <LanguageToggle tone="dark" />
           </div>
-          <p className={`mt-4 px-1 ${SECTION_LABEL}`}>{t("difficulty.label")}</p>
+          <p aria-hidden className={`mt-4 px-1 ${SECTION_LABEL}`}>
+            {t("difficulty.label")}
+          </p>
           {/* 이지=스킵 열림, 보통=스킵 숨김. 게이트는 useSkipEligible 한 곳 (minigames/shell) */}
           <fieldset className="mt-2 flex gap-1.5">
             <legend className="sr-only">{t("difficulty.label")}</legend>

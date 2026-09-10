@@ -12,7 +12,23 @@
  * 빨리 내면 간파 보너스, 기다리면 페인트에 안 속는다. 어느 쪽도 공짜가 아니다.
  */
 
+import type { MinigameDifficulty } from "@/types/minigame";
+
 export type Move = "strike" | "guard" | "throw";
+
+/**
+ * 난이도별 상대의 손맛. 이지는 상대 한 방이 70%다: 정답을 계속 내고도 5/100으로
+ * 겨우 이기는 판은 읽기 싸움이 아니라 소모전으로 읽혔다. 내 한 방은 그대로 둔다.
+ * 잘 읽으면 빨리 끝나는 쪽이 이지의 뜻이지, 상대가 약해 보이는 게 아니다.
+ */
+export interface DuelTuning {
+  rivalDamageScale: number;
+}
+
+export const DUEL_TUNINGS: Record<MinigameDifficulty, DuelTuning> = {
+  easy: { rivalDamageScale: 0.7 },
+  normal: { rivalDamageScale: 1 },
+};
 
 export const MOVES: readonly Move[] = ["strike", "guard", "throw"];
 
@@ -142,14 +158,20 @@ export function heroDamage(combo: number, critical: boolean): number {
   return Math.round((BASE_DAMAGE + bonus) * (critical ? CRITICAL_SCALE : 1));
 }
 
-export function rivalDamage(round: number): number {
-  return Math.min(RIVAL_DAMAGE_CAP, RIVAL_BASE_DAMAGE + RIVAL_RAMP * round);
+export function rivalDamage(round: number, tuning: DuelTuning = DUEL_TUNINGS.normal): number {
+  return Math.round(
+    Math.min(RIVAL_DAMAGE_CAP, RIVAL_BASE_DAMAGE + RIVAL_RAMP * round) * tuning.rivalDamageScale,
+  );
 }
 
 /** 이 라운드에서 실제로 깎이는 체력. 0이면 아무도 안 맞았다는 뜻(무승부). */
-export function damageOf(state: DuelState, resolution: RoundResolution): number {
+export function damageOf(
+  state: DuelState,
+  resolution: RoundResolution,
+  tuning: DuelTuning = DUEL_TUNINGS.normal,
+): number {
   if (resolution.outcome === "win") return heroDamage(state.combo + 1, resolution.critical);
-  if (resolution.outcome === "lose") return rivalDamage(state.round);
+  if (resolution.outcome === "lose") return rivalDamage(state.round, tuning);
   return 0;
 }
 
@@ -159,8 +181,12 @@ export function damageOf(state: DuelState, resolution: RoundResolution): number 
  * 무승부는 아무도 안 맞지만 콤보도 안 끊는다. 같은 수를 낸 건 읽기에 실패한
  * 것이지 손해를 본 게 아니다. 여기서까지 콤보를 끊으면 운에 벌을 주는 게 된다.
  */
-export function applyRound(state: DuelState, resolution: RoundResolution): DuelState {
-  const damage = damageOf(state, resolution);
+export function applyRound(
+  state: DuelState,
+  resolution: RoundResolution,
+  tuning: DuelTuning = DUEL_TUNINGS.normal,
+): DuelState {
+  const damage = damageOf(state, resolution, tuning);
   const round = state.round + 1;
   const special = nextSpecial(state, resolution);
   if (resolution.outcome === "win") {

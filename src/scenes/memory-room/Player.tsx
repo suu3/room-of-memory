@@ -17,6 +17,7 @@ import {
   ROOM_COLLIDERS,
   ROOM_SHELL_BOUNDS,
 } from "./layout";
+import { findPath } from "./pathfind";
 import {
   createPlayerRig,
   disposePlayerRig,
@@ -134,9 +135,27 @@ export function Player({
    * 같은 이동 경로(moveThroughZones)를 타서 가구에 걸리면 미끄러지다 서고, 키를 누르면 잊는다.
    */
   const walkTarget = useMemoryRoomStore((state) => state.walkTarget);
-  const walkTargetRef = useRef<Vec2 | null>(null);
+  /**
+   * 목표까지의 경유점. 클릭할 때 한 번 찾는다(pathfind). 앞의 것부터 하나씩 지운다.
+   * 길이 없으면(방 밖을 눌렀다) 비어 있고, 스토어의 목표도 같이 지운다.
+   */
+  const walkTargetRef = useRef<Vec2[] | null>(null);
   useEffect(() => {
-    walkTargetRef.current = walkTarget ? { x: walkTarget.x, z: walkTarget.z } : null;
+    const group = groupRef.current;
+    if (!walkTarget || !group) {
+      walkTargetRef.current = null;
+      return;
+    }
+    const doorOpened = useMemoryRoomStore.getState().doorOpened;
+    const path = findPath(
+      { x: group.position.x, z: group.position.z },
+      { x: walkTarget.x, z: walkTarget.z },
+      PLAYER_RADIUS,
+      doorOpened ? OPEN_ZONES : CLOSED_ZONES,
+      doorOpened ? OPEN_COLLIDERS : ALL_COLLIDERS,
+    );
+    walkTargetRef.current = path;
+    if (!path) useMemoryRoomStore.getState().clearWalk();
   }, [walkTarget]);
   const grabRef = useRef<{
     standing: { x: number; z: number };
@@ -398,17 +417,25 @@ export function Player({
       movementDelta.z = (cameraRight.z * horizontal + cameraForward.z * vertical) * frameDistance;
       walkBy(movementDelta);
     } else if (walkTargetRef.current && !locked && !seated && !sitting && !grab) {
-      // 클릭한 자리로 곧장 걷는다. 도착했거나 정면으로 막혔으면 거기서 선다.
-      const intended = stepToward(
-        group.position,
-        walkTargetRef.current,
-        PLAYER_SPEED * step,
-        deltaRef.current,
-      );
-      const traveled = intended > 0 ? walkBy(deltaRef.current) : 0;
-      if (intended === 0 || isWalkBlocked(intended, traveled)) {
+      // 경유점을 하나씩 따라 걷는다. 마지막 점에 닿았거나 정면으로 막혔으면 거기서 선다.
+      const waypoints = walkTargetRef.current;
+      const next = waypoints[0];
+      if (!next) {
         walkTargetRef.current = null;
         useMemoryRoomStore.getState().clearWalk();
+      } else {
+        const intended = stepToward(group.position, next, PLAYER_SPEED * step, deltaRef.current);
+        const traveled = intended > 0 ? walkBy(deltaRef.current) : 0;
+        if (intended === 0) {
+          waypoints.shift();
+          if (waypoints.length === 0) {
+            walkTargetRef.current = null;
+            useMemoryRoomStore.getState().clearWalk();
+          }
+        } else if (isWalkBlocked(intended, traveled)) {
+          walkTargetRef.current = null;
+          useMemoryRoomStore.getState().clearWalk();
+        }
       }
     }
 

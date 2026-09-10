@@ -79,17 +79,35 @@
     }
   },
   "stages": {
-    "dark": {
-      "monologue": "I have seen all of it, and the room only got darker.",
-      "dialogue": "Dialogue placeholder goes here"
+    "p1-0": {
+      "monologue": "Nothing to do. What should I start with."
     },
-    "dim": {
-      "monologue": "Nothing to do. What should I start with.",
-      "dialogue": "Dialogue placeholder goes here"
+    "p1-1": {
+      "monologue": "The room's a little dark. …No, it's always been like this, hasn't it."
     },
-    "gold": {
-      "monologue": "It looks different the second time. The door side is bright.",
-      "dialogue": "Dialogue placeholder goes here"
+    "p1-3": {
+      "monologue": "Going through them one by one keeps bringing that day back… Enough. Stop."
+    },
+    "p1-5": {
+      "monologue": "Only a few left. …No. Forget it."
+    },
+    "p1-7": {
+      "monologue": "I have seen all of it, and the room only got darker."
+    },
+    "p2-0": {
+      "monologue": "…That was a real voice just now. The door side is bright."
+    },
+    "p2-1": {
+      "monologue": "Let's start by getting ready to leave. Anything. Let's try."
+    },
+    "p2-4": {
+      "monologue": "…Dad said it back then. That trip was strange."
+    },
+    "p2-8": {
+      "monologue": "It was a lie. But it was for me. …Should I try?"
+    },
+    "p2-11": {
+      "monologue": "It looks different the second time. Time to go."
     }
   },
   "scripts": {

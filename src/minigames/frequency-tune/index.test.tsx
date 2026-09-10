@@ -4,7 +4,7 @@ import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { i18n } from "../../i18n/config";
 import type { MinigameResult } from "../../types/minigame";
-import { bandWidthAt, GOAL_HITS, needlePeriodAt } from "./difficulty";
+import { bandWidthAt, GOAL_HITS, MAX_MISSES, needlePeriodAt } from "./difficulty";
 import { FrequencyTuneMinigame } from "./index";
 
 let now = 0;
@@ -47,7 +47,7 @@ function needleLeft(container: HTMLElement): number {
 
 /**
  * Math.random을 0으로 고정하면 대역은 항상 왼쪽 끝(6%)에서 시작한다.
- * 이 위상에서 바늘은 11.47%: 다섯 판의 모든 폭(14 → 8%)이 이 지점을 덮는다.
+ * 이 위상에서 바늘은 11.47%: 다섯 판의 모든 폭(20 → 14%)이 이 지점을 덮는다.
  */
 const IN_BAND_PHASE = 0.64;
 
@@ -90,7 +90,7 @@ describe("FrequencyTuneMinigame", () => {
   it("opens on the widest band and the slowest needle", () => {
     const { container } = render(<FrequencyTuneMinigame onComplete={() => {}} />);
 
-    expect(stats(container)).toEqual([`0 / ${GOAL_HITS}`, "0 / 5"]);
+    expect(stats(container)).toEqual([`0 / ${GOAL_HITS}`, `0 / ${MAX_MISSES}`]);
     expect(band(container).style.width).toBe(`${bandWidthAt(0)}%`);
     expect(container.querySelectorAll("svg")).toHaveLength(GOAL_HITS);
   });
@@ -101,7 +101,7 @@ describe("FrequencyTuneMinigame", () => {
       <FrequencyTuneMinigame onComplete={(result) => results.push(result)} />,
     );
 
-    // 첫 판은 4200ms 주기의 0.64 위상: 그 뒤로는 그때그때의 주기만큼 감아 같은 자리로 돌아온다.
+    // 첫 판은 첫 주기의 0.64 위상: 그 뒤로는 그때그때의 주기만큼 감아 같은 자리로 돌아온다.
     let timestamp = needlePeriodAt(0) * IN_BAND_PHASE;
     for (let hits = 0; hits < GOAL_HITS; hits++) {
       runFrameAt(timestamp);
@@ -153,6 +153,6 @@ describe("FrequencyTuneMinigame", () => {
     runFrameAt(0);
     press();
 
-    expect(stats(container)).toEqual([`0 / ${GOAL_HITS}`, "1 / 5"]);
+    expect(stats(container)).toEqual([`0 / ${GOAL_HITS}`, `1 / ${MAX_MISSES}`]);
   });
 });

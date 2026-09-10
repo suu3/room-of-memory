@@ -3,9 +3,9 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ACT2_CHAIN, PHASE1_MEMORIES } from "@/data/memory-room";
+import { ACT2_CHAIN, CUTSCENE_RADIO_BLACKOUT, PHASE1_MEMORIES } from "@/data/memory-room";
 import { i18n } from "@/i18n/config";
-import { useMemoryRoomStore } from "@/store/memory-room";
+import { openCutscene, useMemoryRoomStore } from "@/store/memory-room";
 import { DialogueBox } from "./DialogueBox";
 import { PlaybackScene } from "./PlaybackScene";
 
@@ -64,5 +64,23 @@ describe("배트를 쥐는 두 줄의 화면", () => {
     expect(
       screen.getByText("Three years with this bat. All I ever hit with it was a ball."),
     ).toBeTruthy();
+  });
+
+  it("전환 컷씬은 그림이 아직 없어도 빈 판으로 서지 않는다", () => {
+    /*
+     * 라디오 너머 첫 목소리는 게임 전체의 전환점이다. 일러스트가 리포에 없는 동안
+     * 회색 판 하나로 지나가면 안 된다. 파형·램프·주사선이 판을 채우고, 건너뛰기는
+     * 어두운 그림 위에서도 보이는 대비로 선다.
+     */
+    useMemoryRoomStore.setState({
+      activePlayback: openCutscene(CUTSCENE_RADIO_BLACKOUT),
+    });
+    const { container } = render(<PlaybackScene />);
+
+    expect(container.querySelectorAll(".animate-signal-wave").length).toBeGreaterThan(20);
+    expect(container.querySelector(".animate-signal-lamp")).not.toBeNull();
+    const skip = screen.getByRole("button", { name: "Skip" });
+    expect(skip.className).toContain("bg-night/80");
+    expect(skip.className).toContain("text-ivory");
   });
 });

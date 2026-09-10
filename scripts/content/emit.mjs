@@ -153,10 +153,7 @@ function emitLocale(content, base, locale) {
   const resource = {
     ...structuredClone(base ?? {}),
     stages: Object.fromEntries(
-      Object.entries(stages).map(([id, stage]) => [
-        id,
-        { monologue: pick(stage.monologue), dialogue: pick(stage.dialogue) },
-      ]),
+      Object.entries(stages).map(([id, stage]) => [id, { monologue: pick(stage.monologue) }]),
     ),
     scripts: Object.fromEntries(
       Object.entries(scripts).map(([id, lines]) => [id, numberedLines(lines, pick)]),
