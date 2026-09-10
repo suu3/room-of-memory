@@ -41,6 +41,8 @@ export const ASSETS = {
   images: {
     /** 로딩 애니메이션 (420x400, 8프레임, 프레임당 140ms). */
     uiLoading: "/assets/images/ui-loading.gif?v=20260910-grounded-bounce",
+    /** 만든 사람 화면의 프로필 그림 (512×512, 제작자의 토끼 낙서). 둥글게 잘라 쓴다. */
+    creatorAvatar: "/assets/images/ui-creator-avatar.webp",
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp",
     mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp",

@@ -6,6 +6,7 @@
 |---|---|---|---|
 | fonts/PretendardVariable.woff2 | https://github.com/orioncactus/pretendard (v1.3.9) | 길형진 (orioncactus) | SIL OFL 1.1 |
 | fonts/Galmuri14.woff2 | https://quiple.dev/galmuri (눈누 웹폰트 빌드 https://noonnu.cc/font_page/1610) | Lee Minseo (quiple) | SIL OFL 1.1 |
+| images/ui-creator-avatar.webp | 제작자가 직접 그린 토끼 낙서(2026-09-11). 만든 사람 화면의 프로필. ivory 배경으로 평탄화하고 정사각 512px로 잘라 webp 변환 | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
 | images/mg-ball-catch-sunset-field.webp | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-ball-catch-pitcher.webp | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-ball-catch-bat.webp | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |

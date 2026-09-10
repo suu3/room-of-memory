@@ -1,8 +1,10 @@
 "use client";
 
 import { ArrowUpRight, X } from "@phosphor-icons/react";
+import Image from "next/image";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { ASSETS } from "@/lib/assets";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BACKDROP, FOCUS_RING, PANEL_DARK } from "./ui-classes";
 
@@ -12,12 +14,30 @@ export const CONTACT_LINKS = [
   { label: "GitHub", value: "github.com/suu3", href: "https://github.com/suu3" },
 ] as const;
 
+/** 표기명. 언어와 무관하게 같은 이름을 쓴다. */
+const CREATOR_NAME = "Suu";
+
 /** 페이지와 모달이 같은 본문을 쓴다. /contact로 직접 들어와도 내용이 갈리지 않는다. */
 export function ContactLinks() {
   const { t } = useTranslation();
 
   return (
     <div className="flex flex-col gap-5">
+      {/* 프로필: 둥근 그림 + 이름 + 한 줄 소개. 연락처 위에 사람이 먼저 선다 */}
+      <div className="flex items-center gap-4">
+        <Image
+          src={ASSETS.images.creatorAvatar}
+          alt=""
+          width={64}
+          height={64}
+          draggable={false}
+          className="size-16 shrink-0 rounded-full object-cover"
+        />
+        <div className="min-w-0">
+          <p className="text-base font-medium leading-snug text-ivory">{CREATOR_NAME}</p>
+          <p className="mt-1 break-ko text-sm leading-normal text-fog">{t("contact.bio")}</p>
+        </div>
+      </div>
       <ul className="flex flex-col">
         {CONTACT_LINKS.map((link) => (
           <li key={link.label} className="border-t border-line last:border-b">
