@@ -71,7 +71,8 @@ function MinigameResultCard({
     <div
       role="status"
       aria-live="polite"
-      className="absolute inset-0 z-20 grid place-items-center bg-scene-void/55 p-4"
+      // z-50: 판이 얹힌 층(z-40) 위에 서야 한다. 이 카드가 떠 있는 동안 대사창은 없다
+      className="absolute inset-0 z-50 grid place-items-center bg-scene-void/55 p-4"
     >
       <div
         className={`w-[22rem] max-w-[92vw] animate-fade-rise p-6 text-center ${PANEL_FRAME} ${
