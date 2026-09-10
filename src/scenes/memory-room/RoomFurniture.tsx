@@ -5,6 +5,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 import {
   type Group,
   MathUtils,
+  type Mesh,
   type MeshStandardMaterial,
   Plane,
   type PointLight,
@@ -14,6 +15,7 @@ import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import { isAtCurtain, useMemoryRoomStore } from "@/store/memory-room";
 import { BedModel } from "./BedModel";
+import { CurtainCloth, CurtainRod } from "./CurtainCloth";
 import {
   CURTAIN_NEAR_RADIUS,
   CURTAIN_TAP_SLOP,
@@ -167,12 +169,6 @@ const curtainHit = new Vector3();
 function curtainPlaneX(ray: { intersectPlane: (plane: Plane, target: Vector3) => Vector3 | null }) {
   return ray.intersectPlane(CURTAIN_PLANE, curtainHit)?.x ?? null;
 }
-
-const CURTAIN_FOLD_PARTS = [
-  { size: [0.82, 2.9, 0.16], position: [-0.52, 0, -0.02], color: "fabric", castShadow: false },
-  { size: [0.82, 2.9, 0.18], position: [0, 0, 0.03], color: "fabric", castShadow: false },
-  { size: [0.82, 2.9, 0.16], position: [0.52, 0, -0.02], color: "fabric", castShadow: false },
-] as const satisfies readonly BoxPart[];
 
 function BoxParts({ parts, palette }: { parts: readonly BoxPart[]; palette: RoomPalette }) {
   return parts.map((part) => (
@@ -650,6 +646,7 @@ function Curtain({
    * 기준점은 커튼이 지금 있는 자리가 아니라 닫혀 있을 때의 자리다. 젖히는 도중에
    * 판정 원이 손을 따라 미끄러지면, 당기다 말고 반경 밖으로 나가 빛이 꺼진다.
    */
+  const clothRef = useRef<Mesh>(null);
   const near = useNearPlayer(CURTAIN_X[side].closed, CURTAIN_Z, CURTAIN_NEAR_RADIUS);
   const { handlers } = useGlowHover(near);
   const reducedMotion = useMemo(
@@ -740,6 +737,12 @@ function Curtain({
     group.position.x = dragRef.current
       ? goal
       : MathUtils.damp(group.position.x, goal, reducedMotion ? 18 : 5.5, delta);
+    // Gather in sync with the displayed position, including the damped release motion.
+    const influences = clothRef.current?.morphTargetInfluences;
+    if (influences) {
+      const { closed, open } = CURTAIN_X[side];
+      influences[0] = MathUtils.clamp((group.position.x - closed) / (open - closed), 0, 1);
+    }
   });
 
   return (
@@ -786,7 +789,7 @@ function Curtain({
       // 밖으로 나가도 move/up은 계속 들어온다.
     >
       <MemoryGlowSelection selectionKey={`curtain-${side}`} tier="prop" enabled={near}>
-        <BoxParts parts={CURTAIN_FOLD_PARTS} palette={palette} />
+        <CurtainCloth side={side} palette={palette} meshRef={clothRef} />
       </MemoryGlowSelection>
     </group>
   );
@@ -813,6 +816,7 @@ export function RoomFurniture({
       <CabinetAccessories palette={palette} />
       <FloorAccessories palette={palette} />
       <StudentRoomProps />
+      <CurtainRod palette={palette} />
       <Curtain
         side="left"
         progress={curtainPull.left}
