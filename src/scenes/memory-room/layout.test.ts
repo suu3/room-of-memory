@@ -19,6 +19,7 @@ import {
   DRAWER_TRAVEL,
   FRONT_DOOR_INTERACTION,
   FRONT_DOOR_POSITION,
+  hitRadiusOf,
   LIVING_BOUNDS,
   LIVING_COLLIDERS,
   LIVING_SHELL_BOUNDS,
@@ -34,6 +35,7 @@ import {
   ROOM_SHELL_BOUNDS,
   ROOM_SHELL_CENTER,
 } from "./layout";
+import { SEATS } from "./seats";
 import { isWalkable as standsClear } from "./spatial";
 
 const PLAYER_RADIUS = 0.38;
@@ -85,6 +87,30 @@ function hasReachableInteractionPoint(id: (typeof MEMORY_IDS)[number]) {
 }
 
 describe("memory-room layout", () => {
+  it("keeps memory click spheres off the seats they sit on", () => {
+    /*
+     * 침대 위의 폰: 다가서는 반경(1.6)은 콜라이더 밖에서 닿도록 넓지만, 클릭 구가 그만큼
+     * 크면 매트리스를 덮어 침대를 눌러도 폰이 눌린다. 클릭 구는 눕는 자리·걸터앉는
+     * 자리·다가서는 자리 어디에도 닿지 않아야 침대가 침대로 눌린다.
+     */
+    for (const seat of Object.values(SEATS)) {
+      const spots = [seat.anchor, seat.near, seat.approach, seat.perch].filter(
+        (spot): spot is { x: number; z: number } => spot !== undefined,
+      );
+      for (const id of MEMORY_IDS) {
+        const placement = MEMORY_PLACEMENTS[id];
+        const radius = hitRadiusOf(placement);
+        for (const spot of spots) {
+          const distance = Math.hypot(
+            spot.x - placement.position[0],
+            spot.z - placement.position[2],
+          );
+          expect(distance, `${id} hit sphere covers seat ${seat.id}`).toBeGreaterThan(radius);
+        }
+      }
+    }
+  });
+
   it("places every memory exactly once and gives it a camera preset", () => {
     expect(Object.keys(MEMORY_PLACEMENTS).sort()).toEqual([...MEMORY_IDS].sort());
     for (const id of MEMORY_IDS) {
