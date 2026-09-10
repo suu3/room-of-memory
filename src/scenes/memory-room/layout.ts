@@ -326,11 +326,14 @@ export const MEMORY_PLACEMENTS = {
      *
      * 반경 1.5: 의자 콜라이더(z -1.68~-0.72)가 정면을 막아서, 플레이어는 의자
      * 옆(z≈-0.34 또는 z≈-2.06)의 통로에서 닿는다. 그 거리가 약 1.33이다.
+     * 클릭 구(hitRadius)는 세트(모니터·키보드·마우스)만 덮는 0.9로 둔다. 1.5면 책상
+     * 의자까지 덮어, 컴퓨터가 잠긴 1바퀴 내내 의자를 눌러도 앉지 못한다.
      */
     position: [-4.5, 1.11, -1.0],
     rotation: [0, Math.PI / 2, 0],
     scale: 1,
     interactionRadius: 1.5,
+    hitRadius: 0.9,
   },
   radio: {
     id: "radio",
@@ -353,10 +356,10 @@ export const MEMORY_PLACEMENTS = {
      *
      * x는 매트리스 가운데(4.65) 쪽으로 붙인다. 변에 두면 이불 자락에 묻혀 잘 안 보였다.
      * 침대는 통째로 콜라이더라 위로 올라갈 수 없으므로, 옆(x≈3.0)과 발치(z≈5.1)에서
-     * 닿도록 상호작용 반경을 1.6으로 넓혔다. 발치인 이유는 하나 더 있다: 기억 오브젝트는
-     * 상호작용 반경만 한 보이지 않는 구로 클릭을 받는데(MemoryObjects의 memory-hit),
-     * 침대 한가운데 두면 그 구가 매트리스를 거의 다 덮어 침대를 눌러도 폰이 눌린다.
-     * 발치에 두면 머리 쪽 절반(베개·머리판)이 침대 클릭으로 남는다.
+     * 닿도록 상호작용 반경을 1.6으로 넓혔다. 클릭 구(hitRadius)는 그만큼 넓히지 않는다.
+     * 기억 오브젝트는 보이지 않는 구로 클릭을 받는데(MemoryObjects의 memory-hit), 1.6이면
+     * 매트리스 발치 절반을 덮어 침대를 눌러도 폰이 눌리고, 폰이 잠긴 동안은 그 클릭이
+     * 그냥 사라져 눕지도 못한다. 폰 자체보다 조금 큰 0.55면 손으로 짚기에 충분하다.
      *
      * 회전의 X는 -π/2 + 0.18: 뒤쪽 0.18은 PhoneMemory가 세워 든 자세로 갖고 있는
      * 기울기를 상쇄하는 몫이라, 합치면 정확히 화면이 천장을 보고 눕는다. glb(ch1-smartphone)는
@@ -367,6 +370,7 @@ export const MEMORY_PLACEMENTS = {
     // 손에 쥐는 물건 치고 너무 컸다. 게임기(가로 0.46)보다 작아야 폰으로 읽힌다
     scale: 0.5,
     interactionRadius: 1.6,
+    hitRadius: 0.55,
   },
   calendar: {
     id: "calendar",
@@ -405,11 +409,13 @@ export const MEMORY_PLACEMENTS = {
   },
   duffel: {
     id: "duffel",
-    // 소파 앞 바닥에 던져둔 야구 가방. 사방이 트여 있어 다가가기 쉽다
+    // 소파 앞 바닥에 던져둔 야구 가방. 사방이 트여 있어 다가가기 쉽다.
+    // 클릭 구는 가방(길이 0.62)만 덮는 0.7: 1.3이면 소파 왼쪽 쿠션까지 덮어 앉지 못한다
     position: [-9.5, 0.2, -1.75],
     rotation: [0, 0.42, 0],
     scale: 1,
     interactionRadius: 1.3,
+    hitRadius: 0.7,
   },
   shoes: {
     id: "shoes",
@@ -421,11 +427,13 @@ export const MEMORY_PLACEMENTS = {
   },
   cards: {
     id: "cards",
-    // 식탁 상판 윗면(0.975) 위에 펼쳐진 판. 상판 중심과 같은 자리다
+    // 식탁 상판 윗면(0.975) 위에 펼쳐진 판. 상판 중심과 같은 자리다.
+    // 클릭 구는 판만 덮는 0.6: 1.9면 양끝 의자까지 덮어 앉으려는 클릭이 트럼프로 간다
     position: [-13.8, 0.975, 3.8],
     rotation: [0, 0, 0],
     scale: 1,
     interactionRadius: 1.9,
+    hitRadius: 0.6,
   },
   ampoule: {
     id: "ampoule",
@@ -442,6 +450,11 @@ export const MEMORY_PLACEMENTS = {
  * 이 표를 보고 갈라 그린다. 거실 물건이 방 안에 같이 렌더되면 벽 너머에 떠 있는
  * 유령이 된다.
  */
+/** 클릭을 받는 구의 반지름: 따로 정하지 않은 물건은 상호작용 반경 그대로다. */
+export function hitRadiusOf(placement: MemoryPlacement): number {
+  return placement.hitRadius ?? placement.interactionRadius;
+}
+
 export const MEMORY_SPACE = {
   console: "room",
   window: "room",

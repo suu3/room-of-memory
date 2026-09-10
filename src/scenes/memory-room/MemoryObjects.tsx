@@ -29,7 +29,7 @@ import {
 } from "@/store/memory-room";
 import { ballSeamGeometry } from "./ball-seam";
 import { toLitMaterial } from "./FurnitureModel";
-import { MEMORY_PLACEMENTS, MEMORY_SPACE, type MemorySpace } from "./layout";
+import { hitRadiusOf, MEMORY_PLACEMENTS, MEMORY_SPACE, type MemorySpace } from "./layout";
 import { MemoryBeacon } from "./MemoryBeacon";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
 import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-motion";
@@ -1100,7 +1100,7 @@ export function InteractiveMemory({
         helpers={
           // 수집 완료 표시는 3D에 그리지 않는다. 우측 "기억 수집" 패널이 담당한다.
           <mesh name={`memory-hit-${id}`}>
-            <sphereGeometry args={[placement.interactionRadius, 12, 8]} />
+            <sphereGeometry args={[hitRadiusOf(placement), 12, 8]} />
             <meshBasicMaterial transparent opacity={0} depthWrite={false} />
           </mesh>
         }
