@@ -202,6 +202,19 @@ export const ROOM_BOUNDS: Aabb2 = { minX: -5.55, maxX: 7.55, minZ: -3.55, maxZ: 
  */
 export const CURTAIN_STAND = { x: 1.15, z: -1.8, facing: Math.PI } as const;
 
+/** 뒷벽 빈자리의 책장. GLB 실측 1.6 × 2.35 × 0.72, 바닥 원점. */
+export const STUDENT_BOOKSHELF = {
+  position: [6.4, 0, -3.42] as Vec3Tuple,
+  size: [1.6, 2.35, 0.72] as Vec3Tuple,
+} as const;
+const [bookcaseX, , bookcaseZ] = STUDENT_BOOKSHELF.position;
+export const STUDENT_BOOKSHELF_COLLIDER: Aabb2 = {
+  minX: bookcaseX - STUDENT_BOOKSHELF.size[0] / 2,
+  maxX: bookcaseX + STUDENT_BOOKSHELF.size[0] / 2,
+  minZ: bookcaseZ - STUDENT_BOOKSHELF.size[2] / 2,
+  maxZ: bookcaseZ + STUDENT_BOOKSHELF.size[2] / 2,
+};
+
 export const ROOM_COLLIDERS = [
   { minX: -5.48, maxX: -3.72, minZ: -3.35, maxZ: 0.95 }, // desk
   BED_COLLIDER, // 침대: 발자국은 bed.ts가 glb 실측에서 낸다
@@ -209,6 +222,7 @@ export const ROOM_COLLIDERS = [
   { minX: 6.3, maxX: 7.25, minZ: 0.3, maxZ: 1.2 }, // nightstand
   // 의자: CHAIR_POSITION의 좌석/등받이 발자국(±CHAIR_SEAT.half)에서 살짝 안쪽으로 잡는다
   { minX: -3.685, maxX: -2.915, minZ: -1.585, maxZ: -0.815 }, // chair
+  STUDENT_BOOKSHELF_COLLIDER,
 ] as const satisfies readonly Aabb2[];
 
 /**

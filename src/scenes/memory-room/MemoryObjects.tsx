@@ -17,16 +17,11 @@ import {
   MeshStandardMaterial,
   type PointLight,
 } from "three";
-import { MEMORIES, type MemoryId, phaseConfigOf } from "@/data/memory-room";
+import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { CLUE_AFTER_MEMORY, type ClueId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
-import {
-  gamePhaseOf,
-  hotspotStatus,
-  selectRadioSignaling,
-  useMemoryRoomStore,
-} from "@/store/memory-room";
+import { hotspotStatus, selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
 import { ballSeamGeometry } from "./ball-seam";
 import { toLitMaterial } from "./FurnitureModel";
 import { hitRadiusOf, MEMORY_PLACEMENTS, MEMORY_SPACE, type MemorySpace } from "./layout";
@@ -39,7 +34,7 @@ import { radioSignalLevel } from "./radio-signal";
 import type { EulerTuple, Vec3Tuple } from "./types";
 import { useCoverTexture } from "./use-cover-texture";
 import { useGlowHover } from "./use-glow-hover";
-import { memoryOpacity, shouldHighlightMemory } from "./visual-state";
+import { shouldHighlightMemory } from "./visual-state";
 
 // 액자 glb(ch1-photo-frame)는 액자가 아니라 납작한 오각형 판때기라 지웠다.
 // 제대로 된 액자 glb가 들어오면 frame 키를 다시 추가할 것.
@@ -1012,19 +1007,11 @@ export function InteractiveMemory({
   const backgroundClue = status === "done" ? BACKGROUND_CLUE[id] : undefined;
   const placement = MEMORY_PLACEMENTS[id];
   /*
-   * 이 바퀴에 있는 기억인가: 흐림을 줄지 정한다 (visual-state의 memoryOpacity).
-   *
-   * 2바퀴는 문이 열려야 시작한다(selectDoorReady 주석): 문이 열리기 전의 방은
-   * 아직 1바퀴 끝자락이라 흐림("곧 열릴 물건" 신호)을 걸지 않는다. 이때 걸면
-   * 가장 어두운 방에서 어두운 물건이 0.45로 내려가 그냥 없는 물건으로 읽힌다
-   * (책상 위 컴퓨터가 통째로 사라져 보이던 원인).
+   * 잠긴 기억도 불투명하게 그린다. 예전에는 "이 바퀴에 곧 열릴 물건"을 0.45로 흐렸는데,
+   * 반투명한 라디오·달력은 멀리서 정체 모를 판때기로만 읽혔다. 물건은 그냥 방의
+   * 물건으로 서 있고, 만질 수 있는지는 비콘과 글로우가 말한다.
    */
-  const inThisRound = useMemoryRoomStore((state) => {
-    const gamePhase = gamePhaseOf(state);
-    if (!phaseConfigOf(id, gamePhase)) return false;
-    return gamePhase === 1 || state.doorOpened;
-  });
-  const opacity = memoryOpacity(status, inThisRound);
+  const opacity = 1;
   const clickable = status === "available" || backgroundClue !== undefined;
   const { hovered, handlers } = useGlowHover(clickable);
   const highlighted = shouldHighlightMemory(status, id, nearbyMemoryId, hovered);

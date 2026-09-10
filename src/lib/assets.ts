@@ -21,6 +21,11 @@ export const ASSETS = {
     computerMouse: "/assets/models/room-computer-mouse.glb",
     deskLamp: "/assets/models/room-desk-lamp.glb",
     books: "/assets/models/room-books.glb",
+    /** 직접 제작한 고3 생활 소품. 재생성: scripts/create-student-props.mjs */
+    snackBag: "/assets/models/room-snack-bag.glb?v=20260910-flat",
+    studyPapers: "/assets/models/room-study-papers.glb?v=20260910",
+    cupNoodleTrash: "/assets/models/room-cup-noodle-trash.glb?v=20260910-upright2",
+    studentBookshelf: "/assets/models/room-student-bookshelf.glb?v=20260910",
     rug: "/assets/models/room-rug.glb",
     pottedPlant: "/assets/models/room-potted-plant.glb",
     /**

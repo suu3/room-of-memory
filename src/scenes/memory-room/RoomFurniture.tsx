@@ -38,6 +38,7 @@ import {
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { DeskClockClue, DrawerNoteClue } from "./RoomClues";
+import { StudentDeskProps, StudentRoomProps } from "./StudentProps";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
@@ -463,12 +464,7 @@ function DeskAccessories({ palette }: FurnitureProps) {
   return (
     <group name="desk-accessories">
       <DeskLamp palette={palette} />
-      <FurnitureModel
-        path={ASSETS.models.books}
-        position={[1.05, DESK_TOP_Y, 0.34]}
-        rotation={[0, -0.5, 0]}
-        scale={DESK_PROP_SCALE}
-      />
+      <StudentDeskProps />
     </group>
   );
 }
@@ -816,6 +812,7 @@ export function RoomFurniture({
       <Shelves palette={palette} />
       <CabinetAccessories palette={palette} />
       <FloorAccessories palette={palette} />
+      <StudentRoomProps />
       <Curtain
         side="left"
         progress={curtainPull.left}

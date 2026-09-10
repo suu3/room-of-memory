@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     // 상태바가 씬 위로 투명하게 얹혀 화면을 더 쓴다
     statusBarStyle: "black-translucent",
   },
-  icons: { apple: "/icons/apple-touch-icon.png" },
+  icons: { apple: "/icons/apple-touch-icon.png?v=20260910" },
 };
 
 export const viewport: Viewport = {

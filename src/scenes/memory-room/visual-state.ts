@@ -2,9 +2,6 @@ import type { MemoryId } from "@/data/memory-room";
 
 type HighlightableStatus = "locked" | "available" | "done";
 
-/** 잠긴 기억의 불투명도. 있는 건 보이되 만질 수 없다는 게 한눈에 와야 한다. */
-const LOCKED_MEMORY_OPACITY = 0.45;
-
 /**
  * 밝기 램프의 양 끝. 실제 값은 `roomLightLevel`(0~1)로 두 끝을 보간해 얻는다.
  * 예전에는 수집 개수만 보고 단조 증가시켰는데, 기획의 V자 감정선
@@ -165,17 +162,6 @@ export function outsideDecay({ collected, memoryTotal, phase }: OutsideDecayInpu
   if (phase === 2) return 1;
   if (memoryTotal <= 0) return 1;
   return Math.min(1, Math.max(0, collected / memoryTotal));
-}
-
-/**
- * 잠긴 기억을 얼마나 흐리게 그릴지.
- *
- * 흐림은 "이 바퀴에 곧 열릴 물건"이라는 신호다. 그래서 **이 바퀴에 아예 없는**
- * 기억(1바퀴의 컴퓨터)에는 걸지 않는다. 걸면 켜지지도 않은 물건이 반투명하게
- * 떠서 열릴 차례를 기다리는 것처럼 보인다. 그건 그냥 책상 위 가구여야 한다.
- */
-export function memoryOpacity(status: HighlightableStatus, inThisRound: boolean): number {
-  return status === "locked" && inThisRound ? LOCKED_MEMORY_OPACITY : 1;
 }
 
 /** 클릭 가능한(=available) 기억은 플레이어가 가까이 있거나 마우스를 올렸을 때 빛난다. */
