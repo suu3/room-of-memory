@@ -37,7 +37,7 @@ export const viewport: Viewport = {
   // 씬의 줌(핀치 제스처를 캔버스가 직접 받는다)이 맡는다.
   maximumScale: 1,
   userScalable: false,
-  // 노치 아래까지 씬이 깔리게 한다 — HUD는 이미 안전 영역 안쪽에 있다
+  // 노치 아래까지 씬이 깔리게 한다. HUD는 이미 안전 영역 안쪽에 있다
   viewportFit: "cover",
 };
 

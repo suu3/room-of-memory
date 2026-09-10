@@ -17,7 +17,7 @@ import { ComputerBrowseMinigame } from "./index";
 /**
  * 부팅이 끝나고 로그인 화면이 뜰 때까지 시계를 돌린다.
  *
- * 한 번에 다 감을 수 없다 — 다음 타이머는 이번 타이머가 부른 상태 갱신의 effect가
+ * 한 번에 다 감을 수 없다. 다음 타이머는 이번 타이머가 부른 상태 갱신의 effect가
  * 걸어야 생긴다. act 한 번이 한 칸이라 줄 수만큼 돌린다.
  */
 function runBoot() {
@@ -31,7 +31,7 @@ function runBoot() {
 
 const passwordField = () => screen.getByLabelText("Password");
 
-/** 로그인 칸에 숫자를 넣는다 — 네 자리가 차면 화면이 알아서 검사한다. */
+/** 로그인 칸에 숫자를 넣는다. 네 자리가 차면 화면이 알아서 검사한다. */
 function typeCode(code: string) {
   fireEvent.change(passwordField(), { target: { value: code } });
 }
@@ -62,7 +62,7 @@ describe("ComputerBrowseMinigame", () => {
   it("로딩 → 로그인 화면 순으로 켜진다", () => {
     render(<ComputerBrowseMinigame onComplete={() => {}} />);
 
-    // 상태 줄이 하나씩 지나간다 — 처음에는 아직 아무 줄도 없다
+    // 상태 줄이 하나씩 지나간다. 처음에는 아직 아무 줄도 없다
     expect(screen.queryByText(i18n.t(BOOT_LINES[0]))).toBeNull();
     act(() => {
       vi.advanceTimersByTime(BOOT_LINE_MS + 20);
@@ -98,7 +98,7 @@ describe("ComputerBrowseMinigame", () => {
     typeCode("0000");
     expect(screen.getByText("Incorrect password")).toBeTruthy();
     expect(screen.queryByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeNull();
-    // 틀려도 닫히지 않는다 — 지워지고 다시 넣을 수 있다
+    // 틀려도 닫히지 않는다. 지워지고 다시 넣을 수 있다
     expect(onComplete).not.toHaveBeenCalled();
     clearWrong();
 
@@ -111,13 +111,13 @@ describe("ComputerBrowseMinigame", () => {
     runBoot();
 
     typeCode("08");
-    // 제출 버튼은 없어졌다(다 채우면 스스로 확인) — 못 채운 채 보내는 길은 Enter뿐이다
+    // 제출 버튼은 없어졌다(다 채우면 스스로 확인): 못 채운 채 보내는 길은 Enter뿐이다
     fireEvent.submit(screen.getByLabelText(/password/i).closest("form") as HTMLFormElement);
 
     expect(screen.getByText("Incorrect password")).toBeTruthy();
   });
 
-  it("여러 번 틀리면 비밀번호 없이도 열어준다 — 막다른 길이 아니다", () => {
+  it("여러 번 틀리면 비밀번호 없이도 열어준다. 막다른 길이 아니다", () => {
     render(<ComputerBrowseMinigame onComplete={() => {}} />);
     runBoot();
 
@@ -130,7 +130,7 @@ describe("ComputerBrowseMinigame", () => {
     expect(screen.getByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeTruthy();
   });
 
-  it("메일 두 통 뒤에 뉴스 셋 — 끝까지 넘겨 닫으면 한 번만 완료된다", () => {
+  it("메일 두 통 뒤에 뉴스 셋: 끝까지 넘겨 닫으면 한 번만 완료된다", () => {
     const results: MinigameResult[] = [];
     render(<ComputerBrowseMinigame onComplete={(result) => results.push(result)} />);
     runBoot();
@@ -159,10 +159,10 @@ describe("ComputerBrowseMinigame", () => {
     expect(results).toEqual([{ cleared: true }]);
   });
 
-  it("결과 대사 단계에서는 입력이 죽는다 — 닫는 버튼도 없다", () => {
+  it("결과 대사 단계에서는 입력이 죽는다. 닫는 버튼도 없다", () => {
     render(<ComputerBrowseMinigame stage="result" onComplete={() => {}} />);
 
-    // 부팅도 잠금도 돌지 않는다 — 다 읽은 화면이 그대로 멈춰 있다
+    // 부팅도 잠금도 돌지 않는다. 다 읽은 화면이 그대로 멈춰 있다
     fireEvent.keyDown(window, { code: "Space" });
     expect(screen.getByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Turn the computer off/ })).toBeNull();

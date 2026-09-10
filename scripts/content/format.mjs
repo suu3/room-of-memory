@@ -16,7 +16,7 @@ function biomeWorkspace() {
   if (workspace) return workspace;
 
   const raw = JSON.parse(readFileSync(path.join(REPO_ROOT, "biome.json"), "utf8"));
-  // $schema는 편집기용 힌트, vcs는 파일 시스템 전제 — WASM 워크스페이스는 둘 다 모른다
+  // $schema는 편집기용 힌트, vcs는 파일 시스템 전제: WASM 워크스페이스는 둘 다 모른다
   const { $schema: _schema, vcs: _vcs, ...configuration } = raw;
 
   const biome = new Biome();

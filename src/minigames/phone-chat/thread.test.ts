@@ -22,7 +22,7 @@ describe("phone-chat thread", () => {
   });
 
   it("shows the oldest messages first and keeps them in time order", () => {
-    // 처음엔 첫 줄만 보인다 — 대화의 첫머리에서 출발한다
+    // 처음엔 첫 줄만 보인다. 대화의 첫머리에서 출발한다
     expect(visibleMessages(1)).toEqual([GROUP_CHAT[0]]);
     // 내려갈수록 뒤쪽(최신) 메시지가 아래에 붙는다
     const three = visibleMessages(3);
@@ -61,8 +61,8 @@ describe("phone-chat thread", () => {
     }
   });
 
-  it("splits into a lively past and an unread-2 silence — nothing in between", () => {
-    // 살아 있는 구간(안읽음 없음) 뒤로는 도해 혼자, 전부 안읽음 2 — 이 대비가 연출의 전부다
+  it("splits into a lively past and an unread-2 silence: nothing in between", () => {
+    // 살아 있는 구간(안읽음 없음) 뒤로는 도해 혼자, 전부 안읽음 2: 이 대비가 연출의 전부다
     const firstUnread = GROUP_CHAT.findIndex((message) => message.unread !== undefined);
     expect(firstUnread).toBeGreaterThan(0);
     const lively = GROUP_CHAT.slice(0, firstUnread);
@@ -73,7 +73,7 @@ describe("phone-chat thread", () => {
     }
     for (const message of GROUP_CHAT.slice(firstUnread)) {
       expect(message.side).toBe("me");
-      // 셋이 쓰는 방이라 안읽음 최대치가 2 — 이 값이 "둘 다 읽지 않았다"를 말한다
+      // 셋이 쓰는 방이라 안읽음 최대치가 2: 이 값이 "둘 다 읽지 않았다"를 말한다
       expect(message.unread).toBe(2);
     }
   });

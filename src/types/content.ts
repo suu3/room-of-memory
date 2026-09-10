@@ -1,5 +1,5 @@
 /**
- * 저작 콘텐츠(content/*.yaml)의 타입 — 어드민과 콘텐츠 파이프라인이 공유한다.
+ * 저작 콘텐츠(content/*.yaml)의 타입: 어드민과 콘텐츠 파이프라인이 공유한다.
  *
  * 게임이 실제로 읽는 것은 이걸 생성한 결과(src/data/generated/content.ts + i18n
  * 리소스)다. 여기 타입은 "사람이 쓰는 형태"를 가리킨다.
@@ -13,7 +13,7 @@ export type ContentLocale = (typeof CONTENT_LOCALES)[number];
 /** ko/en/ja가 전부 채워진 텍스트 한 덩어리. */
 export type LocalizedText = Record<ContentLocale, string>;
 
-/** 대사 한 줄 — 본문이 줄 안에 같이 있다는 점만 런타임 타입과 다르다. */
+/** 대사 한 줄: 본문이 줄 안에 같이 있다는 점만 런타임 타입과 다르다. */
 export interface ContentLine extends LocalizedText {
   speaker: string;
   expression?: CharacterExpression;
@@ -32,7 +32,7 @@ export interface ContentPhase {
   replayStill?: string;
 }
 
-/** 수첩에 남는 기록. 페이즈와 1:1 — 있는 바퀴의 기록만 쓴다. */
+/** 수첩에 남는 기록. 페이즈와 1:1: 있는 바퀴의 기록만 쓴다. */
 export interface ContentLore {
   title: LocalizedText;
   phase1?: LocalizedText;
@@ -69,7 +69,7 @@ export interface GameContent {
   stages: Record<string, ContentStage>;
 }
 
-/** 어드민이 편집할 때 참고하는 선택지 목록 — 서버가 스키마에서 뽑아 내려준다. */
+/** 어드민이 편집할 때 참고하는 선택지 목록: 서버가 스키마에서 뽑아 내려준다. */
 export interface ContentOptions {
   icons: string[];
   speakers: string[];

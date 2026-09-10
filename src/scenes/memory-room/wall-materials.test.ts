@@ -33,7 +33,7 @@ describe("wall materials", () => {
   });
 
   it("fades a mesh that arrives after the wall was already faded", () => {
-    // Suspense로 들어오는 glb가 이 경우다 — 마운트 시점 재질만 들고 있으면
+    // Suspense로 들어오는 glb가 이 경우다. 마운트 시점 재질만 들고 있으면
     // 벽이 걷힌 자리에 소품만 그대로 떠 있는다.
     const wall = new Group();
     wall.add(wallMesh());

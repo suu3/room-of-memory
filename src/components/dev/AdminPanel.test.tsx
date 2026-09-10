@@ -58,11 +58,11 @@ describe("AdminPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "거실" }));
 
-    // 몸의 자리는 스토어에 없다 — 패널은 "여기로 가라"는 신호만 남기고 Player가 옮긴다.
+    // 몸의 자리는 스토어에 없다. 패널은 "여기로 가라"는 신호만 남기고 Player가 옮긴다.
     expect(useMemoryRoomStore.getState().warpTarget).toEqual(ADMIN_SPAWNS.living);
     // 문이 닫혀 있으면 걷기 범위가 방뿐이라 거실에 떨어뜨려도 한 발짝을 못 간다.
     expect(useMemoryRoomStore.getState().doorOpened).toBe(true);
-    // 타이틀에서 눌러도 바로 그 자리에 서 있어야 한다 — 안 그러면 이어하기를 또 눌러야 한다.
+    // 타이틀에서 눌러도 바로 그 자리에 서 있어야 한다. 안 그러면 이어하기를 또 눌러야 한다.
     expect(useMemoryRoomStore.getState().started).toBe(true);
 
     fireEvent.click(screen.getByRole("button", { name: "방" }));
@@ -100,7 +100,7 @@ describe("AdminPanel", () => {
 
     /*
      * 엔딩은 배트를 쥔 뒤에만 붙고(sanitizeProgress), 배트는 앰플을 되찾아야
-     * 쥐어진다 — 먼저 진행을 채워 둔다. 앰플은 1차가 없는 기억이라 한 번 누르면
+     * 쥐어진다. 먼저 진행을 채워 둔다. 앰플은 1차가 없는 기억이라 한 번 누르면
      * 곧장 2차(revisited)다 (admin-progress의 stagesOf).
      */
     const all = ["console", "window", "frame", "radio", "phone", "calendar", "ball"] as const;

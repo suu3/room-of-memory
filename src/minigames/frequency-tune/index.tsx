@@ -20,13 +20,13 @@ import {
 
 const SKIP_AFTER_MS = 30_000;
 const SKIP_AFTER_MISSES = 3;
-/** 다이얼 눈금 범위 (MHz) — position 0~100% 를 이 범위로 매핑. */
+/** 다이얼 눈금 범위 (MHz): position 0~100% 를 이 범위로 매핑. */
 const FREQ_MIN = 88;
 const FREQ_MAX = 108;
 
 /** 라디오 일러스트 원본 크기(px). */
 const FRAME = { width: 1598, height: 1174 };
-/** 그 안에서 알파로 뚫려 있는 표시창(px) — 이미지에서 실측한 값. */
+/** 그 안에서 알파로 뚫려 있는 표시창(px): 이미지에서 실측한 값. */
 const GLASS = { x: 66, y: 85, width: 1470, height: 416 };
 /**
  * 표시창 바탕을 프레임 뒤로 물려 그리는 여유(px, 원본 기준).
@@ -56,7 +56,7 @@ function freqAt(position: number): string {
 const LOCKED_STATIC = { floor: 0.09, spike: 0.32, everyMs: 220 };
 
 /**
- * 좌우로 흔들리는 바늘이 목표 대역을 지나는 순간 Space — 5회 맞추면 클리어.
+ * 좌우로 흔들리는 바늘이 목표 대역을 지나는 순간 Space: 5회 맞추면 클리어.
  * 맞출수록 대역이 좁아지고 바늘이 빨라진다 (./difficulty.ts).
  */
 export function FrequencyTuneMinigame({
@@ -67,7 +67,7 @@ export function FrequencyTuneMinigame({
   const { t } = useTranslation();
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
-  // 2바퀴는 판이 짧고 대역이 넓다 — 이유는 ./difficulty.ts 참고
+  // 2바퀴는 판이 짧고 대역이 넓다. 이유는 ./difficulty.ts 참고
   const goalHits = goalHitsFor(gamePhase);
   const bandBonus = bandBonusFor(gamePhase);
   const [hits, setHits] = useState(0);
@@ -75,11 +75,11 @@ export function FrequencyTuneMinigame({
   const [bandLeft, setBandLeft] = useState(() => randomBandLeft(bandWidthAt(0, bandBonus)));
   const [flash, setFlash] = useState<"hit" | "miss" | null>(null);
   /**
-   * 결과 대사 단계 — 판은 끝났고 화면만 남았다. 여기서는 바늘도 입력도 멈추고
+   * 결과 대사 단계: 판은 끝났고 화면만 남았다. 여기서는 바늘도 입력도 멈추고
    * 주파수가 잡힌 라디오 한 대만 치지직거린다 (src/types/minigame.ts의 stage).
    */
   const locked = stage === "result";
-  /** 마지막으로 맞춘 지점과 그때의 대역 — 멈춘 화면은 이 한 장면을 그대로 붙든다. */
+  /** 마지막으로 맞춘 지점과 그때의 대역: 멈춘 화면은 이 한 장면을 그대로 붙든다. */
   const lockedAtRef = useRef<{ position: number; bandLeft: number; bandWidth: number } | null>(
     null,
   );
@@ -108,12 +108,12 @@ export function FrequencyTuneMinigame({
   /**
    * 계속 깔리는 라디오 잡음. 판이 열려 있는 동안만 살아 있다.
    *
-   * 이건 Voice로 못 만든다 — Voice는 0.6초를 넘지 않는다는 계약이 걸려 있어서
+   * 이건 Voice로 못 만든다. Voice는 0.6초를 넘지 않는다는 계약이 걸려 있어서
    * 지속음은 별도 노드로 간다 (src/lib/audio/engine.ts의 startNoiseBed).
    */
   const bedRef = useRef<NoiseBed | null>(null);
   useEffect(() => {
-    // 계속 깔리는 소리는 한 번 튀는 소리와 같은 값이어도 훨씬 크게 들린다 —
+    // 계속 깔리는 소리는 한 번 튀는 소리와 같은 값이어도 훨씬 크게 들린다.
     // 효과음 게인(0.15~0.34)보다 한참 아래로 내려야 배경으로 남는다.
     bedRef.current = startNoiseBed({ gain: 0.06, highpass: 1200, lowpass: 7000 });
     return () => {
@@ -122,7 +122,7 @@ export function FrequencyTuneMinigame({
     };
   }, []);
 
-  /** 이번 판의 목표 대역 폭 — 명중할수록 좁아진다. */
+  /** 이번 판의 목표 대역 폭: 명중할수록 좁아진다. */
   const bandWidth = bandWidthAt(hits, bandBonus);
 
   // 대역과 속도는 명중할 때마다 바뀐다. rAF 루프는 한 번만 도므로 최신 값을 ref로 받는다.
@@ -133,12 +133,12 @@ export function FrequencyTuneMinigame({
   const periodRef = useRef(needlePeriodAt(hits));
   periodRef.current = needlePeriodAt(hits);
 
-  // 바늘 애니메이션 — setState 대신 ref 직접 변이 (60fps)
+  // 바늘 애니메이션: setState 대신 ref 직접 변이 (60fps)
   useEffect(() => {
     if (locked) return;
     let frame = 0;
     let last = performance.now();
-    // 경과 시간이 아니라 위상을 누적한다 — 주기가 바뀌는 순간 바늘이 순간이동하지 않게.
+    // 경과 시간이 아니라 위상을 누적한다. 주기가 바뀌는 순간 바늘이 순간이동하지 않게.
     let phase = 0;
     const loop = (now: number) => {
       phase = (phase + (now - last) / periodRef.current) % 1;
@@ -148,10 +148,10 @@ export function FrequencyTuneMinigame({
       if (needleRef.current) needleRef.current.style.left = `${position}%`;
       if (pointerRef.current) pointerRef.current.style.left = `${position}%`;
       if (readoutRef.current) readoutRef.current.textContent = freqAt(position);
-      // setState 없이 게인만 민다 — 매 프레임 리렌더가 나면 60fps가 안 나온다.
+      // setState 없이 게인만 민다. 매 프레임 리렌더가 나면 60fps가 안 나온다.
       const level = staticLevel(position, bandLeftRef.current, bandWidthRef.current);
       bedRef.current?.setLevel(level);
-      // 잡음이 걷히는 만큼 TUNING 램프가 밝아진다 — 소리와 같은 값을 눈으로도 준다.
+      // 잡음이 걷히는 만큼 TUNING 램프가 밝아진다. 소리와 같은 값을 눈으로도 준다.
       if (lampRef.current) lampRef.current.style.opacity = (1 - level).toFixed(3);
       frame = requestAnimationFrame(loop);
     };
@@ -160,7 +160,7 @@ export function FrequencyTuneMinigame({
   }, [locked]);
 
   /**
-   * 멈춘 화면. 바늘은 맞춘 자리에 서고, 잡음만 남아 불규칙하게 튄다 —
+   * 멈춘 화면. 바늘은 맞춘 자리에 서고, 잡음만 남아 불규칙하게 튄다.
    * 주파수는 잡혔지만 방송이 깨끗하지는 않다는 소리.
    *
    * 바늘이 멈춘 뒤에는 rAF가 없으므로 게인을 밀어 줄 곳도 여기뿐이다.
@@ -191,12 +191,12 @@ export function FrequencyTuneMinigame({
       const next = hits + 1;
       setHits(next);
       if (next >= goalHits) {
-        // 마지막 판은 대역을 다시 뽑지 않는다 — 멈춘 화면에서 바늘과 대역이 어긋난다.
+        // 마지막 판은 대역을 다시 뽑지 않는다. 멈춘 화면에서 바늘과 대역이 어긋난다.
         lockedAtRef.current = { position, bandLeft, bandWidth };
         complete({ cleared: true, score: next });
         return;
       }
-      // 다음 대역은 좁아진 폭 기준으로 놓는다 — 넓은 폭으로 뽑으면 다이얼 끝에 걸린다.
+      // 다음 대역은 좁아진 폭 기준으로 놓는다. 넓은 폭으로 뽑으면 다이얼 끝에 걸린다.
       setBandLeft(randomBandLeft(bandWidthAt(next, bandBonus)));
       return;
     }
@@ -205,7 +205,7 @@ export function FrequencyTuneMinigame({
     if (next >= MAX_MISSES) complete({ cleared: false, score: hits });
   };
 
-  // 멈춘 화면에서는 Space를 먹지 않는다 — 그 키는 이제 대사를 넘기는 키다.
+  // 멈춘 화면에서는 Space를 먹지 않는다. 그 키는 이제 대사를 넘기는 키다.
   useEffect(() => {
     if (locked) return;
     const onKey = (event: KeyboardEvent) => {
@@ -223,19 +223,19 @@ export function FrequencyTuneMinigame({
     return () => clearTimeout(timer);
   }, [flash]);
 
-  // 멈춘 화면의 대역은 마지막 판의 것 그대로 — 판이 끝나며 좁아진 폭을 쓰면 바늘이 밖으로 밀린다.
+  // 멈춘 화면의 대역은 마지막 판의 것 그대로: 판이 끝나며 좁아진 폭을 쓰면 바늘이 밖으로 밀린다.
   const shownBand = (locked && lockedAtRef.current) || { bandLeft, bandWidth };
 
   /*
    * 라디오 한 대. 플레이 중에는 이게 통째로 버튼이고, 결과 대사 단계에서는
-   * 같은 그림이 멈춘 채 배경으로만 남는다 — 그림은 하나로 두고 껍데기만 바꾼다.
+   * 같은 그림이 멈춘 채 배경으로만 남는다. 그림은 하나로 두고 껍데기만 바꾼다.
    */
   const face = (
     <>
-      {/* 표시창 바탕 — 프레임 뒤로 물려 깐다 (둥근 모서리 틈 방지) */}
+      {/* 표시창 바탕: 프레임 뒤로 물려 깐다 (둥근 모서리 틈 방지) */}
       <span aria-hidden className="absolute rounded-md bg-paper" style={glassInset(GLASS_BLEED)} />
 
-      {/* 표시창 안쪽 — 여기 있는 건 전부 창 좌표계(0~100%) */}
+      {/* 표시창 안쪽: 여기 있는 건 전부 창 좌표계(0~100%) */}
       <span aria-hidden className="@container absolute block overflow-hidden" style={glassInset()}>
         {/* 명중·실패 순간의 유리 물들임 */}
         <span
@@ -248,7 +248,7 @@ export function FrequencyTuneMinigame({
           }`}
         />
 
-        {/* 주파수 표시 + 성공 진행 별 (멈춘 화면에서는 별을 뺀다 — 게임이 아니라 라디오다) */}
+        {/* 주파수 표시 + 성공 진행 별 (멈춘 화면에서는 별을 뺀다. 게임이 아니라 라디오다) */}
         <span className="absolute inset-x-[4%] top-[3%] flex items-baseline justify-between">
           <span className="flex items-baseline gap-[1.5cqw]">
             <span
@@ -276,9 +276,9 @@ export function FrequencyTuneMinigame({
           )}
         </span>
 
-        {/* 다이얼 트랙 — 바늘이 끝까지 가도 잘리지 않게 좌우를 띄운다 */}
+        {/* 다이얼 트랙: 바늘이 끝까지 가도 잘리지 않게 좌우를 띄운다 */}
         <span className="absolute inset-y-0 inset-x-[4%] block">
-          {/* 목표 대역 — 멈춘 화면에서는 "여기에 맞춰졌다"는 표시로 남는다 */}
+          {/* 목표 대역: 멈춘 화면에서는 "여기에 맞춰졌다"는 표시로 남는다 */}
           <span
             className="absolute top-[38%] h-[36%] rounded-xs border border-memory bg-memory/25 transition-all duration-300"
             style={{ left: `${shownBand.bandLeft}%`, width: `${shownBand.bandWidth}%` }}
@@ -335,7 +335,7 @@ export function FrequencyTuneMinigame({
         )}
       </span>
 
-      {/* 라디오 본체 — 바깥 배경과 표시창이 뚫려 있어 위에 얹으면 창 안에 든 것처럼 보인다 */}
+      {/* 라디오 본체: 바깥 배경과 표시창이 뚫려 있어 위에 얹으면 창 안에 든 것처럼 보인다 */}
       {/* biome-ignore lint/performance/noImgElement: 표시창을 정확히 덮어야 해서 원본 비율 그대로 쓴다. */}
       <img
         src={ASSETS.images.mgFrequencyTuneFrame}
@@ -346,7 +346,7 @@ export function FrequencyTuneMinigame({
         className="relative z-10 block h-auto w-full select-none"
       />
 
-      {/* TUNING 램프 — 프레임에 그려진 빨간 점 위에 얹는 빛 */}
+      {/* TUNING 램프: 프레임에 그려진 빨간 점 위에 얹는 빛 */}
       <span
         ref={lampRef}
         aria-hidden
@@ -397,13 +397,13 @@ export function FrequencyTuneMinigame({
       }
       skipVisible={skipByTime || misses >= SKIP_AFTER_MISSES}
       onSkip={() => {
-        // 스킵도 "맞춘 것"으로 친다 — 멈춘 화면의 바늘은 대역 한가운데 세운다.
+        // 스킵도 "맞춘 것"으로 친다. 멈춘 화면의 바늘은 대역 한가운데 세운다.
         lockedAtRef.current = { position: bandLeft + bandWidth / 2, bandLeft, bandWidth };
         complete({ cleared: true, score: hits });
       }}
     >
       {/*
-       * 폭은 화면 높이에서도 잘라준다 — 오버레이는 스크롤되지 않아서(MinigameHost),
+       * 폭은 화면 높이에서도 잘라준다. 오버레이는 스크롤되지 않아서(MinigameHost),
        * 세로가 짧으면 라디오 아래가 잘린다.
        */}
       <button

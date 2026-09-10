@@ -2,14 +2,14 @@
 
 import { ASSETS } from "@/lib/assets";
 
-/** 진행 막대의 칸 수. 퍼센트를 칸으로 옮겨 찍는다 — 가는 선보다 픽셀 화면의 문법에 맞다. */
+/** 진행 막대의 칸 수. 퍼센트를 칸으로 옮겨 찍는다. 가는 선보다 픽셀 화면의 문법에 맞다. */
 const SEGMENTS = 8;
 
 /**
  * 로딩 애니메이션 + 분절 진행 막대 + 한 줄 안내.
  *
  * 달리는 도해(gif) 아래에 앰버 칸이 왼쪽부터 찬다. 퍼센트를 모르면(percent 없음) 칸을
- * 다 비운 채 한 칸 폭의 빛이 왕복한다. 숫자는 안내 문구 안에 같이 실린다 —
+ * 다 비운 채 한 칸 폭의 빛이 왕복한다. 숫자는 안내 문구 안에 같이 실린다.
  * 막대는 감각, 숫자는 확인.
  */
 export function LoadingIndicator({ label, percent }: { label: string; percent?: number }) {

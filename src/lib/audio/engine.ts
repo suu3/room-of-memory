@@ -3,7 +3,7 @@
 import { transposeVoice, VOICES, type Voice, type VoiceId, voiceDuration } from "./voices";
 
 /**
- * Web Audio로 효과음을 합성해 재생한다. 기본적으로 오디오 파일이 없다 — voices.ts의
+ * Web Audio로 효과음을 합성해 재생한다. 기본적으로 오디오 파일이 없다. voices.ts의
  * 악보를 그때그때 오실레이터로 만든다. 파일이 등록된 보이스만 파일이 이긴다
  * (samples.ts 참고).
  *
@@ -104,12 +104,12 @@ function scheduleVoice(ctx: AudioContext, output: GainNode, voice: Voice, startA
 export interface PlayOptions {
   /**
    * 음높이를 매번 이 비율만큼 무작위로 흔든다 (0.08이면 ±8%). 같은 소리가 연달아
-   * 나는 자리에서만 쓴다 — 버튼처럼 한 번씩 울리는 소리는 흔들면 고장난 것처럼 들린다.
+   * 나는 자리에서만 쓴다. 버튼처럼 한 번씩 울리는 소리는 흔들면 고장난 것처럼 들린다.
    */
   variation?: number;
 }
 
-/** 등록된 파일 샘플. 비어 있으면(기본) 전부 합성으로 간다 — samples.ts 참고. */
+/** 등록된 파일 샘플. 비어 있으면(기본) 전부 합성으로 간다. samples.ts 참고. */
 const samples = new Map<VoiceId, AudioBuffer>();
 
 /** samples.ts가 디코드를 끝낸 버퍼를 꽂아 넣는 통로. */
@@ -153,7 +153,7 @@ export function playSound(id: VoiceId, options: PlayOptions = {}) {
 
 /**
  * 계속 깔리는 노이즈 층. 라디오 잡음처럼 "한 번 울리고 끝"이 아닌 소리는 Voice로
- * 못 만든다 — Voice는 0.6초를 넘지 않는다는 계약이 걸려 있다(voices.test.ts).
+ * 못 만든다. Voice는 0.6초를 넘지 않는다는 계약이 걸려 있다(voices.test.ts).
  *
  * 필터드 화이트노이즈가 곧 정적이라, 이건 파일보다 합성이 유리한 몇 안 되는 소리다.
  * 파일이면 루프 이음새를 감춰야 하지만 노이즈는 애초에 이음새가 없다.
@@ -165,7 +165,7 @@ export interface NoiseBed {
 }
 
 export interface NoiseBedOptions {
-  /** level 1에서의 음량. 효과음보다 낮게 — 계속 들리는 소리라 금방 피곤해진다. */
+  /** level 1에서의 음량. 효과음보다 낮게: 계속 들리는 소리라 금방 피곤해진다. */
   gain: number;
   highpass: number;
   lowpass: number;
@@ -244,7 +244,7 @@ export function audioGraph(): { context: AudioContext; master: GainNode } | null
   return { context: ctx, master };
 }
 
-/** 첫 사용자 제스처에서 부른다 — 이후 재생이 정책에 막히지 않는다. */
+/** 첫 사용자 제스처에서 부른다. 이후 재생이 정책에 막히지 않는다. */
 export function unlockAudio() {
   const ctx = ensureContext();
   if (ctx?.state === "suspended") void ctx.resume();
@@ -266,7 +266,7 @@ export function setAudioVolume(next: number) {
 
 /** 테스트·핫리로드에서 상태를 되돌리기 위한 탈출구. */
 export function disposeAudio() {
-  // 컨텍스트를 닫기 전에 돌고 있는 소스를 끊는다 — 닫힌 컨텍스트에서는 stop이 던진다.
+  // 컨텍스트를 닫기 전에 돌고 있는 소스를 끊는다. 닫힌 컨텍스트에서는 stop이 던진다.
   for (const bed of [...activeBeds]) bed.stop();
   activeBeds.clear();
   void context?.close();

@@ -16,7 +16,7 @@ export function PhotoFrame({ children }: { children: React.ReactNode }) {
     // max-w-full이 없으면 사진 원본 폭(최대 620px)이 그대로 액자 폭이 되어
     // 좁은 화면에서 패널 밖으로 삐져나간다.
     <div className="relative mx-auto w-fit max-w-full rounded-md bg-scene-olive p-3.5 shadow-panel ring-1 ring-night/70">
-      {/* 몰딩 안쪽 그늘 — 나무 두께가 보이는 선 */}
+      {/* 몰딩 안쪽 그늘: 나무 두께가 보이는 선 */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-1.5 rounded-sm ring-1 ring-night/35"
@@ -26,7 +26,7 @@ export function PhotoFrame({ children }: { children: React.ReactNode }) {
         {/* 매트 */}
         <div className="bg-bone p-2.5">
           {/*
-            사진이 앉는 자리. 바탕을 깔아 두는 게 중요하다 — 비워 두면 사진이
+            사진이 앉는 자리. 바탕을 깔아 두는 게 중요하다. 비워 두면 사진이
             붙기 전까지 액자 한가운데가 투명한 구멍이 되어 뒤의 방이 그대로
             비치고, 그림이 뒤늦게 툭 채워지면서 깜빡인 것처럼 보인다.
           */}

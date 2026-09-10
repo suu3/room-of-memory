@@ -7,12 +7,12 @@
  * 닿는다. 그 정적 위에 전환 컷씬이 서고, 2바퀴는 **다른 따뜻한 곡**이 같은
  * 곡선을 거꾸로 타고 올라온다 (docs/content-design.md 8장).
  *
- * 곡을 가르는 이유는 컷씬의 정적이 사이에 있기 때문이다 — 같은 선율이 다시
+ * 곡을 가르는 이유는 컷씬의 정적이 사이에 있기 때문이다. 같은 선율이 다시
  * 흐르면 "돌아왔다"가 되지만, 여기서 필요한 건 회복이 아니라 다른 데서 온
  * 온기라서 곡 자체가 바뀌는 편이 맞다. 곡 하나가 열화됐다 복원되는 예전 방식은
  * 정적을 건너뛰고 이어질 때만 값을 했다.
  *
- * 파일 자체는 절대 손대지 않는다 — 여기 있는 값은 전부 재생 시점 이펙트다.
+ * 파일 자체는 절대 손대지 않는다. 여기 있는 값은 전부 재생 시점 이펙트다.
  */
 
 /**
@@ -54,11 +54,11 @@ export function musicCutoff(level: number): number {
  * 바닥 근처에서 곡을 마저 재우는 구간의 폭.
  *
  * 밝기 이 값 아래로는 볼륨이 급히 빠져 거의 정적에 닿는다. 1바퀴 마지막 관문
- * (라디오) 직전이 이 구간이다 — 여섯 개를 조사한 시점의 밝기가 0.09쯤이라
+ * (라디오) 직전이 이 구간이다. 여섯 개를 조사한 시점의 밝기가 0.09쯤이라
  * 그 자리에서 곡이 거의 들리지 않아야 재난방송의 정적이 산다.
  *
  * 구간 밖(0.25 위)은 손대지 않는다. 예전에 전 구간을 낮췄더니 배경으로도
- * 안 들렸다 — 조용해야 하는 건 바닥이지 중반이 아니다.
+ * 안 들렸다. 조용해야 하는 건 바닥이지 중반이 아니다.
  */
 const HUSH_BAND = 0.25;
 /** 바닥에서 남기는 음량 비율. 0으로 두면 곡이 사라진 건지 꺼진 건지 모른다. */
@@ -68,7 +68,7 @@ const HUSH_FLOOR = 0.12;
  * 밝기(0~1) → BGM 음량.
  *
  * 중반까지는 완만하게 빠지다가 바닥 근처(HUSH_BAND)에서 급히 재워진다.
- * 완전히 0이 되지는 않는다 — 그건 덕킹과 컷씬 정지가 할 일이다.
+ * 완전히 0이 되지는 않는다. 그건 덕킹과 컷씬 정지가 할 일이다.
  */
 export function musicVolume(level: number): number {
   const clamped = clamp01(level);
@@ -81,7 +81,7 @@ export function musicVolume(level: number): number {
  * 밝기(0~1) → 리버브에 보내는 비율(0~1).
  *
  * 어두울수록 젖는다. 컷오프가 "벽 너머로 들린다"를 만든다면 이쪽은 "멀어진다"를
- * 만든다 — 둘을 같이 걸어야 곡이 작아지는 게 아니라 물러나는 것으로 들린다.
+ * 만든다. 둘을 같이 걸어야 곡이 작아지는 게 아니라 물러나는 것으로 들린다.
  * 밝을 때도 완전히 마르지는 않는다: 방 안에서 나는 소리라 잔향이 조금은 있다.
  */
 export function musicReverb(level: number): number {
@@ -106,7 +106,7 @@ export function foldLoopTail(source: Float32Array, fade: number): Float32Array<A
   const length = source.length - width;
   const folded = Float32Array.from(source.subarray(0, length));
   for (let index = 0; index < width; index += 1) {
-    // 등출력(equal-power) 곡선 — 선형으로 섞으면 겹치는 구간의 음량이 파인다.
+    // 등출력(equal-power) 곡선: 선형으로 섞으면 겹치는 구간의 음량이 파인다.
     const angle = ((index / width) * Math.PI) / 2;
     folded[index] = folded[index] * Math.sin(angle) + source[length + index] * Math.cos(angle);
   }

@@ -10,7 +10,7 @@ import { HUD_ICON_BUTTON } from "./ui-classes";
  * 소리 on/off. HUD 메뉴 안에 있던 걸 밖으로 꺼냈다.
  *
  * 메뉴의 다른 항목(언어·캐릭터 시트·연락처·리셋)은 한 번 정하거나 드물게 쓰는 것들인데
- * 소리만 성격이 다르다 — 옆에 사람이 오면 급하게, 그리고 반복해서 누른다. 게다가 이
+ * 소리만 성격이 다르다. 옆에 사람이 오면 급하게, 그리고 반복해서 누른다. 게다가 이
  * 게임은 "시작하기"를 누르는 순간 BGM과 효과음이 같이 켜져서, 끄고 싶은 첫 순간이 곧
  * 플레이 첫 순간이다. 그때 화면에 오디오 단서가 하나도 없으면 안 된다.
  *
@@ -29,7 +29,7 @@ export function SoundToggle() {
       aria-label={label}
       title={label}
       onClick={() => {
-        // 켤 때만 소리를 낸다 — 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다
+        // 켤 때만 소리를 낸다. 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다
         if (soundMuted) playSound("select");
         setSoundMuted(!soundMuted);
       }}

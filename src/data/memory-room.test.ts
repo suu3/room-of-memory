@@ -16,7 +16,7 @@ import {
 } from "./memory-room";
 
 /**
- * 기억이 나르면 안 되는 미궁 문제들 — 지금은 현관 잠금(angle-turn) 하나다.
+ * 기억이 나르면 안 되는 미궁 문제들: 지금은 현관 잠금(angle-turn) 하나다.
  * 규칙이 화면에 없고 단서가 방에 흩어져 있다 (src/data/room-clues.ts의 RULE_CLUES).
  */
 const MAZE_MINIGAMES: readonly string[] = [...PUZZLE_IDS];
@@ -43,7 +43,7 @@ describe("시나리오 데이터 정합성", () => {
     expect(missing).toEqual([]);
   });
 
-  it("모든 화자에게 이름이 있다 — 얼굴이 없는 화자도 이름은 뜬다", () => {
+  it("모든 화자에게 이름이 있다. 얼굴이 없는 화자도 이름은 뜬다", () => {
     const missing = [...new Set(ALL_LINES.map((line) => line.speaker))].filter(
       (speaker) => !hasKey(`characters.${speaker}.name`),
     );
@@ -73,7 +73,7 @@ describe("시나리오 데이터 정합성", () => {
     expect(ids.filter((id) => !(id in SCRIPTS))).toEqual([]);
   });
 
-  it("등록된 스크립트는 모두 쓰인다 — 죽은 대사가 남지 않는다", () => {
+  it("등록된 스크립트는 모두 쓰인다. 죽은 대사가 남지 않는다", () => {
     const used = new Set(
       MEMORIES.flatMap((memory) =>
         [memory.phase1, memory.phase2].flatMap((config) =>
@@ -105,7 +105,7 @@ describe("다시보기", () => {
       .map((gamePhase) => ({ id: memory.id, gamePhase })),
   );
 
-  it("모든 기억이 되짚을 대사를 갖는다 — 대사가 없으면 기록으로 대신한다", () => {
+  it("모든 기억이 되짚을 대사를 갖는다. 대사가 없으면 기록으로 대신한다", () => {
     for (const { id, gamePhase } of REPLAYABLE) {
       const playback = buildMemoryReplay(id, gamePhase);
       expect(playback, `${id} phase${gamePhase}`).not.toBeNull();
@@ -113,7 +113,7 @@ describe("다시보기", () => {
     }
   });
 
-  it("되짚는 대사의 textKey가 전부 ko 리소스에 있다 — 기록으로 대신한 것도", () => {
+  it("되짚는 대사의 textKey가 전부 ko 리소스에 있다. 기록으로 대신한 것도", () => {
     const missing = REPLAYABLE.flatMap(({ id, gamePhase }) =>
       (buildMemoryReplay(id, gamePhase)?.cuts[0].lines ?? [])
         .map((line) => line.textKey)
@@ -123,7 +123,7 @@ describe("다시보기", () => {
     expect(missing).toEqual([]);
   });
 
-  it("미니게임을 끌고 오지 않는다 — 되짚기는 재도전이 아니다", () => {
+  it("미니게임을 끌고 오지 않는다. 되짚기는 재도전이 아니다", () => {
     for (const { id, gamePhase } of REPLAYABLE) {
       expect(buildMemoryReplay(id, gamePhase)?.kind).toBe("replay");
       expect(buildMemoryReplay(id, gamePhase)?.intro).toBe(false);
@@ -145,7 +145,7 @@ describe("다시보기", () => {
 });
 
 describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
-  it("라디오는 1바퀴의 나머지 전부를 기다린다 — 재난방송이 마지막에 온다", () => {
+  it("라디오는 1바퀴의 나머지 전부를 기다린다. 재난방송이 마지막에 온다", () => {
     const prerequisites = MEMORY_BY_ID.radio.phase1?.unlockAfter ?? [];
 
     expect([...prerequisites].sort()).toEqual(
@@ -155,7 +155,7 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     );
   });
 
-  it("바퀴마다 모으는 목록이 다르다 — 진행 표시가 못 채울 칸을 세지 않는다", () => {
+  it("바퀴마다 모으는 목록이 다르다. 진행 표시가 못 채울 칸을 세지 않는다", () => {
     const round1 = memoriesForPhase(1).map((memory) => memory.id);
     const round2 = memoriesForPhase(2).map((memory) => memory.id);
 
@@ -169,7 +169,7 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     expect(round2).toEqual(MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id));
   });
 
-  it("1막에 없는 기억은 컴퓨터와 거실 물건들이다 — 2막에 처음 열린다", () => {
+  it("1막에 없는 기억은 컴퓨터와 거실 물건들이다. 2막에 처음 열린다", () => {
     const phase2Only = MEMORIES.filter((memory) => !memory.phase1).map((memory) => memory.id);
 
     expect(phase2Only.sort()).toEqual([
@@ -186,7 +186,7 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     }
   });
 
-  it("현관 잠금은 기억이 나르지 않는다 — 문에 붙은 문제다", () => {
+  it("현관 잠금은 기억이 나르지 않는다. 문에 붙은 문제다", () => {
     /*
      * angle-turn은 거실 끝 현관 잠금장치에 붙는다 (docs/content-design.md 3-2,
      * 스토어의 openPuzzle). 기억 쪽에 다시 붙으면 같은 문제가 두 입구를 갖는다.
@@ -217,14 +217,14 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     for (const id of ["console", "computer", "fridge", "duffel"] as MemoryId[]) {
       expect(MEMORY_BY_ID[id].phase2?.unlockAfter).toEqual(["radio"]);
     }
-    // 폰은 컴퓨터의 여행 메일까지 기다린다 — 엄마 문자가 그 사실을 받아 쓴다
+    // 폰은 컴퓨터의 여행 메일까지 기다린다. 엄마 문자가 그 사실을 받아 쓴다
     expect(MEMORY_BY_ID.phone.phase2?.unlockAfter).toEqual(["radio", "computer"]);
     // 라디오 자신은 2막의 첫 관문이라 아무것도 기다리지 않는다
     expect(MEMORY_BY_ID.radio.phase2?.unlockAfter).toBeUndefined();
   });
 
   it("2막 추리 체인은 거실 ↔ 방을 두 번 왕복한다", () => {
-    // 왕복 상한 원칙 — 방 방문 2회를 넘지 않는다 (docs/content-design.md 2장)
+    // 왕복 상한 원칙: 방 방문 2회를 넘지 않는다 (docs/content-design.md 2장)
     expect(MEMORY_BY_ID.frame.phase2?.unlockAfter).toEqual(["radio", "fridge", "duffel"]);
     expect(MEMORY_BY_ID.shoes.phase2?.unlockAfter).toEqual(["frame"]);
     expect(MEMORY_BY_ID.cards.phase2?.unlockAfter).toEqual(["frame"]);
@@ -233,7 +233,7 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
   });
 
   it("컷씬의 컷마다 대사가 하나 이상, 그림은 있다면 제 자리에", () => {
-    // 그림은 이제 선택이다 — 작별의 회상(farewell)과 배트(bat-grip)는 공간이 비친 채 흐른다
+    // 그림은 이제 선택이다. 작별의 회상(farewell)과 배트(bat-grip)는 공간이 비친 채 흐른다
     for (const cutscene of Object.values(CUTSCENES)) {
       expect(cutscene.cuts.length).toBeGreaterThan(0);
       for (const cut of cutscene.cuts) {

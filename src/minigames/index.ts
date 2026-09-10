@@ -3,7 +3,7 @@ import type { MinigameDefinition } from "@/types/minigame";
 
 /**
  * 미니게임 레지스트리. 새 미니게임은 src/minigames/<id>/index.tsx로 만들고
- * lazy import로 등록한다 (게이트 도달 직전 로드 — .claude/rules/minigames.md).
+ * lazy import로 등록한다 (게이트 도달 직전 로드: .claude/rules/minigames.md).
  * 부착은 src/data/memory-room.ts의 phase 설정에 `interaction: { minigameId }`로.
  */
 export const MINIGAMES: Record<string, MinigameDefinition> = {
@@ -19,8 +19,8 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
   "radio-quiz": {
     id: "radio-quiz",
     mode: "overlay",
-    // 1바퀴 라디오 전용 — 주파수 잡기(frequency-tune 재사용) 뒤에 글자 맞추기가 이어진다.
-    // 시작 카드는 첫 단계(주파수) 기준으로 안내한다 — 질문은 잡고 나서야 온다.
+    // 1바퀴 라디오 전용: 주파수 잡기(frequency-tune 재사용) 뒤에 글자 맞추기가 이어진다.
+    // 시작 카드는 첫 단계(주파수) 기준으로 안내한다. 질문은 잡고 나서야 온다.
     component: lazy(() => import("./radio-quiz").then((m) => ({ default: m.RadioQuizMinigame }))),
     titleKey: "minigame.frequencyTune.title",
     helpKey: "minigame.frequencyTune.help",
@@ -62,7 +62,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
   "computer-browse": {
     id: "computer-browse",
     mode: "overlay",
-    // 책상 위 컴퓨터를 들여다보는 인터랙션 — 패널 없이 모니터만 떠오른다
+    // 책상 위 컴퓨터를 들여다보는 인터랙션: 패널 없이 모니터만 떠오른다
     presentation: "bare",
     component: lazy(() =>
       import("./computer-browse").then((m) => ({ default: m.ComputerBrowseMinigame })),
@@ -73,7 +73,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
   "phone-lock": {
     id: "phone-lock",
     mode: "overlay",
-    // phone-chat과 같은 폰을 집어 드는 인터랙션 — 패널 없이 기기만 떠오른다
+    // phone-chat과 같은 폰을 집어 드는 인터랙션: 패널 없이 기기만 떠오른다
     presentation: "bare",
     component: lazy(() => import("./phone-lock").then((m) => ({ default: m.PhoneLockMinigame }))),
     titleKey: "minigame.phoneLock.title",
@@ -88,7 +88,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.fighterDuel.title",
     helpKey: "minigame.fighterDuel.help",
     /*
-     * 두 줄 — 상성과 필살기 횟수. 미니게임 하나 붙잡고 읽을 분량이 아니라 시작
+     * 두 줄: 상성과 필살기 횟수. 미니게임 하나 붙잡고 읽을 분량이 아니라 시작
      * 버튼을 누르기 전에 훑는 분량이어야 한다 (UT: "미니겜이니까 더 짧아도 될 듯").
      *
      * 조작은 바로 위 helpKey가 이미 말하므로 여기 다시 적지 않는다. 나머지는
@@ -124,7 +124,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     component: lazy(() => import("./angle-turn").then((m) => ({ default: m.AngleTurnMinigame }))),
     titleKey: "minigame.angleTurn.title",
     helpKey: "minigame.angleTurn.help",
-    // card-odd와 같은 이유로 rulesKeys를 비운다 — 각도를 읽는 법은 캐비닛 위 시계에 있다
+    // card-odd와 같은 이유로 rulesKeys를 비운다. 각도를 읽는 법은 캐비닛 위 시계에 있다
   },
   "ball-catch": {
     id: "ball-catch",

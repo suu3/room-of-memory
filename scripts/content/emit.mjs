@@ -5,12 +5,12 @@ import { LOCALES } from "./schema.mjs";
  * 콘텐츠 → 생성물.
  *
  * 두 갈래로 나간다:
- *   1. src/data/generated/content.ts — 흐름 데이터. 본문은 안 들어가고 textKey만 담는다
- *      (.claude/rules/visual-novel.md — 대사 본문은 시나리오 데이터에 넣지 않는다).
- *   2. src/i18n/locales/<lng>/memory-room.json — 본문. 손으로 쓰는 부분(characters,
+ *   1. src/data/generated/content.ts: 흐름 데이터. 본문은 안 들어가고 textKey만 담는다
+ *      (.claude/rules/visual-novel.md: 대사 본문은 시나리오 데이터에 넣지 않는다).
+ *   2. src/i18n/locales/<lng>/memory-room.json: 본문. 손으로 쓰는 부분(characters,
  *      memories 이름)은 같은 폴더의 memory-room.base.json에서 그대로 얹는다.
  *
- * 생성물은 리포에 커밋된다 — 프로덕션 빌드가 YAML을 몰라도 되게 하려는 것이다.
+ * 생성물은 리포에 커밋된다. 프로덕션 빌드가 YAML을 몰라도 되게 하려는 것이다.
  * YAML과 어긋나면 `pnpm content:check`(그리고 content.generated 테스트)가 잡는다.
  */
 export function emitAll(content, bases) {
@@ -23,7 +23,7 @@ export function emitAll(content, bases) {
 }
 
 const HEADER = `/**
- * 이 파일은 생성물이다 — 직접 고치지 말 것.
+ * 이 파일은 생성물이다. 직접 고치지 말 것.
  *
  * 원본은 content/*.yaml, 생성은 \`pnpm content:build\` (dev 서버의 /admin에서
  * 저장해도 같은 것이 돈다). 손으로 고치면 다음 생성 때 그대로 덮인다.
@@ -36,13 +36,13 @@ function emitModule(content) {
 
   const lines = [
     HEADER,
-    // import 순서는 Biome의 organizeImports가 정렬한 결과와 같아야 한다 — 포맷터는
+    // import 순서는 Biome의 organizeImports가 정렬한 결과와 같아야 한다. 포맷터는
     // 줄바꿈만 손보지 순서는 안 고쳐서, 어긋나면 lint가 생성물을 걸고넘어진다
     `import { ${icons.join(", ")} } from "@phosphor-icons/react";`,
     'import type { MemoryIcon } from "@/components/ui/icons";',
     'import type { Cutscene, DialogueScript, MemoryPhaseConfig } from "@/types/interaction";',
     "",
-    "/** 기억 id — content/memories.yaml에 적힌 순서 그대로. 패널에도 이 순서로 뜬다. */",
+    "/** 기억 id: content/memories.yaml에 적힌 순서 그대로. 패널에도 이 순서로 뜬다. */",
     `export const MEMORY_IDS = [${memories.map((m) => JSON.stringify(m.id)).join(", ")}] as const;`,
     "",
     "export type MemoryId = (typeof MEMORY_IDS)[number];",
@@ -72,7 +72,7 @@ function emitModule(content) {
   }
 
   lines.push("];", "");
-  lines.push("/** 대사 스크립트 레지스트리 — 본문은 i18n 리소스(memoryRoom.scripts.*)에 있다. */");
+  lines.push("/** 대사 스크립트 레지스트리: 본문은 i18n 리소스(memoryRoom.scripts.*)에 있다. */");
   lines.push("export const SCRIPTS: Record<string, DialogueScript> = {");
   for (const [id, scriptLines] of Object.entries(scripts)) {
     lines.push(`  ${JSON.stringify(id)}: {`);
@@ -143,7 +143,7 @@ function lineLiterals(lines, keyPrefix) {
 /**
  * 한 언어의 memory-room.json. base(손으로 쓰는 부분) 위에 생성 섹션을 얹는다.
  *
- * 키는 기존 것을 그대로 유지한다 — scripts.<id>.line<N>, lore.<id>.phase<N>은
+ * 키는 기존 것을 그대로 유지한다. scripts.<id>.line<N>, lore.<id>.phase<N>은
  * store와 테스트가 문자열로 조립해서 쓰기 때문에 형태를 바꾸면 조용히 깨진다.
  */
 function emitLocale(content, base, locale) {

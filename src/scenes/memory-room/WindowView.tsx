@@ -9,7 +9,7 @@ import type { Vec3Tuple } from "./types";
  *
  * 아이소메트릭 카메라는 창을 비스듬히 내려다보기 때문에, 풍경을 멀리 두면 창을 통해
  * 보이는 지점이 한참 왼쪽·아래로 밀린다 (시선 방향이 대략 (-0.64, -0.38, -0.67)).
- * 그래서 원경을 진짜로 멀리 두는 대신 벽 바로 뒤에 얕은 상자로 세운다 — 무대 배경막과
+ * 그래서 원경을 진짜로 멀리 두는 대신 벽 바로 뒤에 얕은 상자로 세운다. 무대 배경막과
  * 같은 방식이다. 깊이가 얕아야 시차가 작아 여백을 조금만 둬도 가장자리가 안 보인다.
  *
  * 여백은 방향이 있다: 시선이 -x·-y로 밀리므로 왼쪽과 아래에 넉넉히 주고,
@@ -22,7 +22,7 @@ import type { Vec3Tuple } from "./types";
 const MARGIN = { left: 3.2, right: 1.3, top: 0.28, bottom: 1.5 } as const;
 
 /**
- * 창 중심(z=-3.88) 기준 레이어 깊이. 가장 깊은 하늘판도 0.75까지만 물러난다 —
+ * 창 중심(z=-3.88) 기준 레이어 깊이. 가장 깊은 하늘판도 0.75까지만 물러난다.
  * 더 뒤로 보내면 카메라를 최대(±0.32rad)로 돌렸을 때 판 왼쪽 끝이 창에 걸리고,
  * 벽 윗면(y=4.7) 너머로 판 꼭대기가 넘겨다보인다.
  */
@@ -40,7 +40,7 @@ interface WindowViewProps {
   palette: RoomPalette;
   /** 0=평범한 야경, 1=사태 이후. 되돌아가지 않는다 (visual-state의 outsideDecay). */
   decay: number;
-  /** 창 개구부의 중심과 크기 — RoomShell이 벽에 뚫은 구멍과 같아야 한다. */
+  /** 창 개구부의 중심과 크기: RoomShell이 벽에 뚫은 구멍과 같아야 한다. */
   center: Vec3Tuple;
   width: number;
   height: number;
@@ -49,7 +49,7 @@ interface WindowViewProps {
 /**
  * 밤하늘 그라디언트 텍스처.
  *
- * 정점 색(vertexColors)으로 만들려다 실패했다 — r3f가 프롭으로 넘긴 vertexColors는
+ * 정점 색(vertexColors)으로 만들려다 실패했다. r3f가 프롭으로 넘긴 vertexColors는
  * 재질 속성만 바꾸고 셰이더를 다시 컴파일하지 않아서 USE_COLOR 디파인이 안 켜지고,
  * 결과적으로 판이 흰색으로 나온다. WindowLight가 쓰는 캔버스 텍스처 방식을 따른다.
  */
@@ -76,7 +76,7 @@ function useSkyTexture(top: string, horizon: string, glow: string): CanvasTextur
 
 /**
  * 스카이라인. 값을 난수로 뽑으면 새로고침마다 도시가 바뀌어서, 인덱스로 결정되는
- * 해시를 쓴다 — 같은 자리에 같은 건물이 선다.
+ * 해시를 쓴다. 같은 자리에 같은 건물이 선다.
  */
 function hash01(index: number, salt: number): number {
   const value = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
@@ -142,7 +142,7 @@ function Skyline({
                 <mesh
                   key={`${light.x}:${light.y}`}
                   position={[light.x, light.y, 0.01]}
-                  // 어느 창이 먼저 꺼질지는 좌표 해시로 고정 — 프레임마다 깜빡이면 안 된다
+                  // 어느 창이 먼저 꺼질지는 좌표 해시로 고정: 프레임마다 깜빡이면 안 된다
                   visible={hash01(Math.round((light.x + light.y) * 1000), 7) < litRatio}
                 >
                   <planeGeometry args={[WINDOW_LIGHT_SIZE, WINDOW_LIGHT_SIZE]} />
@@ -185,7 +185,7 @@ function Stars({ span, height, color }: { span: number; height: number; color: s
 /**
  * 사태의 흔적. 길에 처박힌 차와 흩어진 유리조각.
  *
- * 유리에 튄 핏자국도 넣어봤는데 붉은 사각형이 피로 안 읽혀서 뺐다 — 어설픈
+ * 유리에 튄 핏자국도 넣어봤는데 붉은 사각형이 피로 안 읽혀서 뺐다. 어설픈
  * 자국보다 꺼진 도시와 처박힌 차 실루엣이 할 말을 더 한다.
  *
  * 전부 불투명이다. 불투명한 하늘판 앞에 놓이는 작은 조각들이라 정렬 문제가 없다.
@@ -206,7 +206,7 @@ function Aftermath({
 
   return (
     <group>
-      {/* 길에 처박힌 차 — 스카이라인 앞, 지평선 위에 실루엣으로만 */}
+      {/* 길에 처박힌 차: 스카이라인 앞, 지평선 위에 실루엣으로만 */}
       {wreck ? (
         <group
           position={[-width * 0.14, -height / 2 + 0.06, LAYER_Z.wreck]}
@@ -223,7 +223,7 @@ function Aftermath({
         </group>
       ) : null}
 
-      {/* 깨진 유리조각 — 지평선 근처에서 빛을 되쏜다 */}
+      {/* 깨진 유리조각: 지평선 근처에서 빛을 되쏜다 */}
       {shards
         ? SHARDS.map((shard) => (
             <mesh
@@ -271,7 +271,7 @@ export function WindowView({ palette, decay, center, width, height }: WindowView
     <group
       name="window-view"
       position={[center[0] + offsetX, center[1] + offsetY, center[2]]}
-      // 조명을 받지 않는 배경막이라 meshBasicMaterial만 쓴다 — 방이 어두워져도 밤하늘은 그대로다.
+      // 조명을 받지 않는 배경막이라 meshBasicMaterial만 쓴다. 방이 어두워져도 밤하늘은 그대로다.
     >
       <mesh position={[0, 0, LAYER_Z.sky]}>
         <planeGeometry args={[viewWidth, viewHeight]} />
@@ -287,7 +287,7 @@ export function WindowView({ palette, decay, center, width, height }: WindowView
         <meshBasicMaterial color={palette.linen} />
       </mesh>
 
-      {/* 판 밑면이 원점에 오도록 내려 세운다 — 건물은 밑에서 위로 자란다. */}
+      {/* 판 밑면이 원점에 오도록 내려 세운다. 건물은 밑에서 위로 자란다. */}
       <group position={[0, -viewHeight / 2, 0]}>
         <Skyline
           buildings={farRidge}

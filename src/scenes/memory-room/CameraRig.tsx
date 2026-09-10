@@ -34,11 +34,11 @@ const FOLLOW_LIMITS = {
 } as const;
 
 /**
- * 방문이 열린 뒤의 추적 한계 — x만 거실 끝까지 는다 (v2).
+ * 방문이 열린 뒤의 추적 한계: x만 거실 끝까지 는다 (v2).
  *
  * 공간별로 한계를 갈라 문턱에서 스위치하면 목표점이 한 번에 수 유닛을 건너뛰어
  * 카메라가 출렁인다. 두 공간이 x로 이어져 있으므로 x 축 한계만 합치면 목표점이
- * 플레이어를 따라 연속으로 미끄러진다. 전환 연출이 따로 없는 이유다 — 문을
+ * 플레이어를 따라 연속으로 미끄러진다. 전환 연출이 따로 없는 이유다. 문을
  * 넘는 순간은 컷이 아니라 이동이다 (docs/content-design.md 3-3).
  */
 const OPEN_FOLLOW_LIMITS = {
@@ -63,12 +63,12 @@ const ENTER_DURATION_S = 2.2;
  *
  * 멈춰 있는 3D는 렌더된 그림과 구별이 안 된다. 아주 느리게라도 돌면 "이건 진짜
  * 공간이고 들어갈 수 있다"가 한눈에 읽힌다. 폭은 사용자가 돌릴 수 있는 범위
- * (MAX_ROOM_ORBIT)보다 훨씬 좁게 — 타이틀에서 벽이 스러졌다 섰다 하면 산만하다.
+ * (MAX_ROOM_ORBIT)보다 훨씬 좁게: 타이틀에서 벽이 스러졌다 섰다 하면 산만하다.
  */
 const TITLE_DRIFT_AMPLITUDE = 0.16;
 const TITLE_DRIFT_PERIOD_S = 26;
 
-/** 카메라가 붙을 수 있는 대상 — 기억 오브젝트와 엔딩(문 옆 배트). */
+/** 카메라가 붙을 수 있는 대상: 기억 오브젝트와 엔딩(문 옆 배트). */
 export type CameraFocusId = MemoryId | "ending";
 
 export function CameraRig({
@@ -82,7 +82,7 @@ export function CameraRig({
   roomZoom: number;
   orbitAzimuth: number;
   /**
-   * 플레이어를 따라갈지. 타이틀 화면에서는 false — 방 모형 전체를 정면으로 잡아
+   * 플레이어를 따라갈지. 타이틀 화면에서는 false: 방 모형 전체를 정면으로 잡아
    * 놓고, 시작 버튼을 누르면 true가 되면서 카메라가 방 안으로 내려앉는다.
    * 전환 애니메이션은 따로 없다. 목표값이 바뀌면 아래 damp가 알아서 데려간다.
    */
@@ -113,7 +113,7 @@ export function CameraRig({
     const lambda = reducedMotion ? 18 : entering ? ENTER_LAMBDA : follows ? FOLLOW_LAMBDA : 7;
 
     if (follows) {
-      // 자유 이동 중 — 방 한가운데 고정이 아니라 플레이어를 따라본다.
+      // 자유 이동 중: 방 한가운데 고정이 아니라 플레이어를 따라본다.
       const player = playerPositionRef.current;
       const limits = useMemoryRoomStore.getState().doorOpened ? OPEN_FOLLOW_LIMITS : FOLLOW_LIMITS;
       cameraTargetGoal.set(
@@ -132,7 +132,7 @@ export function CameraRig({
         : Math.sin((state.clock.elapsedTime / TITLE_DRIFT_PERIOD_S) * Math.PI * 2) *
           TITLE_DRIFT_AMPLITUDE;
 
-    // 프리셋 위치를 타깃 기준으로 Y축 회전시킨다 — 타깃은 그대로라 구도 중심이 유지된다.
+    // 프리셋 위치를 타깃 기준으로 Y축 회전시킨다. 타깃은 그대로라 구도 중심이 유지된다.
     orbitOffset
       .set(
         preset.position[0] - preset.target[0],

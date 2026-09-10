@@ -7,7 +7,7 @@ export interface TypewriterState {
   typed: string;
   /** 전부 찍혔는지 (reduced-motion이면 처음부터 true). */
   done: boolean;
-  /** 남은 글자를 즉시 채운다 — 대사창 클릭 한 번으로 건너뛰기. */
+  /** 남은 글자를 즉시 채운다. 대사창 클릭 한 번으로 건너뛰기. */
   skip: () => void;
 }
 

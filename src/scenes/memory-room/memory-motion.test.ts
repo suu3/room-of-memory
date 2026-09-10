@@ -20,7 +20,7 @@ describe("memory hover/click motion", () => {
     // 앞쪽 절반은 눌리고(1보다 작고) 뒤쪽 절반은 튀어오른다(1보다 크다)
     expect(punchScale(PUNCH_DURATION * 0.25)).toBeLessThan(1);
     expect(punchScale(PUNCH_DURATION * 0.75)).toBeGreaterThan(1);
-    // 되튐은 눌림보다 약해야 한다 — 안 그러면 물건이 부풀어 보인다
+    // 되튐은 눌림보다 약해야 한다. 안 그러면 물건이 부풀어 보인다
     const press = 1 - punchScale(PUNCH_DURATION * 0.25);
     const bounce = punchScale(PUNCH_DURATION * 0.75) - 1;
     expect(bounce).toBeLessThan(press);

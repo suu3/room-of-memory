@@ -13,7 +13,7 @@ import {
 } from "./schema.mjs";
 
 /**
- * 콘텐츠 검증 — 저장/생성 전에 걸러야 할 것들.
+ * 콘텐츠 검증: 저장/생성 전에 걸러야 할 것들.
  *
  * 어드민이 저장할 때와 `pnpm content:build`가 돌 때 같은 함수를 쓴다. 그래야
  * 어드민에서 통과한 것이 CI에서 떨어지는 일이 없다.
@@ -67,12 +67,12 @@ export function validateContent(content, { minigameIds = [] } = {}) {
 
     /*
      * 페이즈가 하나도 없으면 아무 바퀴에서도 못 여는 기억이다. 반대로 phase1이
-     * 없고 phase2만 있는 기억은 허용한다 — 1바퀴 내내 잠겨 있다가 2바퀴에 처음
+     * 없고 phase2만 있는 기억은 허용한다. 1바퀴 내내 잠겨 있다가 2바퀴에 처음
      * 열리는 물건(컴퓨터)이 그렇다. 그런 기억은 1바퀴 수집 개수에서도 빠진다
      * (src/data/memory-room.ts의 PHASE1_MEMORIES).
      */
     if (memory.phase1 === undefined && memory.phase2 === undefined) {
-      issues.push(`${id}: phase1도 phase2도 없다 — 어느 바퀴에서도 못 여는 기억은 만들 수 없다.`);
+      issues.push(`${id}: phase1도 phase2도 없다. 어느 바퀴에서도 못 여는 기억은 만들 수 없다.`);
     }
 
     for (const phase of ["phase1", "phase2"]) {
@@ -99,7 +99,7 @@ export function validateContent(content, { minigameIds = [] } = {}) {
     if (!ID_PATTERN.test(id)) issues.push(`scripts.yaml: id "${id}"가 kebab-case가 아니다.`);
     validateLines(lines, `scripts.${id}`, issues);
     if (!usedScriptIds.has(id)) {
-      issues.push(`scripts.${id}: 아무 데서도 가리키지 않는다 — 죽은 대사는 남기지 않는다.`);
+      issues.push(`scripts.${id}: 아무 데서도 가리키지 않는다. 죽은 대사는 남기지 않는다.`);
     }
   }
 
@@ -116,7 +116,7 @@ export function validateContent(content, { minigameIds = [] } = {}) {
         continue;
       }
       /*
-       * 컷씬 일러스트는 아직 리포에 없어도 된다 — 없으면 회색 판이 자리를 지키고
+       * 컷씬 일러스트는 아직 리포에 없어도 된다. 없으면 회색 판이 자리를 지키고
        * 대사만 흐른다. 그래서 경로 모양만 보고 실재 여부는 묻지 않는다.
        */
       if (cut.image !== undefined) {
@@ -134,7 +134,7 @@ export function validateContent(content, { minigameIds = [] } = {}) {
   for (const stageId of STAGE_IDS) {
     const stage = stages[stageId];
     if (!isPlainObject(stage)) {
-      issues.push(`stages.${stageId}: 없다 — 방 단계는 ${STAGE_IDS.join("/")} 셋 다 있어야 한다.`);
+      issues.push(`stages.${stageId}: 없다. 방 단계는 ${STAGE_IDS.join("/")} 셋 다 있어야 한다.`);
       continue;
     }
     for (const field of ["monologue", "dialogue"]) {
@@ -147,7 +147,7 @@ export function validateContent(content, { minigameIds = [] } = {}) {
 
   for (const phase of ["phase1", "phase2"]) {
     for (const cycle of findUnlockCycles(memories, phase)) {
-      issues.push(`${phase}: 해금 조건이 순환한다 (${cycle}) — 여기 묶인 기억은 아무도 못 연다.`);
+      issues.push(`${phase}: 해금 조건이 순환한다 (${cycle}): 여기 묶인 기억은 아무도 못 연다.`);
     }
   }
 
@@ -190,7 +190,7 @@ function validatePhase(context) {
         if (!memoryIds.includes(dependency)) {
           issues.push(`${where}.unlockAfter: "${dependency}"라는 기억이 없다.`);
         } else if (dependency === id) {
-          issues.push(`${where}.unlockAfter: 자기 자신을 기다린다 — 영원히 안 열린다.`);
+          issues.push(`${where}.unlockAfter: 자기 자신을 기다린다. 영원히 안 열린다.`);
         }
       }
     }
@@ -229,7 +229,7 @@ export function findUnlockCycles(memories, phase) {
 function validateLore(memory, issues) {
   const { id, lore } = memory;
   if (!isPlainObject(lore)) {
-    issues.push(`${id}.lore: 없다 — 수첩에 남길 기록은 모든 기억에 필요하다.`);
+    issues.push(`${id}.lore: 없다. 수첩에 남길 기록은 모든 기억에 필요하다.`);
     return;
   }
   validateText(lore.title, `${id}.lore.title`, issues);

@@ -35,12 +35,12 @@ export const ROOM_DOOR_LEAF = {
 } as const;
 
 /**
- * 열린 문짝의 발자국 — 문이 열려 있을 때만 콜라이더에 든다 (Player). 없으면 문간을
+ * 열린 문짝의 발자국: 문이 열려 있을 때만 콜라이더에 든다 (Player). 없으면 문간을
  * 지나는 몸이 문짝을 뚫는다.
  *
  * 문은 y축 +90°로 서 있어(ROOM_DOOR_ROTATION) 문 로컬 x가 월드 -z다: 경첩은 문 중심에서
  * +z로 hingeOffset, 열린 판은 경첩에서 (sin a, -cos a) 방향으로 width만큼 뻗는다.
- * 살짝 기운 판이라 AABB 하나로 감싸면 판보다 두꺼운 벽이 된다 — 판을 따라 상자 둘로 잇는다.
+ * 살짝 기운 판이라 AABB 하나로 감싸면 판보다 두꺼운 벽이 된다. 판을 따라 상자 둘로 잇는다.
  */
 function openDoorLeafColliders(): readonly Aabb2[] {
   const { width, thickness, hingeOffset, openAngle } = ROOM_DOOR_LEAF;
@@ -73,7 +73,7 @@ export const OPEN_DOOR_LEAF_COLLIDERS = openDoorLeafColliders();
  *
  * 방문(-x 벽) 너머의 두 번째 공간 (docs/content-design.md 3-1). 방과 벽 하나
  * (x = ROOM_SHELL_BOUNDS.minX)를 공유하고, 그 벽의 문이 둘을 잇는다.
- * 반대쪽 끝(-x)에 현관문이 있다 — 엔딩은 이제 거기서 난다.
+ * 반대쪽 끝(-x)에 현관문이 있다. 엔딩은 이제 거기서 난다.
  */
 export const LIVING_SHELL_BOUNDS: Aabb2 = {
   minX: -16.5,
@@ -95,12 +95,12 @@ export const LIVING_BOUNDS: Aabb2 = {
 };
 
 /**
- * 문간 판정 구간 — 방과 거실을 잇는 세 번째 걷기 영역 (v2 기획 5장).
+ * 문간 판정 구간: 방과 거실을 잇는 세 번째 걷기 영역 (v2 기획 5장).
  *
  * 벽에 난 구멍이 아니라 두 공간의 걷기 범위를 겹쳐 잇는 다리다. x 양끝은 각
- * 공간의 걷기 범위와 **플레이어 지름(0.76) 이상** 겹쳐야 한다 — 덜 겹치면 중심이
+ * 공간의 걷기 범위와 **플레이어 지름(0.76) 이상** 겹쳐야 한다. 덜 겹치면 중심이
  * 어느 영역에도 못 들어가는 틈이 생겨 문턱에서 몸이 끼인다 (layout.test가 지킨다).
- * z 범위는 문 개구부(DOOR_OPENING_Z, 5.35±0.91) 안쪽 — 몸 반지름을 더해도
+ * z 범위는 문 개구부(DOOR_OPENING_Z, 5.35±0.91) 안쪽: 몸 반지름을 더해도
  * 벽 단면을 스치지 않는 폭이다.
  */
 export const DOORWAY_ZONE: Aabb2 = { minX: -7.4, maxX: -4.6, minZ: 4.7, maxZ: 6.0 };
@@ -108,7 +108,7 @@ export const DOORWAY_ZONE: Aabb2 = { minX: -7.4, maxX: -4.6, minZ: 4.7, maxZ: 6.
 /**
  * 거실 가구의 발자국 (v2 기획 7장). 배치 원칙 둘:
  * 문간(DOORWAY_ZONE)에서 나오는 길과 현관문 앞(FRONT_DOOR_INTERACTION 반경)은
- * 비워 둔다 — 나오자마자 소파에 끼거나, 엔딩 문 앞에 가구가 서 있으면 안 된다.
+ * 비워 둔다. 나오자마자 소파에 끼거나, 엔딩 문 앞에 가구가 서 있으면 안 된다.
  * layout.test가 이 둘을 지킨다.
  */
 export const LIVING_COLLIDERS = [
@@ -122,8 +122,8 @@ export const LIVING_COLLIDERS = [
 ] as const satisfies readonly Aabb2[];
 
 /**
- * 현관문 — 거실 -x 끝 벽. 배트가 방문을 열게 되면서 엔딩 트리거가 여기로 왔다
- * (docs/content-design.md 3-2). 회전은 방문과 반대 — 문이 벽 안쪽을 본다.
+ * 현관문: 거실 -x 끝 벽. 배트가 방문을 열게 되면서 엔딩 트리거가 여기로 왔다
+ * (docs/content-design.md 3-2). 회전은 방문과 반대: 문이 벽 안쪽을 본다.
  */
 export const FRONT_DOOR_POSITION = [LIVING_SHELL_BOUNDS.minX + 0.14, 1.7, 1.25] as const;
 export const FRONT_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
@@ -133,7 +133,7 @@ export const FRONT_DOOR_INTERACTION = {
 } as const;
 export const DESK_POSITION = [-4.6, 0, -1.2] as const;
 export const DESK_ROTATION = [0, Math.PI / 2, 0] as const;
-// 책상이 커지면서 다리가 x=-4.0까지 나온다 — 의자를 그만큼 안쪽으로 물린다.
+// 책상이 커지면서 다리가 x=-4.0까지 나온다. 의자를 그만큼 안쪽으로 물린다.
 export const CHAIR_POSITION = [-3.3, 0, -1.2] as const;
 export const CHAIR_ROTATION = [0, Math.PI / 2, 0] as const;
 
@@ -142,7 +142,7 @@ export const CHAIR_ROTATION = [0, Math.PI / 2, 0] as const;
  * ROOM_COLLIDERS)이 같은 수를 봐야 해서 여기 둔다.
  *
  * 원래 1.05×1.05에 높이 0.75였는데, 그 위에 앉히면 캐릭터가 좌면 앞턱에 걸터앉는
- * 그림밖에 안 나왔다 — 이 리그는 엉덩이에서 무릎까지가 0.27뿐이라 좌면 절반도 못
+ * 그림밖에 안 나왔다. 이 리그는 엉덩이에서 무릎까지가 0.27뿐이라 좌면 절반도 못
  * 채운다. 앉은 몸에 맞춰 줄였다: 이제 엉덩이가 좌면 가운데 언저리에 온다.
  */
 export const CHAIR_SEAT = { half: 0.43, topY: 0.68, thickness: 0.14 } as const;
@@ -153,7 +153,7 @@ export const CHAIR_SEAT = { half: 0.43, topY: 0.68, thickness: 0.14 } as const;
  * 거리를 크게 잡지 않는 이유: ROOM_COLLIDERS의 의자 박스는 고정이라 의자만 움직이면
  * 충돌 판정이 제자리에 남는다. 밀려난 좌석 끝(중심 +거리 +반폭 0.525)이 플레이어가
  * 설 수 있는 가장 안쪽 선(콜라이더 maxX -2.82 + 반지름 0.38 = -2.44)을 넘지 않아야
- * 의자를 뚫고 지나가는 장면이 안 나온다 — 그 한계가 0.335이고, layout.test가 지킨다.
+ * 의자를 뚫고 지나가는 장면이 안 나온다. 그 한계가 0.335이고, layout.test가 지킨다.
  */
 export const CHAIR_PULL = { distance: 0.33, turn: 0.12 } as const;
 
@@ -165,7 +165,7 @@ export const DRAWER_TRAVEL = { cabinet: 0.34, nightstand: 0.24 } as const;
 
 /**
  * 캐비닛 몸통. 액자·스마트폰이 놓이는 면이라 RoomFurniture와 MEMORY_PLACEMENTS가
- * 같은 수치를 봐야 한다 — 따로 들고 있다가 어긋나면 오브젝트가 상판을 뚫거나
+ * 같은 수치를 봐야 한다. 따로 들고 있다가 어긋나면 오브젝트가 상판을 뚫거나
  * 앞으로 떠 버린다.
  */
 export const CABINET_BODY = {
@@ -196,7 +196,7 @@ export const CABINET_TOP_BOUNDS: Aabb2 = {
 export const ROOM_BOUNDS: Aabb2 = { minX: -5.55, maxX: 7.55, minZ: -3.55, maxZ: 6.05 };
 
 /**
- * 커튼을 잡으면 몸이 가서 서는 자리 — 창 한가운데(x는 window 기억과 같다), 캐비닛
+ * 커튼을 잡으면 몸이 가서 서는 자리: 창 한가운데(x는 window 기억과 같다), 캐비닛
  * 바로 앞. 벽(-z)을 보고 서서 캐비닛 너머로 팔을 뻗는다. z는 캐비닛 발자국(maxZ -2.25)에
  * 플레이어 반지름(0.38)과 여유를 더한 값이다.
  */
@@ -204,10 +204,10 @@ export const CURTAIN_STAND = { x: 1.15, z: -1.8, facing: Math.PI } as const;
 
 export const ROOM_COLLIDERS = [
   { minX: -5.48, maxX: -3.72, minZ: -3.35, maxZ: 0.95 }, // desk
-  BED_COLLIDER, // 침대 — 발자국은 bed.ts가 glb 실측에서 낸다
+  BED_COLLIDER, // 침대: 발자국은 bed.ts가 glb 실측에서 낸다
   { minX: 0.15, maxX: 4.7, minZ: -3.35, maxZ: -2.25 }, // cabinet
   { minX: 6.3, maxX: 7.25, minZ: 0.3, maxZ: 1.2 }, // nightstand
-  // 의자 — CHAIR_POSITION의 좌석/등받이 발자국(±CHAIR_SEAT.half)에서 살짝 안쪽으로 잡는다
+  // 의자: CHAIR_POSITION의 좌석/등받이 발자국(±CHAIR_SEAT.half)에서 살짝 안쪽으로 잡는다
   { minX: -3.685, maxX: -2.915, minZ: -1.585, maxZ: -0.815 }, // chair
 ] as const satisfies readonly Aabb2[];
 
@@ -228,7 +228,7 @@ export const BAT_PLACEMENT = {
 } as const satisfies Omit<MemoryPlacement, "id">;
 
 /**
- * 문 쪽 왼벽에 붙은 조명 스위치. 기억도 트리거도 아닌 배경 오브젝트다 —
+ * 문 쪽 왼벽에 붙은 조명 스위치. 기억도 트리거도 아닌 배경 오브젝트다.
  * 진행에는 아무 영향이 없고 방의 불만 끄고 켠다 (docs/content-design.md 6-3).
  *
  * 좌표는 RoomDecor가 장식으로 그리던 자리를 그대로 물려받았다 (왼벽 안쪽 면
@@ -237,12 +237,12 @@ export const BAT_PLACEMENT = {
 export const LIGHT_SWITCH_PLACEMENT = {
   position: [-5.885, 1.72, 4.15],
   rotation: [0, Math.PI / 2, 0],
-  /** 판/토글 크기도 장식이 쓰던 값 그대로 — [폭(z), 높이(y), 두께(x)]. */
+  /** 판/토글 크기도 장식이 쓰던 값 그대로: [폭(z), 높이(y), 두께(x)]. */
   plateSize: [0.2, 0.3, 0.05],
   rockerSize: [0.1, 0.14, 0.03],
   /**
    * 다가가면 빛나기 시작하는 거리. 표식이 없는 물건이라 이 반경이 곧 "여기 뭔가
-   * 있다"는 유일한 신호다 — 옆에 선 배트(1.35)와 같이 잡아 둘이 함께 켜지게 한다.
+   * 있다"는 유일한 신호다. 옆에 선 배트(1.35)와 같이 잡아 둘이 함께 켜지게 한다.
    */
   interactionRadius: 1.35,
 } as const;
@@ -250,7 +250,7 @@ export const LIGHT_SWITCH_PLACEMENT = {
 /*
  * 컴퓨터 비밀번호 단서를 든 배경 오브젝트.
  *
- * 기억이 아니라 방의 소품이라 MEMORY_PLACEMENTS와 따로 둔다 — 수집 카운터에도
+ * 기억이 아니라 방의 소품이라 MEMORY_PLACEMENTS와 따로 둔다. 수집 카운터에도
  * 해금 규칙에도 끼지 않고, 만져도 진행에는 아무 일이 없다 (전등 스위치와 같은
  * 성격). 무엇이 적혀 있는지는 src/data/room-clues.ts에 있다.
  */
@@ -259,14 +259,14 @@ export const LIGHT_SWITCH_PLACEMENT = {
  * 협탁 서랍 속 접힌 쪽지. 서랍 부품과 같은 월드 프레임(닫힌 상태)이고, 서랍
  * 그룹이 통째로 +z로 밀려 나갈 때 같이 나온다.
  *
- * y는 서랍판 윗변(0.86)보다 높고 협탁 몸통 윗면(0.955)보다 낮다 — 닫혀 있으면
+ * y는 서랍판 윗변(0.86)보다 높고 협탁 몸통 윗면(0.955)보다 낮다. 닫혀 있으면
  * 몸통 안에 잠겨 안 보이고, 열리면 서랍판 너머로 위에서 내려다보인다.
  */
 export const DRAWER_NOTE = {
   position: [6.8, 0.89, 1.05] as Vec3Tuple,
   /**
    * 아무렇게나 던져둔 각도. 크게 틀면 돌아간 만큼 z로 두꺼워져서, 서랍이 다 나와도
-   * (0.24) 몸통 앞을 못 벗어난다 — layout.test가 그 여유를 지킨다.
+   * (0.24) 몸통 앞을 못 벗어난다. layout.test가 그 여유를 지킨다.
    */
   rotation: [0, 0.12, 0] as EulerTuple,
   /** [가로, 두께, 세로]. 서랍 안쪽 폭(0.72)에 한참 못 미쳐야 쪽지로 읽힌다. */
@@ -277,7 +277,7 @@ export const DRAWER_NOTE = {
 
 /**
  * 들여다볼 수 있는 곁가지 물건들의 다가감 판정. 3D는 각자 제 자리(RoomDecor·
- * RoomFurniture)에서 그리고, 여기엔 기준점과 반경만 모은다 — 서랍 속 쪽지와 달리
+ * RoomFurniture)에서 그리고, 여기엔 기준점과 반경만 모은다. 서랍 속 쪽지와 달리
  * 이 둘은 원래 있던 장식을 그대로 쓰므로 좌표를 새로 잡을 게 없다.
  */
 export const CLUE_PROPS = {
@@ -310,7 +310,7 @@ export const MEMORY_PLACEMENTS = {
     id: "frame",
     // 예전 좌표(x=2.15)는 캐비닛 위 수납상자(x 1.89~2.61) 속에 액자를 통째로 파묻었다.
     // 화분(x≤0.94)과 수납상자 사이 빈자리로 옮기고, 상판 윗면(y=1.155)에
-    // 아랫변이 살짝 파고들도록 y를 잡는다 — 딱 맞추면 면이 겹쳐 깜빡인다.
+    // 아랫변이 살짝 파고들도록 y를 잡는다. 딱 맞추면 면이 겹쳐 깜빡인다.
     position: [1.42, 1.355, -2.85],
     rotation: [0, -0.3, 0],
     scale: 1,
@@ -320,12 +320,12 @@ export const MEMORY_PLACEMENTS = {
     id: "computer",
     /*
      * 책상 위 컴퓨터 세트(모니터·키보드·마우스). 예전 DeskAccessories가 그리던
-     * 월드 좌표를 그대로 물려받되, 앵커는 세트의 무게중심쯤(키보드 언저리)에 둔다 —
+     * 월드 좌표를 그대로 물려받되, 앵커는 세트의 무게중심쯤(키보드 언저리)에 둔다.
      * 모니터에 앵커를 두면 책상 안쪽이라 상호작용 반경이 통로까지 안 닿는다.
      * 부품별 오프셋은 MemoryObjects의 ComputerMemory가 이 앵커 기준으로 갖고 있다.
      *
      * 반경 1.5: 의자 콜라이더(z -1.68~-0.72)가 정면을 막아서, 플레이어는 의자
-     * 옆(z≈-0.34 또는 z≈-2.06)의 통로에서 닿는다 — 그 거리가 약 1.33이다.
+     * 옆(z≈-0.34 또는 z≈-2.06)의 통로에서 닿는다. 그 거리가 약 1.33이다.
      */
     position: [-4.5, 1.11, -1.0],
     rotation: [0, Math.PI / 2, 0],
@@ -334,7 +334,7 @@ export const MEMORY_PLACEMENTS = {
   },
   radio: {
     id: "radio",
-    // y는 책상 상판 윗면(1.11) — 라디오 로컬 원점이 밑면이라 그대로 얹힌다.
+    // y는 책상 상판 윗면(1.11): 라디오 로컬 원점이 밑면이라 그대로 얹힌다.
     // 넓어진 책상 한가운데에 두면 플레이어가 반경 안으로 들어올 수 없다.
     // 통로 쪽(+X) 모서리로, 의자를 피해 앞쪽(+Z)에 얹는다.
     position: [-4.05, 1.11, 0.1],
@@ -346,25 +346,25 @@ export const MEMORY_PLACEMENTS = {
   phone: {
     id: "phone",
     /*
-     * 침대 발치에 던져둔 폰. 이불 위에 놓인다 — 이불 윗면은 y=0.847(bed.ts의
+     * 침대 발치에 던져둔 폰. 이불 위에 놓인다. 이불 윗면은 y=0.847(bed.ts의
      * BED_BLANKET_TOP_Y)이고, 눕히면 두께의 절반(0.04)만큼 떠야 하므로 원점은 0.885다.
      * 발치 끝 자락은 이불이 접혀도(BED_BLANKET_FOLDED_Z.max 너머) 같은 두께로 평평해서
      * 폰이 뭉치에 파묻히지도, 허공에 뜨지도 않는다.
      *
-     * x는 매트리스 가운데(4.65) 쪽으로 붙인다 — 변에 두면 이불 자락에 묻혀 잘 안 보였다.
+     * x는 매트리스 가운데(4.65) 쪽으로 붙인다. 변에 두면 이불 자락에 묻혀 잘 안 보였다.
      * 침대는 통째로 콜라이더라 위로 올라갈 수 없으므로, 옆(x≈3.0)과 발치(z≈5.1)에서
      * 닿도록 상호작용 반경을 1.6으로 넓혔다. 발치인 이유는 하나 더 있다: 기억 오브젝트는
      * 상호작용 반경만 한 보이지 않는 구로 클릭을 받는데(MemoryObjects의 memory-hit),
      * 침대 한가운데 두면 그 구가 매트리스를 거의 다 덮어 침대를 눌러도 폰이 눌린다.
      * 발치에 두면 머리 쪽 절반(베개·머리판)이 침대 클릭으로 남는다.
      *
-     * 회전의 X는 -π/2 + 0.18 — 뒤쪽 0.18은 PhoneMemory가 세워 든 자세로 갖고 있는
+     * 회전의 X는 -π/2 + 0.18: 뒤쪽 0.18은 PhoneMemory가 세워 든 자세로 갖고 있는
      * 기울기를 상쇄하는 몫이라, 합치면 정확히 화면이 천장을 보고 눕는다. glb(ch1-smartphone)는
      * MemoryObjects의 MODEL_POSE가 같은 기울기와 두께 차이를 맞춘다.
      */
     position: [4.3, 0.885, 3.9],
     rotation: [-Math.PI / 2 + 0.18, 0, 0.42],
-    // 손에 쥐는 물건 치고 너무 컸다 — 게임기(가로 0.46)보다 작아야 폰으로 읽힌다
+    // 손에 쥐는 물건 치고 너무 컸다. 게임기(가로 0.46)보다 작아야 폰으로 읽힌다
     scale: 0.5,
     interactionRadius: 1.6,
   },
@@ -377,7 +377,7 @@ export const MEMORY_PLACEMENTS = {
   },
   ball: {
     id: "ball",
-    // glb는 반지름 1 구 — scale이 곧 반지름이라 y도 같은 값이어야 바닥에 닿는다
+    // glb는 반지름 1 구: scale이 곧 반지름이라 y도 같은 값이어야 바닥에 닿는다
     position: [-5.1, 0.19, 3.75],
     rotation: [0, 0, 0],
     scale: 0.19,
@@ -389,10 +389,10 @@ export const MEMORY_PLACEMENTS = {
    *
    * 넷은 이미 서 있는 가구 위에 얹힌다 (냉장고 문·아래칸, 신발장 문, 식탁 트럼프).
    * 가구를 복제하지 않고 **만지는 면만** 얇은 판으로 덮어 아웃라인이 붙을 형태를
-   * 준다 — 판의 색은 밑에 깔린 가구와 같아서 눈에는 안 보이고, 빛날 때만 그 면이
+   * 준다. 판의 색은 밑에 깔린 가구와 같아서 눈에는 안 보이고, 빛날 때만 그 면이
    * 드러난다 (MemoryObjects의 FridgeDoor·CabinetDoor).
    *
-   * 좌표는 LivingRoomFurniture의 부품에서 파생된다 — 거기 가구를 옮기면 여기도
+   * 좌표는 LivingRoomFurniture의 부품에서 파생된다. 거기 가구를 옮기면 여기도
    * 같이 옮겨야 한다.
    */
   fridge: {
@@ -429,7 +429,7 @@ export const MEMORY_PLACEMENTS = {
   },
   ampoule: {
     id: "ampoule",
-    // 냉장고 아래칸. "손대지 마"라던 그 칸이다 — 냉장실 문 테두리(y 0.72~1.42) 아래
+    // 냉장고 아래칸. "손대지 마"라던 그 칸이다. 냉장실 문 테두리(y 0.72~1.42) 아래
     position: [-15.32, 0.43, -3.235],
     rotation: [0, 0, 0],
     scale: 1,
@@ -439,7 +439,7 @@ export const MEMORY_PLACEMENTS = {
 
 /**
  * 기억이 어느 공간에 서 있는가. 한 번에 한 방만 보이므로(MemoryRoomScene) 씬이
- * 이 표를 보고 갈라 그린다 — 거실 물건이 방 안에 같이 렌더되면 벽 너머에 떠 있는
+ * 이 표를 보고 갈라 그린다. 거실 물건이 방 안에 같이 렌더되면 벽 너머에 떠 있는
  * 유령이 된다.
  */
 export const MEMORY_SPACE = {
@@ -463,7 +463,7 @@ export type MemorySpace = (typeof MEMORY_SPACE)[MemoryId];
 export const CAMERA_PRESETS = {
   // room.target.y를 올리면 시선 중심이 위로 가면서 방이 화면 아래쪽으로 내려온다
   room: { position: [14.2, 10.4, 15.4], target: [0.8, 2.35, 1.2] },
-  /** 엔딩 — 거실 끝 현관문을 열 때 (v2에서 배트 → 현관문으로 옮겨왔다). */
+  /** 엔딩: 거실 끝 현관문을 열 때 (v2에서 배트 → 현관문으로 옮겨왔다). */
   ending: { position: [-12.1, 3.1, 3.8], target: [-15.95, 0.9, 1.25] },
   console: { position: [4.4, 2.4, 6.9], target: [1.05, 0.35, 4.05] },
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
@@ -475,7 +475,7 @@ export const CAMERA_PRESETS = {
   calendar: { position: [-1.1, 3.6, 3.2], target: [-5.75, 2.5, 0.9] },
   ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },
   /*
-   * 거실 물건들. 방과 같은 방향(+x·+z)에서 본다 — 공간이 바뀔 때 카메라가 반대편으로
+   * 거실 물건들. 방과 같은 방향(+x·+z)에서 본다. 공간이 바뀔 때 카메라가 반대편으로
    * 돌아가면 "옆 방으로 걸어갔다"가 아니라 "다른 씬으로 잘렸다"로 읽힌다.
    */
   fridge: { position: [-12.7, 3.0, -0.7], target: [-15.32, 1.15, -3.24] },

@@ -3,7 +3,7 @@
  *
  * three의 로딩 매니저는 항목이 마운트될 때마다 큐에 붙기 때문에 total이 도중에
  * 늘어난다. 그래서 이 함수는 "지금 이 순간의 비율"만 내고, 뒤로 물러나지 않게
- * 붙드는 일은 스토어가 한다(setRoomLoadProgress는 값을 올리기만 한다) — 바가
+ * 붙드는 일은 스토어가 한다(setRoomLoadProgress는 값을 올리기만 한다). 바가
  * 되감기면 다 됐다고 생각한 사람이 다시 기다리게 된다.
  */
 export function roomLoadFraction({

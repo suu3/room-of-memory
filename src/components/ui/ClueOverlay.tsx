@@ -29,17 +29,17 @@ const CLUE_TEXT = {
   "desk-clock": { title: "clue.deskClock.title", caption: "clue.deskClock.caption" },
 } as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
 
-/** 놀이책의 펼쳐진 쪽에 적힌 줄 — 트럼프 항목의 앞부분만 보인다. */
+/** 놀이책의 펼쳐진 쪽에 적힌 줄: 트럼프 항목의 앞부분만 보인다. */
 const BOOK_LINES = ["clue.shelfBook.l1", "clue.shelfBook.l2"] as const;
 
 /**
- * 화면에 안 보이는 조사 목록 — 스크린리더와 키보드 전용.
+ * 화면에 안 보이는 조사 목록: 스크린리더와 키보드 전용.
  *
  * 3D 물건을 마우스로 집는 것 말고는 이 종이에 닿을 길이 없는데, 여기 적힌 것이
  * 컴퓨터 잠금을 여는 유일한 단서다. 방의 다른 곁가지(서랍·의자·커튼)와 달리
  * 못 만지면 콘텐츠가 통째로 막히므로 RoomInteractionPrompt와 같은 우회로를 둔다.
  *
- * 아직 열리면 안 되는 단서(조사 전의 달력)는 스토어가 막는다 — 목록에는 늘 있고,
+ * 아직 열리면 안 되는 단서(조사 전의 달력)는 스토어가 막는다. 목록에는 늘 있고,
  * 눌러도 아무 일이 없다. 목록에서 지웠다 나타나면 "여긴 아무것도 없다"로 읽힌다.
  */
 function ClueKeyboardList() {
@@ -60,7 +60,7 @@ function ClueKeyboardList() {
 /**
  * 방에서 집어 든 것을 화면 가운데에 펼친다.
  *
- * 미니게임이 아니다 — 풀 것도, 성공/실패도, 진행에 남는 것도 없다. 컴퓨터
+ * 미니게임이 아니다. 풀 것도, 성공/실패도, 진행에 남는 것도 없다. 컴퓨터
  * 비밀번호가 어디에도 통째로 적혀 있지 않기 때문에 존재하는 화면이고, 쪽지가
  * "달력을 봐라"라고 하고 달력이 날짜를 준다 (src/data/room-clues.ts).
  */
@@ -106,7 +106,7 @@ export function ClueOverlay() {
         aria-label={t(titleKey)}
         className={`relative w-full animate-fade-rise ${narrow ? "max-w-lg" : "max-w-xl"}`}
       >
-        {/* 닫기는 종이 밖에 둔다 — 종이 위에 UI 버튼이 얹히면 종이가 아니라 창이 된다 */}
+        {/* 닫기는 종이 밖에 둔다. 종이 위에 UI 버튼이 얹히면 종이가 아니라 창이 된다 */}
         <button
           type="button"
           onClick={closeClue}
@@ -138,7 +138,7 @@ export function ClueOverlay() {
 /**
  * 서랍 속 접힌 쪽지.
  *
- * 종이는 그림(clue-note-paper.svg)이 그린다 — 찢긴 윗변과 접힌 자국까지 CSS로
+ * 종이는 그림(clue-note-paper.svg)이 그린다. 찢긴 윗변과 접힌 자국까지 CSS로
  * 흉내 내면 값싼 사각형이 된다. 글씨만 그 위에 얹으므로 ko/en/ja가 그대로 산다.
  * 왼쪽 여백선이 그림에 인쇄돼 있어(x=66/640) 글은 그 오른쪽에서 시작한다.
  */
@@ -151,7 +151,7 @@ function FoldedNote() {
       style={{ backgroundImage: `url(${ASSETS.images.clueNotePaper})` }}
     >
       {/*
-        글은 찢긴 윗변 바로 아래에서 시작한다 — 가운데 정렬하면 접힌 자국(그림의
+        글은 찢긴 윗변 바로 아래에서 시작한다. 가운데 정렬하면 접힌 자국(그림의
         y=253/400)이 글줄 한가운데를 가른다. 아래는 비워 둔다: 급히 적고 만 메모라
         종이가 남는 게 자연스럽다.
       */}
@@ -176,10 +176,10 @@ function FoldedNote() {
 }
 
 /**
- * 선반에서 뽑아 든 놀이책의 펼친 쪽 — 게임기 2바퀴 카드 미궁의 규칙이 여기 있다.
+ * 선반에서 뽑아 든 놀이책의 펼친 쪽: 게임기 2바퀴 카드 미궁의 규칙이 여기 있다.
  *
  * 규칙책으로 읽혀야지 문제 풀이로 읽히면 안 된다. 그래서 문양을 제 색으로 늘어놓기만
- * 하고, "이 중 틀린 것을 찾아라" 같은 말은 한 줄도 없다 — 무엇에 쓰는 규칙인지는
+ * 하고, "이 중 틀린 것을 찾아라" 같은 말은 한 줄도 없다. 무엇에 쓰는 규칙인지는
  * 문제를 만난 사람이 알아본다 (src/data/room-clues.ts의 PUZZLE_CLUES).
  */
 function ShelfBook() {
@@ -190,7 +190,7 @@ function ShelfBook() {
       <p className="border-b border-ink/10 pb-3 text-sm font-medium text-graphite">
         {t("clue.shelfBook.heading")}
       </p>
-      {/* 색은 글로 적지 않고 문양을 제 색으로 찍어서 보여준다 — 보면 아는 것을 설명하지 않는다 */}
+      {/* 색은 글로 적지 않고 문양을 제 색으로 찍어서 보여준다. 보면 아는 것을 설명하지 않는다 */}
       <ul className="flex items-center justify-center gap-6 py-6 sm:gap-9">
         {SUITS.map((suit) => (
           <li
@@ -214,13 +214,13 @@ function ShelfBook() {
   );
 }
 
-/** 각도 눈금을 매길 자리 — 시계 방향 45° 간격. */
+/** 각도 눈금을 매길 자리: 시계 방향 45° 간격. */
 const CLOCK_TICKS = [0, 45, 90, 135, 180, 225, 270, 315] as const;
 const CLOCK_RADIUS = 78;
 const CLOCK_LABEL_RADIUS = 60;
 
 /**
- * 캐비닛 위 탁상시계 — 사인볼 2바퀴 회전 미궁의 단서.
+ * 캐비닛 위 탁상시계: 사인볼 2바퀴 회전 미궁의 단서.
  *
  * 방에 놓인 시계는 멈춘 시각(20:47)을 가리키는 소품이지만, 집어 들면 누군가 연필로
  * 눈금마다 각도를 적어 둔 게 보인다. 그림이 "시계 방향으로 몇 도"라는 읽는 법만
@@ -242,7 +242,7 @@ function DeskClock() {
       >
         <circle r={CLOCK_RADIUS} fill="none" stroke="currentColor" className="text-ink/15" />
         {CLOCK_TICKS.map((degrees) => {
-          // SVG는 x축에서 시작해 시계 방향으로 돈다 — 12시(위)에서 출발하도록 90도 뺀다
+          // SVG는 x축에서 시작해 시계 방향으로 돈다. 12시(위)에서 출발하도록 90도 뺀다
           const radians = ((degrees - 90) * Math.PI) / 180;
           return (
             <g key={degrees}>
@@ -268,7 +268,7 @@ function DeskClock() {
             </g>
           );
         })}
-        {/* 도는 방향을 화살표 하나로 못박는다 — 반시계로 읽으면 답이 전부 뒤집힌다 */}
+        {/* 도는 방향을 화살표 하나로 못박는다. 반시계로 읽으면 답이 전부 뒤집힌다 */}
         <path
           d="M 0 -34 A 34 34 0 0 1 29 17"
           fill="none"
@@ -287,18 +287,18 @@ function DeskClock() {
 }
 
 /**
- * 조사를 마친 뒤의 달력 — 이제는 벽에 걸린 배경 오브젝트다.
+ * 조사를 마친 뒤의 달력: 이제는 벽에 걸린 배경 오브젝트다.
  *
  * 넘기는 미니게임과 달리 아무것도 완료하지 않고 애니메이션도 없다. 그냥 달을
  * 오가며 표시된 날을 확인하는 자리라, 비밀번호를 잊었을 때 다시 와서 볼 수 있다.
- * 처음 펼치는 달은 전국대회가 있던 달이다 — 여기 오는 이유가 그것뿐이라서.
+ * 처음 펼치는 달은 전국대회가 있던 달이다. 여기 오는 이유가 그것뿐이라서.
  */
 function WallCalendar() {
   const { t } = useTranslation();
   const [month, setMonth] = useState<number>(NATIONALS_MONTH);
 
   /*
-   * 正자 장(11월)까지는 안 간다 — 거기엔 날짜 격자가 없어서 이 화면이 그릴 게
+   * 正자 장(11월)까지는 안 간다. 거기엔 날짜 격자가 없어서 이 화면이 그릴 게
    * 없다. 그 장은 조사 미니게임이 보여주는 몫이다.
    */
   const turn = (step: -1 | 1) => {

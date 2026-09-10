@@ -16,7 +16,7 @@ import {
   tileBackgroundPosition,
 } from "./puzzle";
 
-/** 0,1,2,… 를 차례로 뱉는 결정적 무작위원 — 섞기를 재현 가능하게 만든다. */
+/** 0,1,2,… 를 차례로 뱉는 결정적 무작위원: 섞기를 재현 가능하게 만든다. */
 function cyclicRandom(values: number[]): () => number {
   let index = 0;
   return () => {
@@ -92,7 +92,7 @@ describe("방향키", () => {
 
 describe("섞기", () => {
   it("합법 수만 밟으므로 언제나 풀 수 있는 배치가 나온다", () => {
-    // 합법 수의 결과라는 것 자체가 풀이 가능성의 증명이다 — 조각 구성이 온전한지 본다
+    // 합법 수의 결과라는 것 자체가 풀이 가능성의 증명이다. 조각 구성이 온전한지 본다
     for (let seed = 0; seed < 12; seed += 1) {
       const board = scramble(30, cyclicRandom([seed / 12, 0.5, 0.9, 0.2]));
       expect([...board].sort((a, b) => a - b)).toEqual(

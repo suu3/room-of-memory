@@ -16,11 +16,11 @@ const SWAP_FADE_MS = 320;
  * 방에 들어왔을 땐 이미 완성된 문장만 남는다. 그래서 별도 컴포넌트로 떼어냈다.
  *
  * 단계(밝기)가 바뀌면 새 줄을 처음부터 다시 찍는다. 다만 **곧장 갈아치우지
- * 않는다** — 단계는 기억을 하나 완료하는 순간에 넘어가는데, 그때 줄이 통째로
+ * 않는다**. 단계는 기억을 하나 완료하는 순간에 넘어가는데, 그때 줄이 통째로
  * 사라졌다 다시 찍히면 대사창이 닫히는 것과 겹쳐서 화면이 깜빡인 것처럼 보인다.
  * 옛 줄을 한 박자 물러나게 한 뒤에 새 줄을 들인다.
  *
- * 대사창도 토스트도 아니다 — 상자·화자·꼬리 없이 아이보리 글자만 어둠 위에 선다.
+ * 대사창도 토스트도 아니다. 상자·화자·꼬리 없이 아이보리 글자만 어둠 위에 선다.
  * 그림자 두 겹(.monologue-text)이 밝은 물건 위에서도 글자를 세우고, 그래도 모자란
  * 자리는 경계 없는 어둠(.monologue-veil)이 글자 뒤에만 옅게 깔린다.
  */
@@ -48,7 +48,7 @@ export function Monologue({ stageId }: { stageId: StageId }) {
      */
     <div className="pointer-events-none absolute left-1/2 top-28 z-10 w-[min(640px,calc(100vw-32px))] -translate-x-1/2 text-center md:top-24 lg:top-16">
       <span aria-hidden className="monologue-veil absolute -inset-x-10 -inset-y-5 -z-10" />
-      {/* 좁은 화면에서는 한 줄이 안 나온다 — 글자를 줄이고, 넘칠 땐 어절 단위로 접는다 */}
+      {/* 좁은 화면에서는 한 줄이 안 나온다. 글자를 줄이고, 넘칠 땐 어절 단위로 접는다 */}
       <p
         className={`monologue-text animate-fade-rise break-ko text-pretty font-pixel text-xl leading-normal text-ivory transition-opacity duration-300 sm:text-[1.375rem] md:text-2xl ${
           leaving ? "opacity-0" : "opacity-100"

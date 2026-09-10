@@ -23,7 +23,7 @@ if (built.issues.length > 0) {
 
 if (!check) {
   const written = await writeGenerated(built.output);
-  console.log(`콘텐츠 생성 완료 — ${written.length}개 파일`);
+  console.log(`콘텐츠 생성 완료: ${written.length}개 파일`);
   for (const file of written) console.log(`  · ${file}`);
   process.exit(0);
 }
@@ -38,4 +38,4 @@ if (stale.length > 0) {
   process.exit(1);
 }
 
-console.log("콘텐츠 검증 통과 — 생성물이 content/*.yaml과 일치한다.");
+console.log("콘텐츠 검증 통과: 생성물이 content/*.yaml과 일치한다.");

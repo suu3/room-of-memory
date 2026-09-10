@@ -33,7 +33,7 @@ describe("cover transform", () => {
     }
   });
 
-  it("never leaves a gap — one axis always fills the plane completely", () => {
+  it("never leaves a gap: one axis always fills the plane completely", () => {
     for (const imageAspect of [0.4, 1, 1.32, 3]) {
       const { repeat } = coverTransform(imageAspect, FRAME_ASPECT);
       // cover의 정의: 한 축은 꽉 차고(=1) 다른 축이 잘린다(<=1)
@@ -45,7 +45,7 @@ describe("cover transform", () => {
 
   it("trims only a sliver off the real frame photo", () => {
     const { repeat } = coverTransform(PHOTO_ASPECT, FRAME_ASPECT);
-    // 사진이 액자보다 세로로 길어 위아래가 잘린다 — 얼굴이 날아갈 만큼은 아니어야 한다
+    // 사진이 액자보다 세로로 길어 위아래가 잘린다. 얼굴이 날아갈 만큼은 아니어야 한다
     expect(repeat[0]).toBe(1);
     expect(repeat[1]).toBeLessThan(1);
     expect(repeat[1]).toBeGreaterThan(0.9);

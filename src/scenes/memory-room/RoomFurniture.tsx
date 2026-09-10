@@ -43,7 +43,7 @@ import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
 import { usePrefersReducedMotion, useSeat, useSeatPull } from "./use-seat";
 
-// 컴퓨터(모니터·키보드·마우스)는 이제 가구가 아니라 기억 오브젝트다 —
+// 컴퓨터(모니터·키보드·마우스)는 이제 가구가 아니라 기억 오브젝트다.
 // MemoryObjects가 그리고 프리로드한다. 여기 다시 넣으면 두 개로 보인다.
 // 침대(프레임·베개·이불 한 모델)는 BedModel이 그리고 프리로드한다.
 const ROOM_PROP_PATHS = [
@@ -93,7 +93,7 @@ const DESK_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 // 다리는 좌석 안으로, 등받이는 좌석 안으로 각각 파고든다. 좌면 치수는 layout의
-// CHAIR_SEAT — 앉는 자리(seats)와 발자국이 같은 수를 봐야 한다.
+// CHAIR_SEAT: 앉는 자리(seats)와 발자국이 같은 수를 봐야 한다.
 const CHAIR_WIDTH = CHAIR_SEAT.half * 2;
 const CHAIR_SEAT_Y = CHAIR_SEAT.topY - CHAIR_SEAT.thickness / 2;
 const CHAIR_LEG_INSET = CHAIR_SEAT.half - 0.1;
@@ -111,20 +111,20 @@ const CHAIR_PARTS = [
   { size: [0.12, 0.58, 0.12], position: [CHAIR_LEG_INSET, 0.29, -CHAIR_LEG_INSET], color: "frame" },
   { size: [0.12, 0.58, 0.12], position: [-CHAIR_LEG_INSET, 0.29, CHAIR_LEG_INSET], color: "frame" },
   { size: [0.12, 0.58, 0.12], position: [CHAIR_LEG_INSET, 0.29, CHAIR_LEG_INSET], color: "frame" },
-  // 등받이 뒷면(0.45)을 좌석 모서리(0.43) 뒤로 뺀다 — 두 면이 같은 평면에
+  // 등받이 뒷면(0.45)을 좌석 모서리(0.43) 뒤로 뺀다. 두 면이 같은 평면에
   // 놓이면 z-fighting으로 깜빡인다 (위 겹침 원칙)
   { size: [CHAIR_WIDTH, 0.68, 0.14], position: [0, 0.96, 0.38], color: "wood" },
 ] as const satisfies readonly BoxPart[];
 
 // 몸통 앞면 z=-2.53. 서랍판은 그 면을 물고, 손잡이는 서랍판 앞에 0.015 띄운다.
-// 몸통은 layout의 CABINET_BODY를 그대로 쓴다 — 상판 위 기억 오브젝트와 같은 수치를 봐야 한다.
+// 몸통은 layout의 CABINET_BODY를 그대로 쓴다. 상판 위 기억 오브젝트와 같은 수치를 봐야 한다.
 const CABINET_BODY_PARTS = [
   { ...CABINET_BODY, color: "wood" },
 ] as const satisfies readonly BoxPart[];
 
 /*
  * 서랍 한 칸은 서랍판 + 손잡이 한 쌍이다. 좌표는 닫혀 있을 때 그대로 두고 그룹째
- * +z로 밀어낸다 — 파트마다 위치를 다시 계산하면 손잡이가 판에서 떨어져 나간다.
+ * +z로 밀어낸다. 파트마다 위치를 다시 계산하면 손잡이가 판에서 떨어져 나간다.
  * 손잡이 둘이 안쪽(x=2.14, 2.56)에 몰려 있는 건 여닫이처럼 가운데서 잡는 모양이라서다.
  */
 const CABINET_DRAWERS = [
@@ -154,7 +154,7 @@ const SHELF_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 /**
- * 커튼이 걸린 평면. 드래그 기준점을 커튼 메쉬에서 뽑으면 안 된다 — 커튼이 손을 따라
+ * 커튼이 걸린 평면. 드래그 기준점을 커튼 메쉬에서 뽑으면 안 된다. 커튼이 손을 따라
  * 밀리는 순간 교차점도 같이 밀려서 이동량이 0으로 무너진다. 움직이지 않는 이 평면에
  * 광선을 쏴서 손이 실제로 간 거리를 잰다.
  */
@@ -180,12 +180,12 @@ function BoxParts({ parts, palette }: { parts: readonly BoxPart[]; palette: Room
 }
 
 /**
- * 침대. 누르면 옆으로 걸어가 올라가서 눕는다 (seats.ts의 bed) — 의자와 같은 훅이라
+ * 침대. 누르면 옆으로 걸어가 올라가서 눕는다 (seats.ts의 bed): 의자와 같은 훅이라
  * 다가가야 하고, 누워 있을 때 다시 누르면 일어난다. 모양과 이불 접힘은 BedModel.
  */
 function Bed({ palette }: FurnitureProps) {
   const { glowing, handlers } = useSeat("bed");
-  // 모델이 글로우가 켜진 뒤에 붙으면 선택이 비어 있다 — 붙을 때마다 다시 훑게 한다.
+  // 모델이 글로우가 켜진 뒤에 붙으면 선택이 비어 있다. 붙을 때마다 다시 훑게 한다.
   const [modelVersion, setModelVersion] = useState(0);
   const handleModelReady = useCallback(() => setModelVersion((version) => version + 1), []);
   return (
@@ -214,7 +214,7 @@ function Desk({ palette }: FurnitureProps) {
 /**
  * 곁가지 인터랙션이 공통으로 쓰는 값들.
  *
- * 커튼과 달리 이쪽은 끌지 않고 한 번 눌러 여닫는다 — 커튼을 젖히는 건 밖을 보는
+ * 커튼과 달리 이쪽은 끌지 않고 한 번 눌러 여닫는다. 커튼을 젖히는 건 밖을 보는
  * 이야기의 한 순간이라 손으로 하는 몸짓이 값을 하지만, 서랍은 방을 만지는
  * 감각이라 몸짓까지 요구하면 품이 이야기보다 커진다.
  */
@@ -227,7 +227,7 @@ const REDUCED_LAMBDA = 18;
 /**
  * 눌러서 여닫는 서랍. 캐비닛 두 칸과 협탁 한 칸이 같은 부품을 쓴다.
  *
- * 열림 여부는 이 컴포넌트가 들고 있다 — 이야기에 아무것도 남기지 않는 순수한 겉모습이라
+ * 열림 여부는 이 컴포넌트가 들고 있다. 이야기에 아무것도 남기지 않는 순수한 겉모습이라
  * 스토어에 올릴 이유가 없다 (플래그도, 세이브도 걸리지 않는다).
  */
 function Drawer({
@@ -245,7 +245,7 @@ function Drawer({
   /** 다가왔는지 재는 기준점 (월드 x·z). */
   near: readonly [number, number];
   /**
-   * 서랍 안에 든 것. 서랍과 함께 밀려 나와야 하므로 같은 그룹에 들어간다 —
+   * 서랍 안에 든 것. 서랍과 함께 밀려 나와야 하므로 같은 그룹에 들어간다.
    * 열림 여부를 알아야 만질 수 있는지 정할 수 있어 함수로 받는다.
    */
   children?: (open: boolean) => ReactNode;
@@ -290,11 +290,11 @@ function Drawer({
 }
 
 /**
- * 책상 앞으로 붙어 있는 의자. 누르면 다가간 사람이 앉는다 — 의자는 그 몫으로 먼저
+ * 책상 앞으로 붙어 있는 의자. 누르면 다가간 사람이 앉는다. 의자는 그 몫으로 먼저
  * 뒤로 물러나며 살짝 틀어진다 (CHAIR_PULL).
  *
  * 예전에는 누르면 의자만 빠졌다 들어왔다. 앉는 동작이 생기면서 그 움직임은 앉는
- * 몸짓의 일부가 됐다 — 밀어 넣은 채로 앉으면 상판 밑에 몸이 낀다 (seats.ts).
+ * 몸짓의 일부가 됐다. 밀어 넣은 채로 앉으면 상판 밑에 몸이 낀다 (seats.ts).
  */
 function Chair({ palette }: FurnitureProps) {
   const groupRef = useRef<Group>(null);
@@ -349,7 +349,7 @@ function Nightstand({ palette }: FurnitureProps) {
         near={[NIGHTSTAND_DRAWER[0].position[0], NIGHTSTAND_DRAWER[0].position[2]]}
         palette={palette}
       >
-        {/* 아빠가 넣어둔 쪽지 — 컴퓨터 비밀번호 단서의 절반이다 */}
+        {/* 아빠가 넣어둔 쪽지: 컴퓨터 비밀번호 단서의 절반이다 */}
         {(open) => <DrawerNoteClue palette={palette} open={open} />}
       </Drawer>
     </group>
@@ -369,7 +369,7 @@ function Shelves({ palette }: FurnitureProps) {
  * 모델마다 배율이 다르면 한 책상 위에서 물건 크기가 서로 안 맞아 보인다.
  * 배율은 모니터 높이(0.29)를 예전 프리미티브 높이(0.9)에 맞춰 잡았다.
  *
- * 좌표는 책상 로컬 프레임이다 — 책상은 Y 90° 돌아 있어서 로컬 +x가 책상 길이,
+ * 좌표는 책상 로컬 프레임이다. 책상은 Y 90° 돌아 있어서 로컬 +x가 책상 길이,
  * 로컬 +z가 의자(앉는 쪽)를 향한다. 상판 윗면은 y=1.11.
  */
 const DESK_PROP_SCALE = 3.1;
@@ -377,10 +377,10 @@ const DESK_TOP_Y = 1.11;
 
 /** 스탠드가 책상 위에 서는 자리 (책상 로컬). glb 높이 0.29 × 배율 3.1 ≈ 0.9. */
 const LAMP_LOCAL: Vec3Tuple = [1.42, DESK_TOP_Y, -0.3];
-/** 갓 안의 전구 높이 — 상판에서 이만큼 위. */
+/** 갓 안의 전구 높이: 상판에서 이만큼 위. */
 const LAMP_BULB_HEIGHT = 0.64;
 /**
- * 스탠드의 월드 x·z. 책상은 Y 90° 돌아 있어 로컬 (x, z) → 월드 (z, -x)다 — 다가감 판정은
+ * 스탠드의 월드 x·z. 책상은 Y 90° 돌아 있어 로컬 (x, z) → 월드 (z, -x)다. 다가감 판정은
  * 월드 좌표로 재므로 로컬 자리를 한 번 돌려 둔다.
  */
 const LAMP_WORLD = [DESK_POSITION[0] + LAMP_LOCAL[2], DESK_POSITION[2] - LAMP_LOCAL[0]] as const;
@@ -389,14 +389,14 @@ const LAMP_INTENSITY = 5;
 const LAMP_REACH = 4.5;
 
 /**
- * 책상 스탠드. 다가가서 누르면 켜지고 다시 누르면 꺼진다 — 전등 스위치·서랍과 같은
+ * 책상 스탠드. 다가가서 누르면 켜지고 다시 누르면 꺼진다. 전등 스위치·서랍과 같은
  * 곁가지라 진행에도 저장에도 남지 않는다. 불은 갓 안의 전구(emissive)와 point light
  * 하나로, 값은 프레임마다 damp로 따라간다 (툭 켜지면 스위치가 아니라 버그로 읽힌다).
  */
 function DeskLamp({ palette }: FurnitureProps) {
   const [on, setOn] = useState(false);
   const near = useNearPlayer(LAMP_WORLD[0], LAMP_WORLD[1], FURNITURE_NEAR_RADIUS);
-  // 다가갔을 때만 호버·커서가 산다 — 멀리서 누르면 거절하므로 멀리서 빛나면 안 된다
+  // 다가갔을 때만 호버·커서가 산다. 멀리서 누르면 거절하므로 멀리서 빛나면 안 된다
   const { handlers } = useGlowHover(near);
   const lightRef = useRef<PointLight>(null);
   const bulbRef = useRef<MeshStandardMaterial>(null);
@@ -433,7 +433,7 @@ function DeskLamp({ palette }: FurnitureProps) {
           scale={DESK_PROP_SCALE}
         />
       </MemoryGlowSelection>
-      {/* 갓 안의 전구 — 켜지면 갓이 안에서부터 데워진다 */}
+      {/* 갓 안의 전구: 켜지면 갓이 안에서부터 데워진다 */}
       <mesh position={[LAMP_LOCAL[0], LAMP_LOCAL[1] + LAMP_BULB_HEIGHT, LAMP_LOCAL[2]]}>
         <sphereGeometry args={[0.055, 10, 8]} />
         <meshStandardMaterial
@@ -458,7 +458,7 @@ function DeskLamp({ palette }: FurnitureProps) {
 }
 
 function DeskAccessories({ palette }: FurnitureProps) {
-  // 컴퓨터 세트(모니터·키보드·마우스)는 기억 오브젝트로 승격됐다 —
+  // 컴퓨터 세트(모니터·키보드·마우스)는 기억 오브젝트로 승격됐다.
   // MemoryObjects의 ComputerMemory가 같은 자리(월드 좌표)에 그린다.
   return (
     <group name="desk-accessories">
@@ -473,7 +473,7 @@ function DeskAccessories({ palette }: FurnitureProps) {
   );
 }
 
-// 상판 소품의 x는 layout의 CABINET_TOP_PROPS에서 가져온다 — 기억 오브젝트가 피해야 할
+// 상판 소품의 x는 layout의 CABINET_TOP_PROPS에서 가져온다. 기억 오브젝트가 피해야 할
 // 구간이라 한곳에서 관리한다. 도형 크기를 바꾸면 거기 halfWidth도 같이 고칠 것.
 const { plant, storageBox, clock } = CABINET_TOP_PROPS;
 
@@ -481,11 +481,11 @@ const { plant, storageBox, clock } = CABINET_TOP_PROPS;
  * 캐비닛 위 탁상시계.
  *
  * 원통 하나에 종이색 원판을 덧댄 게 전부였는데, 그 원판이 원통과 같은 rotation을
- * 받는 바람에 바닥을 보고 서 있었다 — 방에서 보이는 건 아무것도 안 적힌 민짜
+ * 받는 바람에 바닥을 보고 서 있었다. 방에서 보이는 건 아무것도 안 적힌 민짜
  * 원반뿐이라 정체를 알 수 없는 물건이 됐다. 문자판을 방 쪽으로 돌리고 바늘을 단다.
  *
  * 원통 몸통 두께가 0.1이므로 앞면은 중심에서 0.05 앞이다. 문자판·바늘·축은 그 앞으로
- * 조금씩 띄워 쌓는다 — 같은 z에 놓으면 면이 겹쳐 깜빡인다.
+ * 조금씩 띄워 쌓는다. 같은 z에 놓으면 면이 겹쳐 깜빡인다.
  */
 /*
  * z를 -2.48에서 -2.82로 물렸다. 예전 자리에서는 원통 뒷면(z=-2.53)이 캐비닛
@@ -495,7 +495,7 @@ const { plant, storageBox, clock } = CABINET_TOP_PROPS;
  */
 const CLOCK_CENTER: Vec3Tuple = [clock.x, 1.43, -2.82];
 const CLOCK_FACE_Z = 0.055;
-/** 멈춰 선 시각. 폰 잠금화면과 같은 20:47이다 — 방 안의 두 시계가 어긋나면 안 된다. */
+/** 멈춰 선 시각. 폰 잠금화면과 같은 20:47이다. 방 안의 두 시계가 어긋나면 안 된다. */
 const CLOCK_HOUR = 20;
 const CLOCK_MINUTE = 47;
 /** 12시 방향에서 시계방향으로 도는 각. three의 +Z 회전은 반시계라 부호가 뒤집힌다. */
@@ -516,7 +516,7 @@ function ClockHand({
   color: string;
 }) {
   return (
-    // 바늘은 축을 중심으로 돈다 — 회전은 그룹이 맡고 막대는 그 안에서 길이의 절반만큼 올라간다
+    // 바늘은 축을 중심으로 돈다. 회전은 그룹이 맡고 막대는 그 안에서 길이의 절반만큼 올라간다
     <group position={[0, 0, z]} rotation={[0, 0, angle]}>
       <mesh position={[0, length / 2, 0]}>
         <boxGeometry args={[width, length, 0.012]} />
@@ -528,7 +528,7 @@ function ClockHand({
 
 /**
  * 캐비닛 위 탁상시계. 멈춘 시각을 가리키는 소품이면서, 집어 들면 눈금마다 각도가
- * 적힌 게 보인다 — 사인볼 2바퀴 회전 미궁의 단서다 (src/data/room-clues.ts).
+ * 적힌 게 보인다. 사인볼 2바퀴 회전 미궁의 단서다 (src/data/room-clues.ts).
  */
 function DeskClock({ palette }: FurnitureProps) {
   return (
@@ -556,7 +556,7 @@ function DeskClock({ palette }: FurnitureProps) {
           z={CLOCK_FACE_Z + 0.014}
           color={palette.frame}
         />
-        {/* 바늘이 만나는 축 — 두 바늘이 그냥 겹쳐 있으면 십자 무늬로 보인다 */}
+        {/* 바늘이 만나는 축: 두 바늘이 그냥 겹쳐 있으면 십자 무늬로 보인다 */}
         <mesh position={[0, 0, CLOCK_FACE_Z + 0.022]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.018, 0.018, 0.01, 10]} />
           <meshStandardMaterial color={palette.clay} roughness={0.6} />
@@ -589,7 +589,7 @@ function CabinetAccessories({ palette }: FurnitureProps) {
 
 function FloorAccessories({ palette }: FurnitureProps) {
   /*
-   * 러그의 킷 원색은 빨강이라 방에서 혼자 튄다. 바탕은 리넨, 테두리는 테라코타로 —
+   * 러그의 킷 원색은 빨강이라 방에서 혼자 튄다. 바탕은 리넨, 테두리는 테라코타로:
    * 재질 이름(carpet · carpetDarker)은 glb에 박혀 있는 것이다. 팔레트가 바뀌면 같이 바뀌게
    * 메모해 둔다 (FurnitureModel이 재질을 useMemo 안에서 만들어서 참조가 고정돼야 한다).
    */
@@ -622,11 +622,11 @@ function FloorAccessories({ palette }: FurnitureProps) {
  * 커튼 한 쪽. 잡아당겨 젖히고, 한 번 눌러도 여닫힌다.
  *
  * 포인터를 누른 채 좌우로 끌면 그만큼 젖혀지고, 놓으면 충분히 당겼는지에 따라
- * 끝까지 열리거나 도로 닫힌다. 양쪽을 다 젖혀야 밖이 보인다 — 창을 여는 건
+ * 끝까지 열리거나 도로 닫힌다. 양쪽을 다 젖혀야 밖이 보인다. 창을 여는 건
  * 이 게임에서 "진실을 마주하는" 동작이라 손으로 하게 두는 편이 맞는다.
  *
  * 다 젖힌 뒤에도 계속 만질 수 있다. 커튼은 수집 대상이 아니라 전등 스위치와 같은
- * 방의 곁가지 인터랙션이라, 창밖을 한 번 봤다고 굳어 버리면 안 된다 — 도로 닫고
+ * 방의 곁가지 인터랙션이라, 창밖을 한 번 봤다고 굳어 버리면 안 된다. 도로 닫고
  * 다시 젖히는 것까지가 이 물건의 전부다 (창문 기억 자체는 스토어가 따로 잠근다).
  *
  * 키보드 사용자를 위해 Enter/Space는 그 쪽을 한 번에 젖힌다 (RoomInteractionPrompt의
@@ -643,12 +643,12 @@ function Curtain({
   progress: number;
   /** 이번 프레임까지 끌어온 진행도(0~1). */
   onPull: (side: CurtainSide, progress: number) => void;
-  /** 손을 뗐다. `progress`는 놓는 순간의 진행도, `tapped`면 끌지 않고 누르기만 한 것 — 그대로 뒤집는다. */
+  /** 손을 뗐다. `progress`는 놓는 순간의 진행도, `tapped`면 끌지 않고 누르기만 한 것: 그대로 뒤집는다. */
   onRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
 }) {
   const groupRef = useRef<Group>(null);
   /*
-   * 다가가면 빛난다. 호버·커서도 다가갔을 때만 켠다 — 멀리서 잡을 수 없는 물건이
+   * 다가가면 빛난다. 호버·커서도 다가갔을 때만 켠다. 멀리서 잡을 수 없는 물건이
    * 멀리서 빛나면 "만질 수 있다"는 거짓말이 된다.
    *
    * 기준점은 커튼이 지금 있는 자리가 아니라 닫혀 있을 때의 자리다. 젖히는 도중에
@@ -671,13 +671,13 @@ function Curtain({
   pullRef.current = onPull;
   const releaseRef = useRef(onRelease);
   releaseRef.current = onRelease;
-  /** 마지막으로 알린 진행도 — 놓을 때 어디서 놓았는지 알려 주기 위해서. */
+  /** 마지막으로 알린 진행도: 놓을 때 어디서 놓았는지 알려 주기 위해서. */
   const progressRef = useRef(progress);
   progressRef.current = progress;
 
   /*
    * 커튼을 잡으면 캐릭터가 창가로 걸어가 벽을 보고 서서 양팔을 든다 (Player). 커튼은
-   * 몸이 **닿은 뒤에야** 손을 따른다 — 그 전에 끌거나 놓은 것은 여기 담아 두었다가
+   * 몸이 **닿은 뒤에야** 손을 따른다. 그 전에 끌거나 놓은 것은 여기 담아 두었다가
    * 닿는 프레임에 흘려보낸다. 방 저쪽에서 누르면 의자처럼 거절한다: 손이 닿을 리 없는
    * 자리에서 커튼이 혼자 열리면 안 된다.
    */
@@ -772,7 +772,7 @@ function Curtain({
         event.stopPropagation();
         const x = curtainPlaneX(event.ray);
         if (x === null) return;
-        // 손이 이 폭을 넘긴 적이 있으면 그 뒤로는 계속 드래그다 — 되돌아왔다고 탭이 되면
+        // 손이 이 폭을 넘긴 적이 있으면 그 뒤로는 계속 드래그다. 되돌아왔다고 탭이 되면
         // 끌다 만 커튼이 엉뚱하게 뒤집힌다.
         if (Math.abs(x - drag.startX) >= CURTAIN_TAP_SLOP) drag.moved = true;
         const next = pullProgress(side, x - drag.startX, drag.from);
@@ -785,7 +785,7 @@ function Curtain({
         (event.target as Element | null)?.releasePointerCapture?.(event.pointerId);
         endDrag();
       }}
-      // onPointerLeave는 쓰지 않는다 — 커튼을 젖히는 순간 포인터가 메쉬 밖으로 나가면서
+      // onPointerLeave는 쓰지 않는다. 커튼을 젖히는 순간 포인터가 메쉬 밖으로 나가면서
       // 곧바로 드래그가 취소돼 한 칸도 못 움직였다. 포인터 캡처가 잡혀 있으므로
       // 밖으로 나가도 move/up은 계속 들어온다.
     >

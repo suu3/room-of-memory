@@ -36,7 +36,7 @@ function getFieldButton() {
  * 클리어까지 필요한 5안타를 친다.
  *
  * 라운드 길이는 안타를 칠 때마다 짧아진다(1700에서 150씩, 하한 1200). 다만
- * 다음 라운드 길이는 "그 안타를 칠 때의 catches" 기준이라 한 박자 늦게 반영된다 —
+ * 다음 라운드 길이는 "그 안타를 칠 때의 catches" 기준이라 한 박자 늦게 반영된다.
  * 그래서 1700이 두 번 나온다.
  */
 const ROUND_DURATIONS = [1700, 1700, 1550, 1400, 1250];
@@ -107,7 +107,7 @@ describe("BallCatchMinigame", () => {
     expect(html).toContain("HITS 0 / 5");
     expect(html).toContain("Chances left");
     expect(html).toContain("5 / 5");
-    // 키보드 기기 기준 문구 — 터치 기기에서는 "TAP"으로 바뀐다 (src/i18n/control-hint.ts)
+    // 키보드 기기 기준 문구: 터치 기기에서는 "TAP"으로 바뀐다 (src/i18n/control-hint.ts)
     expect(html).toContain("SPACE");
   });
 

@@ -52,21 +52,21 @@ const FLOOR_PLANE = new Plane(new Vector3(0, 1, 0), 0);
 const floorHit = new Vector3();
 
 /*
- * 창으로 드는 볕의 방향. 창(뒷벽 x≈1.15, z=-3.88) 바깥 위에서 방 안쪽 왼편 —
- * 책상(x -5.4~-3.8)과 그 앞 바닥 — 을 향한다. 뒷벽 조각이 그림자를 드리우므로
+ * 창으로 드는 볕의 방향. 창(뒷벽 x≈1.15, z=-3.88) 바깥 위에서 방 안쪽 왼편:
+ * 책상(x -5.4~-3.8)과 그 앞 바닥: 을 향한다. 뒷벽 조각이 그림자를 드리우므로
  * 볕은 창 개구부 모양으로만 들어오고, 위쪽 창을 지난 빛이 책상 상판에, 아래쪽 창을
- * 지난 빛이 캐비닛 왼편 바닥에 닿는다. 실제 창의 경로다 — 허공의 광선이 아니라
+ * 지난 빛이 캐비닛 왼편 바닥에 닿는다. 실제 창의 경로다. 허공의 광선이 아니라
  * 표면에 닿는 빛과 그림자의 대비가 우선이다 (DESIGN.md > Lighting).
  */
 const SUN_POSITION: [number, number, number] = [7.15, 6.5, -7.2];
 const SUN_TARGET: [number, number, number] = [-4.35, 0.5, -0.4];
-/** 그림자 카메라의 반폭. 방 전체(x -6~8, z -4~6.5)가 비스듬한 축에서도 다 들어와야 한다 — 밖으로 나간 자리는 그림자 없이 볕을 받아 엉뚱한 구석이 밝아진다. */
+/** 그림자 카메라의 반폭. 방 전체(x -6~8, z -4~6.5)가 비스듬한 축에서도 다 들어와야 한다. 밖으로 나간 자리는 그림자 없이 볕을 받아 엉뚱한 구석이 밝아진다. */
 const SUN_SHADOW_EXTENT = 15;
 /** 커튼이 닫혀 있을 때 남는 볕의 몫. 얇은 천이라 다 막지는 못하고 흐려질 뿐이다. */
 const CURTAIN_SUN_FACTOR = 0.6;
 /** 창가 point light의 닿는 거리. 되찾을수록 볕의 범위가 넓어진다. */
 const WINDOW_GLOW_REACH: readonly [number, number] = [5, 9];
-/** 조명이 목표값을 따라가는 속도 — 1.5~3초 안에 자리 잡는다. */
+/** 조명이 목표값을 따라가는 속도: 1.5~3초 안에 자리 잡는다. */
 const LIGHT_LAMBDA = 2.2;
 
 function StageLighting({
@@ -83,9 +83,9 @@ function StageLighting({
   warm: number;
   /** 벽의 전등 스위치. 꺼도 창으로 드는 빛은 남는다. */
   lightsOn: boolean;
-  /** 커튼이 열렸는가 — 닫히면 볕이 흐려진다. */
+  /** 커튼이 열렸는가: 닫히면 볕이 흐려진다. */
   curtainsOpen: boolean;
-  /** 거실에는 창이 없다 — 볕은 방의 것이다. */
+  /** 거실에는 창이 없다. 볕은 방의 것이다. */
   inLivingRoom: boolean;
   palette: RoomPalette;
 }) {
@@ -119,7 +119,7 @@ function StageLighting({
     const follow = (current: number, goal: number) =>
       MathUtils.damp(current, goal, LIGHT_LAMBDA, delta);
 
-    // 방 안의 빛(간접광·전등)만 스위치를 탄다 — 창으로 드는 볕은 스위치와 무관하다
+    // 방 안의 빛(간접광·전등)만 스위치를 탄다. 창으로 드는 볕은 스위치와 무관하다
     ambient.intensity = follow(
       ambient.intensity,
       lampScaled(roomLightValue(ROOM_LIGHT_RAMP.ambient, cool), lightsOn),
@@ -159,7 +159,7 @@ function StageLighting({
         groundColor={palette.deep}
         intensity={roomLightValue(ROOM_LIGHT_RAMP.hemisphere, initial.cool)}
       />
-      {/* 차가운 키 — 커튼 너머의 낮. 앞 위에서 내려와 윤곽을 세운다 */}
+      {/* 차가운 키: 커튼 너머의 낮. 앞 위에서 내려와 윤곽을 세운다 */}
       <directionalLight
         ref={keyRef}
         position={[3, 8, 5]}
@@ -169,7 +169,7 @@ function StageLighting({
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
-      {/* 천장 전등 — 스위치가 끄는 빛의 본체 */}
+      {/* 천장 전등: 스위치가 끄는 빛의 본체 */}
       <pointLight
         ref={lampRef}
         position={[0, 4.2, 0.8]}
@@ -178,7 +178,7 @@ function StageLighting({
         distance={13}
         decay={2}
       />
-      {/* 창가에 고이는 볕 — 커튼을 통과한 산광. 되찾을수록 멀리까지 닿는다 */}
+      {/* 창가에 고이는 볕: 커튼을 통과한 산광. 되찾을수록 멀리까지 닿는다 */}
       <pointLight
         ref={windowGlowRef}
         position={[1.2, 3.1, -3.2]}
@@ -188,7 +188,7 @@ function StageLighting({
         decay={2}
       />
       {/*
-        창으로 드는 볕. 이 씬의 두 번째이자 마지막 그림자 광원이다 — 뒷벽이 창 모양으로
+        창으로 드는 볕. 이 씬의 두 번째이자 마지막 그림자 광원이다. 뒷벽이 창 모양으로
         가리고, 책상·의자·몸이 그 빛 안에서 그림자를 드리운다.
       */}
       <directionalLight
@@ -239,7 +239,7 @@ export function MemoryRoomScene({
   onCurtainRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
   roomZoom: number;
   orbitAzimuth: number;
-  /** 게임이 시작됐는가 — 타이틀 구도(방 모형 전체)와 플레이 구도(플레이어 추적)를 가른다. */
+  /** 게임이 시작됐는가: 타이틀 구도(방 모형 전체)와 플레이 구도(플레이어 추적)를 가른다. */
   following: boolean;
   onInteract: (id: MemoryId) => void;
 }) {
@@ -279,7 +279,7 @@ export function MemoryRoomScene({
     recovery,
   });
   /*
-   * 밝기는 진행도가 정하고 공간이 정하지 않는다 — 다만 거실은 한 단계 낮게
+   * 밝기는 진행도가 정하고 공간이 정하지 않는다. 다만 거실은 한 단계 낮게
    * 출발한다 (docs/content-design.md 5장). 여기서 한 번만 깎아 두면 조명·창빛·
    * 먼지가 전부 같은 값을 본다. 볕(warm)은 방의 창에서 오므로 거실에서는 꺼진다.
    */
@@ -301,7 +301,7 @@ export function MemoryRoomScene({
         방의 몸통은 통째로 글로우 루트 안에 둔다.
 
         예전에는 "만질 수 있는 것"만 넣었는데, 전등 스위치가 벽에 붙은 물건이라
-        RoomShell(=루트 밖)에 있었고 — MemoryGlowSelection이 컨텍스트를 못 찾아
+        RoomShell(=루트 밖)에 있었고: MemoryGlowSelection이 컨텍스트를 못 찾아
         조용히 아무것도 안 했다. 스위치만 혼자 빛나지 않던 이유다.
 
         루트 안에 있다고 빛나는 게 아니라 MemoryGlowSelection이 enabled일 때만
@@ -311,7 +311,7 @@ export function MemoryRoomScene({
       <MemoryGlowRoot color={palette.memory}>
         {/*
           한 번에 한 방만 보인다 (v2). 두 방을 나란히 세워두면 디오라마가 아니라
-          단면도가 된다 — 지금 서 있는 공간만 서 있고, 문턱을 넘는 순간 바뀐다.
+          단면도가 된다. 지금 서 있는 공간만 서 있고, 문턱을 넘는 순간 바뀐다.
           숨긴 방의 인터랙션은 근접 판정이 어차피 막는다 (다가갈 수 없는 거리다).
         */}
         {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
@@ -326,7 +326,7 @@ export function MemoryRoomScene({
                 phase: gamePhase,
               })}
             />
-            {/* 벽에 붙은 것들 — 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
+            {/* 벽에 붙은 것들: 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
             <RoomDecor palette={palette} />
             <RoomFurniture
               palette={palette}
@@ -341,7 +341,7 @@ export function MemoryRoomScene({
               onInteract={onInteract}
             />
           </group>
-          {/* 방문 너머 — 2막에 문이 열리면 걸어 나갈 수 있다 */}
+          {/* 방문 너머: 2막에 문이 열리면 걸어 나갈 수 있다 */}
           <group visible={inLivingRoom}>
             <LivingRoomShell palette={palette} />
             <LivingRoomFurniture palette={palette} />
@@ -351,19 +351,19 @@ export function MemoryRoomScene({
               nearbyMemoryId={nearbyMemoryId}
               onInteract={onInteract}
             />
-            {/* 현관 옆 배트 — 앰플을 쥐면 켜지는 3막 트리거 */}
+            {/* 현관 옆 배트: 앰플을 쥐면 켜지는 3막 트리거 */}
             <EndingTrigger palette={palette} />
           </group>
         </group>
       </MemoryGlowRoot>
       {/*
-        방 바깥 — 받침 아래 고인 빛과 둘레를 떠도는 티끌.
+        방 바깥: 받침 아래 고인 빛과 둘레를 떠도는 티끌.
         글로우 루트 밖이다: 만질 수 있는 것이 아니라 배경이라 아웃라인이 붙으면 안 된다.
       */}
       <RoomSurroundings palette={palette} />
-      {/* 창빛·먼지는 방의 것이다 — 거실에 있는 동안은 방과 함께 숨는다 */}
+      {/* 창빛·먼지는 방의 것이다. 거실에 있는 동안은 방과 함께 숨는다 */}
       <group visible={!inLivingRoom}>
-        {/* 글로우 루트 밖 — 빛·먼지는 아웃라인 선택 대상이 아니다 */}
+        {/* 글로우 루트 밖: 빛·먼지는 아웃라인 선택 대상이 아니다 */}
         <WindowLight
           color={palette.sun}
           intensity={roomLightValue(ROOM_LIGHT_RAMP.windowLight, warm)}
@@ -376,7 +376,7 @@ export function MemoryRoomScene({
         />
       </group>
       <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
-      {/* 배트를 쥐면 카메라도 문 쪽으로 붙는다 — 엔딩 영상의 첫 컷과 이어지는 구도 */}
+      {/* 배트를 쥐면 카메라도 문 쪽으로 붙는다. 엔딩 영상의 첫 컷과 이어지는 구도 */}
       <CameraRig
         focusId={endingStarted ? "ending" : focusMemoryId}
         roomZoom={roomZoom}

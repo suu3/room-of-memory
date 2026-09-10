@@ -17,7 +17,7 @@ import {
   SUIT_GLYPH,
 } from "./cards";
 
-/** 미궁 문제는 붙잡고 들여다보는 시간이 길다 — 스킵은 한참 뒤에야 내민다. */
+/** 미궁 문제는 붙잡고 들여다보는 시간이 길다. 스킵은 한참 뒤에야 내민다. */
 const SKIP_AFTER_MS = 90_000;
 /** 맞힌 판을 잠깐 보여준 뒤 결과 대사로 넘긴다. */
 const SETTLE_MS = 900;
@@ -30,10 +30,10 @@ function rankLabel(rank: number): string {
 }
 
 /**
- * 카드 한 귀퉁이의 인덱스 — 숫자 위에 문양.
+ * 카드 한 귀퉁이의 인덱스: 숫자 위에 문양.
  *
  * 뒤집기는 **이 요소 자체**에 건다. 자리를 잡는 바깥 상자(justify-end)에 걸면 상자가
- * 통째로 돌아가면서 오른쪽에 붙여 둔 내용이 왼쪽으로 넘어간다 — 정상 카드가 전부
+ * 통째로 돌아가면서 오른쪽에 붙여 둔 내용이 왼쪽으로 넘어간다. 정상 카드가 전부
  * 어긋나 보이고, 정작 대칭이 깨진 카드만 멀쩡해 보였다.
  */
 function CardIndex({ card, tone, flipped }: { card: Card; tone: string; flipped?: boolean }) {
@@ -51,7 +51,7 @@ function CardIndex({ card, tone, flipped }: { card: Card; tone: string; flipped?
 /**
  * 2차 조사의 카드 미궁.
  *
- * 미니게임이 아니라 미궁 문제다 — 화면은 그림 한 장과 입력칸뿐이고, 무엇이 틀렸는지
+ * 미니게임이 아니라 미궁 문제다. 화면은 그림 한 장과 입력칸뿐이고, 무엇이 틀렸는지
  * 알려주는 문구가 없다. 카드가 지키는 규칙은 방의 다른 곳에 흩어져 있어서,
  * 플레이어가 그걸 모아 와야 그림이 읽힌다.
  *
@@ -86,7 +86,7 @@ export function CardOddMinigame({ onComplete, onSettled }: MinigameProps) {
     playSound("success");
   };
 
-  // 틀린 답은 흔들림이 끝나면 통째로 비운다 — 지워서 고치는 게 아니라 처음부터
+  // 틀린 답은 흔들림이 끝나면 통째로 비운다. 지워서 고치는 게 아니라 처음부터
   // 다시 적는 문제다. 남겨두면 어느 자리가 틀렸는지 맞춰보라는 힌트가 된다.
   useEffect(() => {
     if (!rejected) return;
@@ -97,7 +97,7 @@ export function CardOddMinigame({ onComplete, onSettled }: MinigameProps) {
     return () => window.clearTimeout(timer);
   }, [rejected]);
 
-  // 슬롯을 다 채우면 스스로 확인한다 — 슬롯 UI에는 제출 버튼이 없다.
+  // 슬롯을 다 채우면 스스로 확인한다. 슬롯 UI에는 제출 버튼이 없다.
   const submitRef = useRef(submit);
   submitRef.current = submit;
   useEffect(() => {
@@ -129,7 +129,7 @@ export function CardOddMinigame({ onComplete, onSettled }: MinigameProps) {
       size="lg"
     >
       {/*
-       * 문제 그림. 누를 수 있는 게 아니라 들여다보는 것이라 버튼이 아니다 —
+       * 문제 그림. 누를 수 있는 게 아니라 들여다보는 것이라 버튼이 아니다.
        * 카드를 클릭하게 두면 "골라내는 게임"으로 읽혀서 입력칸이 장식이 된다.
        *
        * 두 줄로 편다. 카드는 세로로 긴 물건이라 4×3으로 깔면 판이 화면보다 높아지고,
@@ -137,7 +137,7 @@ export function CardOddMinigame({ onComplete, onSettled }: MinigameProps) {
        */}
       <ul className="mx-auto grid w-[min(100%,105svh)] grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
         {BOARD.map((card) => {
-          // 색이 틀린 카드도 인쇄된 색을 그대로 보여준다 — 여기서 티를 내면 문제가 없어진다
+          // 색이 틀린 카드도 인쇄된 색을 그대로 보여준다. 여기서 티를 내면 문제가 없어진다
           const ink = printedColor(card);
           const tone = ink === "red" ? "text-ember" : "text-ink";
           const flipped = isIndexFlipped(card);
@@ -170,7 +170,7 @@ export function CardOddMinigame({ onComplete, onSettled }: MinigameProps) {
       </ul>
 
       {/*
-       * 자리수가 보이는 슬롯 + 화면 키패드. 빈 칸 수까지는 공짜 힌트다 — 무엇인지는
+       * 자리수가 보이는 슬롯 + 화면 키패드. 빈 칸 수까지는 공짜 힌트다. 무엇인지는
        * 놀이책이 들고 있다. 다 채우면 스스로 확인하므로 제출 버튼이 없다.
        */}
       <form

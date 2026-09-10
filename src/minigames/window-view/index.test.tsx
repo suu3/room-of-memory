@@ -19,7 +19,7 @@ describe("WindowViewMinigame", () => {
 
     const image = container.querySelector("img");
     expect(image?.getAttribute("src")).toBe(ASSETS.images.mgWindowViewOutside);
-    // 그림만 덩그러니 두지 않는다 — 무엇을 하는 화면인지 한 줄이 같이 붙는다.
+    // 그림만 덩그러니 두지 않는다. 무엇을 하는 화면인지 한 줄이 같이 붙는다.
     expect(screen.getByText("Draw the curtain and look outside")).toBeTruthy();
   });
 

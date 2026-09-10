@@ -33,7 +33,7 @@ export { musicCutoff, musicReverb, musicVolume } from "./music-curve";
 export { preloadSamples } from "./samples";
 export type { VoiceId } from "./voices";
 
-/** BGM까지 함께 정리한다 — 컨텍스트를 닫기 전에 소스를 끊어야 한다. */
+/** BGM까지 함께 정리한다. 컨텍스트를 닫기 전에 소스를 끊어야 한다. */
 export function disposeAudio() {
   disposeMusic();
   disposeEngine();
@@ -43,7 +43,7 @@ export function disposeAudio() {
  * 스토어의 음소거 설정을 오디오 엔진에 이어 붙이고, 첫 사용자 제스처에서
  * AudioContext를 깨운다. 앱에 한 번만 마운트한다.
  *
- * 자동재생 정책 때문에 제스처 전에는 컨텍스트를 만들 수 없다 — 만들어도 suspended로
+ * 자동재생 정책 때문에 제스처 전에는 컨텍스트를 만들 수 없다. 만들어도 suspended로
  * 시작해 아무 소리도 안 난다. 그래서 pointerdown/keydown을 한 번만 듣는다.
  */
 export function useAudioRuntime() {
@@ -86,10 +86,10 @@ export function useAudioRuntime() {
  * BGM을 눌러두는 정도. 0이면 무음, 1이면 평소.
  *
  * 대사와 미니게임은 눌러야 하는 깊이가 다르다. VN이라 대사창이 떠 있는 시간이
- * 길어서, 대사에서 깊게 누르면 게임 대부분의 시간 동안 BGM이 사라진 것처럼 들린다
- * — 비켜서기만 할 만큼만 누른다. 미니게임은 효과음이 주인공이라 더 깊이 누르되,
+ * 길어서, 대사에서 깊게 누르면 게임 대부분의 시간 동안 BGM이 사라진 것처럼 들린다.
+ * 비켜서기만 할 만큼만 누른다. 미니게임은 효과음이 주인공이라 더 깊이 누르되,
  * 0.18까지 내렸더니 눌린 게 아니라 꺼진 것처럼 들렸다. 미니게임은 몇 분씩 이어지는
- * 구간이라 그 사이 방이 통째로 조용해진다 — 뒤에서 곡이 계속 돌고 있다는 건
+ * 구간이라 그 사이 방이 통째로 조용해진다. 뒤에서 곡이 계속 돌고 있다는 건
  * 남겨 두고, 앞자리만 효과음에 내준다.
  */
 const DIALOGUE_DUCK = 0.72;
@@ -114,7 +114,7 @@ const ROUND_TRIM = { 1: 1.35, 2: 1 } as const;
  * 방 BGM을 방 밝기와 바퀴에 물린다.
  *
  * 바퀴마다 곡이 다르고(1바퀴 발랄 → 2바퀴 따뜻), 그 안에서 밝기가 컷오프·음량·
- * 리버브를 움직인다 — V자 감정선이 곡선 하나로 두 곡에 걸린다
+ * 리버브를 움직인다. V자 감정선이 곡선 하나로 두 곡에 걸린다
  * (docs/content-design.md 8장).
  *
  * 곡이 갈리는 지점은 전환 컷씬이다. 컷씬 동안은 `playing`이 false라 곡이 멎어
@@ -141,7 +141,7 @@ export function useRoomMusic({
       stopMusic();
       return;
     }
-    // 트림을 먼저 세운다 — 곡이 올라오면서 바로 맞는 레벨로 페이드인해야 한다
+    // 트림을 먼저 세운다. 곡이 올라오면서 바로 맞는 레벨로 페이드인해야 한다
     setMusicTrim(ROUND_TRIM[phase]);
     startMusic(ROUND_TRACK[phase]);
   }, [playing, phase]);
@@ -157,7 +157,7 @@ export function useRoomMusic({
   }, [foreground]);
 }
 
-/** 이벤트 핸들러에서 부르기 좋은 형태 — `onClick={playing("select")}`. */
+/** 이벤트 핸들러에서 부르기 좋은 형태: `onClick={playing("select")}`. */
 export function playing(id: Parameters<typeof playSound>[0]) {
   return () => playSound(id);
 }

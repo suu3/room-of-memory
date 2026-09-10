@@ -8,7 +8,7 @@
  *
  *  1. **압축.** 블렌더 내보내기는 압축이 안 붙어 나온다 (플레이어 모델이 2.0MB로
  *     들어왔다). Meshopt를 씌우면 4분의 1 안팎으로 줄고, 그 과정에서 **쓰지 않는
- *     데이터가 걸러진다** — 실제로 안 쓰는 스킨이 하나 더 붙어 나온 적이 있고, 그게
+ *     데이터가 걸러진다**. 실제로 안 쓰는 스킨이 하나 더 붙어 나온 적이 있고, 그게
  *     붙어 있으면 SkeletonUtils.clone이 그쪽에 물려 애니메이션이 통째로 어긋난다.
  *  2. **검사.** 게임 쪽 규약(밑면이 y=0, 텍스처는 파일 안에, 5MB 이하)을 실제 로더로
  *     확인한다. 어긋나면 블렌더에서 무엇을 고쳐야 하는지 적어 준다 (docs/model-export.md).
@@ -16,7 +16,7 @@
  *     (참조 URL의 ?v= 갱신, CREDITS 기록)을 알려 준다.
  *
  * 모양 자체는 손대지 않는다. 원점·축·크기는 블렌더에서 잡아야 하는 것이라, 여기서
- * 몰래 고치면 다음 내보내기 때 또 어긋난다 — 여기서는 틀렸다고 말해 주기만 한다.
+ * 몰래 고치면 다음 내보내기 때 또 어긋난다. 여기서는 틀렸다고 말해 주기만 한다.
  */
 import { execSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
@@ -45,7 +45,7 @@ function fail(message, hints = []) {
  * gltf-transform CLI 한 번. 프로젝트 의존성에 없는 도구라 pnpm dlx로 부른다.
  *
  * Windows의 pnpm은 .cmd 껍데기라 셸 없이는 실행되지 않는다(Node 20+). 셸을 쓰는 만큼
- * 경로는 직접 따옴표로 감싼다 — 사람이 고르는 파일 경로에는 공백이 흔하다.
+ * 경로는 직접 따옴표로 감싼다. 사람이 고르는 파일 경로에는 공백이 흔하다.
  */
 function gltfTransform(args) {
   const quoted = args.map((arg) => (/[\s"]/.test(arg) ? `"${arg}"` : arg));
@@ -60,7 +60,7 @@ function readGlbJson(file) {
   const bytes = readFileSync(file);
   if (bytes.length < 20 || bytes.readUInt32LE(0) !== 0x46546c67) {
     fail(`glb가 아니다: ${file}`, [
-      "블렌더 내보내기에서 형식을 glTF Binary (.glb)로 고른다 — .gltf+.bin 낱개는 커밋하지 않는다",
+      "블렌더 내보내기에서 형식을 glTF Binary (.glb)로 고른다. .gltf+.bin 낱개는 커밋하지 않는다",
     ]);
   }
   return JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString());
@@ -102,13 +102,13 @@ try {
   /*
    * 밑면을 y=0으로 내린다. 게임은 "놓을 면의 높이를 그대로 좌표로 준다"는 규약으로 도는데
    * (model-utils의 centerModelXZ 주석) 블렌더 원점은 대개 물건 한가운데 있다. 여기서
-   * 맞춰 두면 배치 코드가 보정값을 들고 다니지 않아도 된다 — 얼마나 움직였는지는 아래에서
+   * 맞춰 두면 배치 코드가 보정값을 들고 다니지 않아도 된다. 얼마나 움직였는지는 아래에서
    * 알려 준다.
    */
   const based = path.join(work, `${name}-based.glb`);
   gltfTransform(["center", input, based, "--pivot", "below"]);
 
-  console.log(`\n▸ 압축 (${skinned ? "본 있음 — meshopt만" : "소품 — 합치고 meshopt"})`);
+  console.log(`\n▸ 압축 (${skinned ? "본 있음: meshopt만" : "소품: 합치고 meshopt"})`);
   const log = skinned
     ? gltfTransform(["meshopt", based, compressed, "--level", "medium"])
     : gltfTransform([
@@ -124,7 +124,7 @@ try {
          * 합친다. 드로우콜은 줄지만 색이 상수(baseColorFactor)에서 텍스처로 옮겨가서,
          * 방이 재질 색을 직접 만지는 연출(수집 완료 이미시브·팔레트 대조)에서 손댈
          * 자리가 사라진다. 게다가 아래 검사는 Node에서 도는 GLTFLoader라 이미지를
-         * 못 읽어 통째로 터진다 — 소품 하나에 얻을 것보다 잃는 게 크다.
+         * 못 읽어 통째로 터진다. 소품 하나에 얻을 것보다 잃는 게 크다.
          */
         "--palette",
         "false",
@@ -132,7 +132,7 @@ try {
         "webp",
       ]);
   for (const line of log.split("\n")) {
-    // 걸러낸 것은 알려 준다 — 쓰지 않는 스킨이 걸러졌다면 블렌더 쪽에도 남아 있다는 뜻이다.
+    // 걸러낸 것은 알려 준다. 쓰지 않는 스킨이 걸러졌다면 블렌더 쪽에도 남아 있다는 뜻이다.
     if (/prune|Removed|warn/i.test(line)) console.log(`  ${line.trim()}`);
   }
 
@@ -151,7 +151,7 @@ try {
   const hints = [];
 
   if (after > MAX_BYTES) {
-    problems.push(`${(after / 1024 / 1024).toFixed(1)}MB — 한도 5MB를 넘는다`);
+    problems.push(`${(after / 1024 / 1024).toFixed(1)}MB: 한도 5MB를 넘는다`);
     hints.push("텍스처 해상도를 줄이거나(2048 이하) 메쉬를 단순화한다");
   }
 
@@ -164,14 +164,14 @@ try {
   if (Math.abs(bounds.min.y) > BASE_TOLERANCE) {
     problems.push(`밑면이 y=${bounds.min.y.toFixed(3)}에 있다 (0이어야 한다)`);
     hints.push(
-      "블렌더에서 물건을 바닥(z=0) 위에 올리고 원점을 발밑으로 내린다 — 놓을 면의 높이를 그대로 좌표로 주는 규약이다",
+      "블렌더에서 물건을 바닥(z=0) 위에 올리고 원점을 발밑으로 내린다. 놓을 면의 높이를 그대로 좌표로 주는 규약이다",
     );
   }
 
   if (Math.abs(center.x) > CENTER_TOLERANCE || Math.abs(center.z) > CENTER_TOLERANCE) {
     // 소품은 FurnitureModel이 x·z를 자동으로 맞춰 주지만, 캐릭터 리그는 그 보정을 안 거친다.
     console.log(
-      `  ! x·z 중심이 (${center.x.toFixed(2)}, ${center.z.toFixed(2)})로 밀려 있다 — 캐릭터라면 블렌더에서 원점을 가운데로`,
+      `  ! x·z 중심이 (${center.x.toFixed(2)}, ${center.z.toFixed(2)})로 밀려 있다. 캐릭터라면 블렌더에서 원점을 가운데로`,
     );
   }
 
@@ -204,7 +204,7 @@ try {
   console.log(`  scale 계산: 방에서 키를 H로 두려면 H / ${size.y.toFixed(2)}`);
   if (replacing) {
     console.log(
-      "  ! 같은 이름을 덮어썼다 — src/lib/assets.ts의 ?v=를 반드시 올린다. 안 올리면 서비스 워커가 옛 파일을 계속 내준다",
+      "  ! 같은 이름을 덮어썼다. src/lib/assets.ts의 ?v=를 반드시 올린다. 안 올리면 서비스 워커가 옛 파일을 계속 내준다",
     );
   } else {
     console.log("  다음: src/lib/assets.ts에 경로 추가 · public/assets/CREDITS.md에 출처 기록");

@@ -15,5 +15,5 @@
   { "name": "size/S", "color": "9AE6B4", "description": "변경 50줄 이하" },
   { "name": "size/M", "color": "FAF089", "description": "변경 200줄 이하" },
   { "name": "size/L", "color": "F6AD55", "description": "변경 600줄 이하" },
-  { "name": "size/XL", "color": "FC8181", "description": "변경 600줄 초과 — 쪼개는 것을 검토" }
+  { "name": "size/XL", "color": "FC8181", "description": "변경 600줄 초과: 쪼개는 것을 검토" }
 ]

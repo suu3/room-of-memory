@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * 대본·흐름 편집기 — 로컬 dev 서버 전용.
+ * 대본·흐름 편집기: 로컬 dev 서버 전용.
  *
  * content/*.yaml을 통째로 받아 고치고 통째로 돌려준다. 저장은 서버가 검증을
- * 먼저 돌리고 통과할 때만 파일을 쓴다 — 여기서 통과한 것이 CI에서 떨어지는 일이
+ * 먼저 돌리고 통과할 때만 파일을 쓴다. 여기서 통과한 것이 CI에서 떨어지는 일이
  * 없도록 `pnpm content:build`와 같은 검증기를 쓴다.
  *
  * 기억 id는 여기서 못 고친다. id는 3D 씬의 오브젝트 이름, 에셋 파일명,
@@ -12,7 +12,7 @@
  *
  * 흐름 탭은 id만 세우지 않는다. 대사는 id가 아니라 본문으로 기억되는 것이라
  * 고른 스크립트의 줄을 그 자리에 펼쳐 두고, ①②③ 번호로 재생 순서를 박아 둔다.
- * 카드 앞의 번호는 목록 순번이 아니라 **열리는 차례**다 — 같은 번호는 같이 열린다.
+ * 카드 앞의 번호는 목록 순번이 아니라 **열리는 차례**다. 같은 번호는 같이 열린다.
  */
 import { useCallback, useEffect, useState } from "react";
 import type {
@@ -56,7 +56,7 @@ type Round = "phase1" | "phase2";
 
 const EMPTY_TEXT: LocalizedText = { ko: "", en: "", ja: "" };
 
-/** 미리보기는 기준 언어(ko)만 세운다 — 셋을 다 세우면 흐름이 안 보인다. */
+/** 미리보기는 기준 언어(ko)만 세운다. 셋을 다 세우면 흐름이 안 보인다. */
 const PREVIEW_LOCALE = "ko";
 
 export function ContentAdmin() {
@@ -84,7 +84,7 @@ export function ContentAdmin() {
     setStatus("");
   }, []);
 
-  // 저장하지 않고 새로고침하면 편집분이 그대로 날아간다 — 브라우저에 한 번 물어보게 한다
+  // 저장하지 않고 새로고침하면 편집분이 그대로 날아간다. 브라우저에 한 번 물어보게 한다
   useEffect(() => {
     if (!dirty) return;
     const warn = (event: BeforeUnloadEvent) => event.preventDefault();
@@ -108,9 +108,9 @@ export function ContentAdmin() {
       setIssues(result.issues);
       if (result.ok) {
         setDirty(false);
-        setStatus(`저장 완료 — ${result.written.length}개 파일. 게임 탭을 새로고침하면 반영된다.`);
+        setStatus(`저장 완료: ${result.written.length}개 파일. 게임 탭을 새로고침하면 반영된다.`);
       } else {
-        setStatus("저장하지 않았다 — 아래 문제를 고칠 것.");
+        setStatus("저장하지 않았다. 아래 문제를 고칠 것.");
       }
     } catch (error) {
       setIssues([`저장 요청이 실패했다: ${(error as Error).message}`]);
@@ -192,12 +192,12 @@ export function ContentAdmin() {
 /* ── 해금 차례 ────────────────────────────────────────────────────────── */
 
 /**
- * 한 바퀴 안에서 각 기억이 몇 번째로 열리는지. **같은 번호는 동시에 열린다** —
+ * 한 바퀴 안에서 각 기억이 몇 번째로 열리는지. **같은 번호는 동시에 열린다**.
  * unlockAfter가 없는 것들이 다 같이 1번이고, 1번만 기다리는 것이 2번이다.
  * 목록 순서(↑↓)와는 상관이 없다: 그건 기억 패널에 뜨는 차례일 뿐이다.
  *
  * 순환은 검증기(findUnlockCycles)가 저장에서 막지만, 편집 도중에는 한때 순환이
- * 생길 수 있다 — 그 한때에 무한 재귀로 화면이 죽지 않도록 지나온 id는 다시 세지
+ * 생길 수 있다. 그 한때에 무한 재귀로 화면이 죽지 않도록 지나온 id는 다시 세지
  * 않는다.
  */
 function unlockWaves(memories: ContentMemory[], round: Round): Map<string, number> {
@@ -210,7 +210,7 @@ function unlockWaves(memories: ContentMemory[], round: Round): Map<string, numbe
     if (known !== undefined) return known;
     if (trail.has(id)) return 1;
 
-    // 이 바퀴에 없는 기억을 기다리는 것은 차례를 셀 수 없다 — 그건 검증기가 잡는다
+    // 이 바퀴에 없는 기억을 기다리는 것은 차례를 셀 수 없다. 그건 검증기가 잡는다
     const deps = (phaseById.get(id)?.unlockAfter ?? []).filter((dep) => phaseById.has(dep));
     const walked = new Set(trail).add(id);
     const wave = deps.length === 0 ? 1 : Math.max(...deps.map((dep) => waveOf(dep, walked))) + 1;
@@ -233,14 +233,14 @@ function WaveBadge({ wave, round }: { wave: number | undefined; round: Round }) 
         title={`${label}에는 없는 기억이다`}
         className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--admin-line)] text-xs ${faintClass}`}
       >
-        –
+        -
       </span>
     );
   }
 
   return (
     <span
-      title={`${label}에서 ${wave}번째로 열린다 — 같은 번호끼리 동시에 열린다`}
+      title={`${label}에서 ${wave}번째로 열린다. 같은 번호끼리 동시에 열린다`}
       className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--admin-accent-line)] bg-[var(--admin-accent-soft)] font-medium text-[var(--admin-accent)] text-xs"
     >
       {wave}
@@ -261,7 +261,7 @@ function MemoryTitle({ memory, wave }: { memory: ContentMemory; wave: number | u
   );
 }
 
-/** 고른 스크립트의 줄을 그 자리에 펼친다 — 대사창에 실제로 흐를 순서 그대로. */
+/** 고른 스크립트의 줄을 그 자리에 펼친다. 대사창에 실제로 흐를 순서 그대로. */
 function ScriptPreview({ lines }: { lines: ContentLine[] | undefined }) {
   if (!lines || lines.length === 0) {
     return <p className={`mt-2 ${hintClass}`}>줄이 없는 스크립트다.</p>;
@@ -275,7 +275,7 @@ function ScriptPreview({ lines }: { lines: ContentLine[] | undefined }) {
           <span className={`w-4 shrink-0 text-right ${faintClass}`}>{index + 1}</span>
           <span className={`w-20 shrink-0 font-mono ${mutedClass}`}>{line.speaker}</span>
           <span className="min-w-0">
-            {line[PREVIEW_LOCALE]?.trim() || "(본문이 비어 있다 — 저장이 막힌다)"}
+            {line[PREVIEW_LOCALE]?.trim() || "(본문이 비어 있다. 저장이 막힌다)"}
           </span>
         </li>
       ))}
@@ -283,15 +283,15 @@ function ScriptPreview({ lines }: { lines: ContentLine[] | undefined }) {
   );
 }
 
-/** 스크립트 고르는 목록에도 첫 줄을 붙인다 — id만으로는 어느 대사인지 안 갈린다. */
+/** 스크립트 고르는 목록에도 첫 줄을 붙인다. id만으로는 어느 대사인지 안 갈린다. */
 function scriptOptionLabel(id: string, scripts: GameContent["scripts"]): string {
   const first = scripts[id]?.[0]?.[PREVIEW_LOCALE]?.trim();
   if (!first) return id;
   const head = first.length > 34 ? `${first.slice(0, 34)}…` : first;
-  return `${id} — ${head}`;
+  return `${id}: ${head}`;
 }
 
-/** 접힌 카드에 남길 한 줄 — 이 바퀴에 무엇이 붙어 있는지. */
+/** 접힌 카드에 남길 한 줄: 이 바퀴에 무엇이 붙어 있는지. */
 function phaseDigest(phase: ContentPhase | undefined): string | null {
   if (!phase) return null;
   const parts = [
@@ -342,7 +342,7 @@ function FlowTab({
       <div className={`${panelClass} p-4 text-sm ${mutedClass}`}>
         <p>
           카드 앞의 번호는{" "}
-          <strong className="font-medium text-[var(--admin-ink)]">몇 번째로 열리는가</strong>다 —{" "}
+          <strong className="font-medium text-[var(--admin-ink)]">몇 번째로 열리는가</strong>다.{" "}
           <strong className="font-medium text-[var(--admin-ink)]">같은 번호는 동시에 열린다</strong>
           . 아래 &ldquo;먼저 조사해야 열림&rdquo;이 이 번호를 정한다. ↑↓는 번호가 아니라 기억 패널에
           뜨는 자리(총 {content.memories.length}개)를 바꾼다.
@@ -405,7 +405,7 @@ function FlowTab({
             </div>
 
             {/*
-              1바퀴가 없는 기억은 2바퀴 전용이다 — 1바퀴 내내 잠겨 있고 수집
+              1바퀴가 없는 기억은 2바퀴 전용이다. 1바퀴 내내 잠겨 있고 수집
               개수에서도 빠진다. 둘 다 없애면 저장이 막히므로 마지막 하나는
               제거 버튼이 안 뜬다.
             */}
@@ -487,7 +487,7 @@ function FlowTab({
   );
 }
 
-/** 이 페이즈가 실제로 어떤 차례로 흐르는지 한 줄로 — 비운 칸은 빠진 채로 보여준다. */
+/** 이 페이즈가 실제로 어떤 차례로 흐르는지 한 줄로: 비운 칸은 빠진 채로 보여준다. */
 function FlowSummary({ phase }: { phase: ContentPhase }) {
   const steps = [
     "오브젝트 클릭",
@@ -510,7 +510,7 @@ function FlowSummary({ phase }: { phase: ContentPhase }) {
         </span>
       ))}
       {steps.length === 2 ? (
-        <span className={mutedClass}>— 대사도 미니게임도 없이 바로 수집된다</span>
+        <span className={mutedClass}>(대사도 미니게임도 없이 바로 수집된다)</span>
       ) : null}
     </div>
   );
@@ -602,7 +602,7 @@ function PhaseEditor({
       <div className="flex flex-col gap-4">
         <div>
           <Field
-            label={<StepLabel step="①" title="대사창" when="게임 전 — 누르는 즉시" />}
+            label={<StepLabel step="①" title="대사창" when="게임 전: 누르는 즉시" />}
             hint="오브젝트를 누르면 이 대사부터 흐른다. 다 넘기면 미니게임으로 넘어간다."
           >
             <Select
@@ -630,7 +630,7 @@ function PhaseEditor({
 
         <div>
           <Field
-            label={<StepLabel step="③" title="대사창" when="게임 후 — 클리어했을 때만" />}
+            label={<StepLabel step="③" title="대사창" when="게임 후: 클리어했을 때만" />}
             hint="미니게임 화면을 뒤에 남긴 채 뜬다. 실패하면 뜨지 않고 인터랙션이 닫힌다 (재도전 가능). 미니게임 없이는 저장이 막힌다."
           >
             <Select
@@ -646,7 +646,7 @@ function PhaseEditor({
       </div>
 
       <div className="mt-4">
-        <span className={labelClass}>먼저 조사해야 열림 — 고를수록 번호가 뒤로 밀린다</span>
+        <span className={labelClass}>먼저 조사해야 열림: 고를수록 번호가 뒤로 밀린다</span>
         <div className="mt-1 flex flex-wrap gap-2">
           {memories
             .filter((entry) => entry.id !== memory.id)
@@ -659,7 +659,7 @@ function PhaseEditor({
                   type="button"
                   title={
                     depWave === undefined
-                      ? `${entry.id}에는 이 바퀴가 없다 — 기다리면 영영 안 열린다`
+                      ? `${entry.id}에는 이 바퀴가 없다. 기다리면 영영 안 열린다`
                       : `${depWave}번째로 열리는 기억`
                   }
                   onClick={() => toggleUnlock(entry.id)}
@@ -669,7 +669,7 @@ function PhaseEditor({
                       : `border-[var(--admin-line-strong)] ${mutedClass} hover:text-[var(--admin-ink)]`
                   }`}
                 >
-                  <span className={faintClass}>{depWave ?? "–"}</span>
+                  <span className={faintClass}>{depWave ?? "-"}</span>
                   {entry.id}
                 </button>
               );
@@ -738,7 +738,7 @@ function ScriptsTab({
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className={`text-sm ${mutedClass}`}>
-          제목 옆이 이 대사가 뜨는 자리다 — 어디서도 가리키지 않는 스크립트는 저장이 막힌다. 자리를
+          제목 옆이 이 대사가 뜨는 자리다. 어디서도 가리키지 않는 스크립트는 저장이 막힌다. 자리를
           붙이는 것은 흐름 탭이다.
         </p>
         <CollapseAll
@@ -766,7 +766,7 @@ function ScriptsTab({
               ))}
               {usage[id] ? null : (
                 <span className="rounded-sm border border-[var(--admin-warn-line)] bg-[var(--admin-warn-soft)] px-2 py-0.5 font-normal text-[var(--admin-warn)] text-xs">
-                  아직 아무 데도 안 붙었다 — 저장이 막힌다
+                  아직 아무 데도 안 붙었다. 저장이 막힌다
                 </span>
               )}
             </span>
@@ -805,7 +805,7 @@ function LinesEditor({
   return (
     <div className="flex flex-col gap-3">
       {lines.map((line, index) => (
-        // 줄에는 고유 id가 없다 — 순서가 곧 정체성이라 인덱스를 키로 쓴다
+        // 줄에는 고유 id가 없다. 순서가 곧 정체성이라 인덱스를 키로 쓴다
         // biome-ignore lint/suspicious/noArrayIndexKey: 줄의 정체성은 순서 그 자체다
         <div key={index} className="rounded-sm border border-[var(--admin-line)] p-3">
           <div className="mb-2 flex flex-wrap items-end gap-3">
@@ -897,7 +897,7 @@ function CutscenesTab({
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className={`text-sm ${mutedClass}`}>
-          컷씬 일러스트는 아직 리포에 없어도 된다 — 없으면 회색 판이 자리를 지키고 대사만 흐른다.
+          컷씬 일러스트는 아직 리포에 없어도 된다. 없으면 회색 판이 자리를 지키고 대사만 흐른다.
         </p>
         <CollapseAll
           onExpand={() => cards.setAll(ids, true)}
@@ -1020,7 +1020,7 @@ function LoreTab({
               value={memory.lore.title}
               onChange={(title) => setMemory(index, { ...memory, lore: { ...memory.lore, title } })}
             />
-            {/* 기록은 있는 바퀴만 쓴다 — 없는 바퀴의 문장은 아무 데서도 안 뜨고 저장이 막힌다 */}
+            {/* 기록은 있는 바퀴만 쓴다. 없는 바퀴의 문장은 아무 데서도 안 뜨고 저장이 막힌다 */}
             {memory.phase1 ? (
               <LocalizedInput
                 label="1바퀴 기록"

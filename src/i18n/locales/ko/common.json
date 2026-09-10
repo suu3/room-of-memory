@@ -18,7 +18,7 @@
   },
   "panel": {
     "title": "기억 수집",
-    "open": "수첩 열기 — 기억 수집",
+    "open": "수첩 열기: 기억 수집",
     "replay": "{{name}} 다시 보기",
     "replayAction": "다시보기",
     "prevPage": "이전 장",
@@ -26,10 +26,10 @@
     "pages": "기록 장 넘기기"
   },
   "hotspot": {
-    "collectedLabel": "{{name}} — 수집한 기억",
-    "collectLabel": "{{name}} — 기억 수집하기",
-    "lockedLabel": "{{name}} — 아직 열 수 없는 기억",
-    "revisitLabel": "{{name}} — 기억 다시 살펴보기"
+    "collectedLabel": "{{name}}: 수집한 기억",
+    "collectLabel": "{{name}}: 기억 수집하기",
+    "lockedLabel": "{{name}}: 아직 열 수 없는 기억",
+    "revisitLabel": "{{name}}: 기억 다시 살펴보기"
   },
   "dialogue": {
     "advance": "다음 대사",
@@ -105,7 +105,7 @@
     },
     "ballCatch": {
       "title": "스윙!",
-      "help": "공이 점선 링에 들어오는 순간 배트를 휘두르세요 — Space",
+      "help": "공이 점선 링에 들어오는 순간 배트를 휘두르세요: Space",
       "help_touch": "공이 점선 링에 들어올 때 화면을 터치해 배트를 휘두르세요",
       "prompt": "SPACE",
       "prompt_touch": "터치",
@@ -116,11 +116,11 @@
     },
     "fighterDuel": {
       "title": "격투 게임",
-      "help": "상대 자세를 보고 그걸 이기는 수를 내세요 — 1 공격 · 2 방어 · 3 필살기",
+      "help": "상대 자세를 보고 그걸 이기는 수를 내세요: 1 공격 · 2 방어 · 3 필살기",
       "help_touch": "상대 자세를 보고 그걸 이기는 수를 아래 버튼으로 내세요",
       "hint": "화면 위에 뜬 상대 수를 버튼의 「○○에 강함」에서 찾으면 됩니다",
       "rules": {
-        "triangle": "공격 → 필살기 → 방어 → 공격 순으로 이깁니다 — 필살기는 방어를 뚫고, 뜸 들이는 필살기는 공격에 끊깁니다",
+        "triangle": "공격 → 필살기 → 방어 → 공격 순으로 이깁니다. 필살기는 방어를 뚫고, 뜸 들이는 필살기는 공격에 끊깁니다",
         "special": "필살기는 한 판에 세 번만 쓸 수 있습니다"
       },
       "labelCombo": "콤보",
@@ -162,7 +162,7 @@
     "labelTime": "남은 시간",
     "calendarFlip": {
       "title": "달력 넘기기",
-      "help": "달력을 넘겨보세요 — ← →",
+      "help": "달력을 넘겨보세요: ← →",
       "help_touch": "좌우 화살표 버튼으로 달력을 넘겨보세요",
       "month": "{{value}}월",
       "prev": "이전 달",
@@ -180,8 +180,8 @@
       "pageOf": "{{value}} / {{total}}",
       "close": "달력을 내려놓는다",
       "mark": {
-        "incident": "{{month}}월 {{day}}일 — 다 멈춘 날",
-        "nationals": "{{month}}월 {{day}}일 — 전국대회"
+        "incident": "{{month}}월 {{day}}일: 다 멈춘 날",
+        "nationals": "{{month}}월 {{day}}일: 전국대회"
       }
     },
     "windowView": {
@@ -191,8 +191,8 @@
     },
     "phoneChat": {
       "title": "스마트폰",
-      "help": "그날의 대화를 따라 내려가세요 — 아래로 스크롤 · Space",
-      "help_touch": "그날의 대화를 따라 내려가세요 — 아래로 스크롤 · 터치",
+      "help": "그날의 대화를 따라 내려가세요: 아래로 스크롤 · Space",
+      "help_touch": "그날의 대화를 따라 내려가세요: 아래로 스크롤 · 터치",
       "helpCalls": "통화 기록 탭도 열어보세요",
       "date": "10월 19일",
       "close": "화면을 끈다",
@@ -226,7 +226,7 @@
     },
     "computerBrowse": {
       "title": "컴퓨터",
-      "help": "다음 장으로 — 클릭 · Space · →",
+      "help": "다음 장으로: 클릭 · Space · →",
       "help_touch": "다음 버튼을 눌러 끝까지 읽으세요",
       "booting": "부팅 중",
       "account": "한도해",
@@ -243,12 +243,12 @@
         "l4": "거의 다 됐다"
       },
       "offline": "인터넷 연결 없음",
-      "mailApp": "메일함 — 저장된 사본",
-      "newsApp": "브라우저 — 저장된 페이지",
+      "mailApp": "메일함. 저장된 사본",
+      "newsApp": "브라우저: 저장된 페이지",
       "mailFrom": "보낸 사람: 아빠",
       "next": "다음",
       "close": "컴퓨터를 끈다",
-      "truncated": "— 여기서 저장이 끊겼다 —",
+      "truncated": "(여기서 저장이 끊겼다)",
       "mail": {
         "m1": {
           "subject": "잘 도착했다",
@@ -285,7 +285,7 @@
     },
     "phoneLock": {
       "title": "잠금화면",
-      "help": "네 자리 비밀번호 — 숫자 키로 입력",
+      "help": "네 자리 비밀번호: 숫자 키로 입력",
       "help_touch": "네 자리 비밀번호를 눌러 입력",
       "hint": "힌트: 다 멈춘 날",
       "wrong": "비밀번호가 다릅니다",
@@ -347,13 +347,13 @@
     "title": "내 수첩",
     "close": "수첩 닫기",
     "alt": "주인공 캐릭터 설정 시트",
-    "locked": "아직 열리지 않은 항목 — 기억을 더 모으면 드러난다",
+    "locked": "아직 열리지 않은 항목: 기억을 더 모으면 드러난다",
     "tabProfile": "프로필",
     "tabLore": "기록",
     "loreLocked": "아직 조사하지 않은 기록",
     "lockedHint": "수집 시 열립니다",
-    "loreStill": "{{name}} — 그때 본 장면",
-    "modelAlt": "3D 캐릭터 모델 — 끌어서 돌려볼 수 있다",
+    "loreStill": "{{name}}: 그때 본 장면",
+    "modelAlt": "3D 캐릭터 모델: 끌어서 돌려볼 수 있다",
     "modelHint": "끌거나 버튼으로 돌려보기",
     "pose": {
       "stand": "서다",
@@ -383,7 +383,7 @@
   "ending": {
     "eyebrow": "THE DOOR OPENS",
     "line": "문을 열고, 밖으로 나간다.",
-    "note": "여기에 엔딩 영상이 들어갑니다. 마지막 컷은 방금 그 동작 — 배트를 쥐고 문을 여는 장면으로 이어집니다.",
+    "note": "여기에 엔딩 영상이 들어갑니다. 마지막 컷은 방금 그 동작: 배트를 쥐고 문을 여는 장면으로 이어집니다.",
     "again": "다시 시작"
   },
   "playback": {
@@ -399,7 +399,7 @@
       "caption": "아빠 글씨다. 언제 넣어둔 건지도 모르겠다.",
       "l1": "컴퓨터 비번 바꿔놨다",
       "l2": "전국대회 날짜로 해놨으니까. 그날은 안 까먹을 거 아니냐.",
-      "l3": "— 아빠가"
+      "l3": "- 아빠가"
     },
     "wallCalendar": {
       "title": "벽에 걸린 달력",
@@ -429,7 +429,7 @@
   },
   "feedback": {
     "title": "피드백",
-    "lead": "버그, 아이디어, 하고 싶은 말 — 무엇이든 좋습니다.",
+    "lead": "버그, 아이디어, 하고 싶은 말: 무엇이든 좋습니다.",
     "close": "피드백 닫기",
     "categoryLabel": "유형",
     "category": {

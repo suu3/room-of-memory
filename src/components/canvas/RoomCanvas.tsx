@@ -96,7 +96,7 @@ class CanvasErrorBoundary extends Component<CanvasErrorBoundaryProps, CanvasErro
 export function RoomCanvas() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
-  // 키 안내는 기기를 따라간다 — 폰에는 누를 E도 WASD도 없다.
+  // 키 안내는 기기를 따라간다. 폰에는 누를 E도 WASD도 없다.
   const hint = useControlHint();
   // 조이스틱은 손가락용이다. 마우스는 바닥을 눌러 걷고, 키보드는 그대로 남는다.
   const pointerKind = usePointerKind();
@@ -166,18 +166,18 @@ export function RoomCanvas() {
   );
 
   const handleCurtainRelease = useCallback(
-    // 진행도는 커튼이 준다 — 몸이 창가에 닿기를 기다렸다가 끌기와 놓기가 같은 프레임에
+    // 진행도는 커튼이 준다. 몸이 창가에 닿기를 기다렸다가 끌기와 놓기가 같은 프레임에
     // 흘러들 수 있어서, 여기 상태를 읽으면 끌기 전 값을 본다.
     (side: CurtainSide, progress: number, tapped: boolean) => {
       const settled = releaseProgress(progress, tapped);
-      // 커튼이 실제로 자리를 옮길 때만 소리를 낸다 — 끌다 말고 도로 붙는 건 아무 일도 아니다
+      // 커튼이 실제로 자리를 옮길 때만 소리를 낸다. 끌다 말고 도로 붙는 건 아무 일도 아니다
       if (settled !== progress) playSound("wipe");
       setPull((pull) => ({ ...pull, [side]: settled }));
     },
     [setPull],
   );
 
-  /** 키보드·프롬프트 버튼 경로 — 드래그를 못 하는 사용자를 위해 양쪽을 한 번에 젖힌다. */
+  /** 키보드·프롬프트 버튼 경로: 드래그를 못 하는 사용자를 위해 양쪽을 한 번에 젖힌다. */
   const openBothCurtains = useCallback(() => setPull(() => ({ left: 1, right: 1 })), [setPull]);
 
   const handleWebGLFailure = useCallback((event: Event) => {
@@ -231,7 +231,7 @@ export function RoomCanvas() {
   );
 
   /**
-   * 스크린리더가 읽을 이름. 조사할 수 없는 물건은 이유까지 붙인다 — 목록에서 이름만
+   * 스크린리더가 읽을 이름. 조사할 수 없는 물건은 이유까지 붙인다. 목록에서 이름만
    * 읽히고 눌러도 아무 일이 없으면, 잠긴 것인지 이미 본 것인지 알 길이 없다.
    */
   const memoryButtonLabels = useMemo<Record<MemoryId, string>>(
@@ -274,7 +274,7 @@ export function RoomCanvas() {
           openCurtains: openBothCurtains,
         },
       );
-      // 대사·미니게임이 떠 있어 입력이 잠긴 동안에는 아무 소리도 내지 않는다 —
+      // 대사·미니게임이 떠 있어 입력이 잠긴 동안에는 아무 소리도 내지 않는다.
       // 그건 "안 되는 것"이 아니라 "지금 차례가 아닌 것"이다.
       if (accepted) playSound("select");
       else if (!selectSceneInputLocked(useMemoryRoomStore.getState())) playSound("deny");
@@ -473,9 +473,9 @@ export function RoomCanvas() {
 
   return (
     <div ref={containerRef} className="absolute inset-0">
-      {/* 모델이 얼마나 들어왔는지를 타이틀 화면에 알린다 — 그리는 것은 없다 */}
+      {/* 모델이 얼마나 들어왔는지를 타이틀 화면에 알린다. 그리는 것은 없다 */}
       <RoomLoadReporter failed={webGLFailed} />
-      {/* 창밖으로 새어나가는 빛 — 캔버스보다 아래라 방을 절대 덮지 않는다 */}
+      {/* 창밖으로 새어나가는 빛: 캔버스보다 아래라 방을 절대 덮지 않는다 */}
       <div aria-hidden className="room-backdrop pointer-events-none absolute inset-0" />
       {webGLFailed ? (
         <WebGLFallback>{t("scene.webglFallback")}</WebGLFallback>
@@ -489,7 +489,7 @@ export function RoomCanvas() {
             shadows="percentage"
             dpr={[1, 1.5]}
             camera={initialCamera}
-            // alpha: true — 캔버스 뒤 DOM 워시가 비쳐야 한다 (창밖 번짐을 3D에 두면
+            // alpha: true: 캔버스 뒤 DOM 워시가 비쳐야 한다 (창밖 번짐을 3D에 두면
             // three가 투명 오브젝트를 항상 불투명 뒤에 그려서 벽을 뚫고 덧칠된다)
             gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
           >

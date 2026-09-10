@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SRGBColorSpace, type Texture, TextureLoader } from "three";
 
-/** 로더 하나를 모듈이 공유한다 — 텍스처마다 새로 만들 이유가 없다. */
+/** 로더 하나를 모듈이 공유한다. 텍스처마다 새로 만들 이유가 없다. */
 const loader = new TextureLoader();
 
 export interface CoverTransform {
@@ -23,7 +23,7 @@ function isPositive(value: number) {
  * 판을 꽉 채우고 넘치는 쪽을 잘라내는 UV 변환. CSS의 `object-fit: cover`와 같다.
  *
  * 그림이 판보다 옆으로 넓으면 좌우를, 세로로 길면 위아래를 자른다. 자르는 기준은
- * 항상 가운데다 — 사진의 주인공은 대개 가운데 있고, 한쪽 끝을 기준으로 자르면
+ * 항상 가운데다. 사진의 주인공은 대개 가운데 있고, 한쪽 끝을 기준으로 자르면
  * 그림마다 어디가 살아남을지 예측할 수 없다.
  *
  * 비율을 아직 모를 때(이미지 로드 전)나 값이 이상할 때는 자르지 않는다. 잘못 자른
@@ -54,12 +54,12 @@ function imageAspectOf(texture: Texture): number {
  * drei의 `useTexture`를 쓰지 않는 이유가 둘이다. 하나, `useTexture`는 서스펜드하는데
  * 이 훅을 쓰는 자리(액자 사진)는 Suspense 경계 밖의 프리미티브라 경계를 새로
  * 세워야 한다. 둘, 파일이 없을 때 서스펜스는 그대로 터지지만 여기서는 조용히
- * null로 떨어져야 한다 — 사진 한 장 때문에 방이 안 뜨면 안 된다
+ * null로 떨어져야 한다. 사진 한 장 때문에 방이 안 뜨면 안 된다
  * (.claude/rules/assets.md의 "파일이 아직 없어도 되는" 에셋들과 같은 계약).
  *
  * 반환값은 머티리얼의 `map`에 그대로 물린다. null인 동안에는 바탕색이 그 자리를 채운다.
  *
- * `path`가 바뀌면 새 그림이 **다 도착한 뒤에** 옛 그림을 버린다 — 먼저 비우면
+ * `path`가 바뀌면 새 그림이 **다 도착한 뒤에** 옛 그림을 버린다. 먼저 비우면
  * 갈아끼우는 사이에 판이 한 번 빈다. 액자 사진처럼 이야기가 진행되며 바뀌는
  * 그림에서는 그 깜빡임이 곧 연출의 흠이 된다.
  */
@@ -67,7 +67,7 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
   const [texture, setTexture] = useState<Texture | null>(null);
   /** 지금 화면에 걸려 있는 텍스처. 언마운트 때 버릴 대상이자 교체 시 버릴 이전 그림. */
   const mountedRef = useRef<Texture | null>(null);
-  /** 로드 콜백이 크롭을 미리 걸 때 볼 판 비율 — 렌더마다 최신값으로 둔다. */
+  /** 로드 콜백이 크롭을 미리 걸 때 볼 판 비율: 렌더마다 최신값으로 둔다. */
   const planeAspectRef = useRef(planeAspect);
   planeAspectRef.current = planeAspect;
 
@@ -77,7 +77,7 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
     loader.load(
       path,
       (result) => {
-        // 늦게 도착한 텍스처는 붙일 자리가 없다 — 그대로 버린다.
+        // 늦게 도착한 텍스처는 붙일 자리가 없다. 그대로 버린다.
         if (cancelled) {
           result.dispose();
           return;
@@ -85,7 +85,7 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
         result.colorSpace = SRGBColorSpace;
         /*
          * 크롭을 걸어 둔 채로 내보낸다. 걸지 않고 내보내면 아래 크롭 이펙트가
-         * 도는 커밋 전 한 프레임 동안 안 잘린 그림이 판에 눌려 뜬다 — 사진이
+         * 도는 커밋 전 한 프레임 동안 안 잘린 그림이 판에 눌려 뜬다. 사진이
          * 바뀌는 순간(2차 조사 뒤) 한 번 늘어났다 돌아오는 깜빡임이 그것이다.
          */
         const { repeat, offset } = coverTransform(imageAspectOf(result), planeAspectRef.current);
@@ -106,7 +106,7 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
    * 옛 그림은 **새 그림이 화면에 붙은 뒤에** 버린다 (커밋 후 이펙트).
    *
    * 전에는 로드 콜백에서 바로 버렸는데, 그 시점의 머티리얼은 아직 옛 텍스처를
-   * 물고 있다 — React가 map을 갈아끼우기 전에 GPU 텍스처부터 지워져서, 다음
+   * 물고 있다. React가 map을 갈아끼우기 전에 GPU 텍스처부터 지워져서, 다음
    * 프레임이 지워진 그림을 그리며 사진이 검게 깜빡였다 (액자 2차 교체에서 보임).
    */
   useEffect(() => {
@@ -115,7 +115,7 @@ export function useCoverTexture(path: string, planeAspect: number): Texture | nu
     if (previous && previous !== texture) previous.dispose();
   }, [texture]);
 
-  // 마지막까지 걸려 있던 텍스처는 여기서 버린다 (.claude/rules/r3f.md — 수동 생성분은 직접 dispose).
+  // 마지막까지 걸려 있던 텍스처는 여기서 버린다 (.claude/rules/r3f.md: 수동 생성분은 직접 dispose).
   useEffect(
     () => () => {
       mountedRef.current?.dispose();

@@ -23,7 +23,7 @@ export function MovementJoystick({
   disabled: boolean;
   /** 스크린리더용 전체 설명 (키보드 대안 포함). */
   label: string;
-  /** 스틱 아래에 보이는 짧은 캡션 — 이게 무슨 UI인지 눈으로 알려준다. */
+  /** 스틱 아래에 보이는 짧은 캡션: 이게 무슨 UI인지 눈으로 알려준다. */
   caption: string;
 }) {
   const activePointerRef = useRef<number | null>(null);
@@ -74,7 +74,7 @@ export function MovementJoystick({
       aria-label={label}
       disabled={disabled}
       // group: 아래 캡션이 비활성 상태를 같이 따라가게 한다
-      // 잠겼을 때는 완전히 사라진다 — 좁은 화면에서 대사창과 겹쳐 보이는 걸 막는다
+      // 잠겼을 때는 완전히 사라진다. 좁은 화면에서 대사창과 겹쳐 보이는 걸 막는다
       className="group absolute bottom-24 left-4 z-20 size-28 touch-none select-none rounded-full border border-line bg-surface shadow-chip transition-opacity duration-200 disabled:pointer-events-none disabled:opacity-0 md:left-6"
       onPointerDown={(event) => {
         if (disabled) return;
@@ -102,7 +102,7 @@ export function MovementJoystick({
           style={{ transform: `translate3d(${knobOffset.x}px, ${knobOffset.y}px, 0)` }}
         />
       </span>
-      {/* 무엇을 하는 UI인지 화면 안에서 알려준다 — 별도 도움말 화면을 두지 않는다 */}
+      {/* 무엇을 하는 UI인지 화면 안에서 알려준다. 별도 도움말 화면을 두지 않는다 */}
       <span
         aria-hidden
         className="monologue-text pointer-events-none absolute -bottom-6 left-1/2 w-max -translate-x-1/2 text-xs font-medium tracking-[0.06em] text-fog"

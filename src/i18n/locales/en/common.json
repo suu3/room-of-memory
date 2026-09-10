@@ -18,7 +18,7 @@
   },
   "panel": {
     "title": "Collected Memories",
-    "open": "Open the notebook — collected memories",
+    "open": "Open the notebook: collected memories",
     "replay": "Replay {{name}}",
     "replayAction": "Replay",
     "prevPage": "Previous page",
@@ -26,10 +26,10 @@
     "pages": "Turn record pages"
   },
   "hotspot": {
-    "collectedLabel": "{{name}} — collected memory",
-    "collectLabel": "{{name}} — collect this memory",
-    "lockedLabel": "{{name}} — memory not yet reachable",
-    "revisitLabel": "{{name}} — revisit this memory"
+    "collectedLabel": "{{name}}: collected memory",
+    "collectLabel": "{{name}}: collect this memory",
+    "lockedLabel": "{{name}}: memory not yet reachable",
+    "revisitLabel": "{{name}}: revisit this memory"
   },
   "dialogue": {
     "advance": "Next line",
@@ -88,7 +88,7 @@
     },
     "frequencyTune": {
       "title": "Tune the Frequency",
-      "help": "The moment the needle crosses the lit band — Space",
+      "help": "The moment the needle crosses the lit band: Space",
       "help_touch": "Tap the moment the needle crosses the lit band"
     },
     "radioQuiz": {
@@ -105,7 +105,7 @@
     },
     "ballCatch": {
       "title": "Swing!",
-      "help": "Swing the bat the moment the ball enters the dashed ring — Space",
+      "help": "Swing the bat the moment the ball enters the dashed ring: Space",
       "help_touch": "Tap to swing the moment the ball enters the dashed ring",
       "prompt": "SPACE",
       "prompt_touch": "TAP",
@@ -116,11 +116,11 @@
     },
     "fighterDuel": {
       "title": "Fighting Game",
-      "help": "Read the opponent's stance and play what beats it — 1 Attack · 2 Guard · 3 Special",
+      "help": "Read the opponent's stance and play what beats it: 1 Attack · 2 Guard · 3 Special",
       "help_touch": "Read the opponent's stance and play what beats it with the buttons below",
-      "hint": "Find the opponent's move shown above on one of the “beats ○○” buttons",
+      "hint": "Find the opponent's move shown above on one of the \"beats ○○\" buttons",
       "rules": {
-        "triangle": "Attack → Special → Guard → Attack — a special breaks through a guard, and a special needs a windup an attack can cut short",
+        "triangle": "Attack → Special → Guard → Attack: a special breaks through a guard, and a special needs a windup an attack can cut short",
         "special": "You get three specials per match"
       },
       "labelCombo": "Combo",
@@ -162,7 +162,7 @@
     "labelTime": "Time left",
     "calendarFlip": {
       "title": "Flipping the calendar",
-      "help": "Flip through the calendar — ← →",
+      "help": "Flip through the calendar: ← →",
       "help_touch": "Flip through the calendar with the arrow buttons",
       "month": "{{value}}",
       "prev": "Previous month",
@@ -180,8 +180,8 @@
       "pageOf": "{{value}} / {{total}}",
       "close": "Put the calendar down",
       "mark": {
-        "incident": "{{month}}/{{day}} — the day it all stopped",
-        "nationals": "{{month}}/{{day}} — the national tournament"
+        "incident": "{{month}}/{{day}}: the day it all stopped",
+        "nationals": "{{month}}/{{day}}: the national tournament"
       }
     },
     "windowView": {
@@ -191,8 +191,8 @@
     },
     "phoneChat": {
       "title": "The phone",
-      "help": "Read the thread from the top — scroll down · Space",
-      "help_touch": "Read the thread from the top — swipe down · tap",
+      "help": "Read the thread from the top: scroll down · Space",
+      "help_touch": "Read the thread from the top: swipe down · tap",
       "helpCalls": "Open the call log tab too",
       "date": "October 19",
       "close": "Turn the screen off",
@@ -216,7 +216,7 @@
       },
       "callsSubtitle": "No answer",
       "callsTitle": "Recents",
-      "moreBelow": "More below — scroll down",
+      "moreBelow": "More below: scroll down",
       "contact": {
         "mom": "Mom",
         "dad": "Dad",
@@ -226,7 +226,7 @@
     },
     "computerBrowse": {
       "title": "The Computer",
-      "help": "Next page — click · Space · →",
+      "help": "Next page: click · Space · →",
       "help_touch": "Tap Next and read to the end",
       "booting": "Booting",
       "account": "Han Do-hae",
@@ -243,12 +243,12 @@
         "l4": "Almost there"
       },
       "offline": "No internet connection",
-      "mailApp": "Mail — saved copy",
-      "newsApp": "Browser — saved page",
+      "mailApp": "Mail: saved copy",
+      "newsApp": "Browser: saved page",
       "mailFrom": "From: Dad",
       "next": "Next",
       "close": "Turn the computer off",
-      "truncated": "— the saved copy ends here —",
+      "truncated": "(the saved copy ends here)",
       "mail": {
         "m1": {
           "subject": "We arrived safe",
@@ -285,7 +285,7 @@
     },
     "phoneLock": {
       "title": "Lock Screen",
-      "help": "Four-digit passcode — type with the number keys",
+      "help": "Four-digit passcode: type with the number keys",
       "help_touch": "Tap in the four-digit passcode",
       "hint": "Hint: the day everything stopped",
       "wrong": "Wrong passcode",
@@ -347,13 +347,13 @@
     "title": "My Notebook",
     "close": "Close the notebook",
     "alt": "Character design sheet for the protagonist",
-    "locked": "Not yet revealed — gather more memories",
+    "locked": "Not yet revealed: gather more memories",
     "tabProfile": "Profile",
     "tabLore": "Notes",
     "loreLocked": "An entry you have not uncovered yet",
     "lockedHint": "Unlocks when collected",
-    "loreStill": "{{name}} — what I saw then",
-    "modelAlt": "3D character model — drag to turn it",
+    "loreStill": "{{name}}: what I saw then",
+    "modelAlt": "3D character model: drag to turn it",
     "modelHint": "Drag or use the buttons to turn",
     "pose": {
       "stand": "Stand",
@@ -383,7 +383,7 @@
   "ending": {
     "eyebrow": "THE DOOR OPENS",
     "line": "He opens the door and steps outside.",
-    "note": "The ending film goes here. Its last shot picks up exactly where you left off — bat in hand, door swinging open.",
+    "note": "The ending film goes here. Its last shot picks up exactly where you left off: bat in hand, door swinging open.",
     "again": "Start again"
   },
   "playback": {
@@ -399,7 +399,7 @@
       "caption": "Dad's handwriting. No idea when he left it here.",
       "l1": "Changed the computer password",
       "l2": "Set it to the national tournament date. You'll never forget that one.",
-      "l3": "— Dad"
+      "l3": "- Dad"
     },
     "wallCalendar": {
       "title": "Wall Calendar",
@@ -425,11 +425,11 @@
     "easy": "Easy",
     "normal": "Normal",
     "easyHint": "Skip unlocks after a while if you get stuck.",
-    "normalHint": "No skips — solve everything yourself."
+    "normalHint": "No skips: solve everything yourself."
   },
   "feedback": {
     "title": "Feedback",
-    "lead": "Bugs, ideas, anything at all — it all helps.",
+    "lead": "Bugs, ideas, anything at all: it all helps.",
     "close": "Close feedback",
     "categoryLabel": "Type",
     "category": {
@@ -444,7 +444,7 @@
     "submit": "Send",
     "sending": "Sending…",
     "sent": "Sent. Thank you!",
-    "failed": "Sending failed. Your text is still here — try again.",
+    "failed": "Sending failed. Your text is still here: try again.",
     "unconfigured": "The inbox isn't connected yet."
   },
   "callout": {

@@ -1,5 +1,5 @@
 /*
- * 서비스 워커 — 설치된 게임이 두 번째부터는 곧장 뜨게 하고, 네트워크가 끊겨도
+ * 서비스 워커: 설치된 게임이 두 번째부터는 곧장 뜨게 하고, 네트워크가 끊겨도
  * 이미 받은 방은 다시 열리게 한다.
  *
  * 전략을 자원 종류로 나눈다:
@@ -8,7 +8,7 @@
  * - 문서(navigate): 네트워크 우선, 실패하면 캐시. 배포한 새 버전을 붙잡고 있으면 안 된다.
  * - 나머지: 건드리지 않는다.
  *
- * 빌드 도구 없이 손으로 쓴다 — next-pwa 같은 의존성을 하나 더 들이는 것보다,
+ * 빌드 도구 없이 손으로 쓴다. next-pwa 같은 의존성을 하나 더 들이는 것보다,
  * 캐시 규칙 30줄을 읽을 수 있게 두는 편이 이 프로젝트 규모에 맞는다.
  */
 
@@ -43,7 +43,7 @@ async function cacheFirst(request) {
   if (cached) return cached;
 
   const response = await fetch(request);
-  // 부분 응답(206)이나 실패는 캐시에 넣지 않는다 — 넣으면 다음 로드가 깨진 걸 먹는다
+  // 부분 응답(206)이나 실패는 캐시에 넣지 않는다. 넣으면 다음 로드가 깨진 걸 먹는다
   if (response.ok && response.status === 200) {
     const cache = await caches.open(ASSET_CACHE);
     cache.put(request, response.clone());

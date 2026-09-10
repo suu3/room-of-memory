@@ -27,7 +27,7 @@ const PLAYER_HEIGHT_UNITS = 1.1;
 
 describe("roomZoomForViewport", () => {
   it("frames a fixed slice of the world instead of the whole room", () => {
-    // 세로 6유닛을 담는다 — 방 전체(12.3)를 담던 예전 구도의 2배
+    // 세로 6유닛을 담는다. 방 전체(12.3)를 담던 예전 구도의 2배
     expect(roomZoomForViewport(1440, 900)).toBe(150);
     expect(900 / roomZoomForViewport(1440, 900)).toBeCloseTo(6, 1);
   });
@@ -72,7 +72,7 @@ describe("roomOverviewZoomForViewport", () => {
   });
 
   it("always pulls further back than the play framing", () => {
-    // 시작 버튼을 누르면 카메라가 들어가야 한다 — 반대로 가면 연출이 죽는다
+    // 시작 버튼을 누르면 카메라가 들어가야 한다. 반대로 가면 연출이 죽는다
     for (const [width, height] of [
       [1440, 900],
       [1024, 768],
@@ -91,7 +91,7 @@ describe("room zoom scale", () => {
     expect(clampRoomZoomScale(0.1)).toBe(MIN_ROOM_ZOOM_SCALE);
     expect(clampRoomZoomScale(9)).toBe(MAX_ROOM_ZOOM_SCALE);
     expect(clampRoomZoomScale(Number.NaN)).toBe(1);
-    // 사면벽이 되면서 축소해도 방이 뚫려 보이지 않는다 — 전체 조망까지 당길 수 있어야 한다
+    // 사면벽이 되면서 축소해도 방이 뚫려 보이지 않는다. 전체 조망까지 당길 수 있어야 한다
     expect(MIN_ROOM_ZOOM_SCALE).toBeLessThan(0.6);
   });
 
@@ -167,7 +167,7 @@ describe("room orbit", () => {
     expect(BASE_AZIMUTH - MAX_ROOM_ORBIT).toBeGreaterThan(0);
     expect(BASE_AZIMUTH + MAX_ROOM_ORBIT).toBeLessThan(Math.PI / 2);
 
-    // 이 범위 안에서는 뒷벽·왼쪽 벽이 절대 걷히지 않아야 한다 — 거기 붙은
+    // 이 범위 안에서는 뒷벽·왼쪽 벽이 절대 걷히지 않아야 한다. 거기 붙은
     // 포스터·달력·창밖 풍경은 CulledWall 밖에 있어서, 벽이 사라지면 허공에 뜬다.
     for (let step = 0; step <= 20; step += 1) {
       const azimuth = BASE_AZIMUTH - MAX_ROOM_ORBIT + (step / 20) * MAX_ROOM_ORBIT * 2;

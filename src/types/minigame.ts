@@ -1,5 +1,5 @@
 /**
- * Minigame contract — every minigame is a self-contained component that
+ * Minigame contract: every minigame is a self-contained component that
  * reports its outcome through `onComplete`. The VN engine (not the minigame)
  * decides what the result means: which node comes next, which flags get set.
  */
@@ -32,14 +32,14 @@ export interface MinigameProps {
    */
   gamePhase?: 1 | 2;
   /**
-   * Player asked to skip (accessibility requirement — every minigame must
+   * Player asked to skip (accessibility requirement: every minigame must
    * call onComplete({ cleared: true }) when skipped).
    */
   onSkip?: () => void;
   /**
    * 지금 화면이 무엇인가. 기본값 "play".
    *
-   * "result"는 판이 끝나고 결과 대사가 그 위에 뜬 상태다 — 미니게임 화면은 남지만
+   * "result"는 판이 끝나고 결과 대사가 그 위에 뜬 상태다. 미니게임 화면은 남지만
    * 더는 게임이 아니다. 이 단계에서 계속 애니메이션이 돌고 입력을 먹으면 대사가
    * 게임 위에 얹힌 것처럼 보이고, 키 입력이 대사 진행과 충돌한다. 결과 화면을
    * 따로 그리는 미니게임은 이 값을 보고 판을 멈춘 그림(정지 화면)으로 바꾼다.
@@ -69,7 +69,7 @@ export type MinigameMode = "canvas" | "overlay";
  * 화면에 어떻게 얹히는가.
  *
  * "panel"은 제목·조작법·스킵이 달린 미니게임 카드다. "bare"는 그 껍데기 없이
- * 오브젝트만 떠오른다 — 방탈출처럼 "물건을 집어서 들여다보는" 인터랙션은
+ * 오브젝트만 떠오른다. 방탈출처럼 "물건을 집어서 들여다보는" 인터랙션은
  * 시작 카드도 패널도 없어야 게임이 아니라 탐색으로 읽힌다.
  */
 export type MinigamePresentation = "panel" | "bare";
@@ -87,7 +87,7 @@ export interface MinigameDefinition {
   /**
    * 시작 카드에서 조작법 아래에 한 줄씩 펼쳐 보여줄 플레이 방법.
    *
-   * 한 줄 요약(helpKey)으로 규칙이 다 서는 게임은 비워 둔다 — 그런 게임에 목록을
+   * 한 줄 요약(helpKey)으로 규칙이 다 서는 게임은 비워 둔다. 그런 게임에 목록을
    * 붙이면 집는 데 3초 걸릴 인터랙션이 설명서를 읽는 일이 된다. 상성·페인트처럼
    * 모르면 첫 판을 통째로 버리게 되는 규칙이 있는 게임만 채운다.
    * 조작 안내와 같은 잣대로 `_touch` 변형이 있으면 그쪽이 쓰인다.

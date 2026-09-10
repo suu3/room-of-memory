@@ -60,7 +60,7 @@ describe("pulling the curtains open", () => {
   });
 
   it("closes a panel that is dragged back the way it came", () => {
-    // 다 젖힌 커튼도 반대로 끌면 도로 닫힌다 — 창밖을 한 번 봤다고 굳지 않는다
+    // 다 젖힌 커튼도 반대로 끌면 도로 닫힌다. 창밖을 한 번 봤다고 굳지 않는다
     expect(pullProgress("left", curtainTravel("left"), 1)).toBe(0);
     expect(pullProgress("right", -curtainTravel("right"), 1)).toBe(0);
     // 조금만 되돌리면 스냅 기준을 못 넘겨 다시 열린 자리로 붙는다

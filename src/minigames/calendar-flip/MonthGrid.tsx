@@ -16,12 +16,12 @@ const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 /**
  * 달력 한 장의 날짜 격자.
  *
- * 넘기는 미니게임과 조사를 마친 뒤의 배경 달력(ClueOverlay)이 같은 걸 쓴다 —
+ * 넘기는 미니게임과 조사를 마친 뒤의 배경 달력(ClueOverlay)이 같은 걸 쓴다.
  * 두 벌로 그리면 표시된 날이 한쪽에만 남는 사고가 난다. 컴퓨터 비밀번호의 숫자가
  * 여기 그어진 금빛 표시 하나뿐이라 특히 그렇다.
  *
  * 표시는 두 가지고 색으로 갈린다. 붉은 것(ember)은 모든 게 끊긴 10월 19일,
- * 금빛(memory)은 전국대회 날 — 비밀번호가 되는 그 날이다.
+ * 금빛(memory)은 전국대회 날: 비밀번호가 되는 그 날이다.
  */
 export function MonthGrid({ month }: { month: number }) {
   const { t } = useTranslation();
@@ -60,7 +60,7 @@ export function MonthGrid({ month }: { month: number }) {
         )}
       </div>
 
-      {/* 손으로 적어 둔 메모 한 줄 — 동그라미만 있으면 무슨 날인지 알 길이 없다 */}
+      {/* 손으로 적어 둔 메모 한 줄: 동그라미만 있으면 무슨 날인지 알 길이 없다 */}
       {marked ? (
         <p
           className={`mt-2 border-t border-ink/10 pt-2 text-[0.6875rem] tracking-wide ${

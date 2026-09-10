@@ -68,7 +68,7 @@ const SHELL = {
  *
  * 걸레받이(높이 0.3)와 정확히 같은 높이여야 한다. 0.55였을 때는 굽도리가
  * 걸레받이 위로 0.25 삐져나왔고, 그 띠가 조명을 받아 걸레받이 위에 판이
- * 하나 더 얹힌 것처럼 보였다 — 벽 몰딩이 두 겹이 된다.
+ * 하나 더 얹힌 것처럼 보였다. 벽 몰딩이 두 겹이 된다.
  */
 const WALL_STUB_TOP_Y = 0.3;
 
@@ -121,7 +121,7 @@ function wallSegment(
 /**
  * 뒷벽 윗부분. 통짜 상자 하나였는데, 그러면 창이 벽에 그려진 그림일 뿐이라 밖이 안 보인다.
  * 창 개구부를 비워둔 네 조각으로 쪼개 진짜 구멍을 낸다.
- * 아래 끝은 굽도리 높이 — 그 아래는 BASE_WALLS가 통짜로 잇는다.
+ * 아래 끝은 굽도리 높이: 그 아래는 BASE_WALLS가 통짜로 잇는다.
  */
 const UPPER_Y = { min: WALL_STUB_TOP_Y, max: WALL_Y.max };
 const BACK_WALL_SEGMENTS = [
@@ -132,7 +132,7 @@ const BACK_WALL_SEGMENTS = [
 ] as const satisfies readonly WallBox[];
 
 /**
- * 네 면의 굽도리. 카메라가 어느 쪽에 있든 남아서 바닥의 테두리를 이룬다 —
+ * 네 면의 굽도리. 카메라가 어느 쪽에 있든 남아서 바닥의 테두리를 이룬다.
  * 이게 없으면 카메라 쪽 벽이 스러진 자리에서 바닥이 허공에 뜬 판으로 보인다.
  */
 const BASE_WALLS = [
@@ -146,11 +146,11 @@ const RIGHT_WALL_UPPER = sideWall(ROOM_SHELL_BOUNDS.maxX, WALL_STUB_TOP_Y, WALL_
 const FRONT_WALL_UPPER = endWall(ROOM_SHELL_BOUNDS.maxZ, WALL_STUB_TOP_Y, WALL_Y.max);
 
 /**
- * 문의 실제 개구부 (v2 — 문 너머에 거실이 생기면서 필요해졌다).
+ * 문의 실제 개구부 (v2: 문 너머에 거실이 생기면서 필요해졌다).
  *
  * 전에는 왼벽이 통짜이고 문틀·문짝이 그 앞에 붙은 그림이었다. 이제 문이 열리면
  * 걸어 나가야 하므로 벽에 진짜 구멍을 낸다. 구멍 가장자리는 문틀(기둥 ±0.82,
- * 상인방 y≈3.42~3.60) 뒤에 숨는 크기로 잡는다 — 단면이 보이면 안 된다.
+ * 상인방 y≈3.42~3.60) 뒤에 숨는 크기로 잡는다. 단면이 보이면 안 된다.
  */
 export const DOOR_HOLE_Z = {
   min: ROOM_DOOR_POSITION[2] - 0.82,
@@ -158,7 +158,7 @@ export const DOOR_HOLE_Z = {
 } as const;
 const DOOR_HOLE_TOP_Y = 3.46;
 
-/** x축을 보고 선 벽의 조각 — z·y 범위를 좁혀 개구부를 비운다. */
+/** x축을 보고 선 벽의 조각: z·y 범위를 좁혀 개구부를 비운다. */
 function sideWallSegment(
   x: number,
   z: { min: number; max: number },
@@ -170,7 +170,7 @@ function sideWallSegment(
   };
 }
 
-/** 왼벽 윗부분 — 문 개구부를 비워둔 세 조각 (양옆 + 상인방 위). */
+/** 왼벽 윗부분: 문 개구부를 비워둔 세 조각 (양옆 + 상인방 위). */
 const LEFT_WALL_SEGMENTS = [
   sideWallSegment(
     ROOM_SHELL_BOUNDS.minX,
@@ -189,7 +189,7 @@ const LEFT_WALL_SEGMENTS = [
 ] as const satisfies readonly WallBox[];
 
 /**
- * 왼벽 굽도리 — 문 개구부에서 끊는다. 통짜로 이으면 문지방 자리에 무릎 높이
+ * 왼벽 굽도리: 문 개구부에서 끊는다. 통짜로 이으면 문지방 자리에 무릎 높이
  * 턱이 남아, 열린 문으로 나가는 발이 벽 토막을 뚫고 지나간다.
  * (BASE_WALLS에서 왼벽만 여기로 빠져 있다.)
  */
@@ -226,7 +226,7 @@ const WINDOW_FRAME = [
   { size: [0.1, 2.48, 0.13], position: [0, 0, 0.02] },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
-/** 문짝이 도는 축 — 왼쪽 문틀 안쪽. 콜라이더(layout의 OPEN_DOOR_LEAF_COLLIDERS)와 같은 수다. */
+/** 문짝이 도는 축: 왼쪽 문틀 안쪽. 콜라이더(layout의 OPEN_DOOR_LEAF_COLLIDERS)와 같은 수다. */
 const DOOR_HINGE_X = ROOM_DOOR_LEAF.hingeOffset;
 
 const DOOR_FRAME = [
@@ -235,7 +235,7 @@ const DOOR_FRAME = [
   { size: [1.82, 0.18, 0.18], position: [0, 1.81, 0] },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple }[];
 
-// 왼쪽 벽 걸레받이는 문 앞에서 끊어야 한다 — 그대로 이으면 문짝 아랫부분을 가로지른다.
+// 왼쪽 벽 걸레받이는 문 앞에서 끊어야 한다. 그대로 이으면 문짝 아랫부분을 가로지른다.
 const DOOR_OUTER_WIDTH = 1.82;
 /** 문틀 바깥까지 포함한 문의 z 범위. 문은 Y 90° 회전이라 폭이 z축을 따라 놓인다. */
 export const DOOR_OPENING_Z = {
@@ -253,7 +253,7 @@ export const LEFT_SKIRTING = {
  *
  * 열린 면이 있던 디오라마 시절에는 바닥의 잘린 단면을 마감하는 몰딩이었다.
  * 사면벽이 되면서 네 면 굽도리(BASE_WALLS)가 그 자리를 통째로 감쌌고, 테두리는
- * 굽도리 안에 완전히 파묻혀 한 픽셀도 보이지 않게 됐다 — 대신 폭이 굽도리와 똑같아
+ * 굽도리 안에 완전히 파묻혀 한 픽셀도 보이지 않게 됐다. 대신 폭이 굽도리와 똑같아
  * 양 끝면이 같은 평면에 놓이면서 모서리에서 깜빡이기만 했다.
  */
 
@@ -263,7 +263,7 @@ export function RoomShell({
   outsideDecay,
 }: {
   palette: RoomPalette;
-  /** 방문이 열렸는가 — 2막이 시작됐다는 뜻이다. */
+  /** 방문이 열렸는가: 2막이 시작됐다는 뜻이다. */
   doorOpen: boolean;
   /** 창밖이 얼마나 무너져 보이는지 (0=평범한 야경, 1=사태 이후). */
   outsideDecay: number;
@@ -276,7 +276,7 @@ export function RoomShell({
   const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
   const nudgeDoor = useMemoryRoomStore((state) => state.nudgeDoor);
   /*
-   * 라디오 목소리를 잡으면 문이 켜진다 — 그리고 여는 것은 플레이어다.
+   * 라디오 목소리를 잡으면 문이 켜진다. 그리고 여는 것은 플레이어다.
    * 30일 만에 처음 문을 여는 순간을 자동으로 넘겨 버리면, 2막이 시작되는 이유가
    * 도해의 결심이 아니라 진행도가 된다 (docs/content-design.md 2장).
    */
@@ -295,7 +295,7 @@ export function RoomShell({
 
       <ShellBox {...SHELL.floor} color={palette.floor} receiveShadow />
 
-      {/* 네 면의 굽도리 — 늘 남는다 (왼벽은 문 개구부에서 끊긴 두 조각) */}
+      {/* 네 면의 굽도리: 늘 남는다 (왼벽은 문 개구부에서 끊긴 두 조각) */}
       {[...BASE_WALLS, ...LEFT_BASE_SEGMENTS].map((part) => (
         <ShellBox key={part.position.join(":")} {...part} color={palette.wall} receiveShadow />
       ))}
@@ -310,7 +310,7 @@ export function RoomShell({
             receiveShadow
           />
         ))}
-        {/* 창밖 풍경도 뒷벽에 속한다 — 벽이 스러졌는데 풍경만 남으면 허공에 뜬 판이 된다 */}
+        {/* 창밖 풍경도 뒷벽에 속한다. 벽이 스러졌는데 풍경만 남으면 허공에 뜬 판이 된다 */}
         <WindowView
           palette={palette}
           decay={outsideDecay}
@@ -329,7 +329,7 @@ export function RoomShell({
         {LEFT_WALL_SEGMENTS.map((part) => (
           <ShellBox key={part.position.join(":")} {...part} color={palette.wall} receiveShadow />
         ))}
-        {/* 벽에 붙은 물건이라 벽과 함께 스러져야 한다 — 밖에 두면 허공에 뜬다 */}
+        {/* 벽에 붙은 물건이라 벽과 함께 스러져야 한다. 밖에 두면 허공에 뜬다 */}
         <LightSwitch palette={palette} />
       </CulledWall>
       <CulledWall side="front">
@@ -340,7 +340,7 @@ export function RoomShell({
       </CulledWall>
 
       {/*
-        문. 색은 늘 어둡다(frame) — 금빛은 라디오 목소리를 잡은 뒤에만 잠깐 돈다.
+        문. 색은 늘 어둡다(frame): 금빛은 라디오 목소리를 잡은 뒤에만 잠깐 돈다.
 
         1막 내내 눌러볼 수 있고, 그때는 열리는 대신 안 여는 이유가 한 줄 흐른다
         (DoorNudge). 잠긴 게 아니라 **안 여는** 것이라는 게 여기서 드러난다.
@@ -387,7 +387,7 @@ export function RoomShell({
         {DOOR_FRAME.map((part) => (
           <ShellBox key={part.position.join(":")} {...part} color={palette.wood} castShadow />
         ))}
-        {/* 문틈으로 새는 빛 — 거실에서 오는 빛이다 (v2). 문이 열리면 틈 자체가
+        {/* 문틈으로 새는 빛: 거실에서 오는 빛이다 (v2). 문이 열리면 틈 자체가
             사라지므로 같이 사라진다. doorReady 금빛과 헷갈리지 않게 세기를 낮게. */}
         {!doorOpen && (
           <ShellBox

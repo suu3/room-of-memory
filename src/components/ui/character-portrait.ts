@@ -3,7 +3,7 @@ import type { CharacterExpression } from "@/types/interaction";
 import type { CharacterId } from "@/types/scenario";
 
 /**
- * 초상이 있는 화자. 라디오 너머의 목소리처럼 얼굴이 없는 화자는 대사창만 쓴다 —
+ * 초상이 있는 화자. 라디오 너머의 목소리처럼 얼굴이 없는 화자는 대사창만 쓴다.
  * 정체를 모른다는 것이 그 인물의 전부라 아무 얼굴도 붙이면 안 된다.
  */
 const PORTRAIT_SPEAKERS: readonly CharacterId[] = ["hero"];
@@ -36,7 +36,7 @@ export const PORTRAIT_OVERLAY_EXPRESSIONS = PORTRAIT_EXPRESSIONS.filter(
   (expression) => expression !== PORTRAIT_BASE_EXPRESSION,
 );
 
-/** 입이 열려 있는 유일한 프레임 — "말하는 중" 표시로 재사용한다. */
+/** 입이 열려 있는 유일한 프레임: "말하는 중" 표시로 재사용한다. */
 export const MOUTH_OPEN_EXPRESSION: CharacterExpression = "surprised";
 
 /**

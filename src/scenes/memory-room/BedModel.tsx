@@ -15,7 +15,7 @@ useGLTF.preload(ASSETS.models.bed, true, true);
 /**
  * 부품 노드 이름 → 팔레트 색. glb에는 재질이 없어(블렌더에서 안 입혔다) 여기서 입힌다.
  * 이름 규약은 bed.ts 머리 주석. 프레임 계열은 우드, 매트리스(시트)는 회백, 베개는 리넨,
- * 이불은 회청 천 — 방의 침구는 회청색이다 (DESIGN.md > 3D 재질 팔레트).
+ * 이불은 회청 천: 방의 침구는 회청색이다 (DESIGN.md > 3D 재질 팔레트).
  */
 const PART_COLORS = {
   frame: "wood",
@@ -28,7 +28,7 @@ const PART_COLORS = {
 } as const satisfies Record<string, keyof RoomPalette>;
 type BedPart = keyof typeof PART_COLORS;
 const BED_PARTS = Object.keys(PART_COLORS) as readonly BedPart[];
-/** 이름이 규약에 없는 메쉬 — 모델을 다시 내보내며 이름을 빠뜨렸을 때 눈에 띄게 매트리스색으로 둔다. */
+/** 이름이 규약에 없는 메쉬: 모델을 다시 내보내며 이름을 빠뜨렸을 때 눈에 띄게 매트리스색으로 둔다. */
 const FALLBACK_PART: BedPart = "mattress";
 /** 이불 shape key 이름 (블렌더 shape key 그대로). */
 const FOLD_KEY = "folded";
@@ -50,7 +50,7 @@ function isBedPart(name: string): name is BedPart {
 
 /**
  * 몸이 매트리스 위에 있는가. 걸터앉은 자리(perch)는 매트리스 왼쪽 변 바깥이라 여기 안
- * 든다 — 일어날 때 상체를 세워 가장자리에 앉은 다음에야 이불이 다시 펴진다. 누운 몸
+ * 든다. 일어날 때 상체를 세워 가장자리에 앉은 다음에야 이불이 다시 펴진다. 누운 몸
  * 위로 이불이 펴지면 덮어 주는 게 아니라 뚫고 지나간다.
  */
 function isOnMattress(position: { x: number; z: number }): boolean {
@@ -69,9 +69,9 @@ function LoadedBed({ palette, onModelReady }: BedModelProps) {
   const reducedMotion = usePrefersReducedMotion();
 
   /*
-   * 부품마다 팔레트색 재질을 새로 만든다 — 로더가 재질 없는 메쉬에 끼우는 기본 재질은
+   * 부품마다 팔레트색 재질을 새로 만든다. 로더가 재질 없는 메쉬에 끼우는 기본 재질은
    * 흰색에 metalness 1이라 조명 아래서 검게 죽는다. 이불 메쉬는 shape key를 프레임마다
-   * 움직여야 해서 같이 돌려준다 — ref에 담지 않는다. 개발 모드의 StrictMode는 useMemo를
+   * 움직여야 해서 같이 돌려준다. ref에 담지 않는다. 개발 모드의 StrictMode는 useMemo를
    * 두 번 부르고 두 번째 결과를 버리는데, ref는 그 버려진 복제본을 가리키게 되어 화면에
    * 없는 이불만 접혔다.
    */
@@ -106,7 +106,7 @@ function LoadedBed({ palette, onModelReady }: BedModelProps) {
     [materials],
   );
 
-  // 글로우 선택은 마운트된 메쉬를 훑어 모은다 — 모델이 나중에 붙으면 다시 훑게 알린다.
+  // 글로우 선택은 마운트된 메쉬를 훑어 모은다. 모델이 나중에 붙으면 다시 훑게 알린다.
   useEffect(() => {
     onModelReady?.();
   }, [onModelReady]);
@@ -132,13 +132,13 @@ function LoadedBed({ palette, onModelReady }: BedModelProps) {
 }
 
 /**
- * 침대 glb — 프레임·매트리스·베개·이불이 한 모델이다 (bed.ts).
+ * 침대 glb: 프레임·매트리스·베개·이불이 한 모델이다 (bed.ts).
  *
  * 침대를 누르면 이불이 발치로 접히고(shape key `folded`) 그 자리에 캐릭터가 눕는다.
  * 일어나면 도로 펴진다. 접힘의 목표값은 좌석 상태와 몸의 위치에서 나오고, 프레임마다
- * damp로 따라간다 — 이불은 무거워서 툭 접히지 않는다.
+ * damp로 따라간다. 이불은 무거워서 툭 접히지 않는다.
  *
- * Suspense 경계를 안에 두는 이유는 FurnitureModel과 같다 — 로딩 서스펜드가 글로우
+ * Suspense 경계를 안에 두는 이유는 FurnitureModel과 같다. 로딩 서스펜드가 글로우
  * 루트까지 올라가면 EffectComposer가 렌더러 없이 다시 붙는다.
  */
 export function BedModel(props: BedModelProps) {

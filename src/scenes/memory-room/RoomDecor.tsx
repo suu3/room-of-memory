@@ -16,12 +16,12 @@ useGLTF.preload(ASSETS.models.books, true, true);
  * 벽에 붙는 것들.
  *
  * 가구(RoomFurniture)는 바닥에 놓인 물건, 여기는 벽면 자체를 꾸미는 것들이다.
- * 벽이 통짜 단색이면 방이 아니라 상자로 읽힌다 — 도현이 이 방에서 살았다는 증거는
+ * 벽이 통짜 단색이면 방이 아니라 상자로 읽힌다. 도현이 이 방에서 살았다는 증거는
  * 가구가 아니라 벽에 남는다: 붙였다 뗀 포스터 자국, 야구부 페넌트, 선반의 트로피.
  *
  * 색은 재질 팔레트(linen/sage/clay/fabric/trim)로만 짠다. memory(앰버 글로우)는
  * "만질 수 있는 기억"에만 쓰는 색이라 장식에 뿌리면 연출이 죽는다 (DESIGN.md).
- * 앰버 재질은 트로피 하나에만 — 작은 소품에 제한적으로.
+ * 앰버 재질은 트로피 하나에만: 작은 소품에 제한적으로.
  */
 
 /** 벽 안쪽 면. 벽 두께 0.18의 절반만큼 중심에서 안으로 들어온 자리다. */
@@ -40,7 +40,7 @@ interface DecorBox {
 }
 
 /**
- * 뒷벽에 붙는 판. 겹쳐 붙일 때는 depth를 키운다 — 두께가 같으면 앞면이 같은
+ * 뒷벽에 붙는 판. 겹쳐 붙일 때는 depth를 키운다. 두께가 같으면 앞면이 같은
  * 좌표에 놓여 z-fighting으로 깜빡인다 (RoomFurniture의 겹침 원칙과 같다).
  */
 function backWall(
@@ -68,7 +68,7 @@ function leftWall(
 
 /*
  * 앞·오른쪽 벽. 기본 구도에서는 카메라를 향하고 있어 걷혀 있고, 시점을 돌려야 드러난다.
- * 여기 붙는 것들은 반드시 해당 CulledWall 안에서 렌더해야 한다 — 벽만 사라지고
+ * 여기 붙는 것들은 반드시 해당 CulledWall 안에서 렌더해야 한다. 벽만 사라지고
  * 포스터가 남으면 액자가 허공에 뜬다.
  */
 function frontWall(
@@ -95,7 +95,7 @@ function rightWall(
 
 /**
  * 포스터 한 장 = 종이 바탕 + 안쪽 색면 + 가로 띠.
- * 카메라가 직교라 이 방 전체가 화면에 들어온다 — 포스터 하나가 100px 남짓이라
+ * 카메라가 직교라 이 방 전체가 화면에 들어온다. 포스터 하나가 100px 남짓이라
  * 요소를 더 넣어봐야 뭉개진다. 세 겹이 이 거리에서 읽히는 한계다.
  */
 function backPoster(
@@ -129,7 +129,7 @@ function leftPoster(
 /**
  * 포스터를 떼어낸 자리. 볕에 바래지 않아 벽(slate)보다 한 톤 밝게 남는다.
  * 이 방에서 시간이 흘렀다는 걸 말없이 알리는 장치라 일부러 비워 둔다.
- * mist(#16212C)로 잡았다가 되돌렸다 — 벽보다 어두워서 자국이 아니라 그늘로 보였다.
+ * mist(#16212C)로 잡았다가 되돌렸다. 벽보다 어두워서 자국이 아니라 그늘로 보였다.
  */
 const BACK_FADED_MARKS = [
   backWall(-1.15, 2.45, 0.92, 1.2, "wallFaded"),
@@ -150,7 +150,7 @@ const LEFT_FADED_MARKS = [
  *
  * 색면은 벽(slate)보다 반드시 밝아야 한다. navy로 깔았더니 벽과 붙어버려서
  * 포스터가 아니라 "빈 액자 테두리"로 읽혔다. olive 한 장은 따뜻한 색이 하나쯤
- * 걸려 있어야 방이 차갑게만 안 보여서 넣었다 — memory 금빛을 쓸 수 없는 자리의 대타다.
+ * 걸려 있어야 방이 차갑게만 안 보여서 넣었다. memory 금빛을 쓸 수 없는 자리의 대타다.
  */
 const BACK_POSTERS = [
   ...backPoster(-4.6, 3.3, 1.3, 1.7, "sage"),
@@ -165,7 +165,7 @@ const LEFT_POSTERS = [...leftPoster(2.65, 2.9, 1.5, 1.9, "sage")] satisfies Deco
  * 이 거리에서 기울인 사각형은 그냥 삐뚤어진 픽셀 덩어리로 보이기 때문이다.
  */
 const PHOTO_STRIP = [-2.95, -2.55, -2.15, -1.75].flatMap((x) => [
-  // paper(#EFE7D6)는 이 거리에서 조명까지 받아 흰 블록으로 튄다 — 한 톤 낮춘다
+  // paper(#EFE7D6)는 이 거리에서 조명까지 받아 흰 블록으로 튄다. 한 톤 낮춘다
   backWall(x, 3.42, 0.28, 0.28, "linen"),
   // 위쪽에 붙인 마스킹테이프 한 조각. 사진보다 어두워야 사진이 주인공으로 남는다
   backWall(x, 3.58, 0.13, 0.07, "trim", 0.07),
@@ -173,7 +173,7 @@ const PHOTO_STRIP = [-2.95, -2.55, -2.15, -1.75].flatMap((x) => [
 
 /**
  * 야구부 페넌트. 삼각 깃발을 박스로 흉내 낼 수는 없어서 가로로 긴 배너로 짰다.
- * 바탕을 navy로 뒀더니 벽에 묻혀 흰 줄 하나만 공중에 떠 보였다 — 크림 바탕에
+ * 바탕을 navy로 뒀더니 벽에 묻혀 흰 줄 하나만 공중에 떠 보였다. 크림 바탕에
  * 어두운 줄을 넣는 쪽으로 뒤집는다.
  */
 const PENNANT = [
@@ -182,7 +182,7 @@ const PENNANT = [
 ] as const satisfies readonly DecorBox[];
 
 /**
- * 앞벽 — 돌려야 보이는 면. 벽이 통째로 비면 "돌려봤자 아무것도 없네"가 되므로
+ * 앞벽: 돌려야 보이는 면. 벽이 통째로 비면 "돌려봤자 아무것도 없네"가 되므로
  * 볼 것을 둔다. 침대 머리맡(x 3.1~6.2) 위가 가장 크게 비어 있다.
  */
 const FRONT_WALL_DECOR = [
@@ -199,7 +199,7 @@ const FRONT_WALL_DECOR = [
 ] as const satisfies readonly DecorBox[];
 
 /**
- * 오른쪽 벽 — 침대 머리 쪽. 야구 스코어보드를 흉내 낸 판과 빛바랜 자국.
+ * 오른쪽 벽: 침대 머리 쪽. 야구 스코어보드를 흉내 낸 판과 빛바랜 자국.
  */
 const RIGHT_WALL_DECOR = [
   rightWall(2.4, 3.05, 2.0, 1.15, "linen"),
@@ -213,7 +213,7 @@ const RIGHT_WALL_DECOR = [
  * 걸레받이 위 콘센트. 손 닿는 높이에 있어야 방처럼 보인다.
  *
  * 전등 스위치도 원래 여기 장식으로 있었지만, 실제로 눌리는 물건이 되면서
- * LightSwitch(RoomShell의 왼벽)로 옮겨갔다 — 여기 두면 둘이 겹쳐 두 개가 된다.
+ * LightSwitch(RoomShell의 왼벽)로 옮겨갔다. 여기 두면 둘이 겹쳐 두 개가 된다.
  */
 const WALL_FITTINGS = [
   leftWall(-3.05, 0.44, 0.22, 0.16, "trim", 0.05),
@@ -237,7 +237,7 @@ const SHELF_BOOKS = [
  */
 const CLUE_BOOK_X = 4.86;
 
-/** 선반에 꽂힌 책 한 권. 단서로 쓰는 한 권도 같은 도형을 쓴다 — 겉으로는 구별되지 않는다. */
+/** 선반에 꽂힌 책 한 권. 단서로 쓰는 한 권도 같은 도형을 쓴다. 겉으로는 구별되지 않는다. */
 function ShelfBook({
   book,
   palette,
@@ -255,7 +255,7 @@ function ShelfBook({
 
 /**
  * 벽면별 장식 목록. 테스트가 겹침을 검사할 수 있도록 내보낸다
- * (RoomDecor.test.ts — 같은 벽에서 화면상 겹치는 판은 두께가 달라야 한다).
+ * (RoomDecor.test.ts: 같은 벽에서 화면상 겹치는 판은 두께가 달라야 한다).
  */
 export const DECOR_BY_WALL = {
   back: [...BACK_FADED_MARKS, ...BACK_POSTERS, ...PHOTO_STRIP, ...PENNANT],
@@ -285,7 +285,7 @@ function DecorBoxes({ parts, palette }: { parts: readonly DecorBox[]; palette: R
 
 /**
  * 야구부 트로피. 받침 → 기둥 → 컵 순으로 쌓는다.
- * 재질 팔레트의 앰버 — 방에서 앰버를 받는 몇 안 되는 소품이다. 빛이 닿을 때만
+ * 재질 팔레트의 앰버: 방에서 앰버를 받는 몇 안 되는 소품이다. 빛이 닿을 때만
  * 꿀빛으로 서고, 어둠 속에서는 바랜 놋쇠로 가라앉는다.
  */
 function Trophy({ palette, position }: { palette: RoomPalette; position: Vec3Tuple }) {
@@ -309,7 +309,7 @@ function Trophy({ palette, position }: { palette: RoomPalette; position: Vec3Tup
 
 export function RoomDecor({ palette }: { palette: RoomPalette }) {
   /*
-   * 왼벽은 이제 걷힐 수 있다 — 플레이어가 거실로 나가면 공유벽이 시야를 가려서
+   * 왼벽은 이제 걷힐 수 있다. 플레이어가 거실로 나가면 공유벽이 시야를 가려서
    * RoomShell이 강제로 걷는다 (v2). 벽에 붙은 장식은 벽과 함께 사라져야 한다.
    */
   const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
@@ -333,9 +333,9 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
         <DecorBoxes parts={DECOR_BY_WALL.right} palette={palette} />
       </CulledWall>
 
-      {/* 뒷벽 선반 위 — 트로피와 꽂아둔 책 */}
+      {/* 뒷벽 선반 위: 트로피와 꽂아둔 책 */}
       <Trophy palette={palette} position={[3.72, BACK_SHELF_TOP_Y, -3.66]} />
-      {/* 한 권만 집을 수 있다 — 네 권 다 열리면 어느 것을 봐도 같은 화면이 뜬다 */}
+      {/* 한 권만 집을 수 있다. 네 권 다 열리면 어느 것을 봐도 같은 화면이 뜬다 */}
       {SHELF_BOOKS.map((book) =>
         book.x === CLUE_BOOK_X ? (
           <ShelfBookClue key={book.x}>
@@ -346,7 +346,7 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
         ),
       )}
 
-      {/* 왼쪽 벽 선반 위 — 눕혀 쌓아둔 책 더미 */}
+      {/* 왼쪽 벽 선반 위: 눕혀 쌓아둔 책 더미 */}
       <FurnitureModel
         path={ASSETS.models.books}
         position={[-5.64, LEFT_SHELF_TOP_Y, -1.85]}

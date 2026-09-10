@@ -1,4 +1,4 @@
-/** scripts/content/schema.mjs의 타입 선언 — 어드민이 선택지 목록을 여기서 받는다. */
+/** scripts/content/schema.mjs의 타입 선언: 어드민이 선택지 목록을 여기서 받는다. */
 import type { CharacterExpression } from "@/types/interaction";
 
 export const LOCALES: readonly string[];

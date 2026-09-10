@@ -32,7 +32,7 @@ describe("validateFeedback", () => {
     expect(validateFeedback(null)).toEqual({ ok: false, reason: "malformed" });
   });
 
-  it("상한을 넘는 본문을 거른다 — 자르지 않는다, 쓴 사람이 알아야 한다", () => {
+  it("상한을 넘는 본문을 거른다. 자르지 않는다, 쓴 사람이 알아야 한다", () => {
     const result = validateFeedback({ body: "가".repeat(FEEDBACK_BODY_MAX + 1) });
 
     expect(result).toEqual({ ok: false, reason: "tooLong" });
@@ -56,13 +56,13 @@ describe("readFormConfig", () => {
         FEEDBACK_ENTRY_META: CONFIG.entryMeta,
       }),
     ).toEqual(CONFIG);
-    // 하나라도 빠지면 null — 라우트가 503으로 "아직 준비 안 됨"을 말한다
+    // 하나라도 빠지면 null: 라우트가 503으로 "아직 준비 안 됨"을 말한다
     expect(readFormConfig({ FEEDBACK_GOOGLE_FORM_ID: CONFIG.formId })).toBeNull();
     expect(readFormConfig({})).toBeNull();
   });
 
   it("entry. 접두사 없이 숫자만 적어도 받아준다", () => {
-    // 미리 채워진 링크에서 옮겨 적다 보면 숫자만 남기기 쉽다 — 사람의 실수는 코드가 받는다
+    // 미리 채워진 링크에서 옮겨 적다 보면 숫자만 남기기 쉽다. 사람의 실수는 코드가 받는다
     const result = readFormConfig({
       FEEDBACK_GOOGLE_FORM_ID: CONFIG.formId,
       FEEDBACK_ENTRY_CATEGORY: "111",
@@ -74,7 +74,7 @@ describe("readFormConfig", () => {
     expect(result).toEqual(CONFIG);
   });
 
-  it("숫자도 entry.N도 아닌 값은 설정 실패다 — 조용히 버려지느니 503이 낫다", () => {
+  it("숫자도 entry.N도 아닌 값은 설정 실패다. 조용히 버려지느니 503이 낫다", () => {
     expect(
       readFormConfig({
         FEEDBACK_GOOGLE_FORM_ID: CONFIG.formId,

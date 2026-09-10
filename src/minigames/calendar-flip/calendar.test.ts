@@ -61,7 +61,7 @@ describe("calendar-flip pages", () => {
     expect(isAftermath(INCIDENT_DATE.month - 1)).toBe(false);
     expect(isAftermath(INCIDENT_DATE.month + 1)).toBe(true);
 
-    // 사건 전 달에는 셀 날이 없다 — 아직 세는 삶이 아니었다
+    // 사건 전 달에는 셀 날이 없다. 아직 세는 삶이 아니었다
     expect(survivedDays(CALENDAR_YEAR, INCIDENT_DATE.month)).toBe(0);
     expect(survivedDays(CALENDAR_YEAR, INCIDENT_DATE.month + 1)).toBe(
       daysInMonth(CALENDAR_YEAR, INCIDENT_DATE.month + 1),
@@ -91,7 +91,7 @@ describe("calendar-flip pages", () => {
   it("treats reaching the last sheet as having seen it all", () => {
     expect(isLastPage(START_MONTH)).toBe(false);
     expect(isLastPage(LAST_MONTH)).toBe(true);
-    // 첫 장은 사건보다 앞이어야 한다 — 열자마자 결말이면 넘길 이유가 없다
+    // 첫 장은 사건보다 앞이어야 한다. 열자마자 결말이면 넘길 이유가 없다
     expect(START_MONTH).toBeLessThan(INCIDENT_DATE.month);
   });
 

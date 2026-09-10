@@ -5,7 +5,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import { i18n } from "./config";
 import { useControlHint } from "./control-hint";
 
-/** matchMedia를 원하는 판정으로 갈아 끼운다 — jsdom에는 실제 기기가 없다. */
+/** matchMedia를 원하는 판정으로 갈아 끼운다. jsdom에는 실제 기기가 없다. */
 function stubPointer(coarse: boolean) {
   vi.stubGlobal(
     "matchMedia",

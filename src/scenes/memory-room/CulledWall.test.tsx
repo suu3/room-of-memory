@@ -7,7 +7,7 @@ import { ROOM_SHELL_CENTER } from "./layout";
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const [SHELL_CENTER_X, SHELL_CENTER_Z] = ROOM_SHELL_CENTER;
-/** 앞벽을 정면으로 마주 보는 자리 — 이 벽은 여기서 스러져야 한다. */
+/** 앞벽을 정면으로 마주 보는 자리: 이 벽은 여기서 스러져야 한다. */
 const IN_FRONT_OF_FRONT_WALL: [number, number, number] = [SHELL_CENTER_X, 6, SHELL_CENTER_Z + 12];
 
 function WallBox({ name }: { name: string }) {

@@ -65,7 +65,7 @@ describe("staticLevel", () => {
   });
 
   it("gets noisier as the band narrows at the same distance", () => {
-    // 좁아진 대역은 같은 자리에서도 더 멀다 — 소리만으로도 난이도가 올라간다.
+    // 좁아진 대역은 같은 자리에서도 더 멀다. 소리만으로도 난이도가 올라간다.
     const wide = staticLevel(30, 50 - BAND_WIDTH_MAX / 2, BAND_WIDTH_MAX);
     const narrow = staticLevel(30, 50 - BAND_WIDTH_MIN / 2, BAND_WIDTH_MIN);
     expect(narrow).toBeGreaterThan(wide);
@@ -73,7 +73,7 @@ describe("staticLevel", () => {
 });
 
 describe("2바퀴의 다이얼", () => {
-  it("판 수가 줄어든다 — 저쪽에서 이미 부르고 있으니까", () => {
+  it("판 수가 줄어든다. 저쪽에서 이미 부르고 있으니까", () => {
     expect(goalHitsFor(2)).toBeLessThan(goalHitsFor(1));
     expect(goalHitsFor(1)).toBe(GOAL_HITS);
   });
@@ -88,7 +88,7 @@ describe("2바퀴의 다이얼", () => {
     }
   });
 
-  it("1바퀴 폭은 예전 그대로다 — 보정 없이 부르면 값이 안 바뀐다", () => {
+  it("1바퀴 폭은 예전 그대로다. 보정 없이 부르면 값이 안 바뀐다", () => {
     expect(bandWidthAt(0)).toBe(BAND_WIDTH_MAX);
   });
 });

@@ -1,4 +1,4 @@
-# 대사 스크립트 — 기억을 조사할 때 대사창에 흐르는 줄.
+# 대사 스크립트: 기억을 조사할 때 대사창에 흐르는 줄.
 #
 # memories.yaml의 script / resultScript가 여기 id를 가리킨다.
 # 어디서도 가리키지 않는 스크립트는 죽은 대사라 `pnpm content:build`가 막는다.
@@ -10,16 +10,16 @@
 #               hero가 아닌 화자는 초상이 없어서 무시된다.
 #   ko/en/ja    본문. 셋 다 있어야 한다. 마크업·이스케이프 금지.
 #
-# 여러 줄 대사는 YAML 블록(>-)이 아니라 한 줄로 쓴다 — 줄바꿈은 대사창이 알아서 한다.
+# 여러 줄 대사는 YAML 블록(>-)이 아니라 한 줄로 쓴다. 줄바꿈은 대사창이 알아서 한다.
 
 scripts:
-  # 강도 1 대사는 발랄하게 — 재난·고립의 힌트를 여기서 흘리지 않는다.
+  # 강도 1 대사는 발랄하게: 재난·고립의 힌트를 여기서 흘리지 않는다.
   # 어두워지는 건 강도 2(균열)부터, 반전은 라디오 한 곳이 갖는다.
   ball-intro:
     - speaker: hero
       expression: smile
       ko: 그 날 시합, 진짜 엄청났었지.
-      en: That game that day — it was something else.
+      en: That game that day. It was something else.
       ja: あの日の試合、ほんとにすごかったよな。
     - speaker: hero
       expression: smile
@@ -52,23 +52,23 @@ scripts:
       en: When I find them, I'll start with this photo.
       ja: 会えたら、まずこの写真の話をしよう。
 
-  # 1차 게임기 진입 — 사태 전의 일상(내기하던 상대가 있었다)을 한 줄로 심는다
+  # 1차 게임기 진입: 사태 전의 일상(내기하던 상대가 있었다)을 한 줄로 심는다
   console-intro:
     - speaker: hero
       expression: smile
       ko: 오랜만에 한 판 해볼까.
-      en: Been a while — time for a round.
+      en: Been a while. Time for a round.
       ja: 久しぶりに一戦やるか。
     - speaker: hero
       expression: smile
       ko: 지는 쪽이 매점 쏘는 거였는데.
       en: Loser bought snacks. That was the rule.
       ja: 負けたほうが売店おごり、って決まりだったのに。
-    # 카드 미궁의 규칙은 여기 적지 않는다 — 선반 위 놀이책이 들고 있다
+    # 카드 미궁의 규칙은 여기 적지 않는다. 선반 위 놀이책이 들고 있다
     # (src/data/room-clues.ts의 PUZZLE_CLUES). 대사로 흘리면 안 찾아도 풀린다.
 
-  # 1차 게임기 결과 — 이겨도 반응할 사람이 없다. lore("이기든 지든 똑같다")의 실연.
-  # 덧붙이는 말 없이 한 줄로 끊는다 — 빈 방에서는 이 한마디가 더 길게 울린다.
+  # 1차 게임기 결과: 이겨도 반응할 사람이 없다. lore("이기든 지든 똑같다")의 실연.
+  # 덧붙이는 말 없이 한 줄로 끊는다. 빈 방에서는 이 한마디가 더 길게 울린다.
   console-alone:
     - speaker: hero
       ko: 이겼다.
@@ -82,7 +82,7 @@ scripts:
       en: When I get out, we're playing a round.
       ja: 外に出たら 一戦やるんだ。
 
-  # 1차 창밖 결과 — 초기엔 사이렌이 있었고 지금은 정적. 사태의 경과를 소리로 흘린다
+  # 1차 창밖 결과: 초기엔 사이렌이 있었고 지금은 정적. 사태의 경과를 소리로 흘린다
   window-silence:
     - speaker: hero
       expression: surprised
@@ -94,8 +94,8 @@ scripts:
       en: Now… there's no sound at all.
       ja: 今は…何の音もしない。
 
-  # 1차 폰 결과 — 단톡이 멈춘 날짜를 처음으로 못박는다. calendar가 이 날짜를 받는다.
-  # 강도 2는 "이상하다"까지만 — "다 끊겼다"는 단정은 라디오 전에 하지 않는다
+  # 1차 폰 결과: 단톡이 멈춘 날짜를 처음으로 못박는다. calendar가 이 날짜를 받는다.
+  # 강도 2는 "이상하다"까지만: "다 끊겼다"는 단정은 라디오 전에 하지 않는다
   phone-stopped:
     - speaker: hero
       ko: 마지막 메시지가 10월 19일.
@@ -106,7 +106,7 @@ scripts:
       en: The group chat has never been this quiet.
       ja: グループチャットがこんなに静かなの、初めてだ。
 
-  # 컴퓨터 진입 (2바퀴 전용) — 라디오 목소리가 "소식을 찾아볼 이유"를 만든다.
+  # 컴퓨터 진입 (2바퀴 전용): 라디오 목소리가 "소식을 찾아볼 이유"를 만든다.
   #
   # 여기서 끝내고 나머지는 미니게임에 넘긴다: 부팅 로그가 흐르고, 잠금 화면이
   # 뜨고, 거기서 비밀번호를 묻는다. 켜지기도 전에 "비밀번호"를 말해 버리면
@@ -125,7 +125,7 @@ scripts:
       en: I press the power button on the dust-covered tower.
       ja: 埃をかぶった本体の電源を入れる。
 
-  # 컴퓨터 결과 — 메일과 뉴스를 다 본 뒤. 답장 못 한 가시와, 고립의 수치심을
+  # 컴퓨터 결과: 메일과 뉴스를 다 본 뒤. 답장 못 한 가시와, 고립의 수치심을
   # 내려놓는 자리가 한 번에 온다 (한 번뿐인 조사라 둘을 갈라 놓을 자리가 없다)
   computer-archive:
     - speaker: hero
@@ -142,7 +142,7 @@ scripts:
       en: It wasn't just me. Everyone kept trying to reach each other, right to the end.
       ja: 俺だけじゃなかったんだ。みんな最後まで、誰かに知らせようとしてた。
 
-  # 2차 폰 진입 — 몇 주 만에 처음 온 알림. 지문이 안 먹어 비밀번호를 떠올려야 한다
+  # 2차 폰 진입: 몇 주 만에 처음 온 알림. 지문이 안 먹어 비밀번호를 떠올려야 한다
   phone-unlock-intro:
     - speaker: hero
       expression: surprised
@@ -158,7 +158,7 @@ scripts:
       en: …The fingerprint won't take. I changed the passcode… what was it?
       ja: …指紋が効かない。パスコードに変えたはずだけど、何だったっけ。
 
-  # 2차 폰 결과 — 그날의 문자가 늦게 도착했다는 확인, 그리고 기다림을 끝내는 결심
+  # 2차 폰 결과: 그날의 문자가 늦게 도착했다는 확인, 그리고 기다림을 끝내는 결심
   phone-unlock-result:
     - speaker: hero
       ko: 그날 보낸 문자였어. 이제야 도착한 거야.
@@ -169,14 +169,14 @@ scripts:
       en: She told me to wait. …I have waited long enough.
       ja: 待ってろって言われた。…もう十分待ったよ。
 
-  # 1차 달력 진입 — phone 뒤에만 열리므로(unlockAfter) 단톡의 날짜를 이어받아도 안전하다
+  # 1차 달력 진입: phone 뒤에만 열리므로(unlockAfter) 단톡의 날짜를 이어받아도 안전하다
   calendar-intro:
     - speaker: hero
       ko: 달력도 거기서 멈췄지. 10월 19일.
       en: The calendar stopped there too. October 19.
       ja: カレンダーもそこで止まってる。10月19日。
 
-  # 1차 달력 결과 — 고립이 얼마나 길었는지. 숫자는 일부러 안 박는다 (세다 만 것까지가 정서)
+  # 1차 달력 결과: 고립이 얼마나 길었는지. 숫자는 일부러 안 박는다 (세다 만 것까지가 정서)
   calendar-tally:
     - speaker: hero
       ko: 正자가… 몇 개더라.
@@ -187,7 +187,7 @@ scripts:
       en: I stopped counting. Counting makes it feel longer.
       ja: 数えるのはやめた。数えると、もっと長く感じるから。
 
-  # 1차 라디오 진입 — 마지막 남은 물건 앞에 선 한마디
+  # 1차 라디오 진입: 마지막 남은 물건 앞에 선 한마디
   radio-intro:
     - speaker: hero
       ko: 이제 남은 건 라디오뿐이네.
@@ -198,7 +198,7 @@ scripts:
       en: …It only ever picks up noise anyway.
       ja: …どうせノイズしか入らないけど。
 
-  # 재난방송. 화자가 도해가 아니라 라디오라 초상이 붙지 않는다 —
+  # 재난방송. 화자가 도해가 아니라 라디오라 초상이 붙지 않는다.
   # 이 게임에서 도해 아닌 목소리가 대사창을 쓰는 첫 자리다.
   #
   # 글자 맞추기(답: 좀비)에 대답한 직후라, 방송은 그 답이 맞았다는 확인으로
@@ -213,13 +213,13 @@ scripts:
       en: The infection has spread past the capital region into the entire south.
       ja: 感染は首都圏を越え、南部全域へ拡大しています。
     - speaker: broadcast
-      ko: 부산까지 감염 사태가 번졌습니다. 현재 통제가 유지되는 지역은—
-      en: It has reached Busan. The areas still under control are—
-      ja: 釜山まで感染事態が広がりました。現在、統制が保たれている地域は—
+      ko: 부산까지 감염 사태가 번졌습니다. 현재 통제가 유지되는 지역은…
+      en: It has reached Busan. The areas still under control are…
+      ja: 釜山まで感染事態が広がりました。現在、統制が保たれている地域は…
     - speaker: broadcast
-      ko: 지지…직—
-      en: Kssh… kkt—
-      ja: ザ…ザッ—
+      ko: 지지…직…
+      en: Kssh… kkt…
+      ja: ザ…ザッ…
     - speaker: hero
       ko: …맞아. 그랬었지.
       en: …Right. That's how it was.
@@ -229,15 +229,15 @@ scripts:
       en: I hadn't forgotten. I was pretending I had.
       ja: 忘れてたんじゃない。忘れたふりをしてたんだ。
 
-  # 2차 라디오 진입 — 저 혼자 지직거리는 라디오 앞에 다시 앉는다
+  # 2차 라디오 진입: 저 혼자 지직거리는 라디오 앞에 다시 앉는다
   radio-voice-intro:
     - speaker: hero
       ko: …너, 아까 분명히 꺼졌잖아.
       en: …You went dead. I watched you go dead.
       ja: …お前、さっき確かに消えたよな。
 
-  # 2차 결과 — 컷씬에서 스쳤던 목소리가 이번엔 또렷하게 잡힌다.
-  # 다급한 생존자다. 모일 곳이 있다는 것까지만 말하고 끊긴다 — 자세한 건
+  # 2차 결과: 컷씬에서 스쳤던 목소리가 이번엔 또렷하게 잡힌다.
+  # 다급한 생존자다. 모일 곳이 있다는 것까지만 말하고 끊긴다. 자세한 건
   # 엔딩(방을 나서는 이유) 몫이라 여기서 다 말하지 않는다.
   radio-voice:
     - speaker: signal
@@ -246,12 +246,12 @@ scripts:
       ja: あー、くそ…これ、届いてるのか？聞こえるやついるか？
     - speaker: signal
       ko: 생존자 있으면 이리로 와. 기억해, 여기에 답이 있어.
-      en: If you're alive out there, come to us. Remember — the answer is here.
+      en: If you're alive out there, come to us. Remember, the answer is here.
       ja: 生存者がいたらこっちに来い。覚えとけ、ここに答えがある。
     - speaker: signal
-      ko: 자세한 건 모이면— 지지직… 뚝.
-      en: We'll talk once we're together— kssht… click.
-      ja: 詳しくは集まってから— ザザッ…ブツッ。
+      ko: 자세한 건 모이면… 지지직… 뚝.
+      en: We'll talk once we're together… kssht… click.
+      ja: 詳しくは集まってから…ザザッ…ブツッ。
     - speaker: hero
       expression: surprised
       ko: 사람이다. 진짜 사람 목소리다.
@@ -276,14 +276,14 @@ scripts:
 
   # ─────────────────────────────────────────────── 2막 · 거실 (준비)
   #
-  # 각성 직후의 두 조사. 아직 추리가 아니다 — "뭐라도 해야겠다"는 행동뿐이고,
+  # 각성 직후의 두 조사. 아직 추리가 아니다. "뭐라도 해야겠다"는 행동뿐이고,
   # 식량 재해석 복선만 조용히 깔린다 (docs/content-design.md 4장 순서 1).
   fridge-open:
     - speaker: hero
       ko: 나갈 거면 뭐라도 챙겨야지. 냉장고부터.
       en: If I'm going out, I should take something. Start with the fridge.
       ja: 出るなら何か持っていかないと。まずは冷蔵庫から。
-    # 부모님이 흘린 말은 아직 인용하지 않는다 — 여기서는 도해가 숫자만 이상해한다.
+    # 부모님이 흘린 말은 아직 인용하지 않는다. 여기서는 도해가 숫자만 이상해한다.
     # 확신은 거실 단서(shoes·cards)가 서고 나서야 온다.
     - speaker: hero
       ko: 한 달을 먹었는데 아직 반이 남았어.
@@ -331,7 +331,7 @@ scripts:
       ja: 今回は歩かない旅行だ。登山靴は置いていくよ。
     - speaker: hero
       ko: 안 걷는 여행인데, 캐리어는 두 개였잖아.
-      en: A trip with no walking — and two suitcases.
+      en: A trip with no walking, and two suitcases.
       ja: 歩かない旅行なのに、スーツケースは二つだったよな。
     - speaker: hero
       ko: 뭘 그렇게 많이 들고 간 거야, 대체.
@@ -348,7 +348,7 @@ scripts:
       en: We'll finish this hand next time.
       ja: 次に来たら、これの続きをやろうね。
 
-  # 카드 미궁(card-odd)을 푼 뒤. 규칙은 방 선반의 놀이책이 들고 있다 —
+  # 카드 미궁(card-odd)을 푼 뒤. 규칙은 방 선반의 놀이책이 들고 있다.
   # 여기 대사로 흘리면 단서를 안 찾아도 풀린다 (src/data/room-clues.ts).
   cards-unfinished:
     - speaker: hero
@@ -356,9 +356,9 @@ scripts:
       en: The last hand never finished.
       ja: 最後の一局、まだ終わってない。
     - speaker: hero
-      ko: 다음에 오면— 그 말, 진심이었을까.
+      ko: 다음에 오면… 그 말, 진심이었을까.
       en: Next time, they said. Did they mean it?
-      ja: 次に来たら—あの言葉、本気だったのかな。
+      ja: 次に来たら…あの言葉、本気だったのかな。
     - speaker: hero
       ko: 아니. 진심이었으니까 판을 안 치운 거겠지.
       en: No. They meant it. That's why nobody cleared the table.
@@ -396,7 +396,7 @@ scripts:
       ja: 何だこれ。
     - speaker: hero
       ko: 유리 앰플. 라벨은 반쯤 지워져서 못 읽겠다.
-      en: A glass ampoule. The label is half worn off — I can't read it.
+      en: A glass ampoule. The label is half worn off. I can't read it.
       ja: ガラスのアンプル。ラベルは半分消えていて読めない。
     - speaker: hero
       ko: 식량 밑에 이런 걸 묻어두고 갔다고?

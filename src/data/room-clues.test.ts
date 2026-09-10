@@ -16,7 +16,7 @@ const LOCALES = { ko, en, ja };
 describe("컴퓨터 비밀번호 단서", () => {
   it("비밀번호는 달력에 표시된 날 그대로다", () => {
     /*
-     * 이게 어긋나면 아무리 방을 뒤져도 안 맞는 비밀번호가 된다 — 달력에 그어진
+     * 이게 어긋나면 아무리 방을 뒤져도 안 맞는 비밀번호가 된다. 달력에 그어진
      * 날과 잠금 화면이 받는 네 자리는 반드시 같은 값에서 나와야 한다.
      */
     expect(COMPUTER_PASSCODE).toBe("0812");
@@ -33,7 +33,7 @@ describe("컴퓨터 비밀번호 단서", () => {
     expect(markedDayOf(NATIONALS_DATE.month)).toBe("nationals");
   });
 
-  it("사건 표시와 겹치지 않는다 — 동그라미가 둘이라 색으로만 갈린다", () => {
+  it("사건 표시와 겹치지 않는다. 동그라미가 둘이라 색으로만 갈린다", () => {
     expect(markedDayOf(NATIONALS_DATE.month)).not.toBe("incident");
   });
 
@@ -71,7 +71,7 @@ describe("컴퓨터 비밀번호 단서", () => {
     }
   });
 
-  it("달력 표시 설명이 날짜를 값으로 받는다 — 문구에 숫자를 박지 않는다", () => {
+  it("달력 표시 설명이 날짜를 값으로 받는다. 문구에 숫자를 박지 않는다", () => {
     for (const [locale, resource] of Object.entries(LOCALES)) {
       const mark = resource.minigame.calendarFlip.mark;
       for (const [name, text] of Object.entries(mark)) {
@@ -81,7 +81,7 @@ describe("컴퓨터 비밀번호 단서", () => {
     }
   });
 
-  it("단서 id는 kebab-case다 — 3D 오브젝트 이름에 그대로 들어간다", () => {
+  it("단서 id는 kebab-case다. 3D 오브젝트 이름에 그대로 들어간다", () => {
     for (const id of CLUE_IDS) {
       expect(id).toMatch(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/);
     }

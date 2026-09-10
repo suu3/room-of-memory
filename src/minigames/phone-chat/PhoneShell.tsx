@@ -18,7 +18,7 @@ import type { PhoneTab } from "./thread";
  * 화면 비율은 실제 폰에 가깝게 9:19.5 근처로 잡았다. 폭은 실제로 손에 쥔 폰만 하게
  * 잡되(22rem ≈ 352px), 좁은 화면에서는 뷰포트를 넘지 않도록 줄인다.
  *
- * 본문 높이는 이 파일이 정한다 — 대화 탭과 통화 탭이 각자 높이를 들고 있으면
+ * 본문 높이는 이 파일이 정한다. 대화 탭과 통화 탭이 각자 높이를 들고 있으면
  * 탭을 옮길 때 기기가 늘었다 줄었다 한다. 자식은 h-full로 이 칸을 채운다.
  * dvh를 섞는 이유: 모바일 세로 화면에서 폰 목업이 화면보다 길어지면
  * 하단 탭바와 닫기 버튼이 잘린다.
@@ -47,7 +47,7 @@ export function PhoneShell({
 }) {
   return (
     <div className="mx-auto w-[22rem] max-w-[92vw]">
-      {/* 기기 테두리 — 얇은 베젤과 둥근 모서리가 "물건"이라는 인상을 만든다 */}
+      {/* 기기 테두리: 얇은 베젤과 둥근 모서리가 "물건"이라는 인상을 만든다 */}
       <div className="rounded-[2.5rem] bg-ink p-[3px] shadow-panel ring-1 ring-night/80">
         <div className="relative overflow-hidden rounded-[2.3rem] bg-scene-void">
           {/* 노치 */}
@@ -75,7 +75,7 @@ export function PhoneShell({
 
           <div className={PHONE_BODY_CLASS}>{children}</div>
 
-          {/* 하단 탭바 — 앱을 오가는 자리 */}
+          {/* 하단 탭바: 앱을 오가는 자리 */}
           <div className="flex border-t border-bone/10 bg-scene-coal">
             {(
               [

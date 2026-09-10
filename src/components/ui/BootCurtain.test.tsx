@@ -8,7 +8,7 @@ import { BootCurtain } from "./BootCurtain";
 
 /**
  * 로딩 진행률도 부팅 여부도 리셋으로 되돌아가지 않는다 (한 번 받은 모델은 그대로
- * 있다) — 테스트끼리 새는 것을 막으려면 스토어를 직접 되돌려 놓아야 한다.
+ * 있다). 테스트끼리 새는 것을 막으려면 스토어를 직접 되돌려 놓아야 한다.
  */
 function resetBootState() {
   useMemoryRoomStore.setState({ roomLoadProgress: 0, booted: false });
@@ -48,7 +48,7 @@ describe("BootCurtain", () => {
     render(<BootCurtain />);
 
     act(() => useMemoryRoomStore.getState().setRoomLoadProgress(0.4));
-    // 보고값으로 순간이동하지 않고 흘러간다 — 반 초면 거의 다 따라붙는다
+    // 보고값으로 순간이동하지 않고 흘러간다. 반 초면 거의 다 따라붙는다
     act(() => vi.advanceTimersByTime(500));
 
     expect(percent()).toBeGreaterThan(35);
@@ -56,7 +56,7 @@ describe("BootCurtain", () => {
     expect(screen.getByText(`Getting the room ready… ${percent()}%`)).toBeTruthy();
   });
 
-  it("계단으로 튀지 않는다 — 한 프레임 만에 보고값에 닿지 않는다", () => {
+  it("계단으로 튀지 않는다. 한 프레임 만에 보고값에 닿지 않는다", () => {
     render(<BootCurtain />);
 
     act(() => vi.advanceTimersByTime(100));
@@ -68,7 +68,7 @@ describe("BootCurtain", () => {
     expect(percent()).toBeLessThan(80);
   });
 
-  it("셀 것이 없어도 바는 움직인다 — 멈춘 바는 고장 난 것처럼 보인다", () => {
+  it("셀 것이 없어도 바는 움직인다. 멈춘 바는 고장 난 것처럼 보인다", () => {
     render(<BootCurtain />);
 
     act(() => vi.advanceTimersByTime(1000));
@@ -83,19 +83,19 @@ describe("BootCurtain", () => {
 
     act(() => useMemoryRoomStore.getState().setRoomLoadProgress(1));
 
-    // 최소 노출 시간이 아직 안 찼다 — 다 받았어도 커튼은 그대로다
+    // 최소 노출 시간이 아직 안 찼다. 다 받았어도 커튼은 그대로다
     expect(curtain()?.className).not.toContain("animate-boot-curtain-rise");
 
     /*
      * 걷히는 조건은 보고값이 아니라 **바가 그리고 있는 값**이 100%에 닿는 것이다
      * (useSmoothLoadProgress). 다 채우는 데 0.6초 남짓 걸리는데 최소 노출 시간이
-     * 0.9초라, 바는 그 안에서 조용히 다 차고 커튼은 예전과 같은 시각에 올라간다 —
+     * 0.9초라, 바는 그 안에서 조용히 다 차고 커튼은 예전과 같은 시각에 올라간다.
      * 값을 흐르게 만든 것이 걷히는 시각을 늦추지는 않는다.
      */
     act(() => vi.advanceTimersByTime(900));
     expect(percent()).toBe(100);
     expect(curtain()?.className).toContain("animate-boot-curtain-rise");
-    // 올라가는 중에는 아직 booted가 아니다 — 커튼이 화면에 남아 있어야 한다
+    // 올라가는 중에는 아직 booted가 아니다. 커튼이 화면에 남아 있어야 한다
     expect(useMemoryRoomStore.getState().booted).toBe(false);
 
     act(() => vi.advanceTimersByTime(1100));
@@ -103,7 +103,7 @@ describe("BootCurtain", () => {
     expect(curtain()).toBeNull();
   });
 
-  it("캐시된 판에서도 최소 노출 시간은 지킨다 — 번쩍이고 마는 걸 막는다", () => {
+  it("캐시된 판에서도 최소 노출 시간은 지킨다. 번쩍이고 마는 걸 막는다", () => {
     useMemoryRoomStore.setState({ roomLoadProgress: 1 });
     render(<BootCurtain />);
 
@@ -115,7 +115,7 @@ describe("BootCurtain", () => {
     expect(curtain()?.className).toContain("animate-boot-curtain-rise");
   });
 
-  it("보고가 끊겨도 결국 걷어 준다 — 못 들어가는 것보다는 낫다", () => {
+  it("보고가 끊겨도 결국 걷어 준다. 못 들어가는 것보다는 낫다", () => {
     render(<BootCurtain />);
 
     // 캔버스 청크 자체를 못 받으면 아무도 진행률을 보고하지 않는다

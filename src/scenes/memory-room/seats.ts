@@ -8,12 +8,12 @@ import type { Vec2 } from "./spatial";
  * 앉을 수 있는 자리 (방 책상 의자 · 소파 쿠션 셋 · 식탁 의자 셋 · 피아노 의자), 그리고
  * 누울 수 있는 자리 하나 (방 침대).
  *
- * 가구는 저마다 제 파일에서 그린다 — 여기 모으는 건 "몸이 어디에 어떻게 놓이는가"뿐이다.
+ * 가구는 저마다 제 파일에서 그린다. 여기 모으는 건 "몸이 어디에 어떻게 놓이는가"뿐이다.
  * 좌표는 그 가구 부품에서 파생되므로, 가구를 옮기면 여기 center/near도 같이 옮긴다.
  *
- * 앉는 자세는 하나(Sit 클립)뿐이고 가구마다 좌면 높이만 다르다 — 몸은 `좌면 - SIT_CONTACT_Y`
+ * 앉는 자세는 하나(Sit 클립)뿐이고 가구마다 좌면 높이만 다르다. 몸은 `좌면 - SIT_CONTACT_Y`
  * 에 얹히고, 앞뒤 위치는 좌면 앞턱에서 역산한다 (seatAnchor). 눕는 자세는 Idle을 통째로
- * 눕힌 것이라(player-rig의 LIE_TILT) 앞턱 계산이 없다 — 대신 침대 옆에 먼저 서는 자리
+ * 눕힌 것이라(player-rig의 LIE_TILT) 앞턱 계산이 없다. 대신 침대 옆에 먼저 서는 자리
  * (`approach`)가 있다. 한가운데까지 걸어 들어가면 매트리스를 뚫고 걷는다.
  */
 
@@ -21,7 +21,7 @@ export type { SeatId };
 
 export interface Seat {
   id: SeatId;
-  /** 어느 공간의 가구인가 — 한 번에 한 방만 보인다 (MemoryRoomScene). */
+  /** 어느 공간의 가구인가: 한 번에 한 방만 보인다 (MemoryRoomScene). */
   space: "room" | "living";
   /** 앉는가 눕는가. 눕는 자리는 좌면 앞턱 규칙을 타지 않는다. 생략하면 앉는다. */
   pose?: "sit" | "lie";
@@ -34,7 +34,7 @@ export interface Seat {
   approach?: Vec2;
   /**
    * 눕기 전에 걸터앉는 자리 (눕는 자리에만). 가장자리에 앉았다가 발을 올리며 anchor로
-   * 눕는다 — 서서 곧장 뒤로 넘어가면 사람이 눕는 걸로 안 읽힌다 (sit-motion의 liePhasesOf).
+   * 눕는다. 서서 곧장 뒤로 넘어가면 사람이 눕는 걸로 안 읽힌다 (sit-motion의 liePhasesOf).
    * 앉는 자리이므로 좌면 앞턱 규칙을 탄다.
    */
   perch?: { x: number; z: number; bodyY: number; facing: number };
@@ -42,7 +42,7 @@ export interface Seat {
   bodyY: number;
   /** 앉으면 바라보는 방향(rad). 모델 정면이 +Z라 (sin, cos)가 곧 정면 벡터다. */
   facing: number;
-  /** 다가갔는지 재는 기준점 — 의자가 빠지기 전, 제자리에 있을 때의 좌면 중심. */
+  /** 다가갔는지 재는 기준점: 의자가 빠지기 전, 제자리에 있을 때의 좌면 중심. */
   near: Vec2;
   /** 이 거리 안에 서 있어야 앉을 수 있다. */
   reach: number;
@@ -59,7 +59,7 @@ export interface Seat {
  */
 const EDGE_CLEARANCE = 0.013;
 
-/** 좌면 중심에서 몸까지의 거리 — 무릎 아래가 앞턱 밖으로 나가는 가장 뒤쪽 자리다. */
+/** 좌면 중심에서 몸까지의 거리: 무릎 아래가 앞턱 밖으로 나가는 가장 뒤쪽 자리다. */
 export function seatOffsetFromCenter(halfDepth: number): number {
   return halfDepth - SIT_LEG_Z.back + EDGE_CLEARANCE;
 }
@@ -77,8 +77,8 @@ const SEAT_REACH = 2.1;
  * ── 방: 책상 의자 ────────────────────────────────────────────────
  *
  * 앉으면 의자가 먼저 빠진다 (CHAIR_PULL). 밀어 넣은 채로 앉으면 상판(x -3.8부터) 아래로
- * 몸이 들어가고, 일어설 자리도 없다 — 사람도 의자를 빼고 앉는다.
- * 좌면 치수는 layout의 CHAIR_SEAT — 의자를 그리는 쪽과 같은 수를 본다.
+ * 몸이 들어가고, 일어설 자리도 없다. 사람도 의자를 빼고 앉는다.
+ * 좌면 치수는 layout의 CHAIR_SEAT: 의자를 그리는 쪽과 같은 수를 본다.
  */
 const DESK_CHAIR_HALF_DEPTH = CHAIR_SEAT.half;
 const DESK_CHAIR_SEAT_Y = CHAIR_SEAT.topY;
@@ -92,20 +92,20 @@ const DESK_CHAIR_CENTER: Vec2 = {
 /*
  * ── 방: 침대 ────────────────────────────────────────────────────
  *
- * 유일하게 눕는 자리. 치수는 전부 bed.ts(침대 glb 실측 × 배치)에서 온다 — 매트리스
+ * 유일하게 눕는 자리. 치수는 전부 bed.ts(침대 glb 실측 × 배치)에서 온다. 매트리스
  * 한가운데에 등을 대고 머리는 베개 위에 온다. 발 원점이 `anchor`에 오고 몸은 거기서
  * -z로 눕는다 (facing 0 = 정면 +z를 위로).
  */
 const BED_MATTRESS_TOP_Y = BED_MATTRESS.topY;
-/** 발 원점 z — 눕힌 머리 중심(로컬 y 1.2)이 베개 한가운데에 오는 자리. */
+/** 발 원점 z: 눕힌 머리 중심(로컬 y 1.2)이 베개 한가운데에 오는 자리. */
 const BED_LIE_Z = BED_PILLOW.centerZ + LIE_HEAD.centerY * Math.cos(LIE_TILT);
-/** 다가서는 자리와 침대 발자국 사이에 두는 거리 — 플레이어 반지름(0.38)에 여유를 더한 값. */
+/** 다가서는 자리와 침대 발자국 사이에 두는 거리: 플레이어 반지름(0.38)에 여유를 더한 값. */
 const BED_STAND_OFF = 0.45;
-/** 침대 옆에서 올라서는 자리 — 침대 발자국(BED_COLLIDER)에서 플레이어 반지름만큼 물러선 곳. */
+/** 침대 옆에서 올라서는 자리: 침대 발자국(BED_COLLIDER)에서 플레이어 반지름만큼 물러선 곳. */
 const BED_APPROACH: Vec2 = { x: BED_COLLIDER.minX - BED_STAND_OFF, z: BED_LIE_Z };
 /**
  * 눕기 전에 걸터앉는 자리. 매트리스 왼쪽 변(방 쪽)에 정강이를 걸치고 방 쪽(-x)을 보고
- * 앉는다 — 의자와 같은 앞턱 규칙이라 엉덩이는 매트리스 위, 무릎 아래는 밖이다. 발은
+ * 앉는다. 의자와 같은 앞턱 규칙이라 엉덩이는 매트리스 위, 무릎 아래는 밖이다. 발은
  * 바닥에서 뜬다 (다른 좌면과 같다).
  */
 const BED_PERCH = {
@@ -119,31 +119,31 @@ const BED_PERCH = {
  * ── 거실: 소파 ──────────────────────────────────────────────────
  *
  * 쿠션 셋 (LivingRoomFurniture의 SOFA_PARTS). 가운데는 눌린 자리라 좌면이 낮다.
- * 앞턱은 쿠션(-2.67)이 아니라 **몸통 앞면(-2.65)** 이다 — 늘어진 다리가 스치는 건 몸통이다.
+ * 앞턱은 쿠션(-2.67)이 아니라 **몸통 앞면(-2.65)** 이다. 늘어진 다리가 스치는 건 몸통이다.
  */
 const SOFA_CUSHION_Z = -3.08;
 const SOFA_FRONT_Z = -2.65;
 const SOFA_HALF_DEPTH = SOFA_FRONT_Z - SOFA_CUSHION_Z;
 const SOFA_SIDE_SEAT_Y = 0.6;
-/** 아빠 자리. 오래 눌린 쿠션이라 6cm 낮다 — 앉으면 그만큼 내려앉는다. */
+/** 아빠 자리. 오래 눌린 쿠션이라 6cm 낮다. 앉으면 그만큼 내려앉는다. */
 const SOFA_CENTER_SEAT_Y = 0.54;
 
 /*
  * ── 거실: 식탁 의자 ──────────────────────────────────────────────
  *
  * 배치는 DINING_SET.chairs, 좌면은 CHAIR_PART_TEMPLATE 첫 항목(0.56 + 0.035, 0.44×0.44).
- * 상판 윗면이 0.975라 캐릭터 가슴 높이다 — 밀어 넣은 두 개는 빼지 않으면 상판이 몸을 가른다.
+ * 상판 윗면이 0.975라 캐릭터 가슴 높이다. 밀어 넣은 두 개는 빼지 않으면 상판이 몸을 가른다.
  */
 const DINING_HALF_DEPTH = 0.22;
 const DINING_SEAT_Y = 0.595;
-/** 상판 모서리(x -14.6 / -13.0) 밖으로 몸통이 나가는 거리 — 어깨 반폭 뒤로 0.18 여유. */
+/** 상판 모서리(x -14.6 / -13.0) 밖으로 몸통이 나가는 거리: 어깨 반폭 뒤로 0.18 여유. */
 const DINING_PULL = 0.8;
 
 /*
  * ── 거실: 피아노 의자 ────────────────────────────────────────────
  *
  * PIANO_PARTS의 걸상(0.52 + 0.05, 앞뒤 0.34). 얕아서 엉덩이가 뒤로 조금 나가지만,
- * 무릎은 건반 뚜껑(y 0.85~0.99) 아래로 들어간다 — 피아노 앞에 앉은 그림 그대로다.
+ * 무릎은 건반 뚜껑(y 0.85~0.99) 아래로 들어간다. 피아노 앞에 앉은 그림 그대로다.
  */
 const PIANO_BENCH_CENTER: Vec2 = { x: -14.95, z: 5.38 };
 const PIANO_BENCH_HALF_DEPTH = 0.17;
@@ -163,7 +163,7 @@ function sofaSeat(id: SeatId, x: number, seatY: number): Seat {
 }
 
 function diningSeat(id: SeatId, center: Vec2, facing: number, pulled: boolean): Seat {
-  // 빠져 나가는 방향은 정면의 반대다 — 상판 밑에서 몸을 빼내는 몫이라 회전은 붙이지 않는다.
+  // 빠져 나가는 방향은 정면의 반대다. 상판 밑에서 몸을 빼내는 몫이라 회전은 붙이지 않는다.
   const pull = pulled
     ? { x: -Math.sin(facing) * DINING_PULL, z: -Math.cos(facing) * DINING_PULL, turn: 0 }
     : undefined;
@@ -200,7 +200,7 @@ export const SEATS: Record<SeatId, Seat> = {
     perch: BED_PERCH,
     bodyY: BED_MATTRESS_TOP_Y,
     facing: 0,
-    // 침대 옆면 한가운데 — 반대편(창가 쪽)은 벽이라 어차피 못 선다.
+    // 침대 옆면 한가운데: 반대편(창가 쪽)은 벽이라 어차피 못 선다.
     near: { x: BED_COLLIDER.minX, z: BED_LIE_Z },
     reach: SEAT_REACH,
   },
@@ -223,10 +223,10 @@ export const SEATS: Record<SeatId, Seat> = {
 };
 
 export const SEAT_IDS = Object.keys(SEATS) as readonly SeatId[];
-/** 앉는 자리만 — 좌면 앞턱 규칙은 이쪽에만 적용된다. */
+/** 앉는 자리만: 좌면 앞턱 규칙은 이쪽에만 적용된다. */
 export const SIT_SEAT_IDS = SEAT_IDS.filter((id) => SEATS[id].pose !== "lie");
 
-/** 각 좌석의 좌면 앞뒤 반폭 — 몸이 얼마나 걸쳐 앉는지 재는 테스트가 본다. 눕는 자리는 없다. */
+/** 각 좌석의 좌면 앞뒤 반폭: 몸이 얼마나 걸쳐 앉는지 재는 테스트가 본다. 눕는 자리는 없다. */
 export const SEAT_HALF_DEPTH = {
   "desk-chair": DESK_CHAIR_HALF_DEPTH,
   "sofa-left": SOFA_HALF_DEPTH,

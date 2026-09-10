@@ -7,7 +7,7 @@ import type { Vec3Tuple } from "./types";
  * 그래서 두 판이 화면상 겹치면서 두께까지 같으면 앞면이 정확히 같은 평면에 놓이고,
  * 깊이값이 같아져 프레임마다 어느 쪽이 앞인지 뒤집히며 깜빡인다(z-fighting).
  *
- * 겹치는 것 자체는 의도된 표현이다 — 포스터는 바탕(0.04) → 색면(0.06) → 띠(0.08)로
+ * 겹치는 것 자체는 의도된 표현이다. 포스터는 바탕(0.04) → 색면(0.06) → 띠(0.08)로
  * 일부러 겹쳐 쌓는다. 금지해야 하는 건 "겹치는데 두께가 같은" 조합뿐이다.
  */
 
@@ -32,7 +32,7 @@ function overlapsOnAxis(a: Plaque, b: Plaque, axis: number): boolean {
   const aMax = a.position[axis] + a.size[axis] / 2;
   const bMin = b.position[axis] - b.size[axis] / 2;
   const bMax = b.position[axis] + b.size[axis] / 2;
-  // 딱 맞닿는 건 겹침이 아니다 — 면적이 있어야 깜빡인다
+  // 딱 맞닿는 건 겹침이 아니다. 면적이 있어야 깜빡인다
   return Math.min(aMax, bMax) - Math.max(aMin, bMin) > 1e-6;
 }
 
@@ -52,7 +52,7 @@ describe("wall decor", () => {
           const depthB = b.size[depthAxis];
           expect(
             Math.abs(depthA - depthB),
-            `${wall} 벽에서 겹치는 두 판의 두께가 같다 (${depthA}) — 앞면이 같은 평면에 놓여 깜빡인다`,
+            `${wall} 벽에서 겹치는 두 판의 두께가 같다 (${depthA}): 앞면이 같은 평면에 놓여 깜빡인다`,
           ).toBeGreaterThan(1e-6);
         }
       }

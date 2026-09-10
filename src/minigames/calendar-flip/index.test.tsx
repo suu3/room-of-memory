@@ -96,9 +96,9 @@ describe("the turning sheet", () => {
     // 넘어가는 종이 한 장이 밑장 위에 겹친다
     const turning = container.querySelectorAll(".animate-calendar-flip");
     expect(turning).toHaveLength(1);
-    // 앞으로 넘길 때는 키프레임을 그대로 — 되돌릴 때만 거꾸로 돌린다
+    // 앞으로 넘길 때는 키프레임을 그대로: 되돌릴 때만 거꾸로 돌린다
     expect(turning[0].className).not.toContain("animation-direction:reverse");
-    // 앞면은 떠나는 달, 밑장은 새 달 — 두 장이 동시에 서 있어야 넘김이 보인다
+    // 앞면은 떠나는 달, 밑장은 새 달: 두 장이 동시에 서 있어야 넘김이 보인다
     expect(screen.getAllByText(String(CALENDAR_YEAR))).toHaveLength(2);
   });
 

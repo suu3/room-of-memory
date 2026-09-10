@@ -36,7 +36,7 @@ export function sourcePath(key) {
 /**
  * content/*.yaml 네 개를 읽어 하나의 콘텐츠 객체로 만든다.
  *
- * 파싱 단계에서는 형태만 본다 — 참조가 맞는지(스크립트가 실재하는지 등)는
+ * 파싱 단계에서는 형태만 본다. 참조가 맞는지(스크립트가 실재하는지 등)는
  * validate.mjs가 따로 본다. 파일 하나가 깨져도 어느 파일인지 말해준다.
  */
 export async function loadContent() {

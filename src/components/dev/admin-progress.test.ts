@@ -11,7 +11,7 @@ describe("stagesOf", () => {
   });
 
   it("skips the collected stage for a memory with no phase 1", () => {
-    // 컴퓨터는 1바퀴가 없다 — collected에 들어갈 길 자체가 없어야 한다
+    // 컴퓨터는 1바퀴가 없다. collected에 들어갈 길 자체가 없어야 한다
     expect(MEMORY_BY_ID.computer.phase1).toBeUndefined();
     expect(stagesOf("computer")).toEqual(["none", "revisited"]);
   });

@@ -16,7 +16,7 @@ import { BUTTON_PRIMARY, HUD_ICON_BUTTON_SOLID, PANEL_FRAME } from "./ui-classes
  * overlay 모드 미니게임 호스트. canvas 모드는 3D 씬 도입 전까지 스킵 처리(진행이
  * 막히지 않게), 씬 도입 시 씬 쪽 호스트가 담당.
  * 미등록 id는 스킵(cleared: true) 처리해 진행이 막히지 않게 한다.
- * 게임은 시작 카드에서 시작 버튼을 눌러야 마운트된다 — 타이머·라운드가
+ * 게임은 시작 카드에서 시작 버튼을 눌러야 마운트된다. 타이머·라운드가
  * 조작법을 읽기 전에 돌지 않도록.
  */
 export function MinigameHost() {
@@ -25,18 +25,18 @@ export function MinigameHost() {
   const active = useMemoryRoomStore(selectActiveInteraction);
   const finishMinigame = useMemoryRoomStore((state) => state.finishMinigame);
   const cancelMinigame = useMemoryRoomStore((state) => state.cancelMinigame);
-  /** 시작 버튼을 누른 인터랙션 키 — 인터랙션이 바뀌면 자연히 시작 카드로 돌아간다. */
+  /** 시작 버튼을 누른 인터랙션 키: 인터랙션이 바뀌면 자연히 시작 카드로 돌아간다. */
   const [startedKey, setStartedKey] = useState<string | null>(null);
   /**
    * 결과가 확정돼 더는 취소할 수 없는 인터랙션 키.
    * 미니게임이 onSettled로 알린다 (src/types/minigame.ts).
    */
   const [settledKey, setSettledKey] = useState<string | null>(null);
-  /** 성공 파티클 리트리거 키 — 모달이 닫힌 뒤에도 버스트는 끝까지 재생된다. */
+  /** 성공 파티클 리트리거 키: 모달이 닫힌 뒤에도 버스트는 끝까지 재생된다. */
   const [burstId, setBurstId] = useState(0);
   const startButtonRef = useRef<HTMLButtonElement>(null);
 
-  /** 결과 대사 단계 — 미니게임 화면은 남기고 대사창이 그 위에 뜬다. */
+  /** 결과 대사 단계: 미니게임 화면은 남기고 대사창이 그 위에 뜬다. */
   const resultStage = active?.phase === "dialogue" && active.keepMinigame === true;
   const minigameId =
     active?.phase === "minigame" || resultStage
@@ -44,7 +44,7 @@ export function MinigameHost() {
       : undefined;
   const definition = minigameId ? getMinigame(minigameId) : undefined;
   const hosted = definition?.mode === "overlay" ? definition : undefined;
-  /** 탐색형 오브젝트 — 시작 카드도 패널도 없이 물건만 떠오른다. */
+  /** 탐색형 오브젝트: 시작 카드도 패널도 없이 물건만 떠오른다. */
   const bare = hosted?.presentation === "bare";
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export function MinigameHost() {
   }, [active, hosted, finishMinigame]);
 
   const activeKey = active ? `${active.memoryId}:${active.gamePhase}` : null;
-  // bare는 "시작"을 거치지 않는다 — 물건을 집었으면 이미 들여다보는 중이다.
+  // bare는 "시작"을 거치지 않는다. 물건을 집었으면 이미 들여다보는 중이다.
   const started = bare || (startedKey !== null && startedKey === activeKey);
   /**
    * 승부가 난 뒤부터 결과 대사가 끝날 때까지는 닫을 수 없다.
@@ -97,7 +97,7 @@ export function MinigameHost() {
       {burstId > 0 && <SuccessBurst key={burstId} onDone={() => setBurstId(0)} />}
       {(active?.phase === "minigame" || resultStage) && hosted && Minigame && (
         /*
-         * 바깥(백드롭) 클릭 시 완료 처리 없이 닫는다 — 핫스팟은 다시 클릭 가능.
+         * 바깥(백드롭) 클릭 시 완료 처리 없이 닫는다. 핫스팟은 다시 클릭 가능.
          * 결과 대사 중에는 화면을 더 어둡게 깔고, 아래쪽을 대사창 자리로 비워둔다.
          *
          * 단, 게임이 **시작된 뒤에는** 백드롭으로 닫히지 않는다. 손가락으로 하는
@@ -108,12 +108,12 @@ export function MinigameHost() {
           /*
            * 결과 대사 중에는 판이 대사창(z-50) 아래 그림으로만 남는다. DOM에는 그대로
            * 살아 있어서 탭이 닿으면 안 보이는 버튼에 포커스가 잡히는데, 그 상태의
-           * Enter는 대사가 아니라 그 버튼에게 간다 — 보이지 않는 것이 눌린다.
+           * Enter는 대사가 아니라 그 버튼에게 간다. 보이지 않는 것이 눌린다.
            * inert로 이 층을 통째로 입력에서 빼면, 그 구간의 주인이 대사창 하나가 된다.
            */
           inert={resultStage}
           className={`absolute inset-0 z-40 grid place-items-center ${
-            // 탐색형은 방을 덜 가린다 — 물건을 든 채로도 방이 보여야 "그 방 안"이다.
+            // 탐색형은 방을 덜 가린다. 물건을 든 채로도 방이 보여야 "그 방 안"이다.
             // 뒤쪽 방이 완전히 사라질 만큼 뭉개지 않는다 (3px)
             bare ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-[3px]"
           } ${resultStage ? "bg-scene-void/75 pb-56" : bare ? "" : "bg-scene-void/40"}`}
@@ -123,7 +123,7 @@ export function MinigameHost() {
           }}
         >
           {/*
-            닫기. 백드롭이 잠긴 동안 유일하게 남는 출구라 늘 보인다 — 스킵(건너뛰기)은
+            닫기. 백드롭이 잠긴 동안 유일하게 남는 출구라 늘 보인다. 스킵(건너뛰기)은
             일정 시간이 지나야 뜨고 의미도 다르다(스킵은 수집으로 친다, 닫기는 아니다).
             프레임이 있는 게임은 그 우측 상단 모서리에 모으고, 틀 없이 물건만 떠오르는
             탐색형은 화면 구석에 둔다.
@@ -169,7 +169,7 @@ export function MinigameHost() {
                 className="mt-3 break-ko text-pretty text-[0.9375rem] leading-normal text-fog"
               />
               {/*
-                플레이 방법. 카드가 가운데 정렬이라 목록만 왼쪽으로 세운다 —
+                플레이 방법. 카드가 가운데 정렬이라 목록만 왼쪽으로 세운다.
                 가운데 정렬된 여러 줄은 줄머리가 들쭉날쭉해서 읽는 순서가 안 잡힌다.
                 시작 버튼과는 한 칸 더 벌려, 읽는 것과 누르는 것을 나눠 둔다.
               */}

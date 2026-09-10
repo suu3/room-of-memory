@@ -4,11 +4,11 @@ import { sourcePath } from "./load.mjs";
 import { SOURCES } from "./schema.mjs";
 
 /**
- * 어드민이 넘긴 값을 기존 YAML 문서 위에 덮어쓴다 — 통째로 다시 쓰지 않는다.
+ * 어드민이 넘긴 값을 기존 YAML 문서 위에 덮어쓴다. 통째로 다시 쓰지 않는다.
  *
  * content/*.yaml에는 기획 의도가 주석으로 잔뜩 붙어 있다. yaml.stringify로 다시
  * 뽑으면 그게 전부 날아가서, 어드민에서 대사 한 줄 고칠 때마다 문서가 조금씩
- * 벗겨진다. 그래서 문서 노드를 제자리에서 고치는 방식을 쓴다 — 건드리지 않은
+ * 벗겨진다. 그래서 문서 노드를 제자리에서 고치는 방식을 쓴다. 건드리지 않은
  * 자리의 주석은 그대로 남는다.
  *
  * 남는 한계: 지운 항목에 붙어 있던 주석은 그 항목과 같이 사라진다. 그건 의도한
@@ -21,7 +21,7 @@ export async function writeSource(key, value) {
   syncInto(doc, [SOURCES[key].root], value);
 
   /*
-   * lineWidth 0 — 긴 한국어 문장을 접지 않는다. flowCollectionPadding false —
+   * lineWidth 0: 긴 한국어 문장을 접지 않는다. flowCollectionPadding false:
    * 손으로 쓴 `[radio]`가 저장만 했다고 `[ radio ]`로 벌어지지 않게.
    * 마지막 replace는 항목을 옮길 때 생기는 공백뿐인 줄을 지운다.
    */

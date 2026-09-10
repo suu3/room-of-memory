@@ -9,7 +9,7 @@
         },
         {
           "label": "Club",
-          "value": "Baseball, second base — a bunt-and-steal hitter"
+          "value": "Baseball, second base: a bunt-and-steal hitter"
         },
         {
           "label": "Likes",
@@ -94,7 +94,7 @@
   },
   "scripts": {
     "ball-intro": {
-      "line1": "That game that day — it was something else.",
+      "line1": "That game that day. It was something else.",
       "line2": "Let's see if I've still got my swing."
     },
     "frame-photo": {
@@ -106,7 +106,7 @@
       "line2": "When I find them, I'll start with this photo."
     },
     "console-intro": {
-      "line1": "Been a while — time for a round.",
+      "line1": "Been a while. Time for a round.",
       "line2": "Loser bought snacks. That was the rule."
     },
     "console-alone": {
@@ -156,8 +156,8 @@
     "radio-broadcast": {
       "line1": "…This is an emergency broadcast. A zombie outbreak is underway. All citizens must take shelter indoors immediately.",
       "line2": "The infection has spread past the capital region into the entire south.",
-      "line3": "It has reached Busan. The areas still under control are—",
-      "line4": "Kssh… kkt—",
+      "line3": "It has reached Busan. The areas still under control are…",
+      "line4": "Kssh… kkt…",
       "line5": "…Right. That's how it was.",
       "line6": "I hadn't forgotten. I was pretending I had."
     },
@@ -166,8 +166,8 @@
     },
     "radio-voice": {
       "line1": "Ah, damn… is this thing even transmitting? Can anyone hear me?",
-      "line2": "If you're alive out there, come to us. Remember — the answer is here.",
-      "line3": "We'll talk once we're together— kssht… click.",
+      "line2": "If you're alive out there, come to us. Remember, the answer is here.",
+      "line3": "We'll talk once we're together… kssht… click.",
       "line4": "That's a person. That's a real voice.",
       "line5": "Nothing happens if I keep sitting here."
     },
@@ -190,7 +190,7 @@
       "line1": "The shoe cabinet. Haven't opened it in a long time.",
       "line2": "Dad's hiking boots. Still here.",
       "line3": "No walking on this one. I'll leave the boots.",
-      "line4": "A trip with no walking — and two suitcases.",
+      "line4": "A trip with no walking, and two suitcases.",
       "line5": "What exactly did you carry off with you?"
     },
     "cards-intro": {
@@ -209,7 +209,7 @@
       "line4": "All of it wore the face of coming back. But sorting things out is what people do when they leave.",
       "line5": "…Let's open it.",
       "line6": "What is this.",
-      "line7": "A glass ampoule. The label is half worn off — I can't read it.",
+      "line7": "A glass ampoule. The label is half worn off. I can't read it.",
       "line8": "They buried this under the food and left?",
       "line9": "…They knew. They knew this was coming.",
       "line10": "Then this isn't something they abandoned. It's something they left for me."
@@ -245,7 +245,7 @@
     "radio": {
       "title": "That Broadcast",
       "phase1": "They said it had reached Busan. I cannot pretend not to know anymore.",
-      "phase2": "A human voice came through the noise. “Hey, is anyone there?” I am not the only one."
+      "phase2": "A human voice came through the noise. \"Hey, is anyone there?\" I am not the only one."
     },
     "phone": {
       "title": "The Silence",
@@ -263,7 +263,7 @@
     },
     "shoes": {
       "title": "The Boots They Left",
-      "phase2": "The hiking boots are still in the cabinet. A trip with no walking, they said — so why was there so much luggage?"
+      "phase2": "The hiking boots are still in the cabinet. A trip with no walking, they said. So why was there so much luggage?"
     },
     "cards": {
       "title": "The Unfinished Hand",

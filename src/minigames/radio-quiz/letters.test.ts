@@ -27,7 +27,7 @@ describe("letters", () => {
 });
 
 /**
- * 세 언어 리소스가 풀 수 있는 퀴즈인지 지킨다 — 풀에 정답 글자가 빠지면
+ * 세 언어 리소스가 풀 수 있는 퀴즈인지 지킨다. 풀에 정답 글자가 빠지면
  * 게임이 조용히 못 깨는 판이 된다.
  */
 describe("radioQuiz 리소스", () => {
@@ -42,7 +42,7 @@ describe("radioQuiz 리소스", () => {
 
     it(`${name}: 정답이 두 글자 이상, 풀은 최소 10글자`, () => {
       expect(answerLetters(quiz.answer).length).toBeGreaterThanOrEqual(2);
-      // 풀이 정답과 엇비슷하게 좁으면 고르는 맛이 없다 — 선택지는 열 개부터.
+      // 풀이 정답과 엇비슷하게 좁으면 고르는 맛이 없다. 선택지는 열 개부터.
       expect(parsePool(quiz.pool).length).toBeGreaterThanOrEqual(10);
     });
   }

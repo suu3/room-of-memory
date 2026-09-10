@@ -12,14 +12,14 @@ const STATIC_MS = 1100;
 const BLACKOUT_MS = 900;
 
 /**
- * 컷씬이 도는 세 국면. 그림이 뜨기 전에 라디오가 확실히 죽어야 한다 —
+ * 컷씬이 도는 세 국면. 그림이 뜨기 전에 라디오가 확실히 죽어야 한다.
  * 나중의 재점화가 이질적으로 들리려면 "꺼졌다"가 먼저 성립해야 하기 때문이다.
  * 다시보기에는 도입이 없으므로 곧장 "cuts"에서 시작한다.
  */
 type Stage = "static" | "blackout" | "cuts";
 
 /**
- * 대사와 그림만으로 도는 장면 — 전환 컷씬과 다시보기가 이 화면을 함께 쓴다.
+ * 대사와 그림만으로 도는 장면: 전환 컷씬과 다시보기가 이 화면을 함께 쓴다.
  *
  * 대사는 여기서 그리지 않는다. 기존 대사창(DialogueBox)이 재생 대사도 받으므로,
  * 이 컴포넌트가 맡는 건 그림과 정적, 그리고 컷씬이라면 라디오가 꺼지는 첫 비트뿐이다.
@@ -41,7 +41,7 @@ export function PlaybackScene() {
   const isCutscene = active?.kind === "cutscene";
   /**
    * 그림 없는 컷씬 (배트의 작별 대사). 화면을 덮는 대신 방이 비친 채 대사창만
-   * 뜬다 — 떠나는 말은 회상이 아니라 지금 이 방에서 하는 말이라서다.
+   * 뜬다. 떠나는 말은 회상이 아니라 지금 이 방에서 하는 말이라서다.
    */
   const bare = isCutscene && active.cuts.every((each) => each.image === undefined);
   /** 재생이 바뀔 때마다 도입을 다시 돌리기 위한 열쇠. */
@@ -49,7 +49,7 @@ export function PlaybackScene() {
   const cut = active?.cuts[active.cutIndex];
 
   /*
-   * 컷씬이 열릴 때마다 처음부터 — 방송이 끊기고, 잠깐 아무것도 없다가, 그림이 뜬다.
+   * 컷씬이 열릴 때마다 처음부터: 방송이 끊기고, 잠깐 아무것도 없다가, 그림이 뜬다.
    * 도입이 끝나면 스토어의 intro를 내려 대사창이 첫 컷 위에 올라오게 한다.
    *
    * 단, 도입은 재생이 intro를 달고 열렸을 때만이다. 지직거리다 꺼지는 비트는
@@ -95,7 +95,7 @@ export function PlaybackScene() {
     return () => window.clearTimeout(timer);
   }, [holding, holdMs, advancePlayback]);
 
-  // 다시보기는 Esc로 닫힌다 — 되짚어 보다 그만두는 데 확인이 필요할 이유가 없다
+  // 다시보기는 Esc로 닫힌다. 되짚어 보다 그만두는 데 확인이 필요할 이유가 없다
   useEffect(() => {
     if (!active || isCutscene) return;
     const onKey = (event: KeyboardEvent) => {
@@ -110,23 +110,23 @@ export function PlaybackScene() {
   const image = cut?.image;
   const showImage = stage === "cuts" && image !== undefined && !missing.includes(image);
   /**
-   * 컷씬에서는 그림이 아직 없어도 자리를 지킨다 — 다시보기는 보여줄 게 없으면 비운다.
-   * 애초에 그림 없이 설계된 컷씬(bare)은 판도 세우지 않는다 — 회색 판은 "올 그림"의
+   * 컷씬에서는 그림이 아직 없어도 자리를 지킨다. 다시보기는 보여줄 게 없으면 비운다.
+   * 애초에 그림 없이 설계된 컷씬(bare)은 판도 세우지 않는다. 회색 판은 "올 그림"의
    * 자리이지, 없는 그림의 자리가 아니다.
    */
   const showPlate = stage === "cuts" && ((isCutscene && !bare) || image !== undefined);
 
   return (
     // z-40: 미니게임과 같은 층. 재생은 인터랙션이 닫힌 뒤에 열려 둘이 겹치지 않는다.
-    // 대사창(z-50)은 이 위에 뜬다 — 그림 위에 글이 얹히는 것이 이 연출의 형태다.
+    // 대사창(z-50)은 이 위에 뜬다. 그림 위에 글이 얹히는 것이 이 연출의 형태다.
     <div
       className={`absolute inset-0 z-40 ${
-        // 그림 없는 컷씬은 방을 살짝 눌러만 둔다 — 말하는 곳이 이 방이라서다
+        // 그림 없는 컷씬은 방을 살짝 눌러만 둔다. 말하는 곳이 이 방이라서다
         isCutscene && !bare ? "bg-scene-void" : "bg-scene-void/80 backdrop-blur-sm"
       }`}
     >
       {/*
-        컷 그림. 컷씬 일러스트가 아직 없으면 회색 판이 그대로 남는다 — 파일이 들어오는
+        컷 그림. 컷씬 일러스트가 아직 없으면 회색 판이 그대로 남는다. 파일이 들어오는
         순간 이 자리에 그대로 들어차므로 구도를 미리 잡아둘 필요가 없다.
         다시보기 스틸은 대사창 자리를 비우고 그 위에 선다.
       */}
@@ -153,7 +153,7 @@ export function PlaybackScene() {
                 alt=""
                 draggable={false}
                 onError={() => setMissing((ids) => (ids.includes(image) ? ids : [...ids, image]))}
-                // 다시보기 스틸은 통째로 보인다 — 잘라 채우면 사진 윗단이 화면 밖으로 나간다
+                // 다시보기 스틸은 통째로 보인다. 잘라 채우면 사진 윗단이 화면 밖으로 나간다
                 className={`absolute inset-0 size-full select-none ${
                   cut?.fit === "contain" || !isCutscene ? "object-contain" : "object-cover"
                 }`}
@@ -172,7 +172,7 @@ export function PlaybackScene() {
       />
 
       {/*
-        화면 가장자리를 조여 그림을 가운데로 모은다 — 방 비네트와 같은 처방.
+        화면 가장자리를 조여 그림을 가운데로 모은다. 방 비네트와 같은 처방.
         방(75%)보다 옅게 잡는다: 여기서는 비네트가 그림 자체를 먹어치우면 안 된다.
       */}
       <div
@@ -184,7 +184,7 @@ export function PlaybackScene() {
         }}
       />
 
-      {/* 무엇을 되짚는 중인지 — 다시보기는 진행이 아니라 열람이라 제목이 필요하다 */}
+      {/* 무엇을 되짚는 중인지: 다시보기는 진행이 아니라 열람이라 제목이 필요하다 */}
       {!isCutscene && active.memoryId && (
         <p className="pointer-events-none absolute left-1/2 top-8 z-10 -translate-x-1/2 font-pixel text-xs tracking-[0.2em] text-memory">
           {t("playback.replayTitle", {
@@ -194,7 +194,7 @@ export function PlaybackScene() {
       )}
 
       {/*
-        나가는 문. 컷씬에서는 접근성 장치인 건너뛰기이고, 다시보기에서는 그냥 닫기다 —
+        나가는 문. 컷씬에서는 접근성 장치인 건너뛰기이고, 다시보기에서는 그냥 닫기다.
         건너뛸 진행이 없으니 같은 말을 쓰면 안 된다. 컷씬 쪽은 이 장면의 무게를
         깎지 않도록 구석에서 흐리게 서 있는다.
       */}

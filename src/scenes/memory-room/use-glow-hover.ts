@@ -12,7 +12,7 @@ export function useGlowHover(clickable: boolean) {
   const [pointerInside, setPointerInside] = useState(false);
   const hovered = pointerInside && clickable;
 
-  // 호버가 켜지는 순간에만 소리 — 커서가 오브젝트 위에서 떨어도 다시 울리지 않는다
+  // 호버가 켜지는 순간에만 소리: 커서가 오브젝트 위에서 떨어도 다시 울리지 않는다
   useEffect(() => {
     if (!hovered) return;
     playSound("hover");

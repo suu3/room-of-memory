@@ -2,20 +2,20 @@
  * 씬이 쓰는 색. 전부 `globals.css`의 `--color-scene-*` 토큰에서 읽는다
  * (DESIGN.md > Colors > 3D 재질 팔레트).
  *
- * UI 토큰(ink·paper·ivory…)은 여기 없다 — 재질색은 조명과 톤매핑을 거쳐 화면에 닿아
+ * UI 토큰(ink·paper·ivory…)은 여기 없다. 재질색은 조명과 톤매핑을 거쳐 화면에 닿아
  * UI 색과 같은 값을 공유하면 어느 한쪽이 틀어진다. 예외는 `memory`(기억 글로우·창빛의
  * 시그니처 앰버)와 `ember`(라디오 신호등) 두 광원색뿐이다.
  */
 export interface RoomPalette {
-  /** 기억 글로우·표식·창빛. UI의 앰버와 같은 토큰을 읽는다 — 시그니처 컬러라서. */
+  /** 기억 글로우·표식·창빛. UI의 앰버와 같은 토큰을 읽는다. 시그니처 컬러라서. */
   memory: string;
-  /** 라디오 신호등 — 재질이 아니라 빛이다. */
+  /** 라디오 신호등: 재질이 아니라 빛이다. */
   ember: string;
 
   /* ── 재질 ── */
   /** 벽 (깊은 네이비) */
   wall: string;
-  /** 포스터를 떼어낸 자국 — 벽보다 한 톤 밝다 */
+  /** 포스터를 떼어낸 자국: 벽보다 한 톤 밝다 */
   wallFaded: string;
   /** 바닥 (벽보다 밝은 슬레이트) */
   floor: string;
@@ -29,11 +29,11 @@ export interface RoomPalette {
   linen: string;
   /** 걸레받이·창틀·손잡이 */
   trim: string;
-  /** 앰버 — 트로피, 문 손잡이 */
+  /** 앰버: 트로피, 문 손잡이 */
   amber: string;
-  /** 테라코타 — 달력 띠·안테나·실밥·운동화 */
+  /** 테라코타: 달력 띠·안테나·실밥·운동화 */
   clay: string;
-  /** 세이지 — 포스터 색면·수납상자·가방 */
+  /** 세이지: 포스터 색면·수납상자·가방 */
   sage: string;
 
   /* ── 어둠 (창밖·받침·꺼진 화면) ── */
@@ -108,7 +108,7 @@ export function resolveRoomPalette(): RoomPalette {
     if (value !== "") return value;
     if (process.env.NODE_ENV !== "production") {
       console.warn(
-        `씬 팔레트 토큰 ${TOKEN_BY_KEY[key]}이 비어 있어 폴백을 쓴다 — CSS가 아직 안 붙었는가?`,
+        `씬 팔레트 토큰 ${TOKEN_BY_KEY[key]}이 비어 있어 폴백을 쓴다. CSS가 아직 안 붙었는가?`,
       );
     }
     return FALLBACK[key];

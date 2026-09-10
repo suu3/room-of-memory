@@ -13,7 +13,7 @@ function setup(onComplete = vi.fn()) {
     container,
     onComplete,
     answer(text: string) {
-      // 슬롯 UI는 다 채우면 스스로 확인한다 — 별도 제출이 없다
+      // 슬롯 UI는 다 채우면 스스로 확인한다. 별도 제출이 없다
       fireEvent.change(input, { target: { value: text } });
     },
     input,
@@ -39,12 +39,12 @@ describe("CardOddMinigame", () => {
     const { container } = setup();
 
     expect(container.querySelectorAll("li")).toHaveLength(BOARD.length);
-    // 카드 판 안에는 버튼이 하나도 없다 — 화면 키패드의 버튼은 판 밖이다
+    // 카드 판 안에는 버튼이 하나도 없다. 화면 키패드의 버튼은 판 밖이다
     expect(container.querySelectorAll("ul button")).toHaveLength(0);
   });
 
   it("gives away neither rule on screen", () => {
-    // 규칙이 화면에 적히는 순간 문제가 아니라 안내가 된다 — 단서는 방 곳곳에 있다
+    // 규칙이 화면에 적히는 순간 문제가 아니라 안내가 된다. 단서는 방 곳곳에 있다
     const { container } = setup();
     const text = container.textContent ?? "";
 
@@ -53,7 +53,7 @@ describe("CardOddMinigame", () => {
   });
 
   it("leaves the lower index upright only on the asymmetric card", () => {
-    // 이 게임의 단서 자체다 — 여기가 어긋나면 대칭 오류 카드를 찾을 방법이 없다
+    // 이 게임의 단서 자체다. 여기가 어긋나면 대칭 오류 카드를 찾을 방법이 없다
     const { container } = setup();
     const cards = [...container.querySelectorAll("li")];
 
@@ -70,7 +70,7 @@ describe("CardOddMinigame", () => {
   it("puts the rotation on the index itself, not on the box that places it", () => {
     /*
      * 자리를 잡는 상자(justify-end)에 rotate-180을 걸면 상자가 통째로 돌면서 오른쪽에
-     * 붙여 둔 인덱스가 왼쪽으로 넘어간다 — 정상 카드가 전부 어긋나 보였던 원인이다.
+     * 붙여 둔 인덱스가 왼쪽으로 넘어간다. 정상 카드가 전부 어긋나 보였던 원인이다.
      */
     const { container } = setup();
     const rotated = container.querySelectorAll(".rotate-180");

@@ -1,4 +1,4 @@
-# 방 단계별 독백 — 밝기와 바퀴 수가 정하는 3단계(dark/dim/gold)에 붙는 텍스트.
+# 방 단계별 독백: 밝기와 바퀴 수가 정하는 3단계(dark/dim/gold)에 붙는 텍스트.
 #
 # 어느 단계를 쓸지는 roomStageIndex(src/scenes/memory-room/visual-state.ts)가 정한다.
 # 배경 그라디언트·글로우 세기 같은 시각값은 대본이 아니라 디자인 토큰이라

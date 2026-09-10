@@ -58,7 +58,7 @@ export function BallCatchField({
         alt=""
       />
       <div className="absolute inset-0 bg-night/20" aria-hidden />
-      {/* 겨자색 노을 띠를 회갈색으로 눌러 앉힌다 — 앰버는 링과 피드백의 몫이다 (globals.css) */}
+      {/* 겨자색 노을 띠를 회갈색으로 눌러 앉힌다. 앰버는 링과 피드백의 몫이다 (globals.css) */}
       <div className="ball-catch-sky absolute inset-0" aria-hidden />
 
       {/* biome-ignore lint/performance/noImgElement: Native images are required for the layered field sprites. */}

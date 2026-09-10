@@ -2,7 +2,7 @@
  * 콘텐츠 저작 파일(content/*.yaml)의 스키마 상수.
  *
  * 로더·검증기·생성기와 어드민이 같은 값을 본다. 새 화자나 새 아이콘을 쓰려면
- * 여기 먼저 추가한다 — 오타가 빌드까지 가지 않게 막는 관문이다.
+ * 여기 먼저 추가한다. 오타가 빌드까지 가지 않게 막는 관문이다.
  */
 
 /** i18n 리소스가 있는 언어. 모든 대사는 이 셋을 전부 채워야 한다. */
@@ -65,5 +65,5 @@ export const PHASE_KEYS = ["script", "minigame", "resultScript", "unlockAfter", 
 /** 기억 항목에서 허용하는 키. */
 export const MEMORY_KEYS = ["id", "icon", "lore", "phase1", "phase2"];
 
-/** id로 쓸 수 있는 형태 — kebab-case. 파일명·i18n 키·CSS 선택자에 그대로 들어간다. */
+/** id로 쓸 수 있는 형태: kebab-case. 파일명·i18n 키·CSS 선택자에 그대로 들어간다. */
 export const ID_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;

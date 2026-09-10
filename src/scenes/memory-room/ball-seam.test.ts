@@ -29,7 +29,7 @@ describe("baseball seam", () => {
   it("passes through the groove carved into the model", () => {
     /*
      * 이게 이 파일의 존재 이유다. 예전 곡선(테니스공 솔기의 매개변수식)은 회전을
-     * 최적화해도 홈에서 평균 0.059, 최대 0.168만큼 벗어났다 — 빨간 띠가 파인 자리를
+     * 최적화해도 홈에서 평균 0.059, 최대 0.168만큼 벗어났다. 빨간 띠가 파인 자리를
      * 비껴 갔다. 길목까지의 거리는 표본 간격(π/32 × 반지름 ≈ 0.07)의 절반 안이어야
      * 한다: 그보다 멀면 곡선이 홈을 지나지 않는 것이다.
      */
@@ -44,7 +44,7 @@ describe("baseball seam", () => {
     /*
      * 네 반원은 각각 z = ±s 또는 y = ±s 평면 위에 있다. 그래서 곡선 위의 모든 점은
      * y나 z 가운데 적어도 하나가 ±s로 고정돼 있고, 조각이 만나는 네 자리에서만 둘
-     * 다 고정된다 — 매끄러운 매개변수 곡선에는 없는 성질이라, 곡선을 다시 갈아
+     * 다 고정된다. 매끄러운 매개변수 곡선에는 없는 성질이라, 곡선을 다시 갈아
      * 끼우면 여기서 걸린다.
      */
     const pinnedCounts = points.map(
@@ -59,7 +59,7 @@ describe("baseball seam", () => {
     const steps = points.map((point, index) =>
       point.distanceTo(points[(index + 1) % points.length]),
     );
-    // 표본이 고르면 이음매에서도 간격이 튀지 않는다 — 튄다면 조각이 어긋나 붙은 것이다.
+    // 표본이 고르면 이음매에서도 간격이 튀지 않는다. 튄다면 조각이 어긋나 붙은 것이다.
     expect(Math.max(...steps) - Math.min(...steps)).toBeLessThan(1e-9);
 
     const turns = points.map((point, index) => {

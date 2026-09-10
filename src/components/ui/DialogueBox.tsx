@@ -18,15 +18,15 @@ import { PANEL_DIALOGUE } from "./ui-classes";
 
 /**
  * 화면 전체를 덮는 넘기기 버튼의 표식. Enter 핸들러가 "이건 내 버튼"이라고
- * 알아보는 데 쓴다 — 클래스나 aria-label로 찾으면 문구를 손볼 때 조용히 깨진다.
+ * 알아보는 데 쓴다. 클래스나 aria-label로 찾으면 문구를 손볼 때 조용히 깨진다.
  */
 const ADVANCE_ATTR = "data-dialogue-advance";
 
 /**
- * 대사창은 대사가 재생 중일 때만 뜬다 — 평상시 화면에는 없다.
+ * 대사창은 대사가 재생 중일 때만 뜬다. 평상시 화면에는 없다.
  *
  * 대사가 들어오는 문은 둘이다: 오브젝트 인터랙션과 재생(전환 컷씬·다시보기).
- * 재생이 자기 창을 따로 갖지 않는 건 기획의 요구다("텍스트는 전부 기존 대사창") —
+ * 재생이 자기 창을 따로 갖지 않는 건 기획의 요구다("텍스트는 전부 기존 대사창"):
  * 일러스트에 말풍선을 얹지 않으려면 글은 늘 같은 자리에 있어야 한다.
  */
 export function DialogueBox() {
@@ -37,13 +37,13 @@ export function DialogueBox() {
   const advanceDialogue = useMemoryRoomStore((state) => state.advanceDialogue);
   const advancePlayback = useMemoryRoomStore((state) => state.advancePlayback);
 
-  // 도입(라디오가 꺼지는 비트)과 정적 구간에는 창이 뜨지 않는다 — 침묵도 연출이다
+  // 도입(라디오가 꺼지는 비트)과 정적 구간에는 창이 뜨지 않는다. 침묵도 연출이다
   const playbackLine =
     playback && !playback.intro && !playback.holding
       ? playback.cuts[playback.cutIndex]?.lines[playback.lineIndex]
       : undefined;
 
-  // 인트로 대사와 미니게임 결과 대사가 같은 창을 쓴다 — 어느 쪽인지는 스토어가 들고 있다
+  // 인트로 대사와 미니게임 결과 대사가 같은 창을 쓴다. 어느 쪽인지는 스토어가 들고 있다
   const script =
     active?.phase === "dialogue" && active.scriptId ? SCRIPTS[active.scriptId] : undefined;
   const interactionLine = active ? script?.lines[active.lineIndex] : undefined;
@@ -55,7 +55,7 @@ export function DialogueBox() {
   const { typed, done, skip } = useTypewriterState(text);
   const open = scriptLine !== undefined;
   const advanceLine = playbackLine ? advancePlayback : advanceDialogue;
-  /** 줄이 바뀔 때마다 본문을 다시 마운트시키는 키 — 어느 문에서 온 대사든 하나로. */
+  /** 줄이 바뀔 때마다 본문을 다시 마운트시키는 키: 어느 문에서 온 대사든 하나로. */
   const lineKey = playbackLine
     ? `${playback?.cutsceneId ?? playback?.memoryId}-${playback?.cutIndex}-${playback?.lineIndex}`
     : `${active?.memoryId}-${active?.lineIndex}`;
@@ -73,7 +73,7 @@ export function DialogueBox() {
    *
    * 다만 캡처는 화면의 모든 Enter를 먼저 가져가므로, 포커스가 잡힌 컨트롤이 있으면
    * 비켜 줘야 한다. 안 그러면 대사 중에 HUD 메뉴로 탭해 둔 사람이 Enter를 눌렀을 때
-   * 메뉴는 안 열리고 대사만 넘어간다 — 아무 일도 안 일어나는 것보다 나쁘다.
+   * 메뉴는 안 열리고 대사만 넘어간다. 아무 일도 안 일어나는 것보다 나쁘다.
    * 예외는 대사창 자신의 넘기기 버튼이다. 클릭으로 한 번 넘기면 거기 포커스가 남는
    * 탓에, 비켜 주면 "클릭한 뒤부터 Enter가 안 먹는" 꼴이 된다.
    */
@@ -100,7 +100,7 @@ export function DialogueBox() {
     // z-50: 미니게임 결과 대사일 때 미니게임 오버레이(z-40) 위로 올라와야 한다
     <div className="absolute inset-0 z-50">
       {/*
-        화면 전체가 "다음" 버튼이다 — 대사창 안만 눌리면 어디를 눌러야 하는지
+        화면 전체가 "다음" 버튼이다. 대사창 안만 눌리면 어디를 눌러야 하는지
         매번 겨냥해야 한다. 조작 대상이 하나뿐이라 컨트롤도 이 버튼 하나로 둔다.
       */}
       <button
@@ -112,12 +112,12 @@ export function DialogueBox() {
         className="absolute inset-0 cursor-pointer"
       />
 
-      {/* 창 자체는 보여주기만 한다 — 클릭은 뒤의 전체 화면 버튼이 받는다 */}
+      {/* 창 자체는 보여주기만 한다. 클릭은 뒤의 전체 화면 버튼이 받는다 */}
       <div className="pointer-events-none absolute bottom-6 left-1/2 w-full max-w-[840px] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-8">
         <div className="relative">
           {/*
             얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다.
-            컷씬·다시보기도 마찬가지다 — 그림이 이미 인물을 보여주는 자리라,
+            컷씬·다시보기도 마찬가지다. 그림이 이미 인물을 보여주는 자리라,
             초상까지 세우면 같은 화면에 도해가 둘이 된다.
           */}
           {!playbackLine && hasPortrait(scriptLine.speaker) && (
@@ -125,15 +125,15 @@ export function DialogueBox() {
           )}
           {/*
             공간에 깔리는 어두운 자막 패널 (.dialogue-panel). 사방 테두리·긴 가로선·큰 라운드는
-            없다 — 조립된 카드가 아니라 화면 아래에 깔린 자막이어야 한다.
+            없다. 조립된 카드가 아니라 화면 아래에 깔린 자막이어야 한다.
           */}
           <div className={`relative text-left ${PANEL_DIALOGUE}`}>
-            {/* 화자 이름은 작은 앰버 라벨 하나 — 초상이 있어 별도 칩이나 소개 문구는 군더더기다 */}
+            {/* 화자 이름은 작은 앰버 라벨 하나: 초상이 있어 별도 칩이나 소개 문구는 군더더기다 */}
             <span className="block text-[13px] font-medium leading-none text-memory">
               {speakerName}
             </span>
             {/*
-              두 줄 높이를 늘 확보한다 — 한 줄 대사에서 창이 줄었다 다음 줄에서 늘면 글이
+              두 줄 높이를 늘 확보한다. 한 줄 대사에서 창이 줄었다 다음 줄에서 늘면 글이
               아니라 창이 움직이는 것으로 읽힌다. 그 이상은 문장이 길 때만 자란다.
             */}
             <p

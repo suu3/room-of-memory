@@ -17,21 +17,21 @@ import type { MinigameProps } from "@/types/minigame";
 import { useOnceCompleter, useSkipEligible } from "../shell";
 import { FAILS_BEFORE_SKIP, MOM_MESSAGES, PASSCODE, PASSCODE_LENGTH } from "./messages";
 
-/** 키패드 배열. 빈 칸은 자리만 지킨다 — 실제 폰 키패드의 0 왼쪽 공백. */
+/** 키패드 배열. 빈 칸은 자리만 지킨다. 실제 폰 키패드의 0 왼쪽 공백. */
 const KEYPAD: readonly string[] = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "⌫"];
 
 /** 틀렸을 때 흔들리고 지워지기까지. page-nudge(0.3s)가 다 돌고 잠깐 머문다. */
 const WRONG_HOLD_MS = 450;
 
 /**
- * 2바퀴 폰 재조사 — 잠금화면.
+ * 2바퀴 폰 재조사: 잠금화면.
  *
  * 몇 주 만에 처음 온 알림이 잠금화면 뒤에 있다. 비밀번호는 네 자리, 단서는
  * 잠금화면의 힌트("다 멈춘 날")와 calendar가 심은 날짜다. 풀면 그날 묶여 있던
- * 엄마의 문자가 한 통씩 도착한다 — 읽는 것까지가 이 인터랙션이다.
+ * 엄마의 문자가 한 통씩 도착한다. 읽는 것까지가 이 인터랙션이다.
  *
  * 실패 조건은 없다. 틀리면 흔들리고 지워질 뿐이고, FAILS_BEFORE_SKIP번 틀리거나
- * 시간이 지나면 스킵이 떠서 비밀번호 없이 열어준다 (스킵도 cleared: true —
+ * 시간이 지나면 스킵이 떠서 비밀번호 없이 열어준다 (스킵도 cleared: true:
  * 퍼즐을 건너뛰는 것이지 이야기를 건너뛰는 게 아니라, 문자 화면은 똑같이 선다).
  */
 export function PhoneLockMinigame({ onComplete, stage = "play" }: MinigameProps) {
@@ -45,9 +45,9 @@ export function PhoneLockMinigame({ onComplete, stage = "play" }: MinigameProps)
   const [wrong, setWrong] = useState(false);
   const [arrived, setArrived] = useState(0);
 
-  // 결과 대사가 위에 떠 있는 동안은 판을 멈춘 그림이다 — 입력도 연출도 없다.
+  // 결과 대사가 위에 떠 있는 동안은 판을 멈춘 그림이다. 입력도 연출도 없다.
   const frozen = stage === "result";
-  // 스킵은 두 길 중 먼저 오는 쪽 — N회 실패 또는 시간 경과 (접근성 규칙).
+  // 스킵은 두 길 중 먼저 오는 쪽: N회 실패 또는 시간 경과 (접근성 규칙).
   const skipByTime = useSkipEligible(45_000);
   const skipVisible = screen === "locked" && !frozen && (fails >= FAILS_BEFORE_SKIP || skipByTime);
 
@@ -81,7 +81,7 @@ export function PhoneLockMinigame({ onComplete, stage = "play" }: MinigameProps)
     setEntry((current) => current.slice(0, -1));
   }, [screen, wrong, frozen]);
 
-  // 틀린 입력은 흔들린 뒤에 지워진다 — 바로 지우면 뭐가 틀렸는지도 못 본다.
+  // 틀린 입력은 흔들린 뒤에 지워진다. 바로 지우면 뭐가 틀렸는지도 못 본다.
   useEffect(() => {
     if (!wrong) return;
     const timer = setTimeout(() => {
@@ -104,7 +104,7 @@ export function PhoneLockMinigame({ onComplete, stage = "play" }: MinigameProps)
     return () => clearTimeout(timer);
   }, [screen, arrived]);
 
-  // 키보드 경로 — 숫자키·넘패드로 입력, Backspace로 지운다.
+  // 키보드 경로: 숫자키·넘패드로 입력, Backspace로 지운다.
   useEffect(() => {
     if (screen !== "locked" || frozen) return;
     const onKey = (event: KeyboardEvent) => {
@@ -124,7 +124,7 @@ export function PhoneLockMinigame({ onComplete, stage = "play" }: MinigameProps)
 
   return (
     <div className="flex animate-fade-rise flex-col items-center gap-4">
-      {/* 기기 테두리 — phone-chat과 같은 폰이라는 인상을 만든다 */}
+      {/* 기기 테두리: phone-chat과 같은 폰이라는 인상을 만든다 */}
       <div className="mx-auto w-[22rem] max-w-[92vw]">
         <div className="rounded-[2.5rem] bg-ink p-[3px] shadow-panel ring-1 ring-night/80">
           <div className="relative overflow-hidden rounded-[2.3rem] bg-scene-void">
@@ -145,10 +145,10 @@ export function PhoneLockMinigame({ onComplete, stage = "play" }: MinigameProps)
             {screen === "locked" ? (
               <div className="flex h-[min(28rem,60dvh)] flex-col items-center px-5 pb-4 pt-3">
                 <LockSimple size={16} weight="fill" className="text-bone/45" aria-hidden />
-                {/* 잠금화면의 시계. 날짜는 일부러 없다 — 오늘이 며칠인지는 이 게임이 못박지 않는다 */}
+                {/* 잠금화면의 시계. 날짜는 일부러 없다. 오늘이 며칠인지는 이 게임이 못박지 않는다 */}
                 <p className="mt-0.5 text-3xl font-bold tabular-nums text-paper">17:03</p>
 
-                {/* 몇 주 만의 알림 — 잠금을 풀 이유가 화면 안에 있다 */}
+                {/* 몇 주 만의 알림: 잠금을 풀 이유가 화면 안에 있다 */}
                 <div className="mt-3 flex w-full items-center gap-2.5 rounded-xl bg-bone/10 px-3.5 py-2.5">
                   <ChatCircleDots size={20} weight="fill" className="shrink-0 text-memory" />
                   <div className="min-w-0">
@@ -161,7 +161,7 @@ export function PhoneLockMinigame({ onComplete, stage = "play" }: MinigameProps)
                   </div>
                 </div>
 
-                {/* 입력 자리 — 틀리면 흔들린다. 점은 장식이고, 자리 수·오답은
+                {/* 입력 자리: 틀리면 흔들린다. 점은 장식이고, 자리 수·오답은
                     아래 role="status" 줄과 키 소리가 읽어 준다 */}
                 <div
                   aria-hidden
@@ -231,7 +231,7 @@ export function PhoneLockMinigame({ onComplete, stage = "play" }: MinigameProps)
                   aria-label={t("minigame.phoneLock.sender")}
                   className="min-h-0 flex-1 overflow-y-auto bg-scene-navy px-3 py-3.5"
                 >
-                  {/* 보낸 날짜가 대화의 머리로 선다 — 그날 쓰인 문자라는 것이 이 화면의 전부다 */}
+                  {/* 보낸 날짜가 대화의 머리로 선다. 그날 쓰인 문자라는 것이 이 화면의 전부다 */}
                   <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
                     {t("minigame.phoneLock.dateSent")}
                   </p>
