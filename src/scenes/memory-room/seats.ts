@@ -104,6 +104,13 @@ const BED_STAND_OFF = 0.45;
 /** 침대 옆에서 올라서는 자리: 침대 발자국(BED_COLLIDER)에서 플레이어 반지름만큼 물러선 곳. */
 const BED_APPROACH: Vec2 = { x: BED_COLLIDER.minX - BED_STAND_OFF, z: BED_LIE_Z };
 /**
+ * 침대는 의자와 달리 길다. 다가갔는지를 옆면 한 점에서 재면 발치 쪽에 서 있는 사람은
+ * 베개 옆까지 붙어야 눌린다. 발자국 한가운데에서 재고, 반경은 발자국의 먼 모서리(약 2.6)에
+ * 한 걸음을 더한 값으로 잡아 어느 면에서든 한 걸음 안에서 켜지게 한다.
+ */
+const BED_NEAR: Vec2 = { x: BED_ORIGIN.x, z: (BED_COLLIDER.minZ + BED_COLLIDER.maxZ) / 2 };
+const BED_REACH = 3.5;
+/**
  * 눕기 전에 걸터앉는 자리. 매트리스 왼쪽 변(방 쪽)에 정강이를 걸치고 방 쪽(-x)을 보고
  * 앉는다. 의자와 같은 앞턱 규칙이라 엉덩이는 매트리스 위, 무릎 아래는 밖이다. 발은
  * 바닥에서 뜬다 (다른 좌면과 같다).
@@ -200,9 +207,8 @@ export const SEATS: Record<SeatId, Seat> = {
     perch: BED_PERCH,
     bodyY: BED_MATTRESS_TOP_Y,
     facing: 0,
-    // 침대 옆면 한가운데: 반대편(창가 쪽)은 벽이라 어차피 못 선다.
-    near: { x: BED_COLLIDER.minX, z: BED_LIE_Z },
-    reach: SEAT_REACH,
+    near: BED_NEAR,
+    reach: BED_REACH,
   },
   "sofa-left": sofaSeat("sofa-left", -10.28, SOFA_SIDE_SEAT_Y),
   "sofa-center": sofaSeat("sofa-center", -9.5, SOFA_CENTER_SEAT_Y),
