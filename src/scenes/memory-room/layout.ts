@@ -1,4 +1,5 @@
 import type { MemoryId } from "@/data/memory-room";
+import type { SeatId } from "@/types/seat";
 import { BED_COLLIDER } from "./bed";
 import type { Aabb2, CameraPreset, EulerTuple, MemoryPlacement, Vec3Tuple } from "./types";
 
@@ -111,14 +112,94 @@ export const DOORWAY_ZONE: Aabb2 = { minX: -7.4, maxX: -4.6, minZ: 4.7, maxZ: 6.
  * 비워 둔다. 나오자마자 소파에 끼거나, 엔딩 문 앞에 가구가 서 있으면 안 된다.
  * layout.test가 이 둘을 지킨다.
  */
+/**
+ * 거실 가구 배율. 실측 비율로 짠 가구(소파 2.8m, 냉장고 1.8m)가 10.5m 거실에서는
+ * 미니어처처럼 작아 보여 통째로 키운다. 배트(BAT_PLACEMENT)와 문은 제외.
+ *
+ * 부품 좌표는 LivingRoomFurniture에 1배 기준으로 남겨 두고, 그리는 쪽이 가구마다
+ * 정한 **바닥 기준점**(벽에 붙은 가구는 벽 면)을 축으로 키운다. 발자국·좌석·기억
+ * 좌표도 같은 기준점으로 같은 식(scaleLivingPoint)을 태워야 셋이 어긋나지 않는다.
+ */
+export const LIVING_FURNITURE_SCALE = 1.3;
+
+/**
+ * 가구별 바닥 기준점 [x, z]. 벽에 붙은 가구는 벽 면이라 키워도 벽에서 안 뜬다.
+ * 신발장은 현관문 쪽(+z) 끝을 잡는다. 가운데를 잡으면 커진 장이 문틀을 문다.
+ */
+export const LIVING_ANCHORS = {
+  sofa: [-9.5, -4],
+  tv: [-9.5, 6.5],
+  dining: [-13.8, 3.8],
+  shoeCabinet: [-16.5, 0.27],
+  fridge: [-15.32, -4],
+  piano: [-14.95, 6.5],
+} as const satisfies Record<string, readonly [number, number]>;
+
+/**
+ * 식탁 세트가 키운 뒤 서는 자리. 원래 자리(LIVING_ANCHORS.dining)에서 그대로 키우면
+ * 상판 모서리가 피아노 걸상과 물려서 방문 쪽·소파 쪽으로 조금 옮긴다.
+ */
+export const LIVING_DINING_CENTER = [-13.2, 3.4] as const;
+
+/** 기준점을 축으로 1배 좌표를 키운 값. `at`을 주면 키운 가구를 그 자리로 옮긴다. */
+export function scaleLivingPoint(
+  anchor: readonly [number, number],
+  x: number,
+  z: number,
+  at: readonly [number, number] = anchor,
+): [number, number] {
+  return [
+    at[0] + (x - anchor[0]) * LIVING_FURNITURE_SCALE,
+    at[1] + (z - anchor[1]) * LIVING_FURNITURE_SCALE,
+  ];
+}
+
+/** 높이는 바닥(y=0)을 축으로 키운다. */
+export function scaleLivingHeight(y: number): number {
+  return y * LIVING_FURNITURE_SCALE;
+}
+
+function scaleLivingAabb(
+  anchor: readonly [number, number],
+  box: Aabb2,
+  at: readonly [number, number] = anchor,
+): Aabb2 {
+  const [minX, minZ] = scaleLivingPoint(anchor, box.minX, box.minZ, at);
+  const [maxX, maxZ] = scaleLivingPoint(anchor, box.maxX, box.maxZ, at);
+  return { minX, maxX, minZ, maxZ };
+}
+
+/** 식탁 세트 안의 1배 자리를 키운 세트의 자리로. */
+function diningSpot(x: number, z: number): Vec3Tuple {
+  const [sx, sz] = scaleLivingPoint(LIVING_ANCHORS.dining, x, z, LIVING_DINING_CENTER);
+  return [sx, 0, sz];
+}
+
+/** 식탁 의자 셋의 자리. 둘은 제자리, 하나(도해 자리)는 빠져 나와 비스듬하다. */
+export const LIVING_DINING_CHAIRS = [
+  { seat: "dining-window", position: diningSpot(-14.5, 3.8), rotationY: Math.PI / 2 },
+  { seat: "dining-door", position: diningSpot(-13.1, 3.8), rotationY: -Math.PI / 2 },
+  { seat: "dining-pulled", position: diningSpot(-13.4, 2.62), rotationY: Math.PI + 0.5 },
+] as const satisfies readonly { seat: SeatId; position: Vec3Tuple; rotationY: number }[];
+
+/** 발자국은 1배 값을 적고 가구와 같은 기준점으로 키운다. 인형만 키운 소파 옆으로 손수 옮겼다. */
 export const LIVING_COLLIDERS = [
-  { minX: -10.95, maxX: -8.05, minZ: -4, maxZ: -2.2 }, // sofa
-  { minX: -10.75, maxX: -8.25, minZ: 5.9, maxZ: 6.5 }, // tv stand
-  { minX: -14.75, maxX: -12.85, minZ: 2.3, maxZ: 4.75 }, // dining table + chairs (빠진 의자 포함)
-  { minX: -16.5, maxX: -15.85, minZ: -1.7, maxZ: 0.35 }, // shoe cabinet
-  { minX: -15.85, maxX: -14.8, minZ: -4, maxZ: -3.2 }, // fridge (피아노에게 +z 벽을 내주고 -z 구석으로)
-  { minX: -15.75, maxX: -14.15, minZ: 5.15, maxZ: 6.5 }, // piano + 반쯤 빼놓은 의자
-  { minX: -12.35, maxX: -11.15, minZ: -3.9, maxZ: -2.7 }, // plush doll (소파 옆)
+  scaleLivingAabb(LIVING_ANCHORS.sofa, { minX: -10.95, maxX: -8.05, minZ: -4, maxZ: -2.2 }), // sofa
+  scaleLivingAabb(LIVING_ANCHORS.tv, { minX: -10.75, maxX: -8.25, minZ: 5.9, maxZ: 6.5 }), // tv stand
+  scaleLivingAabb(
+    LIVING_ANCHORS.dining,
+    { minX: -14.75, maxX: -12.85, minZ: 2.3, maxZ: 4.75 },
+    LIVING_DINING_CENTER,
+  ), // dining table + chairs (빠진 의자 포함)
+  scaleLivingAabb(LIVING_ANCHORS.shoeCabinet, {
+    minX: -16.5,
+    maxX: -15.85,
+    minZ: -1.7,
+    maxZ: 0.35,
+  }), // shoe cabinet
+  scaleLivingAabb(LIVING_ANCHORS.fridge, { minX: -15.85, maxX: -14.8, minZ: -4, maxZ: -3.2 }), // fridge (-z 구석)
+  scaleLivingAabb(LIVING_ANCHORS.piano, { minX: -15.75, maxX: -14.15, minZ: 5.15, maxZ: 6.5 }), // piano + 반쯤 빼놓은 의자
+  { minX: -13.0, maxX: -11.5, minZ: -4, maxZ: -2.35 }, // plush doll (소파 옆)
 ] as const satisfies readonly Aabb2[];
 
 /**
@@ -304,6 +385,12 @@ export const CLUE_PROPS = {
   },
 } as const;
 
+/** 거실 가구 위에 얹는 기억의 자리: 1배 좌표를 가구와 같은 기준점으로 키운다. */
+function livingSpot(anchor: readonly [number, number], x: number, y: number, z: number): Vec3Tuple {
+  const [sx, sz] = scaleLivingPoint(anchor, x, z);
+  return [sx, scaleLivingHeight(y), sz];
+}
+
 export const MEMORY_PLACEMENTS = {
   console: {
     id: "console",
@@ -410,51 +497,53 @@ export const MEMORY_PLACEMENTS = {
    * 준다. 판의 색은 밑에 깔린 가구와 같아서 눈에는 안 보이고, 빛날 때만 그 면이
    * 드러난다 (MemoryObjects의 FridgeDoor·CabinetDoor).
    *
-   * 좌표는 LivingRoomFurniture의 부품에서 파생된다. 거기 가구를 옮기면 여기도
-   * 같이 옮겨야 한다.
+   * 좌표는 LivingRoomFurniture의 부품에서 파생된다. 1배 값을 적고 가구와 같은
+   * 기준점(LIVING_ANCHORS)으로 키운다. 거기 가구를 옮기면 여기도 같이 옮겨야 한다.
    */
   fridge: {
     id: "fridge",
     // 냉장고 문 앞면(z -3.24)에서 5mm 앞. 냉동칸 경계(y 1.45) 아래 = 냉장실 문
-    position: [-15.32, 1.07, -3.235],
+    position: livingSpot(LIVING_ANCHORS.fridge, -15.32, 1.07, -3.235),
     rotation: [0, 0, 0],
-    scale: 1,
+    scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.5,
   },
   duffel: {
     id: "duffel",
-    // 소파 앞 바닥에 던져둔 야구 가방. 사방이 트여 있어 다가가기 쉽다.
-    // 클릭 구는 가방(길이 0.62)만 덮는 0.7: 1.3이면 소파 왼쪽 쿠션까지 덮어 앉지 못한다
-    position: [-9.5, 0.2, -1.75],
+    // 소파 앞 바닥에 던져둔 야구 가방. 사방이 트여 있어 다가가기 쉽다. 키운 소파의
+    // 앞턱(z -2.25)에서 한 걸음 앞: 붙이면 클릭 구가 가운데 쿠션의 앉는 자리를 문다.
+    // 몸통 반지름(0.19×배율)만큼 띄워 바닥에 얹는다.
+    // 클릭 구는 가방(길이 0.8)만 덮는 0.7: 1.3이면 소파 왼쪽 쿠션까지 덮어 앉지 못한다
+    position: [-9.5, 0.19 * LIVING_FURNITURE_SCALE + 0.01, -1.25],
     rotation: [0, 0.42, 0],
-    scale: 1,
+    scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.3,
     hitRadius: 0.7,
   },
   shoes: {
     id: "shoes",
     // 신발장 문 앞면(x -15.91)에서 5mm 앞
-    position: [-15.905, 0.55, -0.68],
+    position: livingSpot(LIVING_ANCHORS.shoeCabinet, -15.905, 0.55, -0.68),
     rotation: [0, Math.PI / 2, 0],
-    scale: 1,
+    scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.45,
   },
   cards: {
     id: "cards",
     // 식탁 상판 윗면(0.975) 위에 펼쳐진 판. 상판 중심과 같은 자리다.
     // 클릭 구는 판만 덮는 0.6: 1.9면 양끝 의자까지 덮어 앉으려는 클릭이 트럼프로 간다
-    position: [-13.8, 0.975, 3.8],
+    position: [LIVING_DINING_CENTER[0], scaleLivingHeight(0.975), LIVING_DINING_CENTER[1]],
     rotation: [0, 0, 0],
-    scale: 1,
+    scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.9,
     hitRadius: 0.6,
   },
   ampoule: {
     id: "ampoule",
     // 냉장고 아래칸. "손대지 마"라던 그 칸이다. 냉장실 문 테두리(y 0.72~1.42) 아래
-    position: [-15.32, 0.43, -3.235],
+    position: livingSpot(LIVING_ANCHORS.fridge, -15.32, 0.43, -3.235),
     rotation: [0, 0, 0],
-    scale: 1,
+    scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.5,
   },
 } as const satisfies Record<MemoryId, MemoryPlacement>;
@@ -505,9 +594,10 @@ export const CAMERA_PRESETS = {
    * 거실 물건들. 방과 같은 방향(+x·+z)에서 본다. 공간이 바뀔 때 카메라가 반대편으로
    * 돌아가면 "옆 방으로 걸어갔다"가 아니라 "다른 씬으로 잘렸다"로 읽힌다.
    */
-  fridge: { position: [-12.7, 3.0, -0.7], target: [-15.32, 1.15, -3.24] },
-  duffel: { position: [-6.9, 2.2, 0.9], target: [-9.5, 0.3, -1.75] },
-  shoes: { position: [-13.2, 2.5, 1.5], target: [-15.91, 0.6, -0.68] },
-  cards: { position: [-11.1, 2.6, 6.2], target: [-13.8, 1.0, 3.8] },
-  ampoule: { position: [-13.0, 2.4, -1.0], target: [-15.32, 0.45, -3.24] },
+  // 거실 기억의 시선은 키운 가구의 자리(MEMORY_PLACEMENTS)를 본다
+  fridge: { position: [-12.7, 3.2, -0.5], target: [-15.32, 1.5, -3.0] },
+  duffel: { position: [-6.9, 2.2, 1.3], target: [-9.5, 0.3, -1.25] },
+  shoes: { position: [-13.2, 2.6, 1.3], target: [-15.73, 0.75, -0.97] },
+  cards: { position: [-10.6, 2.8, 6.0], target: [-13.2, 1.3, 3.4] },
+  ampoule: { position: [-13.0, 2.4, -0.8], target: [-15.32, 0.6, -3.0] },
 } as const satisfies Record<"room" | "ending" | MemoryId, CameraPreset>;

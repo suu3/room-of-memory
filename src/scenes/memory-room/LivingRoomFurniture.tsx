@@ -2,11 +2,18 @@
 
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
-import { useRef } from "react";
+import { type ReactNode, useRef } from "react";
 import type { Group } from "three";
 import { ASSETS } from "@/lib/assets";
 import type { SeatId } from "@/types/seat";
 import { FurnitureModel } from "./FurnitureModel";
+import {
+  LIVING_ANCHORS,
+  LIVING_DINING_CENTER,
+  LIVING_DINING_CHAIRS,
+  LIVING_FURNITURE_SCALE,
+  scaleLivingPoint,
+} from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
@@ -15,6 +22,10 @@ import { useSeat, useSeatPull } from "./use-seat";
 /**
  * 거실 가구 (docs/content-design.md 3-1). 전부 박스 조합: 방(RoomFurniture)과
  * 같은 문법이라야 문 하나 건넌 같은 집으로 읽힌다.
+ *
+ * 부품 좌표는 전부 **1배** 기준이다. 그리는 쪽이 가구마다 바닥 기준점(layout의
+ * LIVING_ANCHORS)을 축으로 LIVING_FURNITURE_SCALE만큼 키운다 (LivingPiece).
+ * 발자국·좌석·기억 좌표도 같은 기준점으로 키우므로 여기 수를 옮기면 거기도 같이.
  *
  * 거실은 셋이 쓰던 공간이고, 가구가 그 부재를 말한다:
  * 소파의 눌린 자리, 꺼진 TV, 의자 하나가 빠진 식탁, 한 켤레만 남은 신발장.
@@ -36,6 +47,27 @@ interface BoxPart {
   size: Vec3Tuple;
   position: Vec3Tuple;
   color: keyof RoomPalette;
+}
+
+/**
+ * 가구 하나를 바닥 기준점을 축으로 키운다. 바깥 그룹이 기준점에 서서 배율을 걸고,
+ * 안쪽 그룹이 1배 좌표계를 기준점 원점으로 끌어온다. `at`을 주면 키운 가구가 그
+ * 자리로 옮겨 선다 (식탁).
+ */
+function LivingPiece({
+  anchor,
+  at = anchor,
+  children,
+}: {
+  anchor: readonly [number, number];
+  at?: readonly [number, number];
+  children: ReactNode;
+}) {
+  return (
+    <group position={[at[0], 0, at[1]]} scale={LIVING_FURNITURE_SCALE}>
+      <group position={[-anchor[0], 0, -anchor[1]]}>{children}</group>
+    </group>
+  );
 }
 
 function Boxes({ parts, palette }: { parts: readonly BoxPart[]; palette: RoomPalette }) {
@@ -96,8 +128,16 @@ const TABLE_PARTS = [
   { size: [0.14, 0.9, 0.14], position: [-13.1, 0.45, 4.5], color: "frame" },
 ] as const satisfies readonly BoxPart[];
 
+/** 식탁 세트 안의 1배 XZ를 키운 세트의 월드 좌표로. */
+function diningWorld(x: number, z: number): [number, number] {
+  return scaleLivingPoint(LIVING_ANCHORS.dining, x, z, LIVING_DINING_CENTER);
+}
+const [DINING_TOP_MIN_X, DINING_TOP_MIN_Z] = diningWorld(-14.6, 3.0);
+const [DINING_TOP_MAX_X, DINING_TOP_MAX_Z] = diningWorld(-13.0, 4.6);
+
 /**
  * 식탁 상판의 발자국과 의자 배치: 겹침 검사가 보는 값 (LivingRoomFurniture.test.ts).
+ * 전부 키운 뒤의 월드 좌표다.
  *
  * 의자 등받이(y 0.62~1.12)는 상판 슬래브(y 0.885~0.975)와 높이가 겹치므로, 등받이
  * 발자국이 상판 발자국 안에 들어오면 그대로 관통한다. 실제로 세 의자 전부 등받이가
@@ -106,15 +146,20 @@ const TABLE_PARTS = [
  */
 export const DINING_SET = {
   /** 상판 슬래브의 XZ 발자국 (TABLE_PARTS 첫 항목에서 파생) */
-  tableTop: { minX: -14.6, maxX: -13.0, minZ: 3.0, maxZ: 4.6 },
-  /** 등받이의 로컬 기하: CHAIR_PART_TEMPLATE 두 번째 항목에서 파생 */
-  backrest: { halfWidth: 0.22, halfThickness: 0.035, offsetZ: -0.21 },
-  /** 의자 셋: 둘은 제자리, 하나(도해 자리)는 빠져 나와 비스듬하다 */
-  chairs: [
-    { seat: "dining-window", position: [-14.5, 0, 3.8], rotationY: Math.PI / 2 },
-    { seat: "dining-door", position: [-13.1, 0, 3.8], rotationY: -Math.PI / 2 },
-    { seat: "dining-pulled", position: [-13.4, 0, 2.62], rotationY: Math.PI + 0.5 },
-  ],
+  tableTop: {
+    minX: DINING_TOP_MIN_X,
+    maxX: DINING_TOP_MAX_X,
+    minZ: DINING_TOP_MIN_Z,
+    maxZ: DINING_TOP_MAX_Z,
+  },
+  /** 등받이의 로컬 기하: CHAIR_PART_TEMPLATE 두 번째 항목에서 파생, 의자 배율을 곱한 값 */
+  backrest: {
+    halfWidth: 0.22 * LIVING_FURNITURE_SCALE,
+    halfThickness: 0.035 * LIVING_FURNITURE_SCALE,
+    offsetZ: -0.21 * LIVING_FURNITURE_SCALE,
+  },
+  /** 의자 셋: 둘은 제자리, 하나(도해 자리)는 빠져 나와 비스듬하다 (layout) */
+  chairs: LIVING_DINING_CHAIRS,
 } as const;
 
 /** 의자 한 벌: 좌판·등받이·다리 네 개. 원점이 좌판 중심이라 통째로 옮긴다. */
@@ -132,6 +177,9 @@ const CHAIR_PART_TEMPLATE = [
  * 식탁 의자 한 벌. 누르면 다가간 사람이 앉는다. 상판 밑으로 밀어 넣은 둘은 앉는 김에
  * 뒤로 빠진다 (seats.ts의 pull). 상판 윗면이 캐릭터 가슴 높이라, 안 빼면 몸이 상판을
  * 뚫고 앉는다.
+ *
+ * 자리(position)는 이미 키운 월드 좌표라 LivingPiece 밖에 선다. 빠지는 양(pull)이
+ * 월드 단위라 배율 그룹 안에 두면 그만큼 더 빠진다. 배율은 의자 원점(좌판 중심의 바닥)에 건다.
  */
 function Chair({
   palette,
@@ -149,7 +197,13 @@ function Chair({
   useSeatPull(groupRef, seat, { x: position[0], z: position[2], rotationY });
 
   return (
-    <group ref={groupRef} position={position} rotation={[0, rotationY, 0]} {...handlers}>
+    <group
+      ref={groupRef}
+      position={position}
+      rotation={[0, rotationY, 0]}
+      scale={LIVING_FURNITURE_SCALE}
+      {...handlers}
+    >
       <MemoryGlowSelection selectionKey={seat} tier="prop" enabled={glowing}>
         <Boxes parts={CHAIR_PART_TEMPLATE} palette={palette} />
       </MemoryGlowSelection>
@@ -264,22 +318,32 @@ const PIANO_BENCH_PARTS = [
  * 원래는 박스로 짜맞춘 곰인형이었다. 방의 다른 소품처럼 모델이 들어오면서 갈아끼웠고,
  * 자리·발자국(LIVING_COLLIDERS의 plush)은 그대로 물려받았다.
  *
- * 배율은 인형 키(모델 3.17)를 1.5로 맞춘 값이다. 캐릭터(1.55)와 눈높이가 맞아야
- * "커다란 인형"으로 읽힌다. 그 크기에서 발자국은 0.94×0.80이고, 살짝 튼 각(0.35)까지
- * 치면 1.16×1.07이라 LIVING_COLLIDERS의 plush 칸(1.2×1.2)이 그걸 덮는다. 튼 것은
- * 진열이 아니라 놓아둔 것으로 보이게 하는 몫이다.
+ * 배율은 인형 키(모델 3.17)를 1.5로 맞춘 0.474에 거실 배율을 곱한 값이다. 캐릭터(1.55)보다
+ * 커야 다른 가구와 같은 비율로 "커다란 인형"으로 읽힌다. 그 크기에서 발자국은 1.22×1.04이고,
+ * 살짝 튼 각(0.35)까지 치면 1.5×1.4이라 LIVING_COLLIDERS의 plush 칸이 그걸 덮는다. 튼 것은
+ * 진열이 아니라 놓아둔 것으로 보이게 하는 몫이다. 자리는 키운 소파의 팔걸이(x -11.32) 옆.
  */
-const PLUSH_PLACEMENT = { position: [-11.75, 0, -3.3] as Vec3Tuple, rotationY: 0.35, scale: 0.474 };
+const PLUSH_PLACEMENT = {
+  position: [-12.25, 0, -3.1] as Vec3Tuple,
+  rotationY: 0.35,
+  scale: 0.474 * LIVING_FURNITURE_SCALE,
+};
 
 export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
   return (
     <group name="living-room-furniture">
-      <Boxes parts={SOFA_PARTS} palette={palette} />
-      {SOFA_CUSHIONS.map((cushion) => (
-        <SofaCushion key={cushion.seat} palette={palette} cushion={cushion} />
-      ))}
-      <Boxes parts={TV_PARTS} palette={palette} />
-      <Boxes parts={TABLE_PARTS} palette={palette} />
+      <LivingPiece anchor={LIVING_ANCHORS.sofa}>
+        <Boxes parts={SOFA_PARTS} palette={palette} />
+        {SOFA_CUSHIONS.map((cushion) => (
+          <SofaCushion key={cushion.seat} palette={palette} cushion={cushion} />
+        ))}
+      </LivingPiece>
+      <LivingPiece anchor={LIVING_ANCHORS.tv}>
+        <Boxes parts={TV_PARTS} palette={palette} />
+      </LivingPiece>
+      <LivingPiece anchor={LIVING_ANCHORS.dining} at={LIVING_DINING_CENTER}>
+        <Boxes parts={TABLE_PARTS} palette={palette} />
+      </LivingPiece>
       {/* 배치는 DINING_SET.chairs: 상판·다리와의 간격을 테스트가 지키는 값이다 */}
       {DINING_SET.chairs.map((chair) => (
         <Chair
@@ -290,10 +354,16 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
           rotationY={chair.rotationY}
         />
       ))}
-      <Boxes parts={SHOE_CABINET_PARTS} palette={palette} />
-      <Boxes parts={FRIDGE_PARTS} palette={palette} />
-      <Boxes parts={PIANO_PARTS} palette={palette} />
-      <PianoBench palette={palette} />
+      <LivingPiece anchor={LIVING_ANCHORS.shoeCabinet}>
+        <Boxes parts={SHOE_CABINET_PARTS} palette={palette} />
+      </LivingPiece>
+      <LivingPiece anchor={LIVING_ANCHORS.fridge}>
+        <Boxes parts={FRIDGE_PARTS} palette={palette} />
+      </LivingPiece>
+      <LivingPiece anchor={LIVING_ANCHORS.piano}>
+        <Boxes parts={PIANO_PARTS} palette={palette} />
+        <PianoBench palette={palette} />
+      </LivingPiece>
       <FurnitureModel
         path={ASSETS.models.rabbitDoll}
         position={PLUSH_PLACEMENT.position}

@@ -1,6 +1,15 @@
 import type { SeatId } from "@/types/seat";
 import { BED_COLLIDER, BED_MATTRESS, BED_ORIGIN, BED_PILLOW } from "./bed";
-import { CHAIR_POSITION, CHAIR_PULL, CHAIR_SEAT } from "./layout";
+import {
+  CHAIR_POSITION,
+  CHAIR_PULL,
+  CHAIR_SEAT,
+  LIVING_ANCHORS,
+  LIVING_DINING_CHAIRS,
+  LIVING_FURNITURE_SCALE,
+  scaleLivingHeight,
+  scaleLivingPoint,
+} from "./layout";
 import { LIE_HEAD, LIE_TILT, SIT_CONTACT_Y, SIT_LEG_Z } from "./player-rig";
 import type { Vec2 } from "./spatial";
 
@@ -123,28 +132,40 @@ const BED_PERCH = {
 } as const;
 
 /*
+ * 거실 가구는 1배 좌표를 적고 layout의 LIVING_FURNITURE_SCALE로 키운다 (LIVING_ANCHORS 주석).
+ * 여기도 1배 값을 적고 같은 기준점으로 키운다. 좌면 높이는 바닥을 축으로 배율만 곱한다.
+ */
+
+/*
  * ── 거실: 소파 ──────────────────────────────────────────────────
  *
  * 쿠션 셋 (LivingRoomFurniture의 SOFA_PARTS). 가운데는 눌린 자리라 좌면이 낮다.
  * 앞턱은 쿠션(-2.67)이 아니라 **몸통 앞면(-2.65)** 이다. 늘어진 다리가 스치는 건 몸통이다.
  */
-const SOFA_CUSHION_Z = -3.08;
-const SOFA_FRONT_Z = -2.65;
+const [, SOFA_CUSHION_Z] = scaleLivingPoint(LIVING_ANCHORS.sofa, -9.5, -3.08);
+const [, SOFA_FRONT_Z] = scaleLivingPoint(LIVING_ANCHORS.sofa, -9.5, -2.65);
 const SOFA_HALF_DEPTH = SOFA_FRONT_Z - SOFA_CUSHION_Z;
-const SOFA_SIDE_SEAT_Y = 0.6;
+const SOFA_SIDE_SEAT_Y = scaleLivingHeight(0.6);
 /** 아빠 자리. 오래 눌린 쿠션이라 6cm 낮다. 앉으면 그만큼 내려앉는다. */
-const SOFA_CENTER_SEAT_Y = 0.54;
+const SOFA_CENTER_SEAT_Y = scaleLivingHeight(0.54);
+/** 쿠션 셋의 x: 1배 좌표를 소파 기준점으로 키운다. */
+const sofaCushionX = (x: number) => scaleLivingPoint(LIVING_ANCHORS.sofa, x, -3.08)[0];
 
 /*
  * ── 거실: 식탁 의자 ──────────────────────────────────────────────
  *
- * 배치는 DINING_SET.chairs, 좌면은 CHAIR_PART_TEMPLATE 첫 항목(0.56 + 0.035, 0.44×0.44).
+ * 배치는 layout의 LIVING_DINING_CHAIRS, 좌면은 CHAIR_PART_TEMPLATE 첫 항목(0.56 + 0.035, 0.44×0.44).
  * 상판 윗면이 0.975라 캐릭터 가슴 높이다. 밀어 넣은 두 개는 빼지 않으면 상판이 몸을 가른다.
  */
-const DINING_HALF_DEPTH = 0.22;
-const DINING_SEAT_Y = 0.595;
-/** 상판 모서리(x -14.6 / -13.0) 밖으로 몸통이 나가는 거리: 어깨 반폭 뒤로 0.18 여유. */
-const DINING_PULL = 0.8;
+const DINING_HALF_DEPTH = 0.22 * LIVING_FURNITURE_SCALE;
+const DINING_SEAT_Y = scaleLivingHeight(0.595);
+/** 상판 모서리(중심에서 0.8) 밖으로 몸통이 나가는 거리: 어깨 반폭 뒤로 0.18 여유. */
+const DINING_PULL = 0.8 * LIVING_FURNITURE_SCALE;
+function diningChairCenter(seat: (typeof LIVING_DINING_CHAIRS)[number]["seat"]): Vec2 {
+  const chair = LIVING_DINING_CHAIRS.find((entry) => entry.seat === seat);
+  if (!chair) throw new Error(`no dining chair for seat ${seat}`);
+  return { x: chair.position[0], z: chair.position[2] };
+}
 
 /*
  * ── 거실: 피아노 의자 ────────────────────────────────────────────
@@ -152,9 +173,10 @@ const DINING_PULL = 0.8;
  * PIANO_PARTS의 걸상(0.52 + 0.05, 앞뒤 0.34). 얕아서 엉덩이가 뒤로 조금 나가지만,
  * 무릎은 건반 뚜껑(y 0.85~0.99) 아래로 들어간다. 피아노 앞에 앉은 그림 그대로다.
  */
-const PIANO_BENCH_CENTER: Vec2 = { x: -14.95, z: 5.38 };
-const PIANO_BENCH_HALF_DEPTH = 0.17;
-const PIANO_BENCH_SEAT_Y = 0.57;
+const [PIANO_BENCH_X, PIANO_BENCH_Z] = scaleLivingPoint(LIVING_ANCHORS.piano, -14.95, 5.38);
+const PIANO_BENCH_CENTER: Vec2 = { x: PIANO_BENCH_X, z: PIANO_BENCH_Z };
+const PIANO_BENCH_HALF_DEPTH = 0.17 * LIVING_FURNITURE_SCALE;
+const PIANO_BENCH_SEAT_Y = scaleLivingHeight(0.57);
 
 function sofaSeat(id: SeatId, x: number, seatY: number): Seat {
   const center: Vec2 = { x, z: SOFA_CUSHION_Z };
@@ -210,13 +232,23 @@ export const SEATS: Record<SeatId, Seat> = {
     near: BED_NEAR,
     reach: BED_REACH,
   },
-  "sofa-left": sofaSeat("sofa-left", -10.28, SOFA_SIDE_SEAT_Y),
-  "sofa-center": sofaSeat("sofa-center", -9.5, SOFA_CENTER_SEAT_Y),
-  "sofa-right": sofaSeat("sofa-right", -8.72, SOFA_SIDE_SEAT_Y),
+  "sofa-left": sofaSeat("sofa-left", sofaCushionX(-10.28), SOFA_SIDE_SEAT_Y),
+  "sofa-center": sofaSeat("sofa-center", sofaCushionX(-9.5), SOFA_CENTER_SEAT_Y),
+  "sofa-right": sofaSeat("sofa-right", sofaCushionX(-8.72), SOFA_SIDE_SEAT_Y),
   // 창 쪽·문 쪽 둘은 상판 밑에 들어가 있고, 셋째는 이미 빠져 나와 등을 돌린 채다.
-  "dining-window": diningSeat("dining-window", { x: -14.5, z: 3.8 }, Math.PI / 2, true),
-  "dining-door": diningSeat("dining-door", { x: -13.1, z: 3.8 }, -Math.PI / 2, true),
-  "dining-pulled": diningSeat("dining-pulled", { x: -13.4, z: 2.62 }, Math.PI + 0.5, false),
+  "dining-window": diningSeat(
+    "dining-window",
+    diningChairCenter("dining-window"),
+    Math.PI / 2,
+    true,
+  ),
+  "dining-door": diningSeat("dining-door", diningChairCenter("dining-door"), -Math.PI / 2, true),
+  "dining-pulled": diningSeat(
+    "dining-pulled",
+    diningChairCenter("dining-pulled"),
+    Math.PI + 0.5,
+    false,
+  ),
   "piano-bench": {
     id: "piano-bench",
     space: "living",
