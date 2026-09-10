@@ -15,8 +15,6 @@ export interface RoomPalette {
   /* ── 재질 ── */
   /** 벽 (깊은 네이비) */
   wall: string;
-  /** 포스터를 떼어낸 자국: 벽보다 한 톤 밝다 */
-  wallFaded: string;
   /** 바닥 (벽보다 밝은 슬레이트) */
   floor: string;
   /** 책상·의자·선반·침대 프레임 */
@@ -54,7 +52,6 @@ const TOKEN_BY_KEY = {
   memory: "--color-memory",
   ember: "--color-ember",
   wall: "--color-scene-wall",
-  wallFaded: "--color-scene-wall-faded",
   floor: "--color-scene-floor",
   wood: "--color-scene-wood",
   frame: "--color-scene-frame",
@@ -82,7 +79,6 @@ const FALLBACK: Record<keyof RoomPalette, string> = {
   memory: "#d5ae78",
   ember: "#b8655a",
   wall: "#34465e",
-  wallFaded: "#3d5069",
   floor: "#626c7d",
   wood: "#998572",
   frame: "#354052",

@@ -15,7 +15,6 @@ const TEST_PALETTE = {
   memory: "#d5ae78",
   ember: "#b8655a",
   wall: "#34465e",
-  wallFaded: "#3d5069",
   floor: "#626c7d",
   wood: "#998572",
   frame: "#354052",

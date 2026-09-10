@@ -127,25 +127,6 @@ function leftPoster(
 }
 
 /**
- * 포스터를 떼어낸 자리. 볕에 바래지 않아 벽(slate)보다 한 톤 밝게 남는다.
- * 이 방에서 시간이 흘렀다는 걸 말없이 알리는 장치라 일부러 비워 둔다.
- * mist(#16212C)로 잡았다가 되돌렸다. 벽보다 어두워서 자국이 아니라 그늘로 보였다.
- */
-const BACK_FADED_MARKS = [
-  backWall(-1.15, 2.45, 0.92, 1.2, "wallFaded"),
-  backWall(6.5, 1.65, 1.05, 1.35, "wallFaded"),
-] as const satisfies readonly DecorBox[];
-
-/**
- * 왼쪽 벽 자국. 예전에는 z=1.95에 있었는데 그 자리가 포스터(z 1.9~3.4)와 겹쳤다.
- * 둘 다 벽면에서 같은 두께(0.04)로 튀어나와 앞면이 정확히 같은 평면에 놓이는 바람에
- * 프레임마다 어느 쪽이 앞인지 뒤집히며 깜빡였다. 포스터 왼쪽 빈자리로 물린다.
- */
-const LEFT_FADED_MARKS = [
-  leftWall(0.35, 1.5, 1.15, 1.45, "wallFaded"),
-] as const satisfies readonly DecorBox[];
-
-/**
  * 창 왼쪽·오른쪽 벽면. 창(x -0.27~2.57)과 선반(x 3.3~5.4)을 피해 배치한다.
  *
  * 색면은 벽(slate)보다 반드시 밝아야 한다. navy로 깔았더니 벽과 붙어버려서
@@ -195,18 +176,16 @@ const FRONT_WALL_DECOR = [
   frontWall(-1.4, 2.32, 0.1, 0.14, "trim", 0.06),
   frontWall(-0.95, 2.32, 0.1, 0.14, "trim", 0.06),
   frontWall(-1.4, 1.72, 0.72, 1.06, "fabric", 0.09),
-  frontWall(1.6, 1.9, 0.85, 1.1, "wallFaded"),
 ] as const satisfies readonly DecorBox[];
 
 /**
- * 오른쪽 벽: 침대 머리 쪽. 야구 스코어보드를 흉내 낸 판과 빛바랜 자국.
+ * 오른쪽 벽: 침대 머리 쪽. 야구 스코어보드를 흉내 낸 판.
  */
 const RIGHT_WALL_DECOR = [
   rightWall(2.4, 3.05, 2.0, 1.15, "linen"),
   rightWall(2.4, 3.05, 1.86, 1.01, "frame", 0.06),
   rightWall(2.4, 3.28, 1.6, 0.14, "linen", 0.08),
   rightWall(2.4, 2.9, 1.6, 0.14, "linen", 0.08),
-  rightWall(-1.5, 2.5, 1.0, 1.3, "wallFaded"),
 ] as const satisfies readonly DecorBox[];
 
 /**
@@ -258,8 +237,8 @@ function ShelfBook({
  * (RoomDecor.test.ts: 같은 벽에서 화면상 겹치는 판은 두께가 달라야 한다).
  */
 export const DECOR_BY_WALL = {
-  back: [...BACK_FADED_MARKS, ...BACK_POSTERS, ...PHOTO_STRIP, ...PENNANT],
-  left: [...LEFT_FADED_MARKS, ...LEFT_POSTERS, ...WALL_FITTINGS],
+  back: [...BACK_POSTERS, ...PHOTO_STRIP, ...PENNANT],
+  left: [...LEFT_POSTERS, ...WALL_FITTINGS],
   front: FRONT_WALL_DECOR,
   right: RIGHT_WALL_DECOR,
 } as const satisfies Record<WallSide, readonly DecorBox[]>;
