@@ -11,10 +11,13 @@ import {
 } from "@/store/memory-room";
 
 /**
- * 지금 뭘 하면 되는지 한 줄. 화면 위 가운데, 혼잣말 바로 위에 알약으로 선다.
+ * 지금 뭘 하면 되는지 한 줄. 화면 위 가운데, 혼잣말 바로 아래에 작은 캡션으로 선다.
  *
- * 왼쪽 위 진행 바 밑에 두면 넓은 화면에서 구석에 묻혀 눈에 안 띄고, 폰에서는
- * 헤더가 길어져 혼잣말과 포개진다. 가운데 기둥(MemoryRoom)에 혼잣말과 함께 세운다.
+ * 왼쪽 위 진행 바 밑에 두면 넓은 화면에서 구석에 묻히고, 폰에서는 헤더가 길어져
+ * 혼잣말과 포개진다. 그래서 가운데 기둥(MemoryRoom)에 혼잣말과 함께 세운다.
+ * 다만 혼잣말보다 앞에 나서면 안 된다. 이 줄은 조작 안내라 감정을 말하는 혼잣말
+ * 아래에 놓이고, 알약(테두리·배경) 없이 회색 글자와 그림자만으로 선다. 아이콘도
+ * 앰버가 아니라 같은 회색이다. 앰버는 선택·진행에만 쓴다.
  *
  * 혼잣말(Monologue)이 감정을 말한다면 이 줄은 조작을 말한다. 막의 경계마다
  * 문구가 바뀐다: 조사 → 방문 → 재조사 → 배트 → 현관. 어느 물건인지는 짚지 않는다.
@@ -51,16 +54,11 @@ export function HudGuide({ hidden = false }: { hidden?: boolean }) {
     <p
       role="status"
       aria-hidden={hidden}
-      className={`pointer-events-none inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-1.5 text-xs font-medium text-fog shadow-chip transition-opacity duration-300 sm:px-4 sm:py-2 sm:text-sm ${
+      className={`monologue-text pointer-events-none inline-flex max-w-full items-center gap-1.5 text-xs font-medium text-fog transition-opacity duration-300 sm:text-[0.8125rem] ${
         hidden ? "opacity-0" : "opacity-100"
       }`}
     >
-      <Icon
-        size={16}
-        weight="bold"
-        className="size-3.5 shrink-0 text-memory sm:size-4"
-        aria-hidden
-      />
+      <Icon size={14} weight="bold" className="shrink-0" aria-hidden />
       <span className="break-ko">{hint(key)}</span>
     </p>
   );
