@@ -49,14 +49,6 @@ export const CHIP_IDLE_PAPER =
 export const HUD_ICON_BUTTON = `grid size-11 cursor-pointer place-items-center rounded-full border border-transparent text-ivory/85 transition-colors duration-150 hover:border-line hover:bg-surface-subtle hover:text-ivory active:bg-surface ${FOCUS_RING}`;
 export const HUD_ICON_BUTTON_SOLID = `grid size-11 cursor-pointer place-items-center rounded-full border border-line bg-surface text-ivory/85 transition-colors duration-150 hover:bg-surface-strong hover:text-ivory active:bg-surface-strong ${FOCUS_RING}`;
 
-/**
- * HUD 틀: 화면 귀퉁이에 붙는 HUD(제목·진행, 메뉴 버튼, 혼잣말)의 좌표계. 뷰포트 가운데에
- * 최대 1440px로 서서, 넓은 모니터에서도 HUD가 방 곁에 남는다. 자기는 클릭을 받지 않고
- * (pointer-events-none) 버튼 쪽에서만 다시 켠다. transform으로 가운데를 잡지 않는다:
- * stacking context가 생기면 안의 z-30 드롭다운이 밖의 레이어 밑에 깔린다.
- */
-export const HUD_FRAME = "pointer-events-none absolute inset-x-0 inset-y-0 mx-auto max-w-[1440px]";
-
 /** 어두운 패널 안 목록 항목 */
 export const MENU_ITEM = `flex w-full cursor-pointer items-center rounded-sm px-3 py-2 text-left text-sm font-medium text-fog transition-colors duration-150 hover:bg-ivory/8 hover:text-ivory active:bg-ivory/12 ${FOCUS_RING}`;
 /** 패널 안 구역 라벨 */
