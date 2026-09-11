@@ -27,7 +27,8 @@ export const ASSETS = {
     cupNoodleTrash: "/assets/models/room-cup-noodle-trash.glb?v=20260910-upright2",
     studentBookshelf: "/assets/models/room-student-bookshelf.glb?v=20260910",
     rug: "/assets/models/room-rug.glb",
-    pottedPlant: "/assets/models/room-potted-plant.glb",
+    /** 둥근 선인장과 도자기 화분. 재생성: scripts/create-cactus.mjs */
+    pottedPlant: "/assets/models/room-potted-cactus.glb?v=20260911",
     /**
      * 침대: 프레임·매트리스·베개·이불 한 모델 (사용자 제공, Meshopt 압축). 재질이 없어
      * 코드가 부품 노드 이름(frame·mattress·headboard·base·footboard·pillow·blanket)으로

@@ -13,6 +13,7 @@
 | images/mg-ball-catch-impact.webp | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-frequency-tune-frame.webp | 사용자가 직접 넣은 라디오 일러스트(2026-08-04). 흰 배경·표시창을 알파로 도려낸 뒤 webp로 변환 | 미기재 (사용자 제공) | 미기재 |
 | images/mg-window-view-outside.webp | 사용자가 직접 넣은 창밖 일러스트(2026-08-04). webp로 변환 | 미기재 (사용자 제공) | 미기재 |
+| models/room-potted-cactus.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-11). 원본: scripts/create-cactus.mjs. 외부 모델·텍스처 사용 없음. DESIGN.md 씬 팔레트, Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
 | models/room-snack-bag.glb, models/room-study-papers.glb, models/room-cup-noodle-trash.glb, models/room-student-bookshelf.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-10). 원본: scripts/create-student-props.mjs. DESIGN.md 씬 팔레트, 자체 작성한 가상 문제집·모의고사·컵라면·과자봉지 인쇄, Meshopt 압축 및 내장 WebP | Codex | 프로젝트 생성 에셋 |
 | models/room-bed.glb | 프로젝트 제작자가 직접 만든 침대 모델(2026-09-08, 프레임·매트리스·베개·이불 + 이불 shape key `folded`). 재질이 없어 코드가 부품 이름으로 팔레트색을 입힌다. 블렌더 자동 이름(Cube·Plane…)을 부품 이름으로 바꾸고 계층을 펴고 밑면을 y=0에 맞춘 뒤 Meshopt 압축 (413KB → 127KB). 이전의 room-pillow.glb(같은 제작자의 베개)를 흡수 | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
 | models/ch1-gamepad.glb | 프로젝트 제작자가 직접 만든 게임패드 모델(2026-09-06). `pnpm model:prep`으로 밑면을 y=0에 맞추고 Meshopt 압축 (835KB → 167KB). 세워진 자세로 내보내져 씬에서 눕힌다 | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
