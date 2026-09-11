@@ -38,9 +38,9 @@ export function SoundToggle() {
       className={`${HUD_ICON_BUTTON} ${soundMuted ? "text-ash" : ""}`}
     >
       {soundMuted ? (
-        <SpeakerSimpleSlash size={20} weight="bold" />
+        <SpeakerSimpleSlash size="1.25em" weight="bold" />
       ) : (
-        <SpeakerSimpleHigh size={20} weight="bold" />
+        <SpeakerSimpleHigh size="1.25em" weight="bold" />
       )}
     </button>
   );

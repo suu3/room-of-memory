@@ -42,11 +42,12 @@ export const CHIP_IDLE_PAPER =
   "border-ink/15 text-graphite hover:border-ink/40 hover:text-ink active:bg-ink/5";
 
 /**
- * HUD 아이콘 버튼: 18~20px 아이콘, 44px 조작 영역. 장면 위에 밝은 덩어리로 떠다니지
+ * HUD 아이콘 버튼: 폰에서 20px 아이콘·44px 조작 영역, 넓은 화면에서는 --text-hud를 따라
+ * 최대 27px·60px까지 커진다 (아이콘은 size="1.25em"). 장면 위에 밝은 덩어리로 떠다니지
  * 않게 배경은 hover·열림 때만 옅은 네이비로 깔린다. 항상 떠 있어야 하는 닫기 버튼은
- * `HUD_ICON_BUTTON_SOLID`.
+ * `HUD_ICON_BUTTON_SOLID`(고정 44px).
  */
-export const HUD_ICON_BUTTON = `grid size-11 cursor-pointer place-items-center rounded-full border border-transparent text-ivory/85 transition-colors duration-150 hover:border-line hover:bg-surface-subtle hover:text-ivory active:bg-surface ${FOCUS_RING}`;
+export const HUD_ICON_BUTTON = `grid size-[2.75em] cursor-pointer place-items-center rounded-full border border-transparent text-hud text-ivory/85 transition-colors duration-150 hover:border-line hover:bg-surface-subtle hover:text-ivory active:bg-surface ${FOCUS_RING}`;
 export const HUD_ICON_BUTTON_SOLID = `grid size-11 cursor-pointer place-items-center rounded-full border border-line bg-surface text-ivory/85 transition-colors duration-150 hover:bg-surface-strong hover:text-ivory active:bg-surface-strong ${FOCUS_RING}`;
 
 /** 어두운 패널 안 목록 항목 */

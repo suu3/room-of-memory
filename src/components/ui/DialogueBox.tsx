@@ -120,7 +120,7 @@ export function DialogueBox() {
         아래쪽은 기기의 safe-area만큼 더 띄운다. 홈 바 뒤로 창이 밀려 들어가면
         마지막 줄이 잘린다. 위쪽 여백(pt)은 초상의 자리다: 창 위로 온전히 올라와야 한다.
       */}
-      <div className="pointer-events-none absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 w-full max-w-[840px] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-[max(2rem,env(safe-area-inset-bottom))] lg:max-w-[960px] lg:bottom-[max(2.5rem,env(safe-area-inset-bottom))]">
+      <div className="pointer-events-none absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 w-full max-w-[clamp(840px,66vw,1040px)] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-[max(2rem,env(safe-area-inset-bottom))] lg:bottom-[max(2.5rem,env(safe-area-inset-bottom))]">
         <div className="relative">
           {/*
             얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다.
@@ -134,20 +134,21 @@ export function DialogueBox() {
             공간에 깔리는 어두운 자막 패널 (.dialogue-panel). 사방 테두리·긴 가로선·큰 라운드는
             없다. 조립된 카드가 아니라 화면 아래에 깔린 자막이어야 한다.
           */}
-          <div className={`relative text-left ${PANEL_DIALOGUE}`}>
+          <div className={`relative text-left text-dialogue ${PANEL_DIALOGUE}`}>
             {/* 화자 이름은 작은 앰버 라벨 하나: 초상이 있어 별도 칩이나 소개 문구는 군더더기다 */}
-            <span className="block text-[13px] font-medium leading-none text-memory md:text-sm">
+            <span className="block text-[0.8125em] font-medium leading-none text-memory">
               {speakerName}
             </span>
             {/*
               두 줄 높이를 늘 확보한다. 한 줄 대사에서 창이 줄었다 다음 줄에서 늘면 글이
               아니라 창이 움직이는 것으로 읽힌다. 그 이상은 문장이 길 때만 자란다.
-              글자는 폰 16px, 태블릿 17px, 노트북 18px, 데스크톱 20px (DESIGN.md dialogue).
-              넓은 화면에서 16px 창은 장면에 비해 작아 자막이 아니라 각주로 읽힌다.
+              글자는 폭 따라 16→22px(--text-dialogue, 패널에 걸려 있다). 넓은 화면에서
+              16px 창은 장면에 비해 작아 자막이 아니라 각주로 읽힌다. 여백·최소 높이는
+              em이라 글자와 같이 자란다 (3.5em = 행간 1.75의 두 줄).
             */}
             <p
               key={lineKey}
-              className="mt-2.5 min-h-[3.75rem] break-ko text-pretty text-base leading-dialogue text-ivory sm:text-[1.0625rem] md:mt-3 md:min-h-[4rem] md:text-lg lg:min-h-[4.375rem] lg:text-xl"
+              className="mt-[0.625em] min-h-[3.5em] break-ko text-pretty text-[1em] leading-dialogue text-ivory"
             >
               {typed}
             </p>

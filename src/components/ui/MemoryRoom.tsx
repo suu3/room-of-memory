@@ -31,7 +31,7 @@ import { DialogueBox } from "./DialogueBox";
 import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
 import { FeedbackModal } from "./FeedbackModal";
-import { HudGuide } from "./HudGuide";
+import { HudGuideBanner, HudGuideDock } from "./HudGuide";
 import { HudMenu } from "./HudMenu";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
@@ -150,22 +150,24 @@ export function MemoryRoom() {
       {/*
         타이틀 + 진행. 밝은 캡슐 없이 장면 위에 글자만 얹는다. 그림자(.monologue-text)가
         밝은 물건 위에서도 글자를 세운다. 진행은 가는 분절 막대와 숫자 하나다.
+        크기는 헤더에 걸린 --text-hud(폭 따라 16→22px) 하나를 안쪽이 em으로 따른다.
+        제목 1em, 라벨 0.75em, 진행 칸 1.5em: 폭이 넓어지면 전부 같은 비율로 자란다.
       */}
       {started && (
-        <header className="monologue-text absolute left-4 top-4 z-10 flex flex-col gap-2 md:left-6 md:top-6">
-          <h1 className="text-base font-medium leading-snug tracking-tight text-ivory md:text-[1.0625rem]">
+        <header className="monologue-text absolute left-4 top-4 z-10 flex flex-col gap-[0.5em] text-hud md:left-6 md:top-6">
+          <h1 className="text-[1em] font-medium leading-snug tracking-tight text-ivory">
             {t("title")}
           </h1>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-baseline gap-2">
-              <span className="text-xs font-medium text-fog">
+          <div className="flex flex-col gap-[0.375em]">
+            <div className="flex items-baseline gap-[0.5em]">
+              <span className="text-[0.75em] font-medium text-fog">
                 {t("hud.round", { value: round })}
                 <span aria-hidden> · </span>
                 {t("hud.memoryCount")}
               </span>
               {/* 모은 개수가 이 화면의 유일한 진행 지표다. 라벨보다 확실히 앞으로 나와야 한다 */}
-              <span className="text-xs tabular-nums text-fog">
-                <span className="text-base font-medium text-memory">{count}</span>
+              <span className="text-[0.75em] tabular-nums text-fog">
+                <span className="text-[1.3333em] font-medium text-memory">{count}</span>
                 <span> / {roundMemories.length}</span>
               </span>
             </div>
@@ -174,17 +176,19 @@ export function MemoryRoom() {
               기억인지는 모른다. 기억마다 칸을 고정하면 조사 순서에 따라 가운데가 먼저
               차서 "순서대로 안 찬다"로 읽힌다.
             */}
-            <div className="flex gap-1">
+            <div className="flex gap-[0.25em]">
               {roundMemories.map((memory, index) => (
                 <span
                   key={memory.id}
                   aria-hidden
-                  className={`h-0.5 w-6 rounded-full transition-colors duration-700 ${
+                  className={`h-0.5 w-[1.5em] rounded-full transition-colors duration-700 ${
                     index < count ? "bg-memory" : "bg-ivory/25"
                   }`}
                 />
               ))}
             </div>
+            {/* 지금 할 일의 제자리. 새 목표는 가운데(HudGuideBanner)에 잠깐 떴다가 여기로 온다 */}
+            <HudGuideDock hidden={monologueHidden} />
           </div>
         </header>
       )}
@@ -212,23 +216,24 @@ export function MemoryRoom() {
       {started && (
         <>
           {/*
-            화면 위 가운데 기둥: 혼잣말(Monologue) 아래에 지금 할 일(HudGuide)이 선다.
-            둘을 한 흐름에 세우는 이유는 겹치지 않게 하기 위해서다. 안내를 왼쪽 위
-            헤더에, 혼잣말을 절대 좌표에 따로 두면 폰에서 헤더가 길어지는 만큼 둘이
-            포개진다. 혼잣말이 위, 안내가 아래다. 안내는 조작 설명이라 감정을 말하는
-            혼잣말보다 앞에 나서지 않는다.
+            화면 위 가운데 기둥: 혼잣말(Monologue) 아래에 새 목표 배너(HudGuideBanner)가
+            잠깐 선다. 둘을 한 흐름에 세우는 이유는 겹치지 않게 하기 위해서다. 혼잣말이
+            위, 안내가 아래다. 안내는 조작 설명이라 감정을 말하는 혼잣말보다 앞에 나서지
+            않는다.
 
             HUD(왼쪽 위 제목·진행, 오른쪽 위 버튼) 아래에 선다. 폰에서는 오른쪽 버튼이
-            두 줄로 쌓여 더 내려오고, 넓은 화면에서는 가운데 640px이 HUD 양끝과 겹치지
-            않는 높이까지 올린다.
+            두 줄로 쌓이고 헤더도 안내 줄까지 네 줄이라 그 밑(top-28)까지 내려오고, md에서는
+            기둥이 헤더와 가로로 겹치는 폭이라 헤더 밑을 지키고, lg부터는 기둥이 헤더 오른쪽
+            바깥에 서므로 HUD 양끝과 겹치지 않는 높이까지 올린다. 기둥 폭은 폭 따라
+            640→840px.
 
             혼잣말: 구간이 바뀌면 Monologue가 스스로 옛 줄을 물리고 새로 찍는다.
             key로 강제 리마운트하면 기억을 완료하는 순간 줄이 통째로 사라졌다
             다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다.
           */}
-          <div className="pointer-events-none absolute left-1/2 top-28 z-10 flex w-[min(640px,calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-24 md:gap-3 lg:top-16">
+          <div className="pointer-events-none absolute left-1/2 top-28 z-10 flex w-[min(clamp(640px,44vw,840px),calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-28 md:gap-3 lg:top-16">
             <Monologue monologueId={monologueId} hidden={monologueHidden} />
-            <HudGuide hidden={monologueHidden} />
+            <HudGuideBanner hidden={monologueHidden} />
           </div>
 
           {/* 컷씬·다시보기: 대사창(z-50)보다 아래에 깔려 그림 위로 글이 얹힌다 */}

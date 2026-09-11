@@ -68,7 +68,7 @@ export function HudMenu() {
         // 열려 있는 동안은 패널과 같은 표면으로 서서 "이 버튼이 저 패널의 것"임을 말한다
         className={`${HUD_ICON_BUTTON} ${open ? "border-line bg-surface text-ivory" : ""}`}
       >
-        {open ? <X size={20} weight="bold" /> : <List size={20} weight="bold" />}
+        {open ? <X size="1.25em" weight="bold" /> : <List size="1.25em" weight="bold" />}
       </button>
 
       {open && (

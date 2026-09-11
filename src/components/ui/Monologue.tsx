@@ -63,9 +63,9 @@ export function Monologue({
       }`}
     >
       <span aria-hidden className="monologue-veil absolute -inset-x-10 -inset-y-5 -z-10" />
-      {/* 좁은 화면에서는 한 줄이 안 나온다. 글자를 줄이고, 넘칠 땐 어절 단위로 접는다 */}
+      {/* 글자는 폭 따라 20→26px(--text-monologue). 좁은 화면에서 넘치면 어절 단위로 접는다 */}
       <p
-        className={`monologue-text animate-fade-rise break-ko text-pretty font-pixel text-xl leading-normal text-ivory transition-opacity duration-300 sm:text-[1.375rem] md:text-2xl ${
+        className={`monologue-text animate-fade-rise break-ko text-pretty font-pixel text-monologue leading-normal text-ivory transition-opacity duration-300 ${
           leaving ? "opacity-0" : "opacity-100"
         }`}
       >
