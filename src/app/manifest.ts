@@ -29,17 +29,27 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["games", "entertainment"],
     /*
      * 아이콘은 파비콘과 같은 그림(방 일러스트)이다. 탭에 보이는 그림과 홈 화면에
-     * 놓이는 그림이 다르면 같은 앱으로 안 읽힌다. 1254px 원본에서 축소해 뽑으며,
-     * 확대가 아니라 축소라 면적 평균을 쓴다. 생성 절차는 CREDITS.md.
+     * 놓이는 그림이 다르면 같은 앱으로 안 읽힌다. 테두리를 제거한 방 일러스트에
+     * Galmuri14 제목을 합성한 512px 이미지에서 축소한다. 생성 절차는 CREDITS.md.
      *
-     * maskable은 런처가 원·스퀴클로 잘라내므로 그림을 중앙 400px 안에 두고
-     * 바깥은 night로 채운다. 잘려 나가는 건 방의 빈 모서리뿐이다.
+     * maskable은 런처가 원·스퀴클로 잘라내므로 제목까지 안전하게 보이도록
+     * 그림을 중앙 344px 안에 두고 바깥은 DESIGN.md의 night로 채운다.
      */
     icons: [
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
       {
-        src: "/icons/icon-maskable-512.png",
+        src: "/icons/icon-192.png?v=20260911",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/icons/icon-512.png?v=20260911",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/icons/icon-maskable-512.png?v=20260911",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
