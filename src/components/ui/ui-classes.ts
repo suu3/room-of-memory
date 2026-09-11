@@ -43,7 +43,7 @@ export const CHIP_IDLE_PAPER =
 
 /**
  * HUD 아이콘 버튼: 폰에서 20px 아이콘·44px 조작 영역, 넓은 화면에서는 --text-hud를 따라
- * 최대 27px·60px까지 커진다 (아이콘은 size="1.25em"). 장면 위에 밝은 덩어리로 떠다니지
+ * 최대 32px·72px까지 커진다 (아이콘은 size="1.25em"). 장면 위에 밝은 덩어리로 떠다니지
  * 않게 배경은 hover·열림 때만 옅은 네이비로 깔린다. 항상 떠 있어야 하는 닫기 버튼은
  * `HUD_ICON_BUTTON_SOLID`(고정 44px).
  */

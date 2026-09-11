@@ -72,7 +72,10 @@ export function HudMenu() {
       </button>
 
       {open && (
-        <div className={`absolute right-0 top-full mt-2 w-68 animate-fade-rise p-4 ${PANEL_DARK}`}>
+        <div
+          // 넓은 화면에서는 버튼(--text-hud)과 같은 배율로 통째로 커진다 (--hud-zoom)
+          className={`absolute right-0 top-full mt-2 w-68 animate-fade-rise p-4 [zoom:var(--hud-zoom)] ${PANEL_DARK}`}
+        >
           {/* 눈에 보이는 라벨. 읽히는 이름은 각 fieldset의 legend라 여기서는 소리를 끈다. 둘 다 읽으면 "언어 선택 언어 선택" */}
           <p aria-hidden className={`px-1 ${SECTION_LABEL}`}>
             {t("language.label")}

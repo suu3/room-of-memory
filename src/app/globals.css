@@ -89,15 +89,22 @@
    * 화면 폭에 따라 연속으로 커지는 글자 (DESIGN.md > Typography). 브레이크포인트 계단이
    * 아니라 clamp 하나다: 폰에서는 하한에 붙고, 넓은 모니터에서는 상한에서 멈춘다.
    * HUD·대사창은 이 토큰을 컨테이너에 걸고 안쪽은 em으로 따라온다.
-   *   hud        16px(≤700) → 17.3(1440) → 19.2(1920) → 22 상한
-   *   caption    12px       → 13.2       → 14.4       → 15
-   *   monologue  20px       → 23.2       → 25.6       → 26
-   *   dialogue   16px       → 19.3       → 21.4       → 22
+   *   hud        16px(≤940) → 20.2(1440) → 24.3(1920) → 26 상한
+   *   caption    12px(≤960) → 14.4       → 16.8       → 17
+   *   monologue  20px(≤890) → 25         → 29.3       → 30
+   *   dialogue   16px(≤915) → 19.7       → 23         → 24
    */
-  --text-hud: clamp(1rem, 0.72rem + 0.4vw, 1.375rem);
-  --text-hud-caption: clamp(0.75rem, 0.6rem + 0.25vw, 0.9375rem);
-  --text-monologue: clamp(1.25rem, 1rem + 0.5vw, 1.625rem);
-  --text-dialogue: clamp(1rem, 0.8rem + 0.45vw, 1.375rem);
+  --text-hud: clamp(1rem, 0.5rem + 0.85vw, 1.625rem);
+  --text-hud-caption: clamp(0.75rem, 0.45rem + 0.5vw, 1.0625rem);
+  --text-monologue: clamp(1.25rem, 0.75rem + 0.9vw, 1.875rem);
+  --text-dialogue: clamp(1rem, 0.6rem + 0.7vw, 1.5rem);
+  /*
+   * --text-hud를 16px 기준 배율로 옮긴 값 (16 → 1, 26 → 1.625). 안쪽이 rem 클래스로 짜인
+   * 조립 패널(메뉴 드롭다운, 수첩 손잡이)은 em으로 다시 짤 수 없어 `zoom`으로 통째로
+   * 키운다. 길이끼리 나누는 calc를 못 읽는 옛 브라우저에서는 선언이 통째로 버려져 1배로
+   * 남는다: 작아질 뿐 깨지지 않는다.
+   */
+  --hud-zoom: clamp(1, 0.5 + 100vw / 1882px, 1.625);
 
   --animate-hotspot-glow: hotspot-glow 2.4s ease-in-out infinite;
   --animate-bob-arrow: bob-arrow 1.3s ease-in-out infinite;
