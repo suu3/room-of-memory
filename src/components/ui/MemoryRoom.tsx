@@ -185,8 +185,6 @@ export function MemoryRoom() {
                 />
               ))}
             </div>
-            {/* 지금 할 일 한 줄: 막마다 문구가 바뀐다 (HudGuide) */}
-            <HudGuide />
           </div>
         </header>
       )}
@@ -213,10 +211,25 @@ export function MemoryRoom() {
 
       {started && (
         <>
-          {/* 혼잣말: 구간이 바뀌면 Monologue가 스스로 옛 줄을 물리고 새로 찍는다.
-              key로 강제 리마운트하면 기억을 완료하는 순간 줄이 통째로 사라졌다
-              다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다 */}
-          <Monologue monologueId={monologueId} hidden={monologueHidden} />
+          {/*
+            화면 위 가운데 기둥: 지금 할 일(HudGuide) 아래에 혼잣말(Monologue)이 선다.
+            둘을 한 흐름에 세우는 이유는 겹치지 않게 하기 위해서다. 안내를 왼쪽 위
+            헤더에, 혼잣말을 절대 좌표에 따로 두면 폰에서 헤더가 길어지는 만큼 둘이
+            포개진다. 안내가 위, 혼잣말이 아래인 것은 혼잣말이 두 줄로 접혀도 안내
+            알약이 제자리를 지키게 하려는 것이다.
+
+            HUD(왼쪽 위 제목·진행, 오른쪽 위 버튼) 아래에 선다. 폰에서는 오른쪽 버튼이
+            두 줄로 쌓여 더 내려오고, 넓은 화면에서는 가운데 640px이 HUD 양끝과 겹치지
+            않는 높이까지 올린다.
+
+            혼잣말: 구간이 바뀌면 Monologue가 스스로 옛 줄을 물리고 새로 찍는다.
+            key로 강제 리마운트하면 기억을 완료하는 순간 줄이 통째로 사라졌다
+            다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다.
+          */}
+          <div className="pointer-events-none absolute left-1/2 top-28 z-10 flex w-[min(640px,calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-3 md:top-24 md:gap-4 lg:top-16">
+            <HudGuide hidden={monologueHidden} />
+            <Monologue monologueId={monologueId} hidden={monologueHidden} />
+          </div>
 
           {/* 컷씬·다시보기: 대사창(z-50)보다 아래에 깔려 그림 위로 글이 얹힌다 */}
           <PlaybackScene />

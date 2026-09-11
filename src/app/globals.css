@@ -662,6 +662,13 @@ body {
   box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
 }
 
+/* 데스크톱: 글자(18px)와 폭(960px)이 커진 만큼 안쪽 여백도 한 단(xl) 넓힌다 */
+@media (min-width: 768px) {
+  .dialogue-panel {
+    padding: 24px 32px 28px;
+  }
+}
+
 /*
  * 창밖 그림 위의 밤. 원화(mg-window-view-outside)는 주황 노을인데 같은 시각의 방은
  * 한밤중이다. 그림을 다시 그리는 대신 유리 위에 밤의 색을 곱한다. 명도는 위쪽(하늘)에서

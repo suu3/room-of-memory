@@ -9,7 +9,7 @@ import { useTypewriter } from "@/lib/use-typewriter";
 const SWAP_FADE_MS = 320;
 
 /**
- * 화면 상단 혼잣말.
+ * 화면 상단 혼잣말. 지금 할 일 알약(HudGuide) 아래, 화면 위 가운데에 선다.
  *
  * 타자 연출을 살리려면 훅이 **보이는 시점에** 마운트되어야 한다. 부모(MemoryRoom)
  * 최상단에서 호출하면 타이틀 화면이 떠 있는 동안 보이지도 않는 채로 다 찍혀서,
@@ -53,12 +53,12 @@ export function Monologue({
 
   return (
     /*
-     * HUD(왼쪽 위 제목·진행, 오른쪽 위 버튼) 아래에 선다. 폰에서는 HUD가 두 줄이라
-     * 더 내려오고, 넓은 화면에서는 가운데 640px이 HUD 양끝과 겹치지 않는 높이까지 올린다.
+     * 자리는 부모(MemoryRoom의 화면 위 가운데 기둥)가 정한다. 여기서는 폭을 다 쓰는
+     * 블록 하나로만 선다. 그래야 위의 안내 알약과 한 흐름에 놓여 서로 겹치지 않는다.
      */
     <div
       aria-hidden={hidden}
-      className={`pointer-events-none absolute left-1/2 top-28 z-10 w-[min(640px,calc(100vw-32px))] -translate-x-1/2 text-center transition-opacity duration-300 md:top-24 lg:top-16 ${
+      className={`pointer-events-none relative w-full text-center transition-opacity duration-300 ${
         hidden ? "opacity-0" : "opacity-100"
       }`}
     >
