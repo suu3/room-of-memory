@@ -41,6 +41,7 @@ import { PuzzleHost } from "./PuzzleHost";
 import { RoomCallout } from "./RoomCallout";
 import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
+import { HUD_FRAME } from "./ui-classes";
 
 /*
  * 로딩 표시는 부팅 커튼이 혼자 맡는다 (BootCurtain).
@@ -148,69 +149,74 @@ export function MemoryRoom() {
       <div aria-hidden className="film-grain pointer-events-none absolute inset-0" />
 
       {/*
-        타이틀 + 진행. 밝은 캡슐 없이 장면 위에 글자만 얹는다. 그림자(.monologue-text)가
-        밝은 물건 위에서도 글자를 세운다. 진행은 가는 분절 막대와 숫자 하나다.
+        HUD 틀. 제목·진행, 오른쪽 위 버튼, 가운데 혼잣말은 뷰포트가 아니라 이 틀의
+        네 귀퉁이에 붙는다. 틀은 가운데 정렬에 최대 폭이 있어(HUD_FRAME) 넓은 모니터에서
+        HUD가 방을 떠나 화면 끝으로 흩어지지 않는다. 화면 가장자리에 붙어야 뜻이 있는 것
+        (수첩 손잡이, 조이스틱)과 자막처럼 화면 아래에 깔리는 대사창은 틀 밖에 그대로 둔다.
+        transform 없이 mx-auto로 가운데를 잡는다: 틀이 stacking context를 만들면 메뉴
+        드롭다운(z-30)이 아래 레이어에 갇힌다.
       */}
       {started && (
-        <header className="monologue-text absolute left-4 top-4 z-10 flex flex-col gap-2 md:left-6 md:top-6">
-          <h1 className="text-base font-medium leading-snug tracking-tight text-ivory md:text-[1.0625rem]">
-            {t("title")}
-          </h1>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-baseline gap-2">
-              <span className="text-xs font-medium text-fog">
-                {t("hud.round", { value: round })}
-                <span aria-hidden> · </span>
-                {t("hud.memoryCount")}
-              </span>
-              {/* 모은 개수가 이 화면의 유일한 진행 지표다. 라벨보다 확실히 앞으로 나와야 한다 */}
-              <span className="text-xs tabular-nums text-fog">
-                <span className="text-base font-medium text-memory">{count}</span>
-                <span> / {roundMemories.length}</span>
-              </span>
-            </div>
-            {/*
-              기억 하나당 한 칸: 모을수록 금빛이 왼쪽부터 찬다. 칸은 개수만 세고 어느
-              기억인지는 모른다. 기억마다 칸을 고정하면 조사 순서에 따라 가운데가 먼저
-              차서 "순서대로 안 찬다"로 읽힌다.
-            */}
-            <div className="flex gap-1">
-              {roundMemories.map((memory, index) => (
-                <span
-                  key={memory.id}
-                  aria-hidden
-                  className={`h-0.5 w-6 rounded-full transition-colors duration-700 ${
-                    index < count ? "bg-memory" : "bg-ivory/25"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        </header>
-      )}
-
-      {/* HUD: 햄버거 메뉴(언어 · 캐릭터 시트 · Contact · 리셋)와 소리 on/off */}
-      {/* 레이어링 순서: 대사(z-10) < HUD·모달(z-30) < 미니게임(z-40, HUD를 덮는다) < 성공 파티클(z-50) */}
-      {started && (
-        /*
-         * 가로가 아니라 세로로 쌓는다. 제일 좁은 폰(360px)에서 헤더(기억 진행 바)
-         * 오른쪽 끝과 메뉴 버튼 사이가 좁아, 버튼 둘(44px)을 나란히 넣으면 헤더와 맞닿는다.
-         */
-        <div className="absolute right-3 top-3 z-30 flex flex-col items-end gap-1 md:right-5 md:top-5">
+        <div className={HUD_FRAME}>
           {/*
-            메뉴 드롭다운은 햄버거 바로 아래(top-full + mt-2)로 열리는데, 그 자리가
-            소리 버튼 자리와 정확히 겹친다. 메뉴 쪽을 위로 올려 두지 않으면 열린 패널
-            위로 소리 버튼이 뚫고 올라온다.
+            타이틀 + 진행. 밝은 캡슐 없이 장면 위에 글자만 얹는다. 그림자(.monologue-text)가
+            밝은 물건 위에서도 글자를 세운다. 진행은 가는 분절 막대와 숫자 하나다.
+            넓은 화면에서는 한 단 커진다: 제목 18px(heading 상한), 라벨 13px, 칸 32px.
           */}
-          <div className="relative z-10">
-            <HudMenu />
-          </div>
-          <SoundToggle />
-        </div>
-      )}
+          <header className="monologue-text pointer-events-none absolute left-4 top-4 z-10 flex flex-col gap-2 md:left-6 md:top-6 md:gap-2.5">
+            <h1 className="text-base font-medium leading-snug tracking-tight text-ivory md:text-lg">
+              {t("title")}
+            </h1>
+            <div className="flex flex-col gap-1.5 md:gap-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs font-medium text-fog md:text-[0.8125rem]">
+                  {t("hud.round", { value: round })}
+                  <span aria-hidden> · </span>
+                  {t("hud.memoryCount")}
+                </span>
+                {/* 모은 개수가 이 화면의 유일한 진행 지표다. 라벨보다 확실히 앞으로 나와야 한다 */}
+                <span className="text-xs tabular-nums text-fog md:text-[0.8125rem]">
+                  <span className="text-base font-medium text-memory md:text-lg">{count}</span>
+                  <span> / {roundMemories.length}</span>
+                </span>
+              </div>
+              {/*
+                기억 하나당 한 칸: 모을수록 금빛이 왼쪽부터 찬다. 칸은 개수만 세고 어느
+                기억인지는 모른다. 기억마다 칸을 고정하면 조사 순서에 따라 가운데가 먼저
+                차서 "순서대로 안 찬다"로 읽힌다.
+              */}
+              <div className="flex gap-1">
+                {roundMemories.map((memory, index) => (
+                  <span
+                    key={memory.id}
+                    aria-hidden
+                    className={`h-0.5 w-6 rounded-full transition-colors duration-700 md:w-8 ${
+                      index < count ? "bg-memory" : "bg-ivory/25"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </header>
 
-      {started && (
-        <>
+          {/* HUD: 햄버거 메뉴(언어 · 캐릭터 시트 · Contact · 리셋)와 소리 on/off */}
+          {/* 레이어링 순서: 대사(z-10) < HUD·모달(z-30) < 미니게임(z-40, HUD를 덮는다) < 성공 파티클(z-50) */}
+          {/*
+            가로가 아니라 세로로 쌓는다. 제일 좁은 폰(360px)에서 헤더(기억 진행 바)
+            오른쪽 끝과 메뉴 버튼 사이가 좁아, 버튼 둘(44px)을 나란히 넣으면 헤더와 맞닿는다.
+          */}
+          <div className="pointer-events-auto absolute right-3 top-3 z-30 flex flex-col items-end gap-1 md:right-5 md:top-5">
+            {/*
+              메뉴 드롭다운은 햄버거 바로 아래(top-full + mt-2)로 열리는데, 그 자리가
+              소리 버튼 자리와 정확히 겹친다. 메뉴 쪽을 위로 올려 두지 않으면 열린 패널
+              위로 소리 버튼이 뚫고 올라온다.
+            */}
+            <div className="relative z-10">
+              <HudMenu />
+            </div>
+            <SoundToggle />
+          </div>
+
           {/*
             화면 위 가운데 기둥: 혼잣말(Monologue) 아래에 지금 할 일(HudGuide)이 선다.
             둘을 한 흐름에 세우는 이유는 겹치지 않게 하기 위해서다. 안내를 왼쪽 위
@@ -230,7 +236,11 @@ export function MemoryRoom() {
             <Monologue monologueId={monologueId} hidden={monologueHidden} />
             <HudGuide hidden={monologueHidden} />
           </div>
+        </div>
+      )}
 
+      {started && (
+        <>
           {/* 컷씬·다시보기: 대사창(z-50)보다 아래에 깔려 그림 위로 글이 얹힌다 */}
           <PlaybackScene />
           <DialogueBox />
