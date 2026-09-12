@@ -477,10 +477,11 @@
     "workbook": {
       "title": "Workbook on the Desk",
       "alt": "3D workbook: drag to turn it",
-      "hint": "Drag or use the buttons to turn",
+      "hint": "Drag to turn, scroll or use the buttons to zoom",
       "tagLabel": "Name",
       "tagGrade": "12th grade",
-      "found": "There's a name written on the back cover. {{name}}. Guess I was worried someone would take it.",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
       "caption": "A well-thumbed math workbook. How many pages did I actually get through?"
     }
   },

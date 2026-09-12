@@ -20,6 +20,16 @@ import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/palet
 
 /** 세워 든 책의 치수 (x 폭, y 높이, z 두께). 세로 화각 30°·카메라 2.3에서 높이가 다 들어온다. */
 const BOOK_SIZE: [number, number, number] = [0.62, 0.86, 0.07];
+const CAMERA_Z = 2.3;
+const CAMERA_FOV = 30;
+/** 카메라가 한 화면에 담는 세로 길이 (월드). 확대했을 때 어디까지 옮길 수 있는지의 기준. */
+const VIEW_HEIGHT = 2 * CAMERA_Z * Math.tan((CAMERA_FOV / 2) * (Math.PI / 180));
+/** 세로로 끈 픽셀을 월드 거리로. 화면 높이(약 300px)를 다 끌면 책 높이만큼 움직인다. */
+const DRAG_PX_TO_WORLD = 0.003;
+/** 확대·이동이 목표값을 따라가는 빠르기. 휠 한 칸에 툭 튀지 않고 미끄러진다. */
+const ZOOM_DAMP = 14;
+export const ZOOM_MIN = 1;
+export const ZOOM_MAX = 2.4;
 /** 뒤표지가 카메라를 향한 것으로 치는 기준: cos(yaw)가 이보다 작으면 (π에서 ±37° 안). */
 const BACK_FACING_COS = -0.8;
 /** 뒤표지를 이만큼 마주 보고 있어야 읽은 것으로 친다(초). 휙 지나간 건 못 읽은 것이다. */
@@ -130,14 +140,19 @@ function useCoverTexture(paint: (ctx: CanvasRenderingContext2D) => void): Canvas
 
 function Book({
   yawRef,
+  zoomRef,
+  dragYRef,
   labels,
   onBackSeen,
 }: {
   yawRef: MutableRefObject<number>;
+  zoomRef: MutableRefObject<number>;
+  dragYRef: MutableRefObject<number>;
   labels: WorkbookLabels;
   onBackSeen: () => void;
 }) {
   const groupRef = useRef<Group>(null);
+  const frameRef = useRef<Group>(null);
   const readRef = useRef(0);
   const seenRef = useRef(false);
   const palette = useMemo(resolveRoomPalette, []);
@@ -170,8 +185,25 @@ function Book({
 
   useFrame((_, delta) => {
     const group = groupRef.current;
-    if (!group) return;
+    const frame = frameRef.current;
+    if (!group || !frame) return;
     group.rotation.y = yawRef.current;
+
+    /*
+     * 확대는 카메라를 당기는 것과 같은 그림이 되도록 겉 그룹을 키운다. 키운 만큼 화면
+     * 밖으로 나가는 부분은 세로로 끌어 옮겨 본다 (이름표가 위쪽에 있어서 확대만 되고
+     * 못 옮기면 잘려 나간다). 확대를 풀면 옮길 여지가 0이 되어 제자리로 돌아온다.
+     */
+    const zoom = zoomRef.current;
+    const overflow = Math.max(0, (BOOK_SIZE[1] * zoom - VIEW_HEIGHT) / 2);
+    // 아래로 끌면(px 양수) 책이 손을 따라 내려온다(월드 y 음수). 잡아서 옮기는 손맛
+    const wanted = Math.max(-overflow, Math.min(overflow, -dragYRef.current * DRAG_PX_TO_WORLD));
+    // 범위 밖으로 끈 만큼은 되돌려 둔다. 안 그러면 안 보이는 데서 쌓였다가 한참 뒤에 풀린다
+    dragYRef.current = -wanted / DRAG_PX_TO_WORLD;
+    const ease = 1 - Math.exp(-ZOOM_DAMP * delta);
+    frame.scale.setScalar(frame.scale.x + (zoom - frame.scale.x) * ease);
+    frame.position.y += (wanted - frame.position.y) * ease;
+
     if (seenRef.current) return;
     if (Math.cos(yawRef.current) < BACK_FACING_COS) {
       readRef.current += delta;
@@ -185,21 +217,29 @@ function Book({
   });
 
   return (
-    <group ref={groupRef}>
-      <mesh material={materials}>
-        <boxGeometry args={BOOK_SIZE} />
-      </mesh>
+    <group ref={frameRef}>
+      <group ref={groupRef}>
+        <mesh material={materials}>
+          <boxGeometry args={BOOK_SIZE} />
+        </mesh>
+      </group>
     </group>
   );
 }
 
 export default function WorkbookTurntable({
   yawRef,
+  zoomRef,
+  dragYRef,
   labels,
   onBackSeen,
 }: {
   /** 바깥(드래그·키보드)이 쥐고 있는 각도. 0이 앞표지, π가 뒤표지. */
   yawRef: MutableRefObject<number>;
+  /** 확대 배율 (ZOOM_MIN~ZOOM_MAX). 휠·버튼이 바꾼다. */
+  zoomRef: MutableRefObject<number>;
+  /** 세로로 끈 거리(px). 확대한 책을 위아래로 옮겨 보는 데 쓴다. */
+  dragYRef: MutableRefObject<number>;
   labels: WorkbookLabels;
   /** 뒤표지를 읽었을 때 한 번. */
   onBackSeen: () => void;
@@ -207,7 +247,7 @@ export default function WorkbookTurntable({
   return (
     <Canvas
       // 종이 위에 놓인 물건이라 방의 밤 조명이 아니라 밝은 실내 광으로 세운다
-      camera={{ position: [0, 0, 2.3], fov: 30 }}
+      camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
       gl={{ alpha: true, antialias: true }}
       dpr={[1, 2]}
       style={{ touchAction: "none" }}
@@ -217,7 +257,13 @@ export default function WorkbookTurntable({
       <directionalLight position={[-3, 1, -2]} intensity={0.5} />
       {/* 살짝 위에서 내려다본다. 정면에서 보면 상자가 아니라 그림으로 읽힌다 */}
       <group rotation={[0.16, 0, 0]}>
-        <Book yawRef={yawRef} labels={labels} onBackSeen={onBackSeen} />
+        <Book
+          yawRef={yawRef}
+          zoomRef={zoomRef}
+          dragYRef={dragYRef}
+          labels={labels}
+          onBackSeen={onBackSeen}
+        />
       </group>
     </Canvas>
   );

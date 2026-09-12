@@ -60,7 +60,8 @@ describe("컴퓨터 비밀번호 단서", () => {
       "workbook.hint",
       "workbook.tagLabel",
       "workbook.tagGrade",
-      "workbook.found",
+      "workbook.zoomIn",
+      "workbook.zoomOut",
       "workbook.caption",
     ];
 

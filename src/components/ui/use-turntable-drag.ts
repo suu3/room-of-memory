@@ -19,9 +19,20 @@ export const TURN_STEP = Math.PI / 12;
  */
 export function useTurntableDrag() {
   const yawRef = useRef(0);
+  /**
+   * 세로로 끈 거리(px, 아래가 양수). 회전이 아니라 옮기기가 필요한 쪽(확대한 문제집)이
+   * 읽고, 범위를 벗어나면 제 손으로 되돌려 쓴다. 안 쓰는 쪽은 그냥 쌓이게 둔다.
+   */
+  const dragYRef = useRef(0);
   /** 마지막으로 손댄 시각(ms). 0이면 아직 아무도 안 만졌다. 저 혼자 도는 쪽이 본다. */
   const touchedAtRef = useRef(0);
-  const dragRef = useRef<{ pointerId: number; x: number; from: number } | null>(null);
+  const dragRef = useRef<{
+    pointerId: number;
+    x: number;
+    y: number;
+    from: number;
+    fromY: number;
+  } | null>(null);
 
   const turn = useCallback((delta: number) => {
     yawRef.current += delta;
@@ -30,7 +41,13 @@ export function useTurntableDrag() {
 
   const onPointerDown = useCallback((event: ReactPointerEvent<HTMLElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragRef.current = { pointerId: event.pointerId, x: event.clientX, from: yawRef.current };
+    dragRef.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      from: yawRef.current,
+      fromY: dragYRef.current,
+    };
     touchedAtRef.current = Date.now();
   }, []);
 
@@ -38,6 +55,7 @@ export function useTurntableDrag() {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
     yawRef.current = drag.from + (event.clientX - drag.x) * DRAG_TO_RADIANS;
+    dragYRef.current = drag.fromY + (event.clientY - drag.y);
     touchedAtRef.current = Date.now();
   }, []);
 
@@ -52,5 +70,5 @@ export function useTurntableDrag() {
     [onPointerDown, onPointerMove, endDrag],
   );
 
-  return { yawRef, touchedAtRef, turn, handlers };
+  return { yawRef, dragYRef, touchedAtRef, turn, handlers };
 }
