@@ -1,12 +1,13 @@
 "use client";
 
-import { useGLTF } from "@react-three/drei";
+import { RoundedBox, useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { type ReactNode, useRef } from "react";
 import type { Group } from "three";
 import { ASSETS } from "@/lib/assets";
 import type { SeatId } from "@/types/seat";
 import { FurnitureModel } from "./FurnitureModel";
+import { DiningDetails, LivingRoomDetails, LivingShoes, SofaDetails } from "./LivingRoomDetails";
 import {
   LIVING_ANCHORS,
   LIVING_DINING_CENTER,
@@ -70,7 +71,29 @@ function LivingPiece({
   );
 }
 
-function Boxes({ parts, palette }: { parts: readonly BoxPart[]; palette: RoomPalette }) {
+function Boxes({
+  parts,
+  palette,
+  soft = false,
+}: {
+  parts: readonly BoxPart[];
+  palette: RoomPalette;
+  soft?: boolean;
+}) {
+  if (soft)
+    return parts.map((part) => (
+      <RoundedBox
+        key={part.position.join(":")}
+        args={[...part.size]}
+        position={part.position}
+        radius={Math.min(...part.size) * 0.28}
+        smoothness={2}
+        castShadow
+        receiveShadow
+      >
+        <meshStandardMaterial color={palette[part.color]} roughness={0.95} />
+      </RoundedBox>
+    ));
   return parts.map((part) => (
     <mesh key={part.position.join(":")} position={part.position} castShadow receiveShadow>
       <boxGeometry args={part.size} />
@@ -110,10 +133,23 @@ const SOFA_CUSHIONS = [
  * 마지막에 보던 채널이 꺼진 채 그대로라는 설정이라 아무것도 비추지 않는다.
  */
 const TV_PARTS = [
-  { size: [2.4, 0.5, 0.5], position: [-9.5, 0.25, 6.2], color: "wood" },
+  { size: [2.4, 0.05, 0.5], position: [-9.5, 0.475, 6.2], color: "wood" },
+  { size: [2.4, 0.05, 0.5], position: [-9.5, 0.13, 6.2], color: "wood" },
+  { size: [0.06, 0.34, 0.5], position: [-10.67, 0.3, 6.2], color: "wood" },
+  { size: [0.06, 0.34, 0.5], position: [-8.33, 0.3, 6.2], color: "wood" },
+  { size: [2.3, 0.3, 0.035], position: [-9.5, 0.3, 6.43], color: "frame" },
+  { size: [0.05, 0.31, 0.46], position: [-9.9, 0.3, 6.2], color: "wood" },
+  { size: [0.05, 0.31, 0.46], position: [-9.1, 0.3, 6.2], color: "wood" },
+  { size: [0.68, 0.24, 0.33], position: [-10.27, 0.28, 6.16], color: "sage" },
+  { size: [0.68, 0.24, 0.33], position: [-8.73, 0.28, 6.16], color: "fabric" },
+  { size: [0.12, 0.025, 0.01], position: [-10.27, 0.32, 5.988], color: "linen" },
+  { size: [0.12, 0.025, 0.01], position: [-8.73, 0.32, 5.988], color: "linen" },
+  { size: [0.1, 0.12, 0.34], position: [-10.53, 0.06, 6.2], color: "frame" },
+  { size: [0.1, 0.12, 0.34], position: [-8.47, 0.06, 6.2], color: "frame" },
   // 다리 없는 평판 TV. 받침장 위에 얹혀 화면이 소파를 본다
   { size: [1.9, 1.08, 0.09], position: [-9.5, 1.12, 6.28], color: "void" },
   { size: [0.5, 0.06, 0.3], position: [-9.5, 0.53, 6.25], color: "frame" },
+  { size: [0.12, 0.08, 0.08], position: [-9.5, 0.575, 6.28], color: "frame" },
 ] as const satisfies readonly BoxPart[];
 
 /**
@@ -223,7 +259,7 @@ function SofaCushion({
   return (
     <group {...handlers}>
       <MemoryGlowSelection selectionKey={cushion.seat} tier="prop" enabled={glowing}>
-        <Boxes parts={[cushion]} palette={palette} />
+        <Boxes parts={[cushion]} palette={palette} soft />
       </MemoryGlowSelection>
     </group>
   );
@@ -251,9 +287,7 @@ const SHOE_CABINET_PARTS = [
   { size: [0.56, 0.05, 1.96], position: [-16.16, 1.08, -0.68], color: "linen" },
   // 문짝 자국: 통짜 상자로는 장이 아니라 궤짝으로 읽혀서 세로줄 하나를 긋는다
   { size: [0.03, 0.86, 0.02], position: [-15.9, 0.5, -0.68], color: "frame" },
-  // 남은 운동화 한 켤레 (도해 것). 나란하지 않고 살짝 어긋나 있다
-  { size: [0.13, 0.09, 0.32], position: [-15.62, 0.05, 0.12], color: "clay" },
-  { size: [0.13, 0.09, 0.32], position: [-15.46, 0.05, 0.04], color: "clay" },
+  // 남은 운동화 한 켤레는 LivingShoes에서 밑창·발등·끈이 보이게 그린다.
 ] as const satisfies readonly BoxPart[];
 
 /**
@@ -333,15 +367,17 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
   return (
     <group name="living-room-furniture">
       <LivingPiece anchor={LIVING_ANCHORS.sofa}>
-        <Boxes parts={SOFA_PARTS} palette={palette} />
+        <Boxes parts={SOFA_PARTS} palette={palette} soft />
         {SOFA_CUSHIONS.map((cushion) => (
           <SofaCushion key={cushion.seat} palette={palette} cushion={cushion} />
         ))}
+        <SofaDetails palette={palette} />
       </LivingPiece>
       {/* TV는 1배 그대로: 키운 소파와 마주 보는 비율이 이쪽이 맞다 */}
       <Boxes parts={TV_PARTS} palette={palette} />
       <LivingPiece anchor={LIVING_ANCHORS.dining} at={LIVING_DINING_CENTER}>
         <Boxes parts={TABLE_PARTS} palette={palette} />
+        <DiningDetails palette={palette} />
       </LivingPiece>
       {/* 배치는 DINING_SET.chairs: 상판·다리와의 간격을 테스트가 지키는 값이다 */}
       {DINING_SET.chairs.map((chair) => (
@@ -355,6 +391,7 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
       ))}
       <LivingPiece anchor={LIVING_ANCHORS.shoeCabinet}>
         <Boxes parts={SHOE_CABINET_PARTS} palette={palette} />
+        <LivingShoes palette={palette} />
       </LivingPiece>
       <LivingPiece anchor={LIVING_ANCHORS.fridge}>
         <Boxes parts={FRIDGE_PARTS} palette={palette} />
@@ -369,6 +406,7 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
         rotation={[0, PLUSH_PLACEMENT.rotationY, 0]}
         scale={PLUSH_PLACEMENT.scale}
       />
+      <LivingRoomDetails palette={palette} />
     </group>
   );
 }

@@ -362,7 +362,7 @@ function Shelves({ palette }: FurnitureProps) {
 }
 
 /*
- * 책상 위 소품은 가구킷 glb로 바꿨다. 전부 같은 배율(DESK_PROP_SCALE)을 쓰는데,
+ * 책상 위 소품은 자체 제작 glb다. 전부 같은 배율(DESK_PROP_SCALE)을 쓰는데,
  * 모델마다 배율이 다르면 한 책상 위에서 물건 크기가 서로 안 맞아 보인다.
  * 배율은 모니터 높이(0.29)를 예전 프리미티브 높이(0.9)에 맞춰 잡았다.
  *
@@ -581,7 +581,7 @@ function CabinetAccessories({ palette }: FurnitureProps) {
 
 function FloorAccessories({ palette }: FurnitureProps) {
   /*
-   * 러그의 킷 원색은 빨강이라 방에서 혼자 튄다. 바탕은 리넨, 테두리는 테라코타로:
+   * 자체 제작 러그의 바탕은 리넨, 테두리는 테라코타다.
    * 재질 이름(carpet · carpetDarker)은 glb에 박혀 있는 것이다. 팔레트가 바뀌면 같이 바뀌게
    * 메모해 둔다 (FurnitureModel이 재질을 useMemo 안에서 만들어서 참조가 고정돼야 한다).
    */
@@ -597,14 +597,6 @@ function FloorAccessories({ palette }: FurnitureProps) {
         position={[0.2, 0.012, 3.65]}
         scale={2.1}
         materialColors={rugColors}
-      />
-      <FurnitureBox
-        part={{ size: [0.62, 0.13, 1.02], position: [-0.12, 0.12, 3.52], color: "linen" }}
-        palette={palette}
-      />
-      <FurnitureBox
-        part={{ size: [0.62, 0.13, 1.02], position: [0.6, 0.12, 3.52], color: "linen" }}
-        palette={palette}
       />
     </group>
   );

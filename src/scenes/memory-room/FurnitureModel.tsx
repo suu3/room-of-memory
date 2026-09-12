@@ -12,7 +12,7 @@ interface FurnitureModelProps {
   /** 축마다 다르게 주면 납작하게 눌러 놓을 수 있다 (베개). */
   scale: number | Vec3Tuple;
   /**
-   * 재질 이름 → 팔레트 색. 킷의 원색이 방의 팔레트와 부딪히는 모델(빨간 러그)만 쓴다.
+   * 재질 이름 → 팔레트 색. 러그처럼 런타임 팔레트를 따라야 하는 모델에 쓴다.
    * 이름이 없는 재질은 원색 그대로다. 텍스처가 있는 모델에 색을 곱하는 일은 없다.
    */
   materialColors?: Readonly<Record<string, string>>;
@@ -20,8 +20,8 @@ interface FurnitureModelProps {
 
 /**
  * unlit(MeshBasicMaterial)로 들어온 재질을 같은 색의 조명 받는 재질로 바꾼다.
- * 가구킷 glb를 쓰는 쪽은 어디든 필요해서 내보낸다. MemoryObjects의 컴퓨터도
- * 같은 킷이라 이걸 안 거치면 방이 어두워져도 혼자 원래 밝기로 떠 있는다.
+ * 비조명 재질이 들어와도 방 조명을 따르도록 한다. 자체 제작 모델의 StandardMaterial은
+ * 복제만 한다. MemoryObjects의 컴퓨터도 같은 변환 경로를 쓴다.
  */
 export function toLitMaterial(material: Material): Material {
   const source = material as Material & { color?: { getHex: () => number } };
@@ -39,7 +39,7 @@ function LoadedFurniture({ path, position, rotation, scale, materialColors }: Fu
   const { scene } = useGLTF(path, true, true);
 
   /*
-   * 가구킷 glb는 KHR_materials_unlit이라 GLTFLoader가 MeshBasicMaterial을 만든다.
+   * KHR_materials_unlit 모델은 GLTFLoader가 MeshBasicMaterial을 만든다.
    * 그대로 두면 방이 아무리 어두워져도 소품만 원래 밝기로 떠 있어서 붙여넣은 것처럼 보인다.
    * 색은 그대로 두고 조명 받는 재질로 갈아끼운다. materialColors에 이름이 있는 재질만
    * 팔레트 색으로 바꾼다.
@@ -82,7 +82,7 @@ function LoadedFurniture({ path, position, rotation, scale, materialColors }: Fu
 /**
  * 방을 채우는 소품 glb 하나. 박스로 짜맞춘 프리미티브를 대체한다.
  *
- * 가구킷 모델은 밑면이 y=0에 맞춰져 있어서 놓을 자리의 윗면 높이를 그대로
+ * 소품 모델은 밑면이 y=0에 맞춰져 있어서 놓을 자리의 윗면 높이를 그대로
  * position.y로 주면 된다.
  *
  * Suspense 경계를 컴포넌트 안에 둔다. 이게 없으면 로딩 중 서스펜드가 부모인

@@ -2,8 +2,12 @@
 
 외부 에셋을 추가할 때마다 여기에 기록한다. CC-BY 이상은 게임 내 크레딧 화면에도 반영할 것.
 
+야구배트는 GPT 제작, 야구공은 프로젝트 제작자의 직접 제작 모델임을 2026-09-12 사용자 확인으로 기록했다.
+
 | 파일 | 출처 (URL) | 제작자 | 라이선스 |
 |---|---|---|---|
+| models/ch1-baseball-bat.glb | GPT로 제작한 야구배트 모델 (2026-09-12 사용자 출처 확인) | GPT | 프로젝트 생성 에셋 |
+| models/ch1-baseball.glb | 프로젝트 제작자가 직접 만든 야구공 모델 (2026-09-12 사용자 출처 확인) | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
 | fonts/PretendardVariable.woff2 | https://github.com/orioncactus/pretendard (v1.3.9) | 길형진 (orioncactus) | SIL OFL 1.1 |
 | fonts/Galmuri14.woff2 | https://quiple.dev/galmuri (눈누 웹폰트 빌드 https://noonnu.cc/font_page/1610) | Lee Minseo (quiple) | SIL OFL 1.1 |
 | images/ui-creator-avatar.webp | 제작자가 직접 그린 토끼 낙서(2026-09-11). 만든 사람 화면의 프로필. ivory 배경으로 평탄화하고 정사각 512px로 잘라 webp 변환 | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
@@ -13,6 +17,8 @@
 | images/mg-ball-catch-impact.webp | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-frequency-tune-frame.webp | 사용자가 직접 넣은 라디오 일러스트(2026-08-04). 흰 배경·표시창을 알파로 도려낸 뒤 webp로 변환 | 미기재 (사용자 제공) | 미기재 |
 | images/mg-window-view-outside.webp | 사용자가 직접 넣은 창밖 일러스트(2026-08-04). webp로 변환 | 미기재 (사용자 제공) | 미기재 |
+| models/ch1-radio.glb, models/room-books.glb, models/room-computer-*.glb, models/room-desk-lamp.glb, models/room-rug.glb, models/room-potted-plant.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-12). 원본: scripts/create-original-furniture.mjs. 외부 모델·텍스처 사용 없음. DESIGN.md 씬 팔레트, Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
+| 거실 운동화·쿠션·담요·머그컵·접시·리모컨·TV장 (런타임 지오메트리) | 이 프로젝트를 위해 코드로 직접 제작(2026-09-12). src/scenes/memory-room/LivingRoomDetails.tsx 및 LivingRoomFurniture.tsx. 외부 모델·텍스처 사용 없음 | Codex | 프로젝트 생성 에셋 |
 | models/room-potted-cactus.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-11). 원본: scripts/create-cactus.mjs. 외부 모델·텍스처 사용 없음. DESIGN.md 씬 팔레트, Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
 | models/room-snack-bag.glb, models/room-study-papers.glb, models/room-cup-noodle-trash.glb, models/room-student-bookshelf.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-10). 원본: scripts/create-student-props.mjs. DESIGN.md 씬 팔레트, 자체 작성한 가상 문제집·모의고사·컵라면·과자봉지 인쇄, Meshopt 압축 및 내장 WebP | Codex | 프로젝트 생성 에셋 |
 | models/room-bed.glb | 프로젝트 제작자가 직접 만든 침대 모델(2026-09-08, 프레임·매트리스·베개·이불 + 이불 shape key `folded`). 재질이 없어 코드가 부품 이름으로 팔레트색을 입힌다. 블렌더 자동 이름(Cube·Plane…)을 부품 이름으로 바꾸고 계층을 펴고 밑면을 y=0에 맞춘 뒤 Meshopt 압축 (413KB → 127KB). 이전의 room-pillow.glb(같은 제작자의 베개)를 흡수 | suu3 (프로젝트 제작자) | 프로젝트 저작물 |

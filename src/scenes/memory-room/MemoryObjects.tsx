@@ -183,7 +183,7 @@ function LoadedGlb({
   const { scene } = useGLTF(path, true, true);
   const cloned = useMemo(() => {
     const copy = scene.clone(true);
-    // 가구킷은 unlit이라 방 조명을 무시한다. lit이면 조명 받는 재질로 갈아끼운다.
+    // unlit 재질도 lit 요청이면 방 조명을 받는 재질로 갈아끼운다.
     const remake = remakeMaterial ?? (lit ? toLitMaterial : cloneMaterial);
     copy.traverse((object) => {
       const mesh = object as Mesh;
@@ -193,7 +193,7 @@ function LoadedGlb({
         ? mesh.material.map(remake)
         : remake(mesh.material);
     });
-    // 일부 glb는 원점이 모서리에 있다. 배치 좌표가 중심을 뜻하도록 맞춘다.
+    // 모델 원점과 관계없이 배치 좌표가 XZ 중심을 뜻하도록 맞춘다.
     return centerModelXZ(copy);
   }, [scene, lit, remakeMaterial]);
 
@@ -518,7 +518,7 @@ function RadioMemory({ palette, opacity }: VisualProps) {
  * 신호등이 앉는 자리: 라디오 표시창 언저리(로컬 좌표).
  * 배치 스케일(layout의 radio.scale)이 그대로 곱해지므로 glb 원본 크기 기준이다.
  */
-const RADIO_SIGNAL_POSITION: Vec3Tuple = [0, 0.15, 0.11];
+const RADIO_SIGNAL_POSITION: Vec3Tuple = [0.132, 0.15, 0.052];
 /** 표시등 반경. 판이 아니라 구라 라디오를 어느 각도에서 봐도 보인다. */
 const RADIO_SIGNAL_RADIUS = 0.022;
 /** 깜빡임이 방으로 새어 나가는 정도. 방 조명(1.15~5.6)에 비해 아주 작다. */
@@ -694,8 +694,8 @@ function ComputerPrimitive({ palette, opacity }: VisualProps) {
 
 /**
  * 책상 위 컴퓨터: 한 기억이 glb 세 개(모니터·키보드·마우스)로 이루어진다.
- * 가구였을 때(DeskAccessories)와 같은 킷·같은 자리라, 승격 전후로 방이 달라
- * 보이지 않는다. 가구킷은 unlit이라 lit 변환을 거친다.
+ * 자체 제작한 세 부품을 책상 로컬 좌표로 배치한다. lit 변환은 비조명 재질도
+ * 방 조명을 받도록 보장하고, StandardMaterial은 그대로 복제한다.
  */
 function ComputerMemory({ palette, opacity, onReady }: VisualProps & { onReady: () => void }) {
   return (

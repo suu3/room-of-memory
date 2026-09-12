@@ -5,7 +5,7 @@ export const ASSETS = {
   models: {
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
-    radio: "/assets/models/ch1-radio.glb",
+    radio: "/assets/models/ch1-radio.glb?v=original-20260912",
     /** 러그 위 게임패드 (사용자 제공, Meshopt 압축). 원본은 세워진 자세(앞면 +z, 밑면 y=0)라 씬에서 눕힌다. */
     gamepad: "/assets/models/ch1-gamepad.glb",
     /**
@@ -15,18 +15,19 @@ export const ASSETS = {
     smartphone: "/assets/models/ch1-smartphone.glb",
     /** 본·애니메이션 포함. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다. */
     playerBlocky: "/assets/models/player-blocky.glb?v=rounded-back80-20260908",
-    /** 방 소품 (가구 모델). 전부 밑면이 y=0에 정렬돼 있다. */
-    computerScreen: "/assets/models/room-computer-screen.glb",
-    computerKeyboard: "/assets/models/room-computer-keyboard.glb",
-    computerMouse: "/assets/models/room-computer-mouse.glb",
-    deskLamp: "/assets/models/room-desk-lamp.glb",
-    books: "/assets/models/room-books.glb",
+    /** 직접 제작한 방 소품. 재생성: scripts/create-original-furniture.mjs. 밑면 y=0. */
+    computerScreen: "/assets/models/room-computer-screen.glb?v=original-20260912",
+    computerKeyboard: "/assets/models/room-computer-keyboard.glb?v=original-20260912",
+    computerMouse: "/assets/models/room-computer-mouse.glb?v=original-20260912",
+    deskLamp: "/assets/models/room-desk-lamp.glb?v=original-20260912",
+    books: "/assets/models/room-books.glb?v=original-20260912",
     /** 직접 제작한 고3 생활 소품. 재생성: scripts/create-student-props.mjs */
     snackBag: "/assets/models/room-snack-bag.glb?v=20260910-flat",
     studyPapers: "/assets/models/room-study-papers.glb?v=20260910",
     cupNoodleTrash: "/assets/models/room-cup-noodle-trash.glb?v=20260910-upright2",
     studentBookshelf: "/assets/models/room-student-bookshelf.glb?v=20260910",
-    rug: "/assets/models/room-rug.glb",
+    rug: "/assets/models/room-rug.glb?v=original-20260912",
+    leafyPlant: "/assets/models/room-potted-plant.glb?v=original-20260912",
     /** 둥근 선인장과 도자기 화분. 재생성: scripts/create-cactus.mjs */
     pottedPlant: "/assets/models/room-potted-cactus.glb?v=20260911",
     /**
