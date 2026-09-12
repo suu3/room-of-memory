@@ -93,12 +93,19 @@ const compressed = path.join(work, `${name}.glb`);
 try {
   const source = readGlbJson(input);
   const skinned = (source.skins?.length ?? 0) > 0 || (source.animations?.length ?? 0) > 0;
+  const morphed = (source.meshes ?? []).some((mesh) =>
+    mesh.primitives.some((primitive) => (primitive.targets?.length ?? 0) > 0),
+  );
 
   /*
    * 본이 있는 모델은 meshopt만 씌운다. optimize는 메쉬를 합치고(join) 줄이는데(simplify),
    * 스킨·애니메이션이 걸린 메쉬에서는 그게 본과의 대응을 흔든다. 소품은 반대로 합쳐야
    * 드로우콜이 준다.
+   *
+   * shape key(morph target)가 있는 모델도 같다. 이불·커튼처럼 shape key를 따로 움직여야
+   * 하는 부품이 재질이 같다고 한 메쉬로 합쳐지면 이름이 사라지고 한 몸으로만 움직인다.
    */
+  const keepParts = skinned || morphed;
   /*
    * 밑면을 y=0으로 내린다. 게임은 "놓을 면의 높이를 그대로 좌표로 준다"는 규약으로 도는데
    * (model-utils의 centerModelXZ 주석) 블렌더 원점은 대개 물건 한가운데 있다. 여기서
@@ -108,8 +115,13 @@ try {
   const based = path.join(work, `${name}-based.glb`);
   gltfTransform(["center", input, based, "--pivot", "below"]);
 
-  console.log(`\n▸ 압축 (${skinned ? "본 있음: meshopt만" : "소품: 합치고 meshopt"})`);
-  const log = skinned
+  const mode = skinned
+    ? "본 있음: meshopt만"
+    : morphed
+      ? "shape key 있음: meshopt만"
+      : "소품: 합치고 meshopt";
+  console.log(`\n▸ 압축 (${mode})`);
+  const log = keepParts
     ? gltfTransform(["meshopt", based, compressed, "--level", "medium"])
     : gltfTransform([
         "optimize",
@@ -196,6 +208,13 @@ try {
   );
   if (bones.length > 0) console.log(`  본 ${bones.length}개`);
   if (clips.length > 0) console.log(`  애니메이션: ${clips.join(", ")}`);
+  const shapeKeys = [];
+  gltf.scene.traverse((object) => {
+    for (const key of Object.keys(object.morphTargetDictionary ?? {})) {
+      shapeKeys.push(`${object.name}.${key}`);
+    }
+  });
+  if (shapeKeys.length > 0) console.log(`  shape key: ${shapeKeys.join(", ")}`);
 
   const destination = path.join(OUT_DIR, `${name}.glb`);
   const replacing = existsSync(destination);

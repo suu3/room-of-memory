@@ -40,6 +40,28 @@
   액션의 마지막 키프레임이 첫 포즈로 되돌아오게 두지 말 것: 재생이 끝에서 첫 자세로
   튄다 (그래서 지금 SitDown/StandUp은 게임이 안 쓰고 가중치로 섞는다).
 
+## Shape key로 여닫는 부품
+
+침대 이불과 커튼은 애니메이션이 아니라 **shape key 하나**로 움직인다. 게임은 노드
+이름으로 부품을, shape key 이름으로 자세를 찾고, 진행도(0~1)를 그 가중치에 쓴다.
+
+| 모델 | 노드 | shape key | 0 | 1 |
+|---|---|---|---|---|
+| room-bed | `blanket` | `folded` | 펼쳐 덮여 있다 | 발치로 접혀 뭉친다 |
+| room-curtain | `left` · `right` | `open` | 닫혀 창을 덮는다 | 바깥쪽 끝에 뭉쳐 창이 드러난다 |
+
+- Basis가 0이고 shape key가 1이다. **이동까지 shape key에 넣는다.** 코드는 부품을
+  옮기지 않으므로, 커튼은 젖힌 자세에서도 바깥쪽 매달린 끝이 닫힌 자세와 같은 자리에
+  있어야 한다 (봉 끝에 걸려 있다).
+- 내보내기 Data ▸ Mesh ▸ **Shape Keys** ✓. shape key가 있는 메쉬에는 `Apply Modifiers`가
+  안 먹는다. 블렌더가 그 메쉬의 shape key를 조용히 버리므로 모디파이어는 미리 적용하거나 지운다.
+- 부품은 합치지 않는다. `pnpm model:prep`은 shape key가 보이면 메쉬를 합치지 않고 압축만
+  하고, 검사 결과에 `shape key: left.open, right.open`처럼 찍어 준다. 이 줄이 안 나오면
+  내보내기에서 빠진 것이다.
+- 지금 커튼(`room-curtain.glb`)은 `scripts/create-curtain.mjs`가 식으로 만든 것이다. 블렌더로
+  다시 만들면 같은 이름 규약으로 내보내 `model:prep`을 돌리고 `src/lib/assets.ts`의 `?v=`를
+  올린다. 코드는 그대로고, 놓는 자리(`curtain-model.ts`의 실측)만 새 파일에 맞게 고친다.
+
 ## 내보낸 뒤
 
 ```bash

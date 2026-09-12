@@ -37,6 +37,13 @@ export const ASSETS = {
      * src/scenes/memory-room/bed.ts. 다시 내보내면 이름 규약을 지키고 ?v=를 올린다.
      */
     bed: "/assets/models/room-bed.glb",
+    /**
+     * 창 양쪽 커튼 천 두 장 (노드 left·right). 재생성: scripts/create-curtain.mjs. 재질이 없어
+     * 코드가 fabric을 입히고, 각 장의 shape key `open`으로 여닫는다 (이불의 folded와 같은
+     * 방식). 규약·놓는 자리는 src/scenes/memory-room/curtain-model.ts. 블렌더 제작본으로
+     * 바꾸면 같은 이름으로 내보내고 ?v=를 올린다.
+     */
+    curtain: "/assets/models/room-curtain.glb",
     /** 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있다. */
     rabbitDoll: "/assets/models/rabbit-doll.glb?v=fix-20260906",
   },

@@ -16,13 +16,13 @@ import { playSound } from "@/lib/audio";
 import { isAtCurtain, useMemoryRoomStore } from "@/store/memory-room";
 import { BedModel } from "./BedModel";
 import { CurtainCloth, CurtainRod } from "./CurtainCloth";
+import { CURTAIN_MODEL_POSITION, CURTAIN_OPEN_KEY, CURTAIN_Z } from "./curtain-model";
 import {
   CURTAIN_NEAR_RADIUS,
   CURTAIN_TAP_SLOP,
   CURTAIN_X,
   type CurtainPull,
   type CurtainSide,
-  curtainX,
   pullProgress,
 } from "./curtain-motion";
 import { FurnitureModel } from "./FurnitureModel";
@@ -158,10 +158,9 @@ const SHELF_PARTS = [
 
 /**
  * 커튼이 걸린 평면. 드래그 기준점을 커튼 메쉬에서 뽑으면 안 된다. 커튼이 손을 따라
- * 밀리는 순간 교차점도 같이 밀려서 이동량이 0으로 무너진다. 움직이지 않는 이 평면에
+ * 젖혀지는 순간 교차점도 같이 밀려서 이동량이 0으로 무너진다. 움직이지 않는 이 평면에
  * 광선을 쏴서 손이 실제로 간 거리를 잰다.
  */
-const CURTAIN_Z = -3.72;
 const CURTAIN_PLANE = new Plane(new Vector3(0, 0, 1), -CURTAIN_Z);
 const curtainHit = new Vector3();
 
@@ -630,17 +629,21 @@ function Curtain({
   /** 손을 뗐다. `progress`는 놓는 순간의 진행도, `tapped`면 끌지 않고 누르기만 한 것: 그대로 뒤집는다. */
   onRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
 }) {
-  const groupRef = useRef<Group>(null);
   /*
    * 다가가면 빛난다. 호버·커서도 다가갔을 때만 켠다. 멀리서 잡을 수 없는 물건이
    * 멀리서 빛나면 "만질 수 있다"는 거짓말이 된다.
    *
-   * 기준점은 커튼이 지금 있는 자리가 아니라 닫혀 있을 때의 자리다. 젖히는 도중에
-   * 판정 원이 손을 따라 미끄러지면, 당기다 말고 반경 밖으로 나가 빛이 꺼진다.
+   * 기준점은 닫혀 있을 때 천의 가운데다. 젖혀진 천을 따라 판정 원이 미끄러지면,
+   * 당기다 말고 반경 밖으로 나가 빛이 꺼진다.
    */
   const clothRef = useRef<Mesh>(null);
   const near = useNearPlayer(CURTAIN_X[side].closed, CURTAIN_Z, CURTAIN_NEAR_RADIUS);
   const { handlers } = useGlowHover(near);
+  // 모델이 글로우가 켜진 뒤에 붙으면 선택이 비어 있다. 붙을 때마다 다시 훑게 한다.
+  const [modelVersion, setModelVersion] = useState(0);
+  const handleModelReady = useCallback(() => setModelVersion((version) => version + 1), []);
+  /** 화면에 보이는 젖힘 진행도. 놓은 뒤 damp로 `progress`를 따라간다. */
+  const shownRef = useRef(progress);
   const reducedMotion = useMemo(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     [],
@@ -707,8 +710,6 @@ function Curtain({
   }, [endDrag]);
 
   useFrame((_, delta) => {
-    const group = groupRef.current;
-    if (!group) return;
     // 몸이 창가에 닿기 전에 끌거나 놓은 것을 이제 흘려보낸다. 몸짓이 도중에 접혔으면 버린다.
     const pending = pendingRef.current;
     if (pending.pull !== null || pending.release !== null) {
@@ -725,22 +726,23 @@ function Curtain({
       }
     }
     // 끌고 있는 동안에는 손을 그대로 따라가고, 놓은 뒤에만 부드럽게 붙는다.
-    const goal = curtainX(side, progress);
-    group.position.x = dragRef.current
-      ? goal
-      : MathUtils.damp(group.position.x, goal, reducedMotion ? 18 : 5.5, delta);
-    // Gather in sync with the displayed position, including the damped release motion.
-    const influences = clothRef.current?.morphTargetInfluences;
-    if (influences) {
-      const { closed, open } = CURTAIN_X[side];
-      influences[0] = MathUtils.clamp((group.position.x - closed) / (open - closed), 0, 1);
+    shownRef.current = dragRef.current
+      ? progress
+      : MathUtils.damp(shownRef.current, progress, reducedMotion ? 18 : 5.5, delta);
+    /*
+     * 여닫힘은 천의 shape key `open` 하나다 (curtain-model.ts): 천이 바깥쪽 끝에 뭉치며
+     * 창이 드러난다. 코드는 천을 옮기지 않아서 블렌더 제작 커튼으로 바꿔도 여기는 그대로다.
+     */
+    const cloth = clothRef.current;
+    const index = cloth?.morphTargetDictionary?.[CURTAIN_OPEN_KEY];
+    if (cloth?.morphTargetInfluences && index !== undefined) {
+      cloth.morphTargetInfluences[index] = shownRef.current;
     }
   });
 
   return (
     <group
-      ref={groupRef}
-      position={[curtainX(side, progress), 2.5, CURTAIN_Z]}
+      position={CURTAIN_MODEL_POSITION}
       name={`curtain-${side}`}
       {...handlers}
       onPointerDown={(event) => {
@@ -780,8 +782,13 @@ function Curtain({
       // 곧바로 드래그가 취소돼 한 칸도 못 움직였다. 포인터 캡처가 잡혀 있으므로
       // 밖으로 나가도 move/up은 계속 들어온다.
     >
-      <MemoryGlowSelection selectionKey={`curtain-${side}`} tier="prop" enabled={near}>
-        <CurtainCloth side={side} palette={palette} meshRef={clothRef} />
+      <MemoryGlowSelection
+        selectionKey={`curtain-${side}`}
+        tier="prop"
+        enabled={near}
+        selectionVersion={modelVersion}
+      >
+        <CurtainCloth side={side} palette={palette} meshRef={clothRef} onReady={handleModelReady} />
       </MemoryGlowSelection>
     </group>
   );
