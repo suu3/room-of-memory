@@ -13,6 +13,7 @@ import {
   updatePlayerRig,
 } from "@/scenes/memory-room/player-animation";
 import { SIT_CONTACT_Y, STEP_RATE } from "@/scenes/memory-room/player-rig";
+import { seatOffsetFromCenter } from "@/scenes/memory-room/seats";
 import { advanceSitProgress, sitEase } from "@/scenes/memory-room/sit-motion";
 
 /**
@@ -36,12 +37,18 @@ const VIEWER_WALK_SPEED = 1.5;
  * 앉기 포즈에 딸려 나오는 걸상.
  *
  * 방에서는 의자가 이 일을 하지만 여기엔 가구가 없다. 허공에 앉은 그림은 자세가 아니라
- * 버그로 읽힌다. 좌면은 몸이 닿는 높이(SIT_CONTACT_Y)에 맞추고, 앞뒤 중심은 엉덩이~허벅지
- * 접촉면 가운데에 둔다.
+ * 버그로 읽힌다. 좌면은 몸이 닿는 높이(SIT_CONTACT_Y)에 맞추고, 앞뒤는 방의 의자와 같은
+ * 규칙(seats.ts의 seatOffsetFromCenter)으로 몸을 좌면 **앞턱**에 걸쳐 앉힌다: 이 캐릭터는
+ * 다리가 짧아 좌면 가운데에 두면 정강이와 발이 좌면을 뚫고 내려간다.
  */
 const STOOL_HEIGHT = 0.28;
-const STOOL_SIZE: [number, number, number] = [0.78, STOOL_HEIGHT, 0.5];
-const STOOL_POSITION: [number, number, number] = [0, SIT_CONTACT_Y - STOOL_HEIGHT / 2, -0.08];
+const STOOL_DEPTH = 0.5;
+const STOOL_SIZE: [number, number, number] = [0.78, STOOL_HEIGHT, STOOL_DEPTH];
+const STOOL_POSITION: [number, number, number] = [
+  0,
+  SIT_CONTACT_Y - STOOL_HEIGHT / 2,
+  -seatOffsetFromCenter(STOOL_DEPTH / 2),
+];
 
 function ViewerModel({
   yawRef,
