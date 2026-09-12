@@ -3,6 +3,7 @@ import type {} from "@react-three/fiber";
 import { ASSETS } from "@/lib/assets";
 import { FurnitureModel } from "./FurnitureModel";
 import { STUDENT_BOOKSHELF } from "./layout";
+import { WorkbookClue } from "./RoomClues";
 
 for (const path of [
   ASSETS.models.snackBag,
@@ -13,11 +14,18 @@ for (const path of [
   useGLTF.preload(path, true, true);
 }
 
-/** 책상 로컬 좌표. 램프 아래 공부 자리. */
+/**
+ * 책상 로컬 좌표. 램프 아래 공부 자리.
+ *
+ * 문제집 더미는 집어 들 수 있는 단서다 (RoomClues의 WorkbookClue). 자리를 옮기면
+ * layout의 CLUE_PROPS.workbook.near도 같이 옮긴다: 거기가 다가갔는지 재는 기준점이다.
+ */
 export function StudentDeskProps() {
   return (
     <group name="student-desk-props">
-      <FurnitureModel path={ASSETS.models.studyPapers} position={[1.25, 1.11, 0.32]} scale={1} />
+      <WorkbookClue>
+        <FurnitureModel path={ASSETS.models.studyPapers} position={[1.25, 1.11, 0.32]} scale={1} />
+      </WorkbookClue>
     </group>
   );
 }

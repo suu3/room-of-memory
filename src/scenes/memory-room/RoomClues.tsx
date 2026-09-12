@@ -84,6 +84,22 @@ export function ShelfBookClue({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * 책상 위 문제집 더미. 집어 들면 화면 가운데에서 돌려볼 수 있고, 뒤표지에 이름이
+ * 적혀 있다 (src/data/room-clues.ts의 DISCOVERY_IDS). 앞면만 보고 내려놓으면 모른다.
+ */
+export function WorkbookClue({ children }: { children: ReactNode }) {
+  return (
+    <ClueProp
+      clue="workbook"
+      near={CLUE_PROPS.workbook.near}
+      radius={CLUE_PROPS.workbook.interactionRadius}
+    >
+      {children}
+    </ClueProp>
+  );
+}
+
 export function DeskClockClue({ children }: { children: ReactNode }) {
   return (
     <ClueProp

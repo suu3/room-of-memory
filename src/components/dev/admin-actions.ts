@@ -1,5 +1,5 @@
 import type { MemoryId } from "@/data/memory-room";
-import type { PuzzleId } from "@/data/room-clues";
+import type { DiscoveryId, PuzzleId } from "@/data/room-clues";
 import { sanitizeProgress, useMemoryRoomStore } from "@/store/memory-room";
 import { cycleMemory } from "./admin-progress";
 
@@ -13,6 +13,7 @@ export interface AdminPatch {
   doorOpened?: boolean;
   batTaken?: boolean;
   solvedPuzzles?: PuzzleId[];
+  discoveries?: DiscoveryId[];
   endingStarted?: boolean;
   started?: boolean;
 }
@@ -38,6 +39,7 @@ export function applyAdminPatch(patch: AdminPatch): void {
     doorOpened: state.doorOpened,
     batTaken: state.batTaken,
     solvedPuzzles: state.solvedPuzzles,
+    discoveries: state.discoveries,
     endingStarted: state.endingStarted,
     // 진행이 아니라 환경설정이지만, 걸러내는 함수가 통째로 받으므로 같이 넘겨야 안 지워진다
     soundMuted: state.soundMuted,

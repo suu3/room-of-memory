@@ -10,6 +10,7 @@ import { useTypewriterState } from "@/lib/use-typewriter";
 import {
   selectActiveInteraction,
   selectActivePlayback,
+  selectHeroNameKnown,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { CharacterPortrait } from "./CharacterPortrait";
@@ -33,6 +34,7 @@ export function DialogueBox() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
   const active = useMemoryRoomStore(selectActiveInteraction);
+  const heroNameKnown = useMemoryRoomStore(selectHeroNameKnown);
   const playback = useMemoryRoomStore(selectActivePlayback);
   const advanceDialogue = useMemoryRoomStore((state) => state.advanceDialogue);
   const advancePlayback = useMemoryRoomStore((state) => state.advancePlayback);
@@ -95,7 +97,11 @@ export function DialogueBox() {
 
   if (!open || !scriptLine) return null;
 
-  const speakerName = tRoom(`characters.${scriptLine.speaker}.name` as ParseKeys<"memoryRoom">);
+  // 이름을 알기 전의 주인공은 "나"다. 문제집 뒤표지를 보기 전까지 수첩에도 이름이 없다
+  const speakerName =
+    scriptLine.speaker === "hero" && !heroNameKnown
+      ? t("speaker.unknownHero")
+      : tRoom(`characters.${scriptLine.speaker}.name` as ParseKeys<"memoryRoom">);
 
   return (
     // z-50: 미니게임 결과 대사일 때 미니게임 오버레이(z-40) 위로 올라와야 한다.

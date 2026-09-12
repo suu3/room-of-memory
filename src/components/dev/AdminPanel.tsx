@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MEMORIES } from "@/data/memory-room";
-import { PUZZLE_IDS } from "@/data/room-clues";
+import { DISCOVERY_IDS, PUZZLE_IDS } from "@/data/room-clues";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import {
   type AdminSpace,
@@ -34,6 +34,7 @@ export function AdminPanel() {
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
   const batTaken = useMemoryRoomStore((state) => state.batTaken);
   const solvedPuzzles = useMemoryRoomStore((state) => state.solvedPuzzles);
+  const discoveries = useMemoryRoomStore((state) => state.discoveries);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   const started = useMemoryRoomStore((state) => state.started);
   const reset = useMemoryRoomStore((state) => state.reset);
@@ -165,6 +166,24 @@ export function AdminPanel() {
                     solvedPuzzles: event.target.checked
                       ? [...solvedPuzzles, id]
                       : solvedPuzzles.filter((each) => each !== id),
+                  })
+                }
+              />
+              {id}
+            </label>
+          ))}
+
+          {DISCOVERY_IDS.map((id) => (
+            <label key={id} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                aria-label={id}
+                checked={discoveries.includes(id)}
+                onChange={(event) =>
+                  applyAdminPatch({
+                    discoveries: event.target.checked
+                      ? [...discoveries, id]
+                      : discoveries.filter((each) => each !== id),
                   })
                 }
               />

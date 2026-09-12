@@ -17,6 +17,7 @@ import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
 import { SUIT_GLYPH, SUITS, suitColor } from "@/minigames/card-odd/cards";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BUTTON_QUIET, PANEL_PAPER } from "./ui-classes";
+import { WorkbookClue } from "./WorkbookClue";
 
 /** 서랍 속 쪽지에 적힌 줄. 아빠가 급히 적은 메모라 세 줄이 전부다. */
 const NOTE_LINES = ["clue.drawerNote.l1", "clue.drawerNote.l2", "clue.drawerNote.l3"] as const;
@@ -27,6 +28,7 @@ const CLUE_TEXT = {
   "wall-calendar": { title: "clue.wallCalendar.title", caption: "clue.wallCalendar.caption" },
   "shelf-book": { title: "clue.shelfBook.title", caption: "clue.shelfBook.caption" },
   "desk-clock": { title: "clue.deskClock.title", caption: "clue.deskClock.caption" },
+  workbook: { title: "clue.workbook.title", caption: "clue.workbook.caption" },
 } as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
 
 /** 놀이책의 펼쳐진 쪽에 적힌 줄: 트럼프 항목의 앞부분만 보인다. */
@@ -89,8 +91,8 @@ export function ClueOverlay() {
 
   const { title: titleKey, caption: captionKey } = CLUE_TEXT[clue];
   const isNote = clue === "drawer-note";
-  // 종이(쪽지·책)는 좁게, 격자를 그리는 것(달력·시계)은 넓게 편다
-  const narrow = isNote || clue === "shelf-book";
+  // 종이(쪽지·책)와 들고 돌리는 물건(문제집)은 좁게, 격자를 그리는 것(달력·시계)은 넓게 편다
+  const narrow = isNote || clue === "shelf-book" || clue === "workbook";
 
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center overflow-hidden p-4">
@@ -123,6 +125,8 @@ export function ClueOverlay() {
           <ShelfBook />
         ) : clue === "desk-clock" ? (
           <DeskClock />
+        ) : clue === "workbook" ? (
+          <WorkbookClue />
         ) : (
           <WallCalendar />
         )}

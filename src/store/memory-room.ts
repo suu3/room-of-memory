@@ -13,7 +13,14 @@ import {
   phaseConfigOf,
   SCRIPTS,
 } from "@/data/memory-room";
-import { CLUE_AFTER_MEMORY, type ClueId, PUZZLE_IDS, type PuzzleId } from "@/data/room-clues";
+import {
+  CLUE_AFTER_MEMORY,
+  type ClueId,
+  DISCOVERY_IDS,
+  type DiscoveryId,
+  PUZZLE_IDS,
+  type PuzzleId,
+} from "@/data/room-clues";
 import type { CurtainSide } from "@/types/curtain";
 import type { CutsceneCut, DialogueScriptLine } from "@/types/interaction";
 import type { MinigameResult } from "@/types/minigame";
@@ -220,6 +227,11 @@ interface MemoryRoomState {
   /** 풀어낸 미궁 문제. 저장된다. 현관 잠금(angle-turn)이 엔딩의 두 번째 조건이다. */
   solvedPuzzles: PuzzleId[];
   /**
+   * 방을 뒤지다 알게 된 자기 자신에 대한 사실 (지금은 이름 하나). 저장된다.
+   * 수첩의 흐린 칸을 열고 대사창의 화자 이름표를 바꾼다 (src/data/room-clues.ts).
+   */
+  discoveries: DiscoveryId[];
+  /**
    * 닫힌 방문을 마지막으로 두드린 시각 (0 = 아직). 문이 안 열리는 이유를 한 줄
    * 혼잣말로 흘리는 신호다 (DoorNudge): 잠긴 게 아니라 **안 여는** 것이라는 게
    * 대사로 드러나야 한다 (docs/content-design.md 3-1).
@@ -252,6 +264,8 @@ interface MemoryRoomState {
   toggleLights: () => void;
   openClue: (id: ClueId) => void;
   closeClue: () => void;
+  /** 방에서 알게 된 사실을 적는다. 이미 아는 것이면 아무 일도 없다. */
+  discover: (id: DiscoveryId) => void;
   /**
    * 방문을 연다. 30일 만에 처음으로. 라디오 목소리를 못 들었으면 아무 일도
    * 일어나지 않는다. 이 순간이 2막의 시작이다.
@@ -530,6 +544,7 @@ type PersistedProgress = Pick<
   | "doorOpened"
   | "batTaken"
   | "solvedPuzzles"
+  | "discoveries"
   | "endingStarted"
   | "soundMuted"
   | "difficulty"
@@ -592,6 +607,9 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     solvedPuzzles: Array.isArray(saved.solvedPuzzles)
       ? PUZZLE_IDS.filter((id) => (saved.solvedPuzzles as unknown[]).includes(id))
       : [],
+    discoveries: Array.isArray(saved.discoveries)
+      ? DISCOVERY_IDS.filter((id) => (saved.discoveries as unknown[]).includes(id))
+      : [],
     endingStarted: saved.endingStarted === true && batTaken,
     soundMuted: saved.soundMuted === true,
     // 모르는 값은 스킵이 보이는 쪽(easy)으로: normal이 잘못 살아나면 접근성 장치가 사라진다
@@ -631,6 +649,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       activeClue: null,
       activePuzzle: null,
       solvedPuzzles: [],
+      discoveries: [],
       doorNudgedAt: 0,
       beginInteraction: (id) =>
         set((state) => {
@@ -776,6 +795,10 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
             : { activeClue: id },
         ),
       closeClue: () => set((state) => (state.activeClue ? { activeClue: null } : state)),
+      discover: (id) =>
+        set((state) =>
+          state.discoveries.includes(id) ? state : { discoveries: [...state.discoveries, id] },
+        ),
       openRoomDoor: () => set((state) => (selectDoorReady(state) ? { doorOpened: true } : state)),
       takeBat: () =>
         set((state) => {
@@ -869,6 +892,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           activeClue: null,
           activePuzzle: null,
           solvedPuzzles: [],
+          discoveries: [],
           doorNudgedAt: 0,
           resetRevision: state.resetRevision + 1,
         })),
@@ -883,6 +907,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         doorOpened: state.doorOpened,
         batTaken: state.batTaken,
         solvedPuzzles: state.solvedPuzzles,
+        discoveries: state.discoveries,
         endingStarted: state.endingStarted,
         soundMuted: state.soundMuted,
         difficulty: state.difficulty,
@@ -894,6 +919,9 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
 );
 
 export const selectCollected = (state: MemoryRoomState) => state.collected;
+/** 주인공의 이름을 아는가: 수첩 이름·나이 칸과 대사창 화자 이름표가 이걸 본다. */
+export const selectHeroNameKnown = (state: MemoryRoomState) =>
+  state.discoveries.includes("hero-name");
 export const selectActiveInteraction = (state: MemoryRoomState) => state.activeInteraction;
 export const selectActivePlayback = (state: MemoryRoomState) => state.activePlayback;
 export const selectGamePhase = (state: MemoryRoomState) => gamePhaseOf(state);

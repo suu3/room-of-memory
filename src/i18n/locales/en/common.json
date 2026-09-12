@@ -1,4 +1,7 @@
 {
+  "speaker": {
+    "unknownHero": "Me"
+  },
   "title": "Room of Memory",
   "hud": {
     "scattered": "Memories scattered around the room",
@@ -410,7 +413,10 @@
       "sit": "Sit"
     },
     "turnLeft": "Turn left",
-    "turnRight": "Turn right"
+    "turnRight": "Turn right",
+    "nameUnknown": "A name I don't know yet",
+    "lockedClue": "Not yet revealed: look around the room",
+    "lockedHintClue": "Unlocks by looking around the room"
   },
   "titleScreen": {
     "tagline": "Gather the memories scattered across a room that never opened.",
@@ -467,6 +473,15 @@
       "figure": "A clock face marked every 45 degrees, clockwise",
       "l1": "Start at 0 and count the way the hands turn. Half a turn is 180.",
       "caption": "No idea when I wrote these. Bored during homework, probably."
+    },
+    "workbook": {
+      "title": "Workbook on the Desk",
+      "alt": "3D workbook: drag to turn it",
+      "hint": "Drag or use the buttons to turn",
+      "tagLabel": "Name",
+      "tagGrade": "12th grade",
+      "found": "There's a name written on the back cover. {{name}}. Guess I was worried someone would take it.",
+      "caption": "A well-thumbed math workbook. How many pages did I actually get through?"
     }
   },
   "difficulty": {

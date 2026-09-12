@@ -13,6 +13,7 @@ describe("sanitizeProgress", () => {
         doorOpened: false,
         batTaken: false,
         solvedPuzzles: ["angle-turn"],
+        discoveries: ["hero-name"],
         endingStarted: false,
         soundMuted: true,
         lightsOn: false,
@@ -24,11 +25,20 @@ describe("sanitizeProgress", () => {
       doorOpened: false,
       batTaken: false,
       solvedPuzzles: ["angle-turn"],
+      discoveries: ["hero-name"],
       endingStarted: false,
       soundMuted: true,
       lightsOn: false,
       difficulty: "normal",
     });
+  });
+
+  it("keeps only discoveries that still exist", () => {
+    // 방에서 알아낸 사실도 진행이다. 모르는 id는 버리고, 없으면 빈 목록으로 시작한다
+    expect(sanitizeProgress({ discoveries: ["hero-name", "ghost"] }).discoveries).toEqual([
+      "hero-name",
+    ]);
+    expect(sanitizeProgress({}).discoveries).toEqual([]);
   });
 
   it("falls back to easy when the saved difficulty is unknown", () => {

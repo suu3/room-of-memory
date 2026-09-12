@@ -18,6 +18,7 @@ import {
   selectBatReady,
   selectDoorReady,
   selectEndingReady,
+  selectHeroNameKnown,
   selectMusicPhase,
   selectMusicPlaying,
   selectRadioSignaling,
@@ -854,5 +855,32 @@ describe("미궁 문제: 현관 잠금", () => {
     useMemoryRoomStore.getState().reset();
 
     expect(useMemoryRoomStore.getState().solvedPuzzles).toEqual([]);
+  });
+});
+
+describe("discoveries", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("문제집 뒤표지를 보면 이름을 알게 되고, 두 번 봐도 한 번만 적힌다", () => {
+    expect(selectHeroNameKnown(useMemoryRoomStore.getState())).toBe(false);
+
+    useMemoryRoomStore.getState().discover("hero-name");
+    useMemoryRoomStore.getState().discover("hero-name");
+
+    expect(useMemoryRoomStore.getState().discoveries).toEqual(["hero-name"]);
+    expect(selectHeroNameKnown(useMemoryRoomStore.getState())).toBe(true);
+  });
+
+  it("문제집은 처음부터 집어 들 수 있다: 조사를 기다리는 단서가 아니다", () => {
+    useMemoryRoomStore.getState().openClue("workbook");
+
+    expect(useMemoryRoomStore.getState().activeClue).toBe("workbook");
+  });
+
+  it("새 게임을 시작하면 이름도 다시 모른다", () => {
+    useMemoryRoomStore.getState().discover("hero-name");
+    useMemoryRoomStore.getState().reset();
+
+    expect(useMemoryRoomStore.getState().discoveries).toEqual([]);
   });
 });

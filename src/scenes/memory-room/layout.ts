@@ -383,6 +383,11 @@ export const CLUE_PROPS = {
     near: [CABINET_TOP_PROPS.clock.x, -2.82] as readonly [number, number],
     interactionRadius: 2.1,
   },
+  /**
+   * 책상 램프 아래 문제집 더미 (StudentProps의 StudentDeskProps). 좌표는 책상 로컬
+   * [1.25, 1.11, 0.32]를 DESK_POSITION·DESK_ROTATION(y 90°)으로 돌려 월드에 놓은 값.
+   */
+  workbook: { near: [-4.28, -2.45] as readonly [number, number], interactionRadius: 2.1 },
 } as const;
 
 /** 소파 앞 야구 가방의 배율. 가구(1.3)보다 크게 잡아야 바닥에서 눈에 든다. */

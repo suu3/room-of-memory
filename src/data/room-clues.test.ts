@@ -5,9 +5,11 @@ import ko from "@/i18n/locales/ko/common.json";
 import { CALENDAR_MONTHS, isNationalsDay, markedDayOf } from "@/minigames/calendar-flip/calendar";
 import {
   CLUE_AFTER_MEMORY,
+  CLUE_DISCOVERY,
   CLUE_IDS,
   COMPUTER_PASSCODE,
   COMPUTER_PASSCODE_LENGTH,
+  DISCOVERY_IDS,
   NATIONALS_DATE,
 } from "./room-clues";
 
@@ -53,6 +55,13 @@ describe("컴퓨터 비밀번호 단서", () => {
       "drawerNote.l3",
       "wallCalendar.title",
       "wallCalendar.caption",
+      "workbook.title",
+      "workbook.alt",
+      "workbook.hint",
+      "workbook.tagLabel",
+      "workbook.tagGrade",
+      "workbook.found",
+      "workbook.caption",
     ];
 
     for (const [locale, resource] of Object.entries(LOCALES)) {
@@ -82,8 +91,23 @@ describe("컴퓨터 비밀번호 단서", () => {
   });
 
   it("단서 id는 kebab-case다. 3D 오브젝트 이름에 그대로 들어간다", () => {
-    for (const id of CLUE_IDS) {
+    for (const id of [...CLUE_IDS, ...DISCOVERY_IDS]) {
       expect(id).toMatch(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/);
+    }
+  });
+
+  it("뒤집어야 나오는 단서는 있는 단서·있는 사실을 잇는다", () => {
+    // 문제집 뒤표지의 이름. 짝이 어긋나면 돌려봐도 아무것도 안 열린다
+    for (const [clue, discovery] of Object.entries(CLUE_DISCOVERY)) {
+      expect(CLUE_IDS).toContain(clue);
+      expect(DISCOVERY_IDS).toContain(discovery);
+    }
+    expect(CLUE_DISCOVERY.workbook).toBe("hero-name");
+  });
+
+  it("이름을 알기 전의 화자 이름표가 ko/en/ja 셋 다 있다", () => {
+    for (const [locale, resource] of Object.entries(LOCALES)) {
+      expect(resource.speaker.unknownHero.trim(), `${locale}: speaker.unknownHero`).not.toBe("");
     }
   });
 });

@@ -5,8 +5,9 @@ import type { ParseKeys } from "i18next";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import type { DiscoveryId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
-import { selectCollected, useMemoryRoomStore } from "@/store/memory-room";
+import { selectCollected, selectHeroNameKnown, useMemoryRoomStore } from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
 import { CharacterModelViewer } from "./CharacterModelViewer";
 import { LoreEntries } from "./LoreEntries";
@@ -16,16 +17,23 @@ import { LoreEntries } from "./LoreEntries";
  * 플레이 전에 열어볼 수 있는 화면이라 이야기의 전제를 미리 흘리면 안 된다.
  *
  * `revealAt`은 이 항목이 열리는 데 필요한 수집 개수. 처음엔 전부 흐리게 덮여 있고,
- * 기억을 모을수록 위에서부터 하나씩 드러난다. 기억 7개에 항목 4개라 간격을 두었다.
+ * 기억을 모을수록 위에서부터 하나씩 드러난다. 기억 7개에 항목 3개라 간격을 두었다.
+ *
+ * 나이(0번)는 기억이 아니라 **방에서 알아내는** 칸이다 (`discovery`). 책상 위 문제집을
+ * 뒤집어 보면 이름과 학년이 적혀 있고, 그 순간 헤더의 이름과 이 칸이 함께 열린다
+ * (src/data/room-clues.ts의 DISCOVERY_IDS). 자기 이름을 기억 수집으로 되찾는 건 이상하다.
  */
 const TABS = ["profile", "lore"] as const;
 
 const PROFILE_ROWS = [
-  { index: 0, revealAt: 1 },
+  { index: 0, discovery: "hero-name" },
   { index: 1, revealAt: 3 },
   { index: 2, revealAt: 5 },
   { index: 3, revealAt: 7 },
-] as const;
+] as const satisfies readonly (
+  | { index: number; revealAt: number }
+  | { index: number; discovery: DiscoveryId }
+)[];
 
 /** HUD 메뉴와 대사창 초상 두 곳에서 열리는 캐릭터 자료 모달. */
 export function CharacterSheetModal() {
@@ -35,6 +43,8 @@ export function CharacterSheetModal() {
   const setOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const collectedCount = useMemoryRoomStore(selectCollected).length;
+  const discoveries = useMemoryRoomStore((state) => state.discoveries);
+  const nameKnown = useMemoryRoomStore(selectHeroNameKnown);
   // 탭은 스토어에 있다. 오른쪽 "기억 수집" 탭이 기록 페이지를 지정해 열기 때문
   const tab = useMemoryRoomStore((state) => state.characterSheetTab);
   const setTab = useMemoryRoomStore((state) => state.setCharacterSheetTab);
@@ -92,11 +102,21 @@ export function CharacterSheetModal() {
             덮어 페이지와 한 장으로 이어지고, 나머지는 뒤에 깔린 종이로 물러난다.
           */}
           <div className="flex flex-none items-end justify-between gap-3 px-5 pt-4">
-            {/* 이름만: 나이·소속은 아래에서 가려두는 항목이라 헤더에 적으면 가리는 의미가 없다 */}
+            {/*
+              이름만: 나이·소속은 아래에서 가려두는 항목이라 헤더에 적으면 가리는 의미가 없다.
+              이름도 문제집 뒤표지를 보기 전까지는 막대다 (BlurredValue와 같은 이유로 본문을 싣지 않는다).
+            */}
             <div className="flex min-w-0 items-end gap-5">
-              <span className="truncate pb-1.5 text-sm font-medium text-ink">
-                {tRoom("characters.hero.name")}
-              </span>
+              {nameKnown ? (
+                <span className="truncate pb-1.5 text-sm font-medium text-ink">
+                  {tRoom("characters.hero.name")}
+                </span>
+              ) : (
+                <span className="flex items-center pb-2.5">
+                  <span className="sr-only">{t("characterSheet.nameUnknown")}</span>
+                  <span aria-hidden className="block h-2.5 w-14 rounded-sm bg-bone/70" />
+                </span>
+              )}
               <div
                 role="tablist"
                 aria-label={t("characterSheet.title")}
@@ -156,7 +176,10 @@ export function CharacterSheetModal() {
                 />
                 <dl className="mt-6 flex w-full flex-col md:absolute md:right-[4%] md:top-[6%] md:mt-0 md:w-[38%]">
                   {PROFILE_ROWS.map((row) => {
-                    const revealed = collectedCount >= row.revealAt;
+                    const revealed =
+                      "revealAt" in row
+                        ? collectedCount >= row.revealAt
+                        : discoveries.includes(row.discovery);
                     return (
                       <div
                         key={row.index}
@@ -180,8 +203,16 @@ export function CharacterSheetModal() {
                                 text={tRoom(
                                   `characters.hero.profile.${row.index}.value` as ParseKeys<"memoryRoom">,
                                 )}
-                                label={t("characterSheet.locked")}
-                                hint={t("characterSheet.lockedHint")}
+                                label={t(
+                                  "revealAt" in row
+                                    ? "characterSheet.locked"
+                                    : "characterSheet.lockedClue",
+                                )}
+                                hint={t(
+                                  "revealAt" in row
+                                    ? "characterSheet.lockedHint"
+                                    : "characterSheet.lockedHintClue",
+                                )}
                               />
                             </span>
                           )}

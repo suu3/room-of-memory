@@ -41,8 +41,33 @@ export const COMPUTER_PASSCODE_LENGTH = COMPUTER_PASSCODE.length;
  * 마치면 배경 오브젝트로 내려앉는 물건이다. 그래서 수집 전에는 열리지 않는다
  * (store의 openClue).
  */
-export const CLUE_IDS = ["drawer-note", "wall-calendar", "shelf-book", "desk-clock"] as const;
+export const CLUE_IDS = [
+  "drawer-note",
+  "wall-calendar",
+  "shelf-book",
+  "desk-clock",
+  "workbook",
+] as const;
 export type ClueId = (typeof CLUE_IDS)[number];
+
+/**
+ * 방을 뒤지다 알게 되는 것들: 수첩의 흐린 칸을 열고, 대사창의 이름표를 바꾼다.
+ *
+ * 기억 수집과 다른 축이다. 기억은 이야기를 밀고, 이것은 **자기 자신에 대한 사실**을
+ * 되찾는다. 지금은 하나뿐이다: 책상 위 문제집을 집어 들고 **뒤집어 보면** 뒤표지에
+ * 적어 둔 이름이 있다. 앞면만 보고 내려놓으면 모른다. 눈에 띄는 자리에 두지 않는
+ * 이유는 한 가지다. 방을 돌려 보는 손이 있어야 나오는 단서가 하나는 있어야 한다.
+ *
+ * 이름을 알기 전까지 수첩의 이름 칸과 나이 칸은 흐리고, 대사창의 화자는 "나"다.
+ * 저장된다 (store의 discoveries).
+ */
+export const DISCOVERY_IDS = ["hero-name"] as const;
+export type DiscoveryId = (typeof DISCOVERY_IDS)[number];
+
+/** 어느 단서를 뒤집어야 무엇을 알게 되는가. 단서 화면(WorkbookClue)이 이 짝을 보고 적는다. */
+export const CLUE_DISCOVERY = { workbook: "hero-name" } as const satisfies Partial<
+  Record<ClueId, DiscoveryId>
+>;
 
 /**
  * 손 쓰는 문제의 규칙이 어디에 있는가.
