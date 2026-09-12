@@ -31,8 +31,9 @@ const CELL_PX = 16;
  * 1차는 부모 얼굴이 그늘에 묻힌 사진, 2차는 얼굴이 드러난 사진.
  */
 const PHOTOS = {
-  1: { src: ASSETS.images.mgPhotoWipePhase1, width: 620, height: 471, tint: "--color-bone" },
-  2: { src: ASSETS.images.mgPhotoWipePhase2, width: 560, height: 516, tint: "--color-memory" },
+  // 원본 1313×1198 (1.10:1) · 1402×1122 (1.25:1). 비율이 어긋나면 캔버스가 사진을 늘려 그린다
+  1: { src: ASSETS.images.mgPhotoWipePhase1, width: 560, height: 511, tint: "--color-bone" },
+  2: { src: ASSETS.images.mgPhotoWipePhase2, width: 620, height: 496, tint: "--color-memory" },
 } as const;
 
 function tokenColor(name: string): string {

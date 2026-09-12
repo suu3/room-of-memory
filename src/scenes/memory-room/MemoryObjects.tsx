@@ -390,9 +390,9 @@ const FRAME_BARS = [
 function Frame({ palette, opacity }: VisualProps) {
   const revealed = useMemoryRoomStore((state) => state.revisited.includes("frame"));
   /*
-   * 잘려 나가는 정도가 두 그림이 다르다. 1차(1.32:1)는 액자 구멍(1.39:1)과 비슷해
-   * 위아래로 5%쯤만 깎이고, 2차(1.09:1)는 훨씬 세로로 길어 22%쯤 깎인다. 둘 다
-   * 얼굴은 가운데 세로 절반 안에 있어 남는다. 잘리는 건 위쪽 배경과 아래쪽 메달이다.
+   * 잘려 나가는 정도가 두 그림이 다르다. 1차(1.10:1)는 액자 구멍(1.39:1)보다 세로로
+   * 길어 위아래로 21%쯤 깎이고, 2차(1.25:1)는 10%쯤 깎인다. 1차에서 잘리는 건 그늘에
+   * 묻힌 부모의 이마와 아래쪽 메달이고, 2차의 세 얼굴은 가운데에 있어 다 남는다.
    */
   const photo = useCoverTexture(
     revealed ? ASSETS.images.mgPhotoWipePhase2 : ASSETS.images.mgPhotoWipePhase1,

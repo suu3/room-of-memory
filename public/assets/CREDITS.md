@@ -17,6 +17,7 @@
 | images/mg-ball-catch-impact.webp | Generated with OpenAI built-in ImageGen for this project, 2026-07-26 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-frequency-tune-frame.webp | 사용자가 직접 넣은 라디오 일러스트(2026-08-04). 흰 배경·표시창을 알파로 도려낸 뒤 webp로 변환 | 미기재 (사용자 제공) | 미기재 |
 | images/mg-window-view-outside.webp | 사용자가 직접 넣은 창밖 일러스트(2026-08-04). webp로 변환 | 미기재 (사용자 제공) | 미기재 |
+| images/mg-photo-wipe-phase-1.webp, images/mg-photo-wipe-phase-2.webp | 사용자가 직접 넣은 액자 가족사진 일러스트 두 장(2026-09-12 교체). 1차는 부모 얼굴이 그늘에 묻힌 버전, 2차는 드러난 버전. webp | 미기재 (사용자 제공) | 미기재 |
 | models/ch1-radio.glb, models/room-books.glb, models/room-computer-*.glb, models/room-desk-lamp.glb, models/room-rug.glb, models/room-potted-plant.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-12). 원본: scripts/create-original-furniture.mjs. 외부 모델·텍스처 사용 없음. DESIGN.md 씬 팔레트, Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
 | 거실 운동화·쿠션·담요·머그컵·접시·리모컨·TV장 (런타임 지오메트리) | 이 프로젝트를 위해 코드로 직접 제작(2026-09-12). src/scenes/memory-room/LivingRoomDetails.tsx 및 LivingRoomFurniture.tsx. 외부 모델·텍스처 사용 없음 | Codex | 프로젝트 생성 에셋 |
 | models/room-potted-cactus.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-11). 원본: scripts/create-cactus.mjs. 외부 모델·텍스처 사용 없음. DESIGN.md 씬 팔레트, Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
