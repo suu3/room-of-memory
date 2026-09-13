@@ -3,6 +3,14 @@ import type { VoiceId } from "@/lib/audio/voices";
 /** 에셋 경로 상수: 코드 곳곳에 경로 문자열을 산재시키지 않는다 (.claude/rules/assets.md). */
 export const ASSETS = {
   models: {
+    /** Blender로 제작한 접힌 종이와 타원형 입구가 있는 각티슈. */
+    tissueBox: "/assets/models/room-tissue-box.glb?v=20260913",
+    /** 천장 부착형 실내기: 흡입 그릴·송풍 날개·센서 창. */
+    ceilingAc: "/assets/models/room-ceiling-ac.glb?v=20260913",
+    /** 오른손으로 커튼을 당기는 모션. */
+    curtainPullTest: "/assets/models/curtain-pull-test.glb?v=20260913",
+    /** 창을 바라볼 때 왼손으로 당기는 대칭 모션. */
+    curtainPullLeft: "/assets/models/curtain-pull-left.glb?v=20260913",
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
     radio: "/assets/models/ch1-radio.glb?v=original-20260912",

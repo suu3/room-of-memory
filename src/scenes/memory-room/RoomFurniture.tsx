@@ -23,6 +23,7 @@ import {
   CURTAIN_X,
   type CurtainPull,
   type CurtainSide,
+  curtainX,
   pullProgress,
 } from "./curtain-motion";
 import { FurnitureModel } from "./FurnitureModel";
@@ -50,6 +51,8 @@ import { usePrefersReducedMotion, useSeat, useSeatPull } from "./use-seat";
 // MemoryObjects가 그리고 프리로드한다. 여기 다시 넣으면 두 개로 보인다.
 // 침대(프레임·베개·이불 한 모델)는 BedModel이 그리고 프리로드한다.
 const ROOM_PROP_PATHS = [
+  ASSETS.models.tissueBox,
+  ASSETS.models.ceilingAc,
   ASSETS.models.deskLamp,
   ASSETS.models.books,
   ASSETS.models.rug,
@@ -565,13 +568,10 @@ function CabinetAccessories({ palette }: FurnitureProps) {
         position={[plant.x, CABINET_TOP_Y, -2.86]}
         scale={1.08}
       />
-      <FurnitureBox
-        part={{ size: [0.72, 0.34, 0.45], position: [storageBox.x, 1.32, -2.82], color: "sage" }}
-        palette={palette}
-      />
-      <FurnitureBox
-        part={{ size: [0.22, 0.22, 0.04], position: [storageBox.x, 1.56, -2.79], color: "linen" }}
-        palette={palette}
+      <FurnitureModel
+        path={ASSETS.models.tissueBox}
+        position={[storageBox.x, CABINET_TOP_Y, -2.82]}
+        scale={1}
       />
       <DeskClock palette={palette} />
     </group>
@@ -615,7 +615,7 @@ function FloorAccessories({ palette }: FurnitureProps) {
  * 키보드 사용자를 위해 Enter/Space는 그 쪽을 한 번에 젖힌다 (RoomInteractionPrompt의
  * 창문 버튼도 같은 경로로 들어온다).
  */
-function Curtain({
+export function Curtain({
   side,
   progress,
   onPull,
@@ -637,6 +637,7 @@ function Curtain({
    * 당기다 말고 반경 밖으로 나가 빛이 꺼진다.
    */
   const clothRef = useRef<Mesh>(null);
+  const hitRef = useRef<Mesh>(null);
   const near = useNearPlayer(CURTAIN_X[side].closed, CURTAIN_Z, CURTAIN_NEAR_RADIUS);
   const { handlers } = useGlowHover(near);
   // 모델이 글로우가 켜진 뒤에 붙으면 선택이 비어 있다. 붙을 때마다 다시 훑게 한다.
@@ -677,6 +678,7 @@ function Curtain({
   });
   const nearRef = useRef(near);
   nearRef.current = near;
+  const suppressClickRef = useRef(false);
 
   const pull = useCallback(
     (next: number) => {
@@ -690,6 +692,8 @@ function Curtain({
     const drag = dragRef.current;
     if (!drag) return;
     dragRef.current = null;
+    suppressClickRef.current = true;
+    if (useMemoryRoomStore.getState().curtainGrab?.side !== side) return;
     releaseCurtain();
     const tapped = !drag.moved;
     if (isAtCurtain(useMemoryRoomStore.getState())) {
@@ -701,9 +705,25 @@ function Curtain({
 
   // 캔버스 밖에서 손을 떼도 커튼이 끌린 채로 굳지 않게 하는 안전망.
   useEffect(() => {
+    const clearSuppressedClick = () => {
+      suppressClickRef.current = false;
+    };
+    const consumeDragClick = (event: MouseEvent) => {
+      if (!suppressClickRef.current) return;
+      suppressClickRef.current = false;
+      event.stopPropagation();
+      event.preventDefault();
+    };
+    // Capture before the Canvas, even when the released pointer is over the floor.
+    window.addEventListener("click", consumeDragClick, true);
+    window.addEventListener("pointerdown", clearSuppressedClick, true);
+    window.addEventListener("keydown", clearSuppressedClick, true);
     window.addEventListener("pointerup", endDrag);
     window.addEventListener("pointercancel", endDrag);
     return () => {
+      window.removeEventListener("click", consumeDragClick, true);
+      window.removeEventListener("pointerdown", clearSuppressedClick, true);
+      window.removeEventListener("keydown", clearSuppressedClick, true);
       window.removeEventListener("pointerup", endDrag);
       window.removeEventListener("pointercancel", endDrag);
     };
@@ -712,6 +732,12 @@ function Curtain({
   useFrame((_, delta) => {
     // 몸이 창가에 닿기 전에 끌거나 놓은 것을 이제 흘려보낸다. 몸짓이 도중에 접혔으면 버린다.
     const pending = pendingRef.current;
+    const currentGrab = useMemoryRoomStore.getState().curtainGrab;
+    if (currentGrab?.side !== side) {
+      dragRef.current = null;
+      pending.pull = null;
+      pending.release = null;
+    }
     if (pending.pull !== null || pending.release !== null) {
       const state = useMemoryRoomStore.getState();
       if (isAtCurtain(state)) {
@@ -738,23 +764,37 @@ function Curtain({
     if (cloth?.morphTargetInfluences && index !== undefined) {
       cloth.morphTargetInfluences[index] = shownRef.current;
     }
+    if (hitRef.current) {
+      hitRef.current.position.x = curtainX(side, shownRef.current) - CURTAIN_MODEL_POSITION[0];
+    }
   });
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
     <group
       position={CURTAIN_MODEL_POSITION}
       name={`curtain-${side}`}
       {...handlers}
+      // A tap's click follows pointerup; don't let the floor cancel the queued closing motion.
+      onClick={(event) => event.stopPropagation()}
       onPointerDown={(event) => {
         event.stopPropagation();
+        // R3F propagation only stops 3D hits. Also keep the DOM camera drag from starting.
+        event.nativeEvent.stopPropagation();
         const startX = curtainPlaneX(event.ray);
         if (startX === null) return;
         // 다가가야 잡을 수 있다. 앉아 있거나 대사 중이면 스토어가 잡기를 거절한다.
+        if (!nearRef.current) {
+          playSound("deny");
+          return;
+        }
         grabCurtain(side);
         if (!nearRef.current || !useMemoryRoomStore.getState().curtainGrab?.held) {
           playSound("deny");
           return;
         }
+        pendingRef.current.pull = null;
+        pendingRef.current.release = null;
         // 포인터를 잡아둬야 커튼 밖으로 손이 나가도 드래그가 이어진다.
         (event.target as Element | null)?.setPointerCapture?.(event.pointerId);
         dragRef.current = { pointerId: event.pointerId, startX, from: progress, moved: false };
@@ -763,6 +803,7 @@ function Curtain({
         const drag = dragRef.current;
         if (!drag || drag.pointerId !== event.pointerId) return;
         event.stopPropagation();
+        event.nativeEvent.stopPropagation();
         const x = curtainPlaneX(event.ray);
         if (x === null) return;
         // 손이 이 폭을 넘긴 적이 있으면 그 뒤로는 계속 드래그다. 되돌아왔다고 탭이 되면
@@ -782,6 +823,15 @@ function Curtain({
       // 곧바로 드래그가 취소돼 한 칸도 못 움직였다. 포인터 캡처가 잡혀 있으므로
       // 밖으로 나가도 move/up은 계속 들어온다.
     >
+      {/* Follow the gathered cloth with a wider target, without covering the window center. */}
+      <mesh
+        ref={hitRef}
+        name={`curtain-hit-${side}`}
+        position={[curtainX(side, progress) - CURTAIN_MODEL_POSITION[0], 1.45, 0.14]}
+      >
+        <boxGeometry args={[0.76, 2.82, 0.2]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
+      </mesh>
       <MemoryGlowSelection
         selectionKey={`curtain-${side}`}
         tier="prop"
@@ -806,6 +856,7 @@ export function RoomFurniture({
 }) {
   return (
     <group name="room-furniture">
+      <FurnitureModel path={ASSETS.models.ceilingAc} position={[-2.75, 4.32, -3.25]} scale={1} />
       <Bed palette={palette} />
       <Desk palette={palette} />
       <Chair palette={palette} />

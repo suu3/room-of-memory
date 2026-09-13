@@ -388,7 +388,11 @@ export function MemoryRoomScene({
       </group>
       {/* 바닥 클릭의 목적지 링. 글로우 루트 밖: 만질 수 있는 것이 아니라 표식이다 */}
       <WalkMarker color={palette.memory} />
-      <Player positionRef={playerPositionRef} movementInputRef={movementInputRef} />
+      <Player
+        positionRef={playerPositionRef}
+        movementInputRef={movementInputRef}
+        curtainPull={curtainPull}
+      />
       {/* 배트를 쥐면 카메라도 문 쪽으로 붙는다. 엔딩 영상의 첫 컷과 이어지는 구도 */}
       <CameraRig
         focusId={endingStarted ? "ending" : focusMemoryId}

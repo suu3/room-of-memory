@@ -8,6 +8,7 @@ import {
   Vector3,
 } from "three";
 import { clone } from "three/addons/utils/SkeletonUtils.js";
+import type { CurtainSide } from "@/types/curtain";
 
 /*
  * 손을 뻗는 몸짓 (커튼을 젖힐 때).
@@ -36,7 +37,17 @@ function reachBone(root: Object3D, bone: Object3D, angle: number) {
   bone.quaternion.premultiply(reachTurn);
 }
 
-export function createPlayerRig(scene: Object3D, clips: AnimationClip[]) {
+export interface CurtainPose {
+  side: CurtainSide;
+  time: number;
+  weight: number;
+}
+
+export function createPlayerRig(
+  scene: Object3D,
+  clips: AnimationClip[],
+  curtainClips?: Record<CurtainSide, AnimationClip>,
+) {
   // Object3D.clone leaves skinned meshes bound to the cached source skeleton.
   const root = clone(scene);
   root.traverse((object) => {
@@ -52,6 +63,18 @@ export function createPlayerRig(scene: Object3D, clips: AnimationClip[]) {
   const idle = action("Idle");
   const walk = action("Walk");
   const sit = action("Sit");
+  const curtain = curtainClips
+    ? {
+        left: mixer.clipAction(curtainClips.left.clone()).play(),
+        right: mixer.clipAction(curtainClips.right.clone()).play(),
+      }
+    : null;
+  if (curtain) {
+    for (const pull of [curtain.left, curtain.right]) {
+      pull.paused = true;
+      pull.setEffectiveWeight(0);
+    }
+  }
   walk.paused = true;
   sit.paused = true;
   walk.setEffectiveWeight(0);
@@ -68,7 +91,7 @@ export function createPlayerRig(scene: Object3D, clips: AnimationClip[]) {
     upper: arms.slice(0, 2).filter((bone): bone is Object3D => bone !== undefined),
     fore: arms.slice(2).filter((bone): bone is Object3D => bone !== undefined),
   };
-  return { root, mixer, idle, walk, sit, blink, reach };
+  return { root, mixer, idle, walk, sit, blink, reach, curtain };
 }
 
 export type PlayerRig = ReturnType<typeof createPlayerRig>;
@@ -82,6 +105,14 @@ export function startPlayerRig(rig: PlayerRig) {
   rig.sit.paused = true;
   rig.walk.setEffectiveWeight(0);
   rig.sit.setEffectiveWeight(0);
+  if (rig.curtain) {
+    for (const side of ["left", "right"] as const) {
+      const action = rig.mixer.clipAction(rig.curtain[side].getClip()).play();
+      action.paused = true;
+      action.setEffectiveWeight(0);
+      rig.curtain[side] = action;
+    }
+  }
 }
 
 /** Distance-driven walk phase; weights blend to idle or a chair-aligned sitting pose. */
@@ -93,14 +124,25 @@ export function updatePlayerRig(
   sitting = 0,
   /** 손을 뻗은 정도 (0~1). 커튼을 잡고 있는 동안 1로 간다. */
   reaching = 0,
+  curtainPose?: CurtainPose,
 ) {
+  const curtainWeight =
+    rig.curtain && curtainPose ? Math.max(0, Math.min(1, curtainPose.weight)) : 0;
+  if (rig.curtain) {
+    for (const side of ["left", "right"] as const) {
+      const action = rig.curtain[side];
+      action.setEffectiveWeight(curtainPose?.side === side ? curtainWeight : 0);
+      if (curtainPose?.side === side)
+        action.time = Math.min(action.getClip().duration - 0.001, Math.max(0, curtainPose.time));
+    }
+  }
   const sitWeight = Math.max(0, Math.min(1, sitting));
   const walkWeight = Math.max(0, Math.min(1, walking)) * (1 - sitWeight);
   const cycle = phase / (Math.PI * 2);
   rig.walk.time = (((cycle % 1) + 1) % 1) * rig.walk.getClip().duration;
-  rig.idle.setEffectiveWeight(1 - sitWeight - walkWeight);
-  rig.walk.setEffectiveWeight(walkWeight);
-  rig.sit.setEffectiveWeight(sitWeight);
+  rig.idle.setEffectiveWeight((1 - sitWeight - walkWeight) * (1 - curtainWeight));
+  rig.walk.setEffectiveWeight(walkWeight * (1 - curtainWeight));
+  rig.sit.setEffectiveWeight(sitWeight * (1 - curtainWeight));
   rig.mixer.update(delta);
   // Apply after the mixer so locomotion cannot overwrite eye scale.
   const blink = rig.blink;
@@ -116,7 +158,7 @@ export function updatePlayerRig(
   }
   for (const eye of blink.eyes) eye.scale.set(1 + closed * 0.12, 1 - closed * 0.94, 1);
   // 팔도 믹서 이후다. 걷기·앉기 클립이 덮어쓰지 못하게.
-  const reach = Math.max(0, Math.min(1, reaching));
+  const reach = Math.max(0, Math.min(1, reaching)) * (1 - curtainWeight);
   if (reach > 0) {
     for (const bone of rig.reach.upper) reachBone(rig.root, bone, REACH_UPPER_ARM * reach);
     for (const bone of rig.reach.fore) reachBone(rig.root, bone, REACH_FOREARM * reach);

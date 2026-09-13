@@ -6,7 +6,10 @@ import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { type Group, MathUtils, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
 import { selectSceneInputLocked, useMemoryRoomStore } from "@/store/memory-room";
+import type { CurtainSide } from "@/types/curtain";
 import type { MovementAxes } from "@/types/movement";
+import { advanceCurtainMotion, type CurtainMotion, createCurtainMotion } from "./curtain-animation";
+import type { CurtainPull } from "./curtain-motion";
 import {
   CURTAIN_STAND,
   DOORWAY_ZONE,
@@ -19,6 +22,7 @@ import {
 } from "./layout";
 import { findPath } from "./pathfind";
 import {
+  type CurtainPose,
   createPlayerRig,
   disposePlayerRig,
   startPlayerRig,
@@ -50,13 +54,6 @@ const MAX_FRAME_DELTA = 0.05;
 const TURN_LAMBDA = 11;
 /** 걷기 강도가 붙고 빠지는 속도. 낮추면 멈춘 뒤에도 다리가 한참 흔들린다. */
 const WALK_BLEND_LAMBDA = 12;
-/** 팔이 올라가고 내려오는 속도. 걷기보다 느긋해야 손을 뻗는 동작으로 읽힌다. */
-const REACH_LAMBDA = 7;
-/**
- * 커튼을 놓은 뒤 팔이 남아 있는 시간(초). 한 번 눌러 젖힐 때는 잡는 순간이 짧아서,
- * 팔이 올라가자마자 내려오면 든 줄도 모른다.
- */
-const REACH_LINGER_SECONDS = 0.9;
 /** 한 걸음도 안 되는 거리면 걷는 시늉을 하지 않는다. 제자리걸음이 더 어색하다. */
 const MIN_TRAVEL_DISTANCE = 0.25;
 const cameraForward = new Vector3();
@@ -74,6 +71,8 @@ const ALL_COLLIDERS = [...ROOM_COLLIDERS, ...LIVING_COLLIDERS] as const;
 const OPEN_COLLIDERS = [...ALL_COLLIDERS, ...OPEN_DOOR_LEAF_COLLIDERS] as const;
 
 useGLTF.preload(ASSETS.models.playerBlocky, true, true);
+useGLTF.preload(ASSETS.models.curtainPullTest, true, true);
+useGLTF.preload(ASSETS.models.curtainPullLeft, true, true);
 
 /** 최단 회전 방향으로 각도를 damp: -π/π 경계에서 한 바퀴 도는 걸 막는다. */
 function dampAngle(current: number, target: number, lambda: number, delta: number): number {
@@ -84,9 +83,11 @@ function dampAngle(current: number, target: number, lambda: number, delta: numbe
 export function Player({
   positionRef,
   movementInputRef,
+  curtainPull,
 }: {
   positionRef: MutableRefObject<Vector3>;
   movementInputRef: MutableRefObject<MovementAxes>;
+  curtainPull: CurtainPull;
 }) {
   const groupRef = useRef<Group>(null);
   const facingRef = useRef<Group>(null);
@@ -99,7 +100,7 @@ export function Player({
   const resolvedInputRef = useRef<MovementAxes>({ horizontal: 0, vertical: 0 });
   const phaseRef = useRef(0);
   const walkRef = useRef(0);
-  const reachRef = useRef(0);
+  const curtainPoseRef = useRef<CurtainPose>({ side: "right", time: 0, weight: 0 });
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
   /*
    * 앉기.
@@ -162,11 +163,20 @@ export function Player({
     travelSeconds: number;
     approach: number;
     travel: number;
-    /** 놓은 뒤 팔을 든 채 지난 시간. */
-    linger: number;
+    side: CurtainSide;
+    motion: CurtainMotion;
   } | null>(null);
   const { scene, animations } = useGLTF(ASSETS.models.playerBlocky, true, true);
-  const rig = useMemo(() => createPlayerRig(scene, animations), [scene, animations]);
+  const rightMotion = useGLTF(ASSETS.models.curtainPullTest, true, true);
+  const leftMotion = useGLTF(ASSETS.models.curtainPullLeft, true, true);
+  const rig = useMemo(
+    () =>
+      createPlayerRig(scene, animations, {
+        right: rightMotion.animations[0],
+        left: leftMotion.animations[0],
+      }),
+    [scene, animations, rightMotion.animations, leftMotion.animations],
+  );
 
   useEffect(() => {
     startPlayerRig(rig);
@@ -191,7 +201,7 @@ export function Player({
     if (facingRef.current) facingRef.current.rotation.y = 0;
     if (lieRef.current) lieRef.current.rotation.x = 0;
     walkRef.current = 0;
-    reachRef.current = 0;
+    curtainPoseRef.current.weight = 0;
     phaseRef.current = 0;
     phasesRef.current.travel = 0;
     phasesRef.current.sit = 0;
@@ -218,6 +228,7 @@ export function Player({
     useMemoryRoomStore.getState().setInLivingRoom(warpTarget.x < ROOM_SHELL_BOUNDS.minX);
     seatRef.current = null;
     grabRef.current = null;
+    curtainPoseRef.current.weight = 0;
     walkTargetRef.current = null;
     if (lieRef.current) lieRef.current.rotation.x = 0;
     phasesRef.current.travel = 0;
@@ -262,7 +273,7 @@ export function Player({
       grabRef.current = null;
       return;
     }
-    if (grabRef.current) return;
+    if (grabRef.current?.side === curtainGrab.side) return;
     const group = groupRef.current;
     if (!group) return;
     // 앉으러 가는 도중이면 몸이 둘로 갈린다. 그 몸짓은 없던 일로 한다.
@@ -278,9 +289,10 @@ export function Player({
       travelSeconds: distance < MIN_TRAVEL_DISTANCE ? 0 : distance / PLAYER_SPEED,
       approach: Math.atan2(toStandX, toStandZ),
       travel: 0,
-      linger: 0,
+      side: curtainGrab.side,
+      motion: createCurtainMotion(curtainPull[curtainGrab.side]),
     };
-  }, [curtainGrab]);
+  }, [curtainGrab, curtainPull]);
 
   useEffect(() => {
     const keys = keysRef.current;
@@ -531,26 +543,37 @@ export function Player({
       speed = step > 0 ? Math.min(1, traveled / (PLAYER_SPEED * step)) : 0;
       phaseRef.current += STEP_RATE * traveled;
       if (grab.travel >= 1) {
-        if (!grabState.arrived) useMemoryRoomStore.getState().arriveAtCurtain();
-        if (grabState.held) {
-          grab.linger = 0;
-        } else {
-          grab.linger += step;
-          if (grab.linger >= REACH_LINGER_SECONDS) {
-            useMemoryRoomStore.getState().endCurtainGrab();
-            grabRef.current = null;
-          }
+        advanceCurtainMotion(grab.motion, grabState.held, curtainPull[grabState.side], step);
+        const pose = curtainPoseRef.current;
+        pose.side = grabState.side;
+        pose.time = grab.motion.time;
+        pose.weight = grab.motion.weight;
+        // Reaching the standing spot is not enough: the authored hand must rise first.
+        if (grab.motion.ready && !grabState.arrived)
+          useMemoryRoomStore.getState().arriveAtCurtain();
+        if (grab.motion.done) {
+          useMemoryRoomStore.getState().endCurtainGrab();
+          grabRef.current = null;
         }
       }
     }
 
-    // 창가에 닿아 있는 동안 양팔을 든다. 프레임마다 ref로 읽는다. 드래그 한 번에 수십 번
-    // 바뀌는 값이라 구독하면 씬이 그만큼 리렌더된다.
-    const reaching = grabRef.current !== null && grabRef.current.travel >= 1;
-    reachRef.current = MathUtils.damp(reachRef.current, reaching ? 1 : 0, REACH_LAMBDA, delta);
+    if (!grabRef.current || grabRef.current.travel < 1) {
+      const pose = curtainPoseRef.current;
+      pose.weight = MathUtils.damp(pose.weight, 0, 10, step);
+      if (pose.weight < 0.001) pose.weight = 0;
+    }
 
     walkRef.current = MathUtils.damp(walkRef.current, speed, WALK_BLEND_LAMBDA, delta);
-    updatePlayerRig(rig, phaseRef.current, walkRef.current, step, sitWeight, reachRef.current);
+    updatePlayerRig(
+      rig,
+      phaseRef.current,
+      walkRef.current,
+      step,
+      sitWeight,
+      0,
+      curtainPoseRef.current,
+    );
   });
 
   return (

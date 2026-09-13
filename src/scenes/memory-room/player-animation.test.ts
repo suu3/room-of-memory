@@ -47,6 +47,21 @@ function fixture() {
 }
 
 describe("skinned player animation", () => {
+  it("blends the authored curtain action with locomotion and restarts after cleanup", () => {
+    const source = fixture();
+    const curtain = new AnimationClip("CurtainPull", 3, [
+      new NumberKeyframeTrack("hips.position[y]", [0, 3], [2, 2]),
+    ]);
+    const rig = createPlayerRig(source.scene, source.clips, { right: curtain, left: curtain });
+    updatePlayerRig(rig, 0, 0, 0, 0, 0, { side: "right", time: 1, weight: 0.5 });
+    expect(rig.root.getObjectByName("hips")?.position.y).toBeCloseTo(1.5);
+    updatePlayerRig(rig, 0, 0, 0);
+    expect(rig.root.getObjectByName("hips")?.position.y).toBeCloseTo(1);
+    disposePlayerRig(rig);
+    startPlayerRig(rig);
+    updatePlayerRig(rig, 0, 0, 0, 0, 0, { side: "left", time: 1, weight: 1 });
+    expect(rig.root.getObjectByName("hips")?.position.y).toBeCloseTo(2);
+  });
   it("clones and animates its own bones while preserving the supplied materials", () => {
     const source = fixture();
     const rig = createPlayerRig(source.scene, source.clips);
