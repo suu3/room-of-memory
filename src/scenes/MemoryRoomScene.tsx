@@ -22,6 +22,7 @@ import {
 } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
 import { CameraRig } from "./memory-room/CameraRig";
+import { CanvasMinigameHost } from "./memory-room/CanvasMinigameHost";
 import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
 import { EndingTrigger } from "./memory-room/EndingTrigger";
@@ -358,6 +359,12 @@ export function MemoryRoomScene({
             {/* 현관 옆 배트: 앰플을 쥐면 켜지는 3막 트리거 */}
             <EndingTrigger palette={palette} />
           </group>
+          {/*
+            canvas 모드 미니게임(냉장고 아래칸의 앰플 집기)은 두 공간 그룹 밖에 선다.
+            판은 그 물건 앞에 서 있을 때만 도니까 공간은 저절로 맞고, 글로우 루트 안이라
+            집을 수 있는 물건이 기억처럼 빛난다.
+          */}
+          <CanvasMinigameHost />
         </group>
       </MemoryGlowRoot>
       {/*

@@ -332,6 +332,11 @@ memories:
   # 2막의 끝이자 3막의 열쇠. 여기까지 오면 세 단서가 머릿속에서 맞물리고,
   # "손대지 마"라던 냉장고 아래칸이 열린다. 완료되면 스토어가 작별의 회상
   # (CUTSCENE_FAREWELL)을 틀고, 그 재생이 끝나는 자리에서 3막이 열린다.
+  #
+  # 앰플은 대사로만 얻는 게 아니라 손으로 집는다: 진입 대사가 "…열어보자"에서 끊기면
+  # 서랍이 밀려 나오고(ampoule-pickup, 씬 안에서 도는 canvas 미니게임), 식량 사이의
+  # 앰플을 눌러 들어 올린 채로 결과 대사가 흐른다. 엔딩에서 배트와 함께 들고 나가는
+  # 물건이라 실물이 있어야 한다 (docs/content-design.md 4-2).
   - id: ampoule
     icon: Syringe
     lore:
@@ -345,4 +350,6 @@ memories:
         ja: ラベルは半分消えていて読めない。答えではなく、問いをひとつ手にした。
     phase2:
       script: ampoule-note
+      minigame: ampoule-pickup
+      resultScript: ampoule-found
       unlockAfter: [ball]

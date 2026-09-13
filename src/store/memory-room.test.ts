@@ -697,12 +697,28 @@ describe("현관의 배트: 대사를 거쳐 손에 들어온다", () => {
     });
 
     useMemoryRoomStore.getState().beginInteraction("ampoule");
-    // 진입 대사를 다 넘기면 조사가 끝난다 (미니게임이 없는 조사다)
-    for (let step = 0; step < 16 && useMemoryRoomStore.getState().activeInteraction; step += 1) {
-      useMemoryRoomStore.getState().advanceDialogue();
-    }
+    // 진입 대사("…열어보자")가 끝나면 서랍을 여는 손(ampoule-pickup)이 선다
+    const advance = () => {
+      for (
+        let step = 0;
+        step < 16 && useMemoryRoomStore.getState().activeInteraction?.phase === "dialogue";
+        step += 1
+      ) {
+        useMemoryRoomStore.getState().advanceDialogue();
+      }
+    };
+    advance();
+    expect(useMemoryRoomStore.getState().activeInteraction?.phase).toBe("minigame");
+    // 대사만으로는 앰플이 손에 들어오지 않는다. 집어야 한다
+    expect(useMemoryRoomStore.getState().revisited).not.toContain("ampoule");
+
+    useMemoryRoomStore.getState().finishMinigame({ cleared: true });
+    // 집은 뒤의 대사(ampoule-found)가 든 채로 흐르고, 그게 끝나야 조사가 닫힌다
+    expect(useMemoryRoomStore.getState().activeInteraction?.scriptId).toBe("ampoule-found");
+    advance();
 
     const state = useMemoryRoomStore.getState();
+    expect(state.activeInteraction).toBeNull();
     expect(state.revisited).toContain("ampoule");
     expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_FAREWELL);
   });

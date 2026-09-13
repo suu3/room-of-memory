@@ -3,9 +3,10 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { act } from "react";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { ACT2_CHAIN, PHASE1_MEMORIES } from "@/data/memory-room";
 import { i18n } from "@/i18n/config";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { MinigameHost } from "./MinigameHost";
+import { CanvasMinigameSkip, MinigameHost } from "./MinigameHost";
 
 /**
  * 게임기(격투 게임)를 조사한 상태로 만든다. 시작 카드가 뜨는 자리.
@@ -24,6 +25,31 @@ function openConsole() {
   });
   if (useMemoryRoomStore.getState().activeInteraction?.phase !== "minigame") {
     throw new Error("게임기 진입 대사가 미니게임 페이즈로 이어지지 않는다");
+  }
+}
+
+/**
+ * 냉장고 아래칸(앰플)을 조사해 서랍을 여는 canvas 판까지 간 상태. 2막 추리 체인의
+ * 나머지를 다 마친 뒤라야 열린다.
+ */
+function openAmpoule() {
+  act(() => {
+    useMemoryRoomStore.setState({
+      collected: PHASE1_MEMORIES.map((memory) => memory.id),
+      revisited: ACT2_CHAIN.filter((id) => id !== "ampoule"),
+      doorOpened: true,
+    });
+    useMemoryRoomStore.getState().beginInteraction("ampoule");
+    for (
+      let step = 0;
+      step < 16 && useMemoryRoomStore.getState().activeInteraction?.phase === "dialogue";
+      step += 1
+    ) {
+      useMemoryRoomStore.getState().advanceDialogue();
+    }
+  });
+  if (useMemoryRoomStore.getState().activeInteraction?.phase !== "minigame") {
+    throw new Error("앰플 진입 대사가 미니게임 페이즈로 이어지지 않는다");
   }
 }
 
@@ -112,5 +138,28 @@ describe("MinigameHost", () => {
 
     expect(screen.queryByRole("button", { name: "Close" })).toBeNull();
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
+  });
+
+  it("canvas 판(앰플)은 건너뛰지 않는다. 씬이 그리는 판 위에 안내와 닫기만 얹는다", () => {
+    render(<MinigameHost />);
+    openAmpoule();
+
+    // 씬 쪽 호스트의 몫이다. DOM 호스트가 cleared로 넘겨 버리면 집는 손이 사라진다
+    expect(useMemoryRoomStore.getState().activeInteraction?.phase).toBe("minigame");
+    expect(screen.getByRole("status").textContent).toContain("Pick up the ampoule");
+    expect(screen.queryByRole("button", { name: "Start" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Close and return to the room" }));
+    // 닫으면 조사 자체가 접힌다. 핫스팟은 남아 다시 열 수 있다
+    expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
+  });
+
+  it("3D가 못 뜨면 canvas 판을 건너뛰어 진행을 살린다", () => {
+    openAmpoule();
+    render(<CanvasMinigameSkip />);
+
+    const active = useMemoryRoomStore.getState().activeInteraction;
+    expect(active?.phase).toBe("dialogue");
+    expect(active?.scriptId).toBe("ampoule-found");
   });
 });

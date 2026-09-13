@@ -181,7 +181,14 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "ampoule",
     icon: Syringe,
-    phase2: { interaction: { scriptId: "ampoule-note" }, unlockAfter: ["ball"] },
+    phase2: {
+      interaction: {
+        scriptId: "ampoule-note",
+        minigameId: "ampoule-pickup",
+        resultScriptId: "ampoule-found",
+      },
+      unlockAfter: ["ball"],
+    },
   },
 ];
 
@@ -368,11 +375,16 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.ampoule-note.line3" },
       { speaker: "hero", textKey: "scripts.ampoule-note.line4" },
       { speaker: "hero", textKey: "scripts.ampoule-note.line5" },
-      { speaker: "hero", textKey: "scripts.ampoule-note.line6", expression: "surprised" },
-      { speaker: "hero", textKey: "scripts.ampoule-note.line7" },
-      { speaker: "hero", textKey: "scripts.ampoule-note.line8" },
-      { speaker: "hero", textKey: "scripts.ampoule-note.line9" },
-      { speaker: "hero", textKey: "scripts.ampoule-note.line10" },
+    ],
+  },
+  "ampoule-found": {
+    id: "ampoule-found",
+    lines: [
+      { speaker: "hero", textKey: "scripts.ampoule-found.line1", expression: "surprised" },
+      { speaker: "hero", textKey: "scripts.ampoule-found.line2" },
+      { speaker: "hero", textKey: "scripts.ampoule-found.line3" },
+      { speaker: "hero", textKey: "scripts.ampoule-found.line4" },
+      { speaker: "hero", textKey: "scripts.ampoule-found.line5" },
     ],
   },
 };

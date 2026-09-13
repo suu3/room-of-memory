@@ -389,6 +389,9 @@ scripts:
       ko: …열어보자.
       en: …Let's open it.
       ja: …開けてみよう。
+
+  # 서랍을 열고(ampoule-pickup) 앰플을 손에 든 뒤. 들고 있는 채로 흐른다.
+  ampoule-found:
     - speaker: hero
       expression: surprised
       ko: 이게 뭐야.

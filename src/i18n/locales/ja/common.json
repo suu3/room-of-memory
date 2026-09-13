@@ -232,6 +232,11 @@
       },
       "allFound": "…もういい。見るのはやめよう。"
     },
+    "ampoulePickup": {
+      "title": "冷蔵庫の下の段",
+      "help": "アンプルを手に取る: Enter",
+      "help_touch": "アンプルをタップして手に取る"
+    },
     "phoneChat": {
       "title": "スマートフォン",
       "help": "あの日のやりとりを読み進める: 下にスクロール・Space",

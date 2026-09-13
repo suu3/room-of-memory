@@ -57,6 +57,7 @@
   --color-scene-amber: #bc9363;
   --color-scene-clay: #a57565;
   --color-scene-sage: #809289;
+  --color-scene-leaf: #6aa36b;
   /* 광원색. 재질이 아니라 빛이라 따로 둔다. 차가운 간접광과 창으로 드는 볕 */
   --color-scene-daylight: #c4d0de;
   --color-scene-sun: #f3c98e;

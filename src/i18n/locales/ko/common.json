@@ -232,6 +232,11 @@
       },
       "allFound": "…됐어. 그만 보자."
     },
+    "ampoulePickup": {
+      "title": "냉장고 아래칸",
+      "help": "앰플을 집어 든다: Enter",
+      "help_touch": "앰플을 탭해 집어 든다"
+    },
     "phoneChat": {
       "title": "스마트폰",
       "help": "그날의 대화를 따라 내려가세요: 아래로 스크롤 · Space",

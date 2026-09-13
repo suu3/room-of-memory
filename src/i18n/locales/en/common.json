@@ -232,6 +232,11 @@
       },
       "allFound": "…Enough. Let's stop looking."
     },
+    "ampoulePickup": {
+      "title": "The bottom drawer",
+      "help": "Pick up the ampoule: Enter",
+      "help_touch": "Tap the ampoule to pick it up"
+    },
     "phoneChat": {
       "title": "The phone",
       "help": "Read the thread from the top: scroll down · Space",

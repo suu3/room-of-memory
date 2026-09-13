@@ -33,6 +33,8 @@ export interface RoomPalette {
   clay: string;
   /** 세이지: 포스터 색면·수납상자·가방 */
   sage: string;
+  /** 잎 초록: 앰플 튜브의 캡. 방의 색에 섞이지 않는 유일한 채도 */
+  leaf: string;
 
   /* ── 어둠 (창밖·받침·꺼진 화면) ── */
   storm: string;
@@ -61,6 +63,7 @@ const TOKEN_BY_KEY = {
   amber: "--color-scene-amber",
   clay: "--color-scene-clay",
   sage: "--color-scene-sage",
+  leaf: "--color-scene-leaf",
   storm: "--color-scene-storm",
   abyss: "--color-scene-abyss",
   coal: "--color-scene-coal",
@@ -88,6 +91,7 @@ const FALLBACK: Record<keyof RoomPalette, string> = {
   amber: "#bc9363",
   clay: "#a57565",
   sage: "#809289",
+  leaf: "#6aa36b",
   storm: "#2a3d48",
   abyss: "#121c24",
   coal: "#17202a",

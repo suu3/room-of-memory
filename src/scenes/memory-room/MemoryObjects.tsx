@@ -21,9 +21,12 @@ import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { CLUE_AFTER_MEMORY, type ClueId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
+import { selectCanvasMinigameMemory } from "@/minigames/active";
 import { hotspotStatus, selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
 import { ballSeamGeometry } from "./ball-seam";
+import { DrawerRations, FridgeDrawer } from "./FridgeDrawer";
 import { toLitMaterial } from "./FurnitureModel";
+import { DRAWER_TRAVEL } from "./fridge-drawer";
 import { hitRadiusOf, MEMORY_PLACEMENTS, MEMORY_SPACE, type MemorySpace } from "./layout";
 import { MemoryBeacon } from "./MemoryBeacon";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
@@ -766,8 +769,20 @@ function FridgeDoorMemory({ palette, opacity }: VisualProps) {
 }
 
 /** 냉장고 아래칸: "손대지 마"라던 칸. 앰플이 여기 있다. */
+/**
+ * 냉장고 아래칸: "손대지 마"라던 서랍. 조사 전엔 닫혀 있고, 앰플을 꺼낸 뒤엔 식량만
+ * 남은 채 열려 있다. 여는 순간과 집는 손은 canvas 미니게임(ampoule-pickup)이 같은
+ * 자리에서 그린다. 그동안 이 모습은 숨는다 (InteractiveMemory의 liveCanvasMinigame).
+ */
 function FridgeDrawerMemory({ palette, opacity }: VisualProps) {
-  return <DoorOutline width={0.86} height={0.38} color={palette.linen} opacity={opacity} />;
+  const emptied = useMemoryRoomStore((state) => state.revisited.includes("ampoule"));
+  return (
+    <group position={[0, 0, emptied ? DRAWER_TRAVEL : 0]}>
+      <FridgeDrawer palette={palette} opacity={opacity}>
+        <DrawerRations palette={palette} />
+      </FridgeDrawer>
+    </group>
+  );
 }
 
 /** 신발장 문: 두고 간 등산화가 그대로 있다. */
@@ -1000,6 +1015,12 @@ export function InteractiveMemory({
   const status = useMemoryRoomStore((state) => hotspotStatus(state, id));
   const openClue = useMemoryRoomStore((state) => state.openClue);
   /*
+   * canvas 모드 미니게임이 이 자리에서 도는 동안(앰플 집기) 평소 모습·표식·판정 구는
+   * 숨는다. 미니게임이 같은 자리에 같은 물건을 움직이는 모습으로 그리는데, 둘이
+   * 겹치면 서랍이 두 개가 되고 판정 구가 미니게임의 클릭을 먼저 삼킨다.
+   */
+  const liveCanvasMinigame = useMemoryRoomStore(selectCanvasMinigameMemory) === id;
+  /*
    * 조사를 마친 뒤 배경 오브젝트로 내려앉는 기억(달력)이 있다. 조사가 끝나도
    * 벽에 걸린 물건이라, 누르면 그때 본 것을 다시 펼쳐 준다. 컴퓨터 비밀번호를
    * 잊었을 때 달력을 다시 볼 유일한 길이다 (src/data/room-clues.ts).
@@ -1056,42 +1077,44 @@ export function InteractiveMemory({
       <MemoryBeacon
         id={id}
         color={palette.memory}
-        active={status === "available"}
+        active={status === "available" && !liveCanvasMinigame}
         near={nearbyMemoryId === id}
         groundOffset={placement.position[1]}
       />
-      <MemoryGlowLayers
-        selectionKey={`memory-${id}`}
-        enabled={highlighted}
-        selectionVersion={selectionVersion}
-        visual={
-          // 호버 판정은 실제 모델에만 건다. 아래 memory-hit 구는 반경이 커서 호버 대상이 되면 안 된다.
-          // motionRef 그룹이 뜨고 눌리는 변형을 맡는다 (판정용 구는 여기 들어오지 않는다).
-          <group ref={motionRef}>
-            <group rotation={placement.rotation} scale={placement.scale} {...handlers}>
-              <CollectedTint
-                collected={status === "done"}
-                memoryColor={palette.memory}
-                revision={selectionVersion}
-              >
-                <MemoryVisual
-                  id={id}
-                  palette={palette}
-                  opacity={opacity}
-                  onModelReady={refreshSelection}
-                />
-              </CollectedTint>
+      {liveCanvasMinigame ? null : (
+        <MemoryGlowLayers
+          selectionKey={`memory-${id}`}
+          enabled={highlighted}
+          selectionVersion={selectionVersion}
+          visual={
+            // 호버 판정은 실제 모델에만 건다. 아래 memory-hit 구는 반경이 커서 호버 대상이 되면 안 된다.
+            // motionRef 그룹이 뜨고 눌리는 변형을 맡는다 (판정용 구는 여기 들어오지 않는다).
+            <group ref={motionRef}>
+              <group rotation={placement.rotation} scale={placement.scale} {...handlers}>
+                <CollectedTint
+                  collected={status === "done"}
+                  memoryColor={palette.memory}
+                  revision={selectionVersion}
+                >
+                  <MemoryVisual
+                    id={id}
+                    palette={palette}
+                    opacity={opacity}
+                    onModelReady={refreshSelection}
+                  />
+                </CollectedTint>
+              </group>
             </group>
-          </group>
-        }
-        helpers={
-          // 수집 완료 표시는 3D에 그리지 않는다. 우측 "기억 수집" 패널이 담당한다.
-          <mesh name={`memory-hit-${id}`}>
-            <sphereGeometry args={[hitRadiusOf(placement), 12, 8]} />
-            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-          </mesh>
-        }
-      />
+          }
+          helpers={
+            // 수집 완료 표시는 3D에 그리지 않는다. 우측 "기억 수집" 패널이 담당한다.
+            <mesh name={`memory-hit-${id}`}>
+              <sphereGeometry args={[hitRadiusOf(placement), 12, 8]} />
+              <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+            </mesh>
+          }
+        />
+      )}
     </group>
   );
 }

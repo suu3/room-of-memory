@@ -186,6 +186,7 @@ UI는 두 재질뿐이다. **어두운 패널**(night의 반투명 표면 + ivor
 | scene-accent-amber | #BC9363 | 트로피, 문 손잡이 |
 | scene-accent-clay | #A57565 | 달력 띠·안테나·실밥·운동화 |
 | scene-accent-sage | #809289 | 포스터 색면·수납상자·가방 |
+| scene-accent-leaf | #6AA36B | 앰플 튜브의 캡. 팔레트에서 유일하게 채도가 선 초록: 낯선 물건 하나가 방의 색에 섞이지 않는다 |
 
 광원색은 재질이 아니라 따로 둔다: **scene-daylight** #C4D0DE (차가운 간접광), **scene-sun** #F3C98E (창으로 드는 볕).
 

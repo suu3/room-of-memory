@@ -104,7 +104,7 @@ export interface ActivePlayback {
   holding: boolean;
 }
 
-interface MemoryRoomState {
+export interface MemoryRoomState {
   /** Phase 1 수집 완료 */
   collected: MemoryId[];
   /** Phase 2 재클릭 완료 */

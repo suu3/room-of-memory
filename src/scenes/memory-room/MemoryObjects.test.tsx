@@ -18,6 +18,7 @@ const TEST_PALETTE = {
   amber: "#bc9363",
   clay: "#a57565",
   sage: "#809289",
+  leaf: "#6aa36b",
   storm: "#2a3d48",
   abyss: "#121c24",
   coal: "#17202a",

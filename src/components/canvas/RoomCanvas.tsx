@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { CanvasMinigameSkip } from "@/components/ui/MinigameHost";
 import { MovementJoystick } from "@/components/ui/MovementJoystick";
 import { RoomInteractionPrompt } from "@/components/ui/RoomInteractionPrompt";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
@@ -491,7 +492,11 @@ export function RoomCanvas() {
       {/* 창밖으로 새어나가는 빛: 캔버스보다 아래라 방을 절대 덮지 않는다 */}
       <div aria-hidden className="room-backdrop pointer-events-none absolute inset-0" />
       {webGLFailed ? (
-        <WebGLFallback>{t("scene.webglFallback")}</WebGLFallback>
+        <>
+          <WebGLFallback>{t("scene.webglFallback")}</WebGLFallback>
+          {/* 씬이 없으면 canvas 모드 미니게임이 설 자리도 없다. 건너뛰어 진행을 살린다 */}
+          <CanvasMinigameSkip />
+        </>
       ) : (
         <CanvasErrorBoundary fallbackText={t("scene.webglFallback")}>
           <Canvas

@@ -130,6 +130,18 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     helpKey: "minigame.angleTurn.help",
     // card-odd와 같은 이유로 rulesKeys를 비운다. 각도를 읽는 법은 캐비닛 위 시계에 있다
   },
+  "ampoule-pickup": {
+    id: "ampoule-pickup",
+    // 유일한 canvas 모드: 씬의 냉장고 그 자리에서 서랍이 열리고 앰플이 손에 들린다.
+    // 호스트는 씬 쪽(src/scenes/memory-room/CanvasMinigameHost.tsx). 카드 없이 물건만.
+    mode: "canvas",
+    presentation: "bare",
+    component: lazy(() =>
+      import("./ampoule-pickup").then((m) => ({ default: m.AmpoulePickupMinigame })),
+    ),
+    titleKey: "minigame.ampoulePickup.title",
+    helpKey: "minigame.ampoulePickup.help",
+  },
   "ball-catch": {
     id: "ball-catch",
     mode: "overlay",

@@ -8,6 +8,7 @@ import { phaseConfigOf } from "@/data/memory-room";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
+import { liveMinigameOf } from "@/minigames/active";
 import { MinigameHelp } from "@/minigames/shell";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
 import type { MinigameResult } from "@/types/minigame";
@@ -133,8 +134,9 @@ function MinigameResultCard({
 }
 
 /**
- * overlay 모드 미니게임 호스트. canvas 모드는 3D 씬 도입 전까지 스킵 처리(진행이
- * 막히지 않게), 씬 도입 시 씬 쪽 호스트가 담당.
+ * overlay 모드 미니게임 호스트. canvas 모드는 씬 쪽 호스트가 판을 세우고
+ * (src/scenes/memory-room/CanvasMinigameHost.tsx), 여기는 DOM이어야 하는 두 가지
+ * (조작 안내 한 줄·닫기)만 그 위에 얹는다.
  * 미등록 id는 스킵(cleared: true) 처리해 진행이 막히지 않게 한다.
  * 게임은 시작 카드에서 시작 버튼을 눌러야 마운트된다. 타이머·라운드가
  * 조작법을 읽기 전에 돌지 않도록.
@@ -174,14 +176,16 @@ export function MinigameHost() {
       : undefined;
   const definition = minigameId ? getMinigame(minigameId) : undefined;
   const hosted = definition?.mode === "overlay" ? definition : undefined;
+  /** 씬 안에서 도는 판: 여기서는 안내와 닫기만 맡는다. */
+  const canvasHosted = definition?.mode === "canvas" ? definition : undefined;
   /** 탐색형 오브젝트: 시작 카드도 패널도 없이 물건만 떠오른다. */
   const bare = hosted?.presentation === "bare";
 
   useEffect(() => {
-    if (active?.phase === "minigame" && !hosted) {
+    if (active?.phase === "minigame" && !hosted && !canvasHosted) {
       finishMinigame({ cleared: true });
     }
-  }, [active, hosted, finishMinigame]);
+  }, [active, hosted, canvasHosted, finishMinigame]);
 
   const activeKey = active ? `${active.memoryId}:${active.gamePhase}` : null;
   // bare는 "시작"을 거치지 않는다. 물건을 집었으면 이미 들여다보는 중이다.
@@ -217,18 +221,44 @@ export function MinigameHost() {
 
   // Esc = 바깥 클릭과 같은 닫기 (키보드 접근성). 승부가 난 뒤에는 닫기를 막는다
   useEffect(() => {
-    if (!hosted || sealed) return;
+    if ((!hosted && !canvasHosted) || sealed) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.code === "Escape") cancelMinigame();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [hosted, sealed, cancelMinigame]);
+  }, [hosted, canvasHosted, sealed, cancelMinigame]);
 
   const Minigame = hosted?.component;
   return (
     <>
       {burstId > 0 && <SuccessBurst key={burstId} onDone={() => setBurstId(0)} />}
+      {/*
+        canvas 판(냉장고 아래칸의 앰플): 판은 씬이 그리고 있다. 백드롭도 카드도 없이
+        조작 안내 한 줄과 닫기만 띄운다. 결과 대사가 뜨면 둘 다 물러난다: 그 구간의
+        주인은 대사창이다. 안내 자리는 근접 안내(RoomInteractionPrompt)와 같은 자리다.
+      */}
+      {active?.phase === "minigame" && canvasHosted && (
+        <>
+          <div
+            role="status"
+            className="pointer-events-none absolute bottom-6 left-1/2 z-20 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-sm border border-line bg-surface px-3 py-1.5 text-center text-xs font-medium text-ivory shadow-chip"
+          >
+            <MinigameHelp help={hint(canvasHosted.helpKey)} className="break-ko text-pretty" />
+          </div>
+          <button
+            type="button"
+            aria-label={t("minigame.close")}
+            onClick={() => {
+              playSound("close");
+              cancelMinigame();
+            }}
+            className={`fixed right-4 top-4 z-20 ${HUD_ICON_BUTTON_SOLID}`}
+          >
+            <X size={20} weight="bold" />
+          </button>
+        </>
+      )}
       {active?.phase === "minigame" && hosted && shownOutcome && (
         <MinigameResultCard
           cleared={shownOutcome.cleared}
@@ -368,4 +398,22 @@ export function MinigameHost() {
       )}
     </>
   );
+}
+
+/**
+ * 3D가 못 뜬 자리의 안전망. canvas 모드 미니게임은 그릴 씬이 없으니 건너뛴다
+ * (cleared: true). 미등록 id를 건너뛰는 것과 같은 이유다: 진행이 먼저다.
+ * RoomCanvas가 WebGL 폴백을 세울 때 같이 세운다.
+ */
+export function CanvasMinigameSkip() {
+  const active = useMemoryRoomStore(selectActiveInteraction);
+  const finishMinigame = useMemoryRoomStore((state) => state.finishMinigame);
+  const live = liveMinigameOf(active);
+  const skip = active?.phase === "minigame" && live?.definition.mode === "canvas";
+
+  useEffect(() => {
+    if (skip) finishMinigame({ cleared: true });
+  }, [skip, finishMinigame]);
+
+  return null;
 }
