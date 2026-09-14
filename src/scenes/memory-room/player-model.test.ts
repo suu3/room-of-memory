@@ -5,6 +5,7 @@ import { AnimationMixer, Box3, type SkinnedMesh, Vector3 } from "three";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
+import { createPlayerRig, disposePlayerRig, updatePlayerRig } from "./player-animation";
 import {
   PLAYER_TARGET_HEIGHT,
   SIT_CONTACT_Y,
@@ -18,14 +19,19 @@ const jsonLength = bytes.readUInt32LE(12);
 const asset = JSON.parse(bytes.subarray(20, 20 + jsonLength).toString());
 
 describe("shipped player GLB", () => {
-  it("ships the new AI chibi mesh with lightweight eyelids", () => {
+  it("ships the decimated Tripo chibi mesh with lightweight eyelids", () => {
+    // 원본은 190만 삼각형. scripts/create-tripo-player.py가 부위별 예산으로 3.7만 안팎까지 줄인다.
     const triangles = asset.meshes.reduce(
       (total: number, mesh: { primitives: { indices: number }[] }) =>
-        total + mesh.primitives.reduce((sum, primitive) => sum + asset.accessors[primitive.indices].count / 3, 0),
+        total +
+        mesh.primitives.reduce(
+          (sum, primitive) => sum + asset.accessors[primitive.indices].count / 3,
+          0,
+        ),
       0,
     );
-    expect(triangles).toBeGreaterThan(9_000);
-    expect(triangles).toBeLessThan(12_000);
+    expect(triangles).toBeGreaterThan(30_000);
+    expect(triangles).toBeLessThan(45_000);
   });
   it("embeds the skin image and required clips without external texture paths", () => {
     expect(bytes.length).toBeLessThan(5 * 1024 * 1024);
@@ -68,9 +74,18 @@ describe("shipped player GLB", () => {
     }
     expect(asset.nodes.some((node: { name: string }) => node.name === "head")).toBe(true);
     expect(asset.nodes.some((node: { name: string }) => node.name === "shin.L")).toBe(true);
-    const targets = asset.meshes.flatMap((mesh: { extras?: { targetNames?: string[] } }) => mesh.extras?.targetNames ?? []);
+    const targets = asset.meshes.flatMap(
+      (mesh: { extras?: { targetNames?: string[] } }) => mesh.extras?.targetNames ?? [],
+    );
     expect(targets).toContain("eyeBlinkLeft");
     expect(targets).toContain("eyeBlinkRight");
+    for (const side of ["Left", "Right"]) {
+      const highlight = asset.nodes.find(
+        (node: { name: string }) => node.name === `EyeHighlight${side}`,
+      );
+      expect(highlight, `eye highlight ${side}`).toBeDefined();
+      expect(asset.meshes[highlight.mesh].extras.targetNames).toContain(`eyeBlink${side}`);
+    }
     for (const name of ["eye.L", "eye.R"]) {
       expect(
         asset.nodes.some((node: { name: string }) => node.name === name),
@@ -112,6 +127,21 @@ describe("shipped player GLB", () => {
       buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length),
       "",
     );
+    const blinkRig = createPlayerRig(gltf.scene, gltf.animations);
+    blinkRig.blink.next = 2.8;
+    updatePlayerRig(blinkRig, 0, 0, 2.89);
+    for (const part of ["EyelidLeft", "EyelidRight", "EyeHighlightLeft", "EyeHighlightRight"]) {
+      const animated = blinkRig.root.getObjectByName(part) as SkinnedMesh;
+      const cached = gltf.scene.getObjectByName(part) as SkinnedMesh;
+      expect(animated.morphTargetInfluences?.[0], part).toBeGreaterThan(0.95);
+      expect(animated.castShadow, `${part} must not cast a border on the face`).toBe(false);
+      expect(cached.morphTargetInfluences?.[0], `${part} cached source`).toBe(0);
+    }
+    updatePlayerRig(blinkRig, 0, 0, 0.2);
+    expect(blinkRig.blink.eyelids.every(({ influences, index }) => influences[index] === 0)).toBe(
+      true,
+    );
+    disposePlayerRig(blinkRig);
     // The replacement carries the user's baked base-color image, verified above.
     // The previous model's vertex-color palette is no longer the source of color.
     const mixer = new AnimationMixer(gltf.scene);

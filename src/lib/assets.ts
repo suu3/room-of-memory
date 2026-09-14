@@ -5,7 +5,8 @@ export const ASSETS = {
   models: {
     /** Blender로 제작한 야구부 생활 소품. scripts/create-baseball-room-props.py */
     baseballJersey: "/assets/models/room-baseball-jersey.glb?v=20260914",
-    baseballGloveCap: "/assets/models/room-baseball-glove-cap.glb?v=20260914",
+    /** 책장 위 야구 모자. 옆에 있던 글러브는 2026-09-15에 뺐다 (방 크기에서 덩어리로만 보였다). */
+    baseballCap: "/assets/models/room-baseball-cap.glb?v=20260915",
     trainingKit: "/assets/models/room-training-kit.glb?v=20260914",
     studyTools: "/assets/models/room-study-tools.glb?v=20260914",
     teamPennant: "/assets/models/room-team-pennant.glb?v=20260914",
@@ -13,10 +14,13 @@ export const ASSETS = {
     tissueBox: "/assets/models/room-tissue-box.glb?v=20260913",
     /** 천장 부착형 실내기: 흡입 그릴·송풍 날개·센서 창. */
     ceilingAc: "/assets/models/room-ceiling-ac.glb?v=20260913",
-    /** 새 chibi 리그용 오른손 커튼 모션. */
-    curtainPullTest: "/assets/models/curtain-pull-test.glb?v=chibi-20260915",
+    /**
+     * 오른손으로 커튼을 당기는 모션. 플레이어 리그를
+     * 바꾸면 scripts/retarget-curtain-clips.mjs로 새 rest에 옮기고 v도 같이 올린다.
+     */
+    curtainPullTest: "/assets/models/curtain-pull-test.glb?v=tripo-20260915",
     /** 창을 바라볼 때 왼손으로 당기는 대칭 모션. */
-    curtainPullLeft: "/assets/models/curtain-pull-left.glb?v=chibi-20260915",
+    curtainPullLeft: "/assets/models/curtain-pull-left.glb?v=tripo-20260915",
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
     radio: "/assets/models/ch1-radio.glb?v=original-20260912",
@@ -27,8 +31,11 @@ export const ASSETS = {
      * 눕힌다. 화면 메쉬에는 재질이 안 붙어 있어 코드가 입힌다 (MemoryObjects의 MODEL_MATERIALS).
      */
     smartphone: "/assets/models/ch1-smartphone.glb",
-    /** 본·애니메이션 포함. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다. */
-    playerBlocky: "/assets/models/player-blocky.glb?v=chibi-20260915",
+    /**
+     * 플레이어 (Tripo 제작 chibi, 본·애니메이션·눈꺼풀 포함). 원본 FBX에서
+     * scripts/create-tripo-player.py로 굽는다. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다.
+     */
+    playerBlocky: "/assets/models/player-blocky.glb?v=tripo-smooth-20260915",
     /** 직접 제작한 방 소품. 재생성: scripts/create-original-furniture.mjs. 밑면 y=0. */
     computerScreen: "/assets/models/room-computer-screen.glb?v=original-20260912",
     computerKeyboard: "/assets/models/room-computer-keyboard.glb?v=original-20260912",

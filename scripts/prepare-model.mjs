@@ -66,12 +66,36 @@ function readGlbJson(file) {
   return JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString());
 }
 
+/**
+ * Node에는 이미지 디코더가 없어 텍스처가 든 모델은 GLTFLoader가 통째로 터진다. 검사에
+ * 필요한 건 메쉬·본·애니메이션뿐이라 이미지·재질만 비운 사본을 읽는다
+ * (player-model.test와 같은 방식). 압축 버퍼·스킨·클립은 그대로다.
+ */
 async function loadScene(file) {
   const bytes = readFileSync(file);
+  const jsonLength = bytes.readUInt32LE(12);
+  const model = JSON.parse(bytes.subarray(20, 20 + jsonLength).toString());
+  model.images = [];
+  model.textures = [];
+  model.materials = [{}];
+  for (const mesh of model.meshes ?? []) {
+    for (const primitive of mesh.primitives) primitive.material = 0;
+  }
+  const rawJson = Buffer.from(JSON.stringify(model));
+  const json = Buffer.alloc(Math.ceil(rawJson.length / 4) * 4, 0x20);
+  rawJson.copy(json);
+  const binary = bytes.subarray(20 + jsonLength);
+  const header = Buffer.alloc(20);
+  header.writeUInt32LE(0x46546c67, 0);
+  header.writeUInt32LE(2, 4);
+  header.writeUInt32LE(20 + json.length + binary.length, 8);
+  header.writeUInt32LE(json.length, 12);
+  header.writeUInt32LE(0x4e4f534a, 16);
+  const buffer = Buffer.concat([header, json, binary]);
   await MeshoptDecoder.ready;
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   return loader.parseAsync(
-    bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.length),
+    buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length),
     "",
   );
 }
@@ -135,8 +159,7 @@ try {
          * palette는 재질이 5개 이상이면 색을 작은 webp 아틀라스로 구워 재질을 하나로
          * 합친다. 드로우콜은 줄지만 색이 상수(baseColorFactor)에서 텍스처로 옮겨가서,
          * 방이 재질 색을 직접 만지는 연출(수집 완료 이미시브·팔레트 대조)에서 손댈
-         * 자리가 사라진다. 게다가 아래 검사는 Node에서 도는 GLTFLoader라 이미지를
-         * 못 읽어 통째로 터진다. 소품 하나에 얻을 것보다 잃는 게 크다.
+         * 자리가 사라진다. 소품 하나에 얻을 것보다 잃는 게 크다.
          */
         "--palette",
         "false",

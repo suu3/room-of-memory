@@ -137,7 +137,11 @@ function leftPoster(
  */
 const BACK_POSTERS = [...backPoster(-4.6, 3.3, 1.3, 1.7, "sage")] satisfies DecorBox[];
 
-const LEFT_POSTERS = [...leftPoster(2.65, 2.9, 1.5, 1.9, "sage")] satisfies DecorBox[];
+/*
+ * 왼쪽 벽에는 포스터를 걸지 않는다. sage 한 장이 문과 책상 사이에 있었는데, 이 거리에서는
+ * 정체를 알 수 없는 초록 판으로만 읽혀서 뺐다 (2026-09-15). 걸 게 생기면 leftPoster로.
+ */
+const LEFT_POSTERS = [] satisfies DecorBox[];
 
 /**
  * 테이프로 붙인 사진 넉 장. 야구부 시절 사진이라는 설정이라 나란히 한 줄로 둔다.

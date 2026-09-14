@@ -52,7 +52,10 @@ export function createPlayerRig(
   const root = clone(scene);
   root.traverse((object) => {
     const mesh = object as Mesh;
-    if (mesh.isMesh) mesh.castShadow = true;
+    if (mesh.isMesh) {
+      // Thin face overlays otherwise cast a dark rim on the skin during a blink.
+      mesh.castShadow = !mesh.name.startsWith("Eyelid") && !mesh.name.startsWith("EyeHighlight");
+    }
   });
   const mixer = new AnimationMixer(root);
   function action(name: string) {

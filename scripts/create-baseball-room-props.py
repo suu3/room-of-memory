@@ -15,8 +15,13 @@ from mathutils import Vector
 ROOT = Path(__file__).resolve().parent.parent
 OUT = Path.home() / "Documents/Codex/baseball-room-props"
 OUT.mkdir(parents=True, exist_ok=True)
-scene = bpy.data.scenes.new("Baseball student's room props")
-bpy.context.window.scene = scene
+if bpy.context.window:
+    scene = bpy.data.scenes.new("Baseball student's room props")
+    bpy.context.window.scene = scene
+else:
+    # Background runs (blender -b) have no window to switch scenes on; build in the default one.
+    scene = bpy.context.scene
+    scene.name = "Baseball student's room props"
 css = (ROOT / "src/app/globals.css").read_text(encoding="utf-8")
 objects = []
 finished = []
@@ -206,44 +211,8 @@ tube("hanger hook", [(0, .016, 1.3), (0, .016, 1.4), (.025, .016, 1.45),
 box("wall peg", (.105, .1, .055), (.066, .056, 1.408), seam, .013)
 export("room-baseball-jersey", -2.1)
 
-# Glove: genuinely concave palm, individually curved fingers and laced web pocket.
-gx = -.29
-verts, faces = [], []
-for j in range(13):
-    r = j/12
-    for i in range(48):
-        a = math.tau*i/48
-        verts.append((gx+.25*r*math.cos(a), .21*r*math.sin(a), .055+.12*r*r))
-for j in range(12):
-    for i in range(48):
-        a, b = j*48+i, j*48+(i+1)%48
-        faces.append((a, b, b+48, a+48))
-mesh("glove deep palm pocket", verts, faces, leather, .025)
-for i in range(4):
-    x, height = gx-.12+i*.084, .36+.035*math.sin(i*1.1)
-    ellipsoid("padded finger", (x, .18, .235), (.061, .094, height/2), leather, (-.52, -.12+i*.07, 0))
-    tube("finger seam", [(x-.043, .127-.045*t, .13+height*t*.78) for t in [k/16 for k in range(17)]], .007, seam)
-    for k in range(3):
-        z = .23+k*.041
-        tube("finger leather cross lace", [(x-.029, .099, z), (x+.027, .091, z+.018)], .008, dark)
-    if i < 3:
-        # The padded fingers belong to a single glove, with leather bridges and ties.
-        mesh("leather between fingers", [(x, .18, .15), (x+.084, .18, .15),
-                                         (x+.084, .165, .35), (x, .165, .35)],
-             [(0, 1, 2, 3)], leather, .018)
-        tube("finger top tie", [(x, .075, .35), (x+.084, .08, .36)], .01, seam)
-ellipsoid("padded glove thumb", (gx-.245, -.006, .206), (.077, .10, .18), leather, (.2, -.65, 0))
-tube("palm perimeter welt", [(gx+.25*math.cos(a), .21*math.sin(a), .174)
-                              for a in [math.tau*i/64 for i in range(64)]], .012, seam, True)
-for i in range(5):
-    x = gx-.22+i*.028
-    tube("woven glove web vertical", [(x, .02, .23), (x+.013, .098, .36)], .012, seam)
-for i in range(4):
-    t = i/3
-    tube("woven glove web horizontal", [(gx-.22, .02+.078*t, .23+.13*t),
-                                        (gx-.095, .02+.078*t, .23+.13*t)], .011, leather)
-box("glove wrist strap", (.23, .075, .046), (gx, -.194, .124), leather, .02)
-box("glove wrist stitched label", (.077, .008, .029), (gx, -.235, .128), linen, .004)
+# Baseball cap alone. A glove used to sit beside it (2026-09-14) but read as a lump at room
+# scale, so it was dropped on 2026-09-15; the cap keeps its original spot in the pair.
 # Six-panel cap, hollow crown and curved bill.
 cx, cy = .30, .02
 verts, faces = [], []
@@ -278,7 +247,7 @@ tube("cap bill stitching", [(cx+.218*u, cy-.14-.185*math.sqrt(max(0, 1-u*u)), .0
                             for u in [-1+i/20 for i in range(41)]], .003, linen)
 tube("cap embroidered diamond", [(cx, cy-.208, .179), (cx+.036, cy-.223, .135),
                                   (cx, cy-.234, .099), (cx-.036, cy-.223, .135)], .007, linen, True)
-export("room-baseball-glove-cap", -.45)
+export("room-baseball-cap", -.45)
 
 # After-practice kit. Folded towel with rippling edges, squeeze bottle and tape roll.
 for layer in range(3):

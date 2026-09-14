@@ -8,6 +8,38 @@
 - Textures: the original 1024×1024 `CH1.FACE.png` is embedded as WebP, along with a small clothing/hair palette. No external image URL or local image path is required.
 - Clips: `Idle`, `Walk`, `Sit`, `SitDown`, `StandUp`.
 
+## Tripo chibi (2026-09-15)
+
+Current revision: `?v=tripo-20260915`. The user generated a new chibi with Tripo and dropped the FBX
+(`tripo_convert_86212750-….fbx`, 59MB, 1.9M triangles, 41 auto-generated bones, no clips) into
+`public/assets/models/`. That source is far over the 25MB commit limit and stays out of git; only the
+baked GLB ships. `scripts/create-tripo-player.py` (Blender 5.2, background) does the whole conversion:
+
+- Decimates each of the 12 Tripo parts to a per-part budget (~37K triangles total, UVs kept; vertices welded across UV seams first, custom normals dropped, so the skin stays closed and smooth) and
+  joins them into one mesh with 12 materials. Base colors are embedded as WebP: 1024px for hair and
+  face, 512px for trousers and shirt, 256px for the rest.
+- Keeps Tripo's joint positions but rebuilds the game's 23-bone skeleton (`hips` … `toe.R`, `eye.L/R`),
+  symmetrised left/right with a vertical hips bone. Twist and helper bones fold into their parents,
+  and each part is restricted to the bones it should follow (Tripo weights by proximity, so hands
+  had thigh influence and trousers had hand influence).
+- Renders the face part alone to find the painted eyes, then fits the same blink eyelids
+  (`eyeBlinkLeft/Right` shape keys) as the previous chibi.
+- Presses the bandaged cheek flat before decimating: Tripo sculpted three bumps there and the
+  bandage part only covered the middle one. A weighted Smooth (fading out at the mouth and lower
+  eyelid) removes them, and the bandage is moved down by the same amount so it still sits on the skin.
+- Authors Idle/Walk/Sit/SitDown/StandUp with the same procedural poses as `create-chibi-player.py`.
+
+`pnpm model:prep` then compresses it (1.9MB → 715KB, Meshopt). The prep script now strips images
+before its Node-side loader check, so textured models pass. The curtain clips were carried over with
+`scripts/retarget-curtain-clips.mjs`, which re-expresses each bone's pose as a rest-space rotation and
+rewrites the clip GLB's rest transforms; the curtain motion did not have to be re-authored.
+
+Measured constants in `player-rig.ts` changed with the new proportions: `SIT_CONTACT_Y` 0.221,
+`SIT_CONTACT_Z` −0.038…0.306, `SIT_LEG_Z` 0.186…0.395, `LIE_BACK_Z` −0.093, `LIE_HEAD.backZ` −0.312,
+`LIE_HEAD.centerY` 1.24, and `LIE_TILT` 0.35 (this head sits less far behind the torso, so the body
+lies a little flatter to keep the back on the mattress). Editable source: `player-chibi.blend` in the
+conversion's output folder.
+
 ## Round the rear of the large fringe toward the face (2026-09-08)
 
 Current revision: `?v=rounded-back80-20260908`. Start from the user's restored root50 runtime, verified byte-for-byte against the saved source export. All 21 original mesh objects retain their coordinates, polygons and weights. The original front contour, tip, 20:80 split and approved upper connection remain in place.

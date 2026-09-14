@@ -12,6 +12,7 @@ it("loads the animated player even when the service worker cached the old placeh
     [`${legacyUrl}?v=rig-20260906`, new Response("previous rig without eye bones")],
     [`${legacyUrl}?v=vest-20260906`, new Response("previous warm-colored rig")],
     [`${legacyUrl}?v=rounded-back80-20260908`, new Response("previous character mesh and rig")],
+    [`${legacyUrl}?v=tripo-20260915`, new Response("Tripo mesh before surface refinement")],
   ]);
   const bytes = readFileSync("public/assets/models/player-blocky.glb");
   let offline = false;

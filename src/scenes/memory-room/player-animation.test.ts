@@ -65,7 +65,9 @@ describe("skinned player animation", () => {
       expect(face.morphTargetInfluences?.[1]).toBeGreaterThan(0.95);
       expect(rig.root.getObjectByName("eyeL")?.scale.y).toBe(1);
       expect(source.mesh.morphTargetInfluences).toEqual([0, 0]);
-      expect((other.root.getObjectByName("character") as SkinnedMesh).morphTargetInfluences).toEqual([0, 0]);
+      expect(
+        (other.root.getObjectByName("character") as SkinnedMesh).morphTargetInfluences,
+      ).toEqual([0, 0]);
       updatePlayerRig(rig, 0, 0, 0.2, 1);
       expect(face.morphTargetInfluences).toEqual([0, 0]);
       disposePlayerRig(rig);
