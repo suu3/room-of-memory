@@ -3,14 +3,20 @@ import type { VoiceId } from "@/lib/audio/voices";
 /** 에셋 경로 상수: 코드 곳곳에 경로 문자열을 산재시키지 않는다 (.claude/rules/assets.md). */
 export const ASSETS = {
   models: {
+    /** Blender로 제작한 야구부 생활 소품. scripts/create-baseball-room-props.py */
+    baseballJersey: "/assets/models/room-baseball-jersey.glb?v=20260914",
+    baseballGloveCap: "/assets/models/room-baseball-glove-cap.glb?v=20260914",
+    trainingKit: "/assets/models/room-training-kit.glb?v=20260914",
+    studyTools: "/assets/models/room-study-tools.glb?v=20260914",
+    teamPennant: "/assets/models/room-team-pennant.glb?v=20260914",
     /** Blender로 제작한 접힌 종이와 타원형 입구가 있는 각티슈. */
     tissueBox: "/assets/models/room-tissue-box.glb?v=20260913",
     /** 천장 부착형 실내기: 흡입 그릴·송풍 날개·센서 창. */
     ceilingAc: "/assets/models/room-ceiling-ac.glb?v=20260913",
-    /** 오른손으로 커튼을 당기는 모션. */
-    curtainPullTest: "/assets/models/curtain-pull-test.glb?v=20260913",
+    /** 새 chibi 리그용 오른손 커튼 모션. */
+    curtainPullTest: "/assets/models/curtain-pull-test.glb?v=chibi-20260915",
     /** 창을 바라볼 때 왼손으로 당기는 대칭 모션. */
-    curtainPullLeft: "/assets/models/curtain-pull-left.glb?v=20260913",
+    curtainPullLeft: "/assets/models/curtain-pull-left.glb?v=chibi-20260915",
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
     radio: "/assets/models/ch1-radio.glb?v=original-20260912",
@@ -22,7 +28,7 @@ export const ASSETS = {
      */
     smartphone: "/assets/models/ch1-smartphone.glb",
     /** 본·애니메이션 포함. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다. */
-    playerBlocky: "/assets/models/player-blocky.glb?v=rounded-back80-20260908",
+    playerBlocky: "/assets/models/player-blocky.glb?v=chibi-20260915",
     /** 직접 제작한 방 소품. 재생성: scripts/create-original-furniture.mjs. 밑면 y=0. */
     computerScreen: "/assets/models/room-computer-screen.glb?v=original-20260912",
     computerKeyboard: "/assets/models/room-computer-keyboard.glb?v=original-20260912",

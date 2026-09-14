@@ -47,6 +47,33 @@ function fixture() {
 }
 
 describe("skinned player animation", () => {
+  it("blinks textured-face morphs independently per clone without squashing brow bones", () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
+    try {
+      const source = fixture();
+      source.geometry.morphAttributes.position = [
+        new Float32BufferAttribute([0, 0.1, 0], 3),
+        new Float32BufferAttribute([0, -0.1, 0], 3),
+      ];
+      source.mesh.updateMorphTargets();
+      source.mesh.morphTargetDictionary = { eyeBlinkLeft: 0, eyeBlinkRight: 1 };
+      const rig = createPlayerRig(source.scene, source.clips);
+      const other = createPlayerRig(source.scene, source.clips);
+      const face = rig.root.getObjectByName("character") as SkinnedMesh;
+      updatePlayerRig(rig, 0, 0, 2.89);
+      expect(face.morphTargetInfluences?.[0]).toBeGreaterThan(0.95);
+      expect(face.morphTargetInfluences?.[1]).toBeGreaterThan(0.95);
+      expect(rig.root.getObjectByName("eyeL")?.scale.y).toBe(1);
+      expect(source.mesh.morphTargetInfluences).toEqual([0, 0]);
+      expect((other.root.getObjectByName("character") as SkinnedMesh).morphTargetInfluences).toEqual([0, 0]);
+      updatePlayerRig(rig, 0, 0, 0.2, 1);
+      expect(face.morphTargetInfluences).toEqual([0, 0]);
+      disposePlayerRig(rig);
+      disposePlayerRig(other);
+    } finally {
+      random.mockRestore();
+    }
+  });
   it("blends the authored curtain action with locomotion and restarts after cleanup", () => {
     const source = fixture();
     const curtain = new AnimationClip("CurtainPull", 3, [

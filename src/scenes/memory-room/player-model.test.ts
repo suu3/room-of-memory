@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { AnimationMixer, Box3, Color, type SkinnedMesh, Vector3 } from "three";
+import { AnimationMixer, Box3, type SkinnedMesh, Vector3 } from "three";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
@@ -18,6 +18,15 @@ const jsonLength = bytes.readUInt32LE(12);
 const asset = JSON.parse(bytes.subarray(20, 20 + jsonLength).toString());
 
 describe("shipped player GLB", () => {
+  it("ships the new AI chibi mesh with lightweight eyelids", () => {
+    const triangles = asset.meshes.reduce(
+      (total: number, mesh: { primitives: { indices: number }[] }) =>
+        total + mesh.primitives.reduce((sum, primitive) => sum + asset.accessors[primitive.indices].count / 3, 0),
+      0,
+    );
+    expect(triangles).toBeGreaterThan(9_000);
+    expect(triangles).toBeLessThan(12_000);
+  });
   it("embeds the skin image and required clips without external texture paths", () => {
     expect(bytes.length).toBeLessThan(5 * 1024 * 1024);
     expect(asset.extensionsRequired).toContain("EXT_meshopt_compression");
@@ -59,6 +68,9 @@ describe("shipped player GLB", () => {
     }
     expect(asset.nodes.some((node: { name: string }) => node.name === "head")).toBe(true);
     expect(asset.nodes.some((node: { name: string }) => node.name === "shin.L")).toBe(true);
+    const targets = asset.meshes.flatMap((mesh: { extras?: { targetNames?: string[] } }) => mesh.extras?.targetNames ?? []);
+    expect(targets).toContain("eyeBlinkLeft");
+    expect(targets).toContain("eyeBlinkRight");
     for (const name of ["eye.L", "eye.R"]) {
       expect(
         asset.nodes.some((node: { name: string }) => node.name === name),
@@ -100,24 +112,8 @@ describe("shipped player GLB", () => {
       buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length),
       "",
     );
-    // The shipped mesh must retain the sheet palette, not revert to the brown/yellow atlas.
-    for (const hex of ["#303744", "#817989", "#cad2dd", "#414e63"]) {
-      const expected = new Color(hex);
-      let matches = 0;
-      gltf.scene.traverse((object) => {
-        const colors = (object as SkinnedMesh).geometry?.getAttribute("color");
-        if (!colors) return;
-        for (let i = 0; i < colors.count; i++) {
-          if (
-            Math.abs(colors.getX(i) - expected.r) < 0.002 &&
-            Math.abs(colors.getY(i) - expected.g) < 0.002 &&
-            Math.abs(colors.getZ(i) - expected.b) < 0.002
-          )
-            matches++;
-        }
-      });
-      expect(matches, `character-sheet color ${hex}`).toBeGreaterThan(100);
-    }
+    // The replacement carries the user's baked base-color image, verified above.
+    // The previous model's vertex-color palette is no longer the source of color.
     const mixer = new AnimationMixer(gltf.scene);
     const idleClip = gltf.animations.find((clip) => clip.name === "Idle");
     const walkClip = gltf.animations.find((clip) => clip.name === "Walk");
