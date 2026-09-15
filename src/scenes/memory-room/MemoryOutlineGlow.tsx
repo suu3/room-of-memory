@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { EffectComposer, Outline } from "@react-three/postprocessing";
+import { EffectComposer, N8AO, Outline } from "@react-three/postprocessing";
 import type { OutlineEffect } from "postprocessing";
 import {
   Component,
@@ -20,6 +20,7 @@ import {
 import { Color, type Group, type Mesh, type Object3D } from "three";
 import { cursorTarget, hoverGlowPulse } from "./cursor-target";
 import { FilmLookDriver, prefersReducedMotion, useFilmLookEffects } from "./FilmLook";
+import { ScreenTransitionDriver, useScreenTransitionEffect } from "./ScreenTransition";
 
 /**
  * 빛나는 방식의 두 등급.
@@ -208,18 +209,40 @@ function GlowHoverPulse({
 /** 호버 순간 윤곽선이 더해지는 배율 (GlowHoverPulse). 윤곽선은 세게, 헤일로는 은은하게. */
 const HOVER_PULSE_GAIN = { inner: 1.2, outer: 0.5 } as const;
 
+/**
+ * 앰비언트 오클루전 (N8AO). 가구가 바닥·벽에 붙은 자리와 방 구석이 살짝 눌린다.
+ * 디오라마의 물건들이 "놓여 있다"로 읽히게 하는 값이다. 반경은 방 크기(≈14유닛)의
+ * 1/20쯤, 세기는 은은한 쪽. 절반 해상도로 돌려 모바일 예산을 지킨다.
+ */
+const AO_SETTINGS = {
+  aoRadius: 0.7,
+  distanceFalloff: 1,
+  intensity: 2.2,
+  aoSamples: 8,
+  denoiseSamples: 4,
+  denoiseRadius: 6,
+} as const;
+
 export function MemoryGlowRoot({
   color,
   dim = 0,
+  ambientOcclusion,
   children,
 }: PropsWithChildren<{
   color: string;
   /** 어둠의 양 (0 = 밝은 방, 1 = 가장 어두운 지점). 색수차가 이 축을 따라 조금 더 어긋난다. */
   dim?: number;
+  /** 오클루전의 색. 주면 AO 패스를 켠다. 테스트의 가짜 렌더러에는 없다. */
+  ambientOcclusion?: { color: string };
 }>) {
+  const aoColor = useMemo(
+    () => (ambientOcclusion ? new Color(ambientOcclusion.color) : null),
+    [ambientOcclusion],
+  );
   const settings = useMemo(() => createMemoryOutlineSettings(color), [color]);
   const reducedMotion = useMemo(prefersReducedMotion, []);
   const film = useFilmLookEffects(reducedMotion);
+  const transition = useScreenTransitionEffect();
   const innerRef = useRef<OutlineEffect | null>(null);
   const outerRef = useRef<OutlineEffect | null>(null);
   const groupsRef = useRef<Record<MemoryGlowTier, Map<string, Object3D[]>>>({
@@ -256,6 +279,9 @@ export function MemoryGlowRoot({
         뿌려져야 필름이다.
       */}
       <EffectComposer {...settings.composer}>
+        {/* AO는 장면을 그리는 패스라 맨 앞. 뒤의 이펙트들이 눌린 그림 위에 얹힌다 */}
+        {/* biome-ignore lint/complexity/noUselessFragments: EffectComposer의 children 타입이 null을 받지 않는다. 빈 조각이 "패스 없음"이다. */}
+        {aoColor ? <N8AO halfRes quality="performance" color={aoColor} {...AO_SETTINGS} /> : <></>}
         <primitive object={film.aberration} />
         <Outline
           ref={innerRef}
@@ -273,7 +299,10 @@ export function MemoryGlowRoot({
           {...settings.outer}
         />
         <primitive object={film.grain} />
+        {/* 화면 전환(찢김·타들어감)은 맨 마지막: 그레인까지 얹힌 화면이 통째로 넘어간다 */}
+        <primitive object={transition} />
       </EffectComposer>
+      <ScreenTransitionDriver effect={transition} reducedMotion={reducedMotion} />
       <FilmLookDriver effects={film} dim={dim} reducedMotion={reducedMotion} />
       <GlowHoverPulse
         effectRef={innerRef}
