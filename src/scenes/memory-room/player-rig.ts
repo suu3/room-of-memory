@@ -16,7 +16,7 @@ export const STEP_RATE = 3.2;
 export const SIT_CONTACT_Y = 0.227;
 
 /** 좌면에 얹히는 외곽의 앞뒤 범위: 조끼 뒷밑단을 포함한 실측값. */
-export const SIT_CONTACT_Z = { back: -0.039, front: 0.308 } as const;
+export const SIT_CONTACT_Z = { back: -0.066, front: 0.308 } as const;
 
 /** 무릎 아래(정강이·발)가 차지하는 앞뒤 범위. 전부 좌면 앞턱보다 앞에 있어야 한다. */
 export const SIT_LEG_Z = { back: 0.197, front: 0.395 } as const;

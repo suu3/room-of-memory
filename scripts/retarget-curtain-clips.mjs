@@ -115,7 +115,10 @@ for (const animation of clip.json.animations ?? []) {
         q.set(output[key], output[key + 1], output[key + 2], output[key + 3]);
         // basis(옛 로컬) → delta(아마추어 공간) → basis(새 로컬) → 새 로컬 회전
         const basis = inverse.copy(from.rotation).invert().multiply(q);
-        const delta = from.armature.clone().multiply(basis).multiply(from.armature.clone().invert());
+        const delta = from.armature
+          .clone()
+          .multiply(basis)
+          .multiply(from.armature.clone().invert());
         const basisNew = to.armature.clone().invert().multiply(delta).multiply(to.armature);
         const result = to.rotation.clone().multiply(basisNew).normalize();
         output[key] = result.x;
@@ -139,12 +142,14 @@ for (const animation of clip.json.animations ?? []) {
     const components = output.length / accessor.count;
     accessor.min = Array.from({ length: components }, (_, c) => {
       let value = Number.POSITIVE_INFINITY;
-      for (let key = c; key < output.length; key += components) value = Math.min(value, output[key]);
+      for (let key = c; key < output.length; key += components)
+        value = Math.min(value, output[key]);
       return value;
     });
     accessor.max = Array.from({ length: components }, (_, c) => {
       let value = Number.NEGATIVE_INFINITY;
-      for (let key = c; key < output.length; key += components) value = Math.max(value, output[key]);
+      for (let key = c; key < output.length; key += components)
+        value = Math.max(value, output[key]);
       return value;
     });
     retargeted++;

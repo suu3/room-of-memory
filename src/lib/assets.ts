@@ -35,7 +35,7 @@ export const ASSETS = {
      * 플레이어 (Tripo 제작 chibi, 본·애니메이션·눈꺼풀 포함). 원본 FBX에서
      * scripts/create-tripo-player.py로 굽는다. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다.
      */
-    playerBlocky: "/assets/models/player-blocky.glb?v=tripo-smooth-20260915",
+    playerBlocky: "/assets/models/player-blocky.glb?v=tripo-20260916-forehead",
     /** 직접 제작한 방 소품. 재생성: scripts/create-original-furniture.mjs. 밑면 y=0. */
     computerScreen: "/assets/models/room-computer-screen.glb?v=original-20260912",
     computerKeyboard: "/assets/models/room-computer-keyboard.glb?v=original-20260912",

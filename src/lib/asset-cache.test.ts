@@ -13,6 +13,17 @@ it("loads the animated player even when the service worker cached the old placeh
     [`${legacyUrl}?v=vest-20260906`, new Response("previous warm-colored rig")],
     [`${legacyUrl}?v=rounded-back80-20260908`, new Response("previous character mesh and rig")],
     [`${legacyUrl}?v=tripo-20260915`, new Response("Tripo mesh before surface refinement")],
+    [
+      `${legacyUrl}?v=tripo-20260915-r2`,
+      new Response("Tripo mesh before cheek and bandage cleanup"),
+    ],
+    [`${legacyUrl}?v=tripo-20260915-r3`, new Response("Tripo mesh before final blink export")],
+    [`${legacyUrl}?v=tripo-20260915-r4`, new Response("Tripo mesh with deforming painted eyes")],
+    [`${legacyUrl}?v=tripo-20260916-eyes`, new Response("Tripo mesh with fragmented forehead")],
+    [
+      `${legacyUrl}?v=tripo-smooth-20260915`,
+      new Response("Tripo mesh before seam and blink repairs"),
+    ],
   ]);
   const bytes = readFileSync("public/assets/models/player-blocky.glb");
   let offline = false;

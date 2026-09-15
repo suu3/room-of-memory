@@ -159,7 +159,6 @@ def refine_surface(obj, index):
         # Locks touch at their roots after welding. Their UV islands still identify the
         # complete outer/inner surfaces; a height cut would leave open, flat-topped stubs.
         uv = bm.loops.layers.uv.active
-        old_boundary = {e for e in bm.edges if e.is_boundary}
         unseen = set(bm.faces)
         removed = []
         strands = 0
@@ -183,15 +182,8 @@ def refine_surface(obj, index):
                 removed.extend(component)
                 strands += 1
         bmesh.ops.delete(bm, geom=removed, context="FACES")
-        cut_edges = [e for e in bm.edges if e.is_boundary and e not in old_boundary]
         nearby = min(bm.faces, key=lambda f: (f.calc_center_median() - Vector((0.06, -0.08, 1.48))).length)
         cap_uv = sum((loop[uv].uv for loop in nearby.loops), Vector((0, 0))) / len(nearby.loops)
-        if cut_edges:
-            caps = bmesh.ops.holes_fill(bm, edges=cut_edges, sides=0)["faces"]
-            for face in caps:
-                for loop in face.loops:
-                    loop[uv].uv = cap_uv
-            bmesh.ops.triangulate(bm, faces=caps)
         # The roots of the removed wisps remain shared with the main locks. Settle their
         # little upright peaks into the crown and keep the newly closed surface rounded.
         crown = [v for v in bm.verts if v.co.z > 1.48 and abs(v.co.x) < 0.065 and -0.14 < v.co.y < 0.035]
@@ -200,15 +192,19 @@ def refine_surface(obj, index):
                 v.co.z = 1.495 + (v.co.z - 1.495) * 0.1
         for _ in range(4):
             bmesh.ops.smooth_vert(bm, verts=crown, factor=0.3, use_axis_x=True, use_axis_y=True, use_axis_z=True)
-        # The source locks have open undersides. A small closed inner crown fills the
-        # exposed meeting point beneath them; its outer edge stays buried in the locks.
-        old_faces = set(bm.faces)
-        cap = bmesh.ops.create_uvsphere(bm, u_segments=24, v_segments=12, radius=1)
-        for v in cap["verts"]:
-            v.co = Vector((v.co.x * 0.09, v.co.y * 0.105 - 0.035, v.co.z * 0.039 + 1.438))
-        for face in set(bm.faces) - old_faces:
-            for loop in face.loops:
-                loop[uv].uv = cap_uv
+        # Close the actual irregular rim with an inset surface. A sphere on top reads
+        # as a round plug; this joins the roots and stays lower than every rim vertex.
+        top_edges = [e for e in bm.edges if e.is_boundary and all(v.co.z > 1.46 for v in e.verts)]
+        if top_edges:
+            rim = {v for e in top_edges for v in e.verts}
+            centre = sum((v.co for v in rim), Vector()) / len(rim)
+            centre.z = min(v.co.z for v in rim) - 0.008
+            centre_vertex = bm.verts.new(centre)
+            for edge in top_edges:
+                loop = next(l for l in edge.link_faces[0].loops if l.edge == edge)
+                face = bm.faces.new((loop.link_loop_next.vert, loop.vert, centre_vertex))
+                for l in face.loops:
+                    l[uv].uv = cap_uv
         print(f"Crown cleanup: removed {strands} wisp surfaces ({len(removed)} faces)")
     # Work on the final triangle spacing. Boundaries stay fixed to keep cuffs and neck joins.
     iterations, factor, limit = {
@@ -244,6 +240,7 @@ def refine_surface(obj, index):
 
 def repair_openings(obj, index):
     """Reconstruct surfaces absent in Tripo's arms-down scan, plus the bandage socket."""
+    global cheek_curve
     if index not in (2, 3, 4, 5):
         return
     bm = bmesh.new()
@@ -271,40 +268,229 @@ def repair_openings(obj, index):
         if not (cheek_socket or arm_seam):
             continue
         sample = min(bm.faces, key=lambda f: (f.calc_center_median() - Vector(((low.x + high.x) / 2, low.y - 0.005, (low.z + high.z) / 2))).length)
+        if cheek_socket:
+            sample = min(bm.faces, key=lambda f: (f.calc_center_median() - Vector((0.145, -0.15, 1.045))).length)
         color_uv = sum((loop[uv].uv for loop in sample.loops), Vector((0, 0))) / len(sample.loops)
+        if arm_seam:
+            # Tripo's cut has T-junctions, so it is not a fillable manifold edge loop.
+            # Reconstruct the missing side from its front/back cross-sections instead.
+            grid, rows, columns = [], 32, 10
+            sign = 1 if (low.x + high.x) > 0 else -1
+            for row in range(rows + 1):
+                z = low.z + (high.z - low.z) * (0.0001 + 0.9998 * row / rows)
+                crossings = []
+                for edge in edges:
+                    a, b = (v.co for v in edge.verts)
+                    if abs(b.z - a.z) > 1e-7 and min(a.z, b.z) <= z <= max(a.z, b.z):
+                        crossings.append(a.lerp(b, (z - a.z) / (b.z - a.z)))
+                if len(crossings) < 2:
+                    crossings = [v.co for v in sorted(verts, key=lambda v: abs(v.co.z - z))[:8]]
+                front, back = min(crossings, key=lambda p: p.y), max(crossings, key=lambda p: p.y)
+                line = []
+                for col in range(columns + 1):
+                    t = col / columns
+                    co = front.lerp(back, t)
+                    co.z = z
+                    co.y += (t * 2 - 1) * 0.002
+                    co.x += sign * (0.002 if index == 3 else -0.018) * math.sin(math.pi * t) * math.sin(math.pi * row / rows) ** 0.35
+                    line.append(bm.verts.new(co))
+                grid.append(line)
+            for row in range(rows):
+                for col in range(columns):
+                    corners = [grid[row][col], grid[row][col + 1], grid[row + 1][col + 1], grid[row + 1][col]]
+                    if (sign < 0) != (index != 3):
+                        corners.reverse()
+                    face = bm.faces.new(corners)
+                    for loop in face.loops:
+                        loop[uv].uv = color_uv
+            print(f"Surface repair part {index}: rebuilt side with {rows * columns} quads")
+            continue
         caps = bmesh.ops.holes_fill(bm, edges=edges, sides=0)["faces"]
         for face in caps:
             for loop in face.loops:
                 loop[uv].uv = color_uv
         triangles = bmesh.ops.triangulate(bm, faces=caps)["faces"]
-        long_edges = {e for f in triangles for e in f.edges if e.calc_length() > 0.03}
+        long_edges = {e for f in triangles for e in f.edges if e.calc_length() > 0.006}
         if long_edges:
-            bmesh.ops.subdivide_edges(bm, edges=list(long_edges), cuts=2, use_grid_fill=True)
+            bmesh.ops.subdivide_edges(bm, edges=list(long_edges), cuts=3, use_grid_fill=True)
         print(f"Surface repair part {index}: {len(edges)} boundary edges, {len(caps)} caps")
     if index == 2:
-        # Extend the face beneath the hairline. Independently decimated hair/skin borders
-        # otherwise expose small slits around the eyebrow from oblique views.
-        rim = [e for e in bm.edges if e.is_boundary and all(v.co.z > 1.10 and v.co.y < 0.035 for v in e.verts)]
-        extended = {}
-        for v in {v for e in rim for v in e.verts}:
-            centre = sum((f.calc_center_median() for f in v.link_faces), Vector()) / len(v.link_faces)
-            direction = v.co - centre
-            direction.normalize()
-            new = bm.verts.new(v.co + direction * 0.007 + Vector((0, 0.001, 0)))
-            new.copy_from(v)
-            extended[v] = new
-        for edge in rim:
-            face = edge.link_faces[0]
-            loop = next(loop for loop in face.loops if loop.edge == edge)
-            a, b = loop.vert, loop.link_loop_next.vert
-            skirt = bm.faces.new((b, a, extended[a], extended[b]))
-            coords = {l.vert: l[uv].uv.copy() for l in face.loops}
-            for l in skirt.loops:
-                original = a if l.vert in (a, extended[a]) else b
-                l[uv].uv = coords[original]
+        # The old bandage leaves both a puckered socket and a baked outline. Restore
+        # that small cheek region from a smooth fit to the intact opposite cheek.
+        bmesh.ops.triangulate(bm, faces=list(bm.faces))
+        bm.faces.ensure_lookup_table()
+        source_faces = list(bm.faces)
+        mirror_surface = BVHTree.FromBMesh(bm)
+        samples, depths = [], []
+        for u in np.linspace(-1.3, 1.3, 17):
+            for v in np.linspace(-1.3, 1.3, 17):
+                hit, _, _, _ = mirror_surface.ray_cast(Vector((-(0.111 + u * 0.028), -0.8, 1.004 + v * 0.04)), Vector((0, 1, 0)))
+                if hit is not None and hit.y < -0.06:
+                    samples.append([1, u, v, u*u, u*v, v*v])
+                    depths.append(hit.y)
+        cheek_curve = np.linalg.lstsq(np.array(samples), np.array(depths), rcond=None)[0]
+        skin_image = next(n.image for n in obj.data.materials[0].node_tree.nodes if n.type == 'TEX_IMAGE' and n.image)
+        image_width, image_height = skin_image.size
+        skin_pixels = np.empty(image_width * image_height * 4, dtype=np.float32)
+        skin_image.pixels.foreach_get(skin_pixels)
+        skin_pixels = skin_pixels.reshape(image_height, image_width, 4)
+
+        def skin_color(coord):
+            x = min(image_width - 1, max(0, coord.x * image_width - 0.5))
+            y = min(image_height - 1, max(0, coord.y * image_height - 0.5))
+            ix, iy = int(x), int(y)
+            nx, ny = min(ix + 1, image_width - 1), min(iy + 1, image_height - 1)
+            rgb = (skin_pixels[iy, ix, :3] * (1 - x + ix) + skin_pixels[iy, nx, :3] * (x - ix)) * (1 - y + iy)
+            rgb += (skin_pixels[ny, ix, :3] * (1 - x + ix) + skin_pixels[ny, nx, :3] * (x - ix)) * (y - iy)
+            return np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+
+        # Native vertex colours blend the small repair into the original skin.
+        # Interpolating UV coordinates across separate islands cannot do that.
+        repair_color = bm.loops.layers.float_color.new('CheekRepairColor')
+        for face in bm.faces:
+            for loop in face.loops:
+                loop[repair_color] = (1, 1, 1, 1)
+        repair_material = bpy.data.materials.new('tripo_part_2_material_CheekRepair')
+        repair_material.use_nodes = True
+        shader = repair_material.node_tree.nodes.get('Principled BSDF')
+        color_node = repair_material.node_tree.nodes.new('ShaderNodeVertexColor')
+        color_node.layer_name = 'CheekRepairColor'
+        repair_material.node_tree.links.new(color_node.outputs['Color'], shader.inputs['Base Color'])
+        repair_slot = len(obj.data.materials)
+        obj.data.materials.append(repair_material)
+
+        for v in bm.verts:
+            if v.co.y >= -0.06:
+                continue
+            radius = math.hypot((v.co.x - 0.111) / 0.028, (v.co.z - 1.004) / 0.04)
+            fade = max(0, min(1, (1.6 - radius) / 0.6))
+            if fade:
+                u, w = (v.co.x - 0.111) / 0.028, (v.co.z - 1.004) / 0.04
+                depth = float(np.dot(cheek_curve, [1, u, w, u*u, u*w, w*w]))
+                v.co.y += (depth - v.co.y) * fade * fade * (3 - 2 * fade)
+        for face in bm.faces:
+            center = face.calc_center_median()
+            radius = min(math.hypot((v.co.x - 0.111) / 0.028, (v.co.z - 1.004) / 0.04) for v in face.verts)
+            if center.y >= -0.06 or radius >= 1.6:
+                continue
+            hit, _, source_index, _ = mirror_surface.ray_cast(Vector((-center.x, -0.8, center.z)), Vector((0, 1, 0)))
+            if hit is None:
+                continue
+            source = source_faces[source_index]
+            points = [v.co.copy() for v in source.verts]
+            coords = [Vector((*loop[uv].uv, 0)) for loop in source.loops]
+            face.material_index = repair_slot
+            # Use one source triangle for every corner: welded vertices can belong
+            # to different UV islands, and interpolating between islands paints seams.
+            for loop in face.loops:
+                co = loop.vert.co
+                mapped = barycentric_transform(Vector((-co.x, hit.y, co.z)), *points, *coords)
+                radius = math.hypot((co.x - 0.111) / 0.028, (co.z - 1.004) / 0.04)
+                blend = max(0, min(1, (1.6 - radius) / 0.5))
+                blend = blend * blend * (3 - 2 * blend)
+                color = skin_color(loop[uv].uv) * (1 - blend) + skin_color(mapped.xy) * blend
+                loop[repair_color] = (*color, 1)
+        rebuild_forehead(bm, obj, uv, repair_color, repair_material, skin_color)
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
     bm.to_mesh(obj.data)
     bm.free()
+
+
+def rebuild_forehead(bm, obj, uv, color_layer, skin_material, skin_color):
+    """Replace the scan's hair-shaped facial cutouts with a connected forehead."""
+    bmesh.ops.triangulate(bm, faces=list(bm.faces))
+    bm.faces.ensure_lookup_table()
+    source = [([v.co.copy() for v in face.verts], [Vector((*loop[uv].uv, 0)) for loop in face.loops]) for face in bm.faces]
+    surface = BVHTree.FromBMesh(bm)
+
+    def sample(x, z):
+        hit, _, index, _ = surface.ray_cast(Vector((x, -0.8, z)), Vector((0, 1, 0)))
+        if hit is None or hit.y > 0.035:
+            return None, None
+        points, coords = source[index]
+        mapped = barycentric_transform(hit, *points, *coords)
+        return hit, skin_color(mapped.xy)
+
+    samples, depths = [], []
+    for x in np.linspace(-0.21, 0.21, 43):
+        for z in np.linspace(1.15, 1.27, 25):
+            hit, _ = sample(x, z)
+            if hit is not None:
+                u, v = x / 0.22, (z - 1.15) / 0.15
+                samples.append([1, u, v, u*u, u*v, v*v]);depths.append(hit.y)
+    curve = np.linalg.lstsq(np.array(samples), np.array(depths), rcond=None)[0]
+    clean = np.mean([sample(x, 1.16)[1] for x in (-0.025, 0, 0.025)], axis=0)
+    brows = {}
+    for sign in (-1, 1):
+        positions, levels, widths, inks = [], [], [], []
+        for x in np.linspace(0.045, 0.18, 48):
+            dark = []
+            for z in np.linspace(1.158, 1.18, 65):
+                _, rgb = sample(sign*x, z)
+                if rgb is not None and float(np.mean(rgb)) < 0.08:
+                    dark.append(z);inks.append(rgb)
+            if len(dark) >= 3:
+                positions.append([1, x, x*x]);levels.append(float(np.median(dark)));widths.append((max(dark)-min(dark))/2)
+        matrix, values = np.array(positions), np.array(levels)
+        keep = np.ones(len(values), dtype=bool)
+        for _ in range(3):
+            profile = np.linalg.lstsq(matrix[keep], values[keep], rcond=None)[0]
+            keep = np.abs(matrix@profile-values) < 0.003
+        brows[sign] = (profile, max(0.002, min(0.004, float(np.median(widths)))), np.mean(inks, axis=0))
+    cut_z = 1.141
+    bmesh.ops.bisect_plane(bm, geom=list(bm.verts) + list(bm.edges) + list(bm.faces), dist=1e-6,
+                          plane_co=Vector((0, 0, cut_z)), plane_no=Vector((0, 0, 1)))
+    removed = [face for face in bm.faces if min(v.co.z for v in face.verts) >= cut_z - 1e-6
+               and abs(face.calc_center_median().x) < 0.218 and face.calc_center_median().y < 0.035]
+    bmesh.ops.delete(bm, geom=removed, context='FACES')
+    rim = [e for e in bm.edges if e.is_boundary and all(abs(v.co.z-cut_z) < 2e-6 and abs(v.co.x) < 0.222 and v.co.y < 0.035 for v in e.verts)]
+    if not rim:
+        raise RuntimeError('No connected lower forehead edge after trimming')
+    # Keep the actual lower edge vertices so the new forehead shares the face mesh.
+    bmesh.ops.subdivide_edges(bm, edges=[e for e in rim if e.calc_length() > 0.004], cuts=2, use_grid_fill=True)
+    rim = [e for e in bm.edges if e.is_boundary and all(abs(v.co.z-cut_z) < 2e-6 and abs(v.co.x) < 0.222 and v.co.y < 0.035 for v in e.verts)]
+    bottom = sorted({v for e in rim for v in e.verts}, key=lambda v: v.co.x)
+    # Closely spaced rows retain the thin eyebrow; the hidden upper forehead can be coarser.
+    levels = list(np.linspace(cut_z, 1.185, 34)) + list(np.linspace(1.195, 1.38, 8))
+    rows, grid = len(levels)-1, []
+    deform = bm.verts.layers.deform.active
+    head_group = obj.vertex_groups['Head'].index
+    for base in bottom:
+        column = [base]
+        for row in range(1, rows + 1):
+            z = levels[row]
+            spread = max(0, min(1, (z-cut_z)/0.05));spread=spread*spread*(3-2*spread)
+            extent = abs(bottom[0].co.x) if base.co.x < 0 else bottom[-1].co.x
+            x = base.co.x * (1 + (0.222/extent-1)*spread)
+            u, v = x/0.22, (min(z, 1.27)-1.15)/0.15
+            depth = float(np.dot(curve, [1, u, v, u*u, u*v, v*v]))
+            depth += 0.10 * (max(0, z-1.27)/0.11)**2
+            blend = min(1, (z-cut_z)/0.018)
+            blend = blend*blend*(3-2*blend)
+            depth = base.co.y*(1-blend) + depth*blend
+            vertex = bm.verts.new((x, depth, z))
+            vertex[deform][head_group] = 1
+            column.append(vertex)
+        grid.append(column)
+    material = skin_material.copy();material.name='tripo_part_2_material_ForeheadRepair'
+    slot = len(obj.data.materials);obj.data.materials.append(material)
+    for col in range(len(grid)-1):
+        for row in range(rows):
+            face = bm.faces.new((grid[col][row], grid[col+1][row], grid[col+1][row+1], grid[col][row+1]))
+            face.material_index=slot
+            for loop in face.loops:
+                p=loop.vert.co
+                _, original=sample(p.x, p.z)
+                blend=max(0,min(1,(p.z-cut_z)/0.006));blend=blend*blend*(3-2*blend)
+                rgb=clean.copy() if original is None else original*(1-blend)+clean*blend
+                if 0.04 < abs(p.x) < 0.185:
+                    profile, thickness, ink = brows[-1 if p.x < 0 else 1]
+                    x=abs(p.x);center=float(np.dot(profile,[1,x,x*x]))
+                    taper=min(1,(x-0.04)/0.012,(0.185-x)/0.015)
+                    mask=max(0,min(1,(thickness*taper-abs(p.z-center))/0.0008+0.5))
+                    rgb=rgb*(1-mask)+ink*mask
+                loop[color_layer]=(*rgb,1)
+    print(f'Forehead reconstruction: {len(bottom)} columns, {rows} rows; joined at z={cut_z}')
 
 
 for o in parts:
@@ -441,6 +627,14 @@ bpy.data.objects.remove(source_rig)
 for o in [o for o in bpy.data.objects if o.type == "EMPTY"]:
     bpy.data.objects.remove(o)
 slot_part = [part_index(m.name) for m in mesh.data.materials]
+if 'CheekRepairColor' in mesh.data.color_attributes:
+    cheek_colors = mesh.data.color_attributes['CheekRepairColor']
+    mesh.data.color_attributes.active_color = cheek_colors
+    mesh.data.color_attributes.render_color_index = mesh.data.color_attributes.find('CheekRepairColor')
+    for polygon in mesh.data.polygons:
+        if not mesh.data.materials[polygon.material_index].name.endswith(('_CheekRepair', '_ForeheadRepair')):
+            for loop_index in polygon.loop_indices:
+                cheek_colors.data[loop_index].color = (1, 1, 1, 1)
 vertex_part = [0] * len(mesh.data.vertices)
 for polygon in mesh.data.polygons:
     for vi in polygon.vertices:
@@ -564,7 +758,7 @@ mesh.parent = rig
 # Eyelids: a fitted surface that closes over the painted eye (create-chibi-player.py).
 mesh.data.calc_loop_triangles()
 face_slot = slot_part.index(2)
-face_triangles = [t for t in mesh.data.loop_triangles if mesh.data.polygons[t.polygon_index].material_index == face_slot]
+face_triangles = [t for t in mesh.data.loop_triangles if slot_part[mesh.data.polygons[t.polygon_index].material_index] == 2]
 face_surface = BVHTree.FromPolygons([v.co for v in mesh.data.vertices], [tuple(t.vertices) for t in face_triangles], all_triangles=True)
 uv_layer = mesh.data.uv_layers.active
 
@@ -584,43 +778,83 @@ def face_point(x, z):
     return hit, (uv.x, uv.y)
 
 
+def fit_eye_surface(eye):
+    cx, cz = sum(eye["x"]) / 2, sum(eye["z"]) / 2
+    hw = (eye["x"][1] - eye["x"][0]) / 2 * 1.4 + 0.006
+    hh = (eye["z"][1] - eye["z"][0]) / 2 * 1.4 + 0.006
+    samples, depths = [], []
+    for edge in range(4):
+        for step in range(21):
+            t = step / 20 * 2 - 1
+            u, v = [(t, -1), (t, 1), (-1, t), (1, t)][edge]
+            x, z = cx + u * hw, cz + v * hh
+            p, _ = face_point(x, z)
+            if p.y > -0.08 or abs(p.x - x) > 0.002 or abs(p.z - z) > 0.002:
+                continue
+            samples.append([1, u, v, u * u, u * v, v * v])
+            depths.append(p.y)
+    matrix, values = np.array(samples), np.array(depths)
+    keep = np.ones(len(values), dtype=bool)
+    for _ in range(3):
+        coefficients = np.linalg.lstsq(matrix[keep], values[keep], rcond=None)[0]
+        residual = np.abs(matrix @ coefficients - values)
+        keep = residual < max(0.006, float(np.median(residual)) * 2.5)
+    return cx, cz, hw, hh, coefficients
+
+
+def eye_surface(x, z, fitted_eye):
+    cx, cz, hw, hh, coefficients = fitted_eye
+    u, v = (x - cx) / hw, (z - cz) / hh
+    fade = max(0, min(1, (1.35 - math.hypot(u, v)) / 0.55))
+    fade = fade * fade * (3 - 2 * fade)
+    cheek_limit = max(0, min(1, (z - 1.04) / 0.02))
+    fade *= cheek_limit * cheek_limit * (3 - 2 * cheek_limit)
+    return float(np.dot(coefficients, [1, u, v, u*u, u*v, v*v])), fade
+
+
+# Settle the uneven eye sockets once, before fitting overlays. Animating this
+# correction moved the painted irises by 12.5mm at half blink and made them ripple.
+# Their UVs and positions now stay fixed throughout a blink.
+eye_fits = {side: fit_eye_surface(eye) for side, eye in eyes.items()}
+for vertex in mesh.data.vertices:
+    if vertex_part[vertex.index] != 2 or vertex.co.y >= -0.05:
+        continue
+    depth, fade = max((eye_surface(vertex.co.x, vertex.co.z, fitted) for fitted in eye_fits.values()), key=lambda result: result[1])
+    vertex.co.y += max(-0.025, min(0.025, depth - vertex.co.y)) * fade
+mesh.data.update()
+face_surface = BVHTree.FromPolygons([v.co for v in mesh.data.vertices], [tuple(t.vertices) for t in face_triangles], all_triangles=True)
+
+
 def fitted_bandage():
     """A thin rounded adhesive strip with a centre pad and printed perforations."""
     vertices, polygons, materials = [], [], []
-    angle = math.radians(22)
+    angle = math.radians(65)
 
     def point(u, v, lift):
-        x = 0.115 + u * math.cos(angle) - v * math.sin(angle)
-        z = 1.004 + u * math.sin(angle) + v * math.cos(angle)
-        surface, _ = face_point(x, z)
-        return (surface.x, surface.y - lift, surface.z)
+        x = 0.111 + u * math.cos(angle) - v * math.sin(angle)
+        z = 1.008 + u * math.sin(angle) + v * math.cos(angle)
+        cu, cv = (x - 0.111) / 0.028, (z - 1.004) / 0.04
+        depth = float(np.dot(cheek_curve, [1, cu, cv, cu*cu, cu*cv, cv*cv]))
+        return (x, depth - lift, z)
 
     def patch(width, height, radius, lift, material):
-        outline = []
-        for cx, cy, start in [(width / 2 - radius, height / 2 - radius, 0),
-                               (-width / 2 + radius, height / 2 - radius, 90),
-                               (-width / 2 + radius, -height / 2 + radius, 180),
-                               (width / 2 - radius, -height / 2 + radius, 270)]:
-            for step in range(8):
-                t = math.radians(start + step * 90 / 7)
-                outline.append((cx + radius * math.cos(t), cy + radius * math.sin(t)))
         base = len(vertices)
-        vertices.append(point(0, 0, lift))
-        for fraction in (0.35, 0.7, 1):
-            vertices.extend(point(u * fraction, v * fraction, lift) for u, v in outline)
-        n = len(outline)
-        for i in range(n):
-            polygons.append((base, base + 1 + i, base + 1 + (i + 1) % n))
-            materials.append(material)
-        for ring in range(2):
-            for i in range(n):
-                a = base + 1 + ring * n
-                b = a + n
-                polygons.append((a + i, b + i, b + (i + 1) % n, a + (i + 1) % n))
+        columns, rows = 40, 16
+        for col in range(columns + 1):
+            u = width * (col / columns - 0.5)
+            corner = max(0, abs(u) - (width / 2 - radius))
+            half_h = height / 2 - radius + math.sqrt(max(0, radius * radius - corner * corner))
+            for row in range(rows + 1):
+                vertices.append(point(u, half_h * (row / rows * 2 - 1), lift))
+        for col in range(columns):
+            for row in range(rows):
+                a = base + col * (rows + 1) + row
+                b = a + rows + 1
+                polygons.append((a, b, b + 1, a + 1))
                 materials.append(material)
 
-    patch(0.043, 0.021, 0.0035, 0.0007, 0)
-    patch(0.014, 0.015, 0.002, 0.0011, 1)
+    patch(0.055, 0.026, 0.004, 0.0007, 0)
+    patch(0.014, 0.018, 0.002, 0.0011, 1)
     for side in (-1, 1):
         for u in (0.012, 0.0165):
             for v in (-0.0045, 0, 0.0045):
@@ -664,53 +898,78 @@ glint_shader.inputs["Emission Color"].default_value = (0.95, 0.97, 1, 1)
 glint_shader.inputs["Emission Strength"].default_value = 0.2
 for side, label in [("L", "Left"), ("R", "Right")]:
     eye = eyes[side]
-    center_x = (eye["x"][0] + eye["x"][1]) / 2
-    center_z = (eye["z"][0] + eye["z"][1]) / 2
-    half_w = (eye["x"][1] - eye["x"][0]) / 2 * 1.18 + 0.005
-    half_h = (eye["z"][1] - eye["z"][0]) / 2 * 1.35 + 0.007
+    center_x, center_z, half_w, half_h, coefficients = eye_fits[side]
     opened, closed, faces, coordinates = [], [], [], []
     columns = 32
     _, skin_uv = face_point(center_x, center_z - half_h - 0.02)
     _, lash_uv = face_point(center_x, center_z + half_h * 0.35)
-    # Reuse the face's exact tessellation. A separately sampled grid can cross the
-    # irregular Tripo triangles between samples and expose little pieces of painted iris.
-    cover_vertices = {}
-    for triangle in face_triangles:
-        points = [mesh.data.vertices[i].co for i in triangle.vertices]
-        if (max(p.x for p in points) < center_x - half_w or min(p.x for p in points) > center_x + half_w
-                or max(p.z for p in points) < center_z - half_h or min(p.z for p in points) > center_z + half_h
-                or min(p.y for p in points) > -0.05):
-            continue
-        indices = []
-        for vi, surface in zip(triangle.vertices, points):
-            if vi not in cover_vertices:
-                cover_vertices[vi] = len(opened)
-                upper = center_z + half_h + 0.012
-                top, _ = face_point(surface.x, upper)
-                opened.append((surface.x, top.y + 0.005, upper))
-                closed.append((surface.x, surface.y - 0.001, surface.z))
-                coordinates.append(skin_uv)
-            indices.append(cover_vertices[vi])
-        faces.append(tuple(indices))
+    def closed_y(point):
+        front, _ = face_point(point.x, point.z)
+        return front.y
+
+    # Close a separate lid over the stable eye surface.
+    rows = 24
+    for col in range(columns + 1):
+        x = center_x + half_w * (col / columns * 2 - 1)
+        upper = center_z + half_h
+        top, _ = face_point(x, upper + 0.012)
+        for row in range(rows + 1):
+            z = upper - half_h * 2 * row / rows
+            p, _ = face_point(x, z)
+            opened.append((x, top.y + 0.005, upper + 0.012))
+            closed.append((x, closed_y(Vector((x, p.y, z))) - 0.0015, z))
+            coordinates.append(skin_uv)
+    for col in range(columns):
+        for row in range(rows):
+            a = col * (rows + 1) + row
+            b = a + rows + 1
+            faces.append((a, a + 1, b + 1, b))
     # A closed eyelash belongs near the centre of the eye. Painting the lower perimeter
     # of the covering patch made a deep U-shape, like an empty eyeglass frame.
     crease_start = len(opened)
     for col in range(columns + 1):
         u = col / columns * 2 - 1
-        x = center_x + u * half_w * 0.84
+        x = center_x + u * half_w * 0.7
         z = center_z - 0.003 - 0.006 * (1 - u * u)
         thickness = 0.0012 * math.sqrt(max(0.04, 1 - u * u))
         for offset in (-thickness, thickness):
             point, _ = face_point(x, z + offset)
             opened.append((point.x, point.y + 0.005, point.z))
-            closed.append((point.x, point.y - 0.005, point.z))
+            closed.append((point.x, closed_y(point) - 0.002, point.z))
             coordinates.append(lash_uv)
     for col in range(columns):
         a = crease_start + col * 2
         faces.append((a, a + 2, a + 3, a + 1))
     lid_data = bpy.data.meshes.new("Eyelid" + label)
     lid_data.from_pydata(opened, [], faces)
-    lid_data.materials.append(mesh.data.materials[face_slot])
+    lid_material = mesh.data.materials[face_slot].copy()
+    lid_material.name = "EyelidSkin" + label
+    lid_material.surface_render_method = "DITHERED"
+    alpha_node = lid_material.node_tree.nodes.new("ShaderNodeVertexColor")
+    alpha_node.layer_name = "LidOpacity"
+    shader = next(n for n in lid_material.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+    # Blender 5.2's glTF exporter recognizes the current Mix node, not legacy MixRGB.
+    tint = lid_material.node_tree.nodes.new("ShaderNodeMix")
+    tint.data_type = 'RGBA'
+    tint.blend_type = "MULTIPLY"
+    tint.inputs[0].default_value = 1
+    original_color = shader.inputs["Base Color"].links[0].from_socket
+    lid_material.node_tree.links.new(original_color, tint.inputs[6])
+    lid_material.node_tree.links.new(alpha_node.outputs["Color"], tint.inputs[7])
+    lid_material.node_tree.links.new(tint.outputs[2], shader.inputs["Base Color"])
+    lid_material.node_tree.links.new(alpha_node.outputs["Alpha"], shader.inputs["Alpha"])
+    lid_data.materials.append(lid_material)
+    opacity = lid_data.color_attributes.new(name="LidOpacity", type="FLOAT_COLOR", domain="CORNER")
+    lid_data.color_attributes.active_color = opacity
+    lid_data.color_attributes.render_color_index = lid_data.color_attributes.find('LidOpacity')
+    for loop in lid_data.loops:
+        alpha = 1
+        if loop.vertex_index < crease_start:
+            x, _, z = closed[loop.vertex_index]
+            distance = math.hypot((x - center_x) / half_w, (z - center_z) / half_h)
+            alpha = max(0, min(1, (1 - distance) / 0.2))
+            alpha = alpha * alpha * (3 - 2 * alpha)
+        opacity.data[loop.index].color = (1, 1, 1, alpha)
     lid_uv = lid_data.uv_layers.new(name="UVMap")
     for loop in lid_data.loops:
         lid_uv.data[loop.index].uv = coordinates[loop.vertex_index]
@@ -738,7 +997,7 @@ for side, label in [("L", "Left"), ("R", "Right")]:
             angle = step * math.tau / 12
             point, _ = face_point(center_x + dx + radius * math.cos(angle), center_z + dz + radius * math.sin(angle))
             shine_open.append((point.x, point.y - 0.0012, point.z))
-            shine_closed.append((point.x, point.y + 0.004, point.z))
+            shine_closed.append((point.x, closed_y(point) + 0.004, point.z))
         shine_faces.append(tuple(start + i for i in range(12)))
     shine_data = bpy.data.meshes.new("EyeHighlight" + label)
     shine_data.from_pydata(shine_open, [], shine_faces)
@@ -857,6 +1116,7 @@ bpy.ops.export_scene.gltf(
     use_selection=True, export_animations=True, export_animation_mode="ACTIONS",
     export_image_format="WEBP", export_image_quality=90, export_force_sampling=True,
     export_skins=True, export_def_bones=True,
+    export_vertex_color="ACTIVE",
 )
 print("CHIBI_READY", len(mesh.data.vertices), "vertices", len(mesh.data.polygons), "tris", len(rig.data.bones), "bones")
 
