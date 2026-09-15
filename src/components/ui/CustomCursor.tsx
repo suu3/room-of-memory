@@ -137,9 +137,18 @@ export function CustomCursor() {
 
       // 붙을 버튼이 사라졌으면(패널이 닫힘) 놓는다
       if (magnet && !magnet.element.isConnected) magnet = null;
-      const magnetRect: MagnetRect | null = magnet
-        ? { ...magnet.element.getBoundingClientRect(), radius: magnet.radius }
-        : null;
+      // DOMRect는 getter라 스프레드로 복사되지 않는다. 필드를 하나씩 옮긴다
+      const rect = magnet?.element.getBoundingClientRect();
+      const magnetRect: MagnetRect | null =
+        magnet && rect
+          ? {
+              left: rect.left,
+              top: rect.top,
+              width: rect.width,
+              height: rect.height,
+              radius: magnet.radius,
+            }
+          : null;
       const absorb = cursorTarget.object ? cursorTarget.screen : null;
       const goal = ringGoal(pointer, magnetRect, absorb);
       // 자리는 손을 늦게 따라오고, 붙거나 빨려드는 모양은 그보다 조금 빠르다
