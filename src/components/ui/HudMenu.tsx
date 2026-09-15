@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { playHoverSound } from "./hover-sfx";
 import { LanguageToggle } from "./LanguageToggle";
 import {
   BACKDROP,
@@ -63,6 +64,7 @@ export function HudMenu() {
           playSound(open ? "close" : "open");
           setOpen(!open);
         }}
+        onPointerEnter={playHoverSound}
         aria-expanded={open}
         aria-label={open ? t("menu.close") : t("menu.open")}
         // 열려 있는 동안은 패널과 같은 표면으로 서서 "이 버튼이 저 패널의 것"임을 말한다

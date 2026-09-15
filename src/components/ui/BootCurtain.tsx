@@ -37,6 +37,7 @@ export function BootCurtain() {
   const booted = useMemoryRoomStore((state) => state.booted);
   const started = useMemoryRoomStore((state) => state.started);
   const finishBoot = useMemoryRoomStore((state) => state.finishBoot);
+  const beginBootRise = useMemoryRoomStore((state) => state.beginBootRise);
   const loadProgress = useMemoryRoomStore((state) => state.roomLoadProgress);
   const [gaveUp, setGaveUp] = useState(false);
   const [held, setHeld] = useState(true);
@@ -58,9 +59,11 @@ export function BootCurtain() {
 
   useEffect(() => {
     if (!rising) return;
+    // 걷히기 시작하는 순간을 먼저 알린다. 타이틀이 이 신호에 맞춰 커튼 밑에서 놓인다
+    beginBootRise();
     const timer = window.setTimeout(finishBoot, RISE_MS);
     return () => window.clearTimeout(timer);
-  }, [rising, finishBoot]);
+  }, [rising, beginBootRise, finishBoot]);
 
   // 게임이 이미 시작됐으면 커튼이 남아 있을 이유가 없다. 로딩 표시(progressbar)가
   // 방 위에 계속 읽히는 걸 막는다. 정상 경로에서는 걷힌 뒤에야 시작할 수 있어 안 걸린다.

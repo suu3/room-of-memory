@@ -12,9 +12,11 @@ import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { playHoverSound } from "./hover-sfx";
 import { LanguageToggle } from "./LanguageToggle";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { RisingDust } from "./RisingDust";
+import { STAGGER_CLASS, staggerStyle } from "./stagger";
 import { BACKDROP, BUTTON_DESTRUCTIVE, BUTTON_QUIET, PANEL_DARK } from "./ui-classes";
 
 /**
@@ -36,20 +38,34 @@ const MENU_ITEM_CLASS =
 
 /**
  * 선택 표식. 라벨은 가운데 그대로 두고 왼쪽에 얹는다. 기본 선택(첫 항목)에는 늘 붙어
- * 있고, 나머지는 hover·키보드 선택에서만 떠오른다. 금빛은 고른 것 하나의 자리다.
+ * 있고, 나머지는 hover·키보드 선택에서 왼쪽에서 4px 미끄러져 들어온다. 금빛은 고른 것
+ * 하나의 자리다. 밝기만 오가면 "켜졌다"이고, 자리를 옮겨 오면 "다가왔다"다.
  */
 function MenuMarker({ always }: { always: boolean }) {
   return (
     <span
       aria-hidden
-      className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-memory transition-opacity ${
+      className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-memory transition-[opacity,translate] duration-150 ease-out ${
         always
           ? "opacity-100"
-          : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+          : "-translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 group-active:translate-x-0 group-active:opacity-100"
       }`}
     >
       ▶
     </span>
+  );
+}
+
+/**
+ * 항목 아래의 헤어라인. 왼쪽에서 자라 나온다 (DESIGN.md > Motion: 테두리를 새로 그려
+ * 레이아웃을 움직이지 않는다. 선은 늘 있고 scale만 바뀐다).
+ */
+function MenuHairline() {
+  return (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute bottom-1 left-10 right-10 h-px origin-left scale-x-0 bg-memory/60 transition-transform duration-150 ease-out group-hover:scale-x-100 group-focus-visible:scale-x-100"
+    />
   );
 }
 
@@ -91,6 +107,8 @@ export function TitleScreen() {
   const [confirming, setConfirming] = useState(false);
   /** 부팅 커튼이 걷혔는가. 걷히기 전에는 이 화면이 커튼 뒤에 가려 있다. */
   const booted = useMemoryRoomStore((state) => state.booted);
+  /** 커튼이 걷히기 시작했는가. 놓이는 계단(reveal)은 booted보다 이걸 본다. */
+  const revealed = useMemoryRoomStore((state) => state.bootRising || state.booted);
 
   useEffect(() => {
     setUiLock("title", !started);
@@ -185,7 +203,23 @@ export function TitleScreen() {
     }
     const delta = event.key === "ArrowDown" ? 1 : -1;
     focusable[(index + delta + focusable.length) % focusable.length].focus();
+    // 키보드로 옮겨 다니는 것도 커서를 얹는 것과 같은 몸짓이다
+    playSound("hover");
   };
+
+  /*
+   * 커튼이 걷히는 동안 로고 → 메뉴 → 안내 → 언어 순으로 한 단씩 놓인다. 커튼 뒤에서
+   * 미리 올라와 있으면 걷힌 자리에 이미 다 서 있어서 놓이는 순간이 없다. 걷히기
+   * 전에는 숨겨 두었다가(어차피 커튼이 덮고 있다) 커튼이 올라가기 시작하는 프레임
+   * (bootRising)에 출발시킨다. 리셋으로 돌아올 때는 이 화면이 다시 마운트되므로
+   * 같은 계단을 다시 밟는다.
+   */
+  const reveal = (index: number) =>
+    revealed
+      ? { className: STAGGER_CLASS, style: staggerStyle(index) }
+      : { className: "opacity-0", style: undefined };
+  const menuStart = 1;
+  const afterMenu = menuStart + items.length;
 
   return (
     /*
@@ -224,7 +258,10 @@ export function TitleScreen() {
         {/* 로고 블록. 제목은 게임 픽셀 서체(Galmuri14)로 세워 인디게임 로고처럼 읽힌다.
             그 위에 있던 영문 장르 라벨은 걷었다. 제목과 한 줄 소개면 충분하고, 앰버는
             선택(▶)의 자리로만 남긴다 */}
-        <div className="relative flex flex-col items-center gap-3 text-center">
+        <div
+          className={`relative flex flex-col items-center gap-3 text-center ${reveal(0).className}`}
+          style={reveal(0).style}
+        >
           <h1 className="title-logo break-ko font-pixel text-5xl leading-tight text-ivory md:text-6xl">
             {t("title")}
           </h1>
@@ -250,11 +287,14 @@ export function TitleScreen() {
                 }}
                 type="button"
                 onClick={item.onSelect}
+                onPointerEnter={playHoverSound}
                 // 첫 항목이 기본 선택이다. 아이보리에 앰버 표식이 늘 붙고, 나머지는 한 단계 낮다
-                className={`${MENU_ITEM_CLASS} ${index === 0 ? "text-ivory" : "text-ivory/55 hover:text-ivory focus-visible:text-ivory active:text-ivory"}`}
+                className={`${MENU_ITEM_CLASS} ${index === 0 ? "text-ivory" : "text-ivory/55 hover:text-ivory focus-visible:text-ivory active:text-ivory"} ${reveal(menuStart + index).className}`}
+                style={reveal(menuStart + index).style}
               >
                 <MenuMarker always={index === 0} />
                 {item.label}
+                <MenuHairline />
               </button>
               {/* 이어하는 판이면 어디까지 왔는지 이어하기 바로 아래에: 무엇의 설명인지 붙어 있어야 한다 */}
               {hasSave && index === 0 ? (
@@ -271,13 +311,19 @@ export function TitleScreen() {
           아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다. 덩어리째 줄바꿈되도록 flex로
           나눈다. 문구는 기기를 따라간다. 폰에서 WASD를 읽어 봐야 누를 키가 없다.
         */}
-        <div className="relative flex max-w-md flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs leading-normal text-fog/90">
+        <div
+          className={`relative flex max-w-md flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs leading-normal text-fog/90 ${reveal(afterMenu).className}`}
+          style={reveal(afterMenu).style}
+        >
           <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
           <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
         </div>
 
         {/* 게임 바깥의 것(언어)은 메뉴와 떼어 흐름의 마지막에 둔다 */}
-        <footer className="relative mt-4 flex flex-col items-center gap-2">
+        <footer
+          className={`relative mt-4 flex flex-col items-center gap-2 ${reveal(afterMenu + 1).className}`}
+          style={reveal(afterMenu + 1).style}
+        >
           <LanguageToggle tone="bare" />
         </footer>
       </div>

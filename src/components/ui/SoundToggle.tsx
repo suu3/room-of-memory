@@ -4,6 +4,7 @@ import { SpeakerSimpleHigh, SpeakerSimpleSlash } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { playHoverSound } from "./hover-sfx";
 import { HUD_ICON_BUTTON } from "./ui-classes";
 
 /**
@@ -27,6 +28,7 @@ export function SoundToggle() {
       type="button"
       aria-pressed={!soundMuted}
       aria-label={label}
+      onPointerEnter={playHoverSound}
       title={label}
       onClick={() => {
         // 켤 때만 소리를 낸다. 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다

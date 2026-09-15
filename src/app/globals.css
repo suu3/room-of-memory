@@ -111,6 +111,13 @@
   --animate-bob-arrow: bob-arrow 1.3s ease-in-out infinite;
   /* 패널 등장: DESIGN.md > Motion (180~240ms) */
   --animate-fade-rise: fade-rise 0.22s ease-out both;
+  /*
+   * 목록의 계단식 등장 (ui/stagger.ts). 한 항목의 길이는 패널 등장보다 조금 길다.
+   * 항목마다 55ms씩 늦게 출발하는데(.stagger-item), 항목이 짧게 끝나면 앞 항목이
+   * 이미 서 있는 동안 뒤 항목이 튀어 오르는 것으로 읽힌다. 서로 겹쳐 올라와야
+   * 하나의 흐름이다.
+   */
+  --animate-stagger-rise: stagger-rise 0.36s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-loading-sweep: loading-sweep 1.6s ease-in-out infinite;
   /*
    * 부팅 커튼이 걷히는 동작 (BootCurtain). 방의 창 커튼과 같은 몸짓이라 위로 접혀
@@ -280,6 +287,17 @@
     from {
       opacity: 0;
       transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes stagger-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
@@ -785,6 +803,11 @@ body {
   text-shadow: 0 0 16px color-mix(in srgb, var(--color-memory) 55%, transparent);
 }
 
+/* 계단식 등장의 간격. 몇 번째인지는 인라인 --stagger-index로 받는다 (ui/stagger.ts) */
+.stagger-item {
+  animation-delay: calc(var(--stagger-index, 0) * 55ms);
+}
+
 
 /* 모션을 끈 판의 패널 등장: translate 없이 밝기만 */
 @keyframes fade-only {
@@ -817,6 +840,15 @@ body {
   /* 패널 등장은 자리 이동 없이 밝기만, 반복되는 숨쉬기·까딱임은 멈춘다 */
   .animate-fade-rise {
     animation: fade-only 0.16s ease-out both;
+  }
+
+  /* 계단은 없애고 밝기만: 늦게 뜨는 항목은 "아직 안 뜬 항목"으로 읽혀 기다리게 만든다 */
+  .animate-stagger-rise {
+    animation: fade-only 0.16s ease-out both;
+  }
+
+  .stagger-item {
+    animation-delay: 0s;
   }
 
   .animate-bob-arrow,

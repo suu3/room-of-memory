@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { MEMORIES } from "@/data/memory-room";
 import { playSound } from "@/lib/audio";
 import { isSeen, useMemoryRoomStore } from "@/store/memory-room";
+import { playHoverSound } from "./hover-sfx";
 import { FOCUS_RING } from "./ui-classes";
 
 /**
@@ -31,6 +32,7 @@ export function NotebookTab() {
         setCharacterSheetOpen(true, "lore");
       }}
       aria-label={t("panel.open")}
+      onPointerEnter={playHoverSound}
       // 손잡이는 장면 가장자리에 붙은 어두운 탭이다. 밝은 종이 덩어리가 떠 있으면 안 된다.
       // 넓은 화면에서는 HUD 버튼과 같은 배율로 통째로 커진다 (--hud-zoom)
       className={`absolute right-0 top-1/2 z-30 flex h-30 w-11 -translate-y-1/2 cursor-pointer [zoom:var(--hud-zoom)] flex-col items-center justify-center gap-2 rounded-l-md border border-r-0 border-line bg-surface text-fog transition-colors duration-150 hover:bg-surface-strong hover:text-ivory active:bg-surface-strong ${FOCUS_RING}`}
