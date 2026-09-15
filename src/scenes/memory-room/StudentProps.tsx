@@ -10,6 +10,9 @@ for (const path of [
   ASSETS.models.studyPapers,
   ASSETS.models.cupNoodleTrash,
   ASSETS.models.studentBookshelf,
+  ASSETS.models.baseballCap,
+  ASSETS.models.trainingKit,
+  ASSETS.models.studyTools,
 ]) {
   useGLTF.preload(path, true, true);
 }
@@ -26,6 +29,12 @@ export function StudentDeskProps() {
       <WorkbookClue>
         <FurnitureModel path={ASSETS.models.studyPapers} position={[1.25, 1.11, 0.32]} scale={1} />
       </WorkbookClue>
+      <FurnitureModel
+        path={ASSETS.models.studyTools}
+        position={[0.65, 1.11, -0.44]}
+        rotation={[0, -0.12, 0]}
+        scale={1}
+      />
     </group>
   );
 }
@@ -38,6 +47,14 @@ export function StudentRoomProps() {
         position={STUDENT_BOOKSHELF.position}
         scale={1}
       />
+      {/* 책장 위 모자와 협탁 위 훈련 소품은 기존 가구 안에 놓여 통로를 차지하지 않는다. */}
+      {/* 모자는 글러브와 한 모델이던 때의 자리(짝의 중심에서 +0.3) 그대로다. */}
+      <FurnitureModel
+        path={ASSETS.models.baseballCap}
+        position={[STUDENT_BOOKSHELF.position[0] + 0.3, STUDENT_BOOKSHELF.size[1], -3.4]}
+        scale={1}
+      />
+      <FurnitureModel path={ASSETS.models.trainingKit} position={[6.8, 0.955, 0.7]} scale={1} />
       <FurnitureModel
         path={ASSETS.models.cupNoodleTrash}
         position={[-3.85, 0.008, 1.55]}

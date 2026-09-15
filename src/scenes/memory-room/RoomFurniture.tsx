@@ -905,7 +905,8 @@ export function RoomFurniture({
 }) {
   return (
     <group name="room-furniture">
-      <FurnitureModel path={ASSETS.models.ceilingAc} position={[-2.75, 4.32, -3.25]} scale={1} />
+      {/* 천장(y 4.7)에서 조금 내려 단다. 천장에 바짝 붙이면 윗면이 벽 두께에 묻혀 납작해 보인다. */}
+      <FurnitureModel path={ASSETS.models.ceilingAc} position={[-2.75, 4.18, -3.25]} scale={1} />
       <Bed palette={palette} />
       <Desk palette={palette} />
       <Chair palette={palette} />

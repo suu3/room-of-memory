@@ -52,7 +52,10 @@ export function createPlayerRig(
   const root = clone(scene);
   root.traverse((object) => {
     const mesh = object as Mesh;
-    if (mesh.isMesh) mesh.castShadow = true;
+    if (mesh.isMesh) {
+      // Thin face overlays otherwise cast a dark rim on the skin during a blink.
+      mesh.castShadow = !mesh.name.startsWith("Eyelid") && !mesh.name.startsWith("EyeHighlight");
+    }
   });
   const mixer = new AnimationMixer(root);
   function action(name: string) {
@@ -83,7 +86,16 @@ export function createPlayerRig(
   const eyes = [root.getObjectByName("eyeL"), root.getObjectByName("eyeR")].filter(
     (eye): eye is Object3D => eye !== undefined,
   );
-  const blink = { elapsed: 0, next: 2.8 + Math.random() * 3.2, eyes };
+  const eyelids: { influences: number[]; index: number }[] = [];
+  root.traverse((object) => {
+    const mesh = object as Mesh;
+    if (!mesh.morphTargetDictionary || !mesh.morphTargetInfluences) return;
+    for (const name of ["eyeBlinkLeft", "eyeBlinkRight"]) {
+      const index = mesh.morphTargetDictionary[name];
+      if (index !== undefined) eyelids.push({ influences: mesh.morphTargetInfluences, index });
+    }
+  });
+  const blink = { elapsed: 0, next: 2.8 + Math.random() * 3.2, eyes, eyelids };
   const arms = ["upper_armL", "upper_armR", "forearmL", "forearmR"].map((name) =>
     root.getObjectByName(name),
   );
@@ -156,7 +168,10 @@ export function updatePlayerRig(
     blink.elapsed = 0;
     blink.next = 2.8 + Math.random() * 3.2;
   }
-  for (const eye of blink.eyes) eye.scale.set(1 + closed * 0.12, 1 - closed * 0.94, 1);
+  for (const eyelid of blink.eyelids) eyelid.influences[eyelid.index] = closed;
+  if (blink.eyelids.length === 0) {
+    for (const eye of blink.eyes) eye.scale.set(1 + closed * 0.12, 1 - closed * 0.94, 1);
+  }
   // 팔도 믹서 이후다. 걷기·앉기 클립이 덮어쓰지 못하게.
   const reach = Math.max(0, Math.min(1, reaching)) * (1 - curtainWeight);
   if (reach > 0) {

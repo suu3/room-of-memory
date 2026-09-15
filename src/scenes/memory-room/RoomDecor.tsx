@@ -11,6 +11,8 @@ import type { Vec3Tuple } from "./types";
 import type { WallSide } from "./wall-culling";
 
 useGLTF.preload(ASSETS.models.books, true, true);
+useGLTF.preload(ASSETS.models.baseballJersey, true, true);
+useGLTF.preload(ASSETS.models.teamPennant, true, true);
 
 /**
  * 벽에 붙는 것들.
@@ -133,12 +135,13 @@ function leftPoster(
  * 포스터가 아니라 "빈 액자 테두리"로 읽혔다. olive 한 장은 따뜻한 색이 하나쯤
  * 걸려 있어야 방이 차갑게만 안 보여서 넣었다. memory 금빛을 쓸 수 없는 자리의 대타다.
  */
-const BACK_POSTERS = [
-  ...backPoster(-4.6, 3.3, 1.3, 1.7, "sage"),
-  ...backPoster(6.5, 3.35, 1.25, 1.65, "clay"),
-] satisfies DecorBox[];
+const BACK_POSTERS = [...backPoster(-4.6, 3.3, 1.3, 1.7, "sage")] satisfies DecorBox[];
 
-const LEFT_POSTERS = [...leftPoster(2.65, 2.9, 1.5, 1.9, "sage")] satisfies DecorBox[];
+/*
+ * 왼쪽 벽에는 포스터를 걸지 않는다. sage 한 장이 문과 책상 사이에 있었는데, 이 거리에서는
+ * 정체를 알 수 없는 초록 판으로만 읽혀서 뺐다 (2026-09-15). 걸 게 생기면 leftPoster로.
+ */
+const LEFT_POSTERS = [] satisfies DecorBox[];
 
 /**
  * 테이프로 붙인 사진 넉 장. 야구부 시절 사진이라는 설정이라 나란히 한 줄로 둔다.
@@ -151,16 +154,6 @@ const PHOTO_STRIP = [-2.95, -2.55, -2.15, -1.75].flatMap((x) => [
   // 위쪽에 붙인 마스킹테이프 한 조각. 사진보다 어두워야 사진이 주인공으로 남는다
   backWall(x, 3.58, 0.13, 0.07, "trim", 0.07),
 ]) satisfies DecorBox[];
-
-/**
- * 야구부 페넌트. 삼각 깃발을 박스로 흉내 낼 수는 없어서 가로로 긴 배너로 짰다.
- * 바탕을 navy로 뒀더니 벽에 묻혀 흰 줄 하나만 공중에 떠 보였다. 크림 바탕에
- * 어두운 줄을 넣는 쪽으로 뒤집는다.
- */
-const PENNANT = [
-  backWall(4.3, 4.05, 1.9, 0.46, "linen"),
-  backWall(4.3, 4.05, 1.7, 0.12, "clay", 0.06),
-] as const satisfies readonly DecorBox[];
 
 /**
  * 앞벽: 돌려야 보이는 면. 벽이 통째로 비면 "돌려봤자 아무것도 없네"가 되므로
@@ -237,7 +230,7 @@ function ShelfBook({
  * (RoomDecor.test.ts: 같은 벽에서 화면상 겹치는 판은 두께가 달라야 한다).
  */
 export const DECOR_BY_WALL = {
-  back: [...BACK_POSTERS, ...PHOTO_STRIP, ...PENNANT],
+  back: [...BACK_POSTERS, ...PHOTO_STRIP],
   left: [...LEFT_POSTERS, ...WALL_FITTINGS],
   front: FRONT_WALL_DECOR,
   right: RIGHT_WALL_DECOR,
@@ -300,6 +293,17 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
         그대로 세운다. 회전을 더 열려면 이것도 CulledWall 안으로 옮겨야 한다.
       */}
       <DecorBoxes parts={DECOR_BY_WALL.back} palette={palette} />
+      {/* 책장 위 포스터 자리에 실제 소매와 옷걸이가 있는 유니폼을 건다. */}
+      <FurnitureModel
+        path={ASSETS.models.baseballJersey}
+        position={[6.4, 2.97, BACK_WALL_FACE_Z + 0.11]}
+        scale={1}
+      />
+      <FurnitureModel
+        path={ASSETS.models.teamPennant}
+        position={[4.3, 3.82, BACK_WALL_FACE_Z + 0.026]}
+        scale={1}
+      />
       <CulledWall side="left" hidden={inLivingRoom}>
         <DecorBoxes parts={DECOR_BY_WALL.left} palette={palette} />
       </CulledWall>

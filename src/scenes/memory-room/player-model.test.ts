@@ -1,10 +1,11 @@
 // @vitest-environment node
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { AnimationMixer, Box3, Color, type SkinnedMesh, Vector3 } from "three";
+import { AnimationMixer, Box3, Raycaster, type SkinnedMesh, Vector3 } from "three";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
+import { createPlayerRig, disposePlayerRig, updatePlayerRig } from "./player-animation";
 import {
   PLAYER_TARGET_HEIGHT,
   SIT_CONTACT_Y,
@@ -18,6 +19,20 @@ const jsonLength = bytes.readUInt32LE(12);
 const asset = JSON.parse(bytes.subarray(20, 20 + jsonLength).toString());
 
 describe("shipped player GLB", () => {
+  it("ships the decimated Tripo chibi mesh with lightweight eyelids", () => {
+    // 원본 190만 삼각형을 줄이고, 빠진 소매·옆구리 면과 밀착 밴드·눈꺼풀을 포함한다.
+    const triangles = asset.meshes.reduce(
+      (total: number, mesh: { primitives: { indices: number }[] }) =>
+        total +
+        mesh.primitives.reduce(
+          (sum, primitive) => sum + asset.accessors[primitive.indices].count / 3,
+          0,
+        ),
+      0,
+    );
+    expect(triangles).toBeGreaterThan(30_000);
+    expect(triangles).toBeLessThan(60_000);
+  });
   it("embeds the skin image and required clips without external texture paths", () => {
     expect(bytes.length).toBeLessThan(5 * 1024 * 1024);
     expect(asset.extensionsRequired).toContain("EXT_meshopt_compression");
@@ -59,6 +74,22 @@ describe("shipped player GLB", () => {
     }
     expect(asset.nodes.some((node: { name: string }) => node.name === "head")).toBe(true);
     expect(asset.nodes.some((node: { name: string }) => node.name === "shin.L")).toBe(true);
+    const targets = asset.meshes.flatMap(
+      (mesh: { extras?: { targetNames?: string[] } }) => mesh.extras?.targetNames ?? [],
+    );
+    expect(targets).toContain("eyeBlinkLeft");
+    expect(targets).toContain("eyeBlinkRight");
+    for (const side of ["Left", "Right"]) {
+      const highlight = asset.nodes.find(
+        (node: { name: string }) => node.name === `EyeHighlight${side}`,
+      );
+      expect(highlight, `eye highlight ${side}`).toBeDefined();
+      expect(asset.meshes[highlight.mesh].extras.targetNames).toContain(`eyeBlink${side}`);
+      const lid = asset.nodes.find((node: { name: string }) => node.name === `Eyelid${side}`);
+      const surface = asset.meshes[lid.mesh].primitives[0];
+      expect(asset.materials[surface.material].alphaMode).toBe("BLEND");
+      expect(asset.accessors[surface.attributes.COLOR_0].type).toBe("VEC4");
+    }
     for (const name of ["eye.L", "eye.R"]) {
       expect(
         asset.nodes.some((node: { name: string }) => node.name === name),
@@ -100,24 +131,116 @@ describe("shipped player GLB", () => {
       buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length),
       "",
     );
-    // The shipped mesh must retain the sheet palette, not revert to the brown/yellow atlas.
-    for (const hex of ["#303744", "#817989", "#cad2dd", "#414e63"]) {
-      const expected = new Color(hex);
-      let matches = 0;
-      gltf.scene.traverse((object) => {
-        const colors = (object as SkinnedMesh).geometry?.getAttribute("color");
-        if (!colors) return;
-        for (let i = 0; i < colors.count; i++) {
-          if (
-            Math.abs(colors.getX(i) - expected.r) < 0.002 &&
-            Math.abs(colors.getY(i) - expected.g) < 0.002 &&
-            Math.abs(colors.getZ(i) - expected.b) < 0.002
-          )
-            matches++;
-        }
-      });
-      expect(matches, `character-sheet color ${hex}`).toBeGreaterThan(100);
+    const blinkRig = createPlayerRig(gltf.scene, gltf.animations);
+    blinkRig.blink.next = 2.8;
+    updatePlayerRig(blinkRig, 0, 0, 2.89);
+    for (const part of ["EyelidLeft", "EyelidRight", "EyeHighlightLeft", "EyeHighlightRight"]) {
+      const animated = blinkRig.root.getObjectByName(part) as SkinnedMesh;
+      const cached = gltf.scene.getObjectByName(part) as SkinnedMesh;
+      expect(animated.morphTargetInfluences?.[0], part).toBeGreaterThan(0.95);
+      expect(animated.castShadow, `${part} must not cast a border on the face`).toBe(false);
+      expect(cached.morphTargetInfluences?.[0], `${part} cached source`).toBe(0);
+      if (part.startsWith("Eyelid")) {
+        const color = animated.geometry.getAttribute("color");
+        const alpha = Array.from({ length: color.count }, (_, index) => color.getW(index));
+        expect(Math.min(...alpha), "lid edge must fade into skin").toBeLessThan(0.05);
+        expect(Math.max(...alpha), "lid center must cover the painted iris").toBeGreaterThan(0.95);
+      }
     }
+    updatePlayerRig(blinkRig, 0, 0, 0.2);
+    expect(blinkRig.blink.eyelids.every(({ influences, index }) => influences[index] === 0)).toBe(
+      true,
+    );
+    // Match the original primitive/material through loader associations. The Node loader
+    // skips images above, but the skin and the generator's material partition are real.
+    let vestName = "";
+    let repairedCheek = false;
+    let forehead: SkinnedMesh | undefined;
+    gltf.scene.traverse((object) => {
+      const association = gltf.parser.associations.get(object);
+      if (
+        association?.meshes === undefined ||
+        !("primitives" in association) ||
+        typeof association.primitives !== "number"
+      )
+        return;
+      const primitive = asset.meshes[association.meshes].primitives[association.primitives];
+      const materialName = asset.materials[primitive.material].name;
+      if (materialName === "tripo_part_2_material_ForeheadRepair") forehead = object as SkinnedMesh;
+      if (materialName === "tripo_part_2_material") {
+        const face = object as SkinnedMesh;
+        const position = face.geometry.getAttribute("position");
+        const before = new Vector3();
+        const during = new Vector3();
+        let movement = 0;
+        for (let index = 0; index < position.count; index += 7) {
+          face.morphTargetInfluences?.fill(0);
+          face.getVertexPosition(index, before);
+          face.morphTargetInfluences?.fill(0.5);
+          face.getVertexPosition(index, during);
+          movement = Math.max(movement, before.distanceTo(during));
+        }
+        face.morphTargetInfluences?.fill(0);
+        expect(movement, "painted eyes must stay fixed while eyelids close").toBeLessThan(0.00005);
+      }
+      if (materialName === "tripo_part_3_material") vestName = object.name;
+      if (materialName.startsWith("tripo_part_")) {
+        const geometry = (object as SkinnedMesh).geometry;
+        const colors = geometry.getAttribute("color");
+        const indices = geometry.getIndex();
+        const used = indices ? Array.from(new Set(indices.array)) : [];
+        if (materialName.endsWith("Repair")) {
+          if (materialName.endsWith("_CheekRepair")) repairedCheek = true;
+          expect(colors, "repaired skin must retain its blended colors").toBeDefined();
+          expect(used.length).toBeGreaterThan(0);
+          const red = used.map((index) => colors.getX(index));
+          const mean = red.reduce((sum, value) => sum + value, 0) / red.length;
+          expect(mean).toBeGreaterThan(0.1);
+          expect(mean).toBeLessThan(0.9);
+          expect(Math.max(...red) - Math.min(...red)).toBeGreaterThan(0.05);
+        } else if (colors) {
+          // Blender joins parts without color layers as black unless explicitly whitened.
+          for (const index of used) {
+            expect(colors.getX(index), materialName).toBeCloseTo(1, 4);
+            expect(colors.getY(index), materialName).toBeCloseTo(1, 4);
+            expect(colors.getZ(index), materialName).toBeCloseTo(1, 4);
+          }
+        }
+      }
+    });
+    expect(vestName).not.toBe("");
+    expect(repairedCheek).toBe(true);
+    if (!forehead) throw new Error("Missing continuous forehead beneath the hair");
+    gltf.scene.updateMatrixWorld(true);
+    const skinRay = new Raycaster();
+    for (const x of [-0.15, -0.08, 0, 0.08, 0.15]) {
+      for (const y of [1.16, 1.19, 1.23, 1.27]) {
+        skinRay.set(new Vector3(x, y, 1), new Vector3(0, 0, -1));
+        expect(
+          skinRay.intersectObject(forehead).length,
+          `forehead coverage at ${x}, ${y}`,
+        ).toBeGreaterThan(0);
+      }
+    }
+    const vest = blinkRig.root.getObjectByName(vestName) as SkinnedMesh;
+    blinkRig.root.updateMatrixWorld(true);
+    const resting = new Map<number, Vector3>();
+    for (let index = 0; index < vest.geometry.attributes.position.count; index += 17) {
+      resting.set(index, vest.getVertexPosition(index, new Vector3()));
+    }
+    const hand = blinkRig.root.getObjectByName("handL");
+    if (!hand) throw new Error("Missing hand");
+    const handBefore = hand.getWorldPosition(new Vector3());
+    updatePlayerRig(blinkRig, 0, 0, 0, 0, 1);
+    blinkRig.root.updateMatrixWorld(true);
+    expect(hand.getWorldPosition(new Vector3()).distanceTo(handBefore)).toBeGreaterThan(0.1);
+    const raised = new Vector3();
+    for (const [index, before] of resting) {
+      expect(vest.getVertexPosition(index, raised).distanceTo(before)).toBeLessThan(0.00001);
+    }
+    disposePlayerRig(blinkRig);
+    // The replacement carries the user's baked base-color image, verified above.
+    // The previous model's vertex-color palette is no longer the source of color.
     const mixer = new AnimationMixer(gltf.scene);
     const idleClip = gltf.animations.find((clip) => clip.name === "Idle");
     const walkClip = gltf.animations.find((clip) => clip.name === "Walk");

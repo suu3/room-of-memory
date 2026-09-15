@@ -1,12 +1,59 @@
 # Web player model
 
-`public/assets/models/player-blocky.glb` now contains the user-supplied chibi character, replacing the six-part placeholder. The file path is unchanged; the runtime URL carries a version (`?v=vest-20260906`) to bypass cached older rigs. Bump it whenever the file is replaced: a re-export that keeps the same URL is served from the old service-worker cache, which looks like the new model animating wrong. Re-exports from Blender arrive uncompressed and can carry an unused duplicate skin; running gltf-transform's meshopt pass both compresses (2.0MB → 585KB) and prunes it. It requires the updated `Player.tsx` and `player-animation.ts`; it is not compatible with the old mesh-pivot animator.
+`public/assets/models/player-blocky.glb` contains the user's latest Tripo chibi. The runtime URL is
+`?v=tripo-20260916-surface`; bump it with every replacement because the service worker caches assets.
+Earlier revisions are recorded below. The editable source for this revision is
+`<workspace>/2026-09-15/tripo-refine/player-chibi.blend`.
 
-- Height: 1.55 world units; feet at Y=0; front faces +Z.
+- Height: 1.512 world units after removing crown wisps; feet at Y=0; front faces +Z.
 - Skin: 23 exported bones, including two independent eye bones; at most four normalized influences per vertex.
-- Mesh: 96,324 triangles, two primitives; Meshopt compressed.
-- Textures: the original 1024×1024 `CH1.FACE.png` is embedded as WebP, along with a small clothing/hair palette. No external image URL or local image path is required.
+- Mesh: about 59K triangles including the reconstructed forehead and facial details; Meshopt compressed, under 1MB.
+- Textures: the supplied Tripo base colors are embedded as WebP at 256–1024px. No external texture paths.
 - Clips: `Idle`, `Walk`, `Sit`, `SitDown`, `StandUp`.
+
+## Tripo chibi (2026-09-15)
+
+Current revision: `?v=tripo-20260916-surface`. The user generated a new chibi with Tripo and dropped the FBX
+(`tripo_convert_86212750-….fbx`, 59MB, 1.9M triangles, 41 auto-generated bones, no clips) into
+`public/assets/models/`. That source is far over the 25MB commit limit and stays out of git; only the
+baked GLB ships. `scripts/create-tripo-player.py` (Blender 5.2, background) does the whole conversion:
+
+- Decimates each of the 12 Tripo parts to a per-part budget (UVs kept, split vertices welded and custom normals cleared), then relaxes small bumps on the hair and clothes. Base colors are embedded as WebP: 1024px for hair and
+  face, 512px for trousers and shirt, 256px for the rest.
+- Keeps Tripo's joint positions but rebuilds the game's 23-bone skeleton (`hips` … `toe.R`, `eye.L/R`),
+  symmetrised left/right with a vertical hips bone. Twist and helper bones fold into their parents,
+  and each part is restricted to the bones it should follow. The vest uses hips/spine/chest weights;
+  sleeves use a smooth upper-arm/forearm transition. The source fused the lowered arms to the torso,
+  so missing inner sleeves and vest sides are reconstructed before applying those weights.
+- Removes the raised crown wisps by their UV islands and closes the actual crown rim with an inset
+  surface. There is no sphere or raised round plug over the hair. The scan's fragmented forehead
+  and the old jagged boundary extensions are replaced by a continuous surface joined to the face
+  at z=1.141, widening beneath the temples. Native vertex colours remove hair-shaped stains;
+  the eyebrow profiles are recovered from the source. Geometry is denser around the eyebrows.
+- Renders the face to locate the painted eyes and smooths the socket surfaces once in the neutral
+  mesh. The old animated socket correction displaced the painted face by 12.5mm at half blink,
+  making the irises ripple. The face now stays fixed; `eyeBlinkLeft/Right` drives only the separate
+  lids and catchlights. Vertex alpha blends the lid edge into the skin. These overlays cast no shadows.
+- Adds two small catchlights per eye; their blink morph retracts them beneath the closed lid.
+- Reconstructs the bandaged cheek from a smooth fit to the intact opposite cheek. Native vertex
+  colours blend the repaired skin into the supplied texture without crossing its UV islands.
+  Projection fades on the chin underside before local XYZ relaxation, avoiding folded triangles.
+  A dense adhesive strip follows the finished skin above the chin turn, with a centre pad and printed perforations.
+- Follows the connected forehead rim rather than sorting vertices by X, avoiding a bridge to the ear.
+  Smooths garment boundary chains within 1mm and softens lower-trouser bumps while preserving the waist.
+  The surface revision was inspected from eight horizontal angles, above, and in raised-arm and closed-eye poses.
+- Authors Idle/Walk/Sit/SitDown/StandUp with the same procedural poses as `create-chibi-player.py`.
+
+`pnpm model:prep` compresses the export with Meshopt. The prep script strips images
+before its Node-side loader check, so textured models pass. The curtain clips were carried over with
+`scripts/retarget-curtain-clips.mjs`, which re-expresses each bone's pose as a rest-space rotation and
+rewrites the clip GLB's rest transforms; the curtain motion did not have to be re-authored.
+
+Measured constants in `player-rig.ts` changed with the repaired mesh: `SIT_CONTACT_Y` 0.227,
+`SIT_CONTACT_Z` −0.066…0.308, `SIT_LEG_Z` 0.197…0.395, `LIE_BACK_Z` −0.092, `LIE_HEAD.backZ` −0.312,
+`LIE_HEAD.centerY` 1.24, and `LIE_TILT` 0.35 (this head sits less far behind the torso, so the body
+lies a little flatter to keep the back on the mattress). Editable source: `player-chibi.blend` in the
+conversion's output folder.
 
 ## Round the rear of the large fringe toward the face (2026-09-08)
 
