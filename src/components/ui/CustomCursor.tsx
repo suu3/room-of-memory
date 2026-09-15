@@ -89,10 +89,16 @@ export function CustomCursor() {
     window.addEventListener("blur", onLeave);
 
     let frame = 0;
-    let last = performance.now();
+    let last: number | null = null;
     const tick = (now: number) => {
       frame = window.requestAnimationFrame(tick);
-      const delta = Math.min(0.1, (now - last) / 1000);
+      /*
+       * 첫 프레임은 0으로 친다. rAF의 시각은 프레임의 시작이라 그 전에 읽은
+       * performance.now()보다 앞설 수 있고, 음수 delta는 감쇠식을 발산시킨다
+       * (exp의 부호가 뒤집혀 점이 화면 밖 10^15px로 날아갔다). 탭이 숨었다 돌아오는
+       * 긴 공백은 0.1초로 자른다.
+       */
+      const delta = last === null ? 0 : Math.min(0.1, Math.max(0, (now - last) / 1000));
       last = now;
       const dotEl = dotRef.current;
       const ringEl = ringRef.current;
