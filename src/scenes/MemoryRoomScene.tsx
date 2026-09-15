@@ -30,6 +30,7 @@ import { EndingTrigger } from "./memory-room/EndingTrigger";
 import { visibleHitsOnly } from "./memory-room/event-visibility";
 import { LivingRoomFurniture } from "./memory-room/LivingRoomFurniture";
 import { LivingRoomShell } from "./memory-room/LivingRoomShell";
+import { MemoryBurst } from "./memory-room/MemoryBurst";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
 import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
 import { Player } from "./memory-room/Player";
@@ -256,6 +257,8 @@ export function MemoryRoomScene({
   onInteract: (id: MemoryId) => void;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
+  /** 오클루전의 색은 방의 가장 깊은 어둠(void)이다. 검정을 곱하면 재질이 죽는다 */
+  const ambientOcclusion = useMemo(() => ({ color: palette.void }), [palette]);
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
   const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
@@ -295,6 +298,8 @@ export function MemoryRoomScene({
    * 출발한다 (docs/content-design.md 5장). 여기서 한 번만 깎아 두면 조명·창빛·
    * 먼지가 전부 같은 값을 본다. 볕(warm)은 방의 창에서 오므로 거실에서는 꺼진다.
    */
+  /** 커튼이 젖혀진 몫 (0~1). 양쪽 평균: 한쪽만 젖히면 빛도 반만 든다. */
+  const curtainOpenAmount = (curtainPull.left + curtainPull.right) / 2;
   const cool = inLivingRoom ? Math.max(0, mix.cool - LIVING_ROOM_LIGHT_OFFSET) : mix.cool;
   const warm = mix.warm;
   /*
@@ -330,7 +335,7 @@ export function MemoryRoomScene({
         빛나므로, 범위를 넓혀도 장식·벽은 그대로 잠잠하다. EffectComposer는
         화면 전체를 한 번 훑는 패스라 트리에서의 위치도 그림에 영향이 없다.
       */}
-      <MemoryGlowRoot color={palette.memory} dim={dim}>
+      <MemoryGlowRoot color={palette.memory} dim={dim} ambientOcclusion={ambientOcclusion}>
         {/*
           한 번에 한 방만 보인다 (v2). 두 방을 나란히 세워두면 디오라마가 아니라
           단면도가 된다. 지금 서 있는 공간만 서 있고, 문턱을 넘는 순간 바뀐다.
@@ -395,16 +400,18 @@ export function MemoryRoomScene({
         <WindowLight
           color={palette.sun}
           intensity={roomLightValue(ROOM_LIGHT_RAMP.windowLight, warm)}
-          curtainsOpen={curtainsOpen}
+          open={curtainOpenAmount}
         />
-        {/* 먼지는 빛줄기 안의 반짝임이라 커튼이 닫히면 같이 사라져야 한다 */}
+        {/* 먼지는 빛줄기 안의 반짝임이라 커튼이 젖혀진 만큼만 보인다 */}
         <DustMotes
           color={palette.sun}
-          opacity={curtainsOpen ? roomLightValue(ROOM_LIGHT_RAMP.dust, warm) : 0}
+          opacity={roomLightValue(ROOM_LIGHT_RAMP.dust, warm) * curtainOpenAmount}
         />
       </group>
       {/* 바닥 클릭의 목적지 링. 글로우 루트 밖: 만질 수 있는 것이 아니라 표식이다 */}
       <WalkMarker color={palette.memory} />
+      {/* 기억을 되찾는 순간 물건에서 솟는 티끌. 글로우 루트 밖: 빛이지 물건이 아니다 */}
+      <MemoryBurst color={palette.memory} />
       <Player
         positionRef={playerPositionRef}
         movementInputRef={movementInputRef}
