@@ -176,7 +176,13 @@ export function MemoryRoom() {
               </span>
               {/* 모은 개수가 이 화면의 유일한 진행 지표다. 라벨보다 확실히 앞으로 나와야 한다 */}
               <span className="text-[0.75em] tabular-nums text-fog">
-                <span className="text-[1.3333em] font-medium text-memory">{count}</span>
+                {/* 숫자가 바뀌면 아래에서 밀려 올라온다. key가 다시 마운트시킨다 */}
+                <span
+                  key={count}
+                  className="inline-block animate-count-tick text-[1.3333em] font-medium text-memory"
+                >
+                  {count}
+                </span>
                 <span> / {roundMemories.length}</span>
               </span>
             </div>
@@ -191,7 +197,8 @@ export function MemoryRoom() {
                   key={memory.id}
                   aria-hidden
                   className={`h-0.5 w-[1.5em] rounded-full transition-colors duration-700 ${
-                    index < count ? "bg-memory" : "bg-ivory/25"
+                    // 새로 찬 칸은 왼쪽에서 차오른다. 이미 찬 칸은 클래스가 그대로라 다시 안 돈다
+                    index < count ? "animate-segment-fill bg-memory" : "bg-ivory/25"
                   }`}
                 />
               ))}

@@ -118,6 +118,14 @@
    * 하나의 흐름이다.
    */
   --animate-stagger-rise: stagger-rise 0.36s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  /* 타이틀이 물러나는 동작 (시작을 누른 뒤). 올라오던 방향 그대로 위로 사라진다 */
+  --animate-title-retreat: title-retreat 0.22s cubic-bezier(0.4, 0, 0.6, 1) both;
+  /* HUD 진행 칸이 왼쪽에서 차오른다. 새로 찬 칸만 움직인다 (이미 찬 칸은 다시 안 돈다) */
+  --animate-segment-fill: segment-fill 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  /* 모은 개수 숫자가 아래에서 밀려 올라온다 (key로 다시 마운트) */
+  --animate-count-tick: count-tick 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  /* 소리를 켜는 순간 버튼에서 한 번 번지는 링 */
+  --animate-sound-pulse: sound-pulse 0.5s ease-out both;
   --animate-loading-sweep: loading-sweep 1.6s ease-in-out infinite;
   /*
    * 부팅 커튼이 걷히는 동작 (BootCurtain). 방의 창 커튼과 같은 몸짓이라 위로 접혀
@@ -302,6 +310,61 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes title-retreat {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @keyframes segment-fill {
+    from {
+      transform: scaleX(0);
+      box-shadow: 0 0 8px color-mix(in srgb, var(--color-memory) 70%, transparent);
+    }
+    to {
+      transform: scaleX(1);
+      box-shadow: 0 0 0 transparent;
+    }
+  }
+
+  @keyframes count-tick {
+    from {
+      opacity: 0;
+      transform: translateY(0.35em);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes sound-pulse {
+    from {
+      opacity: 0.6;
+      transform: scale(0.7);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.5);
+    }
+  }
+
+  @keyframes cursor-ripple {
+    from {
+      opacity: 0.55;
+      transform: translate3d(var(--ripple-x), var(--ripple-y), 0) scale(0.4);
+    }
+    to {
+      opacity: 0;
+      transform: translate3d(var(--ripple-x), var(--ripple-y), 0) scale(1.6);
     }
   }
 
@@ -872,6 +935,37 @@ body {
   border-color: inherit;
 }
 
+/* 누르는 순간 손 자리에서 한 번 번지는 파문. 클래스를 뗐다 붙여 다시 돈다 (CustomCursor) */
+.cursor-ripple {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  margin: -18px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-memory);
+  opacity: 0;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.cursor-ripple.is-live {
+  animation: cursor-ripple 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* 타이틀 언어 토글의 밑줄. 고른 글자 밑으로 미끄러져 간다 (LanguageToggle bare) */
+.lang-underline {
+  transition:
+    left 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    width 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* 진행 칸은 왼쪽 끝을 축으로 차오른다 */
+.animate-segment-fill {
+  transform-origin: left center;
+}
+
 /*
  * 햄버거 ↔ X (ui/MenuGlyph). 줄마다 제 가운데를 축으로 돈다(transform-box: fill-box).
  * 위·아래 줄은 6px씩 가운데로 모이며 45도로 눕고, 가운데 줄은 줄어들며 사라진다.
@@ -903,6 +997,13 @@ body {
   animation-delay: calc(var(--stagger-index, 0) * 55ms);
 }
 
+
+/* 모션을 끈 판에서 물러나는 동작: 밝기만 */
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
 
 /* 모션을 끈 판의 패널 등장: translate 없이 밝기만 */
 @keyframes fade-only {
@@ -948,6 +1049,24 @@ body {
 
   /* 글리프는 접히지 않고 바로 바뀐다 */
   .menu-glyph line {
+    transition: none;
+  }
+
+  /* 물러남·차오름·숫자·파문·밑줄: 자리 이동 없이 밝기만, 또는 없앤다 */
+  .animate-title-retreat {
+    animation: fade-out 0.16s ease-out both;
+  }
+
+  .animate-segment-fill,
+  .animate-sound-pulse {
+    animation: none;
+  }
+
+  .animate-count-tick {
+    animation: fade-only 0.16s ease-out both;
+  }
+
+  .lang-underline {
     transition: none;
   }
 

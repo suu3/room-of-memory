@@ -47,6 +47,7 @@ export function CustomCursor() {
   const [active, setActive] = useState(false);
   const dotRef = useRef<HTMLSpanElement>(null);
   const ringRef = useRef<HTMLSpanElement>(null);
+  const rippleRef = useRef<HTMLSpanElement>(null);
 
   // 첫 마우스 이동에서 켠다. 마우스가 붙은 태블릿은 hover 미디어 쿼리로는 못 가른다
   useEffect(() => {
@@ -105,7 +106,16 @@ export function CustomCursor() {
       pointer.shown = false;
     };
     const onDown = (event: PointerEvent) => {
-      if (event.pointerType === "mouse") pointer.down = true;
+      if (event.pointerType !== "mouse") return;
+      pointer.down = true;
+      // 누른 자리에서 파문 하나. 클래스를 뗐다 붙여야 연타에도 매번 다시 돈다
+      const ripple = rippleRef.current;
+      if (!ripple) return;
+      ripple.style.setProperty("--ripple-x", `${event.clientX}px`);
+      ripple.style.setProperty("--ripple-y", `${event.clientY}px`);
+      ripple.classList.remove("is-live");
+      void ripple.offsetWidth;
+      ripple.classList.add("is-live");
     };
     const onUp = () => {
       pointer.down = false;
@@ -187,6 +197,7 @@ export function CustomCursor() {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[70]">
+      <span ref={rippleRef} className="cursor-ripple" />
       <span ref={dotRef} className="cursor-dot" />
       <span ref={ringRef} className="cursor-ring" />
     </div>

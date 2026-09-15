@@ -14,7 +14,6 @@ import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { playHoverSound } from "./hover-sfx";
 import { LanguageToggle } from "./LanguageToggle";
-import { LoadingOverlay } from "./LoadingOverlay";
 import { RisingDust } from "./RisingDust";
 import { STAGGER_CLASS, staggerStyle } from "./stagger";
 import { BACKDROP, BUTTON_DESTRUCTIVE, BUTTON_QUIET, PANEL_DARK } from "./ui-classes";
@@ -152,8 +151,6 @@ export function TitleScreen() {
 
   if (started) return null;
 
-  if (entering) return <LoadingOverlay label={t("scene.loading")} />;
-
   /** 방으로 들어간다. reset() 직후에도 맞는 리비전을 읽도록 스토어에서 바로 꺼낸다. */
   const enterGame = () => {
     playSound("open");
@@ -214,10 +211,17 @@ export function TitleScreen() {
    * (bootRising)에 출발시킨다. 리셋으로 돌아올 때는 이 화면이 다시 마운트되므로
    * 같은 계단을 다시 밟는다.
    */
+  /*
+   * 시작을 누르면(entering) 올라온 순서 그대로 물러난다. 예전에는 로딩 화면이 한 박자
+   * 덮었는데, 씬은 이미 뒤에서 돌고 있어 가릴 것이 없다. 메뉴가 물러나는 동안 카메라가
+   * 방 안으로 내려앉기 시작하는 편이 "들어간다"로 읽힌다.
+   */
   const reveal = (index: number) =>
-    revealed
-      ? { className: STAGGER_CLASS, style: staggerStyle(index) }
-      : { className: "opacity-0", style: undefined };
+    entering
+      ? { className: "animate-title-retreat stagger-item", style: staggerStyle(index) }
+      : revealed
+        ? { className: STAGGER_CLASS, style: staggerStyle(index) }
+        : { className: "opacity-0", style: undefined };
   const menuStart = 1;
   const afterMenu = menuStart + items.length;
 
@@ -237,9 +241,15 @@ export function TitleScreen() {
        * 하는데, 그려 두기만 하고 두면 스크린 리더가 아직 덮여 있는 제목·메뉴를
        * 읽고 Tab이 그리로 들어간다.
        */
-      inert={!booted}
+      inert={!booted || entering}
       className="absolute inset-0 z-40 overflow-y-auto overscroll-contain"
     >
+      {/* 물러나는 동안의 상태 안내. 눈에는 메뉴가 사라지는 것으로 충분하다 */}
+      {entering && (
+        <p role="status" aria-live="polite" className="sr-only">
+          {t("scene.loading")}
+        </p>
+      )}
       <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-6 py-10">
         {/* 글자 뒤 가운데만 은은하게 눌러 주는 어둠. 방은 흐리지 않고 윤곽 그대로 둔다.
             방이 배경의 얼룩이 아니라 이 화면의 공간이어야 한다. */}

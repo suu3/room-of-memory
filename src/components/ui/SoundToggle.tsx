@@ -1,6 +1,7 @@
 "use client";
 
 import { SpeakerSimpleHigh, SpeakerSimpleSlash } from "@phosphor-icons/react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
@@ -22,6 +23,8 @@ export function SoundToggle() {
   const soundMuted = useMemoryRoomStore((state) => state.soundMuted);
   const setSoundMuted = useMemoryRoomStore((state) => state.setSoundMuted);
   const label = t(soundMuted ? "hud.soundOff" : "hud.soundOn");
+  /** 켠 횟수. 켤 때마다 링이 다시 마운트되어 한 번 번진다. 끌 때는 아무것도 번지지 않는다 */
+  const [pulseKey, setPulseKey] = useState(0);
 
   return (
     <button
@@ -32,13 +35,23 @@ export function SoundToggle() {
       title={label}
       onClick={() => {
         // 켤 때만 소리를 낸다. 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다
-        if (soundMuted) playSound("select");
+        if (soundMuted) {
+          playSound("select");
+          setPulseKey((key) => key + 1);
+        }
         setSoundMuted(!soundMuted);
       }}
       // 꺼져 있을 때 글자색을 죽인다. 빗금 아이콘만으로도 읽히지만, 작은 아이콘 하나가
       // 유일한 표시라 상태를 색으로도 한 번 더 말해 준다.
-      className={`${HUD_ICON_BUTTON} ${soundMuted ? "text-ash" : ""}`}
+      className={`relative ${HUD_ICON_BUTTON} ${soundMuted ? "text-ash" : ""}`}
     >
+      {pulseKey > 0 && (
+        <span
+          key={pulseKey}
+          aria-hidden
+          className="pointer-events-none absolute inset-0 animate-sound-pulse rounded-full border border-memory"
+        />
+      )}
       {soundMuted ? (
         <SpeakerSimpleSlash size="1.25em" weight="bold" />
       ) : (
