@@ -18,6 +18,8 @@ describe("sanitizeProgress", () => {
         soundMuted: true,
         lightsOn: false,
         difficulty: "normal",
+        introDone: true,
+        doorwayDone: false,
       }),
     ).toEqual({
       collected: [first, second],
@@ -30,7 +32,29 @@ describe("sanitizeProgress", () => {
       soundMuted: true,
       lightsOn: false,
       difficulty: "normal",
+      introDone: true,
+      doorwayDone: false,
     });
+  });
+
+  it("인트로는 한 번뿐이다: 적혀 있거나 기억을 모은 저장본은 어둠에서 다시 시작하지 않는다", () => {
+    expect(sanitizeProgress({}).introDone).toBe(false);
+    expect(sanitizeProgress({ introDone: true }).introDone).toBe(true);
+    // 이 값을 모르던 시절의 저장본: 기억을 하나라도 모았으면 방에 이미 들어와 있던 것이다
+    expect(sanitizeProgress({ collected: [first] }).introDone).toBe(true);
+    expect(sanitizeProgress({ introDone: "yes" }).introDone).toBe(false);
+  });
+
+  it("문 넘기는 문이 열린 저장본에만 있고, 이 값을 모르던 저장본은 지난 것으로 본다", () => {
+    const opened = { collected: MEMORIES.map((memory) => memory.id), revisited: ["radio"] };
+    expect(sanitizeProgress({ doorwayDone: true }).doorwayDone).toBe(false);
+    expect(sanitizeProgress({ ...opened, doorOpened: true }).doorwayDone).toBe(true);
+    expect(sanitizeProgress({ ...opened, doorOpened: true, doorwayDone: false }).doorwayDone).toBe(
+      false,
+    );
+    expect(sanitizeProgress({ ...opened, doorOpened: true, doorwayDone: true }).doorwayDone).toBe(
+      true,
+    );
   });
 
   it("keeps only discoveries that still exist", () => {

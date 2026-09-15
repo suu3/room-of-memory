@@ -12,6 +12,7 @@ import {
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
+import { MirrorClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
 import { WindowView } from "./WindowView";
 
@@ -331,6 +332,7 @@ export function RoomShell({
         ))}
         {/* 벽에 붙은 물건이라 벽과 함께 스러져야 한다. 밖에 두면 허공에 뜬다 */}
         <LightSwitch palette={palette} />
+        <MirrorClue palette={palette} />
       </CulledWall>
       <CulledWall side="front">
         <ShellBox {...FRONT_WALL_UPPER} color={palette.wall} receiveShadow />

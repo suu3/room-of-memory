@@ -161,6 +161,20 @@ export interface MemoryRoomState {
    */
   lightsOn: boolean;
   /**
+   * 인트로(어두운 방에서 전등 스위치를 찾아 켜는 1인칭 구간)를 마쳤는가.
+   *
+   * 새 게임은 불 꺼진 방의 머릿속에서 시작한다. 스위치를 켜는 순간 끝나고, 그 뒤로는
+   * 스위치를 아무리 껐다 켜도 다시 오지 않는다. 저장된다: 이어하기가 어둠에서 다시
+   * 시작되면 안 된다 (selectViewpoint).
+   */
+  introDone: boolean;
+  /**
+   * 2막의 첫 문 넘기(방문이 열린 뒤 거실에 처음 들어서기까지의 1인칭 구간)를
+   * 마쳤는가. 문턱을 넘는 순간 끝난다. 그 뒤의 왕복은 평소처럼 이동이다
+   * (docs/content-design.md 3-3의 예외). 저장된다.
+   */
+  doorwayDone: boolean;
+  /**
    * 방문이 열렸는가: 한 번 열리면 계속 열려 있다. 라디오 목소리를 들은 뒤에만
    * 열 수 있고, **문이 열리는 것이 2막의 시작**이다 (docs/content-design.md 2장).
    */
@@ -557,6 +571,8 @@ type PersistedProgress = Pick<
   | "soundMuted"
   | "difficulty"
   | "lightsOn"
+  | "introDone"
+  | "doorwayDone"
 >;
 
 const PERSIST_KEY = "rom-progress";
@@ -624,6 +640,10 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     difficulty: saved.difficulty === "normal" ? "normal" : "easy",
     // 불은 켜진 상태가 기본: 저장본에 명시적으로 false일 때만 꺼진 채로 돌아온다
     lightsOn: saved.lightsOn !== false,
+    // 인트로 도입 전의 저장본(기억을 하나라도 모았다)은 인트로를 이미 지난 것으로 본다
+    introDone: saved.introDone === true || collected.length > 0,
+    // 문이 안 열렸으면 문 넘기도 없다. 이 값을 모르는 옛 저장본은 문이 열렸으면 지난 것으로
+    doorwayDone: doorOpened && saved.doorwayDone !== false,
   };
 }
 
@@ -647,6 +667,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       soundMuted: false,
       difficulty: "easy",
       lightsOn: true,
+      introDone: false,
+      doorwayDone: false,
       doorOpened: false,
       batTaken: false,
       endingStarted: false,
@@ -663,6 +685,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       beginInteraction: (id) =>
         set((state) => {
           if (state.activePlayback) return state;
+          // 머릿속에 있는 동안은 조사하지 않는다. 어둠 속의 할 일은 스위치 하나, 문 앞의 할 일은 나가기 하나다
+          if (viewpointOf(state) !== null) return state;
           if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
           const gamePhase = gamePhaseOf(state);
           const interaction = phaseConfigOf(id, gamePhase)?.interaction;
@@ -787,7 +811,9 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       setCharacterSheetTab: (tab) => set({ characterSheetTab: tab }),
       setContactOpen: (open) => set({ contactOpen: open }),
       setFeedbackOpen: (open) => set({ feedbackOpen: open }),
-      startGame: () => set({ started: true }),
+      // 새 게임은 불 꺼진 방에서 시작한다 (인트로). 인트로를 지난 저장본은 불을 건드리지 않는다
+      startGame: () =>
+        set((state) => ({ started: true, lightsOn: state.introDone ? state.lightsOn : false })),
       setRoomLoadProgress: (progress) =>
         set((state) =>
           progress > state.roomLoadProgress ? { roomLoadProgress: progress } : state,
@@ -796,7 +822,12 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       finishBoot: () => set({ booted: true, bootRising: true }),
       setSoundMuted: (muted) => set({ soundMuted: muted }),
       setDifficulty: (difficulty) => set({ difficulty }),
-      toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),
+      // 불이 켜지는 첫 순간이 인트로의 끝이다. 이미 지났으면 그냥 스위치다
+      toggleLights: () =>
+        set((state) => ({
+          lightsOn: !state.lightsOn,
+          introDone: state.introDone || !state.lightsOn,
+        })),
       // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다. 화면이 두 겹이 된다
       openClue: (id) =>
         set((state) =>
@@ -820,10 +851,18 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           return playback ? { activePlayback: playback } : { batTaken: true };
         }),
       setInLivingRoom: (inLivingRoom) =>
-        set((state) => (state.inLivingRoom === inLivingRoom ? state : { inLivingRoom })),
+        set((state) => {
+          if (state.inLivingRoom === inLivingRoom) return state;
+          // 문이 열린 뒤 처음 문턱을 넘는 순간 1인칭 문 넘기가 끝난다
+          const doorwayDone = state.doorwayDone || (inLivingRoom && state.doorOpened);
+          return { inLivingRoom, doorwayDone };
+        }),
+      // 머릿속에 있는 동안은 앉지 않는다. 카메라가 머리 안에 있는데 몸만 의자로 가면 시야가 뒤집힌다
       sitOnSeat: (id) =>
         set((state) =>
-          state.seatedAt === id || selectSceneInputLocked(state) ? state : { seatedAt: id },
+          state.seatedAt === id || selectSceneInputLocked(state) || viewpointOf(state) !== null
+            ? state
+            : { seatedAt: id },
         ),
       standUp: () => set((state) => (state.seatedAt === null ? state : { seatedAt: null })),
       // 앉은 채로 옮기면 몸만 가고 의자는 남는다. 옮기기 전에 일어선다.
@@ -838,7 +877,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       clearWalk: () => set((state) => (state.walkTarget ? { walkTarget: null } : state)),
       grabCurtain: (side) =>
         set((state) =>
-          state.seatedAt !== null || selectSceneInputLocked(state)
+          state.seatedAt !== null || selectSceneInputLocked(state) || viewpointOf(state) !== null
             ? state
             : { curtainGrab: { side, held: true, arrived: false } },
         ),
@@ -891,6 +930,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           feedbackOpen: false,
           started: false,
           lightsOn: true,
+          introDone: false,
+          doorwayDone: false,
           doorOpened: false,
           batTaken: false,
           endingStarted: false,
@@ -922,6 +963,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         soundMuted: state.soundMuted,
         difficulty: state.difficulty,
         lightsOn: state.lightsOn,
+        introDone: state.introDone,
+        doorwayDone: state.doorwayDone,
       }),
       merge: (persisted, current) => ({ ...current, ...sanitizeProgress(persisted) }),
     },
@@ -975,6 +1018,34 @@ export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;
  */
 export const selectFrontDoorUnlocked = (state: MemoryRoomState) =>
   state.solvedPuzzles.includes("angle-turn");
+/**
+ * 지금 카메라가 도해의 머릿속에 있는가, 있다면 어느 구간인가.
+ *
+ * 두 번뿐이다. 둘 다 "어둠 속에서 빛 하나를 찾아 걸어간다"는 같은 그림이고,
+ * 빛의 정체만 다르다: 인트로는 전등 스위치, 2막 도입은 열린 문. 세 번째는 없다.
+ * 엔딩은 영상이 받는다 (docs/content-design.md 3-3).
+ *
+ * - intro:   새 게임 시작 직후, 불을 켜기 전까지
+ * - doorway: 방문이 열린 뒤, 거실에 처음 들어서기 전까지
+ *
+ * 값이 아닌 문자열을 돌려준다. 객체를 새로 만들면 zustand가 매 렌더 새 스냅샷으로 본다.
+ */
+export type Viewpoint = "intro" | "doorway" | null;
+
+export function viewpointOf(
+  state: Pick<
+    MemoryRoomState,
+    "started" | "endingStarted" | "introDone" | "doorOpened" | "doorwayDone"
+  >,
+): Viewpoint {
+  if (!state.started || state.endingStarted) return null;
+  if (!state.introDone) return "intro";
+  if (state.doorOpened && !state.doorwayDone) return "doorway";
+  return null;
+}
+
+export const selectViewpoint = (state: MemoryRoomState) => viewpointOf(state);
+
 export const selectSceneInputLocked = (state: MemoryRoomState) =>
   state.activeInteraction !== null ||
   state.activePlayback !== null ||

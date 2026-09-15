@@ -207,6 +207,12 @@
   --animate-duel-alert: duel-alert 0.5s steps(2, end) 2;
   /* 각성한 상대: 느리게 달아오른다 */
   --animate-duel-rage: duel-rage 1.1s ease-in-out infinite;
+  /*
+   * 시점이 바뀌는 순간 화면을 덮었다 걷는 한 겹 (ViewpointTransition). 직교와 원근
+   * 카메라 사이에는 연속된 길이 없어 전환은 컷이고, 이 겹이 그 컷을 덮는다. 길이는
+   * 컴포넌트가 인라인으로 정한다: 눈을 뜨는 어둠은 길게, 불이 켜지는 흰빛은 짧게.
+   */
+  --animate-viewpoint-fade: viewpoint-fade 1s ease-out both;
 
   @keyframes hotspot-glow {
     0%,
@@ -308,6 +314,15 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes viewpoint-fade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
     }
   }
 
@@ -752,6 +767,25 @@ body {
  */
 
 /* 왼쪽 여백에 뚫린 링 제본 구멍. 구멍 안은 씬 색이라 정말 뚫린 것처럼 보인다 */
+/*
+ * 거울 유리 (CharacterModelViewer). 밤빛 바탕 위에 위에서 드는 옅은 빛 한 겹과
+ * 왼쪽 위의 사선 하이라이트: 판이 아니라 비치는 면으로 읽히게 하는 최소한이다.
+ * 색은 전부 토큰이다 (DESIGN.md > Colors).
+ */
+.mirror-glass {
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-ivory) 10%, transparent) 0%,
+      transparent 38%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-fog) 12%, var(--color-night)) 0%,
+      var(--color-night) 100%
+    );
+}
+
 .notebook-punch {
   background-image: radial-gradient(
     circle at 50% 16px,

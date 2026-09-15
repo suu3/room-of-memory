@@ -9,7 +9,6 @@ import type { DiscoveryId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
 import { selectCollected, selectHeroNameKnown, useMemoryRoomStore } from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
-import { CharacterModelViewer } from "./CharacterModelViewer";
 import { LoreEntries } from "./LoreEntries";
 
 /**
@@ -221,11 +220,7 @@ export function CharacterSheetModal() {
                     );
                   })}
                 </dl>
-                {/*
-                  설정 시트 아래에 끼운 3D 표본. 그림은 화가가 세운 모습이고 이건 방에서
-                  실제로 걸어다니는 몸이라, 같은 페이지에 나란히 두면 둘이 서로를 설명한다.
-                */}
-                <CharacterModelViewer />
+                {/* 3D 모델은 여기 없다. 자기 모습을 보는 자리는 방의 전신거울이다 (CharacterModelViewer) */}
               </div>
             )}
           </div>

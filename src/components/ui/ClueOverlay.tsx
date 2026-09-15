@@ -16,6 +16,7 @@ import {
 import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
 import { SUIT_GLYPH, SUITS, suitColor } from "@/minigames/card-odd/cards";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { CharacterModelViewer } from "./CharacterModelViewer";
 import { BUTTON_QUIET, PANEL_PAPER } from "./ui-classes";
 import { WorkbookClue } from "./WorkbookClue";
 
@@ -29,6 +30,7 @@ const CLUE_TEXT = {
   "shelf-book": { title: "clue.shelfBook.title", caption: "clue.shelfBook.caption" },
   "desk-clock": { title: "clue.deskClock.title", caption: "clue.deskClock.caption" },
   workbook: { title: "clue.workbook.title", caption: "clue.workbook.caption" },
+  mirror: { title: "clue.mirror.title", caption: "clue.mirror.caption" },
 } as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
 
 /** 놀이책의 펼쳐진 쪽에 적힌 줄: 트럼프 항목의 앞부분만 보인다. */
@@ -91,8 +93,8 @@ export function ClueOverlay() {
 
   const { title: titleKey, caption: captionKey } = CLUE_TEXT[clue];
   const isNote = clue === "drawer-note";
-  // 종이(쪽지·책)와 들고 돌리는 물건(문제집)은 좁게, 격자를 그리는 것(달력·시계)은 넓게 편다
-  const narrow = isNote || clue === "shelf-book" || clue === "workbook";
+  // 종이(쪽지·책)와 들고 돌리는 물건(문제집)·거울은 좁게, 격자를 그리는 것(달력·시계)은 넓게 편다
+  const narrow = isNote || clue === "shelf-book" || clue === "workbook" || clue === "mirror";
 
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center overflow-hidden p-4">
@@ -127,6 +129,9 @@ export function ClueOverlay() {
           <DeskClock />
         ) : clue === "workbook" ? (
           <WorkbookClue />
+        ) : clue === "mirror" ? (
+          /* 거울 속의 자기: 종이가 아니라 어두운 유리라 종이 판(PANEL_PAPER)을 두르지 않는다 */
+          <CharacterModelViewer />
         ) : (
           <WallCalendar />
         )}

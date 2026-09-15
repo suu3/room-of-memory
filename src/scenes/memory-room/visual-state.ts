@@ -124,11 +124,22 @@ export const LIVING_ROOM_LIGHT_OFFSET = 0.12;
 export const LIGHTS_OFF_FACTOR = 0.26;
 
 /**
+ * 인트로(1인칭으로 스위치를 찾는 구간)의 어둠. 평소 소등(0.26)은 방을 흐리게 다
+ * 보여주지만, 인트로는 **일부만 보여야** 찾는 맛이 난다. 카메라에 달린 좁은 빛 원뿔
+ * (FirstPersonRig)이 보이는 몫을 맡고, 간접광은 실루엣만 남긴다. 0이 아닌 이유는
+ * 소등과 같다: 완전한 검정은 재질을 죽인다.
+ */
+export const BLACKOUT_FACTOR = 0.05;
+
+/**
  * 전등 스위치를 반영한다. 방 안의 빛(ambient·key)과 여기에 물린 BGM·비네트에만
  * 곱하고, 창으로 드는 빛에는 쓰지 않는다. 밖에서 오는 빛은 방 스위치와 무관하다.
+ *
+ * `blackout`은 인트로의 어둠이다. 불이 꺼져 있을 때만 뜻이 있다: 켜져 있으면 무시한다.
  */
-export function lampScaled(value: number, lightsOn: boolean): number {
-  return lightsOn ? value : value * LIGHTS_OFF_FACTOR;
+export function lampScaled(value: number, lightsOn: boolean, blackout = false): number {
+  if (lightsOn) return value;
+  return value * (blackout ? BLACKOUT_FACTOR : LIGHTS_OFF_FACTOR);
 }
 
 /** 램프의 두 끝을 밝기로 보간한다. */

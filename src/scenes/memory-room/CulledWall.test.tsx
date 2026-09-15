@@ -1,6 +1,7 @@
 import ReactThreeTestRenderer from "@react-three/test-renderer";
 import type { Mesh, MeshStandardMaterial } from "three";
 import { describe, expect, it } from "vitest";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { ROOM_SHELL_CENTER } from "./layout";
 
@@ -78,5 +79,26 @@ describe("CulledWall", () => {
 
     expect(materialOf(renderer.scene, "standing").opacity).toBe(1);
     await renderer.unmount();
+  });
+});
+
+describe("CulledWall in first person", () => {
+  it("keeps the wall standing while the camera is inside the head", async () => {
+    // 인트로(머릿속)에서는 정면으로 마주 본 벽도 걷히지 않는다. 안에서 보면 걷힌 벽은 뚫린 방이다
+    useMemoryRoomStore.setState({ started: true, introDone: false });
+    try {
+      const renderer = await ReactThreeTestRenderer.create(
+        <CulledWall side="front">
+          <WallBox name="wall" />
+        </CulledWall>,
+        { camera: { position: IN_FRONT_OF_FRONT_WALL } },
+      );
+      await ReactThreeTestRenderer.act(async () => {
+        await renderer.advanceFrames(3, 0.05);
+      });
+      expect(materialOf(renderer.scene, "wall").opacity).toBe(1);
+    } finally {
+      useMemoryRoomStore.getState().reset();
+    }
   });
 });

@@ -8,6 +8,7 @@ import {
   selectBatTaken,
   selectDoorOpened,
   selectDoorReady,
+  selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 
@@ -18,6 +19,8 @@ import {
 const BANNER_MS = 4000;
 
 type GuideKey =
+  | "hud.guide.lights"
+  | "hud.guide.doorway"
   | "hud.guide.examine"
   | "hud.guide.door"
   | "hud.guide.revisit"
@@ -52,16 +55,23 @@ function useHudGuide() {
   const batReady = useMemoryRoomStore(selectBatReady);
   const batTaken = useMemoryRoomStore(selectBatTaken);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
+  // 머릿속 구간에는 할 일이 하나뿐이다: 스위치, 또는 문. 나머지 목표는 그 뒤에 온다
+  const viewpoint = useMemoryRoomStore(selectViewpoint);
 
-  const key: GuideKey = batTaken
-    ? "hud.guide.exit"
-    : batReady
-      ? "hud.guide.bat"
-      : doorOpened
-        ? "hud.guide.revisit"
-        : doorReady
-          ? "hud.guide.door"
-          : "hud.guide.examine";
+  const key: GuideKey =
+    viewpoint === "intro"
+      ? "hud.guide.lights"
+      : viewpoint === "doorway"
+        ? "hud.guide.doorway"
+        : batTaken
+          ? "hud.guide.exit"
+          : batReady
+            ? "hud.guide.bat"
+            : doorOpened
+              ? "hud.guide.revisit"
+              : doorReady
+                ? "hud.guide.door"
+                : "hud.guide.examine";
 
   /** 가운데 배너에 떠 있는 목표. key와 다르면 새 목표가 막 들어온 것이다. */
   const [bannerKey, setBannerKey] = useState<GuideKey | null>(key);
@@ -73,6 +83,8 @@ function useHudGuide() {
 
   return {
     text: hint(key),
+    /** 1인칭에서만 붙는 조작 한 줄. 둘러보는 법은 이 구간에서 처음 필요해진다. */
+    control: viewpoint !== null ? hint("scene.lookHint") : null,
     Icon: pointer === "touch" ? HandTap : CursorClick,
     banner: bannerKey === key,
     gone: endingStarted,
@@ -81,20 +93,23 @@ function useHudGuide() {
 
 /** 화면 가운데(혼잣말 아래)에 잠깐 뜨는 새 목표. 자리는 부모의 가운데 기둥이 정한다. */
 export function HudGuideBanner({ hidden = false }: { hidden?: boolean }) {
-  const { text, Icon, banner, gone } = useHudGuide();
+  const { text, control, Icon, banner, gone } = useHudGuide();
   if (gone) return null;
   const shown = banner && !hidden;
 
   return (
-    <p
+    <div
       aria-hidden
-      className={`monologue-text pointer-events-none inline-flex max-w-full items-center gap-[0.4em] text-hud-caption font-medium text-ivory/90 transition-[opacity,transform] duration-300 ease-out ${
+      className={`monologue-text pointer-events-none flex max-w-full flex-col items-center gap-1 transition-[opacity,transform] duration-300 ease-out ${
         shown ? "opacity-100" : "-translate-x-6 -translate-y-3 opacity-0"
       }`}
     >
-      <Icon size="1.15em" weight="bold" className="shrink-0 text-memory" aria-hidden />
-      <span className="break-ko">{text}</span>
-    </p>
+      <p className="inline-flex max-w-full items-center gap-[0.4em] text-hud-caption font-medium text-ivory/90">
+        <Icon size="1.15em" weight="bold" className="shrink-0 text-memory" aria-hidden />
+        <span className="break-ko">{text}</span>
+      </p>
+      {control && <p className="break-ko text-xs text-fog">{control}</p>}
+    </div>
   );
 }
 
@@ -104,19 +119,22 @@ export function HudGuideBanner({ hidden = false }: { hidden?: boolean }) {
  * 이쪽 하나만 들린다 (role="status").
  */
 export function HudGuideDock({ hidden = false }: { hidden?: boolean }) {
-  const { text, Icon, banner, gone } = useHudGuide();
+  const { text, control, Icon, banner, gone } = useHudGuide();
   if (gone) return null;
   const shown = !banner && !hidden;
 
   return (
-    <p
+    <div
       role="status"
-      className={`pointer-events-none inline-flex max-w-full items-center gap-[0.4em] text-[0.75em] font-medium text-fog transition-[opacity,transform] delay-150 duration-300 ease-out ${
+      className={`pointer-events-none flex max-w-full flex-col gap-[0.25em] text-[0.75em] font-medium text-fog transition-[opacity,transform] delay-150 duration-300 ease-out ${
         shown ? "opacity-100" : "translate-x-3 translate-y-2 opacity-0"
       }`}
     >
-      <Icon size="1.15em" weight="bold" className="shrink-0" aria-hidden />
-      <span className="break-ko">{text}</span>
-    </p>
+      <p className="inline-flex max-w-full items-center gap-[0.4em]">
+        <Icon size="1.15em" weight="bold" className="shrink-0" aria-hidden />
+        <span className="break-ko">{text}</span>
+      </p>
+      {control && <p className="break-ko text-ash">{control}</p>}
+    </div>
   );
 }

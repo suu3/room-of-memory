@@ -40,6 +40,10 @@ export const COMPUTER_PASSCODE_LENGTH = COMPUTER_PASSCODE.length;
  * wall-calendar는 성격이 다르다. 원래 조사 오브젝트(기억)였다가 1바퀴 조사를
  * 마치면 배경 오브젝트로 내려앉는 물건이다. 그래서 수집 전에는 열리지 않는다
  * (store의 openClue).
+ *
+ * mirror는 단서가 아니라 거울이다. 무엇도 알려주지 않고, 누르면 거울 속 자기(3D
+ * 캐릭터 모델)를 돌려본다. 같은 목록에 있는 이유는 여는 방식이 같아서다: 방의
+ * 물건을 누르면 Canvas 밖 화면이 펼쳐진다 (ClueOverlay).
  */
 export const CLUE_IDS = [
   "drawer-note",
@@ -47,6 +51,7 @@ export const CLUE_IDS = [
   "shelf-book",
   "desk-clock",
   "workbook",
+  "mirror",
 ] as const;
 export type ClueId = (typeof CLUE_IDS)[number];
 

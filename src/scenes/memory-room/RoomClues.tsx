@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { ClueId } from "@/data/room-clues";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { CLUE_PROPS, DRAWER_NOTE } from "./layout";
+import { CLUE_PROPS, DRAWER_NOTE, MIRROR_PLACEMENT } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { useGlowHover } from "./use-glow-hover";
@@ -108,6 +108,35 @@ export function DeskClockClue({ children }: { children: ReactNode }) {
       radius={CLUE_PROPS.deskClock.interactionRadius}
     >
       {children}
+    </ClueProp>
+  );
+}
+
+/**
+ * 문 쪽 왼벽의 전신거울. 누르면 거울 속 자기를 돌려보는 화면이 뜬다 (ClueOverlay).
+ *
+ * 유리는 진짜로 비추지 않는다. 씬을 한 번 더 그리는 반사는 모바일 예산을 넘고,
+ * 아이소메트릭에서는 어차피 천장만 비친다. 매끈한 어두운 판에 조명 하이라이트만
+ * 걸리게 두면 유리로 읽힌다. 벽에 붙은 물건이라 RoomShell의 왼벽(CulledWall) 안에 선다.
+ */
+export function MirrorClue({ palette }: { palette: RoomPalette }) {
+  const { frameSize, glassSize } = MIRROR_PLACEMENT;
+  return (
+    <ClueProp
+      clue="mirror"
+      near={MIRROR_PLACEMENT.near}
+      radius={MIRROR_PLACEMENT.interactionRadius}
+    >
+      <group position={MIRROR_PLACEMENT.position} rotation={MIRROR_PLACEMENT.rotation}>
+        <mesh castShadow>
+          <boxGeometry args={frameSize} />
+          <meshStandardMaterial color={palette.wood} roughness={0.55} />
+        </mesh>
+        <mesh position={[0, 0, frameSize[2] / 2 + glassSize[2] / 2]}>
+          <boxGeometry args={glassSize} />
+          <meshStandardMaterial color={palette.storm} metalness={0.85} roughness={0.12} />
+        </mesh>
+      </group>
     </ClueProp>
   );
 }

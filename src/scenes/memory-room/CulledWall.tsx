@@ -3,6 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { type Group, MathUtils } from "three";
+import { useMemoryRoomStore, viewpointOf } from "@/store/memory-room";
 import { ROOM_SHELL_CENTER } from "./layout";
 import { type WallSide, wallOpacity } from "./wall-culling";
 import {
@@ -65,9 +66,17 @@ export function CulledWall({
     if (!group) return;
 
     const [centerX, centerZ] = center ?? [SHELL_CENTER_X, SHELL_CENTER_Z];
+    /*
+     * 1인칭(머릿속)에서는 벽을 걷지 않는다. 걷는 규칙은 밖에서 내려다보는 카메라를
+     * 위한 것이라, 안에서 보면 다가서는 벽마다 사라져 방이 뚫린다. 스토어를 프레임마다
+     * 읽지만 getState는 구독이 아니라 싸다.
+     */
+    const firstPerson = viewpointOf(useMemoryRoomStore.getState()) !== null;
     const goal = hidden
       ? 0
-      : wallOpacity(side, camera.position.x - centerX, camera.position.z - centerZ);
+      : firstPerson
+        ? 1
+        : wallOpacity(side, camera.position.x - centerX, camera.position.z - centerZ);
     let next = MathUtils.damp(opacityRef.current, goal, 9, delta);
     // damp는 목표에 수렴만 하고 닿지는 않는다. 눈에 안 보이는 나머지를 끊어야
     // 벽이 멈춘 뒤 트래버스도 같이 멈춘다.

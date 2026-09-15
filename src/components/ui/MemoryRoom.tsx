@@ -21,6 +21,7 @@ import {
   selectMusicForeground,
   selectMusicPhase,
   selectMusicPlaying,
+  selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { BootCurtain } from "./BootCurtain";
@@ -42,6 +43,7 @@ import { PuzzleHost } from "./PuzzleHost";
 import { RoomCallout } from "./RoomCallout";
 import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
+import { ViewpointTransition } from "./ViewpointTransition";
 
 /*
  * 로딩 표시는 부팅 커튼이 혼자 맡는다 (BootCurtain).
@@ -103,8 +105,11 @@ export function MemoryRoom() {
   // 미니게임은 효과음이, 대사는 글이 주인공이다. 눌러야 하는 깊이가 다르다
   const musicForeground = useMemoryRoomStore(selectMusicForeground);
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
-  // 불을 끄면 곡도 같이 물러난다. 밝기와 음색을 한 축으로 묶어 둔 이득이다
-  const heardLevel = lampScaled(lightLevel, lightsOn);
+  // 머릿속 구간. 인트로는 소등보다 깊은 어둠이고(blackout), 그동안 혼잣말은 물러난다
+  const viewpoint = useMemoryRoomStore(selectViewpoint);
+  // 불을 끄면 곡도 같이 물러난다. 밝기와 음색을 한 축으로 묶어 둔 이득이다.
+  // 인트로의 어둠도 같은 축을 탄다: 스위치를 켜는 순간 곡이 방과 함께 차오른다
+  const heardLevel = lampScaled(lightLevel, lightsOn, viewpoint === "intro");
   // 컷씬은 방송이 끊긴 정적 위에 서는 장면이라 곡도 같이 멎는다 (selectMusicPlaying)
   const musicPlaying = useMemoryRoomStore(selectMusicPlaying);
   // 곡이 갈리는 자리는 밝기와 다르다. 2막 곡은 방문이 열려야 든다
@@ -248,7 +253,11 @@ export function MemoryRoom() {
             다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다.
           */}
           <div className="pointer-events-none absolute left-1/2 top-28 z-10 flex w-[min(clamp(640px,44vw,840px),calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-28 md:gap-3 lg:top-16">
-            <Monologue monologueId={monologueId} hidden={monologueHidden} />
+            {/* 인트로(불 켜기 전)에는 혼잣말이 없다. 어둠 속에서 "심심하네"는 딴소리다 */}
+            <Monologue
+              monologueId={monologueId}
+              hidden={monologueHidden || viewpoint === "intro"}
+            />
             <HudGuideBanner hidden={monologueHidden} />
           </div>
 
@@ -267,6 +276,9 @@ export function MemoryRoom() {
           <RoomCallout />
         </>
       )}
+
+      {/* 시점이 바뀌는 순간의 한 겹: 카메라 컷을 덮는다. 타이틀(z-40)보다 앞에 그려 그 아래에 선다 */}
+      <ViewpointTransition />
 
       {/* 배트를 쥔 뒤: 문이 열리는 걸 보여주고 나서 화면을 덮는다 */}
       <EndingScreen />

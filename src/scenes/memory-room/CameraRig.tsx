@@ -117,6 +117,7 @@ export function CameraRig({
   zoomScale = 1,
   orbitAzimuth,
   following,
+  firstPerson = false,
   playerPositionRef,
 }: {
   focusId: CameraFocusId | null;
@@ -130,6 +131,12 @@ export function CameraRig({
    * 전환 애니메이션은 따로 없다. 목표값이 바뀌면 아래 damp가 알아서 데려간다.
    */
   following: boolean;
+  /**
+   * 1인칭 구간(FirstPersonRig)이 기본 카메라를 쥐고 있는가. 그동안 이 리그는 아무것도
+   * 하지 않는다. 직교 카메라는 마지막 자리에 잠들어 있다가 돌아오면 거기서 따라온다.
+   * 인트로 뒤에는 타이틀 구도에서 방 안으로 내려앉는 연출이 그대로 살아난다.
+   */
+  firstPerson?: boolean;
   /** 따라갈 대상. */
   playerPositionRef: MutableRefObject<Vector3>;
 }) {
@@ -188,6 +195,11 @@ export function CameraRig({
 
   useFrame((state, delta) => {
     const { camera } = state;
+    // 머릿속에 있는 동안은 잠든다. 내려앉는 연출의 시계도 멈춰 두어 돌아온 뒤에 돈다
+    if (firstPerson) {
+      enterElapsed.current = 0;
+      return;
+    }
     if (follows) enterElapsed.current += delta;
     const entering = follows && enterElapsed.current < ENTER_DURATION_S;
     const lambda = reducedMotion ? 18 : entering ? ENTER_LAMBDA : follows ? FOLLOW_LAMBDA : 7;

@@ -17,7 +17,9 @@
       "door": "Open the glowing door and step out",
       "revisit": "Examine things again to retrace that day",
       "bat": "Pick up the bat by the front door",
-      "exit": "Leave through the front door"
+      "exit": "Leave through the front door",
+      "lights": "It's dark. Find the light switch on the wall and turn it on",
+      "doorway": "Step out through the open door"
     }
   },
   "door": {
@@ -65,6 +67,8 @@
     "interactHint": "Examine {{name}} · E",
     "interactHint_touch": "Examine {{name}} · tap",
     "moveCaption": "MOVE",
+    "lookHint": "Drag to look around · WASD to walk",
+    "lookHint_touch": "Drag the screen to look, joystick to walk",
     "memoryState": {
       "locked": "{{name}} · not ready to examine",
       "done": "{{name}} · already examined"
@@ -410,8 +414,6 @@
     "loreLocked": "An entry you have not uncovered yet",
     "lockedHint": "Unlocks when collected",
     "loreStill": "{{name}}: what I saw then",
-    "modelAlt": "3D character model: drag to turn it",
-    "modelHint": "Drag or use the buttons to turn",
     "pose": {
       "stand": "Stand",
       "walk": "Walk",
@@ -488,6 +490,12 @@
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
       "caption": "A well-thumbed math workbook. How many pages did I actually get through?"
+    },
+    "mirror": {
+      "title": "Full-length Mirror",
+      "alt": "3D character in the mirror: drag to turn",
+      "hint": "Drag or use the buttons to turn",
+      "caption": "…I look rough. How many days has it been like this."
     }
   },
   "difficulty": {

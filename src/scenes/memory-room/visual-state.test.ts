@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  BLACKOUT_FACTOR,
   ENTRY_LIGHT_LEVEL,
+  LIGHTS_OFF_FACTOR,
   lampScaled,
   outsideDecay,
   ROOM_LIGHT_RAMP,
@@ -152,5 +154,18 @@ describe("roomLightMix", () => {
 
   it("전환점에서 두 축 모두 이어진다", () => {
     expect(act1(7)).toEqual(act2(0));
+  });
+});
+
+describe("lampScaled와 인트로의 어둠", () => {
+  it("불이 켜져 있으면 blackout은 아무 뜻이 없다", () => {
+    expect(lampScaled(2, true, true)).toBe(2);
+  });
+
+  it("인트로의 어둠은 평소 소등보다 깊되 0은 아니다", () => {
+    expect(BLACKOUT_FACTOR).toBeGreaterThan(0);
+    expect(BLACKOUT_FACTOR).toBeLessThan(LIGHTS_OFF_FACTOR);
+    expect(lampScaled(2, false, true)).toBeCloseTo(2 * BLACKOUT_FACTOR);
+    expect(lampScaled(2, false)).toBeCloseTo(2 * LIGHTS_OFF_FACTOR);
   });
 });

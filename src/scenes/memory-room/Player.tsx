@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { type Group, MathUtils, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
-import { selectSceneInputLocked, useMemoryRoomStore } from "@/store/memory-room";
+import { selectSceneInputLocked, selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
 import type { CurtainSide } from "@/types/curtain";
 import type { MovementAxes } from "@/types/movement";
 import { advanceCurtainMotion, type CurtainMotion, createCurtainMotion } from "./curtain-animation";
@@ -102,6 +102,11 @@ export function Player({
   const walkRef = useRef(0);
   const curtainPoseRef = useRef<CurtainPose>({ side: "right", time: 0, weight: 0 });
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
+  /*
+   * 1인칭 구간에는 몸을 숨긴다. 카메라가 머리 안에 있어서 보이면 제 몸통 속이다.
+   * 위치·걸음은 그대로 돈다: 카메라(FirstPersonRig)가 positionRef를 따라간다.
+   */
+  const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
   /*
    * 앉기.
    *
@@ -577,7 +582,7 @@ export function Player({
   });
 
   return (
-    <group ref={groupRef} name="player" position={PLAYER_START}>
+    <group ref={groupRef} name="player" position={PLAYER_START} visible={!firstPerson}>
       <group ref={facingRef}>
         <group ref={lieRef}>
           <primitive object={rig.root} dispose={null} />

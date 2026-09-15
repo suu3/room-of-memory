@@ -45,6 +45,8 @@ export function applyAdminPatch(patch: AdminPatch): void {
     soundMuted: state.soundMuted,
     lightsOn: state.lightsOn,
     difficulty: state.difficulty,
+    introDone: state.introDone,
+    doorwayDone: state.doorwayDone,
     ...progress,
   };
 

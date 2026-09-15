@@ -23,6 +23,7 @@ import {
   selectMusicPlaying,
   selectRadioSignaling,
   selectSceneInputLocked,
+  selectViewpoint,
   useMemoryRoomStore,
 } from "./memory-room";
 
@@ -618,6 +619,8 @@ describe("전환 컷씬", () => {
 
   it("컷씬 중에는 BGM이 멎는다", () => {
     useMemoryRoomStore.getState().startGame();
+    // 새 게임은 불 꺼진 인트로에서 시작한다. 스위치를 켜야 조사가 열린다
+    useMemoryRoomStore.getState().toggleLights();
     finishFirstRound();
 
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
@@ -898,5 +901,100 @@ describe("discoveries", () => {
     useMemoryRoomStore.getState().reset();
 
     expect(useMemoryRoomStore.getState().discoveries).toEqual([]);
+  });
+});
+
+describe("1인칭 구간: 인트로와 2막 도입", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("타이틀에서는 머릿속이 아니다. 새 게임을 시작하면 불 꺼진 방의 인트로다", () => {
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
+
+    useMemoryRoomStore.getState().startGame();
+
+    const state = useMemoryRoomStore.getState();
+    expect(state.lightsOn).toBe(false);
+    expect(selectViewpoint(state)).toBe("intro");
+  });
+
+  it("스위치를 켜는 첫 순간이 인트로의 끝이다. 그 뒤로는 그냥 스위치다", () => {
+    useMemoryRoomStore.getState().startGame();
+    useMemoryRoomStore.getState().toggleLights();
+
+    let state = useMemoryRoomStore.getState();
+    expect(state.lightsOn).toBe(true);
+    expect(state.introDone).toBe(true);
+    expect(selectViewpoint(state)).toBeNull();
+
+    useMemoryRoomStore.getState().toggleLights();
+    state = useMemoryRoomStore.getState();
+    expect(state.lightsOn).toBe(false);
+    expect(selectViewpoint(state)).toBeNull();
+  });
+
+  it("인트로를 지난 저장본으로 시작하면 불을 건드리지 않는다", () => {
+    useMemoryRoomStore.setState({ introDone: true, lightsOn: false });
+    useMemoryRoomStore.getState().startGame();
+
+    expect(useMemoryRoomStore.getState().lightsOn).toBe(false);
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
+  });
+
+  it("머릿속에 있는 동안은 조사·앉기·커튼이 막힌다. 할 일은 스위치 하나다", () => {
+    useMemoryRoomStore.getState().startGame();
+
+    useMemoryRoomStore.getState().beginInteraction("console");
+    useMemoryRoomStore.getState().sitOnSeat("desk-chair");
+    useMemoryRoomStore.getState().grabCurtain("left");
+
+    const state = useMemoryRoomStore.getState();
+    expect(state.activeInteraction).toBeNull();
+    expect(state.seatedAt).toBeNull();
+    expect(state.curtainGrab).toBeNull();
+    // 거울 같은 단서 화면은 DOM이라 머릿속에서도 열린다
+    useMemoryRoomStore.getState().openClue("mirror");
+    expect(useMemoryRoomStore.getState().activeClue).toBe("mirror");
+  });
+
+  it("방문이 열리면 문 넘기가 시작되고, 거실에 처음 들어서는 순간 끝난다", () => {
+    useMemoryRoomStore.setState({
+      started: true,
+      introDone: true,
+      collected: PHASE1_MEMORIES.map((memory) => memory.id),
+      revisited: ["radio"],
+    });
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
+
+    useMemoryRoomStore.getState().openRoomDoor();
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBe("doorway");
+
+    useMemoryRoomStore.getState().setInLivingRoom(true);
+    const state = useMemoryRoomStore.getState();
+    expect(state.doorwayDone).toBe(true);
+    expect(selectViewpoint(state)).toBeNull();
+
+    // 그 뒤의 왕복은 이동이다. 다시 방으로, 다시 거실로 가도 머릿속에 안 들어간다
+    useMemoryRoomStore.getState().setInLivingRoom(false);
+    useMemoryRoomStore.getState().setInLivingRoom(true);
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
+  });
+
+  it("문이 열리기 전에 거실 판정이 켜져도(개발 도구) 문 넘기를 마친 것으로 적지 않는다", () => {
+    useMemoryRoomStore.setState({ started: true, introDone: true });
+    useMemoryRoomStore.getState().setInLivingRoom(true);
+
+    expect(useMemoryRoomStore.getState().doorwayDone).toBe(false);
+  });
+
+  it("엔딩이 시작되면 머릿속에서 나온다. 새 게임은 두 구간을 다시 연다", () => {
+    useMemoryRoomStore.setState({ started: true, introDone: false, endingStarted: true });
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
+
+    useMemoryRoomStore.setState({ introDone: true, doorwayDone: true, lightsOn: false });
+    useMemoryRoomStore.getState().reset();
+    const state = useMemoryRoomStore.getState();
+    expect(state.introDone).toBe(false);
+    expect(state.doorwayDone).toBe(false);
+    expect(state.lightsOn).toBe(true);
   });
 });

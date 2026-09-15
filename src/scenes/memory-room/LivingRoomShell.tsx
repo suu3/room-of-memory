@@ -98,8 +98,11 @@ const DOOR_FRAME = [
  * 사라져 거실의 +x 변은 바닥이 허공으로 끊긴 단면이 되고, 어디로 되돌아가는지 읽을 수
  * 없었다. 그래서 그 변에 거실 것을 따로 세운다: 다른 세 면과 같은 굽도리(문 자리는
  * 비운다)와 문턱에 고인 방의 빛. 문틀·문짝은 그리지 않는다. 이 변은 카메라 쪽이라
- * 키 큰 문틀이 거실을 가리고, 문짝은 숨은 방의 허공에 뜬 판이 된다. 방에 있는 동안은
- * 거실이 통째로 숨으므로 방의 왼벽과 겹쳐 깜빡일 일은 없다.
+ * 키 큰 문틀이 거실을 가리고, 문짝은 숨은 방의 허공에 뜬 판이 된다.
+ *
+ * 거실에 있을 때만 그린다. 2막 도입의 1인칭 문 넘기 동안은 방에 선 채로 거실이 함께
+ * 보이는데(열린 문 너머가 허공이면 안 된다), 그때 이 굽도리까지 서면 방의 왼벽
+ * 굽도리와 같은 자리에서 겹쳐 깜빡인다.
  *
  * 누르는 물건은 아니다. 문턱을 넘으면 방이다.
  */
@@ -282,7 +285,14 @@ function FrontDoorLeaf({
   );
 }
 
-export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
+export function LivingRoomShell({
+  palette,
+  inLivingRoom,
+}: {
+  palette: RoomPalette;
+  /** 플레이어가 거실에 서 있는가: 방으로 돌아가는 문간 얼굴은 그때만 그린다. */
+  inLivingRoom: boolean;
+}) {
   /*
    * 색이 방과 다르다. 방은 도해 취향의 깊은 네이비 벽인데, 거실은 부모님이
    * 꾸민 밝은 벽지(linen)다. 문 하나 건넜을 뿐인데 공기가 달라지는 게 이 색 차이가
@@ -316,7 +326,7 @@ export function LivingRoomShell({ palette }: { palette: RoomPalette }) {
       </CulledWall>
 
       <FrontDoor palette={palette} />
-      <RoomDoorway palette={palette} />
+      {inLivingRoom && <RoomDoorway palette={palette} />}
 
       {/* 현관 쪽에서 새어 드는 빛: 방문 밑 금빛 틈의 출처가 여기다 */}
       <pointLight

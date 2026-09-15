@@ -19,6 +19,7 @@ import {
   selectActTwoProgress,
   selectCollectedCount,
   useMemoryRoomStore,
+  type Viewpoint,
 } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
 import { CameraRig } from "./memory-room/CameraRig";
@@ -28,6 +29,8 @@ import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
 import { EndingTrigger } from "./memory-room/EndingTrigger";
 import { visibleHitsOnly } from "./memory-room/event-visibility";
+import { FirstPersonRig } from "./memory-room/FirstPersonRig";
+import type { LookAngles } from "./memory-room/first-person";
 import { LivingRoomFurniture } from "./memory-room/LivingRoomFurniture";
 import { LivingRoomShell } from "./memory-room/LivingRoomShell";
 import { MemoryBurst } from "./memory-room/MemoryBurst";
@@ -78,6 +81,7 @@ function StageLighting({
   cool,
   warm,
   lightsOn,
+  blackout,
   curtainsOpen,
   inLivingRoom,
   palette,
@@ -88,6 +92,8 @@ function StageLighting({
   warm: number;
   /** 벽의 전등 스위치. 꺼도 창으로 드는 빛은 남는다. */
   lightsOn: boolean;
+  /** 인트로의 어둠: 소등보다 훨씬 깊다 (visual-state의 BLACKOUT_FACTOR). */
+  blackout: boolean;
   /** 커튼이 열렸는가: 닫히면 볕이 흐려진다. */
   curtainsOpen: boolean;
   /** 거실에는 창이 없다. 볕은 방의 것이다. */
@@ -127,19 +133,19 @@ function StageLighting({
     // 방 안의 빛(간접광·전등)만 스위치를 탄다. 창으로 드는 볕은 스위치와 무관하다
     ambient.intensity = follow(
       ambient.intensity,
-      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.ambient, cool), lightsOn),
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.ambient, cool), lightsOn, blackout),
     );
     hemisphere.intensity = follow(
       hemisphere.intensity,
-      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.hemisphere, cool), lightsOn),
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.hemisphere, cool), lightsOn, blackout),
     );
     key.intensity = follow(
       key.intensity,
-      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.key, cool), lightsOn),
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.key, cool), lightsOn, blackout),
     );
     lamp.intensity = follow(
       lamp.intensity,
-      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.lamp, cool), lightsOn),
+      lampScaled(roomLightValue(ROOM_LIGHT_RAMP.lamp, cool), lightsOn, blackout),
     );
     windowGlow.intensity = follow(
       windowGlow.intensity,
@@ -233,6 +239,8 @@ export function MemoryRoomScene({
   zoomScale,
   orbitAzimuth,
   following,
+  viewpoint,
+  lookRef,
   onInteract,
 }: {
   playerPositionRef: MutableRefObject<Vector3>;
@@ -254,6 +262,13 @@ export function MemoryRoomScene({
   orbitAzimuth: number;
   /** 게임이 시작됐는가: 타이틀 구도(방 모형 전체)와 플레이 구도(플레이어 추적)를 가른다. */
   following: boolean;
+  /**
+   * 카메라가 머릿속에 있는 구간 (인트로·2막 도입). null이면 아이소메트릭이다.
+   * 1인칭 동안은 FirstPersonRig가 기본 카메라를 쥐고 CameraRig는 잠든다.
+   */
+  viewpoint: Viewpoint;
+  /** 1인칭의 시선. RoomCanvas가 DOM 입력으로 채우고 FirstPersonRig가 읽는다. */
+  lookRef: MutableRefObject<LookAngles>;
   onInteract: (id: MemoryId) => void;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
@@ -306,11 +321,14 @@ export function MemoryRoomScene({
    * 어둠의 양: 비네트(MemoryRoom)와 같은 축이다. 진행도가 정한 밝기에 전등 스위치를
    * 곱한 값의 나머지라, 비네트가 조여드는 만큼 가장자리의 색수차도 어긋난다.
    */
+  /** 인트로의 어둠. 소등이 아니라 "아직 불을 켜기 전"이라 스위치를 찾는 동안만이다. */
+  const blackout = viewpoint === "intro";
   const dim =
     1 -
     lampScaled(
       roomLightLevel({ collected: collectedCount, memoryTotal: MEMORY_TOTAL, recovery }),
       lightsOn,
+      blackout,
     );
 
   return (
@@ -320,6 +338,7 @@ export function MemoryRoomScene({
         cool={cool}
         warm={warm}
         lightsOn={lightsOn}
+        blackout={blackout}
         curtainsOpen={curtainsOpen}
         inLivingRoom={inLivingRoom}
         palette={palette}
@@ -368,9 +387,14 @@ export function MemoryRoomScene({
               onInteract={onInteract}
             />
           </group>
-          {/* 방문 너머: 2막에 문이 열리면 걸어 나갈 수 있다 */}
-          <group visible={inLivingRoom}>
-            <LivingRoomShell palette={palette} />
+          {/*
+            방문 너머: 2막에 문이 열리면 걸어 나갈 수 있다.
+            문 넘기(1인칭)를 하는 동안은 방에 선 채로도 거실이 선다. 열린 문 너머가
+            허공이면 "문 쪽이 밝아"가 거짓말이 된다. 문턱을 넘는 순간 그 구간이 끝나고
+            평소의 "한 번에 한 방"으로 돌아온다.
+          */}
+          <group visible={inLivingRoom || viewpoint === "doorway"}>
+            <LivingRoomShell palette={palette} inLivingRoom={inLivingRoom} />
             <LivingRoomFurniture palette={palette} />
             <MemoryObjects
               space="living"
@@ -426,8 +450,18 @@ export function MemoryRoomScene({
         zoomScale={zoomScale}
         orbitAzimuth={orbitAzimuth}
         following={following}
+        firstPerson={viewpoint !== null}
         playerPositionRef={playerPositionRef}
       />
+      {/* 머릿속 카메라. 마운트되면 기본 카메라를 쥐고, 내려오면 돌려놓는다 */}
+      {viewpoint !== null && (
+        <FirstPersonRig
+          viewpoint={viewpoint}
+          playerPositionRef={playerPositionRef}
+          lookRef={lookRef}
+          palette={palette}
+        />
+      )}
     </PlayerPositionProvider>
   );
 }
