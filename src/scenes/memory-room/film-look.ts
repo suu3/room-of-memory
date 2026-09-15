@@ -29,11 +29,16 @@ export const ABERRATION = {
   modulationOffset: 0.3,
 } as const;
 
-/** 사건마다 튀는 세기 (0~1). 라디오가 깨어나는 순간이 기억 하나를 줍는 순간보다 크다. */
-export const ABERRATION_PULSE = {
-  collect: 0.6,
-  radioWake: 1,
-} as const;
+/**
+ * 사건이 튀는 순간 그레인이 진해지는 배율. 색수차와 같은 펄스(event-pulse)를 먹는다.
+ * 1이면 펄스 꼭대기에서 두 배. 화면이 잠깐 거칠어졌다 가라앉는다.
+ */
+export const GRAIN_PULSE_GAIN = 1;
+
+/** 펄스(0~1)에 따른 그레인 불투명도. */
+export function grainOpacity(pulse: number): number {
+  return FILM_GRAIN_OPACITY * (1 + Math.min(1, Math.max(0, pulse)) * GRAIN_PULSE_GAIN);
+}
 
 /** 어둠의 양(0 = 밝은 방, 1 = 가장 어두운 지점)에서 쉬고 있을 때의 어긋남. */
 export function restingAberration(dim: number): number {

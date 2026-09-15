@@ -15,7 +15,7 @@ import {
   useState,
 } from "react";
 import { Color, type Group, type Mesh, type Object3D } from "three";
-import { FilmAberrationDriver, prefersReducedMotion, useFilmLookEffects } from "./FilmLook";
+import { FilmLookDriver, prefersReducedMotion, useFilmLookEffects } from "./FilmLook";
 
 /**
  * 빛나는 방식의 두 등급.
@@ -236,7 +236,7 @@ export function MemoryGlowRoot({
         />
         <primitive object={film.grain} />
       </EffectComposer>
-      <FilmAberrationDriver effect={film.aberration} dim={dim} reducedMotion={reducedMotion} />
+      <FilmLookDriver effects={film} dim={dim} reducedMotion={reducedMotion} />
     </MemoryGlowSelectionContext.Provider>
   );
 }

@@ -4,6 +4,8 @@ import {
   aberrationAmount,
   decayPulse,
   FILM_GRAIN_OPACITY,
+  GRAIN_PULSE_GAIN,
+  grainOpacity,
   restingAberration,
 } from "./film-look";
 
@@ -11,6 +13,13 @@ describe("film-look", () => {
   it("그레인은 있는 듯 없는 듯한 양이다", () => {
     expect(FILM_GRAIN_OPACITY).toBeGreaterThan(0);
     expect(FILM_GRAIN_OPACITY).toBeLessThan(0.2);
+  });
+
+  it("그레인은 펄스 꼭대기에서 (1 + gain)배까지 진해지고 범위 밖은 끝값에 붙는다", () => {
+    expect(grainOpacity(0)).toBe(FILM_GRAIN_OPACITY);
+    expect(grainOpacity(1)).toBeCloseTo(FILM_GRAIN_OPACITY * (1 + GRAIN_PULSE_GAIN));
+    expect(grainOpacity(5)).toBeCloseTo(grainOpacity(1));
+    expect(grainOpacity(-1)).toBe(grainOpacity(0));
   });
 
   it("밝은 방에서는 base, 가장 어두운 지점에서는 base의 (1 + dimGain)배", () => {

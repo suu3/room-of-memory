@@ -4,13 +4,13 @@ import { useFrame } from "@react-three/fiber";
 import { BlendFunction, ChromaticAberrationEffect, NoiseEffect } from "postprocessing";
 import { useEffect, useMemo, useRef } from "react";
 import { MathUtils, Vector2 } from "three";
-import { selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
+import { subscribeEventPulse } from "./event-pulse";
 import {
   ABERRATION,
-  ABERRATION_PULSE,
   aberrationAmount,
   decayPulse,
   FILM_GRAIN_OPACITY,
+  grainOpacity,
   restingAberration,
 } from "./film-look";
 
@@ -69,32 +69,26 @@ export function useFilmLookEffects(reducedMotion: boolean) {
 }
 
 /**
- * 색수차의 양을 프레임마다 굴린다. 컴포저 밖 어디에 있어도 된다: 그리는 것이 없다.
+ * 색수차와 그레인의 양을 프레임마다 굴린다. 컴포저 밖 어디에 있어도 된다: 그리는 것이 없다.
  *
  * @param dim 어둠의 양 (0 = 밝은 방, 1 = 가장 어두운 지점). 비네트와 같은 축이다.
  */
-export function FilmAberrationDriver({
-  effect,
+export function FilmLookDriver({
+  effects,
   dim,
   reducedMotion,
 }: {
-  effect: ChromaticAberrationEffect;
+  effects: { aberration: ChromaticAberrationEffect; grain: NoiseEffect };
   dim: number;
   reducedMotion: boolean;
 }) {
   const motion = useRef({ resting: restingAberration(dim), pulse: 0 });
 
-  // 사건은 스토어 변화에서 듣는다. 호출부마다 심는 대신 한곳에서 (audio의 collect와 같은 자리).
+  // 사건은 한곳(event-pulse)에서 듣는다. 카메라도 같은 펄스를 받는다.
   useEffect(() => {
     if (reducedMotion) return;
-    return useMemoryRoomStore.subscribe((state, previous) => {
-      const current = motion.current;
-      if (state.collected.length > previous.collected.length) {
-        current.pulse = Math.max(current.pulse, ABERRATION_PULSE.collect);
-      }
-      if (selectRadioSignaling(state) && !selectRadioSignaling(previous)) {
-        current.pulse = Math.max(current.pulse, ABERRATION_PULSE.radioWake);
-      }
+    return subscribeEventPulse((strength) => {
+      motion.current.pulse = Math.max(motion.current.pulse, strength);
     });
   }, [reducedMotion]);
 
@@ -109,7 +103,9 @@ export function FilmAberrationDriver({
     );
     current.pulse = decayPulse(current.pulse, delta);
     const amount = aberrationAmount(current.resting, current.pulse);
-    effect.offset.set(amount, amount * ABERRATION.aspect);
+    effects.aberration.offset.set(amount, amount * ABERRATION.aspect);
+    // 그레인도 같은 순간 잠깐 거칠어진다. 모션을 끈 판에서는 펄스가 없어 그대로다
+    effects.grain.blendMode.opacity.value = grainOpacity(current.pulse);
   });
 
   return null;

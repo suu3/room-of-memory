@@ -6,6 +6,7 @@ import { MathUtils, type OrthographicCamera, Vector3 } from "three";
 import { focusZoomFor, MIN_ROOM_ZOOM_SCALE } from "@/components/canvas/room-canvas-runtime";
 import type { MemoryId } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { subscribeEventPulse } from "./event-pulse";
 import { CAMERA_PRESETS, LIVING_BOUNDS, ROOM_BOUNDS } from "./layout";
 
 const cameraPositionGoal = new Vector3();
@@ -89,6 +90,24 @@ const ENTER_DURATION_S = 2.2;
 const TITLE_DRIFT_AMPLITUDE = 0.16;
 const TITLE_DRIFT_PERIOD_S = 26;
 
+/**
+ * 타이틀에서 마우스를 따라 방 모형이 기우는 폭. 방위각(rad)과 시선 높이(월드 유닛).
+ *
+ * 화면 끝까지 밀어도 2도가 채 안 된다. 드리프트(0.16rad)보다 훨씬 작아야 한다.
+ * 손에 반응한다는 감각이면 충분하고, 그 이상은 조작으로 읽혀 메뉴에서 손을 뗀다.
+ * 따라붙는 속도는 손보다 늦다. 늦어야 무게가 읽힌다.
+ */
+const PARALLAX_AZIMUTH = 0.03;
+const PARALLAX_LIFT = 0.12;
+const PARALLAX_LAMBDA = 3;
+
+/**
+ * 사건(기억 수집·라디오 각성)에 카메라가 눌리는 폭과 되돌아오는 속도.
+ * 배율을 잠깐 줄인다: 화면이 한 번 숨을 들이쉬듯 물러났다 돌아온다. 흔들지는 않는다.
+ */
+const KICK_ZOOM = 0.012;
+const KICK_LAMBDA = 5;
+
 /** 카메라가 붙을 수 있는 대상: 기억 오브젝트와 엔딩(문 옆 배트). */
 export type CameraFocusId = MemoryId | "ending";
 
@@ -124,11 +143,48 @@ export function CameraRig({
   const zoomGoal = focusZoomFor(roomZoom, focusId !== null);
   /** 방 안으로 내려앉기 시작한 뒤 흐른 시간. following이 켜질 때 0으로 되감는다. */
   const enterElapsed = useRef(0);
+  /** 마우스 자리(-1~1). 타이틀에서만 읽고, 시작하면 0으로 수렴시킨다. */
+  const pointerRef = useRef({ x: 0, y: 0 });
+  const parallaxRef = useRef({ x: 0, y: 0 });
+  /** 사건의 눌림 (0~1). 곧바로 붙었다가 잦아든다. */
+  const kickRef = useRef(0);
+  /** damp로 굴리는 배율의 본값. 눌림은 이 위에 곱해서 카메라에만 쓴다. */
+  const zoomRef = useRef<number | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: following은 값이 아니라 "구도가 바뀌었다"는 신호로만 쓴다.
   useEffect(() => {
     enterElapsed.current = 0;
   }, [following]);
+
+  // 타이틀 화면은 캔버스를 덮고 있어 r3f의 pointer는 갱신되지 않는다. 창에서 직접 듣는다.
+  useEffect(() => {
+    if (following || reducedMotion) return;
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      pointerRef.current.x = (event.clientX / window.innerWidth) * 2 - 1;
+      pointerRef.current.y = (event.clientY / window.innerHeight) * 2 - 1;
+    };
+    const onLeave = () => {
+      pointerRef.current.x = 0;
+      pointerRef.current.y = 0;
+    };
+    window.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerleave", onLeave);
+    window.addEventListener("blur", onLeave);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("blur", onLeave);
+      onLeave();
+    };
+  }, [following, reducedMotion]);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    return subscribeEventPulse((strength) => {
+      kickRef.current = Math.max(kickRef.current, strength);
+    });
+  }, [reducedMotion]);
 
   useFrame((state, delta) => {
     const { camera } = state;
@@ -159,6 +215,23 @@ export function CameraRig({
         : Math.sin((state.clock.elapsedTime / TITLE_DRIFT_PERIOD_S) * Math.PI * 2) *
           TITLE_DRIFT_AMPLITUDE;
 
+    // 마우스를 따라 아주 조금 기운다. 시작하면(following) 목표가 0이라 드리프트처럼 수렴한다
+    const parallax = parallaxRef.current;
+    const parallaxGoal = following || reducedMotion ? 0 : 1;
+    parallax.x = MathUtils.damp(
+      parallax.x,
+      pointerRef.current.x * parallaxGoal,
+      PARALLAX_LAMBDA,
+      delta,
+    );
+    parallax.y = MathUtils.damp(
+      parallax.y,
+      pointerRef.current.y * parallaxGoal,
+      PARALLAX_LAMBDA,
+      delta,
+    );
+    cameraTargetGoal.y -= parallax.y * PARALLAX_LIFT;
+
     // 프리셋 위치를 타깃 기준으로 Y축 회전시킨다. 타깃은 그대로라 구도 중심이 유지된다.
     orbitOffset
       .set(
@@ -166,7 +239,7 @@ export function CameraRig({
         preset.position[1] - preset.target[1],
         preset.position[2] - preset.target[2],
       )
-      .applyAxisAngle(ORBIT_AXIS, orbitAzimuth + drift);
+      .applyAxisAngle(ORBIT_AXIS, orbitAzimuth + drift + parallax.x * PARALLAX_AZIMUTH);
     cameraPositionGoal.copy(cameraTargetGoal).add(orbitOffset);
 
     camera.position.x = MathUtils.damp(camera.position.x, cameraPositionGoal.x, lambda, delta);
@@ -175,7 +248,17 @@ export function CameraRig({
 
     if ("isOrthographicCamera" in camera && camera.isOrthographicCamera) {
       const orthographicCamera = camera as OrthographicCamera;
-      orthographicCamera.zoom = MathUtils.damp(orthographicCamera.zoom, zoomGoal, lambda, delta);
+      // 본값은 따로 굴린다. 눌림을 camera.zoom에 곱한 채 다음 프레임에 읽으면 damp가 그걸 목표와의 거리로 오해한다
+      const zoom = MathUtils.damp(
+        zoomRef.current ?? orthographicCamera.zoom,
+        zoomGoal,
+        lambda,
+        delta,
+      );
+      zoomRef.current = zoom;
+      kickRef.current *= Math.exp(-KICK_LAMBDA * delta);
+      if (kickRef.current < 0.001) kickRef.current = 0;
+      orthographicCamera.zoom = zoom * (1 - kickRef.current * KICK_ZOOM);
       orthographicCamera.updateProjectionMatrix();
     }
 
