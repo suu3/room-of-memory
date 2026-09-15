@@ -872,6 +872,32 @@ body {
   border-color: inherit;
 }
 
+/*
+ * 햄버거 ↔ X (ui/MenuGlyph). 줄마다 제 가운데를 축으로 돈다(transform-box: fill-box).
+ * 위·아래 줄은 6px씩 가운데로 모이며 45도로 눕고, 가운데 줄은 줄어들며 사라진다.
+ * 길이는 패널 전환(180~240ms)과 같다. 패널이 뜨는 동안 글리프가 접히면 하나의 동작이다.
+ */
+.menu-glyph line {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 160ms ease-out;
+}
+
+.menu-glyph[data-open="true"] .menu-glyph-top {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.menu-glyph[data-open="true"] .menu-glyph-mid {
+  transform: scaleX(0);
+  opacity: 0;
+}
+
+.menu-glyph[data-open="true"] .menu-glyph-bottom {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
 /* 계단식 등장의 간격. 몇 번째인지는 인라인 --stagger-index로 받는다 (ui/stagger.ts) */
 .stagger-item {
   animation-delay: calc(var(--stagger-index, 0) * 55ms);
@@ -918,6 +944,11 @@ body {
 
   .stagger-item {
     animation-delay: 0s;
+  }
+
+  /* 글리프는 접히지 않고 바로 바뀐다 */
+  .menu-glyph line {
+    transition: none;
   }
 
   .animate-bob-arrow,

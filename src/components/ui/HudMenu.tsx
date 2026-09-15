@@ -1,12 +1,13 @@
 "use client";
 
-import { List, Warning, X } from "@phosphor-icons/react";
+import { Warning } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { playHoverSound } from "./hover-sfx";
 import { LanguageToggle } from "./LanguageToggle";
+import { MenuGlyph } from "./MenuGlyph";
 import {
   BACKDROP,
   BUTTON_DESTRUCTIVE,
@@ -70,7 +71,7 @@ export function HudMenu() {
         // 열려 있는 동안은 패널과 같은 표면으로 서서 "이 버튼이 저 패널의 것"임을 말한다
         className={`${HUD_ICON_BUTTON} ${open ? "border-line bg-surface text-ivory" : ""}`}
       >
-        {open ? <X size="1.25em" weight="bold" /> : <List size="1.25em" weight="bold" />}
+        <MenuGlyph open={open} />
       </button>
 
       {open && (
