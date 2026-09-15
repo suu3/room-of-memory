@@ -828,10 +828,14 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           lightsOn: !state.lightsOn,
           introDone: state.introDone || !state.lightsOn,
         })),
-      // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다. 화면이 두 겹이 된다
+      // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다. 화면이 두 겹이 된다.
+      // 머릿속 구간에서도 안 펼친다: 어둠 속의 할 일은 스위치 하나, 문 앞의 할 일은 나가기 하나다
       openClue: (id) =>
         set((state) =>
-          state.activeInteraction || state.activePlayback || !clueUnlocked(state, id)
+          state.activeInteraction ||
+          state.activePlayback ||
+          viewpointOf(state) !== null ||
+          !clueUnlocked(state, id)
             ? state
             : { activeClue: id },
         ),

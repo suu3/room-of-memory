@@ -15,6 +15,12 @@ export interface LookAngles {
   pitch: number;
 }
 
+/**
+ * 머릿속 구간에서 몸이 옮겨 가는 층. 메인 카메라(층 0)에는 안 보이고, 거울의 반사
+ * 카메라(MirrorReflection)만 이 층을 켠다. 카메라가 머리 안에 있는데 몸이 보이면
+ * 제 몸통 속이고, 그렇다고 아예 지우면 거울에도 안 비친다.
+ */
+export const MIRROR_ONLY_LAYER = 1;
 /** 눈높이. 캐릭터 키(PLAYER_TARGET_HEIGHT 1.55)에서 눈까지. 정수리에 두면 벽 위를 본다. */
 export const EYE_HEIGHT = 1.38;
 /** 세로 화각. 방이 좁아 넓게 잡되, 80 넘게 벌리면 벽 모서리가 휘어 보인다. */

@@ -6,7 +6,7 @@ import { MathUtils, type OrthographicCamera, Vector3 } from "three";
 import { focusZoomFor, MIN_ROOM_ZOOM_SCALE } from "@/components/canvas/room-canvas-runtime";
 import type { MemoryId } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { subscribeEventPulse } from "./event-pulse";
+import { EVENT_PULSE, subscribeEventPulse } from "./event-pulse";
 import { CAMERA_PRESETS, LIVING_BOUNDS, ROOM_BOUNDS } from "./layout";
 
 const cameraPositionGoal = new Vector3();
@@ -107,6 +107,12 @@ const PARALLAX_LAMBDA = 3;
  */
 const KICK_ZOOM = 0.012;
 const KICK_LAMBDA = 5;
+/**
+ * 라디오가 깨어나는 순간의 흔들림(rad)과 잦아드는 속도. 기억 하나를 줍는 눌림과는
+ * 다른 사건이라 따로 둔다. 세기는 눈치챌 듯 말 듯: 화면이 흔들렸다기보다 "방이
+ * 한 번 떨었다"로 읽혀야 한다. 흔든 만큼 정확히 되돌아온다 (lookAt 뒤에 얹는다).
+ */
+const SHAKE = { roll: 0.011, yaw: 0.007, lambda: 2.4, rollHz: 37, yawHz: 29 } as const;
 
 /** 카메라가 붙을 수 있는 대상: 기억 오브젝트와 엔딩(문 옆 배트). */
 export type CameraFocusId = MemoryId | "ending";
@@ -155,6 +161,8 @@ export function CameraRig({
   const parallaxRef = useRef({ x: 0, y: 0 });
   /** 사건의 눌림 (0~1). 곧바로 붙었다가 잦아든다. */
   const kickRef = useRef(0);
+  /** 라디오 각성의 떨림 (0~1). 눌림과 같은 사건에서 시작해 더 오래 남는다. */
+  const shakeRef = useRef(0);
   /** damp로 굴리는 배율의 본값. 눌림은 이 위에 곱해서 카메라에만 쓴다. */
   const zoomRef = useRef<number | null>(null);
 
@@ -190,6 +198,7 @@ export function CameraRig({
     if (reducedMotion) return;
     return subscribeEventPulse((strength) => {
       kickRef.current = Math.max(kickRef.current, strength);
+      if (strength >= EVENT_PULSE.radioWake) shakeRef.current = 1;
     });
   }, [reducedMotion]);
 
@@ -279,6 +288,16 @@ export function CameraRig({
     target.y = MathUtils.damp(target.y, cameraTargetGoal.y, lambda, delta);
     target.z = MathUtils.damp(target.z, cameraTargetGoal.z, lambda, delta);
     camera.lookAt(target);
+
+    // 떨림은 lookAt 위에 얹는다. lookAt이 프레임마다 자세를 새로 놓으므로 누적되지 않는다
+    if (shakeRef.current > 0) {
+      const shake = shakeRef.current;
+      const time = state.clock.elapsedTime;
+      camera.rotateZ(Math.sin(time * SHAKE.rollHz) * SHAKE.roll * shake);
+      camera.rotateY(Math.sin(time * SHAKE.yawHz) * SHAKE.yaw * shake);
+      shakeRef.current = shake * Math.exp(-SHAKE.lambda * delta);
+      if (shakeRef.current < 0.001) shakeRef.current = 0;
+    }
   });
 
   return null;

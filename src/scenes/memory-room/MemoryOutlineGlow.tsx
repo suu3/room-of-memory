@@ -18,6 +18,7 @@ import {
   useState,
 } from "react";
 import { Color, type Group, type Mesh, type Object3D } from "three";
+import { selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
 import { cursorTarget, hoverGlowPulse } from "./cursor-target";
 import { FilmLookDriver, prefersReducedMotion, useFilmLookEffects } from "./FilmLook";
 import { ScreenTransitionDriver, useScreenTransitionEffect } from "./ScreenTransition";
@@ -340,23 +341,31 @@ export function MemoryGlowSelection({
   tier,
   enabled,
   selectionVersion = 0,
+  inFirstPerson = "mute",
   children,
 }: PropsWithChildren<{
   selectionKey: string;
   tier: MemoryGlowTier;
   enabled: boolean;
   selectionVersion?: number;
+  /**
+   * 머릿속 구간(인트로·문 넘기)에서도 빛나는가. 기본은 "mute": 어둠 속에서 할 일은
+   * 하나뿐이라 그것만 빛나야 찾는 게 된다. 전등 스위치만 "keep"이다.
+   */
+  inFirstPerson?: "keep" | "mute";
 }>) {
   const groupRef = useRef<Group>(null);
   const updateSelection = useContext(MemoryGlowSelectionContext);
+  const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
+  const active = enabled && (inFirstPerson === "keep" || !firstPerson);
 
   useLayoutEffect(() => {
     // This value is a refresh token: replacements re-traverse the mounted visual without gating it.
     void selectionVersion;
-    if (!enabled || updateSelection === null) return;
+    if (!active || updateSelection === null) return;
     updateSelection(tier, selectionKey, selectedMeshes(groupRef.current));
     return () => updateSelection(tier, selectionKey, null);
-  }, [enabled, selectionKey, selectionVersion, tier, updateSelection]);
+  }, [active, selectionKey, selectionVersion, tier, updateSelection]);
 
   return <group ref={groupRef}>{children}</group>;
 }

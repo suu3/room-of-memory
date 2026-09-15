@@ -951,7 +951,11 @@ describe("1인칭 구간: 인트로와 2막 도입", () => {
     expect(state.activeInteraction).toBeNull();
     expect(state.seatedAt).toBeNull();
     expect(state.curtainGrab).toBeNull();
-    // 거울 같은 단서 화면은 DOM이라 머릿속에서도 열린다
+    // 단서 화면(거울 포함)도 안 열린다. 어둠 속에 다른 볼거리를 두면 스위치를 안 찾는다
+    useMemoryRoomStore.getState().openClue("mirror");
+    expect(useMemoryRoomStore.getState().activeClue).toBeNull();
+
+    useMemoryRoomStore.getState().toggleLights();
     useMemoryRoomStore.getState().openClue("mirror");
     expect(useMemoryRoomStore.getState().activeClue).toBe("mirror");
   });

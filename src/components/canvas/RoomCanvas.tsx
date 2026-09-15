@@ -1,5 +1,6 @@
 "use client";
 
+import { PerformanceMonitor, SoftShadows } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import {
   Component,
@@ -59,6 +60,17 @@ import { useFirstPersonLook } from "./use-first-person-look";
 
 const PROXIMITY_POLL_MS = 100;
 const DIRECT_FOCUS_MS = 900;
+/**
+ * 화면 배율의 상한. 프레임이 떨어지는 기기에서는 1로 내린다 (PerformanceMonitor).
+ * 아래 1은 그대로다: 그 밑으로 내리면 글씨보다 먼저 아웃라인이 깨진다.
+ */
+const DPR_CAP = { high: 1.5, low: 1 } as const;
+/**
+ * 볕 그림자의 가장자리를 부드럽게 하는 PCSS(SoftShadows) 값. 크기는 그림자 텍셀 단위의
+ * 반그림자 폭, 샘플은 픽셀당 셰이더가 도는 횟수다. 셰이더 비용이라 프레임이 떨어지면
+ * 끈다. 끄고 켤 때 씬의 재질을 전부 다시 컴파일하므로, 한 번 꺼지면 다시 켜지 않는다.
+ */
+const SOFT_SHADOWS = { size: 14, samples: 8, focus: 0.4 } as const;
 const MEMORY_TARGETS = Object.values(MEMORY_PLACEMENTS);
 
 interface CanvasErrorBoundaryProps {
@@ -135,6 +147,19 @@ export function RoomCanvas() {
   /** 머릿속 구간(인트로·2막 도입). 그동안 회전·배율 입력은 잠기고 시선 입력이 대신 선다. */
   const viewpoint = useMemoryRoomStore(selectViewpoint);
   const firstPerson = viewpoint !== null;
+  /*
+   * 성능 안전장치. 프레임이 목표(주사율) 아래로 떨어지면 배율 상한을 내리고 부드러운
+   * 그림자를 끈다. 다시 오르면 배율만 돌려준다. 그림자는 다시 켜지 않는다: 켤 때마다
+   * 씬의 재질을 전부 다시 컴파일해서 그 자체가 프레임을 떨어뜨린다.
+   */
+  const [dprCap, setDprCap] = useState<number>(DPR_CAP.high);
+  const [softShadows, setSoftShadows] = useState(true);
+  const dpr = useMemo<[number, number]>(() => [1, dprCap], [dprCap]);
+  const degrade = useCallback(() => {
+    setDprCap(DPR_CAP.low);
+    setSoftShadows(false);
+  }, []);
+  const restore = useCallback(() => setDprCap(DPR_CAP.high), []);
 
   /*
    * Canvas의 camera 프롭은 마운트 때 한 번만 쓴다. 여기에 살아 있는 zoom을 물리면
@@ -527,12 +552,19 @@ export function RoomCanvas() {
             orthographic
             // three r185에서 PCFSoftShadowMap(= shadows 기본값)이 deprecated라 PCF로 명시한다
             shadows="percentage"
-            dpr={[1, 1.5]}
+            dpr={dpr}
             camera={initialCamera}
             // alpha: true: 캔버스 뒤 DOM 워시가 비쳐야 한다 (창밖 번짐을 3D에 두면
             // three가 투명 오브젝트를 항상 불투명 뒤에 그려서 벽을 뚫고 덧칠된다)
             gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
           >
+            <PerformanceMonitor
+              onDecline={degrade}
+              onIncline={restore}
+              onFallback={degrade}
+              flipflops={3}
+            />
+            {softShadows && <SoftShadows {...SOFT_SHADOWS} />}
             <MemoryRoomScene
               playerPositionRef={playerPositionRef}
               movementInputRef={movementInputRef}

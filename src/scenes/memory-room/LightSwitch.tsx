@@ -64,7 +64,13 @@ export function LightSwitch({ palette }: { palette: RoomPalette }) {
         toggleLights();
       }}
     >
-      <MemoryGlowSelection selectionKey="light-switch" tier="prop" enabled={hovered || near}>
+      {/* 인트로에서 유일하게 빛나는 물건. 어둠 속에서 이것만은 남아야 한다 */}
+      <MemoryGlowSelection
+        selectionKey="light-switch"
+        tier="prop"
+        enabled={hovered || near}
+        inFirstPerson="keep"
+      >
         {/* 벽에 붙는 판 */}
         <mesh castShadow>
           <boxGeometry args={plateSize} />

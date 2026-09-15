@@ -22,7 +22,12 @@ import { CLUE_AFTER_MEMORY, type ClueId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import { selectCanvasMinigameMemory } from "@/minigames/active";
-import { hotspotStatus, selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
+import {
+  hotspotStatus,
+  selectRadioSignaling,
+  selectViewpoint,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { ballSeamGeometry } from "./ball-seam";
 import { DrawerRations, FridgeDrawer } from "./FridgeDrawer";
 import { toLitMaterial } from "./FurnitureModel";
@@ -1033,9 +1038,12 @@ export function InteractiveMemory({
    * 물건으로 서 있고, 만질 수 있는지는 비콘과 글로우가 말한다.
    */
   const opacity = 1;
-  const clickable = status === "available" || backgroundClue !== undefined;
+  // 머릿속 구간에서는 아무 기억도 만질 수 없고(store가 막는다) 빛나지도 않는다.
+  // 어둠 속에 금빛 표식이 떠 있으면 스위치가 아니라 그걸 찾으러 간다
+  const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
+  const clickable = !firstPerson && (status === "available" || backgroundClue !== undefined);
   const { hovered, handlers } = useGlowHover(clickable);
-  const highlighted = shouldHighlightMemory(status, id, nearbyMemoryId, hovered);
+  const highlighted = !firstPerson && shouldHighlightMemory(status, id, nearbyMemoryId, hovered);
   const [selectionVersion, setSelectionVersion] = useState(0);
   const refreshSelection = useCallback(() => setSelectionVersion((version) => version + 1), []);
   const motionRef = useRef<Group>(null);
@@ -1077,7 +1085,7 @@ export function InteractiveMemory({
       <MemoryBeacon
         id={id}
         color={palette.memory}
-        active={status === "available" && !liveCanvasMinigame}
+        active={status === "available" && !liveCanvasMinigame && !firstPerson}
         near={nearbyMemoryId === id}
         groundOffset={placement.position[1]}
       />

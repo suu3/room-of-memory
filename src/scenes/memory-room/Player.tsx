@@ -10,6 +10,7 @@ import type { CurtainSide } from "@/types/curtain";
 import type { MovementAxes } from "@/types/movement";
 import { advanceCurtainMotion, type CurtainMotion, createCurtainMotion } from "./curtain-animation";
 import type { CurtainPull } from "./curtain-motion";
+import { MIRROR_ONLY_LAYER } from "./first-person";
 import {
   CURTAIN_STAND,
   DOORWAY_ZONE,
@@ -103,7 +104,9 @@ export function Player({
   const curtainPoseRef = useRef<CurtainPose>({ side: "right", time: 0, weight: 0 });
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
   /*
-   * 1인칭 구간에는 몸을 숨긴다. 카메라가 머리 안에 있어서 보이면 제 몸통 속이다.
+   * 1인칭 구간에는 몸을 메인 카메라가 안 보는 층으로 옮긴다. 카메라가 머리 안에 있어서
+   * 보이면 제 몸통 속이다. 지우지 않고 층만 옮기는 이유는 거울이다: 거울의 반사
+   * 카메라만 그 층을 켜서(MirrorReflection) 어둠 속 제 모습이 거울에 비친다.
    * 위치·걸음은 그대로 돈다: 카메라(FirstPersonRig)가 positionRef를 따라간다.
    */
   const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
@@ -187,6 +190,10 @@ export function Player({
     startPlayerRig(rig);
     return () => disposePlayerRig(rig);
   }, [rig]);
+
+  useEffect(() => {
+    rig.root.traverse((object) => object.layers.set(firstPerson ? MIRROR_ONLY_LAYER : 0));
+  }, [rig, firstPerson]);
 
   /*
    * 리셋(HUD "처음으로"·엔딩 화면)마다 몸도 시작 자리로 돌아간다.
@@ -582,7 +589,7 @@ export function Player({
   });
 
   return (
-    <group ref={groupRef} name="player" position={PLAYER_START} visible={!firstPerson}>
+    <group ref={groupRef} name="player" position={PLAYER_START}>
       <group ref={facingRef}>
         <group ref={lieRef}>
           <primitive object={rig.root} dispose={null} />

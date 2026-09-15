@@ -3,9 +3,10 @@
 import type { ReactNode } from "react";
 import type { ClueId } from "@/data/room-clues";
 import { playSound } from "@/lib/audio";
-import { useMemoryRoomStore } from "@/store/memory-room";
+import { selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
 import { CLUE_PROPS, DRAWER_NOTE, MIRROR_PLACEMENT } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
+import { MirrorReflection } from "./MirrorReflection";
 import type { RoomPalette } from "./palette";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
@@ -36,7 +37,10 @@ function ClueProp({
   children: ReactNode;
 }) {
   const openClue = useMemoryRoomStore((state) => state.openClue);
-  const { hovered, handlers } = useGlowHover(enabled);
+  // 머릿속 구간에서는 어떤 단서도 만질 수 없다. 어둠 속에서 빛나는 건 스위치뿐이어야 한다
+  const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
+  const active = enabled && !firstPerson;
+  const { hovered, handlers } = useGlowHover(active);
   const nearPlayer = useNearPlayer(near[0], near[1], radius);
 
   return (
@@ -45,7 +49,7 @@ function ClueProp({
       name={`clue-${clue}`}
       {...handlers}
       onClick={(event) => {
-        if (!enabled) return;
+        if (!active) return;
         // 뒤에 있는 책상·서랍 몸통까지 같이 눌리면 안 된다
         event.stopPropagation();
         playSound("open");
@@ -55,7 +59,7 @@ function ClueProp({
       <MemoryGlowSelection
         selectionKey={`clue-${clue}`}
         tier="prop"
-        enabled={enabled && (hovered || nearPlayer)}
+        enabled={active && (hovered || nearPlayer)}
       >
         {children}
       </MemoryGlowSelection>
@@ -115,12 +119,14 @@ export function DeskClockClue({ children }: { children: ReactNode }) {
 /**
  * 문 쪽 왼벽의 전신거울. 누르면 거울 속 자기를 돌려보는 화면이 뜬다 (ClueOverlay).
  *
- * 유리는 진짜로 비추지 않는다. 씬을 한 번 더 그리는 반사는 모바일 예산을 넘고,
- * 아이소메트릭에서는 어차피 천장만 비친다. 매끈한 어두운 판에 조명 하이라이트만
- * 걸리게 두면 유리로 읽힌다. 벽에 붙은 물건이라 RoomShell의 왼벽(CulledWall) 안에 선다.
+ * 유리는 머릿속 구간(1인칭)에서만 진짜로 비춘다 (MirrorReflection). 씬을 한 번 더
+ * 그리는 반사라 늘 켜 두면 모바일 예산을 넘고, 아이소메트릭에서는 어차피 천장만
+ * 비친다. 평소에는 매끈한 어두운 유리다. 벽에 붙은 물건이라 RoomShell의 왼벽
+ * (CulledWall) 안에 선다.
  */
 export function MirrorClue({ palette }: { palette: RoomPalette }) {
   const { frameSize, glassSize } = MIRROR_PLACEMENT;
+  const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
   return (
     <ClueProp
       clue="mirror"
@@ -132,10 +138,21 @@ export function MirrorClue({ palette }: { palette: RoomPalette }) {
           <boxGeometry args={frameSize} />
           <meshStandardMaterial color={palette.wood} roughness={0.55} />
         </mesh>
-        <mesh position={[0, 0, frameSize[2] / 2 + glassSize[2] / 2]}>
-          <boxGeometry args={glassSize} />
-          <meshStandardMaterial color={palette.storm} metalness={0.85} roughness={0.12} />
-        </mesh>
+        <group position={[0, 0, frameSize[2] / 2 + glassSize[2] / 2]}>
+          {firstPerson ? (
+            <MirrorReflection
+              width={glassSize[0]}
+              height={glassSize[1]}
+              offset={glassSize[2] / 2}
+              palette={palette}
+            />
+          ) : (
+            <mesh>
+              <boxGeometry args={glassSize} />
+              <meshStandardMaterial color={palette.storm} metalness={0.85} roughness={0.12} />
+            </mesh>
+          )}
+        </group>
       </group>
     </ClueProp>
   );
