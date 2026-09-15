@@ -72,9 +72,40 @@ export function toggleProgress(progress: number): number {
   return progress >= CURTAIN_SNAP_THRESHOLD ? 0 : 1;
 }
 
-/** 손을 뗐을 때 갈 자리. 끌었으면 가까운 끝으로 붙고, 누르기만 했으면 뒤집힌다. */
-export function releaseProgress(progress: number, tapped: boolean): number {
-  return tapped ? toggleProgress(progress) : settleProgress(progress);
+/**
+ * 놓는 순간의 속도가 앞으로 이만큼(초) 더 미끄러진 자리로 셈한다.
+ *
+ * 천에는 무게가 있다. 반쯤 당기다 놓아도 세게 튕겼으면 끝까지 가고, 거의 다 당겼어도
+ * 되돌리는 손짓으로 놓았으면 도로 닫힌다. 어디서 놓았느냐가 아니라 어디로 가고
+ * 있었느냐를 본다. 화면의 천은 그 자리로 damp로 따라가므로(Curtain) 관성으로 읽힌다.
+ */
+export const CURTAIN_FLICK_PROJECT_S = 0.12;
+
+/**
+ * 손을 뗐을 때 갈 자리. 끌었으면 손이 가던 방향으로 조금 더 간 자리에서 가까운 끝으로
+ * 붙고, 누르기만 했으면 뒤집힌다.
+ *
+ * @param velocity 놓는 순간의 진행도 속도 (1/초, 열리는 쪽이 양수). 모르면 0.
+ */
+export function releaseProgress(progress: number, tapped: boolean, velocity = 0): number {
+  if (tapped) return toggleProgress(progress);
+  const projected = Number.isFinite(velocity) ? velocity * CURTAIN_FLICK_PROJECT_S : 0;
+  return settleProgress(clamp01(progress + projected));
+}
+
+/**
+ * 끌리는 동안의 진행도 속도(1/초)를 갱신한다. 지수 이동 평균이라 포인터 이벤트 한 개가
+ * 튀어도 속도가 널뛰지 않는다. dt가 0이거나 음수면(같은 프레임의 중복 이벤트) 그대로 둔다.
+ */
+export function pullVelocity(
+  previousVelocity: number,
+  from: number,
+  to: number,
+  deltaSeconds: number,
+): number {
+  if (!(deltaSeconds > 0)) return previousVelocity;
+  const instant = (to - from) / deltaSeconds;
+  return previousVelocity + (instant - previousVelocity) * 0.5;
 }
 
 /** 두 쪽 모두 젖혀졌는가. 한 쪽만 열어서는 밖이 보이지 않는다. */

@@ -169,8 +169,9 @@ export function RoomCanvas() {
   const handleCurtainRelease = useCallback(
     // 진행도는 커튼이 준다. 몸이 창가에 닿기를 기다렸다가 끌기와 놓기가 같은 프레임에
     // 흘러들 수 있어서, 여기 상태를 읽으면 끌기 전 값을 본다.
-    (side: CurtainSide, progress: number, tapped: boolean) => {
-      const settled = releaseProgress(progress, tapped);
+    (side: CurtainSide, progress: number, tapped: boolean, velocity: number) => {
+      // 손이 가던 속도까지 본다: 세게 튕기면 반쯤에서 놓아도 끝까지 간다 (관성)
+      const settled = releaseProgress(progress, tapped, velocity);
       // 커튼이 실제로 자리를 옮길 때만 소리를 낸다. 끌다 말고 도로 붙는 건 아무 일도 아니다
       if (settled !== progress) playSound("wipe");
       setPull((pull) => ({ ...pull, [side]: settled }));

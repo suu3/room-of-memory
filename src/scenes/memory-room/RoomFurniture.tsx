@@ -25,6 +25,7 @@ import {
   type CurtainSide,
   curtainX,
   pullProgress,
+  pullVelocity,
 } from "./curtain-motion";
 import { FurnitureModel } from "./FurnitureModel";
 import {
@@ -601,6 +602,9 @@ function FloorAccessories({ palette }: FurnitureProps) {
   );
 }
 
+/** 놓기 전에 손이 이만큼(초) 멈춰 있었으면 속도를 버린다. */
+const CURTAIN_VELOCITY_HOLD_S = 0.1;
+
 /**
  * 커튼 한 쪽. 잡아당겨 젖히고, 한 번 눌러도 여닫힌다.
  *
@@ -626,8 +630,12 @@ export function Curtain({
   progress: number;
   /** 이번 프레임까지 끌어온 진행도(0~1). */
   onPull: (side: CurtainSide, progress: number) => void;
-  /** 손을 뗐다. `progress`는 놓는 순간의 진행도, `tapped`면 끌지 않고 누르기만 한 것: 그대로 뒤집는다. */
-  onRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
+  /**
+   * 손을 뗐다. `progress`는 놓는 순간의 진행도, `tapped`면 끌지 않고 누르기만 한 것:
+   * 그대로 뒤집는다. `velocity`는 놓는 순간 손이 가던 속도(진행도/초)다. 세게 튕기면
+   * 반쯤에서 놓아도 끝까지 간다 (curtain-motion의 releaseProgress).
+   */
+  onRelease: (side: CurtainSide, progress: number, tapped: boolean, velocity: number) => void;
 }) {
   /*
    * 다가가면 빛난다. 호버·커서도 다가갔을 때만 켠다. 멀리서 잡을 수 없는 물건이
@@ -649,12 +657,18 @@ export function Curtain({
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     [],
   );
-  /** 드래그를 시작한 지점과 그때의 진행도. `moved`는 탭과 드래그를 가른다. */
+  /**
+   * 드래그를 시작한 지점과 그때의 진행도. `moved`는 탭과 드래그를 가른다.
+   * `velocity`·`lastProgress`·`lastTime`은 놓는 순간의 속도를 셈하는 데 쓴다.
+   */
   const dragRef = useRef<{
     pointerId: number;
     startX: number;
     from: number;
     moved: boolean;
+    velocity: number;
+    lastProgress: number;
+    lastTime: number;
   } | null>(null);
   const pullRef = useRef(onPull);
   pullRef.current = onPull;
@@ -672,7 +686,10 @@ export function Curtain({
    */
   const grabCurtain = useMemoryRoomStore((state) => state.grabCurtain);
   const releaseCurtain = useMemoryRoomStore((state) => state.releaseCurtain);
-  const pendingRef = useRef<{ pull: number | null; release: boolean | null }>({
+  const pendingRef = useRef<{
+    pull: number | null;
+    release: { tapped: boolean; velocity: number } | null;
+  }>({
     pull: null,
     release: null,
   });
@@ -696,10 +713,14 @@ export function Curtain({
     if (useMemoryRoomStore.getState().curtainGrab?.side !== side) return;
     releaseCurtain();
     const tapped = !drag.moved;
+    // 놓기 직전에 손이 멈춰 있었으면 속도는 없는 셈이다. 끌다가 멈춰 서서 놓는 것은
+    // "여기 두겠다"는 뜻이지 튕긴 게 아니다
+    const stale = (performance.now() - drag.lastTime) / 1000;
+    const velocity = stale > CURTAIN_VELOCITY_HOLD_S ? 0 : drag.velocity;
     if (isAtCurtain(useMemoryRoomStore.getState())) {
-      releaseRef.current(side, progressRef.current, tapped);
+      releaseRef.current(side, progressRef.current, tapped, velocity);
     } else {
-      pendingRef.current.release = tapped;
+      pendingRef.current.release = { tapped, velocity };
     }
   }, [side, releaseCurtain]);
 
@@ -742,8 +763,14 @@ export function Curtain({
       const state = useMemoryRoomStore.getState();
       if (isAtCurtain(state)) {
         if (pending.pull !== null) pull(pending.pull);
-        if (pending.release !== null)
-          releaseRef.current(side, progressRef.current, pending.release);
+        if (pending.release !== null) {
+          releaseRef.current(
+            side,
+            progressRef.current,
+            pending.release.tapped,
+            pending.release.velocity,
+          );
+        }
         pending.pull = null;
         pending.release = null;
       } else if (state.curtainGrab === null) {
@@ -797,7 +824,15 @@ export function Curtain({
         pendingRef.current.release = null;
         // 포인터를 잡아둬야 커튼 밖으로 손이 나가도 드래그가 이어진다.
         (event.target as Element | null)?.setPointerCapture?.(event.pointerId);
-        dragRef.current = { pointerId: event.pointerId, startX, from: progress, moved: false };
+        dragRef.current = {
+          pointerId: event.pointerId,
+          startX,
+          from: progress,
+          moved: false,
+          velocity: 0,
+          lastProgress: progress,
+          lastTime: performance.now(),
+        };
       }}
       onPointerMove={(event) => {
         const drag = dragRef.current;
@@ -810,6 +845,15 @@ export function Curtain({
         // 끌다 만 커튼이 엉뚱하게 뒤집힌다.
         if (Math.abs(x - drag.startX) >= CURTAIN_TAP_SLOP) drag.moved = true;
         const next = pullProgress(side, x - drag.startX, drag.from);
+        const now = performance.now();
+        drag.velocity = pullVelocity(
+          drag.velocity,
+          drag.lastProgress,
+          next,
+          (now - drag.lastTime) / 1000,
+        );
+        drag.lastProgress = next;
+        drag.lastTime = now;
         if (isAtCurtain(useMemoryRoomStore.getState())) pull(next);
         else pendingRef.current.pull = next;
       }}
@@ -852,7 +896,12 @@ export function RoomFurniture({
 }: FurnitureProps & {
   curtainPull: CurtainPull;
   onCurtainPull: (side: CurtainSide, progress: number) => void;
-  onCurtainRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
+  onCurtainRelease: (
+    side: CurtainSide,
+    progress: number,
+    tapped: boolean,
+    velocity: number,
+  ) => void;
 }) {
   return (
     <group name="room-furniture">

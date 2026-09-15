@@ -240,7 +240,12 @@ export function MemoryRoomScene({
   curtainsOpen: boolean;
   curtainPull: CurtainPull;
   onCurtainPull: (side: CurtainSide, progress: number) => void;
-  onCurtainRelease: (side: CurtainSide, progress: number, tapped: boolean) => void;
+  onCurtainRelease: (
+    side: CurtainSide,
+    progress: number,
+    tapped: boolean,
+    velocity: number,
+  ) => void;
   roomZoom: number;
   /** 사용자가 휠·핀치로 정한 배율 (1 = 기본). 축소할수록 카메라가 방 가운데로 물러난다. */
   zoomScale: number;
