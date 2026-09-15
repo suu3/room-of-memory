@@ -142,7 +142,11 @@ export function DialogueBox() {
           */}
           <div className={`relative text-left text-dialogue ${PANEL_DIALOGUE}`}>
             {/* 화자 이름은 작은 앰버 라벨 하나: 초상이 있어 별도 칩이나 소개 문구는 군더더기다 */}
-            <span className="block text-[0.8125em] font-medium leading-none text-memory">
+            {/* 화자가 바뀌면 라벨이 왼쪽에서 미끄러져 들어온다. key가 다시 마운트시킨다 */}
+            <span
+              key={speakerName}
+              className="block animate-speaker-swap text-[0.8125em] font-medium leading-none text-memory"
+            >
               {speakerName}
             </span>
             {/*
