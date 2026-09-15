@@ -15,6 +15,7 @@ import {
   useState,
 } from "react";
 import { Color, type Group, type Mesh, type Object3D } from "three";
+import { FilmAberrationDriver, prefersReducedMotion, useFilmLookEffects } from "./FilmLook";
 
 /**
  * 빛나는 방식의 두 등급.
@@ -173,8 +174,18 @@ export function createMemoryOutlineSettings(color: string) {
   } as const;
 }
 
-export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: string }>) {
+export function MemoryGlowRoot({
+  color,
+  dim = 0,
+  children,
+}: PropsWithChildren<{
+  color: string;
+  /** 어둠의 양 (0 = 밝은 방, 1 = 가장 어두운 지점). 색수차가 이 축을 따라 조금 더 어긋난다. */
+  dim?: number;
+}>) {
   const settings = useMemo(() => createMemoryOutlineSettings(color), [color]);
+  const reducedMotion = useMemo(prefersReducedMotion, []);
+  const film = useFilmLookEffects(reducedMotion);
   const groupsRef = useRef<Record<MemoryGlowTier, Map<string, Object3D[]>>>({
     memory: new Map(),
     prop: new Map(),
@@ -202,7 +213,14 @@ export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: s
   return (
     <MemoryGlowSelectionContext.Provider value={updateSelection}>
       {children}
+      {/*
+        패스 순서가 곧 그림의 층이다. 색수차는 convolution 이펙트라 제 패스를 혼자 쓰고,
+        그 뒤의 아웃라인 둘과 그레인은 한 패스로 합쳐진다. 색수차를 맨 앞에 두는 이유:
+        금빛 윤곽선은 어긋나지 않고 또렷해야 하고, 그레인은 어긋난 화면 위에 마지막으로
+        뿌려져야 필름이다.
+      */}
       <EffectComposer {...settings.composer}>
+        <primitive object={film.aberration} />
         <Outline
           selection={touchable}
           visibleEdgeColor={settings.edgeColor}
@@ -216,7 +234,9 @@ export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: s
           hiddenEdgeColor={settings.hiddenEdgeColor}
           {...settings.outer}
         />
+        <primitive object={film.grain} />
       </EffectComposer>
+      <FilmAberrationDriver effect={film.aberration} dim={dim} reducedMotion={reducedMotion} />
     </MemoryGlowSelectionContext.Provider>
   );
 }

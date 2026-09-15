@@ -43,6 +43,7 @@ import {
   lampScaled,
   outsideDecay,
   ROOM_LIGHT_RAMP,
+  roomLightLevel,
   roomLightMix,
   roomLightValue,
 } from "./memory-room/visual-state";
@@ -290,6 +291,16 @@ export function MemoryRoomScene({
    */
   const cool = inLivingRoom ? Math.max(0, mix.cool - LIVING_ROOM_LIGHT_OFFSET) : mix.cool;
   const warm = mix.warm;
+  /*
+   * 어둠의 양: 비네트(MemoryRoom)와 같은 축이다. 진행도가 정한 밝기에 전등 스위치를
+   * 곱한 값의 나머지라, 비네트가 조여드는 만큼 가장자리의 색수차도 어긋난다.
+   */
+  const dim =
+    1 -
+    lampScaled(
+      roomLightLevel({ collected: collectedCount, memoryTotal: MEMORY_TOTAL, recovery }),
+      lightsOn,
+    );
 
   return (
     // 커튼·전등 스위치처럼 표식 없이 근접으로만 켜지는 것들이 플레이어 위치를 본다
@@ -313,7 +324,7 @@ export function MemoryRoomScene({
         빛나므로, 범위를 넓혀도 장식·벽은 그대로 잠잠하다. EffectComposer는
         화면 전체를 한 번 훑는 패스라 트리에서의 위치도 그림에 영향이 없다.
       */}
-      <MemoryGlowRoot color={palette.memory}>
+      <MemoryGlowRoot color={palette.memory} dim={dim}>
         {/*
           한 번에 한 방만 보인다 (v2). 두 방을 나란히 세워두면 디오라마가 아니라
           단면도가 된다. 지금 서 있는 공간만 서 있고, 문턱을 넘는 순간 바뀐다.

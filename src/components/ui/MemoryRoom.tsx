@@ -135,7 +135,7 @@ export function MemoryRoom() {
         </p>
       ) : null}
 
-      {/* 비네트 + 필름 그레인 */}
+      {/* 비네트. 그레인은 캔버스 안의 셰이더 패스가 뿌린다 (scenes/memory-room/FilmLook) */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 transition-opacity duration-1000"
@@ -145,7 +145,15 @@ export function MemoryRoom() {
             "radial-gradient(115% 90% at 50% 42%, transparent 44%, color-mix(in srgb, var(--color-scene-void) 75%, transparent) 100%)",
         }}
       />
-      <div aria-hidden className="film-grain pointer-events-none absolute inset-0" />
+      {/*
+        정지 그레인은 모션을 끈 사람에게만 남는다. 셰이더 그레인은 프레임마다 다시
+        뿌려지는 노이즈라 낮은 세기라도 깜빡임이고, 그런 판에서는 FilmLook이 그레인
+        패스를 아예 만들지 않는다. 이 타일이 그 빈자리를 메운다.
+      */}
+      <div
+        aria-hidden
+        className="film-grain pointer-events-none absolute inset-0 hidden motion-reduce:block"
+      />
 
       {/*
         타이틀 + 진행. 밝은 캡슐 없이 장면 위에 글자만 얹는다. 그림자(.monologue-text)가
