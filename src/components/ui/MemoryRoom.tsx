@@ -27,6 +27,7 @@ import { BootCurtain } from "./BootCurtain";
 import { CharacterSheetModal } from "./CharacterSheetModal";
 import { ClueOverlay } from "./ClueOverlay";
 import { ContactModal } from "./ContactModal";
+import { CustomCursor } from "./CustomCursor";
 import { DialogueBox } from "./DialogueBox";
 import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
@@ -281,6 +282,9 @@ export function MemoryRoom() {
         요점이다: 커튼이 걷히는 동안 그 아래에서 드러날 화면이 이미 있어야 한다.
       */}
       <BootCurtain />
+
+      {/* 마우스를 따라오는 점과 링. 맨 위(z-70)라 커튼·모달 위에서도 손이 보인다 */}
+      <CustomCursor />
     </div>
   );
 }

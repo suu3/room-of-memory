@@ -803,6 +803,73 @@ body {
   text-shadow: 0 0 16px color-mix(in srgb, var(--color-memory) 55%, transparent);
 }
 
+/*
+ * 커스텀 커서 (ui/CustomCursor). html에 .custom-cursor가 붙는 동안 네이티브 커서를 전부
+ * 숨긴다. 이 규칙은 레이어 밖에 있어서 Tailwind의 cursor-pointer(utilities 레이어)를
+ * 이긴다. body의 인라인 cursor(useGlowHover)는 body 자신에게만 닿고, 실제로 손이
+ * 얹히는 캔버스는 이 규칙이 덮는다.
+ *
+ * 점은 difference 블렌드라 밝은 종이 위에서는 어둡게, 어두운 방에서는 밝게 선다.
+ * 링은 만질 수 있는 것 위에서 금빛으로 벌어지고, 누르는 동안 조여든다.
+ */
+.custom-cursor,
+.custom-cursor * {
+  cursor: none;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 9999px;
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.cursor-dot[data-shown="true"],
+.cursor-ring[data-shown="true"] {
+  opacity: 1;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px;
+  background: var(--color-ivory);
+  mix-blend-mode: difference;
+}
+
+.cursor-ring {
+  width: 28px;
+  height: 28px;
+  margin: -14px;
+  border: 1px solid color-mix(in srgb, var(--color-ivory) 45%, transparent);
+}
+
+/* 링은 자리(transform)를 프레임마다 받으므로 크기는 안쪽 가상 요소가 맡는다 */
+.cursor-ring::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid transparent;
+  transform: scale(1);
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 150ms ease-out;
+}
+
+.cursor-ring[data-hot="true"]::after {
+  transform: scale(1.4);
+  border-color: var(--color-memory);
+}
+
+.cursor-ring[data-down="true"]::after {
+  transform: scale(0.85);
+}
+
 /* 계단식 등장의 간격. 몇 번째인지는 인라인 --stagger-index로 받는다 (ui/stagger.ts) */
 .stagger-item {
   animation-delay: calc(var(--stagger-index, 0) * 55ms);
