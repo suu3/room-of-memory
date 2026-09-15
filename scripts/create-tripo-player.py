@@ -209,7 +209,7 @@ def refine_surface(obj, index):
     # Work on the final triangle spacing. Boundaries stay fixed to keep cuffs and neck joins.
     iterations, factor, limit = {
         0: (3, 0.28, 0.0025),
-        1: (10, 0.48, 0.012),
+        1: (16, 0.48, 0.014),
         2: (2, 0.20, 0.001),
         3: (5, 0.35, 0.005),
         4: (5, 0.35, 0.005),
@@ -233,6 +233,23 @@ def refine_surface(obj, index):
             updates[v] = original[v] + delta
         for v, point in updates.items():
             v.co = point
+    if index in (3, 4, 5, 6):
+        # Small boundary zigzags show as frayed vest armholes/collar edges in profile.
+        # Relax along the boundary only; a 1mm cap preserves garment openings.
+        rim = {v for e in bm.edges if e.is_boundary for v in e.verts}
+        original_rim = {v: v.co.copy() for v in rim}
+        for _ in range(3):
+            updates = {}
+            for v in rim:
+                neighbors = [e.other_vert(v).co for e in v.link_edges if e.is_boundary]
+                if len(neighbors) != 2:
+                    continue
+                delta = v.co.lerp((neighbors[0]+neighbors[1])/2, 0.35)-original_rim[v]
+                if delta.length > 0.001:
+                    delta *= 0.001/delta.length
+                updates[v] = original_rim[v]+delta
+            for v, point in updates.items():
+                v.co = point
     bm.normal_update()
     bm.to_mesh(obj.data)
     bm.free()
@@ -367,7 +384,32 @@ def repair_openings(obj, index):
             if fade:
                 u, w = (v.co.x - 0.111) / 0.028, (v.co.z - 1.004) / 0.04
                 depth = float(np.dot(cheek_curve, [1, u, w, u*u, u*w, w*w]))
-                v.co.y += (depth - v.co.y) * fade * fade * (3 - 2 * fade)
+                # The underside turns away from the front-facing cheek. Fade from
+                # its original depth instead of projecting two layers onto one plane.
+                front = max(0, min(1, (-v.co.y - 0.06) / 0.04))
+                front = front * front * (3 - 2 * front)
+                v.co.y += (depth - v.co.y) * fade * fade * (3 - 2 * fade) * front
+        # The chin underside is not a single-valued depth field. Relax in XYZ here
+        # so projecting the cheek does not leave a folded crease below the bandage.
+        jaw_original, jaw_weights = {}, {}
+        for vertex in bm.verts:
+            p = vertex.co
+            radius = math.sqrt(((p.x-0.105)/0.05)**2 + ((p.y+0.09)/0.055)**2 + ((p.z-0.974)/0.028)**2)
+            weight = max(0, min(1, (1.3-radius)/0.6))
+            weight *= max(0, min(1, (0.996-p.z)/0.014))
+            if weight and not vertex.is_boundary:
+                jaw_original[vertex] = p.copy();jaw_weights[vertex] = weight
+        for _ in range(24):
+            updates = {}
+            for vertex, weight in jaw_weights.items():
+                neighbors = [edge.other_vert(vertex).co for edge in vertex.link_edges]
+                average = sum(neighbors, Vector())/len(neighbors)
+                delta = vertex.co.lerp(average, 0.45*weight)-jaw_original[vertex]
+                if delta.length > 0.009:
+                    delta *= 0.009/delta.length
+                updates[vertex] = jaw_original[vertex]+delta
+            for vertex, point in updates.items():
+                vertex.co = point
         for face in bm.faces:
             center = face.calc_center_median()
             radius = min(math.hypot((v.co.x - 0.111) / 0.028, (v.co.z - 1.004) / 0.04) for v in face.verts)
@@ -449,7 +491,30 @@ def rebuild_forehead(bm, obj, uv, color_layer, skin_material, skin_color):
     # Keep the actual lower edge vertices so the new forehead shares the face mesh.
     bmesh.ops.subdivide_edges(bm, edges=[e for e in rim if e.calc_length() > 0.004], cuts=2, use_grid_fill=True)
     rim = [e for e in bm.edges if e.is_boundary and all(abs(v.co.z-cut_z) < 2e-6 and abs(v.co.x) < 0.222 and v.co.y < 0.035 for v in e.verts)]
-    bottom = sorted({v for e in rim for v in e.verts}, key=lambda v: v.co.x)
+    # The cut also intersects disconnected ear/temple returns. Sorting every vertex
+    # by X bridges those islands with a long unsupported face. Follow the actual
+    # connected front rim instead, preserving each original lower edge.
+    remaining, components = set(rim), []
+    while remaining:
+        edge = remaining.pop();component = {edge};stack = [edge]
+        while stack:
+            for vertex in stack.pop().verts:
+                for linked in vertex.link_edges:
+                    if linked in remaining:
+                        remaining.remove(linked);component.add(linked);stack.append(linked)
+        components.append(component)
+    front_rim = max(components, key=lambda edges: max(v.co.x for e in edges for v in e.verts)-min(v.co.x for e in edges for v in e.verts))
+    adjacency = {}
+    for edge in front_rim:
+        for vertex in edge.verts:
+            adjacency.setdefault(vertex, []).append(edge)
+    ends = [v for v, edges in adjacency.items() if len(edges) == 1]
+    if len(ends) != 2 or any(len(edges) > 2 for edges in adjacency.values()):
+        raise RuntimeError('Forehead rim must be a single unbranched open chain')
+    bottom, unused = [min(ends, key=lambda v: v.co.x)], set(front_rim)
+    while unused:
+        edge = next(e for e in adjacency[bottom[-1]] if e in unused)
+        unused.remove(edge);bottom.append(edge.other_vert(bottom[-1]))
     # Closely spaced rows retain the thin eyebrow; the hidden upper forehead can be coarser.
     levels = list(np.linspace(cut_z, 1.185, 34)) + list(np.linspace(1.195, 1.38, 8))
     rows, grid = len(levels)-1, []
@@ -832,10 +897,11 @@ def fitted_bandage():
 
     def point(u, v, lift):
         x = 0.111 + u * math.cos(angle) - v * math.sin(angle)
-        z = 1.008 + u * math.sin(angle) + v * math.cos(angle)
-        cu, cv = (x - 0.111) / 0.028, (z - 1.004) / 0.04
-        depth = float(np.dot(cheek_curve, [1, cu, cv, cu*cu, cu*cv, cv*cv]))
-        return (x, depth - lift, z)
+        z = 1.017 + u * math.sin(angle) + v * math.cos(angle)
+        # Fit the finished skin, including the relaxed jaw transition. Keeping the
+        # strip above the chin turn prevents an adhesive tip hanging in open air.
+        surface, _ = face_point(x, z)
+        return (x, surface.y - lift, z)
 
     def patch(width, height, radius, lift, material):
         base = len(vertices)

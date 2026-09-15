@@ -1,7 +1,7 @@
 # Web player model
 
 `public/assets/models/player-blocky.glb` contains the user's latest Tripo chibi. The runtime URL is
-`?v=tripo-20260916-forehead`; bump it with every replacement because the service worker caches assets.
+`?v=tripo-20260916-surface`; bump it with every replacement because the service worker caches assets.
 Earlier revisions are recorded below. The editable source for this revision is
 `<workspace>/2026-09-15/tripo-refine/player-chibi.blend`.
 
@@ -13,7 +13,7 @@ Earlier revisions are recorded below. The editable source for this revision is
 
 ## Tripo chibi (2026-09-15)
 
-Current revision: `?v=tripo-20260916-forehead`. The user generated a new chibi with Tripo and dropped the FBX
+Current revision: `?v=tripo-20260916-surface`. The user generated a new chibi with Tripo and dropped the FBX
 (`tripo_convert_86212750-….fbx`, 59MB, 1.9M triangles, 41 auto-generated bones, no clips) into
 `public/assets/models/`. That source is far over the 25MB commit limit and stays out of git; only the
 baked GLB ships. `scripts/create-tripo-player.py` (Blender 5.2, background) does the whole conversion:
@@ -37,7 +37,11 @@ baked GLB ships. `scripts/create-tripo-player.py` (Blender 5.2, background) does
 - Adds two small catchlights per eye; their blink morph retracts them beneath the closed lid.
 - Reconstructs the bandaged cheek from a smooth fit to the intact opposite cheek. Native vertex
   colours blend the repaired skin into the supplied texture without crossing its UV islands.
-  A dense adhesive strip follows the same curve, with a centre pad and printed perforations.
+  Projection fades on the chin underside before local XYZ relaxation, avoiding folded triangles.
+  A dense adhesive strip follows the finished skin above the chin turn, with a centre pad and printed perforations.
+- Follows the connected forehead rim rather than sorting vertices by X, avoiding a bridge to the ear.
+  Smooths garment boundary chains within 1mm and softens lower-trouser bumps while preserving the waist.
+  The surface revision was inspected from eight horizontal angles, above, and in raised-arm and closed-eye poses.
 - Authors Idle/Walk/Sit/SitDown/StandUp with the same procedural poses as `create-chibi-player.py`.
 
 `pnpm model:prep` compresses the export with Meshopt. The prep script strips images

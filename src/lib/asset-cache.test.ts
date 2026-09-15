@@ -20,6 +20,7 @@ it("loads the animated player even when the service worker cached the old placeh
     [`${legacyUrl}?v=tripo-20260915-r3`, new Response("Tripo mesh before final blink export")],
     [`${legacyUrl}?v=tripo-20260915-r4`, new Response("Tripo mesh with deforming painted eyes")],
     [`${legacyUrl}?v=tripo-20260916-eyes`, new Response("Tripo mesh with fragmented forehead")],
+    [`${legacyUrl}?v=tripo-20260916-forehead`, new Response("Tripo mesh before jaw smoothing")],
     [
       `${legacyUrl}?v=tripo-smooth-20260915`,
       new Response("Tripo mesh before seam and blink repairs"),
