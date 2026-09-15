@@ -12,6 +12,7 @@ import { liveMinigameOf } from "@/minigames/active";
 import { MinigameHelp } from "@/minigames/shell";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
 import type { MinigameResult } from "@/types/minigame";
+import { ExitFade } from "./ExitFade";
 import { SuccessBurst } from "./SuccessBurst";
 import { BUTTON_PRIMARY, BUTTON_QUIET, HUD_ICON_BUTTON_SOLID, PANEL_FRAME } from "./ui-classes";
 
@@ -69,11 +70,12 @@ function MinigameResultCard({
   }, [settled]);
 
   return (
-    <div
+    <ExitFade
       role="status"
       aria-live="polite"
       // z-50: 판이 얹힌 층(z-40) 위에 서야 한다. 이 카드가 떠 있는 동안 대사창은 없다
-      className="absolute inset-0 z-50 grid place-items-center bg-scene-void/55 p-4"
+      // 닫힐 때는 유령이 200ms 남았다 사라진다 (ExitFade)
+      className="absolute inset-0 z-50 grid animate-backdrop-in place-items-center bg-scene-void/55 p-4"
     >
       <div
         className={`w-[22rem] max-w-[92vw] animate-fade-rise p-6 text-center ${PANEL_FRAME} ${
@@ -129,7 +131,7 @@ function MinigameResultCard({
           )}
         </div>
       </div>
-    </div>
+    </ExitFade>
   );
 }
 
@@ -290,15 +292,18 @@ export function MinigameHost() {
          * 게임(닦기·다이얼)은 획이 판 밖에서 시작되는 일이 잦은데, 그때마다 판이
          * 통째로 닫혀 버렸다. 대신 오른쪽 위 닫기 버튼이 늘 떠 있어 나갈 길은 남는다.
          */
-        <div
+        <ExitFade
           /*
            * 결과 대사 중에는 판이 대사창(z-50) 아래 그림으로만 남는다. DOM에는 그대로
            * 살아 있어서 탭이 닿으면 안 보이는 버튼에 포커스가 잡히는데, 그 상태의
            * Enter는 대사가 아니라 그 버튼에게 간다. 보이지 않는 것이 눌린다.
            * inert로 이 층을 통째로 입력에서 빼면, 그 구간의 주인이 대사창 하나가 된다.
+           *
+           * 들어올 때는 백드롭이 먼저 깔리고(animate-backdrop-in) 카드가 그 위로 올라온다.
+           * 닫힐 때는 ExitFade가 유령을 200ms 남긴다. 판이 뚝 끊기지 않는다.
            */
           inert={resultStage || shownOutcome !== null}
-          className={`absolute inset-0 z-40 grid place-items-center ${
+          className={`absolute inset-0 z-40 grid animate-backdrop-in place-items-center ${
             // 탐색형은 방을 덜 가린다. 물건을 든 채로도 방이 보여야 "그 방 안"이다.
             // 뒤쪽 방이 완전히 사라질 만큼 뭉개지 않는다 (3px)
             bare ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-[3px]"
@@ -315,7 +320,7 @@ export function MinigameHost() {
             탐색형은 화면 구석에 둔다.
           */}
           {started ? (
-            <div className="relative">
+            <div className="relative animate-fade-rise">
               {!sealed && (
                 <button
                   type="button"
@@ -394,7 +399,7 @@ export function MinigameHost() {
               </button>
             </div>
           )}
-        </div>
+        </ExitFade>
       )}
     </>
   );

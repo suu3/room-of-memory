@@ -1,11 +1,14 @@
 "use client";
 
-import { EffectComposer, Outline } from "@react-three/postprocessing";
+import { useFrame } from "@react-three/fiber";
+import { EffectComposer, N8AO, Outline } from "@react-three/postprocessing";
+import type { OutlineEffect } from "postprocessing";
 import {
   Component,
   createContext,
   type PropsWithChildren,
   type ReactNode,
+  type RefObject,
   Suspense,
   useCallback,
   useContext,
@@ -15,6 +18,9 @@ import {
   useState,
 } from "react";
 import { Color, type Group, type Mesh, type Object3D } from "three";
+import { cursorTarget, hoverGlowPulse } from "./cursor-target";
+import { FilmLookDriver, prefersReducedMotion, useFilmLookEffects } from "./FilmLook";
+import { ScreenTransitionDriver, useScreenTransitionEffect } from "./ScreenTransition";
 
 /**
  * 빛나는 방식의 두 등급.
@@ -173,8 +179,72 @@ export function createMemoryOutlineSettings(color: string) {
   } as const;
 }
 
-export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: string }>) {
+/**
+ * 호버가 켜지는 순간 윤곽선이 한 번 밝아진다. 커서의 링이 그 오브젝트로 빨려드는 것과
+ * 같은 박자라, "커서가 물건의 빛으로 옮겨 갔다"로 읽힌다. 상시 펄스가 아니다. 켜지는
+ * 순간 한 번뿐이고 0.6초 남짓이면 제 밝기로 돌아온다 (DESIGN.md > Motion).
+ *
+ * @param gain 꼭대기에서 더해지는 배율. 1이면 두 배.
+ */
+function GlowHoverPulse({
+  effectRef,
+  baseStrength,
+  gain,
+  reducedMotion,
+}: {
+  effectRef: RefObject<OutlineEffect | null>;
+  baseStrength: number;
+  gain: number;
+  reducedMotion: boolean;
+}) {
+  useFrame(() => {
+    const effect = effectRef.current;
+    if (!effect) return;
+    const pulse = reducedMotion ? 0 : hoverGlowPulse(performance.now(), cursorTarget.hoverAt);
+    effect.edgeStrength = baseStrength * (1 + pulse * gain);
+  });
+  return null;
+}
+
+/** 호버 순간 윤곽선이 더해지는 배율 (GlowHoverPulse). 윤곽선은 세게, 헤일로는 은은하게. */
+const HOVER_PULSE_GAIN = { inner: 1.2, outer: 0.5 } as const;
+
+/**
+ * 앰비언트 오클루전 (N8AO). 가구가 바닥·벽에 붙은 자리와 방 구석이 살짝 눌린다.
+ * 디오라마의 물건들이 "놓여 있다"로 읽히게 하는 값이다. 반경은 방 크기(≈14유닛)의
+ * 1/20쯤, 세기는 은은한 쪽. 절반 해상도로 돌려 모바일 예산을 지킨다.
+ */
+const AO_SETTINGS = {
+  aoRadius: 0.6,
+  distanceFalloff: 0.8,
+  intensity: 1.8,
+  aoSamples: 8,
+  denoiseSamples: 4,
+  denoiseRadius: 6,
+} as const;
+
+export function MemoryGlowRoot({
+  color,
+  dim = 0,
+  ambientOcclusion,
+  children,
+}: PropsWithChildren<{
+  color: string;
+  /** 어둠의 양 (0 = 밝은 방, 1 = 가장 어두운 지점). 색수차가 이 축을 따라 조금 더 어긋난다. */
+  dim?: number;
+  /** 오클루전의 색. 주면 AO 패스를 켠다. 테스트의 가짜 렌더러에는 없다. */
+  ambientOcclusion?: { color: string };
+}>) {
+  const aoColor = useMemo(
+    () => (ambientOcclusion ? new Color(ambientOcclusion.color) : null),
+    [ambientOcclusion],
+  );
   const settings = useMemo(() => createMemoryOutlineSettings(color), [color]);
+  const reducedMotion = useMemo(prefersReducedMotion, []);
+  const film = useFilmLookEffects(reducedMotion);
+  const transition = useScreenTransitionEffect();
+  const innerRef = useRef<OutlineEffect | null>(null);
+  const outerRef = useRef<OutlineEffect | null>(null);
   const groupsRef = useRef<Record<MemoryGlowTier, Map<string, Object3D[]>>>({
     memory: new Map(),
     prop: new Map(),
@@ -202,21 +272,59 @@ export function MemoryGlowRoot({ color, children }: PropsWithChildren<{ color: s
   return (
     <MemoryGlowSelectionContext.Provider value={updateSelection}>
       {children}
+      {/*
+        패스 순서가 곧 그림의 층이다. 색수차는 convolution 이펙트라 제 패스를 혼자 쓰고,
+        그 뒤의 아웃라인 둘과 그레인은 한 패스로 합쳐진다. 색수차를 맨 앞에 두는 이유:
+        금빛 윤곽선은 어긋나지 않고 또렷해야 하고, 그레인은 어긋난 화면 위에 마지막으로
+        뿌려져야 필름이다.
+      */}
       <EffectComposer {...settings.composer}>
-        <Outline
-          selection={touchable}
-          visibleEdgeColor={settings.edgeColor}
-          hiddenEdgeColor={settings.hiddenEdgeColor}
-          {...settings.inner}
-        />
-        {/* 숨쉬는 헤일로 + 벽 너머 투과는 기억만: 곁가지는 윤곽선 한 줄에서 멈춘다 */}
-        <Outline
-          selection={selection.memory}
-          visibleEdgeColor={settings.edgeColor}
-          hiddenEdgeColor={settings.hiddenEdgeColor}
-          {...settings.outer}
-        />
+        {/*
+          children 타입이 null을 받지 않아 배열로 짠다. 순서가 곧 층이다.
+          AO는 장면을 그리는 패스라 맨 앞. 색수차는 convolution이라 제 패스를 혼자 쓴다.
+          아웃라인 둘과 그레인은 한 패스로 합쳐진다. 화면 전환은 맨 마지막: 그레인까지
+          얹힌 화면이 통째로 넘어간다.
+        */}
+        {[
+          ...(aoColor
+            ? [<N8AO key="ao" halfRes quality="performance" color={aoColor} {...AO_SETTINGS} />]
+            : []),
+          <primitive key="aberration" object={film.aberration} />,
+          <Outline
+            key="inner"
+            ref={innerRef}
+            selection={touchable}
+            visibleEdgeColor={settings.edgeColor}
+            hiddenEdgeColor={settings.hiddenEdgeColor}
+            {...settings.inner}
+          />,
+          // 숨쉬는 헤일로 + 벽 너머 투과는 기억만: 곁가지는 윤곽선 한 줄에서 멈춘다
+          <Outline
+            key="outer"
+            ref={outerRef}
+            selection={selection.memory}
+            visibleEdgeColor={settings.edgeColor}
+            hiddenEdgeColor={settings.hiddenEdgeColor}
+            {...settings.outer}
+          />,
+          <primitive key="grain" object={film.grain} />,
+          <primitive key="transition" object={transition} />,
+        ]}
       </EffectComposer>
+      <ScreenTransitionDriver effect={transition} reducedMotion={reducedMotion} />
+      <FilmLookDriver effects={film} dim={dim} reducedMotion={reducedMotion} />
+      <GlowHoverPulse
+        effectRef={innerRef}
+        baseStrength={settings.inner.edgeStrength}
+        gain={HOVER_PULSE_GAIN.inner}
+        reducedMotion={reducedMotion}
+      />
+      <GlowHoverPulse
+        effectRef={outerRef}
+        baseStrength={settings.outer.edgeStrength}
+        gain={HOVER_PULSE_GAIN.outer}
+        reducedMotion={reducedMotion}
+      />
     </MemoryGlowSelectionContext.Provider>
   );
 }

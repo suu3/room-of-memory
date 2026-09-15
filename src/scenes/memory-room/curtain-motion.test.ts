@@ -8,6 +8,7 @@ import {
   curtainX,
   isCurtainOpen,
   pullProgress,
+  pullVelocity,
   releaseProgress,
   settleProgress,
   toggleProgress,
@@ -81,5 +82,38 @@ describe("pulling the curtains open", () => {
     expect(curtainX("left", 0)).toBe(CURTAIN_X.left.closed);
     expect(curtainX("left", 1)).toBe(CURTAIN_X.left.open);
     expect(curtainX("left", 0.5)).toBeCloseTo((CURTAIN_X.left.closed + CURTAIN_X.left.open) / 2);
+  });
+});
+
+describe("놓는 순간의 관성", () => {
+  it("반쯤 당기다 놓아도 세게 튕겼으면 끝까지 간다", () => {
+    // 0.3에서 놓았지만 열리는 쪽으로 3/초: 0.12초 뒤면 0.66이라 임계(0.55)를 넘는다
+    expect(releaseProgress(0.3, false, 3)).toBe(1);
+    // 속도가 없으면 그 자리 기준: 도로 닫힌다
+    expect(releaseProgress(0.3, false, 0)).toBe(0);
+    expect(releaseProgress(0.3, false)).toBe(0);
+  });
+
+  it("거의 다 당겼어도 되돌리는 손짓으로 놓으면 도로 닫힌다", () => {
+    expect(releaseProgress(0.6, false, -2)).toBe(0);
+    expect(releaseProgress(0.6, false, -0.1)).toBe(1);
+  });
+
+  it("탭은 속도와 무관하게 뒤집는다", () => {
+    expect(releaseProgress(0, true, -5)).toBe(1);
+    expect(releaseProgress(1, true, 5)).toBe(0);
+  });
+
+  it("속도가 이상한 값이면 그 자리 기준으로 셈한다", () => {
+    expect(releaseProgress(0.3, false, Number.NaN)).toBe(0);
+    expect(releaseProgress(0.6, false, Number.POSITIVE_INFINITY)).toBe(1);
+  });
+
+  it("속도는 지수 이동 평균이고 dt가 0이면 그대로다", () => {
+    // 0.1 진행도를 0.05초에: 순간 속도 2. 이전 0과의 중간인 1
+    expect(pullVelocity(0, 0, 0.1, 0.05)).toBeCloseTo(1);
+    expect(pullVelocity(1, 0.1, 0.2, 0.05)).toBeCloseTo(1.5);
+    expect(pullVelocity(1.5, 0.2, 0.2, 0)).toBe(1.5);
+    expect(pullVelocity(1.5, 0.2, 0.3, -1)).toBe(1.5);
   });
 });

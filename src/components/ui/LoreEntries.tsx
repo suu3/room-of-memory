@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { MEMORY_BY_ID, MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
+import { STAGGER_CLASS, staggerStyle } from "./stagger";
 import { BUTTON_QUIET_PAPER } from "./ui-classes";
 
 /**
@@ -63,7 +64,8 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
           const name = tRoom(`memories.${id}.name` as ParseKeys<"memoryRoom">);
 
           return (
-            <li key={id}>
+            // 카드는 한 장씩 놓인다. 장을 넘기면 다시 마운트되므로 다시 한 장씩 놓인다
+            <li key={id} className={STAGGER_CLASS} style={staggerStyle(index)}>
               {/*
               카드를 아주 조금 기울인다 (±0.6°). 손으로 붙인 것처럼 보이게 하려는
               것인데, 이보다 크면 글줄이 눕는 게 눈에 띄어 읽기가 나빠진다.

@@ -27,6 +27,7 @@ import { BootCurtain } from "./BootCurtain";
 import { CharacterSheetModal } from "./CharacterSheetModal";
 import { ClueOverlay } from "./ClueOverlay";
 import { ContactModal } from "./ContactModal";
+import { CustomCursor } from "./CustomCursor";
 import { DialogueBox } from "./DialogueBox";
 import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
@@ -135,7 +136,7 @@ export function MemoryRoom() {
         </p>
       ) : null}
 
-      {/* 비네트 + 필름 그레인 */}
+      {/* 비네트. 그레인은 캔버스 안의 셰이더 패스가 뿌린다 (scenes/memory-room/FilmLook) */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 transition-opacity duration-1000"
@@ -145,7 +146,15 @@ export function MemoryRoom() {
             "radial-gradient(115% 90% at 50% 42%, transparent 44%, color-mix(in srgb, var(--color-scene-void) 75%, transparent) 100%)",
         }}
       />
-      <div aria-hidden className="film-grain pointer-events-none absolute inset-0" />
+      {/*
+        정지 그레인은 모션을 끈 사람에게만 남는다. 셰이더 그레인은 프레임마다 다시
+        뿌려지는 노이즈라 낮은 세기라도 깜빡임이고, 그런 판에서는 FilmLook이 그레인
+        패스를 아예 만들지 않는다. 이 타일이 그 빈자리를 메운다.
+      */}
+      <div
+        aria-hidden
+        className="film-grain pointer-events-none absolute inset-0 hidden motion-reduce:block"
+      />
 
       {/*
         타이틀 + 진행. 밝은 캡슐 없이 장면 위에 글자만 얹는다. 그림자(.monologue-text)가
@@ -167,7 +176,13 @@ export function MemoryRoom() {
               </span>
               {/* 모은 개수가 이 화면의 유일한 진행 지표다. 라벨보다 확실히 앞으로 나와야 한다 */}
               <span className="text-[0.75em] tabular-nums text-fog">
-                <span className="text-[1.3333em] font-medium text-memory">{count}</span>
+                {/* 숫자가 바뀌면 아래에서 밀려 올라온다. key가 다시 마운트시킨다 */}
+                <span
+                  key={count}
+                  className="inline-block animate-count-tick text-[1.3333em] font-medium text-memory"
+                >
+                  {count}
+                </span>
                 <span> / {roundMemories.length}</span>
               </span>
             </div>
@@ -182,7 +197,8 @@ export function MemoryRoom() {
                   key={memory.id}
                   aria-hidden
                   className={`h-0.5 w-[1.5em] rounded-full transition-colors duration-700 ${
-                    index < count ? "bg-memory" : "bg-ivory/25"
+                    // 새로 찬 칸은 왼쪽에서 차오른다. 이미 찬 칸은 클래스가 그대로라 다시 안 돈다
+                    index < count ? "animate-segment-fill bg-memory" : "bg-ivory/25"
                   }`}
                 />
               ))}
@@ -273,6 +289,9 @@ export function MemoryRoom() {
         요점이다: 커튼이 걷히는 동안 그 아래에서 드러날 화면이 이미 있어야 한다.
       */}
       <BootCurtain />
+
+      {/* 마우스를 따라오는 점과 링. 맨 위(z-70)라 커튼·모달 위에서도 손이 보인다 */}
+      <CustomCursor />
     </div>
   );
 }

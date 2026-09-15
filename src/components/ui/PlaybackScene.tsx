@@ -195,7 +195,8 @@ export function PlaybackScene() {
     // z-40: 미니게임과 같은 층. 재생은 인터랙션이 닫힌 뒤에 열려 둘이 겹치지 않는다.
     // 대사창(z-50)은 이 위에 뜬다. 그림 위에 글이 얹히는 것이 이 연출의 형태다.
     <div
-      className={`absolute inset-0 z-40 ${
+      // 한 박자 늦게 떠오른다(animate-playback-enter). 그 사이 뒤의 방이 신호 끊기듯 찢긴다 (ScreenTransition)
+      className={`absolute inset-0 z-40 animate-playback-enter ${
         // 그림 없는 컷씬은 방을 살짝 눌러만 둔다. 말하는 곳이 이 방이라서다
         isCutscene && !bare ? "bg-scene-void" : "bg-scene-void/80 backdrop-blur-sm"
       }`}

@@ -139,6 +139,12 @@ export interface MemoryRoomState {
    * 타이틀로 돌아갈 때마다 이미 받아 둔 방을 다시 받는 척하는 커튼이 내려온다.
    */
   booted: boolean;
+  /**
+   * 부팅 커튼이 걷히기 **시작**했다. booted보다 1.1초 앞선다. 커튼이 올라가는 동안
+   * 그 밑에서 드러날 화면(타이틀)이 이 신호에 맞춰 놓이기 시작한다. 다 올라간 뒤에
+   * 놓이기 시작하면 걷히는 동안은 빈 판이다.
+   */
+  bootRising: boolean;
   /** 연락처 모달. HUD 메뉴와 타이틀 화면 두 곳에서 열린다. */
   contactOpen: boolean;
   /** 피드백 모달: HUD 메뉴에서만 열린다 (플레이 전엔 보낼 피드백이 없다). */
@@ -257,6 +263,8 @@ export interface MemoryRoomState {
   startGame: () => void;
   /** 로딩 진행률 보고. **올리기만 한다**. 뒤늦게 붙는 모델 때문에 바가 되감기면 안 된다. */
   setRoomLoadProgress: (progress: number) => void;
+  /** 부팅 커튼이 걷히기 시작했다고 알린다. finishBoot처럼 되돌리는 짝은 없다. */
+  beginBootRise: () => void;
   /** 부팅 커튼이 다 올라갔다고 알린다. 되돌리는 짝은 없다. */
   finishBoot: () => void;
   setSoundMuted: (muted: boolean) => void;
@@ -634,6 +642,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       started: false,
       roomLoadProgress: 0,
       booted: false,
+      bootRising: false,
       resetRevision: 0,
       soundMuted: false,
       difficulty: "easy",
@@ -783,7 +792,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) =>
           progress > state.roomLoadProgress ? { roomLoadProgress: progress } : state,
         ),
-      finishBoot: () => set({ booted: true }),
+      beginBootRise: () => set({ bootRising: true }),
+      finishBoot: () => set({ booted: true, bootRising: true }),
       setSoundMuted: (muted) => set({ soundMuted: muted }),
       setDifficulty: (difficulty) => set({ difficulty }),
       toggleLights: () => set((state) => ({ lightsOn: !state.lightsOn })),

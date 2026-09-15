@@ -58,7 +58,7 @@ describe("curtain pointer ownership", () => {
       useMemoryRoomStore.getState().arriveAtCurtain();
       await renderer.advanceFrames(1, 1 / 60);
       expect(pull).toHaveBeenCalledWith(side, 1);
-      expect(release).toHaveBeenCalledWith(side, 1, false);
+      expect(release).toHaveBeenCalledWith(side, 1, false, expect.any(Number));
       await renderer.unmount();
     });
 
@@ -119,7 +119,7 @@ describe("curtain pointer ownership", () => {
       expect(useMemoryRoomStore.getState().curtainGrab?.side).toBe(side);
       useMemoryRoomStore.getState().arriveAtCurtain();
       await renderer.advanceFrames(1, 1 / 60);
-      expect(release).toHaveBeenCalledWith(side, 1, true);
+      expect(release).toHaveBeenCalledWith(side, 1, true, expect.any(Number));
       const hit = renderer.scene.findByProps({ name: `curtain-hit-${side}` }).instance;
       hit.updateWorldMatrix(true, false);
       const x = (side === "left" ? -0.55 : 2.85) + 0.34;

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type Locale, SUPPORTED_LOCALES } from "@/i18n/config";
 import { selectLocale, useSettingsStore } from "@/store/settings";
@@ -27,9 +28,10 @@ const TONE_CLASS: Record<LanguageToggleTone, { base: string; active: string; idl
    * 하나 더 생긴다. 밑줄은 늘 있고 색만 바뀌므로 hover에서 자리가 안 움직인다.
    */
   bare: {
-    base: `cursor-pointer border-b-2 px-1.5 pb-1 pt-0.5 text-sm font-medium transition-colors duration-150 ${FOCUS_RING}`,
-    active: "border-memory text-ivory",
-    idle: "border-transparent text-fog hover:text-ivory active:text-ivory",
+    // 밑줄은 항목마다 그리지 않고 하나(.lang-underline)가 고른 글자 밑으로 미끄러져 간다
+    base: `cursor-pointer px-1.5 pb-1 pt-0.5 text-sm font-medium transition-colors duration-150 ${FOCUS_RING}`,
+    active: "text-ivory",
+    idle: "text-fog hover:text-ivory active:text-ivory",
   },
 };
 
@@ -38,13 +40,36 @@ export function LanguageToggle({ tone = "dark" }: { tone?: LanguageToggleTone })
   const locale = useSettingsStore(selectLocale);
   const setLocale = useSettingsStore((state) => state.setLocale);
   const toneClass = TONE_CLASS[tone];
+  const buttonsRef = useRef<Partial<Record<Locale, HTMLButtonElement | null>>>({});
+  /** bare 톤의 밑줄 자리. 고른 버튼을 재서 놓고, 바뀌면 CSS transition이 미끄러뜨린다 */
+  const [underline, setUnderline] = useState<{ left: number; width: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (tone !== "bare") return;
+    const measure = () => {
+      const button = buttonsRef.current[locale];
+      if (!button) return;
+      setUnderline({ left: button.offsetLeft, width: button.offsetWidth });
+    };
+    measure();
+    // 폰트가 늦게 오거나 창이 바뀌면 글자 폭이 달라진다
+    window.addEventListener("resize", measure);
+    document.fonts?.addEventListener?.("loadingdone", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      document.fonts?.removeEventListener?.("loadingdone", measure);
+    };
+  }, [tone, locale]);
 
   return (
-    <fieldset className={tone === "bare" ? "flex gap-4" : "flex gap-1.5"}>
+    <fieldset className={tone === "bare" ? "relative flex gap-4" : "flex gap-1.5"}>
       <legend className="sr-only">{t("language.label")}</legend>
       {SUPPORTED_LOCALES.map((code) => (
         <button
           key={code}
+          ref={(element) => {
+            buttonsRef.current[code] = element;
+          }}
           type="button"
           onClick={() => setLocale(code)}
           aria-pressed={locale === code}
@@ -53,6 +78,13 @@ export function LanguageToggle({ tone = "dark" }: { tone?: LanguageToggleTone })
           {LOCALE_LABELS[code]}
         </button>
       ))}
+      {tone === "bare" && underline && (
+        <span
+          aria-hidden
+          className="lang-underline pointer-events-none absolute bottom-0 h-0.5 rounded-full bg-memory"
+          style={{ left: underline.left, width: underline.width }}
+        />
+      )}
     </fieldset>
   );
 }

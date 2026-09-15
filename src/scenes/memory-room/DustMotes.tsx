@@ -2,7 +2,7 @@
 
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
-import { AdditiveBlending, Color, MathUtils, type ShaderMaterial } from "three";
+import { AdditiveBlending, Color, MathUtils, type ShaderMaterial, Vector2 } from "three";
 import { MEMORY_PLACEMENTS } from "./layout";
 
 /**
@@ -44,6 +44,12 @@ const SHAFT = {
 } as const;
 
 /** 상승 속도(월드 유닛/초)의 하한과 폭. 낱알마다 달라야 줄 맞춰 오르지 않는다. */
+/** 커서가 먼지를 밀어내는 반경과 폭 (NDC). 손바닥 하나 크기 안에서만 비켜난다. */
+const PUSH_RADIUS = 0.16;
+const PUSH_AMOUNT = 0.05;
+/** 커서를 따라붙는 속도. 손보다 조금 늦어야 먼지가 "밀려난다"로 읽힌다 */
+const POINTER_LAMBDA = 9;
+
 const RISE_MIN = 0.035;
 const RISE_RANGE = 0.075;
 const SWAY_AMPLITUDE = 0.2;
@@ -60,6 +66,10 @@ const VERTEX_SHADER = /* glsl */ `
   uniform float uTime;
   uniform float uSway;
   uniform float uPixelRatio;
+  uniform vec2 uPointer;     // 커서 (NDC, -1~1)
+  uniform float uAspect;     // 화면 가로/세로: NDC 거리를 둥글게 재기 위해
+  uniform float uPushRadius; // 밀려나는 반경 (NDC, 세로 기준)
+  uniform float uPush;       // 밀려나는 폭 (NDC)
 
   attribute vec2 aBand;   // x = 이 먼지가 오르내리는 구간의 바닥, y = 구간 높이
   attribute float aSize;  // 화면상 지름(css px)
@@ -84,6 +94,17 @@ const VERTEX_SHADER = /* glsl */ `
     pos.z += cos(uTime * aDrift * 0.61 + aPhase * 1.7) * uSway * 0.55;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+
+    // 커서 근처의 먼지는 화면 위에서 밀려난다. 손이 지나가면 제자리로 돌아온다.
+    // 월드가 아니라 화면(NDC)에서 미는 이유: 먼지는 3D 깊이가 제각각인데 커서는
+    // 평면이라, 화면에서 재야 손 주변이 고르게 비워진다.
+    vec2 ndc = gl_Position.xy / gl_Position.w;
+    vec2 away = (ndc - uPointer) * vec2(uAspect, 1.0);
+    float dist = length(away);
+    float push = (1.0 - smoothstep(0.0, uPushRadius, dist)) * uPush;
+    ndc += normalize(away + vec2(0.0001, 0.0)) * push / vec2(uAspect, 1.0);
+    gl_Position.xy = ndc * gl_Position.w;
+
     // 직교 카메라에서는 gl_PointSize가 곧 화면 픽셀이다. 다만 단위가 드로잉 버퍼
     // 픽셀이라 dpr을 곱해야 기기가 달라져도 같은 크기로 보인다.
     gl_PointSize = aSize * uPixelRatio;
@@ -179,22 +200,35 @@ export function DustMotes({ color, opacity }: { color: string; opacity: number }
       uColor: { value: new Color(color) },
       // 첫 프레임부터 제 밝기로 시작한다. 커튼이 이미 열린 채 들어오는 경우가 있다.
       uOpacity: { value: opacity },
+      // 커서는 화면 밖에서 시작한다. (0,0)에 두면 가운데 먼지가 이유 없이 비켜 있다
+      uPointer: { value: new Vector2(-10, -10) },
+      uAspect: { value: 1 },
+      uPushRadius: { value: PUSH_RADIUS },
+      uPush: { value: PUSH_AMOUNT },
     }),
     [],
   );
 
+  // r3f는 uniforms 프롭을 복제하므로 이후 갱신은 머티리얼의 것을 만진다
   useEffect(() => {
-    uniforms.uColor.value.set(color);
-  }, [color, uniforms]);
+    const live = materialRef.current?.uniforms;
+    if (live) (live.uColor.value as Color).set(color);
+  }, [color]);
 
   useEffect(() => {
-    uniforms.uPixelRatio.value = pixelRatio;
-  }, [pixelRatio, uniforms]);
+    const live = materialRef.current?.uniforms;
+    if (live) live.uPixelRatio.value = pixelRatio;
+  }, [pixelRatio]);
 
   useFrame((state, delta) => {
     const material = materialRef.current;
     if (!material) return;
     material.uniforms.uTime.value = state.clock.elapsedTime;
+    // 커서를 damp로 따라간다. r3f의 pointer는 캔버스 위에서만 갱신되므로 타이틀에서는 멈춰 있다
+    const pointer = material.uniforms.uPointer.value as Vector2;
+    pointer.x = MathUtils.damp(pointer.x, state.pointer.x, POINTER_LAMBDA, delta);
+    pointer.y = MathUtils.damp(pointer.y, state.pointer.y, POINTER_LAMBDA, delta);
+    material.uniforms.uAspect.value = state.size.width / Math.max(1, state.size.height);
     // 커튼을 여닫을 때 먼지가 툭 켜지지 않게 밝기만 따라붙인다.
     material.uniforms.uOpacity.value = MathUtils.damp(
       material.uniforms.uOpacity.value,
