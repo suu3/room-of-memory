@@ -1,11 +1,14 @@
 "use client";
 
+import { useFrame } from "@react-three/fiber";
 import { EffectComposer, Outline } from "@react-three/postprocessing";
+import type { OutlineEffect } from "postprocessing";
 import {
   Component,
   createContext,
   type PropsWithChildren,
   type ReactNode,
+  type RefObject,
   Suspense,
   useCallback,
   useContext,
@@ -15,6 +18,7 @@ import {
   useState,
 } from "react";
 import { Color, type Group, type Mesh, type Object3D } from "three";
+import { cursorTarget, hoverGlowPulse } from "./cursor-target";
 import { FilmLookDriver, prefersReducedMotion, useFilmLookEffects } from "./FilmLook";
 
 /**
@@ -174,6 +178,36 @@ export function createMemoryOutlineSettings(color: string) {
   } as const;
 }
 
+/**
+ * 호버가 켜지는 순간 윤곽선이 한 번 밝아진다. 커서의 링이 그 오브젝트로 빨려드는 것과
+ * 같은 박자라, "커서가 물건의 빛으로 옮겨 갔다"로 읽힌다. 상시 펄스가 아니다. 켜지는
+ * 순간 한 번뿐이고 0.6초 남짓이면 제 밝기로 돌아온다 (DESIGN.md > Motion).
+ *
+ * @param gain 꼭대기에서 더해지는 배율. 1이면 두 배.
+ */
+function GlowHoverPulse({
+  effectRef,
+  baseStrength,
+  gain,
+  reducedMotion,
+}: {
+  effectRef: RefObject<OutlineEffect | null>;
+  baseStrength: number;
+  gain: number;
+  reducedMotion: boolean;
+}) {
+  useFrame(() => {
+    const effect = effectRef.current;
+    if (!effect) return;
+    const pulse = reducedMotion ? 0 : hoverGlowPulse(performance.now(), cursorTarget.hoverAt);
+    effect.edgeStrength = baseStrength * (1 + pulse * gain);
+  });
+  return null;
+}
+
+/** 호버 순간 윤곽선이 더해지는 배율 (GlowHoverPulse). 윤곽선은 세게, 헤일로는 은은하게. */
+const HOVER_PULSE_GAIN = { inner: 1.2, outer: 0.5 } as const;
+
 export function MemoryGlowRoot({
   color,
   dim = 0,
@@ -186,6 +220,8 @@ export function MemoryGlowRoot({
   const settings = useMemo(() => createMemoryOutlineSettings(color), [color]);
   const reducedMotion = useMemo(prefersReducedMotion, []);
   const film = useFilmLookEffects(reducedMotion);
+  const innerRef = useRef<OutlineEffect | null>(null);
+  const outerRef = useRef<OutlineEffect | null>(null);
   const groupsRef = useRef<Record<MemoryGlowTier, Map<string, Object3D[]>>>({
     memory: new Map(),
     prop: new Map(),
@@ -222,6 +258,7 @@ export function MemoryGlowRoot({
       <EffectComposer {...settings.composer}>
         <primitive object={film.aberration} />
         <Outline
+          ref={innerRef}
           selection={touchable}
           visibleEdgeColor={settings.edgeColor}
           hiddenEdgeColor={settings.hiddenEdgeColor}
@@ -229,6 +266,7 @@ export function MemoryGlowRoot({
         />
         {/* 숨쉬는 헤일로 + 벽 너머 투과는 기억만: 곁가지는 윤곽선 한 줄에서 멈춘다 */}
         <Outline
+          ref={outerRef}
           selection={selection.memory}
           visibleEdgeColor={settings.edgeColor}
           hiddenEdgeColor={settings.hiddenEdgeColor}
@@ -237,6 +275,18 @@ export function MemoryGlowRoot({
         <primitive object={film.grain} />
       </EffectComposer>
       <FilmLookDriver effects={film} dim={dim} reducedMotion={reducedMotion} />
+      <GlowHoverPulse
+        effectRef={innerRef}
+        baseStrength={settings.inner.edgeStrength}
+        gain={HOVER_PULSE_GAIN.inner}
+        reducedMotion={reducedMotion}
+      />
+      <GlowHoverPulse
+        effectRef={outerRef}
+        baseStrength={settings.outer.edgeStrength}
+        gain={HOVER_PULSE_GAIN.outer}
+        reducedMotion={reducedMotion}
+      />
     </MemoryGlowSelectionContext.Provider>
   );
 }

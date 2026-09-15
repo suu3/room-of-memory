@@ -23,6 +23,7 @@ import {
 import type { MovementAxes } from "@/types/movement";
 import { CameraRig } from "./memory-room/CameraRig";
 import { CanvasMinigameHost } from "./memory-room/CanvasMinigameHost";
+import { CursorTargetProjector } from "./memory-room/CursorTargetProjector";
 import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
 import { EndingTrigger } from "./memory-room/EndingTrigger";
@@ -410,6 +411,8 @@ export function MemoryRoomScene({
         curtainPull={curtainPull}
       />
       {/* 배트를 쥐면 카메라도 문 쪽으로 붙는다. 엔딩 영상의 첫 컷과 이어지는 구도 */}
+      {/* 커서가 얹힌 오브젝트의 화면 자리. 캔버스 밖 커서가 그리로 빨려든다 */}
+      <CursorTargetProjector />
       <CameraRig
         focusId={endingStarted ? "ending" : focusMemoryId}
         roomZoom={roomZoom}
