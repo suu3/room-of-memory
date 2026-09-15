@@ -96,14 +96,15 @@ const BURN_RISE_S = 1.5;
 
 /** 찢김의 세기 (0~1). 시작 뒤 흐른 시간의 함수. */
 export function tearAmount(elapsed: number): number {
-  if (elapsed < 0) return 0;
+  // 아직 한 번도 시작하지 않았으면 시작 시각이 -Infinity라 경과가 +Infinity다: 0이다
+  if (!Number.isFinite(elapsed) || elapsed < 0) return 0;
   if (elapsed < TEAR_ATTACK_S) return elapsed / TEAR_ATTACK_S;
   return Math.max(0, 1 - (elapsed - TEAR_ATTACK_S) / TEAR_RELEASE_S);
 }
 
 /** 타들어감의 세기 (0~1). 켜진 뒤 흐른 시간의 함수, 다 차면 1에 머문다. */
 export function burnAmount(elapsed: number): number {
-  if (elapsed < 0) return 0;
+  if (!Number.isFinite(elapsed) || elapsed < 0) return 0;
   const u = Math.min(1, elapsed / BURN_RISE_S);
   return u * u * (3 - 2 * u);
 }

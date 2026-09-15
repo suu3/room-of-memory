@@ -209,13 +209,16 @@ export function DustMotes({ color, opacity }: { color: string; opacity: number }
     [],
   );
 
+  // r3f는 uniforms 프롭을 복제하므로 이후 갱신은 머티리얼의 것을 만진다
   useEffect(() => {
-    uniforms.uColor.value.set(color);
-  }, [color, uniforms]);
+    const live = materialRef.current?.uniforms;
+    if (live) (live.uColor.value as Color).set(color);
+  }, [color]);
 
   useEffect(() => {
-    uniforms.uPixelRatio.value = pixelRatio;
-  }, [pixelRatio, uniforms]);
+    const live = materialRef.current?.uniforms;
+    if (live) live.uPixelRatio.value = pixelRatio;
+  }, [pixelRatio]);
 
   useFrame((state, delta) => {
     const material = materialRef.current;

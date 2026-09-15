@@ -20,5 +20,7 @@ describe("burnAmount", () => {
     expect(burnAmount(0.75)).toBeCloseTo(0.5);
     expect(burnAmount(1.5)).toBe(1);
     expect(burnAmount(10)).toBe(1);
+    // 아직 시작하지 않은 상태: 시작 시각이 -Infinity라 경과가 +Infinity다. 1이 아니라 0
+    expect(burnAmount(Number.POSITIVE_INFINITY)).toBe(0);
   });
 });

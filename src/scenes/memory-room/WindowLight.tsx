@@ -83,9 +83,9 @@ const FRAGMENT_SHADER = /* glsl */ `
     // 판의 좌우 끝을 부드럽게: 광선이 네모난 판으로 읽히면 안 된다
     float edge = smoothstep(0.0, 0.22, vUv.x) * smoothstep(1.0, 0.78, vUv.x);
     // 커튼 틈: 가운데서 양옆으로 열린다. 조금 열린 커튼은 가는 빛줄기 하나다
-    float half = mix(0.04, 0.5, uOpen);
-    float slit = smoothstep(0.5 - half - 0.08, 0.5 - half + 0.04, vUv.x)
-               * smoothstep(0.5 + half + 0.08, 0.5 + half - 0.04, vUv.x);
+    float gap = mix(0.04, 0.5, uOpen);
+    float slit = smoothstep(0.5 - gap - 0.08, 0.5 - gap + 0.04, vUv.x)
+               * smoothstep(0.5 + gap + 0.08, 0.5 + gap - 0.04, vUv.x);
     float alpha = along * rays * edge * slit * uOpacity;
     if (alpha <= 0.002) discard;
     gl_FragColor = vec4(uColor, alpha);
@@ -107,8 +107,9 @@ export function WindowLight({
   open: number;
 }) {
   const materialRef = useRef<ShaderMaterial>(null);
+  // r3f는 uniforms 프롭을 복제한다. 초기값으로만 쓰고 이후 갱신은 materialRef.current.uniforms
   // biome-ignore lint/correctness/useExhaustiveDependencies: 초기값 전용: 이후 갱신은 effect와 useFrame이 맡는다.
-  const uniforms = useMemo(
+  const initialUniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uOpacity: { value: 0 },
@@ -119,13 +120,15 @@ export function WindowLight({
   );
 
   useEffect(() => {
-    uniforms.uColor.value.set(color);
-  }, [color, uniforms]);
+    const uniforms = materialRef.current?.uniforms;
+    if (uniforms) (uniforms.uColor.value as Color).set(color);
+  }, [color]);
 
   // 커튼이 열리는 모션(RoomFurniture)과 같은 호흡으로 빛이 번지도록 damp로 따라간다
   useFrame((state, delta) => {
     const material = materialRef.current;
     if (!material) return;
+    const uniforms = material.uniforms;
     uniforms.uTime.value = state.clock.elapsedTime;
     // 틈은 손을 바로 따라오고, 밝기는 천천히 차오른다
     uniforms.uOpen.value = MathUtils.damp(uniforms.uOpen.value, open, 8, delta);
@@ -139,7 +142,7 @@ export function WindowLight({
       <planeGeometry args={[SHAFT_WIDTH, SHAFT_LENGTH]} />
       <shaderMaterial
         ref={materialRef}
-        uniforms={uniforms}
+        uniforms={initialUniforms}
         vertexShader={VERTEX_SHADER}
         fragmentShader={FRAGMENT_SHADER}
         transparent

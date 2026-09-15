@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { AdditiveBlending, Color, type Points, type ShaderMaterial, Vector3 } from "three";
 import type { MemoryId } from "@/data/memory-room";
 import { useMemoryRoomStore } from "@/store/memory-room";
@@ -45,11 +45,11 @@ const VERTEX_SHADER = /* glsl */ `
     float u = clamp(uTime / uDuration, 0.0, 1.0);
     // 터져 나오는 구간: 빠르게 나갔다가 서고(ease-out), 낱알마다 조금씩 늦게 출발한다
     float delay = aSeed * 0.12;
-    float out = 1.0 - pow(1.0 - clamp((u - delay) * 2.2, 0.0, 1.0), 3.0);
+    float scatter = 1.0 - pow(1.0 - clamp((u - delay) * 2.2, 0.0, 1.0), 3.0);
     // 쓸려 가는 구간: 뒤로 갈수록 세게 끌려간다
     float pull = pow(smoothstep(0.3, 1.0, u), 2.0);
     vec3 pos = uOrigin
-      + aDir * out * BURST_SPREAD * (0.6 + 0.4 * aSeed)
+      + aDir * scatter * BURST_SPREAD * (0.6 + 0.4 * aSeed)
       + vec3(0.0, 0.35 * u, 0.0)
       + uPull * pull * BURST_PULL * (0.7 + 0.3 * aSeed);
     // 쓸려 가는 동안 살짝 흔들린다. 곧게 날면 입자가 아니라 선이다
@@ -125,8 +125,12 @@ export function MemoryBurst({ color }: { color: string }) {
   const burst = useMemo(createBurst, []);
   /** 폭발 뒤 흐른 시간. 끝나면 duration보다 크게 두고 그리지 않는다. */
   const elapsed = useRef(BURST_DURATION + 1);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: 초기값 전용: 이후 갱신은 effect와 useFrame이 맡는다.
-  const uniforms = useMemo(
+  /*
+   * r3f는 uniforms 프롭을 복제해 머티리얼에 넣는다. 이 객체를 고쳐도 화면에는 안
+   * 닿으므로 초기값으로만 쓰고, 이후 갱신은 전부 materialRef.current.uniforms를 만진다.
+   * (먼지가 materialRef를 거치는 이유와 같다.)
+   */
+  const initialUniforms = useMemo(
     () => ({
       uTime: { value: BURST_DURATION + 1 },
       uDuration: { value: BURST_DURATION },
@@ -135,16 +139,21 @@ export function MemoryBurst({ color }: { color: string }) {
       uPixelRatio: { value: pixelRatio },
       uColor: { value: new Color(color) },
     }),
-    [],
+    [pixelRatio, color],
+  );
+  /** 살아 있는 머티리얼의 uniforms. 마운트 전에는 초기값 객체. */
+  const uniformsOf = useCallback(
+    () => materialRef.current?.uniforms ?? initialUniforms,
+    [initialUniforms],
   );
 
   useEffect(() => {
-    uniforms.uColor.value.set(color);
-  }, [color, uniforms]);
+    (uniformsOf().uColor.value as Color).set(color);
+  });
 
   useEffect(() => {
-    uniforms.uPixelRatio.value = pixelRatio;
-  }, [pixelRatio, uniforms]);
+    uniformsOf().uPixelRatio.value = pixelRatio;
+  });
 
   // 사건은 스토어에서 듣는다. 어느 물건인지 알아야 하므로 event-pulse가 아니라 목록 차이를 본다
   useEffect(
@@ -157,17 +166,18 @@ export function MemoryBurst({ color }: { color: string }) {
         const placement = MEMORY_PLACEMENTS[id];
         if (!placement) return;
         const [x, y, z] = placement.position;
-        uniforms.uOrigin.value.set(x, y, z);
+        const uniforms = uniformsOf();
+        (uniforms.uOrigin.value as Vector3).set(x, y, z);
         /*
          * 쓸려 가는 쪽은 화면의 오른쪽 위다. 수첩 손잡이가 오른쪽 가장자리에 있고 HUD
          * 숫자가 위에 있다. 카메라 기준 오른쪽·위 벡터를 섞어 월드 방향으로 만든다.
          */
         camera.matrixWorld.extractBasis(cameraRight, cameraUp, pull);
         pull.copy(cameraRight).multiplyScalar(0.8).addScaledVector(cameraUp, 0.6).normalize();
-        uniforms.uPull.value.copy(pull);
+        (uniforms.uPull.value as Vector3).copy(pull);
         elapsed.current = 0;
       }),
-    [camera, uniforms],
+    [camera, uniformsOf],
   );
 
   useFrame((_, delta) => {
@@ -177,7 +187,7 @@ export function MemoryBurst({ color }: { color: string }) {
     points.visible = live;
     if (!live) return;
     elapsed.current += delta;
-    uniforms.uTime.value = elapsed.current;
+    uniformsOf().uTime.value = elapsed.current;
   });
 
   return (
@@ -190,7 +200,7 @@ export function MemoryBurst({ color }: { color: string }) {
       </bufferGeometry>
       <shaderMaterial
         ref={materialRef}
-        uniforms={uniforms}
+        uniforms={initialUniforms}
         vertexShader={VERTEX_SHADER}
         fragmentShader={FRAGMENT_SHADER}
         transparent

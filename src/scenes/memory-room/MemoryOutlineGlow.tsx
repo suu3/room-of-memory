@@ -215,9 +215,9 @@ const HOVER_PULSE_GAIN = { inner: 1.2, outer: 0.5 } as const;
  * 1/20쯤, 세기는 은은한 쪽. 절반 해상도로 돌려 모바일 예산을 지킨다.
  */
 const AO_SETTINGS = {
-  aoRadius: 0.7,
-  distanceFalloff: 1,
-  intensity: 2.2,
+  aoRadius: 0.6,
+  distanceFalloff: 0.8,
+  intensity: 1.8,
   aoSamples: 8,
   denoiseSamples: 4,
   denoiseRadius: 6,
@@ -279,28 +279,37 @@ export function MemoryGlowRoot({
         뿌려져야 필름이다.
       */}
       <EffectComposer {...settings.composer}>
-        {/* AO는 장면을 그리는 패스라 맨 앞. 뒤의 이펙트들이 눌린 그림 위에 얹힌다 */}
-        {/* biome-ignore lint/complexity/noUselessFragments: EffectComposer의 children 타입이 null을 받지 않는다. 빈 조각이 "패스 없음"이다. */}
-        {aoColor ? <N8AO halfRes quality="performance" color={aoColor} {...AO_SETTINGS} /> : <></>}
-        <primitive object={film.aberration} />
-        <Outline
-          ref={innerRef}
-          selection={touchable}
-          visibleEdgeColor={settings.edgeColor}
-          hiddenEdgeColor={settings.hiddenEdgeColor}
-          {...settings.inner}
-        />
-        {/* 숨쉬는 헤일로 + 벽 너머 투과는 기억만: 곁가지는 윤곽선 한 줄에서 멈춘다 */}
-        <Outline
-          ref={outerRef}
-          selection={selection.memory}
-          visibleEdgeColor={settings.edgeColor}
-          hiddenEdgeColor={settings.hiddenEdgeColor}
-          {...settings.outer}
-        />
-        <primitive object={film.grain} />
-        {/* 화면 전환(찢김·타들어감)은 맨 마지막: 그레인까지 얹힌 화면이 통째로 넘어간다 */}
-        <primitive object={transition} />
+        {/*
+          children 타입이 null을 받지 않아 배열로 짠다. 순서가 곧 층이다.
+          AO는 장면을 그리는 패스라 맨 앞. 색수차는 convolution이라 제 패스를 혼자 쓴다.
+          아웃라인 둘과 그레인은 한 패스로 합쳐진다. 화면 전환은 맨 마지막: 그레인까지
+          얹힌 화면이 통째로 넘어간다.
+        */}
+        {[
+          ...(aoColor
+            ? [<N8AO key="ao" halfRes quality="performance" color={aoColor} {...AO_SETTINGS} />]
+            : []),
+          <primitive key="aberration" object={film.aberration} />,
+          <Outline
+            key="inner"
+            ref={innerRef}
+            selection={touchable}
+            visibleEdgeColor={settings.edgeColor}
+            hiddenEdgeColor={settings.hiddenEdgeColor}
+            {...settings.inner}
+          />,
+          // 숨쉬는 헤일로 + 벽 너머 투과는 기억만: 곁가지는 윤곽선 한 줄에서 멈춘다
+          <Outline
+            key="outer"
+            ref={outerRef}
+            selection={selection.memory}
+            visibleEdgeColor={settings.edgeColor}
+            hiddenEdgeColor={settings.hiddenEdgeColor}
+            {...settings.outer}
+          />,
+          <primitive key="grain" object={film.grain} />,
+          <primitive key="transition" object={transition} />,
+        ]}
       </EffectComposer>
       <ScreenTransitionDriver effect={transition} reducedMotion={reducedMotion} />
       <FilmLookDriver effects={film} dim={dim} reducedMotion={reducedMotion} />
