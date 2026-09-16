@@ -22,6 +22,8 @@ export function PuzzleHost() {
   const active = useMemoryRoomStore((state) => state.activePuzzle);
   const finishPuzzle = useMemoryRoomStore((state) => state.finishPuzzle);
   const closePuzzle = useMemoryRoomStore((state) => state.closePuzzle);
+  // 손에 든 것. 문제 화면이 "저쪽에서 가져온 것"을 보고 달라진다 (MinigameProps의 carrying)
+  const carrying = useMemoryRoomStore((state) => state.inventory);
   /** 결과가 확정돼 더는 닫을 수 없는 문제 id (onSettled: src/types/minigame.ts). */
   const [settledId, setSettledId] = useState<string | null>(null);
   const [burstId, setBurstId] = useState(0);
@@ -81,6 +83,7 @@ export function PuzzleHost() {
             <Suspense fallback={null}>
               <Minigame
                 gamePhase={2}
+                carrying={carrying}
                 onSettled={() => setSettledId(active)}
                 onComplete={(result) => {
                   playSound(result.cleared ? "success" : "fail");

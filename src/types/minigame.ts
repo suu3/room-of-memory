@@ -41,6 +41,14 @@ export interface MinigameProps {
   /** 난이도. 기본값 "easy". 수치를 난이도로 가르는 미니게임만 읽는다. */
   difficulty?: MinigameDifficulty;
   /**
+   * 지금 손에 든 물건 (src/data/items.ts의 ItemId). 기본값은 빈손.
+   *
+   * 방탈출 축의 문제는 "저쪽에서 가져온 것"에 따라 화면이 달라진다 (피아노 악보의
+   * 지워진 마디는 찢어진 조각을 들고 있을 때만 드러난다). gamePhase·difficulty와
+   * 같은 이유로 props다: 미니게임이 스토어를 직접 읽으면 판 하나가 게임 전체를 안다.
+   */
+  carrying?: readonly string[];
+  /**
    * Player asked to skip (accessibility requirement: every minigame must
    * call onComplete({ cleared: true }) when skipped).
    */

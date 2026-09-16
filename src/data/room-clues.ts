@@ -124,7 +124,14 @@ export const RULE_CLUES = { "card-odd": "shelf-book", "angle-turn": "desk-clock"
  *
  * 여기 남은 것은 수집·재조사에 안 세어지고 완료는 solvedPuzzles에만 남는다.
  */
-export const PUZZLE_IDS = ["angle-turn"] as const;
+/**
+ * 미궁 문제: 기억이 아니라 **잠금**이다. 수집에도 재조사에도 안 세어지고, 푼 기록만
+ * solvedPuzzles에 남는다 (docs/content-design.md 3-2).
+ *
+ * piano-melody는 거실 피아노의 멜로디 자물쇠다. 악보의 한 마디가 지워져 있고 그 마디는
+ * 안방 책상의 찢어진 조각이 들고 있다: 이쪽 공간의 단서를 저쪽에서 찾는 축의 첫 매듭이다.
+ */
+export const PUZZLE_IDS = ["angle-turn", "piano-melody"] as const;
 export type PuzzleId = (typeof PUZZLE_IDS)[number];
 
 /**

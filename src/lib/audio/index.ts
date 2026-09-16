@@ -16,6 +16,7 @@ import {
 export {
   type NoiseBed,
   playSound,
+  playTone,
   setAudioMuted,
   setAudioVolume,
   startNoiseBed,

@@ -425,7 +425,16 @@
       "played": "Played so far",
       "clear": "Clear",
       "keyLabel": "Key {{name}}",
-      "solved": "The last note hangs in the room for a long time."
+      "solved": "The last note hangs in the room for a long time.",
+      "notes": {
+        "do": "Do",
+        "re": "Re",
+        "mi": "Mi",
+        "fa": "Fa",
+        "sol": "Sol",
+        "la": "La",
+        "ti": "Ti"
+      }
     }
   },
   "characterSheet": {

@@ -152,6 +152,30 @@ export function playSound(id: VoiceId, options: PlayOptions = {}) {
 }
 
 /**
+ * 음 하나를 그 높이로 울린다 (피아노 건반).
+ *
+ * VOICES를 못 쓰는 자리다. 저쪽은 id마다 음이 고정이고, 같은 id가 연달아 나면
+ * MIN_REPEAT_S가 막는다. 건반은 **음높이가 곧 뜻**이고 같은 음을 연달아 누르는
+ * 일도 흔해서(솔미미), 소리 이름이 아니라 주파수를 받는 통로가 따로 필요하다.
+ *
+ * 파형은 삼각파에 짧은 감쇠: 합성으로 피아노를 흉내 내는 대신 "음이 하나 울렸다"만
+ * 정직하게 낸다. 감쇠가 길면 건반을 빨리 누를 때 음이 겹쳐 뭉갠다.
+ */
+export function playTone(frequency: number, { duration = 0.42, gain = 0.3 } = {}) {
+  if (muted) return;
+  const ctx = ensureContext();
+  if (!ctx || !master) return;
+  if (ctx.state === "suspended") void ctx.resume();
+
+  scheduleVoice(
+    ctx,
+    master,
+    { tones: [{ from: frequency, waveform: "triangle", delay: 0, duration, gain }] },
+    ctx.currentTime + 0.001,
+  );
+}
+
+/**
  * 계속 깔리는 노이즈 층. 라디오 잡음처럼 "한 번 울리고 끝"이 아닌 소리는 Voice로
  * 못 만든다. Voice는 0.6초를 넘지 않는다는 계약이 걸려 있다(voices.test.ts).
  *

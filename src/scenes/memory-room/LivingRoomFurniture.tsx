@@ -5,6 +5,8 @@ import type {} from "@react-three/fiber";
 import { type ReactNode, useRef } from "react";
 import type { Group } from "three";
 import { ASSETS } from "@/lib/assets";
+import { playSound } from "@/lib/audio";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import type { SeatId } from "@/types/seat";
 import { FurnitureModel } from "./FurnitureModel";
 import { DiningDetails, LivingRoomDetails, LivingShoes, SofaDetails } from "./LivingRoomDetails";
@@ -15,11 +17,14 @@ import {
   LIVING_FURNITURE_SCALE,
   LIVING_PIANO_CENTER,
   LIVING_PIANO_ROTATION,
+  PIANO_STAND,
   scaleLivingPoint,
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
+import { useGlowHover } from "./use-glow-hover";
+import { useNearPlayer } from "./use-near-player";
 import { useSeat, useSeatPull } from "./use-seat";
 
 /**
@@ -273,6 +278,44 @@ function SofaCushion({
   );
 }
 
+/**
+ * 피아노 본체: 눌러서 여는 미궁 문제 (piano-melody).
+ *
+ * 걸상은 앉는 물건이고 본체는 **치는 물건**이라 둘을 갈라 둔다. 앉지 않고도 칠 수
+ * 있게 한 건 접근성이다: 앉기는 곁가지 인터랙션이라 거기에 퍼즐을 걸면 앉는 법을
+ * 모르는 사람이 문제 앞에 못 선다.
+ *
+ * 다 친 뒤에는 더 안 켜진다. 푼 문제를 계속 부르면 방이 아직 할 일이 남았다고 말한다.
+ */
+function PianoBody({ palette }: { palette: RoomPalette }) {
+  const solved = useMemoryRoomStore((state) => state.solvedPuzzles.includes("piano-melody"));
+  const openPuzzle = useMemoryRoomStore((state) => state.openPuzzle);
+  const { hovered, handlers } = useGlowHover(!solved);
+  // 걸상 앞(PIANO_BENCH_PARTS의 좌판 z)에 서면 닿는다. 거실 배율은 LivingPiece가 건다
+  const near = useNearPlayer(PIANO_STAND.x, PIANO_STAND.z, PIANO_STAND.radius);
+
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
+    <group
+      onClick={(event) => {
+        if (solved) return;
+        event.stopPropagation();
+        playSound("select");
+        openPuzzle("piano-melody");
+      }}
+      {...handlers}
+    >
+      <MemoryGlowSelection
+        selectionKey="piano-body"
+        tier="prop"
+        enabled={!solved && (hovered || near)}
+      >
+        <Boxes parts={PIANO_PARTS} palette={palette} />
+      </MemoryGlowSelection>
+    </group>
+  );
+}
+
 /** 피아노 걸상: 반쯤 빼놓은 그대로 앉는다. 무릎은 건반 뚜껑 아래로 들어간다. */
 function PianoBench({ palette }: { palette: RoomPalette }) {
   const { glowing, handlers } = useSeat("piano-bench");
@@ -412,7 +455,7 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
         at={LIVING_PIANO_CENTER}
         rotationY={LIVING_PIANO_ROTATION}
       >
-        <Boxes parts={PIANO_PARTS} palette={palette} />
+        <PianoBody palette={palette} />
         <PianoBench palette={palette} />
       </LivingPiece>
       <FurnitureModel

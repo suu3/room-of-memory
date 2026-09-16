@@ -130,6 +130,17 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     helpKey: "minigame.angleTurn.help",
     // card-odd와 같은 이유로 rulesKeys를 비운다. 각도를 읽는 법은 캐비닛 위 시계에 있다
   },
+  "piano-melody": {
+    id: "piano-melody",
+    mode: "overlay",
+    component: lazy(() =>
+      import("./piano-melody").then((m) => ({ default: m.PianoMelodyMinigame })),
+    ),
+    titleKey: "minigame.pianoMelody.title",
+    helpKey: "minigame.pianoMelody.help",
+    failKey: "minigame.pianoMelody.fail",
+    // 규칙은 악보가 다 말한다. 적힌 대로 누르면 된다는 걸 목록으로 또 적을 이유가 없다
+  },
   "ampoule-pickup": {
     id: "ampoule-pickup",
     // 유일한 canvas 모드: 씬의 냉장고 그 자리에서 서랍이 열리고 앰플이 손에 들린다.

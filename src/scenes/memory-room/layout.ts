@@ -159,6 +159,14 @@ export const LIVING_DINING_CENTER = [-10.0, 2.0] as const;
  * 건반이 거실(-x)을 본다. 문간(DOORWAY_ZONE z 4.7~6.0)에서 1.3m 남긴 자리다.
  */
 export const LIVING_PIANO_CENTER = [LIVING_SHELL_BOUNDS.maxX, 2.3] as const;
+
+/**
+ * 피아노 앞에 서는 자리. 본체를 눌러 멜로디 문제를 여는 반경이다 (PianoBody).
+ *
+ * x는 피아노 발자국(-7.75)과 식탁 발자국(-8.76) 사이의 빈 바닥 한가운데다. 양쪽에서
+ * 0.5씩 떨어져 있어 사람(반지름 0.38)이 끼지 않는다.
+ */
+export const PIANO_STAND = { x: -8.3, z: 2.3, radius: 1.8 } as const;
 export const LIVING_PIANO_ROTATION = Math.PI / 2;
 
 /**

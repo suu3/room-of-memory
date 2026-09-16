@@ -2,6 +2,7 @@
 
 import { CulledWall } from "./CulledWall";
 import { InteriorSurface } from "./InteriorPrimitives";
+import { ItemPickup } from "./ItemPickup";
 import { PARENTS_COLLIDERS, PARENTS_DOOR_POSITION, PARENTS_SHELL_BOUNDS } from "./layout";
 import { ParentsRoomFurniture } from "./ParentsRoomFurniture";
 import type { RoomPalette } from "./palette";
@@ -39,6 +40,27 @@ const PAPERS = [
   { size: [0.55, 0.06, 0.4], position: [desk.minX + 0.6, 1.15, desk.minZ + 0.4], color: "linen" },
   { size: [0.5, 0.05, 0.36], position: [desk.minX + 0.72, 1.2, desk.minZ + 0.32], color: "linen" },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple; color: keyof RoomPalette }[];
+/**
+ * 서류 옆에 놓인 찢어진 악보 조각: 집어 가면 거실 피아노의 지워진 마디가 드러난다
+ * (src/minigames/piano-melody). 서류와 같은 책상, 같은 다가감 반경이라 한 번 다가서면
+ * 둘 다 켜진다: 조각만 놓치고 돌아서는 일이 없게.
+ *
+ * 종이 한 장이라 얇고, 서류 뭉치보다 조금 앞으로 나와 겹치지 않는다.
+ */
+const SHEET_SCRAP = [
+  {
+    size: [0.3, 0.012, 0.22],
+    position: [desk.minX + 1.32, 1.13, desk.minZ + 0.36],
+    color: "linen",
+  },
+  // 그려진 오선 한 줄. 이게 없으면 이 거리에서는 그냥 흰 조각이다
+  {
+    size: [0.22, 0.004, 0.02],
+    position: [desk.minX + 1.32, 1.14, desk.minZ + 0.36],
+    color: "frame",
+  },
+] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple; color: keyof RoomPalette }[];
+
 const PAPERS_NEAR = {
   near: [(desk.minX + desk.maxX) / 2, desk.minZ - 0.5] as readonly [number, number],
   interactionRadius: 1.8,
@@ -118,6 +140,11 @@ export function ParentsRoomShell({ palette }: { palette: RoomPalette }) {
           <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />
         ))}
       </ClueProp>
+      <ItemPickup id="piano-sheet" near={PAPERS_NEAR.near} radius={PAPERS_NEAR.interactionRadius}>
+        {SHEET_SCRAP.map((piece) => (
+          <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />
+        ))}
+      </ItemPickup>
     </group>
   );
 }
