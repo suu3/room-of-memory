@@ -20,6 +20,12 @@ const TURN_RATE = 1.5;
  * 다른 손으로 끌기는 어렵다. 누르고 있는 만큼 도는 버튼 둘이면 조이스틱과 같은 문법이다.
  * 키보드의 `,`/`.`와 같은 일을 한다 (use-first-person-look).
  *
+ * 자리는 모바일 1인칭 게임의 관례를 따른다: 왼쪽 엄지는 이동, 오른쪽 엄지는 시선과
+ * 행동, 화면 가운데는 비운다. 오른쪽 버튼은 엄지가 닿는 자리에 **세로로 바짝** 쌓는다.
+ * 가로로 벌리면 엄지가 두 자리를 오가야 하고, 오른쪽 가장자리 가운데의 수첩 손잡이와도
+ * 멀어야 한다. 아이소메트릭(3인칭) 구도에는 이 버튼이 없다. 그 구도의 시선은 회전이 아니라
+ * 바닥 탭·핀치이고, 조작 UI는 구도마다 다르다.
+ *
  * 값은 시선 ref에 직접 더한다. 프레임마다 FirstPersonRig가 읽으므로 상태로 둘 이유가 없다.
  */
 export function LookButtons({
@@ -70,7 +76,7 @@ export function LookButtons({
     if (holdRef.current.pointerId !== event.pointerId) return;
     holdRef.current = { direction: 0, pointerId: null };
   };
-  const buttonClass = `grid size-14 cursor-pointer place-items-center rounded-full border border-line bg-surface text-ivory/85 shadow-chip transition-colors active:bg-surface-strong active:text-ivory ${FOCUS_RING}`;
+  const buttonClass = `grid size-13 cursor-pointer place-items-center rounded-full border border-line bg-surface text-ivory/85 shadow-chip transition-colors active:bg-surface-strong active:text-ivory ${FOCUS_RING}`;
 
   return (
     <div
@@ -79,7 +85,8 @@ export function LookButtons({
         disabled ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
-      <div className="flex gap-3">
+      {/* 세로로 바짝: 엄지 하나가 위아래로만 움직여 둘 다 닿는다 */}
+      <div className="flex flex-col gap-1.5">
         <button
           type="button"
           aria-label={labels.left}
