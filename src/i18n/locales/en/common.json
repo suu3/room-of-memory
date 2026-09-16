@@ -28,7 +28,8 @@
       "lights": "It's dark. Find the light switch on the wall and turn it on",
       "doorway": "Step out through the open door"
     },
-    "here": "You are here: {{value}}"
+    "here": "You are here: {{value}}",
+    "travel": "Travel"
   },
   "door": {
     "locked": "Locked Door",

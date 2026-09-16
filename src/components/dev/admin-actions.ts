@@ -1,7 +1,7 @@
 import type { ItemId } from "@/data/items";
 import type { MemoryId } from "@/data/memory-room";
 import type { DiscoveryId, PuzzleId } from "@/data/room-clues";
-import type { DoorwayId } from "@/scenes/memory-room/spaces";
+import { type DoorwayId, SPACE_IDS, SPACES, type SpaceId } from "@/scenes/memory-room/spaces";
 import { sanitizeProgress, useMemoryRoomStore } from "@/store/memory-room";
 import { cycleMemory } from "./admin-progress";
 
@@ -63,19 +63,14 @@ export function applyAdminPatch(patch: AdminPatch): void {
 }
 
 /**
- * 패널이 몸을 떨어뜨리는 자리.
- *
- * 방은 게임의 시작 자리, 거실은 문간을 막 지난 자리다. 그 공간에 들어섰을 때 실제로
- * 서게 되는 곳이라야 그 뒤로 걸어 다닐 수 있다(가구 발자국 밖, 걷기 범위 안).
+ * 패널이 몸을 떨어뜨리는 자리. 공간 표의 landing을 그대로 쓴다: 게임의 미니맵 이동과
+ * 같은 자리에 떨어져야 개발 중에 본 화면이 플레이 중에 보는 화면과 같다.
  */
-export const ADMIN_SPAWNS = {
-  room: { x: 0, z: 2.35 },
-  living: { x: -7, z: 5.2 },
-  bathroom: { x: -12.25, z: 8 },
-  parents: { x: -19.5, z: 3 },
-} as const;
+export const ADMIN_SPAWNS = Object.fromEntries(
+  SPACE_IDS.map((id) => [id, SPACES[id].landing]),
+) as Record<SpaceId, { x: number; z: number }>;
 
-export type AdminSpace = keyof typeof ADMIN_SPAWNS;
+export type AdminSpace = SpaceId;
 
 /**
  * 방문을 열고 닫는다.

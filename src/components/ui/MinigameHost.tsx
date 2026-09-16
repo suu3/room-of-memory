@@ -17,10 +17,13 @@ import { SuccessBurst } from "./SuccessBurst";
 import { BUTTON_PRIMARY, BUTTON_QUIET, HUD_ICON_BUTTON_SOLID, PANEL_FRAME } from "./ui-classes";
 
 /**
- * 결과 카드가 떠 있는 최소 시간(ms). 성공은 이 시간이 지나면 저절로 넘어가고, 실패는
- * 버튼을 누를 때까지 남는다. 판이 끝나자마자 모달이 닫히면 진 건지 고장인지 알 수 없다.
+ * 결과 카드의 버튼이 서기까지 기다리는 시간(ms).
+ *
+ * 판을 두드리던 손가락이 카드가 뜨는 순간 버튼을 눌러 버리는 걸 막는 창이다. 그
+ * 이상은 아니다. 1.8초를 붙잡아 뒀더니 성공 카드는 2.6초에 저절로 넘어가는 탓에
+ * 버튼이 서 있는 시간이 0.5초뿐이었다: 누르려고 보면 이미 사라져 있었다.
  */
-const RESULT_HOLD_MS = 1800;
+const RESULT_HOLD_MS = 600;
 /** 성공 카드가 저절로 넘어가는 시각(ms). 읽을 시간은 주되 붙잡아 두지는 않는다. */
 const RESULT_AUTO_MS = 2600;
 

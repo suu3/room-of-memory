@@ -35,6 +35,7 @@ import { EndingScreen } from "./EndingScreen";
 import { FeedbackModal } from "./FeedbackModal";
 import { HudGuideBanner, HudGuideDock, HudSpaceLine } from "./HudGuide";
 import { HudMenu } from "./HudMenu";
+import { HudMiniMap } from "./HudMiniMap";
 import { InventoryStrip } from "./InventoryStrip";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
@@ -252,6 +253,8 @@ export function MemoryRoom() {
             <HudMenu />
           </div>
           <SoundToggle />
+          {/* 작은 평면도 겸 이동 버튼. 방문이 열린 뒤에만 뜬다 */}
+          <HudMiniMap />
         </div>
       )}
 
@@ -274,12 +277,13 @@ export function MemoryRoom() {
             다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다.
           */}
           {/*
-              폰에서는 한 칸 더 내려 앉는다(top-36). 왼쪽 위 헤더가 제목·진행·목표·소지품
-              넉 줄이라 좁은 화면에서 그 아래까지 내려오는데, 이 기둥이 화면 폭을 거의 다
-              쓰기 때문에 top-28에서는 마지막 줄과 글자가 겹친다. md부터는 헤더가 짧아 보이는
-              폭이 남아 예전 자리(top-28)를 그대로 쓴다.
+              폰에서는 두 칸 내려 앉는다(top-44). 이 기둥은 좁은 화면에서 폭을 거의 다
+              쓰기 때문에 위쪽 HUD를 좌우 양쪽으로 다 지나간다. 왼쪽 위 헤더는 제목·진행·
+              목표·소지품 넉 줄이고, 오른쪽 위는 햄버거·소리에 미니맵까지 석 줄이라
+              (바닥이 163px) 그보다 아래에서 시작해야 글자가 겹치지 않는다. md부터는
+              좌우로 비켜설 폭이 남아 예전 자리(top-28)를 그대로 쓴다.
             */}
-          <div className="pointer-events-none absolute left-1/2 top-36 z-10 flex w-[min(clamp(640px,44vw,840px),calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-28 md:gap-3 lg:top-16">
+          <div className="pointer-events-none absolute left-1/2 top-44 z-10 flex w-[min(clamp(640px,44vw,840px),calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-28 md:gap-3 lg:top-16">
             {/* 인트로(불 켜기 전)에는 어둠 속의 한 줄(p0-dark)이 걸린다 (monologueIdFor) */}
             <Monologue monologueId={monologueId} hidden={monologueHidden} />
             <HudGuideBanner hidden={monologueHidden} />

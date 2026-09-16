@@ -53,6 +53,16 @@ export interface SpaceDef {
   lightOffset: number;
   /** 창이 있는가: 볕(warm)은 창이 있는 공간에서만 든다. */
   hasWindow: boolean;
+  /**
+   * 이 공간에 몸을 떨어뜨리는 자리 (HUD 미니맵의 이동, 개발 패널의 워프).
+   *
+   * 공간 한가운데가 아니다. 가운데에는 대개 가구가 있고, 무엇보다 **그 공간에 걸어
+   * 들어왔을 때 실제로 서게 되는 자리**여야 이동이 순간이동이 아니라 "저리로 갔다"로
+   * 읽힌다. 방은 게임의 시작 자리, 나머지는 문간을 막 지난 자리다.
+   *
+   * 걸을 수 있는 자리인지는 테스트가 지킨다 (spaces.test).
+   */
+  landing: { x: number; z: number };
 }
 
 /** 방이 아닌 공간이 방보다 어두운 몫 (docs/content-design.md 5장). */
@@ -66,6 +76,7 @@ export const SPACES = {
     colliders: ROOM_COLLIDERS,
     lightOffset: 0,
     hasWindow: true,
+    landing: { x: 0, z: 2.35 },
   },
   living: {
     id: "living",
@@ -74,6 +85,7 @@ export const SPACES = {
     colliders: LIVING_COLLIDERS,
     lightOffset: AWAY_LIGHT_OFFSET,
     hasWindow: false,
+    landing: { x: -7, z: 5.2 },
   },
   bathroom: {
     id: "bathroom",
@@ -82,6 +94,7 @@ export const SPACES = {
     colliders: BATHROOM_COLLIDERS,
     lightOffset: AWAY_LIGHT_OFFSET,
     hasWindow: false,
+    landing: { x: -12.25, z: 8 },
   },
   parents: {
     id: "parents",
@@ -91,6 +104,7 @@ export const SPACES = {
     // 부모님 방은 가장 오래 닫혀 있던 공간이다. 한 단계 더 어둡다
     lightOffset: AWAY_LIGHT_OFFSET * 2,
     hasWindow: false,
+    landing: { x: -19.5, z: 3 },
   },
 } as const satisfies Record<SpaceId, SpaceDef>;
 

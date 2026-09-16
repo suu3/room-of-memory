@@ -32,6 +32,19 @@ describe("공간 표", () => {
     }
   });
 
+  it("몸을 떨어뜨리는 자리는 제 공간 안이고, 거기 설 수 있다", () => {
+    for (const id of SPACE_IDS) {
+      const { landing } = SPACES[id];
+      // 그 자리에 섰을 때 판정이 제 공간으로 떨어져야 이동한 티가 난다
+      expect(spaceAt(landing.x, landing.z, id), id).toBe(id);
+      // 가구에 끼거나 벽을 밟고 서면 그 뒤로 한 발짝도 못 움직인다
+      expect(
+        isWalkable(landing.x, landing.z, PLAYER_RADIUS, [SPACES[id].bounds], ALL_COLLIDERS),
+        id,
+      ).toBe(true);
+    }
+  });
+
   it("가구 발자국은 제 공간의 껍데기 안에 있다", () => {
     for (const id of SPACE_IDS) {
       const { shell, colliders } = SPACES[id];
