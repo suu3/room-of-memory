@@ -37,9 +37,8 @@ const CLOSE_AFTER_MS = 20_000;
  * 한 줄씩 말이 붙고, 다 짚으면 커튼을 닫는다. 도중에 닫으면 아무 일도 없었던
  * 것처럼 다시 열 수 있다 (방탈출 탐색).
  *
- * 바깥은 노을이다. 한때 유리 위에 밤의 색을 한 겹 얹어 방의 어둠에 맞췄는데, 그러면
- * 이 집에서 유일하게 시간이 흐르는 창이 방과 같은 색으로 죽었다. 지금은 그림 그대로
- * 둔다: 방은 어둡고 창밖은 저물고 있다. 커튼 너머의 빛은 방보다 늘 조금 밝다.
+ * 그림의 노을은 밤의 방과 시간대가 어긋난다. 그림을 다시 그리는 대신 유리 위에
+ * 밤의 색을 한 겹 얹는다 (.window-night). 커튼 너머의 빛은 방보다 늘 조금 밝다.
  */
 export function WindowViewMinigame({ onComplete }: MinigameProps) {
   const { t } = useTranslation();
@@ -143,6 +142,8 @@ export function WindowViewMinigame({ onComplete }: MinigameProps) {
             draggable={false}
             className="block h-auto w-full select-none"
           />
+          {/* 밤의 색: 노을 그림을 방의 시간대로 끌어내린다 */}
+          <span aria-hidden className="window-night pointer-events-none absolute inset-0" />
           {/* 찾은 자리: 작은 표식이 남는다. 어디를 봤는지 잊지 않게 */}
           {WINDOW_SPOTS.filter((spot) => found.includes(spot.id)).map((spot) => (
             <span
@@ -154,6 +155,7 @@ export function WindowViewMinigame({ onComplete }: MinigameProps) {
           ))}
           {/*
             돋보기. 같은 그림을 LENS_ZOOM배로 깔고 렌즈 중심이 가리키는 자리를 보여준다.
+            밤의 색은 렌즈 안에는 얹지 않는다. 들여다보는 자리만 또렷해야 돋보기다.
           */}
           <span
             aria-hidden

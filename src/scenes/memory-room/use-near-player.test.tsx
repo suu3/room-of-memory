@@ -58,8 +58,14 @@ beforeAll(() => {
     if (id !== "2d") return original.call(this, id as "webgl2", ...rest);
     return {
       createLinearGradient: () => ({ addColorStop: () => {} }),
+      // 하늘판에는 지는 해도 같이 구워진다 (WindowView의 useSkyTexture)
+      createRadialGradient: () => ({ addColorStop: () => {} }),
       fillRect: () => {},
+      beginPath: () => {},
+      arc: () => {},
+      fill: () => {},
       set fillStyle(_value: unknown) {},
+      set globalAlpha(_value: unknown) {},
     } as unknown as CanvasRenderingContext2D;
   } as typeof HTMLCanvasElement.prototype.getContext;
 });

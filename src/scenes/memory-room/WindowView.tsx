@@ -28,7 +28,6 @@ const MARGIN = { left: 3.2, right: 1.3, top: 0.28, bottom: 1.5 } as const;
  */
 const LAYER_Z = {
   sky: -0.75,
-  moon: -0.7,
   stars: -0.66,
   farRidge: -0.5,
   skyline: -0.32,
@@ -38,7 +37,7 @@ const LAYER_Z = {
 
 interface WindowViewProps {
   palette: RoomPalette;
-  /** 0=평범한 야경, 1=사태 이후. 되돌아가지 않는다 (visual-state의 outsideDecay). */
+  /** 0=평범한 저녁, 1=사태 이후. 되돌아가지 않는다 (visual-state의 outsideDecay). */
   decay: number;
   /** 창 개구부의 중심과 크기: RoomShell이 벽에 뚫은 구멍과 같아야 한다. */
   center: Vec3Tuple;
@@ -47,31 +46,79 @@ interface WindowViewProps {
 }
 
 /**
- * 밤하늘 그라디언트 텍스처.
+ * 저무는 하늘 텍스처. 세로 그라디언트 위에 지는 해를 함께 굽는다.
  *
  * 정점 색(vertexColors)으로 만들려다 실패했다. r3f가 프롭으로 넘긴 vertexColors는
  * 재질 속성만 바꾸고 셰이더를 다시 컴파일하지 않아서 USE_COLOR 디파인이 안 켜지고,
  * 결과적으로 판이 흰색으로 나온다. WindowLight가 쓰는 캔버스 텍스처 방식을 따른다.
+ *
+ * 해와 그 둘레의 번짐도 이 그림 안에 넣는다. 따로 판을 세우면 투명 재질이라 three가
+ * 불투명한 건물들보다 나중에 그려서, 해가 스카이라인을 뚫고 앞에 뜬다.
+ *
+ * 캔버스의 가로세로를 판의 비율에 맞춘다. 안 맞추면 둥근 해가 타원으로 늘어난다.
  */
-function useSkyTexture(top: string, horizon: string, glow: string): CanvasTexture {
+const SKY_TEXTURE_WIDTH = 512;
+/** 하늘 띠의 색이 바뀌는 높이 (0 = 판 꼭대기, 1 = 판 밑). */
+const SKY_STOPS = [0, 0.22, 0.48, 0.7, 1] as const;
+/** 지는 해의 자리(판 비율 기준)와 크기. 창을 통해 보이는 구역 안이다. */
+const SUN = { u: 0.6, v: 0.39, radius: 0.026, halo: 0.2 } as const;
+
+function canBake(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderingContext2D {
+  return typeof ctx?.createLinearGradient === "function" && typeof ctx.fillRect === "function";
+}
+
+function canBakeSun(ctx: CanvasRenderingContext2D): boolean {
+  return (
+    typeof ctx.createRadialGradient === "function" &&
+    typeof ctx.arc === "function" &&
+    typeof ctx.fill === "function"
+  );
+}
+
+function useSkyTexture(
+  aspect: number,
+  palette: RoomPalette,
+  /** 해가 떠 있는가. 사태가 깊어져도 시각은 그대로라 지금은 늘 떠 있다. */
+  sun = true,
+): CanvasTexture {
   return useMemo(() => {
     const canvas = document.createElement("canvas");
-    canvas.width = 4;
-    canvas.height = 256;
+    canvas.width = SKY_TEXTURE_WIDTH;
+    canvas.height = Math.max(1, Math.round(SKY_TEXTURE_WIDTH / aspect));
     const context = canvas.getContext("2d");
-    if (context) {
+    if (canBake(context)) {
       const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, top);
-      gradient.addColorStop(0.58, horizon);
-      // 지평선 근처만 도시 불빛으로 살짝 덥힌다
-      gradient.addColorStop(1, glow);
+      // 위는 아직 밤에 가깝고, 눈높이에서 노을이 타고, 지평선은 볕의 색으로 식는다
+      const colors = [palette.abyss, palette.storm, palette.ember, palette.amber, palette.sun];
+      SKY_STOPS.forEach((stop, index) => {
+        gradient.addColorStop(stop, colors[index]);
+      });
       context.fillStyle = gradient;
       context.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (sun && canBakeSun(context)) {
+        const x = canvas.width * SUN.u;
+        const y = canvas.height * SUN.v;
+        const halo = canvas.width * SUN.halo;
+        const glow = context.createRadialGradient(x, y, 0, x, y, halo);
+        glow.addColorStop(0, palette.sun);
+        glow.addColorStop(0.35, palette.amber);
+        glow.addColorStop(1, palette.ember);
+        context.globalAlpha = 0.55;
+        context.fillStyle = glow;
+        context.fillRect(x - halo, y - halo, halo * 2, halo * 2);
+        context.globalAlpha = 1;
+
+        context.fillStyle = palette.sun;
+        context.beginPath();
+        context.arc(x, y, canvas.width * SUN.radius, 0, Math.PI * 2);
+        context.fill();
+      }
     }
     const texture = new CanvasTexture(canvas);
     texture.colorSpace = SRGBColorSpace;
     return texture;
-  }, [top, horizon, glow]);
+  }, [aspect, palette, sun]);
 }
 
 /**
@@ -156,16 +203,20 @@ function Skyline({
   );
 }
 
-const STAR_COUNT = 42;
+/**
+ * 아직 해가 걸려 있는 하늘이라 별은 몇 개뿐이다. 마흔둘을 뿌렸더니 창밖이 한밤중으로
+ * 읽혀서, 하늘 꼭대기(아직 밤에 가까운 띠)에만 성글게 남긴다.
+ */
+const STAR_COUNT = 12;
 
 function Stars({ span, height, color }: { span: number; height: number; color: string }) {
   const stars = useMemo(
     () =>
       Array.from({ length: STAR_COUNT }, (_, index) => ({
         x: (hash01(index, 3) - 0.5) * span * 0.94,
-        // 좌표는 판 중심 기준. 아래쪽은 스카이라인에 가려지므로 위쪽 절반에만 뿌린다.
-        y: height * (0.05 + hash01(index, 4) * 0.4),
-        size: 0.016 + hash01(index, 5) * 0.022,
+        // 좌표는 판 중심 기준. 노을이 타는 가운데 띠를 비우고 맨 위에만 뿌린다.
+        y: height * (0.3 + hash01(index, 4) * 0.15),
+        size: 0.012 + hash01(index, 5) * 0.014,
       })),
     [span, height],
   );
@@ -254,7 +305,7 @@ export function WindowView({ palette, decay, center, width, height }: WindowView
   const offsetX = (MARGIN.right - MARGIN.left) / 2;
   const offsetY = (MARGIN.top - MARGIN.bottom) / 2;
 
-  const skyTexture = useSkyTexture(palette.void, palette.coal, palette.storm);
+  const skyTexture = useSkyTexture(viewWidth / viewHeight, palette);
   // 직접 만든 텍스처라 r3f 자동 dispose에 기대지 않는다 (.claude/rules/r3f.md)
   useEffect(() => () => skyTexture.dispose(), [skyTexture]);
 
@@ -271,7 +322,7 @@ export function WindowView({ palette, decay, center, width, height }: WindowView
     <group
       name="window-view"
       position={[center[0] + offsetX, center[1] + offsetY, center[2]]}
-      // 조명을 받지 않는 배경막이라 meshBasicMaterial만 쓴다. 방이 어두워져도 밤하늘은 그대로다.
+      // 조명을 받지 않는 배경막이라 meshBasicMaterial만 쓴다. 방이 어두워져도 하늘은 그대로다.
     >
       <mesh position={[0, 0, LAYER_Z.sky]}>
         <planeGeometry args={[viewWidth, viewHeight]} />
@@ -279,13 +330,8 @@ export function WindowView({ palette, decay, center, width, height }: WindowView
       </mesh>
 
       <group position={[0, 0, LAYER_Z.stars]}>
-        <Stars span={viewWidth} height={viewHeight} color={palette.linen} />
+        <Stars span={viewWidth} height={viewHeight} color={palette.trim} />
       </group>
-
-      <mesh position={[viewWidth * 0.26, viewHeight * 0.3, LAYER_Z.moon]}>
-        <circleGeometry args={[0.26, 24]} />
-        <meshBasicMaterial color={palette.linen} />
-      </mesh>
 
       {/* 판 밑면이 원점에 오도록 내려 세운다. 건물은 밑에서 위로 자란다. */}
       <group position={[0, -viewHeight / 2, 0]}>

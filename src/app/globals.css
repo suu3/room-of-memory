@@ -846,6 +846,21 @@ body {
   box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
 }
 
+/*
+ * 창밖 그림 위의 밤. 원화(mg-window-view-outside)는 주황 노을인데 같은 시각의 방은
+ * 한밤중이다. 그림을 다시 그리는 대신 유리 위에 밤의 색을 곱한다. 명도는 위쪽(하늘)에서
+ * 가장 많이 깎이고 아래쪽(도로)은 덜 깎여, 짚어야 하는 자국이 어둠에 묻히지 않는다.
+ */
+.window-night {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-scene-abyss) 92%, transparent) 0%,
+    color-mix(in srgb, var(--color-scene-dusk) 78%, transparent) 55%,
+    color-mix(in srgb, var(--color-scene-storm) 62%, transparent) 100%
+  );
+  mix-blend-mode: multiply;
+}
+
 /* 대사창 초상: 아래쪽을 패널 속으로 스며들게 한다. 원화의 밑단이 판으로 서지 않게. */
 .portrait-fade {
   mask-image: linear-gradient(to bottom, black 72%, transparent 100%);

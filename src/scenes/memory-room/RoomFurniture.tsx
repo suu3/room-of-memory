@@ -789,7 +789,8 @@ export function Curtain({
     const cloth = clothRef.current;
     const index = cloth?.morphTargetDictionary?.[CURTAIN_OPEN_KEY];
     if (cloth?.morphTargetInfluences && index !== undefined) {
-      cloth.morphTargetInfluences[index] = shownRef.current;
+      cloth.morphTargetInfluences[index] =
+        CURTAIN_REST_GAP + shownRef.current * (1 - CURTAIN_REST_GAP);
     }
     if (hitRef.current) {
       hitRef.current.position.x = curtainX(side, shownRef.current) - CURTAIN_MODEL_POSITION[0];
@@ -887,6 +888,16 @@ export function Curtain({
     </group>
   );
 }
+
+/**
+ * 닫힌 커튼이 남기는 틈 (shape key `open`의 바닥값).
+ *
+ * 두 폭이 정확히 맞물리면 창이 통째로 사라져서, 커튼을 걷기 전까지 바깥이 저녁이라는
+ * 것을 알 길이 없다 (창밖은 노을이다: WindowView). 한 뼘 못 미치게 닫아 두면 가운데로
+ * 노을 한 줄이 샌다. 이 방에서 시간이 흐르는 유일한 자리를 가리지 않으려는 값이라,
+ * 젖히는 손맛(진행도 0~1)은 그대로 둔 채 바닥값만 올린다.
+ */
+const CURTAIN_REST_GAP = 0.07;
 
 export function RoomFurniture({
   palette,
