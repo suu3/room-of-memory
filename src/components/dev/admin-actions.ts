@@ -1,3 +1,4 @@
+import type { ItemId } from "@/data/items";
 import type { MemoryId } from "@/data/memory-room";
 import type { DiscoveryId, PuzzleId } from "@/data/room-clues";
 import type { DoorwayId } from "@/scenes/memory-room/spaces";
@@ -17,6 +18,7 @@ export interface AdminPatch {
   discoveries?: DiscoveryId[];
   endingStarted?: boolean;
   openedDoorways?: DoorwayId[];
+  inventory?: ItemId[];
   started?: boolean;
 }
 
@@ -50,6 +52,7 @@ export function applyAdminPatch(patch: AdminPatch): void {
     introDone: state.introDone,
     doorwayDone: state.doorwayDone,
     openedDoorways: state.openedDoorways,
+    inventory: state.inventory,
     ...progress,
   };
 
@@ -110,10 +113,11 @@ export function warpToSpace(space: AdminSpace): void {
   // 거실 너머로 갈 때는 그 문도 연다. 방문과 같은 이유: 닫힌 채 떨어뜨리면 못 나온다
   if (space === "bathroom") applyAdminPatch({ openedDoorways: ["living-bathroom"] });
   if (space === "parents") {
-    const { revisited } = useMemoryRoomStore.getState();
+    // 안방 문은 열쇠가 연다 (src/data/doors.ts). 열쇠까지 쥐어 준다
+    const { inventory } = useMemoryRoomStore.getState();
     applyAdminPatch({
-      revisited: revisited.includes("ampoule") ? revisited : [...revisited, "ampoule"],
-      openedDoorways: ["living-parents"],
+      inventory: inventory.includes("parents-key") ? inventory : [...inventory, "parents-key"],
+      openedDoorways: ["living-bathroom", "living-parents"],
     });
   }
   applyAdminPatch({ started: true });

@@ -1,6 +1,7 @@
 "use client";
 
 import { CulledWall } from "./CulledWall";
+import { ItemPickup } from "./ItemPickup";
 import { BATHROOM_COLLIDERS, BATHROOM_DOOR_POSITION, BATHROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
 import {
@@ -60,6 +61,16 @@ const FIXTURES = [
     color: "linen",
   },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple; color: keyof RoomPalette }[];
+
+/**
+ * 세면대 위에 놓인 열쇠 (자리 표시자 체인의 첫 물건, src/data/doors.ts). 대야 가장자리에
+ * 얹혀 있다. 다가감 판정은 세면대 앞 한 걸음이다.
+ */
+const KEY = {
+  position: [(sink.minX + sink.maxX) / 2 + 0.28, 0.87, sink.maxZ - 0.32] as Vec3Tuple,
+  near: [(sink.minX + sink.maxX) / 2, sink.minZ - 0.5] as readonly [number, number],
+  interactionRadius: 1.6,
+} as const;
 
 /** 세면대 위 거울: 매끈한 판. 방의 전신거울과 같은 유리다. */
 const MIRROR = {
@@ -135,6 +146,20 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
           roughness={0.4}
         />
       ))}
+
+      {/* 안방 열쇠: 손잡이 고리와 날. 집으면 사라진다 */}
+      <ItemPickup id="parents-key" near={KEY.near} radius={KEY.interactionRadius}>
+        <group position={KEY.position} rotation={[0, 0.6, 0]}>
+          <mesh castShadow>
+            <torusGeometry args={[0.05, 0.016, 8, 16]} />
+            <meshStandardMaterial color={palette.amber} metalness={0.7} roughness={0.35} />
+          </mesh>
+          <mesh position={[0.11, 0, 0]} castShadow>
+            <boxGeometry args={[0.14, 0.012, 0.03]} />
+            <meshStandardMaterial color={palette.amber} metalness={0.7} roughness={0.35} />
+          </mesh>
+        </group>
+      </ItemPickup>
     </group>
   );
 }

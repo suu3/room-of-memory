@@ -35,6 +35,7 @@ import { EndingScreen } from "./EndingScreen";
 import { FeedbackModal } from "./FeedbackModal";
 import { HudGuideBanner, HudGuideDock } from "./HudGuide";
 import { HudMenu } from "./HudMenu";
+import { InventoryStrip } from "./InventoryStrip";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
 import { NotebookTab } from "./NotebookTab";
@@ -226,6 +227,8 @@ export function MemoryRoom() {
             </div>
             {/* 지금 할 일의 제자리. 새 목표는 가운데(HudGuideBanner)에 잠깐 떴다가 여기로 온다 */}
             <HudGuideDock hidden={monologueHidden} />
+            {/* 들고 있는 물건. 빈손이면 안 그린다 */}
+            <InventoryStrip />
           </div>
         </header>
       )}

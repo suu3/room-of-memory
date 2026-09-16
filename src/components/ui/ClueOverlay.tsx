@@ -31,7 +31,15 @@ const CLUE_TEXT = {
   "desk-clock": { title: "clue.deskClock.title", caption: "clue.deskClock.caption" },
   workbook: { title: "clue.workbook.title", caption: "clue.workbook.caption" },
   mirror: { title: "clue.mirror.title", caption: "clue.mirror.caption" },
+  "research-note": { title: "clue.researchNote.title", caption: "clue.researchNote.caption" },
 } as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
+
+/** 안방 책상 위 서류의 줄. 아직 더미 문구다 (src/data/room-clues.ts의 research-note). */
+const RESEARCH_LINES = [
+  "clue.researchNote.l1",
+  "clue.researchNote.l2",
+  "clue.researchNote.l3",
+] as const;
 
 /** 놀이책의 펼쳐진 쪽에 적힌 줄: 트럼프 항목의 앞부분만 보인다. */
 const BOOK_LINES = ["clue.shelfBook.l1", "clue.shelfBook.l2"] as const;
@@ -94,7 +102,12 @@ export function ClueOverlay() {
   const { title: titleKey, caption: captionKey } = CLUE_TEXT[clue];
   const isNote = clue === "drawer-note";
   // 종이(쪽지·책)와 들고 돌리는 물건(문제집)·거울은 좁게, 격자를 그리는 것(달력·시계)은 넓게 편다
-  const narrow = isNote || clue === "shelf-book" || clue === "workbook" || clue === "mirror";
+  const narrow =
+    isNote ||
+    clue === "shelf-book" ||
+    clue === "workbook" ||
+    clue === "mirror" ||
+    clue === "research-note";
 
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center overflow-hidden p-4">
@@ -132,6 +145,8 @@ export function ClueOverlay() {
         ) : clue === "mirror" ? (
           /* 거울 속의 자기: 종이가 아니라 어두운 유리라 종이 판(PANEL_PAPER)을 두르지 않는다 */
           <CharacterModelViewer />
+        ) : clue === "research-note" ? (
+          <ResearchNote />
         ) : (
           <WallCalendar />
         )}
@@ -214,6 +229,30 @@ function ShelfBook() {
       </ul>
       <div className="flex flex-col gap-2 border-t border-ink/10 pt-4">
         {BOOK_LINES.map((key) => (
+          <p key={key} className="break-ko text-pretty text-base leading-relaxed text-ink">
+            {t(key)}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 안방 책상 위 서류 (v3). 부모님이 연구원이었다는 것과 앰플이 치료제 같다는 것까지만
+ * 흘리는 자리다 (docs/story.md 1장: 무엇을 알았고 어디로 갔는지는 미공개). 놀이책과
+ * 같은 종이 판이다. 본문은 확정 전이라 더미 문구가 서 있다.
+ */
+function ResearchNote() {
+  const { t } = useTranslation();
+
+  return (
+    <div className={`p-6 sm:p-8 ${PANEL_PAPER}`}>
+      <p className="border-b border-ink/10 pb-3 text-sm font-medium text-graphite">
+        {t("clue.researchNote.heading")}
+      </p>
+      <div className="flex flex-col gap-2 pt-4">
+        {RESEARCH_LINES.map((key) => (
           <p key={key} className="break-ko text-pretty text-base leading-relaxed text-ink">
             {t(key)}
           </p>

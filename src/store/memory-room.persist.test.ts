@@ -21,6 +21,7 @@ describe("sanitizeProgress", () => {
         introDone: true,
         doorwayDone: false,
         openedDoorways: [],
+        inventory: ["parents-key"],
       }),
     ).toEqual({
       collected: [first, second],
@@ -36,7 +37,16 @@ describe("sanitizeProgress", () => {
       introDone: true,
       doorwayDone: false,
       openedDoorways: [],
+      inventory: ["parents-key"],
     });
+  });
+
+  it("가진 물건은 아는 것만 남기고, 없으면 빈손이다", () => {
+    expect(sanitizeProgress({}).inventory).toEqual([]);
+    expect(sanitizeProgress({ inventory: ["parents-key", "ghost-key"] }).inventory).toEqual([
+      "parents-key",
+    ]);
+    expect(sanitizeProgress({ inventory: "nope" }).inventory).toEqual([]);
   });
 
   it("거실 너머의 문은 방문이 열린 저장본에서만 살아남고, 모르는 문과 방문 자체는 버린다", () => {

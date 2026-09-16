@@ -17,6 +17,7 @@ import {
   openCutscene,
   selectBatReady,
   selectDoorReady,
+  selectDoorwayReady,
   selectEndingReady,
   selectHeroNameKnown,
   selectMusicPhase,
@@ -1004,5 +1005,58 @@ describe("1인칭 구간: 인트로와 2막 도입", () => {
     expect(state.introDone).toBe(false);
     expect(state.doorwayDone).toBe(false);
     expect(state.lightsOn).toBe(true);
+  });
+});
+
+describe("방탈출 축 (임시): 물건과 문", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  const openTheRoomDoor = () =>
+    useMemoryRoomStore.setState({
+      started: true,
+      introDone: true,
+      collected: PHASE1_MEMORIES.map((memory) => memory.id),
+      revisited: ["radio"],
+      doorOpened: true,
+    });
+
+  it("물건은 한 번만 집히고, 새 게임에서 사라진다", () => {
+    useMemoryRoomStore.getState().takeItem("parents-key");
+    useMemoryRoomStore.getState().takeItem("parents-key");
+    expect(useMemoryRoomStore.getState().inventory).toEqual(["parents-key"]);
+
+    useMemoryRoomStore.getState().reset();
+    expect(useMemoryRoomStore.getState().inventory).toEqual([]);
+  });
+
+  it("거실 너머의 문은 방문이 열린 뒤에만, 규칙의 물건이 있어야 열린다", () => {
+    // 방문이 닫혀 있으면 화장실 문도 안 열린다
+    useMemoryRoomStore.getState().openDoorway("living-bathroom");
+    expect(useMemoryRoomStore.getState().openedDoorways).toEqual([]);
+
+    openTheRoomDoor();
+    expect(selectDoorwayReady("living-bathroom")(useMemoryRoomStore.getState())).toBe(true);
+    expect(selectDoorwayReady("living-parents")(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().openDoorway("living-bathroom");
+    useMemoryRoomStore.getState().openDoorway("living-parents");
+    expect(useMemoryRoomStore.getState().openedDoorways).toEqual(["living-bathroom"]);
+
+    // 세면대의 열쇠를 집으면 안방 문이 켜진다
+    useMemoryRoomStore.getState().takeItem("parents-key");
+    expect(selectDoorwayReady("living-parents")(useMemoryRoomStore.getState())).toBe(true);
+    useMemoryRoomStore.getState().openDoorway("living-parents");
+    expect(useMemoryRoomStore.getState().openedDoorways).toEqual([
+      "living-bathroom",
+      "living-parents",
+    ]);
+    // 열린 문은 더는 "열 수 있는" 문이 아니다 (금빛이 꺼진다)
+    expect(selectDoorwayReady("living-parents")(useMemoryRoomStore.getState())).toBe(false);
+  });
+
+  it("방문은 openDoorway로 못 연다. 그 문은 라디오 목소리가 연다", () => {
+    openTheRoomDoor();
+    useMemoryRoomStore.setState({ doorOpened: false });
+    useMemoryRoomStore.getState().openDoorway("room-living");
+    expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
   });
 });

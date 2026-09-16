@@ -44,6 +44,10 @@ export const COMPUTER_PASSCODE_LENGTH = COMPUTER_PASSCODE.length;
  * mirror는 단서가 아니라 거울이다. 무엇도 알려주지 않고, 누르면 거울 속 자기(3D
  * 캐릭터 모델)를 돌려본다. 같은 목록에 있는 이유는 여는 방식이 같아서다: 방의
  * 물건을 누르면 Canvas 밖 화면이 펼쳐진다 (ClueOverlay).
+ *
+ * research-note는 안방 책상 위 서류 (v3). 부모님이 연구원이었다는 것과 앰플이
+ * 치료제 같다는 것까지만 흘리는 자리다. 본문은 아직 **더미 문구**다: 확정 전
+ * 스토리 텍스트는 언어별 더미로 채운다 (.claude/rules/visual-novel.md).
  */
 export const CLUE_IDS = [
   "drawer-note",
@@ -52,6 +56,7 @@ export const CLUE_IDS = [
   "desk-clock",
   "workbook",
   "mirror",
+  "research-note",
 ] as const;
 export type ClueId = (typeof CLUE_IDS)[number];
 

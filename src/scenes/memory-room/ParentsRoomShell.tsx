@@ -3,6 +3,7 @@
 import { CulledWall } from "./CulledWall";
 import { PARENTS_COLLIDERS, PARENTS_DOOR_POSITION, PARENTS_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
+import { ClueProp } from "./RoomClues";
 import {
   endWallWithDoor,
   floorPart,
@@ -66,10 +67,18 @@ const FURNITURE = [
   { size: [0.1, 1.04, 0.1], position: [desk.maxX - 0.15, 0.52, desk.minZ + 0.15], color: "wood" },
   { size: [0.1, 1.04, 0.1], position: [desk.minX + 0.15, 0.52, desk.maxZ - 0.15], color: "wood" },
   { size: [0.1, 1.04, 0.1], position: [desk.maxX - 0.15, 0.52, desk.maxZ - 0.15], color: "wood" },
-  { size: [0.55, 0.06, 0.4], position: [desk.minX + 0.6, 1.15, desk.minZ + 0.4], color: "linen" },
-  { size: [0.5, 0.05, 0.36], position: [desk.minX + 0.72, 1.2, desk.minZ + 0.32], color: "linen" },
   { size: [0.22, 0.5, 0.22], position: [desk.maxX - 0.35, 1.37, desk.maxZ - 0.3], color: "trim" },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple; color: keyof RoomPalette }[];
+
+/** 책상 위 서류 뭉치: 집어 들면 펼쳐진다 (ClueOverlay의 research-note). 다가감은 책상 앞 한 걸음. */
+const PAPERS = [
+  { size: [0.55, 0.06, 0.4], position: [desk.minX + 0.6, 1.15, desk.minZ + 0.4], color: "linen" },
+  { size: [0.5, 0.05, 0.36], position: [desk.minX + 0.72, 1.2, desk.minZ + 0.32], color: "linen" },
+] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple; color: keyof RoomPalette }[];
+const PAPERS_NEAR = {
+  near: [(desk.minX + desk.maxX) / 2, desk.minZ - 0.5] as readonly [number, number],
+  interactionRadius: 1.8,
+} as const;
 
 function Box({
   part,
@@ -132,6 +141,11 @@ export function ParentsRoomShell({ palette }: { palette: RoomPalette }) {
       {FURNITURE.map((piece) => (
         <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />
       ))}
+      <ClueProp clue="research-note" near={PAPERS_NEAR.near} radius={PAPERS_NEAR.interactionRadius}>
+        {PAPERS.map((piece) => (
+          <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />
+        ))}
+      </ClueProp>
     </group>
   );
 }

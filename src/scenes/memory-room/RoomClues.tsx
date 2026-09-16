@@ -21,7 +21,7 @@ const NOTE_INK_LINES: readonly number[] = [-0.035, 0.02];
  *
  * 누르면 스토어에 열린 단서를 적고, Canvas 밖의 ClueOverlay가 그걸 보고 펼친다.
  */
-function ClueProp({
+export function ClueProp({
   clue,
   /** 다가왔는지 재는 기준점 (월드 x·z). */
   near,

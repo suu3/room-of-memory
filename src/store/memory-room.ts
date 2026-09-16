@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { DOOR_RULES } from "@/data/doors";
+import { ITEM_IDS, type ItemId } from "@/data/items";
 import {
   ACT2_CHAIN,
   ACT2_FINAL_MEMORY,
@@ -199,6 +201,11 @@ export interface MemoryRoomState {
    */
   openedDoorways: DoorwayId[];
   /**
+   * 가지고 다니는 물건 (src/data/items.ts). 집은 순서대로. 이 방의 열쇠가 저 방의
+   * 문을 연다 (src/data/doors.ts). 저장된다.
+   */
+  inventory: ItemId[];
+  /**
    * 지금 앉아 있는 자리 (없으면 서 있다).
    *
    * 위치와 같은 성격이라 저장하지 않는다. 새로고침하면 방 한가운데에 서서 시작한다.
@@ -308,6 +315,8 @@ export interface MemoryRoomState {
   setSpace: (space: SpaceId) => void;
   /** 문간을 연다. 조건이 안 찼거나 방문이면 아무 일도 없다 (방문은 openRoomDoor). */
   openDoorway: (id: DoorwayId) => void;
+  /** 물건을 집는다. 이미 가진 것이면 아무 일도 없다. */
+  takeItem: (id: ItemId) => void;
   /** 자리에 앉는다. 대사·미니게임이 떠 있으면 아무 일도 없다. */
   sitOnSeat: (id: SeatId) => void;
   /** 일어선다. 앉기 전 서 있던 자리로 돌아간다 (몸의 자리는 Player가 기억한다). */
@@ -582,6 +591,7 @@ type PersistedProgress = Pick<
   | "introDone"
   | "doorwayDone"
   | "openedDoorways"
+  | "inventory"
 >;
 
 const PERSIST_KEY = "rom-progress";
@@ -653,6 +663,9 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     introDone: saved.introDone === true || collected.length > 0,
     // 문이 안 열렸으면 문 넘기도 없다. 이 값을 모르는 옛 저장본은 문이 열렸으면 지난 것으로
     doorwayDone: doorOpened && saved.doorwayDone !== false,
+    inventory: Array.isArray(saved.inventory)
+      ? ITEM_IDS.filter((id) => (saved.inventory as unknown[]).includes(id))
+      : [],
     // 방문이 닫혀 있으면 그 너머의 문도 열려 있을 수 없다
     openedDoorways: doorOpened
       ? DOORWAY_IDS.filter(
@@ -692,6 +705,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       endingStarted: false,
       space: "room",
       openedDoorways: [],
+      inventory: [],
       seatedAt: null,
       warpTarget: null,
       walkTarget: null,
@@ -864,6 +878,10 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           state.discoveries.includes(id) ? state : { discoveries: [...state.discoveries, id] },
         ),
       openRoomDoor: () => set((state) => (selectDoorReady(state) ? { doorOpened: true } : state)),
+      takeItem: (id) =>
+        set((state) =>
+          state.inventory.includes(id) ? state : { inventory: [...state.inventory, id] },
+        ),
       takeBat: () =>
         set((state) => {
           // 3막이 아니거나 다른 장면이 도는 중이면 배트는 그냥 현관에 선 소품이다
@@ -966,6 +984,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           endingStarted: false,
           space: "room",
           openedDoorways: [],
+          inventory: [],
           seatedAt: null,
           warpTarget: null,
           walkTarget: null,
@@ -996,6 +1015,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         introDone: state.introDone,
         doorwayDone: state.doorwayDone,
         openedDoorways: state.openedDoorways,
+        inventory: state.inventory,
       }),
       merge: (persisted, current) => ({ ...current, ...sanitizeProgress(persisted) }),
     },
@@ -1040,19 +1060,16 @@ export const selectDoorwayOpen = (id: DoorwayId) => (state: MemoryRoomState) =>
 /**
  * 이 문간을 열 수 있는가 (아직 안 열렸고 조건이 찼다).
  *
- * 조건은 **자리 표시자**다 (2026-09-16). 2막부터 집이 한 공간씩 열린다는 결정만
- * 정해졌고, 어느 단서가 어느 문을 여는지는 방탈출 퍼즐 설계와 함께 정한다.
- * 지금은 화장실이 2막의 시작(방문)과 함께, 안방이 앰플(2막 완주)과 함께 열린다.
+ * 거실 너머의 문은 모두 방문이 열린 뒤(2막)의 것이고, 그 위에 src/data/doors.ts의
+ * 규칙(필요한 물건)이 얹힌다. 방문 자체는 여기서 열지 않는다 (openRoomDoor).
  */
-export function doorwayReady(state: StateSnapshot, id: DoorwayId): boolean {
-  switch (id) {
-    case "room-living":
-      return false;
-    case "living-bathroom":
-      return state.doorOpened;
-    case "living-parents":
-      return state.doorOpened && state.revisited.includes(ACT2_FINAL_MEMORY);
-  }
+export function doorwayReady(
+  state: StateSnapshot & Pick<MemoryRoomState, "inventory">,
+  id: DoorwayId,
+): boolean {
+  if (id === "room-living" || !state.doorOpened) return false;
+  const rule = DOOR_RULES[id];
+  return rule.item === undefined || state.inventory.includes(rule.item);
 }
 
 export const selectDoorwayReady = (id: DoorwayId) => (state: MemoryRoomState) =>
