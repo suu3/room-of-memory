@@ -1038,7 +1038,7 @@ export function InteractiveMemory({
    * 물건으로 서 있고, 만질 수 있는지는 비콘과 글로우가 말한다.
    */
   const opacity = 1;
-  // 머릿속 구간에서는 아무 기억도 만질 수 없고(store가 막는다) 빛나지도 않는다.
+  // 등 뒤 시점 구간에서는 아무 기억도 만질 수 없고(store가 막는다) 빛나지도 않는다.
   // 어둠 속에 금빛 표식이 떠 있으면 스위치가 아니라 그걸 찾으러 간다
   const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
   const clickable = !firstPerson && (status === "available" || backgroundClue !== undefined);

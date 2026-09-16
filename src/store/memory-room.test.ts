@@ -907,7 +907,7 @@ describe("discoveries", () => {
 describe("1인칭 구간: 인트로와 2막 도입", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  it("타이틀에서는 머릿속이 아니다. 새 게임을 시작하면 불 꺼진 방의 인트로다", () => {
+  it("타이틀에서는 등 뒤 시점이 아니다. 새 게임을 시작하면 불 꺼진 방의 인트로다", () => {
     expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
 
     useMemoryRoomStore.getState().startGame();
@@ -940,7 +940,7 @@ describe("1인칭 구간: 인트로와 2막 도입", () => {
     expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
   });
 
-  it("머릿속에 있는 동안은 조사·앉기·커튼이 막힌다. 할 일은 스위치 하나다", () => {
+  it("등 뒤 시점에 있는 동안은 조사·앉기·커튼이 막힌다. 할 일은 스위치 하나다", () => {
     useMemoryRoomStore.getState().startGame();
 
     useMemoryRoomStore.getState().beginInteraction("console");
@@ -977,7 +977,7 @@ describe("1인칭 구간: 인트로와 2막 도입", () => {
     expect(state.doorwayDone).toBe(true);
     expect(selectViewpoint(state)).toBeNull();
 
-    // 그 뒤의 왕복은 이동이다. 다시 방으로, 다시 거실로 가도 머릿속에 안 들어간다
+    // 그 뒤의 왕복은 이동이다. 다시 방으로, 다시 거실로 가도 등 뒤 시점에 안 들어간다
     useMemoryRoomStore.getState().setInLivingRoom(false);
     useMemoryRoomStore.getState().setInLivingRoom(true);
     expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
@@ -990,7 +990,7 @@ describe("1인칭 구간: 인트로와 2막 도입", () => {
     expect(useMemoryRoomStore.getState().doorwayDone).toBe(false);
   });
 
-  it("엔딩이 시작되면 머릿속에서 나온다. 새 게임은 두 구간을 다시 연다", () => {
+  it("엔딩이 시작되면 등 뒤 시점에서 나온다. 새 게임은 두 구간을 다시 연다", () => {
     useMemoryRoomStore.setState({ started: true, introDone: false, endingStarted: true });
     expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
 

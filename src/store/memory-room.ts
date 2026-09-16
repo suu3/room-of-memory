@@ -163,7 +163,7 @@ export interface MemoryRoomState {
   /**
    * 인트로(어두운 방에서 전등 스위치를 찾아 켜는 1인칭 구간)를 마쳤는가.
    *
-   * 새 게임은 불 꺼진 방의 머릿속에서 시작한다. 스위치를 켜는 순간 끝나고, 그 뒤로는
+   * 새 게임은 불 꺼진 방의 등 뒤 시점에서 시작한다. 스위치를 켜는 순간 끝나고, 그 뒤로는
    * 스위치를 아무리 껐다 켜도 다시 오지 않는다. 저장된다: 이어하기가 어둠에서 다시
    * 시작되면 안 된다 (selectViewpoint).
    */
@@ -685,7 +685,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       beginInteraction: (id) =>
         set((state) => {
           if (state.activePlayback) return state;
-          // 머릿속에 있는 동안은 조사하지 않는다. 어둠 속의 할 일은 스위치 하나, 문 앞의 할 일은 나가기 하나다
+          // 등 뒤 시점에 있는 동안은 조사하지 않는다. 어둠 속의 할 일은 스위치 하나, 문 앞의 할 일은 나가기 하나다
           if (viewpointOf(state) !== null) return state;
           if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
           const gamePhase = gamePhaseOf(state);
@@ -829,7 +829,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           introDone: state.introDone || !state.lightsOn,
         })),
       // 대사·미니게임·컷씬이 도는 중에는 단서를 펼치지 않는다. 화면이 두 겹이 된다.
-      // 머릿속 구간에서도 안 펼친다: 어둠 속의 할 일은 스위치 하나, 문 앞의 할 일은 나가기 하나다
+      // 등 뒤 시점 구간에서도 안 펼친다: 어둠 속의 할 일은 스위치 하나, 문 앞의 할 일은 나가기 하나다
       openClue: (id) =>
         set((state) =>
           state.activeInteraction ||
@@ -861,7 +861,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           const doorwayDone = state.doorwayDone || (inLivingRoom && state.doorOpened);
           return { inLivingRoom, doorwayDone };
         }),
-      // 머릿속에 있는 동안은 앉지 않는다. 카메라가 머리 안에 있는데 몸만 의자로 가면 시야가 뒤집힌다
+      // 등 뒤 시점에 있는 동안은 앉지 않는다. 카메라가 등 뒤에 붙어 있는데 몸만 의자로 가면 시야가 뒤집힌다
       sitOnSeat: (id) =>
         set((state) =>
           state.seatedAt === id || selectSceneInputLocked(state) || viewpointOf(state) !== null
@@ -1023,7 +1023,7 @@ export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;
 export const selectFrontDoorUnlocked = (state: MemoryRoomState) =>
   state.solvedPuzzles.includes("angle-turn");
 /**
- * 지금 카메라가 도해의 머릿속에 있는가, 있다면 어느 구간인가.
+ * 지금 카메라가 도해의 등 뒤 시점에 있는가, 있다면 어느 구간인가.
  *
  * 두 번뿐이다. 둘 다 "어둠 속에서 빛 하나를 찾아 걸어간다"는 같은 그림이고,
  * 빛의 정체만 다르다: 인트로는 전등 스위치, 2막 도입은 열린 문. 세 번째는 없다.

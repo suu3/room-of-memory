@@ -24,13 +24,13 @@ import {
 import type { MovementAxes } from "@/types/movement";
 import { CameraRig } from "./memory-room/CameraRig";
 import { CanvasMinigameHost } from "./memory-room/CanvasMinigameHost";
+import { ChaseCameraRig } from "./memory-room/ChaseCameraRig";
 import { CursorTargetProjector } from "./memory-room/CursorTargetProjector";
+import type { LookAngles } from "./memory-room/chase-camera";
 import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
 import { EndingTrigger } from "./memory-room/EndingTrigger";
 import { visibleHitsOnly } from "./memory-room/event-visibility";
-import { FirstPersonRig } from "./memory-room/FirstPersonRig";
-import type { LookAngles } from "./memory-room/first-person";
 import { LivingRoomFurniture } from "./memory-room/LivingRoomFurniture";
 import { LivingRoomShell } from "./memory-room/LivingRoomShell";
 import { MemoryBurst } from "./memory-room/MemoryBurst";
@@ -263,11 +263,11 @@ export function MemoryRoomScene({
   /** 게임이 시작됐는가: 타이틀 구도(방 모형 전체)와 플레이 구도(플레이어 추적)를 가른다. */
   following: boolean;
   /**
-   * 카메라가 머릿속에 있는 구간 (인트로·2막 도입). null이면 아이소메트릭이다.
-   * 1인칭 동안은 FirstPersonRig가 기본 카메라를 쥐고 CameraRig는 잠든다.
+   * 카메라가 등 뒤 시점에 있는 구간 (인트로·2막 도입). null이면 아이소메트릭이다.
+   * 1인칭 동안은 ChaseCameraRig가 기본 카메라를 쥐고 CameraRig는 잠든다.
    */
   viewpoint: Viewpoint;
-  /** 1인칭의 시선. RoomCanvas가 DOM 입력으로 채우고 FirstPersonRig가 읽는다. */
+  /** 1인칭의 시선. RoomCanvas가 DOM 입력으로 채우고 ChaseCameraRig가 읽는다. */
   lookRef: MutableRefObject<LookAngles>;
   onInteract: (id: MemoryId) => void;
 }) {
@@ -453,13 +453,12 @@ export function MemoryRoomScene({
         firstPerson={viewpoint !== null}
         playerPositionRef={playerPositionRef}
       />
-      {/* 머릿속 카메라. 마운트되면 기본 카메라를 쥐고, 내려오면 돌려놓는다 */}
+      {/* 등 뒤 카메라. 마운트되면 기본 카메라를 쥐고, 내려오면 돌려놓는다 */}
       {viewpoint !== null && (
-        <FirstPersonRig
+        <ChaseCameraRig
           viewpoint={viewpoint}
           playerPositionRef={playerPositionRef}
           lookRef={lookRef}
-          palette={palette}
         />
       )}
     </PlayerPositionProvider>

@@ -16,7 +16,7 @@ vi.mock("@/lib/audio", () => ({ playSound: vi.fn() }));
 describe("curtain pointer ownership", () => {
   beforeEach(() => {
     useMemoryRoomStore.getState().reset();
-    // 인트로(불 꺼진 1인칭)를 지난 뒤의 방이다. 머릿속에서는 커튼을 잡지 않는다
+    // 인트로(불 꺼진 1인칭)를 지난 뒤의 방이다. 등 뒤 시점에서는 커튼을 잡지 않는다
     useMemoryRoomStore.setState({ started: true, introDone: true });
     vi.stubGlobal("matchMedia", () => ({ matches: false }));
   });

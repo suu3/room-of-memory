@@ -84,7 +84,7 @@ describe("CulledWall", () => {
 
 describe("CulledWall in first person", () => {
   it("keeps the wall standing while the camera is inside the head", async () => {
-    // 인트로(머릿속)에서는 정면으로 마주 본 벽도 걷히지 않는다. 안에서 보면 걷힌 벽은 뚫린 방이다
+    // 인트로(등 뒤 시점)에서는 정면으로 마주 본 벽도 걷히지 않는다. 안에서 보면 걷힌 벽은 뚫린 방이다
     useMemoryRoomStore.setState({ started: true, introDone: false });
     try {
       const renderer = await ReactThreeTestRenderer.create(

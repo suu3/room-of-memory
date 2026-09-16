@@ -55,7 +55,7 @@ function useHudGuide() {
   const batReady = useMemoryRoomStore(selectBatReady);
   const batTaken = useMemoryRoomStore(selectBatTaken);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
-  // 머릿속 구간에는 할 일이 하나뿐이다: 스위치, 또는 문. 나머지 목표는 그 뒤에 온다
+  // 등 뒤 시점 구간에는 할 일이 하나뿐이다: 스위치, 또는 문. 나머지 목표는 그 뒤에 온다
   const viewpoint = useMemoryRoomStore(selectViewpoint);
 
   const key: GuideKey =

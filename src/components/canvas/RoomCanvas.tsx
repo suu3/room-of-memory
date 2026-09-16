@@ -20,6 +20,7 @@ import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
+import type { LookAngles } from "@/scenes/memory-room/chase-camera";
 import {
   CURTAIN_CLOSED,
   type CurtainPull,
@@ -27,7 +28,6 @@ import {
   isCurtainOpen,
   releaseProgress,
 } from "@/scenes/memory-room/curtain-motion";
-import type { LookAngles } from "@/scenes/memory-room/first-person";
 import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/layout";
 import { PLAYER_START } from "@/scenes/memory-room/Player";
 import { findNearestMemory } from "@/scenes/memory-room/spatial";
@@ -56,7 +56,7 @@ import {
   roomZoomScaleFromPinch,
   roomZoomScaleFromWheel,
 } from "./room-canvas-runtime";
-import { useFirstPersonLook } from "./use-first-person-look";
+import { useChaseLook } from "./use-chase-look";
 
 const PROXIMITY_POLL_MS = 100;
 const DIRECT_FOCUS_MS = 900;
@@ -126,7 +126,7 @@ export function RoomCanvas() {
   const hadActiveInteraction = useRef(false);
   const zoomScaleRef = useRef(1);
   const orbitRef = useRef(0);
-  /** 1인칭의 시선. 끌기·키가 쓰고 FirstPersonRig가 프레임마다 읽는다. */
+  /** 1인칭의 시선. 끌기·키가 쓰고 ChaseCameraRig가 프레임마다 읽는다. */
   const lookRef = useRef<LookAngles>({ yaw: 0, pitch: 0 });
   const [webGLFailed, setWebGLFailed] = useState(() => !canInitializeWebGL());
   const [nearbyMemoryId, setNearbyMemoryId] = useState<MemoryId | null>(null);
@@ -144,7 +144,7 @@ export function RoomCanvas() {
   /** 시작 전에는 방 모형 전체를 보여주고, 시작하면 그 안으로 내려앉는다. */
   const started = useMemoryRoomStore((state) => state.started);
   const roomZoom = started ? zoomByFraming.play : zoomByFraming.overview;
-  /** 머릿속 구간(인트로·2막 도입). 그동안 회전·배율 입력은 잠기고 시선 입력이 대신 선다. */
+  /** 등 뒤 시점 구간(인트로·2막 도입). 그동안 회전·배율 입력은 잠기고 시선 입력이 대신 선다. */
   const viewpoint = useMemoryRoomStore(selectViewpoint);
   const firstPerson = viewpoint !== null;
   /*
@@ -291,7 +291,7 @@ export function RoomCanvas() {
 
   const interact = useCallback(
     (id: MemoryId) => {
-      // 머릿속에 있는 동안은 조사하지 않는다 (스토어도 막지만 소리까지 맞추려면 여기서 먼저)
+      // 등 뒤 시점에 있는 동안은 조사하지 않는다 (스토어도 막지만 소리까지 맞추려면 여기서 먼저)
       if (viewpointOf(useMemoryRoomStore.getState()) !== null) {
         playSound("deny");
         return false;
@@ -362,7 +362,7 @@ export function RoomCanvas() {
     const updateNearbyMemory = () => {
       const position = playerPositionRef.current;
       const state = useMemoryRoomStore.getState();
-      // 머릿속에 있는 동안은 아무것도 조사 대상이 아니다. 근접 안내와 글로우가 같이 꺼진다
+      // 등 뒤 시점에 있는 동안은 아무것도 조사 대상이 아니다. 근접 안내와 글로우가 같이 꺼진다
       const nextNearbyMemoryId =
         viewpointOf(state) !== null
           ? null
@@ -398,7 +398,7 @@ export function RoomCanvas() {
   // 포커스 연출·대사·미니게임 중에는 구도가 깨지지 않게 뷰를 되돌리고 입력을 잠근다.
   // 1인칭 동안도 같다: 회전·배율은 직교 카메라의 것이고, 그 카메라는 잠들어 있다.
   const viewLocked = inputLocked || focusMemoryId !== null || firstPerson;
-  useFirstPersonLook(containerRef, firstPerson, lookRef);
+  useChaseLook(containerRef, firstPerson, lookRef);
 
   const applyZoomScale = useCallback((next: number) => {
     if (zoomScaleRef.current === next) return;

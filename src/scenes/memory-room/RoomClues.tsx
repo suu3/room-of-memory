@@ -37,7 +37,7 @@ function ClueProp({
   children: ReactNode;
 }) {
   const openClue = useMemoryRoomStore((state) => state.openClue);
-  // 머릿속 구간에서는 어떤 단서도 만질 수 없다. 어둠 속에서 빛나는 건 스위치뿐이어야 한다
+  // 등 뒤 시점 구간에서는 어떤 단서도 만질 수 없다. 어둠 속에서 빛나는 건 스위치뿐이어야 한다
   const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
   const active = enabled && !firstPerson;
   const { hovered, handlers } = useGlowHover(active);
@@ -119,7 +119,7 @@ export function DeskClockClue({ children }: { children: ReactNode }) {
 /**
  * 문 쪽 왼벽의 전신거울. 누르면 거울 속 자기를 돌려보는 화면이 뜬다 (ClueOverlay).
  *
- * 유리는 머릿속 구간(1인칭)에서만 진짜로 비춘다 (MirrorReflection). 씬을 한 번 더
+ * 유리는 등 뒤 시점 구간(1인칭)에서만 진짜로 비춘다 (MirrorReflection). 씬을 한 번 더
  * 그리는 반사라 늘 켜 두면 모바일 예산을 넘고, 아이소메트릭에서는 어차피 천장만
  * 비친다. 평소에는 매끈한 어두운 유리다. 벽에 붙은 물건이라 RoomShell의 왼벽
  * (CulledWall) 안에 선다.

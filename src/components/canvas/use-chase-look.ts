@@ -5,7 +5,7 @@ import {
   handleLookKeyDown,
   type LookAngles,
   lookFromDrag,
-} from "@/scenes/memory-room/first-person";
+} from "@/scenes/memory-room/chase-camera";
 import { isInteractiveTarget, ORBIT_DRAG_THRESHOLD } from "./room-canvas-runtime";
 
 /**
@@ -16,10 +16,10 @@ import { isInteractiveTarget, ORBIT_DRAG_THRESHOLD } from "./room-canvas-runtime
  * 뒤따르는 click을 캡처 단계에서 삼켜 물건이 잘못 눌리지 않게 한다. 회전 드래그와 같은
  * 규칙이다. 버튼·조이스틱 위에서 시작한 끌기는 시선을 돌리지 않는다.
  *
- * 값은 ref에 쓴다. 프레임마다 카메라(FirstPersonRig)가 읽는다. 상태로 두면 끌 때마다
+ * 값은 ref에 쓴다. 프레임마다 카메라(ChaseCameraRig)가 읽는다. 상태로 두면 끌 때마다
  * 캔버스가 리렌더된다.
  */
-export function useFirstPersonLook(
+export function useChaseLook(
   containerRef: RefObject<HTMLElement | null>,
   enabled: boolean,
   lookRef: MutableRefObject<LookAngles>,
