@@ -68,7 +68,10 @@
     "interactHint_touch": "Examine {{name}} · tap",
     "moveCaption": "MOVE",
     "lookHint": "Drag to look around · WASD to walk",
-    "lookHint_touch": "Drag the screen to look, joystick to walk",
+    "lookHint_touch": "Drag the screen or use the buttons to look, joystick to walk",
+    "turnLeft": "Turn left",
+    "turnRight": "Turn right",
+    "lookCaption": "LOOK",
     "memoryState": {
       "locked": "{{name}} · not ready to examine",
       "done": "{{name}} · already examined"

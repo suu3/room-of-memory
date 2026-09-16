@@ -68,7 +68,10 @@
     "interactHint_touch": "{{name}}を調べる · タップ",
     "moveCaption": "移動",
     "lookHint": "ドラッグで見回す · WASDで歩く",
-    "lookHint_touch": "画面をドラッグして見回し、ジョイスティックで歩く",
+    "lookHint_touch": "画面をドラッグかボタンで見回し、ジョイスティックで歩く",
+    "turnLeft": "左を向く",
+    "turnRight": "右を向く",
+    "lookCaption": "見回す",
     "memoryState": {
       "locked": "{{name}} · まだ調べられない",
       "done": "{{name}} · 調べ済み"

@@ -68,7 +68,10 @@
     "interactHint_touch": "{{name}} 조사 · 터치",
     "moveCaption": "이동",
     "lookHint": "끌어서 둘러보기 · WASD로 걷기",
-    "lookHint_touch": "화면을 끌어 둘러보고 조이스틱으로 걷기",
+    "lookHint_touch": "화면을 끌거나 버튼으로 둘러보고 조이스틱으로 걷기",
+    "turnLeft": "왼쪽으로 돌아보기",
+    "turnRight": "오른쪽으로 돌아보기",
+    "lookCaption": "둘러보기",
     "memoryState": {
       "locked": "{{name}} · 아직 조사할 수 없음",
       "done": "{{name}} · 조사 완료"

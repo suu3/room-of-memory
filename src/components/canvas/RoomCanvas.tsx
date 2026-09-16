@@ -13,6 +13,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { LookButtons } from "@/components/ui/LookButtons";
 import { CanvasMinigameSkip } from "@/components/ui/MinigameHost";
 import { MovementJoystick } from "@/components/ui/MovementJoystick";
 import { RoomInteractionPrompt } from "@/components/ui/RoomInteractionPrompt";
@@ -593,6 +594,15 @@ export function RoomCanvas() {
           disabled={inputLocked}
           label={hint("scene.moveHint")}
           caption={t("scene.moveCaption")}
+        />
+      )}
+      {/* 1인칭에서만: 조이스틱의 짝. 끌기가 어려운 손에도 돌아볼 길을 준다 */}
+      {pointerKind === "touch" && firstPerson && (
+        <LookButtons
+          lookRef={lookRef}
+          disabled={inputLocked}
+          labels={{ left: t("scene.turnLeft"), right: t("scene.turnRight") }}
+          caption={t("scene.lookCaption")}
         />
       )}
     </div>
