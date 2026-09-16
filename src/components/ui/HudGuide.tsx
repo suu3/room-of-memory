@@ -119,22 +119,24 @@ export function HudGuideBanner({ hidden = false }: { hidden?: boolean }) {
  * 이쪽 하나만 들린다 (role="status").
  */
 export function HudGuideDock({ hidden = false }: { hidden?: boolean }) {
-  const { text, control, Icon, banner, gone } = useHudGuide();
+  const { text, Icon, banner, gone } = useHudGuide();
   if (gone) return null;
   const shown = !banner && !hidden;
 
+  /*
+   * 조작 한 줄(control)은 여기 싣지 않는다. 헤더가 한 줄 높아지면 폰에서 그 아래
+   * 가운데 기둥(혼잣말)과 겹친다. 조작법은 가운데 배너가 처음 4초 보여주고, 손가락
+   * 기기에서는 버튼의 캡션(이동·둘러보기)이 그 뒤로도 말한다.
+   */
   return (
-    <div
+    <p
       role="status"
-      className={`pointer-events-none flex max-w-full flex-col gap-[0.25em] text-[0.75em] font-medium text-fog transition-[opacity,transform] delay-150 duration-300 ease-out ${
+      className={`pointer-events-none inline-flex max-w-full items-center gap-[0.4em] text-[0.75em] font-medium text-fog transition-[opacity,transform] delay-150 duration-300 ease-out ${
         shown ? "opacity-100" : "translate-x-3 translate-y-2 opacity-0"
       }`}
     >
-      <p className="inline-flex max-w-full items-center gap-[0.4em]">
-        <Icon size="1.15em" weight="bold" className="shrink-0" aria-hidden />
-        <span className="break-ko">{text}</span>
-      </p>
-      {control && <p className="break-ko text-ash">{control}</p>}
-    </div>
+      <Icon size="1.15em" weight="bold" className="shrink-0" aria-hidden />
+      <span className="break-ko">{text}</span>
+    </p>
   );
 }
