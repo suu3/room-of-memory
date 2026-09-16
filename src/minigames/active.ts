@@ -34,6 +34,20 @@ export function liveMinigameOf(active: ActiveInteraction | null): LiveMinigame |
 }
 
 /**
+ * 씬 안에서 도는 미궁 문제 (없으면 null).
+ *
+ * 기억 인터랙션과 달리 문제는 activePuzzle 하나로 산다 (store의 openPuzzle). canvas
+ * 모드면 판을 세우는 것은 씬이고 (CanvasMinigameHost), DOM 호스트(PuzzleHost)는 안내와
+ * 닫기만 얹는다. 레지스트리의 정의는 모듈 상수라 셀렉터가 매번 새 값을 내지 않는다.
+ */
+export const selectCanvasPuzzle = (
+  state: Pick<MemoryRoomState, "activePuzzle">,
+): MinigameDefinition | null => {
+  const definition = state.activePuzzle ? getMinigame(state.activePuzzle) : undefined;
+  return definition?.mode === "canvas" ? definition : null;
+};
+
+/**
  * canvas 모드 미니게임이 지금 어느 기억 자리에 서 있는가 (없으면 null).
  *
  * 그 기억의 평소 모습(MemoryObjects)은 이 동안 숨는다. 미니게임이 같은 자리에

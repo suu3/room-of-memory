@@ -8,7 +8,7 @@ import { phaseConfigOf } from "@/data/memory-room";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
-import { liveMinigameOf } from "@/minigames/active";
+import { liveMinigameOf, selectCanvasPuzzle } from "@/minigames/active";
 import { MinigameHelp } from "@/minigames/shell";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
 import type { MinigameResult } from "@/types/minigame";
@@ -412,16 +412,24 @@ export function MinigameHost() {
  * 3D가 못 뜬 자리의 안전망. canvas 모드 미니게임은 그릴 씬이 없으니 건너뛴다
  * (cleared: true). 미등록 id를 건너뛰는 것과 같은 이유다: 진행이 먼저다.
  * RoomCanvas가 WebGL 폴백을 세울 때 같이 세운다.
+ *
+ * 미궁 문제(거실 피아노)도 같다. 건반이 없으면 누를 수도 없으니 풀린 것으로 친다.
  */
 export function CanvasMinigameSkip() {
   const active = useMemoryRoomStore(selectActiveInteraction);
   const finishMinigame = useMemoryRoomStore((state) => state.finishMinigame);
+  const finishPuzzle = useMemoryRoomStore((state) => state.finishPuzzle);
+  const canvasPuzzle = useMemoryRoomStore(selectCanvasPuzzle);
   const live = liveMinigameOf(active);
   const skip = active?.phase === "minigame" && live?.definition.mode === "canvas";
 
   useEffect(() => {
     if (skip) finishMinigame({ cleared: true });
   }, [skip, finishMinigame]);
+
+  useEffect(() => {
+    if (canvasPuzzle) finishPuzzle({ cleared: true });
+  }, [canvasPuzzle, finishPuzzle]);
 
   return null;
 }

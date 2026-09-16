@@ -3,22 +3,28 @@
 import { X } from "@phosphor-icons/react";
 import { Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
+import { MinigameHelp } from "@/minigames/shell";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { SuccessBurst } from "./SuccessBurst";
 import { HUD_ICON_BUTTON_SOLID } from "./ui-classes";
 
 /**
  * 미궁 문제 호스트: 기억 인터랙션 밖에서 도는 미니게임 (거실의 식탁 트럼프,
- * 현관 잠금장치).
+ * 현관 잠금장치, 거실 피아노).
  *
  * MinigameHost와 닮았지만 더 단순하다: 시작 카드가 없고(미궁은 규칙 설명이
  * 없는 게 규칙이라 카드에 적을 것도 없다. 그림을 바로 들이민다), 결과 대사
  * 단계도 없다(대사가 안 딸린다). 풀리면 solvedPuzzles에 남고 그걸로 끝이다.
+ *
+ * canvas 모드 문제(피아노)는 씬이 판을 세운다. 여기서는 DOM이어야 하는 두 가지,
+ * 조작 안내 한 줄과 닫기만 그 위에 얹는다 (MinigameHost가 앰플에 하는 것과 같다).
  */
 export function PuzzleHost() {
   const { t } = useTranslation();
+  const hint = useControlHint();
   const active = useMemoryRoomStore((state) => state.activePuzzle);
   const finishPuzzle = useMemoryRoomStore((state) => state.finishPuzzle);
   const closePuzzle = useMemoryRoomStore((state) => state.closePuzzle);
@@ -30,12 +36,14 @@ export function PuzzleHost() {
 
   const definition = active ? getMinigame(active) : undefined;
   const hosted = definition?.mode === "overlay" ? definition : undefined;
+  /** 씬 안에서 도는 판: 여기서는 안내와 닫기만 맡는다. */
+  const canvasHosted = definition?.mode === "canvas" ? definition : undefined;
   const sealed = settledId !== null && settledId === active;
 
   // 미등록 id로는 판을 세울 수 없다. 조용히 닫아서 진행이 막히지 않게 한다
   useEffect(() => {
-    if (active && !hosted) closePuzzle();
-  }, [active, hosted, closePuzzle]);
+    if (active && !hosted && !canvasHosted) closePuzzle();
+  }, [active, hosted, canvasHosted, closePuzzle]);
 
   useEffect(() => {
     if (active === null) setSettledId(null);
@@ -55,6 +63,31 @@ export function PuzzleHost() {
   return (
     <>
       {burstId > 0 && <SuccessBurst key={burstId} onDone={() => setBurstId(0)} />}
+      {/*
+        canvas 판(거실 피아노): 판은 씬이 그리고 있다. 백드롭도 틀도 없이 조작 안내
+        한 줄과 닫기만 띄운다. 안내 자리는 근접 안내(RoomInteractionPrompt)와 같다.
+      */}
+      {canvasHosted && (
+        <>
+          <div
+            role="status"
+            className="pointer-events-none absolute bottom-6 left-1/2 z-20 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-sm border border-line bg-surface px-3 py-1.5 text-center text-xs font-medium text-ivory shadow-chip"
+          >
+            <MinigameHelp help={hint(canvasHosted.helpKey)} className="break-ko text-pretty" />
+          </div>
+          <button
+            type="button"
+            aria-label={t("minigame.close")}
+            onClick={() => {
+              playSound("close");
+              closePuzzle();
+            }}
+            className={`fixed right-4 top-4 z-20 ${HUD_ICON_BUTTON_SOLID}`}
+          >
+            <X size={20} weight="bold" />
+          </button>
+        </>
+      )}
       {active && hosted && Minigame && (
         <div
           className="absolute inset-0 z-40 grid place-items-center bg-scene-void/40 backdrop-blur-sm"

@@ -13,6 +13,7 @@ import {
   Vector3,
 } from "three";
 import type { MemoryId } from "@/data/memory-room";
+import { selectCanvasPuzzle } from "@/minigames/active";
 import {
   gamePhaseOf,
   MEMORY_TOTAL,
@@ -286,6 +287,8 @@ export function MemoryRoomScene({
   const collectedCount = useMemoryRoomStore(selectCollectedCount);
   const recovery = useMemoryRoomStore(selectActTwoProgress);
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
+  /** 씬 안에서 도는 미궁 문제(거실 피아노). 그동안 카메라는 그쪽이 쥔다 */
+  const canvasPuzzle = useMemoryRoomStore(selectCanvasPuzzle);
   const walkTo = useMemoryRoomStore((state) => state.walkTo);
   /*
    * 숨긴 공간은 클릭도 받지 않는다 (event-visibility). 방은 카메라와 거실 사이에 있어서,
@@ -469,7 +472,12 @@ export function MemoryRoomScene({
         zoomScale={zoomScale}
         orbitAzimuth={orbitAzimuth}
         following={following}
-        firstPerson={viewpoint !== null}
+        /*
+         * 기본 카메라를 남이 쥐고 있는 구간: 1인칭(FirstPersonRig)과 건반 앞에
+         * 붙박이로 서는 canvas 문제(피아노). 그동안 이 리그는 잠든다. 안 그러면
+         * 두 카메라가 같은 프레임에서 서로를 밀어 화면이 떨린다.
+         */
+        firstPerson={viewpoint !== null || canvasPuzzle !== null}
         playerPositionRef={playerPositionRef}
       />
       {/* 1인칭 카메라. 마운트되면 기본 카메라를 쥐고, 내려오면 돌려놓는다 */}

@@ -427,13 +427,6 @@
       "title": "The Piano",
       "help": "Play the keys as written: 1 2 3 4 5 6 7",
       "help_touch": "Play the keys as written",
-      "fail": "…that came out tangled. From the top.",
-      "sheetLabel": "Sheet music",
-      "missing": "Water-blurred. This part cannot be read.",
-      "played": "Played so far",
-      "clear": "Clear",
-      "keyLabel": "Key {{name}}",
-      "solved": "The last note hangs in the room for a long time.",
       "notes": {
         "do": "Do",
         "re": "Re",

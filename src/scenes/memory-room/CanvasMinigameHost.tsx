@@ -1,7 +1,8 @@
 "use client";
 
 import { Suspense } from "react";
-import { liveMinigameOf } from "@/minigames/active";
+import { playSound } from "@/lib/audio";
+import { liveMinigameOf, selectCanvasPuzzle } from "@/minigames/active";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
 
 /**
@@ -14,8 +15,22 @@ import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room
  *
  * 세계 좌표에 자기 자리를 아는 것은 미니게임 쪽이다 (기억 자리 MEMORY_PLACEMENTS).
  * 판이 도는 동안 그 기억의 평소 모습은 숨는다 (selectCanvasMinigameMemory).
+ *
+ * 두 갈래가 들어온다: 기억 인터랙션(냉장고 앰플)과 미궁 문제(거실 피아노). 둘은
+ * 스토어에서 사는 자리가 달라(activeInteraction / activePuzzle) 완료도 각자의
+ * 액션으로 간다. 판을 세우는 방식만 같다.
  */
 export function CanvasMinigameHost() {
+  return (
+    <>
+      <CanvasInteraction />
+      <CanvasPuzzle />
+    </>
+  );
+}
+
+/** 기억 인터랙션의 canvas 판. */
+function CanvasInteraction() {
   const active = useMemoryRoomStore(selectActiveInteraction);
   const finishMinigame = useMemoryRoomStore((state) => state.finishMinigame);
   const difficulty = useMemoryRoomStore((state) => state.difficulty);
@@ -32,6 +47,34 @@ export function CanvasMinigameHost() {
         difficulty={difficulty}
         stage={live.stage}
         onComplete={finishMinigame}
+      />
+    </Suspense>
+  );
+}
+
+/**
+ * 미궁 문제의 canvas 판 (거실 피아노).
+ *
+ * 결과 카드가 없으니 소리는 여기서 낸다: overlay 쪽 PuzzleHost가 하던 몫이다.
+ * 손에 든 것(carrying)은 문제 화면이 "저쪽에서 가져온 것"을 보고 달라지는 데 쓴다.
+ */
+function CanvasPuzzle() {
+  const puzzle = useMemoryRoomStore(selectCanvasPuzzle);
+  const finishPuzzle = useMemoryRoomStore((state) => state.finishPuzzle);
+  const carrying = useMemoryRoomStore((state) => state.inventory);
+  if (!puzzle) return null;
+
+  const Minigame = puzzle.component;
+  return (
+    <Suspense fallback={null}>
+      <Minigame
+        key={puzzle.id}
+        gamePhase={2}
+        carrying={carrying}
+        onComplete={(result) => {
+          playSound(result.cleared ? "success" : "fail");
+          finishPuzzle(result);
+        }}
       />
     </Suspense>
   );

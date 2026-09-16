@@ -132,14 +132,17 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
   },
   "piano-melody": {
     id: "piano-melody",
-    mode: "overlay",
+    // 씬의 피아노 그 자리에서 돈다: 뚜껑이 젖혀지고 카메라가 건반 앞에 붙박이로 선다.
+    // 판을 세우는 것은 씬 쪽 호스트(src/scenes/memory-room/CanvasMinigameHost.tsx)다
+    mode: "canvas",
+    presentation: "bare",
     component: lazy(() =>
       import("./piano-melody").then((m) => ({ default: m.PianoMelodyMinigame })),
     ),
     titleKey: "minigame.pianoMelody.title",
     helpKey: "minigame.pianoMelody.help",
-    failKey: "minigame.pianoMelody.fail",
-    // 규칙은 악보가 다 말한다. 적힌 대로 누르면 된다는 걸 목록으로 또 적을 이유가 없다
+    // 규칙은 악보가 다 말한다. 적힌 대로 누르면 된다는 걸 목록으로 또 적을 이유가 없다.
+    // failKey도 없다: 틀리면 처음으로 되감길 뿐, 이 문제에 "실패"라는 끝은 없다
   },
   "ampoule-pickup": {
     id: "ampoule-pickup",
