@@ -620,7 +620,7 @@ describe("전환 컷씬", () => {
     expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(false);
   });
 
-  it("컷씬 중에는 BGM이 멎는다. 인트로의 어둠 속에서도 아직 곡이 없다", () => {
+  it("전환 구간은 통째로 정적이다. 곡은 방문이 열려야 다시 든다", () => {
     useMemoryRoomStore.getState().startGame();
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
     // 새 게임은 불 꺼진 인트로에서 시작한다. 스위치를 켜야 조사가 열리고 곡이 든다
@@ -628,9 +628,17 @@ describe("전환 컷씬", () => {
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
     finishFirstRound();
 
+    // 컷씬 중
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
+    // 컷씬이 끝나도 라디오가 저 혼자 말을 거는 동안은 정적이 이어진다
     useMemoryRoomStore.getState().endPlayback();
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
+
+    // 방문이 열리는 순간, 2막 곡이 그 정적 위에 처음 든다
+    useMemoryRoomStore.setState({ revisited: ["radio"] });
+    useMemoryRoomStore.getState().openRoomDoor();
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
+    expect(selectMusicPhase(useMemoryRoomStore.getState())).toBe(2);
   });
 });
 

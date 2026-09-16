@@ -738,7 +738,13 @@ export const PARENTS_BOUNDS: Aabb2 = {
   maxZ: PARENTS_SHELL_BOUNDS.maxZ - 0.45,
 };
 /** 안방 문: 거실 -x 벽 위, 현관문(z 1.25)과 피아노 사이. 문틀은 벽 안쪽(거실 쪽)에 붙는다. */
-export const PARENTS_DOOR_POSITION = [PARENTS_SHELL_BOUNDS.maxX + 0.14, 1.7, 3.7] as const;
+/*
+ * 안방 문. z는 현관문(1.25, 구멍 0.43~2.07)에서 멀찍이 떨어뜨린 자리다. 둘 다 거실의
+ * 같은 -x 벽에 달려 있어서, 예전 자리(3.7)에서는 문 두 짝이 0.8 간격으로 붙어 서서
+ * 어느 쪽이 밖으로 나가는 문인지 한눈에 안 갈렸다. 위로는 안방 책상(z 5.7~)이 막으므로
+ * 문간 판정이 거기 닿지 않는 선까지만 올린다.
+ */
+export const PARENTS_DOOR_POSITION = [PARENTS_SHELL_BOUNDS.maxX + 0.14, 1.7, 4.9] as const;
 /** -π/2: 문의 앞면(로컬 +z)이 안방(-x)을 본다. 문짝은 앞면 쪽으로 열린다 (SpaceDoor). */
 export const PARENTS_DOOR_ROTATION = [0, -Math.PI / 2, 0] as const;
 /** 안방 가구 발자국: -x 벽에 침대, -z 벽에 옷장, +z 벽에 책상(연구 자료). 문 앞(+x 벽, z 3~4.4)은 비운다. */
@@ -755,4 +761,4 @@ export const PARENTS_COLLIDERS = [
  */
 export const BATHROOM_DOORWAY_ZONE: Aabb2 = { minX: -12.9, maxX: -11.6, minZ: 5.1, maxZ: 7.9 };
 /** 안방 문간은 x 방향 문이다: 방문 문간과 같은 꼴로 x로 잇는다. */
-export const PARENTS_DOORWAY_ZONE: Aabb2 = { minX: -17.9, maxX: -15.1, minZ: 3.05, maxZ: 4.35 };
+export const PARENTS_DOORWAY_ZONE: Aabb2 = { minX: -17.9, maxX: -15.1, minZ: 4.25, maxZ: 5.55 };

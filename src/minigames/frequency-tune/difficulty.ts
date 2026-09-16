@@ -21,9 +21,12 @@ export const MAX_MISSES = 8;
  * 난이도별 다이얼. 대역 폭은 %(다이얼 전체 20MHz 기준: 5% = 1MHz), 주기는 바늘이
  * 한 번 왕복하는 시간이다.
  *
- * 이지: 4MHz(20%)에서 시작해 2.8MHz까지, 바늘은 보통의 60% 속도. 유효 입력창이
- * 400ms 안팎이라 보고 누를 수 있다. 보통: 3MHz(15%)에서 2MHz까지, 예전 속도 그대로.
- * 예전의 14%→8%는 "이지"라는 이름으로 보통보다 어려운 판이었다.
+ * 이지: 4MHz(20%)에서 시작해 2.8MHz까지, 바늘은 보통의 60% 속도. 보통: 3MHz(15%)에서
+ * 2MHz까지. 예전의 14%→8%는 "이지"라는 이름으로 보통보다 어려운 판이었다.
+ *
+ * 주기는 2026-09-16에 전부 3분의 1쯤 줄였다. 바늘이 한 번 왕복하는 데 7초가 걸리니
+ * 조준이 어려운 게 아니라 **기다리는 게 지루했다**. 좁히는 건 대역이 맡고, 주기는
+ * "지금 움직이고 있다"가 느껴지는 속도를 지킨다. 난이도 사이의 비(약 1.6배)는 그대로다.
  */
 export interface DialTuning {
   /** 첫 판의 목표 대역 폭 (%). */
@@ -37,8 +40,8 @@ export interface DialTuning {
 }
 
 export const DIAL_TUNINGS: Record<MinigameDifficulty, DialTuning> = {
-  easy: { bandMax: 20, bandMin: 14, periodMax: 7000, periodMin: 4300 },
-  normal: { bandMax: 15, bandMin: 10, periodMax: 4200, periodMin: 2600 },
+  easy: { bandMax: 20, bandMin: 14, periodMax: 4500, periodMin: 3000 },
+  normal: { bandMax: 15, bandMin: 10, periodMax: 2700, periodMin: 1800 },
 };
 
 export const DEFAULT_DIFFICULTY: MinigameDifficulty = "easy";
@@ -73,8 +76,8 @@ const BAND_WIDTH_STEP = 1.5;
 export const NEEDLE_PERIOD_MAX_MS = DIAL_TUNINGS.easy.periodMax;
 /** 기본 난이도의 마지막 판 주기 (ms). */
 export const NEEDLE_PERIOD_MIN_MS = DIAL_TUNINGS.easy.periodMin;
-/** 명중 1회당 줄어드는 주기 (ms). */
-const NEEDLE_SPEEDUP_MS = 400;
+/** 명중 1회당 줄어드는 주기 (ms). 주기를 줄인 만큼 계단도 같이 낮춘다. */
+const NEEDLE_SPEEDUP_MS = 300;
 
 /** 지금까지 명중한 횟수에 대한 목표 대역 폭 (%). */
 export function bandWidthAt(

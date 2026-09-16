@@ -1183,13 +1183,20 @@ export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogu
 /**
  * 곡이 흐르고 있어야 하는가. 컷씬은 방송이 끊긴 정적 위에 서는 장면이라 곡도 같이
  * 멎는다. 여기서 BGM이 계속 흐르면 "뚝 끊김"이 소리로 전달되지 않는다.
+ *
+ * **전환 구간은 통째로 정적이다.** 1막을 다 모은 순간(라디오)부터 방문이 열리기까지,
+ * 컷씬만이 아니라 그 앞뒤까지 곡이 없다. 컷씬 동안만 멎게 했더니 컷씬이 끝나는 자리에서
+ * 1막 곡이 처음부터 다시 들었다: 재난방송이 끊긴 정적 위에서 라디오가 말을 거는
+ * 구간인데 곡이 돌아와 버리면 그 정적이 사라진다. 2막 곡은 문이 열리는 순간,
+ * 이 정적 위에 처음 든다 (selectMusicPhase, docs/content-design.md 8장).
  */
 export const selectMusicPlaying = (state: MemoryRoomState) =>
   state.started &&
   // 곡은 스위치를 켜는 순간 시작한다. 어둠 속에서는 정적뿐이다 (인트로)
   state.introDone &&
   !state.endingStarted &&
-  state.activePlayback?.kind !== "cutscene";
+  state.activePlayback?.kind !== "cutscene" &&
+  !(gamePhaseOf(state) === 2 && !state.doorOpened);
 
 /**
  * BGM이 몇 번째 곡을 틀어야 하는가. 곡은 막이 아니라 **전환 컷씬**을 기준으로

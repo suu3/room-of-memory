@@ -75,15 +75,15 @@ describe("staticLevel", () => {
 });
 
 describe("난이도별 다이얼", () => {
-  it("이지는 보통보다 넓고 느리다. 유효 입력창이 400ms 안팎이어야 보고 누를 수 있다", () => {
+  it("이지는 보통보다 넓고 느리다 (대역 20%, 주기는 보통의 1/0.6배)", () => {
     expect(bandWidthAt(0, 0, "easy")).toBeGreaterThan(bandWidthAt(0, 0, "normal"));
     expect(needlePeriodAt(0, "easy")).toBeGreaterThan(needlePeriodAt(0, "normal"));
     // 이지: 4MHz(20%) 대역, 보통의 60% 속도(주기 1/0.6배)
     expect(bandWidthAt(0, 0, "easy")).toBe(20);
     expect(needlePeriodAt(0, "easy")).toBeCloseTo(needlePeriodAt(0, "normal") / 0.6, -2);
-    // 보통: 3MHz(15%) 대역, 예전 속도 그대로
+    // 보통: 3MHz(15%) 대역
     expect(bandWidthAt(0, 0, "normal")).toBe(15);
-    expect(needlePeriodAt(0, "normal")).toBe(4200);
+    expect(needlePeriodAt(0, "normal")).toBe(2700);
   });
 
   it("보통도 마지막 판까지 눈으로 조준할 수 있는 폭을 남긴다", () => {

@@ -104,7 +104,7 @@ export const SPACES = {
     // 부모님 방은 가장 오래 닫혀 있던 공간이다. 한 단계 더 어둡다
     lightOffset: AWAY_LIGHT_OFFSET * 2,
     hasWindow: false,
-    landing: { x: -19.5, z: 3 },
+    landing: { x: -18.6, z: 4.6 },
   },
 } as const satisfies Record<SpaceId, SpaceDef>;
 
