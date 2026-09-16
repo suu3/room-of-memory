@@ -1145,7 +1145,11 @@ export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogu
  * 멎는다. 여기서 BGM이 계속 흐르면 "뚝 끊김"이 소리로 전달되지 않는다.
  */
 export const selectMusicPlaying = (state: MemoryRoomState) =>
-  state.started && !state.endingStarted && state.activePlayback?.kind !== "cutscene";
+  state.started &&
+  // 곡은 스위치를 켜는 순간 시작한다. 어둠 속에서는 정적뿐이다 (인트로)
+  state.introDone &&
+  !state.endingStarted &&
+  state.activePlayback?.kind !== "cutscene";
 
 /**
  * BGM이 몇 번째 곡을 틀어야 하는가. 곡은 막이 아니라 **전환 컷씬**을 기준으로

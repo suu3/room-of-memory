@@ -9,6 +9,7 @@ import { MEMORY_GOAL, PHASE2_MEMORIES } from "./memory-room";
  * 같은 말이 걸려 있으면 방은 어두워지는데 사람만 그대로인 것처럼 읽힌다.
  */
 export const MONOLOGUE_IDS = [
+  "p0-dark",
   "p1-0",
   "p1-1",
   "p1-3",
@@ -26,6 +27,8 @@ interface ProgressSnapshot {
   collected: readonly MemoryId[];
   revisited: readonly MemoryId[];
   doorOpened: boolean;
+  /** 인트로(불 꺼진 방에서 스위치를 찾는 구간)를 마쳤는가. 비우면 마친 것으로 본다. */
+  introDone?: boolean;
 }
 
 /** 2바퀴에서 다시 조사한 개수: 진행 표시(HUD)와 같은 목록을 센다. */
@@ -42,6 +45,8 @@ export function phaseTwoCount(revisited: readonly MemoryId[]): number {
  * 올라간다. 13번의 조사 동안 열 줄이 차례로 바뀐다.
  */
 export function monologueIdFor(state: ProgressSnapshot): MonologueId {
+  // 불을 켜기 전: 어둠 속의 한 줄. 진행도보다 앞이다
+  if (state.introDone === false) return "p0-dark";
   const collected = state.collected.length;
   if (collected < MEMORY_GOAL) {
     if (collected >= 5) return "p1-5";

@@ -67,6 +67,8 @@ describe("monologueIdFor", () => {
 
   it("모든 구간 id가 실제로 쓰인다", () => {
     const used = new Set<string>();
+    // 인트로: 불을 켜기 전
+    used.add(monologueIdFor({ collected: [], revisited: [], doorOpened: false, introDone: false }));
     for (let n = 0; n <= phase1.length; n += 1) {
       used.add(monologueIdFor({ collected: phase1.slice(0, n), revisited: [], doorOpened: false }));
     }
@@ -83,5 +85,18 @@ describe("monologueIdFor", () => {
       );
     }
     for (const id of MONOLOGUE_IDS) expect(used.has(id)).toBe(true);
+  });
+});
+
+describe("인트로의 한 줄", () => {
+  it("불을 켜기 전에는 진행도와 무관하게 어둠 속 한 줄이고, 켜면 1바퀴 시작 줄이다", () => {
+    expect(
+      monologueIdFor({ collected: [], revisited: [], doorOpened: false, introDone: false }),
+    ).toBe("p0-dark");
+    expect(
+      monologueIdFor({ collected: [], revisited: [], doorOpened: false, introDone: true }),
+    ).toBe("p1-0");
+    // 비우면 마친 것으로: 인트로를 모르던 호출부가 그대로 맞는다
+    expect(monologueIdFor({ collected: [], revisited: [], doorOpened: false })).toBe("p1-0");
   });
 });

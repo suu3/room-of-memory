@@ -105,7 +105,7 @@ export function MemoryRoom() {
   // 미니게임은 효과음이, 대사는 글이 주인공이다. 눌러야 하는 깊이가 다르다
   const musicForeground = useMemoryRoomStore(selectMusicForeground);
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
-  // 1인칭 구간. 인트로는 소등보다 깊은 어둠이고(blackout), 그동안 혼잣말은 물러난다
+  // 1인칭 구간. 인트로는 소등보다 깊은 어둠이다(blackout)
   const viewpoint = useMemoryRoomStore(selectViewpoint);
   // 불을 끄면 곡도 같이 물러난다. 밝기와 음색을 한 축으로 묶어 둔 이득이다.
   // 인트로의 어둠도 같은 축을 탄다: 스위치를 켜는 순간 곡이 방과 함께 차오른다
@@ -269,11 +269,8 @@ export function MemoryRoom() {
             다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다.
           */}
           <div className="pointer-events-none absolute left-1/2 top-28 z-10 flex w-[min(clamp(640px,44vw,840px),calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-28 md:gap-3 lg:top-16">
-            {/* 인트로(불 켜기 전)에는 혼잣말이 없다. 어둠 속에서 "심심하네"는 딴소리다 */}
-            <Monologue
-              monologueId={monologueId}
-              hidden={monologueHidden || viewpoint === "intro"}
-            />
+            {/* 인트로(불 켜기 전)에는 어둠 속의 한 줄(p0-dark)이 걸린다 (monologueIdFor) */}
+            <Monologue monologueId={monologueId} hidden={monologueHidden} />
             <HudGuideBanner hidden={monologueHidden} />
           </div>
 

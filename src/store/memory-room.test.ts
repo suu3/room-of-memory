@@ -362,6 +362,8 @@ describe("수집한 기억 다시보기", () => {
 
   it("다시보기 중에는 BGM이 멎지 않는다. 정적은 컷씬의 것이다", () => {
     useMemoryRoomStore.getState().startGame();
+    // 곡은 스위치를 켠 뒤부터다 (selectMusicPlaying)
+    useMemoryRoomStore.getState().toggleLights();
     collectBall();
     useMemoryRoomStore.getState().replayMemory("ball");
 
@@ -617,10 +619,12 @@ describe("전환 컷씬", () => {
     expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(false);
   });
 
-  it("컷씬 중에는 BGM이 멎는다", () => {
+  it("컷씬 중에는 BGM이 멎는다. 인트로의 어둠 속에서도 아직 곡이 없다", () => {
     useMemoryRoomStore.getState().startGame();
-    // 새 게임은 불 꺼진 인트로에서 시작한다. 스위치를 켜야 조사가 열린다
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
+    // 새 게임은 불 꺼진 인트로에서 시작한다. 스위치를 켜야 조사가 열리고 곡이 든다
     useMemoryRoomStore.getState().toggleLights();
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
     finishFirstRound();
 
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);

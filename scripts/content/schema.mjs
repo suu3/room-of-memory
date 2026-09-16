@@ -53,6 +53,7 @@ export const ICONS = [
  * src/data/monologue.ts의 monologueIdFor가 정한다. 거기 MONOLOGUE_IDS와 같아야 한다.
  */
 export const STAGE_IDS = [
+  "p0-dark",
   "p1-0",
   "p1-1",
   "p1-3",
