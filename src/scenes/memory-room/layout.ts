@@ -512,7 +512,12 @@ export const MEMORY_PLACEMENTS = {
   },
   calendar: {
     id: "calendar",
-    position: [-5.88, 2.55, 0.9],
+    /*
+     * z는 포스터(z 1.21~2.23)를 비켜선 자리다. 벽에 걸린 판이 둘이라 서로 물리면
+     * 한 장이 다른 장을 파고든 것처럼 보인다. 판 폭이 0.82라 이 중심에서
+     * 0.21~1.03을 차지하고, 포스터와 0.18만큼 떨어진다.
+     */
+    position: [-5.88, 2.55, 0.62],
     rotation: [0, Math.PI / 2, 0],
     scale: 1,
     interactionRadius: 1.25,
@@ -626,7 +631,8 @@ export const CAMERA_PRESETS = {
   // 라디오와 같은 통로에서 책상 안쪽(모니터)을 비스듬히 본다
   computer: { position: [-0.9, 2.7, 1.1], target: [-4.6, 1.5, -0.95] },
   phone: { position: [6.75, 2.65, 6.25], target: [4.3, 0.95, 3.6] },
-  calendar: { position: [-1.1, 3.6, 3.2], target: [-5.75, 2.5, 0.9] },
+  // 달력이 z로 옮겨간 만큼 카메라도 같이 옮긴다. 둘을 같은 값만큼 밀어야 보는 각이 그대로다
+  calendar: { position: [-1.1, 3.6, 2.92], target: [-5.75, 2.5, 0.62] },
   ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },
   /*
    * 거실 물건들. 방과 같은 방향(+x·+z)에서 본다. 공간이 바뀔 때 카메라가 반대편으로
