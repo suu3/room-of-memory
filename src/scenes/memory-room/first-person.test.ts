@@ -1,13 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  CAMERA_DISTANCE,
-  CAMERA_MIN_DISTANCE,
-  CAMERA_WALL_MARGIN,
-  cameraBounds,
-  cameraDistanceWithin,
   clampPitch,
   handleLookKeyDown,
-  INITIAL_PITCH,
   initialLook,
   LOOK_DRAG_SENSITIVITY,
   LOOK_KEY_STEP,
@@ -15,12 +9,12 @@ import {
   lookFromDrag,
   PITCH_LIMIT,
   yawToward,
-} from "./chase-camera";
-import { LIVING_SHELL_BOUNDS, ROOM_DOOR_POSITION, ROOM_SHELL_BOUNDS } from "./layout";
+} from "./first-person";
+import { ROOM_DOOR_POSITION } from "./layout";
 
 const never = () => false;
 
-describe("등 뒤 시점의 시선", () => {
+describe("1인칭 시선", () => {
   it("오른쪽·아래로 끌면 오른쪽·아래를 본다 (마우스와 같은 방향)", () => {
     const target = { yaw: 0, pitch: 0 };
     lookFromDrag({ yaw: 0, pitch: 0 }, 100, 50, target);
@@ -28,13 +22,12 @@ describe("등 뒤 시점의 시선", () => {
     expect(target.pitch).toBeCloseTo(-50 * LOOK_DRAG_SENSITIVITY);
   });
 
-  it("고개는 한계 안에서만 꺾이고, 아래가 위보다 깊다 (내려다보는 게임이다)", () => {
+  it("고개는 한계 안에서만 꺾인다. 천장·발밑을 끝까지 보면 걷는 방향이 사라진다", () => {
     const target = { yaw: 0, pitch: 0 };
     lookFromDrag({ yaw: 0, pitch: 0 }, 0, -100000, target);
-    expect(target.pitch).toBe(PITCH_LIMIT.up);
+    expect(target.pitch).toBe(PITCH_LIMIT);
     expect(clampPitch(Number.NaN)).toBe(0);
-    expect(clampPitch(-9)).toBe(PITCH_LIMIT.down);
-    expect(-PITCH_LIMIT.down).toBeGreaterThan(PITCH_LIMIT.up);
+    expect(clampPitch(-9)).toBe(-PITCH_LIMIT);
   });
 
   it("끌기 값이 깨져도 시선은 제자리다", () => {
@@ -86,52 +79,17 @@ describe("등 뒤 시점의 시선", () => {
     expect(forward.z).toBeCloseTo(toTarget.z / length);
   });
 
-  it("인트로는 캐릭터 등 뒤에서 캐릭터가 보는 쪽(+z)을, 문 넘기는 방금 연 문을 본다", () => {
+  it("인트로는 침대 쪽(+x)을, 문 넘기는 방금 연 문을 보고 시작한다", () => {
     const intro = initialLook("intro", { x: 0, z: 2.35 });
-    expect(intro.pitch).toBe(INITIAL_PITCH);
-    const forward = lookDirection({ yaw: intro.yaw, pitch: 0 }, { x: 0, y: 0, z: 0 });
-    expect(forward.z).toBeCloseTo(1);
+    expect(intro.pitch).toBe(0);
+    const forward = lookDirection(intro, { x: 0, y: 0, z: 0 });
+    expect(forward.x).toBeCloseTo(1);
+    expect(forward.z).toBeCloseTo(0);
     const player = { x: -3, z: 4 };
     const doorway = initialLook("doorway", player);
+    expect(doorway.pitch).toBe(0);
     expect(doorway.yaw).toBeCloseTo(
       yawToward(player, { x: ROOM_DOOR_POSITION[0], z: ROOM_DOOR_POSITION[2] }),
-    );
-  });
-});
-
-describe("등 뒤 카메라가 벽을 뚫지 않는 거리", () => {
-  const bounds = cameraBounds("intro");
-
-  it("카메라 범위는 방 안쪽 면에서 여유만큼 들어와 있고, 문이 열리면 거실까지 이어진다", () => {
-    expect(bounds.minX).toBeCloseTo(ROOM_SHELL_BOUNDS.minX + CAMERA_WALL_MARGIN);
-    expect(bounds.maxZ).toBeCloseTo(ROOM_SHELL_BOUNDS.maxZ - CAMERA_WALL_MARGIN);
-    const open = cameraBounds("doorway");
-    expect(open.minX).toBeCloseTo(LIVING_SHELL_BOUNDS.minX + CAMERA_WALL_MARGIN);
-    expect(open.maxX).toBeCloseTo(ROOM_SHELL_BOUNDS.maxX - CAMERA_WALL_MARGIN);
-  });
-
-  it("방 한가운데서는 원하는 거리 그대로다", () => {
-    const pivot = { x: 1, z: 1 };
-    expect(cameraDistanceWithin(pivot, { x: 0, z: -1 }, CAMERA_DISTANCE, bounds)).toBe(
-      CAMERA_DISTANCE,
-    );
-  });
-
-  it("벽을 등지고 서면 벽에 닿는 거리까지만 물러난다", () => {
-    // 뒷벽(minZ) 앞에서 앞(+z)을 본다: 카메라는 -z로 물러나다 벽에 막힌다
-    const pivot = { x: 1, z: bounds.minZ + 1 };
-    const distance = cameraDistanceWithin(pivot, { x: 0, z: 1 }, CAMERA_DISTANCE, bounds);
-    expect(distance).toBeCloseTo(1);
-    // 비스듬해도 닿는 축이 정한다
-    const diagonal = { x: Math.SQRT1_2, z: Math.SQRT1_2 };
-    const slanted = cameraDistanceWithin(pivot, diagonal, CAMERA_DISTANCE, bounds);
-    expect(slanted).toBeCloseTo(1 / Math.SQRT1_2);
-  });
-
-  it("벽에 바짝 붙어도 최소 거리는 남긴다. 그보다 가까우면 몸통 속이다", () => {
-    const pivot = { x: 1, z: bounds.minZ + 0.1 };
-    expect(cameraDistanceWithin(pivot, { x: 0, z: 1 }, CAMERA_DISTANCE, bounds)).toBe(
-      CAMERA_MIN_DISTANCE,
     );
   });
 });

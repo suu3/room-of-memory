@@ -67,7 +67,7 @@ export function CulledWall({
 
     const [centerX, centerZ] = center ?? [SHELL_CENTER_X, SHELL_CENTER_Z];
     /*
-     * 1인칭(등 뒤 시점)에서는 벽을 걷지 않는다. 걷는 규칙은 밖에서 내려다보는 카메라를
+     * 1인칭(1인칭)에서는 벽을 걷지 않는다. 걷는 규칙은 밖에서 내려다보는 카메라를
      * 위한 것이라, 안에서 보면 다가서는 벽마다 사라져 방이 뚫린다. 스토어를 프레임마다
      * 읽지만 getState는 구독이 아니라 싸다.
      */

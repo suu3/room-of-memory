@@ -138,7 +138,7 @@ export function CameraRig({
    */
   following: boolean;
   /**
-   * 1인칭 구간(ChaseCameraRig)이 기본 카메라를 쥐고 있는가. 그동안 이 리그는 아무것도
+   * 1인칭 구간(FirstPersonRig)이 기본 카메라를 쥐고 있는가. 그동안 이 리그는 아무것도
    * 하지 않는다. 직교 카메라는 마지막 자리에 잠들어 있다가 돌아오면 거기서 따라온다.
    * 인트로 뒤에는 타이틀 구도에서 방 안으로 내려앉는 연출이 그대로 살아난다.
    */
@@ -204,7 +204,7 @@ export function CameraRig({
 
   useFrame((state, delta) => {
     const { camera } = state;
-    // 등 뒤 시점에 있는 동안은 잠든다. 내려앉는 연출의 시계도 멈춰 두어 돌아온 뒤에 돈다
+    // 1인칭에 있는 동안은 잠든다. 내려앉는 연출의 시계도 멈춰 두어 돌아온 뒤에 돈다
     if (firstPerson) {
       enterElapsed.current = 0;
       return;

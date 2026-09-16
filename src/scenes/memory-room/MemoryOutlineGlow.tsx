@@ -349,7 +349,7 @@ export function MemoryGlowSelection({
   enabled: boolean;
   selectionVersion?: number;
   /**
-   * 등 뒤 시점 구간(인트로·문 넘기)에서도 빛나는가. 기본은 "mute": 어둠 속에서 할 일은
+   * 1인칭 구간(인트로·문 넘기)에서도 빛나는가. 기본은 "mute": 어둠 속에서 할 일은
    * 하나뿐이라 그것만 빛나야 찾는 게 된다. 전등 스위치만 "keep"이다.
    */
   inFirstPerson?: "keep" | "mute";

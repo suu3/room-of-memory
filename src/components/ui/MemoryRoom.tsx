@@ -105,7 +105,7 @@ export function MemoryRoom() {
   // 미니게임은 효과음이, 대사는 글이 주인공이다. 눌러야 하는 깊이가 다르다
   const musicForeground = useMemoryRoomStore(selectMusicForeground);
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
-  // 등 뒤 시점 구간. 인트로는 소등보다 깊은 어둠이고(blackout), 그동안 혼잣말은 물러난다
+  // 1인칭 구간. 인트로는 소등보다 깊은 어둠이고(blackout), 그동안 혼잣말은 물러난다
   const viewpoint = useMemoryRoomStore(selectViewpoint);
   // 불을 끄면 곡도 같이 물러난다. 밝기와 음색을 한 축으로 묶어 둔 이득이다.
   // 인트로의 어둠도 같은 축을 탄다: 스위치를 켜는 순간 곡이 방과 함께 차오른다
@@ -152,7 +152,7 @@ export function MemoryRoom() {
         }}
       />
       {/*
-        등 뒤 시점 구간의 비네트: 화면 가운데만 남기고 가장자리를 어둠에 잠근다. "일부만
+        1인칭 구간의 비네트: 화면 가운데만 남기고 가장자리를 어둠에 잠근다. "일부만
         보인다"는 인상은 조명이 아니라 이 겹이 만든다 (visual-state의 BLACKOUT_FACTOR).
         인트로는 꽉 조이고, 문 넘기는 방이 이미 가장 어두운 지점이라 절반만 조인다.
         늘 렌더하고 투명도만 바꾼다: 들어가고 나올 때 번쩍임(ViewpointTransition)과 겹쳐

@@ -1,6 +1,6 @@
 "use client";
 
-import { PerformanceMonitor, SoftShadows } from "@react-three/drei";
+import { PerformanceMonitor } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import {
   Component,
@@ -20,7 +20,6 @@ import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
-import type { LookAngles } from "@/scenes/memory-room/chase-camera";
 import {
   CURTAIN_CLOSED,
   type CurtainPull,
@@ -28,6 +27,7 @@ import {
   isCurtainOpen,
   releaseProgress,
 } from "@/scenes/memory-room/curtain-motion";
+import type { LookAngles } from "@/scenes/memory-room/first-person";
 import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/layout";
 import { PLAYER_START } from "@/scenes/memory-room/Player";
 import { findNearestMemory } from "@/scenes/memory-room/spatial";
@@ -56,7 +56,7 @@ import {
   roomZoomScaleFromPinch,
   roomZoomScaleFromWheel,
 } from "./room-canvas-runtime";
-import { useChaseLook } from "./use-chase-look";
+import { useFirstPersonLook } from "./use-first-person-look";
 
 const PROXIMITY_POLL_MS = 100;
 const DIRECT_FOCUS_MS = 900;
@@ -65,12 +65,11 @@ const DIRECT_FOCUS_MS = 900;
  * 아래 1은 그대로다: 그 밑으로 내리면 글씨보다 먼저 아웃라인이 깨진다.
  */
 const DPR_CAP = { high: 1.5, low: 1 } as const;
-/**
- * 볕 그림자의 가장자리를 부드럽게 하는 PCSS(SoftShadows) 값. 크기는 그림자 텍셀 단위의
- * 반그림자 폭, 샘플은 픽셀당 셰이더가 도는 횟수다. 셰이더 비용이라 프레임이 떨어지면
- * 끈다. 끄고 켤 때 씬의 재질을 전부 다시 컴파일하므로, 한 번 꺼지면 다시 켜지 않는다.
+/*
+ * drei의 SoftShadows(PCSS)는 쓰지 않는다. three r185에서 사라진 unpackRGBAToDepth를
+ * 셰이더에 심어 그림자를 받는 재질 전부가 컴파일에 실패한다. 방이 통째로 검게 나왔다
+ * (2026-09-16). 부드러운 그림자가 필요하면 three 자체의 VSM 그림자 맵으로 간다.
  */
-const SOFT_SHADOWS = { size: 14, samples: 8, focus: 0.4 } as const;
 const MEMORY_TARGETS = Object.values(MEMORY_PLACEMENTS);
 
 interface CanvasErrorBoundaryProps {
@@ -126,7 +125,7 @@ export function RoomCanvas() {
   const hadActiveInteraction = useRef(false);
   const zoomScaleRef = useRef(1);
   const orbitRef = useRef(0);
-  /** 1인칭의 시선. 끌기·키가 쓰고 ChaseCameraRig가 프레임마다 읽는다. */
+  /** 1인칭의 시선. 끌기·키가 쓰고 FirstPersonRig가 프레임마다 읽는다. */
   const lookRef = useRef<LookAngles>({ yaw: 0, pitch: 0 });
   const [webGLFailed, setWebGLFailed] = useState(() => !canInitializeWebGL());
   const [nearbyMemoryId, setNearbyMemoryId] = useState<MemoryId | null>(null);
@@ -144,21 +143,16 @@ export function RoomCanvas() {
   /** 시작 전에는 방 모형 전체를 보여주고, 시작하면 그 안으로 내려앉는다. */
   const started = useMemoryRoomStore((state) => state.started);
   const roomZoom = started ? zoomByFraming.play : zoomByFraming.overview;
-  /** 등 뒤 시점 구간(인트로·2막 도입). 그동안 회전·배율 입력은 잠기고 시선 입력이 대신 선다. */
+  /** 1인칭 구간(인트로·2막 도입). 그동안 회전·배율 입력은 잠기고 시선 입력이 대신 선다. */
   const viewpoint = useMemoryRoomStore(selectViewpoint);
   const firstPerson = viewpoint !== null;
   /*
-   * 성능 안전장치. 프레임이 목표(주사율) 아래로 떨어지면 배율 상한을 내리고 부드러운
-   * 그림자를 끈다. 다시 오르면 배율만 돌려준다. 그림자는 다시 켜지 않는다: 켤 때마다
-   * 씬의 재질을 전부 다시 컴파일해서 그 자체가 프레임을 떨어뜨린다.
+   * 성능 안전장치. 프레임이 목표(주사율) 아래로 떨어지면 배율 상한을 내리고, 다시
+   * 오르면 돌려준다. 배열을 새로 만들면 r3f가 렌더마다 배율을 다시 잡으므로 묶어 둔다.
    */
   const [dprCap, setDprCap] = useState<number>(DPR_CAP.high);
-  const [softShadows, setSoftShadows] = useState(true);
   const dpr = useMemo<[number, number]>(() => [1, dprCap], [dprCap]);
-  const degrade = useCallback(() => {
-    setDprCap(DPR_CAP.low);
-    setSoftShadows(false);
-  }, []);
+  const degrade = useCallback(() => setDprCap(DPR_CAP.low), []);
   const restore = useCallback(() => setDprCap(DPR_CAP.high), []);
 
   /*
@@ -291,7 +285,7 @@ export function RoomCanvas() {
 
   const interact = useCallback(
     (id: MemoryId) => {
-      // 등 뒤 시점에 있는 동안은 조사하지 않는다 (스토어도 막지만 소리까지 맞추려면 여기서 먼저)
+      // 1인칭에 있는 동안은 조사하지 않는다 (스토어도 막지만 소리까지 맞추려면 여기서 먼저)
       if (viewpointOf(useMemoryRoomStore.getState()) !== null) {
         playSound("deny");
         return false;
@@ -362,7 +356,7 @@ export function RoomCanvas() {
     const updateNearbyMemory = () => {
       const position = playerPositionRef.current;
       const state = useMemoryRoomStore.getState();
-      // 등 뒤 시점에 있는 동안은 아무것도 조사 대상이 아니다. 근접 안내와 글로우가 같이 꺼진다
+      // 1인칭에 있는 동안은 아무것도 조사 대상이 아니다. 근접 안내와 글로우가 같이 꺼진다
       const nextNearbyMemoryId =
         viewpointOf(state) !== null
           ? null
@@ -398,7 +392,7 @@ export function RoomCanvas() {
   // 포커스 연출·대사·미니게임 중에는 구도가 깨지지 않게 뷰를 되돌리고 입력을 잠근다.
   // 1인칭 동안도 같다: 회전·배율은 직교 카메라의 것이고, 그 카메라는 잠들어 있다.
   const viewLocked = inputLocked || focusMemoryId !== null || firstPerson;
-  useChaseLook(containerRef, firstPerson, lookRef);
+  useFirstPersonLook(containerRef, firstPerson, lookRef);
 
   const applyZoomScale = useCallback((next: number) => {
     if (zoomScaleRef.current === next) return;
@@ -564,7 +558,6 @@ export function RoomCanvas() {
               onFallback={degrade}
               flipflops={3}
             />
-            {softShadows && <SoftShadows {...SOFT_SHADOWS} />}
             <MemoryRoomScene
               playerPositionRef={playerPositionRef}
               movementInputRef={movementInputRef}
