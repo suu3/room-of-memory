@@ -1,6 +1,8 @@
 "use client";
 
+import { BathroomFixtures, BathroomMirror, BathroomShower } from "./BathroomFixtures";
 import { CulledWall } from "./CulledWall";
+import { InteriorSurface } from "./InteriorPrimitives";
 import { ItemPickup } from "./ItemPickup";
 import { BATHROOM_COLLIDERS, BATHROOM_DOOR_POSITION, BATHROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
@@ -29,38 +31,7 @@ const RIGHT_WALL = sideWallPlain(SHELL.maxX, Z);
 const FLOOR = floorPart(SHELL);
 const PLINTH = plinthParts(SHELL);
 
-const [toilet, sink, tub] = BATHROOM_COLLIDERS;
-/** 발자국(layout의 BATHROOM_COLLIDERS)에 맞춰 세운 소품. 자리를 옮기면 거기도 같이. */
-const FIXTURES = [
-  // 변기: 물탱크와 좌대
-  {
-    size: [0.7, 0.42, 0.66],
-    position: [(toilet.minX + toilet.maxX) / 2, 0.21, toilet.minZ + 0.36],
-    color: "linen",
-  },
-  {
-    size: [0.62, 0.7, 0.2],
-    position: [(toilet.minX + toilet.maxX) / 2, 0.55, toilet.maxZ - 0.12],
-    color: "linen",
-  },
-  // 세면대: 기둥과 대야
-  {
-    size: [0.3, 0.7, 0.3],
-    position: [(sink.minX + sink.maxX) / 2, 0.35, sink.maxZ - 0.25],
-    color: "linen",
-  },
-  {
-    size: [0.86, 0.14, 0.56],
-    position: [(sink.minX + sink.maxX) / 2, 0.78, sink.maxZ - 0.3],
-    color: "linen",
-  },
-  // 욕조
-  {
-    size: [tub.maxX - tub.minX, 0.6, tub.maxZ - tub.minZ],
-    position: [(tub.minX + tub.maxX) / 2, 0.3, (tub.minZ + tub.maxZ) / 2],
-    color: "linen",
-  },
-] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple; color: keyof RoomPalette }[];
+const [, sink] = BATHROOM_COLLIDERS;
 
 /**
  * 세면대 위에 놓인 열쇠 (자리 표시자 체인의 첫 물건, src/data/doors.ts). 대야 가장자리에
@@ -71,12 +42,6 @@ const KEY = {
   near: [(sink.minX + sink.maxX) / 2, sink.minZ - 0.5] as readonly [number, number],
   interactionRadius: 1.6,
 } as const;
-
-/** 세면대 위 거울: 매끈한 판. 방의 전신거울과 같은 유리다. */
-const MIRROR = {
-  size: [0.9, 0.7, 0.03],
-  position: [(sink.minX + sink.maxX) / 2, 1.75, SHELL.maxZ - 0.11],
-} as const satisfies ShellPart;
 
 function Box({
   part,
@@ -98,7 +63,7 @@ function Box({
 }
 
 /**
- * 화장실 (v3). 거실 앞벽 너머의 작은 타일 방. 아직 골격과 소품뿐이다.
+ * 화장실 (v3). 거실 앞벽 너머의 작은 타일 방. 도기·타일·금속 수전의 재질 차이를 낮은 조도에서도 읽게 한다.
  * 어떤 단서가 여기 놓일지는 방탈출 설계와 함께 정한다 (docs/content-design.md 3-1).
  *
  * 벽은 밝은 타일(linen), 바닥은 한 톤 어두운 타일(trim). 방·거실과 다른 재질이라
@@ -114,7 +79,15 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
           color={index === 0 ? palette.frame : palette.void}
         />
       ))}
-      <Box part={FLOOR} color={palette.trim} roughness={0.5} />
+      <Box part={FLOOR} color={palette.floor} roughness={0.65} />
+      <InteriorSurface
+        size={[SHELL.maxX - SHELL.minX - 0.18, SHELL.maxZ - SHELL.minZ - 0.18]}
+        cell={[0.38, 0.38]}
+        position={[CENTER[0], 0.004, CENTER[1]]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        color={palette.trim}
+        shade={palette.floor}
+      />
 
       {/* 공유벽(뒷벽)은 카메라 쪽이 아니라 늘 서 있다. 걷히는 규칙은 방과 같되 중심이 이 공간이다 */}
       {SHARED_WALL.map((part) => (
@@ -127,25 +100,43 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
       ))}
       <CulledWall side="left" center={CENTER}>
         <Box part={LEFT_WALL.upper} color={palette.linen} roughness={0.5} />
+        <InteriorSurface
+          size={[SHELL.maxZ - SHELL.minZ - 0.2, 1.6]}
+          cell={[0.55, 0.32]}
+          position={[SHELL.minX + 0.105, 1.12, CENTER[1]]}
+          rotation={[0, Math.PI / 2, 0]}
+          color={palette.trim}
+          shade={palette.linen}
+        />
       </CulledWall>
       <CulledWall side="right" center={CENTER}>
         <Box part={RIGHT_WALL.upper} color={palette.linen} roughness={0.5} />
+        <InteriorSurface
+          size={[SHELL.maxZ - SHELL.minZ - 0.2, 2.3]}
+          cell={[0.55, 0.32]}
+          position={[SHELL.maxX - 0.105, 1.47, CENTER[1]]}
+          rotation={[0, -Math.PI / 2, 0]}
+          color={palette.trim}
+          shade={palette.linen}
+        />
+        <BathroomShower palette={palette} />
       </CulledWall>
       <CulledWall side="front" center={CENTER}>
         {FAR_WALL.slice(1).map((part) => (
           <Box key={part.position.join(":")} part={part} color={palette.linen} roughness={0.5} />
         ))}
-        <Box part={MIRROR} color={palette.storm} metalness={0.85} roughness={0.12} />
+        <InteriorSurface
+          size={[SHELL.maxX - SHELL.minX - 0.2, 1.6]}
+          cell={[0.55, 0.32]}
+          position={[CENTER[0], 1.12, SHELL.maxZ - 0.105]}
+          rotation={[0, Math.PI, 0]}
+          color={palette.trim}
+          shade={palette.linen}
+        />
+        <BathroomMirror palette={palette} />
       </CulledWall>
 
-      {FIXTURES.map((fixture) => (
-        <Box
-          key={fixture.position.join(":")}
-          part={fixture}
-          color={palette[fixture.color]}
-          roughness={0.4}
-        />
-      ))}
+      <BathroomFixtures palette={palette} />
 
       {/* 안방 열쇠: 손잡이 고리와 날. 집으면 사라진다 */}
       <ItemPickup id="parents-key" near={KEY.near} radius={KEY.interactionRadius}>

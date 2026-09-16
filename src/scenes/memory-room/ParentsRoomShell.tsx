@@ -1,7 +1,9 @@
 "use client";
 
 import { CulledWall } from "./CulledWall";
+import { InteriorSurface } from "./InteriorPrimitives";
 import { PARENTS_COLLIDERS, PARENTS_DOOR_POSITION, PARENTS_SHELL_BOUNDS } from "./layout";
+import { ParentsRoomFurniture } from "./ParentsRoomFurniture";
 import type { RoomPalette } from "./palette";
 import { ClueProp } from "./RoomClues";
 import {
@@ -30,45 +32,7 @@ const FRONT_WALL = endWallWithDoor(SHELL.maxZ, X);
 const FLOOR = floorPart(SHELL);
 const PLINTH = plinthParts(SHELL);
 
-const [bed, wardrobe, desk] = PARENTS_COLLIDERS;
-const bedCenterX = (bed.minX + bed.maxX) / 2;
-const bedCenterZ = (bed.minZ + bed.maxZ) / 2;
-const bedWidth = bed.maxX - bed.minX;
-const bedDepth = bed.maxZ - bed.minZ;
-/** 발자국(layout의 PARENTS_COLLIDERS)에 맞춰 세운 가구. 자리를 옮기면 거기도 같이. */
-const FURNITURE = [
-  // 더블 침대: 머리맡이 -x 벽. 프레임, 매트리스, 이불(발치 쪽 2/3), 베개 둘(머리맡)
-  { size: [bedWidth, 0.36, bedDepth], position: [bedCenterX, 0.18, bedCenterZ], color: "wood" },
-  {
-    size: [bedWidth - 0.2, 0.3, bedDepth - 0.2],
-    position: [bedCenterX, 0.51, bedCenterZ],
-    color: "linen",
-  },
-  {
-    size: [bedWidth * 0.62, 0.12, bedDepth - 0.2],
-    position: [bed.maxX - bedWidth * 0.31 - 0.1, 0.72, bedCenterZ],
-    color: "fabric",
-  },
-  { size: [0.45, 0.16, 0.7], position: [bed.minX + 0.45, 0.74, bedCenterZ - 0.85], color: "linen" },
-  { size: [0.45, 0.16, 0.7], position: [bed.minX + 0.45, 0.74, bedCenterZ + 0.85], color: "linen" },
-  // 옷장: 문 두 짝이 닫힌 채 (-z 벽)
-  {
-    size: [wardrobe.maxX - wardrobe.minX, 2.6, wardrobe.maxZ - wardrobe.minZ],
-    position: [(wardrobe.minX + wardrobe.maxX) / 2, 1.3, (wardrobe.minZ + wardrobe.maxZ) / 2],
-    color: "wood",
-  },
-  // 책상(+z 벽)과 그 위 서류 뭉치·스탠드: 연구원이었다는 떡밥이 놓일 자리
-  {
-    size: [desk.maxX - desk.minX, 0.08, desk.maxZ - desk.minZ],
-    position: [(desk.minX + desk.maxX) / 2, 1.08, (desk.minZ + desk.maxZ) / 2],
-    color: "wood",
-  },
-  { size: [0.1, 1.04, 0.1], position: [desk.minX + 0.15, 0.52, desk.minZ + 0.15], color: "wood" },
-  { size: [0.1, 1.04, 0.1], position: [desk.maxX - 0.15, 0.52, desk.minZ + 0.15], color: "wood" },
-  { size: [0.1, 1.04, 0.1], position: [desk.minX + 0.15, 0.52, desk.maxZ - 0.15], color: "wood" },
-  { size: [0.1, 1.04, 0.1], position: [desk.maxX - 0.15, 0.52, desk.maxZ - 0.15], color: "wood" },
-  { size: [0.22, 0.5, 0.22], position: [desk.maxX - 0.35, 1.37, desk.maxZ - 0.3], color: "trim" },
-] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple; color: keyof RoomPalette }[];
+const [, , desk] = PARENTS_COLLIDERS;
 
 /** 책상 위 서류 뭉치: 집어 들면 펼쳐진다 (ClueOverlay의 research-note). 다가감은 책상 앞 한 걸음. */
 const PAPERS = [
@@ -98,7 +62,7 @@ function Box({
 }
 
 /**
- * 안방 (v3). 거실 -x 벽(현관 쪽) 너머, 가장 오래 닫혀 있던 공간. 아직 골격과 가구뿐이다.
+ * 안방 (v3). 거실 -x 벽(현관 쪽) 너머, 가장 오래 닫혀 있던 공간. 낮은 목가구와 겹쳐진 침구에 생활의 흔적이 남아 있다.
  *
  * 떡밥의 금고다: 부모님이 연구원이었다는 것과 앰플이 치료제 같다는 것**까지만** 흘린다.
  * 무엇을 알았고 어디로 갔는지는 끝까지 미공개다 (docs/story.md 1장). 책상 위 서류
@@ -116,7 +80,17 @@ export function ParentsRoomShell({ palette }: { palette: RoomPalette }) {
           color={index === 0 ? palette.frame : palette.void}
         />
       ))}
-      <Box part={FLOOR} color={palette.wood} />
+      <Box part={FLOOR} color={palette.frame} />
+      <InteriorSurface
+        size={[SHELL.maxX - SHELL.minX - 0.18, SHELL.maxZ - SHELL.minZ - 0.18]}
+        cell={[1.3, 0.24]}
+        position={[CENTER[0], 0.004, CENTER[1]]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        color={palette.wood}
+        shade={palette.linen}
+        gap={0.008}
+        roughness={0.85}
+      />
 
       {/* 굽도리는 늘 남는다 */}
       {[SHARED_WALL[0], SHARED_WALL[1], BACK_WALL[0], FRONT_WALL[0], FAR_WALL.stub].map((part) => (
@@ -138,9 +112,7 @@ export function ParentsRoomShell({ palette }: { palette: RoomPalette }) {
         ))}
       </CulledWall>
 
-      {FURNITURE.map((piece) => (
-        <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />
-      ))}
+      <ParentsRoomFurniture palette={palette} />
       <ClueProp clue="research-note" near={PAPERS_NEAR.near} radius={PAPERS_NEAR.interactionRadius}>
         {PAPERS.map((piece) => (
           <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />
