@@ -11,10 +11,10 @@ describe("피아노 건반", () => {
     expect(blacks).toHaveLength(5);
   });
 
-  it("흰 건반은 계이름 순서로 왼쪽부터 선다", () => {
+  it("앞에서 볼 때 도부터 왼쪽으로 선다 (로컬 +x가 화면 왼쪽)", () => {
     expect(whites.map((key) => key.note)).toEqual([...SOLFEGE]);
     const xs = whites.map((key) => key.position[0]);
-    expect([...xs].sort((a, b) => a - b)).toEqual(xs);
+    expect([...xs].sort((a, b) => b - a)).toEqual(xs);
   });
 
   it("건반 줄은 몸통 가운데를 기준으로 좌우 대칭이다", () => {
@@ -25,8 +25,8 @@ describe("피아노 건반", () => {
 
   it("흰 건반끼리 겹치지 않는다", () => {
     for (let i = 0; i < whites.length - 1; i += 1) {
-      const right = whites[i].position[0] + whites[i].size[0] / 2;
-      const left = whites[i + 1].position[0] - whites[i + 1].size[0] / 2;
+      const left = whites[i].position[0] - whites[i].size[0] / 2;
+      const right = whites[i + 1].position[0] + whites[i + 1].size[0] / 2;
       expect(left).toBeGreaterThan(right);
     }
   });
@@ -42,10 +42,10 @@ describe("피아노 건반", () => {
       );
       expect(nearest).toBeGreaterThanOrEqual(0);
     }
-    // 미(2)와 파(3) 사이, 시(6) 오른쪽에는 없다
+    // 미(2)와 파(3) 사이, 시(6) 너머에는 없다
     const miFa = (whites[2].position[0] + whites[3].position[0]) / 2;
     expect(boundaries.some((x) => Math.abs(x - miFa) < 1e-6)).toBe(false);
-    expect(boundaries.every((x) => x < whites[6].position[0])).toBe(true);
+    expect(boundaries.every((x) => x > whites[6].position[0])).toBe(true);
   });
 
   it("검은 건반은 건반 줄 뒤쪽(+z) 끝에 맞춰 선다", () => {

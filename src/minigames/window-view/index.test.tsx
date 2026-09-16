@@ -44,8 +44,8 @@ describe("WindowViewMinigame", () => {
     expect(image?.getAttribute("src")).toBe(ASSETS.images.mgWindowViewOutside);
     // 그림만 덩그러니 두지 않는다. 무엇을 하는 화면인지 한 줄이 같이 붙는다.
     expect(screen.getByText(/Move the lens/)).toBeTruthy();
-    // 밤의 색이 한 겹 얹힌다. 방은 한밤중인데 창밖만 노을일 수는 없다
-    expect(container.querySelector(".window-night")).not.toBeNull();
+    // 바깥은 노을이다. 그림 위에 밤의 색을 덮지 않는다
+    expect(container.querySelector(".window-night")).toBeNull();
     // 세 자리가 아직 하나도 안 찾아졌다
     expect(screen.getAllByRole("listitem")).toHaveLength(WINDOW_SPOTS.length);
     expect(screen.queryByRole("button", { name: /Close the curtain/ })).toBeNull();

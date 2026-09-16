@@ -425,8 +425,8 @@
     },
     "pianoMelody": {
       "title": "The Piano",
-      "help": "Play the keys as written: 1 2 3 4 5 6 7",
-      "help_touch": "Play the keys as written",
+      "help": "Try the keys · 1 2 3 4 5 6 7",
+      "help_touch": "Try the keys",
       "notes": {
         "do": "Do",
         "re": "Re",

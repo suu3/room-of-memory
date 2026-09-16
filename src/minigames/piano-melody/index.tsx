@@ -2,16 +2,8 @@
 
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import {
-  CanvasTexture,
-  DoubleSide,
-  type Group,
-  type Mesh,
-  PerspectiveCamera,
-  SRGBColorSpace,
-  Vector3,
-} from "three";
-import { i18n } from "@/i18n/config";
+import { useTranslation } from "react-i18next";
+import { CanvasTexture, type Group, PerspectiveCamera, SRGBColorSpace, Vector3 } from "three";
 import { playSound, playTone } from "@/lib/audio";
 import { LivingPiece } from "@/scenes/memory-room/LivingRoomFurniture";
 import {
@@ -32,15 +24,7 @@ import {
   LID_OPEN_ANGLE,
   PIANO_KEYS,
 } from "./keys";
-import {
-  barVisible,
-  isComplete,
-  isPrefix,
-  MELODY_BARS,
-  NOTE_HZ,
-  noteForKey,
-  type Solfege,
-} from "./melody";
+import { isComplete, isPrefix, NOTE_HZ, noteForKey, SOLFEGE, type Solfege } from "./melody";
 
 /** 마지막 음이 울린 뒤 결과를 내주기까지(ms). 소리가 끊기면 푼 느낌도 끊긴다. */
 const SETTLE_MS = 900;
@@ -62,85 +46,54 @@ const CAMERA_FOV = 40;
 const CAMERA_TARGET_LIFT = 0.3;
 
 /**
- * 보면대에 세우는 악보의 크기(로컬)와 자리.
+ * 흰 건반 앞머리에 붙은 계이름. 낡은 스티커처럼 옅게 찍는다.
  *
- * 두 번 가렸던 자리다. 윗판(y 1.31부터, z 5.97~6.43) 안에 넣으면 종이의 위쪽이 판
- * 속에 묻히고, 젖혀진 뚜껑 뒤에 두면(z 6.0 언저리, y 1.11까지 선다) 글자가 통째로
- * 가려진다. 그래서 뚜껑보다 앞(z 5.90)·위(y 1.26)다: 윗판 앞 모서리보다 앞이라
- * 파고들 것이 없고, 뚜껑은 그 아래 뒤에 선다.
+ * 화면에 "악보대로 누르세요"를 띄우는 대신 물건이 말하게 하는 쪽을 골랐다. 보면대의
+ * 악보에 오선지와 계이름이 있고, 건반에도 같은 글자가 남아 있다. 이 집에서 피아노를
+ * 배우던 아이가 붙여 둔 것이지, 플레이어에게 주는 안내가 아니다.
  */
-const SHEET = {
-  width: 0.95,
-  height: 0.24,
-  position: [KEYBOARD_CENTER_X, 1.26, 5.9] as const,
-  /** 뒤로 살짝 눕혀 세운다: 보면대에 기대 놓은 각. */
-  tilt: 0.24,
-};
+const LABEL = { size: 0.085, inset: 0.055, texture: 96 };
 
-/** 악보 그림의 해상도. 종이의 가로세로(약 4.3:1)를 따른다: 안 맞으면 글자가 늘어난다. */
-const SHEET_TEXTURE = { width: 512, height: 120 };
-
-function canDraw(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderingContext2D {
-  return (
-    typeof ctx?.fillRect === "function" &&
-    typeof ctx.fillText === "function" &&
-    typeof ctx.measureText === "function"
-  );
+function canDrawText(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderingContext2D {
+  return typeof ctx?.fillText === "function" && typeof ctx.clearRect === "function";
 }
 
-/**
- * 보면대에 놓인 악보 한 장을 그림으로 굽는다.
- *
- * 3D 안에 글자를 세우는 자리라 DOM을 못 쓴다. 계이름은 언어를 타므로(도/Do/ド) i18n에서
- * 읽어 캔버스에 찍는다. 지워진 마디는 글자 대신 번진 자국을 그린다: 조각을 들고 있어야
- * 그 마디가 드러난다 (melody의 barVisible).
- */
-function useSheetTexture(hasScrap: boolean, paper: string, ink: string): CanvasTexture {
-  const texture = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = SHEET_TEXTURE.width;
-    canvas.height = SHEET_TEXTURE.height;
-    const ctx = canvas.getContext("2d");
-    if (canDraw(ctx)) {
-      ctx.fillStyle = paper;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      // 오선 두 줄: 없으면 글자만 뜬 흰 종이라 악보로 안 읽힌다
-      ctx.fillStyle = ink;
-      ctx.globalAlpha = 0.22;
-      for (const y of [16, 100]) ctx.fillRect(24, y, canvas.width - 48, 2);
-      ctx.globalAlpha = 1;
+/** 계이름 일곱 자를 각각 작은 그림으로 굽는다. 언어가 바뀌면 다시 굽는다. */
+function useNoteLabels(ink: string): Partial<Record<Solfege, CanvasTexture>> {
+  // 언어가 바뀌면 t가 새 것으로 오고(useTranslation이 다시 그린다) 글자도 다시 굽는다
+  const { t } = useTranslation();
 
-      const notes = MELODY_BARS.flatMap((bar, barIndex) =>
-        bar.map((note) => ({ note, shown: barVisible(barIndex, hasScrap) })),
-      );
-      const step = (canvas.width - 64) / notes.length;
-      ctx.font = "600 44px system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      notes.forEach(({ note, shown }, index) => {
-        const x = 32 + step * (index + 0.5);
-        if (shown) {
-          ctx.fillStyle = ink;
-          ctx.fillText(i18n.t(`minigame.pianoMelody.notes.${note}`), x, 58);
-          return;
-        }
-        // 물에 번진 자국. 글자 자리를 지우지 않고 뭉갠다
+  const textures = useMemo(() => {
+    const made: Partial<Record<Solfege, CanvasTexture>> = {};
+    for (const note of SOLFEGE) {
+      const canvas = document.createElement("canvas");
+      canvas.width = LABEL.texture;
+      canvas.height = LABEL.texture;
+      const ctx = canvas.getContext("2d");
+      if (canDrawText(ctx)) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = ink;
-        ctx.globalAlpha = 0.16;
-        ctx.beginPath();
-        ctx.ellipse(x, 58, step * 0.36, 26, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      });
+        ctx.globalAlpha = 0.7;
+        ctx.font = "600 52px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(t(`minigame.pianoMelody.notes.${note}`), canvas.width / 2, canvas.height / 2);
+      }
+      const texture = new CanvasTexture(canvas);
+      texture.colorSpace = SRGBColorSpace;
+      texture.anisotropy = 4;
+      made[note] = texture;
     }
-    const made = new CanvasTexture(canvas);
-    made.colorSpace = SRGBColorSpace;
-    made.anisotropy = 4;
     return made;
-  }, [hasScrap, paper, ink]);
+  }, [ink, t]);
 
-  useEffect(() => () => texture.dispose(), [texture]);
-  return texture;
+  useEffect(
+    () => () => {
+      for (const texture of Object.values(textures)) texture.dispose();
+    },
+    [textures],
+  );
+  return textures;
 }
 
 /** 건반을 정면에서 내려다보는 붙박이 카메라. 판이 도는 동안 기본 카메라를 대신한다. */
@@ -210,24 +163,27 @@ function KeyboardCamera() {
 /**
  * 거실 피아노의 멜로디 자물쇠. canvas 모드: 씬의 피아노 그 자리에서 판이 돈다.
  *
- * 뚜껑이 젖혀지고 카메라가 건반 앞에 붙박이로 선다. 악보에 적힌 계이름을 그대로
- * 누르면 열린다. 듣고 맞히는 문제가 아니다: 절대음감을 요구하면 난이도가 아니라 벽이다.
- * 대신 악보의 한 마디가 물에 번져 안 보이고, 그 마디는 안방 책상의 찢어진 조각이
- * 들고 있다. 문제의 내용은 연주가 아니라 **저쪽 공간에서 이쪽으로 가져오는 일**이다.
+ * 뚜껑이 젖혀지고 카메라가 건반 앞에 붙박이로 선다. 보면대의 악보(PianoSheet: 판이
+ * 아니라 씬이 늘 세워 둔다)에 적힌 대로 누르면 열린다. 듣고 맞히는 문제가 아니다:
+ * 절대음감을 요구하면 난이도가 아니라 벽이다. 대신 악보의 한 마디가 물에 번져 안
+ * 보이고, 그 마디는 안방 책상의 찢어진 조각이 들고 있다. 문제의 내용은 연주가 아니라
+ * **저쪽 공간에서 이쪽으로 가져오는 일**이다.
+ *
+ * 무엇을 하라고 적어 주는 화면은 없다. 악보가 서 있고 건반에 같은 글자가 남아 있을
+ * 뿐이다 (card-odd·angle-turn과 같은 규칙: 답을 시작 카드에 적으면 문제가 사라진다).
  *
  * 검은 건반도 눌린다. 곡에 안 쓰이니 누르면 틀린 음이지만, 눌리지 않는 건반이 섞여
  * 있으면 악기가 아니라 버튼 일곱 개가 된다.
  *
  * 스토어를 만지지 않는다. 결과는 onComplete 한 번뿐이다 (.claude/rules/minigames.md).
  */
-export function PianoMelodyMinigame({ onComplete, onSettled, carrying = [] }: MinigameProps) {
+export function PianoMelodyMinigame({ onComplete, onSettled }: MinigameProps) {
   const palette = useMemo(resolveRoomPalette, []);
   const complete = useOnceCompleter(onComplete);
-  const hasScrap = carrying.includes("piano-sheet");
-  const sheet = useSheetTexture(hasScrap, palette.linen, palette.frame);
+  const labels = useNoteLabels(palette.frame);
 
   const lidRef = useRef<Group>(null);
-  const keyRefs = useRef<(Mesh | null)[]>([]);
+  const keyRefs = useRef<(Group | null)[]>([]);
   /** 건반마다 눌린 정도(0~1). 프레임마다 여기로 damp한다 (useFrame에서 setState 금지). */
   const pressRef = useRef<number[]>(PIANO_KEYS.map(() => 0));
   const playedRef = useRef<Solfege[]>([]);
@@ -285,10 +241,10 @@ export function PianoMelodyMinigame({ onComplete, onSettled, carrying = [] }: Mi
     }
     const step = Math.min(1, delta * KEY_LAMBDA);
     for (const [index, key] of PIANO_KEYS.entries()) {
-      const mesh = keyRefs.current[index];
-      if (!mesh) continue;
+      const pressed = keyRefs.current[index];
+      if (!pressed) continue;
       pressRef.current[index] += (0 - pressRef.current[index]) * step;
-      mesh.position.y = key.position[1] - pressRef.current[index] * KEY_PRESS_DEPTH;
+      pressed.position.y = key.position[1] - pressRef.current[index] * KEY_PRESS_DEPTH;
     }
   });
 
@@ -312,41 +268,46 @@ export function PianoMelodyMinigame({ onComplete, onSettled, carrying = [] }: Mi
         </group>
 
         {PIANO_KEYS.map((key, index) => (
-          // biome-ignore lint/a11y/noStaticElementInteractions: R3F mesh는 DOM이 아니라 Canvas 안의 포인터 대상이다.
-          <mesh
+          <group
             // biome-ignore lint/suspicious/noArrayIndexKey: 건반의 자리가 곧 그 건반이다 (같은 음이 흰·검으로 두 번 온다)
             key={index}
-            name={`piano-key-${index}`}
-            ref={(mesh) => {
-              keyRefs.current[index] = mesh;
+            // 눌리는 것은 이 무리다. 건반에 붙은 계이름도 같이 내려갔다 올라온다
+            ref={(node) => {
+              keyRefs.current[index] = node;
             }}
             position={key.position}
-            castShadow
-            receiveShadow
-            onClick={(event) => {
-              event.stopPropagation();
-              pressRefFn.current(index);
-            }}
           >
-            <boxGeometry args={key.size} />
-            <meshStandardMaterial
-              color={key.black ? palette.frame : palette.linen}
-              roughness={key.black ? 0.5 : 0.72}
-            />
-          </mesh>
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F mesh는 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
+            <mesh
+              name={`piano-key-${index}`}
+              castShadow
+              receiveShadow
+              onClick={(event) => {
+                event.stopPropagation();
+                pressRefFn.current(index);
+              }}
+            >
+              <boxGeometry args={key.size} />
+              <meshStandardMaterial
+                color={key.black ? palette.frame : palette.linen}
+                roughness={key.black ? 0.5 : 0.72}
+              />
+            </mesh>
+            {/*
+              흰 건반 앞머리의 계이름. 건반 윗면에 눕혀 놓되 글자의 위쪽이 피아노
+              안쪽(+z)을 보게 반 바퀴 돌린다: 안 돌리면 앞에서 볼 때 거꾸로 선다.
+            */}
+            {!key.black && labels[key.note] && (
+              <mesh
+                position={[0, key.size[1] / 2 + 0.001, -key.size[2] / 2 + LABEL.inset]}
+                rotation={[-Math.PI / 2, 0, Math.PI]}
+              >
+                <planeGeometry args={[LABEL.size, LABEL.size]} />
+                <meshBasicMaterial map={labels[key.note]} transparent depthWrite={false} />
+              </mesh>
+            )}
+          </group>
         ))}
-
-        {/*
-          보면대의 악보. 조각을 들고 있으면 지워진 마디가 드러난다.
-          앞면(-z)을 보도록 반 바퀴 돌린 뒤 그 안에서 눕힌다: 안 돌리면 글자가
-          벽 쪽을 보고 뒤집힌다.
-        */}
-        <group position={SHEET.position} rotation={[0, Math.PI, 0]}>
-          <mesh rotation={[SHEET.tilt, 0, 0]}>
-            <planeGeometry args={[SHEET.width, SHEET.height]} />
-            <meshStandardMaterial map={sheet} roughness={0.9} side={DoubleSide} />
-          </mesh>
-        </group>
       </LivingPiece>
     </>
   );

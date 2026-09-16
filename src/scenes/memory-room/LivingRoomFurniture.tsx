@@ -21,6 +21,7 @@ import {
   scaleLivingPoint,
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
+import { PianoSheet } from "./PianoSheet";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
@@ -435,6 +436,8 @@ const PLUSH_PLACEMENT = {
 };
 
 export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
+  /** 찢어진 악보 조각을 손에 들었는가. 들었으면 보면대의 지워진 마디가 드러난다 */
+  const hasSheetScrap = useMemoryRoomStore((state) => state.inventory.includes("piano-sheet"));
   return (
     <group name="living-room-furniture">
       <LivingPiece anchor={LIVING_ANCHORS.sofa}>
@@ -474,6 +477,8 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
       >
         <PianoBody palette={palette} />
         <PianoBench palette={palette} />
+        {/* 보면대의 악보: 문제를 말하는 것은 화면의 지시가 아니라 이 종이다 */}
+        <PianoSheet palette={palette} hasScrap={hasSheetScrap} />
       </LivingPiece>
       <FurnitureModel
         path={ASSETS.models.rabbitDoll}
