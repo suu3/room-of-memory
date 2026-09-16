@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+# 기억의 방 · Room of Memory
 
-First, run the development server:
+3D 웹 미니게임이자 비주얼 노벨이자 미궁게임.<br>
+해보고 싶은 거 다 짬뽕한 어떤 것입니다.
 
-```bash
-pnpm dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+<br>
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+<img src="docs/screenshots/title.webp" alt="타이틀 화면" width="840">
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+</div>
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+<br>
 
-## Learn More
+## 화면
 
-To learn more about Next.js, take a look at the following resources:
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/room-investigate.webp" alt="불이 켜진 방"></td>
+<td width="50%"><img src="docs/screenshots/living-room.webp" alt="거실"></td>
+</tr>
+<tr>
+<td align="center"><sub>방</sub></td>
+<td align="center"><sub>거실</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/intro-dark.webp" alt="어두운 방 1인칭 시점"></td>
+<td><img src="docs/screenshots/notebook.webp" alt="수첩 기록 페이지"></td>
+</tr>
+<tr>
+<td align="center"><sub>불 끄고 시작</sub></td>
+<td align="center"><sub>수첩</sub></td>
+</tr>
+</table>
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+<br>
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 제작 툴
 
-## Deploy on Vercel
+3D와 일러스트는 자체 제작도 있고 AI도 있습니다.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+사용 툴: Claude, GPT, Tripo AI 등.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<br>
+
+---
+
+<div align="center">
+<sub>이 게임은 <b>경기청년 갭이어 프로그램</b>의 지원을 받아 만들어졌습니다.</sub>
+</div>
