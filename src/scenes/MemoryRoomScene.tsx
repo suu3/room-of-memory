@@ -22,6 +22,7 @@ import {
   type Viewpoint,
 } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
+import { BathroomShell } from "./memory-room/BathroomShell";
 import { CameraRig } from "./memory-room/CameraRig";
 import { CanvasMinigameHost } from "./memory-room/CanvasMinigameHost";
 import { CursorTargetProjector } from "./memory-room/CursorTargetProjector";
@@ -36,15 +37,17 @@ import { LivingRoomShell } from "./memory-room/LivingRoomShell";
 import { MemoryBurst } from "./memory-room/MemoryBurst";
 import { MemoryObjects } from "./memory-room/MemoryObjects";
 import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
+import { ParentsRoomShell } from "./memory-room/ParentsRoomShell";
 import { Player } from "./memory-room/Player";
 import { type RoomPalette, resolveRoomPalette } from "./memory-room/palette";
 import { RoomDecor } from "./memory-room/RoomDecor";
 import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
 import { RoomSurroundings } from "./memory-room/RoomSurroundings";
+import { SpaceDoor } from "./memory-room/SpaceDoor";
+import { SPACES } from "./memory-room/spaces";
 import { PlayerPositionProvider } from "./memory-room/use-near-player";
 import {
-  LIVING_ROOM_LIGHT_OFFSET,
   lampScaled,
   outsideDecay,
   ROOM_LIGHT_RAMP,
@@ -83,7 +86,7 @@ function StageLighting({
   lightsOn,
   blackout,
   curtainsOpen,
-  inLivingRoom,
+  sunlit,
   palette,
 }: {
   /** 차가운 간접광의 양 (0~1). 1막에 깎이고 2막에도 낮게 남는다. */
@@ -96,8 +99,8 @@ function StageLighting({
   blackout: boolean;
   /** 커튼이 열렸는가: 닫히면 볕이 흐려진다. */
   curtainsOpen: boolean;
-  /** 거실에는 창이 없다. 볕은 방의 것이다. */
-  inLivingRoom: boolean;
+  /** 지금 공간에 창이 있는가. 볕은 창이 있는 방의 것이다 (SPACES의 hasWindow). */
+  sunlit: boolean;
   palette: RoomPalette;
 }) {
   const ambientRef = useRef<AmbientLight>(null);
@@ -116,7 +119,7 @@ function StageLighting({
   const sunGoal =
     roomLightValue(ROOM_LIGHT_RAMP.sun, warm) *
     (curtainsOpen ? 1 : CURTAIN_SUN_FACTOR) *
-    (inLivingRoom ? 0 : 1);
+    (sunlit ? 1 : 0);
 
   useFrame((_, delta) => {
     const ambient = ambientRef.current;
@@ -275,7 +278,9 @@ export function MemoryRoomScene({
   /** 오클루전의 색은 방의 가장 깊은 어둠(void)이다. 검정을 곱하면 재질이 죽는다 */
   const ambientOcclusion = useMemo(() => ({ color: palette.void }), [palette]);
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
-  const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
+  const space = useMemoryRoomStore((state) => state.space);
+  const inRoom = space === "room";
+  const inLivingRoom = space === "living";
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   const gamePhase = useMemoryRoomStore(gamePhaseOf);
   const collectedCount = useMemoryRoomStore(selectCollectedCount);
@@ -309,13 +314,14 @@ export function MemoryRoomScene({
     recovery,
   });
   /*
-   * 밝기는 진행도가 정하고 공간이 정하지 않는다. 다만 거실은 한 단계 낮게
-   * 출발한다 (docs/content-design.md 5장). 여기서 한 번만 깎아 두면 조명·창빛·
-   * 먼지가 전부 같은 값을 본다. 볕(warm)은 방의 창에서 오므로 거실에서는 꺼진다.
+   * 밝기는 진행도가 정하고 공간이 정하지 않는다. 다만 방이 아닌 공간은 한 단계 낮게
+   * 출발한다 (docs/content-design.md 5장, SPACES의 lightOffset). 여기서 한 번만 깎아
+   * 두면 조명·창빛·먼지가 전부 같은 값을 본다. 볕(warm)은 방의 창에서 오므로 창이
+   * 없는 공간에서는 꺼진다.
    */
   /** 커튼이 젖혀진 몫 (0~1). 양쪽 평균: 한쪽만 젖히면 빛도 반만 든다. */
   const curtainOpenAmount = (curtainPull.left + curtainPull.right) / 2;
-  const cool = inLivingRoom ? Math.max(0, mix.cool - LIVING_ROOM_LIGHT_OFFSET) : mix.cool;
+  const cool = Math.max(0, mix.cool - SPACES[space].lightOffset);
   const warm = mix.warm;
   /*
    * 어둠의 양: 비네트(MemoryRoom)와 같은 축이다. 진행도가 정한 밝기에 전등 스위치를
@@ -340,7 +346,7 @@ export function MemoryRoomScene({
         lightsOn={lightsOn}
         blackout={blackout}
         curtainsOpen={curtainsOpen}
-        inLivingRoom={inLivingRoom}
+        sunlit={SPACES[space].hasWindow}
         palette={palette}
       />
       {/*
@@ -362,7 +368,7 @@ export function MemoryRoomScene({
         */}
         {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
         <group name="walkable" onClick={handleFloorClick}>
-          <group visible={!inLivingRoom}>
+          <group visible={inRoom}>
             <RoomShell
               palette={palette}
               doorOpen={doorOpened}
@@ -393,7 +399,7 @@ export function MemoryRoomScene({
             허공이면 "문 쪽이 밝아"가 거짓말이 된다. 문턱을 넘는 순간 그 구간이 끝나고
             평소의 "한 번에 한 방"으로 돌아온다.
           */}
-          <group visible={inLivingRoom || viewpoint === "doorway"}>
+          <group visible={inLivingRoom || (inRoom && viewpoint === "doorway")}>
             <LivingRoomShell palette={palette} inLivingRoom={inLivingRoom} />
             <LivingRoomFurniture palette={palette} />
             <MemoryObjects
@@ -404,6 +410,19 @@ export function MemoryRoomScene({
             />
             {/* 현관 옆 배트: 앰플을 쥐면 켜지는 3막 트리거 */}
             <EndingTrigger palette={palette} />
+          </group>
+          {/* 거실 너머의 공간들 (v3). 문은 두 껍데기 밖, 양쪽 어디서든 보이게 */}
+          <group visible={space === "bathroom"}>
+            <BathroomShell palette={palette} />
+          </group>
+          <group visible={space === "parents"}>
+            <ParentsRoomShell palette={palette} />
+          </group>
+          <group visible={inLivingRoom || space === "bathroom"}>
+            <SpaceDoor id="living-bathroom" palette={palette} />
+          </group>
+          <group visible={inLivingRoom || space === "parents"}>
+            <SpaceDoor id="living-parents" palette={palette} />
           </group>
           {/*
             canvas 모드 미니게임(냉장고 아래칸의 앰플 집기)은 두 공간 그룹 밖에 선다.
@@ -418,8 +437,8 @@ export function MemoryRoomScene({
         글로우 루트 밖이다: 만질 수 있는 것이 아니라 배경이라 아웃라인이 붙으면 안 된다.
       */}
       <RoomSurroundings palette={palette} />
-      {/* 창빛·먼지는 방의 것이다. 거실에 있는 동안은 방과 함께 숨는다 */}
-      <group visible={!inLivingRoom}>
+      {/* 창빛·먼지는 방의 것이다. 방 밖에 있는 동안은 방과 함께 숨는다 */}
+      <group visible={inRoom}>
         {/* 글로우 루트 밖: 빛·먼지는 아웃라인 선택 대상이 아니다 */}
         <WindowLight
           color={palette.sun}

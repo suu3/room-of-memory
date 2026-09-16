@@ -5,9 +5,11 @@ import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { MathUtils, type OrthographicCamera, Vector3 } from "three";
 import { focusZoomFor, MIN_ROOM_ZOOM_SCALE } from "@/components/canvas/room-canvas-runtime";
 import type { MemoryId } from "@/data/memory-room";
-import { useMemoryRoomStore } from "@/store/memory-room";
+import { openDoorwayIds, useMemoryRoomStore } from "@/store/memory-room";
 import { EVENT_PULSE, subscribeEventPulse } from "./event-pulse";
-import { CAMERA_PRESETS, LIVING_BOUNDS, ROOM_BOUNDS } from "./layout";
+import { CAMERA_PRESETS } from "./layout";
+import { followLimits, spaceCenter } from "./spaces";
+import type { Aabb2 } from "./types";
 
 const cameraPositionGoal = new Vector3();
 const cameraTargetGoal = new Vector3();
@@ -27,39 +29,33 @@ const FOLLOW_TARGET_Y = 1.5;
  * 카메라는 여전히 플레이어 쪽으로 따라가되 모서리에서만 조금 덜 따라간다.
  */
 const FOLLOW_INSET = 1.6;
-const FOLLOW_LIMITS = {
-  minX: ROOM_BOUNDS.minX + FOLLOW_INSET,
-  maxX: ROOM_BOUNDS.maxX - FOLLOW_INSET,
-  minZ: ROOM_BOUNDS.minZ + FOLLOW_INSET,
-  maxZ: ROOM_BOUNDS.maxZ - FOLLOW_INSET,
-} as const;
 
 /**
- * 방문이 열린 뒤의 추적 한계: x만 거실 끝까지 는다 (v2).
- *
- * 공간별로 한계를 갈라 문턱에서 스위치하면 목표점이 한 번에 수 유닛을 건너뛰어
- * 카메라가 출렁인다. 두 공간이 x로 이어져 있으므로 x 축 한계만 합치면 목표점이
- * 플레이어를 따라 연속으로 미끄러진다. 전환 연출이 따로 없는 이유다. 문을
- * 넘는 순간은 컷이 아니라 이동이다 (docs/content-design.md 3-3).
+ * 추적 한계는 열린 문간 목록에서 나온다 (spaces.ts의 followLimits): 닿을 수 있는 공간들의
+ * 합집합 상자다. 공간별로 한계를 갈라 문턱에서 스위치하면 목표점이 한 번에 수 유닛을
+ * 건너뛰어 카메라가 출렁인다. 합집합이면 목표점이 플레이어를 따라 연속으로 미끄러진다.
+ * 전환 연출이 따로 없는 이유다. 문을 넘는 순간은 컷이 아니라 이동이다
+ * (docs/content-design.md 3-3). 열린 문간이 바뀔 때만 다시 계산한다.
  */
-const OPEN_FOLLOW_LIMITS = {
-  ...FOLLOW_LIMITS,
-  minX: LIVING_BOUNDS.minX + FOLLOW_INSET,
-} as const;
+const limitsCache: { key: string | null; limits: Aabb2 } = {
+  key: null,
+  limits: followLimits([], FOLLOW_INSET),
+};
+function followLimitsFor(state: Parameters<typeof openDoorwayIds>[0]): Aabb2 {
+  const open = openDoorwayIds(state);
+  const key = open.join(",");
+  if (limitsCache.key !== key) {
+    limitsCache.key = key;
+    limitsCache.limits = followLimits(open, FOLLOW_INSET);
+  }
+  return limitsCache.limits;
+}
 
-/**
- * 축소했을 때 카메라가 향하는 공간의 가운데. 플레이어를 끝까지 따라가면 최대 축소에서
- * 방이 화면 한쪽으로 쏠리고 반대쪽 절반이 빈 검정으로 남는다. 배율이 1에서 하한으로
- * 내려가는 만큼 목표점을 플레이어에서 여기로 옮긴다. 방 전체를 보려고 축소한 것이니까.
+/*
+ * 축소했을 때 카메라가 향하는 공간의 가운데(spaceCenter). 플레이어를 끝까지 따라가면
+ * 최대 축소에서 방이 화면 한쪽으로 쏠리고 반대쪽 절반이 빈 검정으로 남는다. 배율이
+ * 1에서 하한으로 내려가는 만큼 목표점을 플레이어에서 거기로 옮긴다.
  */
-const ROOM_CENTER = {
-  x: (ROOM_BOUNDS.minX + ROOM_BOUNDS.maxX) / 2,
-  z: (ROOM_BOUNDS.minZ + ROOM_BOUNDS.maxZ) / 2,
-} as const;
-const LIVING_CENTER = {
-  x: (LIVING_BOUNDS.minX + LIVING_BOUNDS.maxX) / 2,
-  z: (LIVING_BOUNDS.minZ + LIVING_BOUNDS.maxZ) / 2,
-} as const;
 
 /** 배율(1 = 기본)이 얼마나 축소됐는가 (0 = 기본, 1 = 최대 축소). */
 export function zoomOutAmount(zoomScale: number): number {
@@ -217,8 +213,8 @@ export function CameraRig({
       // 자유 이동 중: 방 한가운데 고정이 아니라 플레이어를 따라본다.
       const player = playerPositionRef.current;
       const store = useMemoryRoomStore.getState();
-      const limits = store.doorOpened ? OPEN_FOLLOW_LIMITS : FOLLOW_LIMITS;
-      const center = store.inLivingRoom ? LIVING_CENTER : ROOM_CENTER;
+      const limits = followLimitsFor(store);
+      const center = spaceCenter(store.space);
       const toCenter = zoomOutAmount(zoomScale);
       cameraTargetGoal.set(
         MathUtils.lerp(MathUtils.clamp(player.x, limits.minX, limits.maxX), center.x, toCenter),

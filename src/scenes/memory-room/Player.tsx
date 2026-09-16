@@ -5,22 +5,18 @@ import { useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { type Group, MathUtils, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
-import { selectSceneInputLocked, selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
+import {
+  openDoorwayIds,
+  selectSceneInputLocked,
+  selectViewpoint,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import type { CurtainSide } from "@/types/curtain";
 import type { MovementAxes } from "@/types/movement";
 import { advanceCurtainMotion, type CurtainMotion, createCurtainMotion } from "./curtain-animation";
 import type { CurtainPull } from "./curtain-motion";
 import { MIRROR_ONLY_LAYER } from "./first-person";
-import {
-  CURTAIN_STAND,
-  DOORWAY_ZONE,
-  LIVING_BOUNDS,
-  LIVING_COLLIDERS,
-  OPEN_DOOR_LEAF_COLLIDERS,
-  ROOM_BOUNDS,
-  ROOM_COLLIDERS,
-  ROOM_SHELL_BOUNDS,
-} from "./layout";
+import { CURTAIN_STAND } from "./layout";
 import { findPath } from "./pathfind";
 import {
   type CurtainPose,
@@ -43,7 +39,9 @@ import {
   type SitPhases,
   sitEase,
 } from "./sit-motion";
+import { spaceAt, walkColliders, walkZones } from "./spaces";
 import { moveThroughZones, type Vec2 } from "./spatial";
+import type { Aabb2 } from "./types";
 import { isWalkBlocked, stepToward } from "./walk-to";
 
 /** 발이 바닥에 닿는 높이. 충돌·근접 판정은 x/z만 보므로 y는 순수 시각값이다. */
@@ -61,15 +59,25 @@ const cameraForward = new Vector3();
 const cameraRight = new Vector3();
 
 /**
- * 걷기 영역. 방문이 닫혀 있으면 방뿐이고, 열리면 문간과 거실이 이어진다.
- * 문 자체에 콜라이더가 없으므로 "문이 막는다"는 곧 "저 두 영역이 없다"이다.
+ * 걷기 영역과 막는 것은 열린 문간의 목록에서 나온다 (spaces.ts). 문 자체에 콜라이더가
+ * 없으므로 "문이 막는다"는 곧 "그 문간 영역이 없다"이다. 열린 문간 목록이 바뀔 때만
+ * 다시 만든다: 프레임마다 배열을 새로 엮으면 걷는 내내 쓰레기가 쌓인다.
  */
-const CLOSED_ZONES = [ROOM_BOUNDS] as const;
-const OPEN_ZONES = [ROOM_BOUNDS, DOORWAY_ZONE, LIVING_BOUNDS] as const;
-/** 가구 발자국은 두 공간 것을 늘 합쳐 본다. 문이 닫혀 있으면 거실 쪽은 어차피 못 닿는다. */
-const ALL_COLLIDERS = [...ROOM_COLLIDERS, ...LIVING_COLLIDERS] as const;
-/** 문이 열리면 방 안쪽으로 젖혀진 문짝도 막는다. 없으면 문간을 지나는 몸이 문짝을 뚫는다. */
-const OPEN_COLLIDERS = [...ALL_COLLIDERS, ...OPEN_DOOR_LEAF_COLLIDERS] as const;
+function walkableFor(state: { doorOpened: boolean; openedDoorways: readonly string[] }) {
+  const open = openDoorwayIds(state as Parameters<typeof openDoorwayIds>[0]);
+  const key = open.join(",");
+  if (walkableCache.key !== key) {
+    walkableCache.key = key;
+    walkableCache.zones = walkZones(open);
+    walkableCache.colliders = walkColliders(open);
+  }
+  return walkableCache;
+}
+const walkableCache: { key: string | null; zones: Aabb2[]; colliders: Aabb2[] } = {
+  key: null,
+  zones: [],
+  colliders: [],
+};
 
 useGLTF.preload(ASSETS.models.playerBlocky, true, true);
 useGLTF.preload(ASSETS.models.curtainPullTest, true, true);
@@ -148,13 +156,13 @@ export function Player({
       walkTargetRef.current = null;
       return;
     }
-    const doorOpened = useMemoryRoomStore.getState().doorOpened;
+    const walkable = walkableFor(useMemoryRoomStore.getState());
     const path = findPath(
       { x: group.position.x, z: group.position.z },
       { x: walkTarget.x, z: walkTarget.z },
       PLAYER_RADIUS,
-      doorOpened ? OPEN_ZONES : CLOSED_ZONES,
-      doorOpened ? OPEN_COLLIDERS : ALL_COLLIDERS,
+      walkable.zones,
+      walkable.colliders,
     );
     walkTargetRef.current = path;
     if (!path) useMemoryRoomStore.getState().clearWalk();
@@ -237,7 +245,8 @@ export function Player({
     if (warpTarget === null || !group) return;
     group.position.set(warpTarget.x, 0, warpTarget.z);
     positionRef.current.copy(group.position);
-    useMemoryRoomStore.getState().setInLivingRoom(warpTarget.x < ROOM_SHELL_BOUNDS.minX);
+    const store = useMemoryRoomStore.getState();
+    store.setSpace(spaceAt(warpTarget.x, warpTarget.z, store.space));
     seatRef.current = null;
     grabRef.current = null;
     curtainPoseRef.current.weight = 0;
@@ -399,22 +408,23 @@ export function Player({
       const origin = originRef.current;
       origin.x = group.position.x;
       origin.z = group.position.z;
-      const doorOpened = useMemoryRoomStore.getState().doorOpened;
+      const store = useMemoryRoomStore.getState();
+      const walkable = walkableFor(store);
       const result = moveThroughZones(
         origin,
         movementDelta,
         PLAYER_RADIUS,
-        doorOpened ? OPEN_ZONES : CLOSED_ZONES,
-        doorOpened ? OPEN_COLLIDERS : ALL_COLLIDERS,
+        walkable.zones,
+        walkable.colliders,
         resultRef.current,
       );
       group.position.x = result.x;
       group.position.z = result.z;
       positionRef.current.copy(group.position);
 
-      // 문턱(공유벽 x)을 넘으면 알린다. 공유벽 컬링이 이 사실을 본다.
-      // setInLivingRoom은 값이 같으면 아무것도 안 하므로 프레임마다 불러도 싸다.
-      useMemoryRoomStore.getState().setInLivingRoom(result.x < ROOM_SHELL_BOUNDS.minX);
+      // 문턱을 넘어 다른 공간의 껍데기에 들면 알린다. 공유벽 컬링과 카메라가 이 사실을 본다.
+      // setSpace는 값이 같으면 아무것도 안 하므로 프레임마다 불러도 싸다.
+      store.setSpace(spaceAt(result.x, result.z, store.space));
 
       facing.rotation.y = dampAngle(
         facing.rotation.y,

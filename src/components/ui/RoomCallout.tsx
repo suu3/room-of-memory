@@ -22,14 +22,15 @@ const SHOW_MS = 4200;
  */
 export function RoomCallout() {
   const { t } = useTranslation();
-  const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
+  // 방 밖 어디에 있든 방의 물건이 켜진 건 안 보인다. 거실이든 화장실이든 같다
+  const awayFromRoom = useMemoryRoomStore((state) => state.space !== "room");
   /*
    * 액자가 방금 열렸는가. hotspotStatus를 그대로 쓴다. 해금 조건(냉장고·가방)을
    * 여기서 따로 세면 YAML의 unlockAfter와 두 벌이 되고, 둘이 어긋나면 있지도 않은
    * 물건을 보러 방으로 돌려보내게 된다.
    */
   const frameReady = useMemoryRoomStore((state) => hotspotStatus(state, "frame") === "available");
-  const armed = frameReady && inLivingRoom;
+  const armed = frameReady && awayFromRoom;
   const [shown, setShown] = useState(false);
   const [visible, setVisible] = useState(false);
 

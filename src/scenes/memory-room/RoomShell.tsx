@@ -274,7 +274,7 @@ export function RoomShell({
    * 규칙으로는 이 벽이 절대 안 걷히는데, 거실의 플레이어에게는 이 벽이 카메라와
    * 자기 사이에 서는 가림막이다.
    */
-  const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
+  const awayFromRoom = useMemoryRoomStore((state) => state.space !== "room");
   const nudgeDoor = useMemoryRoomStore((state) => state.nudgeDoor);
   /*
    * 라디오 목소리를 잡으면 문이 켜진다. 그리고 여는 것은 플레이어다.
@@ -326,7 +326,7 @@ export function RoomShell({
         </group>
       </CulledWall>
 
-      <CulledWall side="left" hidden={inLivingRoom}>
+      <CulledWall side="left" hidden={awayFromRoom}>
         {LEFT_WALL_SEGMENTS.map((part) => (
           <ShellBox key={part.position.join(":")} {...part} color={palette.wall} receiveShadow />
         ))}

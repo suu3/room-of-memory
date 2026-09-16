@@ -21,6 +21,7 @@ import {
   PUZZLE_IDS,
   type PuzzleId,
 } from "@/data/room-clues";
+import { DOORWAY_IDS, type DoorwayId, type SpaceId } from "@/scenes/memory-room/spaces";
 import type { CurtainSide } from "@/types/curtain";
 import type { CutsceneCut, DialogueScriptLine } from "@/types/interaction";
 import type { MinigameResult } from "@/types/minigame";
@@ -187,11 +188,16 @@ export interface MemoryRoomState {
   /** 엔딩이 시작됐는가: 거실 끝 현관문을 연 순간. */
   endingStarted: boolean;
   /**
-   * 플레이어가 지금 거실에 있는가. 저장하지 않는다. 위치에서 파생되는 값이고,
+   * 플레이어가 지금 서 있는 공간. 저장하지 않는다. 위치에서 파생되는 값이고,
    * 새로고침하면 방에서 다시 시작한다. 스토어에 드는 이유는 공유벽 컬링과 카메라가
    * Canvas 트리 곳곳에서 이 사실을 봐야 해서다 (Player가 문턱을 넘을 때만 갱신).
    */
-  inLivingRoom: boolean;
+  space: SpaceId;
+  /**
+   * 열린 문간 (방문 제외: 방문은 doorOpened가 2막의 시작이라 따로 산다). 화장실·안방
+   * 문은 조건이 차면(selectDoorwayReady) 금빛이 돌고, 누르면 열린다. 저장된다.
+   */
+  openedDoorways: DoorwayId[];
   /**
    * 지금 앉아 있는 자리 (없으면 서 있다).
    *
@@ -298,8 +304,10 @@ export interface MemoryRoomState {
    * 그 재생이 끝나는 모든 경로(완주·스킵)에서 배트가 손에 들어온다.
    */
   takeBat: () => void;
-  /** 문턱을 넘었다고 알린다. Player만 부른다. */
-  setInLivingRoom: (inLivingRoom: boolean) => void;
+  /** 다른 공간에 들어섰다고 알린다. Player만 부른다. */
+  setSpace: (space: SpaceId) => void;
+  /** 문간을 연다. 조건이 안 찼거나 방문이면 아무 일도 없다 (방문은 openRoomDoor). */
+  openDoorway: (id: DoorwayId) => void;
   /** 자리에 앉는다. 대사·미니게임이 떠 있으면 아무 일도 없다. */
   sitOnSeat: (id: SeatId) => void;
   /** 일어선다. 앉기 전 서 있던 자리로 돌아간다 (몸의 자리는 Player가 기억한다). */
@@ -573,6 +581,7 @@ type PersistedProgress = Pick<
   | "lightsOn"
   | "introDone"
   | "doorwayDone"
+  | "openedDoorways"
 >;
 
 const PERSIST_KEY = "rom-progress";
@@ -644,6 +653,15 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     introDone: saved.introDone === true || collected.length > 0,
     // 문이 안 열렸으면 문 넘기도 없다. 이 값을 모르는 옛 저장본은 문이 열렸으면 지난 것으로
     doorwayDone: doorOpened && saved.doorwayDone !== false,
+    // 방문이 닫혀 있으면 그 너머의 문도 열려 있을 수 없다
+    openedDoorways: doorOpened
+      ? DOORWAY_IDS.filter(
+          (id) =>
+            id !== "room-living" &&
+            Array.isArray(saved.openedDoorways) &&
+            (saved.openedDoorways as unknown[]).includes(id),
+        )
+      : [],
   };
 }
 
@@ -672,7 +690,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       doorOpened: false,
       batTaken: false,
       endingStarted: false,
-      inLivingRoom: false,
+      space: "room",
+      openedDoorways: [],
       seatedAt: null,
       warpTarget: null,
       walkTarget: null,
@@ -854,13 +873,19 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           // 컷씬 데이터가 없으면(등록 누락) 대사 없이라도 쥐어진다. 진행이 먼저다
           return playback ? { activePlayback: playback } : { batTaken: true };
         }),
-      setInLivingRoom: (inLivingRoom) =>
+      setSpace: (space) =>
         set((state) => {
-          if (state.inLivingRoom === inLivingRoom) return state;
-          // 문이 열린 뒤 처음 문턱을 넘는 순간 1인칭 문 넘기가 끝난다
-          const doorwayDone = state.doorwayDone || (inLivingRoom && state.doorOpened);
-          return { inLivingRoom, doorwayDone };
+          if (state.space === space) return state;
+          // 문이 열린 뒤 처음 거실에 들어서는 순간 1인칭 문 넘기가 끝난다
+          const doorwayDone = state.doorwayDone || (space === "living" && state.doorOpened);
+          return { space, doorwayDone };
         }),
+      openDoorway: (id) =>
+        set((state) =>
+          id === "room-living" || !doorwayReady(state, id) || state.openedDoorways.includes(id)
+            ? state
+            : { openedDoorways: [...state.openedDoorways, id] },
+        ),
       // 1인칭에 있는 동안은 앉지 않는다. 카메라가 머리 안에 있는데 몸만 의자로 가면 시야가 뒤집힌다
       sitOnSeat: (id) =>
         set((state) =>
@@ -939,7 +964,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           doorOpened: false,
           batTaken: false,
           endingStarted: false,
-          inLivingRoom: false,
+          space: "room",
+          openedDoorways: [],
           seatedAt: null,
           warpTarget: null,
           walkTarget: null,
@@ -969,6 +995,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         lightsOn: state.lightsOn,
         introDone: state.introDone,
         doorwayDone: state.doorwayDone,
+        openedDoorways: state.openedDoorways,
       }),
       merge: (persisted, current) => ({ ...current, ...sanitizeProgress(persisted) }),
     },
@@ -996,6 +1023,40 @@ export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
  */
 export const selectDoorReady = (state: MemoryRoomState) =>
   state.revisited.includes("radio") && !state.doorOpened;
+
+/**
+ * 어느 문간이 열려 있는가. 방문은 doorOpened, 나머지는 openedDoorways.
+ * 원시값 배열이 아니라 매번 새 배열이라 zustand 셀렉터로는 쓰지 말고 getState()에서 읽는다.
+ */
+export function openDoorwayIds(
+  state: Pick<MemoryRoomState, "doorOpened" | "openedDoorways">,
+): DoorwayId[] {
+  return state.doorOpened ? ["room-living", ...state.openedDoorways] : [];
+}
+
+export const selectDoorwayOpen = (id: DoorwayId) => (state: MemoryRoomState) =>
+  id === "room-living" ? state.doorOpened : state.openedDoorways.includes(id);
+
+/**
+ * 이 문간을 열 수 있는가 (아직 안 열렸고 조건이 찼다).
+ *
+ * 조건은 **자리 표시자**다 (2026-09-16). 2막부터 집이 한 공간씩 열린다는 결정만
+ * 정해졌고, 어느 단서가 어느 문을 여는지는 방탈출 퍼즐 설계와 함께 정한다.
+ * 지금은 화장실이 2막의 시작(방문)과 함께, 안방이 앰플(2막 완주)과 함께 열린다.
+ */
+export function doorwayReady(state: StateSnapshot, id: DoorwayId): boolean {
+  switch (id) {
+    case "room-living":
+      return false;
+    case "living-bathroom":
+      return state.doorOpened;
+    case "living-parents":
+      return state.doorOpened && state.revisited.includes(ACT2_FINAL_MEMORY);
+  }
+}
+
+export const selectDoorwayReady = (id: DoorwayId) => (state: MemoryRoomState) =>
+  !state.openedDoorways.includes(id) && doorwayReady(state, id);
 
 /**
  * 현관의 배트를 쥘 수 있는가: 앰플을 손에 넣은 뒤(3막), 아직 안 쥐었을 때.

@@ -284,7 +284,7 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
    * 왼벽은 이제 걷힐 수 있다. 플레이어가 거실로 나가면 공유벽이 시야를 가려서
    * RoomShell이 강제로 걷는다 (v2). 벽에 붙은 장식은 벽과 함께 사라져야 한다.
    */
-  const inLivingRoom = useMemoryRoomStore((state) => state.inLivingRoom);
+  const awayFromRoom = useMemoryRoomStore((state) => state.space !== "room");
 
   return (
     <group name="room-decor">
@@ -304,7 +304,7 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
         position={[4.3, 3.82, BACK_WALL_FACE_Z + 0.026]}
         scale={1}
       />
-      <CulledWall side="left" hidden={inLivingRoom}>
+      <CulledWall side="left" hidden={awayFromRoom}>
         <DecorBoxes parts={DECOR_BY_WALL.left} palette={palette} />
       </CulledWall>
 

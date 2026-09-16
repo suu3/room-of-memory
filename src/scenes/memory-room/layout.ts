@@ -629,3 +629,63 @@ export const CAMERA_PRESETS = {
   cards: { position: [-10.6, 2.8, 6.0], target: [-13.2, 1.3, 3.4] },
   ampoule: { position: [-13.0, 2.4, -0.8], target: [-15.32, 0.6, -3.0] },
 } as const satisfies Record<"room" | "ending" | MemoryId, CameraPreset>;
+
+/*
+ * ---------------------------------------------------------------- 화장실 · 안방 (v3)
+ *
+ * 2막부터 집이 한 공간씩 열린다 (docs/content-design.md 3-1). 둘 다 거실에서 문으로
+ * 이어진다: 화장실은 거실 앞벽(+z) 너머, 안방은 거실 -x 벽(현관 쪽) 너머.
+ *
+ * 문 자리는 거실 가구 발자국 사이의 빈 벽이다. 앞벽은 TV장(x ≥ -10.75)과 피아노
+ * (x ≤ -13.9) 사이. spaces.test가 문간 구간과 가구가 안 겹치는지 지킨다.
+ */
+/** 문은 앞벽의 빈 틈(x -12.25)에 맞추되, 방 자체는 벽 너머라 그 틈보다 넓게 잡는다. 좁으면 굴뚝이 된다. */
+export const BATHROOM_SHELL_BOUNDS: Aabb2 = { minX: -14.6, maxX: -10.2, minZ: 6.5, maxZ: 10 };
+export const BATHROOM_BOUNDS: Aabb2 = {
+  minX: BATHROOM_SHELL_BOUNDS.minX + 0.45,
+  maxX: BATHROOM_SHELL_BOUNDS.maxX - 0.45,
+  minZ: BATHROOM_SHELL_BOUNDS.minZ + 0.45,
+  maxZ: BATHROOM_SHELL_BOUNDS.maxZ - 0.45,
+};
+/** 화장실 문: 거실 앞벽(z = 6.5) 위, 문틀은 벽 안쪽(거실 쪽)에 붙는다. */
+export const BATHROOM_DOOR_POSITION = [-12.25, 1.7, BATHROOM_SHELL_BOUNDS.minZ - 0.14] as const;
+export const BATHROOM_DOOR_ROTATION = [0, 0, 0] as const;
+/** 화장실 가구 발자국: 안쪽 벽(+z)에 세면대·변기, 오른쪽(+x) 벽에 욕조. 문 앞은 비운다. */
+export const BATHROOM_COLLIDERS = [
+  { minX: -14.6, maxX: -13.7, minZ: 9.2, maxZ: 10 }, // toilet (-x, +z 구석)
+  { minX: -12.75, maxX: -11.75, minZ: 9.4, maxZ: 10 }, // sink (+z 벽 가운데)
+  { minX: -10.9, maxX: -10.2, minZ: 7.3, maxZ: 10 }, // bathtub (+x 벽)
+] as const satisfies readonly Aabb2[];
+
+/*
+ * 안방은 거실 -x 벽(현관 쪽 벽) 너머다. 거실 뒷벽에 두려 했으나 그 벽은 소파·인형·냉장고
+ * 발자국으로 문 하나 들어갈 틈이 없다(1.64 < 문틀 1.82). -x 벽에는 현관문(z 1.25)과
+ * 피아노(z ≥ 4.75) 사이가 비어 있고, 그 사이에 세워 둔 배트가 두 문 사이의 소품이 된다.
+ * 현관 옆에 안방 문이 있는 것도 복도식 아파트에서는 흔한 평면이다.
+ */
+export const PARENTS_SHELL_BOUNDS: Aabb2 = { minX: -23, maxX: -16.5, minZ: -0.5, maxZ: 6.5 };
+export const PARENTS_BOUNDS: Aabb2 = {
+  minX: PARENTS_SHELL_BOUNDS.minX + 0.45,
+  maxX: PARENTS_SHELL_BOUNDS.maxX - 0.45,
+  minZ: PARENTS_SHELL_BOUNDS.minZ + 0.45,
+  maxZ: PARENTS_SHELL_BOUNDS.maxZ - 0.45,
+};
+/** 안방 문: 거실 -x 벽 위, 현관문(z 1.25)과 피아노 사이. 문틀은 벽 안쪽(거실 쪽)에 붙는다. */
+export const PARENTS_DOOR_POSITION = [PARENTS_SHELL_BOUNDS.maxX + 0.14, 1.7, 3.7] as const;
+/** -π/2: 문의 앞면(로컬 +z)이 안방(-x)을 본다. 문짝은 앞면 쪽으로 열린다 (SpaceDoor). */
+export const PARENTS_DOOR_ROTATION = [0, -Math.PI / 2, 0] as const;
+/** 안방 가구 발자국: -x 벽에 침대, -z 벽에 옷장, +z 벽에 책상(연구 자료). 문 앞(+x 벽, z 3~4.4)은 비운다. */
+export const PARENTS_COLLIDERS = [
+  { minX: -23, maxX: -20.2, minZ: 1.4, maxZ: 5.4 }, // double bed (-x 벽, 머리맡이 벽)
+  { minX: -21.6, maxX: -18.4, minZ: -0.5, maxZ: 0.2 }, // wardrobe (-z 벽)
+  { minX: -19.6, maxX: -17.4, minZ: 5.7, maxZ: 6.5 }, // desk (+z 벽)
+] as const satisfies readonly Aabb2[];
+
+/**
+ * 새 문간 판정 구간. 방문 문간(DOORWAY_ZONE)과 같은 규칙이다: 양쪽 걷기 범위와
+ * 플레이어 지름(0.76) 이상 겹치고, 문틀 안쪽 폭보다 좁다. 화장실 문은 z 방향이라
+ * z로 잇는다 (spaces.test가 지킨다).
+ */
+export const BATHROOM_DOORWAY_ZONE: Aabb2 = { minX: -12.9, maxX: -11.6, minZ: 5.1, maxZ: 7.9 };
+/** 안방 문간은 x 방향 문이다: 방문 문간과 같은 꼴로 x로 잇는다. */
+export const PARENTS_DOORWAY_ZONE: Aabb2 = { minX: -17.9, maxX: -15.1, minZ: 3.05, maxZ: 4.35 };

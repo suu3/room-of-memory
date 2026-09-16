@@ -1,5 +1,6 @@
 import type { MemoryId } from "@/data/memory-room";
 import type { DiscoveryId, PuzzleId } from "@/data/room-clues";
+import type { DoorwayId } from "@/scenes/memory-room/spaces";
 import { sanitizeProgress, useMemoryRoomStore } from "@/store/memory-room";
 import { cycleMemory } from "./admin-progress";
 
@@ -15,6 +16,7 @@ export interface AdminPatch {
   solvedPuzzles?: PuzzleId[];
   discoveries?: DiscoveryId[];
   endingStarted?: boolean;
+  openedDoorways?: DoorwayId[];
   started?: boolean;
 }
 
@@ -47,6 +49,7 @@ export function applyAdminPatch(patch: AdminPatch): void {
     difficulty: state.difficulty,
     introDone: state.introDone,
     doorwayDone: state.doorwayDone,
+    openedDoorways: state.openedDoorways,
     ...progress,
   };
 
@@ -65,6 +68,8 @@ export function applyAdminPatch(patch: AdminPatch): void {
 export const ADMIN_SPAWNS = {
   room: { x: 0, z: 2.35 },
   living: { x: -7, z: 5.2 },
+  bathroom: { x: -12.25, z: 8 },
+  parents: { x: -19.5, z: 3 },
 } as const;
 
 export type AdminSpace = keyof typeof ADMIN_SPAWNS;
@@ -101,7 +106,16 @@ export function setAdminDoor(open: boolean): void {
  * 개발 도구가 사람을 가둬 놓는 꼴이 된다.
  */
 export function warpToSpace(space: AdminSpace): void {
-  if (space === "living") setAdminDoor(true);
+  if (space !== "room") setAdminDoor(true);
+  // 거실 너머로 갈 때는 그 문도 연다. 방문과 같은 이유: 닫힌 채 떨어뜨리면 못 나온다
+  if (space === "bathroom") applyAdminPatch({ openedDoorways: ["living-bathroom"] });
+  if (space === "parents") {
+    const { revisited } = useMemoryRoomStore.getState();
+    applyAdminPatch({
+      revisited: revisited.includes("ampoule") ? revisited : [...revisited, "ampoule"],
+      openedDoorways: ["living-parents"],
+    });
+  }
   applyAdminPatch({ started: true });
   const spawn = ADMIN_SPAWNS[space];
   useMemoryRoomStore.getState().warpPlayer(spawn.x, spawn.z);

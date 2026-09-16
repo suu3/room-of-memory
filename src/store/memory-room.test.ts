@@ -972,20 +972,20 @@ describe("1인칭 구간: 인트로와 2막 도입", () => {
     useMemoryRoomStore.getState().openRoomDoor();
     expect(selectViewpoint(useMemoryRoomStore.getState())).toBe("doorway");
 
-    useMemoryRoomStore.getState().setInLivingRoom(true);
+    useMemoryRoomStore.getState().setSpace("living");
     const state = useMemoryRoomStore.getState();
     expect(state.doorwayDone).toBe(true);
     expect(selectViewpoint(state)).toBeNull();
 
     // 그 뒤의 왕복은 이동이다. 다시 방으로, 다시 거실로 가도 1인칭에 안 들어간다
-    useMemoryRoomStore.getState().setInLivingRoom(false);
-    useMemoryRoomStore.getState().setInLivingRoom(true);
+    useMemoryRoomStore.getState().setSpace("room");
+    useMemoryRoomStore.getState().setSpace("living");
     expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
   });
 
   it("문이 열리기 전에 거실 판정이 켜져도(개발 도구) 문 넘기를 마친 것으로 적지 않는다", () => {
     useMemoryRoomStore.setState({ started: true, introDone: true });
-    useMemoryRoomStore.getState().setInLivingRoom(true);
+    useMemoryRoomStore.getState().setSpace("living");
 
     expect(useMemoryRoomStore.getState().doorwayDone).toBe(false);
   });

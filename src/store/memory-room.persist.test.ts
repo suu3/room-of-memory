@@ -20,6 +20,7 @@ describe("sanitizeProgress", () => {
         difficulty: "normal",
         introDone: true,
         doorwayDone: false,
+        openedDoorways: [],
       }),
     ).toEqual({
       collected: [first, second],
@@ -34,7 +35,20 @@ describe("sanitizeProgress", () => {
       difficulty: "normal",
       introDone: true,
       doorwayDone: false,
+      openedDoorways: [],
     });
+  });
+
+  it("거실 너머의 문은 방문이 열린 저장본에서만 살아남고, 모르는 문과 방문 자체는 버린다", () => {
+    const opened = { collected: MEMORIES.map((memory) => memory.id), revisited: ["radio"] };
+    expect(sanitizeProgress({ openedDoorways: ["living-bathroom"] }).openedDoorways).toEqual([]);
+    expect(
+      sanitizeProgress({
+        ...opened,
+        doorOpened: true,
+        openedDoorways: ["living-bathroom", "room-living", "attic"],
+      }).openedDoorways,
+    ).toEqual(["living-bathroom"]);
   });
 
   it("인트로는 한 번뿐이다: 적혀 있거나 기억을 모은 저장본은 어둠에서 다시 시작하지 않는다", () => {

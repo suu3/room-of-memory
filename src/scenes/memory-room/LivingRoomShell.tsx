@@ -7,17 +7,26 @@ import { playSound } from "@/lib/audio";
 import { selectBatTaken, selectFrontDoorUnlocked, useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import {
+  BATHROOM_DOOR_POSITION,
   FRONT_DOOR_INTERACTION,
   FRONT_DOOR_POSITION,
   FRONT_DOOR_ROTATION,
   LIVING_SHELL_BOUNDS,
   LIVING_SHELL_CENTER,
+  PARENTS_DOOR_POSITION,
   ROOM_DOOR_LEAF,
   ROOM_DOOR_POSITION,
 } from "./layout";
 import { approach } from "./memory-motion";
 import type { RoomPalette } from "./palette";
 import { DOOR_HOLE_Z } from "./RoomShell";
+import {
+  endWallWithDoor,
+  WALL_STUB_TOP_Y as SHELL_STUB_TOP_Y,
+  WALL_Y as SHELL_WALL_Y,
+  sideWallWithDoor,
+  WALL_THICKNESS,
+} from "./space-shell";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
@@ -33,11 +42,9 @@ import { useNearPlayer } from "./use-near-player";
  * 또 세우면 문간에 벽이 두 겹으로 서서 지나갈 때 z-fighting이 난다.
  */
 
-const WALL_HEIGHT = 4.8;
-const WALL_THICKNESS = 0.18;
-const WALL_CENTER_Y = 2.3;
-const WALL_STUB_TOP_Y = 0.55;
-const WALL_Y = { min: WALL_CENTER_Y - WALL_HEIGHT / 2, max: WALL_CENTER_Y + WALL_HEIGHT / 2 };
+// 벽 치수는 space-shell 한곳의 값이다 (v3). 굽도리 높이도 방·새 공간과 같아야 문턱에서 안 어긋난다
+const WALL_STUB_TOP_Y = SHELL_STUB_TOP_Y;
+const WALL_Y = SHELL_WALL_Y;
 
 const WIDTH = LIVING_SHELL_BOUNDS.maxX - LIVING_SHELL_BOUNDS.minX;
 const DEPTH = LIVING_SHELL_BOUNDS.maxZ - LIVING_SHELL_BOUNDS.minZ;
@@ -46,22 +53,6 @@ const [CENTER_X, CENTER_Z] = LIVING_SHELL_CENTER;
 interface ShellPart {
   size: Vec3Tuple;
   position: Vec3Tuple;
-}
-
-/** z축을 보는 벽 (앞·뒤). 공유벽 쪽(+x)은 방 벽에 닿기 직전까지만 뻗는다. */
-function endWall(z: number, minY: number, maxY: number): ShellPart {
-  return {
-    size: [WIDTH, maxY - minY, WALL_THICKNESS],
-    position: [CENTER_X, (minY + maxY) / 2, z],
-  };
-}
-
-/** x축을 보는 벽 (-x 끝, 현관 쪽). */
-function sideWall(x: number, minY: number, maxY: number): ShellPart {
-  return {
-    size: [WALL_THICKNESS, maxY - minY, DEPTH],
-    position: [x, (minY + maxY) / 2, CENTER_Z],
-  };
 }
 
 const FLOOR: ShellPart = {
@@ -75,15 +66,27 @@ const PLINTH = [
   { size: [WIDTH + 0.14, 0.55, DEPTH + 0.14], position: [CENTER_X, -0.6, CENTER_Z] },
 ] as const satisfies readonly ShellPart[];
 
+/*
+ * 앞벽과 -x 벽은 문 자리를 비운 조각들이다 (v3): 앞벽(+z) 너머가 화장실, -x 벽(현관 쪽)의
+ * 현관문 옆 너머가 안방. 조각의 앞 둘이 굽도리, 나머지가 윗벽이다 (space-shell의
+ * endWallWithDoor·sideWallWithDoor). 문틀·문짝은 SpaceDoor가 씬 층위에서 그린다: 어느
+ * 쪽에 서 있든 문은 보여야 한다. 뒷벽은 통짜다: 소파·인형·냉장고로 문 들어갈 틈이 없다.
+ */
+const LIVING_X = { min: LIVING_SHELL_BOUNDS.minX, max: LIVING_SHELL_BOUNDS.maxX };
+const LIVING_Z = { min: LIVING_SHELL_BOUNDS.minZ, max: LIVING_SHELL_BOUNDS.maxZ };
+const BACK_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.minZ, LIVING_X);
+const FRONT_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.maxZ, LIVING_X, BATHROOM_DOOR_POSITION[0]);
+const LEFT_WALL = sideWallWithDoor(LIVING_SHELL_BOUNDS.minX, LIVING_Z, PARENTS_DOOR_POSITION[2]);
+
 const BASE_WALLS = [
-  endWall(LIVING_SHELL_BOUNDS.minZ, WALL_Y.min, WALL_STUB_TOP_Y),
-  endWall(LIVING_SHELL_BOUNDS.maxZ, WALL_Y.min, WALL_STUB_TOP_Y),
-  sideWall(LIVING_SHELL_BOUNDS.minX, WALL_Y.min, WALL_STUB_TOP_Y),
+  ...BACK_WALL.slice(0, 1),
+  ...FRONT_WALL.slice(0, 2),
+  ...LEFT_WALL.slice(0, 2),
 ] as const satisfies readonly ShellPart[];
 
-const BACK_WALL_UPPER = endWall(LIVING_SHELL_BOUNDS.minZ, WALL_STUB_TOP_Y, WALL_Y.max);
-const FRONT_WALL_UPPER = endWall(LIVING_SHELL_BOUNDS.maxZ, WALL_STUB_TOP_Y, WALL_Y.max);
-const LEFT_WALL_UPPER = sideWall(LIVING_SHELL_BOUNDS.minX, WALL_STUB_TOP_Y, WALL_Y.max);
+const BACK_WALL_UPPER = BACK_WALL.slice(1);
+const FRONT_WALL_UPPER = FRONT_WALL.slice(2);
+const LEFT_WALL_UPPER = LEFT_WALL.slice(2);
 
 const DOOR_FRAME = [
   { size: [0.18, 3.62, 0.18], position: [-0.82, 0.09, 0] },
@@ -316,13 +319,19 @@ export function LivingRoomShell({
       {/* 걷히는 규칙은 방과 같되, 중심이 거실이다. 카메라가 거실의 어느 쪽에
           있느냐로 계산해야 앞벽만 걷히고 뒷벽·현관벽은 서 있는다 */}
       <CulledWall side="back" center={LIVING_SHELL_CENTER}>
-        <ShellBox part={BACK_WALL_UPPER} color={palette.linen} />
+        {BACK_WALL_UPPER.map((part) => (
+          <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
+        ))}
       </CulledWall>
       <CulledWall side="front" center={LIVING_SHELL_CENTER}>
-        <ShellBox part={FRONT_WALL_UPPER} color={palette.linen} />
+        {FRONT_WALL_UPPER.map((part) => (
+          <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
+        ))}
       </CulledWall>
       <CulledWall side="left" center={LIVING_SHELL_CENTER}>
-        <ShellBox part={LEFT_WALL_UPPER} color={palette.linen} />
+        {LEFT_WALL_UPPER.map((part) => (
+          <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
+        ))}
       </CulledWall>
 
       <FrontDoor palette={palette} />

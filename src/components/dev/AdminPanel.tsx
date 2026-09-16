@@ -25,6 +25,8 @@ const STAGE_LABEL = { none: "·", collected: "1", revisited: "2" } as const;
 const SPACES: readonly { id: AdminSpace; label: string }[] = [
   { id: "room", label: "방" },
   { id: "living", label: "거실" },
+  { id: "bathroom", label: "화장실" },
+  { id: "parents", label: "안방" },
 ];
 
 export function AdminPanel() {
