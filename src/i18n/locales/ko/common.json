@@ -3,6 +3,12 @@
     "unknownHero": "나"
   },
   "title": "기억의 방",
+  "space": {
+    "room": "내 방",
+    "living": "거실",
+    "bathroom": "화장실",
+    "parents": "안방"
+  },
   "hud": {
     "scattered": "방 안에 흩어진 기억",
     "round": "{{value}}바퀴",
@@ -21,7 +27,8 @@
       "exit": "현관문으로 나가세요",
       "lights": "어둠 속에서 벽의 전등 스위치를 찾아 불을 켜세요",
       "doorway": "열린 문으로 나가세요"
-    }
+    },
+    "here": "지금 있는 곳: {{value}}"
   },
   "door": {
     "locked": "잠긴 문",
@@ -427,7 +434,12 @@
     "turnRight": "오른쪽으로 돌리기",
     "nameUnknown": "아직 모르는 이름",
     "lockedClue": "아직 열리지 않은 항목: 방을 살펴보면 드러난다",
-    "lockedHintClue": "방을 살펴보면 열립니다"
+    "lockedHintClue": "방을 살펴보면 열립니다",
+    "tabMap": "평면도",
+    "mapHere": "지금 있는 곳",
+    "mapClue": "단서를 본 곳",
+    "mapHint": "문이 열릴 때마다 한 칸씩 늘어난다.",
+    "mapAlt": "집 평면도. 열린 공간과 지금 있는 곳이 표시된다"
   },
   "titleScreen": {
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",

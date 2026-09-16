@@ -3,6 +3,12 @@
     "unknownHero": "わたし"
   },
   "title": "記憶の部屋",
+  "space": {
+    "room": "自分の部屋",
+    "living": "リビング",
+    "bathroom": "バスルーム",
+    "parents": "両親の部屋"
+  },
   "hud": {
     "scattered": "部屋に散らばった記憶",
     "round": "{{value}}周目",
@@ -21,7 +27,8 @@
       "exit": "玄関のドアから出ましょう",
       "lights": "暗い。壁の電気のスイッチを見つけて明かりをつけましょう",
       "doorway": "開いたドアから出ましょう"
-    }
+    },
+    "here": "現在地: {{value}}"
   },
   "door": {
     "locked": "鍵のかかった扉",
@@ -427,7 +434,12 @@
     "turnRight": "右に回す",
     "nameUnknown": "まだ知らない名前",
     "lockedClue": "まだ明かされていない項目: 部屋を調べると現れる",
-    "lockedHintClue": "部屋を調べると開きます"
+    "lockedHintClue": "部屋を調べると開きます",
+    "tabMap": "間取り図",
+    "mapHere": "現在地",
+    "mapClue": "手がかりを見た場所",
+    "mapHint": "ドアが開くたびに一部屋ずつ増える。",
+    "mapAlt": "家の間取り図。開いた部屋と現在地が示される"
   },
   "titleScreen": {
     "tagline": "閉じた部屋に散らばった記憶を、ひとつずつ取り戻す物語。",

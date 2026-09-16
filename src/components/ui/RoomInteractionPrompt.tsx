@@ -41,7 +41,13 @@ export function RoomInteractionPrompt({
         조사할 수 없는 물건은 disabled가 아니라 aria-disabled로 둔다. disabled는
         포커스 순서에서 빠져 스크린리더 사용자가 그 물건이 있는지조차 모른다.
       */}
-      <fieldset className="sr-only">
+      {/*
+        min-w-0: fieldset의 기본 min-inline-size는 min-content라, sr-only의 width:1px가
+        먹지 않고 상자가 버튼 줄만큼 넓어진다 (1100px 화면에서 1500px). 그러면 화면 밖으로
+        넘쳐서 바깥 컨테이너에 가로 스크롤이 생기고, 무언가 그 스크롤을 끝까지 밀면 게임
+        화면 전체가 왼쪽으로 밀려 잘린다. 0으로 눌러야 overflow:hidden이 실제로 자른다.
+      */}
+      <fieldset className="sr-only min-w-0">
         <legend>{legend}</legend>
         {MEMORY_IDS.map((id) => {
           const available = statuses[id] === "available";

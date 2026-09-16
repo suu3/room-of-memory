@@ -22,6 +22,7 @@ describe("sanitizeProgress", () => {
         doorwayDone: false,
         openedDoorways: [],
         inventory: ["parents-key"],
+        cluesSeen: ["drawer-note"],
       }),
     ).toEqual({
       collected: [first, second],
@@ -38,6 +39,7 @@ describe("sanitizeProgress", () => {
       doorwayDone: false,
       openedDoorways: [],
       inventory: ["parents-key"],
+      cluesSeen: ["drawer-note"],
     });
   });
 
@@ -47,6 +49,12 @@ describe("sanitizeProgress", () => {
       "parents-key",
     ]);
     expect(sanitizeProgress({ inventory: "nope" }).inventory).toEqual([]);
+  });
+
+  it("펼쳐 본 단서는 아는 것만 남는다", () => {
+    expect(sanitizeProgress({}).cluesSeen).toEqual([]);
+    expect(sanitizeProgress({ cluesSeen: ["mirror", "ghost-note"] }).cluesSeen).toEqual(["mirror"]);
+    expect(sanitizeProgress({ cluesSeen: "nope" }).cluesSeen).toEqual([]);
   });
 
   it("거실 너머의 문은 방문이 열린 저장본에서만 살아남고, 모르는 문과 방문 자체는 버린다", () => {

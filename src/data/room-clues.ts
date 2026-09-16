@@ -74,6 +74,26 @@ export type ClueId = (typeof CLUE_IDS)[number];
 export const DISCOVERY_IDS = ["hero-name"] as const;
 export type DiscoveryId = (typeof DISCOVERY_IDS)[number];
 
+/**
+ * 어느 공간에 있는 단서인가. 수첩의 평면도가 "여기서 뭔가 봤다"는 표시를 남길 때 본다
+ * (NotebookMap). 씬은 이 표를 보지 않는다: 물건의 좌표는 layout.ts에 있고, 여기는
+ * 공간 하나까지만 거칠게 적는다.
+ *
+ * mirror는 빠져 있다. 거울은 단서가 아니라 자기 모습을 보는 물건이라, 들여다봤다고
+ * 평면도에 "단서" 표시가 남으면 없는 것을 찾으러 방을 다시 뒤지게 된다.
+ *
+ * 값이 SpaceId가 아니라 string인 건 items.ts의 ITEM_SPACE와 같은 이유다: 데이터는
+ * 씬 모듈을 향해 올려다보지 않는다. 짝이 맞는지는 테스트가 지킨다.
+ */
+export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
+  "drawer-note": "room",
+  "wall-calendar": "room",
+  "shelf-book": "room",
+  "desk-clock": "room",
+  workbook: "room",
+  "research-note": "parents",
+};
+
 /** 어느 단서를 뒤집어야 무엇을 알게 되는가. 단서 화면(WorkbookClue)이 이 짝을 보고 적는다. */
 export const CLUE_DISCOVERY = { workbook: "hero-name" } as const satisfies Partial<
   Record<ClueId, DiscoveryId>

@@ -17,6 +17,7 @@ import {
 } from "@/data/memory-room";
 import {
   CLUE_AFTER_MEMORY,
+  CLUE_IDS,
   type ClueId,
   DISCOVERY_IDS,
   type DiscoveryId,
@@ -51,7 +52,7 @@ export type Act = 1 | 2 | 3;
  */
 export type Difficulty = "easy" | "normal";
 /** 수첩(캐릭터 시트)의 페이지: 프로필과 기록(기억 스크랩북). */
-export type CharacterSheetTab = "profile" | "lore";
+export type CharacterSheetTab = "profile" | "lore" | "map";
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
 export type UiLockId =
@@ -249,6 +250,15 @@ export interface MemoryRoomState {
    * 자리가 여기밖에 없다.
    */
   activeClue: ClueId | null;
+  /**
+   * 펼쳐 본 단서. 저장된다.
+   *
+   * activeClue가 "지금 보고 있는 것"이라면 이쪽은 "본 적 있는 것"이다. 진행을
+   * 막지도 열지도 않고, 수첩 평면도가 어느 공간에서 무엇을 봤는지 표시하는 데만
+   * 쓴다 (src/data/room-clues.ts의 CLUE_SPACE). 방탈출 축에서 "여긴 이미 뒤졌다"를
+   * 플레이어 대신 기억해 두는 자리다.
+   */
+  cluesSeen: ClueId[];
   /**
    * 지금 붙잡고 있는 미궁 문제: 지금은 현관 잠금장치 하나뿐이다.
    *
@@ -592,6 +602,7 @@ type PersistedProgress = Pick<
   | "doorwayDone"
   | "openedDoorways"
   | "inventory"
+  | "cluesSeen"
 >;
 
 const PERSIST_KEY = "rom-progress";
@@ -666,6 +677,10 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     inventory: Array.isArray(saved.inventory)
       ? ITEM_IDS.filter((id) => (saved.inventory as unknown[]).includes(id))
       : [],
+    // 본 적 있는 단서. 목록에서 사라진 id는 조용히 버린다 (기억 id와 같은 규칙)
+    cluesSeen: Array.isArray(saved.cluesSeen)
+      ? CLUE_IDS.filter((id) => (saved.cluesSeen as unknown[]).includes(id))
+      : [],
     // 방문이 닫혀 있으면 그 너머의 문도 열려 있을 수 없다
     openedDoorways: doorOpened
       ? DOORWAY_IDS.filter(
@@ -691,6 +706,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       contactOpen: false,
       feedbackOpen: false,
       started: false,
+      cluesSeen: [],
       roomLoadProgress: 0,
       booted: false,
       bootRising: false,
@@ -870,7 +886,12 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           viewpointOf(state) !== null ||
           !clueUnlocked(state, id)
             ? state
-            : { activeClue: id },
+            : {
+                activeClue: id,
+                cluesSeen: state.cluesSeen.includes(id)
+                  ? state.cluesSeen
+                  : [...state.cluesSeen, id],
+              },
         ),
       closeClue: () => set((state) => (state.activeClue ? { activeClue: null } : state)),
       discover: (id) =>
@@ -990,6 +1011,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           walkTarget: null,
           curtainGrab: null,
           activeClue: null,
+          cluesSeen: [],
           activePuzzle: null,
           solvedPuzzles: [],
           discoveries: [],
@@ -1016,6 +1038,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         doorwayDone: state.doorwayDone,
         openedDoorways: state.openedDoorways,
         inventory: state.inventory,
+        cluesSeen: state.cluesSeen,
       }),
       merge: (persisted, current) => ({ ...current, ...sanitizeProgress(persisted) }),
     },

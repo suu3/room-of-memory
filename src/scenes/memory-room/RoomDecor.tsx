@@ -8,6 +8,7 @@ import { ROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
 import { ShelfBookClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
+import { useCoverTexture } from "./use-cover-texture";
 import type { WallSide } from "./wall-culling";
 
 useGLTF.preload(ASSETS.models.books, true, true);
@@ -114,20 +115,6 @@ function backPoster(
   ];
 }
 
-function leftPoster(
-  z: number,
-  y: number,
-  width: number,
-  height: number,
-  field: keyof RoomPalette,
-): DecorBox[] {
-  return [
-    leftWall(z, y, width, height, "linen"),
-    leftWall(z, y, width - 0.12, height - 0.12, field, 0.06),
-    leftWall(z - width * 0.16, y, width * 0.09, height - 0.34, "linen", 0.08),
-  ];
-}
-
 /**
  * 창 왼쪽·오른쪽 벽면. 창(x -0.27~2.57)과 선반(x 3.3~5.4)을 피해 배치한다.
  *
@@ -137,11 +124,69 @@ function leftPoster(
  */
 const BACK_POSTERS = [...backPoster(-4.6, 3.3, 1.3, 1.7, "sage")] satisfies DecorBox[];
 
-/*
- * 왼쪽 벽에는 포스터를 걸지 않는다. sage 한 장이 문과 책상 사이에 있었는데, 이 거리에서는
- * 정체를 알 수 없는 초록 판으로만 읽혀서 뺐다 (2026-09-15). 걸 게 생기면 leftPoster로.
+/**
+ * 왼쪽 벽 책상 위에 붙은 고교야구대회 포스터 한 장.
+ *
+ * 방에서 유일하게 **그림이 실린** 벽면이다. 전에는 sage 색면 한 장이 문과 책상 사이에
+ * 있었지만 이 거리에서 정체를 알 수 없는 초록 판으로만 읽혀서 뺐었다 (2026-09-15).
+ * 색면 대신 진짜 인쇄물이 들어오면서 자리를 되찾았다: 도현이 이 방에서 무엇을 보고
+ * 살았는지 말하는 물건이라, 야구부 유니폼·페넌트·트로피와 같은 편에 선다.
+ *
+ * 자리는 달력(z 0.9)과 전신거울(z 2.32~2.98) 사이의 빈 벽이고, 높이는 거울과 같은 띠다
+ * (아래 0.38 ~ 위 1.78). 책상 위쪽 벽에 걸지 않은 이유가 있다: 이 방의 직교 카메라는
+ * 벽의 윗부분을 화면 밖으로 밀어내서, 달력 높이(2.55)에 건 그림은 평소 구도에서 아랫단만
+ * 보인다. 눈높이에 걸어야 그림이 그림으로 읽힌다. 거울과 윗변을 맞춰 둘이 한 벌로 선다.
  */
-const LEFT_POSTERS = [] satisfies DecorBox[];
+const WALL_POSTER = {
+  z: 1.72,
+  y: 1.08,
+  /** [폭(z), 높이(y)]. 그림이 2:3이라 판도 2:3으로 잡아야 잘려 나가지 않는다. */
+  width: 0.94,
+  height: 1.41,
+  /** 종이 두께. 옆에서 봤을 때 벽에 붙은 한 장으로 읽히는 최소한이다. */
+  depth: 0.03,
+} as const;
+
+/**
+ * 포스터. 색면 장식(DecorBox)과 달리 텍스처가 붙어서 별도 메쉬로 선다.
+ *
+ * 그림이 아직 안 왔거나 파일이 없으면 종이색 판이 그 자리를 지킨다 (useCoverTexture의
+ * 계약). 색(linen)은 map에 곱해져 인쇄물 위에 옅은 종이 베일로 남는다: 액자 사진과
+ * 같은 처리이고, 바랜 이 방의 톤에서 포스터만 쨍하게 뜨지 않게 한다.
+ */
+function WallPoster({ palette }: { palette: RoomPalette }) {
+  const print = useCoverTexture(
+    ASSETS.textures.roomPosterBaseball,
+    WALL_POSTER.width / WALL_POSTER.height,
+  );
+
+  return (
+    // 로컬 +z가 월드 +x(방 안쪽)를 보도록 세운다. 왼벽에 붙는 판들과 같은 규약이다
+    <group
+      position={[LEFT_WALL_FACE_X, WALL_POSTER.y, WALL_POSTER.z]}
+      rotation={[0, Math.PI / 2, 0]}
+    >
+      <mesh position={[0, 0, WALL_POSTER.depth / 2]} receiveShadow>
+        <boxGeometry args={[WALL_POSTER.width, WALL_POSTER.height, WALL_POSTER.depth]} />
+        <meshStandardMaterial color={palette.linen} roughness={0.9} />
+      </mesh>
+      {/*
+        인쇄면. 종이 판 앞으로 나와 있어야 둘이 같은 좌표에서 깜빡이지 않는다.
+
+        그림이 **도착한 뒤에** 세운다. 빈 재질로 먼저 세워 두고 나중에 map만 끼우면
+        판이 단색으로 남는다: three는 map이 생기고 없어질 때 셰이더를 다시 짜야 하는데
+        (USE_MAP), 그건 needsUpdate를 직접 켜야 하는 일이라 재질을 처음부터 map과 함께
+        만드는 쪽이 확실하다. 그 사이에는 아래 종이 판이 그대로 자리를 지킨다.
+      */}
+      {print && (
+        <mesh position={[0, 0, WALL_POSTER.depth + 0.002]}>
+          <planeGeometry args={[WALL_POSTER.width, WALL_POSTER.height]} />
+          <meshStandardMaterial map={print} color={palette.linen} roughness={0.9} />
+        </mesh>
+      )}
+    </group>
+  );
+}
 
 /**
  * 테이프로 붙인 사진 넉 장. 야구부 시절 사진이라는 설정이라 나란히 한 줄로 둔다.
@@ -231,7 +276,7 @@ function ShelfBook({
  */
 export const DECOR_BY_WALL = {
   back: [...BACK_POSTERS, ...PHOTO_STRIP],
-  left: [...LEFT_POSTERS, ...WALL_FITTINGS],
+  left: WALL_FITTINGS,
   front: FRONT_WALL_DECOR,
   right: RIGHT_WALL_DECOR,
 } as const satisfies Record<WallSide, readonly DecorBox[]>;
@@ -306,6 +351,7 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
       />
       <CulledWall side="left" hidden={awayFromRoom}>
         <DecorBoxes parts={DECOR_BY_WALL.left} palette={palette} />
+        <WallPoster palette={palette} />
       </CulledWall>
 
       {/* 돌려야 드러나는 두 면. 벽과 함께 스러져야 하므로 반드시 CulledWall 안이다 */}

@@ -3,6 +3,12 @@
     "unknownHero": "Me"
   },
   "title": "Room of Memory",
+  "space": {
+    "room": "My Room",
+    "living": "Living Room",
+    "bathroom": "Bathroom",
+    "parents": "Parents' Room"
+  },
   "hud": {
     "scattered": "Memories scattered around the room",
     "round": "Round {{value}}",
@@ -21,7 +27,8 @@
       "exit": "Leave through the front door",
       "lights": "It's dark. Find the light switch on the wall and turn it on",
       "doorway": "Step out through the open door"
-    }
+    },
+    "here": "You are here: {{value}}"
   },
   "door": {
     "locked": "Locked Door",
@@ -427,7 +434,12 @@
     "turnRight": "Turn right",
     "nameUnknown": "A name I don't know yet",
     "lockedClue": "Not yet revealed: look around the room",
-    "lockedHintClue": "Unlocks by looking around the room"
+    "lockedHintClue": "Unlocks by looking around the room",
+    "tabMap": "Floor Plan",
+    "mapHere": "You are here",
+    "mapClue": "Clue found",
+    "mapHint": "One more room is drawn in each time a door opens.",
+    "mapAlt": "Floor plan of the flat, showing the rooms opened so far and where you are"
   },
   "titleScreen": {
     "tagline": "Gather the memories scattered across a room that never opened.",

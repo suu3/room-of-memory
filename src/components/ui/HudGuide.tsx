@@ -1,7 +1,8 @@
 "use client";
 
-import { CursorClick, HandTap } from "@phosphor-icons/react";
+import { CursorClick, HandTap, MapPin } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import {
   selectBatReady,
@@ -138,5 +139,40 @@ export function HudGuideDock({ hidden = false }: { hidden?: boolean }) {
       <Icon size="1.15em" weight="bold" className="shrink-0" aria-hidden />
       <span className="break-ko">{text}</span>
     </p>
+  );
+}
+
+/**
+ * 지금 서 있는 공간의 이름. 진행 줄("2바퀴 · 기억 1/11") 앞에 붙는 한 조각이다.
+ *
+ * 줄을 새로 만들지 않고 있던 줄에 얹는 이유: 폰에서 헤더가 한 줄 자랄 때마다 그 아래
+ * 화면 가운데의 혼잣말과 겹친다. 조작 한 줄을 이 헤더에서 뺀 것과 같은 이유다
+ * (HudGuideDock의 주석). 장소는 진행과 같은 성격의 상태라 같은 줄에 앉아도 어색하지 않다.
+ *
+ * 방문이 열리기 전에는 안 뜬다. 갈 수 있는 데가 방 하나뿐인 동안 "내 방"이라고 적어 봐야
+ * 아무것도 말해주지 않는다. 2막부터 공간이 하나씩 열리면서 비로소 "여기가 어디인가"가
+ * 정보가 된다 (docs/content-design.md 3-1).
+ *
+ * 평면도(수첩의 세 번째 페이지)와 같은 이름을 쓴다. 한쪽이 "안방", 다른 쪽이 "부모님 방"이면
+ * 둘이 다른 곳으로 읽힌다: 이름은 i18n의 `space.*` 한 군데에 있다.
+ */
+export function HudSpaceLine() {
+  const { t } = useTranslation();
+  const space = useMemoryRoomStore((state) => state.space);
+  const doorOpened = useMemoryRoomStore(selectDoorOpened);
+  const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
+
+  if (!doorOpened || endingStarted) return null;
+  const name = t(`space.${space}` as const);
+
+  return (
+    <span className="inline-flex items-center gap-[0.3em] text-[0.75em] font-medium text-fog">
+      <MapPin size="1.15em" weight="fill" className="shrink-0" aria-hidden />
+      <span className="sr-only">{t("hud.here", { value: name })}</span>
+      <span aria-hidden className="break-ko">
+        {name}
+      </span>
+      <span aria-hidden>·</span>
+    </span>
   );
 }

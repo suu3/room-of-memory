@@ -58,8 +58,9 @@ function ClueKeyboardList() {
   const { t } = useTranslation();
   const openClue = useMemoryRoomStore((state) => state.openClue);
 
+  // min-w-0은 RoomInteractionPrompt와 같은 이유: fieldset이 안 줄어들면 화면이 밀린다
   return (
-    <fieldset className="sr-only">
+    <fieldset className="sr-only min-w-0">
       {CLUE_IDS.map((id) => (
         <button key={id} type="button" onClick={() => openClue(id)}>
           {t("clue.read", { name: t(CLUE_TEXT[id].title) })}

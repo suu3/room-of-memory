@@ -33,7 +33,7 @@ import { DialogueBox } from "./DialogueBox";
 import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
 import { FeedbackModal } from "./FeedbackModal";
-import { HudGuideBanner, HudGuideDock } from "./HudGuide";
+import { HudGuideBanner, HudGuideDock, HudSpaceLine } from "./HudGuide";
 import { HudMenu } from "./HudMenu";
 import { InventoryStrip } from "./InventoryStrip";
 import { MinigameHost } from "./MinigameHost";
@@ -191,6 +191,8 @@ export function MemoryRoom() {
           </h1>
           <div className="flex flex-col gap-[0.375em]">
             <div className="flex items-baseline gap-[0.5em]">
+              {/* 지금 있는 곳. 방 하나뿐인 1막에는 안 뜬다 */}
+              <HudSpaceLine />
               <span className="text-[0.75em] font-medium text-fog">
                 {t("hud.round", { value: round })}
                 <span aria-hidden> · </span>
@@ -271,7 +273,13 @@ export function MemoryRoom() {
             key로 강제 리마운트하면 기억을 완료하는 순간 줄이 통째로 사라졌다
             다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다.
           */}
-          <div className="pointer-events-none absolute left-1/2 top-28 z-10 flex w-[min(clamp(640px,44vw,840px),calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-28 md:gap-3 lg:top-16">
+          {/*
+              폰에서는 한 칸 더 내려 앉는다(top-36). 왼쪽 위 헤더가 제목·진행·목표·소지품
+              넉 줄이라 좁은 화면에서 그 아래까지 내려오는데, 이 기둥이 화면 폭을 거의 다
+              쓰기 때문에 top-28에서는 마지막 줄과 글자가 겹친다. md부터는 헤더가 짧아 보이는
+              폭이 남아 예전 자리(top-28)를 그대로 쓴다.
+            */}
+          <div className="pointer-events-none absolute left-1/2 top-36 z-10 flex w-[min(clamp(640px,44vw,840px),calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-28 md:gap-3 lg:top-16">
             {/* 인트로(불 켜기 전)에는 어둠 속의 한 줄(p0-dark)이 걸린다 (monologueIdFor) */}
             <Monologue monologueId={monologueId} hidden={monologueHidden} />
             <HudGuideBanner hidden={monologueHidden} />

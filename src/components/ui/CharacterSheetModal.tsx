@@ -7,9 +7,16 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import type { DiscoveryId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
-import { selectCollected, selectHeroNameKnown, useMemoryRoomStore } from "@/store/memory-room";
+import {
+  type CharacterSheetTab,
+  selectCollected,
+  selectDoorOpened,
+  selectHeroNameKnown,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
 import { LoreEntries } from "./LoreEntries";
+import { NotebookMap } from "./NotebookMap";
 
 /**
  * 시트에 싣는 항목. 사태 이전/이후의 성격 변화와 오브젝트 단서는 일부러 뺐다.
@@ -22,7 +29,16 @@ import { LoreEntries } from "./LoreEntries";
  * 뒤집어 보면 이름과 학년이 적혀 있고, 그 순간 헤더의 이름과 이 칸이 함께 열린다
  * (src/data/room-clues.ts의 DISCOVERY_IDS). 자기 이름을 기억 수집으로 되찾는 건 이상하다.
  */
-const TABS = ["profile", "lore"] as const;
+/**
+ * 평면도는 늘 있는 페이지가 아니다. 방 하나뿐인 1막에 평면도를 펼치면 칸 하나가
+ * 덩그러니 놓인 종이가 나오고, 아직 없는 이야기(집이 더 있다)를 먼저 흘린다.
+ * 방문이 열리는 순간(2막) 수첩에 한 장이 늘어난다.
+ */
+const TAB_LABEL = {
+  profile: "characterSheet.tabProfile",
+  lore: "characterSheet.tabLore",
+  map: "characterSheet.tabMap",
+} as const satisfies Record<CharacterSheetTab, string>;
 
 const PROFILE_ROWS = [
   { index: 0, discovery: "hero-name" },
@@ -45,8 +61,14 @@ export function CharacterSheetModal() {
   const discoveries = useMemoryRoomStore((state) => state.discoveries);
   const nameKnown = useMemoryRoomStore(selectHeroNameKnown);
   // 탭은 스토어에 있다. 오른쪽 "기억 수집" 탭이 기록 페이지를 지정해 열기 때문
-  const tab = useMemoryRoomStore((state) => state.characterSheetTab);
+  const stored = useMemoryRoomStore((state) => state.characterSheetTab);
   const setTab = useMemoryRoomStore((state) => state.setCharacterSheetTab);
+  // 평면도는 방문이 열린 뒤에만 있는 페이지다. 리셋 뒤 저장된 탭이 남아 있어도 안 편다
+  const hasMap = useMemoryRoomStore(selectDoorOpened);
+  const tabs: readonly CharacterSheetTab[] = hasMap
+    ? ["profile", "lore", "map"]
+    : ["profile", "lore"];
+  const tab = tabs.includes(stored) ? stored : "profile";
 
   useEffect(() => {
     setUiLock("character-sheet", open);
@@ -121,7 +143,7 @@ export function CharacterSheetModal() {
                 aria-label={t("characterSheet.title")}
                 className="relative z-10 -mb-px flex flex-none gap-1"
               >
-                {TABS.map((id) => (
+                {tabs.map((id) => (
                   <button
                     key={id}
                     type="button"
@@ -134,7 +156,7 @@ export function CharacterSheetModal() {
                         : "border-transparent bg-bone/50 text-graphite hover:text-ink active:bg-bone/70"
                     }`}
                   >
-                    {t(id === "profile" ? "characterSheet.tabProfile" : "characterSheet.tabLore")}
+                    {t(TAB_LABEL[id])}
                   </button>
                 ))}
               </div>
@@ -157,7 +179,9 @@ export function CharacterSheetModal() {
             종이가 아니라 페이지의 일부처럼 보인다.
           */}
           <div className="notebook-grid scroll-paper min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
-            {tab === "lore" ? (
+            {tab === "map" ? (
+              <NotebookMap />
+            ) : tab === "lore" ? (
               /* 갤러리는 3열까지 벌어진다. 프로필처럼 2xl로 묶으면 카드가 눌린다 */
               <div className="mx-auto max-w-4xl py-1">
                 <LoreEntries onReplay={() => setOpen(false)} />
