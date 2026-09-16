@@ -1,5 +1,6 @@
 "use client";
 
+import { RoundedBox } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,7 @@ import {
   scaleLivingHeight,
   scaleLivingPoint,
 } from "@/scenes/memory-room/layout";
+import { PIANO_FALLBOARD, PianoFallboard } from "@/scenes/memory-room/PianoCabinet";
 import { resolveRoomPalette } from "@/scenes/memory-room/palette";
 import type { MinigameProps } from "@/types/minigame";
 import { useOnceCompleter } from "../shell";
@@ -43,7 +45,7 @@ const CAMERA_FORWARD = 1.9;
 const CAMERA_LIFT = 1.15;
 const CAMERA_FOV = 40;
 /** 시선은 건반보다 조금 위를 본다: 건반 한 벌과 보면대의 악보가 한 화면에 들어온다. */
-const CAMERA_TARGET_LIFT = 0.3;
+const CAMERA_TARGET_LIFT = 0.39;
 
 /**
  * 흰 건반 앞머리에 붙은 계이름. 낡은 스티커처럼 옅게 찍는다.
@@ -118,7 +120,7 @@ function KeyboardCamera() {
       LIVING_PIANO_ROTATION,
     );
     /*
-     * 건반 앞쪽. 피아노의 앞면은 로컬 -z다 (몸통 앞면 6.00, 그 앞에 건반 5.95). +z로
+     * 건반 앞쪽. 피아노의 앞면은 로컬 -z다. +z로
      * 잡으면 카메라가 등을 댄 벽 속에 서서 몸통 뒤통수를 들여다본다: 화면이 새까맣다.
      */
     const [fx, fz] = scaleLivingPoint(
@@ -258,13 +260,10 @@ export function PianoMelodyMinigame({ onComplete, onSettled }: MinigameProps) {
       >
         {/*
           젖혀지는 뚜껑. 축은 건반 **뒤쪽**(+z) 모서리다: 가운데를 축으로 돌리면
-          뚜껑이 건반을 파고든다. 판이 서면 뚜껑만 여기 있고 몸통 쪽 PIANO_LID는 빠진다
+          뚜껑이 건반을 파고든다. 판이 서면 닫힌 덮개 대신 같은 부품을 여기서 움직인다
         */}
-        <group ref={lidRef} position={[KEYBOARD_CENTER_X, KEYBOARD_Y + 0.07, 6.06]}>
-          <mesh position={[0, 0, -0.13]} castShadow>
-            <boxGeometry args={[1.5, 0.05, 0.26]} />
-            <meshStandardMaterial color={palette.wood} roughness={0.6} />
-          </mesh>
+        <group ref={lidRef} position={PIANO_FALLBOARD.pivot}>
+          <PianoFallboard palette={palette} />
         </group>
 
         {PIANO_KEYS.map((key, index) => (
@@ -277,9 +276,11 @@ export function PianoMelodyMinigame({ onComplete, onSettled }: MinigameProps) {
             }}
             position={key.position}
           >
-            {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F mesh는 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
-            <mesh
+            <RoundedBox
               name={`piano-key-${index}`}
+              args={[...key.size]}
+              radius={key.black ? 0.004 : 0.003}
+              smoothness={2}
               castShadow
               receiveShadow
               onClick={(event) => {
@@ -287,12 +288,11 @@ export function PianoMelodyMinigame({ onComplete, onSettled }: MinigameProps) {
                 pressRefFn.current(index);
               }}
             >
-              <boxGeometry args={key.size} />
               <meshStandardMaterial
-                color={key.black ? palette.frame : palette.linen}
-                roughness={key.black ? 0.5 : 0.72}
+                color={key.black ? palette.void : palette.linen}
+                roughness={key.black ? 0.3 : 0.38}
               />
-            </mesh>
+            </RoundedBox>
             {/*
               흰 건반 앞머리의 계이름. 건반 윗면에 눕혀 놓되 글자의 위쪽이 피아노
               안쪽(+z)을 보게 반 바퀴 돌린다: 안 돌리면 앞에서 볼 때 거꾸로 선다.
