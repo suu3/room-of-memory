@@ -155,7 +155,7 @@ export const LIVING_DINING_CENTER = [-10.0, 2.0] as const;
  * x -12.25)이 만나는 모서리다. 문 둘 사이에 악기가 낀 평면이라 어느 쪽 문도 제 벽을
  * 못 가졌다. 공유벽은 굽도리와 방문뿐이라 2m 넘게 비어 있는 유일한 벽이다.
  *
- * 부품 좌표(PIANO_PARTS)는 1배 그대로 두고 y로 +90° 돌려 세운다: 뒷면이 공유벽을 보고
+ * 부품 좌표(PianoCabinet)는 1배 그대로 두고 y로 +90° 돌려 세운다: 뒷면이 공유벽을 보고
  * 건반이 거실(-x)을 본다. 문간(DOORWAY_ZONE z 4.7~6.0)에서 1.3m 남긴 자리다.
  */
 export const LIVING_PIANO_CENTER = [LIVING_SHELL_BOUNDS.maxX, 2.3] as const;

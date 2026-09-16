@@ -2,7 +2,7 @@ import { SOLFEGE, type Solfege } from "./melody";
 
 /**
  * 건반 한 벌의 치수와 자리. 피아노 **로컬 프레임**(거실 배율이 걸리기 전)의 값이다.
- * 몸통 부품과 같은 좌표계라(LivingRoomFurniture의 PIANO_PARTS) 몸통을 옮기면 같이 따라간다.
+ * 몸통 부품과 같은 좌표계라(PianoCabinet) 몸통을 옮기면 같이 따라간다.
  *
  * 흰 건반 일곱과 검은 건반 다섯. 검은 건반은 실제 피아노처럼 2·3개로 갈라 붙는다
  * (도#·레# / 파#·솔#·라#). 다섯을 고르게 뿌리면 건반이 아니라 격자로 보인다.
@@ -12,15 +12,15 @@ import { SOLFEGE, type Solfege } from "./melody";
 export const KEYBOARD_CENTER_X = -14.95;
 /** 건반이 놓인 높이: 닫힌 뚜껑이 있던 자리. */
 export const KEYBOARD_Y = 0.92;
-/** 건반 줄의 앞뒤 가운데. 몸통 앞면(6.00)에서 앞으로 나온다. */
-export const KEYBOARD_CENTER_Z = 5.95;
+/** 건반 줄의 앞뒤 가운데. 건반 높이에 파 둔 본체 홈에서 앞으로 나온다. */
+export const KEYBOARD_CENTER_Z = 5.9;
 
 /** 흰 건반 일곱이 차지하는 폭. 몸통(1.5)보다 한 뼘 좁다. */
-const WHITE_SPAN = 1.4;
+const WHITE_SPAN = 1.32;
 /** 흰 건반 하나의 폭(틈 포함). */
 const WHITE_PITCH = WHITE_SPAN / SOLFEGE.length;
 /** 건반 사이의 틈. 이게 없으면 한 장의 판으로 보인다. */
-const KEY_GAP = 0.012;
+const KEY_GAP = 0.004;
 
 export interface PianoKey {
   note: Solfege;
@@ -34,8 +34,8 @@ export interface PianoKey {
 /** 검은 건반이 붙는 자리: 흰 건반 i와 i+1 사이. 미·파와 시·도 사이에는 없다. */
 const BLACK_AFTER = [0, 1, 3, 4, 5] as const;
 
-const WHITE_SIZE = [WHITE_PITCH - KEY_GAP, 0.05, 0.3] as const;
-const BLACK_SIZE = [WHITE_PITCH * 0.56, 0.055, 0.19] as const;
+const WHITE_SIZE = [WHITE_PITCH - KEY_GAP, 0.044, 0.34] as const;
+const BLACK_SIZE = [WHITE_PITCH * 0.48, 0.06, 0.21] as const;
 
 /**
  * 건반 줄의 **낮은 음 쪽** 끝. 로컬 +x다.
@@ -50,7 +50,7 @@ const LOW_EDGE = KEYBOARD_CENTER_X + WHITE_SPAN / 2;
  * 건반 한 벌. 흰 건반 일곱이 먼저, 검은 건반 다섯이 그 위에 얹힌다.
  *
  * 검은 건반의 z는 흰 건반보다 뒤쪽(+z)으로 물러나 있다. 이 피아노의 앞면은 로컬
- * -z다 (몸통 앞면 6.00, 그 앞에 건반). 실제 피아노처럼 흰 건반의 앞부분이 드러나야
+ * -z다. 실제 피아노처럼 흰 건반의 앞부분이 드러나야
  * 두 줄이 층으로 읽힌다.
  */
 export const PIANO_KEYS: readonly PianoKey[] = [
@@ -80,4 +80,4 @@ export const KEY_PRESS_DEPTH = 0.016;
  * 열린 뚜껑이 젖혀지는 각(rad). 축은 건반 뒤쪽(+z) 모서리이고 뚜껑은 앞으로(-z)
  * 뻗어 있으므로, 양수 각이 뚜껑을 위로 들어 올린다.
  */
-export const LID_OPEN_ANGLE = 1.15;
+export const LID_OPEN_ANGLE = 0.88;

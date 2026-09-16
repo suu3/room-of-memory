@@ -5,19 +5,19 @@ import { useTranslation } from "react-i18next";
 import { CanvasTexture, DoubleSide, SRGBColorSpace } from "three";
 import { KEYBOARD_CENTER_X } from "@/minigames/piano-melody/keys";
 import { barVisible, MELODY_BARS, SOLFEGE, type Solfege } from "@/minigames/piano-melody/melody";
+import { InteriorBox } from "./InteriorPrimitives";
 import type { RoomPalette } from "./palette";
 
 /**
  * 보면대에 펼쳐진 악보의 크기(로컬)와 자리. 피아노 부품과 같은 좌표계다.
  *
- * 두 번 가렸던 자리다. 윗판(y 1.31부터, z 5.97~6.43) 안에 넣으면 종이의 위쪽이 판
- * 속에 묻히고, 젖혀진 뚜껑 뒤에 두면(z 6.0 언저리, y 1.11까지 선다) 오선지가 통째로
- * 가려진다. 그래서 뚜껑보다 앞(z 5.90)·위(y 1.29)다.
+ * 윗판 앞에 기대 선 나무 보면대. 종이의 아래 끝도 열린 덮개보다 높아야
+ * 덮개가 올라오는 도중에 악보를 뚫거나 오선지를 가리지 않는다.
  */
 const SHEET = {
   width: 0.95,
   height: 0.3,
-  position: [KEYBOARD_CENTER_X, 1.29, 5.9] as const,
+  position: [KEYBOARD_CENTER_X, 1.47, 5.95] as const,
   /** 뒤로 살짝 눕혀 세운다: 보면대에 기대 놓은 각. */
   tilt: 0.24,
 };
@@ -135,8 +135,22 @@ export function PianoSheet({ palette, hasScrap }: { palette: RoomPalette; hasScr
   const texture = useSheetTexture(hasScrap, palette.linen, palette.frame);
   return (
     // 앞면(-z)을 보도록 반 바퀴 돌린 뒤 그 안에서 눕힌다: 안 돌리면 글자가 벽을 보고 뒤집힌다
-    <group position={SHEET.position} rotation={[0, Math.PI, 0]}>
-      <mesh rotation={[SHEET.tilt, 0, 0]}>
+    <group position={SHEET.position} rotation={[SHEET.tilt, Math.PI, 0]}>
+      <InteriorBox
+        position={[0, 0, -0.018]}
+        size={[1.01, 0.35, 0.03]}
+        color={palette.wood}
+        radius={0.008}
+        roughness={0.48}
+      />
+      <InteriorBox
+        position={[0, -0.164, 0.018]}
+        size={[1.04, 0.026, 0.08]}
+        color={palette.wood}
+        radius={0.006}
+        roughness={0.48}
+      />
+      <mesh position={[0, 0, 0.001]}>
         <planeGeometry args={[SHEET.width, SHEET.height]} />
         <meshStandardMaterial map={texture} roughness={0.9} side={DoubleSide} />
       </mesh>

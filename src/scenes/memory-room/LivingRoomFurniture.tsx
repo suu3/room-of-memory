@@ -21,6 +21,7 @@ import {
   scaleLivingPoint,
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
+import { PianoCabinet } from "./PianoCabinet";
 import { PianoSheet } from "./PianoSheet";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
@@ -301,7 +302,6 @@ function PianoBody({ palette }: { palette: RoomPalette }) {
    * 미니게임 쪽이다 (canvas 모드: 씬의 그 물건 자체가 판이다).
    */
   const playing = useMemoryRoomStore((state) => state.activePuzzle === "piano-melody");
-  const parts = playing ? PIANO_PARTS.filter((part) => part !== PIANO_LID) : PIANO_PARTS;
   const { hovered, handlers } = useGlowHover(!solved);
   // 걸상 앞(PIANO_BENCH_PARTS의 좌판 z)에 서면 닿는다. 거실 배율은 LivingPiece가 건다
   const near = useNearPlayer(PIANO_STAND.x, PIANO_STAND.z, PIANO_STAND.radius);
@@ -322,7 +322,7 @@ function PianoBody({ palette }: { palette: RoomPalette }) {
         tier="prop"
         enabled={!solved && (hovered || near)}
       >
-        <Boxes parts={parts} palette={palette} />
+        <PianoCabinet palette={palette} open={playing} />
       </MemoryGlowSelection>
     </group>
   );
@@ -375,42 +375,10 @@ const FRIDGE_PARTS = [
   { size: [0.055, 0.055, 0.025], position: [-15.45, 1.185, -3.215], color: "clay" },
 ] as const satisfies readonly BoxPart[];
 
-/**
- * 업라이트 피아노: 방문이 난 공유벽(+x)에 등을 대고 건반이 거실을 본다. 뚜껑이 닫혀 있다.
- *
- * 부품 좌표는 앞벽(+z)에 붙여 세우던 때의 1배 값 그대로다. 옮긴 자리와 각도만
- * LIVING_PIANO_CENTER · LIVING_PIANO_ROTATION이 쥐고, LivingPiece가 그대로 돌려 세운다.
- * 이 집의 다른 물건들처럼 어느 날 멈춘 채로 있다. 치던 사람이 누구였는지는
- * 말하지 않는다. 의자만 반쯤 빼놓아 앉던 흔적으로 남긴다.
- *
- * 발자국은 layout의 LIVING_COLLIDERS(piano): 좌표를 옮기면 거기도 같이.
- */
-/** 닫힌 건반 뚜껑: 본체 앞면(6.00)을 물고 앞으로 나온다. 판이 돌면 이 부품만 빠진다. */
-const PIANO_LID = {
-  size: [1.5, 0.14, 0.26],
-  position: [-14.95, 0.92, 5.93],
-  color: "wood",
-} as const;
-
-const PIANO_PARTS = [
-  // 본체: 뒷면(6.42)이 벽 안쪽 면(6.41)에 1cm 파고든다 (냉장고와 같은 규칙)
-  { size: [1.5, 1.32, 0.42], position: [-14.95, 0.66, 6.21], color: "frame" },
-  // 윗판: 본체보다 살짝 넓어 어두운 실루엣에 모서리 한 줄을 만든다
-  { size: [1.54, 0.06, 0.46], position: [-14.95, 1.34, 6.2], color: "wood" },
-  PIANO_LID,
-  // 뚜껑을 받치는 앞다리 둘: 위로 5mm 파고들어 뚜껑에 붙는다
-  { size: [0.1, 0.85, 0.1], position: [-15.6, 0.43, 5.95], color: "frame" },
-  { size: [0.1, 0.85, 0.1], position: [-14.3, 0.43, 5.95], color: "frame" },
-  // 페달 한 쌍: 본체 앞면 아래
-  { size: [0.09, 0.05, 0.14], position: [-15.05, 0.03, 5.96], color: "trim" },
-  { size: [0.09, 0.05, 0.14], position: [-14.85, 0.03, 5.96], color: "trim" },
-  // 보면대 홈: 본체 앞면에 가로줄 하나
-  { size: [0.95, 0.05, 0.03], position: [-14.95, 1.13, 6.005], color: "wood" },
-] as const satisfies readonly BoxPart[];
-
 /** 걸상: 반쯤 빼놓은 채다. 좌판 밑으로 다리가 1cm 파고든다. 앉는 자리라 따로 뗀다. */
 const PIANO_BENCH_PARTS = [
-  { size: [0.56, 0.1, 0.34], position: [-14.95, 0.52, 5.38], color: "wood" },
+  { size: [0.56, 0.065, 0.34], position: [-14.95, 0.5025, 5.38], color: "wood" },
+  { size: [0.53, 0.045, 0.31], position: [-14.95, 0.5475, 5.38], color: "frame" },
   { size: [0.07, 0.48, 0.07], position: [-15.15, 0.24, 5.28], color: "frame" },
   { size: [0.07, 0.48, 0.07], position: [-14.75, 0.24, 5.28], color: "frame" },
   { size: [0.07, 0.48, 0.07], position: [-15.15, 0.24, 5.48], color: "frame" },
