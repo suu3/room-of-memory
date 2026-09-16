@@ -30,6 +30,7 @@ import { ClueOverlay } from "./ClueOverlay";
 import { ContactModal } from "./ContactModal";
 import { CustomCursor } from "./CustomCursor";
 import { DialogueBox } from "./DialogueBox";
+import { DialogueLog } from "./DialogueLog";
 import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
 import { FeedbackModal } from "./FeedbackModal";
@@ -299,6 +300,8 @@ export function MemoryRoom() {
           <CharacterSheetModal />
           <MinigameHost />
           <PuzzleHost />
+          {/* 지나간 대사: 대사창 위에 얹힌다. 입구는 대사창 안의 작은 버튼 하나 */}
+          <DialogueLog />
           <DoorNudge />
           {/* 거실에 있는 동안 방의 액자가 켜졌다는 한 줄 (content-design 4-3) */}
           <RoomCallout />

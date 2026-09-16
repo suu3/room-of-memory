@@ -62,7 +62,8 @@ export type UiLockId =
   | "contact"
   | "feedback"
   | "ending"
-  | "clue";
+  | "clue"
+  | "dialogue-log";
 
 export interface ActiveInteraction {
   memoryId: MemoryId;
@@ -251,6 +252,23 @@ export interface MemoryRoomState {
    */
   activeClue: ClueId | null;
   /**
+   * 대사가 저절로 넘어가는가 (비주얼 노벨의 오토). 저장된다.
+   *
+   * 한 줄이 다 찍힌 뒤 읽을 만큼 기다렸다가 다음 줄로 간다. 기다리는 시간은 글자 수를
+   * 따른다(DialogueBox): 길이와 무관하게 같은 시간을 주면 긴 줄은 잘리고 짧은 줄은 늘어진다.
+   */
+  autoPlay: boolean;
+  /**
+   * 지나간 대사. 화자와 본문 키만 남긴다.
+   *
+   * 본문이 아니라 키를 쌓는 이유: 로그를 여는 동안 언어를 바꿔도 지나간 줄이 그 언어로
+   * 읽혀야 한다. 저장하지 않는다. 한 판을 도는 동안의 기록이고, 저장본에 넣으면 진행과
+   * 무관한 덩어리가 계속 자란다.
+   */
+  dialogueLog: DialogueLogEntry[];
+  /** 로그 화면이 떠 있는가. 떠 있는 동안 Enter는 대사를 넘기지 않는다. */
+  dialogueLogOpen: boolean;
+  /**
    * 펼쳐 본 단서. 저장된다.
    *
    * activeClue가 "지금 보고 있는 것"이라면 이쪽은 "본 적 있는 것"이다. 진행을
@@ -327,6 +345,10 @@ export interface MemoryRoomState {
   openDoorway: (id: DoorwayId) => void;
   /** 물건을 집는다. 이미 가진 것이면 아무 일도 없다. */
   takeItem: (id: ItemId) => void;
+  setAutoPlay: (next: boolean) => void;
+  /** 화면에 선 대사 한 줄을 로그에 남긴다. 같은 줄이 두 번 들어오지 않는다. */
+  logDialogue: (entry: DialogueLogEntry) => void;
+  setDialogueLogOpen: (next: boolean) => void;
   /** 자리에 앉는다. 대사·미니게임이 떠 있으면 아무 일도 없다. */
   sitOnSeat: (id: SeatId) => void;
   /** 일어선다. 앉기 전 서 있던 자리로 돌아간다 (몸의 자리는 Player가 기억한다). */
@@ -603,6 +625,7 @@ type PersistedProgress = Pick<
   | "openedDoorways"
   | "inventory"
   | "cluesSeen"
+  | "autoPlay"
 >;
 
 const PERSIST_KEY = "rom-progress";
@@ -677,6 +700,8 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     inventory: Array.isArray(saved.inventory)
       ? ITEM_IDS.filter((id) => (saved.inventory as unknown[]).includes(id))
       : [],
+    // 오토는 껐다 켰다 하는 설정이라, 모르는 값이면 꺼진 쪽이 기본이다
+    autoPlay: saved.autoPlay === true,
     // 본 적 있는 단서. 목록에서 사라진 id는 조용히 버린다 (기억 id와 같은 규칙)
     cluesSeen: Array.isArray(saved.cluesSeen)
       ? CLUE_IDS.filter((id) => (saved.cluesSeen as unknown[]).includes(id))
@@ -707,6 +732,9 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       feedbackOpen: false,
       started: false,
       cluesSeen: [],
+      autoPlay: false,
+      dialogueLog: [],
+      dialogueLogOpen: false,
       roomLoadProgress: 0,
       booted: false,
       bootRising: false,
@@ -903,6 +931,20 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) =>
           state.inventory.includes(id) ? state : { inventory: [...state.inventory, id] },
         ),
+      setAutoPlay: (next) => set({ autoPlay: next }),
+      logDialogue: (entry) =>
+        set((state) => {
+          const last = state.dialogueLog.at(-1);
+          // 같은 줄이 다시 들어오는 건 리마운트지 새 대사가 아니다
+          if (last && last.speaker === entry.speaker && last.textKey === entry.textKey)
+            return state;
+          const next = [...state.dialogueLog, entry];
+          // 오래된 줄부터 버린다. 한 판에 수백 줄이 흐르는데 다 들고 있을 이유가 없다
+          return {
+            dialogueLog: next.length > DIALOGUE_LOG_MAX ? next.slice(-DIALOGUE_LOG_MAX) : next,
+          };
+        }),
+      setDialogueLogOpen: (next) => set({ dialogueLogOpen: next }),
       takeBat: () =>
         set((state) => {
           // 3막이 아니거나 다른 장면이 도는 중이면 배트는 그냥 현관에 선 소품이다
@@ -1012,6 +1054,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           curtainGrab: null,
           activeClue: null,
           cluesSeen: [],
+          dialogueLog: [],
+          dialogueLogOpen: false,
           activePuzzle: null,
           solvedPuzzles: [],
           discoveries: [],
@@ -1039,6 +1083,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         openedDoorways: state.openedDoorways,
         inventory: state.inventory,
         cluesSeen: state.cluesSeen,
+        autoPlay: state.autoPlay,
       }),
       merge: (persisted, current) => ({ ...current, ...sanitizeProgress(persisted) }),
     },
@@ -1207,6 +1252,12 @@ export const selectMusicPlaying = (state: MemoryRoomState) =>
  * (라디오 목소리)은 아직 1막의 끝자락이라 곡도 1막 것이 남아야 한다.
  */
 export const selectMusicPhase = (state: MemoryRoomState): 1 | 2 => (state.doorOpened ? 2 : 1);
+
+/** 로그 한 줄: 누가 무엇을 말했는가. 본문은 키로 남는다 (dialogueLog 주석). */
+export type DialogueLogEntry = Pick<DialogueScriptLine, "speaker" | "textKey">;
+
+/** 로그에 남기는 최대 줄 수. 넘치면 오래된 줄부터 버린다. */
+const DIALOGUE_LOG_MAX = 200;
 
 /** 2막 필수 추리 체인의 길이. 밝기 상승 구간의 분모다 (actTwoProgress). */
 export const ACT2_TOTAL = ACT2_CHAIN.length;

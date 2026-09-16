@@ -56,7 +56,15 @@
   },
   "dialogue": {
     "advance": "次のセリフ",
-    "skipTyping": "セリフを全部表示"
+    "skipTyping": "セリフを全部表示",
+    "auto": "オート",
+    "autoOn": "オン",
+    "autoOff": "オフ",
+    "autoHint": "台詞が出きると自動で次の行へ進みます。",
+    "log": "これまでの台詞",
+    "logOpen": "これまでの台詞を見る",
+    "logClose": "閉じる",
+    "logEmpty": "まだ台詞がありません。"
   },
   "language": {
     "label": "言語を選択"

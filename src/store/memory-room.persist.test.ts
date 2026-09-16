@@ -23,6 +23,7 @@ describe("sanitizeProgress", () => {
         openedDoorways: [],
         inventory: ["parents-key"],
         cluesSeen: ["drawer-note"],
+        autoPlay: true,
       }),
     ).toEqual({
       collected: [first, second],
@@ -40,6 +41,7 @@ describe("sanitizeProgress", () => {
       openedDoorways: [],
       inventory: ["parents-key"],
       cluesSeen: ["drawer-note"],
+      autoPlay: true,
     });
   });
 
@@ -49,6 +51,12 @@ describe("sanitizeProgress", () => {
       "parents-key",
     ]);
     expect(sanitizeProgress({ inventory: "nope" }).inventory).toEqual([]);
+  });
+
+  it("오토는 저장본에 켜져 있을 때만 켜진다", () => {
+    expect(sanitizeProgress({}).autoPlay).toBe(false);
+    expect(sanitizeProgress({ autoPlay: "yes" }).autoPlay).toBe(false);
+    expect(sanitizeProgress({ autoPlay: true }).autoPlay).toBe(true);
   });
 
   it("펼쳐 본 단서는 아는 것만 남는다", () => {

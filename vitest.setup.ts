@@ -34,6 +34,28 @@ Object.defineProperty(globalTarget, "localStorage", {
   writable: true,
 });
 
+/*
+ * jsdom에는 matchMedia가 없다. 모션 설정을 읽는 컴포넌트(use-typewriter의
+ * prefers-reduced-motion)를 렌더하는 순간 터진다. 기본값은 "줄이지 않음"으로 둔다:
+ * 즉시 완성으로 떨어지면 타자 연출을 보는 테스트가 아무것도 검사하지 못한다.
+ */
+if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  });
+}
+
 // 각 테스트마다 localStorage를 초기화한다
 afterEach(() => {
   globalTarget.localStorage.clear();

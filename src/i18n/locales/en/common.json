@@ -56,7 +56,15 @@
   },
   "dialogue": {
     "advance": "Next line",
-    "skipTyping": "Reveal the full line"
+    "skipTyping": "Reveal the full line",
+    "auto": "Auto",
+    "autoOn": "On",
+    "autoOff": "Off",
+    "autoHint": "Lines advance on their own once they finish typing.",
+    "log": "Dialogue log",
+    "logOpen": "Open the dialogue log",
+    "logClose": "Close",
+    "logEmpty": "No lines yet."
   },
   "language": {
     "label": "Select language"

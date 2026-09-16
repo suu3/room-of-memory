@@ -1,11 +1,12 @@
 "use client";
 
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDown, ClockCounterClockwise } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { isInteractiveTarget } from "@/components/canvas/room-canvas-runtime";
 import { SCRIPTS } from "@/data/memory-room";
+import { playSound } from "@/lib/audio";
 import { useTypewriterState } from "@/lib/use-typewriter";
 import {
   selectActiveInteraction,
@@ -15,7 +16,18 @@ import {
 } from "@/store/memory-room";
 import { CharacterPortrait } from "./CharacterPortrait";
 import { hasPortrait } from "./character-portrait";
-import { PANEL_DIALOGUE } from "./ui-classes";
+import { FOCUS_RING, PANEL_DIALOGUE } from "./ui-classes";
+
+/**
+ * 오토가 한 줄을 붙들고 있는 시간(ms) = 기본 + 글자당.
+ *
+ * 길이와 무관하게 같은 시간을 주면 긴 줄은 읽다 말고 넘어가고 짧은 줄은 늘어진다.
+ * 한국어 기준 한 글자에 60ms면 소리 내어 읽는 속도보다 조금 빠르다. 위로 한 번 자른다:
+ * 여덟 줄짜리 대사에서 7초를 기다리면 오토가 아니라 멈춘 화면이다.
+ */
+const AUTO_BASE_MS = 900;
+const AUTO_PER_CHAR_MS = 60;
+const AUTO_MAX_MS = 5200;
 
 /**
  * 화면 전체를 덮는 넘기기 버튼의 표식. Enter 핸들러가 "이건 내 버튼"이라고
@@ -38,6 +50,10 @@ export function DialogueBox() {
   const playback = useMemoryRoomStore(selectActivePlayback);
   const advanceDialogue = useMemoryRoomStore((state) => state.advanceDialogue);
   const advancePlayback = useMemoryRoomStore((state) => state.advancePlayback);
+  const autoPlay = useMemoryRoomStore((state) => state.autoPlay);
+  const logDialogue = useMemoryRoomStore((state) => state.logDialogue);
+  const logOpen = useMemoryRoomStore((state) => state.dialogueLogOpen);
+  const setLogOpen = useMemoryRoomStore((state) => state.setDialogueLogOpen);
 
   // 도입(라디오가 꺼지는 비트)과 정적 구간에는 창이 뜨지 않는다. 침묵도 연출이다
   const playbackLine =
@@ -67,6 +83,27 @@ export function DialogueBox() {
   advanceRef.current = done ? advanceLine : skip;
 
   /*
+   * 지나간 대사를 쌓는다. 화면에 선 줄을 그대로 남기므로, 어떤 문으로 들어온 대사든
+   * (인터랙션·컷씬·다시보기) 한 곳에 모인다. 본문이 아니라 키를 남겨 언어를 따라간다.
+   */
+  useEffect(() => {
+    if (!scriptLine) return;
+    logDialogue({ speaker: scriptLine.speaker, textKey: scriptLine.textKey });
+  }, [scriptLine, logDialogue]);
+
+  /*
+   * 오토: 다 찍힌 줄을 잠깐 붙들었다 넘긴다. 로그가 떠 있는 동안은 멈춘다. 지나간 줄을
+   * 읽는 중인데 밑에서 대사가 계속 흐르면 로그가 읽는 사이에 다시 밀린다.
+   */
+  useEffect(() => {
+    if (!autoPlay || !done || !open || logOpen) return;
+    const wait = Math.min(AUTO_MAX_MS, AUTO_BASE_MS + text.length * AUTO_PER_CHAR_MS);
+    const timer = window.setTimeout(() => advanceRef.current(), wait);
+    return () => window.clearTimeout(timer);
+    // 줄이 바뀌면 타자 연출이 다시 돌아 done이 false로 떨어졌다 올라온다: 그게 곧 타이머의 재시작이다
+  }, [autoPlay, done, open, logOpen, text]);
+
+  /*
    * 화면 아무 데나 클릭하는 것 말고 Enter와 Space로도 넘어간다. VN의 관례라 셋 중
    * 무엇을 눌러도 같은 일이 일어나야 한다. 우하단 화살표는 표식이지 버튼이 아니다.
    *
@@ -84,6 +121,8 @@ export function DialogueBox() {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
       if ((event.key !== "Enter" && event.code !== "Space") || event.repeat) return;
+      // 로그가 떠 있으면 그쪽이 화면의 주인이다. 대사를 넘기지 않는다
+      if (useMemoryRoomStore.getState().dialogueLogOpen) return;
       const target = event.target;
       const isOwnButton = target instanceof Element && target.closest(`[${ADVANCE_ATTR}]`) !== null;
       if (!isOwnButton && isInteractiveTarget(target)) return;
@@ -117,6 +156,8 @@ export function DialogueBox() {
         {...{ [ADVANCE_ATTR]: "" }}
         // 타자 연출 중 클릭은 대사를 건너뛰지 않고 먼저 다 채운다 (VN 관례)
         onClick={done ? advanceLine : skip}
+        // 로그가 떠 있는 동안은 뒤의 전체 화면 버튼이 눌리지 않는다
+        disabled={logOpen}
         aria-label={done ? t("dialogue.advance") : t("dialogue.skipTyping")}
         className="absolute inset-0 cursor-pointer"
       />
@@ -162,7 +203,25 @@ export function DialogueBox() {
             >
               {typed}
             </p>
-            <div className="flex justify-end">
+            {/* 아래 줄: 왼쪽에 로그 입구, 오른쪽에 다음 줄 표식 */}
+            <div className="flex items-center justify-between">
+              {/*
+                창 안에서 유일하게 눌리는 것이라 포인터를 되살린다 (창은 pointer-events-none).
+                전체 화면 넘기기 버튼보다 위에 있어야 이 버튼이 먼저 클릭을 받는다.
+              */}
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  playSound("open");
+                  setLogOpen(true);
+                }}
+                aria-label={t("dialogue.logOpen")}
+                className={`pointer-events-auto -ml-1 inline-flex cursor-pointer items-center gap-[0.4em] rounded-sm px-[0.4em] py-[0.25em] text-[0.6875em] text-fog transition-colors hover:text-ivory active:text-ivory/80 ${FOCUS_RING}`}
+              >
+                <ClockCounterClockwise size="1.3em" weight="bold" aria-hidden />
+                <span className="break-ko">{t("dialogue.log")}</span>
+              </button>
               <div
                 aria-hidden
                 className={`animate-bob-arrow text-memory transition-opacity ${

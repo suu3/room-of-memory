@@ -32,6 +32,8 @@ export function HudMenu() {
   const setFeedbackOpen = useMemoryRoomStore((state) => state.setFeedbackOpen);
   const difficulty = useMemoryRoomStore((state) => state.difficulty);
   const setDifficulty = useMemoryRoomStore((state) => state.setDifficulty);
+  const autoPlay = useMemoryRoomStore((state) => state.autoPlay);
+  const setAutoPlay = useMemoryRoomStore((state) => state.setAutoPlay);
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -110,6 +112,31 @@ export function HudMenu() {
           {/* 어느 쪽이 켜져 있는지 말로도 남긴다. 칩 두 개만으로는 뜻이 안 읽힌다 */}
           <p className="mt-1.5 break-ko px-1 text-xs leading-normal text-ash">
             {t(difficulty === "easy" ? "difficulty.easyHint" : "difficulty.normalHint")}
+          </p>
+          {/*
+            오토: 대사가 저절로 넘어간다. 난이도와 같은 성격의 설정이라 같은 칩 두 개로 둔다.
+            min-w-0은 RoomInteractionPrompt와 같은 이유: fieldset이 안 줄어들면 화면이 밀린다
+          */}
+          <p className={`${SECTION_LABEL} mt-4`}>{t("dialogue.auto")}</p>
+          <fieldset className="mt-2 flex min-w-0 gap-1.5">
+            <legend className="sr-only">{t("dialogue.auto")}</legend>
+            {([true, false] as const).map((mode) => (
+              <button
+                key={String(mode)}
+                type="button"
+                onClick={() => {
+                  playSound("select");
+                  setAutoPlay(mode);
+                }}
+                aria-pressed={autoPlay === mode}
+                className={`${CHIP_BASE} ${autoPlay === mode ? CHIP_SELECTED : CHIP_IDLE}`}
+              >
+                {t(mode ? "dialogue.autoOn" : "dialogue.autoOff")}
+              </button>
+            ))}
+          </fieldset>
+          <p className="mt-1.5 break-ko px-1 text-xs leading-normal text-ash">
+            {t("dialogue.autoHint")}
           </p>
           {/* 소리 on/off는 메뉴 밖으로 나갔다. SoundToggle 참고. */}
           {/* 수첩은 여기 없다. 오른쪽 가장자리 손잡이(NotebookTab)가 유일한 입구다. */}
