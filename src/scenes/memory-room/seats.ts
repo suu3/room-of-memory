@@ -7,6 +7,8 @@ import {
   LIVING_ANCHORS,
   LIVING_DINING_CHAIRS,
   LIVING_FURNITURE_SCALE,
+  LIVING_PIANO_CENTER,
+  LIVING_PIANO_ROTATION,
   scaleLivingHeight,
   scaleLivingPoint,
 } from "./layout";
@@ -172,8 +174,17 @@ function diningChairCenter(seat: (typeof LIVING_DINING_CHAIRS)[number]["seat"]):
  *
  * PIANO_PARTS의 걸상(0.52 + 0.05, 앞뒤 0.34). 얕아서 엉덩이가 뒤로 조금 나가지만,
  * 무릎은 건반 뚜껑(y 0.85~0.99) 아래로 들어간다. 피아노 앞에 앉은 그림 그대로다.
+ *
+ * 피아노가 공유벽으로 옮겨 90° 서면서(LIVING_PIANO_*) 걸상도 같이 돌았다. 자리와
+ * 방향을 가구와 같은 식에서 뽑는 이유다: 손으로 적으면 둘이 갈라진다.
  */
-const [PIANO_BENCH_X, PIANO_BENCH_Z] = scaleLivingPoint(LIVING_ANCHORS.piano, -14.95, 5.38);
+const [PIANO_BENCH_X, PIANO_BENCH_Z] = scaleLivingPoint(
+  LIVING_ANCHORS.piano,
+  -14.95,
+  5.38,
+  LIVING_PIANO_CENTER,
+  LIVING_PIANO_ROTATION,
+);
 const PIANO_BENCH_CENTER: Vec2 = { x: PIANO_BENCH_X, z: PIANO_BENCH_Z };
 const PIANO_BENCH_HALF_DEPTH = 0.17 * LIVING_FURNITURE_SCALE;
 const PIANO_BENCH_SEAT_Y = scaleLivingHeight(0.57);
@@ -249,12 +260,13 @@ export const SEATS: Record<SeatId, Seat> = {
     Math.PI + 0.5,
     false,
   ),
+  // 걸상은 피아노와 함께 돌았다: 앉는 방향도 가구와 같은 각(공유벽을 본다)이다
   "piano-bench": {
     id: "piano-bench",
     space: "living",
-    anchor: seatAnchor(PIANO_BENCH_CENTER, 0, PIANO_BENCH_HALF_DEPTH),
+    anchor: seatAnchor(PIANO_BENCH_CENTER, LIVING_PIANO_ROTATION, PIANO_BENCH_HALF_DEPTH),
     bodyY: PIANO_BENCH_SEAT_Y - SIT_CONTACT_Y,
-    facing: 0,
+    facing: LIVING_PIANO_ROTATION,
     near: PIANO_BENCH_CENTER,
     reach: SEAT_REACH,
   },

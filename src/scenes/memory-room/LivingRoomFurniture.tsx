@@ -13,6 +13,8 @@ import {
   LIVING_DINING_CENTER,
   LIVING_DINING_CHAIRS,
   LIVING_FURNITURE_SCALE,
+  LIVING_PIANO_CENTER,
+  LIVING_PIANO_ROTATION,
   scaleLivingPoint,
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
@@ -53,19 +55,25 @@ interface BoxPart {
 /**
  * 가구 하나를 바닥 기준점을 축으로 키운다. 바깥 그룹이 기준점에 서서 배율을 걸고,
  * 안쪽 그룹이 1배 좌표계를 기준점 원점으로 끌어온다. `at`을 주면 키운 가구가 그
- * 자리로 옮겨 선다 (식탁).
+ * 자리로 옮겨 선다 (식탁). `rotationY`는 그 자리에서 y축으로 돌린다 (피아노).
+ *
+ * 도는 차례는 layout의 scaleLivingPoint와 같아야 한다. 발자국(LIVING_COLLIDERS)과
+ * 좌석(seats)이 그 식으로 나오므로, 여기만 순서를 바꾸면 보이는 가구와 막는 상자가
+ * 어긋난다.
  */
 function LivingPiece({
   anchor,
   at = anchor,
+  rotationY = 0,
   children,
 }: {
   anchor: readonly [number, number];
   at?: readonly [number, number];
+  rotationY?: number;
   children: ReactNode;
 }) {
   return (
-    <group position={[at[0], 0, at[1]]} scale={LIVING_FURNITURE_SCALE}>
+    <group position={[at[0], 0, at[1]]} rotation={[0, rotationY, 0]} scale={LIVING_FURNITURE_SCALE}>
       <group position={[-anchor[0], 0, -anchor[1]]}>{children}</group>
     </group>
   );
@@ -313,7 +321,10 @@ const FRIDGE_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 /**
- * 업라이트 피아노: 냉장고가 떠난 +z 벽, 식탁 옆 자리. 뚜껑이 닫혀 있다.
+ * 업라이트 피아노: 방문이 난 공유벽(+x)에 등을 대고 건반이 거실을 본다. 뚜껑이 닫혀 있다.
+ *
+ * 부품 좌표는 앞벽(+z)에 붙여 세우던 때의 1배 값 그대로다. 옮긴 자리와 각도만
+ * LIVING_PIANO_CENTER · LIVING_PIANO_ROTATION이 쥐고, LivingPiece가 그대로 돌려 세운다.
  * 이 집의 다른 물건들처럼 어느 날 멈춘 채로 있다. 치던 사람이 누구였는지는
  * 말하지 않는다. 의자만 반쯤 빼놓아 앉던 흔적으로 남긴다.
  *
@@ -396,7 +407,11 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
       <LivingPiece anchor={LIVING_ANCHORS.fridge}>
         <Boxes parts={FRIDGE_PARTS} palette={palette} />
       </LivingPiece>
-      <LivingPiece anchor={LIVING_ANCHORS.piano}>
+      <LivingPiece
+        anchor={LIVING_ANCHORS.piano}
+        at={LIVING_PIANO_CENTER}
+        rotationY={LIVING_PIANO_ROTATION}
+      >
         <Boxes parts={PIANO_PARTS} palette={palette} />
         <PianoBench palette={palette} />
       </LivingPiece>
