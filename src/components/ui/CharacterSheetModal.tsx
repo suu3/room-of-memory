@@ -16,6 +16,7 @@ import {
 } from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
 import { LoreEntries } from "./LoreEntries";
+import { NotebookItems } from "./NotebookItems";
 import { NotebookMap } from "./NotebookMap";
 
 /**
@@ -38,6 +39,7 @@ const TAB_LABEL = {
   profile: "characterSheet.tabProfile",
   lore: "characterSheet.tabLore",
   map: "characterSheet.tabMap",
+  items: "characterSheet.tabItems",
 } as const satisfies Record<CharacterSheetTab, string>;
 
 const PROFILE_ROWS = [
@@ -65,9 +67,11 @@ export function CharacterSheetModal() {
   const setTab = useMemoryRoomStore((state) => state.setCharacterSheetTab);
   // 평면도는 방문이 열린 뒤에만 있는 페이지다. 리셋 뒤 저장된 탭이 남아 있어도 안 편다
   const hasMap = useMemoryRoomStore(selectDoorOpened);
+  /* 소지품은 늘 있는 페이지다. 빈손이어도 빈 상태 한 줄이 서면 그만이고, 평면도와 달리
+     아직 안 가본 집을 미리 알려 주지도 않는다 */
   const tabs: readonly CharacterSheetTab[] = hasMap
-    ? ["profile", "lore", "map"]
-    : ["profile", "lore"];
+    ? ["profile", "lore", "map", "items"]
+    : ["profile", "lore", "items"];
   const tab = tabs.includes(stored) ? stored : "profile";
 
   useEffect(() => {
@@ -127,7 +131,7 @@ export function CharacterSheetModal() {
               이름만: 나이·소속은 아래에서 가려두는 항목이라 헤더에 적으면 가리는 의미가 없다.
               이름도 문제집 뒤표지를 보기 전까지는 막대다 (BlurredValue와 같은 이유로 본문을 싣지 않는다).
             */}
-            <div className="flex min-w-0 items-end gap-5">
+            <div className="flex min-w-0 flex-wrap items-end gap-x-5 gap-y-2">
               {nameKnown ? (
                 <span className="truncate pb-1.5 text-sm font-medium text-ink">
                   {tRoom("characters.hero.name")}
@@ -181,6 +185,8 @@ export function CharacterSheetModal() {
           <div className="notebook-grid scroll-paper min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
             {tab === "map" ? (
               <NotebookMap />
+            ) : tab === "items" ? (
+              <NotebookItems />
             ) : tab === "lore" ? (
               /* 갤러리는 3열까지 벌어진다. 프로필처럼 2xl로 묶으면 카드가 눌린다 */
               <div className="mx-auto max-w-4xl py-1">

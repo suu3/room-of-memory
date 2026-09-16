@@ -3,8 +3,12 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { CLUE_SPACE } from "@/data/room-clues";
-import { openDoorwayIds, useMemoryRoomStore } from "@/store/memory-room";
+import { playSound } from "@/lib/audio";
+import { SPACES } from "@/scenes/memory-room/spaces";
+import { openDoorwayIds, selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
+import { playHoverSound } from "./hover-sfx";
 import { floorPlan } from "./notebook-map";
+import { FOCUS_RING } from "./ui-classes";
 
 /** 벽선 두께 (월드 단위). 문구멍이 이걸 덮는다 (notebook-map의 DOOR_GAP_DEPTH). */
 const WALL_STROKE = 0.16;
@@ -49,6 +53,10 @@ function ClueCheck({ className = "" }: { className?: string }) {
  * 단위로 같이 줄어들어서, 폰 폭에서 방 이름이 7px짜리 얼룩이 된다. 벽만 축척을 따르고
  * 글자는 화면 단위로 남는다. 얹는 자리는 viewBox 안에서의 비율이라 축척이 변해도 따라간다
  * (SVG가 제 비율대로 눕는 한 그림과 어긋나지 않는다: max-height를 걸지 않는 이유다).
+ *
+ * **이 페이지가 곧 이동 장치다.** 칸을 누르면 몸이 그 공간으로 간다. HUD의 작은 지도가
+ * 아니라 여기가 맡는 이유는 표적 크기다: HUD 폭에서는 화장실 칸이 14×11px이라 손가락이
+ * 닿지 않는다. 여기서는 칸 하나가 종이의 한 구획이라 누를 수 있다 (HudMiniMap).
  */
 export function NotebookMap() {
   const { t } = useTranslation();
@@ -56,6 +64,14 @@ export function NotebookMap() {
   const openedDoorways = useMemoryRoomStore((state) => state.openedDoorways);
   const space = useMemoryRoomStore((state) => state.space);
   const cluesSeen = useMemoryRoomStore((state) => state.cluesSeen);
+  const warpPlayer = useMemoryRoomStore((state) => state.warpPlayer);
+  const setCharacterSheetOpen = useMemoryRoomStore((state) => state.setCharacterSheetOpen);
+  /*
+   * 1인칭 구간에서는 옮기지 않는다. 스위치를 찾거나 문을 넘는 중이고, 그 두 장면은
+   * 몸이 그 자리에 있어야 성립한다. 대사·미니게임은 수첩 자체가 안 열리므로 여기서
+   * 다시 막지 않는다 (수첩이 여는 순간 uiLock을 걸어 장면 입력이 이미 잠겨 있다).
+   */
+  const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
 
   const plan = useMemo(
     () => floorPlan(openDoorwayIds({ doorOpened, openedDoorways })),
@@ -112,12 +128,27 @@ export function NotebookMap() {
         {plan.rooms.map((room) => {
           const here = room.id === space;
           return (
-            <div
+            <button
               key={room.id}
-              className="pointer-events-none absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5"
+              type="button"
+              disabled={here || firstPerson}
+              aria-current={here ? "true" : undefined}
+              onPointerEnter={here || firstPerson ? undefined : playHoverSound}
+              onClick={() => {
+                playSound("open");
+                const { x, z } = SPACES[room.id].landing;
+                warpPlayer(x, z);
+                // 옮겨 놓고 수첩을 접는다. 종이가 덮인 채로는 옮겨 간 방이 안 보인다
+                setCharacterSheetOpen(false);
+              }}
+              className={`absolute flex flex-col items-center justify-center gap-0.5 rounded-sm transition-colors duration-150 disabled:cursor-default ${
+                here ? "" : "cursor-pointer hover:bg-ink/6 active:bg-ink/10"
+              } ${FOCUS_RING}`}
               style={{
-                left: `${((room.center.x - viewX) / viewWidth) * 100}%`,
-                top: `${((room.center.y - viewY) / viewHeight) * 100}%`,
+                left: `${((room.x - viewX) / viewWidth) * 100}%`,
+                top: `${((room.y - viewY) / viewHeight) * 100}%`,
+                width: `${(room.width / viewWidth) * 100}%`,
+                height: `${(room.height / viewHeight) * 100}%`,
               }}
             >
               {here && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-memory" />}
@@ -127,7 +158,7 @@ export function NotebookMap() {
                 {t(`space.${room.id}` as const)}
               </span>
               {clued.has(room.id) && <ClueCheck />}
-            </div>
+            </button>
           );
         })}
       </div>
@@ -144,7 +175,7 @@ export function NotebookMap() {
         </li>
       </ul>
       <p className="mt-2 break-ko text-center text-xs text-graphite/80">
-        {t("characterSheet.mapHint")}
+        {t("characterSheet.mapTravelHint")} {t("characterSheet.mapHint")}
       </p>
     </div>
   );

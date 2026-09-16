@@ -27,6 +27,23 @@ const SCRAMBLE_MOVES = 24;
 const TILE_BACKGROUND_SIZE = `${PUZZLE_SIZE * 100}% ${PUZZLE_SIZE * 100}%`;
 
 /**
+ * 조각 사이의 틈(px). 격자의 gap이 아니라 조각 **안쪽에** 그린다.
+ *
+ * gap으로 벌리면 사진이 틈만큼 늘어난다: 조각 하나가 제 폭의 3배로 그림을 깔기 때문에,
+ * 조각들을 틈만큼 떼어 놓으면 세 조각이 덮는 폭이 그림 한 장보다 넓어진다. 잘린 게
+ * 아니라 벌어진 그림이 된다. 조각을 맞대어 놓고 테두리를 안쪽으로 덮으면 틈이 그림의
+ * 그만큼을 가려서, 진짜로 잘라 놓은 것처럼 이어진다.
+ *
+ * 색은 판 바탕과 같아야 틈이 "판이 비치는 자리"로 읽힌다. 판이 ivory 10%를 panel 위에
+ * 깔고 있으므로 두 겹을 같은 순서로 쌓는다 (먼저 적은 그림자가 위에 온다).
+ */
+const SEAM_PX = 3;
+const TILE_SEAM = [
+  `inset 0 0 0 ${SEAM_PX}px color-mix(in srgb, var(--color-ivory) 10%, transparent)`,
+  `inset 0 0 0 ${SEAM_PX}px var(--color-panel)`,
+].join(", ");
+
+/**
  * 사진의 가로세로비를 실제 파일에서 읽어 온다.
  *
  * 격자가 사진과 다른 비율이면 조각이 사진을 왜곡한다. 값을 코드에 박아 두면 사진을
@@ -130,7 +147,8 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
       onSkip={() => complete({ cleared: true, score: moves })}
     >
       <div
-        className="mx-auto grid w-[min(100%,calc(52svh*0.92))] gap-1 rounded-md bg-ivory/10 p-1"
+        // gap 없이 맞대어 깐다. 틈은 조각 안쪽의 TILE_SEAM이 그린다
+        className="mx-auto grid w-[min(100%,calc(52svh*0.92))] overflow-hidden rounded-md bg-ivory/10"
         style={{ gridTemplateColumns: `repeat(${PUZZLE_SIZE}, minmax(0, 1fr))` }}
       >
         {board.map((tile, index) => {
@@ -148,12 +166,13 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
               aria-label={t("minigame.photoPuzzle.tile", { value: tile + 1 })}
               onClick={() => applyRef.current(moveAt(board, index))}
               // 조각에도 바탕을 깔아 둔다. 사진이 붙기 전에 빈 칸으로 비지 않게
-              className={`rounded-xs transition-[opacity,transform] duration-150 ${
+              className={`transition-[opacity,transform] duration-150 ${
                 empty ? "bg-ivory/10" : "bg-bone"
               } ${movable ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory`}
               style={{
                 // 조각도 사진과 같은 비율이어야 한다. 정사각 칸에 넣으면 사진이 눌린다
                 aspectRatio: aspect,
+                boxShadow: TILE_SEAM,
                 ...(empty
                   ? null
                   : {

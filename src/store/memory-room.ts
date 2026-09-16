@@ -52,7 +52,7 @@ export type Act = 1 | 2 | 3;
  */
 export type Difficulty = "easy" | "normal";
 /** 수첩(캐릭터 시트)의 페이지: 프로필과 기록(기억 스크랩북). */
-export type CharacterSheetTab = "profile" | "lore" | "map";
+export type CharacterSheetTab = "profile" | "lore" | "map" | "items";
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
 export type UiLockId =

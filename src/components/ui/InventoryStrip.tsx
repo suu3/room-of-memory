@@ -1,15 +1,8 @@
 "use client";
 
-import { Key } from "@phosphor-icons/react";
-import type { ComponentType } from "react";
 import { useTranslation } from "react-i18next";
-import type { ItemId } from "@/data/items";
 import { useMemoryRoomStore } from "@/store/memory-room";
-
-/** 물건마다 아이콘. 그림 파일이 아니라 아이콘 라이브러리다 (.claude/rules/assets.md). */
-const ITEM_ICON: Record<ItemId, ComponentType<{ size?: string | number; weight?: "bold" }>> = {
-  "parents-key": Key,
-};
+import { ITEM_ICON } from "./item-icons";
 
 /**
  * 가진 물건 한 줄 (v3 방탈출 축). 헤더의 진행 바 밑, 목표 줄 아래에 선다.

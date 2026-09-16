@@ -414,6 +414,18 @@
       "failDefault": "아직 손이 안 풀렸네. 한 번 더 해볼까.",
       "retry": "다시 해보기",
       "later": "나중에 하기"
+    },
+    "pianoMelody": {
+      "title": "피아노",
+      "help": "악보대로 건반을 누르세요: 1 2 3 4 5 6 7",
+      "help_touch": "악보대로 건반을 누르세요",
+      "fail": "…소리가 엉켰다. 처음부터 다시.",
+      "sheetLabel": "악보",
+      "missing": "젖어서 번진 자리. 여기가 안 보인다.",
+      "played": "지금까지 누른 음",
+      "clear": "지우기",
+      "keyLabel": "{{name}} 건반",
+      "solved": "마지막 음이 방 안에 한참 남았다."
     }
   },
   "characterSheet": {
@@ -440,7 +452,12 @@
     "mapHere": "지금 있는 곳",
     "mapClue": "단서를 본 곳",
     "mapHint": "문이 열릴 때마다 한 칸씩 늘어난다.",
-    "mapAlt": "집 평면도. 열린 공간과 지금 있는 곳이 표시된다"
+    "mapAlt": "집 평면도. 열린 공간과 지금 있는 곳이 표시된다",
+    "tabItems": "소지품",
+    "itemsEmpty": "아직 아무것도 들고 있지 않다.",
+    "itemsHint": "주운 것은 여기 남는다. 쓰는 자리에 가면 저절로 쓰인다.",
+    "mapTravelHint": "칸을 누르면 그리로 간다.",
+    "mapOpen": "평면도 열기"
   },
   "titleScreen": {
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
@@ -526,7 +543,12 @@
   },
   "items": {
     "parents-key": {
-      "name": "안방 열쇠"
+      "name": "안방 열쇠",
+      "note": "화장실 세면대 위에 놓여 있었다."
+    },
+    "piano-sheet": {
+      "name": "찢어진 악보",
+      "note": "안방 책상에 있었다. 한 마디만 적혀 있다."
     }
   },
   "difficulty": {

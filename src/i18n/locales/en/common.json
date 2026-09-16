@@ -414,6 +414,18 @@
       "failDefault": "My hands aren't warmed up yet. One more try?",
       "retry": "Try again",
       "later": "Maybe later"
+    },
+    "pianoMelody": {
+      "title": "The Piano",
+      "help": "Play the keys as written: 1 2 3 4 5 6 7",
+      "help_touch": "Play the keys as written",
+      "fail": "…that came out tangled. From the top.",
+      "sheetLabel": "Sheet music",
+      "missing": "Water-blurred. This part cannot be read.",
+      "played": "Played so far",
+      "clear": "Clear",
+      "keyLabel": "Key {{name}}",
+      "solved": "The last note hangs in the room for a long time."
     }
   },
   "characterSheet": {
@@ -440,7 +452,12 @@
     "mapHere": "You are here",
     "mapClue": "Clue found",
     "mapHint": "One more room is drawn in each time a door opens.",
-    "mapAlt": "Floor plan of the flat, showing the rooms opened so far and where you are"
+    "mapAlt": "Floor plan of the flat, showing the rooms opened so far and where you are",
+    "tabItems": "Carrying",
+    "itemsEmpty": "Not carrying anything yet.",
+    "itemsHint": "What you pick up stays here. It is used on its own where it belongs.",
+    "mapTravelHint": "Tap a room to go there.",
+    "mapOpen": "Open the floor plan"
   },
   "titleScreen": {
     "tagline": "Gather the memories scattered across a room that never opened.",
@@ -526,7 +543,12 @@
   },
   "items": {
     "parents-key": {
-      "name": "Key to the parents' room"
+      "name": "Parents' Room Key",
+      "note": "It was sitting on the bathroom sink."
+    },
+    "piano-sheet": {
+      "name": "Torn Sheet Music",
+      "note": "From the desk in the parents' room. Only one bar is written on it."
     }
   },
   "difficulty": {
