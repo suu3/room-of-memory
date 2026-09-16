@@ -2,7 +2,7 @@
 
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
+import { type MutableRefObject, Suspense, useEffect, useMemo, useRef } from "react";
 import { type Group, MathUtils, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
 import {
@@ -89,15 +89,16 @@ function dampAngle(current: number, target: number, lambda: number, delta: numbe
   return current + shortest * (1 - Math.exp(-lambda * delta));
 }
 
-export function Player({
-  positionRef,
-  movementInputRef,
-  curtainPull,
-}: {
+interface PlayerProps {
   positionRef: MutableRefObject<Vector3>;
   movementInputRef: MutableRefObject<MovementAxes>;
   curtainPull: CurtainPull;
-}) {
+}
+
+/**
+ * 몸. Suspense 경계는 밖의 Player가 들고 있다 (아래 주석).
+ */
+function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProps) {
   const groupRef = useRef<Group>(null);
   const facingRef = useRef<Group>(null);
   /** 눕는 회전(침대). 바라보는 방향 안쪽에서 몸을 뒤로 젖힌다. */
@@ -606,5 +607,21 @@ export function Player({
         </group>
       </group>
     </group>
+  );
+}
+
+/**
+ * 플레이어. Suspense 경계를 제 안에 둔다 (FurnitureModel·BedModel과 같은 규약).
+ *
+ * 없으면 몸이나 커튼 모션 glb가 늦게 도착할 때 서스펜드가 **씬 전체로** 올라간다.
+ * r3f의 Canvas가 자식을 통째로 감싸고 있어서, 그 순간 1인칭 리그까지 같이 내려가고
+ * 리그의 정리 함수가 기본 카메라를 아이소메트릭으로 되돌린다. 로딩이 한 번 끊길
+ * 때마다 시점이 튀어 보이는 것이 이것이다. 경계를 여기 두면 늦는 건 몸뿐이다.
+ */
+export function Player(props: PlayerProps) {
+  return (
+    <Suspense fallback={null}>
+      <LoadedPlayer {...props} />
+    </Suspense>
   );
 }

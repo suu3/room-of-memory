@@ -2,7 +2,7 @@
 
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useCallback, useMemo, useRef } from "react";
+import { Suspense, useCallback, useMemo, useRef } from "react";
 import type { Group, Mesh } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
@@ -31,7 +31,8 @@ const TAKEN_LIFT = 0.9;
  * 사실이 처음으로 쓸모를 갖는 자리이자, 도해가 밖을 어떻게 생각하고 있는지를
  * 말없이 보여주는 자리다. 문을 여는 것 자체는 현관문이 맡는다 (FrontDoor).
  */
-export function EndingTrigger({ palette }: { palette: RoomPalette }) {
+/** 배트. Suspense 경계는 밖의 EndingTrigger가 들고 있다 (아래 주석). */
+function LoadedEndingTrigger({ palette }: { palette: RoomPalette }) {
   const ready = useMemoryRoomStore(selectBatReady);
   const started = useMemoryRoomStore((state) => state.batTaken);
   const takeBat = useMemoryRoomStore((state) => state.takeBat);
@@ -136,5 +137,19 @@ export function EndingTrigger({ palette }: { palette: RoomPalette }) {
         </mesh>
       ) : null}
     </group>
+  );
+}
+
+/**
+ * 배트. Suspense 경계를 제 안에 둔다 (Player·FurnitureModel과 같은 이유).
+ *
+ * glb가 늦게 오면 서스펜드가 씬 전체로 올라가 1인칭 리그까지 내려간다. 늦는 건
+ * 배트 하나로 족하다.
+ */
+export function EndingTrigger(props: { palette: RoomPalette }) {
+  return (
+    <Suspense fallback={null}>
+      <LoadedEndingTrigger {...props} />
+    </Suspense>
   );
 }

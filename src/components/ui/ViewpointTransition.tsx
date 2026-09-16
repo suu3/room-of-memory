@@ -24,6 +24,19 @@ const TONES = {
 
 type Tone = keyof typeof TONES;
 
+/**
+ * 덮개가 **꽉 닫힌 채** 버티는 시간(ms). 이 뒤에 비로소 걷히기 시작한다.
+ *
+ * 카메라를 바꿔 끼우는 건 리액트 커밋이지만 새 카메라로 한 장이 그려지는 건 캔버스의
+ * 다음 프레임이다. 그 사이에 모델이 하나 들어오느라 프레임이 끊기면, 덮개는 시계를 따라
+ * 이미 걷히는 중인데 화면은 아직 옛 카메라다: 아이소메트릭 방이 반쯤 비쳤다 컷으로 튄다.
+ *
+ * 그래서 시계가 아니라 **프레임**을 기다린다. requestAnimationFrame은 주 스레드가 막히면
+ * 같이 밀리므로, 두 번 돌아올 때까지 기다리면 캔버스도 한 장은 그린 뒤다. 짧게 끊기는
+ * 경우까지 덮도록 최소 시간을 하나 더 얹는다 (프레임이 멀쩡할 때는 이쪽이 기준이다).
+ */
+const HOLD_MS = 160;
+
 /** 이전 시점에서 다음 시점으로 넘어갈 때 어느 색이 덮는가. 바뀌지 않았으면 없음. */
 export function transitionTone(previous: Viewpoint, next: Viewpoint): Tone | null {
   if (previous === next) return null;
@@ -33,6 +46,8 @@ export function transitionTone(previous: Viewpoint, next: Viewpoint): Tone | nul
 
 export function ViewpointTransition() {
   const [flash, setFlash] = useState<{ id: number; tone: Tone } | null>(null);
+  /** 덮개가 걷히기 시작했는가. 프레임이 돌아오고 최소 시간이 지나야 참이 된다. */
+  const [lifting, setLifting] = useState(false);
 
   useEffect(
     () =>
@@ -44,11 +59,29 @@ export function ViewpointTransition() {
     [],
   );
 
+  /* 프레임이 두 번 돌아오고 최소 시간이 지나면 걷기 시작한다 (HOLD_MS 주석). */
   useEffect(() => {
     if (!flash) return;
+    setLifting(false);
+    let inner = 0;
+    let timer = 0;
+    const outer = window.requestAnimationFrame(() => {
+      inner = window.requestAnimationFrame(() => {
+        timer = window.setTimeout(() => setLifting(true), HOLD_MS);
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(outer);
+      window.cancelAnimationFrame(inner);
+      window.clearTimeout(timer);
+    };
+  }, [flash]);
+
+  useEffect(() => {
+    if (!flash || !lifting) return;
     const timer = window.setTimeout(() => setFlash(null), TONES[flash.tone].durationMs);
     return () => window.clearTimeout(timer);
-  }, [flash]);
+  }, [flash, lifting]);
 
   if (!flash) return null;
   const { className, durationMs } = TONES[flash.tone];
@@ -58,8 +91,10 @@ export function ViewpointTransition() {
       // 같은 색이 연달아 와도 다시 덮이게 key로 새로 마운트한다
       key={flash.id}
       aria-hidden
-      className={`pointer-events-none absolute inset-0 z-40 animate-viewpoint-fade ${className}`}
-      style={{ animationDuration: `${durationMs}ms` }}
+      className={`pointer-events-none absolute inset-0 z-40 ${className} ${
+        lifting ? "animate-viewpoint-fade" : "opacity-100"
+      }`}
+      style={lifting ? { animationDuration: `${durationMs}ms` } : undefined}
     />
   );
 }
