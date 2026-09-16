@@ -136,22 +136,49 @@ export const LIVING_ANCHORS = {
 } as const satisfies Record<string, readonly [number, number]>;
 
 /**
- * 식탁 세트가 키운 뒤 서는 자리. 원래 자리(LIVING_ANCHORS.dining)에서 그대로 키우면
- * 상판 모서리가 피아노 걸상과 물려서 방문 쪽·소파 쪽으로 조금 옮긴다.
+ * 식탁 세트가 키운 뒤 서는 자리: **소파 앞**.
+ *
+ * 원래는 -x 벽 앞(-13.2, 3.4)이었다. 그 자리는 현관문(z 1.25)·안방문(z 3.7)이 나란히
+ * 난 벽 바로 앞이라, 문에서 나오면 식탁 모서리부터 마주쳤다. 소파 앞으로 물리면 그
+ * 벽이 통째로 비고, 거실은 "소파 → 러그·가방 → 식탁 → TV"로 한 줄에 읽힌다.
+ *
+ * x는 소파 중심(-9.5)에서 -0.5 물렸다: 공유벽으로 옮긴 피아노(LIVING_PIANO_CENTER)와
+ * 사이에 사람이 지나는 폭(1m)을 남긴다. z는 소파 앞에 이미 놓인 야구 가방(MEMORY_PLACEMENTS
+ * 의 duffel, z -1.15 반경 0.8)을 물지 않는 가장 가까운 자리다.
  */
-export const LIVING_DINING_CENTER = [-13.2, 3.4] as const;
+export const LIVING_DINING_CENTER = [-10.0, 2.0] as const;
 
-/** 기준점을 축으로 1배 좌표를 키운 값. `at`을 주면 키운 가구를 그 자리로 옮긴다. */
+/**
+ * 피아노가 옮겨 선 자리와 각도: **방문이 난 공유벽(+x)**.
+ *
+ * 원래는 앞벽(+z)의 -x 구석이었는데, 거기는 안방문(-x 벽 z 3.7)과 화장실문(+z 벽
+ * x -12.25)이 만나는 모서리다. 문 둘 사이에 악기가 낀 평면이라 어느 쪽 문도 제 벽을
+ * 못 가졌다. 공유벽은 굽도리와 방문뿐이라 2m 넘게 비어 있는 유일한 벽이다.
+ *
+ * 부품 좌표(PIANO_PARTS)는 1배 그대로 두고 y로 +90° 돌려 세운다: 뒷면이 공유벽을 보고
+ * 건반이 거실(-x)을 본다. 문간(DOORWAY_ZONE z 4.7~6.0)에서 1.3m 남긴 자리다.
+ */
+export const LIVING_PIANO_CENTER = [LIVING_SHELL_BOUNDS.maxX, 2.3] as const;
+export const LIVING_PIANO_ROTATION = Math.PI / 2;
+
+/**
+ * 기준점을 축으로 1배 좌표를 키운 값. `at`을 주면 키운 가구를 그 자리로 옮기고,
+ * `rotationY`를 주면 그 자리에서 y축으로 돌린다 (피아노). 도는 차례는 그리는 쪽
+ * (LivingPiece)과 같다: 1배 좌표를 기준점 원점으로 끌어와 → 키우고 → 돌리고 → `at`에 놓는다.
+ * three의 y회전과 같은 식이라 부품·발자국·좌석이 한 값에서 같이 나온다.
+ */
 export function scaleLivingPoint(
   anchor: readonly [number, number],
   x: number,
   z: number,
   at: readonly [number, number] = anchor,
+  rotationY = 0,
 ): [number, number] {
-  return [
-    at[0] + (x - anchor[0]) * LIVING_FURNITURE_SCALE,
-    at[1] + (z - anchor[1]) * LIVING_FURNITURE_SCALE,
-  ];
+  const dx = (x - anchor[0]) * LIVING_FURNITURE_SCALE;
+  const dz = (z - anchor[1]) * LIVING_FURNITURE_SCALE;
+  const cos = Math.cos(rotationY);
+  const sin = Math.sin(rotationY);
+  return [at[0] + dx * cos + dz * sin, at[1] - dx * sin + dz * cos];
 }
 
 /** 높이는 바닥(y=0)을 축으로 키운다. */
@@ -159,14 +186,30 @@ export function scaleLivingHeight(y: number): number {
   return y * LIVING_FURNITURE_SCALE;
 }
 
+/**
+ * 발자국도 부품과 같은 식을 탄다. 돌린 가구는 두 모서리만 옮겨서는 상자가 뒤집히므로
+ * 네 모서리를 다 옮기고 외접 상자를 잡는다 (직각이면 원래 상자 그대로다).
+ */
 function scaleLivingAabb(
   anchor: readonly [number, number],
   box: Aabb2,
   at: readonly [number, number] = anchor,
+  rotationY = 0,
 ): Aabb2 {
-  const [minX, minZ] = scaleLivingPoint(anchor, box.minX, box.minZ, at);
-  const [maxX, maxZ] = scaleLivingPoint(anchor, box.maxX, box.maxZ, at);
-  return { minX, maxX, minZ, maxZ };
+  const corners = [
+    scaleLivingPoint(anchor, box.minX, box.minZ, at, rotationY),
+    scaleLivingPoint(anchor, box.maxX, box.minZ, at, rotationY),
+    scaleLivingPoint(anchor, box.minX, box.maxZ, at, rotationY),
+    scaleLivingPoint(anchor, box.maxX, box.maxZ, at, rotationY),
+  ];
+  const xs = corners.map(([x]) => x);
+  const zs = corners.map(([, z]) => z);
+  return {
+    minX: Math.min(...xs),
+    maxX: Math.max(...xs),
+    minZ: Math.min(...zs),
+    maxZ: Math.max(...zs),
+  };
 }
 
 /** 식탁 세트 안의 1배 자리를 키운 세트의 자리로. */
@@ -198,7 +241,12 @@ export const LIVING_COLLIDERS = [
     maxZ: 0.35,
   }), // shoe cabinet
   scaleLivingAabb(LIVING_ANCHORS.fridge, { minX: -15.85, maxX: -14.8, minZ: -4, maxZ: -3.2 }), // fridge (-z 구석)
-  scaleLivingAabb(LIVING_ANCHORS.piano, { minX: -15.75, maxX: -14.15, minZ: 5.15, maxZ: 6.5 }), // piano + 반쯤 빼놓은 의자
+  scaleLivingAabb(
+    LIVING_ANCHORS.piano,
+    { minX: -15.75, maxX: -14.15, minZ: 5.15, maxZ: 6.5 },
+    LIVING_PIANO_CENTER,
+    LIVING_PIANO_ROTATION,
+  ), // piano + 반쯤 빼놓은 의자 (공유벽으로 옮겨 90° 섰다)
   { minX: -13.0, maxX: -11.5, minZ: -4, maxZ: -2.35 }, // plush doll (소파 옆)
 ] as const satisfies readonly Aabb2[];
 
@@ -642,7 +690,7 @@ export const CAMERA_PRESETS = {
   fridge: { position: [-12.7, 3.2, -0.5], target: [-15.32, 1.5, -3.0] },
   duffel: { position: [-6.9, 2.2, 1.4], target: [-9.5, 0.35, -1.15] },
   shoes: { position: [-13.2, 2.6, 1.3], target: [-15.73, 0.75, -0.97] },
-  cards: { position: [-10.6, 2.8, 6.0], target: [-13.2, 1.3, 3.4] },
+  cards: { position: [-7.4, 2.8, 4.6], target: [-10.0, 1.3, 2.0] },
   ampoule: { position: [-13.0, 2.4, -0.8], target: [-15.32, 0.6, -3.0] },
 } as const satisfies Record<"room" | "ending" | MemoryId, CameraPreset>;
 
@@ -675,9 +723,12 @@ export const BATHROOM_COLLIDERS = [
 
 /*
  * 안방은 거실 -x 벽(현관 쪽 벽) 너머다. 거실 뒷벽에 두려 했으나 그 벽은 소파·인형·냉장고
- * 발자국으로 문 하나 들어갈 틈이 없다(1.64 < 문틀 1.82). -x 벽에는 현관문(z 1.25)과
- * 피아노(z ≥ 4.75) 사이가 비어 있고, 그 사이에 세워 둔 배트가 두 문 사이의 소품이 된다.
- * 현관 옆에 안방 문이 있는 것도 복도식 아파트에서는 흔한 평면이다.
+ * 발자국으로 문 하나 들어갈 틈이 없다(1.64 < 문틀 1.82). -x 벽은 현관문(z 1.25) 위쪽이
+ * 통째로 비어 있고, 두 문 사이에 세워 둔 배트가 그 사이의 소품이 된다. 현관 옆에 안방
+ * 문이 있는 것도 복도식 아파트에서는 흔한 평면이다.
+ *
+ * 처음에는 이 벽 끝을 피아노가, 그 앞을 식탁이 막고 있었다. 둘 다 옮기고 나서야
+ * (LIVING_PIANO_CENTER · LIVING_DINING_CENTER) 문 둘이 제 벽을 가졌다.
  */
 export const PARENTS_SHELL_BOUNDS: Aabb2 = { minX: -23, maxX: -16.5, minZ: -0.5, maxZ: 6.5 };
 export const PARENTS_BOUNDS: Aabb2 = {
