@@ -125,7 +125,7 @@ export function DeskClockClue({ children }: { children: ReactNode }) {
  * (CulledWall) 안에 선다.
  */
 export function MirrorClue({ palette }: { palette: RoomPalette }) {
-  const { frameSize, glassSize } = MIRROR_PLACEMENT;
+  const { frameSize, glassSize, lean } = MIRROR_PLACEMENT;
   const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
   return (
     <ClueProp
@@ -133,25 +133,26 @@ export function MirrorClue({ palette }: { palette: RoomPalette }) {
       near={MIRROR_PLACEMENT.near}
       radius={MIRROR_PLACEMENT.interactionRadius}
     >
+      {/* 바깥 그룹은 거울이 **선 자리**(밑동). 로컬 +z가 방 안쪽(월드 +x)을 본다 */}
       <group position={MIRROR_PLACEMENT.position} rotation={MIRROR_PLACEMENT.rotation}>
-        <mesh castShadow>
-          <boxGeometry args={frameSize} />
-          <meshStandardMaterial color={palette.wood} roughness={0.55} />
-        </mesh>
-        <group position={[0, 0, frameSize[2] / 2 + glassSize[2] / 2]}>
-          {firstPerson ? (
+        {/*
+          밑동을 축으로 뒤로 눕힌다. 축이 밑동에 있어야 발이 바닥에 붙은 채 윗변만
+          벽으로 간다. 거울 한가운데를 축으로 돌리면 발이 바닥을 파고든다.
+        */}
+        <group rotation={[-lean, 0, 0]}>
+          <mesh position={[0, frameSize[1] / 2, frameSize[2] / 2]} castShadow>
+            <boxGeometry args={frameSize} />
+            <meshStandardMaterial color={palette.wood} roughness={0.55} />
+          </mesh>
+          <group position={[0, frameSize[1] / 2, frameSize[2] + glassSize[2] / 2]}>
             <MirrorReflection
               width={glassSize[0]}
               height={glassSize[1]}
               offset={glassSize[2] / 2}
               palette={palette}
+              firstPerson={firstPerson}
             />
-          ) : (
-            <mesh>
-              <boxGeometry args={glassSize} />
-              <meshStandardMaterial color={palette.storm} metalness={0.85} roughness={0.12} />
-            </mesh>
-          )}
+          </group>
         </group>
       </group>
     </ClueProp>
