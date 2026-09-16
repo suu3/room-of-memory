@@ -28,9 +28,9 @@ stages:
 
   p1-0:
     monologue:
-      ko: 지금 몇 시지. 뭐부터 할까.
-      en: What time is it. What should I start with.
-      ja: 今、何時だろう。何からやろうか。
+      ko: 뭐부터 할까.
+      en: What should I start with.
+      ja: 何からやろうか。
 
   p1-1:
     monologue:
