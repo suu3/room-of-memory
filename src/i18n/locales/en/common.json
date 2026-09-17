@@ -156,48 +156,38 @@
       "now": "NOW!"
     },
     "fighterDuel": {
-      "title": "Fighting Game",
-      "help": "Read the opponent's stance and play what beats it: 1 Attack · 2 Guard · 3 Special",
-      "help_touch": "Read the opponent's stance and play what beats it with the buttons below",
-      "hint": "Find the opponent's move shown above on one of the \"beats ○○\" buttons",
+      "title": "The Fighting Game",
+      "help": "Arrows to close the gap · J light · K heavy · L throw (hold ← to guard)",
+      "help_touch": "Use the buttons below to close in and strike. Stepping back is your guard",
       "rules": {
-        "triangle": "Attack → Special → Guard → Attack: a special breaks through a guard, and a special needs a windup an attack can cut short",
-        "special": "You get three specials per match"
+        "triangle": "Throws beat guards, guards beat strikes, and strikes stuff an incoming throw",
+        "frames": "Heavy hits slow and hurts. Landing one during their wind-up counters for more"
       },
       "labelCombo": "Combo",
-      "labelCritical": "Reads",
+      "labelCounter": "Counter",
+      "labelTime": "Time",
       "nameHero": "P1",
       "nameRival": "CPU",
-      "round": "ROUND {{value}}",
-      "combo": "{{value}} COMBO",
-      "critical": "READ!",
-      "feint": "They switched stance!",
+      "combo": "{{value}} HIT",
+      "callout": {
+        "counter": "COUNTER!",
+        "broken": "THROW BROKEN!"
+      },
       "banner": {
         "fight": "FIGHT!",
         "ko": "K.O.",
         "down": "DOWN"
       },
       "move": {
-        "strike": "Attack",
-        "guard": "Guard",
-        "throw": "Special"
+        "jab": "Light",
+        "heavy": "Heavy",
+        "throw": "Throw"
       },
-      "tell": {
-        "strike": "They pull a shoulder back",
-        "guard": "They raise both arms overhead",
-        "throw": "They reach both arms forward"
+      "control": {
+        "back": "Back / Guard",
+        "forward": "Step in"
       },
-      "outcome": {
-        "win": "Clean hit!",
-        "lose": "Took it…",
-        "draw": "Clashed",
-        "late": "Too slow…"
-      },
-      "beats": "beats {{move}}",
-      "tellLabel": "Opponent",
-      "specialLeft": "{{left}} specials left",
-      "fail": "Lost. …One more round, then.",
-      "tutorialHint": "First round is practice: the glowing button is the answer"
+      "fail": "Lost. …One more round and I'd have him."
     },
     "labelSuccess": "HITS",
     "labelMiss": "MISS",

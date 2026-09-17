@@ -1,6 +1,5 @@
 "use client";
 
-import type { Move } from "./duel";
 import { frameBackgroundSize, framePosition, useSpriteSheet } from "./sprites";
 
 /**
@@ -12,7 +11,7 @@ import { frameBackgroundSize, framePosition, useSpriteSheet } from "./sprites";
  *
  * 어느 쪽이든 플레이어가 읽어야 하는 건 얼굴이 아니라 "팔이 어디 있는가"다.
  */
-export type Pose = Move | "idle" | "hurt" | "ko" | "win";
+export type Pose = "idle" | "strike" | "guard" | "throw" | "hurt" | "ko" | "win";
 
 /**
  * 팔 각도(deg). 어깨에 고정하고 회전만 시킨다. 0이 정면으로 쭉 뻗은 상태,

@@ -82,9 +82,9 @@ describe("MinigameHost", () => {
     openConsole();
 
     // 상성은 순서만이 아니라 이유까지: 임의의 규칙은 판이 도는 중에 안 떠오른다
-    expect(screen.getByText(/a special breaks through a guard/)).toBeTruthy();
-    // 필살기가 무한이 아니라는 건 첫 판 전에 알아야 한다
-    expect(screen.getByText(/three specials per match/)).toBeTruthy();
+    expect(screen.getByText(/Throws beat guards/)).toBeTruthy();
+    // 강공격이 느리다는 것과 카운터가 있다는 건 첫 판 전에 알아야 한다
+    expect(screen.getByText(/Heavy hits slow/)).toBeTruthy();
 
     // 두 줄. 미니게임 하나 붙잡고 읽을 분량이 아니다 (UT: "미니겜이니까 더 짧아도 될 듯")
     expect(screen.getAllByRole("listitem")).toHaveLength(2);

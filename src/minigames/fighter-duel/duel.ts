@@ -1,356 +1,650 @@
 /**
- * 격투 미니게임의 순수 규칙. 화면 없이 검증할 수 있게 계산만 모아둔다.
+ * 격투 미니게임의 규칙. 화면 없이 검증할 수 있게 계산만 모아둔다.
  *
- * 뼈대는 가위바위보식 삼각 상성이다. 상대가 무엇을 낼지 예고(tell)를 보고 받아친다.
- * 반사신경이 아니라 읽기 싸움이라 몇 초 안에 끝나고, 못 읽어도 이야기가 이어진다.
+ * 처음엔 가위바위보였다. 상대 예고를 보고 세 버튼 중 하나를 고르면 라운드가 끝나는
+ * 식이라, 격투 게임의 그림을 입혀도 결국 손이 하는 일은 "셋 중 고르기" 하나였다.
+ * 지금은 판이 멈추지 않는다: 두 사람이 한 무대 위에서 거리를 두고 서서, 다가서고
+ * 물러서고 내지르고 막는다. 프레임(발동·유효·경직)과 거리가 승패를 가른다.
  *
- * 그 위에 격투 게임의 문법을 얹었다. 판수를 세는 대신 체력을 깎고, 연속으로
- * 읽어내면 더 아프게 들어가고(콤보), 빨리 읽으면 한 방이 커진다(간파).
- * 대신 상대는 예고를 도중에 바꾼다(페인트): 서두르면 그 페인트에 당한다.
+ * 삼각 상성은 살아 있다. 다만 버튼의 상성이 아니라 **상황의 상성**이다:
+ *   - 잡기는 가드를 뚫는다 (막고만 있으면 잡힌다)
+ *   - 가드는 공격을 막는다 (지르기만 하면 안 통한다)
+ *   - 공격은 잡기를 끊는다 (잡으러 오는 팔을 먼저 때리면 잡기가 깨진다)
  *
- * 이 셋이 하나의 선택으로 묶인다: **지금 낼 것인가, 한 박자 더 볼 것인가.**
- * 빨리 내면 간파 보너스, 기다리면 페인트에 안 속는다. 어느 쪽도 공짜가 아니다.
+ * 여기 있는 것은 전부 순수 함수다. 시간은 밖에서 dt로 들어온다 (index.tsx의 rAF).
  */
 
 import type { MinigameDifficulty } from "@/types/minigame";
 
-export type Move = "strike" | "guard" | "throw";
+/* ------------------------------------------------------------------- 무대 */
 
-/**
- * 난이도별 상대의 손맛. 이지는 상대 한 방이 70%다: 정답을 계속 내고도 5/100으로
- * 겨우 이기는 판은 읽기 싸움이 아니라 소모전으로 읽혔다. 내 한 방은 그대로 둔다.
- * 잘 읽으면 빨리 끝나는 쪽이 이지의 뜻이지, 상대가 약해 보이는 게 아니다.
- */
-export interface DuelTuning {
-  rivalDamageScale: number;
+/** 무대의 폭(추상 단위). 좌우 끝이 벽이고, 밀려나면 더는 못 물러선다. */
+export const STAGE_SPAN = 8;
+/** 둘이 더 가까워질 수 없는 거리. 겹쳐 서면 누가 때리는지 안 보인다. */
+export const MIN_GAP = 0.9;
+export const HERO_START = 3;
+export const RIVAL_START = 5;
+
+/** 걷는 속도(단위/초). 물러서는 쪽이 느리다: 도망이 공짜면 아무도 안 들어온다. */
+export const WALK_FORWARD = 2.6;
+export const WALK_BACK = 2.1;
+
+/** 한 판의 길이. 다 못 끝내면 체력이 많은 쪽이 이긴다 (격투 게임의 타임업). */
+export const MATCH_MS = 75_000;
+
+/* ------------------------------------------------------------------- 기술 */
+
+export type Attack = "jab" | "heavy" | "throw";
+export const ATTACKS_ORDER: readonly Attack[] = ["jab", "heavy", "throw"];
+
+export interface AttackFrames {
+  /** 내지르고 맞기까지(ms). 이 구간에 맞으면 카운터다. */
+  startupMs: number;
+  /** 판정이 살아 있는 시간(ms). 이 순간의 거리로 맞고 안 맞고가 갈린다. */
+  activeMs: number;
+  /** 헛치거나 막힌 뒤 못 움직이는 시간(ms). */
+  recoveryMs: number;
+  damage: number;
+  /** 닿는 거리. 잡기는 품에 들어와야 한다. */
+  reach: number;
+  /** 막혔을 때 깎이는 몫. 0이면 가드가 완전하다. */
+  chip: number;
+  /** 맞거나 막힌 뒤 벌어지는 거리. */
+  pushback: number;
+  /** 맞은 쪽이 못 움직이는 시간(ms). */
+  hitStunMs: number;
+  /** 막은 쪽이 못 움직이는 시간(ms). 가드해도 바로 반격할 수는 없다. */
+  blockStunMs: number;
 }
 
-export const DUEL_TUNINGS: Record<MinigameDifficulty, DuelTuning> = {
-  easy: { rivalDamageScale: 0.7 },
-  normal: { rivalDamageScale: 1 },
-};
-
-export const MOVES: readonly Move[] = ["strike", "guard", "throw"];
-
 /**
- * 무엇이 무엇을 이기는가. 공격 > 필살기 > 방어 > 공격.
+ * 세 기술의 손맛. 숫자 한 줄이 곧 규칙이라 표로 둔다.
  *
- * 필살기는 방어를 뚫고, 뜸을 들이는 필살기는 먼저 때리면 끊기고, 날아오는
- * 공격은 막힌다. 세 변에 다 이유가 있어야 외우지 않고도 떠오른다.
- * (id는 코드가 쓰는 키라 strike/guard/throw 그대로. 화면 이름은 i18n에 있다.)
+ * 약공격은 빠르고 싸다: 견제와 잡기 끊기. 강공격은 느리고 아프다: 상대가 굳었을 때
+ * 넣는 한 방. 잡기는 가드를 뚫지만 짧고, 헛치면 크게 문다.
  */
-const BEATS: Record<Move, Move> = {
-  strike: "throw",
-  throw: "guard",
-  guard: "strike",
+export const ATTACKS: Record<Attack, AttackFrames> = {
+  jab: {
+    startupMs: 110,
+    activeMs: 70,
+    recoveryMs: 190,
+    damage: 5,
+    reach: 1.3,
+    // 막힌 약공격은 아무것도 깎지 않는다. 깎이면 연타만으로 이길 수 있고, 그러면
+    // 가드가 방어가 아니라 시간 끌기가 된다
+    chip: 0,
+    // 밀림이 작으면 약공격 연타 하나로 상대를 가둔다. 한 대 칠 때마다 사이가 벌어져야
+    // 다시 들어가는 걸음이 생기고, 그 걸음이 상대에게는 숨 쉴 틈이 된다
+    pushback: 0.3,
+    hitStunMs: 210,
+    blockStunMs: 150,
+  },
+  heavy: {
+    startupMs: 330,
+    activeMs: 90,
+    recoveryMs: 460,
+    damage: 13,
+    reach: 1.5,
+    // 강공격만 막아도 조금 깎인다. 가드 한 자세로 영원히 버티지는 못한다는 표시
+    chip: 1,
+    pushback: 0.5,
+    hitStunMs: 420,
+    blockStunMs: 240,
+  },
+  throw: {
+    startupMs: 210,
+    activeMs: 80,
+    recoveryMs: 420,
+    damage: 11,
+    reach: 1.05,
+    chip: 0,
+    pushback: 0.7,
+    hitStunMs: 520,
+    blockStunMs: 0,
+  },
 };
 
-export type RoundOutcome = "win" | "lose" | "draw";
+/** 잡기가 깨졌을 때의 경직(ms). 헛치는 것보다 아프다: 읽히면 그만큼 문다. */
+export const THROW_BREAK_MS = 620;
 
-export function resolveRound(player: Move, opponent: Move): RoundOutcome {
-  if (player === opponent) return "draw";
-  return BEATS[player] === opponent ? "win" : "lose";
-}
-
-/**
- * 이 수가 이기는 수. 버튼에 "○○를 이김"으로 적어 상성을 화면 안에 둔다.
- * 외워야만 되는 규칙이면 2초 안에 안 떠오른다.
- */
-export function beats(move: Move): Move {
-  return BEATS[move];
-}
-
-/** 상대 예고를 받아치는 수: 화면의 힌트가 가리키는 정답. */
-export function counterTo(move: Move): Move {
-  const counter = MOVES.find((candidate) => BEATS[candidate] === move);
-  // BEATS는 전단사라 항상 답이 있다. 타입 좁히기용 기본값.
-  return counter ?? "strike";
-}
-
-/* ------------------------------------------------------------------ 체력 */
+/** 카운터(상대의 발동 중에 맞히기) 배수. 먼저 읽고 먼저 내민 값이다. */
+export const COUNTER_SCALE = 1.4;
+/** 끊기지 않고 이어 맞힐 때마다 붙는 가산과 그 상한(맞힌 횟수 기준). */
+export const COMBO_STEP = 2;
+export const COMBO_CAP = 5;
 
 export const MAX_HP = 100;
 
-/**
- * 한 방의 기본 대미지. 끊기지 않고 다섯 번을 읽어내면 KO, 다섯 번 맞으면 진다.
- * 판이 늘어지지 않으면서도 한 번 삐끗한 걸로 끝나지는 않는 길이.
- */
-export const BASE_DAMAGE = 16;
-/** 연속으로 읽어낼 때마다 붙는 가산. */
-export const COMBO_STEP = 4;
-/** 콤보 가산 상한(연승 수 기준). 그 위로는 더 붙지 않는다. */
-export const COMBO_CAP = 5;
-/** 간파(빠른 반응) 배수. 다 간파하면 한 라운드를 앞당긴다. */
-export const CRITICAL_SCALE = 1.5;
+/* --------------------------------------------------------------- 난이도 */
 
-/**
- * 상대의 기본 대미지와 라운드마다 붙는 가산: 오래 끌수록 상대가 매워진다.
- *
- * 다섯 대에 쓰러지던 걸 여섯 대로 늘렸다. 읽기 싸움은 처음 한두 판을 버려 가며
- * 배우는 게임인데, 배우는 값이 그대로 패배면 규칙을 알기 전에 판이 끝난다.
- * 이기는 쪽(다섯 번)은 그대로 둔다. 판이 늘어지면 그것대로 지친다.
- */
-export const RIVAL_BASE_DAMAGE = 15;
-export const RIVAL_RAMP = 2;
-export const RIVAL_DAMAGE_CAP = 23;
+export interface DuelTuning {
+  /** 상대 한 방의 배수. */
+  rivalDamageScale: number;
+  /** 예고 시간(ms). 길수록 읽을 틈이 넓다. */
+  tellMs: number;
+  /** 결정과 결정 사이의 뜸(ms). 길수록 덜 몰아붙인다. */
+  thinkMs: number;
+  /** 날아오는 기술 하나를 막을 확률(0~1). 기술마다 한 번만 굴린다. */
+  blockChance: number;
+  /** 플레이어가 헛치거나 막힌 뒤(경직) 곧장 물어뜯을 확률(0~1). */
+  punishChance: number;
+}
 
-/* --------------------------------------------------------- 필살기 횟수 */
+export const DUEL_TUNINGS: Record<MinigameDifficulty, DuelTuning> = {
+  easy: { rivalDamageScale: 0.7, tellMs: 320, thinkMs: 380, blockChance: 0.62, punishChance: 0.55 },
+  normal: {
+    rivalDamageScale: 1,
+    tellMs: 200,
+    thinkMs: 260,
+    blockChance: 0.9,
+    punishChance: 0.85,
+  },
+};
 
-/**
- * 필살기는 한 판에 세 번뿐이다. 다시 차지 않는다.
- *
- * 처음엔 읽어낼 때마다 한 칸씩 채워 줬는데, 그러면 잘 읽는 사람에게는 결국
- * 무제한이라 제한이 아니었다. 쓸 때마다 줄기만 해야 "아껴 뒀다 여기서 쓴다"가
- * 생긴다.
- *
- * 세 번인 이유: 판은 다섯 번 읽어내면 끝나고 방어 예고는 세 수 중 하나라,
- * 한 판에 필살기로만 이길 수 있는 라운드가 두어 번 온다. 세 번이면 제때 쓰는
- * 사람은 모자라지 않고, 아무 데나 쓰는 사람만 빈손이 된다.
- *
- * 다 쓰고 나면 방어 예고를 이길 수가 없다. 그게 이 제한의 값이다. 대신 같이
- * 방어해서 비기는 길은 항상 열려 있어서, 빈손이 사형선고는 아니다.
- */
-export const SPECIAL_USES = 3;
-export const SPECIAL_COST = 1;
+/** 상대가 몰리면 예고가 짧아진다. 다 이긴 뒤의 마지막 한 방이 제일 어려워야 한다. */
+export const RAGE_HP_RATIO = 0.35;
+export const RAGE_TELL_CUT = 0.7;
+
+export function hpRatio(hp: number): number {
+  return Math.min(1, Math.max(0, hp / MAX_HP));
+}
+
+export function isEnraged(hp: number): boolean {
+  return hp > 0 && hpRatio(hp) <= RAGE_HP_RATIO;
+}
+
+export function rivalTellMs(tuning: DuelTuning, rivalHp: number): number {
+  return Math.round(tuning.tellMs * (isEnraged(rivalHp) ? RAGE_TELL_CUT : 1));
+}
+
+/* ------------------------------------------------------------------ 상태 */
+
+export type ActionPhase = "startup" | "active" | "recovery";
+export type StunKind = "hurt" | "block" | "broken";
+
+export interface FighterState {
+  hp: number;
+  /** 무대 위의 자리. hero가 왼쪽, rival이 오른쪽이다. */
+  x: number;
+  /** 내는 중인 기술. 없으면 null. */
+  attack: Attack | null;
+  phase: ActionPhase | null;
+  /** 지금 단계가 끝나기까지 남은 시간(ms). */
+  phaseLeftMs: number;
+  /** 못 움직이는 이유와 남은 시간. */
+  stun: StunKind | null;
+  stunLeftMs: number;
+  /** 이번 프레임에 가드 자세인가. 입력에서 나온다 (뒤로 걷기 = 가드). */
+  guarding: boolean;
+  /** 맞지 않고 이어 맞힌 횟수. 맞으면 0. */
+  combo: number;
+}
 
 export interface DuelState {
-  heroHp: number;
-  rivalHp: number;
-  /** 연속으로 읽어낸 횟수. 맞으면 0으로 돌아간다. */
-  combo: number;
-  /** 지금까지 치른 라운드 수. 난이도 곡선의 축. */
-  round: number;
-  /** 남은 필살기 횟수. 0이면 필살기를 못 낸다. 판 안에서 다시 차지 않는다. */
-  special: number;
+  hero: FighterState;
+  rival: FighterState;
+  /** 판이 시작된 뒤 흐른 시간(ms). */
+  elapsedMs: number;
+}
+
+function freshFighter(x: number): FighterState {
+  return {
+    hp: MAX_HP,
+    x,
+    attack: null,
+    phase: null,
+    phaseLeftMs: 0,
+    stun: null,
+    stunLeftMs: 0,
+    guarding: false,
+    combo: 0,
+  };
 }
 
 export const DUEL_START: DuelState = {
-  heroHp: MAX_HP,
-  rivalHp: MAX_HP,
-  combo: 0,
-  round: 0,
-  special: SPECIAL_USES,
+  hero: freshFighter(HERO_START),
+  rival: freshFighter(RIVAL_START),
+  elapsedMs: 0,
 };
 
-export function canUseSpecial(state: DuelState): boolean {
-  return state.special >= SPECIAL_COST;
+/** 지금 움직일 수 있는가. 기술 중이거나 경직이면 손이 묶인다. */
+export function canAct(fighter: FighterState): boolean {
+  return fighter.attack === null && fighter.stun === null;
 }
 
-/** 이번 라운드를 치르고 난 남은 횟수. 쓴 만큼만 빠진다. 채워 주는 길은 없다. */
-export function nextSpecial(state: DuelState, resolution: RoundResolution): number {
-  const spent = resolution.player === "throw" ? SPECIAL_COST : 0;
-  return Math.max(0, state.special - spent);
-}
-
-export interface RoundResolution {
-  /** 시간 안에 아무것도 안 냈으면 null. */
-  player: Move | null;
-  /** 상대가 실제로 낸 수 (페인트했다면 바꾼 쪽). */
-  opponent: Move;
-  outcome: RoundOutcome;
-  /** 예고를 보고 CRITICAL_MS 안에 받아쳤는가. */
-  critical: boolean;
-}
-
-/** 이번 승리를 포함한 연승 수(1부터)로 계산한다. */
-export function heroDamage(combo: number, critical: boolean): number {
-  const bonus = COMBO_STEP * (Math.min(Math.max(combo, 1), COMBO_CAP) - 1);
-  return Math.round((BASE_DAMAGE + bonus) * (critical ? CRITICAL_SCALE : 1));
-}
-
-export function rivalDamage(round: number, tuning: DuelTuning = DUEL_TUNINGS.normal): number {
-  return Math.round(
-    Math.min(RIVAL_DAMAGE_CAP, RIVAL_BASE_DAMAGE + RIVAL_RAMP * round) * tuning.rivalDamageScale,
-  );
-}
-
-/** 이 라운드에서 실제로 깎이는 체력. 0이면 아무도 안 맞았다는 뜻(무승부). */
-export function damageOf(
-  state: DuelState,
-  resolution: RoundResolution,
-  tuning: DuelTuning = DUEL_TUNINGS.normal,
-): number {
-  if (resolution.outcome === "win") return heroDamage(state.combo + 1, resolution.critical);
-  if (resolution.outcome === "lose") return rivalDamage(state.round, tuning);
-  return 0;
-}
-
-/**
- * 한 라운드 결과를 상태에 반영한다.
- *
- * 무승부는 아무도 안 맞지만 콤보도 안 끊는다. 같은 수를 낸 건 읽기에 실패한
- * 것이지 손해를 본 게 아니다. 여기서까지 콤보를 끊으면 운에 벌을 주는 게 된다.
- */
-export function applyRound(
-  state: DuelState,
-  resolution: RoundResolution,
-  tuning: DuelTuning = DUEL_TUNINGS.normal,
-): DuelState {
-  const damage = damageOf(state, resolution, tuning);
-  const round = state.round + 1;
-  const special = nextSpecial(state, resolution);
-  if (resolution.outcome === "win") {
-    return {
-      ...state,
-      round,
-      special,
-      rivalHp: Math.max(0, state.rivalHp - damage),
-      combo: state.combo + 1,
-    };
-  }
-  if (resolution.outcome === "lose") {
-    return { ...state, round, special, heroHp: Math.max(0, state.heroHp - damage), combo: 0 };
-  }
-  return { ...state, round, special };
+export function distanceOf(state: DuelState): number {
+  return Math.abs(state.rival.x - state.hero.x);
 }
 
 export type DuelStatus = "playing" | "won" | "lost";
 
 export function duelStatus(state: DuelState): DuelStatus {
-  if (state.rivalHp <= 0) return "won";
-  if (state.heroHp <= 0) return "lost";
+  if (state.rival.hp <= 0) return "won";
+  if (state.hero.hp <= 0) return "lost";
+  if (state.elapsedMs >= MATCH_MS) return state.hero.hp >= state.rival.hp ? "won" : "lost";
   return "playing";
 }
 
-/** 0~1. 체력 게이지 폭과 상대의 각성 판정에 같이 쓴다. */
-export function hpRatio(hp: number): number {
-  return Math.min(1, Math.max(0, hp / MAX_HP));
+/* ------------------------------------------------------------------ 입력 */
+
+export interface Intent {
+  /** -1 물러서기, 0 제자리, 1 다가서기. */
+  walk: -1 | 0 | 1;
+  /** 내려는 기술. 손이 묶여 있으면 무시된다. */
+  attack: Attack | null;
+  /**
+   * 걷지 않고 그 자리에서 막기. 상대(CPU)만 쓴다.
+   *
+   * 사람은 뒤로 걷는 것이 곧 가드다(격투 게임의 관용구). 그런데 상대까지 그렇게
+   * 만들었더니 막을 때마다 뒤로 빠져서, 가드를 잡는 순간 잡기 사거리(1.05) 밖으로
+   * 나가 버렸다. 그러면 "막고만 있는 상대를 잡는다"는 한 변이 통째로 사라진다.
+   */
+  guard?: boolean;
 }
 
-/* -------------------------------------------------------------- 시간 압박 */
+export const NO_INTENT: Intent = { walk: 0, attack: null };
+
+/** 지금 막고 있는가. 손이 묶이면(기술 중·경직) 못 막는다. */
+export function isGuarding(fighter: FighterState, intent: Intent): boolean {
+  return (intent.guard === true || intent.walk === -1) && canAct(fighter);
+}
+
+/* ------------------------------------------------------------------ 사건 */
+
+export type DuelEventKind = "hit" | "counter" | "block" | "whiff" | "break" | "ko";
+
+export interface DuelEvent {
+  kind: DuelEventKind;
+  /** 이 사건을 일으킨 쪽. */
+  by: "hero" | "rival";
+  attack: Attack;
+  damage: number;
+  /** 이 공격으로 쌓인 연속 타격 수 (맞았을 때만). */
+  combo: number;
+}
+
+export function comboDamage(base: number, combo: number, counter: boolean): number {
+  const bonus = COMBO_STEP * (Math.min(Math.max(combo, 1), COMBO_CAP) - 1);
+  return Math.round((base + bonus) * (counter ? COUNTER_SCALE : 1));
+}
+
+/* ---------------------------------------------------------------- 한 프레임 */
+
+/** 한 번에 흘려보낼 수 있는 최대 시간(ms). 탭이 잠깐 멈췄다 돌아와도 순간이동 없이. */
+export const MAX_STEP_MS = 50;
+
+interface Side {
+  self: FighterState;
+  other: FighterState;
+  who: "hero" | "rival";
+  /** 상대 쪽으로 가는 방향(+1/-1). */
+  facing: 1 | -1;
+}
+
+/** 경직·기술 단계의 시계를 돌린다. 이번 프레임에 판정이 살아난 기술을 알려준다. */
+function tickTimers(fighter: FighterState, dtMs: number): { next: FighterState; landed: boolean } {
+  const next = { ...fighter };
+  let landed = false;
+
+  if (next.stun !== null) {
+    next.stunLeftMs -= dtMs;
+    if (next.stunLeftMs <= 0) {
+      next.stun = null;
+      next.stunLeftMs = 0;
+    }
+  }
+
+  if (next.attack !== null && next.phase !== null) {
+    next.phaseLeftMs -= dtMs;
+    while (next.phaseLeftMs <= 0 && next.attack !== null) {
+      const frames = ATTACKS[next.attack];
+      if (next.phase === "startup") {
+        next.phase = "active";
+        next.phaseLeftMs += frames.activeMs;
+        // 판정이 살아나는 순간은 한 번뿐이다. 맞고 안 맞고는 그때의 거리로 정한다
+        landed = true;
+      } else if (next.phase === "active") {
+        next.phase = "recovery";
+        next.phaseLeftMs += frames.recoveryMs;
+      } else {
+        next.attack = null;
+        next.phase = null;
+        next.phaseLeftMs = 0;
+      }
+    }
+  }
+
+  return { next, landed };
+}
+
+/** 벽과 상대 사이에 가둔다. 겹치지도, 무대 밖으로 나가지도 않는다. */
+function clampPositions(hero: FighterState, rival: FighterState): void {
+  hero.x = Math.min(Math.max(hero.x, 0.4), STAGE_SPAN - 0.4);
+  rival.x = Math.min(Math.max(rival.x, 0.4), STAGE_SPAN - 0.4);
+  const gap = rival.x - hero.x;
+  if (gap < MIN_GAP) {
+    const push = (MIN_GAP - gap) / 2;
+    hero.x -= push;
+    rival.x += push;
+    hero.x = Math.min(Math.max(hero.x, 0.4), STAGE_SPAN - 0.4);
+    rival.x = Math.max(rival.x, hero.x + MIN_GAP);
+  }
+}
 
 /**
- * 첫 라운드의 예고 시간. 짧으면 반사신경 게임이 되고, 길면 긴장이 없다.
+ * 살아난 판정 하나를 푼다. 삼각 상성이 여기 한 곳에 모여 있다.
  *
- * 예고는 그림이 아니라 문장으로도 읽힌다("상대가 두 팔을 머리 위로 든다"). 읽고,
- * 삼각 상성에서 받아칠 수를 떠올리고, 버튼을 찾는 데 실제로 2초 가까이 걸린다.
- * 1.7초로는 규칙을 아는 사람도 손이 먼저 가는 게임이 됐다. 여기서 재는 것은
- * 손 빠르기가 아니라 읽기라, 읽을 시간을 먼저 주고 그 위에서 조인다.
+ * 잡기는 가드를 뚫지만, 상대가 이미 팔을 내밀고 있으면(발동·유효) 깨진다.
+ * 그 밖의 공격은 가드에 막히고, 막히면 깎이는 건 chip뿐이다.
  */
-export const TELL_START_MS = 2600;
-/** 아무리 몰려도 여기보다 짧아지지 않는다. 읽을 시간은 남겨 둔다. */
-export const TELL_FLOOR_MS = 1600;
-export const TELL_STEP_MS = 60;
-/** 상대가 이 체력 아래로 떨어지면 각성한다. */
-export const RAGE_HP_RATIO = 0.35;
-export const RAGE_CUT_MS = 120;
+function resolveHit(side: Side, distance: number): DuelEvent | null {
+  const attack = side.self.attack;
+  if (attack === null) return null;
+  const frames = ATTACKS[attack];
+  if (distance > frames.reach) {
+    return { kind: "whiff", by: side.who, attack, damage: 0, combo: 0 };
+  }
+
+  const otherSwinging = side.other.attack !== null && side.other.phase !== "recovery";
+  if (attack === "throw" && otherSwinging) {
+    return { kind: "break", by: side.who, attack, damage: 0, combo: 0 };
+  }
+
+  if (attack !== "throw" && side.other.guarding) {
+    return { kind: "block", by: side.who, attack, damage: frames.chip, combo: 0 };
+  }
+
+  // 상대가 내지르는 중에 맞히면 카운터. 읽고 먼저 내민 값이다
+  const counter = side.other.attack !== null && side.other.phase === "startup";
+  const combo = side.self.combo + 1;
+  return {
+    kind: counter ? "counter" : "hit",
+    by: side.who,
+    attack,
+    damage: comboDamage(frames.damage, combo, counter),
+    combo,
+  };
+}
+
+function applyEvent(side: Side, event: DuelEvent, scale: number): void {
+  const frames = ATTACKS[event.attack];
+  if (event.kind === "whiff") return;
+
+  if (event.kind === "break") {
+    side.self.stun = "broken";
+    side.self.stunLeftMs = THROW_BREAK_MS;
+    side.self.attack = null;
+    side.self.phase = null;
+    side.self.phaseLeftMs = 0;
+    side.self.combo = 0;
+    return;
+  }
+
+  const damage = Math.round(event.damage * scale);
+  side.other.hp = Math.max(0, side.other.hp - damage);
+  side.other.x += side.facing * frames.pushback;
+
+  if (event.kind === "block") {
+    side.other.stun = "block";
+    side.other.stunLeftMs = frames.blockStunMs;
+    return;
+  }
+
+  side.other.stun = "hurt";
+  side.other.stunLeftMs = frames.hitStunMs;
+  side.other.attack = null;
+  side.other.phase = null;
+  side.other.phaseLeftMs = 0;
+  side.other.combo = 0;
+  side.self.combo = event.combo;
+}
+
+function startAttack(fighter: FighterState, attack: Attack): void {
+  fighter.attack = attack;
+  fighter.phase = "startup";
+  fighter.phaseLeftMs = ATTACKS[attack].startupMs;
+  fighter.guarding = false;
+}
 
 /**
- * 이번 라운드의 예고 시간.
+ * 판을 dt만큼 굴린다. 순수 함수다: 같은 상태와 같은 입력이면 같은 결과가 나온다.
  *
- * 라운드가 갈수록 짧아지고, 상대가 몰리면 한 번 더 짧아진다. 궁지에서 빨라지는 건
- * 격투 게임의 관용구이기도 하지만, 여기서는 "다 이겼다" 뒤의 마지막 한 방이
- * 제일 어려워야 이긴 게 이긴 것으로 남기 때문이다.
+ * 차례는 시계 → 이동 → 새 기술 → 판정이다. 판정을 마지막에 두는 이유는, 이번
+ * 프레임에 살아난 판정이 이번 프레임의 거리로 판정돼야 하기 때문이다.
  */
-export function tellDurationMs(round: number, rivalHp: number): number {
-  const byRound = TELL_START_MS - TELL_STEP_MS * round;
-  const rage = hpRatio(rivalHp) <= RAGE_HP_RATIO ? RAGE_CUT_MS : 0;
-  return Math.max(TELL_FLOOR_MS, byRound - rage);
+export function advance(
+  state: DuelState,
+  heroIntent: Intent,
+  rivalIntent: Intent,
+  dtMs: number,
+  tuning: DuelTuning = DUEL_TUNINGS.normal,
+): { state: DuelState; events: DuelEvent[] } {
+  const dt = Math.min(Math.max(dtMs, 0), MAX_STEP_MS);
+  const events: DuelEvent[] = [];
+
+  const heroTick = tickTimers(state.hero, dt);
+  const rivalTick = tickTimers(state.rival, dt);
+  const hero = heroTick.next;
+  const rival = rivalTick.next;
+
+  // 이동. 손이 묶여 있으면 발도 묶인다
+  const seconds = dt / 1000;
+  if (canAct(hero) && heroIntent.walk !== 0) {
+    hero.x += heroIntent.walk * (heroIntent.walk > 0 ? WALK_FORWARD : WALK_BACK) * seconds;
+  }
+  if (canAct(rival) && rivalIntent.walk !== 0) {
+    rival.x -= rivalIntent.walk * (rivalIntent.walk > 0 ? WALK_FORWARD : WALK_BACK) * seconds;
+  }
+  clampPositions(hero, rival);
+
+  hero.guarding = isGuarding(hero, heroIntent);
+  rival.guarding = isGuarding(rival, rivalIntent);
+
+  if (heroIntent.attack && canAct(hero)) startAttack(hero, heroIntent.attack);
+  if (rivalIntent.attack && canAct(rival)) startAttack(rival, rivalIntent.attack);
+
+  const distance = Math.abs(rival.x - hero.x);
+  const heroSide: Side = { self: hero, other: rival, who: "hero", facing: 1 };
+  const rivalSide: Side = { self: rival, other: hero, who: "rival", facing: -1 };
+
+  if (heroTick.landed) {
+    const event = resolveHit(heroSide, distance);
+    if (event) {
+      applyEvent(heroSide, event, 1);
+      events.push(event);
+    }
+  }
+  if (rivalTick.landed) {
+    const event = resolveHit(rivalSide, distance);
+    if (event) {
+      applyEvent(rivalSide, event, tuning.rivalDamageScale);
+      events.push({ ...event, damage: Math.round(event.damage * tuning.rivalDamageScale) });
+    }
+  }
+  clampPositions(hero, rival);
+
+  const next: DuelState = { hero, rival, elapsedMs: state.elapsedMs + dt };
+  if (duelStatus(next) !== "playing" && duelStatus(state) === "playing") {
+    events.push({
+      kind: "ko",
+      by: next.rival.hp <= 0 ? "hero" : "rival",
+      attack: "jab",
+      damage: 0,
+      combo: 0,
+    });
+  }
+  return { state: next, events };
 }
 
-/** 상대가 각성했는가: 화면이 이걸 붉은 기색으로 알린다. */
-export function isEnraged(rivalHp: number): boolean {
-  return rivalHp > 0 && hpRatio(rivalHp) <= RAGE_HP_RATIO;
+/* ------------------------------------------------------------- 상대의 머리 */
+
+export interface RivalMind {
+  /** 다음 결정까지 남은 뜸(ms). */
+  waitMs: number;
+  /** 예고 중인 기술과 남은 예고 시간(ms). */
+  telegraph: Attack | null;
+  telegraphMs: number;
+  /**
+   * 가드를 쥐고 있는 남은 시간(ms).
+   *
+   * 한 프레임만 막고 푸는 상대는 잡을 수가 없다. 잡기(발동 210ms)가 살아날 때쯤에는
+   * 이미 가드가 풀려 있기 때문이다. 한 번 막기로 했으면 잠깐 쥐고 있어야 "막고만
+   * 있는 상대를 잡는다"는 삼각 상성의 한 변이 실제로 생긴다.
+   */
+  guardMs: number;
+  /** 지금 날아오는 기술에 대해 이미 막을지 말지 굴렸는가. 기술 하나에 한 번이다. */
+  reacted: boolean;
+  /** 맞고 일어나는 길에 팔부터 올릴 것인가. */
+  wakeGuard: boolean;
+  /** 플레이어가 가드로 버틴 횟수와 잡으러 온 횟수. 버릇을 문다. */
+  guardSeen: number;
+  throwSeen: number;
 }
 
-/**
- * 간파 판정 시간. 예고가 화면에 뜬 순간부터 잰다. 페인트로 자세가 바뀌면
- * 거기서 다시 0이다. 바뀐 걸 빨리 읽어낸 것도 똑같이 읽어낸 것이다.
- */
-export const CRITICAL_MS = 700;
+export const RIVAL_MIND_START: RivalMind = {
+  waitMs: 700,
+  telegraph: null,
+  telegraphMs: 0,
+  guardMs: 0,
+  reacted: false,
+  wakeGuard: false,
+  guardSeen: 0,
+  throwSeen: 0,
+};
 
-export function isCritical(elapsedMs: number): boolean {
-  return elapsedMs <= CRITICAL_MS;
-}
+/** 한 번 막기로 했을 때 가드를 쥐고 있는 시간(ms). 잡기가 파고들 수 있는 폭이다. */
+export const GUARD_HOLD_MS = 360;
 
-/* ----------------------------------------------------------------- 페인트 */
-
-/**
- * 페인트가 나오기 시작하는 라운드(0-based). 첫 판은 규칙을 익히는 시간이다.
- *
- * 판이 다섯 판 안팎에서 끝나므로 확률을 아끼면 페인트를 한 번도 못 보고 이기는
- * 판이 생긴다. 규칙의 절반을 못 만나는 셈이라 두 번째 판부터 꽤 자주 건다.
- */
-export const FEINT_FROM_ROUND = 1;
-/** 예고 시간의 어느 지점에서 자세를 바꾸는가. 바꾼 뒤에 절반 넘게 남아야 한다. */
-export const FEINT_AT = 0.38;
-export const FEINT_CHANCE_STEP = 0.18;
-export const FEINT_CHANCE_CAP = 0.42;
-
-export function feintChance(round: number): number {
-  if (round < FEINT_FROM_ROUND) return 0;
-  return Math.min(FEINT_CHANCE_CAP, FEINT_CHANCE_STEP * (round - FEINT_FROM_ROUND + 1));
-}
-
-export function shouldFeint(round: number, roll: number): boolean {
-  return roll < feintChance(round);
-}
-
-/** 습관으로 볼 최근 수의 개수와, 그중 몇 번 나와야 습관인가. */
-export const HABIT_WINDOW = 4;
+/** 버릇이 읽히는 횟수. 이만큼 쌓이면 상대가 그 버릇을 노린다. */
 export const HABIT_THRESHOLD = 3;
 
 /**
- * 플레이어의 버릇을 읽는다. 최근 HABIT_WINDOW 수 중 같은 수가
- * HABIT_THRESHOLD번 이상이면 그 수를 돌려준다.
- */
-export function readHabit(history: readonly Move[]): Move | null {
-  const recent = history.slice(-HABIT_WINDOW);
-  for (const move of MOVES) {
-    if (recent.filter((played) => played === move).length >= HABIT_THRESHOLD) return move;
-  }
-  return null;
-}
-
-/**
- * 페인트로 바꿔 낼 수.
+ * 거리와 버릇을 보고 무엇을 낼지 고른다. 무작위는 전부 roll로 주입받는다.
  *
- * 기본값은 "예고를 보고 받아칠 사람"을 잡는 수다. 플레이어가 낼 counterTo(tell)를
- * 이기는 쪽. 여기에 버릇이 읽히면 그쪽을 우선한다: 같은 버튼만 누르면 페인트가
- * 정확히 그 버튼을 노린다. 무작위가 아니라 읽혀서 당하는 것이어야 분하다.
+ * 막고만 있으면 잡으러 오고, 잡으러만 들어오면 약공격으로 끊는다. 무작위가 아니라
+ * 읽혀서 당하는 것이어야 분하다.
  */
-export function feintTo(tell: Move, history: readonly Move[] = []): Move {
-  const habit = readHabit(history);
-  if (habit) {
-    const punish = counterTo(habit);
-    // 예고와 같은 수면 페인트가 아니게 된다. 그때는 기본값으로 돌아간다.
-    if (punish !== tell) return punish;
-  }
-  return counterTo(counterTo(tell));
+export function chooseRivalAttack(mind: RivalMind, distance: number, roll: number): Attack {
+  if (mind.guardSeen >= HABIT_THRESHOLD && distance <= ATTACKS.throw.reach) return "throw";
+  if (mind.throwSeen >= HABIT_THRESHOLD) return "jab";
+  if (distance <= ATTACKS.throw.reach && roll < 0.28) return "throw";
+  if (roll < 0.62) return "jab";
+  return "heavy";
 }
 
 /**
- * 다음 상대 수. 인덱스로 정해지는 해시라 같은 판이면 같은 순서가 나온다.
- * 매번 뒤집히면 "읽었다"는 감각이 안 생긴다.
+ * 상대의 한 프레임. 예고 → 발동의 리듬을 여기서 만든다.
+ *
+ * 예고(telegraph) 동안 상대는 자세만 잡고 아무것도 하지 않는다. 그 틈이 플레이어가
+ * 읽을 시간이고, 난이도가 조절하는 것도 그 길이다 (DuelTuning의 tellMs).
  */
-export function opponentMove(round: number, salt: number): Move {
-  const value = Math.sin((round + 1) * 12.9898 + salt * 78.233) * 43758.5453;
-  const fraction = value - Math.floor(value);
-  return MOVES[Math.floor(fraction * MOVES.length) % MOVES.length];
-}
-
-export interface RoundPlan {
-  /** 처음 보여주는 예고. */
-  tell: Move;
-  /** 도중에 바꿔 낼 수. 페인트가 없으면 null. */
-  feint: Move | null;
-  /** 이 라운드의 예고 시간(ms). */
-  durationMs: number;
-}
-
-/**
- * 한 라운드를 통째로 짠다. 무작위는 전부 `roll`로 주입받아 이 함수는 순수하게 남는다.
- */
-export function planRound(
+export function stepRival(
   state: DuelState,
-  salt: number,
-  history: readonly Move[],
+  mind: RivalMind,
+  dtMs: number,
   roll: number,
-): RoundPlan {
-  const tell = opponentMove(state.round, salt);
-  return {
-    tell,
-    feint: shouldFeint(state.round, roll) ? feintTo(tell, history) : null,
-    durationMs: tellDurationMs(state.round, state.rivalHp),
-  };
+  tuning: DuelTuning = DUEL_TUNINGS.normal,
+): { mind: RivalMind; intent: Intent } {
+  const dt = Math.min(Math.max(dtMs, 0), MAX_STEP_MS);
+  const next: RivalMind = { ...mind };
+  const distance = distanceOf(state);
+  const heroSwinging = state.hero.attack !== null && state.hero.phase === "startup";
+
+  // 플레이어가 무엇을 하는지 세어 둔다. 같은 짓을 세 번 하면 그때부터 읽힌다
+  if (state.hero.attack === "throw" && state.hero.phase === "startup") {
+    next.throwSeen = Math.min(HABIT_THRESHOLD, next.throwSeen + 1);
+  }
+  if (state.hero.guarding) next.guardSeen = Math.min(HABIT_THRESHOLD * 60, next.guardSeen + 1);
+
+  if (!canAct(state.rival)) {
+    /*
+     * 손이 묶인 동안에도 뜸은 흐른다. 여기서 뜸을 되감았더니, 약공격을 연달아 맞는
+     * 상대는 경직이 풀릴 때마다 다시 처음부터 뜸을 들이느라 한 대도 못 냈다.
+     * 맞는 동안에도 생각은 하고 있어야 풀리는 순간 손이 나간다.
+     */
+    next.telegraph = null;
+    next.telegraphMs = 0;
+    next.guardMs = 0;
+    next.waitMs = Math.max(0, next.waitMs - dt);
+    // 맞았으면 일어나는 길에 팔부터 올린다. 이게 없으면 약공격 연타 한 줄에 갇힌다
+    if (state.rival.stun === "hurt") next.wakeGuard = true;
+    return { mind: next, intent: NO_INTENT };
+  }
+
+  /*
+   * 일어나자마자 가드. 한 대 맞은 뒤에도 그냥 서 있으면 연타가 끝나지 않는다.
+   * 대신 이 가드가 그대로 잡기의 자리이기도 하다: 때려서 굳힌 뒤 잡는 것이 이 게임의 길.
+   */
+  if (next.wakeGuard) {
+    next.wakeGuard = false;
+    next.guardMs = GUARD_HOLD_MS;
+    return { mind: next, intent: { walk: 0, attack: null, guard: true } };
+  }
+
+  // 날아오던 것이 끝났으면 다음 기술에 다시 반응할 수 있다
+  if (state.hero.attack === null) next.reacted = false;
+
+  // 쥐고 있는 가드는 끝까지 쥔다. 제자리에서 막는다: 물러서면 잡기 사거리 밖으로 나간다
+  if (next.guardMs > 0) {
+    next.guardMs -= dt;
+    return { mind: next, intent: { walk: 0, attack: null, guard: true } };
+  }
+
+  /*
+   * 막기는 예고보다 먼저 본다. 예고를 거는 중이라도 팔이 날아오면 내리고 막는다.
+   * 이 순서가 아니면 상대는 뜸 들이는 동안 샌드백이라, 약공격 연타 한 줄로 판이 끝난다.
+   */
+  const heroRecovering = state.hero.attack !== null && state.hero.phase === "recovery";
+  if (heroSwinging && distance <= ATTACKS.heavy.reach && !next.reacted) {
+    next.reacted = true;
+    if (roll < tuning.blockChance) {
+      next.telegraph = null;
+      next.telegraphMs = 0;
+      next.guardMs = GUARD_HOLD_MS;
+      return { mind: next, intent: { walk: 0, attack: null, guard: true } };
+    }
+  }
+
+  next.waitMs -= dt;
+  if (next.waitMs > 0) {
+    // 뜸을 들이는 동안에도 사이를 좁힌다. 가만히 서 있으면 샌드백이다
+    const walk = next.telegraph === null && distance > ATTACKS.jab.reach ? 1 : 0;
+    if (next.telegraph === null) return { mind: next, intent: { walk, attack: null } };
+  }
+
+  /*
+   * 헛쳤거나 막힌 뒤의 경직은 물어뜯는 자리다. 여기서는 예고를 걸지 않는다: 반격은
+   * 읽어서 내는 것이 아니라 틈을 보고 내는 것이라, 예고를 붙이면 틈이 지나간다.
+   * 대신 뜸(thinkMs)을 지키므로 매 프레임 물어뜯지는 않는다.
+   */
+  if (heroRecovering && distance <= ATTACKS.jab.reach && roll < tuning.punishChance) {
+    next.telegraph = null;
+    next.telegraphMs = 0;
+    next.waitMs = tuning.thinkMs;
+    return { mind: next, intent: { walk: 0, attack: "jab" } };
+  }
+
+  // 예고 중: 자세만 잡고 기다린다. 다 되면 그대로 지른다
+  if (next.telegraph !== null) {
+    next.telegraphMs -= dt;
+    if (next.telegraphMs > 0) return { mind: next, intent: NO_INTENT };
+    const attack = next.telegraph;
+    next.telegraph = null;
+    next.telegraphMs = 0;
+    next.waitMs = tuning.thinkMs;
+    if (attack === "throw") next.guardSeen = 0;
+    return { mind: next, intent: { walk: 0, attack } };
+  }
+
+  if (next.waitMs > 0) return { mind: next, intent: NO_INTENT };
+
+  next.waitMs = tuning.thinkMs;
+  if (distance > ATTACKS.heavy.reach) {
+    return { mind: next, intent: { walk: 1, attack: null } };
+  }
+
+  next.telegraph = chooseRivalAttack(next, distance, roll);
+  next.telegraphMs = rivalTellMs(tuning, state.rival.hp);
+  if (next.telegraph === "throw") next.throwSeen = 0;
+  return { mind: next, intent: NO_INTENT };
 }

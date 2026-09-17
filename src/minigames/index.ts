@@ -91,15 +91,14 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.fighterDuel.title",
     helpKey: "minigame.fighterDuel.help",
     /*
-     * 두 줄: 상성과 필살기 횟수. 미니게임 하나 붙잡고 읽을 분량이 아니라 시작
+     * 두 줄: 삼각 상성과 프레임. 미니게임 하나 붙잡고 읽을 분량이 아니라 시작
      * 버튼을 누르기 전에 훑는 분량이어야 한다 (UT: "미니겜이니까 더 짧아도 될 듯").
      *
-     * 조작은 바로 위 helpKey가 이미 말하므로 여기 다시 적지 않는다. 나머지는
-     * 화면이 스스로 말한다: 남은 시간은 게이지가 줄어드는 것으로, 페인트는 자세가
-     * 바뀌는 순간 붉은 글씨로, 간파·콤보는 들어간 뒤에 뜬다. 몰라도 판이 도는
-     * 규칙은 카드에 적지 않는다.
+     * 조작은 바로 위 helpKey가 이미 말하고, 조작판도 화면 안에 있다. 나머지는
+     * 화면이 스스로 말한다: 거리는 눈으로 보이고, 카운터·콤보는 들어간 뒤에 뜬다.
+     * 몰라도 판이 도는 규칙은 카드에 적지 않는다.
      */
-    rulesKeys: ["minigame.fighterDuel.rules.triangle", "minigame.fighterDuel.rules.special"],
+    rulesKeys: ["minigame.fighterDuel.rules.triangle", "minigame.fighterDuel.rules.frames"],
     failKey: "minigame.fighterDuel.fail",
   },
   "window-view": {

@@ -1,412 +1,84 @@
 /** @vitest-environment jsdom */
 
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { i18n } from "../../i18n/config";
-import {
-  BASE_DAMAGE,
-  COMBO_STEP,
-  CRITICAL_MS,
-  CRITICAL_SCALE,
-  FEINT_AT,
-  MAX_HP,
-  SPECIAL_USES,
-  tellDurationMs,
-} from "./duel";
+import { i18n } from "@/i18n/config";
+import type { MinigameResult } from "@/types/minigame";
+import { MAX_HP } from "./duel";
 import { FighterDuelMinigame } from "./index";
 
-let now = 0;
-let nextFrameId = 1;
-let scheduledFrames = new Map<number, FrameRequestCallback>();
-
-function advanceTime(ms: number) {
-  now += ms;
+/** 판이 도는 시간을 흘려보낸다. rAF도 가짜 시계를 탄다. */
+function run(ms: number) {
   act(() => {
     vi.advanceTimersByTime(ms);
   });
 }
 
-function runNextFrame(timestamp: number) {
-  now = timestamp;
-  const next = scheduledFrames.entries().next().value;
-  if (!next) throw new Error("Expected a scheduled animation frame");
-  const [id, callback] = next;
-  scheduledFrames.delete(id);
-  act(() => callback(timestamp));
+function hp(label: string): number {
+  const meter = screen.getByLabelText(label) as HTMLMeterElement;
+  return Number(meter.getAttribute("value"));
 }
 
-/** 프레임 간격(ms). 게임은 프레임이 끊기면 시계를 멈추므로 촘촘히 돌려야 한다. */
-const FRAME_STEP = 100;
-
-/** 간파 판정이 확실히 지난 시점. 창 길이가 바뀌어도 "빨리 못 낸 판"으로 남아야 한다. */
-const PAST_CRITICAL_MS = CRITICAL_MS + FRAME_STEP;
-
-/** 실제 브라우저처럼 프레임을 이어서 돌린다. 마지막 프레임이 `timestamp`에 선다. */
-function runFramesUntil(timestamp: number) {
-  for (let frame = now + FRAME_STEP; frame < timestamp; frame += FRAME_STEP) {
-    runNextFrame(frame);
+/**
+ * 다가서서 약공격과 잡기를 섞어 낸다.
+ *
+ * 약공격만 두들기면 상대가 팔을 올려 막고(가드) 아무것도 안 들어간다. 그게 이 게임의
+ * 규칙이라, 화면이 규칙대로 물려 있는지 보려면 사람이 실제로 이기는 방식 — 때려서
+ * 굳힌 뒤 잡기 — 을 그대로 흉내 내야 한다.
+ */
+function mixUp(rounds: number) {
+  fireEvent.keyDown(window, { code: "ArrowRight" });
+  run(900);
+  for (let count = 0; count < rounds; count += 1) {
+    fireEvent.keyDown(window, { code: count % 2 === 0 ? "KeyJ" : "KeyL" });
+    run(500);
   }
-  runNextFrame(timestamp);
+  fireEvent.keyUp(window, { code: "ArrowRight" });
 }
-
-/** 예고 문구 → 그걸 받아치는 수의 키. 플레이어가 화면에서 읽는 것과 같은 경로. */
-const COUNTER_KEY: Record<string, string> = {
-  "They pull a shoulder back": "2", // strike → guard
-  "They raise both arms overhead": "3", // guard → throw
-  "They reach both arms forward": "1", // throw → strike
-};
-
-function currentTell(): string {
-  const status = screen.getByRole("status");
-  const tell = Object.keys(COUNTER_KEY).find((text) => status.textContent?.includes(text));
-  if (!tell) throw new Error(`No tell on screen: ${status.textContent}`);
-  return tell;
-}
-
-function answerTell() {
-  fireEvent.keyDown(window, { key: COUNTER_KEY[currentTell()] });
-}
-
-function rivalHp(): number {
-  return Number(screen.getByLabelText("CPU").getAttribute("value"));
-}
-
-function heroHp(): number {
-  return Number(screen.getByLabelText("P1").getAttribute("value"));
-}
-
-const INTRO_MS = 900;
-const RESULT_MS = 850;
-const KO_MS = 1500;
 
 describe("FighterDuelMinigame", () => {
   beforeAll(async () => {
-    await i18n.changeLanguage("en");
+    await i18n.changeLanguage("ko");
   });
 
   beforeEach(() => {
-    now = 0;
-    nextFrameId = 1;
-    scheduledFrames = new Map();
-    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
-    vi.spyOn(performance, "now").mockImplementation(() => now);
-    // 0이면 salt도 0이라 예고 순서가 고정되고, 페인트 판정(roll < chance)은 항상 걸린다.
-    vi.spyOn(Math, "random").mockReturnValue(0);
-    vi.stubGlobal(
-      "requestAnimationFrame",
-      vi.fn((callback: FrameRequestCallback) => {
-        const id = nextFrameId;
-        nextFrameId += 1;
-        scheduledFrames.set(id, callback);
-        return id;
-      }),
-    );
-    vi.stubGlobal(
-      "cancelAnimationFrame",
-      vi.fn((id: number) => {
-        scheduledFrames.delete(id);
-      }),
-    );
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
-    vi.restoreAllMocks();
-    vi.unstubAllGlobals();
   });
 
-  it("opens on the ready banner with both fighters at full health", () => {
-    const html = renderToStaticMarkup(<FighterDuelMinigame onComplete={() => {}} />);
-
-    expect(html).toContain("FIGHT!");
-    expect(html).toContain("ROUND 1");
-    expect(html).toContain("P1");
-    expect(html).toContain("CPU");
-    expect(html.match(/value="100"/g)).toHaveLength(2);
-  });
-
-  it("keeps the triangle on screen: each button says what it beats", () => {
-    /*
-     * UT: "공격 방어 뭐 이렇게 해, 잡기는 뭔지도 모르겠네": 상성을 머리에 두면
-     * 규칙을 아는 사람만 아는 게임이 된다. 버튼이 스스로 말해야 한다.
-     */
+  it("시작 신호가 먼저 뜬다", () => {
     render(<FighterDuelMinigame onComplete={() => {}} />);
-
-    // 접근성 이름으로 찾는다. 화면에 보이는 글자이자 스크린리더가 읽는 문장이다
-    expect(screen.getByRole("button", { name: "1 Attack beats Special" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "2 Guard beats Attack" })).toBeTruthy();
-    // 필살기 버튼만 남은 게이지까지 읽힌다. 눈으로는 칸, 스크린리더로는 문장
-    expect(
-      screen.getByRole("button", { name: `3 Special beats Guard ${SPECIAL_USES} specials left` }),
-    ).toBeTruthy();
+    expect(screen.getByText("FIGHT!")).toBeTruthy();
   });
 
-  it("names the move the opponent is telegraphing, not just the pose", () => {
-    /*
-     * 자세 문장만 띄우면 "자세 → 수 → 상성 → 버튼" 네 걸음을 예고 시간 안에 해야
-     * 한다. 이름을 못박아 두 걸음을 지운다. 버튼에서 그 이름을 찾으면 끝이다.
-     */
+  it("조작은 화면 안에 있다: 걷기 둘과 기술 셋", () => {
     render(<FighterDuelMinigame onComplete={() => {}} />);
-    advanceTime(INTRO_MS);
-
-    const status = screen.getByRole("status").textContent ?? "";
-    expect(status).toContain("They reach both arms forward");
-    expect(status).toContain("Special");
-    expect(status).toContain("Opponent");
+    expect(screen.getByText("물러서기·가드")).toBeTruthy();
+    expect(screen.getByText("다가서기")).toBeTruthy();
+    expect(screen.getByText("약공격")).toBeTruthy();
+    expect(screen.getByText("강공격")).toBeTruthy();
+    expect(screen.getByText("잡기")).toBeTruthy();
   });
 
-  it("locks the special once the meter runs dry, without eating the round", () => {
-    /*
-     * UT: "필살기면 횟수 제한 있어야 할 듯."
-     *
-     * 빈 게이지로 누른 필살기가 라운드를 잡아먹으면 "눌렀는데 아무 일도 없이 한 판을
-     * 날렸다"가 된다. 잠그되, 그 라운드는 다른 수로 계속 낼 수 있어야 한다.
-     */
+  it("다가서서 때리고 잡으면 상대 체력이 깎인다", () => {
     render(<FighterDuelMinigame onComplete={() => {}} />);
-    const special = () => screen.getByRole("button", { name: /^3 Special/ }) as HTMLButtonElement;
-    advanceTime(INTRO_MS);
-
-    for (let use = 0; use < SPECIAL_USES; use += 1) {
-      expect(special().disabled).toBe(false);
-      fireEvent.keyDown(window, { key: "3" });
-      advanceTime(RESULT_MS);
-    }
-
-    // 세 번을 다 썼다. 판이 끝날 때까지 다시 열리지 않는다
-    expect(special().disabled).toBe(true);
-
-    const heroBefore = heroHp();
-    const rivalBefore = rivalHp();
-    fireEvent.keyDown(window, { key: "3" });
-    expect(heroHp()).toBe(heroBefore);
-    expect(rivalHp()).toBe(rivalBefore);
-
-    /*
-     * 같은 라운드를 다른 수로 계속 낼 수 있다. 막힌 필살기가 판을 잡아먹지 않았다.
-     * 이겼는지로 재지 않는 이유: 방어 예고가 걸린 라운드라면 그걸 이기는 수가
-     * 필살기뿐이라 이길 수가 없다. 그게 이 제한의 값이고, 여기서 볼 것은
-     * "라운드가 아직 살아 있는가"다.
-     */
-    const attack = () => screen.getByRole("button", { name: /^1 Attack/ }) as HTMLButtonElement;
-    expect(attack().disabled).toBe(false);
-    fireEvent.keyDown(window, { key: "1" });
-    expect(attack().disabled).toBe(true);
-
-    advanceTime(RESULT_MS);
-    expect(special().disabled).toBe(true);
+    run(1000);
+    mixUp(14);
+    expect(hp("CPU")).toBeLessThan(MAX_HP);
   });
 
-  it("drops the hero sprite onto the floor line the rival already stands on", () => {
-    // 두 시트가 프레임 안에서 발 높이가 달라, 안 맞추면 도해만 떠 보인다
-    const html = renderToStaticMarkup(<FighterDuelMinigame onComplete={() => {}} />);
-
-    expect(html).toContain("translateY(16px)");
-    expect(html.match(/translateY\(16px\)/g)).toHaveLength(1);
-  });
-
-  it("holds the round until the opening banner clears", () => {
-    render(<FighterDuelMinigame onComplete={() => {}} />);
-
-    // 배너가 떠 있는 동안 낸 수는 먹지 않는다. 예고를 보기도 전이다
-    fireEvent.keyDown(window, { key: "1" });
-    expect(rivalHp()).toBe(MAX_HP);
-
-    advanceTime(INTRO_MS);
-    expect(screen.getByRole("status").textContent).toContain("They reach both arms forward");
-  });
-
-  it("locks the move buttons while there is nothing to answer", () => {
-    // UT: "버튼을 눌러도 아무 반응이 없다". 낼 차례가 아닌 구간이 눌리는 것처럼 보였다.
-    render(<FighterDuelMinigame onComplete={() => {}} />);
-    /*
-     * 앞을 고정해서 찾는다. 버튼마다 "무엇을 이기는가"가 같이 적혀 있어서
-     * /Attack/로는 방어 버튼("2 Guard beats Attack")까지 걸린다.
-     */
-    const strike = () => screen.getByRole("button", { name: /^1 Attack/ }) as HTMLButtonElement;
-    expect(strike().disabled).toBe(true); // 시작 배너 동안
-
-    advanceTime(INTRO_MS);
-    expect(strike().disabled).toBe(false); // 예고가 걸린 동안
-
-    answerTell();
-    expect(strike().disabled).toBe(true); // 결과 연출 동안
-
-    advanceTime(RESULT_MS);
-    expect(strike().disabled).toBe(false);
-  });
-
-  it("pays a critical for the read that lands inside the window", () => {
-    render(<FighterDuelMinigame onComplete={() => {}} />);
-    advanceTime(INTRO_MS);
-
-    answerTell();
-
-    expect(screen.getByText("READ!")).toBeTruthy();
-    expect(rivalHp()).toBe(MAX_HP - Math.round(BASE_DAMAGE * CRITICAL_SCALE));
-  });
-
-  it("pays the plain damage once the read window has passed", () => {
-    render(<FighterDuelMinigame onComplete={() => {}} />);
-    advanceTime(INTRO_MS);
-    runNextFrame(now);
-    runFramesUntil(now + PAST_CRITICAL_MS);
-
-    answerTell();
-
-    expect(screen.queryByText("READ!")).toBeNull();
-    expect(screen.getByText("Clean hit!")).toBeTruthy();
-    expect(rivalHp()).toBe(MAX_HP - BASE_DAMAGE);
-  });
-
-  it("stacks damage for reads in a row", () => {
-    render(<FighterDuelMinigame onComplete={() => {}} />);
-    advanceTime(INTRO_MS);
-    runNextFrame(now);
-    runFramesUntil(now + PAST_CRITICAL_MS);
-    answerTell();
-    const afterFirst = rivalHp();
-
-    advanceTime(RESULT_MS);
-    runNextFrame(now);
-    runFramesUntil(now + PAST_CRITICAL_MS);
-    answerTell();
-
-    expect(afterFirst - rivalHp()).toBe(BASE_DAMAGE + COMBO_STEP);
-  });
-
-  it("switches the stance mid-round and says so", () => {
-    render(<FighterDuelMinigame onComplete={() => {}} />);
-    advanceTime(INTRO_MS);
-    answerTell();
-    advanceTime(RESULT_MS);
-
-    // 2라운드부터 페인트가 걸린다 (roll 0 < feintChance). 전환은 프레임에서 일어난다.
-    const before = currentTell();
-    // 시계는 예고가 그려지는 첫 프레임에 시작한다. 그 프레임부터 재야 한다
-    runNextFrame(now);
-    const roundStart = now;
-    const duration = tellDurationMs(1, rivalHp());
-    runFramesUntil(roundStart + duration * FEINT_AT + 1);
-
-    expect(currentTell()).not.toBe(before);
-    expect(screen.getByText("They switched stance!")).toBeTruthy();
-
-    // 바뀐 자세를 받아치면 이긴다. 처음 예고를 그대로 믿었으면 졌을 자리다
-    answerTell();
-    expect(screen.getByText("Clean hit!")).toBeTruthy();
-  });
-
-  it("takes the hit when the round runs out with no answer", () => {
-    render(<FighterDuelMinigame onComplete={() => {}} />);
-    advanceTime(INTRO_MS);
-    runNextFrame(now);
-    const roundStart = now;
-
-    runFramesUntil(roundStart + tellDurationMs(0, MAX_HP));
-
-    expect(screen.getByText("Too slow…")).toBeTruthy();
-    expect(heroHp()).toBeLessThan(MAX_HP);
-    expect(rivalHp()).toBe(MAX_HP);
-  });
-
-  it("does not start the clock until the tell has actually been drawn", () => {
-    // 게임이 뜨는 순간 3D 씬·청크 로드로 메인 스레드가 붙잡히는 자리다. 그 시간이
-    // 라운드 시간으로 세어지면 플레이어는 예고를 보기도 전에 한 대 맞는다.
-    render(<FighterDuelMinigame onComplete={() => {}} />);
-    advanceTime(INTRO_MS);
-    advanceTime(5_000);
-
-    runNextFrame(now);
-
-    expect(screen.queryByText("Too slow…")).toBeNull();
-    expect(heroHp()).toBe(MAX_HP);
-  });
-
-  it("does not count a frozen screen against the round", () => {
-    render(<FighterDuelMinigame onComplete={() => {}} />);
-    advanceTime(INTRO_MS);
-    runNextFrame(now);
-
-    // 탭이 가려졌다 돌아온 자리: 프레임이 통째로 비었다
-    runNextFrame(now + 5_000);
-
-    expect(screen.queryByText("Too slow…")).toBeNull();
-    expect(heroHp()).toBe(MAX_HP);
-
-    // 돌아온 뒤로는 정상적으로 시간이 간다
-    runFramesUntil(now + tellDurationMs(0, MAX_HP));
-    expect(screen.getByText("Too slow…")).toBeTruthy();
-  });
-
-  it("reports the knockout once, after the K.O. beat", () => {
-    const onComplete = vi.fn();
-    render(<FighterDuelMinigame onComplete={onComplete} />);
-    advanceTime(INTRO_MS);
-
-    // 매번 간파로 받아친다. 24 + 30 + 36 + 42 로 네 라운드 만에 끝난다
-    for (let round = 0; round < 4; round += 1) {
-      answerTell();
-      if (round < 3) advanceTime(RESULT_MS);
-    }
-
-    expect(rivalHp()).toBe(0);
-    expect(screen.getByText("K.O.")).toBeTruthy();
-    expect(onComplete).not.toHaveBeenCalled();
-
-    advanceTime(KO_MS);
-    expect(onComplete).toHaveBeenCalledOnce();
-    expect(onComplete).toHaveBeenCalledWith({ cleared: true, score: MAX_HP });
-
-    // 승부가 난 뒤의 입력은 아무것도 바꾸지 않는다
-    fireEvent.keyDown(window, { key: "1" });
-    expect(onComplete).toHaveBeenCalledOnce();
-  });
-
-  it("locks the panel before reporting, so a stray click cannot cancel the win", () => {
-    const onSettled = vi.fn();
-    render(<FighterDuelMinigame onComplete={() => {}} onSettled={onSettled} />);
-    advanceTime(INTRO_MS);
-
-    for (let round = 0; round < 4; round += 1) {
-      answerTell();
-      if (round < 3) advanceTime(RESULT_MS);
-    }
-
-    expect(onSettled).toHaveBeenCalledOnce();
-  });
-
-  it("cancels the pending report when unmounted mid-knockout", () => {
-    const onComplete = vi.fn();
-    const view = render(<FighterDuelMinigame onComplete={onComplete} />);
-    advanceTime(INTRO_MS);
-
-    for (let round = 0; round < 4; round += 1) {
-      answerTell();
-      if (round < 3) advanceTime(RESULT_MS);
-    }
-
-    view.unmount();
-    advanceTime(KO_MS);
-
-    expect(onComplete).not.toHaveBeenCalled();
-  });
-
-  it("offers the skip as soon as the player has taken real damage", () => {
-    const onComplete = vi.fn();
-    render(<FighterDuelMinigame onComplete={onComplete} />);
-    advanceTime(INTRO_MS);
-    expect(screen.queryByRole("button", { name: "Skip" })).toBeNull();
-
-    // 두 번 맞으면(시간 초과 포함) 스킵이 열린다. 접근성 규칙상 실패가 막다른 길이면 안 된다
-    runNextFrame(now);
-    runFramesUntil(now + tellDurationMs(0, MAX_HP));
-    advanceTime(RESULT_MS);
-    runNextFrame(now);
-    runFramesUntil(now + tellDurationMs(1, MAX_HP));
-
-    fireEvent.click(screen.getByRole("button", { name: "Skip" }));
-    expect(onComplete).toHaveBeenCalledWith({ cleared: true, score: heroHp() });
+  it("이지 모드에서는 한참 뒤 건너뛸 수 있고, 건너뛰면 통과로 친다", () => {
+    const results: MinigameResult[] = [];
+    render(<FighterDuelMinigame onComplete={(result) => results.push(result)} />);
+    run(31_000);
+    const skip = screen.getByRole("button", { name: "건너뛰기" });
+    act(() => {
+      fireEvent.click(skip);
+    });
+    expect(results).toEqual([{ cleared: true }]);
   });
 });

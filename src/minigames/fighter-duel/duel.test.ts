@@ -1,364 +1,197 @@
 import { describe, expect, it } from "vitest";
 import {
-  applyRound,
-  BASE_DAMAGE,
-  COMBO_CAP,
-  COMBO_STEP,
-  CRITICAL_MS,
-  CRITICAL_SCALE,
-  canUseSpecial,
-  counterTo,
+  ATTACKS,
+  type Attack,
+  advance,
+  canAct,
+  chooseRivalAttack,
+  comboDamage,
   DUEL_START,
-  damageOf,
+  DUEL_TUNINGS,
+  type DuelState,
+  distanceOf,
   duelStatus,
-  FEINT_AT,
-  FEINT_FROM_ROUND,
-  feintChance,
-  feintTo,
   HABIT_THRESHOLD,
-  heroDamage,
-  hpRatio,
-  isCritical,
-  isEnraged,
+  type Intent,
+  MATCH_MS,
   MAX_HP,
-  MOVES,
-  type Move,
-  opponentMove,
-  planRound,
-  RAGE_HP_RATIO,
-  RIVAL_BASE_DAMAGE,
-  RIVAL_DAMAGE_CAP,
-  readHabit,
-  resolveRound,
-  rivalDamage,
-  SPECIAL_USES,
-  shouldFeint,
-  TELL_FLOOR_MS,
-  TELL_START_MS,
-  tellDurationMs,
+  MIN_GAP,
+  NO_INTENT,
+  RIVAL_MIND_START,
+  rivalTellMs,
+  STAGE_SPAN,
+  stepRival,
 } from "./duel";
 
-/** 이겼을 때의 라운드 결과 한 줄. 테스트마다 같은 뼈대를 다시 쓰지 않으려고. */
-const won = (critical = false) =>
-  ({ player: "strike", opponent: "throw", outcome: "win", critical }) as const;
-const lost = { player: "throw", opponent: "strike", outcome: "lose", critical: false } as const;
-const drew = { player: "strike", opponent: "strike", outcome: "draw", critical: false } as const;
+/** 한 프레임(ms). 실제 화면도 이 언저리로 돈다 (rAF 60fps). */
+const STEP = 16;
 
-describe("resolveRound", () => {
-  it("resolves the triangle: strike > throw > guard > strike", () => {
-    expect(resolveRound("strike", "throw")).toBe("win");
-    expect(resolveRound("throw", "guard")).toBe("win");
-    expect(resolveRound("guard", "strike")).toBe("win");
+/** 둘을 원하는 거리에 세운 판. 거리로 갈리는 규칙이 대부분이라 여기서 시작한다. */
+function stageAt(distance: number, patch: Partial<DuelState> = {}): DuelState {
+  return {
+    ...DUEL_START,
+    hero: { ...DUEL_START.hero, x: 3 },
+    rival: { ...DUEL_START.rival, x: 3 + distance },
+    ...patch,
+  };
+}
+
+/**
+ * 상대를 벽에 몰아세운 판. 뒤로 걷는 것이 곧 가드라, 물러설 자리가 있으면 가드를
+ * 시험하려 해도 상대가 뒤로 빠져 버려서 거리로 갈린다.
+ */
+function corneredAt(distance: number): DuelState {
+  const wall = STAGE_SPAN - 0.4;
+  return {
+    ...DUEL_START,
+    hero: { ...DUEL_START.hero, x: wall - distance },
+    rival: { ...DUEL_START.rival, x: wall },
+  };
+}
+
+/** 기술 하나를 끝까지 굴린다. 첫 프레임에만 내고 나머지는 가만히 둔다. */
+function swing(
+  start: DuelState,
+  attack: Attack,
+  rivalIntent: Intent = NO_INTENT,
+  frames = 40,
+): { state: DuelState; kinds: string[] } {
+  let state = start;
+  const kinds: string[] = [];
+  for (let frame = 0; frame < frames; frame += 1) {
+    const heroIntent: Intent = frame === 0 ? { walk: 0, attack } : NO_INTENT;
+    const step = advance(state, heroIntent, rivalIntent, STEP);
+    state = step.state;
+    for (const event of step.events) kinds.push(event.kind);
+  }
+  return { state, kinds };
+}
+
+describe("한 프레임", () => {
+  it("닿는 거리에서 지르면 맞고, 맞은 쪽은 잠깐 못 움직인다", () => {
+    const { state, kinds } = swing(stageAt(1.1), "jab", NO_INTENT, 12);
+    expect(kinds).toContain("hit");
+    expect(state.rival.hp).toBeLessThan(MAX_HP);
+    expect(canAct(state.rival)).toBe(false);
   });
 
-  it("loses to the move that beats it", () => {
-    expect(resolveRound("throw", "strike")).toBe("lose");
-    expect(resolveRound("guard", "throw")).toBe("lose");
-    expect(resolveRound("strike", "guard")).toBe("lose");
+  it("거리 밖에서는 헛친다", () => {
+    const { state, kinds } = swing(stageAt(2.4), "jab", NO_INTENT, 12);
+    expect(kinds).toContain("whiff");
+    expect(state.rival.hp).toBe(MAX_HP);
   });
 
-  it("draws on a mirror match", () => {
-    for (const move of MOVES) expect(resolveRound(move, move)).toBe("draw");
+  it("가드는 공격을 막는다: chip만 깎인다", () => {
+    const guard: Intent = { walk: -1, attack: null };
+    // 물러서며 막으므로 거리가 벌어진다. 약공격의 사거리 안에서 시작한다
+    const { state, kinds } = swing(corneredAt(1), "jab", guard, 12);
+    expect(kinds).toContain("block");
+    expect(MAX_HP - state.rival.hp).toBe(ATTACKS.jab.chip);
   });
-});
 
-describe("counterTo", () => {
-  it("returns the move that beats the given one", () => {
-    for (const move of MOVES) {
-      expect(resolveRound(counterTo(move), move)).toBe("win");
+  it("잡기는 가드를 뚫는다", () => {
+    const guard: Intent = { walk: -1, attack: null };
+    const { state, kinds } = swing(corneredAt(0.95), "throw", guard, 20);
+    expect(kinds).toContain("hit");
+    expect(MAX_HP - state.rival.hp).toBeGreaterThan(ATTACKS.jab.chip);
+  });
+
+  it("상대가 내지르는 중이면 잡기가 깨지고 크게 문다", () => {
+    // 둘이 같은 프레임에 내민다. 잡기(210ms)가 살아날 때 상대의 강공격(330ms)은 아직 발동 중이다
+    let state = advance(
+      stageAt(1),
+      { walk: 0, attack: "throw" },
+      { walk: 0, attack: "heavy" },
+      STEP,
+    ).state;
+    let broke = false;
+    for (let frame = 0; frame < 20 && !broke; frame += 1) {
+      const next = advance(state, NO_INTENT, NO_INTENT, STEP);
+      state = next.state;
+      broke = next.events.some((event) => event.kind === "break");
     }
-  });
-});
-
-describe("heroDamage", () => {
-  it("pays more for every read in a row, up to a cap", () => {
-    expect(heroDamage(1, false)).toBe(BASE_DAMAGE);
-    expect(heroDamage(2, false)).toBe(BASE_DAMAGE + COMBO_STEP);
-    expect(heroDamage(COMBO_CAP, false)).toBe(BASE_DAMAGE + COMBO_STEP * (COMBO_CAP - 1));
-    expect(heroDamage(COMBO_CAP + 5, false)).toBe(heroDamage(COMBO_CAP, false));
+    expect(broke).toBe(true);
+    expect(state.hero.stun).toBe("broken");
   });
 
-  it("scales a critical read", () => {
-    expect(heroDamage(1, true)).toBe(Math.round(BASE_DAMAGE * CRITICAL_SCALE));
+  it("상대의 발동 중에 맞히면 카운터라 더 아프다", () => {
+    const plain = swing(stageAt(1.1), "jab", NO_INTENT, 12).state;
+    const countered = swing(stageAt(1.1), "jab", { walk: 0, attack: "heavy" }, 12).state;
+    expect(MAX_HP - countered.rival.hp).toBeGreaterThan(MAX_HP - plain.rival.hp);
   });
 
-  it("never falls below a single clean hit", () => {
-    expect(heroDamage(0, false)).toBe(BASE_DAMAGE);
-  });
-});
-
-describe("rivalDamage", () => {
-  it("gets heavier as the duel drags on, then stops", () => {
-    expect(rivalDamage(0)).toBe(RIVAL_BASE_DAMAGE);
-    expect(rivalDamage(1)).toBeGreaterThan(rivalDamage(0));
-    expect(rivalDamage(50)).toBe(RIVAL_DAMAGE_CAP);
-  });
-});
-
-describe("applyRound", () => {
-  it("takes the rival's health on a read and grows the combo", () => {
-    const next = applyRound(DUEL_START, won());
-    expect(next.rivalHp).toBe(MAX_HP - BASE_DAMAGE);
-    expect(next.heroHp).toBe(MAX_HP);
-    expect(next.combo).toBe(1);
-    expect(next.round).toBe(1);
-  });
-
-  it("takes the hero's health on a miss and drops the combo", () => {
-    const built = applyRound(applyRound(DUEL_START, won()), won());
-    expect(built.combo).toBe(2);
-    const hit = applyRound(built, lost);
-    expect(hit.heroHp).toBe(MAX_HP - rivalDamage(built.round));
-    expect(hit.combo).toBe(0);
-  });
-
-  it("keeps the combo through a draw but still advances the round", () => {
-    const built = applyRound(DUEL_START, won());
-    const next = applyRound(built, drew);
-    expect(next.combo).toBe(1);
-    expect(next.heroHp).toBe(built.heroHp);
-    expect(next.rivalHp).toBe(built.rivalHp);
-    expect(next.round).toBe(built.round + 1);
-    expect(damageOf(built, drew)).toBe(0);
-  });
-
-  it("never drives health below zero", () => {
-    const nearly = { ...DUEL_START, rivalHp: 3 };
-    expect(applyRound(nearly, won()).rivalHp).toBe(0);
-  });
-
-  it("ends in five reads in a row, four when all critical, and six clean hits taken", () => {
-    // 판이 얼마나 걸리는가는 규칙의 일부다. 30초~2분 안에 끝나야 한다.
-    const rounds = (resolution: () => Parameters<typeof applyRound>[1]) => {
-      let state = DUEL_START;
-      let count = 0;
-      while (duelStatus(state) === "playing" && count < 20) {
-        state = applyRound(state, resolution());
-        count += 1;
-      }
-      return { count, status: duelStatus(state) };
-    };
-    expect(rounds(() => won())).toEqual({ count: 5, status: "won" });
-    expect(rounds(() => won(true))).toEqual({ count: 4, status: "won" });
-    // 지는 쪽이 한 대 더 길다. 규칙을 배우는 판이 그대로 패배가 되지 않게.
-    expect(rounds(() => lost)).toEqual({ count: 6, status: "lost" });
-  });
-});
-
-describe("duelStatus", () => {
-  it("keeps playing while both sides still stand", () => {
-    expect(duelStatus({ ...DUEL_START, heroHp: 1, rivalHp: 1 })).toBe("playing");
-  });
-
-  it("reads a knockout on either side", () => {
-    expect(duelStatus({ ...DUEL_START, rivalHp: 0 })).toBe("won");
-    expect(duelStatus({ ...DUEL_START, heroHp: 0 })).toBe("lost");
-  });
-
-  it("prefers the win when both go down on the same round", () => {
-    expect(duelStatus({ ...DUEL_START, heroHp: 0, rivalHp: 0 })).toBe("won");
-  });
-});
-
-describe("hpRatio", () => {
-  it("clamps to 0~1 so the gauge never overflows its track", () => {
-    expect(hpRatio(MAX_HP * 2)).toBe(1);
-    expect(hpRatio(-30)).toBe(0);
-    expect(hpRatio(MAX_HP / 2)).toBeCloseTo(0.5);
-  });
-});
-
-describe("tellDurationMs", () => {
-  it("shortens as the duel goes on but never past the floor", () => {
-    expect(tellDurationMs(0, MAX_HP)).toBe(TELL_START_MS);
-    expect(tellDurationMs(3, MAX_HP)).toBeLessThan(TELL_START_MS);
-    expect(tellDurationMs(60, MAX_HP)).toBe(TELL_FLOOR_MS);
-  });
-
-  it("shortens once more when the rival is cornered", () => {
-    const cornered = MAX_HP * RAGE_HP_RATIO;
-    expect(tellDurationMs(1, cornered)).toBeLessThan(tellDurationMs(1, MAX_HP));
-    expect(tellDurationMs(1, cornered)).toBeGreaterThanOrEqual(TELL_FLOOR_MS);
-  });
-
-  it("leaves time to read the feint that lands mid-round", () => {
-    // 페인트는 예고 시간의 FEINT_AT 지점에서 들어온다. 제일 짧은 라운드에서도
-    // 그 뒤에 남는 시간이 간파 판정 창보다는 넉넉해야, 바뀐 자세를 읽고 누르는
-    // 게 반사신경 시험이 아니라 판단이 된다.
-    expect(TELL_FLOOR_MS * (1 - FEINT_AT)).toBeGreaterThan(CRITICAL_MS);
-  });
-});
-
-describe("isEnraged", () => {
-  it("marks the cornered rival, but not a knocked-out one", () => {
-    expect(isEnraged(MAX_HP)).toBe(false);
-    expect(isEnraged(MAX_HP * RAGE_HP_RATIO)).toBe(true);
-    expect(isEnraged(0)).toBe(false);
-  });
-});
-
-describe("isCritical", () => {
-  it("rewards the read that lands inside the window", () => {
-    expect(isCritical(0)).toBe(true);
-    expect(isCritical(CRITICAL_MS)).toBe(true);
-    expect(isCritical(CRITICAL_MS + 1)).toBe(false);
-  });
-});
-
-describe("feintChance", () => {
-  it("stays off while the rules are still being learned", () => {
-    for (let round = 0; round < FEINT_FROM_ROUND; round += 1) {
-      expect(feintChance(round)).toBe(0);
-      expect(shouldFeint(round, 0)).toBe(false);
+  it("기술 중에는 걸을 수 없다", () => {
+    let state = advance(stageAt(2.4), { walk: 0, attack: "heavy" }, NO_INTENT, STEP).state;
+    const before = state.hero.x;
+    for (let frame = 0; frame < 6; frame += 1) {
+      state = advance(state, { walk: 1, attack: null }, NO_INTENT, STEP).state;
     }
+    expect(state.hero.x).toBeCloseTo(before, 5);
   });
 
-  it("ramps up and then holds", () => {
-    expect(feintChance(FEINT_FROM_ROUND)).toBeGreaterThan(0);
-    expect(feintChance(FEINT_FROM_ROUND + 1)).toBeGreaterThan(feintChance(FEINT_FROM_ROUND));
-    expect(feintChance(40)).toBe(feintChance(20));
-    expect(feintChance(40)).toBeLessThan(1);
-  });
-
-  it("reads the roll as a probability", () => {
-    const round = FEINT_FROM_ROUND + 1;
-    expect(shouldFeint(round, feintChance(round) - 0.001)).toBe(true);
-    expect(shouldFeint(round, feintChance(round))).toBe(false);
-  });
-});
-
-describe("readHabit", () => {
-  it("finds nothing in a varied history", () => {
-    expect(readHabit(["strike", "guard", "throw", "strike"])).toBeNull();
-  });
-
-  it("names the button that keeps getting pressed", () => {
-    expect(readHabit(["guard", "strike", "strike", "strike"])).toBe("strike");
-  });
-
-  it("only looks at the recent window", () => {
-    const stale: Move[] = ["strike", "strike", "strike", "guard", "throw", "guard", "throw"];
-    expect(readHabit(stale)).toBeNull();
-  });
-
-  it("needs the threshold, not a plurality", () => {
-    const short = Array<Move>(HABIT_THRESHOLD - 1).fill("throw");
-    expect(readHabit(short)).toBeNull();
-  });
-});
-
-describe("feintTo", () => {
-  it("always switches to a different move than the tell", () => {
-    for (const tell of MOVES) expect(feintTo(tell)).not.toBe(tell);
-  });
-
-  it("beats the player who answered the tell by the book", () => {
-    for (const tell of MOVES) {
-      expect(resolveRound(counterTo(tell), feintTo(tell))).toBe("lose");
+  it("서로 겹쳐 서지 않는다", () => {
+    let state = stageAt(1.4);
+    for (let frame = 0; frame < 60; frame += 1) {
+      state = advance(state, { walk: 1, attack: null }, { walk: 1, attack: null }, STEP).state;
     }
+    expect(distanceOf(state)).toBeGreaterThanOrEqual(MIN_GAP - 1e-6);
   });
 
-  it("punishes a habit instead when one is showing", () => {
-    const habit: Move[] = ["guard", "guard", "guard"];
-    // 버릇이 tell과 어긋나는 조합에서만 버릇 쪽이 우선한다.
-    const tell = MOVES.find((move) => counterTo("guard") !== move) as Move;
-    expect(feintTo(tell, habit)).toBe(counterTo("guard"));
-  });
-
-  it("falls back to the book when punishing the habit would not be a switch", () => {
-    const habit: Move[] = ["guard", "guard", "guard"];
-    const tell = counterTo("guard");
-    expect(feintTo(tell, habit)).toBe(feintTo(tell));
-    expect(feintTo(tell, habit)).not.toBe(tell);
+  it("콤보가 쌓이면 한 방이 커진다", () => {
+    expect(comboDamage(10, 2, false)).toBeGreaterThan(comboDamage(10, 1, false));
+    expect(comboDamage(10, 1, true)).toBeGreaterThan(comboDamage(10, 1, false));
   });
 });
 
-describe("opponentMove", () => {
-  it("is deterministic for the same round and salt", () => {
-    expect(opponentMove(3, 11)).toBe(opponentMove(3, 11));
+describe("판정", () => {
+  it("체력이 0이면 끝난다", () => {
+    expect(duelStatus({ ...DUEL_START, rival: { ...DUEL_START.rival, hp: 0 } })).toBe("won");
+    expect(duelStatus({ ...DUEL_START, hero: { ...DUEL_START.hero, hp: 0 } })).toBe("lost");
   });
 
-  it("always returns a legal move", () => {
-    for (let round = 0; round < 40; round += 1) {
-      expect(MOVES).toContain(opponentMove(round, round * 7));
+  it("시간이 다 되면 체력이 많은 쪽이 이긴다", () => {
+    const timeUp = { ...DUEL_START, elapsedMs: MATCH_MS };
+    expect(duelStatus({ ...timeUp, rival: { ...timeUp.rival, hp: 10 } })).toBe("won");
+    expect(duelStatus({ ...timeUp, hero: { ...timeUp.hero, hp: 10 } })).toBe("lost");
+  });
+});
+
+describe("상대의 머리", () => {
+  it("막고만 있으면 잡으러 온다", () => {
+    const mind = { ...RIVAL_MIND_START, guardSeen: HABIT_THRESHOLD };
+    expect(chooseRivalAttack(mind, 1, 0.9)).toBe("throw");
+  });
+
+  it("잡으러만 들어오면 약공격으로 끊는다", () => {
+    const mind = { ...RIVAL_MIND_START, throwSeen: HABIT_THRESHOLD };
+    expect(chooseRivalAttack(mind, 1.4, 0.9)).toBe("jab");
+  });
+
+  it("예고를 걸고, 예고 시간이 지나야 지른다", () => {
+    const tuning = DUEL_TUNINGS.normal;
+    let mind = { ...RIVAL_MIND_START, waitMs: 0 };
+    const state = stageAt(1.2);
+    const first = stepRival(state, mind, STEP, 0.99, tuning);
+    mind = first.mind;
+    expect(mind.telegraph).not.toBeNull();
+    expect(first.intent.attack).toBeNull();
+
+    let attacked: Attack | null = null;
+    for (let frame = 0; frame < 60 && attacked === null; frame += 1) {
+      const step = stepRival(state, mind, STEP, 0.99, tuning);
+      mind = step.mind;
+      attacked = step.intent.attack;
     }
+    expect(attacked).not.toBeNull();
   });
 
-  it("does not lock onto a single move across a run", () => {
-    const seen = new Set<Move>();
-    for (let round = 0; round < 24; round += 1) seen.add(opponentMove(round, 5));
-    expect(seen.size).toBeGreaterThan(1);
-  });
-});
-
-describe("planRound", () => {
-  it("carries the tell, the round's clock, and no feint on a high roll", () => {
-    const plan = planRound(DUEL_START, 7, [], 0.99);
-    expect(plan.tell).toBe(opponentMove(0, 7));
-    expect(plan.durationMs).toBe(tellDurationMs(0, MAX_HP));
-    expect(plan.feint).toBeNull();
+  it("몰리면 예고가 짧아진다", () => {
+    const tuning = DUEL_TUNINGS.normal;
+    expect(rivalTellMs(tuning, 10)).toBeLessThan(rivalTellMs(tuning, MAX_HP));
   });
 
-  it("plans a feint once the rounds allow it", () => {
-    const state = { ...DUEL_START, round: FEINT_FROM_ROUND };
-    const plan = planRound(state, 7, [], 0);
-    expect(plan.feint).toBe(feintTo(plan.tell, []));
-  });
-
-  it("tightens the clock when the rival is cornered", () => {
-    const cornered = { ...DUEL_START, round: 1, rivalHp: 10 };
-    expect(planRound(cornered, 7, [], 1).durationMs).toBeLessThan(
-      planRound({ ...cornered, rivalHp: MAX_HP }, 7, [], 1).durationMs,
-    );
-  });
-});
-
-describe("필살기 게이지", () => {
-  /** 필살기로 이긴 라운드 / 헛디딘 라운드. player가 throw인 것이 게이지를 쓴다. */
-  const specialWon = {
-    player: "throw",
-    opponent: "guard",
-    outcome: "win",
-    critical: false,
-  } as const;
-  const specialWhiffed = {
-    player: "throw",
-    opponent: "strike",
-    outcome: "lose",
-    critical: false,
-  } as const;
-
-  it("hands out a fixed number per match", () => {
-    expect(DUEL_START.special).toBe(SPECIAL_USES);
-  });
-
-  it("never gives one back: not for a read, not for a landed special", () => {
-    /*
-     * 읽어낼 때마다 채워 주던 때는 잘 읽는 사람에게 사실상 무제한이라 제한이
-     * 아니었다 (UT: "필살기는 횟수 제한 있어야 하지 않나"). 줄기만 해야 한다.
-     */
-    expect(applyRound(DUEL_START, won()).special).toBe(SPECIAL_USES);
-    expect(applyRound(DUEL_START, specialWon).special).toBe(SPECIAL_USES - 1);
-    expect(applyRound(DUEL_START, specialWhiffed).special).toBe(SPECIAL_USES - 1);
-  });
-
-  it("runs out after the last one and stays out", () => {
-    let state = DUEL_START;
-    for (let use = 0; use < SPECIAL_USES; use += 1) {
-      expect(canUseSpecial(state)).toBe(true);
-      state = applyRound(state, specialWon);
-    }
-
-    expect(state.special).toBe(0);
-    expect(canUseSpecial(state)).toBe(false);
-    // 다 쓴 뒤에도 아래로 새지 않는다
-    expect(applyRound(state, specialWhiffed).special).toBe(0);
-  });
-
-  it("leaves the other two moves free: only the special is counted", () => {
-    const drained = { ...DUEL_START, special: 0 };
-
-    expect(applyRound(drained, drew).special).toBe(0);
-    expect(applyRound(drained, won()).special).toBe(0);
+  it("이지가 노멀보다 예고가 길고 한 방이 약하다", () => {
+    expect(DUEL_TUNINGS.easy.tellMs).toBeGreaterThan(DUEL_TUNINGS.normal.tellMs);
+    expect(DUEL_TUNINGS.easy.rivalDamageScale).toBeLessThan(DUEL_TUNINGS.normal.rivalDamageScale);
   });
 });

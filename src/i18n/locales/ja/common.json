@@ -157,47 +157,37 @@
     },
     "fighterDuel": {
       "title": "格闘ゲーム",
-      "help": "相手の構えを見て、それに勝つ手を出す: 1 攻撃 · 2 ガード · 3 必殺技",
-      "help_touch": "相手の構えを見て、それに勝つ手を下のボタンで出します",
-      "hint": "画面上に出た相手の手を、ボタンの「○○に強い」から探せば勝てます",
+      "help": "方向キーで間合いを取り、J 弱攻撃・K 強攻撃・L 投げ（←でガード）",
+      "help_touch": "下のボタンで踏み込んで打つ。下がることがそのままガードになる",
       "rules": {
-        "triangle": "攻撃 → 必殺技 → ガード → 攻撃 の順で勝ちます: 必殺技はガードを崩し、溜めのある必殺技は攻撃で潰されます",
-        "special": "必殺技は一戦につき三回までです"
+        "triangle": "投げはガードを崩し、ガードは攻撃を止め、攻撃は投げに来る腕を潰す",
+        "frames": "強攻撃は遅くて痛い。相手の出がかりに当てればカウンターでさらに入る"
       },
       "labelCombo": "コンボ",
-      "labelCritical": "見切り",
+      "labelCounter": "カウンター",
+      "labelTime": "残り時間",
       "nameHero": "P1",
       "nameRival": "CPU",
-      "round": "ROUND {{value}}",
-      "combo": "{{value}} COMBO",
-      "critical": "見切った！",
-      "feint": "相手が構えを変えた！",
+      "combo": "{{value}} HIT",
+      "callout": {
+        "counter": "カウンター！",
+        "broken": "投げ失敗！"
+      },
       "banner": {
         "fight": "FIGHT!",
         "ko": "K.O.",
         "down": "DOWN"
       },
       "move": {
-        "strike": "攻撃",
-        "guard": "ガード",
-        "throw": "必殺技"
+        "jab": "弱攻撃",
+        "heavy": "強攻撃",
+        "throw": "投げ"
       },
-      "tell": {
-        "strike": "相手が肩を引く",
-        "guard": "相手が両腕を頭上に上げる",
-        "throw": "相手が両腕を前に伸ばす"
+      "control": {
+        "back": "下がる・ガード",
+        "forward": "踏み込む"
       },
-      "outcome": {
-        "win": "一本！",
-        "lose": "もらった…",
-        "draw": "ぶつかった",
-        "late": "遅かった…"
-      },
-      "beats": "{{move}}に強い",
-      "tellLabel": "相手の手",
-      "specialLeft": "必殺技 残り{{left}}回",
-      "fail": "負けた。…もう一回やればいい。",
-      "tutorialHint": "最初のラウンドは練習：光っているボタンが正解です"
+      "fail": "負けた。…もう一本やれば勝てる。"
     },
     "labelSuccess": "成功",
     "labelMiss": "失敗",

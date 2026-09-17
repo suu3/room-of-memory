@@ -157,47 +157,37 @@
     },
     "fighterDuel": {
       "title": "격투 게임",
-      "help": "상대 자세를 보고 그걸 이기는 수를 내세요: 1 공격 · 2 방어 · 3 필살기",
-      "help_touch": "상대 자세를 보고 그걸 이기는 수를 아래 버튼으로 내세요",
-      "hint": "화면 위에 뜬 상대 수를 버튼의 「○○에 강함」에서 찾으면 됩니다",
+      "help": "방향키로 거리를 잡고 J 약공격 · K 강공격 · L 잡기 (←는 가드)",
+      "help_touch": "아래 버튼으로 다가서고 치세요. 물러서기가 곧 가드입니다",
       "rules": {
-        "triangle": "공격 → 필살기 → 방어 → 공격 순으로 이깁니다. 필살기는 방어를 뚫고, 뜸 들이는 필살기는 공격에 끊깁니다",
-        "special": "필살기는 한 판에 세 번만 쓸 수 있습니다"
+        "triangle": "잡기는 가드를 뚫고, 가드는 공격을 막고, 공격은 잡으러 오는 팔을 끊습니다",
+        "frames": "강공격은 느리고 아픕니다. 상대가 내지르는 틈에 맞히면 카운터로 더 들어갑니다"
       },
       "labelCombo": "콤보",
-      "labelCritical": "간파",
+      "labelCounter": "카운터",
+      "labelTime": "남은 시간",
       "nameHero": "P1",
       "nameRival": "CPU",
-      "round": "ROUND {{value}}",
-      "combo": "{{value}} COMBO",
-      "critical": "간파!",
-      "feint": "상대가 자세를 바꿨다!",
+      "combo": "{{value}} HIT",
+      "callout": {
+        "counter": "카운터!",
+        "broken": "잡기 실패!"
+      },
       "banner": {
         "fight": "FIGHT!",
         "ko": "K.O.",
         "down": "DOWN"
       },
       "move": {
-        "strike": "공격",
-        "guard": "방어",
-        "throw": "필살기"
+        "jab": "약공격",
+        "heavy": "강공격",
+        "throw": "잡기"
       },
-      "tell": {
-        "strike": "상대가 어깨를 뒤로 뺀다",
-        "guard": "상대가 두 팔을 머리 위로 든다",
-        "throw": "상대가 두 팔을 앞으로 뻗는다"
+      "control": {
+        "back": "물러서기·가드",
+        "forward": "다가서기"
       },
-      "outcome": {
-        "win": "한 방!",
-        "lose": "맞았다…",
-        "draw": "부딪혔다",
-        "late": "늦었다…"
-      },
-      "beats": "{{move}}에 강함",
-      "tellLabel": "상대의 수",
-      "specialLeft": "필살기 {{left}}번 남음",
-      "fail": "졌다. …한 판 더 하면 되지.",
-      "tutorialHint": "첫 판은 연습: 빛나는 버튼이 정답입니다"
+      "fail": "졌다. …한 판 더 하면 되지."
     },
     "labelSuccess": "성공",
     "labelMiss": "실패",
