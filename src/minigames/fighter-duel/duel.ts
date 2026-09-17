@@ -317,17 +317,38 @@ function tickTimers(fighter: FighterState, dtMs: number): { next: FighterState; 
   return { next, landed };
 }
 
-/** 벽과 상대 사이에 가둔다. 겹치지도, 무대 밖으로 나가지도 않는다. */
+/** 무대의 양 끝. 여기가 벽이다. */
+const WALL = { min: 0.4, max: STAGE_SPAN - 0.4 } as const;
+
+function inStage(x: number): number {
+  return Math.min(Math.max(x, WALL.min), WALL.max);
+}
+
+/**
+ * 벽과 상대 사이에 가둔다. 겹치지도, 무대 밖으로 나가지도 않는다.
+ *
+ * **벽에 몰린 쪽은 더 못 밀린다.** 밀 몫을 늘 반씩 나눠 가졌더니, 구석까지 밀어붙인
+ * 상대가 벽을 뚫고 무대 밖으로 나갔다. 남는 몫은 반대쪽이 진다: 그래서 구석에 몰면
+ * 상대가 물러설 자리를 잃고, 물러서기로 피하던 잡기를 피할 수 없게 된다. 격투 게임에서
+ * 구석이 값을 갖는 이유가 이것이다.
+ */
 function clampPositions(hero: FighterState, rival: FighterState): void {
-  hero.x = Math.min(Math.max(hero.x, 0.4), STAGE_SPAN - 0.4);
-  rival.x = Math.min(Math.max(rival.x, 0.4), STAGE_SPAN - 0.4);
-  const gap = rival.x - hero.x;
-  if (gap < MIN_GAP) {
-    const push = (MIN_GAP - gap) / 2;
-    hero.x -= push;
-    rival.x += push;
-    hero.x = Math.min(Math.max(hero.x, 0.4), STAGE_SPAN - 0.4);
-    rival.x = Math.max(rival.x, hero.x + MIN_GAP);
+  hero.x = inStage(hero.x);
+  rival.x = inStage(rival.x);
+  const need = MIN_GAP - (rival.x - hero.x);
+  if (need <= 0) return;
+
+  const rivalRoom = WALL.max - rival.x;
+  const heroRoom = hero.x - WALL.min;
+  const toRival = Math.min(need / 2, rivalRoom);
+  const toHero = Math.min(need - toRival, heroRoom);
+  rival.x += toRival;
+  hero.x -= toHero;
+  // 한쪽이 벽에 붙어 몫을 못 받았으면 나머지를 반대쪽이 마저 진다
+  const left = MIN_GAP - (rival.x - hero.x);
+  if (left > 0) {
+    rival.x = inStage(rival.x + Math.min(left, WALL.max - rival.x));
+    hero.x = inStage(hero.x - Math.min(MIN_GAP - (rival.x - hero.x), hero.x - WALL.min));
   }
 }
 

@@ -129,6 +129,17 @@ describe("한 프레임", () => {
     expect(state.hero.x).toBeCloseTo(before, 5);
   });
 
+  it("구석까지 밀어붙여도 상대가 벽을 뚫지 않는다", () => {
+    // 밀 몫을 늘 반씩 나눠 가지면, 벽에 붙은 쪽이 무대 밖으로 밀려 나간다
+    let state = corneredAt(1.2);
+    for (let frame = 0; frame < 120; frame += 1) {
+      state = advance(state, { walk: 1, attack: null }, { walk: -1, attack: null }, STEP).state;
+    }
+    expect(state.rival.x).toBeLessThanOrEqual(STAGE_SPAN - 0.4 + 1e-6);
+    expect(state.hero.x).toBeGreaterThanOrEqual(0.4 - 1e-6);
+    expect(distanceOf(state)).toBeGreaterThanOrEqual(MIN_GAP - 1e-6);
+  });
+
   it("서로 겹쳐 서지 않는다", () => {
     let state = stageAt(1.4);
     for (let frame = 0; frame < 60; frame += 1) {
