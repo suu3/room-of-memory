@@ -227,7 +227,8 @@ describe("점프", () => {
     expect(state.hero.attack).toBe("jab");
     expect(state.hero.airAttacked).toBe(true);
     // 첫 기술이 끝난 뒤에도 같은 점프에서는 다시 못 친다
-    for (let frame = 0; frame < 24; frame += 1) {
+    // (한 방이 들어가면 히트스톱만큼 판이 멈추므로 프레임을 넉넉히 준다)
+    for (let frame = 0; frame < 34; frame += 1) {
       state = advance(state, { walk: 0, attack: "jab" }, NO_INTENT, STEP).state;
     }
     expect(isAirborne(state.hero)).toBe(true);

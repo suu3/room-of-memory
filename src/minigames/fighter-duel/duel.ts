@@ -96,8 +96,9 @@ export const ATTACKS: Record<Attack, AttackFrames> = {
     // 가드가 방어가 아니라 시간 끌기가 된다
     chip: 0,
     // 밀림이 작으면 약공격 연타 하나로 상대를 가둔다. 한 대 칠 때마다 사이가 벌어져야
-    // 다시 들어가는 걸음이 생기고, 그 걸음이 상대에게는 숨 쉴 틈이 된다
-    pushback: 0.3,
+    // 다시 들어가는 걸음이 생기고, 그 걸음이 상대에게는 숨 쉴 틈이 된다.
+    // 눈으로도 보여야 한다: 때렸는데 상대가 제자리면 때린 것 같지가 않다
+    pushback: 0.45,
     hitStunMs: 210,
     blockStunMs: 150,
   },
@@ -109,7 +110,7 @@ export const ATTACKS: Record<Attack, AttackFrames> = {
     reach: 1.5,
     // 강공격만 막아도 조금 깎인다. 가드 한 자세로 영원히 버티지는 못한다는 표시
     chip: 1,
-    pushback: 0.5,
+    pushback: 0.72,
     hitStunMs: 420,
     blockStunMs: 240,
   },
@@ -120,7 +121,7 @@ export const ATTACKS: Record<Attack, AttackFrames> = {
     damage: 11,
     reach: 1.05,
     chip: 0,
-    pushback: 0.7,
+    pushback: 0.9,
     hitStunMs: 520,
     blockStunMs: 0,
   },
@@ -131,6 +132,15 @@ export const THROW_BREAK_MS = 620;
 
 /** 카운터(상대의 발동 중에 맞히기) 배수. 먼저 읽고 먼저 내민 값이다. */
 export const COUNTER_SCALE = 1.4;
+
+/**
+ * 맞는 순간 판이 통째로 멈추는 시간(ms). 격투 게임의 히트스톱이다.
+ *
+ * 때린 맛은 숫자가 아니라 이 정지에서 난다. 멈춘 동안에는 아무도 못 움직이고 시계도
+ * 안 돈다: 맞은 쪽이 밀려나는 것이 그 정지 뒤에 한 번에 보인다.
+ */
+export const HIT_STOP_MS = 80;
+export const COUNTER_STOP_MS = 130;
 /** 끊기지 않고 이어 맞힐 때마다 붙는 가산과 그 상한(맞힌 횟수 기준). */
 export const COMBO_STEP = 2;
 export const COMBO_CAP = 5;
@@ -153,7 +163,12 @@ export interface DuelTuning {
 }
 
 export const DUEL_TUNINGS: Record<MinigameDifficulty, DuelTuning> = {
-  easy: { rivalDamageScale: 0.7, tellMs: 320, thinkMs: 380, blockChance: 0.62, punishChance: 0.55 },
+  /*
+   * 이지는 "덜 아픈 상대"가 아니라 **덜 몰아붙이는 상대**다. 한 방의 세기만 낮췄더니
+   * 쉬지 않고 들어오는 손 때문에 때릴 틈 자체가 없었다 (UT: "상대가 너무 빠르게
+   * 바로바로 공격"). 예고를 길게, 뜸을 길게, 무는 확률을 낮춘다.
+   */
+  easy: { rivalDamageScale: 0.7, tellMs: 380, thinkMs: 620, blockChance: 0.5, punishChance: 0.3 },
   normal: {
     rivalDamageScale: 1,
     tellMs: 200,
@@ -213,6 +228,8 @@ export interface DuelState {
   rival: FighterState;
   /** 판이 시작된 뒤 흐른 시간(ms). */
   elapsedMs: number;
+  /** 히트스톱이 남은 시간(ms). 0보다 크면 판이 멈춰 있다. */
+  hitStopMs: number;
 }
 
 function freshFighter(x: number): FighterState {
@@ -236,6 +253,7 @@ export const DUEL_START: DuelState = {
   hero: freshFighter(HERO_START),
   rival: freshFighter(RIVAL_START),
   elapsedMs: 0,
+  hitStopMs: 0,
 };
 
 /** 지금 움직일 수 있는가. 기술 중이거나 경직이면 손이 묶인다. */
@@ -525,6 +543,18 @@ export function advance(
   const dt = Math.min(Math.max(dtMs, 0), MAX_STEP_MS);
   const events: DuelEvent[] = [];
 
+  // 히트스톱 동안에는 아무것도 흐르지 않는다. 판이 멈춘 그 짧은 정지가 타격감이다
+  if (state.hitStopMs > 0) {
+    return {
+      state: {
+        ...state,
+        hitStopMs: Math.max(0, state.hitStopMs - dt),
+        elapsedMs: state.elapsedMs + dt,
+      },
+      events,
+    };
+  }
+
   const heroTick = tickTimers(state.hero, dt);
   const rivalTick = tickTimers(state.rival, dt);
   const hero = heroTick.next;
@@ -580,7 +610,19 @@ export function advance(
   }
   clampPositions(hero, rival);
 
-  const next: DuelState = { hero, rival, elapsedMs: state.elapsedMs + dt };
+  // 들어간 한 방마다 판이 잠깐 멈춘다. 카운터는 조금 더 길게 멈춘다
+  const stop = events.reduce((longest, event) => {
+    if (event.kind === "counter") return Math.max(longest, COUNTER_STOP_MS);
+    if (event.kind === "hit" || event.kind === "break") return Math.max(longest, HIT_STOP_MS);
+    return longest;
+  }, 0);
+
+  const next: DuelState = {
+    hero,
+    rival,
+    elapsedMs: state.elapsedMs + dt,
+    hitStopMs: stop,
+  };
   if (duelStatus(next) !== "playing" && duelStatus(state) === "playing") {
     events.push({
       kind: "ko",
@@ -662,6 +704,9 @@ export function stepRival(
   roll: number,
   tuning: DuelTuning = DUEL_TUNINGS.normal,
 ): { mind: RivalMind; intent: Intent } {
+  // 판이 멈춘 동안에는 상대도 생각하지 않는다 (히트스톱)
+  if (state.hitStopMs > 0) return { mind, intent: NO_INTENT };
+
   const dt = Math.min(Math.max(dtMs, 0), MAX_STEP_MS);
   const next: RivalMind = { ...mind };
   const distance = distanceOf(state);

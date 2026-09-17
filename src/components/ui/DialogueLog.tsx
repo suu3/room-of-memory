@@ -4,7 +4,7 @@ import { X } from "@phosphor-icons/react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { selectHeroNameKnown, useMemoryRoomStore } from "@/store/memory-room";
-import { BACKDROP, HUD_ICON_BUTTON_SOLID, PANEL_DARK } from "./ui-classes";
+import { HUD_ICON_BUTTON_SOLID } from "./ui-classes";
 
 /**
  * 지나간 대사를 모아 보는 화면 (비주얼 노벨의 백로그).
@@ -13,9 +13,17 @@ import { BACKDROP, HUD_ICON_BUTTON_SOLID, PANEL_DARK } from "./ui-classes";
  * 목록을 펼치기만 한다. 본문이 아니라 키가 쌓여 있어서, 이 화면을 열어 둔 채 언어를
  * 바꿔도 지나간 줄이 그 언어로 다시 읽힌다.
  *
- * 마지막 줄이 보이도록 열린다. 로그를 여는 이유는 대개 "방금 뭐라고 했지"라서,
- * 처음부터 펼치면 매번 끝까지 굴려야 한다.
+ * **판이 아니라 겹이다.** 처음엔 테두리와 제목줄이 있는 패널이었는데, 그러면 설정창과
+ * 같은 무게로 읽혀서 대사 흐름이 끊긴다. 비주얼 노벨의 백로그는 방 위에 어둠을 한 겹
+ * 덮고 글자만 얹는다. 여기도 그렇게 한다: 전면을 덮되 틀은 없다.
+ *
+ * 최근 것만 보여준다. 로그를 여는 이유는 대개 "방금 뭐라고 했지"라서, 스무 줄 위의
+ * 대사는 찾는 물건이 아니다. 오래된 줄일수록 옅어져 어디가 최신인지 눈으로 읽힌다.
  */
+const VISIBLE_LINES = 14;
+/** 가장 오래된 줄의 불투명도. 1까지 올라오며 최신 줄이 가장 진하다. */
+const FADE_FLOOR = 0.42;
+
 export function DialogueLog() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
@@ -50,59 +58,60 @@ export function DialogueLog() {
 
   if (!open) return null;
 
+  const recent = log.slice(-VISIBLE_LINES);
+
   return (
     // z-60: 대사창(z-50) 위에 선다. 대사 위에 얹히는 화면이라 그 아래로 가면 안 읽힌다
-    <div className="absolute inset-0 z-[60] grid place-items-center p-4">
-      <button
-        type="button"
-        aria-label={t("dialogue.logClose")}
-        onClick={() => setOpen(false)}
-        className={`absolute inset-0 cursor-pointer ${BACKDROP}`}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={t("dialogue.log")}
-        className={`relative flex max-h-full w-full max-w-2xl animate-fade-rise flex-col ${PANEL_DARK}`}
-      >
-        <div className="flex flex-none items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-          <h2 className="text-sm font-medium text-ivory">{t("dialogue.log")}</h2>
-          <button
-            type="button"
-            aria-label={t("dialogue.logClose")}
-            onClick={() => setOpen(false)}
-            className={HUD_ICON_BUTTON_SOLID}
-          >
-            <X size={20} weight="bold" />
-          </button>
-        </div>
-        {/* overscroll-contain: 끝까지 굴린 스크롤이 뒤의 방으로 새어 나가지 않게 */}
-        <div className="min-h-0 overflow-y-auto overscroll-contain px-5 py-4">
-          {log.length === 0 ? (
-            <p className="break-ko py-6 text-center text-sm text-fog">{t("dialogue.logEmpty")}</p>
-          ) : (
-            <ol className="flex flex-col gap-3.5">
-              {log.map((entry, index) => (
-                <li
-                  // biome-ignore lint/suspicious/noArrayIndexKey: 같은 줄이 여러 번 흐를 수 있다. 자리가 곧 순서다
-                  key={index}
-                  className="border-l-2 border-line pl-3"
-                >
-                  <p className="text-xs font-medium text-memory/80">
-                    {entry.speaker === "hero" && !heroNameKnown
-                      ? t("speaker.unknownHero")
-                      : tRoom(`characters.${entry.speaker}.name` as never)}
-                  </p>
-                  <p className="mt-1 break-ko text-pretty text-sm leading-relaxed text-ivory/90">
-                    {tRoom(entry.textKey)}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          )}
-          <div ref={bottomRef} />
-        </div>
+    <section
+      aria-label={t("dialogue.log")}
+      className="absolute inset-0 z-[60] flex animate-fade-rise flex-col bg-scene-void/85 backdrop-blur-[2px]"
+      // 글자 없는 자리를 누르면 닫힌다. 목록 위의 클릭은 스크롤을 위해 살려 둔다
+      onPointerDown={(event) => {
+        if (event.target === event.currentTarget) setOpen(false);
+      }}
+    >
+      <div className="pointer-events-none flex flex-none items-center justify-between gap-3 px-5 pt-4 sm:px-8 sm:pt-6">
+        <h2 className="font-pixel text-[0.7rem] tracking-[0.3em] text-bone/60">
+          {t("dialogue.log")}
+        </h2>
+        <button
+          type="button"
+          aria-label={t("dialogue.logClose")}
+          onClick={() => setOpen(false)}
+          className={`pointer-events-auto ${HUD_ICON_BUTTON_SOLID}`}
+        >
+          <X size={20} weight="bold" />
+        </button>
       </div>
-    </div>
+
+      {/* overscroll-contain: 끝까지 굴린 스크롤이 뒤의 방으로 새어 나가지 않게 */}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-8 pt-4 sm:px-8">
+        {recent.length === 0 ? (
+          <p className="break-ko pt-10 text-center text-sm text-fog">{t("dialogue.logEmpty")}</p>
+        ) : (
+          <ol className="mx-auto flex w-full max-w-2xl flex-col gap-5">
+            {recent.map((entry, index) => (
+              <li
+                // biome-ignore lint/suspicious/noArrayIndexKey: 같은 줄이 여러 번 흐를 수 있다. 자리가 곧 순서다
+                key={index}
+                style={{
+                  opacity: FADE_FLOOR + (1 - FADE_FLOOR) * ((index + 1) / recent.length),
+                }}
+              >
+                <p className="font-pixel text-[0.6rem] tracking-[0.25em] text-memory/75">
+                  {entry.speaker === "hero" && !heroNameKnown
+                    ? t("speaker.unknownHero")
+                    : tRoom(`characters.${entry.speaker}.name` as never)}
+                </p>
+                <p className="mt-1.5 break-ko text-pretty leading-relaxed text-ivory">
+                  {tRoom(entry.textKey)}
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
+        <div ref={bottomRef} />
+      </div>
+    </section>
   );
 }
