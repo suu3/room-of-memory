@@ -35,6 +35,14 @@ const SKIP_AFTER_MS = 30_000;
 const CALLOUT_MS = 700;
 /** 맞은 표시(플래시·흔들림)가 남는 시간. */
 const HIT_FLASH_MS = 180;
+/**
+ * 플레이어를 아래로 내리는 폭(px).
+ *
+ * 두 시트는 프레임 안에서 발이 앉은 높이가 조금씩 다르다. 같은 바닥선에 세우면
+ * 한쪽만 떠 보이므로 그림을 다시 그리는 대신 여기서 맞춘다 (Fighter의 offsetY).
+ */
+const HERO_OFFSET_Y = 5;
+
 /** 규칙에 보내는 한 걸음(ms). 60fps 한 프레임. 화면이 느려도 이 간격은 그대로다. */
 const FIXED_STEP_MS = 16;
 /** 한 프레임에 몰아서 따라잡을 수 있는 최대 시간(ms). 탭이 잠들었다 깨도 순간이동은 없다. */
@@ -342,6 +350,7 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
               tone="memory"
               facing="right"
               sprite={ASSETS.images.mgFighterDuelHero}
+              offsetY={HERO_OFFSET_Y}
               shake={heroHit}
               flash={heroHit}
             />
