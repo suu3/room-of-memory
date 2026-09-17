@@ -13,6 +13,9 @@ import {
   duelStatus,
   HABIT_THRESHOLD,
   type Intent,
+  isAirborne,
+  JUMP_MS,
+  jumpHeight,
   MATCH_MS,
   MAX_HP,
   MIN_GAP,
@@ -151,6 +154,98 @@ describe("한 프레임", () => {
   it("콤보가 쌓이면 한 방이 커진다", () => {
     expect(comboDamage(10, 2, false)).toBeGreaterThan(comboDamage(10, 1, false));
     expect(comboDamage(10, 1, true)).toBeGreaterThan(comboDamage(10, 1, false));
+  });
+});
+
+describe("점프", () => {
+  /** 뜬 채로 원하는 프레임까지 굴린다. */
+  function jumpFor(frames: number, start = stageAt(1.6)) {
+    let state = advance(start, { walk: 0, attack: null, jump: true }, NO_INTENT, STEP).state;
+    for (let frame = 1; frame < frames; frame += 1) {
+      state = advance(state, NO_INTENT, NO_INTENT, STEP).state;
+    }
+    return state;
+  }
+
+  it("뜨면 발이 땅에서 떨어지고, 착지하면 잠깐 굳는다", () => {
+    const rising = jumpFor(6);
+    expect(isAirborne(rising.hero)).toBe(true);
+    expect(jumpHeight(rising.hero.airMs ?? 0)).toBeGreaterThan(0);
+
+    const landed = jumpFor(Math.ceil(JUMP_MS / STEP) + 2);
+    expect(isAirborne(landed.hero)).toBe(false);
+    expect(landed.hero.stun).toBe("land");
+  });
+
+  it("뜬 몸은 잡히지 않는다", () => {
+    let state = jumpFor(8);
+    const kinds: string[] = [];
+    for (let frame = 0; frame < 20; frame += 1) {
+      const step = advance(
+        state,
+        NO_INTENT,
+        frame === 0 ? { walk: 0, attack: "throw" } : NO_INTENT,
+        STEP,
+      );
+      state = step.state;
+      for (const event of step.events) kinds.push(event.kind);
+    }
+    expect(kinds).toContain("whiff");
+    expect(state.hero.hp).toBe(MAX_HP);
+  });
+
+  it("뜬 몸은 막지 못한다", () => {
+    // 물러서기(= 가드)를 누른 채 떠도 가드가 안 선다
+    let state = advance(
+      stageAt(1.2),
+      { walk: -1, attack: null, jump: true },
+      NO_INTENT,
+      STEP,
+    ).state;
+    expect(state.hero.guarding).toBe(false);
+    const kinds: string[] = [];
+    for (let frame = 0; frame < 16; frame += 1) {
+      const step = advance(
+        state,
+        { walk: -1, attack: null },
+        frame === 0 ? { walk: 0, attack: "jab" } : NO_INTENT,
+        STEP,
+      );
+      state = step.state;
+      for (const event of step.events) kinds.push(event.kind);
+    }
+    expect(kinds).not.toContain("block");
+  });
+
+  it("공중에서는 한 번만 친다", () => {
+    let state = advance(
+      stageAt(1.2),
+      { walk: 0, attack: "jab", jump: true },
+      NO_INTENT,
+      STEP,
+    ).state;
+    expect(state.hero.attack).toBe("jab");
+    expect(state.hero.airAttacked).toBe(true);
+    // 첫 기술이 끝난 뒤에도 같은 점프에서는 다시 못 친다
+    for (let frame = 0; frame < 24; frame += 1) {
+      state = advance(state, { walk: 0, attack: "jab" }, NO_INTENT, STEP).state;
+    }
+    expect(isAirborne(state.hero)).toBe(true);
+    expect(state.hero.attack).toBeNull();
+  });
+
+  it("공중에서 맞으면 그대로 떨어진다", () => {
+    let state = jumpFor(8, stageAt(1.2));
+    for (let frame = 0; frame < 16; frame += 1) {
+      state = advance(
+        state,
+        NO_INTENT,
+        frame === 0 ? { walk: 0, attack: "jab" } : NO_INTENT,
+        STEP,
+      ).state;
+    }
+    expect(state.hero.hp).toBeLessThan(MAX_HP);
+    expect(isAirborne(state.hero)).toBe(false);
   });
 });
 

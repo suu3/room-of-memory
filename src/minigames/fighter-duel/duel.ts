@@ -32,6 +32,28 @@ export const WALK_BACK = 2.1;
 /** 한 판의 길이. 다 못 끝내면 체력이 많은 쪽이 이긴다 (격투 게임의 타임업). */
 export const MATCH_MS = 75_000;
 
+/* ------------------------------------------------------------------- 점프 */
+
+/**
+ * 한 번 뜨면 땅에 닿기까지(ms)와 가장 높이 뜬 지점(무대 단위).
+ *
+ * 공중에서는 방향을 못 바꾼다. 뜨는 순간 정해진 속도로 끝까지 간다: 뛰어드는 것은
+ * 되돌릴 수 없는 선택이어야 뛰어들기 전에 한 번 생각한다.
+ */
+export const JUMP_MS = 700;
+export const JUMP_PEAK = 1;
+/** 뜨는 순간의 수평 속도(단위/초). 앞으로 뛰면 걸어 들어가는 것보다 빠르다. */
+export const JUMP_FORWARD_VX = 2.9;
+export const JUMP_BACK_VX = 2.3;
+/** 착지 경직(ms). 헛뛴 점프를 무는 자리다. */
+export const LAND_MS = 170;
+
+/** 뜬 뒤 흐른 시간으로 높이를 낸다 (0~JUMP_PEAK). 포물선 하나. */
+export function jumpHeight(airMs: number): number {
+  const t = Math.min(1, Math.max(0, airMs / JUMP_MS));
+  return 4 * JUMP_PEAK * t * (1 - t);
+}
+
 /* ------------------------------------------------------------------- 기술 */
 
 export type Attack = "jab" | "heavy" | "throw";
@@ -160,7 +182,7 @@ export function rivalTellMs(tuning: DuelTuning, rivalHp: number): number {
 /* ------------------------------------------------------------------ 상태 */
 
 export type ActionPhase = "startup" | "active" | "recovery";
-export type StunKind = "hurt" | "block" | "broken";
+export type StunKind = "hurt" | "block" | "broken" | "land";
 
 export interface FighterState {
   hp: number;
@@ -176,6 +198,12 @@ export interface FighterState {
   stunLeftMs: number;
   /** 이번 프레임에 가드 자세인가. 입력에서 나온다 (뒤로 걷기 = 가드). */
   guarding: boolean;
+  /** 뜬 뒤 흐른 시간(ms). null이면 땅에 있다. */
+  airMs: number | null;
+  /** 뜨는 순간 정해진 수평 속도(단위/초). 공중에서는 못 바꾼다. */
+  airVx: number;
+  /** 이번 점프에서 이미 쳤는가. 공중 공격은 한 번뿐이다. */
+  airAttacked: boolean;
   /** 맞지 않고 이어 맞힌 횟수. 맞으면 0. */
   combo: number;
 }
@@ -197,6 +225,9 @@ function freshFighter(x: number): FighterState {
     stun: null,
     stunLeftMs: 0,
     guarding: false,
+    airMs: null,
+    airVx: 0,
+    airAttacked: false,
     combo: 0,
   };
 }
@@ -210,6 +241,22 @@ export const DUEL_START: DuelState = {
 /** 지금 움직일 수 있는가. 기술 중이거나 경직이면 손이 묶인다. */
 export function canAct(fighter: FighterState): boolean {
   return fighter.attack === null && fighter.stun === null;
+}
+
+export function isAirborne(fighter: FighterState): boolean {
+  return fighter.airMs !== null;
+}
+
+/** 걷기·가드·점프는 땅을 딛고 있어야 한다. */
+export function isGrounded(fighter: FighterState): boolean {
+  return canAct(fighter) && !isAirborne(fighter);
+}
+
+/** 이 기술을 지금 낼 수 있는가. 공중에서는 한 번만, 잡기는 땅에서만. */
+export function canStart(fighter: FighterState, attack: Attack): boolean {
+  if (!canAct(fighter)) return false;
+  if (!isAirborne(fighter)) return true;
+  return attack !== "throw" && !fighter.airAttacked;
 }
 
 export function distanceOf(state: DuelState): number {
@@ -232,6 +279,8 @@ export interface Intent {
   walk: -1 | 0 | 1;
   /** 내려는 기술. 손이 묶여 있으면 무시된다. */
   attack: Attack | null;
+  /** 뜨려는가. 땅을 딛고 손이 자유로울 때만 먹는다. */
+  jump?: boolean;
   /**
    * 걷지 않고 그 자리에서 막기. 상대(CPU)만 쓴다.
    *
@@ -244,9 +293,12 @@ export interface Intent {
 
 export const NO_INTENT: Intent = { walk: 0, attack: null };
 
-/** 지금 막고 있는가. 손이 묶이면(기술 중·경직) 못 막는다. */
+/**
+ * 지금 막고 있는가. 손이 묶이면(기술 중·경직) 못 막고, **공중에서는 못 막는다**.
+ * 뛰어든 몸은 무방비다: 그게 점프가 공짜가 아닌 이유다.
+ */
 export function isGuarding(fighter: FighterState, intent: Intent): boolean {
-  return (intent.guard === true || intent.walk === -1) && canAct(fighter);
+  return (intent.guard === true || intent.walk === -1) && isGrounded(fighter);
 }
 
 /* ------------------------------------------------------------------ 사건 */
@@ -371,6 +423,11 @@ function resolveHit(side: Side, distance: number): DuelEvent | null {
     return { kind: "break", by: side.who, attack, damage: 0, combo: 0 };
   }
 
+  // 잡기는 지상의 손이다. 뜬 몸은 잡을 수 없어서 그대로 헛잡는다
+  if (attack === "throw" && isAirborne(side.other)) {
+    return { kind: "whiff", by: side.who, attack, damage: 0, combo: 0 };
+  }
+
   if (attack !== "throw" && side.other.guarding) {
     return { kind: "block", by: side.who, attack, damage: frames.chip, combo: 0 };
   }
@@ -417,6 +474,9 @@ function applyEvent(side: Side, event: DuelEvent, scale: number): void {
   side.other.phase = null;
   side.other.phaseLeftMs = 0;
   side.other.combo = 0;
+  // 공중에서 맞으면 그대로 떨어진다. 뜬 채로 경직을 버티는 자세는 이 게임에 없다
+  side.other.airMs = null;
+  side.other.airVx = 0;
   side.self.combo = event.combo;
 }
 
@@ -425,6 +485,28 @@ function startAttack(fighter: FighterState, attack: Attack): void {
   fighter.phase = "startup";
   fighter.phaseLeftMs = ATTACKS[attack].startupMs;
   fighter.guarding = false;
+  if (isAirborne(fighter)) fighter.airAttacked = true;
+}
+
+/** 뜬다. 앞뒤 어느 쪽으로 뛸지는 이 순간의 방향키가 정한다. */
+function startJump(fighter: FighterState, walk: -1 | 0 | 1, facing: 1 | -1): void {
+  fighter.airMs = 0;
+  fighter.airAttacked = false;
+  fighter.airVx = walk === 0 ? 0 : facing * walk * (walk > 0 ? JUMP_FORWARD_VX : JUMP_BACK_VX);
+}
+
+/** 공중의 시계를 돌린다. 땅에 닿으면 잠깐 굳는다: 헛뛴 점프를 무는 자리. */
+function tickAir(fighter: FighterState, dtMs: number, seconds: number): void {
+  if (fighter.airMs === null) return;
+  fighter.airMs += dtMs;
+  fighter.x += fighter.airVx * seconds;
+  if (fighter.airMs < JUMP_MS) return;
+  fighter.airMs = null;
+  fighter.airVx = 0;
+  if (fighter.stun === null) {
+    fighter.stun = "land";
+    fighter.stunLeftMs = LAND_MS;
+  }
 }
 
 /**
@@ -448,21 +530,35 @@ export function advance(
   const hero = heroTick.next;
   const rival = rivalTick.next;
 
-  // 이동. 손이 묶여 있으면 발도 묶인다
+  // 공중에 뜬 몸은 제 속도로 간다. 땅을 딛은 몸만 걷는다
   const seconds = dt / 1000;
-  if (canAct(hero) && heroIntent.walk !== 0) {
+  tickAir(hero, dt, seconds);
+  tickAir(rival, dt, seconds);
+  if (isGrounded(hero) && heroIntent.walk !== 0) {
     hero.x += heroIntent.walk * (heroIntent.walk > 0 ? WALK_FORWARD : WALK_BACK) * seconds;
   }
-  if (canAct(rival) && rivalIntent.walk !== 0) {
+  if (isGrounded(rival) && rivalIntent.walk !== 0) {
     rival.x -= rivalIntent.walk * (rivalIntent.walk > 0 ? WALK_FORWARD : WALK_BACK) * seconds;
   }
   clampPositions(hero, rival);
 
+  // 뜨는 것이 먼저다. 뜨면서 치는 손(점프 공격)은 같은 프레임에 이어진다
+  if (heroIntent.jump && isGrounded(hero)) startJump(hero, heroIntent.walk, 1);
+  if (rivalIntent.jump && isGrounded(rival)) startJump(rival, rivalIntent.walk, -1);
+
+  if (heroIntent.attack && canStart(hero, heroIntent.attack)) {
+    startAttack(hero, heroIntent.attack);
+  }
+  if (rivalIntent.attack && canStart(rival, rivalIntent.attack)) {
+    startAttack(rival, rivalIntent.attack);
+  }
+
+  /*
+   * 가드는 맨 나중에 센다. 뜨거나 손을 내민 뒤에 세야, 발이 땅에서 떨어지는 그 프레임에
+   * 팔이 같이 내려간다. 먼저 세면 뛰어오르는 첫 프레임만 무적처럼 막힌다.
+   */
   hero.guarding = isGuarding(hero, heroIntent);
   rival.guarding = isGuarding(rival, rivalIntent);
-
-  if (heroIntent.attack && canAct(hero)) startAttack(hero, heroIntent.attack);
-  if (rivalIntent.attack && canAct(rival)) startAttack(rival, rivalIntent.attack);
 
   const distance = Math.abs(rival.x - hero.x);
   const heroSide: Side = { self: hero, other: rival, who: "hero", facing: 1 };
@@ -609,6 +705,19 @@ export function stepRival(
   if (next.guardMs > 0) {
     next.guardMs -= dt;
     return { mind: next, intent: { walk: 0, attack: null, guard: true } };
+  }
+
+  /*
+   * 대공. 뜬 상대는 잡을 수도 없고 막아 봐야 아무것도 안 일어난다. 떨어지는 길목에
+   * 팔을 뻗어 두는 것이 답이다. 아직 손을 안 뻗은 몸이면 이쪽이 먼저 닿는다.
+   */
+  if (isAirborne(state.hero) && state.hero.attack === null && distance <= ATTACKS.heavy.reach) {
+    if (roll < tuning.punishChance) {
+      next.telegraph = null;
+      next.telegraphMs = 0;
+      next.waitMs = tuning.thinkMs;
+      return { mind: next, intent: { walk: 0, attack: "jab" } };
+    }
   }
 
   /*

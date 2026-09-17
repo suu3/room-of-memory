@@ -17,6 +17,7 @@ import {
   type FighterState,
   type Intent,
   isEnraged,
+  jumpHeight,
   MATCH_MS,
   RIVAL_MIND_START,
   STAGE_SPAN,
@@ -41,7 +42,7 @@ const HIT_FLASH_MS = 180;
  * 두 시트는 프레임 안에서 발이 앉은 높이가 조금씩 다르다. 같은 바닥선에 세우면
  * 한쪽만 떠 보이므로 그림을 다시 그리는 대신 여기서 맞춘다 (Fighter의 offsetY).
  */
-const HERO_OFFSET_Y = 5;
+const HERO_OFFSET_Y = 7;
 
 /** 규칙에 보내는 한 걸음(ms). 60fps 한 프레임. 화면이 느려도 이 간격은 그대로다. */
 const FIXED_STEP_MS = 16;
@@ -52,6 +53,10 @@ const MAX_CATCHUP_MS = 250;
 const WALK_BACK_KEYS = ["ArrowLeft", "KeyA"] as const;
 const WALK_IN_KEYS = ["ArrowRight", "KeyD"] as const;
 const WALK_KEYS = new Set<string>([...WALK_BACK_KEYS, ...WALK_IN_KEYS]);
+/** 점프. 누르는 순간 한 번 뜬다: 붙잡고 있어도 계속 뛰지 않는다. */
+const JUMP_KEYS = new Set<string>(["ArrowUp", "KeyW", "Space"]);
+/** 가장 높이 떴을 때 화면에서 올라가는 높이(px). */
+const JUMP_LIFT_PX = 74;
 /** 기술은 눌린 순간 한 번만 먹는다. 붙잡고 있어도 연타가 되지 않는다. */
 const ATTACK_KEYS: Record<string, Attack> = {
   KeyJ: "jab",
@@ -68,6 +73,11 @@ const ATTACK_KEYS: Record<string, Attack> = {
 /** 무대 위 발밑의 자리(%). 캐릭터는 이 자리를 중심으로 선다. */
 function stageLeft(x: number): string {
   return `${(x / STAGE_SPAN) * 100}%`;
+}
+
+/** 뜬 만큼 화면에서 떠오른다. 땅에 있으면 0. */
+function liftOf(fighter: FighterState): number {
+  return fighter.airMs === null ? 0 : jumpHeight(fighter.airMs) * JUMP_LIFT_PX;
 }
 
 /**
@@ -109,6 +119,8 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
   const heldRef = useRef(new Set<string>());
   /** 다음 프레임에 낼 기술. 눌린 순간 한 번만 담긴다. */
   const queuedRef = useRef<Attack | null>(null);
+  /** 다음 프레임에 뜰 것인가. 기술과 같은 규칙으로 한 번만 담긴다. */
+  const jumpRef = useRef(false);
   const lastFrameRef = useRef(0);
 
   const [view, setView] = useState(DUEL_START);
@@ -139,6 +151,11 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
         queuedRef.current = attack;
         return;
       }
+      if (JUMP_KEYS.has(event.code)) {
+        event.preventDefault();
+        jumpRef.current = true;
+        return;
+      }
       if (WALK_KEYS.has(event.code)) {
         event.preventDefault();
         heldRef.current.add(event.code);
@@ -162,8 +179,10 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
     const back = WALK_BACK_KEYS.some((key) => held.has(key));
     const forward = WALK_IN_KEYS.some((key) => held.has(key));
     const attack = queuedRef.current;
+    const jump = jumpRef.current;
     queuedRef.current = null;
-    return { walk: back === forward ? 0 : back ? -1 : 1, attack };
+    jumpRef.current = false;
+    return { walk: back === forward ? 0 : back ? -1 : 1, attack, jump };
   }, []);
 
   const showEvents = useCallback((events: readonly DuelEvent[], now: number) => {
@@ -217,7 +236,7 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
       while (spare >= FIXED_STEP_MS && ended === null) {
         spare -= FIXED_STEP_MS;
         // 기술은 눌린 순간 한 번뿐이라 첫 걸음에서만 읽는다. 나머지 걸음은 걷기만 잇는다
-        const intent = first ? readIntent() : { ...readIntent(), attack: null };
+        const intent = first ? readIntent() : { ...readIntent(), attack: null, jump: false };
         first = false;
         const rival = stepRival(
           stateRef.current,
@@ -343,7 +362,7 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
           {/* 두 사람은 무대 좌표 위에 선다. 거리가 곧 이 게임의 판돈이다 */}
           <div
             className="absolute bottom-6 -translate-x-1/2"
-            style={{ left: stageLeft(view.hero.x) }}
+            style={{ left: stageLeft(view.hero.x), marginBottom: liftOf(view.hero) }}
           >
             <Fighter
               pose={poseOf(view.hero, null, over === null ? null : over === "won" ? "win" : "ko")}
@@ -357,7 +376,7 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
           </div>
           <div
             className="absolute bottom-6 -translate-x-1/2"
-            style={{ left: stageLeft(view.rival.x) }}
+            style={{ left: stageLeft(view.rival.x), marginBottom: liftOf(view.rival) }}
           >
             <Fighter
               pose={poseOf(
@@ -418,6 +437,14 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
           cap="→"
           label={t("minigame.fighterDuel.control.forward")}
           {...holdProps("ArrowRight")}
+        />
+        <ControlKey
+          cap="↑"
+          label={t("minigame.fighterDuel.control.jump")}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            jumpRef.current = true;
+          }}
         />
         {(["jab", "heavy", "throw"] as const).map((attack, index) => (
           <ControlKey

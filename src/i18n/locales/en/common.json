@@ -157,11 +157,11 @@
     },
     "fighterDuel": {
       "title": "The Fighting Game",
-      "help": "Arrows to close the gap · J light · K heavy · L throw (hold ← to guard)",
-      "help_touch": "Use the buttons below to close in and strike. Stepping back is your guard",
+      "help": "Arrows to move and jump (↑) · J light · K heavy · L throw (hold ← to guard)",
+      "help_touch": "Use the buttons below to step in, jump and strike. Stepping back is your guard",
       "rules": {
-        "triangle": "Throws beat guards, guards beat strikes, and strikes stuff an incoming throw",
-        "frames": "Heavy hits slow and hurts. Landing one during their wind-up counters for more"
+        "triangle": "Throws beat guards, guards beat strikes, strikes stuff an incoming throw. An airborne body can't be thrown — and can't guard either",
+        "frames": "Heavy hits slow and hurts. Land one during their wind-up for a counter; land from a jump and you're the one who gets punished"
       },
       "labelCombo": "Combo",
       "labelCounter": "Counter",
@@ -185,7 +185,8 @@
       },
       "control": {
         "back": "Back / Guard",
-        "forward": "Step in"
+        "forward": "Step in",
+        "jump": "Jump"
       },
       "fail": "Lost. …One more round and I'd have him."
     },
