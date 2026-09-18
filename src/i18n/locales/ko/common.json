@@ -63,7 +63,8 @@
     "autoHint": "대사가 다 찍히면 저절로 다음 줄로 넘어갑니다.",
     "log": "지나간 대사",
     "logOpen": "지나간 대사 보기",
-    "logClose": "닫기",
+    "logCloseHint": "아무 곳이나 클릭하면 닫힘",
+    "logCloseHint_touch": "아무 곳이나 탭하면 닫힘",
     "logEmpty": "아직 지나간 대사가 없습니다."
   },
   "language": {

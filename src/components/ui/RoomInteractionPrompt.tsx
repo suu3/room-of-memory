@@ -42,29 +42,39 @@ export function RoomInteractionPrompt({
         포커스 순서에서 빠져 스크린리더 사용자가 그 물건이 있는지조차 모른다.
       */}
       {/*
-        min-w-0: fieldset의 기본 min-inline-size는 min-content라, sr-only의 width:1px가
-        먹지 않고 상자가 버튼 줄만큼 넓어진다 (1100px 화면에서 1500px). 그러면 화면 밖으로
-        넘쳐서 바깥 컨테이너에 가로 스크롤이 생기고, 무언가 그 스크롤을 끝까지 밀면 게임
-        화면 전체가 왼쪽으로 밀려 잘린다. 0으로 눌러야 overflow:hidden이 실제로 자른다.
+        sr-only는 fieldset이 아니라 **감싼 div**에 건다. 상자를 1px로 눌러도 fieldset은
+        그만큼 작아지지 않는다: 기본 min-inline-size가 min-content라 가로로 버튼 줄만큼
+        벌어지고(1100px 화면에서 1500px), legend는 크롬에서 상자 **밖**에 그려져 세로로
+        23px이 더 붙는다. 둘 다 바깥 컨테이너의 스크롤 영역을 늘린다.
+
+        그게 왜 문제인가: 방을 담은 상자는 h-dvh + overflow-hidden이라 스크롤바가 없지만,
+        넘치는 만큼은 **프로그램으로 굴러간다**. 어딘가에서 scrollIntoView나 focus가 한 번
+        일어나면 게임 화면 전체가 그만큼 밀린 채 남고, 되돌릴 손잡이가 없다 (예전에 가로로
+        잘려 보이던 것도, 대사 로그를 닫으면 HUD가 위로 올라가던 것도 같은 이유다).
+
+        1px짜리 div가 overflow:hidden으로 실제로 자르므로, 안쪽 fieldset이 얼마나 벌어지든
+        바깥에는 1px만 보인다. legend는 그대로 남아 목록 이름을 읽어 준다.
       */}
-      <fieldset className="sr-only min-w-0">
-        <legend>{legend}</legend>
-        {MEMORY_IDS.map((id) => {
-          const available = statuses[id] === "available";
-          return (
-            <button
-              key={id}
-              type="button"
-              aria-disabled={!available}
-              onClick={() => {
-                if (available) onInteract(id);
-              }}
-            >
-              {labels[id]}
-            </button>
-          );
-        })}
-      </fieldset>
+      <div className="sr-only">
+        <fieldset>
+          <legend>{legend}</legend>
+          {MEMORY_IDS.map((id) => {
+            const available = statuses[id] === "available";
+            return (
+              <button
+                key={id}
+                type="button"
+                aria-disabled={!available}
+                onClick={() => {
+                  if (available) onInteract(id);
+                }}
+              >
+                {labels[id]}
+              </button>
+            );
+          })}
+        </fieldset>
+      </div>
     </>
   );
 }

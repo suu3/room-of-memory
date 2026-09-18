@@ -63,7 +63,8 @@
     "autoHint": "Lines advance on their own once they finish typing.",
     "log": "Dialogue log",
     "logOpen": "Open the dialogue log",
-    "logClose": "Close",
+    "logCloseHint": "Click anywhere to close",
+    "logCloseHint_touch": "Tap anywhere to close",
     "logEmpty": "No lines yet."
   },
   "language": {

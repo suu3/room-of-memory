@@ -63,7 +63,8 @@
     "autoHint": "台詞が出きると自動で次の行へ進みます。",
     "log": "これまでの台詞",
     "logOpen": "これまでの台詞を見る",
-    "logClose": "閉じる",
+    "logCloseHint": "どこでもクリックで閉じる",
+    "logCloseHint_touch": "どこでもタップで閉じる",
     "logEmpty": "まだ台詞がありません。"
   },
   "language": {

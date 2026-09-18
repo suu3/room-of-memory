@@ -103,8 +103,8 @@ describe("대사창의 오토와 로그", () => {
       vi.advanceTimersByTime(20_000);
     });
     expect(useMemoryRoomStore.getState().activeInteraction?.lineIndex).toBe(0);
-    // 로그를 닫으면 다시 흐른다
-    fireEvent.click(screen.getAllByRole("button", { name: "닫기" })[0]);
+    // 로그를 닫으면 다시 흐른다. 닫기 버튼은 없고 겹의 아무 데나 누르면 닫힌다
+    fireEvent.click(screen.getByRole("region", { name: "지나간 대사" }));
     act(() => {
       vi.advanceTimersByTime(6000);
     });
