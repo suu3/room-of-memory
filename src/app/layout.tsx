@@ -19,7 +19,8 @@ const galmuri = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Room of Memory",
+  // 기준 언어(ko)의 이름. 다른 언어를 고르면 I18nProvider가 탭 제목을 바꿔 단다
+  title: "기억의 방",
   description: "3D 기반 짧은 비주얼 노벨",
   appleWebApp: {
     capable: true,

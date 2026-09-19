@@ -83,18 +83,30 @@ const OVERVIEW_REFERENCE_WIDTH = 19.4;
 const OVERVIEW_REFERENCE_HEIGHT = 12.3;
 const MIN_OVERVIEW_ZOOM = 18;
 const MAX_OVERVIEW_ZOOM = 84;
+/**
+ * 세로로 긴 화면(portrait)에서 가로로 최소한 보여야 하는 방의 폭(월드 유닛).
+ *
+ * 폭을 통째로 담으면(19.4) 폰에서 방이 화면 가운데 작은 띠로 눌린다. 세로는 텅 비고
+ * 모형은 손톱만 해서, 들어갈 공간이 아니라 아이콘으로 읽힌다. 가로는 잘려도 된다.
+ * 방은 좌우 대칭이 아니라 가운데에 놓인 물건들이 이야기를 하고, 타이틀의 글자도
+ * 왼쪽에 붙어 있어 잘리는 쪽은 어차피 글자 아래다. 이만큼만 남기고 키운다.
+ */
+const MIN_OVERVIEW_VISIBLE_WIDTH = 10.5;
 
 export function roomOverviewZoomForViewport(width: number, height: number): number {
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
     return 64;
   }
 
+  // 가로로 누운 화면은 예전 그대로 방을 통째로 담는다. 세로로 긴 화면에서만 "가로는
+  // 잘려도 좋으니 이만큼은 보이게"로 바꿔 모형을 키운다. 세로는 어느 쪽이든 다 담는다.
+  const portrait = height > width;
+  const widthZoom = portrait
+    ? Math.max(width / OVERVIEW_REFERENCE_WIDTH, width / MIN_OVERVIEW_VISIBLE_WIDTH)
+    : width / OVERVIEW_REFERENCE_WIDTH;
   return Math.min(
     MAX_OVERVIEW_ZOOM,
-    Math.max(
-      MIN_OVERVIEW_ZOOM,
-      Math.min(width / OVERVIEW_REFERENCE_WIDTH, height / OVERVIEW_REFERENCE_HEIGHT),
-    ),
+    Math.max(MIN_OVERVIEW_ZOOM, Math.min(widthZoom, height / OVERVIEW_REFERENCE_HEIGHT)),
   );
 }
 

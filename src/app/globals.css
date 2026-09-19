@@ -120,6 +120,18 @@
   --animate-stagger-rise: stagger-rise 0.36s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   /* 타이틀이 물러나는 동작 (시작을 누른 뒤). 올라오던 방향 그대로 위로 사라진다 */
   --animate-title-retreat: title-retreat 0.22s cubic-bezier(0.4, 0, 0.6, 1) both;
+  /*
+   * 타이틀의 선이 그어진다. 글자가 떠오르는 것(stagger-rise)보다 길게 끈다:
+   * 선은 "나타난다"가 아니라 "누가 긋는다"로 읽혀야 하고, 그러려면 획이 지나가는
+   * 시간이 보여야 한다. 자를 대고 긋듯 끝에서 살짝 느려진다.
+   */
+  --animate-rule-draw: rule-draw 0.62s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-rule-draw-y: rule-draw-y 0.62s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  /*
+   * 다 그어진 선 위를 금빛 한 점이 한 번 훑고 지나간다. 방에 드는 빛과 같은 색이고,
+   * 딱 한 번만 지나간다 (DESIGN.md > Motion: 반복되는 glow는 쓰지 않는다).
+   */
+  --animate-rule-sweep: rule-sweep 1.5s cubic-bezier(0.3, 0, 0.2, 1) 0.5s both;
   /* HUD 진행 칸이 왼쪽에서 차오른다. 새로 찬 칸만 움직인다 (이미 찬 칸은 다시 안 돈다) */
   --animate-segment-fill: segment-fill 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   /* 모은 개수 숫자가 아래에서 밀려 올라온다 (key로 다시 마운트) */
@@ -334,6 +346,38 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes rule-draw {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes rule-draw-y {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes rule-sweep {
+    from {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    25% {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(100%);
     }
   }
 
@@ -1165,6 +1209,17 @@ body {
   /* 계단은 없애고 밝기만: 늦게 뜨는 항목은 "아직 안 뜬 항목"으로 읽혀 기다리게 만든다 */
   .animate-stagger-rise {
     animation: fade-only 0.16s ease-out both;
+  }
+
+  /* 선도 그어지지 않고 그냥 있는다. 훑고 지나가는 빛은 아예 없앤다 */
+  .animate-rule-draw,
+  .animate-rule-draw-y {
+    animation: fade-only 0.16s ease-out both;
+  }
+
+  .animate-rule-sweep {
+    animation: none;
+    opacity: 0;
   }
 
   .stagger-item {

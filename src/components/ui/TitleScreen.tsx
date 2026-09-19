@@ -57,6 +57,34 @@ const CONTROL_LABEL_CLASS = "text-sm font-medium tracking-[0.02em] text-ash";
 const RULE_CLASS = "h-px w-8 bg-line";
 
 /**
+ * 화면 네 귀의 모서리 선. 한 귀가 가로획·세로획 두 개다.
+ *
+ * 한 덩어리로 두면 "틀이 켜졌다"가 되고, 획을 나눠 각자 제 모서리에서 자라 나오게
+ * 하면 "누가 틀을 그었다"가 된다. 자라는 방향(origin)은 항상 모서리 쪽이다.
+ */
+const FRAME_CORNERS = [
+  { key: "tl", box: "left-0 top-0", h: "left-0 top-0 origin-left", v: "left-0 top-0 origin-top" },
+  {
+    key: "tr",
+    box: "right-0 top-0",
+    h: "right-0 top-0 origin-right",
+    v: "right-0 top-0 origin-top",
+  },
+  {
+    key: "bl",
+    box: "bottom-0 left-0",
+    h: "bottom-0 left-0 origin-left",
+    v: "bottom-0 left-0 origin-bottom",
+  },
+  {
+    key: "br",
+    box: "bottom-0 right-0",
+    h: "bottom-0 right-0 origin-right",
+    v: "bottom-0 right-0 origin-bottom",
+  },
+] as const;
+
+/**
  * 선택 표식. 라벨은 가운데 그대로 두고 왼쪽에 얹는다. 기본 선택(첫 항목)에는 늘 붙어
  * 있고, 나머지는 hover·키보드 선택에서 왼쪽에서 4px 미끄러져 들어온다. 금빛은 고른 것
  * 하나의 자리다. 밝기만 오가면 "켜졌다"이고, 자리를 옮겨 오면 "다가왔다"다.
@@ -249,6 +277,19 @@ export function TitleScreen() {
       : revealed
         ? { className: STAGGER_CLASS, style: staggerStyle(index) }
         : { className: "opacity-0", style: undefined };
+  /**
+   * 선이 그어지는 등장. 글자(reveal)와 같은 계단에 올라타되, 떠오르는 대신 제 끝에서
+   * 자라 나온다. 시작을 누르면 글자와 같이 물러난다.
+   */
+  const drawn = (index: number, axis: "x" | "y") =>
+    entering
+      ? { className: "animate-title-retreat stagger-item", style: staggerStyle(index) }
+      : revealed
+        ? {
+            className: `${axis === "x" ? "animate-rule-draw" : "animate-rule-draw-y"} stagger-item`,
+            style: staggerStyle(index),
+          }
+        : { className: "scale-0 opacity-0", style: undefined };
   const menuStart = 1;
   const afterMenu = menuStart + items.length;
 
@@ -301,10 +342,18 @@ export function TitleScreen() {
           좁은 화면에서는 여백을 잡아먹으므로 걷는다.
         */}
         <div aria-hidden className="pointer-events-none absolute inset-5 hidden sm:block">
-          <span className="absolute left-0 top-0 size-5 border-l border-t border-line" />
-          <span className="absolute right-0 top-0 size-5 border-r border-t border-line" />
-          <span className="absolute bottom-0 left-0 size-5 border-b border-l border-line" />
-          <span className="absolute bottom-0 right-0 size-5 border-b border-r border-line" />
+          {FRAME_CORNERS.map((corner) => (
+            <span key={corner.key} className={`absolute size-5 ${corner.box}`}>
+              <span
+                className={`absolute h-px w-full bg-line ${corner.h} ${drawn(0, "x").className}`}
+                style={drawn(0, "x").style}
+              />
+              <span
+                className={`absolute h-full w-px bg-line ${corner.v} ${drawn(1, "y").className}`}
+                style={drawn(1, "y").style}
+              />
+            </span>
+          ))}
         </div>
 
         {/*
@@ -340,7 +389,11 @@ export function TitleScreen() {
               <Fragment key={item.key}>
                 {/* 게임 안과 밖을 가르는 선. 만든 사람은 메뉴의 꼬리가 아니라 다른 묶음이다 */}
                 {item.meta && index > 0 ? (
-                  <span aria-hidden className={`ml-9 my-2 ${RULE_CLASS}`} />
+                  <span
+                    aria-hidden
+                    className={`my-2 ml-9 origin-left ${RULE_CLASS} ${drawn(menuStart + index, "x").className}`}
+                    style={drawn(menuStart + index, "x").style}
+                  />
                 ) : null}
                 <button
                   ref={(el) => {
@@ -384,7 +437,17 @@ export function TitleScreen() {
           어느 쪽 설명인지 안 읽힌다. 문구는 기기를 따라간다. 폰에서 WASD를 읽어 봐야
           누를 키가 없다.
         */}
-        <div className="relative flex flex-wrap items-end justify-between gap-x-10 gap-y-6 border-t border-line pt-5">
+        <div className="relative flex flex-wrap items-end justify-between gap-x-10 gap-y-6 pt-5">
+          {/* 아래 띠를 여는 선. 왼쪽에서 오른쪽으로 그어지고, 그 위를 금빛 한 점이 한 번 지나간다 */}
+          <span
+            aria-hidden
+            className={`absolute inset-x-0 top-0 h-px origin-left bg-line ${drawn(afterMenu, "x").className}`}
+            style={drawn(afterMenu, "x").style}
+          >
+            {revealed && !entering ? (
+              <span className="absolute inset-y-0 left-0 block w-32 animate-rule-sweep bg-gradient-to-r from-transparent via-memory to-transparent" />
+            ) : null}
+          </span>
           <section
             className={`flex max-w-md flex-col items-start gap-2 ${reveal(afterMenu).className}`}
             style={reveal(afterMenu).style}

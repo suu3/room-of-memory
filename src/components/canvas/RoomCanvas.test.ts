@@ -58,16 +58,31 @@ describe("roomZoomForViewport", () => {
 });
 
 describe("roomOverviewZoomForViewport", () => {
-  it("fits the whole diorama for the title screen", () => {
+  it("fits the whole diorama on screens laid out wide", () => {
     // 방 셸의 화면 바운딩(약 17.4 x 11.0)이 통째로 들어간다
     for (const [width, height] of [
       [1440, 900],
       [1024, 768],
-      [390, 844],
     ]) {
       const zoom = roomOverviewZoomForViewport(width, height);
       expect(width / zoom).toBeGreaterThanOrEqual(17.4);
       expect(height / zoom).toBeGreaterThanOrEqual(11.0);
+    }
+  });
+
+  it("세로로 긴 화면에서는 가로를 잘라서라도 모형을 키운다", () => {
+    for (const [width, height] of [
+      [390, 844],
+      [360, 780],
+    ]) {
+      const zoom = roomOverviewZoomForViewport(width, height);
+      // 세로는 여전히 방을 다 담는다: 잘리는 건 가로뿐이다
+      expect(height / zoom).toBeGreaterThanOrEqual(11.0);
+      // 가로로는 잘리되, 방 폭의 절반은 넘게 보인다
+      expect(width / zoom).toBeLessThan(17.4);
+      expect(width / zoom).toBeGreaterThanOrEqual(10);
+      // 폭을 통째로 담던 예전 구도보다는 확실히 크다
+      expect(zoom).toBeGreaterThan((width / 19.4) * 1.5);
     }
   });
 
