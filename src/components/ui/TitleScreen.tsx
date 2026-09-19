@@ -28,12 +28,26 @@ import { BACKDROP, BUTTON_DESTRUCTIVE, BUTTON_QUIET, PANEL_DARK } from "./ui-cla
 const ENTER_DELAY_MS = 260;
 
 /**
- * 메뉴 항목의 공통 옷. 인디게임 타이틀 메뉴의 관례를 따른다. 항목들은 같은 크기의
- * 세로 목록이고, 지금 고른 것 하나만 금빛(hover/focus 색 + ▶ 표식)으로 켜진다.
+ * 메뉴 항목의 공통 옷. 인디게임 타이틀 메뉴의 관례를 따른다. 항목들은 세로 목록이고,
+ * 지금 고른 것 하나만 금빛(hover/focus 색 + ▶ 표식)으로 켜진다.
  * 금빛 글로우는 globals.css의 .title-menu-item이 얹는다.
+ *
+ * 다만 항목이 전부 같은 크기면 "게임을 시작한다"와 "만든 사람을 본다"가 같은 무게로
+ * 선다. 크기만으로 위계를 만들지 않는다 (DESIGN.md > Typography): 게임으로 들어가는
+ * 항목은 픽셀 서체 큰 글자, 게임 바깥의 항목은 본문 서체 작은 글자로 갈라 **서체와
+ * 색까지** 다르게 준다.
  */
-const MENU_ITEM_CLASS =
-  "title-menu-item group relative w-full cursor-pointer rounded-sm px-10 py-2.5 text-center font-pixel text-xl tracking-[0.06em] transition-colors duration-150 focus-visible:outline-none";
+const MENU_ITEM_BASE =
+  "title-menu-item group relative w-full cursor-pointer rounded-sm text-center transition-colors duration-150 focus-visible:outline-none";
+/** 게임으로 들어가는 항목 (이어하기 · 새 게임) */
+const MENU_ITEM_PRIMARY = `${MENU_ITEM_BASE} px-10 py-2.5 font-pixel text-xl tracking-[0.06em]`;
+/** 게임 바깥의 항목 (만든 사람). 한 단계 물러난 서체·크기·색 */
+const MENU_ITEM_META = `${MENU_ITEM_BASE} px-10 py-2 text-sm font-medium tracking-[0.02em] text-fog hover:text-ivory focus-visible:text-ivory active:text-ivory`;
+
+/** 구역 라벨(장르·조작). 본문 서체 작은 글자 + ash: 메뉴와 같은 크기로 읽히지 않게 */
+const LABEL_CLASS = "text-xs font-medium tracking-[0.1em] text-ash";
+/** 라벨 양옆의 헤어라인. 글자 하나가 홀로 떠 있지 않게 선 사이에 앉힌다 */
+const RULE_CLASS = "h-px w-8 bg-line";
 
 /**
  * 선택 표식. 라벨은 가운데 그대로 두고 왼쪽에 얹는다. 기본 선택(첫 항목)에는 늘 붙어
@@ -165,7 +179,8 @@ export function TitleScreen() {
     itemsRef.current[1]?.focus();
   };
 
-  const items = [
+  /** 메뉴 항목. `meta`는 게임 바깥으로 나가는 항목(만든 사람)을 가리킨다 */
+  const items: { key: string; label: string; meta?: boolean; onSelect: () => void }[] = [
     ...(hasSave ? [{ key: "resume", label: t("titleScreen.resume"), onSelect: enterGame }] : []),
     {
       key: "new-game",
@@ -180,6 +195,8 @@ export function TitleScreen() {
     {
       key: "contact",
       label: t("hud.contact"),
+      // 게임 바깥의 항목. 서체·크기·색이 한 단계 물러난다
+      meta: true,
       onSelect: () => {
         playSound("select");
         setContactOpen(true);
@@ -252,30 +269,55 @@ export function TitleScreen() {
       )}
       <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-6 py-10">
         {/* 글자 뒤 가운데만 은은하게 눌러 주는 어둠. 방은 흐리지 않고 윤곽 그대로 둔다.
-            방이 배경의 얼룩이 아니라 이 화면의 공간이어야 한다. */}
+            방이 배경의 얼룩이 아니라 이 화면의 공간이어야 한다. 가로로 넓은 타원이 아니라
+            글자 기둥을 따라 세로로 선 타원인 이유는, 눌러야 하는 것이 방의 가운데가 아니라
+            제목부터 언어 토글까지 이어지는 글자의 기둥이기 때문이다. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(46% 42% at 50% 46%, color-mix(in srgb, var(--color-scene-void) 70%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 42%, transparent) 55%, transparent 100%)",
+              "radial-gradient(42% 58% at 50% 50%, color-mix(in srgb, var(--color-scene-void) 78%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 46%, transparent) 58%, transparent 100%)",
           }}
         />
 
         {/* 밑에서 떠오르는 먼지: 부팅 커튼과 같은 공기가 타이틀까지 이어진다 */}
         <RisingDust count={22} />
 
-        {/* 로고 블록. 제목은 게임 픽셀 서체(Galmuri14)로 세워 인디게임 로고처럼 읽힌다.
-            그 위에 있던 영문 장르 라벨은 걷었다. 제목과 한 줄 소개면 충분하고, 앰버는
-            선택(▶)의 자리로만 남긴다 */}
+        {/*
+          화면 네 귀의 모서리 선. 가운데에 글자 한 덩어리만 떠 있으면 화면이 "비었다"가
+          아니라 "덜 놓였다"로 읽힌다. 상자를 하나 더 세우는 대신 귀퉁이만 1px로 집어
+          화면에 틀을 준다 (DESIGN.md: 헤어라인 1px 실선만, 점선·2px 금지).
+          좁은 화면에서는 여백을 잡아먹으므로 걷는다.
+        */}
+        <div aria-hidden className="pointer-events-none absolute inset-5 hidden sm:block">
+          <span className="absolute left-0 top-0 size-5 border-l border-t border-line" />
+          <span className="absolute right-0 top-0 size-5 border-r border-t border-line" />
+          <span className="absolute bottom-0 left-0 size-5 border-b border-l border-line" />
+          <span className="absolute bottom-0 right-0 size-5 border-b border-r border-line" />
+        </div>
+
+        {/*
+          로고 블록. 제목은 게임 픽셀 서체(Galmuri14)로 세워 인디게임 로고처럼 읽히고,
+          그 위아래로 두 단이 더 선다. 세 줄이 크기만 다르면 "큰 글자 · 중간 글자 ·
+          작은 글자"로만 읽힌다. 서체(픽셀/본문)와 색(ivory/fog/ash), 자간까지 갈라야
+          제목 · 소개 · 꼬리표가 서로 다른 종류의 글자로 읽힌다 (DESIGN.md > Typography).
+          앰버는 여기 쓰지 않는다. 선택(▶)의 자리로만 남긴다.
+        */}
         <div
           className={`relative flex flex-col items-center gap-3 text-center ${reveal(0).className}`}
           style={reveal(0).style}
         >
+          {/* 무엇을 여는 화면인지 한 마디로. 선 두 개 사이에 앉혀 제목의 받침이 된다 */}
+          <p className="flex items-center gap-3">
+            <span aria-hidden className={RULE_CLASS} />
+            <span className={`break-ko ${LABEL_CLASS}`}>{t("titleScreen.kicker")}</span>
+            <span aria-hidden className={RULE_CLASS} />
+          </p>
           <h1 className="title-logo break-ko font-pixel text-5xl leading-tight text-ivory md:text-6xl">
             {t("title")}
           </h1>
-          <p className="mt-1 max-w-md break-ko text-pretty text-sm leading-normal text-fog">
+          <p className="max-w-md break-ko text-pretty text-sm leading-relaxed text-fog">
             {t("titleScreen.tagline")}
           </p>
         </div>
@@ -291,6 +333,10 @@ export function TitleScreen() {
         >
           {items.map((item, index) => (
             <Fragment key={item.key}>
+              {/* 게임 안과 밖을 가르는 선. 만든 사람은 메뉴의 꼬리가 아니라 다른 묶음이다 */}
+              {item.meta && index > 0 ? (
+                <span aria-hidden className={`mx-auto my-2 ${RULE_CLASS}`} />
+              ) : null}
               <button
                 ref={(el) => {
                   itemsRef.current[index] = el;
@@ -299,16 +345,21 @@ export function TitleScreen() {
                 onClick={item.onSelect}
                 onPointerEnter={playHoverSound}
                 // 첫 항목이 기본 선택이다. 아이보리에 앰버 표식이 늘 붙고, 나머지는 한 단계 낮다
-                className={`${MENU_ITEM_CLASS} ${index === 0 ? "text-ivory" : "text-ivory/55 hover:text-ivory focus-visible:text-ivory active:text-ivory"} ${reveal(menuStart + index).className}`}
+                className={`${
+                  item.meta
+                    ? MENU_ITEM_META
+                    : `${MENU_ITEM_PRIMARY} ${index === 0 ? "text-ivory" : "text-ivory/55 hover:text-ivory focus-visible:text-ivory active:text-ivory"}`
+                } ${reveal(menuStart + index).className}`}
                 style={reveal(menuStart + index).style}
               >
                 <MenuMarker always={index === 0} />
                 {item.label}
-                <MenuHairline />
+                {/* 금빛 밑줄은 게임으로 들어가는 항목에만. 꼬리 항목까지 그으면 같은 무게가 된다 */}
+                {item.meta ? null : <MenuHairline />}
               </button>
               {/* 이어하는 판이면 어디까지 왔는지 이어하기 바로 아래에: 무엇의 설명인지 붙어 있어야 한다 */}
               {hasSave && index === 0 ? (
-                <p className="-mt-1 mb-1 text-center text-xs text-fog">
+                <p className="-mt-1 mb-1 break-ko text-center text-xs leading-normal text-ash">
                   {t("titleScreen.saved", { count: collectedCount })}
                 </p>
               ) : null}
@@ -317,23 +368,52 @@ export function TitleScreen() {
         </nav>
 
         {/*
-          조작 안내는 "이동"과 "조사" 두 덩어리다. 한 문장으로 이어 두면 좁은 화면에서
-          아무 데서나 끊겨 어느 쪽 설명인지 안 읽힌다. 덩어리째 줄바꿈되도록 flex로
-          나눈다. 문구는 기기를 따라간다. 폰에서 WASD를 읽어 봐야 누를 키가 없다.
+          조작 안내. 예전에는 "이동 클릭 · WASD" 같은 문장 두 개가 같은 크기·같은 색으로
+          나란히 놓여 있어, 어디까지가 무엇의 이름이고 어디부터가 누를 것인지 글자만
+          봐서는 안 갈렸다. 무엇(이동·조사)은 라벨(본문 서체 · ash), 어떻게(클릭 · WASD)는
+          값(픽셀 서체 · ivory)으로 갈라 둘이 다른 종류의 글자로 서게 한다.
+          덩어리째 줄바꿈되도록 flex로 나눈다. 좁은 화면에서 아무 데서나 끊기면
+          어느 쪽 설명인지 안 읽힌다. 문구는 기기를 따라간다. 폰에서 WASD를 읽어 봐야
+          누를 키가 없다.
         */}
-        <div
-          className={`relative flex max-w-md flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs leading-normal text-fog/90 ${reveal(afterMenu).className}`}
+        <section
+          className={`relative flex max-w-md flex-col items-center gap-3 ${reveal(afterMenu).className}`}
           style={reveal(afterMenu).style}
         >
-          <span className="break-ko text-pretty">{hint("titleScreen.howToMove")}</span>
-          <span className="break-ko text-pretty">{hint("titleScreen.howToExamine")}</span>
-        </div>
+          <h2 className="flex items-center gap-3">
+            <span aria-hidden className={RULE_CLASS} />
+            <span className={`break-ko ${LABEL_CLASS}`}>{t("titleScreen.controls")}</span>
+            <span aria-hidden className={RULE_CLASS} />
+          </h2>
+          <dl className="flex flex-wrap items-baseline justify-center gap-x-6 gap-y-2">
+            {[
+              {
+                key: "move",
+                label: t("titleScreen.moveLabel"),
+                value: hint("titleScreen.howToMove"),
+              },
+              {
+                key: "examine",
+                label: t("titleScreen.examineLabel"),
+                value: hint("titleScreen.howToExamine"),
+              },
+            ].map((control) => (
+              <div key={control.key} className="flex items-baseline gap-2">
+                <dt className={`break-ko ${LABEL_CLASS}`}>{control.label}</dt>
+                <dd className="break-ko font-pixel text-sm leading-normal text-ivory/85">
+                  {control.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
 
-        {/* 게임 바깥의 것(언어)은 메뉴와 떼어 흐름의 마지막에 둔다 */}
+        {/* 게임 바깥의 것(언어)은 메뉴와 떼어 흐름의 마지막에 둔다. 선 하나로 더 떼어 놓는다 */}
         <footer
-          className={`relative mt-4 flex flex-col items-center gap-2 ${reveal(afterMenu + 1).className}`}
+          className={`relative mt-2 flex flex-col items-center gap-4 ${reveal(afterMenu + 1).className}`}
           style={reveal(afterMenu + 1).style}
         >
+          <span aria-hidden className={RULE_CLASS} />
           <LanguageToggle tone="bare" />
         </footer>
       </div>
