@@ -462,7 +462,6 @@
     "mapOpen": "Open the floor plan"
   },
   "titleScreen": {
-    "kicker": "A short 3D visual novel",
     "tagline": "Gather the memories scattered across a room that never opened.",
     "start": "New Game",
     "loading": "Getting the room ready… {{percent}}%",

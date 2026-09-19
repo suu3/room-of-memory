@@ -462,7 +462,6 @@
     "mapOpen": "평면도 열기"
   },
   "titleScreen": {
-    "kicker": "3D 비주얼 노벨",
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
     "start": "새 게임",
     "loading": "방을 준비하고 있어요… {{percent}}%",

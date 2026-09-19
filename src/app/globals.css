@@ -928,13 +928,44 @@ body {
 }
 
 /*
- * 타이틀 로고: 커튼 틈으로 새는 금빛이 글자 뒤에서 배어나는 정도까지만.
- * 인디게임 타이틀의 관례(빛나는 로고 타이포)를 팔레트 밖 색 없이 memory로 만든다.
+ * 타이틀 로고.
+ *
+ * 두 가지가 같이 걸려 있다.
+ *
+ * 1. 크기는 14의 정수배여야 한다. Galmuri14는 14px 그리드에 그려진 픽셀 서체라,
+ *    그 배수가 아닌 크기에서는 한 칸이 3.4px 같은 소수로 떨어지며 획 굵기가 칸마다
+ *    들쭉날쭉해진다. 획이 뭉개지니 큰 글자인데도 가늘고 흐릿하게 읽힌다.
+ *    42px(3배) · 56px(4배)로 잡는다. 56px은 DESIGN.md의 display 토큰(3.5rem)이다.
+ * 2. 굵기는 font-weight로 못 준다. 굵은 웨이트가 없는 서체다. 대신 글자를 원본
+ *    한 칸(= font-size / 14)만큼 오른쪽·아래로 한 번씩 더 찍어 획을 한 칸 불린다.
+ *    픽셀 그리드 위에서 정확히 한 칸이라 뭉개지지 않고 "굵은 픽셀 서체"가 된다.
+ *    1번이 지켜져야 성립한다.
+ *
+ * 그 뒤에 깔리는 것은 예전과 같다: 커튼 틈으로 새는 금빛이 글자 뒤에서 배어나는
+ * 정도까지만. 인디게임 타이틀의 관례(빛나는 로고 타이포)를 팔레트 밖 색 없이 만든다.
  */
 .title-logo {
+  --title-pixel: calc(1em / 14);
+
+  font-size: 2.625rem; /* 42px = 14 × 3 */
   text-shadow:
+    var(--title-pixel) 0 0 currentcolor,
+    0 var(--title-pixel) 0 currentcolor,
+    var(--title-pixel) var(--title-pixel) 0 currentcolor,
     0 2px 6px rgb(5 10 18 / 0.7),
     0 0 40px color-mix(in srgb, var(--color-memory) 16%, transparent);
+}
+
+@media (min-width: 768px) {
+  .title-logo {
+    font-size: 3.5rem; /* 56px = 14 × 4 (DESIGN.md > Typography: display) */
+  }
+}
+
+@media (min-width: 1280px) {
+  .title-logo {
+    font-size: 4.375rem; /* 70px = 14 × 5. 넓은 화면에서는 한 칸 더 키운다 */
+  }
 }
 
 /*

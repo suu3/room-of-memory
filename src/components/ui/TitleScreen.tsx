@@ -38,14 +38,21 @@ const ENTER_DELAY_MS = 260;
  * 색까지** 다르게 준다.
  */
 const MENU_ITEM_BASE =
-  "title-menu-item group relative w-full cursor-pointer rounded-sm text-center transition-colors duration-150 focus-visible:outline-none";
+  "title-menu-item group relative w-full cursor-pointer rounded-sm text-left transition-colors duration-150 focus-visible:outline-none";
 /** 게임으로 들어가는 항목 (이어하기 · 새 게임) */
-const MENU_ITEM_PRIMARY = `${MENU_ITEM_BASE} px-10 py-2.5 font-pixel text-xl tracking-[0.06em]`;
+const MENU_ITEM_PRIMARY = `${MENU_ITEM_BASE} py-2.5 pl-9 pr-4 font-pixel text-xl tracking-[0.06em]`;
 /** 게임 바깥의 항목 (만든 사람). 한 단계 물러난 서체·크기·색 */
-const MENU_ITEM_META = `${MENU_ITEM_BASE} px-10 py-2 text-sm font-medium tracking-[0.02em] text-fog hover:text-ivory focus-visible:text-ivory active:text-ivory`;
+const MENU_ITEM_META = `${MENU_ITEM_BASE} py-2 pl-9 pr-4 text-sm font-medium tracking-[0.02em] text-fog hover:text-ivory focus-visible:text-ivory active:text-ivory`;
 
-/** 구역 라벨(장르·조작). 본문 서체 작은 글자 + ash: 메뉴와 같은 크기로 읽히지 않게 */
+/** 구역 라벨(조작). 본문 서체 작은 글자 + ash: 메뉴와 같은 크기로 읽히지 않게 */
 const LABEL_CLASS = "text-xs font-medium tracking-[0.1em] text-ash";
+/**
+ * 조작의 이름("이동"·"조사"). 값과 나란히 서므로 **값과 같은 14px**이어야 한다.
+ * 픽셀 서체(Galmuri14)는 글리프가 em 박스를 꽉 채워서, 같은 px의 본문 서체보다 크게
+ * 보인다. 라벨만 12px로 내리면 서체 차이 위에 크기 차이까지 겹쳐 값이 붕 뜬다.
+ * 크기는 맞추고 색(ash/ivory)과 서체로만 가른다.
+ */
+const CONTROL_LABEL_CLASS = "text-sm font-medium tracking-[0.02em] text-ash";
 /** 라벨 양옆의 헤어라인. 글자 하나가 홀로 떠 있지 않게 선 사이에 앉힌다 */
 const RULE_CLASS = "h-px w-8 bg-line";
 
@@ -58,7 +65,7 @@ function MenuMarker({ always }: { always: boolean }) {
   return (
     <span
       aria-hidden
-      className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-memory transition-[opacity,translate] duration-150 ease-out ${
+      className={`pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-sm text-memory transition-[opacity,translate] duration-150 ease-out ${
         always
           ? "opacity-100"
           : "-translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 group-active:translate-x-0 group-active:opacity-100"
@@ -72,12 +79,15 @@ function MenuMarker({ always }: { always: boolean }) {
 /**
  * 항목 아래의 헤어라인. 왼쪽에서 자라 나온다 (DESIGN.md > Motion: 테두리를 새로 그려
  * 레이아웃을 움직이지 않는다. 선은 늘 있고 scale만 바뀐다).
+ *
+ * 글자를 감싼 span 안에 들어가므로 길이가 메뉴 칸이 아니라 **글자 폭**을 따른다.
+ * 왼쪽 정렬 메뉴에서 칸 끝까지 그으면 짧은 라벨 아래로 선만 길게 남는다.
  */
 function MenuHairline() {
   return (
     <span
       aria-hidden
-      className="pointer-events-none absolute bottom-1 left-10 right-10 h-px origin-left scale-x-0 bg-memory/60 transition-transform duration-150 ease-out group-hover:scale-x-100 group-focus-visible:scale-x-100"
+      className="pointer-events-none absolute -bottom-1 left-0 right-0 h-px origin-left scale-x-0 bg-memory/60 transition-transform duration-150 ease-out group-hover:scale-x-100 group-focus-visible:scale-x-100"
     />
   );
 }
@@ -267,7 +277,7 @@ export function TitleScreen() {
           {t("scene.loading")}
         </p>
       )}
-      <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-6 py-10">
+      <div className="relative flex min-h-full flex-col gap-7 px-6 py-7 sm:gap-10 sm:px-10 sm:py-10 md:px-16 md:py-14">
         {/* 글자 뒤 가운데만 은은하게 눌러 주는 어둠. 방은 흐리지 않고 윤곽 그대로 둔다.
             방이 배경의 얼룩이 아니라 이 화면의 공간이어야 한다. 가로로 넓은 타원이 아니라
             글자 기둥을 따라 세로로 선 타원인 이유는, 눌러야 하는 것이 방의 가운데가 아니라
@@ -277,7 +287,7 @@ export function TitleScreen() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(42% 58% at 50% 50%, color-mix(in srgb, var(--color-scene-void) 78%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 46%, transparent) 58%, transparent 100%)",
+              "linear-gradient(100deg, color-mix(in srgb, var(--color-scene-void) 84%, transparent) 0%, color-mix(in srgb, var(--color-scene-void) 58%, transparent) 34%, transparent 72%), linear-gradient(to top, color-mix(in srgb, var(--color-scene-void) 72%, transparent) 0%, transparent 28%)",
           }}
         />
 
@@ -304,68 +314,66 @@ export function TitleScreen() {
           제목 · 소개 · 꼬리표가 서로 다른 종류의 글자로 읽힌다 (DESIGN.md > Typography).
           앰버는 여기 쓰지 않는다. 선택(▶)의 자리로만 남긴다.
         */}
-        <div
-          className={`relative flex flex-col items-center gap-3 text-center ${reveal(0).className}`}
-          style={reveal(0).style}
-        >
-          {/* 무엇을 여는 화면인지 한 마디로. 선 두 개 사이에 앉혀 제목의 받침이 된다 */}
-          <p className="flex items-center gap-3">
-            <span aria-hidden className={RULE_CLASS} />
-            <span className={`break-ko ${LABEL_CLASS}`}>{t("titleScreen.kicker")}</span>
-            <span aria-hidden className={RULE_CLASS} />
-          </p>
-          <h1 className="title-logo break-ko font-pixel text-5xl leading-tight text-ivory md:text-6xl">
-            {t("title")}
-          </h1>
-          <p className="max-w-md break-ko text-pretty text-sm leading-relaxed text-fog">
-            {t("titleScreen.tagline")}
-          </p>
-        </div>
+        <div className="relative flex flex-1 flex-col justify-center gap-9">
+          <div
+            className={`flex max-w-lg flex-col items-start gap-3 text-left ${reveal(0).className}`}
+            style={reveal(0).style}
+          >
+            <h1 className="title-logo break-ko font-pixel leading-tight text-ivory">
+              {t("title")}
+            </h1>
+            <p className="max-w-md break-ko text-pretty text-sm leading-relaxed text-fog">
+              {t("titleScreen.tagline")}
+            </p>
+          </div>
 
-        {/*
+          {/*
           메뉴. 이 화면의 유일한 조작부라 설명 문단 없이 목록만 세운다.
           인디게임 메뉴의 문법(같은 크기 세로 목록, 고른 항목만 켜짐)이 곧 설명이다.
         */}
-        <nav
-          aria-label={t("titleScreen.menu")}
-          onKeyDown={onMenuKeyDown}
-          className="relative flex w-56 flex-col items-stretch gap-1"
-        >
-          {items.map((item, index) => (
-            <Fragment key={item.key}>
-              {/* 게임 안과 밖을 가르는 선. 만든 사람은 메뉴의 꼬리가 아니라 다른 묶음이다 */}
-              {item.meta && index > 0 ? (
-                <span aria-hidden className={`mx-auto my-2 ${RULE_CLASS}`} />
-              ) : null}
-              <button
-                ref={(el) => {
-                  itemsRef.current[index] = el;
-                }}
-                type="button"
-                onClick={item.onSelect}
-                onPointerEnter={playHoverSound}
-                // 첫 항목이 기본 선택이다. 아이보리에 앰버 표식이 늘 붙고, 나머지는 한 단계 낮다
-                className={`${
-                  item.meta
-                    ? MENU_ITEM_META
-                    : `${MENU_ITEM_PRIMARY} ${index === 0 ? "text-ivory" : "text-ivory/55 hover:text-ivory focus-visible:text-ivory active:text-ivory"}`
-                } ${reveal(menuStart + index).className}`}
-                style={reveal(menuStart + index).style}
-              >
-                <MenuMarker always={index === 0} />
-                {item.label}
-                {/* 금빛 밑줄은 게임으로 들어가는 항목에만. 꼬리 항목까지 그으면 같은 무게가 된다 */}
-                {item.meta ? null : <MenuHairline />}
-              </button>
-              {/* 이어하는 판이면 어디까지 왔는지 이어하기 바로 아래에: 무엇의 설명인지 붙어 있어야 한다 */}
-              {hasSave && index === 0 ? (
-                <p className="-mt-1 mb-1 break-ko text-center text-xs leading-normal text-ash">
-                  {t("titleScreen.saved", { count: collectedCount })}
-                </p>
-              ) : null}
-            </Fragment>
-          ))}
-        </nav>
+          <nav
+            aria-label={t("titleScreen.menu")}
+            onKeyDown={onMenuKeyDown}
+            className="flex w-64 flex-col items-stretch gap-1"
+          >
+            {items.map((item, index) => (
+              <Fragment key={item.key}>
+                {/* 게임 안과 밖을 가르는 선. 만든 사람은 메뉴의 꼬리가 아니라 다른 묶음이다 */}
+                {item.meta && index > 0 ? (
+                  <span aria-hidden className={`ml-9 my-2 ${RULE_CLASS}`} />
+                ) : null}
+                <button
+                  ref={(el) => {
+                    itemsRef.current[index] = el;
+                  }}
+                  type="button"
+                  onClick={item.onSelect}
+                  onPointerEnter={playHoverSound}
+                  // 첫 항목이 기본 선택이다. 아이보리에 앰버 표식이 늘 붙고, 나머지는 한 단계 낮다
+                  className={`${
+                    item.meta
+                      ? MENU_ITEM_META
+                      : `${MENU_ITEM_PRIMARY} ${index === 0 ? "text-ivory" : "text-ivory/55 hover:text-ivory focus-visible:text-ivory active:text-ivory"}`
+                  } ${reveal(menuStart + index).className}`}
+                  style={reveal(menuStart + index).style}
+                >
+                  <MenuMarker always={index === 0} />
+                  <span className="relative inline-block">
+                    {item.label}
+                    {/* 금빛 밑줄은 게임으로 들어가는 항목에만. 꼬리 항목까지 그으면 같은 무게가 된다 */}
+                    {item.meta ? null : <MenuHairline />}
+                  </span>
+                </button>
+                {/* 이어하는 판이면 어디까지 왔는지 이어하기 바로 아래에: 무엇의 설명인지 붙어 있어야 한다 */}
+                {hasSave && index === 0 ? (
+                  <p className="-mt-1 mb-1 pl-9 break-ko text-xs leading-normal text-ash">
+                    {t("titleScreen.saved", { count: collectedCount })}
+                  </p>
+                ) : null}
+              </Fragment>
+            ))}
+          </nav>
+        </div>
 
         {/*
           조작 안내. 예전에는 "이동 클릭 · WASD" 같은 문장 두 개가 같은 크기·같은 색으로
@@ -376,46 +384,43 @@ export function TitleScreen() {
           어느 쪽 설명인지 안 읽힌다. 문구는 기기를 따라간다. 폰에서 WASD를 읽어 봐야
           누를 키가 없다.
         */}
-        <section
-          className={`relative flex max-w-md flex-col items-center gap-3 ${reveal(afterMenu).className}`}
-          style={reveal(afterMenu).style}
-        >
-          <h2 className="flex items-center gap-3">
-            <span aria-hidden className={RULE_CLASS} />
-            <span className={`break-ko ${LABEL_CLASS}`}>{t("titleScreen.controls")}</span>
-            <span aria-hidden className={RULE_CLASS} />
-          </h2>
-          <dl className="flex flex-wrap items-baseline justify-center gap-x-6 gap-y-2">
-            {[
-              {
-                key: "move",
-                label: t("titleScreen.moveLabel"),
-                value: hint("titleScreen.howToMove"),
-              },
-              {
-                key: "examine",
-                label: t("titleScreen.examineLabel"),
-                value: hint("titleScreen.howToExamine"),
-              },
-            ].map((control) => (
-              <div key={control.key} className="flex items-baseline gap-2">
-                <dt className={`break-ko ${LABEL_CLASS}`}>{control.label}</dt>
-                <dd className="break-ko font-pixel text-sm leading-normal text-ivory/85">
-                  {control.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+        <div className="relative flex flex-wrap items-end justify-between gap-x-10 gap-y-6 border-t border-line pt-5">
+          <section
+            className={`flex max-w-md flex-col items-start gap-2 ${reveal(afterMenu).className}`}
+            style={reveal(afterMenu).style}
+          >
+            <h2 className={`break-ko ${LABEL_CLASS}`}>{t("titleScreen.controls")}</h2>
+            <dl className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+              {[
+                {
+                  key: "move",
+                  label: t("titleScreen.moveLabel"),
+                  value: hint("titleScreen.howToMove"),
+                },
+                {
+                  key: "examine",
+                  label: t("titleScreen.examineLabel"),
+                  value: hint("titleScreen.howToExamine"),
+                },
+              ].map((control) => (
+                <div key={control.key} className="flex items-baseline gap-2">
+                  <dt className={`break-ko ${CONTROL_LABEL_CLASS}`}>{control.label}</dt>
+                  <dd className="break-ko font-pixel text-sm leading-normal text-ivory/85">
+                    {control.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
 
-        {/* 게임 바깥의 것(언어)은 메뉴와 떼어 흐름의 마지막에 둔다. 선 하나로 더 떼어 놓는다 */}
-        <footer
-          className={`relative mt-2 flex flex-col items-center gap-4 ${reveal(afterMenu + 1).className}`}
-          style={reveal(afterMenu + 1).style}
-        >
-          <span aria-hidden className={RULE_CLASS} />
-          <LanguageToggle tone="bare" />
-        </footer>
+          {/* 게임 바깥의 것(언어)은 메뉴와 떼어 흐름의 마지막에 둔다. 선 하나로 더 떼어 놓는다 */}
+          <footer
+            className={`flex flex-col items-start gap-2 ${reveal(afterMenu + 1).className}`}
+            style={reveal(afterMenu + 1).style}
+          >
+            <LanguageToggle tone="bare" />
+          </footer>
+        </div>
       </div>
 
       {/* 새 게임 확인: 저장을 지우는 되돌릴 수 없는 동작이라 경고색(ember)이 선다 */}
