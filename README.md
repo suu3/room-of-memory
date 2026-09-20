@@ -47,5 +47,6 @@
 ---
 
 <div align="center">
-<sub>이 게임은 <b>경기청년 갭이어 프로그램</b>의 지원을 받아 만들어졌습니다.</sub>
+<img src="docs/gapyear-logo.webp" alt="경기청년 갭이어" width="200"><br>
+<sub>본 게임은 경기도와 경기도미래세대재단의 <b>&lt;2026년 경기청년 갭이어 프로그램&gt;</b>의 지원을 받아 제작되었습니다.</sub>
 </div>

@@ -73,6 +73,8 @@ export const ASSETS = {
     uiLoading: "/assets/images/ui-loading.gif?v=20260910-grounded-bounce",
     /** 만든 사람 화면의 프로필 그림 (512×512, 제작자의 토끼 낙서). 둥글게 잘라 쓴다. */
     creatorAvatar: "/assets/images/ui-creator-avatar.webp",
+    /** 지원사업 CI (경기청년 갭이어 흰색 가로형 워드마크, 720×120). 어두운 판 위에만 올린다. */
+    gapYearLogo: "/assets/images/ui-gapyear-logo.webp",
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp",
     mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp",

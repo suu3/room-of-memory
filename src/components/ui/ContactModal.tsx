@@ -63,8 +63,19 @@ export function ContactLinks() {
           </li>
         ))}
       </ul>
-      {/* 지원사업 표기: 요란하지 않게, 크레딧을 열어본 사람에게만 보인다 */}
-      <p className="break-ko text-xs leading-normal text-ash">{t("contact.support")}</p>
+      {/* 지원사업 표기: 요란하지 않게, 크레딧을 열어본 사람에게만 보인다.
+          문구는 사업 안내의 지정 문구를 그대로 쓴다 (경기도·재단·연도·꺾쇠 포함). */}
+      <div className="flex flex-col gap-3">
+        <Image
+          src={ASSETS.images.gapYearLogo}
+          alt="경기청년 갭이어"
+          width={720}
+          height={120}
+          draggable={false}
+          className="h-5 w-auto self-start opacity-70"
+        />
+        <p className="break-ko text-xs leading-normal text-ash">{t("contact.support")}</p>
+      </div>
     </div>
   );
 }
