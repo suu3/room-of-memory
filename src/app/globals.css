@@ -799,6 +799,96 @@ body {
   opacity: 0.13;
 }
 
+/*
+ * 필름 먼지와 스크래치 (PlaybackScene). 2D 재생 화면에만 얹히는 "기록물의 결"이다.
+ *
+ * 먼지는 점 몇 개짜리 타일을 steps로 툭툭 옮긴다. 부드럽게 흘리면 먼지가 아니라
+ * 눈이 내린다. 필름의 먼지는 프레임마다 다른 자리에 **있다가 없다**. 스크래치는
+ * 대부분의 시간 동안 안 보이다가 잠깐 섰다 사라진다. 계속 서 있으면 화면의 금이다.
+ * 이미지 에셋 없이 그라디언트만으로 만든다 (.claude/rules/assets.md).
+ */
+.film-dust {
+  --dust: color-mix(in srgb, var(--color-ivory) 55%, transparent);
+  --lint: color-mix(in srgb, var(--color-scene-void) 70%, transparent);
+  background-image:
+    radial-gradient(circle at 12% 18%, var(--dust) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 71% 34%, var(--dust) 0 0.8px, transparent 1.3px),
+    radial-gradient(circle at 43% 77%, var(--lint) 0 1.4px, transparent 2px),
+    radial-gradient(circle at 88% 63%, var(--dust) 0 0.7px, transparent 1.2px),
+    radial-gradient(ellipse at 27% 52%, var(--lint) 0 0.6px, transparent 2.4px);
+  background-size: 37vmax 31vmax;
+  animation: film-dust-jump 0.9s steps(1, end) infinite;
+}
+
+.film-scratch {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--color-ivory) 38%, transparent) 12%,
+    color-mix(in srgb, var(--color-ivory) 22%, transparent) 70%,
+    transparent
+  );
+  opacity: 0;
+  animation: film-scratch-flicker 7.3s steps(1, end) infinite;
+}
+
+@keyframes film-dust-jump {
+  0% {
+    background-position: 0 0;
+    opacity: 0.9;
+  }
+  17% {
+    background-position: 13vmax -7vmax;
+    opacity: 0.4;
+  }
+  34% {
+    background-position: -9vmax 11vmax;
+    opacity: 0.8;
+  }
+  50% {
+    background-position: 21vmax 5vmax;
+    opacity: 0;
+  }
+  67% {
+    background-position: -17vmax -13vmax;
+    opacity: 0.7;
+  }
+  84% {
+    background-position: 5vmax 19vmax;
+    opacity: 0.5;
+  }
+}
+
+@keyframes film-scratch-flicker {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  31% {
+    opacity: 1;
+    transform: translateX(23vw);
+  }
+  33% {
+    opacity: 0.5;
+    transform: translateX(23.3vw);
+  }
+  35% {
+    opacity: 0;
+  }
+  78% {
+    opacity: 0.8;
+    transform: translateX(67vw);
+  }
+  80% {
+    opacity: 0;
+  }
+}
+
 .animate-bat-swing-image {
   transform-origin: 88% 82%;
 }
@@ -1248,6 +1338,11 @@ body {
 
   .animate-backdrop-in {
     animation: none;
+  }
+
+  /* 툭툭 옮겨 다니는 먼지는 낮은 세기라도 깜빡임이다. 정지 그레인만 남긴다 */
+  .film-dust {
+    display: none;
   }
 
   /* 찢김이 없으니 기다릴 이유도 없다 */

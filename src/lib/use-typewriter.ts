@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 export interface TypewriterState {
   /** 지금까지 찍힌 부분 문자열. */
   typed: string;
+  /** 지금까지 찍힌 글자 수 (코드포인트 기준). 글자마다 소리를 붙이는 쪽이 본다. */
+  count: number;
   /** 전부 찍혔는지 (reduced-motion이면 처음부터 true). */
   done: boolean;
   /** 남은 글자를 즉시 채운다. 대사창 클릭 한 번으로 건너뛰기. */
@@ -39,7 +41,7 @@ export function useTypewriterState(text: string, charMs = 70): TypewriterState {
 
   const skip = useCallback(() => setCount(chars.length), [chars.length]);
 
-  return { typed: chars.slice(0, count).join(""), done: count >= chars.length, skip };
+  return { typed: chars.slice(0, count).join(""), count, done: count >= chars.length, skip };
 }
 
 /** 찍히는 텍스트만 필요할 때의 축약형. */

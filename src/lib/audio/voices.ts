@@ -18,6 +18,14 @@ export type VoiceId =
   | "fail"
   | "open"
   | "close"
+  // 대사창: 글자가 찍히고, 줄이 넘어가는 소리
+  | "type"
+  | "typeRadio"
+  | "typeSkip"
+  | "advance"
+  // 재생 화면(컷씬·다시보기): 그림이 서고, 컷이 바뀌는 소리
+  | "reelStart"
+  | "cutChange"
   // 미니게임 전용: 공용 보이스를 돌려쓰면 손맛이 안 나는 자리들만 따로 판다.
   | "batHit"
   | "swingMiss"
@@ -145,6 +153,61 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
   close: {
     tones: [{ from: 494, to: 294, waveform: "sine", delay: 0, duration: 0.12, gain: 0.24 }],
+  },
+
+  /*
+   * 대사창. VN이라 이 소리들이 게임에서 가장 자주 울린다. 한 번 듣기 좋은 크기가
+   * 아니라 천 번 들어도 안 거슬리는 크기로 맞춘다 (wipe와 같은 이유).
+   */
+
+  /**
+   * 글자가 찍히는 틱. 타자기의 "탁"이 아니라 목소리의 자리표시다: 음정이 있어야
+   * 화자마다 높이를 달리해 "누가 말하는지"가 귀로도 갈린다 (DialogueBox의 SPEAKER_PITCH).
+   * 어택만 남기고 바로 끊는다. 꼬리가 있으면 초당 일곱 번 울릴 때 웅웅거리는 띠가 된다.
+   */
+  type: {
+    tones: [{ from: A3, to: 196, waveform: "sine", delay: 0, duration: 0.045, gain: 0.12 }],
+  },
+  /**
+   * 라디오 너머의 목소리(broadcast·signal)가 찍히는 틱. 사람이 아니라 전파라 음정이
+   * 없다. 라디오 잡음과 같은 대역의 노이즈를 짧게 끊어 "지직거리며 들어오는 글"로.
+   */
+  typeRadio: {
+    tones: [],
+    noise: { delay: 0, duration: 0.035, gain: 0.13, highpass: 1600, lowpass: 4800 },
+  },
+  /**
+   * 타자 연출을 건너뛰어 남은 글이 한꺼번에 채워지는 순간. 틱 여러 개가 뭉쳐 떨어진
+   * 것처럼, 같은 음에서 짧은 마찰 한 번과 함께 내려앉는다.
+   */
+  typeSkip: {
+    tones: [{ from: A3, to: 165, waveform: "sine", delay: 0, duration: 0.08, gain: 0.14 }],
+    noise: { delay: 0, duration: 0.06, gain: 0.12, highpass: 1200, lowpass: 5200 },
+  },
+  /**
+   * 다음 줄로. select(조사 시작)보다 작고 낮다: 뭔가를 고른 게 아니라 페이지를 넘긴
+   * 것이다. 내려가는 글라이드는 UI 보이스 전체의 약속을 따른다.
+   */
+  advance: {
+    tones: [{ from: E4, to: D4, waveform: "sine", delay: 0, duration: 0.09, gain: 0.16 }],
+  },
+
+  /**
+   * 재생 화면에 첫 그림이 서는 순간. 3D 방에서 2D 그림으로 넘어왔다는 걸 귀로 알린다.
+   * 영사기가 돌기 시작하듯 낮은 몸통이 한 번 걸리고, 그 위로 테이프 히스가 부풀며
+   * 열린다. 이 히스의 꼬리를 PlaybackScene의 바닥 잡음이 그대로 이어받는다.
+   */
+  reelStart: {
+    tones: [{ from: 70, to: 110, waveform: "sine", delay: 0, duration: 0.22, gain: 0.16 }],
+    noise: { delay: 0.04, duration: 0.5, gain: 0.12, highpass: 2200, lowpass: 9000, attack: 0.2 },
+  },
+  /**
+   * 컷이 바뀐다. 슬라이드 영사기의 셔터처럼 짧고 마른 "찰칵" 한 번. flip(종이)보다
+   * 대역이 높고 훨씬 짧다: 넘기는 게 아니라 갈아 끼우는 소리다.
+   */
+  cutChange: {
+    tones: [{ from: 140, to: 90, waveform: "triangle", delay: 0.015, duration: 0.05, gain: 0.12 }],
+    noise: { delay: 0, duration: 0.05, gain: 0.2, highpass: 2800, lowpass: 9500 },
   },
 
   /*

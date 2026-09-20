@@ -33,6 +33,12 @@ const CUTOFF_GLIDE_S = 1.4;
 const REVERB_GLIDE_S = 2;
 /** 정지·전환용 페이드. 뚝 끊으면 딸깍 소리가 난다. */
 const FADE_OUT_S = 1.2;
+/**
+ * 곡이 멎을 때 컷오프가 가라앉는 바닥(Hz). 음량만 줄이면 곡이 "작아지다 사라진다".
+ * 위쪽부터 닫으며 줄이면 곡이 문 뒤로, 물 밑으로 **삼켜진다**. 화면이 방에서 컷씬으로
+ * 넘어갈 때 귀에도 "다른 곳으로 갔다"가 들려야 한다.
+ */
+const SINK_CUTOFF_HZ = 180;
 /** 트랙을 갈아탈 때 두 곡이 겹치는 시간(초). */
 const SWAP_S = 2.2;
 
@@ -139,10 +145,15 @@ async function loadFirst(context: AudioContext, candidates: readonly string[]) {
 }
 
 /** 한 트랙을 페이드아웃시키고 끊는다. 이 트랙은 더는 밝기를 받지 않는다. */
-function retire(playing: MusicVoice, fadeSeconds: number) {
+function retire(playing: MusicVoice, fadeSeconds: number, sink = false) {
   const graph = audioGraph();
   if (!graph) return;
   const now = graph.context.currentTime;
+  if (sink) {
+    // 음량보다 컷오프가 먼저 닫혀야 "삼켜짐"이 들린다. 같은 속도면 그냥 페이드다
+    playing.lowpass.frequency.cancelScheduledValues(now);
+    playing.lowpass.frequency.setTargetAtTime(SINK_CUTOFF_HZ, now, fadeSeconds / 6);
+  }
   playing.gain.gain.cancelScheduledValues(now);
   playing.gain.gain.setTargetAtTime(0.0001, now, Math.max(0.01, fadeSeconds / 3));
   playing.source.stop(now + fadeSeconds);
@@ -243,12 +254,12 @@ export function startMusic(track: MusicTrack) {
     });
 }
 
-/** 페이드아웃 후 정지. 다시 틀려면 startMusic을 부른다. */
+/** 가라앉으며 정지 (SINK_CUTOFF_HZ). 다시 틀려면 startMusic을 부른다. */
 export function stopMusic() {
   currentRequest = null;
   const playing = voice;
   voice = null;
-  if (playing) retire(playing, FADE_OUT_S);
+  if (playing) retire(playing, FADE_OUT_S, true);
 }
 
 /**

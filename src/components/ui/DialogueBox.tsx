@@ -16,6 +16,7 @@ import {
 } from "@/store/memory-room";
 import { CharacterPortrait } from "./CharacterPortrait";
 import { hasPortrait } from "./character-portrait";
+import { typeTick } from "./dialogue-sfx";
 import { FOCUS_RING, PANEL_DIALOGUE } from "./ui-classes";
 
 /**
@@ -70,7 +71,7 @@ export function DialogueBox() {
   const scriptLine = playbackLine ?? interactionLine;
   // 훅은 조건부로 호출할 수 없으므로 대사가 없을 때도 빈 문자열로 돌린다
   const text = scriptLine ? tRoom(scriptLine.textKey) : "";
-  const { typed, done, skip } = useTypewriterState(text);
+  const { typed, count, done, skip } = useTypewriterState(text);
   const open = scriptLine !== undefined;
   const advanceLine = playbackLine ? advancePlayback : advanceDialogue;
   /** 줄이 바뀔 때마다 본문을 다시 마운트시키는 키: 어느 문에서 온 대사든 하나로. */
@@ -78,9 +79,38 @@ export function DialogueBox() {
     ? `${playback?.cutsceneId ?? playback?.memoryId}-${playback?.cutIndex}-${playback?.lineIndex}`
     : `${active?.memoryId}-${active?.lineIndex}`;
 
-  /** 지금 Enter가 해야 할 일. 타자 연출 중이면 먼저 다 채우고, 다 찼으면 다음 줄로. */
+  /**
+   * 지금 Enter가 해야 할 일. 타자 연출 중이면 먼저 다 채우고, 다 찼으면 다음 줄로.
+   * 소리는 여기(사람이 누른 길)에만 붙는다. 오토는 아무도 누르지 않았으니 조용히 넘어간다.
+   */
   const advanceRef = useRef(() => {});
-  advanceRef.current = done ? advanceLine : skip;
+  advanceRef.current = () => {
+    if (done) {
+      playSound("advance");
+      advanceLine();
+    } else {
+      playSound("typeSkip");
+      skip();
+    }
+  };
+  const autoAdvanceRef = useRef(advanceLine);
+  autoAdvanceRef.current = advanceLine;
+
+  /*
+   * 글자가 하나 찍힐 때마다의 틱. 정확히 한 글자 늘었을 때만 운다: 건너뛰기나
+   * reduced-motion처럼 한꺼번에 채워지는 경우는 틱이 아니다 (건너뛰기는 typeSkip이 맡는다).
+   */
+  const speaker = scriptLine?.speaker;
+  const tickedCount = useRef(0);
+  useEffect(() => {
+    const previous = tickedCount.current;
+    tickedCount.current = count;
+    if (!speaker || count !== previous + 1) return;
+    const char = Array.from(typed).at(-1);
+    if (!char) return;
+    const tick = typeTick(speaker, char, count);
+    if (tick) playSound(tick.id, tick.options);
+  }, [count, typed, speaker]);
 
   /*
    * 지나간 대사를 쌓는다. 화면에 선 줄을 그대로 남기므로, 어떤 문으로 들어온 대사든
@@ -98,7 +128,7 @@ export function DialogueBox() {
   useEffect(() => {
     if (!autoPlay || !done || !open || logOpen) return;
     const wait = Math.min(AUTO_MAX_MS, AUTO_BASE_MS + text.length * AUTO_PER_CHAR_MS);
-    const timer = window.setTimeout(() => advanceRef.current(), wait);
+    const timer = window.setTimeout(() => autoAdvanceRef.current(), wait);
     return () => window.clearTimeout(timer);
     // 줄이 바뀌면 타자 연출이 다시 돌아 done이 false로 떨어졌다 올라온다: 그게 곧 타이머의 재시작이다
   }, [autoPlay, done, open, logOpen, text]);
@@ -155,7 +185,7 @@ export function DialogueBox() {
         type="button"
         {...{ [ADVANCE_ATTR]: "" }}
         // 타자 연출 중 클릭은 대사를 건너뛰지 않고 먼저 다 채운다 (VN 관례)
-        onClick={done ? advanceLine : skip}
+        onClick={() => advanceRef.current()}
         // 로그가 떠 있는 동안은 뒤의 전체 화면 버튼이 눌리지 않는다
         disabled={logOpen}
         aria-label={done ? t("dialogue.advance") : t("dialogue.skipTyping")}

@@ -107,6 +107,11 @@ export interface PlayOptions {
    * 나는 자리에서만 쓴다. 버튼처럼 한 번씩 울리는 소리는 흔들면 고장난 것처럼 들린다.
    */
   variation?: number;
+  /**
+   * 보이스 전체를 이 비율로 옮긴다 (1=그대로). variation과 곱해진다. 같은 소리를 높이만
+   * 달리해 여러 뜻으로 쓰는 자리용이다: 대사 틱이 화자마다 다른 높이로 울린다.
+   */
+  pitch?: number;
 }
 
 /** 등록된 파일 샘플. 비어 있으면(기본) 전부 합성으로 간다. samples.ts 참고. */
@@ -139,9 +144,9 @@ export function playSound(id: VoiceId, options: PlayOptions = {}) {
   if (now - previous < MIN_REPEAT_S) return;
   lastPlayedAt.set(id, now);
 
-  const { variation = 0 } = options;
+  const { variation = 0, pitch = 1 } = options;
   // 1을 중심으로 ±variation. 샘플에는 재생속도로, 합성에는 주파수 배율로 같은 값이 걸린다.
-  const ratio = variation > 0 ? 1 + (Math.random() * 2 - 1) * variation : 1;
+  const ratio = pitch * (variation > 0 ? 1 + (Math.random() * 2 - 1) * variation : 1);
 
   const sample = samples.get(id);
   if (sample) {

@@ -13,6 +13,14 @@ const STATIC_MS = 1100;
 const BLACKOUT_MS = 900;
 
 /**
+ * 그림이 서 있는 동안 바닥에 까는 테이프 히스. 곡이 아니라 "재생 중"이라는 기척이다.
+ * 방의 BGM이 삼켜진 자리(music.ts의 SINK_CUTOFF_HZ)에 곧바로 완전한 무음이 오면
+ * 컷씬이 아니라 소리가 고장난 것으로 들린다. 방송 잡음(gain 0.09)의 절반도 안 되게:
+ * 의식하면 들리고 대사를 읽는 동안은 잊히는 크기.
+ */
+const TAPE_HISS = { gain: 0.035, highpass: 2400, lowpass: 9000 } as const;
+
+/**
  * 컷씬이 도는 세 국면. 그림이 뜨기 전에 라디오가 확실히 죽어야 한다.
  * 나중의 재점화가 이질적으로 들리려면 "꺼졌다"가 먼저 성립해야 하기 때문이다.
  * 다시보기에는 도입이 없으므로 곧장 "cuts"에서 시작한다.
@@ -159,6 +167,26 @@ export function PlaybackScene() {
   }, [playbackKey, isCutscene, advancePlayback]);
 
   /*
+   * 그림이 서 있는 동안의 소리: 서는 순간 영사기가 걸리고(reelStart), 바닥에 히스가
+   * 깔린다. 암전(blackout)에는 닿지 않는다. 거기서는 아무 소리도 안 나는 것이 내용이다.
+   * 그림 없는 컷씬(bare)은 방에서 하는 말이라 방의 소리가 그대로 남는다.
+   */
+  const screening = active !== null && stage === "cuts" && !bare;
+  useEffect(() => {
+    if (!screening) return;
+    playSound("reelStart");
+    const bed = startNoiseBed(TAPE_HISS);
+    bed?.setLevel(1);
+    return () => bed?.stop();
+  }, [screening]);
+
+  // 컷이 바뀔 때마다 셔터 한 번. 첫 컷은 reelStart의 몫이라 울리지 않는다
+  const cutIndex = active?.cutIndex ?? 0;
+  useEffect(() => {
+    if (screening && cutIndex > 0) playSound("cutChange");
+  }, [screening, cutIndex]);
+
+  /*
    * 정적 구간. 대사창이 사라진 채로 holdMs만큼 그림만 남았다가 저절로 넘어간다.
    * 멈춰 있는 화면을 사람이 눌러서 넘기게 두면 정적이 "로딩"으로 읽힌다.
    */
@@ -252,6 +280,17 @@ export function PlaybackScene() {
           </div>
         )}
       </div>
+
+      {/*
+        필름 먼지와 스크래치 (.film-dust, DESIGN.md > Texture). 3D 방의 그레인은 셰이더가
+        프레임마다 뿌리는 결이고, 여기는 **기록물**의 결이다: 같은 그레인을 쓰면 화면이
+        바뀌었을 뿐 재질이 안 바뀐다. 그림이 선 동안에만 얹힌다.
+      */}
+      {screening && (
+        <div aria-hidden className="film-dust pointer-events-none absolute inset-0">
+          <span className="film-scratch" />
+        </div>
+      )}
 
       {/* 방송이 마지막으로 지직거리는 노이즈. 끊기는 순간 같이 사라진다 */}
       <div
