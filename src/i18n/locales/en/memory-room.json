@@ -182,15 +182,13 @@
       "line5": "…Right. That's how it was.",
       "line6": "I hadn't forgotten. I was pretending I had."
     },
-    "radio-voice-intro": {
-      "line1": "…You went dead. I watched you go dead."
-    },
     "radio-voice": {
-      "line1": "Ah, damn… is this thing even transmitting? Can anyone hear me?",
-      "line2": "If you're alive out there, come to us. Remember, the answer is here.",
-      "line3": "We'll talk once we're together… kssht… click.",
-      "line4": "That's a person. That's a real voice.",
-      "line5": "Nothing happens if I keep sitting here."
+      "line1": "…You went dead. I watched you go dead.",
+      "line2": "Ah, damn… is this thing even transmitting? Can anyone hear me?",
+      "line3": "If you're alive out there, come to us. Remember, the answer is here.",
+      "line4": "We'll talk once we're together… kssht… click.",
+      "line5": "That's a person. That's a real voice.",
+      "line6": "Nothing happens if I keep sitting here."
     },
     "ball-echo": {
       "line1": "Maybe I can stop throwing it alone.",

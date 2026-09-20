@@ -229,17 +229,18 @@ scripts:
       en: I hadn't forgotten. I was pretending I had.
       ja: 忘れてたんじゃない。忘れたふりをしてたんだ。
 
-  # 2차 라디오 진입: 저 혼자 지직거리는 라디오 앞에 다시 앉는다
-  radio-voice-intro:
+  # 2차 라디오: 저 혼자 지직거리는 라디오 앞에 다시 앉자마자 목소리가 든다.
+  # 다이얼을 다시 돌리게 하지 않는다. 주파수 맞추기는 1바퀴에서 이미 한 번 했고,
+  # 이번에는 라디오가 먼저 말을 거는 것이라 손을 쓸 이유가 없다.
+  #
+  # 컷씬에서 스쳤던 목소리가 이번엔 또렷하게 잡힌다.
+  # 다급한 생존자다. 모일 곳이 있다는 것까지만 말하고 끊긴다. 자세한 건
+  # 엔딩(방을 나서는 이유) 몫이라 여기서 다 말하지 않는다.
+  radio-voice:
     - speaker: hero
       ko: …너, 아까 분명히 꺼졌잖아.
       en: …You went dead. I watched you go dead.
       ja: …お前、さっき確かに消えたよな。
-
-  # 2차 결과: 컷씬에서 스쳤던 목소리가 이번엔 또렷하게 잡힌다.
-  # 다급한 생존자다. 모일 곳이 있다는 것까지만 말하고 끊긴다. 자세한 건
-  # 엔딩(방을 나서는 이유) 몫이라 여기서 다 말하지 않는다.
-  radio-voice:
     - speaker: signal
       ko: 아, 씨… 이거 나가긴 하는 거야? 들리는 사람 있어?
       en: Ah, damn… is this thing even transmitting? Can anyone hear me?

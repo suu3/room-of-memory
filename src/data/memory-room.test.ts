@@ -202,15 +202,9 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     const withMinigame = MEMORIES.filter((memory) => memory.phase2?.interaction?.minigameId).map(
       (memory) => memory.id,
     );
-    // 앰플은 서랍을 열고 집는 손(ampoule-pickup)이 있다. 미궁이 아니라 탐색이다
-    expect(withMinigame.sort()).toEqual([
-      "ampoule",
-      "cards",
-      "computer",
-      "frame",
-      "phone",
-      "radio",
-    ]);
+    // 앰플은 서랍을 열고 집는 손(ampoule-pickup)이 있다. 미궁이 아니라 탐색이다.
+    // 라디오는 없다: 주파수 맞추기는 1차에만 뜨고, 2차는 곧장 목소리 대사다
+    expect(withMinigame.sort()).toEqual(["ampoule", "cards", "computer", "frame", "phone"]);
   });
 
   it("규칙이 화면에 없는 문제마다 단서와 미니게임 구현이 다 있다", () => {
