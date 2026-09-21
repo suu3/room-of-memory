@@ -22,9 +22,9 @@
 stages:
   p0-dark:
     monologue:
-      ko: 어둡다. …지금 몇 시지.
-      en: It's dark. …What time is it.
-      ja: 暗い。…今、何時だろう。
+      ko: …또 잠들었었나. 어둡다.
+      en: …Did I doze off again. It's dark.
+      ja: …また寝てたのか。暗い。
 
   p1-0:
     monologue:
