@@ -533,6 +533,12 @@ export function RoomCanvas() {
       <RoomLoadReporter failed={webGLFailed} />
       {/* 창밖으로 새어나가는 빛: 캔버스보다 아래라 방을 절대 덮지 않는다 */}
       <div aria-hidden className="room-backdrop pointer-events-none absolute inset-0" />
+      {/* 타이틀에서만 디오라마 뒤에 깔리는 빛 웅덩이: 모형을 무대 위에 올린다. 시작하면 물러난다 */}
+      <div
+        aria-hidden
+        className="room-stage-pool pointer-events-none absolute inset-0 transition-opacity duration-1000"
+        style={{ opacity: started ? 0 : 1 }}
+      />
       {webGLFailed ? (
         <>
           <WebGLFallback>{t("scene.webglFallback")}</WebGLFallback>

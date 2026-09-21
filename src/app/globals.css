@@ -4,7 +4,8 @@
 @theme {
   /* 어두운 표면 위: 화면 바탕과 그 위의 글자 (DESIGN.md > Colors) */
   --color-night: #0b1320;
-  --color-ivory: #e8e9e5;
+  /* 순백이 아니라 누런 기가 도는 아이보리: 어두운 방 위에서 "흰 글씨"가 아니라 종이 글씨로 읽힌다 */
+  --color-ivory: #e9e3d7;
   --color-fog: #b8c1cd;
   --color-ash: #929eaf;
   --color-memory: #d5ae78;
@@ -792,6 +793,43 @@ body {
     );
 }
 
+/*
+ * 타이틀에서 디오라마 뒤에 깔리는 빛 웅덩이. 방 모형이 어둠 한가운데 덜렁 놓이지 않고
+ * 무대 위에 올라 있게 한다. 캔버스보다 아래라 방을 덮지 않고, 방 바깥(벽 뒤·바닥 아래)의
+ * 빈 어둠에만 번진다. 시작하면 물러난다 (RoomCanvas가 opacity로 끈다).
+ */
+.room-stage-pool {
+  background: radial-gradient(
+    52% 64% at 54% 46%,
+    color-mix(in srgb, var(--color-memory) 22%, transparent) 0%,
+    color-mix(in srgb, var(--color-scene-storm) 70%, transparent) 40%,
+    transparent 78%
+  );
+}
+
+/*
+ * 1인칭 인트로에서 불을 켜는 순간의 덮개 (ViewpointTransition).
+ *
+ * 예전에는 순백(ivory)이 전면을 덮었다. 캄캄한 방에서 한 프레임에 흰 화면으로 튀는 것은
+ * 밝기 차가 가장 큰 전환이라 눈에 아프고, 광과민성이 있는 사람에게는 위험하다. 전등이
+ * 막 켜졌을 때의 누르스름한 빛 정도(볕 색을 밤에 섞은 값)로 낮춘다. 모션을 끈 판에서는
+ * 밝은 덮개를 아예 두지 않고 어둠에서 어둠으로 잇는다.
+ */
+.viewpoint-lamp {
+  background: color-mix(in srgb, var(--color-scene-sun) 42%, var(--color-night));
+}
+
+/*
+ * 3막의 기록 라벨: 진실이 드러난 뒤 "MEMORY LOG ??"가 붉게 번진다. 깜빡이지 않는다.
+ * 그림자 한 겹이 옆으로 어긋나 있을 뿐이라 정지 화면에서도 "오염됐다"로 읽힌다.
+ */
+.hud-log-tainted {
+  text-shadow:
+    1px 0 0 color-mix(in srgb, var(--color-ember) 55%, transparent),
+    -1px 0 0 color-mix(in srgb, var(--color-scene-void) 80%, transparent),
+    0 2px 5px rgb(5 10 18 / 0.85);
+}
+
 /* 필름 그레인 오버레이: DESIGN.md > Texture */
 .film-grain {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.55'/></svg>");
@@ -1343,6 +1381,11 @@ body {
   /* 툭툭 옮겨 다니는 먼지는 낮은 세기라도 깜빡임이다. 정지 그레인만 남긴다 */
   .film-dust {
     display: none;
+  }
+
+  /* 불을 켜는 덮개도 밝히지 않는다. 어둠에서 어둠으로, 밝기는 씬 조명이 천천히 올린다 */
+  .viewpoint-lamp {
+    background: var(--color-scene-void);
   }
 
   /* 찢김이 없으니 기다릴 이유도 없다 */

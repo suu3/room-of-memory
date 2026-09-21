@@ -11,14 +11,18 @@ import { selectViewpoint, useMemoryRoomStore, type Viewpoint } from "@/store/mem
  *
  * - 1인칭으로 **들어갈 때**는 어둠(void)이 걷힌다. 눈을 뜨는 것이다. 인트로는 불 꺼진
  *   방이라 어둠에서 어둠으로 이어지고, 2막 도입은 문을 여는 순간 눈을 감았다 뜬다.
- * - 1인칭에서 **나올 때**는 빛이 걷힌다. 인트로는 불이 켜지는 흰빛(ivory), 문 넘기는
- *   문 쪽의 금빛(memory). 그 빛이 곧 그 구간의 목적지였으니까.
+ * - 1인칭에서 **나올 때**는 빛이 걷힌다. 인트로는 막 켜진 전등의 누런빛(.viewpoint-lamp),
+ *   문 넘기는 문 쪽의 금빛(memory). 그 빛이 곧 그 구간의 목적지였으니까.
+ *
+ * 불 켜기의 덮개는 순백이 아니다. 캄캄한 방에서 한 프레임에 흰 화면으로 튀면 밝기 차가
+ * 가장 큰 전환이라 광과민성에 위험하다. 밤에 볕 색을 섞은 중간 밝기로 덮고 걷는 시간을
+ * 조금 더 준다 (globals.css의 .viewpoint-lamp: 모션을 끈 판에서는 어둠으로 잇는다).
  *
  * 그리는 것뿐이다. 카메라를 바꿔 끼우는 일은 FirstPersonRig가 마운트·언마운트로 한다.
  */
 const TONES = {
   enter: { className: "bg-scene-void", durationMs: 1400 },
-  lightsOn: { className: "bg-ivory", durationMs: 1100 },
+  lightsOn: { className: "viewpoint-lamp", durationMs: 1300 },
   doorway: { className: "bg-memory", durationMs: 1000 },
 } as const;
 

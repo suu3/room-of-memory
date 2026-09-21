@@ -6,6 +6,7 @@ import { AdminPanel } from "@/components/dev/AdminPanel";
 import { MEMORY_GOAL, memoriesForPhase } from "@/data/memory-room";
 import { monologueIdFor } from "@/data/monologue";
 import { useAudioRuntime, useRoomMusic } from "@/lib/audio";
+import { useMediaQuery } from "@/lib/use-media-query";
 import {
   lampScaled,
   ROOM_LIGHT_RAMP,
@@ -35,6 +36,7 @@ import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
 import { FeedbackModal } from "./FeedbackModal";
 import { HudGuideBanner, HudGuideDock, HudSpaceLine } from "./HudGuide";
+import { HudLogLine } from "./HudLogLine";
 import { HudMenu } from "./HudMenu";
 import { HudMiniMap } from "./HudMiniMap";
 import { InventoryStrip } from "./InventoryStrip";
@@ -98,6 +100,14 @@ export function MemoryRoom() {
       state.activeClue !== null,
   );
   const monologueId = useMemoryRoomStore(monologueIdFor);
+  /*
+   * 화면 네 귀를 다 쓸 만큼 넓은가 (Tailwind md). 넓으면 "지금 할 일"이 왼쪽 위 헤더가
+   * 아니라 **아래 띠**에 선다: 제목·진행(왼쪽 위), 메뉴(오른쪽 위), 목표(왼쪽 아래),
+   * 기록 라벨(오른쪽 아래)로 방을 둘러싸는 틀이 된다. 폰에서는 띠를 둘 자리가 없어
+   * (조이스틱·둘러보기 버튼이 아래에 선다) 헤더에 그대로 둔다. CSS로 두 자리에 다
+   * 그리지 않는 이유는 안내 줄이 role="status"라 두 번 읽히기 때문이다.
+   */
+  const wide = useMediaQuery("(min-width: 768px)");
   const isBatReady = useMemoryRoomStore(selectBatReady);
   const isDoorReady = useMemoryRoomStore(selectDoorReady);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
@@ -134,12 +144,13 @@ export function MemoryRoom() {
         방문이 열릴 준비(2막의 시작)와 현관의 배트가 켜지는 순간(3막)을 같은
         자리에서 한 줄씩 알린다.
       */}
+      {/* 넓은 화면에서는 아래 띠(목표·기록 라벨) 위에 선다 (md:bottom-16) */}
       {isDoorReady && !endingStarted ? (
-        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory">
+        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory md:bottom-16">
           {t("door.ready")}
         </p>
       ) : isBatReady && !endingStarted ? (
-        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory">
+        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory md:bottom-16">
           {t("door.exitReady")}
         </p>
       ) : null}
@@ -229,12 +240,30 @@ export function MemoryRoom() {
                 />
               ))}
             </div>
-            {/* 지금 할 일의 제자리. 새 목표는 가운데(HudGuideBanner)에 잠깐 떴다가 여기로 온다 */}
-            <HudGuideDock hidden={monologueHidden} />
+            {/* 지금 할 일의 제자리(폰). 새 목표는 가운데(HudGuideBanner)에 잠깐 떴다가 여기로 온다.
+                넓은 화면에서는 아래 띠가 이 자리다 */}
+            {!wide && <HudGuideDock hidden={monologueHidden} />}
             {/* 들고 있는 물건. 빈손이면 안 그린다 */}
             <InventoryStrip />
           </div>
         </header>
+      )}
+
+      {/*
+        아래 띠 (넓은 화면). 위쪽 1px 선 하나로 방 아래를 받치고, 왼쪽에 지금 할 일,
+        오른쪽에 기록 라벨(MEMORY LOG · SIGNAL)이 선다. 타이틀의 아래 띠와 같은 문법이라
+        시작을 눌러도 화면의 틀이 이어진다. 대사창·컷씬이 떠 있는 동안은 헤더의 안내 줄처럼
+        물러난다. 방문·배트 안내 한 줄은 이 띠 위(md:bottom-16)에 선다.
+      */}
+      {started && wide && !endingStarted && (
+        <footer
+          className={`monologue-text pointer-events-none absolute inset-x-6 bottom-5 z-10 flex items-end justify-between gap-6 border-t border-line pt-3 text-hud transition-opacity duration-300 ${
+            monologueHidden ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <HudGuideDock hidden={monologueHidden} />
+          <HudLogLine className="text-[0.6875em]" />
+        </footer>
       )}
 
       {/* HUD: 햄버거 메뉴(언어 · 캐릭터 시트 · Contact · 리셋)와 소리 on/off */}

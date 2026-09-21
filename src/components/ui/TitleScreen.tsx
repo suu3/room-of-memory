@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { HudLogLine } from "./HudLogLine";
 import { playHoverSound } from "./hover-sfx";
 import { LanguageToggle } from "./LanguageToggle";
 import { RisingDust } from "./RisingDust";
@@ -111,11 +112,13 @@ function MenuMarker({ always }: { always: boolean }) {
  * 글자를 감싼 span 안에 들어가므로 길이가 메뉴 칸이 아니라 **글자 폭**을 따른다.
  * 왼쪽 정렬 메뉴에서 칸 끝까지 그으면 짧은 라벨 아래로 선만 길게 남는다.
  */
-function MenuHairline() {
+function MenuHairline({ always = false }: { always?: boolean }) {
   return (
     <span
       aria-hidden
-      className="pointer-events-none absolute -bottom-1 left-0 right-0 h-px origin-left scale-x-0 bg-memory/60 transition-transform duration-150 ease-out group-hover:scale-x-100 group-focus-visible:scale-x-100"
+      className={`pointer-events-none absolute -bottom-1 left-0 right-0 h-px origin-left bg-memory/60 transition-transform duration-150 ease-out ${
+        always ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100 group-focus-visible:scale-x-100"
+      }`}
     />
   );
 }
@@ -368,6 +371,12 @@ export function TitleScreen() {
             className={`flex max-w-lg flex-col items-start gap-3 text-left ${reveal(0).className}`}
             style={reveal(0).style}
           >
+            {/*
+              제목 위의 기록 라벨. 제목·소개·메뉴만 서 있으면 "예쁜 웹사이트"까지는 가는데
+              "게임"까지는 못 간다. 작은 영문 픽셀 라벨 하나가 이 화면을 어떤 기록의 첫
+              장으로 만든다. 앰버는 여기서 처음 나오고, 아래 기본 선택(새 게임)으로 이어진다.
+            */}
+            <HudLogLine className="mb-1 text-xs" />
             <h1 className="title-logo break-ko font-pixel leading-tight text-ivory">
               {t("title")}
             </h1>
@@ -402,19 +411,21 @@ export function TitleScreen() {
                   type="button"
                   onClick={item.onSelect}
                   onPointerEnter={playHoverSound}
-                  // 첫 항목이 기본 선택이다. 아이보리에 앰버 표식이 늘 붙고, 나머지는 한 단계 낮다
+                  // 첫 항목이 기본 선택이다. 화면에서 유일하게 앰버로 선 글자(표식·글자·밑줄)라
+                  // 어디를 누르면 게임이 시작되는지 한눈에 잡힌다. 나머지는 한 단계 낮다
                   className={`${
                     item.meta
                       ? MENU_ITEM_META
-                      : `${MENU_ITEM_PRIMARY} ${index === 0 ? "text-ivory" : "text-ivory/55 hover:text-ivory focus-visible:text-ivory active:text-ivory"}`
+                      : `${MENU_ITEM_PRIMARY} ${index === 0 ? "text-memory" : "text-ivory/55 hover:text-ivory focus-visible:text-ivory active:text-ivory"}`
                   } ${reveal(menuStart + index).className}`}
                   style={reveal(menuStart + index).style}
                 >
                   <MenuMarker always={index === 0} />
                   <span className="relative inline-block">
                     {item.label}
-                    {/* 금빛 밑줄은 게임으로 들어가는 항목에만. 꼬리 항목까지 그으면 같은 무게가 된다 */}
-                    {item.meta ? null : <MenuHairline />}
+                    {/* 금빛 밑줄은 게임으로 들어가는 항목에만. 꼬리 항목까지 그으면 같은 무게가 된다.
+                        기본 선택에는 늘 그어져 있다: 앰버 글자 밑의 앰버 선이 "여기"를 잡아 준다 */}
+                    {item.meta ? null : <MenuHairline always={index === 0} />}
                   </span>
                 </button>
                 {/* 이어하는 판이면 어디까지 왔는지 이어하기 바로 아래에: 무엇의 설명인지 붙어 있어야 한다 */}
