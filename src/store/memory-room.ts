@@ -976,8 +976,18 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         ),
       standUp: () => set((state) => (state.seatedAt === null ? state : { seatedAt: null })),
       // 앉은 채로 옮기면 몸만 가고 의자는 남는다. 옮기기 전에 일어선다.
+      // 평면도로 옮기면 들여다보던 문제(피아노)와 판(앰플)도 내려놓는다. 두고 오면 붙박이
+      // 카메라와 판이 저쪽 공간에 남는다.
       warpPlayer: (x, z) =>
-        set({ warpTarget: { x, z }, seatedAt: null, curtainGrab: null, walkTarget: null }),
+        set((state) => ({
+          warpTarget: { x, z },
+          seatedAt: null,
+          curtainGrab: null,
+          walkTarget: null,
+          activePuzzle: null,
+          activeInteraction:
+            state.activeInteraction?.phase === "minigame" ? null : state.activeInteraction,
+        })),
       walkTo: (x, z) =>
         set((state) =>
           !state.started || selectSceneInputLocked(state)

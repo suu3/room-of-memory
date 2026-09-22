@@ -115,6 +115,7 @@
   "minigame": {
     "start": "Start",
     "skip": "Skip",
+    "back": "Step back",
     "close": "Close and return to the room",
     "successCount": "Success {{value}} / {{goal}}",
     "missCount": "Misses {{value}} / {{max}}",
@@ -169,7 +170,6 @@
       "labelTime": "Time",
       "nameHero": "P1",
       "nameRival": "CPU",
-      "pressStart": "PRESS START",
       "combo": "{{value}} HIT",
       "callout": {
         "counter": "COUNTER!",
@@ -282,7 +282,6 @@
       "callsSubtitle": "No answer",
       "callsTitle": "Recents",
       "moreBelow": "More below: scroll down",
-      "draft": "Mom, where are you",
       "contact": {
         "mom": "Mom",
         "dad": "Dad",

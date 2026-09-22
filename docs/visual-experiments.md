@@ -105,7 +105,7 @@
 | **게임기** | `fighter-duel`: 실시간 격투, 스프라이트 시트 DOM (`Fighter.tsx`) | 픽셀 블록 커짐 + 디더 + 2P `PRESS START` | 🔶 | 무대 컨테이너를 `1/block` 해상도로 그려 `image-rendering: pixelated`로 키운다 (CSS만). 디더는 뺀다(프레임마다 바뀌는 질감). 2P 슬롯 `PRESS START`는 1Hz 이하 깜빡임으로 HUD에 한 줄 | 블록 크기 ← `collected.length` (1막 진행도), 판이 열릴 때 한 번 정해 고정. 2차(대사만)는 표시할 화면이 없다: 생략 |
 | **달력+벽 메모** | `calendar-flip`: DOM 격자(`MonthGrid`) + 正자 장(`TallySheet`, 픽셀 글리프 span). 2차 없음 (스펙과 일치) | 숫자 glyph → 正 획 morph, `stroke-dashoffset` | 🔶 | 正자를 SVG 5획으로 바꾸고 장을 넘길 때 획이 **그어진다**(dashoffset). 숫자 → 획 morph는 뺀다(flubber 새 의존성, 폰트 path 필요). 마지막 正의 미완 획은 이미 `tallyGroups(days).remainder`가 준다 | 미완 획 수 = 버틴 날의 나머지 (`survivedDays`), 진행도가 아니라 **날짜**에 묶인다. "엔딩 직전 한 획 추가"는 엔딩에 달력이 안 보여 생략 |
 | **스마트폰** | `phone-chat`(1차, 스크롤로 메시지 펼침) · `phone-lock`(2차). DOM, `presentation: "bare"`라 캔버스가 뒤에 보인다 | RTT 반사 + 최근 메시지일수록 블러 + 미전송 입력창 커서 | ✅ | 반사는 RTT 없이 **`backdrop-filter: blur()`** 유리로: 폰이 캔버스 위에 떠 있어 방이 그대로 비친다. 말풍선 블러는 index → `filter: blur(px)`. 미전송 초안은 `thread.ts`에 한 줄 추가(ko/en/ja) + 1Hz 캐럿. "스크롤 멈추면 채팅 사라짐"은 뺀다(읽는 화면이다) | 블러 기울기 ← `dim`. `phone-lock`(2차)에는 얹지 않는다 |
-| **창문+커튼** | 3D 커튼 양쪽 드래그(`CurtainCloth`, 관성)·창밖 배경막(`WindowView`, `outsideDecay`)·들여다보기(`window-view`, 돋보기 3자리) | 실금 normal map + 굴절, 바깥 3~4층 패럴랙스, 커튼 열림 → 노출 감소 | 🔶 | 노출 반전은 채택하지 않는다(3장). **유리의 실금**만: 배경막 앞 유리 판에 금을 그리는 셰이더(프로시저럴 Voronoi, 에셋 없음). 굴절은 창이 작아 안 보인다: **화장실 세면대의 물과 앰플 유리로 옮긴다**(11장). 패럴랙스는 배경막을 2층(하늘·도시 실루엣)으로 갈라 궤도 회전(±0.32rad)에 깊이 오프셋 | 금의 길이·수 ← `outsideDecay` (알게 된 것은 되돌아가지 않는다) |
+| **창문+커튼** | 3D 커튼 양쪽 드래그(`CurtainCloth`, 관성)·창밖 배경막(`WindowView`, `outsideDecay`)·들여다보기(`window-view`, 돋보기 3자리) | 실금 normal map + 굴절, 바깥 3~4층 패럴랙스, 커튼 열림 → 노출 감소 | 🔶 | 노출 반전은 채택하지 않는다(3장). **유리의 실금**만: 배경막 앞 유리 판에 금을 그리는 셰이더(프로시저럴 Voronoi, 에셋 없음). 굴절은 창이 작아 안 보인다: **화장실 세면대의 물과 앰플 유리로 옮긴다**(11장). 패럴랙스는 뺐다: 배경막의 도시 실루엣·처박힌 차를 지우고 하늘 그라디언트만 남겼다(건물 그림이 방의 색면과 따로 놀았다). 붕괴는 지평선의 볕이 식는 색으로 말한다(`skyColors`) | 금의 길이·수 ← `outsideDecay` (알게 된 것은 되돌아가지 않는다) |
 | **가족사진 액자** | `photo-wipe`(1차, Canvas 2D 프로스트를 헝겊으로 닦음, `revealed` 뒤 `SuccessBurst`) · `photo-puzzle`(2차, 3×3 슬라이드). 1차 사진 에셋 자체가 부모 얼굴을 그늘에 묻어 둔다 | 사진 = point cloud, 커서 반경 curl noise, 정지 시 spring 복귀, 1차는 얼굴 spring 0 | 🔶 | 미니게임을 대체하지 않고 **`revealed` 구간**(닦기 끝 → 결과 대사 전)에 얹는다: 다 닦인 사진이 입자로 풀려 커서를 피하고 손이 멈추면 모인다. 1차는 얼굴 영역(코드의 정규화 사각형, 마스크 에셋 없음)이 안 모이고, 2차 `photo-puzzle`은 맞춘 순간 같은 입자가 **얼굴까지** 모인다. Canvas 2D, 4~6k 입자, `enabled=false`면 지금 그대로 | 얼굴 spring ← `gamePhase`. 커서는 미니게임 컨테이너의 pointer |
 | **라디오** | `radio-quiz` = `frequency-tune`(바늘·대역, `staticLevel`로 잡음 바닥 계산, `NoiseBed`) → 글자 맞추기. 2차는 대사만, 라디오 모델이 `radioSignalLevel`로 깜빡인다 | 튜닝 거리 ← 화면 grain·aberration, 조명 flicker, 다이얼 위 파형 캔버스 | 🔶 | **DOM → 컴포저 채널** 하나를 만든다(`film-look-input.ts`, 모듈 스코프 값, `event-pulse`와 같은 문법). 미니게임이 매 프레임 `staticLevel`을 써넣고 `FilmLookDriver`가 읽는다. 상한: 그레인 2×`FILM_GRAIN_OPACITY`, 색수차 `ABERRATION.pulse`. 조명 flicker는 없다(3장). 파형: `startNoiseBed`에 `AnalyserNode` 탭 옵션을 붙여 표시창에 Canvas 2D 파형 | 강도 ← 튜닝 거리(`staticLevel`). 맞추면 1막 완주 = `level` 0이라 "roomLight 한 단계 감소"는 이미 일어난다. 2차 "다른 색 파형"은 표시할 화면이 없다: 3D 라디오의 깜빡임 색을 `warm`으로 데우는 정도로 대체 |
 | **배트 (엔딩)** | `EndingTrigger` → `CUTSCENE_BAT_GRIP` → `takeBat` → `endingStarted` → 문 열림 1.8초 → 타들어감(`ScreenTransition burn`) → 엔딩 카드. **문까지 걸어가는 구간이 없다** | 잡으면 afterimage 누적, 문 열림에 grain·aberration·afterimage 0으로 수렴 | 🔶 | afterimage는 여기엔 누적할 이동 구간이 없다: **1인칭 두 구간으로 옮긴다**(11장). 배트에는 **"처음으로 깨끗해지는 화면"만** 남긴다: `endingStarted`에 `FilmLookDriver`가 색수차·그레인을 0으로 damp. 타들어감과 같은 1.5초 | 수렴 ← `endingStarted` (스토어), 별도 진행도 없음 |
@@ -285,18 +285,16 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 
 ## 13. 구현 상태 (2026-09-22)
 
-위 계획을 전부 코드로 옮겼다. 자리와 게이트, 데모 페이지를 적는다. 데모는 `pnpm dev` 뒤
+위 계획을 전부 코드로 옮긴 뒤, 실제 화면을 보고 **미니게임 안의 효과는 전부 뺐다** (라디오
+잡음·파형, 폰 유리·블러·미전송 초안, 正 획, 잉크 파문, 액자 입자, 게임기 픽셀·PRESS START,
+앰플 굴절). 미니게임의 그림은 원화와 DOM 틀로 이미 완결돼 있어서 그 위에 얹은 재질이
+장식으로 읽혔다. 코드·테스트·데모 페이지를 함께 지웠고 5장 표의 해당 행은 계획 기록으로
+남는다. 남은 것은 3D 씬과 UI 전환의 효과다. 자리와 게이트, 데모 페이지를 적는다. 데모는 `pnpm dev` 뒤
 <http://localhost:3000/lab>. 게이트 등급은 `src/lib/effects/effect-budget.ts`의 것이다
 (off = 모션 끔, low = 프레임 저하·터치, full = 나머지. cheap은 low부터, heavy는 full에서만).
 
 | 효과 | 자리 | 게이트 | 바인딩 | 데모 |
 |---|---|---|---|---|
-| 라디오 잡음 → 필름 룩, 표시창 파형 | `minigames/frequency-tune`, `lib/effects/film-look-input.ts`, `lib/audio/engine.ts`(analyser) | cheap | `staticLevel` | `/lab/radio-noise` |
-| 스마트폰 유리 · 최근 메시지 블러 · 미전송 초안 | `minigames/phone-chat` (`haze.ts`) | cheap | `dim` | (게임 안) |
-| 달력 正자 다섯 획 | `minigames/calendar-flip` (`tally-glyph.ts`, `TallyGlyph.tsx`) | cheap | `survivedDays` | `/lab/calendar-tally` |
-| 사인볼 잉크 파문 | `minigames/ball-catch` (`ripple.ts`, `ink-ripple.tsx`) | cheap | `musicCutoff(level)` | `/lab/ball-ripple` |
-| 액자 입자 (1차 얼굴 안 모임 · 2차 모임) | `minigames/photo-particles`, `photo-wipe`·`photo-puzzle` | cheap | `gamePhase` | `/lab/photo-particles` |
-| 게임기 픽셀화 · PRESS START | `minigames/fighter-duel` (`pixel-block.ts`, `PixelStage.tsx`, SVG 필터) | heavy (필터가 프레임마다 돈다) | `collected.length` | `/lab/console-pixels` |
 | 혼잣말 글자 단위 퇴장 | `components/ui/Monologue.tsx`, `monologue-exit.ts` | cheap | `act` | `/lab/monologue-exit` |
 | 안방 서류 깨진 글자 | `components/ui/ClueOverlay.tsx`, `redaction.ts` | (정적) | 고정 | `/lab/redaction` |
 | 컷씬 컷 간 노이즈 dissolve | `components/ui/PlaybackScene.tsx`, `CutDissolve.tsx`, `cut-dissolve.ts` | cheap | 컷 번호 → 결 | `/lab/cut-dissolve` |
@@ -309,7 +307,6 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | 이불 호흡 | `BedModel.tsx` (onBeforeCompile) | cheap | 고정 진폭 | (게임 안) |
 | 악보 잉크 모임 | `PianoSheet.tsx`, `sheet-ink.ts` | cheap | `piano-sheet` 소지 + 거실 진입 | (게임 안) |
 | 세면대 고인 물 파문 | `SinkWater.tsx`, `water-ripple.ts` | cheap | 열쇠 집는 순간 | `/lab/sink-water` |
-| 앰플 유리 굴절 | `Ampoule.tsx` `refractive`, `minigames/ampoule-pickup` | heavy | 집는 구간 | (게임 안) |
 | 화장실 물때 (타일·샤워 벽) | `BathroomStains.tsx`, `lib/effects/reaction-diffusion.ts` | (정적) | 고정(다 자람) | (게임 안) |
 | 컵라면 용기 물때 | `StudentProps.tsx`, `FurnitureModel.tsx` `stainMap` | (정적) | `1 - level` (조사마다 다시 굽는다) | (게임 안) |
 | 화장실 거울 slit-scan | `SlitScanMirror.tsx`, `slit-scan.ts` | heavy, 화장실에서만 | `1 - warm` | (게임 안) |
@@ -321,6 +318,5 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 
 **아직 안 본 것.** 전부 브라우저 없이(테스트·타입·빌드) 검증했다. 실제 화면에서 봐야 정할
 값: 등의 세기(`lantern.ts`), 틸트 시프트의 띠 폭(`tilt-focus.ts`), 컵라면 무늬의 가시성,
-액자 입자의 밀기 반경(`photo-particles/particles.ts`), 라디오 잡음의 상한(`film-look.ts`),
 물때의 대비(`BathroomStains.tsx`의 `STAIN_DEPTH`). 모바일 프레임은 `PerformanceMonitor`가
 떨어뜨리면 heavy 효과가 자동으로 빠지지만, 그 문턱이 맞는지는 폰에서 봐야 한다.

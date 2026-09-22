@@ -1,7 +1,4 @@
 import { describe, expect, it } from "vitest";
-import en from "../../i18n/locales/en/common.json";
-import ja from "../../i18n/locales/ja/common.json";
-import ko from "../../i18n/locales/ko/common.json";
 import {
   GROUP_CHAT,
   hasLater,
@@ -10,17 +7,8 @@ import {
   PHONE_TABS,
   revealNext,
   totalOutgoingCalls,
-  UNSENT_DRAFT_KEY,
   visibleMessages,
 } from "./thread";
-
-/** 점 표기 키를 JSON 트리에서 꺼낸다. 세 언어에 다 있는지만 본다. */
-function lookup(tree: unknown, key: string): unknown {
-  return key.split(".").reduce<unknown>((node, part) => {
-    if (typeof node !== "object" || node === null) return undefined;
-    return (node as Record<string, unknown>)[part];
-  }, tree);
-}
 
 describe("phone-chat thread", () => {
   it("walks forward one line at a time and stops at the newest", () => {
@@ -99,17 +87,5 @@ describe("phone-chat thread", () => {
 
   it("exposes exactly the two tabs the screen renders", () => {
     expect(PHONE_TABS).toEqual(["chat", "calls"]);
-  });
-
-  it("keeps the unsent draft in the phone namespace, unfinished, in all three languages", () => {
-    expect(UNSENT_DRAFT_KEY.startsWith("minigame.phoneChat.")).toBe(true);
-    // 초안은 대화 줄과 겹치지 않는다: 보낸 적 없는 줄이라 말풍선 목록에 없어야 한다
-    expect(GROUP_CHAT.some((message) => message.textKey === UNSENT_DRAFT_KEY)).toBe(false);
-    for (const tree of [ko, en, ja]) {
-      const text = lookup(tree, UNSENT_DRAFT_KEY);
-      expect(typeof text).toBe("string");
-      // 치다 만 문장: 끝에 마침표·물음표가 붙으면 "보내려던 문장"으로 읽힌다
-      expect((text as string).trim()).not.toMatch(/[.?!。？！]$/);
-    }
   });
 });

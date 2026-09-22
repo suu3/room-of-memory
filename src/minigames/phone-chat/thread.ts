@@ -82,15 +82,6 @@ export const OUTGOING_CALLS: OutgoingCall[] = [
   { id: "c4", toKey: "minigame.phoneChat.contact.mom", time: "20:31", count: 9 },
 ];
 
-/**
- * 보내지 않은 초안. 다 읽어 내려간 뒤 입력창에 남아 있는 한 줄이다.
- *
- * 마침표도 없고 끝나지도 않았다. 도해는 이 줄을 치다 말았고 보내지 않았다.
- * 전송 버튼은 그리지 않는다: 보낼 곳이 없다는 것을 화면이 이미 말하고 있다.
- * 본문은 다른 줄과 같이 common.json(ko/en/ja)이 갖는다.
- */
-export const UNSENT_DRAFT_KEY: CommonTextKey = "minigame.phoneChat.draft";
-
 export type PhoneTab = "chat" | "calls";
 export const PHONE_TABS: PhoneTab[] = ["chat", "calls"];
 

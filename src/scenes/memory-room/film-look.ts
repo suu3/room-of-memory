@@ -42,14 +42,11 @@ function clamp01(value: number): number {
 /**
  * 펄스(0~1)에 따른 그레인 불투명도.
  *
- * `noise`는 라디오 튜닝의 잡음(film-look-input). 펄스와 같은 상한을 먹는다: 둘 중 큰
- * 값 하나만 센다. 더하면 사건 순간에 상한을 넘어 화면이 번쩍인다.
  * `clean`(0~1)은 엔딩의 몫이다. 1이면 그레인이 사라진다. 게임에서 화면이 처음으로
  * 깨끗해지는 순간이다.
  */
-export function grainOpacity(pulse: number, noise = 0, clean = 0): number {
-  const lift = Math.max(clamp01(pulse), clamp01(noise));
-  return FILM_GRAIN_OPACITY * (1 + lift * GRAIN_PULSE_GAIN) * (1 - clamp01(clean));
+export function grainOpacity(pulse: number, clean = 0): number {
+  return FILM_GRAIN_OPACITY * (1 + clamp01(pulse) * GRAIN_PULSE_GAIN) * (1 - clamp01(clean));
 }
 
 /** 어둠의 양(0 = 밝은 방, 1 = 가장 어두운 지점)에서 쉬고 있을 때의 어긋남. */
@@ -60,12 +57,10 @@ export function restingAberration(dim: number): number {
 
 /**
  * 쉬는 값 위에 튄 값(0~1)을 얹는다. 튀는 쪽은 damp 없이 곧바로 붙는다: 사건은 순간이다.
- * `noise`·`clean`은 grainOpacity와 같은 뜻이다. 잡음은 펄스와 상한을 나눠 쓰고, 깨끗해지는
- * 쪽은 쉬는 값까지 지운다.
+ * `clean`은 grainOpacity와 같은 뜻이다. 깨끗해지는 쪽은 쉬는 값까지 지운다.
  */
-export function aberrationAmount(resting: number, pulse: number, noise = 0, clean = 0): number {
-  const lift = Math.max(clamp01(pulse), clamp01(noise));
-  return (resting + lift * ABERRATION.pulse) * (1 - clamp01(clean));
+export function aberrationAmount(resting: number, pulse: number, clean = 0): number {
+  return (resting + clamp01(pulse) * ABERRATION.pulse) * (1 - clamp01(clean));
 }
 
 /**

@@ -63,9 +63,6 @@ describe("BallCatchMinigame", () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     vi.spyOn(performance, "now").mockImplementation(() => now);
     vi.spyOn(Math, "random").mockReturnValue(0);
-    // jsdom에는 Canvas 2D가 없다. 잉크 파문 층(ink-ripple.tsx)은 컨텍스트가 없으면 조용히
-    // 그리지 않으므로, "Not implemented" 소음만 막아 둔다. 파문을 보는 테스트는 따로 판다
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => null);
     vi.stubGlobal(
       "requestAnimationFrame",
       vi.fn((callback: FrameRequestCallback) => {
@@ -209,58 +206,6 @@ describe("BallCatchMinigame", () => {
       top: "68%",
       transform: "translate(-50%, -50%) scale(1.3) rotate(270deg)",
     });
-  });
-
-  it("spawns an ink ripple at the hit and stops its loop once the ripple has faded", () => {
-    const context = {
-      setTransform: vi.fn(),
-      clearRect: vi.fn(),
-      beginPath: vi.fn(),
-      arc: vi.fn(),
-      stroke: vi.fn(),
-      fill: vi.fn(),
-      createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
-      globalCompositeOperation: "source-over",
-      globalAlpha: 1,
-      strokeStyle: "",
-      fillStyle: "",
-      lineWidth: 1,
-      lineCap: "butt",
-    };
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(
-      () => context as unknown as RenderingContext,
-    );
-    // 잉크 색은 text-ink의 계산된 color에서 읽는다. 스타일시트가 없는 jsdom에는 값이 없어
-    // 캔버스에만 하나 준다. 다른 요소는 그대로 두어야 testing-library의 role 조회가 산다
-    const realComputedStyle = window.getComputedStyle.bind(window);
-    vi.spyOn(window, "getComputedStyle").mockImplementation((element, pseudo) => {
-      const style = realComputedStyle(element, pseudo);
-      if (element instanceof HTMLCanvasElement) {
-        Object.defineProperty(style, "color", { value: "rgb(48, 57, 70)", configurable: true });
-      }
-      return style;
-    });
-    render(<BallCatchMinigame onComplete={() => {}} />);
-    // 공 루프 하나만 돌고 있다: 파문이 없는 동안 파문 루프는 비용이 0이다
-    expect(scheduledFrames.size).toBe(1);
-
-    advanceTime(1700);
-    fireEvent.click(getFieldButton());
-    // 안타: 파문 루프가 걸린다
-    expect(scheduledFrames.size).toBe(2);
-
-    runNextFrame(1750); // 공 루프
-    runNextFrame(1750); // 파문 루프: 링과 얼룩을 multiply로 긋는다
-    expect(context.globalCompositeOperation).toBe("multiply");
-    expect(context.strokeStyle).toBe("rgb(48, 57, 70)");
-    expect(context.arc).toHaveBeenCalled();
-    expect(context.fill).toHaveBeenCalled();
-    expect(scheduledFrames.size).toBe(2);
-
-    // 수명이 한참 지나면 파문이 지워지고 루프가 스스로 멈춘다. 공 루프만 남는다
-    runNextFrame(30_000);
-    runNextFrame(30_000);
-    expect(scheduledFrames.size).toBe(1);
   });
 
   it("cancels delayed final-hit completion when unmounted", () => {

@@ -115,6 +115,7 @@
   "minigame": {
     "start": "시작",
     "skip": "건너뛰기",
+    "back": "돌아가기",
     "close": "그만두고 방으로 돌아가기",
     "successCount": "성공 {{value}} / {{goal}}",
     "missCount": "실패 {{value}} / {{max}}",
@@ -169,7 +170,6 @@
       "labelTime": "남은 시간",
       "nameHero": "P1",
       "nameRival": "CPU",
-      "pressStart": "PRESS START",
       "combo": "{{value}} HIT",
       "callout": {
         "counter": "카운터!",
@@ -282,7 +282,6 @@
       "callsSubtitle": "안 받은 전화",
       "callsTitle": "최근 기록",
       "moreBelow": "아래로 내리면 더 있다",
-      "draft": "엄마 어디에요",
       "contact": {
         "mom": "엄마",
         "dad": "아빠",

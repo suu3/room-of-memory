@@ -140,7 +140,7 @@ describe("MinigameHost", () => {
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
   });
 
-  it("canvas 판(앰플)은 건너뛰지 않는다. 씬이 그리는 판 위에 안내와 닫기만 얹는다", () => {
+  it("canvas 판(앰플)은 건너뛰지 않는다. 씬이 그리는 판 위에 안내와 돌아가기만 얹는다", () => {
     render(<MinigameHost />);
     openAmpoule();
 
@@ -149,7 +149,7 @@ describe("MinigameHost", () => {
     expect(screen.getByRole("status").textContent).toContain("Pick up the ampoule");
     expect(screen.queryByRole("button", { name: "Start" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: "Close and return to the room" }));
+    fireEvent.click(screen.getByRole("button", { name: "Step back" }));
     // 닫으면 조사 자체가 접힌다. 핫스팟은 남아 다시 열 수 있다
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
   });

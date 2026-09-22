@@ -4,7 +4,6 @@ import { useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Group, MeshStandardMaterial } from "three";
 import { playSound } from "@/lib/audio";
-import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { Ampoule } from "@/scenes/memory-room/Ampoule";
 import { DrawerRations, FridgeDrawer } from "@/scenes/memory-room/FridgeDrawer";
 import { MEMORY_PLACEMENTS } from "@/scenes/memory-room/layout";
@@ -56,12 +55,6 @@ export function AmpoulePickupMinigame({ onComplete, onSettled, stage = "play" }:
   const [picked, setPicked] = useState(alreadyHeld);
   const pickable = open && !picked && stage === "play";
   const { handlers } = useGlowHover(pickable);
-  /*
-   * 굴절 유리 (docs/visual-experiments.md 11장): 들어 올린 앰플 너머로 냉장고 안이 굴절돼
-   * 보인다. transmission은 씬을 렌더 타깃에 한 번 더 그리는 heavy 효과라, 카메라가
-   * 붙박이인 이 판에서만, 예산이 full인 기기에서만 켠다.
-   */
-  const refractive = useEffectEnabled("heavy");
   const drawerRef = useRef<Group>(null);
   const ampouleRef = useRef<Group>(null);
   const glassRef = useRef<MeshStandardMaterial>(null);
@@ -165,7 +158,7 @@ export function AmpoulePickupMinigame({ onComplete, onSettled, stage = "play" }:
               pick();
             }}
           >
-            <Ampoule palette={palette} glassRef={glassRef} refractive={refractive} />
+            <Ampoule palette={palette} glassRef={glassRef} />
           </group>
         </MemoryGlowSelection>
         {/*

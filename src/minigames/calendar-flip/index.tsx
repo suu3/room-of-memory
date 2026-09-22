@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
-import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import type { MinigameProps } from "@/types/minigame";
 import {
   CALENDAR_MONTHS,
@@ -21,62 +20,32 @@ import {
   tallyGroups,
 } from "./calendar";
 import { MonthGrid } from "./MonthGrid";
-import { TallyGlyph } from "./TallyGlyph";
-import { TALLY_TOTAL_MS, tallyPace } from "./tally-glyph";
 
 /** 넘기는 애니메이션 길이. globals.css의 calendar-flip-*과 맞춘다. */
 const FLIP_MS = 380;
 
-/*
- * 正자 장의 첫 획이 기다리는 시간.
- *
- * 正자 장은 넘김이 시작되는 순간 밑장으로 마운트된다 (CalendarSheet의 under). 그때는
- * 아직 떠나는 종이가 위를 덮고 있어, 바로 긋기 시작하면 첫 획들이 종이 뒤에서 그어져
- * 버린다. 종이가 반쯤 들려 밑장이 드러날 때쯤 펜을 댄다. 상한(TALLY_TOTAL_MS)은 이
- * 기다림을 뺀 나머지로 지킨다.
- */
-const TALLY_START_MS = FLIP_MS / 2;
-
-/**
- * 사건 이후 장: 날짜 대신 버틴 날을 세는 正자만 남는다.
- *
- * 正은 글리프가 아니라 SVG 다섯 획이고, 장이 드러날 때 획이 순서대로 그어진다
- * (docs/visual-experiments.md 4장). 마지막 글자의 미완 획 수는 tallyGroups의 remainder,
- * 즉 버틴 날의 나머지다. 진행도가 아니라 날짜에 묶인 값이라 여기서 따로 셈하지 않는다.
- *
- * 그어지는 움직임만 효과 예산을 따른다. 예산이 꺼진 기기에서는 같은 SVG가 그냥 서 있다.
- * 정적인 획은 움직임이 아니므로 폰트 글리프로 되돌아갈 이유가 없다.
- */
+/** 사건 이후 장: 날짜 대신 버틴 날을 세는 正자만 남는다. */
 function TallySheet({ days, label }: { days: number; label: string }) {
   const { full, remainder } = tallyGroups(days);
-  const animate = useEffectEnabled("cheap");
-  const glyphCount = full + (remainder > 0 ? 1 : 0);
-  const perStrokeMs = tallyPace(glyphCount, TALLY_TOTAL_MS - TALLY_START_MS);
-
   return (
     <div className="flex h-64 flex-col items-center justify-center gap-4">
       <div className="flex max-w-[16rem] flex-wrap items-center justify-center gap-x-2 gap-y-1">
         {Array.from({ length: full }, (_, index) => (
-          <TallyGlyph
+          <span
             // biome-ignore lint/suspicious/noArrayIndexKey: 같은 글자의 반복이라 인덱스 말고 구분할 값이 없다.
             key={`mark-${index}`}
-            strokes={5}
-            glyphIndex={index}
-            perStrokeMs={perStrokeMs}
-            delayMs={TALLY_START_MS}
-            animate={animate}
-            className="h-6 w-6 text-ink/80"
-          />
+            className="font-pixel text-2xl leading-none text-ink/80"
+          >
+            正
+          </span>
         ))}
         {remainder > 0 ? (
-          <TallyGlyph
-            strokes={remainder}
-            glyphIndex={full}
-            perStrokeMs={perStrokeMs}
-            delayMs={TALLY_START_MS}
-            animate={animate}
-            className="h-6 w-6 text-ink/80"
-          />
+          <span className="flex items-end gap-[3px]" aria-hidden>
+            {Array.from({ length: remainder }, (_, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: 획 하나하나에 이름이 없다.
+              <span key={`stroke-${index}`} className="h-5 w-[2px] bg-ink/70" />
+            ))}
+          </span>
         ) : null}
       </div>
       <p className="text-xs tracking-widest text-ink/45">{label}</p>

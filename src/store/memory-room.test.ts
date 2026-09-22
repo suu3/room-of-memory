@@ -1068,3 +1068,25 @@ describe("방탈출 축 (임시): 물건과 문", () => {
     expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
   });
 });
+
+describe("warpPlayer puts down what the player was looking into", () => {
+  it("closes an open puzzle so the piano camera does not stay behind", () => {
+    const store = useMemoryRoomStore.getState();
+    store.reset();
+    store.startGame();
+    store.openPuzzle("piano-melody");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("piano-melody");
+
+    store.warpPlayer(0, 0);
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe(null);
+    expect(useMemoryRoomStore.getState().warpTarget).toEqual({ x: 0, z: 0 });
+  });
+
+  it("leaves a dialogue-stage interaction alone", () => {
+    const store = useMemoryRoomStore.getState();
+    store.reset();
+    store.startGame();
+    store.warpPlayer(1, 1);
+    expect(useMemoryRoomStore.getState().activeInteraction).toBe(null);
+  });
+});

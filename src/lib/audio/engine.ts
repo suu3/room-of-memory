@@ -190,15 +190,6 @@ export function playTone(frequency: number, { duration = 0.42, gain = 0.3 } = {}
 export interface NoiseBed {
   /** 0이면 무음, 1이면 설정한 최대 음량. 뚝 끊기지 않게 완만히 따라간다. */
   setLevel(level: number): void;
-  /**
-   * 지금 울리고 있는 파형(시간 영역, -1~1)을 target에 복사한다. `analyser` 옵션 없이
-   * 만든 베드나 멎은 베드는 false를 돌려주고 target을 건드리지 않는다.
-   *
-   * 게인 뒤에서 뽑으므로 setLevel을 따라 진폭이 커지고 작아진다. 마스터 앞이라
-   * 음소거 중에도 파형은 살아 있다: 소리를 끈 사람에게도 잡음이 걷히는 게 보여야 한다.
-   * target은 NOISE_BED_ANALYSER_SIZE개까지만 채워진다.
-   */
-  readWaveform(target: Float32Array<ArrayBuffer>): boolean;
   stop(): void;
 }
 
@@ -207,19 +198,7 @@ export interface NoiseBedOptions {
   gain: number;
   highpass: number;
   lowpass: number;
-  /**
-   * 파형을 읽을 AnalyserNode를 게인 뒤에 끼운다 (readWaveform). 라디오 표시창처럼
-   * 잡음을 눈으로도 보여 줄 자리에서만 켠다. 기본은 끔: 노드 하나라도 필요 없는 곳에
-   * 두지 않는다.
-   */
-  analyser?: boolean;
 }
-
-/**
- * 분석기 창 크기(샘플 수). 48kHz에서 5ms쯤: 잡음의 결을 보이기엔 충분하고, 표시창에
- * 64점으로 솎아 그리기에도 넉넉하다. 더 크면 읽기만 비싸진다.
- */
-export const NOISE_BED_ANALYSER_SIZE = 256;
 
 /** 루프용 노이즈. 짧은 버퍼를 돌리면 반복 주기가 웅웅거려 들리므로 넉넉히 잡는다. */
 const BED_BUFFER_S = 2;
@@ -237,12 +216,7 @@ function getBedBuffer(ctx: AudioContext): AudioBuffer {
   return buffer;
 }
 
-export function startNoiseBed({
-  gain: peak,
-  highpass,
-  lowpass,
-  analyser: withAnalyser = false,
-}: NoiseBedOptions): NoiseBed | null {
+export function startNoiseBed({ gain: peak, highpass, lowpass }: NoiseBedOptions): NoiseBed | null {
   const ctx = ensureContext();
   if (!ctx || !master) return null;
   if (ctx.state === "suspended") void ctx.resume();
@@ -260,14 +234,7 @@ export function startNoiseBed({
   // 0에서 시작해야 켜지는 순간 "퍽" 하고 튀지 않는다.
   gain.gain.value = 0;
 
-  // 분석기는 게인 뒤·마스터 앞. 소리와 같은 진폭을 읽되 음소거·전체 음량에는 안 물린다.
-  let analyser: AnalyserNode | null = null;
-  if (withAnalyser) {
-    analyser = ctx.createAnalyser();
-    analyser.fftSize = NOISE_BED_ANALYSER_SIZE;
-  }
-  const chain = source.connect(highpassFilter).connect(lowpassFilter).connect(gain);
-  (analyser ? chain.connect(analyser) : chain).connect(master);
+  source.connect(highpassFilter).connect(lowpassFilter).connect(gain).connect(master);
   source.start();
 
   let stopped = false;
@@ -276,11 +243,6 @@ export function startNoiseBed({
       if (stopped) return;
       const clamped = Number.isNaN(level) ? 0 : Math.min(1, Math.max(0, level));
       gain.gain.setTargetAtTime(clamped * peak, ctx.currentTime, 0.08);
-    },
-    readWaveform(target) {
-      if (stopped || !analyser) return false;
-      analyser.getFloatTimeDomainData(target);
-      return true;
     },
     stop() {
       if (stopped) return;
@@ -293,7 +255,6 @@ export function startNoiseBed({
         highpassFilter.disconnect();
         lowpassFilter.disconnect();
         gain.disconnect();
-        analyser?.disconnect();
       };
     },
   };

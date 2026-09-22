@@ -11,7 +11,6 @@ import {
   LAST_MONTH,
   START_MONTH,
   survivedDays,
-  tallyGroups,
 } from "./calendar";
 
 /** 화면 아래 장 번호는 월이 아니라 몇 번째 장인지를 센다 (7월이 1장). */
@@ -43,33 +42,16 @@ describe("CalendarFlipMinigame", () => {
   });
 
   it("drops the grid for tally marks once past the incident month", () => {
-    const { container } = render(<CalendarFlipMinigame onComplete={vi.fn()} />);
+    render(<CalendarFlipMinigame onComplete={vi.fn()} />);
 
     flipForward(INCIDENT_DATE.month - START_MONTH);
     // 사건이 난 달까지는 아직 달력이다
     expect(screen.queryByText(/days survived/)).toBeNull();
-    expect(container.querySelectorAll(".tally-glyph")).toHaveLength(0);
 
     flipForward(1);
     const days = survivedDays(CALENDAR_YEAR, INCIDENT_DATE.month + 1);
     expect(screen.getByText(`${days} days survived`)).toBeTruthy();
-    // 正은 글자가 아니라 SVG 획이다: 글자 수는 다섯 날 묶음, 획 수는 버틴 날 수 그대로
-    const { full, remainder } = tallyGroups(days);
-    expect(container.querySelectorAll(".tally-glyph")).toHaveLength(full + (remainder > 0 ? 1 : 0));
-    expect(container.querySelectorAll(".tally-glyph path")).toHaveLength(days);
-  });
-
-  it("draws the strokes one after another when the effect budget allows it", () => {
-    // jsdom에는 matchMedia가 없어 예산 등급이 full이다: 획이 그어지는 클래스가 붙는다
-    const { container } = render(<CalendarFlipMinigame onComplete={vi.fn()} />);
-    flipForward(INCIDENT_DATE.month + 1 - START_MONTH);
-
-    const strokes = Array.from(container.querySelectorAll<SVGPathElement>(".tally-stroke"));
-    expect(strokes.length).toBe(survivedDays(CALENDAR_YEAR, INCIDENT_DATE.month + 1));
-    const delays = strokes.map((path) => Number.parseFloat(path.style.animationDelay));
-    for (let step = 1; step < delays.length; step += 1) {
-      expect(delays[step]).toBeGreaterThan(delays[step - 1]);
-    }
+    expect(screen.getAllByText("正").length).toBeGreaterThan(0);
   });
 
   it("only offers to close after the last sheet, and reports it once", () => {

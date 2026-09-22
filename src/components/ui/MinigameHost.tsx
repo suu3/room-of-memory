@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "@phosphor-icons/react";
+import { ArrowUUpLeft, X } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -244,25 +244,28 @@ export function MinigameHost() {
         주인은 대사창이다. 안내 자리는 근접 안내(RoomInteractionPrompt)와 같은 자리다.
       */}
       {active?.phase === "minigame" && canvasHosted && (
-        <>
+        <div className="pointer-events-none absolute bottom-6 left-1/2 z-40 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center gap-2">
           <div
             role="status"
-            className="pointer-events-none absolute bottom-6 left-1/2 z-20 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-sm border border-line bg-surface px-3 py-1.5 text-center text-xs font-medium text-ivory shadow-chip"
+            className="rounded-sm border border-line bg-surface px-3 py-1.5 text-center text-xs font-medium text-ivory shadow-chip"
           >
             <MinigameHelp help={hint(canvasHosted.helpKey)} className="break-ko text-pretty" />
           </div>
-          <button
-            type="button"
-            aria-label={t("minigame.close")}
-            onClick={() => {
-              playSound("close");
-              cancelMinigame();
-            }}
-            className={`fixed right-4 top-4 z-20 ${HUD_ICON_BUTTON_SOLID}`}
-          >
-            <X size={20} weight="bold" />
-          </button>
-        </>
+          {/* 돌아가기. 오른쪽 위 구석은 HUD(z-30)에 깔려 눌리지 않아 안내 밑에 글자로 세운다 */}
+          {!sealed && (
+            <button
+              type="button"
+              onClick={() => {
+                playSound("close");
+                cancelMinigame();
+              }}
+              className={`${BUTTON_QUIET} pointer-events-auto px-4 py-2`}
+            >
+              <ArrowUUpLeft size={16} weight="bold" />
+              {t("minigame.back")}
+            </button>
+          )}
+        </div>
       )}
       {active?.phase === "minigame" && hosted && shownOutcome && (
         <MinigameResultCard
