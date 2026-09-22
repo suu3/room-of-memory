@@ -13,6 +13,7 @@ import {
   MEMORY_GOAL,
   type MemoryId,
   phaseConfigOf,
+  REPLAY_MORPH_WITHIN,
   SCRIPTS,
 } from "@/data/memory-room";
 import {
@@ -527,10 +528,22 @@ export function buildMemoryReplay(id: MemoryId, gamePhase: GamePhase): ActivePla
           } as DialogueScriptLine,
         ];
 
+  /*
+   * 되짚는 그림이 1막에도 있었고 2막에 다른 한 장으로 바뀌었다면, 그 한 장으로 열었다가
+   * 이 장으로 밀어 넘긴다 (PhotoMorph). 지금은 액자 하나가 해당한다: 같은 장면을 두 장
+   * 가진 기억이 거기뿐이다. 데이터가 정하므로 다른 기억에 두 장이 생기면 저절로 따라온다.
+   */
+  const earlier = gamePhase === 2 ? phaseConfigOf(id, 1)?.replayStill : undefined;
+  // 밀림은 그림이 **둘 다** 있고 서로 다를 때만 성립한다. 2막에 그림이 없는 기억
+  // (사인볼)은 앞 그림만 실리면 갈 곳 없는 밀림이 된다
+  const morphFrom =
+    earlier && config.replayStill && earlier !== config.replayStill ? earlier : undefined;
+  const morphWithin = morphFrom ? REPLAY_MORPH_WITHIN[id] : undefined;
+
   return {
     kind: "replay",
     memoryId: id,
-    cuts: [{ image: config.replayStill, fit: "contain", lines }],
+    cuts: [{ image: config.replayStill, fit: "contain", morphFrom, morphWithin, lines }],
     cutIndex: 0,
     lineIndex: 0,
     // 다시보기에는 도입이 없다. 라디오가 꺼지는 비트는 그 컷씬만의 것이다

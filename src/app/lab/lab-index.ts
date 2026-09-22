@@ -18,6 +18,11 @@ export const LAB_ENTRIES: readonly { slug: string; title: string; note: string }
     note: "열쇠를 집는 순간 고인 물에 파문 하나가 번지고 배수구가 굴절로 흔들리다 잔다. intensity가 진폭, disabled는 잔잔한 물만.",
   },
   {
+    slug: "photo-morph",
+    title: "액자 다시보기 · 사진이 사진으로 밀린다",
+    note: "1막 사진(부모 얼굴이 틀 밖으로 잘린 것)에서 2막 사진(셋이 다 들어온 것)으로 밀려 넘어간다. 물 얼룩이 변위장이다. intensity가 미는 거리, 1차 토글은 밀림 없는 1막 화면.",
+  },
+  {
     slug: "redaction",
     title: "깨진 글리프 · 연구 서류",
     note: "안방 서류의 몇 단어가 지워지거나 깨져 있다. hover 복원 없음. intensity가 깨지는 비율이고 ko/en/ja는 같은 상대 위치에서 깨진다.",
