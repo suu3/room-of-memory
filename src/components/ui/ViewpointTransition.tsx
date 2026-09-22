@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { selectViewpoint, useMemoryRoomStore, type Viewpoint } from "@/store/memory-room";
 
 /**
@@ -18,12 +19,18 @@ import { selectViewpoint, useMemoryRoomStore, type Viewpoint } from "@/store/mem
  * 가장 큰 전환이라 광과민성에 위험하다. 밤에 볕 색을 섞은 중간 밝기로 덮고 걷는 시간을
  * 조금 더 준다 (globals.css의 .viewpoint-lamp: 모션을 끈 판에서는 어둠으로 잇는다).
  *
+ * 두 겹이 더 있다 (docs/visual-experiments.md 7장·11장). 불을 켤 때의 덮개 위에는 노이즈
+ * 타일(.viewpoint-noise)이 같이 걷힌다: 노이즈 속에서 방이 응결한다. 수첩 평면도로 몸을
+ * 옮기는 순간(warp)은 컷이었는데, 같은 노이즈 타일이 300ms 덮었다 걷혀 이동을 잇는다.
+ * 타일은 정지 그림이고 투명도만 움직인다: 프레임마다 바뀌는 잡음이 아니다.
+ *
  * 그리는 것뿐이다. 카메라를 바꿔 끼우는 일은 FirstPersonRig가 마운트·언마운트로 한다.
  */
 const TONES = {
-  enter: { className: "bg-scene-void", durationMs: 1400 },
-  lightsOn: { className: "viewpoint-lamp", durationMs: 1300 },
-  doorway: { className: "bg-memory", durationMs: 1000 },
+  enter: { className: "bg-scene-void", durationMs: 1400, noise: false },
+  lightsOn: { className: "viewpoint-lamp", durationMs: 1300, noise: true },
+  doorway: { className: "bg-memory", durationMs: 1000, noise: false },
+  warp: { className: "viewpoint-noise-only", durationMs: 320, noise: true },
 } as const;
 
 type Tone = keyof typeof TONES;
@@ -52,15 +59,22 @@ export function ViewpointTransition() {
   const [flash, setFlash] = useState<{ id: number; tone: Tone } | null>(null);
   /** 덮개가 걷히기 시작했는가. 프레임이 돌아오고 최소 시간이 지나야 참이 된다. */
   const [lifting, setLifting] = useState(false);
+  const noiseEnabled = useEffectEnabled("cheap");
 
   useEffect(
     () =>
       useMemoryRoomStore.subscribe((state, previous) => {
         const tone = transitionTone(selectViewpoint(previous), selectViewpoint(state));
-        if (tone === null) return;
-        setFlash((current) => ({ id: (current?.id ?? 0) + 1, tone }));
+        if (tone !== null) {
+          setFlash((current) => ({ id: (current?.id ?? 0) + 1, tone }));
+          return;
+        }
+        // 평면도로 몸을 옮기는 순간: 노이즈만 한 겹. 효과가 꺼진 판에서는 예전처럼 컷이다
+        if (noiseEnabled && state.warpTarget !== null && state.warpTarget !== previous.warpTarget) {
+          setFlash((current) => ({ id: (current?.id ?? 0) + 1, tone: "warp" }));
+        }
       }),
-    [],
+    [noiseEnabled],
   );
 
   /* 프레임이 두 번 돌아오고 최소 시간이 지나면 걷기 시작한다 (HOLD_MS 주석). */
@@ -88,7 +102,7 @@ export function ViewpointTransition() {
   }, [flash, lifting]);
 
   if (!flash) return null;
-  const { className, durationMs } = TONES[flash.tone];
+  const { className, durationMs, noise } = TONES[flash.tone];
 
   return (
     <div
@@ -99,6 +113,16 @@ export function ViewpointTransition() {
         lifting ? "animate-viewpoint-fade" : "opacity-100"
       }`}
       style={lifting ? { animationDuration: `${durationMs}ms` } : undefined}
-    />
+    >
+      {/* 노이즈 속에서 응결하는 방: 덮개보다 먼저 걷힌다 (motion-reduce에서는 없다) */}
+      {noise && noiseEnabled && (
+        <span
+          className={`viewpoint-noise absolute inset-0 motion-reduce:hidden ${
+            lifting ? "animate-viewpoint-noise" : "opacity-100"
+          }`}
+          style={lifting ? { animationDuration: `${Math.round(durationMs * 0.7)}ms` } : undefined}
+        />
+      )}
+    </div>
   );
 }

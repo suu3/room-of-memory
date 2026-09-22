@@ -2,9 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MEMORY_GOAL } from "@/data/memory-room";
 import { useControlHint } from "@/i18n/control-hint";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 import {
@@ -25,6 +28,8 @@ import {
 } from "./duel";
 import { Fighter, type Pose } from "./Fighter";
 import { HealthBar } from "./HealthBar";
+import { PixelStage } from "./PixelStage";
+import { pixelBlock } from "./pixel-block";
 
 /** "FIGHT!"가 떠 있는 동안은 판이 멈춰 있다. 시작 신호 없이 맞고 시작하지 않게. */
 const INTRO_MS = 900;
@@ -138,6 +143,22 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
   const onSettledRef = useRef(onSettled);
   onSettledRef.current = onSettled;
+
+  /*
+   * 시각 실험(docs/visual-experiments.md 4장 "게임기")의 게이트와 바인딩. 게임기 화면의
+   * 도트가 1막 진행도에 따라 굵어지고, 2P 슬롯에는 아무도 안 누르는 PRESS START가
+   * 깜빡인다. 픽셀화는 SVG 필터가 무대 위에서 프레임마다 다시 계산되므로 heavy로 묶는다:
+   * 프레임이 떨어진 기기와 폰에서는 블록 1(지금 화면)로 남는다.
+   *
+   * 블록은 판이 열릴 때 한 번 정해 고정한다(useState 초기화). 한 판 도는 동안 스토어가
+   * 바뀔 일은 없지만, 바뀐다 해도 실루엣을 읽는 중에 해상도가 튀는 쪽이 더 나쁘다.
+   * 스토어는 원시값 셀렉터로만 읽고 쓰지는 않는다 (미니게임은 전역 상태를 변이하지 않는다).
+   * 게이트가 내려가면 블록 1(지금 화면 그대로)로 떨어진다.
+   */
+  const effectsOn = useEffectEnabled("heavy");
+  const collectedCount = useMemoryRoomStore((state) => state.collected.length);
+  const [blockAtMount] = useState(() => pixelBlock(collectedCount, MEMORY_GOAL));
+  const block = effectsOn ? blockAtMount : 1;
 
   // 시작 신호. 배너가 걷히면 그때부터 판이 돈다
   useEffect(() => {
@@ -338,11 +359,31 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
           side="right"
           tone="bone"
           enraged={enraged}
+          aside={
+            // 2P 슬롯의 PRESS START. 아무도 안 누른다: 이 방에서 2P는 오지 않는다. 결과
+            // 화면에는 없다(끝난 판에 시작을 재촉하지 않는다). 1Hz는 폰 커서와 같은 박자로,
+            // 게이트가 내려간 기기에서는 깜빡이지 않고 서 있는 글자로 남는다
+            over === null ? (
+              <span
+                className={`shrink-0 text-fog ${
+                  effectsOn ? "animate-caret-blink motion-reduce:animate-none" : ""
+                }`}
+                aria-hidden
+              >
+                {t("minigame.fighterDuel.pressStart")}
+              </span>
+            ) : undefined
+          }
         />
       </div>
 
       <div className="overflow-hidden rounded-b-md border-2 border-night bg-scene-abyss">
-        <div
+        {/*
+          무대는 PixelStage가 감싼다: 안의 좌표(stageLeft·점프·스프라이트 칸)는 그대로고
+          그려진 결과만 block px 격자로 뭉개진다. 조작판은 이 바깥이라 손에는 안 닿는다
+        */}
+        <PixelStage
+          block={block}
           className={`relative h-64 bg-cover bg-center ${
             heroHit || rivalHit ? "animate-batting-field-shake" : ""
           }`}
@@ -424,7 +465,7 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
                   : t("minigame.fighterDuel.banner.down")}
             </span>
           )}
-        </div>
+        </PixelStage>
       </div>
 
       {/*

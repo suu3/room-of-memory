@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { Suspense, useEffect, useMemo } from "react";
-import { type Material, type Mesh, MeshStandardMaterial } from "three";
+import { type Material, type Mesh, MeshStandardMaterial, type Texture } from "three";
 import { centerModelXZ } from "./model-utils";
 import type { EulerTuple, Vec3Tuple } from "./types";
 
@@ -16,6 +16,11 @@ interface FurnitureModelProps {
    * 이름이 없는 재질은 원색 그대로다. 텍스처가 있는 모델에 색을 곱하는 일은 없다.
    */
   materialColors?: Readonly<Record<string, string>>;
+  /**
+   * 표면에 곱하는 얼룩 텍스처 (docs/visual-experiments.md 5장 "컵라면 용기"). 재질의 기본색
+   * 위에 곱해져 어두운 무늬가 앉는다. uv가 있는 메쉬에만 먹는다.
+   */
+  stainMap?: Texture | null;
 }
 
 /**
@@ -35,7 +40,36 @@ export function toLitMaterial(material: Material): Material {
   return lit;
 }
 
-function LoadedFurniture({ path, position, rotation, scale, materialColors }: FurnitureModelProps) {
+/** 얼룩을 곱하는 셰이더 조각. map이 없는 재질에도 uv는 있어야 하므로 USE_UV를 강제한다. */
+const STAIN_FRAGMENT = /* glsl */ `
+  #include <map_fragment>
+  #ifdef USE_UV
+  diffuseColor.rgb *= texture2D(uStain, vUv).rgb;
+  #endif
+`;
+
+function applyStain(material: Material, stain: Texture) {
+  const standard = material as MeshStandardMaterial;
+  if (!standard.isMeshStandardMaterial) return;
+  standard.defines = { ...(standard.defines ?? {}), USE_UV: "" };
+  standard.onBeforeCompile = (shader) => {
+    shader.uniforms.uStain = { value: stain };
+    shader.fragmentShader = `uniform sampler2D uStain;\n${shader.fragmentShader.replace(
+      "#include <map_fragment>",
+      STAIN_FRAGMENT,
+    )}`;
+  };
+  standard.needsUpdate = true;
+}
+
+function LoadedFurniture({
+  path,
+  position,
+  rotation,
+  scale,
+  materialColors,
+  stainMap = null,
+}: FurnitureModelProps) {
   const { scene } = useGLTF(path, true, true);
 
   /*
@@ -50,6 +84,7 @@ function LoadedFurniture({ path, position, rotation, scale, materialColors }: Fu
       const lit = toLitMaterial(material);
       const override = materialColors?.[material.name];
       if (override && lit instanceof MeshStandardMaterial) lit.color.set(override);
+      if (stainMap) applyStain(lit, stainMap);
       return lit;
     };
     copy.traverse((object) => {
@@ -62,7 +97,7 @@ function LoadedFurniture({ path, position, rotation, scale, materialColors }: Fu
         : remake(mesh.material);
     });
     return centerModelXZ(copy);
-  }, [scene, materialColors]);
+  }, [scene, materialColors, stainMap]);
 
   useEffect(
     () => () => {

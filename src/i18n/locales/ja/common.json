@@ -169,6 +169,7 @@
       "labelTime": "残り時間",
       "nameHero": "P1",
       "nameRival": "CPU",
+      "pressStart": "PRESS START",
       "combo": "{{value}} HIT",
       "callout": {
         "counter": "カウンター！",
@@ -542,7 +543,8 @@
       "l1": "ここにセリフが入ります。",
       "l2": "ここにセリフが入ります。",
       "l3": "ここにセリフが入ります。",
-      "caption": "ここにセリフが入ります。"
+      "caption": "ここにセリフが入ります。",
+      "illegible": "（判読不能）"
     },
     "take": "{{name}}を拾う"
   },

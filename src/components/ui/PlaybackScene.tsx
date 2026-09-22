@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
 import { playSound, startNoiseBed } from "@/lib/audio";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
+import { CutDissolve } from "./CutDissolve";
+import { grainForCut } from "./cut-dissolve";
 
 /** 방송이 마지막으로 지직거리는 구간. */
 const STATIC_MS = 1100;
@@ -187,6 +190,13 @@ export function PlaybackScene() {
   }, [screening, cutIndex]);
 
   /*
+   * 컷이 바뀌는 그림의 전환 (CutDissolve). 셔터 소리와 같은 박자에 노이즈 장막이 결을
+   * 따라 걷힌다. 첫 컷은 판 자체가 떠오르는 등장(animate-playback-enter)이 있으니
+   * 여기서 한 번 더 덮지 않는다. 켤지 끌지는 효과 예산 한 곳이 정한다 (effect-budget).
+   */
+  const dissolveEnabled = useEffectEnabled("cheap");
+
+  /*
    * 정적 구간. 대사창이 사라진 채로 holdMs만큼 그림만 남았다가 저절로 넘어간다.
    * 멈춰 있는 화면을 사람이 눌러서 넘기게 두면 정적이 "로딩"으로 읽힌다.
    */
@@ -277,6 +287,12 @@ export function PlaybackScene() {
                 }`}
               />
             )}
+            {/* 컷 전환 장막. 그림 위에 얹혀야 하므로 마지막 자식이다 */}
+            <CutDissolve
+              cutKey={`${playbackKey}:${cutIndex}`}
+              grain={grainForCut(cutIndex)}
+              enabled={dissolveEnabled && cutIndex > 0}
+            />
           </div>
         )}
       </div>

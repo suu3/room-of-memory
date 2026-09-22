@@ -1575,3 +1575,96 @@ body {
     stroke-dashoffset: 0;
   }
 }
+
+/*
+ * 혼잣말이 물러나는 글자 (Monologue / monologue-exit.ts, docs/visual-experiments.md 8장).
+ * 등장(타자기)은 그대로고 물러나는 쪽만 글자 하나하나가 제 지연으로 사라진다. 지연은
+ * 컴포넌트가 인라인 animation-delay로 준다 (글자 수와 막에서 계산되므로 여기 고정할 수 없다).
+ *
+ *   down  1막(외면). 말끝이 흐려지며 아래로 떨어진다. 힘이 빠져 떨어지는 것이라 ease-in
+ *   up    2막부터(직면). 아래에서 위로 모이며 사라진다. 스스로 올라가는 것이라 ease-out
+ *
+ * 길이 260ms는 monologue-exit.ts의 EXIT_CHAR_MS와 같아야 한다. 마지막 글자가 움직이기 시작하는
+ * 시점(지연 폭 220ms)이 DESIGN.md > Motion의 독백 전환 예산 안이다. `both`라 제 차례 전에는
+ * 제자리에 서 있고, 다 사라진 뒤에도 돌아오지 않는다 (그 사이에 새 줄이 들어선다).
+ */
+@keyframes monologue-exit-down {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(0.4em);
+  }
+}
+
+@keyframes monologue-exit-up {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.4em);
+  }
+}
+
+/* 사라지기만 하는 판. 모션을 끈 사람의 글자는 자리를 옮기지 않고 밝기만 진다 */
+@keyframes monologue-exit-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.monologue-exit-down {
+  animation: monologue-exit-down 260ms ease-in both;
+}
+
+.monologue-exit-up {
+  animation: monologue-exit-up 260ms ease-out both;
+}
+
+/*
+ * 모션을 끈 판에서는 글자가 옮겨 가지 않고 계단도 없이 한꺼번에 밝기만 진다. 게임 안에서는
+ * 효과 예산(useEffectEnabled)이 먼저 막아 문단 전체가 물러나지만, 실험실처럼 span을 직접
+ * 세운 자리도 있어 CSS에서 한 번 더 막는다. 지연은 인라인 스타일이라 !important가 필요하다.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .monologue-exit-down,
+  .monologue-exit-up {
+    animation: monologue-exit-fade 260ms ease-out both;
+    animation-delay: 0ms !important;
+  }
+}
+
+/*
+ * 시점 전환의 노이즈 겹 (ViewpointTransition, docs/visual-experiments.md 7장·11장).
+ *
+ * .film-grain과 같은 feTurbulence 정지 타일이다. 타일은 움직이지 않고 투명도만 걷힌다:
+ * 노이즈 속에서 방이 응결한다. 불을 켜는 덮개(.viewpoint-lamp) 위에 얹히거나(lightsOn),
+ * 평면도로 몸을 옮기는 320ms를 혼자 덮는다(.viewpoint-noise-only는 바탕색 없이 타일만).
+ */
+.viewpoint-noise {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.9'/></svg>");
+  background-color: var(--color-scene-void);
+  background-blend-mode: screen;
+  opacity: 0.85;
+}
+.viewpoint-noise-only {
+  background: transparent;
+}
+.animate-viewpoint-noise {
+  animation: viewpoint-noise-fade 900ms ease-in both;
+}
+@keyframes viewpoint-noise-fade {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
+  }
+}

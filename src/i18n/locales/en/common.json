@@ -169,6 +169,7 @@
       "labelTime": "Time",
       "nameHero": "P1",
       "nameRival": "CPU",
+      "pressStart": "PRESS START",
       "combo": "{{value}} HIT",
       "callout": {
         "counter": "COUNTER!",
@@ -542,7 +543,8 @@
       "l1": "Placeholder line.",
       "l2": "Placeholder line.",
       "l3": "Placeholder line.",
-      "caption": "Placeholder line."
+      "caption": "Placeholder line.",
+      "illegible": "(illegible)"
     },
     "take": "Take {{name}}"
   },

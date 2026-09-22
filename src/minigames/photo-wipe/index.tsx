@@ -6,7 +6,9 @@ import { SuccessBurst } from "@/components/ui/SuccessBurst";
 import { useControlHint } from "@/i18n/control-hint";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import type { MinigameProps } from "@/types/minigame";
+import { PhotoParticles } from "../photo-particles/PhotoParticles";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 import { CLOTH_CURSOR } from "./cloth";
 import { PhotoFrame } from "./frame";
@@ -59,6 +61,8 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
   );
   const progressRef = useRef(0);
   const skipEligible = useSkipEligible(SKIP_AFTER_MS);
+  /** 다 닦인 사진을 입자로 그릴지. 예산 등급이 정한다 (docs/visual-experiments.md 9장) */
+  const particlesEnabled = useEffectEnabled("cheap");
 
   // 프로스트 레이어: 같은 사진을 흐리게 깐 먼지 막. 닦기 전에도 형태만 희미하게 비친다
   useEffect(() => {
@@ -178,11 +182,19 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
       <>
         <div className="animate-fade-rise">
           <PhotoFrame>
-            {/* biome-ignore lint/performance/noImgElement: 미니게임 전용 에셋이라 next/image 래퍼가 필요 없다. */}
-            <img
+            {/*
+              다 닦인 사진은 입자로 풀려 날아와 모인다. 커서가 스치면 그 자리가 다시 풀리고
+              손이 멈추면 모인다. 1차 사진은 부모 얼굴 자리만 끝까지 안 모인다 ("손대면 더
+              안 보이네"). 결과 대사가 떠 있는 동안에도 계속 돈다: 이 화면이 대사의 배경이다.
+              enabled=false면 예전 그대로 <img> 한 장.
+            */}
+            <PhotoParticles
               src={photo.src}
-              alt=""
-              aria-hidden="true"
+              width={photo.width}
+              height={photo.height}
+              gamePhase={gamePhase}
+              enabled={particlesEnabled}
+              gathered={false}
               className="block max-h-[58vh] w-auto max-w-[86vw]"
             />
           </PhotoFrame>

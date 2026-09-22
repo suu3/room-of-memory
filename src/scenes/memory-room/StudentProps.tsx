@@ -1,9 +1,17 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { ASSETS } from "@/lib/assets";
+import {
+  MEMORY_TOTAL,
+  selectActTwoProgress,
+  selectCollectedCount,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
+import { stainStepsForLevel, useStainTexture } from "./BathroomStains";
 import { FurnitureModel } from "./FurnitureModel";
 import { STUDENT_BOOKSHELF } from "./layout";
 import { WorkbookClue } from "./RoomClues";
+import { roomLightLevel } from "./visual-state";
 
 for (const path of [
   ASSETS.models.snackBag,
@@ -40,6 +48,15 @@ export function StudentDeskProps() {
 }
 
 export function StudentRoomProps() {
+  /*
+   * 컵라면 용기의 물때 (docs/visual-experiments.md 5장). 화장실 타일과 같은 반응확산
+   * 무늬의 작은 메아리다. 조사할수록(방이 어두워질수록) 무늬가 더 자라 있다: 조사 한 번에
+   * 한 번 다시 굽는다. 용기가 화면에서 작아 잘 안 읽힐 수 있다: 가시성은 실제 화면에서 본다.
+   */
+  const collected = useMemoryRoomStore(selectCollectedCount);
+  const recovery = useMemoryRoomStore(selectActTwoProgress);
+  const level = roomLightLevel({ collected, memoryTotal: MEMORY_TOTAL, recovery });
+  const cupStain = useStainTexture(5, stainStepsForLevel(level), 0.45);
   return (
     <group name="student-room-props">
       <FurnitureModel
@@ -60,12 +77,14 @@ export function StudentRoomProps() {
         position={[-3.85, 0.008, 1.55]}
         rotation={[0, -0.45, 0]}
         scale={1.2}
+        stainMap={cupStain}
       />
       <FurnitureModel
         path={ASSETS.models.cupNoodleTrash}
         position={[-3.8, 0.008, 1.12]}
         rotation={[0, 2.1, 0]}
         scale={0.95}
+        stainMap={cupStain}
       />
       <FurnitureModel
         path={ASSETS.models.snackBag}

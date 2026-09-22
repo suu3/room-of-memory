@@ -1,6 +1,7 @@
 "use client";
 
 import { BathroomFixtures, BathroomMirror, BathroomShower } from "./BathroomFixtures";
+import { BathroomStain } from "./BathroomStains";
 import { CulledWall } from "./CulledWall";
 import { InteriorSurface } from "./InteriorPrimitives";
 import { ItemPickup } from "./ItemPickup";
@@ -88,6 +89,13 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
         color={palette.trim}
         shade={palette.floor}
       />
+      {/* 바닥 타일의 물때: 30일 안 쓴 화장실. 타일 판(두께 0.018) 바로 위에 곱셈으로 얹힌다 */}
+      <BathroomStain
+        size={[SHELL.maxX - SHELL.minX - 0.18, SHELL.maxZ - SHELL.minZ - 0.18]}
+        position={[CENTER[0], 0.016, CENTER[1]]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        seed={3}
+      />
 
       {/* 공유벽(뒷벽)은 카메라 쪽이 아니라 늘 서 있다. 걷히는 규칙은 방과 같되 중심이 이 공간이다 */}
       {SHARED_WALL.map((part) => (
@@ -118,6 +126,13 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
           rotation={[0, -Math.PI / 2, 0]}
           color={palette.trim}
           shade={palette.linen}
+        />
+        {/* 샤워 벽 아랫단의 물때: 물이 튀던 자리라 무늬가 가장 진하다 */}
+        <BathroomStain
+          size={[SHELL.maxZ - SHELL.minZ - 0.2, 1.1]}
+          position={[SHELL.maxX - 0.105 - 0.012, 0.87, CENTER[1]]}
+          rotation={[0, -Math.PI / 2, 0]}
+          seed={11}
         />
         <BathroomShower palette={palette} />
       </CulledWall>

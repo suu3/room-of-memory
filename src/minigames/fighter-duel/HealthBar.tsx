@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { hpRatio, MAX_HP } from "./duel";
 
 /**
@@ -16,6 +17,7 @@ export function HealthBar({
   side,
   tone,
   enraged,
+  aside,
 }: {
   hp: number;
   label: string;
@@ -24,6 +26,11 @@ export function HealthBar({
   tone: "memory" | "bone";
   /** 상대가 각성했는가. 테두리가 벽돌빛으로 숨쉰다. */
   enraged?: boolean;
+  /**
+   * 이름 옆, 화면 가운데 쪽에 붙는 한 조각 (2P 슬롯의 PRESS START). 게이지 줄이 아니라
+   * 이름 줄에 두는 이유: 아케이드 HUD에서 그 자리는 "누가 이 자리에 있는가"를 적는 줄이다.
+   */
+  aside?: ReactNode;
 }) {
   const ratio = hpRatio(hp);
   const fill = tone === "memory" ? "bg-memory" : "bg-bone";
@@ -31,8 +38,15 @@ export function HealthBar({
 
   return (
     <div className={`min-w-0 flex-1 ${side === "right" ? "text-right" : ""}`}>
-      <span className="block truncate font-pixel text-[0.65rem] tracking-widest text-bone/70">
-        {label}
+      <span
+        className={`flex items-baseline gap-3 font-pixel text-[0.65rem] tracking-widest text-bone/70 ${
+          side === "right" ? "justify-end" : ""
+        }`}
+      >
+        {/* aside는 언제나 가운데 쪽: 왼쪽 게이지면 이름 뒤, 오른쪽 게이지면 이름 앞 */}
+        {side === "right" && aside}
+        <span className="min-w-0 truncate">{label}</span>
+        {side === "left" && aside}
       </span>
       {/*
         남은 체력은 그림이 아니라 값이라 읽히기도 해야 한다. 스타일이 필요한 층과

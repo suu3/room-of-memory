@@ -6,7 +6,13 @@ import { type ReactNode, useRef } from "react";
 import type { Group } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
-import { useMemoryRoomStore } from "@/store/memory-room";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
+import {
+  MEMORY_TOTAL,
+  selectActTwoProgress,
+  selectCollectedCount,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import type { SeatId } from "@/types/seat";
 import { FurnitureModel } from "./FurnitureModel";
 import { DiningDetails, LivingRoomDetails, LivingShoes, SofaDetails } from "./LivingRoomDetails";
@@ -24,10 +30,12 @@ import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import { PianoCabinet } from "./PianoCabinet";
 import { PianoSheet } from "./PianoSheet";
 import type { RoomPalette } from "./palette";
+import { TvReflection } from "./TvReflection";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
 import { useSeat, useSeatPull } from "./use-seat";
+import { roomLightLevel } from "./visual-state";
 
 /**
  * 거실 가구 (docs/content-design.md 3-1). 전부 박스 조합: 방(RoomFurniture)과
@@ -151,6 +159,8 @@ const SOFA_CUSHIONS = [
 /**
  * TV와 받침장: 앞벽(z=6.5) 쪽. 화면은 void, 이 방에서 가장 어두운 색이다.
  * 마지막에 보던 채널이 꺼진 채 그대로라는 설정이라 아무것도 비추지 않는다.
+ * 꺼진 유리에 거실이 도트로 비치는 것은 TvReflection이 이 상자 앞에 따로 세운다:
+ * 효과 예산이 없으면 이 void 면이 그대로 화면이다.
  */
 const TV_PARTS = [
   { size: [2.4, 0.05, 0.5], position: [-9.5, 0.475, 6.2], color: "wood" },
@@ -406,6 +416,15 @@ const PLUSH_PLACEMENT = {
 export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
   /** 찢어진 악보 조각을 손에 들었는가. 들었으면 보면대의 지워진 마디가 드러난다 */
   const hasSheetScrap = useMemoryRoomStore((state) => state.inventory.includes("piano-sheet"));
+  /*
+   * TV 유리의 도트 굵기는 방 밝기를 따른다 (MemoryRoomScene의 조명과 같은 곡선). 거실
+   * 오프셋(SPACES.living.lightOffset)은 안 뺀다: 그건 간접광의 몫이고, 도트는 "얼마나
+   * 되찾았는가"만 읽는다. 켜고 끄는 건 효과 예산 한 곳이 정한다 (effect-budget).
+   */
+  const collectedCount = useMemoryRoomStore(selectCollectedCount);
+  const recovery = useMemoryRoomStore(selectActTwoProgress);
+  const level = roomLightLevel({ collected: collectedCount, memoryTotal: MEMORY_TOTAL, recovery });
+  const heavyEffects = useEffectEnabled("heavy");
   return (
     <group name="living-room-furniture">
       <LivingPiece anchor={LIVING_ANCHORS.sofa}>
@@ -417,6 +436,7 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
       </LivingPiece>
       {/* TV는 1배 그대로: 키운 소파와 마주 보는 비율이 이쪽이 맞다 */}
       <Boxes parts={TV_PARTS} palette={palette} />
+      <TvReflection palette={palette} level={level} enabled={heavyEffects} />
       <LivingPiece anchor={LIVING_ANCHORS.dining} at={LIVING_DINING_CENTER}>
         <Boxes parts={TABLE_PARTS} palette={palette} />
         <DiningDetails palette={palette} />

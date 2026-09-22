@@ -169,6 +169,7 @@
       "labelTime": "남은 시간",
       "nameHero": "P1",
       "nameRival": "CPU",
+      "pressStart": "PRESS START",
       "combo": "{{value}} HIT",
       "callout": {
         "counter": "카운터!",
@@ -542,7 +543,8 @@
       "l1": "여기에 대사가 들어갑니다.",
       "l2": "여기에 대사가 들어갑니다.",
       "l3": "여기에 대사가 들어갑니다.",
-      "caption": "여기에 대사가 들어갑니다."
+      "caption": "여기에 대사가 들어갑니다.",
+      "illegible": "(읽을 수 없는 부분)"
     },
     "take": "{{name}} 집기"
   },

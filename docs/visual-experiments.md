@@ -281,3 +281,47 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
   옮길지(굴절 너머로 집는다: 배치 변경).
 - **화장실 무늬의 결**: 물때(타일 줄눈, 낮은 대비)인지 곰팡이(욕조 가장자리, 얼룩)인지. 공포가
   아니라 쓸쓸함이어야 한다(DESIGN.md 무드).
+
+---
+
+## 13. 구현 상태 (2026-09-22)
+
+위 계획을 전부 코드로 옮겼다. 자리와 게이트, 데모 페이지를 적는다. 데모는 `pnpm dev` 뒤
+<http://localhost:3000/lab>. 게이트 등급은 `src/lib/effects/effect-budget.ts`의 것이다
+(off = 모션 끔, low = 프레임 저하·터치, full = 나머지. cheap은 low부터, heavy는 full에서만).
+
+| 효과 | 자리 | 게이트 | 바인딩 | 데모 |
+|---|---|---|---|---|
+| 라디오 잡음 → 필름 룩, 표시창 파형 | `minigames/frequency-tune`, `lib/effects/film-look-input.ts`, `lib/audio/engine.ts`(analyser) | cheap | `staticLevel` | `/lab/radio-noise` |
+| 스마트폰 유리 · 최근 메시지 블러 · 미전송 초안 | `minigames/phone-chat` (`haze.ts`) | cheap | `dim` | (게임 안) |
+| 달력 正자 다섯 획 | `minigames/calendar-flip` (`tally-glyph.ts`, `TallyGlyph.tsx`) | cheap | `survivedDays` | `/lab/calendar-tally` |
+| 사인볼 잉크 파문 | `minigames/ball-catch` (`ripple.ts`, `ink-ripple.tsx`) | cheap | `musicCutoff(level)` | `/lab/ball-ripple` |
+| 액자 입자 (1차 얼굴 안 모임 · 2차 모임) | `minigames/photo-particles`, `photo-wipe`·`photo-puzzle` | cheap | `gamePhase` | `/lab/photo-particles` |
+| 게임기 픽셀화 · PRESS START | `minigames/fighter-duel` (`pixel-block.ts`, `PixelStage.tsx`, SVG 필터) | heavy (필터가 프레임마다 돈다) | `collected.length` | `/lab/console-pixels` |
+| 혼잣말 글자 단위 퇴장 | `components/ui/Monologue.tsx`, `monologue-exit.ts` | cheap | `act` | `/lab/monologue-exit` |
+| 안방 서류 깨진 글자 | `components/ui/ClueOverlay.tsx`, `redaction.ts` | (정적) | 고정 | `/lab/redaction` |
+| 컷씬 컷 간 노이즈 dissolve | `components/ui/PlaybackScene.tsx`, `CutDissolve.tsx`, `cut-dissolve.ts` | cheap | 컷 번호 → 결 | `/lab/cut-dissolve` |
+| 등 (커서 또는 몸) | `scenes/memory-room/Lantern.tsx`, `lantern.ts` | cheap, 1인칭 제외 | `level < 0.35` | (게임 안) |
+| 틸트 시프트 · 앉기 초점 | `MemoryOutlineGlow.tsx` (`TiltShiftDriver`), `tilt-focus.ts` | heavy | `act`, `seatedAt` | (게임 안) |
+| 먼지 재적층 | `DustMotes.tsx` `settle` | (기존) | `level` | (게임 안) |
+| 엔딩의 깨끗한 화면 | `FilmLook.tsx`, `film-look.ts` `clean` | (기존) | `endingStarted` | (게임 안) |
+| 창 유리 실금 | `WindowCracks.tsx`, `window-cracks.ts` | (정적) | `outsideDecay` | (게임 안) |
+| 초침 재가동 | `RoomFurniture.tsx` `SecondHand` | cheap | `act >= 2` | (게임 안) |
+| 이불 호흡 | `BedModel.tsx` (onBeforeCompile) | cheap | 고정 진폭 | (게임 안) |
+| 악보 잉크 모임 | `PianoSheet.tsx`, `sheet-ink.ts` | cheap | `piano-sheet` 소지 + 거실 진입 | (게임 안) |
+| 세면대 고인 물 파문 | `SinkWater.tsx`, `water-ripple.ts` | cheap | 열쇠 집는 순간 | `/lab/sink-water` |
+| 앰플 유리 굴절 | `Ampoule.tsx` `refractive`, `minigames/ampoule-pickup` | heavy | 집는 구간 | (게임 안) |
+| 화장실 물때 (타일·샤워 벽) | `BathroomStains.tsx`, `lib/effects/reaction-diffusion.ts` | (정적) | 고정(다 자람) | (게임 안) |
+| 컵라면 용기 물때 | `StudentProps.tsx`, `FurnitureModel.tsx` `stainMap` | (정적) | `1 - level` (조사마다 다시 굽는다) | (게임 안) |
+| 화장실 거울 slit-scan | `SlitScanMirror.tsx`, `slit-scan.ts` | heavy, 화장실에서만 | `1 - warm` | (게임 안) |
+| 거실 TV 도트 반사 | `TvReflection.tsx`, `tv-dots.ts` | heavy, 거실에서만 | `1 - level` | (게임 안) |
+| 재구성 (와이어프레임 → 면) | `WireframeReveal.tsx`, `reconstruction.ts`, `ScreenTransition` `settle` | cheap | 라디오 재점화, 화장실·안방 첫 진입 | (게임 안) |
+| 1인칭 잔상 | `AfterimagePass.ts`, `afterimage.ts`, `MemoryOutlineGlow.tsx` | heavy, 1인칭에서만 | 걷는 속도 | (게임 안) |
+| 현관문 빛기둥 | `LivingRoomShell.tsx` `EndingLightPlane`, `ending-light.ts`, `MemoryOutlineGlow.tsx` (GodRays) | heavy, 엔딩에서만 | `endingStarted` | (게임 안) |
+| 스위치 켤 때 · 평면도 이동의 노이즈 응결 | `components/ui/ViewpointTransition.tsx`, `globals.css` `.viewpoint-noise` | cheap | 시점 전환, `warpTarget` | (게임 안) |
+
+**아직 안 본 것.** 전부 브라우저 없이(테스트·타입·빌드) 검증했다. 실제 화면에서 봐야 정할
+값: 등의 세기(`lantern.ts`), 틸트 시프트의 띠 폭(`tilt-focus.ts`), 컵라면 무늬의 가시성,
+액자 입자의 밀기 반경(`photo-particles/particles.ts`), 라디오 잡음의 상한(`film-look.ts`),
+물때의 대비(`BathroomStains.tsx`의 `STAIN_DEPTH`). 모바일 프레임은 `PerformanceMonitor`가
+떨어뜨리면 heavy 효과가 자동으로 빠지지만, 그 문턱이 맞는지는 폰에서 봐야 한다.
