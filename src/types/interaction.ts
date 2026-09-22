@@ -98,6 +98,8 @@ export interface MemoryPhaseConfig {
    * 되짚어 볼 만한 한 장이 있는 기억에만 준다. 미니게임 화면을 스크린샷처럼
    * 재현하는 것이 목적이 아니라, "그때 본 것"이 한 장으로 남는 기억만 해당한다.
    * 없으면 대사만 흐르고 방이 뒤에 비친다.
+   *
+   * 규격·결·아직 비어 있는 칸은 docs/replay-stills.md.
    */
   replayStill?: string;
 }
