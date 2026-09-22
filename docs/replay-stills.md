@@ -38,16 +38,30 @@
 | 크기 | 가로 1280px 안팎, **4:3 권장** |
 | 용량 | 1MB 이하 (에셋 규칙) |
 | 자리 | `public/assets/images/` |
-| 이름 | `still-<기억id>-p<페이즈>.webp` (예: `still-console-p1.webp`) |
+| 이름 | `mg-<미니게임id>-<결과대사 뒷부분>.webp` (예: `mg-fighter-duel-alone.webp`) |
 
 4:3을 권하는 이유는 카드가 4:3으로 **잘라 채우기** 때문이다. 다른 비율로 오면 카드에서
 위아래(또는 좌우)가 잘린다. 다른 비율을 쓸 거면 **가운데 4:3 안에 주제가 다 들어와야
 한다.** 지금 있는 넷 중 창밖(1.35:1)은 안전하고, 야구장(1.8:1)은 카드에서 양옆이
 잘린다.
 
-이름의 `still-` 접두사는 제안이다. 지금 있는 넷이 `mg-`인 것은 **미니게임 에셋이 스틸
-노릇까지 겸하기** 때문이고, 새로 그리는 것은 스틸 전용이라 갈라 두는 편이 찾기 쉽다.
-`mg-`로 통일하고 싶으면 그렇게 해도 되고, 그때는 이 문단을 지운다.
+이름은 `mg-` 하나로 통일한다. 미니게임 에셋의 규칙(`.claude/rules/minigames.md`:
+"파일명에 미니게임 id를 접두사로")을 그대로 따르고, 이미 있는 넷도 그 꼴이다.
+
+뒤에 붙는 말은 **그 스틸이 서는 결과 대사의 뒷부분**을 쓴다. 스틸은 그 대사 뒤에
+서는 그림이라, 이름이 같으면 둘을 잇는 데 아무것도 찾아볼 필요가 없다.
+
+| 결과 대사 | 미니게임 | 파일명 |
+|---|---|---|
+| `console-alone` | `fighter-duel` | `mg-fighter-duel-alone.webp` |
+| `phone-stopped` | `phone-chat` | `mg-phone-chat-stopped.webp` |
+| `calendar-tally` | `calendar-flip` | `mg-calendar-flip-tally.webp` |
+| `cards-unfinished` | `card-odd` | `mg-card-odd-unfinished.webp` |
+| `ampoule-found` | `ampoule-pickup` | `mg-ampoule-pickup-found.webp` |
+
+기억 id가 아니라 미니게임 id가 접두사인 것에 주의한다 (게임기의 미니게임은
+`fighter-duel`, 카드는 `card-odd`다). 한 미니게임이 두 바퀴에 다 쓰이면 액자처럼
+`-phase-1`·`-phase-2`로 가른다.
 
 ## 3. 그림의 결
 
@@ -107,7 +121,7 @@
 **톤.** 차갑다. 형광등도 창빛도 아닌 **게임기 화면빛**이 주광이라 얼굴 아래쪽만 푸르게
 뜬다.
 
-`still-console-p1.webp`
+`mg-fighter-duel-alone.webp`
 
 ---
 
@@ -129,7 +143,7 @@
 
 **톤.** 차갑다. 화면빛 말고는 광원이 없다.
 
-`still-phone-p1.webp`
+`mg-phone-chat-stopped.webp`
 
 ---
 
@@ -152,7 +166,7 @@
 
 **톤.** 차갑다. 달력 띠는 `scene-accent-clay`(#A57565).
 
-`still-calendar-p1.webp`
+`mg-calendar-flip-tally.webp`
 
 ---
 
@@ -177,7 +191,7 @@
 **톤.** 2막이라 **볕이 닿는다.** 식탁 위로 창빛(`scene-sun`)이 비스듬히 들어와 카드
 가장자리에 따뜻한 테두리를 만든다. 같은 물건이 다르게 보이는 자리다.
 
-`still-cards-p2.webp`
+`mg-card-odd-unfinished.webp`
 
 ---
 
@@ -202,7 +216,7 @@
 **톤.** 2막인데 **따뜻하지 않다.** 다섯 중 유일한 예외다. 냉장고의 차가운 빛 하나만
 쓰고, 온기는 유리를 쥔 손에서만 온다. 3막으로 넘어가는 문턱이라 안심시키면 안 된다.
 
-`still-ampoule-p2.webp`
+`mg-ampoule-pickup-found.webp`
 
 ---
 
@@ -220,7 +234,7 @@
          script: console-intro
          minigame: fighter-duel
          resultScript: console-alone
-         replayStill: /assets/images/still-console-p1.webp   # ← 더하는 줄
+         replayStill: /assets/images/mg-fighter-duel-alone.webp   # ← 더하는 줄
    ```
 
 4. `pnpm content:build` → `pnpm test` → `pnpm build`.
