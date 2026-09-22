@@ -133,10 +133,16 @@ export function MinigameShell({
   const { t } = useTranslation();
 
   return (
+    /*
+     * 세로도 창 안에 가둔다. 폭만 잡아 두면 낮은 창(짧은 노트북 · 가로로 돌린 폰)에서
+     * 패널이 화면보다 커져 게임 화면의 아래쪽이 잘린다. 설명 칸은 제 높이를 지키고
+     * 게임 화면만 남은 높이를 받도록 세로 flex로 세운다 (min-h-0이 없으면 flex 자식이
+     * 제 내용보다 작아지지 않아 제한이 먹지 않는다).
+     */
     <div
-      className={`${size === "lg" ? "w-[54rem]" : "w-[38rem]"} max-w-[94vw] animate-fade-rise ${PANEL_FRAME}`}
+      className={`${size === "lg" ? "w-[54rem]" : "w-[38rem]"} flex max-h-[94svh] max-w-[94vw] flex-col animate-fade-rise ${PANEL_FRAME}`}
     >
-      <div className="px-6 pt-[18px]">
+      <div className="shrink-0 px-6 pt-[18px]">
         {/* 오른쪽 끝은 호스트의 닫기 버튼 자리(44px)다. 스킵이 그 밑에 깔리지 않게 비운다 */}
         <div className="flex items-baseline justify-between gap-3 pr-12">
           {/* 제목은 좁아지면 접히고, 스킵 버튼은 접근성 장치라 절대 눌리지 않는다 */}
@@ -163,8 +169,8 @@ export function MinigameShell({
           </div>
         )}
       </div>
-      {/* 게임 화면: 설명과 14px 띄운다 */}
-      <div className="mt-3.5 px-6 pb-6">{children}</div>
+      {/* 게임 화면: 설명과 14px 띄운다. 남은 높이를 받고, 넘치면 게임 쪽이 줄어든다 */}
+      <div className="mt-3.5 min-h-0 flex-1 px-6 pb-6">{children}</div>
     </div>
   );
 }

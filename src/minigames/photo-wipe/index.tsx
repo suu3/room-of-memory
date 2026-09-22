@@ -237,8 +237,28 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
             뒤에 도니까, 캐시에 있는 사진이면 선명한 원본이 한 프레임 번쩍이고
             그 위에 먼지가 덮인다. 깜빡임이기도 하고 답을 미리 보여주는 것이기도 하다.
           */
-          className={`block h-auto max-w-full ${ready ? "" : "invisible"}`}
-          style={{ width: photo.width }}
+          /*
+           * 폭만 잡으면 낮은 창에서 액자가 화면 밖으로 내려간다. 그렇다고 max-height를
+           * 얹으면 폭이 고정이라 세로만 잘려 사진이 납작해지고, 폭까지 auto로 풀면
+           * 액자(w-fit)가 사진보다 넓어져 먼지 층이 사진 밖으로 삐져나온다.
+           *
+           * 그래서 **세로 제한을 폭 하나로 환산해** 정한다: 원래 폭 · 창에 들어갈 폭 ·
+           * 남은 높이를 비율로 되돌린 폭 셋 중 제일 작은 것. 높이는 auto라 비율이
+           * 그대로 따라오고, 폭이 확정이라 액자(w-fit)도 사진에 딱 맞게 줄어든다.
+           *
+           * 자리를 `100%`가 아니라 창 단위(svw)로 재는 것이 중요하다. 퍼센트는 액자를
+           * 재는 중에 풀려야 하는 값이라 브라우저가 확정으로 치지 않고, 그러면 액자가
+           * 사진보다 넓어져 먼지 층이 사진 밖으로 삐져나온다.
+           *
+           * 빼는 7rem은 패널 여백과 액자 몰딩·매트가 먹는 가로, 12rem은 설명 칸과
+           * 몰딩·매트가 먹는 세로다.
+           */
+          className={`block h-auto ${ready ? "" : "invisible"}`}
+          style={{
+            width: `min(${photo.width}px, calc(94svw - 7rem), calc((94svh - 12rem) * ${(
+              photo.width / photo.height
+            ).toFixed(4)}))`,
+          }}
         />
         {/*
           프로스트 레이어: 닦아서 지운다. 커서가 곧 행주다.
