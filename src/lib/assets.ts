@@ -120,7 +120,7 @@ export const ASSETS = {
       11: "/assets/images/mg-calendar-flip-11.webp",
     } as Partial<Record<number, string>>,
     /**
-     * 액자 사진 1차: 부모 얼굴이 그늘에 묻힌 버전. Phase 1의 바탕, Phase 2의 덮개.
+     * 액자 사진 1차: 부모 얼굴이 틀 밖으로 잘린 버전. Phase 1의 바탕, Phase 2의 덮개.
      * 그림을 갈아 끼우면 v도 바꾼다: 서비스 워커가 캐시를 먼저 읽어 옛 그림이 남는다.
      */
     mgPhotoWipePhase1: "/assets/images/mg-photo-wipe-phase-1.webp?v=20260912",

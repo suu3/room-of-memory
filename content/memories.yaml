@@ -88,9 +88,9 @@ memories:
         en: My Parents
         ja: 両親
       phase1:
-        ko: 유리에 먼지가 껴서 얼굴이 안 보인다. 닦아도 부모님 얼굴만 흐릿하다.
-        en: Dust on the glass hides their faces. Even wiped clean, only my parents stay blurred.
-        ja: ガラスに埃がついて顔が見えない。拭いても両親の顔だけがぼやけている。
+        ko: 유리에 먼지가 껴서 한참을 닦았다. 다 닦아도 두 사람 얼굴은 틀 밖으로 잘려 있다.
+        en: Dust on the glass, so I wiped it down. Even wiped clean, their faces stay outside the frame.
+        ja: ガラスに埃がついていて長いこと拭いた。拭いても、二人の顔は枠の外に切れたままだ。
       phase2:
         ko: 흩어진 조각을 제자리에 놓으니 얼굴이 돌아왔다. 아직 못 만났을 뿐이다.
         en: I put the pieces back and the faces returned. We just haven't met yet.
@@ -99,7 +99,7 @@ memories:
       minigame: photo-wipe
       resultScript: frame-photo
       replayStill: /assets/images/mg-photo-wipe-phase-1.webp
-    # 2차 조사: 흩어진 사진 조각을 맞추면 그늘에 묻혔던 가족 얼굴이 드러난다.
+    # 2차 조사: 흩어진 사진 조각을 맞추면 틀 밖에 있던 가족 얼굴이 틀 안으로 들어온다.
     #
     # 2막 추리의 두 번째 칸이다 (docs/content-design.md 4장). 거실에서 나갈 준비를
     # 하다가(fridge·duffel) 켜지고, 여기서 "아빠가 뭔가 남겼다"를 인지해야 거실
