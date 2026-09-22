@@ -6,11 +6,12 @@ import { useTranslation } from "react-i18next";
 import { CanvasTexture, DoubleSide, SRGBColorSpace } from "three";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { KEYBOARD_CENTER_X } from "@/minigames/piano-melody/keys";
-import { barVisible, MELODY_BARS, SOLFEGE, type Solfege } from "@/minigames/piano-melody/melody";
+import { barVisible, MELODY_BARS, type Solfege } from "@/minigames/piano-melody/melody";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { InteriorBox } from "./InteriorPrimitives";
 import type { RoomPalette } from "./palette";
 import { blotAlpha, GATHER_DURATION_S, gatherProgress, noteBlurPx } from "./sheet-ink";
+import { ledgerLines, STAFF, staffY, stemUp } from "./sheet-staff";
 
 /**
  * 보면대에 펼쳐진 악보의 크기(로컬)와 자리. 피아노 부품과 같은 좌표계다.
@@ -29,17 +30,108 @@ const SHEET = {
 /** 악보 그림의 해상도. 종이의 가로세로(약 3.2:1)를 따른다: 안 맞으면 글자가 늘어난다. */
 const TEXTURE = { width: 512, height: 160 };
 
-/** 오선: 맨 윗줄의 y와 줄 간격(px). 음표는 이 간격의 절반씩 내려앉는다. */
-const STAFF = { top: 30, gap: 14, left: 34, right: 478 };
 /** 계이름 글자가 앉는 줄(px). 오선 아래 한 칸. */
 const NAME_Y = 132;
 /** 음표 머리의 크기(px)와 기둥 길이. */
 const HEAD = { rx: 7, ry: 5, stem: 26 };
+/** 덧줄이 음표 머리 양옆으로 나오는 길이(px). */
+const LEDGER_OVERHANG = 4;
+/** 높은음자리표가 차지하는 폭(px)과 그 뒤 첫 음표까지의 여백. */
+const CLEF = { width: 40, gap: 10 };
+/** 음표가 시작하는 x. 자리표 자리를 비켜 선다. */
+const NOTES_LEFT = STAFF.left + CLEF.width + CLEF.gap;
 
-/** 계이름이 오선의 어느 높이에 앉는가 (도가 맨 아래). */
-function staffY(note: Solfege): number {
-  const bottom = STAFF.top + STAFF.gap * 4 + STAFF.gap / 2;
-  return bottom - SOLFEGE.indexOf(note) * (STAFF.gap / 2);
+/**
+ * 높은음자리표. 소용돌이의 중심이 솔 줄에 앉는다: 그 자리가 이 표의 뜻 전부다.
+ *
+ * 글꼴로 찍지 않고 선으로 긋는다. 이 표의 글자(U+1D11E)는 악보 글꼴이 깔린 기기에만
+ * 있어서, 없는 기기에서는 네모가 뜬다. 종이 위 크기는 줄 간격(g)으로 재므로 오선을
+ * 키우면 표도 같이 큰다.
+ */
+function paintClef(ctx: CanvasRenderingContext2D, ink: string) {
+  const g = STAFF.gap;
+  const cx = STAFF.left + CLEF.width / 2;
+  const sol = staffY("sol");
+  ctx.save();
+  ctx.strokeStyle = ink;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = 3.8;
+
+  // 위 끝에서 꼭대기를 넘어, 배를 왼쪽으로 부풀린 뒤 솔 줄로 감겨 든다
+  ctx.beginPath();
+  ctx.moveTo(cx - 0.3 * g, sol - 2.7 * g);
+  ctx.bezierCurveTo(
+    cx - 0.1 * g,
+    sol - 3.35 * g,
+    cx + 0.55 * g,
+    sol - 3.3 * g,
+    cx + 0.58 * g,
+    sol - 2.55 * g,
+  );
+  ctx.bezierCurveTo(
+    cx + 0.62 * g,
+    sol - 1.75 * g,
+    cx + 0.05 * g,
+    sol - 1.35 * g,
+    cx - 0.42 * g,
+    sol - 0.85 * g,
+  );
+  ctx.bezierCurveTo(
+    cx - 1.25 * g,
+    sol + 0.05 * g,
+    cx - 1.3 * g,
+    sol + 1.3 * g,
+    cx - 0.45 * g,
+    sol + 1.6 * g,
+  );
+  ctx.bezierCurveTo(
+    cx + 0.55 * g,
+    sol + 1.95 * g,
+    cx + 1.15 * g,
+    sol + 1.0 * g,
+    cx + 0.85 * g,
+    sol + 0.15 * g,
+  );
+  ctx.bezierCurveTo(
+    cx + 0.6 * g,
+    sol - 0.55 * g,
+    cx - 0.1 * g,
+    sol - 0.55 * g,
+    cx - 0.12 * g,
+    sol + 0.05 * g,
+  );
+  ctx.bezierCurveTo(
+    cx - 0.13 * g,
+    sol + 0.45 * g,
+    cx + 0.3 * g,
+    sol + 0.5 * g,
+    cx + 0.34 * g,
+    sol + 0.15 * g,
+  );
+  ctx.stroke();
+
+  // 기둥과 아래 꼬리: 오선 밑까지 곧게 내려와 왼쪽으로 감긴다
+  ctx.beginPath();
+  ctx.moveTo(cx + 0.44 * g, sol - 2.95 * g);
+  ctx.bezierCurveTo(
+    cx + 0.36 * g,
+    sol - 1.2 * g,
+    cx + 0.26 * g,
+    sol + 0.8 * g,
+    cx + 0.18 * g,
+    sol + 2.1 * g,
+  );
+  ctx.bezierCurveTo(
+    cx + 0.12 * g,
+    sol + 3.05 * g,
+    cx - 0.55 * g,
+    sol + 3.35 * g,
+    cx - 0.72 * g,
+    sol + 2.75 * g,
+  );
+  ctx.stroke();
+  ctx.restore();
 }
 
 function canDraw(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderingContext2D {
@@ -90,17 +182,20 @@ function paintSheet(
   }
   ctx.globalAlpha = 1;
 
+  // 높은음자리표. 오선 맨 아랫줄이 미라는 것을 말하는 자리다 (sheet-staff.ts)
+  paintClef(ctx, ink);
+
   // 모임이 0이면 지워진 마디는 아예 없는 것으로 그린다 (조각 없이 보는 악보)
   const notes = MELODY_BARS.flatMap((bar, barIndex) =>
     bar.map((note) => ({ note, bar: barIndex, hidden: !barVisible(barIndex, false) })),
   );
-  const step = (STAFF.right - STAFF.left) / notes.length;
+  const step = (STAFF.right - NOTES_LEFT) / notes.length;
   ctx.font = "600 34px system-ui, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
   notes.forEach(({ note, bar, hidden }, index) => {
-    const x = STAFF.left + step * (index + 0.5);
+    const x = NOTES_LEFT + step * (index + 0.5);
     // 마디를 가르는 세로줄. 마디가 안 보여도 줄은 남는다: 몇 음이 지워졌는지 세라고
     if (index > 0 && notes[index - 1].bar !== bar) {
       ctx.globalAlpha = 0.5;
@@ -114,10 +209,20 @@ function paintSheet(
       ctx.globalAlpha = gather;
     }
     const y = staffY(note);
+    // 오선 밖으로 나간 음표는 제 덧줄을 깔고 앉는다 (지금 곡에는 없지만 도가 그렇다)
+    for (const line of ledgerLines(note)) {
+      ctx.fillRect(x - HEAD.rx - LEDGER_OVERHANG, line, (HEAD.rx + LEDGER_OVERHANG) * 2, 1.6);
+    }
     ctx.beginPath();
     ctx.ellipse(x, y, HEAD.rx, HEAD.ry, -0.35, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillRect(x + HEAD.rx - 1.6, y - HEAD.stem, 1.8, HEAD.stem);
+    // 기둥은 가운데 줄 아래면 오른쪽 위로, 위면 왼쪽 아래로
+    ctx.fillRect(
+      stemUp(note) ? x + HEAD.rx - 1.6 : x - HEAD.rx - 0.2,
+      stemUp(note) ? y - HEAD.stem : y,
+      1.8,
+      HEAD.stem,
+    );
     ctx.fillText(noteName(note), x, NAME_Y);
     ctx.filter = "none";
     ctx.globalAlpha = 1;
@@ -127,7 +232,7 @@ function paintSheet(
   const blot = notes.filter((entry) => entry.hidden);
   const alpha = blotAlpha(gather);
   if (blot.length > 0 && alpha > 0.002) {
-    const from = STAFF.left + step * notes.indexOf(blot[0]);
+    const from = NOTES_LEFT + step * notes.indexOf(blot[0]);
     const width = step * blot.length;
     ctx.globalAlpha = alpha;
     ctx.beginPath();
