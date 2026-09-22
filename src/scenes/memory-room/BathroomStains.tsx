@@ -73,7 +73,14 @@ export function BathroomStain({
   return (
     <mesh position={position} rotation={rotation}>
       <planeGeometry args={[size[0], size[1]]} />
-      <meshBasicMaterial map={texture} blending={MultiplyBlending} transparent depthWrite={false} />
+      {/* three의 곱셈 블렌딩은 premultipliedAlpha를 요구한다. 없으면 블렌딩이 풀려 흰 판으로 선다 */}
+      <meshBasicMaterial
+        map={texture}
+        blending={MultiplyBlending}
+        premultipliedAlpha
+        transparent
+        depthWrite={false}
+      />
     </mesh>
   );
 }

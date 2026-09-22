@@ -252,11 +252,11 @@ function TiltShiftDriver({ effect }: { effect: TiltShiftEffect }) {
     if (!blur || !taper || !start || !end) return;
     blur.value = MathUtils.damp(blur.value as number, goal.blur, TILT_LAMBDA, delta);
     taper.value = MathUtils.damp(taper.value as number, goal.taper, TILT_LAMBDA, delta);
-    // start·end는 Vector2다 (postprocessing이 배열을 벡터로 감싼다). 성분만 민다
-    const startVector = start.value as { y: number };
-    const endVector = end.value as { y: number };
-    startVector.y = MathUtils.damp(startVector.y, goal.start[1], TILT_LAMBDA, delta);
-    endVector.y = MathUtils.damp(endVector.y, goal.end[1], TILT_LAMBDA, delta);
+    // start·end는 래퍼가 배열 그대로 uniform에 넣는다 ([x, y]). 두 번째 성분이 화면 높이다
+    const startBand = start.value as [number, number];
+    const endBand = end.value as [number, number];
+    startBand[1] = MathUtils.damp(startBand[1], goal.start[1], TILT_LAMBDA, delta);
+    endBand[1] = MathUtils.damp(endBand[1], goal.end[1], TILT_LAMBDA, delta);
   });
   return null;
 }

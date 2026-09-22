@@ -7,16 +7,16 @@
  */
 
 /** 화면 가로에 놓이는 도트 수의 양 끝. 0에서 굵고(22) 1에서 촘촘하다(88). */
-export const TV_DOTS = {
+export const DOT_SCREEN_DOTS = {
   coarse: 22,
   fine: 88,
 } as const;
 
 /**
- * TV 유리의 세로/가로 비 (TvReflection의 판 크기 1.04/1.86). 도트를 정사각으로
+ * 모니터 유리의 세로/가로 비 (MemoryObjects의 MONITOR_GLASS, 0.59/1.125). 도트를 정사각으로
  * 두려면 세로 개수는 가로 개수에 이 비를 곱한 값이다.
  */
-export const TV_DOT_ASPECT = 1.04 / 1.86;
+export const DOT_SCREEN_ASPECT = 0.59 / 1.125;
 
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, Number.isNaN(value) ? 0 : value));
@@ -30,10 +30,10 @@ function clamp01(value: number): number {
  */
 export function dotsForLevel(level: number): number {
   const t = clamp01(level);
-  return TV_DOTS.coarse + (TV_DOTS.fine - TV_DOTS.coarse) * t;
+  return DOT_SCREEN_DOTS.coarse + (DOT_SCREEN_DOTS.fine - DOT_SCREEN_DOTS.coarse) * t;
 }
 
 /** 가로 도트 수에 맞는 세로 도트 수. 판의 비를 곱해 도트가 찌그러지지 않게 한다. */
 export function dotsAcrossHeight(dotsAcrossWidth: number): number {
-  return dotsAcrossWidth * TV_DOT_ASPECT;
+  return dotsAcrossWidth * DOT_SCREEN_ASPECT;
 }

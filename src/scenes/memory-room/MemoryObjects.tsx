@@ -21,14 +21,19 @@ import { MEMORIES, type MemoryId } from "@/data/memory-room";
 import { CLUE_AFTER_MEMORY, type ClueId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { selectCanvasMinigameMemory } from "@/minigames/active";
 import {
   hotspotStatus,
+  MEMORY_TOTAL,
+  selectActTwoProgress,
+  selectCollectedCount,
   selectRadioSignaling,
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { ballSeamGeometry } from "./ball-seam";
+import { DotReflection } from "./DotReflection";
 import { DrawerRations, FridgeDrawer } from "./FridgeDrawer";
 import { toLitMaterial } from "./FurnitureModel";
 import { DRAWER_TRAVEL } from "./fridge-drawer";
@@ -42,7 +47,7 @@ import { radioSignalLevel } from "./radio-signal";
 import type { EulerTuple, Vec3Tuple } from "./types";
 import { useCoverTexture } from "./use-cover-texture";
 import { useGlowHover } from "./use-glow-hover";
-import { shouldHighlightMemory } from "./visual-state";
+import { roomLightLevel, shouldHighlightMemory } from "./visual-state";
 
 // 액자 glb(ch1-photo-frame)는 액자가 아니라 납작한 오각형 판때기라 지웠다.
 // 제대로 된 액자 glb가 들어오면 frame 키를 다시 추가할 것.
@@ -717,8 +722,47 @@ function ComputerMemory({ palette, opacity, onReady }: VisualProps & { onReady: 
             <LoadedGlb path={part.path} opacity={opacity} lit />
           </group>
         ))}
+        <MonitorReflection palette={palette} />
       </group>
     </MemoryGlowVisualBoundary>
+  );
+}
+
+/**
+ * 모니터 유리(glb의 `void` 노드): 로컬 (0, 0.187, 0.0015)에 반폭 0.1815·반높이 0.095의
+ * 얇은 판이 +z를 본다. 세트 배율(3.1)을 곱해 화면 부품 오프셋 위에 세운다. 유리 앞면
+ * (두께 0.0055)보다 조금 앞이라 겹쳐 깜빡이지 않는다.
+ */
+const MONITOR_GLASS = {
+  width: 0.1815 * 2 * COMPUTER_PROP_SCALE,
+  height: 0.095 * 2 * COMPUTER_PROP_SCALE,
+  position: [
+    COMPUTER_PARTS[0].offset[0],
+    0.187 * COMPUTER_PROP_SCALE,
+    COMPUTER_PARTS[0].offset[2] + 0.0075 * COMPUTER_PROP_SCALE + 0.004,
+  ] as Vec3Tuple,
+} as const;
+
+/**
+ * 꺼진 모니터 유리에 비치는 방 (docs/visual-experiments.md 11장, DotReflection). 도트 굵기는
+ * 방 밝기를 따른다: 어두울수록 굵어 형체가 안 잡히고, 되찾을수록 촘촘해진다. 켜고 끄는 건
+ * 효과 예산 한 곳이 정한다 (effect-budget, 렌더 타깃이 드는 heavy).
+ */
+function MonitorReflection({ palette }: { palette: RoomPalette }) {
+  const collectedCount = useMemoryRoomStore(selectCollectedCount);
+  const recovery = useMemoryRoomStore(selectActTwoProgress);
+  const level = roomLightLevel({ collected: collectedCount, memoryTotal: MEMORY_TOTAL, recovery });
+  const enabled = useEffectEnabled("heavy");
+  return (
+    <DotReflection
+      palette={palette}
+      level={level}
+      enabled={enabled}
+      width={MONITOR_GLASS.width}
+      height={MONITOR_GLASS.height}
+      position={MONITOR_GLASS.position}
+      space="room"
+    />
   );
 }
 

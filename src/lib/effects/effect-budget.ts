@@ -40,12 +40,30 @@ export function effectEnabled(tier: EffectTier, cost: EffectCost): boolean {
   return true;
 }
 
+/**
+ * 개발용 강제 등급. localStorage의 `rom-effect-tier`에 off/low/full을 적으면 기기 판정을
+ * 덮는다. 폰에서 heavy 효과를 눈으로 보거나, 느린 GPU에서 화면을 찍을 때 쓴다.
+ * 프로덕션 번들에서는 통째로 빠진다 (NODE_ENV 리터럴 치환).
+ */
+const TIER_OVERRIDE_KEY = "rom-effect-tier";
+
+function tierOverride(): EffectTier | null {
+  if (process.env.NODE_ENV === "production" || typeof window === "undefined") return null;
+  try {
+    const value = window.localStorage.getItem(TIER_OVERRIDE_KEY);
+    return value === "off" || value === "low" || value === "full" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 /** 지금 기기의 등급. 첫 렌더는 항상 full이다 (미디어 쿼리는 브라우저에만 있다). */
 export function useEffectTier(): EffectTier {
   const reducedMotion = useMemo(prefersReducedMotion, []);
   const degraded = useEffectsStore((state) => state.degraded);
   const touch = usePointerKind() === "touch";
-  return effectTier({ reducedMotion, degraded, touch });
+  const override = useMemo(tierOverride, []);
+  return override ?? effectTier({ reducedMotion, degraded, touch });
 }
 
 /** `useEffectTier`와 `effectEnabled`를 한 번에: 호출부가 가장 자주 묻는 질문이다. */

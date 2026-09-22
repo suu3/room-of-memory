@@ -122,7 +122,7 @@
 |---|---|---|---|---|---|
 | **컵라면 용기** | `StudentProps`의 `cupNoodleTrash` glb 둘 (텍스처 있음) | Gray-Scott reaction-diffusion ping-pong RT → map | 🔶 + ↪ | 기법은 싸다: 128² RT 둘, **밝기가 바뀔 때만 N스텝 돌리고 멈춘다**(매 프레임 시뮬레이션 불필요). 문제는 크기다: 아이소메트릭에서 용기는 수십 px다. 먼저 **가시성 테스트**(데모 페이지에서 실제 카메라 배율로). 재질의 본진은 **화장실 타일·욕조로 옮긴다**(11장, 큰 면). 용기는 같은 패턴의 작은 메아리. 텍스처 glb에 색을 곱지 않으므로 map 자체를 교체한 클론 머티리얼을 쓴다 | 용기: 성장량 ← `1 - level` |
 | **시계** | `DeskClock`: 코드로 그린 탁상시계, 20:47에 멈춤, `angle-turn`의 규칙 단서(각도를 읽어야 한다) | slit-scan (프레임 히스토리 링버퍼) | ↪ + 🔶 | 각도를 읽는 단서 위에 시간차 왜곡을 얹으면 단서가 죽는다. slit-scan은 **화장실 거울로 옮긴다**(11장). 시계에는 기획이 이미 띄워 둔 안을 쓴다: **2막부터 초침이 다시 간다**. 멈춘 시계가 유일하게 시간이 흐르는 물건이 된다 | 초침 ← `act >= 2` |
-| **컴퓨터** | 1막 내내 꺼진 채(배경), 2막 `computer-browse` 오버레이에서 부팅 | 모니터에 방을 ASCII로 실시간 RTT | ↪ | 1막의 컴퓨터는 **꺼져 있는 것**이 이야기라 켜진 화면은 어긋난다. 도트·문자 격자에 비친 방은 **거실 TV로 옮긴다**(11장). 2막 조사 뒤 모니터에 정지 ASCII 한 장(CanvasTexture)을 남기는 안만 남겨 둔다 | (없음) |
+| **컴퓨터** | 1막 내내 꺼진 채(배경), 2막 `computer-browse` 오버레이에서 부팅 | 모니터에 방을 ASCII로 실시간 RTT | ↪ | 1막의 컴퓨터는 **꺼져 있는 것**이 이야기라 켜진 화면은 어긋난다. 도트 격자에 비친 방은 **꺼진 모니터 유리의 반사**로 붙인다(11장): 켜진 화면이 아니라 반사라 이야기에 어긋나지 않는다. 2막 조사 뒤 모니터에 정지 ASCII 한 장(CanvasTexture)을 남기는 안만 남겨 둔다 | (없음) |
 | **침대** | `BedModel`, 이불 shape key, 앉기·눕기 없음 | 이불 vertex 노이즈 호흡 + 조사 순간 DOF | 🔶 + ↪ | 호흡은 `onBeforeCompile`로 이불 머티리얼의 정점 셰이더에 노이즈 한 줄(진폭 작게, 0.3Hz 이하). DOF는 침대가 조사 오브젝트가 아니라(혼잣말만) **앉기로 옮긴다**(11장). 직교 카메라라 `DepthOfField` 대신 6장의 틸트 시프트 초점 띠를 움직인다 | 진폭 고정, `reducedMotion`이면 0 |
 
 ---
@@ -212,7 +212,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 13. 옮긴 기법 중 싼 것부터 (11장): **앉기 초점**(uniform 둘) → **악보 잉크 모임**(Canvas 2D) →
     **서류 깨진 글자**(DOM) → **세면대 파문**(판 하나) → **새 공간 와이어프레임**·**미니맵 응결**.
 14. 옮긴 기법 중 RT가 드는 것: **현관문 GodRays**(엔딩만) → **1인칭 afterimage** → **화장실 타일 RD**
-    → **TV 도트 반사**·**거울 slit-scan**(Reflector 하나씩, 그 공간에 있을 때만) → **앰플 transmission**.
+    → **모니터 도트 반사**·**거울 slit-scan**(Reflector 하나씩, 그 공간에 있을 때만) → **앰플 transmission**.
 
 완료 기준(스펙 8장)을 코드로 옮기면:
 
@@ -236,7 +236,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | **굴절 · 파문** (창문) | **화장실 세면대의 물** | `Sink`: 오목한 대야, 열쇠(`parents-key`)가 오른쪽 테두리에 얹혀 있다 (`ItemPickup`) | 30일 고인 물이 대야에 있다. 열쇠를 집는 순간 손이 물을 스친 듯 **파문 하나**가 번지고 대야 바닥이 굴절로 흔들리다 잔다 | 물 판 하나(ShaderMaterial): 파문은 uv 기반 감쇠 sin, 굴절은 바닥색을 노멀로 밀어 읽는다(RTT 없음). 스펙의 "창문 ripple 셰이더" 그대로 | 파문 ← 열쇠 집는 순간(one-shot). 평소 물은 정지: 멈춘 집이다 |
 | **굴절** (창문) | **앰플 유리** | `Ampoule`: `MeshStandardMaterial` 유리(`glassRef`), `ampoule-pickup`(canvas 미니게임)에서 손 높이로 들리고 엔딩에 들고 나간다 | 들어 올린 앰플의 유리가 뒤의 냉장고 안을 **굴절**시켜 보인다. 정체불명의 액체를 빛이 통과한다 | 집는 구간에만 `MeshPhysicalMaterial`(transmission)로 바꾼다. transmission은 씬을 RT에 한 번 더 그리므로 카메라가 붙박이인 미니게임 구간에만 켠다 | 켜짐 ← `activeInteraction.memoryId === "ampoule"` 미니게임 단계 |
 | **slit-scan** (시계) | **화장실 거울** | `BathroomMirror`: 금속 상자(반사 없음). 방의 전신거울은 `Reflector`로 2프레임에 1번 그린다 (선례) | 30일 만에 보는 자기 얼굴이 **세로줄마다 시간이 어긋나** 비친다. 2막이 진행될수록 줄이 맞아 든다 | 거울만 Reflector로 바꾸고, 그 RT(작다, 256² 내외)를 12장 링버퍼에 쌓아 x축 index로 샘플링. 화면 전체가 아니라 **거울 크기**라 비용이 든다 해도 방의 거울과 같은 급 | 시간차 폭 ← `1 - warm`. 화장실에 있을 때만 그린다 |
-| **도트 · 문자 격자 RTT** (컴퓨터) | **거실 TV** | `TV_PARTS`: 화면은 void, "마지막에 보던 채널이 꺼진 채". 꺼진 유리에 방이 비치는 것은 이야기에 안 어긋난다 | 꺼진 TV 유리에 거실이 **도트 격자(인광체)**로 비친다. 어두울수록 도트가 굵어 형체가 안 잡히고, 되찾을수록 촘촘해진다 | 거울과 같은 Reflector(3프레임에 1번, 해상도 0.5) + 도트 스크린 셰이더(`postprocessing`의 DotScreen을 머티리얼 안에서). ASCII 문자 격자는 글자가 언어를 타서 도트로 간다 | 도트 굵기 ← `1 - level`. 거실에 있을 때만 |
+| **도트 · 문자 격자 RTT** (컴퓨터) | **책상 모니터의 꺼진 유리** (TV에 세웠다가 옮겼다) | `ComputerMemory`의 모니터 glb, 1막 내내 꺼져 있다. 거실 TV는 화면이 소파를 보고 카메라는 그 뒤에 있어 플레이 중 **뒷면만** 보인다 (헤드리스 캡처로 확인) | 꺼진 모니터 유리에 방이 **도트 격자(인광체)**로 비친다. 어두울수록 도트가 굵어 형체가 안 잡히고, 되찾을수록 촘촘해진다. 켜진 화면이 아니라 유리의 반사라 "꺼져 있는 컴퓨터"에 어긋나지 않는다 | 거울과 같은 Reflector(3프레임에 1번, 256²) + 도트 스크린을 Reflector 셰이더에 패치. ASCII 문자 격자는 글자가 언어를 타서 도트로 간다 | 도트 굵기 ← `1 - level`. 방에 있을 때만 |
 | **DOF** (침대) | **앉기** (소파 셋 · 식탁 의자 셋 · 피아노 걸상 · 책상 의자) | `useSeat`, `seatedAt`: 진행에 아무것도 남기지 않는 곁가지, 시각 보상이 없다 | 앉으면 **초점 띠가 앉은 눈높이로 내려오고 좁아진다**. 앉아서 보는 방. 일어나면 돌아온다 | 6장 `TiltShift2`의 offset·focusArea 두 uniform을 damp로 민다. 새 패스 없음 | 초점 ← `seatedAt !== null` |
 | **afterimage** (배트) | **1인칭 두 구간** (인트로 스위치 찾기 · 2막 첫 문 넘기) | `FirstPersonRig`, `viewpointOf`: 어둠 속에서 빛 하나를 향해 **실제로 걸어가는** 구간이 둘 있다 | 걷는 동안 잔상이 쌓이고, 스위치를 켜거나 문턱을 넘는 순간 **0으로 걷힌다**. 30일 만에 움직이는 몸. 스펙이 배트에 적은 문장("이동하는 동안 누적, 문 열림과 함께 0")이 그대로 맞는다 | feedback RT Effect 하나(ping-pong, 해상도 0.5, `ScreenTransition`처럼 커스텀 `Effect`). 1인칭 동안만 컴포저에 들어간다 | 누적 ← 걷는 속도(`movementInputRef`), 소멸 ← `introDone`·`doorwayDone`. `reducedMotion`이면 없음 |
 | **reaction-diffusion** (컵라면) | **화장실 타일 · 욕조** | `BathroomShell`·`Bathtub`: 넓은 단색 면. 2막에 처음 열리는 공간 | 30일 안 쓴 화장실의 타일 줄눈과 욕조 가장자리에 **물때·곰팡이 무늬**. 큰 면이라 읽힌다 | Gray-Scott 128² 두 장, **첫 진입에 N스텝 돌리고 멈춘다**(매 프레임 아님). 결과를 타일 머티리얼의 roughness·color에 곱한다 | 고정(다 자란 상태). 화장실은 1막을 겪지 않은 공간이라 진행 바인딩이 뜻이 없다: "시간이 멈춘 자리" |
@@ -274,9 +274,8 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 - **틸트 시프트 채택**: 모바일 프레임 측정 뒤.
 - **폰 미전송 초안의 문장** (ko/en/ja): 누구에게, 무슨 말을 쓰다 멈췄는가. 대본이라 YAML이 아니라
   `phone-chat/thread.ts`의 i18n 키에 들어간다.
-- **TV를 켤 것인가**: 11장은 꺼진 유리의 반사까지만 간다. 게임기 2차("나가면 한 판") 뒤 TV가 켜져
-  2P 커서가 선 캐릭터 선택 화면을 비추면 게임기 2차 시각(4장, 자리 없음)이 살지만, "마지막에 보던
-  채널이 꺼진 채"라는 설정을 건드린다.
+- **TV**: 카메라가 TV의 뒷면만 보는 구도라 화면 효과를 둘 자리가 아니다. 게임기 2차의 캐릭터 선택
+  화면(4장, 자리 없음)도 같은 이유로 TV에는 못 간다. TV를 돌려 세우는 것은 거실 배치의 결정이다.
 - **세면대의 물**: 지금 열쇠는 테두리에 얹혀 있다. 물을 채우기만 할지(파문만), 열쇠를 물 속으로
   옮길지(굴절 너머로 집는다: 배치 변경).
 - **화장실 무늬의 결**: 물때(타일 줄눈, 낮은 대비)인지 곰팡이(욕조 가장자리, 얼룩)인지. 공포가
@@ -314,7 +313,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | 화장실 물때 (타일·샤워 벽) | `BathroomStains.tsx`, `lib/effects/reaction-diffusion.ts` | (정적) | 고정(다 자람) | (게임 안) |
 | 컵라면 용기 물때 | `StudentProps.tsx`, `FurnitureModel.tsx` `stainMap` | (정적) | `1 - level` (조사마다 다시 굽는다) | (게임 안) |
 | 화장실 거울 slit-scan | `SlitScanMirror.tsx`, `slit-scan.ts` | heavy, 화장실에서만 | `1 - warm` | (게임 안) |
-| 거실 TV 도트 반사 | `TvReflection.tsx`, `tv-dots.ts` | heavy, 거실에서만 | `1 - level` | (게임 안) |
+| 책상 모니터 도트 반사 (TV는 화면이 카메라를 등져 옮겼다) | `DotReflection.tsx`, `dot-screen.ts`, `MemoryObjects.tsx` `MonitorReflection` | heavy, 방에서만 | `1 - level` | (게임 안) |
 | 재구성 (와이어프레임 → 면) | `WireframeReveal.tsx`, `reconstruction.ts`, `ScreenTransition` `settle` | cheap | 라디오 재점화, 화장실·안방 첫 진입 | (게임 안) |
 | 1인칭 잔상 | `AfterimagePass.ts`, `afterimage.ts`, `MemoryOutlineGlow.tsx` | heavy, 1인칭에서만 | 걷는 속도 | (게임 안) |
 | 현관문 빛기둥 | `LivingRoomShell.tsx` `EndingLightPlane`, `ending-light.ts`, `MemoryOutlineGlow.tsx` (GodRays) | heavy, 엔딩에서만 | `endingStarted` | (게임 안) |
