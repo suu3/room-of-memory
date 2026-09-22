@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { CanvasTexture, DoubleSide, SRGBColorSpace } from "three";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { KEYBOARD_CENTER_X } from "@/minigames/piano-melody/keys";
 import { barVisible, MELODY_BARS, SOLFEGE, type Solfege } from "@/minigames/piano-melody/melody";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import { InteriorBox } from "./InteriorPrimitives";
 import type { RoomPalette } from "./palette";
+import { blotAlpha, GATHER_DURATION_S, gatherProgress, noteBlurPx } from "./sheet-ink";
 
 /**
  * 보면대에 펼쳐진 악보의 크기(로컬)와 자리. 피아노 부품과 같은 좌표계다.
@@ -46,6 +50,13 @@ function canDraw(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderingCo
   );
 }
 
+interface SheetPaint {
+  canvas: HTMLCanvasElement;
+  texture: CanvasTexture;
+  /** 지금 그림에 굽힌 모임 정도. 같은 값이면 다시 굽지 않는다. */
+  gather: number;
+}
+
 /**
  * 악보 한 장을 그림으로 굽는다: 오선지 · 음표 · 그 아래 계이름.
  *
@@ -54,74 +65,95 @@ function canDraw(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderingCo
  *
  * 지워진 마디에는 음표도 글자도 없다. 물에 번진 자국만 남는다: 그 마디는 안방
  * 책상의 찢어진 조각이 들고 있다 (melody의 barVisible).
+ *
+ * `gather`(0~1)는 그 마디가 **번진 잉크에서 다시 모이는** 정도다 (sheet-ink.ts). 0이면
+ * 얼룩만, 1이면 또렷한 음표. 조각을 들고 피아노 앞에 서는 순간 0에서 1로 간다.
  */
-function useSheetTexture(hasScrap: boolean, paper: string, ink: string): CanvasTexture {
-  // 언어가 바뀌면 t가 새 것으로 오고(useTranslation이 다시 그린다) 그림도 다시 굽는다
-  const { t } = useTranslation();
+function paintSheet(
+  ctx: CanvasRenderingContext2D,
+  size: { width: number; height: number },
+  paper: string,
+  ink: string,
+  noteName: (note: Solfege) => string,
+  gather: number,
+) {
+  ctx.filter = "none";
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, size.width, size.height);
 
-  const texture = useMemo(() => {
+  // 오선 다섯 줄
+  ctx.fillStyle = ink;
+  ctx.globalAlpha = 0.5;
+  for (let line = 0; line < 5; line += 1) {
+    ctx.fillRect(STAFF.left, STAFF.top + STAFF.gap * line, STAFF.right - STAFF.left, 1.6);
+  }
+  ctx.globalAlpha = 1;
+
+  // 모임이 0이면 지워진 마디는 아예 없는 것으로 그린다 (조각 없이 보는 악보)
+  const notes = MELODY_BARS.flatMap((bar, barIndex) =>
+    bar.map((note) => ({ note, bar: barIndex, hidden: !barVisible(barIndex, false) })),
+  );
+  const step = (STAFF.right - STAFF.left) / notes.length;
+  ctx.font = "600 34px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  notes.forEach(({ note, bar, hidden }, index) => {
+    const x = STAFF.left + step * (index + 0.5);
+    // 마디를 가르는 세로줄. 마디가 안 보여도 줄은 남는다: 몇 음이 지워졌는지 세라고
+    if (index > 0 && notes[index - 1].bar !== bar) {
+      ctx.globalAlpha = 0.5;
+      ctx.fillRect(x - step / 2, STAFF.top, 1.6, STAFF.gap * 4);
+      ctx.globalAlpha = 1;
+    }
+    if (hidden) {
+      if (gather <= 0) return;
+      // 모이는 중인 음표: 번짐(blur)이 걷히며 진해진다. 잉크가 거꾸로 모이는 그림
+      ctx.filter = `blur(${noteBlurPx(gather).toFixed(2)}px)`;
+      ctx.globalAlpha = gather;
+    }
+    const y = staffY(note);
+    ctx.beginPath();
+    ctx.ellipse(x, y, HEAD.rx, HEAD.ry, -0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(x + HEAD.rx - 1.6, y - HEAD.stem, 1.8, HEAD.stem);
+    ctx.fillText(noteName(note), x, NAME_Y);
+    ctx.filter = "none";
+    ctx.globalAlpha = 1;
+  });
+
+  // 물에 번진 자국: 지워진 마디를 통째로 덮는다. 잉크가 모일수록 옅어진다
+  const blot = notes.filter((entry) => entry.hidden);
+  const alpha = blotAlpha(gather);
+  if (blot.length > 0 && alpha > 0.002) {
+    const from = STAFF.left + step * notes.indexOf(blot[0]);
+    const width = step * blot.length;
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.ellipse(from + width / 2, 84, width / 2, 58, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function useSheetPaint(paper: string, ink: string): SheetPaint {
+  const paint = useMemo(() => {
     const canvas = document.createElement("canvas");
     canvas.width = TEXTURE.width;
     canvas.height = TEXTURE.height;
-    const ctx = canvas.getContext("2d");
-    if (canDraw(ctx)) {
-      ctx.fillStyle = paper;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // 오선 다섯 줄
-      ctx.fillStyle = ink;
-      ctx.globalAlpha = 0.5;
-      for (let line = 0; line < 5; line += 1) {
-        ctx.fillRect(STAFF.left, STAFF.top + STAFF.gap * line, STAFF.right - STAFF.left, 1.6);
-      }
-      ctx.globalAlpha = 1;
-
-      const notes = MELODY_BARS.flatMap((bar, barIndex) =>
-        bar.map((note) => ({ note, bar: barIndex, shown: barVisible(barIndex, hasScrap) })),
-      );
-      const step = (STAFF.right - STAFF.left) / notes.length;
-      ctx.font = "600 34px system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      notes.forEach(({ note, bar, shown }, index) => {
-        const x = STAFF.left + step * (index + 0.5);
-        // 마디를 가르는 세로줄. 마디가 안 보여도 줄은 남는다: 몇 음이 지워졌는지 세라고
-        if (index > 0 && notes[index - 1].bar !== bar) {
-          ctx.globalAlpha = 0.5;
-          ctx.fillRect(x - step / 2, STAFF.top, 1.6, STAFF.gap * 4);
-          ctx.globalAlpha = 1;
-        }
-        if (!shown) return;
-
-        const y = staffY(note);
-        ctx.beginPath();
-        ctx.ellipse(x, y, HEAD.rx, HEAD.ry, -0.35, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillRect(x + HEAD.rx - 1.6, y - HEAD.stem, 1.8, HEAD.stem);
-        ctx.fillText(t(`minigame.pianoMelody.notes.${note}`), x, NAME_Y);
-      });
-
-      // 물에 번진 자국: 지워진 마디를 통째로 덮는다
-      const blot = notes.filter((entry) => !entry.shown);
-      if (blot.length > 0) {
-        const from = STAFF.left + step * notes.indexOf(blot[0]);
-        const width = step * blot.length;
-        ctx.globalAlpha = 0.14;
-        ctx.beginPath();
-        ctx.ellipse(from + width / 2, 84, width / 2, 58, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-    }
-    const made = new CanvasTexture(canvas);
-    made.colorSpace = SRGBColorSpace;
-    made.anisotropy = 4;
-    return made;
-  }, [hasScrap, paper, ink, t]);
-
-  useEffect(() => () => texture.dispose(), [texture]);
-  return texture;
+    const texture = new CanvasTexture(canvas);
+    texture.colorSpace = SRGBColorSpace;
+    texture.anisotropy = 4;
+    return { canvas, texture, gather: -1 };
+  }, []);
+  useEffect(() => () => paint.texture.dispose(), [paint]);
+  // 색은 팔레트가 정하고 여기서는 다시 굽게만 표시한다. 다음 프레임이 새 색으로 굽는다
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 색이 바뀌면 굽은 그림을 버려야 한다. 값은 안 쓰고 변화만 듣는다.
+  useEffect(() => {
+    paint.gather = -1;
+  }, [paint, paper, ink]);
+  return paint;
 }
 
 /**
@@ -132,7 +164,45 @@ function useSheetTexture(hasScrap: boolean, paper: string, ink: string): CanvasT
  * 하라고 적어 주는 대신 물건 둘을 나란히 두고 사람이 잇게 한다.
  */
 export function PianoSheet({ palette, hasScrap }: { palette: RoomPalette; hasScrap: boolean }) {
-  const texture = useSheetTexture(hasScrap, palette.linen, palette.frame);
+  const { t } = useTranslation();
+  const paint = useSheetPaint(palette.linen, palette.frame);
+  const animate = useEffectEnabled("cheap");
+  /*
+   * 잉크가 모이는 순간 (docs/visual-experiments.md 11장): 조각을 들고 이 악보가 서 있는
+   * 거실에 들어서면 번진 마디가 1.5초에 걸쳐 음표로 돌아온다. 조각이 없거나 모션을 끈
+   * 판에서는 곧장 끝 상태다. 시작 시각은 ref에 두고 useFrame이 굴린다.
+   */
+  const inLiving = useMemoryRoomStore((state) => state.space === "living");
+  const gatherStart = useRef<number | null>(null);
+  const gathered = hasScrap && inLiving;
+
+  useFrame((state) => {
+    let gather: number;
+    if (!gathered) {
+      gatherStart.current = null;
+      gather = 0;
+    } else if (!animate) {
+      gather = 1;
+    } else {
+      if (gatherStart.current === null) gatherStart.current = state.clock.elapsedTime;
+      gather = gatherProgress(state.clock.elapsedTime - gatherStart.current, GATHER_DURATION_S);
+    }
+    if (gather === paint.gather) return;
+    const ctx = paint.canvas.getContext("2d");
+    if (!canDraw(ctx)) return;
+    paintSheet(
+      ctx,
+      TEXTURE,
+      palette.linen,
+      palette.frame,
+      (note) => t(`minigame.pianoMelody.notes.${note}`),
+      gather,
+    );
+    paint.texture.needsUpdate = true;
+    paint.gather = gather;
+  });
+
+  const texture = paint.texture;
   return (
     // 앞면(-z)을 보도록 반 바퀴 돌린 뒤 그 안에서 눕힌다: 안 돌리면 글자가 벽을 보고 뒤집힌다
     <group position={SHEET.position} rotation={[SHEET.tilt, Math.PI, 0]}>

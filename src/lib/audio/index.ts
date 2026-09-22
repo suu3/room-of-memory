@@ -14,7 +14,9 @@ import {
 } from "./music";
 
 export {
+  NOISE_BED_ANALYSER_SIZE,
   type NoiseBed,
+  type NoiseBedOptions,
   type PlayOptions,
   playSound,
   playTone,

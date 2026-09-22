@@ -33,6 +33,7 @@ export function PhoneShell({
   clock,
   badge,
   tabLabels,
+  glass,
   children,
 }: {
   tab: PhoneTab;
@@ -43,13 +44,26 @@ export function PhoneShell({
   /** 통화 탭에 띄울 통화 횟수. 0이면 안 띄운다. */
   badge: number;
   tabLabels: Record<PhoneTab, string>;
+  /**
+   * 화면 유리에 방이 비치는가 (docs/visual-experiments.md 4장 "스마트폰").
+   *
+   * 폰은 `presentation: "bare"` 오버레이라 뒤에 3D 방이 그대로 있다. 유리를 반투명
+   * 검정 + backdrop-filter 블러로 두면 RTT 없이 방이 어두운 유리에 비친다. 비치는
+   * 자리는 상태바와 앱 헤더뿐이다: 본문(scene-navy)과 탭바(scene-coal)는 불투명해
+   * 글자 대비가 그대로다. false면 지금까지의 불투명 scene-void 그대로.
+   */
+  glass: boolean;
   children: ReactNode;
 }) {
   return (
     <div className="mx-auto w-[22rem] max-w-[92vw]">
       {/* 기기 테두리: 얇은 베젤과 둥근 모서리가 "물건"이라는 인상을 만든다 */}
       <div className="rounded-[2.5rem] bg-ink p-[3px] shadow-panel ring-1 ring-night/80">
-        <div className="relative overflow-hidden rounded-[2.3rem] bg-scene-void">
+        <div
+          className={`relative overflow-hidden rounded-[2.3rem] ${
+            glass ? "bg-scene-void/85 backdrop-blur-md" : "bg-scene-void"
+          }`}
+        >
           {/* 노치 */}
           <div className="absolute left-1/2 top-0 z-10 h-[1.2rem] w-[6.5rem] -translate-x-1/2 rounded-b-xl bg-ink" />
 

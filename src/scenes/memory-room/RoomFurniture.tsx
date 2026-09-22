@@ -13,7 +13,8 @@ import {
 } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
-import { isAtCurtain, useMemoryRoomStore } from "@/store/memory-room";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
+import { isAtCurtain, selectAct, useMemoryRoomStore } from "@/store/memory-room";
 import { BedModel } from "./BedModel";
 import { CurtainCloth, CurtainRod } from "./CurtainCloth";
 import { CURTAIN_MODEL_POSITION, CURTAIN_OPEN_KEY, CURTAIN_Z } from "./curtain-model";
@@ -496,6 +497,41 @@ const CLOCK_MINUTE = 47;
 /** 12시 방향에서 시계방향으로 도는 각. three의 +Z 회전은 반시계라 부호가 뒤집힌다. */
 const MINUTE_ANGLE = -(CLOCK_MINUTE / 60) * Math.PI * 2;
 const HOUR_ANGLE = -(((CLOCK_HOUR % 12) + CLOCK_MINUTE / 60) / 12) * Math.PI * 2;
+/** 멈춘 초침의 자리(초). 12시에 서 있으면 초침이 없는 시계로 읽혀 어중간한 자리에 둔다. */
+const SECOND_STOPPED = 23;
+
+/**
+ * 초침 (docs/visual-experiments.md 11장 "시계"). 1막 내내 멈춰 있다가 **2막부터 다시 간다**.
+ * 방의 다른 것은 전부 그날에 멈춰 있는데, 목소리를 잡고 문이 열린 뒤 이 시계만 다시
+ * 시간이 흐른다. 시·분은 그대로다: 맞는 시각이 아니라 흐른다는 사실이 내용이다.
+ *
+ * 한 초에 한 칸씩 툭툭 간다(스텝). 매끄럽게 돌면 시계가 아니라 계기다. 회전은 그룹을
+ * 직접 만지고 상태로 굴리지 않는다 (.claude/rules/r3f.md).
+ */
+function SecondHand({ color, running }: { color: string; running: boolean }) {
+  const groupRef = useRef<Group>(null);
+  const startedAt = useRef<number | null>(null);
+  useFrame((state) => {
+    const group = groupRef.current;
+    if (!group) return;
+    if (!running) {
+      startedAt.current = null;
+      group.rotation.z = -(SECOND_STOPPED / 60) * Math.PI * 2;
+      return;
+    }
+    if (startedAt.current === null) startedAt.current = state.clock.elapsedTime;
+    const ticks = Math.floor(state.clock.elapsedTime - startedAt.current);
+    group.rotation.z = -((SECOND_STOPPED + ticks) / 60) * Math.PI * 2;
+  });
+  return (
+    <group ref={groupRef} position={[0, 0, CLOCK_FACE_Z + 0.018]}>
+      <mesh position={[0, 0.085, 0]}>
+        <boxGeometry args={[0.006, 0.19, 0.006]} />
+        <meshStandardMaterial color={color} roughness={0.6} />
+      </mesh>
+    </group>
+  );
+}
 
 function ClockHand({
   angle,
@@ -526,6 +562,10 @@ function ClockHand({
  * 적힌 게 보인다. 사인볼 2바퀴 회전 미궁의 단서다 (src/data/room-clues.ts).
  */
 function DeskClock({ palette }: FurnitureProps) {
+  // 문이 열리면(2막) 초침이 다시 간다. 모션을 끈 사람에게는 멈춘 채 둔다
+  const act = useMemoryRoomStore(selectAct);
+  const motionAllowed = useEffectEnabled("cheap");
+  const secondsRunning = act >= 2 && motionAllowed;
   return (
     <DeskClockClue>
       <group name="desk-clock" position={CLOCK_CENTER}>
@@ -551,8 +591,9 @@ function DeskClock({ palette }: FurnitureProps) {
           z={CLOCK_FACE_Z + 0.014}
           color={palette.frame}
         />
+        <SecondHand color={palette.clay} running={secondsRunning} />
         {/* 바늘이 만나는 축: 두 바늘이 그냥 겹쳐 있으면 십자 무늬로 보인다 */}
-        <mesh position={[0, 0, CLOCK_FACE_Z + 0.022]} rotation={[Math.PI / 2, 0, 0]}>
+        <mesh position={[0, 0, CLOCK_FACE_Z + 0.026]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.018, 0.018, 0.01, 10]} />
           <meshStandardMaterial color={palette.clay} roughness={0.6} />
         </mesh>

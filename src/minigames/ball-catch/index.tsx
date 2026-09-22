@@ -2,11 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MEMORY_GOAL } from "@/data/memory-room";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound, preloadSamples } from "@/lib/audio";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
+import { roomLightLevel } from "@/scenes/memory-room/visual-state";
+import {
+  selectActTwoProgress,
+  selectCollectedCount,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, useOnceCompleter, useSkipEligible } from "../shell";
 import { BallCatchField } from "./field";
+import type { InkRippleHandle } from "./ink-ripple";
+import { rippleDecayFromLevel } from "./ripple";
 import {
   classifySwing,
   nextPitch,
@@ -34,6 +44,9 @@ const SPIN_DEG = 270;
 const HIT_FLY_MS = 380;
 /** 마지막 타격 연출을 보여주고 나서 완료 보고까지의 지연 (ms) */
 const CLEAR_DELAY_MS = 550;
+/** 점선 링의 자리 (필드 비율). field.tsx의 left-1/2 · top-[68%]와 같은 값 */
+const RING_X = 50;
+const RING_Y = 68;
 const INTERACTIVE_TARGET_SELECTOR =
   "button, a, input, select, textarea, [contenteditable]:not([contenteditable='false'])";
 
@@ -88,6 +101,18 @@ export function BallCatchMinigame({ onComplete, onSettled, difficulty = "easy" }
   const roundRef = useRef<Round>(newRound(roundDuration(0, TUTORIAL_SCALE), -1, true));
   const pendingTimeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
+  /**
+   * 타점의 잉크 파문 (ink-ripple.tsx). 감쇠는 방의 밝기에 물린다: 씬이 조명을 잡는 것과
+   * 같은 식으로 진행도에서 밝기를 내고(visual-state.ts), 어두울수록 파문이 빨리 잔다.
+   * 게이트는 효과 예산 한 곳(effect-budget.ts): 막히면 층을 그리지 않고 게임은 그대로다.
+   */
+  const rippleRef = useRef<InkRippleHandle>(null);
+  const rippleEnabled = useEffectEnabled("cheap");
+  const collectedCount = useMemoryRoomStore(selectCollectedCount);
+  const recovery = useMemoryRoomStore(selectActTwoProgress);
+  const rippleDecay = rippleDecayFromLevel(
+    roomLightLevel({ collected: collectedCount, memoryTotal: MEMORY_GOAL, recovery }),
+  );
 
   // 타격음만 파일이 있으면 파일로 간다. 없으면 합성 batHit이 그대로 울린다.
   // 첫 타석 전에 받아 둬야 첫 스윙에서 늦지 않는다.
@@ -139,6 +164,10 @@ export function BallCatchMinigame({ onComplete, onSettled, difficulty = "easy" }
 
     if (result === "hit") {
       round.hitAt = performance.now();
+      // 잉크 파문은 링 높이에서, 가로만 공이 실제로 있던 자리. 공은 startX에서 링(50)으로
+      // 직선으로 오므로 rAF 루프와 같은 식으로 그 순간의 x를 다시 센다
+      const ballX = round.startX + (RING_X - round.startX) * Math.min(progress, 1);
+      rippleRef.current?.spawn(ballX / 100, RING_Y / 100);
       const next = catches + 1;
       setCatches(next);
       if (next >= GOAL_CATCHES) {
@@ -286,6 +315,7 @@ export function BallCatchMinigame({ onComplete, onSettled, difficulty = "easy" }
         swingId={swingId}
         showPrompt={showPrompt}
         onSwing={() => attemptRef.current()}
+        ripple={{ handleRef: rippleRef, decay: rippleDecay, enabled: rippleEnabled }}
         labels={{
           aria: hint("minigame.ballCatch.help"),
           hits: t("minigame.ballCatch.hits", { value: catches, goal: GOAL_CATCHES }),

@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { EffectComposer, N8AO, Outline } from "@react-three/postprocessing";
+import { EffectComposer, N8AO, Outline, TiltShiftEffect } from "@react-three/postprocessing";
 import type { OutlineEffect } from "postprocessing";
 import {
   Component,
@@ -12,16 +12,19 @@ import {
   Suspense,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { Color, type Group, type Mesh, type Object3D } from "three";
-import { selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
+import { Color, type Group, MathUtils, type Mesh, type Object3D, type Uniform } from "three";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
+import { selectAct, selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
 import { cursorTarget, hoverGlowPulse } from "./cursor-target";
 import { FilmLookDriver, prefersReducedMotion, useFilmLookEffects } from "./FilmLook";
 import { ScreenTransitionDriver, useScreenTransitionEffect } from "./ScreenTransition";
+import { tiltFocus } from "./tilt-focus";
 
 /**
  * 빛나는 방식의 두 등급.
@@ -207,6 +210,52 @@ function GlowHoverPulse({
   return null;
 }
 
+/**
+ * 틸트 시프트 (docs/visual-experiments.md 6장). 화면 가운데 띠만 초점이고 위아래가
+ * 흐려져 방이 디오라마로 읽힌다. 수치는 tilt-focus.ts. 인스턴스를 직접 들고 uniform만
+ * 만지는 이유는 FilmLook과 같다: 래퍼는 프롭이 바뀌면 이펙트를 새로 만든다.
+ */
+function useTiltShiftEffect() {
+  const effect = useMemo(() => {
+    const initial = tiltFocus(1, false);
+    return new TiltShiftEffect({
+      blur: initial.blur,
+      taper: initial.taper,
+      start: initial.start,
+      end: initial.end,
+      samples: 8,
+    });
+  }, []);
+  useEffect(() => () => effect.dispose(), [effect]);
+  return effect;
+}
+
+/** 초점 띠가 막과 앉기를 따라간다. 띠가 내려앉는 데 1초쯤: 앉는 동작과 같은 호흡이다. */
+const TILT_LAMBDA = 3;
+
+function TiltShiftDriver({ effect }: { effect: TiltShiftEffect }) {
+  const act = useMemoryRoomStore(selectAct);
+  const seated = useMemoryRoomStore((state) => state.seatedAt !== null);
+  const uniforms = effect.uniforms as Map<string, Uniform>;
+
+  useFrame((_, delta) => {
+    const goal = tiltFocus(act, seated);
+    const blur = uniforms.get("blur");
+    const taper = uniforms.get("taper");
+    const start = uniforms.get("start");
+    const end = uniforms.get("end");
+    if (!blur || !taper || !start || !end) return;
+    blur.value = MathUtils.damp(blur.value as number, goal.blur, TILT_LAMBDA, delta);
+    taper.value = MathUtils.damp(taper.value as number, goal.taper, TILT_LAMBDA, delta);
+    // start·end는 Vector2다 (postprocessing이 배열을 벡터로 감싼다). 성분만 민다
+    const startVector = start.value as { y: number };
+    const endVector = end.value as { y: number };
+    startVector.y = MathUtils.damp(startVector.y, goal.start[1], TILT_LAMBDA, delta);
+    endVector.y = MathUtils.damp(endVector.y, goal.end[1], TILT_LAMBDA, delta);
+  });
+  return null;
+}
+
 /** 호버 순간 윤곽선이 더해지는 배율 (GlowHoverPulse). 윤곽선은 세게, 헤일로는 은은하게. */
 const HOVER_PULSE_GAIN = { inner: 1.2, outer: 0.5 } as const;
 
@@ -244,6 +293,9 @@ export function MemoryGlowRoot({
   const reducedMotion = useMemo(prefersReducedMotion, []);
   const film = useFilmLookEffects(reducedMotion);
   const transition = useScreenTransitionEffect();
+  // 틸트 시프트는 블러 패스 하나가 더 드는 무거운 효과다. 프레임이 떨어진 기기·폰에서는 빠진다
+  const tiltEnabled = useEffectEnabled("heavy");
+  const tilt = useTiltShiftEffect();
   const innerRef = useRef<OutlineEffect | null>(null);
   const outerRef = useRef<OutlineEffect | null>(null);
   const groupsRef = useRef<Record<MemoryGlowTier, Map<string, Object3D[]>>>({
@@ -290,6 +342,8 @@ export function MemoryGlowRoot({
           ...(aoColor
             ? [<N8AO key="ao" halfRes quality="performance" color={aoColor} {...AO_SETTINGS} />]
             : []),
+          // 초점 띠는 색수차보다 앞: 윤곽선·그레인은 흐려진 화면 위에 또렷하게 얹혀야 한다
+          ...(tiltEnabled ? [<primitive key="tilt" object={tilt} />] : []),
           <primitive key="aberration" object={film.aberration} />,
           <Outline
             key="inner"
@@ -313,6 +367,7 @@ export function MemoryGlowRoot({
         ]}
       </EffectComposer>
       <ScreenTransitionDriver effect={transition} reducedMotion={reducedMotion} />
+      {tiltEnabled && <TiltShiftDriver effect={tilt} />}
       <FilmLookDriver effects={film} dim={dim} reducedMotion={reducedMotion} />
       <GlowHoverPulse
         effectRef={innerRef}

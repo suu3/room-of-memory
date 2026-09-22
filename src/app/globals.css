@@ -201,6 +201,12 @@
   --animate-signal-wave: signal-wave 1.9s ease-in-out infinite;
   /* 라디오 램프: 잡히다 말다 하는 신호. 고른 박자로 숨쉬면 기계가 멀쩡한 것처럼 보인다 */
   --animate-signal-lamp: signal-lamp 2.6s steps(6, end) infinite;
+  /*
+   * 스마트폰 입력창의 커서 (phone-chat의 보내지 않은 초안). 1Hz, 켜짐과 꺼짐이 반씩:
+   * 실제 OS 커서의 박자다. 더 빠르면 재촉하는 것처럼 읽힌다. 모션을 끈 사람에게는
+   * 호출부가 Tailwind motion-reduce 변형으로 멈춘다.
+   */
+  --animate-caret-blink: caret-blink 1s steps(2, end) infinite;
 
   /*
    * 격투 미니게임. 격투 게임의 연출은 전부 "한 프레임 안에 알아채야 하는 것"이라
@@ -591,6 +597,16 @@
     }
     80% {
       opacity: 0.2;
+    }
+  }
+
+  @keyframes caret-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
     }
   }
 
@@ -1519,5 +1535,43 @@ body {
      자세가 이미 같은 걸 말하므로, 깜빡임을 대체 없이 끄는 편이 안전하다 */
   .animate-duel-flash {
     animation: none;
+  }
+}
+
+/*
+ * 달력 正자의 획 (calendar-flip/TallyGlyph). 正을 글리프가 아니라 SVG 다섯 획으로 그리고,
+ * 장이 드러날 때 획이 순서대로 **그어진다** (docs/visual-experiments.md 4장).
+ *
+ * path마다 pathLength=1이라 dash 한 칸이 획 하나다. offset이 1에서 0으로 줄어드는 것이
+ * 곧 획이 그어지는 것. 획마다의 지연·길이는 컴포넌트가 인라인으로 준다 (글자 수에서
+ * 계산되므로 여기 고정할 수 없다). `both`라 제 차례 전에는 from 상태로 서 있는데,
+ * 그때 opacity를 0으로 두는 이유는 둥근 끝(round cap)이다. offset 1에서도 캡의 반원이
+ * 획 시작점에 점으로 남아, 기다리는 획들이 점 다섯 개로 미리 보인다. 첫 4%에서 밝기만
+ * 켜면 점이 보일 시간이 없다.
+ */
+@keyframes tally-stroke {
+  from {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  4% {
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.tally-stroke {
+  stroke-dasharray: 1;
+  animation: tally-stroke 80ms ease-out both;
+}
+
+/* 모션을 끈 판에서는 획이 그어지지 않고 그냥 있다. 선이 "있다"는 것만이 정보다 */
+@media (prefers-reduced-motion: reduce) {
+  .tally-stroke {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }

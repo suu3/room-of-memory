@@ -3,10 +3,15 @@
 import { Check, PhoneDisconnect } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MEMORY_GOAL } from "@/data/memory-room";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
+import { roomLightLevel } from "@/scenes/memory-room/visual-state";
+import { selectActTwoProgress, useMemoryRoomStore } from "@/store/memory-room";
 import type { MinigameProps } from "@/types/minigame";
 import { useOnceCompleter } from "../shell";
+import { messageBlurPx } from "./haze";
 import { PhoneShell } from "./PhoneShell";
 import {
   type ChatMessage,
@@ -16,6 +21,7 @@ import {
   type PhoneTab,
   revealNext,
   totalOutgoingCalls,
+  UNSENT_DRAFT_KEY,
   visibleMessages,
 } from "./thread";
 
@@ -39,15 +45,25 @@ function Bubble({
   message,
   text,
   label,
+  blurPx,
 }: {
   message: ChatMessage;
   /** 이미 번역된 본문: 키가 아니라 화면에 찍을 문자열이다. */
   text: string;
   label: string;
+  /** 이 줄의 흐림(px). haze.ts가 정하고 여기는 filter 한 줄만 쓴다. 0이면 스타일을 안 단다. */
+  blurPx: number;
 }) {
   const mine = message.side === "me";
   return (
-    <li className={`flex animate-fade-rise flex-col ${mine ? "items-end" : "items-start"}`}>
+    // 흐림은 줄이 새로 펼쳐질 때마다 한 칸씩 과거로 밀려 또렷해진다. 그 변화를
+    // filter 전환으로 이어 붙여 값이 튀는 순간이 눈에 걸리지 않게 한다.
+    <li
+      className={`flex animate-fade-rise flex-col transition-[filter] duration-300 ${
+        mine ? "items-end" : "items-start"
+      }`}
+      style={blurPx > 0 ? { filter: `blur(${blurPx}px)` } : undefined}
+    >
       {!mine && label ? (
         <span className="mb-1 px-1 text-[0.6875rem] font-bold tracking-wider text-bone/45">
           {label}
@@ -94,6 +110,17 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   const [seenCalls, setSeenCalls] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // 시각 실험(docs/visual-experiments.md 4장)의 게이트와 바인딩. 셋 다 싼 효과라
+  // cheap 하나로 묶는다. dim은 씬이 조명에 쓰는 것과 같은 밝기 곡선의 반대편:
+  // 1막이 진행될수록 방이 어두워지고 말풍선도 같이 번진다. 스토어는 원시값 셀렉터로만
+  // 읽고 쓰지는 않는다 (미니게임은 전역 상태를 변이하지 않는다).
+  const enabled = useEffectEnabled("cheap");
+  const collectedCount = useMemoryRoomStore((state) => state.collected.length);
+  const recovery = useMemoryRoomStore(selectActTwoProgress);
+  const dim = enabled
+    ? 1 - roomLightLevel({ collected: collectedCount, memoryTotal: MEMORY_GOAL, recovery })
+    : 0;
+
   const chatDone = !hasLater(revealed);
   const done = isThreadComplete(revealed, seenCalls);
   const helpKey = phoneHelpKey(tab, chatDone, seenCalls);
@@ -136,6 +163,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   }, [readNext, tab]);
 
   const callTotal = totalOutgoingCalls();
+  const shown = visibleMessages(revealed);
 
   return (
     <div className="flex animate-fade-rise flex-col items-center gap-4">
@@ -152,45 +180,74 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
           chat: t("minigame.phoneChat.tab.chat"),
           calls: t("minigame.phoneChat.tab.calls"),
         }}
+        glass={enabled}
       >
         {tab === "chat" ? (
-          // 한 줄씩 붙는 대화창이라 role="log"가 맞는다. 새 줄이 스크린리더에 읽힌다.
-          // 클릭은 다음 줄 넘기기. 키보드 경로는 창 전역 핸들러와 아래 "다음" 버튼이 맡는다.
-          <div
-            ref={scrollRef}
-            role="log"
-            aria-label={t("minigame.phoneChat.chat.room")}
-            onClick={readNext}
-            onKeyDown={(event) => {
-              if (event.code !== "Space" && event.code !== "Enter") return;
-              event.preventDefault();
-              readNext();
-            }}
-            // 휠을 아래로 굴려도 다음 줄이 열린다. 읽어 내려가는 방향 그대로
-            onWheel={(event) => {
-              if (event.deltaY > 0) readNext();
-            }}
-            className="size-full overflow-y-auto bg-scene-navy px-3 py-3.5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-memory"
-          >
-            {/* 날짜가 대화의 머리에 선다. 첫 줄부터 읽어 내려가는 화면이라 처음부터 보인다 */}
-            <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
-              {t("minigame.phoneChat.date")}
-            </p>
-            <ul className="flex flex-col gap-2.5">
-              {visibleMessages(revealed).map((message) => (
-                <Bubble
-                  key={message.id}
-                  message={message}
-                  text={t(message.textKey)}
-                  label={message.fromKey ? t(message.fromKey) : ""}
-                />
-              ))}
-            </ul>
-            {/* 아래로 더 있으면 그렇게 알려주고, 다 내려오면 조용히 사라진다 */}
-            {hasLater(revealed) ? (
-              <p className="pt-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
-                {t("minigame.phoneChat.moreBelow")}
+          // 대화 목록 위에 입력창이 서는 세로 구성. 목록만 스크롤되고 입력창은 바닥에 붙는다
+          <div className="flex size-full flex-col bg-scene-navy">
+            {/* 한 줄씩 붙는 대화창이라 role="log"가 맞는다. 새 줄이 스크린리더에 읽힌다.
+                클릭은 다음 줄 넘기기. 키보드 경로는 창 전역 핸들러와 아래 "다음" 버튼이 맡는다. */}
+            <div
+              ref={scrollRef}
+              role="log"
+              aria-label={t("minigame.phoneChat.chat.room")}
+              onClick={readNext}
+              onKeyDown={(event) => {
+                if (event.code !== "Space" && event.code !== "Enter") return;
+                event.preventDefault();
+                readNext();
+              }}
+              // 휠을 아래로 굴려도 다음 줄이 열린다. 읽어 내려가는 방향 그대로
+              onWheel={(event) => {
+                if (event.deltaY > 0) readNext();
+              }}
+              className="min-h-0 flex-1 overflow-y-auto px-3 py-3.5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-memory"
+            >
+              {/* 날짜가 대화의 머리에 선다. 첫 줄부터 읽어 내려가는 화면이라 처음부터 보인다 */}
+              <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
+                {t("minigame.phoneChat.date")}
               </p>
+              <ul className="flex flex-col gap-2.5">
+                {shown.map((message, index) => (
+                  <Bubble
+                    key={message.id}
+                    message={message}
+                    text={t(message.textKey)}
+                    label={message.fromKey ? t(message.fromKey) : ""}
+                    blurPx={messageBlurPx(shown.length - 1 - index, shown.length, dim)}
+                  />
+                ))}
+              </ul>
+              {/* 아래로 더 있으면 그렇게 알려주고, 다 내려오면 조용히 사라진다 */}
+              {hasLater(revealed) ? (
+                <p className="pt-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
+                  {t("minigame.phoneChat.moreBelow")}
+                </p>
+              ) : null}
+            </div>
+
+            {/* 보내지 않은 초안. 다 읽고 통화 기록까지 본 뒤에야 입력창이 눈에 들어온다:
+                그 전에 보이면 "이걸 보내면 되나"로 읽혀 조작으로 오해된다. 진짜 입력이
+                아니라 읽기 전용 textbox고, 전송 버튼은 없다. 보낼 곳이 없다.
+                커서는 움직임이라 모션을 끈 사람과 효과가 꺼진 기기에서는 멈춰 선다. */}
+            {done ? (
+              <div className="border-t border-bone/10 px-3 py-2">
+                {/* biome-ignore lint/a11y/useSemanticElements: 진짜 <input>이면 글자를 지우거나 칠 수 있게 되고, 안에 커서 span을 그릴 수도 없다. 읽기 전용 textbox 역할만 빌린다. */}
+                <div
+                  role="textbox"
+                  aria-readonly="true"
+                  tabIndex={0}
+                  className="flex min-h-9 items-center rounded-full bg-scene-dusk px-3.5 py-1.5 text-[0.875rem] leading-relaxed text-paper focus-visible:outline-2 focus-visible:outline-memory"
+                >
+                  <span className="break-ko">{t(UNSENT_DRAFT_KEY)}</span>
+                  <span
+                    aria-hidden
+                    className={`ml-px inline-block h-[1.1em] w-px shrink-0 bg-paper ${
+                      enabled ? "animate-caret-blink motion-reduce:animate-none" : ""
+                    }`}
+                  />
+                </div>
+              </div>
             ) : null}
           </div>
         ) : (

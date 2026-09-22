@@ -63,6 +63,9 @@ describe("FrequencyTuneMinigame", () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     vi.spyOn(performance, "now").mockImplementation(() => now);
     vi.spyOn(Math, "random").mockReturnValue(0);
+    // jsdom은 canvas 패키지 없이는 getContext마다 "Not implemented"를 찍는다. 파형 캔버스는
+    // 컨텍스트가 없으면 그리지 않으므로 null로 조용히 넘긴다.
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => null);
     vi.stubGlobal(
       "requestAnimationFrame",
       vi.fn((callback: FrameRequestCallback) => {

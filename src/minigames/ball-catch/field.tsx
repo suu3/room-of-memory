@@ -1,5 +1,6 @@
 import type React from "react";
 import { ASSETS } from "../../lib/assets";
+import { InkRippleLayer, type InkRippleLayerProps } from "./ink-ripple";
 import type { SwingResult } from "./timing";
 
 export interface BallCatchFieldProps {
@@ -13,6 +14,11 @@ export interface BallCatchFieldProps {
   swingId: number;
   showPrompt: boolean;
   onSwing: () => void;
+  /**
+   * 타점의 잉크 파문 층 (ink-ripple.tsx). 배경과 하늘 띠 위, 투수·공·HUD 아래에 선다.
+   * 없으면 층 자체를 그리지 않는다: 효과 예산이 막힌 기기의 폴백이 지금 화면 그대로다
+   */
+  ripple?: InkRippleLayerProps;
   labels: {
     aria: string;
     hits: string;
@@ -41,6 +47,7 @@ export function BallCatchField({
   swingId,
   showPrompt,
   onSwing,
+  ripple,
   labels,
 }: BallCatchFieldProps) {
   const feedbackLabel = feedback ? labels[feedback] : null;
@@ -64,6 +71,8 @@ export function BallCatchField({
       <div className="absolute inset-0 bg-night/20" aria-hidden />
       {/* 겨자색 노을 띠를 회갈색으로 눌러 앉힌다. 앰버는 링과 피드백의 몫이다 (globals.css) */}
       <div className="ball-catch-sky absolute inset-0" aria-hidden />
+      {/* 잉크 파문: 들판 그림 위에 multiply로 얹혀 어둡게만 한다. 투수와 공은 그 위를 지난다 */}
+      {ripple && <InkRippleLayer {...ripple} />}
 
       {/* biome-ignore lint/performance/noImgElement: Native images are required for the layered field sprites. */}
       <img
