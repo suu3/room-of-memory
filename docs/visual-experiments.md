@@ -286,8 +286,8 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 ## 13. 구현 상태 (2026-09-22)
 
 위 계획을 전부 코드로 옮긴 뒤, 실제 화면을 보고 **미니게임 안의 효과는 전부 뺐다** (라디오
-잡음·파형, 폰 유리·블러·미전송 초안, 正 획, 잉크 파문, 액자 입자, 게임기 픽셀·PRESS START,
-앰플 굴절). 미니게임의 그림은 원화와 DOM 틀로 이미 완결돼 있어서 그 위에 얹은 재질이
+잡음·파형, 폰 유리·블러·미전송 초안, 正 획, 잉크 파문, 액자 입자, 게임기 픽셀·PRESS START). 앰플 굴절만 남겼다:
+3D 물건의 재질이라 원화 위 장식이 아니다. 미니게임의 그림은 원화와 DOM 틀로 이미 완결돼 있어서 그 위에 얹은 재질이
 장식으로 읽혔다. 코드·테스트·데모 페이지를 함께 지웠고 5장 표의 해당 행은 계획 기록으로
 남는다. 남은 것은 3D 씬과 UI 전환의 효과다. 자리와 게이트, 데모 페이지를 적는다. 데모는 `pnpm dev` 뒤
 <http://localhost:3000/lab>. 게이트 등급은 `src/lib/effects/effect-budget.ts`의 것이다
@@ -307,6 +307,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | 이불 호흡 | `BedModel.tsx` (onBeforeCompile) | cheap | 고정 진폭 | (게임 안) |
 | 악보 잉크 모임 | `PianoSheet.tsx`, `sheet-ink.ts` | cheap | `piano-sheet` 소지 + 거실 진입 | (게임 안) |
 | 세면대 고인 물 파문 | `SinkWater.tsx`, `water-ripple.ts` | cheap | 열쇠 집는 순간 | `/lab/sink-water` |
+| 앰플 유리 굴절 | `Ampoule.tsx` `refractive`, `minigames/ampoule-pickup` | heavy | 집는 구간 | (게임 안) |
 | 화장실 물때 (타일·샤워 벽) | `BathroomStains.tsx`, `lib/effects/reaction-diffusion.ts` | (정적) | 고정(다 자람) | (게임 안) |
 | 컵라면 용기 물때 | `StudentProps.tsx`, `FurnitureModel.tsx` `stainMap` | (정적) | `1 - level` (조사마다 다시 굽는다) | (게임 안) |
 | 화장실 거울 slit-scan | `SlitScanMirror.tsx`, `slit-scan.ts` | heavy, 화장실에서만 | `1 - warm` | (게임 안) |
