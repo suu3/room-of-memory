@@ -37,6 +37,20 @@ describe("film-look", () => {
     expect(aberrationAmount(resting, 4)).toBeCloseTo(resting + ABERRATION.pulse);
   });
 
+  it("잡음은 펄스와 상한을 나눠 쓴다: 둘 중 큰 값 하나만 센다", () => {
+    const resting = restingAberration(0.2);
+    expect(aberrationAmount(resting, 0, 1)).toBeCloseTo(resting + ABERRATION.pulse);
+    expect(aberrationAmount(resting, 1, 1)).toBeCloseTo(resting + ABERRATION.pulse);
+    expect(grainOpacity(0, 0.5)).toBeCloseTo(grainOpacity(0.5));
+    expect(grainOpacity(1, 1)).toBeCloseTo(grainOpacity(1));
+  });
+
+  it("깨끗해지는 값이 1이면 색수차도 그레인도 사라진다", () => {
+    expect(aberrationAmount(restingAberration(1), 1, 1, 1)).toBe(0);
+    expect(grainOpacity(1, 1, 1)).toBe(0);
+    expect(grainOpacity(0, 0, 0.5)).toBeCloseTo(FILM_GRAIN_OPACITY * 0.5);
+  });
+
   it("튄 값은 1초 남짓이면 거의 사라지고, 아주 작아지면 0으로 끊긴다", () => {
     let pulse = 1;
     for (let frame = 0; frame < 60; frame++) pulse = decayPulse(pulse, 1 / 60);

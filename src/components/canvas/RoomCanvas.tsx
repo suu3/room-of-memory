@@ -32,6 +32,7 @@ import type { LookAngles } from "@/scenes/memory-room/first-person";
 import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/layout";
 import { PLAYER_START } from "@/scenes/memory-room/Player";
 import { findNearestMemory } from "@/scenes/memory-room/spatial";
+import { useEffectsStore } from "@/store/effects";
 import {
   type HotspotStatus,
   hotspotStatus,
@@ -153,8 +154,16 @@ export function RoomCanvas() {
    */
   const [dprCap, setDprCap] = useState<number>(DPR_CAP.high);
   const dpr = useMemo<[number, number]>(() => [1, dprCap], [dprCap]);
-  const degrade = useCallback(() => setDprCap(DPR_CAP.low), []);
-  const restore = useCallback(() => setDprCap(DPR_CAP.high), []);
+  // 효과 예산(effect-budget)도 같은 판정을 본다. 배율이 내려간 기기에서는 무거운 효과가 빠진다
+  const setDegraded = useEffectsStore((state) => state.setDegraded);
+  const degrade = useCallback(() => {
+    setDprCap(DPR_CAP.low);
+    setDegraded(true);
+  }, [setDegraded]);
+  const restore = useCallback(() => {
+    setDprCap(DPR_CAP.high);
+    setDegraded(false);
+  }, [setDegraded]);
 
   /*
    * Canvas의 camera 프롭은 마운트 때 한 번만 쓴다. 여기에 살아 있는 zoom을 물리면
