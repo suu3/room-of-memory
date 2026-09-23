@@ -87,10 +87,14 @@ memories:
         ko: 부모님
         en: My Parents
         ja: 両親
+      # 왜 안 보이는지는 적지 않는다. 그림에서는 두 사람의 머리가 틀 밖에 있지만,
+      # 기록이 그 이유를 말해 버리면 플레이어가 1막에서 답을 먼저 쥔다. 도해는 본
+      # 것만 적는다: 닦았는데도 그 얼굴만 안 보인다. "흐릿하다"처럼 이유를 지어내는
+      # 말도 쓰지 않는다 (그림은 흐리지 않다).
       phase1:
-        ko: 유리에 먼지가 껴서 한참을 닦았다. 다 닦아도 두 사람 얼굴은 틀 밖으로 잘려 있다.
-        en: Dust on the glass, so I wiped it down. Even wiped clean, their faces stay outside the frame.
-        ja: ガラスに埃がついていて長いこと拭いた。拭いても、二人の顔は枠の外に切れたままだ。
+        ko: 유리에 먼지가 껴서 한참을 닦았다. 다 닦았는데도 두 사람 얼굴만 눈에 들어오지 않는다.
+        en: Dust on the glass, so I wiped it down. Even clean, their faces are the only ones I still can't see.
+        ja: ガラスに埃がついていて長いこと拭いた。拭いても、二人の顔だけがどうしても見えない。
       phase2:
         ko: 흩어진 조각을 제자리에 놓으니 얼굴이 돌아왔다. 아직 못 만났을 뿐이다.
         en: I put the pieces back and the faces returned. We just haven't met yet.
