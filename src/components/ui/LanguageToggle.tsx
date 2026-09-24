@@ -11,12 +11,15 @@ import {
   CHIP_SELECTED,
   CHIP_SELECTED_PAPER,
   FOCUS_RING,
+  HUD_CHOICE_BASE,
+  HUD_CHOICE_IDLE,
+  HUD_CHOICE_SELECTED,
 } from "./ui-classes";
 
 const LOCALE_LABELS: Record<Locale, string> = { ko: "한", en: "EN", ja: "日" };
 
 /** 어떤 바탕 위에 놓이는지. 글자색이 통째로 달라지므로 호출부가 정해 줘야 한다. */
-export type LanguageToggleTone = "paper" | "dark" | "bare";
+export type LanguageToggleTone = "paper" | "dark" | "bare" | "hud";
 
 const TONE_CLASS: Record<LanguageToggleTone, { base: string; active: string; idle: string }> = {
   /** 종이 패널 위. 잉크로 대비를 잡는다. */
@@ -33,6 +36,8 @@ const TONE_CLASS: Record<LanguageToggleTone, { base: string; active: string; idl
     active: "text-ivory",
     idle: "text-fog hover:text-ivory active:text-ivory",
   },
+  /** 넓은 화면에서 펼친 HUD 메뉴 줄(HudMenu inline). 장면 위에 글자와 밑줄만 선다 */
+  hud: { base: HUD_CHOICE_BASE, active: HUD_CHOICE_SELECTED, idle: HUD_CHOICE_IDLE },
 };
 
 export function LanguageToggle({ tone = "dark" }: { tone?: LanguageToggleTone }) {
@@ -62,7 +67,15 @@ export function LanguageToggle({ tone = "dark" }: { tone?: LanguageToggleTone })
   }, [tone, locale]);
 
   return (
-    <fieldset className={tone === "bare" ? "relative flex gap-4" : "flex gap-1.5"}>
+    <fieldset
+      className={
+        tone === "bare"
+          ? "relative flex gap-4"
+          : tone === "hud"
+            ? "flex gap-[0.25em]"
+            : "flex gap-1.5"
+      }
+    >
       <legend className="sr-only">{t("language.label")}</legend>
       {SUPPORTED_LOCALES.map((code) => (
         <button

@@ -40,6 +40,14 @@ export const CHIP_BASE = `cursor-pointer rounded-sm border px-3 py-1.5 text-sm f
 export const CHIP_SELECTED = "border-memory/60 bg-memory/15 text-memory";
 export const CHIP_IDLE =
   "border-line text-fog hover:border-fog/40 hover:text-ivory active:bg-ivory/10";
+/**
+ * 장면 위에 글자만 서는 선택지 (넓은 화면에서 펼친 HUD 메뉴 줄). 상자 없이 글자와 밑줄뿐이고,
+ * 크기는 부모의 글자 크기를 em으로 따른다. 고른 것은 금빛 밑줄로 말한다. 밑줄 자리는 늘
+ * 있고 색만 바뀌어서 고를 때 글자가 움직이지 않는다.
+ */
+export const HUD_CHOICE_BASE = `cursor-pointer border-b-2 px-[0.35em] pb-[0.15em] pt-[0.1em] font-medium leading-none transition-colors duration-150 ${FOCUS_RING}`;
+export const HUD_CHOICE_SELECTED = "border-memory text-ivory";
+export const HUD_CHOICE_IDLE = "border-transparent text-fog hover:text-ivory active:text-ivory";
 /** 종이 위의 칩 */
 export const CHIP_SELECTED_PAPER = "border-ink/40 bg-ink/10 text-ink";
 export const CHIP_IDLE_PAPER =

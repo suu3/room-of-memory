@@ -57,6 +57,19 @@ describe("room overlay input locks", () => {
     expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
   });
 
+  it("locks nothing while the wide inline menu is out, only its reset confirmation", () => {
+    render(<HudMenu inline />);
+
+    expect(screen.queryByRole("button", { name: "Open menu" })).toBeNull();
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["hud-menu"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
+  });
+
   it("opens the notebook on the memory log page from the edge tab", () => {
     render(
       <>

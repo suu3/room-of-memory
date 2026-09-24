@@ -15,8 +15,13 @@ import {
   CHIP_BASE,
   CHIP_IDLE,
   CHIP_SELECTED,
+  FOCUS_RING,
+  HUD_CHOICE_BASE,
+  HUD_CHOICE_IDLE,
+  HUD_CHOICE_SELECTED,
   HUD_ICON_BUTTON,
   MENU_ITEM,
+  ON_SCENE_TEXT,
   PANEL_DARK,
   SECTION_LABEL,
 } from "./ui-classes";
@@ -24,7 +29,25 @@ import {
 /** 한 줄에 둘이 나눠 앉는 항목: 폭만 반씩, 나머지는 MENU_ITEM과 같다. */
 const PAIR_ITEM_CLASS = `${MENU_ITEM} flex-1 justify-center text-center`;
 
-export function HudMenu() {
+/** 펼친 줄의 무리 사이 가는 세로선 */
+function InlineDivider() {
+  return <span aria-hidden className="h-[1em] w-px flex-none bg-ivory/25" />;
+}
+
+/** 펼친 줄 아래 칸의 글자 항목 (만든 사람 · 피드백 · 리셋) */
+const INLINE_LINK = `cursor-pointer rounded-sm px-[0.25em] py-[0.15em] font-medium transition-colors duration-150 ${FOCUS_RING}`;
+const INLINE_LINK_TONE = "text-fog hover:text-ivory active:text-ivory";
+
+/**
+ * 오른쪽 위의 메뉴.
+ *
+ * `inline`이면 햄버거로 접지 않고 내용물을 장면 위에 한 줄로 펼친다. 폭이 넉넉한 데스크톱
+ * 화면에서는 버튼 하나를 눌러 패널을 여는 것보다 언어·난이도·오토가 늘 보이는 편이 낫다.
+ * 윗줄은 설정(바로 바뀌는 것), 아랫줄은 부속 화면으로 가는 글자 항목이다. 패널의 설명
+ * 문구(난이도·오토 힌트)는 줄에 둘 자리가 없어 각 항목의 title로 옮겼다.
+ * 어느 쪽을 쓸지는 MemoryRoom이 화면 폭으로 정한다.
+ */
+export function HudMenu({ inline = false }: { inline?: boolean }) {
   const { t } = useTranslation();
   const reset = useMemoryRoomStore((state) => state.reset);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
@@ -38,10 +61,18 @@ export function HudMenu() {
   const [confirming, setConfirming] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  // 펼친 줄은 떠 있는 패널이 아니라 방 입력을 막지 않는다. 막는 것은 리셋 확인창뿐이다
+  const dropdownOpen = open && !inline;
+
   useEffect(() => {
-    setUiLock("hud-menu", open || confirming);
+    setUiLock("hud-menu", dropdownOpen || confirming);
     return () => setUiLock("hud-menu", false);
-  }, [open, confirming, setUiLock]);
+  }, [dropdownOpen, confirming, setUiLock]);
+
+  // 창을 넓혀 줄로 펼쳐지면 열려 있던 패널은 닫아 둔다. 다시 좁히면 닫힌 햄버거로 돌아온다
+  useEffect(() => {
+    if (inline) setOpen(false);
+  }, [inline]);
 
   useEffect(() => {
     if (!open) return;
@@ -58,6 +89,143 @@ export function HudMenu() {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
+
+  const confirmDialog = confirming && (
+    <div className="fixed inset-0 z-30 flex items-center justify-center overflow-hidden p-4">
+      <div aria-hidden className={BACKDROP} />
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="reset-dialog-title"
+        className={`relative w-full max-w-md animate-fade-rise p-6 ${PANEL_DARK}`}
+      >
+        <div className="flex items-start gap-3.5">
+          {/* 되돌릴 수 없는 동작이라 아이콘으로 먼저 걸러준다. 텍스트가 이미 설명하므로 장식 */}
+          <span
+            aria-hidden
+            className="grid size-9 flex-none place-items-center rounded-full bg-ember/20 text-ember"
+          >
+            <Warning size={19} weight="fill" />
+          </span>
+          <div className="min-w-0">
+            <h2
+              id="reset-dialog-title"
+              className="break-ko text-base font-medium leading-snug text-ivory"
+            >
+              {t("reset.title")}
+            </h2>
+            <p className="mt-2 break-ko text-pretty text-sm leading-normal text-fog">
+              {t("reset.body")}
+            </p>
+          </div>
+        </div>
+        <div className="mt-5 flex justify-end gap-2">
+          <button type="button" onClick={() => setConfirming(false)} className={BUTTON_QUIET}>
+            {t("reset.cancel")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playSound("close");
+              reset();
+              setConfirming(false);
+            }}
+            className={BUTTON_DESTRUCTIVE}
+          >
+            {t("reset.confirm")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (inline) {
+    return (
+      <>
+        <div className={`${ON_SCENE_TEXT} flex flex-col items-end text-hud`}>
+          {/* 윗줄은 옆의 소리 버튼(2.75em)과 같은 높이라 버튼과 가운데 줄이 맞는다 */}
+          <div className="flex h-[2.75em] items-center">
+            <div className="flex items-center gap-[0.9em] text-hud-caption">
+              <LanguageToggle tone="hud" />
+              <InlineDivider />
+              <fieldset className="flex gap-[0.25em]">
+                <legend className="sr-only">{t("difficulty.label")}</legend>
+                {(["easy", "normal"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => {
+                      playSound("select");
+                      setDifficulty(mode);
+                    }}
+                    aria-pressed={difficulty === mode}
+                    title={t(mode === "easy" ? "difficulty.easyHint" : "difficulty.normalHint")}
+                    className={`${HUD_CHOICE_BASE} ${difficulty === mode ? HUD_CHOICE_SELECTED : HUD_CHOICE_IDLE}`}
+                  >
+                    {t(`difficulty.${mode}`)}
+                  </button>
+                ))}
+              </fieldset>
+              <InlineDivider />
+              {/* 켬/끔 칩 둘 대신 스위치 하나: 밑줄이 켜짐이다 */}
+              <button
+                type="button"
+                onClick={() => {
+                  playSound("select");
+                  setAutoPlay(!autoPlay);
+                }}
+                aria-pressed={autoPlay}
+                title={t("dialogue.autoHint")}
+                className={`${HUD_CHOICE_BASE} ${autoPlay ? HUD_CHOICE_SELECTED : HUD_CHOICE_IDLE}`}
+              >
+                {t("dialogue.auto")}
+              </button>
+            </div>
+          </div>
+          {/* 부속 화면으로 가는 글자. 설정 줄보다 한 치수 작게 선다 */}
+          <div className="text-hud-caption">
+            <div className="flex items-center gap-[0.35em] text-[0.875em]">
+              <button
+                type="button"
+                onClick={() => {
+                  playSound("select");
+                  setContactOpen(true);
+                }}
+                className={`${INLINE_LINK} ${INLINE_LINK_TONE}`}
+              >
+                {t("hud.contact")}
+              </button>
+              <span aria-hidden className="text-ash">
+                ·
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  playSound("select");
+                  setFeedbackOpen(true);
+                }}
+                className={`${INLINE_LINK} ${INLINE_LINK_TONE}`}
+              >
+                {t("feedback.title")}
+              </button>
+              <span aria-hidden className="text-ash">
+                ·
+              </span>
+              {/* 되돌릴 수 없는 유일한 항목이라 한 톤 죽이고, 누르면 확인창부터 뜬다 */}
+              <button
+                type="button"
+                onClick={() => setConfirming(true)}
+                className={`${INLINE_LINK} text-ash hover:text-ember active:text-ember`}
+              >
+                {t("hud.reset")}
+              </button>
+            </div>
+          </div>
+        </div>
+        {confirmDialog}
+      </>
+    );
+  }
 
   return (
     <div ref={rootRef} className="relative">
@@ -182,54 +350,7 @@ export function HudMenu() {
         </div>
       )}
 
-      {confirming && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center overflow-hidden p-4">
-          <div aria-hidden className={BACKDROP} />
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="reset-dialog-title"
-            className={`relative w-full max-w-md animate-fade-rise p-6 ${PANEL_DARK}`}
-          >
-            <div className="flex items-start gap-3.5">
-              {/* 되돌릴 수 없는 동작이라 아이콘으로 먼저 걸러준다. 텍스트가 이미 설명하므로 장식 */}
-              <span
-                aria-hidden
-                className="grid size-9 flex-none place-items-center rounded-full bg-ember/20 text-ember"
-              >
-                <Warning size={19} weight="fill" />
-              </span>
-              <div className="min-w-0">
-                <h2
-                  id="reset-dialog-title"
-                  className="break-ko text-base font-medium leading-snug text-ivory"
-                >
-                  {t("reset.title")}
-                </h2>
-                <p className="mt-2 break-ko text-pretty text-sm leading-normal text-fog">
-                  {t("reset.body")}
-                </p>
-              </div>
-            </div>
-            <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={() => setConfirming(false)} className={BUTTON_QUIET}>
-                {t("reset.cancel")}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  playSound("close");
-                  reset();
-                  setConfirming(false);
-                }}
-                className={BUTTON_DESTRUCTIVE}
-              >
-                {t("reset.confirm")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {confirmDialog}
     </div>
   );
 }

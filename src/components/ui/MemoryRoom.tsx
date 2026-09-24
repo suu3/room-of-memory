@@ -108,6 +108,13 @@ export function MemoryRoom() {
    * 그리지 않는 이유는 안내 줄이 role="status"라 두 번 읽히기 때문이다.
    */
   const wide = useMediaQuery("(min-width: 768px)");
+  /*
+   * 햄버거를 접지 않고 메뉴를 한 줄로 펼칠 만큼 넓은가. 오른쪽 위 버튼과 가운데 혼잣말
+   * 기둥(44vw) 사이에 설정 줄이 들어갈 폭이 1536px(Tailwind 2xl)부터 남는다. 제일 긴
+   * 일본어 줄이 1440px에서는 기둥 끝에 닿는다. 패널과 줄은 입력 잠금·리스너가 달라
+   * 둘 중 하나만 마운트한다.
+   */
+  const menuInline = useMediaQuery("(min-width: 1536px)");
   const isBatReady = useMemoryRoomStore(selectBatReady);
   const isDoorReady = useMemoryRoomStore(selectDoorReady);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
@@ -266,25 +273,31 @@ export function MemoryRoom() {
         </footer>
       )}
 
-      {/* HUD: 햄버거 메뉴(언어 · 캐릭터 시트 · Contact · 리셋)와 소리 on/off */}
+      {/* HUD: 메뉴(언어 · 난이도 · 오토 · 만든 사람 · 피드백 · 리셋)와 소리 on/off. 1536px부터 메뉴는 펼친 줄 */}
       {/* 레이어링 순서: 대사(z-10) < HUD·모달(z-30) < 미니게임(z-40, HUD를 덮는다) < 성공 파티클(z-50) */}
       {started && (
         /*
          * 가로가 아니라 세로로 쌓는다. 제일 좁은 폰(360px)에서 헤더(기억 진행 바)
          * 오른쪽 끝과 메뉴 버튼 사이가 좁아, 버튼 둘(44px)을 나란히 넣으면 헤더와 맞닿는다.
          */
-        <div className="absolute right-3 top-3 z-30 flex flex-col items-end gap-1 md:right-5 md:top-5">
-          {/*
-            메뉴 드롭다운은 햄버거 바로 아래(top-full + mt-2)로 열리는데, 그 자리가
-            소리 버튼 자리와 정확히 겹친다. 메뉴 쪽을 위로 올려 두지 않으면 열린 패널
-            위로 소리 버튼이 뚫고 올라온다.
-          */}
-          <div className="relative z-10">
-            <HudMenu />
+        <div className="absolute right-3 top-3 z-30 flex items-start gap-[0.75em] text-hud md:right-5 md:top-5">
+          {/* 넓은 화면: 메뉴 내용물을 버튼 왼쪽에 펼쳐 둔다 (HudMenu inline) */}
+          {menuInline && <HudMenu inline />}
+          <div className="flex flex-col items-end gap-1">
+            {/*
+              메뉴 드롭다운은 햄버거 바로 아래(top-full + mt-2)로 열리는데, 그 자리가
+              소리 버튼 자리와 정확히 겹친다. 메뉴 쪽을 위로 올려 두지 않으면 열린 패널
+              위로 소리 버튼이 뚫고 올라온다.
+            */}
+            {!menuInline && (
+              <div className="relative z-10">
+                <HudMenu />
+              </div>
+            )}
+            <SoundToggle />
+            {/* 작은 평면도 겸 이동 버튼. 방문이 열린 뒤에만 뜬다 */}
+            <HudMiniMap />
           </div>
-          <SoundToggle />
-          {/* 작은 평면도 겸 이동 버튼. 방문이 열린 뒤에만 뜬다 */}
-          <HudMiniMap />
         </div>
       )}
 
