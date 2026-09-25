@@ -47,8 +47,13 @@ const SHAFT = {
 /** 커서가 먼지를 밀어내는 반경과 폭 (NDC). 손바닥 하나 크기 안에서만 비켜난다. */
 const PUSH_RADIUS = 0.16;
 const PUSH_AMOUNT = 0.05;
-/** 커서를 따라붙는 속도. 손보다 조금 늦어야 먼지가 "밀려난다"로 읽힌다 */
-const POINTER_LAMBDA = 9;
+/**
+ * 커서를 따라붙는 속도. 손보다 조금 늦어야 먼지가 "밀려난다"로 읽힌다.
+ *
+ * 밝기를 탄다 (docs/visual-experiments.md 6장 "먼지 + 잔상"): 어두울수록 느려서 손이
+ * 지나간 자리가 한동안 비어 있다가 천천히 다시 쌓인다. 밝으면 곧바로 돌아온다.
+ */
+const POINTER_LAMBDA: readonly [number, number] = [3, 9];
 
 const RISE_MIN = 0.035;
 const RISE_RANGE = 0.075;
@@ -187,7 +192,16 @@ function createMotes(): MoteBuffers {
   return { positions, bands, sizes, phases, drifts, rises, glows };
 }
 
-export function DustMotes({ color, opacity }: { color: string; opacity: number }) {
+export function DustMotes({
+  color,
+  opacity,
+  settle = 1,
+}: {
+  color: string;
+  opacity: number;
+  /** 밀려난 먼지가 다시 쌓이는 빠르기 (0 = 가장 느리게, 1 = 곧바로). 방 밝기를 넘긴다. */
+  settle?: number;
+}) {
   const materialRef = useRef<ShaderMaterial>(null);
   const pixelRatio = useThree((state) => state.viewport.dpr);
   const motes = useMemo(createMotes, []);
@@ -226,8 +240,13 @@ export function DustMotes({ color, opacity }: { color: string; opacity: number }
     material.uniforms.uTime.value = state.clock.elapsedTime;
     // 커서를 damp로 따라간다. r3f의 pointer는 캔버스 위에서만 갱신되므로 타이틀에서는 멈춰 있다
     const pointer = material.uniforms.uPointer.value as Vector2;
-    pointer.x = MathUtils.damp(pointer.x, state.pointer.x, POINTER_LAMBDA, delta);
-    pointer.y = MathUtils.damp(pointer.y, state.pointer.y, POINTER_LAMBDA, delta);
+    const lambda = MathUtils.lerp(
+      POINTER_LAMBDA[0],
+      POINTER_LAMBDA[1],
+      MathUtils.clamp(settle, 0, 1),
+    );
+    pointer.x = MathUtils.damp(pointer.x, state.pointer.x, lambda, delta);
+    pointer.y = MathUtils.damp(pointer.y, state.pointer.y, lambda, delta);
     material.uniforms.uAspect.value = state.size.width / Math.max(1, state.size.height);
     // 커튼을 여닫을 때 먼지가 툭 켜지지 않게 밝기만 따라붙인다.
     material.uniforms.uOpacity.value = MathUtils.damp(

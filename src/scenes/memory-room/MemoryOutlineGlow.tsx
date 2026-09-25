@@ -1,27 +1,35 @@
 "use client";
 
-import { useFrame } from "@react-three/fiber";
-import { EffectComposer, N8AO, Outline } from "@react-three/postprocessing";
-import type { OutlineEffect } from "postprocessing";
+import { useFrame, useThree } from "@react-three/fiber";
+import { EffectComposer, N8AO, Outline, TiltShiftEffect } from "@react-three/postprocessing";
+import { GodRaysEffect, KernelSize, type OutlineEffect } from "postprocessing";
 import {
   Component,
   createContext,
+  type MutableRefObject,
   type PropsWithChildren,
   type ReactNode,
   type RefObject,
   Suspense,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { Color, type Group, type Mesh, type Object3D } from "three";
-import { selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
+import { Color, type Group, MathUtils, type Mesh, type Object3D, type Uniform } from "three";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
+import { selectAct, selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
+import type { MovementAxes } from "@/types/movement";
+import { AfterimagePass } from "./AfterimagePass";
+import { afterimageDamp, movementSpeed } from "./afterimage";
 import { cursorTarget, hoverGlowPulse } from "./cursor-target";
+import { endingLight } from "./ending-light";
 import { FilmLookDriver, prefersReducedMotion, useFilmLookEffects } from "./FilmLook";
 import { ScreenTransitionDriver, useScreenTransitionEffect } from "./ScreenTransition";
+import { tiltFocus } from "./tilt-focus";
 
 /**
  * 빛나는 방식의 두 등급.
@@ -207,6 +215,110 @@ function GlowHoverPulse({
   return null;
 }
 
+/**
+ * 틸트 시프트 (docs/visual-experiments.md 6장). 화면 가운데 띠만 초점이고 위아래가
+ * 흐려져 방이 디오라마로 읽힌다. 수치는 tilt-focus.ts. 인스턴스를 직접 들고 uniform만
+ * 만지는 이유는 FilmLook과 같다: 래퍼는 프롭이 바뀌면 이펙트를 새로 만든다.
+ */
+function useTiltShiftEffect() {
+  const effect = useMemo(() => {
+    const initial = tiltFocus(1, false);
+    return new TiltShiftEffect({
+      blur: initial.blur,
+      taper: initial.taper,
+      start: initial.start,
+      end: initial.end,
+      samples: 8,
+    });
+  }, []);
+  useEffect(() => () => effect.dispose(), [effect]);
+  return effect;
+}
+
+/** 초점 띠가 막과 앉기를 따라간다. 띠가 내려앉는 데 1초쯤: 앉는 동작과 같은 호흡이다. */
+const TILT_LAMBDA = 3;
+
+function TiltShiftDriver({ effect }: { effect: TiltShiftEffect }) {
+  const act = useMemoryRoomStore(selectAct);
+  const seated = useMemoryRoomStore((state) => state.seatedAt !== null);
+  const uniforms = effect.uniforms as Map<string, Uniform>;
+
+  useFrame((_, delta) => {
+    const goal = tiltFocus(act, seated);
+    const blur = uniforms.get("blur");
+    const taper = uniforms.get("taper");
+    const start = uniforms.get("start");
+    const end = uniforms.get("end");
+    if (!blur || !taper || !start || !end) return;
+    blur.value = MathUtils.damp(blur.value as number, goal.blur, TILT_LAMBDA, delta);
+    taper.value = MathUtils.damp(taper.value as number, goal.taper, TILT_LAMBDA, delta);
+    // start·end는 래퍼가 배열 그대로 uniform에 넣는다 ([x, y]). 두 번째 성분이 화면 높이다
+    const startBand = start.value as [number, number];
+    const endBand = end.value as [number, number];
+    startBand[1] = MathUtils.damp(startBand[1], goal.start[1], TILT_LAMBDA, delta);
+    endBand[1] = MathUtils.damp(endBand[1], goal.end[1], TILT_LAMBDA, delta);
+  });
+  return null;
+}
+
+/**
+ * 1인칭 구간의 잔상 (docs/visual-experiments.md 11장). 패스는 AfterimagePass, 양은 afterimage.ts.
+ * 걷는 입력의 크기가 damp를 정한다. 몸이 서면 잔상도 몇 프레임 안에 걷힌다.
+ */
+function useAfterimagePass(active: boolean) {
+  const pass = useMemo(() => (active ? new AfterimagePass() : null), [active]);
+  useEffect(() => () => pass?.dispose(), [pass]);
+  return pass;
+}
+
+function AfterimageDriver({
+  pass,
+  movementInputRef,
+}: {
+  pass: AfterimagePass;
+  movementInputRef: MutableRefObject<MovementAxes>;
+}) {
+  const speed = useRef(0);
+  useFrame((_, delta) => {
+    // 속도는 damp로 따라간다. 키를 뗀 순간 잔상이 뚝 끊기면 끌린 것이 아니라 고장이다
+    speed.current = MathUtils.damp(
+      speed.current,
+      movementSpeed(movementInputRef.current),
+      4,
+      delta,
+    );
+    pass.damp = afterimageDamp(speed.current);
+  });
+  return null;
+}
+
+/**
+ * 엔딩의 빛기둥 (docs/visual-experiments.md 11장 "GodRays → 열리는 현관문"). 광원은 현관문
+ * 밖의 판(LivingRoomShell의 EndingLightPlane, ending-light 채널)이다. 엔딩이 시작되는 순간
+ * 만들어지고 화면이 타들어가는 1.5초 동안만 산다. 광원이 아직 없으면(거실 껍데기가
+ * 안 서 있으면) 그냥 없는 것으로 친다.
+ */
+function useGodRaysEffect(active: boolean) {
+  const camera = useThree((state) => state.camera);
+  const effect = useMemo(() => {
+    const light = active ? endingLight.mesh : null;
+    if (!light) return null;
+    return new GodRaysEffect(camera, light, {
+      density: 0.92,
+      decay: 0.94,
+      weight: 0.5,
+      exposure: 0.45,
+      clampMax: 1,
+      samples: 40,
+      kernelSize: KernelSize.SMALL,
+      resolutionScale: 0.5,
+      blur: true,
+    });
+  }, [active, camera]);
+  useEffect(() => () => effect?.dispose(), [effect]);
+  return effect;
+}
+
 /** 호버 순간 윤곽선이 더해지는 배율 (GlowHoverPulse). 윤곽선은 세게, 헤일로는 은은하게. */
 const HOVER_PULSE_GAIN = { inner: 1.2, outer: 0.5 } as const;
 
@@ -228,6 +340,7 @@ export function MemoryGlowRoot({
   color,
   dim = 0,
   ambientOcclusion,
+  firstPersonTrail = null,
   children,
 }: PropsWithChildren<{
   color: string;
@@ -235,6 +348,8 @@ export function MemoryGlowRoot({
   dim?: number;
   /** 오클루전의 색. 주면 AO 패스를 켠다. 테스트의 가짜 렌더러에는 없다. */
   ambientOcclusion?: { color: string };
+  /** 1인칭 구간의 이동 입력. 주면 그 동안 잔상 패스가 붙는다. null이면 없다. */
+  firstPersonTrail?: MutableRefObject<MovementAxes> | null;
 }>) {
   const aoColor = useMemo(
     () => (ambientOcclusion ? new Color(ambientOcclusion.color) : null),
@@ -244,6 +359,14 @@ export function MemoryGlowRoot({
   const reducedMotion = useMemo(prefersReducedMotion, []);
   const film = useFilmLookEffects(reducedMotion);
   const transition = useScreenTransitionEffect();
+  // 틸트 시프트는 블러 패스 하나가 더 드는 무거운 효과다. 프레임이 떨어진 기기·폰에서는 빠진다
+  const heavyEnabled = useEffectEnabled("heavy");
+  const tiltEnabled = heavyEnabled;
+  const tilt = useTiltShiftEffect();
+  // 잔상은 1인칭 구간에만, 빛기둥은 엔딩에만 붙는다. 둘 다 렌더 타깃이 드는 무거운 효과다
+  const afterimage = useAfterimagePass(heavyEnabled && firstPersonTrail !== null);
+  const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
+  const godRays = useGodRaysEffect(heavyEnabled && endingStarted);
   const innerRef = useRef<OutlineEffect | null>(null);
   const outerRef = useRef<OutlineEffect | null>(null);
   const groupsRef = useRef<Record<MemoryGlowTier, Map<string, Object3D[]>>>({
@@ -290,6 +413,12 @@ export function MemoryGlowRoot({
           ...(aoColor
             ? [<N8AO key="ao" halfRes quality="performance" color={aoColor} {...AO_SETTINGS} />]
             : []),
+          // 잔상은 장면 바로 다음: 뒤의 패스들이 끌린 화면 위에 얹힌다
+          ...(afterimage ? [<primitive key="afterimage" object={afterimage} />] : []),
+          // 빛기둥은 광원 판을 따로 그려 합치는 이펙트라 제 패스를 혼자 쓴다
+          ...(godRays ? [<primitive key="godrays" object={godRays} />] : []),
+          // 초점 띠는 색수차보다 앞: 윤곽선·그레인은 흐려진 화면 위에 또렷하게 얹혀야 한다
+          ...(tiltEnabled ? [<primitive key="tilt" object={tilt} />] : []),
           <primitive key="aberration" object={film.aberration} />,
           <Outline
             key="inner"
@@ -313,6 +442,10 @@ export function MemoryGlowRoot({
         ]}
       </EffectComposer>
       <ScreenTransitionDriver effect={transition} reducedMotion={reducedMotion} />
+      {tiltEnabled && <TiltShiftDriver effect={tilt} />}
+      {afterimage && firstPersonTrail && (
+        <AfterimageDriver pass={afterimage} movementInputRef={firstPersonTrail} />
+      )}
       <FilmLookDriver effects={film} dim={dim} reducedMotion={reducedMotion} />
       <GlowHoverPulse
         effectRef={innerRef}

@@ -1,9 +1,19 @@
 "use client";
 
 import { Vector2 } from "three";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
+import {
+  MEMORY_TOTAL,
+  selectActTwoProgress,
+  selectCollectedCount,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { InteriorBox as Box, InteriorCylinder as Cylinder } from "./InteriorPrimitives";
 import { BATHROOM_COLLIDERS, BATHROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
+import { SinkWater } from "./SinkWater";
+import { SlitScanMirror } from "./SlitScanMirror";
+import { roomLightMix } from "./visual-state";
 
 const [toilet, sink, tub] = BATHROOM_COLLIDERS;
 const sinkX = (sink.minX + sink.maxX) / 2;
@@ -160,6 +170,8 @@ function Sink({ palette }: { palette: RoomPalette }) {
         color={palette.frame}
         metalness={0.8}
       />
+      {/* 30일 고인 물. 열쇠를 집는 순간 파문 하나가 번진다 (SinkWater) */}
+      <SinkWater palette={palette} />
       <group position={[0, 0.85, 0.2]}>
         <Faucet palette={palette} />
       </group>
@@ -242,20 +254,31 @@ function Bathtub({ palette }: { palette: RoomPalette }) {
   );
 }
 
-/** Wall-mounted fittings belong to the wall's culling group. */
+/**
+ * Wall-mounted fittings belong to the wall's culling group.
+ *
+ * 유리는 진짜 거울이되 반사가 세로줄마다 시간이 어긋난다 (SlitScanMirror, docs/visual-experiments.md
+ * 11장). 시간차의 폭은 2막의 볕(warm)이 오를수록 줄어 보통 거울로 맞아 든다. 렌더 타깃이
+ * 12장 드는 효과라 heavy 게이트를 따르고, 게이트가 닫히면 예전의 금속판 그대로다.
+ */
 export function BathroomMirror({ palette }: { palette: RoomPalette }) {
+  const collected = useMemoryRoomStore(selectCollectedCount);
+  const recovery = useMemoryRoomStore(selectActTwoProgress);
+  const { warm } = roomLightMix({ collected, memoryTotal: MEMORY_TOTAL, recovery });
+  const enabled = useEffectEnabled("heavy");
   return (
     <group
       name="bathroom-mirror-cabinet"
       position={[sinkX, 1.72, BATHROOM_SHELL_BOUNDS.maxZ - 0.15]}
     >
       <Box size={[1.02, 0.99, 0.1]} position={[0, 0, 0]} color={palette.frame} radius={0.04} />
-      <Box
-        size={[0.91, 0.88, 0.018]}
-        position={[0, 0, -0.06]}
-        color={palette.storm}
-        roughness={0.14}
-        metalness={0.8}
+      <SlitScanMirror
+        width={0.91}
+        height={0.88}
+        offset={-0.06}
+        palette={palette}
+        warm={warm}
+        enabled={enabled}
       />
       <Box
         size={[0.035, 0.76, 0.008]}

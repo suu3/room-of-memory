@@ -1,6 +1,6 @@
 import type {} from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
-import { CanvasTexture, SRGBColorSpace } from "three";
+import { CanvasTexture, Color, SRGBColorSpace } from "three";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 
@@ -18,6 +18,9 @@ import type { Vec3Tuple } from "./types";
  * 회전 범위를 ±0.32rad에서 ±0.75rad로 넓히면서 여백을 전부 키웠다. 시점을 옆으로
  * 돌릴수록 시차가 커져서, 예전 값(왼쪽 1.6/오른쪽 0.25)으로는 창 구석에 배경판
  * 가장자리가 드러났다. 왼쪽 끝(x≈-3.3)은 아직 뒷벽(x≥-6) 안쪽이라 옆으로 새지 않는다.
+ *
+ * 노을은 색으로만 말한다. 도시 실루엣과 처박힌 차를 세워 봤는데 창 하나가 그림이
+ * 되어 방의 색면들과 따로 놀았다. 남긴 것은 하늘 그라디언트와 별 몇 개다.
  */
 const MARGIN = { left: 3.2, right: 1.3, top: 0.28, bottom: 1.5 } as const;
 
@@ -29,10 +32,6 @@ const MARGIN = { left: 3.2, right: 1.3, top: 0.28, bottom: 1.5 } as const;
 const LAYER_Z = {
   sky: -0.75,
   stars: -0.66,
-  farRidge: -0.5,
-  skyline: -0.32,
-  wreck: -0.24,
-  shards: -0.2,
 } as const;
 
 interface WindowViewProps {
@@ -54,17 +53,31 @@ interface WindowViewProps {
  *
  * 해는 그리지 않는다. 판에 동그란 해와 후광을 구워 넣어 봤더니 배경막이 아니라
  * 스티커가 됐다: 이 방의 다른 것들은 전부 색면인데 거기만 일러스트였다. 노을은
- * 색으로만 말한다 — 위는 아직 밤에 가깝고, 지평선 가까이에서만 볕이 남는다.
- * 창밖에서 뭔가가 "보여야" 하는 것은 꺼진 도시와 처박힌 차지 해가 아니다.
+ * 색으로만 말한다: 위는 아직 밤에 가깝고, 지평선 가까이에서만 볕이 남는다.
  */
 /** 하늘 띠의 색이 바뀌는 높이 (0 = 판 꼭대기, 1 = 판 밑). */
 const SKY_STOPS = [0, 0.34, 0.62, 0.84, 1] as const;
+/**
+ * 사태가 번질수록 지평선의 볕이 식는 정도. 도시가 꺼지는 것을 건물 창 대신 색으로
+ * 말한다. 1이면 한밤이 되는데, 그러면 창이 그냥 검은 구멍이라 여기서 멈춘다.
+ */
+const DECAY_DIM = 0.55;
 
 function canBake(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderingContext2D {
   return typeof ctx?.createLinearGradient === "function" && typeof ctx.fillRect === "function";
 }
 
-function useSkyTexture(palette: RoomPalette): CanvasTexture {
+/** 붕괴도(0~1)에 따른 다섯 띠의 색. 밤에 가까운 위 두 띠는 그대로, 볕이 남은 아래만 식는다. */
+export function skyColors(palette: RoomPalette, decay: number): string[] {
+  const clamped = Math.min(1, Math.max(0, Number.isNaN(decay) ? 0 : decay));
+  const night = new Color(palette.storm);
+  const cool = (hex: string) => new Color(hex).lerp(night, clamped * DECAY_DIM).getStyle();
+  // 밤 → 저녁의 파랑 → 지평선에 남은 볕. 채도가 센 ember는 쓰지 않는다: 창 하나가
+  // 방보다 붉으면 방이 배경이 된다
+  return [palette.abyss, palette.storm, cool(palette.clay), cool(palette.amber), cool(palette.sun)];
+}
+
+function useSkyTexture(palette: RoomPalette, decay: number): CanvasTexture {
   return useMemo(() => {
     const canvas = document.createElement("canvas");
     // 가로로는 변하지 않는 그림이라 4픽셀이면 된다
@@ -73,9 +86,7 @@ function useSkyTexture(palette: RoomPalette): CanvasTexture {
     const context = canvas.getContext("2d");
     if (canBake(context)) {
       const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-      // 밤 → 저녁의 파랑 → 지평선에 남은 볕. 채도가 센 ember는 쓰지 않는다: 창 하나가
-      // 방보다 붉으면 방이 배경이 된다
-      const colors = [palette.abyss, palette.storm, palette.clay, palette.amber, palette.sun];
+      const colors = skyColors(palette, decay);
       SKY_STOPS.forEach((stop, index) => {
         gradient.addColorStop(stop, colors[index]);
       });
@@ -85,89 +96,13 @@ function useSkyTexture(palette: RoomPalette): CanvasTexture {
     const texture = new CanvasTexture(canvas);
     texture.colorSpace = SRGBColorSpace;
     return texture;
-  }, [palette]);
+  }, [palette, decay]);
 }
 
-/**
- * 스카이라인. 값을 난수로 뽑으면 새로고침마다 도시가 바뀌어서, 인덱스로 결정되는
- * 해시를 쓴다. 같은 자리에 같은 건물이 선다.
- */
+/** 값을 난수로 뽑으면 새로고침마다 하늘이 바뀌어서, 인덱스로 결정되는 해시를 쓴다. */
 function hash01(index: number, salt: number): number {
   const value = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
   return value - Math.floor(value);
-}
-
-interface Building {
-  x: number;
-  width: number;
-  height: number;
-  /** 불 켜진 창의 로컬 좌표 (건물 밑면 기준). */
-  lights: readonly { x: number; y: number }[];
-}
-
-function buildSkyline(span: number, count: number, salt: number, maxHeight: number): Building[] {
-  const step = span / count;
-  return Array.from({ length: count }, (_, index) => {
-    const width = step * (0.52 + hash01(index, salt) * 0.36);
-    const height = maxHeight * (0.28 + hash01(index, salt + 1) * 0.72);
-    const rows = Math.max(1, Math.round(height / 0.24) - 1);
-    const lights: { x: number; y: number }[] = [];
-    for (let row = 0; row < rows; row += 1) {
-      for (let column = 0; column < 2; column += 1) {
-        if (hash01(index * 37 + row * 5 + column, salt + 2) > 0.62) continue;
-        lights.push({
-          x: (column - 0.5) * width * 0.42,
-          y: 0.14 + row * 0.24,
-        });
-      }
-    }
-    return { x: -span / 2 + step * (index + 0.5), width, height, lights };
-  });
-}
-
-const WINDOW_LIGHT_SIZE = 0.045;
-
-function Skyline({
-  buildings,
-  z,
-  color,
-  lightColor,
-  showLights,
-  litRatio = 1,
-}: {
-  buildings: readonly Building[];
-  z: number;
-  color: string;
-  lightColor: string;
-  showLights: boolean;
-  /** 켜져 있는 창의 비율. 사태가 번질수록 도시가 꺼진다. */
-  litRatio?: number;
-}) {
-  return (
-    <group position={[0, 0, z]}>
-      {buildings.map((building) => (
-        <group key={`${building.x}:${building.width}`} position={[building.x, 0, 0]}>
-          <mesh position={[0, building.height / 2, 0]}>
-            <planeGeometry args={[building.width, building.height]} />
-            <meshBasicMaterial color={color} />
-          </mesh>
-          {showLights
-            ? building.lights.map((light) => (
-                <mesh
-                  key={`${light.x}:${light.y}`}
-                  position={[light.x, light.y, 0.01]}
-                  // 어느 창이 먼저 꺼질지는 좌표 해시로 고정: 프레임마다 깜빡이면 안 된다
-                  visible={hash01(Math.round((light.x + light.y) * 1000), 7) < litRatio}
-                >
-                  <planeGeometry args={[WINDOW_LIGHT_SIZE, WINDOW_LIGHT_SIZE]} />
-                  <meshBasicMaterial color={lightColor} />
-                </mesh>
-              ))
-            : null}
-        </group>
-      ))}
-    </group>
-  );
 }
 
 /**
@@ -200,71 +135,6 @@ function Stars({ span, height, color }: { span: number; height: number; color: s
   );
 }
 
-/**
- * 사태의 흔적. 길에 처박힌 차와 흩어진 유리조각.
- *
- * 유리에 튄 핏자국도 넣어봤는데 붉은 사각형이 피로 안 읽혀서 뺐다. 어설픈
- * 자국보다 꺼진 도시와 처박힌 차 실루엣이 할 말을 더 한다.
- *
- * 전부 불투명이다. 불투명한 하늘판 앞에 놓이는 작은 조각들이라 정렬 문제가 없다.
- */
-function Aftermath({
-  decay,
-  palette,
-  width,
-  height,
-}: {
-  decay: number;
-  palette: RoomPalette;
-  width: number;
-  height: number;
-}) {
-  const wreck = decay > 0.35;
-  const shards = decay > 0.6;
-
-  return (
-    <group>
-      {/* 길에 처박힌 차: 스카이라인 앞, 지평선 위에 실루엣으로만 */}
-      {wreck ? (
-        <group
-          position={[-width * 0.14, -height / 2 + 0.06, LAYER_Z.wreck]}
-          rotation={[0, 0, 0.15]}
-        >
-          <mesh position={[0, 0.17, 0]}>
-            <planeGeometry args={[1.05, 0.34]} />
-            <meshBasicMaterial color={palette.void} />
-          </mesh>
-          <mesh position={[-0.08, 0.42, 0]}>
-            <planeGeometry args={[0.54, 0.26]} />
-            <meshBasicMaterial color={palette.void} />
-          </mesh>
-        </group>
-      ) : null}
-
-      {/* 깨진 유리조각: 지평선 근처에서 빛을 되쏜다 */}
-      {shards
-        ? SHARDS.map((shard) => (
-            <mesh
-              key={`${shard.x}:${shard.y}`}
-              position={[shard.x * width, -height / 2 + shard.y, LAYER_Z.shards]}
-              rotation={[0, 0, shard.tilt]}
-            >
-              <planeGeometry args={[shard.size, shard.size * 0.45]} />
-              <meshBasicMaterial color={palette.linen} />
-            </mesh>
-          ))
-        : null}
-    </group>
-  );
-}
-
-const SHARDS = Array.from({ length: 9 }, (_, index) => ({
-  x: (hash01(index, 21) - 0.5) * 0.92,
-  y: hash01(index, 22) * 0.14,
-  size: 0.08 + hash01(index, 23) * 0.09,
-  tilt: (hash01(index, 24) - 0.5) * 1.6,
-}));
-
 export function WindowView({ palette, decay, center, width, height }: WindowViewProps) {
   const viewWidth = width + MARGIN.left + MARGIN.right;
   const viewHeight = height + MARGIN.top + MARGIN.bottom;
@@ -272,18 +142,9 @@ export function WindowView({ palette, decay, center, width, height }: WindowView
   const offsetX = (MARGIN.right - MARGIN.left) / 2;
   const offsetY = (MARGIN.top - MARGIN.bottom) / 2;
 
-  const skyTexture = useSkyTexture(palette);
+  const skyTexture = useSkyTexture(palette, decay);
   // 직접 만든 텍스처라 r3f 자동 dispose에 기대지 않는다 (.claude/rules/r3f.md)
   useEffect(() => () => skyTexture.dispose(), [skyTexture]);
-
-  const farRidge = useMemo(
-    () => buildSkyline(viewWidth, 7, 11, viewHeight * 0.42),
-    [viewWidth, viewHeight],
-  );
-  const skyline = useMemo(
-    () => buildSkyline(viewWidth, 11, 29, viewHeight * 0.55),
-    [viewWidth, viewHeight],
-  );
 
   return (
     <group
@@ -299,27 +160,6 @@ export function WindowView({ palette, decay, center, width, height }: WindowView
       <group position={[0, 0, LAYER_Z.stars]}>
         <Stars span={viewWidth} height={viewHeight} color={palette.trim} />
       </group>
-
-      {/* 판 밑면이 원점에 오도록 내려 세운다. 건물은 밑에서 위로 자란다. */}
-      <group position={[0, -viewHeight / 2, 0]}>
-        <Skyline
-          buildings={farRidge}
-          z={LAYER_Z.farRidge}
-          color={palette.abyss}
-          lightColor={palette.memory}
-          showLights={false}
-        />
-        <Skyline
-          buildings={skyline}
-          z={LAYER_Z.skyline}
-          color={palette.void}
-          lightColor={palette.memory}
-          showLights
-          litRatio={1 - decay}
-        />
-      </group>
-
-      <Aftermath decay={decay} palette={palette} width={viewWidth} height={viewHeight} />
     </group>
   );
 }

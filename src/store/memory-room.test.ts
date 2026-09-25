@@ -6,12 +6,15 @@ import {
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENES,
   MEMORIES,
+  MEMORY_BY_ID,
   PHASE1_MEMORIES,
+  REPLAY_MORPH_WITHIN,
   SCRIPTS,
 } from "@/data/memory-room";
 import {
   actOf,
   actTwoProgress,
+  buildMemoryReplay,
   hotspotStatus,
   isAtCurtain,
   openCutscene,
@@ -1066,5 +1069,55 @@ describe("방탈출 축 (임시): 물건과 문", () => {
     useMemoryRoomStore.setState({ doorOpened: false });
     useMemoryRoomStore.getState().openDoorway("room-living");
     expect(useMemoryRoomStore.getState().doorOpened).toBe(false);
+  });
+});
+
+describe("warpPlayer puts down what the player was looking into", () => {
+  it("closes an open puzzle so the piano camera does not stay behind", () => {
+    const store = useMemoryRoomStore.getState();
+    store.reset();
+    store.startGame();
+    store.openPuzzle("piano-melody");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("piano-melody");
+
+    store.warpPlayer(0, 0);
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe(null);
+    expect(useMemoryRoomStore.getState().warpTarget).toEqual({ x: 0, z: 0 });
+  });
+
+  it("leaves a dialogue-stage interaction alone", () => {
+    const store = useMemoryRoomStore.getState();
+    store.reset();
+    store.startGame();
+    store.warpPlayer(1, 1);
+    expect(useMemoryRoomStore.getState().activeInteraction).toBe(null);
+  });
+});
+
+/*
+ * 액자는 같은 장면의 그림을 두 장 가진 유일한 기억이다. 2바퀴에 되짚으면 1막의 한
+ * 장으로 열었다가 2막의 한 장으로 밀어 넘긴다 (PhotoMorph). 겹쳐 세우는 사각형까지
+ * 함께 실려야 넘어가는 동안 물체가 둘로 보이지 않는다.
+ */
+describe("다시보기의 사진 밀림", () => {
+  it("2바퀴의 액자는 1막 사진에서 열리고, 겹쳐 세울 자리를 함께 싣는다", () => {
+    const cut = buildMemoryReplay("frame", 2)?.cuts[0];
+    expect(cut?.morphFrom).toBe(MEMORY_BY_ID.frame.phase1?.replayStill);
+    expect(cut?.image).toBe(MEMORY_BY_ID.frame.phase2?.replayStill);
+    expect(cut?.morphFrom).not.toBe(cut?.image);
+    expect(cut?.morphWithin).toEqual(REPLAY_MORPH_WITHIN.frame);
+  });
+
+  it("1바퀴에는 밀림이 없다. 되짚을 앞 그림이 아직 없다", () => {
+    expect(buildMemoryReplay("frame", 1)?.cuts[0].morphFrom).toBeUndefined();
+  });
+
+  it("한쪽 바퀴에만 그림이 있는 기억은 그냥 선다: 갈 곳 없는 밀림을 만들지 않는다", () => {
+    // 사인볼은 1막에만 그림이 있다. 2막에는 밀려 들어올 그림이 없다
+    const cut = buildMemoryReplay("ball", 2)?.cuts[0];
+    expect(MEMORY_BY_ID.ball.phase1?.replayStill).toBeDefined();
+    expect(MEMORY_BY_ID.ball.phase2?.replayStill).toBeUndefined();
+    expect(cut?.morphFrom).toBeUndefined();
+    expect(cut?.morphWithin).toBeUndefined();
   });
 });

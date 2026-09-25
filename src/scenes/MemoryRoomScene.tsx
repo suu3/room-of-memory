@@ -13,6 +13,8 @@ import {
   Vector3,
 } from "three";
 import type { MemoryId } from "@/data/memory-room";
+import { usePointerKind } from "@/i18n/control-hint";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { selectCanvasPuzzle } from "@/minigames/active";
 import {
   gamePhaseOf,
@@ -33,6 +35,7 @@ import { EndingTrigger } from "./memory-room/EndingTrigger";
 import { visibleHitsOnly } from "./memory-room/event-visibility";
 import { FirstPersonRig } from "./memory-room/FirstPersonRig";
 import type { LookAngles } from "./memory-room/first-person";
+import { Lantern } from "./memory-room/Lantern";
 import { LivingRoomFurniture } from "./memory-room/LivingRoomFurniture";
 import { LivingRoomShell } from "./memory-room/LivingRoomShell";
 import { MemoryBurst } from "./memory-room/MemoryBurst";
@@ -58,6 +61,7 @@ import {
 } from "./memory-room/visual-state";
 import { WalkMarker } from "./memory-room/WalkMarker";
 import { WindowLight } from "./memory-room/WindowLight";
+import { WireframeReveal } from "./memory-room/WireframeReveal";
 
 /** 바닥 평면(y=0). 클릭한 곳이 상판이든 벽이든, 광선이 이 평면과 만나는 자리로 걸어간다. */
 const FLOOR_PLANE = new Plane(new Vector3(0, 1, 0), 0);
@@ -332,13 +336,16 @@ export function MemoryRoomScene({
    */
   /** 인트로의 어둠. 소등이 아니라 "아직 불을 켜기 전"이라 스위치를 찾는 동안만이다. */
   const blackout = viewpoint === "intro";
-  const dim =
-    1 -
-    lampScaled(
-      roomLightLevel({ collected: collectedCount, memoryTotal: MEMORY_TOTAL, recovery }),
-      lightsOn,
-      blackout,
-    );
+  const level = roomLightLevel({ collected: collectedCount, memoryTotal: MEMORY_TOTAL, recovery });
+  const dim = 1 - lampScaled(level, lightsOn, blackout);
+  /*
+   * 등 (docs/visual-experiments.md 6장): 1막 후반 손 가까이만 비추는 점광원. 싼 효과라
+   * 폰에서도 켜지되, 커서가 없는 기기에서는 몸을 따라간다. 1인칭 구간에서는 빼는데,
+   * 그 구간은 빛 하나(스위치·문)만 보여야 하기 때문이다.
+   */
+  const cheapEffects = useEffectEnabled("cheap");
+  const lanternEnabled = cheapEffects && viewpoint === null && lightsOn;
+  const followCursor = usePointerKind() !== "touch";
 
   return (
     // 커튼·전등 스위치처럼 표식 없이 근접으로만 켜지는 것들이 플레이어 위치를 본다
@@ -363,7 +370,13 @@ export function MemoryRoomScene({
         빛나므로, 범위를 넓혀도 장식·벽은 그대로 잠잠하다. EffectComposer는
         화면 전체를 한 번 훑는 패스라 트리에서의 위치도 그림에 영향이 없다.
       */}
-      <MemoryGlowRoot color={palette.memory} dim={dim} ambientOcclusion={ambientOcclusion}>
+      <MemoryGlowRoot
+        color={palette.memory}
+        dim={dim}
+        ambientOcclusion={ambientOcclusion}
+        // 1인칭으로 어둠 속을 걷는 동안만 잔상이 붙는다 (docs/visual-experiments.md 11장)
+        firstPersonTrail={viewpoint !== null ? movementInputRef : null}
+      >
         {/*
           한 번에 한 방만 보인다 (v2). 두 방을 나란히 세워두면 디오라마가 아니라
           단면도가 된다. 지금 서 있는 공간만 서 있고, 문턱을 넘는 순간 바뀐다.
@@ -448,12 +461,17 @@ export function MemoryRoomScene({
           intensity={roomLightValue(ROOM_LIGHT_RAMP.windowLight, warm)}
           open={curtainOpenAmount}
         />
-        {/* 먼지는 빛줄기 안의 반짝임이라 커튼이 젖혀진 만큼만 보인다 */}
+        {/* 먼지는 빛줄기 안의 반짝임이라 커튼이 젖혀진 만큼만 보인다. 어두울수록 손이 지나간 자리가 천천히 다시 쌓인다 */}
         <DustMotes
           color={palette.sun}
           opacity={roomLightValue(ROOM_LIGHT_RAMP.dust, warm) * curtainOpenAmount}
+          settle={level}
         />
       </group>
+      {/* 손 가까이의 등. 글로우 루트 밖: 빛이지 물건이 아니다. 공간을 가리지 않고 몸을 따라간다 */}
+      {lanternEnabled && (
+        <Lantern level={level} color={palette.linen} followCursor={followCursor} />
+      )}
       {/* 바닥 클릭의 목적지 링. 글로우 루트 밖: 만질 수 있는 것이 아니라 표식이다 */}
       <WalkMarker color={palette.memory} />
       {/* 기억을 되찾는 순간 물건에서 솟는 티끌. 글로우 루트 밖: 빛이지 물건이 아니다 */}
@@ -466,6 +484,8 @@ export function MemoryRoomScene({
       {/* 배트를 쥐면 카메라도 문 쪽으로 붙는다. 엔딩 영상의 첫 컷과 이어지는 구도 */}
       {/* 커서가 얹힌 오브젝트의 화면 자리. 캔버스 밖 커서가 그리로 빨려든다 */}
       <CursorTargetProjector />
+      {/* 재구성 전환: 라디오 재점화와 새 공간 첫 진입에 방이 선으로 풀렸다 채워진다 */}
+      <WireframeReveal enabled={cheapEffects} />
       <CameraRig
         focusId={endingStarted ? "ending" : focusMemoryId}
         roomZoom={roomZoom}

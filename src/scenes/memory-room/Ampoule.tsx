@@ -6,6 +6,19 @@ import type { RoomPalette } from "./palette";
 
 /** 유리 재질의 공통값. 관 하나만 밖에서 빛을 밀고, 바닥은 같은 투명도로 따라간다. */
 const GLASS = { roughness: 0.08, transparent: true, opacity: 0.4 } as const;
+/**
+ * 굴절 유리 (docs/visual-experiments.md 11장 "굴절 → 앰플 유리"). transmission이 뒤의
+ * 냉장고 안을 관 너머로 굴절시켜 보인다. 두께는 관 반지름과 같은 급으로 두어 굴절이
+ * 있는 듯 없는 듯 선다: 너무 두꺼우면 렌즈가 되어 액체가 사라진다. transmission이
+ * 투명도를 대신하므로 transparent는 끈다 (켜면 정렬이 겹쳐 액체가 깜빡인다).
+ */
+const REFRACTIVE_GLASS = {
+  roughness: 0.08,
+  transmission: 0.9,
+  thickness: 0.02,
+  ior: 1.45,
+  transparent: false,
+} as const;
 /** 관의 반지름과 길이 (둥근 바닥 제외). */
 const TUBE_RADIUS = 0.017;
 const TUBE_LENGTH = 0.15;
@@ -27,6 +40,11 @@ const LIQUID_TOP = 0.01;
  *
  * 관의 `emissive`는 밖에서 민다 (집을 수 있을 때 금빛이 올라온다). 재질을 프레임마다
  * 새로 만들지 않도록 ref로 내준다.
+ *
+ * `refractive`면 관만 MeshPhysicalMaterial(transmission)로 바꾼다. transmission은 씬을
+ * 렌더 타깃에 한 번 더 그리므로 heavy다: 호출부(ampoule-pickup)가 효과 예산을 보고
+ * 카메라가 붙박이인 미니게임 구간에만 켠다. 냉장고 진열의 앰플은 늘 기본 유리다.
+ * MeshPhysicalMaterial은 MeshStandardMaterial을 상속하므로 glassRef는 그대로 받는다.
  */
 export const Ampoule = forwardRef<
   Group,
@@ -34,20 +52,34 @@ export const Ampoule = forwardRef<
     palette: RoomPalette;
     /** 관 유리 재질. 글로우 세기를 밖에서 밀 때 잡는다. */
     glassRef?: React.Ref<MeshStandardMaterial>;
+    /** 관 유리를 굴절 유리(transmission)로. 렌더 타깃이 하나 더 드는 heavy 효과다. */
+    refractive?: boolean;
   }
->(function Ampoule({ palette, glassRef }, ref) {
+>(function Ampoule({ palette, glassRef, refractive = false }, ref) {
   return (
     <group ref={ref} name="ampoule">
       {/* 관 */}
       <mesh castShadow>
         <cylinderGeometry args={[TUBE_RADIUS, TUBE_RADIUS, TUBE_LENGTH, 18]} />
-        <meshStandardMaterial
-          ref={glassRef}
-          color={palette.linen}
-          {...GLASS}
-          emissive={palette.memory}
-          emissiveIntensity={0}
-        />
+        {refractive ? (
+          <meshPhysicalMaterial
+            key="refractive"
+            ref={glassRef}
+            color={palette.linen}
+            {...REFRACTIVE_GLASS}
+            emissive={palette.memory}
+            emissiveIntensity={0}
+          />
+        ) : (
+          <meshStandardMaterial
+            key="plain"
+            ref={glassRef}
+            color={palette.linen}
+            {...GLASS}
+            emissive={palette.memory}
+            emissiveIntensity={0}
+          />
+        )}
       </mesh>
       {/* 둥근 바닥 */}
       <mesh position={[0, TUBE_BOTTOM, 0]}>

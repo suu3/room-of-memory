@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo } from "react";
 import { MathUtils, type Mesh, MeshStandardMaterial } from "three";
 import { ASSETS } from "@/lib/assets";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BED_MATTRESS, BED_ORIGIN, BED_ROTATION_Y, BED_SCALE } from "./bed";
 import type { RoomPalette } from "./palette";
@@ -37,6 +38,19 @@ const FOLD_KEY = "folded";
 const FOLD_LAMBDA = 3.5;
 /** 모션을 끈 사람에게는 곧바로 (use-seat와 같은 값). */
 const REDUCED_LAMBDA = 18;
+
+/**
+ * 이불의 호흡 (docs/visual-experiments.md 5장 "침대"). 정점 셰이더에 노이즈 한 줄: 이불이
+ * 숨 쉬듯 아주 조금 일렁인다. 진폭은 모델 단위(BED_SCALE 0.7이라 화면에서는 더 작다)이고
+ * 주기는 4초 남짓(0.25Hz). 초당 3회 밝기 변화 금지와는 한참 멀다.
+ * 접힌 이불(누웠을 때)도 그대로 숨 쉰다: 그때는 진짜로 사람이 아래에 있다.
+ */
+const BREATH_AMPLITUDE = 0.016;
+const BREATH_RATE = 1.5;
+const BREATH_VERTEX = /* glsl */ `
+  #include <begin_vertex>
+  transformed.y += sin(uBreathTime * ${BREATH_RATE.toFixed(2)} + position.x * 2.1 + position.z * 1.4) * uBreath;
+`;
 
 interface BedModelProps {
   palette: RoomPalette;
@@ -75,6 +89,7 @@ function LoadedBed({ palette, onModelReady }: BedModelProps) {
    * 두 번 부르고 두 번째 결과를 버리는데, ref는 그 버려진 복제본을 가리키게 되어 화면에
    * 없는 이불만 접혔다.
    */
+  const breath = useMemo(() => ({ time: { value: 0 }, amount: { value: 0 } }), []);
   const { cloned, materials, blanket } = useMemo(() => {
     const copy = scene.clone(true);
     const made = new Map<BedPart, MeshStandardMaterial>();
@@ -83,6 +98,17 @@ function LoadedBed({ palette, onModelReady }: BedModelProps) {
       if (!material) {
         material = new MeshStandardMaterial({ color: palette[PART_COLORS[part]], roughness: 0.78 });
         material.name = part;
+        if (part === "blanket") {
+          // 이불만 숨 쉰다. uniform 객체는 바깥(breath)의 것을 그대로 꽂아 useFrame이 만진다
+          material.onBeforeCompile = (shader) => {
+            shader.uniforms.uBreathTime = breath.time;
+            shader.uniforms.uBreath = breath.amount;
+            shader.vertexShader = `uniform float uBreathTime;\nuniform float uBreath;\n${shader.vertexShader.replace(
+              "#include <begin_vertex>",
+              BREATH_VERTEX,
+            )}`;
+          };
+        }
         made.set(part, material);
       }
       return material;
@@ -97,7 +123,7 @@ function LoadedBed({ palette, onModelReady }: BedModelProps) {
       if (mesh.name === "blanket") blanketMesh = mesh;
     });
     return { cloned: copy, materials: [...made.values()], blanket: blanketMesh as Mesh | null };
-  }, [scene, palette]);
+  }, [scene, palette, breath]);
 
   useEffect(
     () => () => {
@@ -106,12 +132,22 @@ function LoadedBed({ palette, onModelReady }: BedModelProps) {
     [materials],
   );
 
+  const breathing = useEffectEnabled("cheap") && !reducedMotion;
+
   // 글로우 선택은 마운트된 메쉬를 훑어 모은다. 모델이 나중에 붙으면 다시 훑게 알린다.
   useEffect(() => {
     onModelReady?.();
   }, [onModelReady]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
+    breath.time.value = state.clock.elapsedTime;
+    // 켜고 끌 때 툭 멈추지 않게 진폭만 damp로 따라간다
+    breath.amount.value = MathUtils.damp(
+      breath.amount.value,
+      breathing ? BREATH_AMPLITUDE : 0,
+      2,
+      delta,
+    );
     const influences = blanket?.morphTargetInfluences;
     const index = blanket?.morphTargetDictionary?.[FOLD_KEY];
     if (!influences || index === undefined) return;

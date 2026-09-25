@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "@phosphor-icons/react";
+import { ArrowUUpLeft, X } from "@phosphor-icons/react";
 import { Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
@@ -9,7 +9,7 @@ import { getMinigame } from "@/minigames";
 import { MinigameHelp } from "@/minigames/shell";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { SuccessBurst } from "./SuccessBurst";
-import { HUD_ICON_BUTTON_SOLID } from "./ui-classes";
+import { BUTTON_QUIET, HUD_ICON_BUTTON_SOLID } from "./ui-classes";
 
 /**
  * 미궁 문제 호스트: 기억 인터랙션 밖에서 도는 미니게임 (거실의 식탁 트럼프,
@@ -20,7 +20,7 @@ import { HUD_ICON_BUTTON_SOLID } from "./ui-classes";
  * 단계도 없다(대사가 안 딸린다). 풀리면 solvedPuzzles에 남고 그걸로 끝이다.
  *
  * canvas 모드 문제(피아노)는 씬이 판을 세운다. 여기서는 DOM이어야 하는 두 가지,
- * 조작 안내 한 줄과 닫기만 그 위에 얹는다 (MinigameHost가 앰플에 하는 것과 같다).
+ * 조작 안내 한 줄과 돌아가기만 그 위에 얹는다 (MinigameHost가 앰플에 하는 것과 같다).
  */
 export function PuzzleHost() {
   const { t } = useTranslation();
@@ -68,25 +68,31 @@ export function PuzzleHost() {
         한 줄과 닫기만 띄운다. 안내 자리는 근접 안내(RoomInteractionPrompt)와 같다.
       */}
       {canvasHosted && (
-        <>
+        <div className="pointer-events-none absolute bottom-6 left-1/2 z-40 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center gap-2">
           <div
             role="status"
-            className="pointer-events-none absolute bottom-6 left-1/2 z-20 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-sm border border-line bg-surface px-3 py-1.5 text-center text-xs font-medium text-ivory shadow-chip"
+            className="rounded-sm border border-line bg-surface px-3 py-1.5 text-center text-xs font-medium text-ivory shadow-chip"
           >
             <MinigameHelp help={hint(canvasHosted.helpKey)} className="break-ko text-pretty" />
           </div>
-          <button
-            type="button"
-            aria-label={t("minigame.close")}
-            onClick={() => {
-              playSound("close");
-              closePuzzle();
-            }}
-            className={`fixed right-4 top-4 z-20 ${HUD_ICON_BUTTON_SOLID}`}
-          >
-            <X size={20} weight="bold" />
-          </button>
-        </>
+          {/*
+            돌아가기. 오른쪽 위 구석에 두면 HUD(z-30, 메뉴·평면도)에 깔려 눌리지 않았다.
+            안내 바로 밑에 글자로 세운다: 답이 확정된 뒤에는 물러난다 (Esc와 같은 규칙).
+          */}
+          {!sealed && (
+            <button
+              type="button"
+              onClick={() => {
+                playSound("close");
+                closePuzzle();
+              }}
+              className={`${BUTTON_QUIET} pointer-events-auto px-4 py-2`}
+            >
+              <ArrowUUpLeft size={16} weight="bold" />
+              {t("minigame.back")}
+            </button>
+          )}
+        </div>
       )}
       {active && hosted && Minigame && (
         <div

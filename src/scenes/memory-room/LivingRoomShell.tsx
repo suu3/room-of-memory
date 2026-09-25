@@ -1,11 +1,12 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import type { Group, MeshStandardMaterial } from "three";
+import { useEffect, useRef } from "react";
+import type { Group, Mesh, MeshStandardMaterial } from "three";
 import { playSound } from "@/lib/audio";
 import { selectBatTaken, selectFrontDoorUnlocked, useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
+import { setEndingLightMesh } from "./ending-light";
 import {
   BATHROOM_DOOR_POSITION,
   FRONT_DOOR_INTERACTION,
@@ -248,7 +249,29 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
       {DOOR_FRAME.map((part) => (
         <ShellBox key={part.position.join(":")} part={part} color={palette.frame} />
       ))}
+      <EndingLightPlane color={palette.sun} visible={started} />
     </group>
+  );
+}
+
+/**
+ * 현관문 밖의 빛. 문이 열리는 동안 개구부 너머에서 보이는 밝은 판 하나다. 30일 만의 바깥 빛.
+ *
+ * 그 자체로는 판이지만 컴포저의 GodRays(MemoryGlowRoot)가 이 판을 광원으로 삼아 문틈으로
+ * 새는 빛기둥을 만든다. 광원 메시는 깊이를 쓰지 않고 투명 플래그가 서 있어야 한다는 것이
+ * postprocessing의 계약이다. 문 로컬 좌표: 문틀 뒤(-z)로 조금 물러선 자리.
+ */
+function EndingLightPlane({ color, visible }: { color: string; visible: boolean }) {
+  const meshRef = useRef<Mesh>(null);
+  useEffect(() => {
+    setEndingLightMesh(meshRef.current);
+    return () => setEndingLightMesh(null);
+  }, []);
+  return (
+    <mesh ref={meshRef} position={[0, 0.05, -0.32]} visible={visible} frustumCulled={false}>
+      <planeGeometry args={[1.5, 3.4]} />
+      <meshBasicMaterial color={color} transparent depthWrite={false} toneMapped={false} />
+    </mesh>
   );
 }
 

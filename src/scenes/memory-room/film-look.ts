@@ -35,9 +35,18 @@ export const ABERRATION = {
  */
 export const GRAIN_PULSE_GAIN = 1;
 
-/** 펄스(0~1)에 따른 그레인 불투명도. */
-export function grainOpacity(pulse: number): number {
-  return FILM_GRAIN_OPACITY * (1 + Math.min(1, Math.max(0, pulse)) * GRAIN_PULSE_GAIN);
+function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, Number.isNaN(value) ? 0 : value));
+}
+
+/**
+ * 펄스(0~1)에 따른 그레인 불투명도.
+ *
+ * `clean`(0~1)은 엔딩의 몫이다. 1이면 그레인이 사라진다. 게임에서 화면이 처음으로
+ * 깨끗해지는 순간이다.
+ */
+export function grainOpacity(pulse: number, clean = 0): number {
+  return FILM_GRAIN_OPACITY * (1 + clamp01(pulse) * GRAIN_PULSE_GAIN) * (1 - clamp01(clean));
 }
 
 /** 어둠의 양(0 = 밝은 방, 1 = 가장 어두운 지점)에서 쉬고 있을 때의 어긋남. */
@@ -46,10 +55,19 @@ export function restingAberration(dim: number): number {
   return ABERRATION.base * (1 + clamped * ABERRATION.dimGain);
 }
 
-/** 쉬는 값 위에 튄 값(0~1)을 얹는다. 튀는 쪽은 damp 없이 곧바로 붙는다: 사건은 순간이다. */
-export function aberrationAmount(resting: number, pulse: number): number {
-  return resting + Math.min(1, Math.max(0, pulse)) * ABERRATION.pulse;
+/**
+ * 쉬는 값 위에 튄 값(0~1)을 얹는다. 튀는 쪽은 damp 없이 곧바로 붙는다: 사건은 순간이다.
+ * `clean`은 grainOpacity와 같은 뜻이다. 깨끗해지는 쪽은 쉬는 값까지 지운다.
+ */
+export function aberrationAmount(resting: number, pulse: number, clean = 0): number {
+  return (resting + clamp01(pulse) * ABERRATION.pulse) * (1 - clamp01(clean));
 }
+
+/**
+ * 엔딩에서 화면이 깨끗해지는 속도. 문이 열리는 1.8초(EndingScreen의 DOOR_BEAT)와
+ * 타들어감(ScreenTransition의 BURN_RISE_S, 1.5초) 사이에서 다 지워져야 한다.
+ */
+export const CLEAN_LAMBDA = 2.6;
 
 /** 프레임마다 튄 값을 잦아들게 한다. 지수 감쇠라 프레임 길이가 달라도 같은 곡선이다. */
 export function decayPulse(pulse: number, delta: number): number {

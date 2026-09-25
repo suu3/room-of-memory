@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
 import { playSound, startNoiseBed } from "@/lib/audio";
+import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
+import { CutDissolve } from "./CutDissolve";
+import { grainForCut } from "./cut-dissolve";
+import { PhotoMorph } from "./PhotoMorph";
+import { morphSeed } from "./photo-morph";
 
 /** 방송이 마지막으로 지직거리는 구간. */
 const STATIC_MS = 1100;
@@ -187,6 +192,24 @@ export function PlaybackScene() {
   }, [screening, cutIndex]);
 
   /*
+   * 컷이 바뀌는 그림의 전환 (CutDissolve). 셔터 소리와 같은 박자에 노이즈 장막이 결을
+   * 따라 걷힌다. 첫 컷은 판 자체가 떠오르는 등장(animate-playback-enter)이 있으니
+   * 여기서 한 번 더 덮지 않는다. 켤지 끌지는 효과 예산 한 곳이 정한다 (effect-budget).
+   */
+  const dissolveEnabled = useEffectEnabled("cheap");
+
+  /*
+   * 사진이 사진으로 밀려 넘어가는 컷 (PhotoMorph). 액자를 2막에 되짚을 때만 선다:
+   * 1막의 사진으로 열렸다가 2막의 사진으로 넘어간다. 장막과 같은 등급(cheap)을 쓴다.
+   * 둘 다 기록물의 결이라 한쪽만 남으면 재질이 갈라진다.
+   *
+   * 끝난 컷을 열쇠로 적어 둔다. 재생을 닫았다 다시 열면 열쇠가 같아도 컴포넌트가
+   * 새로 마운트되므로 다시 넘어가고, 같은 재생 안에서 대사를 넘기는 동안에는
+   * 이미 끝난 넘어감이 다시 돌지 않는다.
+   */
+  const [morphedKey, setMorphedKey] = useState<string | null>(null);
+
+  /*
    * 정적 구간. 대사창이 사라진 채로 holdMs만큼 그림만 남았다가 저절로 넘어간다.
    * 멈춰 있는 화면을 사람이 눌러서 넘기게 두면 정적이 "로딩"으로 읽힌다.
    */
@@ -212,6 +235,9 @@ export function PlaybackScene() {
 
   const image = cut?.image;
   const showImage = stage === "cuts" && image !== undefined && !missing.includes(image);
+  const morphFrom = cut?.morphFrom;
+  const morphKey = showImage && morphFrom !== undefined ? `${playbackKey}:${cutIndex}:morph` : null;
+  const morphing = dissolveEnabled && morphKey !== null && morphedKey !== morphKey;
   /**
    * 컷씬에서는 그림이 아직 없어도 자리를 지킨다. 다시보기는 보여줄 게 없으면 비운다.
    * 애초에 그림 없이 설계된 컷씬(bare)은 판도 세우지 않는다. 회색 판은 "올 그림"의
@@ -272,11 +298,31 @@ export function PlaybackScene() {
                 draggable={false}
                 onError={() => setMissing((ids) => (ids.includes(image) ? ids : [...ids, image]))}
                 // 다시보기 스틸은 통째로 보인다. 잘라 채우면 사진 윗단이 화면 밖으로 나간다
-                className={`absolute inset-0 size-full select-none ${
+                className={`absolute inset-0 size-full select-none transition-opacity duration-300 ${
                   cut?.fit === "contain" || !isCutscene ? "object-contain" : "object-cover"
+                } ${
+                  // 밀림이 도는 동안은 물러나 있다. 비율이 달라 뒤에서 비치면 두 장이 겹쳐 보인다
+                  morphing ? "opacity-0" : "opacity-100"
                 }`}
               />
             )}
+            {/* 앞 사진에서 이 사진으로 밀려 넘어가는 층. 끝나면 물러나며 위의 원본에 자리를 넘긴다 */}
+            {morphing && morphFrom !== undefined && image !== undefined && (
+              <PhotoMorph
+                key={morphKey}
+                from={morphFrom}
+                to={image}
+                within={cut?.morphWithin}
+                seed={morphSeed(morphKey)}
+                onDone={() => setMorphedKey(morphKey)}
+              />
+            )}
+            {/* 컷 전환 장막. 그림 위에 얹혀야 하므로 마지막 자식이다 */}
+            <CutDissolve
+              cutKey={`${playbackKey}:${cutIndex}`}
+              grain={grainForCut(cutIndex)}
+              enabled={dissolveEnabled && cutIndex > 0}
+            />
           </div>
         )}
       </div>

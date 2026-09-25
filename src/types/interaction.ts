@@ -55,6 +55,20 @@ export interface CutsceneCut {
    * 다시보기 스틸은 비율이 제각각이라 잘리지 않게 "contain"으로 세운다.
    */
   fit?: "cover" | "contain";
+  /**
+   * 이 컷이 **먼저 세웠다가 밀어낼** 그림. 있으면 컷이 이 그림으로 열렸다가 `image`로
+   * 넘어간다 (PhotoMorph).
+   *
+   * 지금은 액자 다시보기 하나다. 같은 장면을 두 장 가진 기억이 거기뿐이라, 2막에
+   * 되짚으면 1막의 사진(부모 얼굴이 틀 밖으로 잘린 것)으로 열렸다가 2막의 사진으로
+   * 넘어간다. 글로 "이제야 보인다"고 말하기 전에 그림이 먼저 그렇게 된다.
+   */
+  morphFrom?: string;
+  /**
+   * `morphFrom`이 `image`의 어느 부분을 담고 있는가 (정규화 0~1). 두 그림을 겹쳐
+   * 세우는 값이라, 없으면 겹치지 않고 그냥 지나간다 (data의 REPLAY_MORPH_WITHIN).
+   */
+  morphWithin?: { x: number; y: number; width: number; height: number };
   lines: DialogueScriptLine[];
   /**
    * 대사가 끝난 뒤 대사창 없이 그림만 남기는 시간(ms).
@@ -84,6 +98,8 @@ export interface MemoryPhaseConfig {
    * 되짚어 볼 만한 한 장이 있는 기억에만 준다. 미니게임 화면을 스크린샷처럼
    * 재현하는 것이 목적이 아니라, "그때 본 것"이 한 장으로 남는 기억만 해당한다.
    * 없으면 대사만 흐르고 방이 뒤에 비친다.
+   *
+   * 규격·결·아직 비어 있는 칸은 docs/replay-stills.md.
    */
   replayStill?: string;
 }

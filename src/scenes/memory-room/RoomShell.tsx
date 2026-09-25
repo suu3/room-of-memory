@@ -14,6 +14,7 @@ import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { MirrorClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
+import { WindowCracks } from "./WindowCracks";
 import { WindowView } from "./WindowView";
 
 interface ShellBoxProps {
@@ -313,6 +314,14 @@ export function RoomShell({
         ))}
         {/* 창밖 풍경도 뒷벽에 속한다. 벽이 스러졌는데 풍경만 남으면 허공에 뜬 판이 된다 */}
         <WindowView
+          palette={palette}
+          decay={outsideDecay}
+          center={WINDOW_CENTER}
+          width={WINDOW_OPENING.width}
+          height={WINDOW_OPENING.height}
+        />
+        {/* 유리의 실금: 창밖이 무너진 만큼 늘어나고 되돌아가지 않는다 (WindowCracks) */}
+        <WindowCracks
           palette={palette}
           decay={outsideDecay}
           center={WINDOW_CENTER}

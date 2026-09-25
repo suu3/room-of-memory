@@ -28,7 +28,8 @@
 #   minigame      미니게임 id (src/minigames/index.ts 레지스트리)
 #   resultScript  미니게임 클리어 뒤의 결과 대사 (scripts.yaml의 id)
 #   unlockAfter   같은 페이즈에서 먼저 완료돼야 하는 기억 id 목록
-#   replayStill   다시보기에서 대사 뒤에 세우는 정지 그림 (public 기준 경로)
+#   replayStill   다시보기에서 대사 뒤에 세우는 정지 그림 (public 기준 경로).
+#                 아직 비어 있는 칸과 거기에 무엇을 그릴지는 docs/replay-stills.md
 #
 # 셋 다 생략하면 클릭 즉시 완료된다.
 
@@ -86,10 +87,14 @@ memories:
         ko: 부모님
         en: My Parents
         ja: 両親
+      # 왜 안 보이는지는 적지 않는다. 그림에서는 두 사람의 머리가 틀 밖에 있지만,
+      # 기록이 그 이유를 말해 버리면 플레이어가 1막에서 답을 먼저 쥔다. 도해는 본
+      # 것만 적는다: 닦았는데도 그 얼굴만 안 보인다. "흐릿하다"처럼 이유를 지어내는
+      # 말도 쓰지 않는다 (그림은 흐리지 않다).
       phase1:
-        ko: 유리에 먼지가 껴서 얼굴이 안 보인다. 닦아도 부모님 얼굴만 흐릿하다.
-        en: Dust on the glass hides their faces. Even wiped clean, only my parents stay blurred.
-        ja: ガラスに埃がついて顔が見えない。拭いても両親の顔だけがぼやけている。
+        ko: 유리에 먼지가 껴서 한참을 닦았다. 다 닦았는데도 두 사람 얼굴만 눈에 들어오지 않는다.
+        en: Dust on the glass, so I wiped it down. Even clean, their faces are the only ones I still can't see.
+        ja: ガラスに埃がついていて長いこと拭いた。拭いても、二人の顔だけがどうしても見えない。
       phase2:
         ko: 흩어진 조각을 제자리에 놓으니 얼굴이 돌아왔다. 아직 못 만났을 뿐이다.
         en: I put the pieces back and the faces returned. We just haven't met yet.
@@ -98,7 +103,7 @@ memories:
       minigame: photo-wipe
       resultScript: frame-photo
       replayStill: /assets/images/mg-photo-wipe-phase-1.webp
-    # 2차 조사: 흩어진 사진 조각을 맞추면 그늘에 묻혔던 가족 얼굴이 드러난다.
+    # 2차 조사: 흩어진 사진 조각을 맞추면 틀 밖에 있던 가족 얼굴이 틀 안으로 들어온다.
     #
     # 2막 추리의 두 번째 칸이다 (docs/content-design.md 4장). 거실에서 나갈 준비를
     # 하다가(fridge·duffel) 켜지고, 여기서 "아빠가 뭔가 남겼다"를 인지해야 거실

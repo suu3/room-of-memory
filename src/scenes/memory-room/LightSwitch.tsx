@@ -18,11 +18,12 @@ const [SWITCH_X, , SWITCH_Z] = LIGHT_SWITCH_PLACEMENT.position;
 const ROCKER_TILT = 0.42;
 /**
  * 인트로의 표시등. 소등한 방의 표시등은 점 하나지만, 인트로에서는 이걸 **찾아야**
- * 하므로 더 세다: 숨 쉬듯 맥동하고(주기 1.6초), 벽 한 뼘을 물들이는 점광원을 단다.
- * 스위치를 켜면 둘 다 꺼진다.
+ * 하므로 조금 더 세다: 숨 쉬듯 맥동하고(주기 1.6초), 벽 한 뼘을 물들이는 점광원을 단다.
+ * 스위치를 켜면 둘 다 꺼진다. 처음 값(2.4+1.4, 점광원 1.4)은 어둠 속에서 눈이 부셨다.
+ * 찾을 수 있을 만큼만 남긴다.
  */
-const PILOT = { base: 1.6, introBase: 2.4, introSwing: 1.4, periodS: 1.6 } as const;
-const PILOT_LIGHT = { intensity: 1.4, distance: 2.6, decay: 2 } as const;
+const PILOT = { base: 1.6, introBase: 1.3, introSwing: 0.5, periodS: 1.6 } as const;
+const PILOT_LIGHT = { intensity: 0.45, distance: 2.6, decay: 2 } as const;
 
 /**
  * 문 쪽 벽에 붙은 전등 스위치. 누르면 방 불이 꺼지고 다시 누르면 켜진다.

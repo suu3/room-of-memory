@@ -115,6 +115,7 @@
   "minigame": {
     "start": "Start",
     "skip": "Skip",
+    "back": "Step back",
     "close": "Close and return to the room",
     "successCount": "Success {{value}} / {{goal}}",
     "missCount": "Misses {{value}} / {{max}}",
@@ -541,7 +542,8 @@
       "l1": "Placeholder line.",
       "l2": "Placeholder line.",
       "l3": "Placeholder line.",
-      "caption": "Placeholder line."
+      "caption": "Placeholder line.",
+      "illegible": "(illegible)"
     },
     "take": "Take {{name}}"
   },

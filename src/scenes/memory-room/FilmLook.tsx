@@ -4,10 +4,12 @@ import { useFrame } from "@react-three/fiber";
 import { BlendFunction, ChromaticAberrationEffect, NoiseEffect } from "postprocessing";
 import { useEffect, useMemo, useRef } from "react";
 import { MathUtils, Vector2 } from "three";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import { subscribeEventPulse } from "./event-pulse";
 import {
   ABERRATION,
   aberrationAmount,
+  CLEAN_LAMBDA,
   decayPulse,
   FILM_GRAIN_OPACITY,
   grainOpacity,
@@ -75,7 +77,12 @@ export function FilmLookDriver({
   dim: number;
   reducedMotion: boolean;
 }) {
-  const motion = useRef({ resting: restingAberration(dim), pulse: 0 });
+  const motion = useRef({ resting: restingAberration(dim), pulse: 0, clean: 0 });
+  /*
+   * 엔딩: 문이 열리는 동안 색수차와 그레인이 0으로 수렴한다. 게임 내내 얹혀 있던
+   * 필름의 결이 처음으로 걷히는 순간이다 (docs/visual-experiments.md 4장 배트).
+   */
+  const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
 
   // 사건은 한곳(event-pulse)에서 듣는다. 카메라도 같은 펄스를 받는다.
   useEffect(() => {
@@ -95,10 +102,11 @@ export function FilmLookDriver({
       delta,
     );
     current.pulse = decayPulse(current.pulse, delta);
-    const amount = aberrationAmount(current.resting, current.pulse);
+    current.clean = MathUtils.damp(current.clean, endingStarted ? 1 : 0, CLEAN_LAMBDA, delta);
+    const amount = aberrationAmount(current.resting, current.pulse, current.clean);
     effects.aberration.offset.set(amount, amount * ABERRATION.aspect);
     // 그레인도 같은 순간 잠깐 거칠어진다. 모션을 끈 판에서는 펄스가 없어 그대로다
-    effects.grain.blendMode.opacity.value = grainOpacity(current.pulse);
+    effects.grain.blendMode.opacity.value = grainOpacity(current.pulse, current.clean);
   });
 
   return null;

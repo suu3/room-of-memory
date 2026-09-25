@@ -37,6 +37,12 @@ describe("film-look", () => {
     expect(aberrationAmount(resting, 4)).toBeCloseTo(resting + ABERRATION.pulse);
   });
 
+  it("깨끗해지는 값이 1이면 색수차도 그레인도 사라진다", () => {
+    expect(aberrationAmount(restingAberration(1), 1, 1)).toBe(0);
+    expect(grainOpacity(1, 1)).toBe(0);
+    expect(grainOpacity(0, 0.5)).toBeCloseTo(FILM_GRAIN_OPACITY * 0.5);
+  });
+
   it("튄 값은 1초 남짓이면 거의 사라지고, 아주 작아지면 0으로 끊긴다", () => {
     let pulse = 1;
     for (let frame = 0; frame < 60; frame++) pulse = decayPulse(pulse, 1 / 60);

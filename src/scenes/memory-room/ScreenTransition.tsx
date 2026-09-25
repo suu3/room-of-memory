@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { BlendFunction, Effect, EffectAttribute } from "postprocessing";
 import { useEffect, useMemo, useRef } from "react";
 import { Uniform } from "three";
+import { screenTransitionInput } from "@/lib/effects/screen-transition-input";
 import { useMemoryRoomStore } from "@/store/memory-room";
 
 /**
@@ -15,12 +16,16 @@ import { useMemoryRoomStore } from "@/store/memory-room";
  * - 필름 타들어감(burn): 엔딩이 시작되는 순간. 가장자리부터 따뜻하게 밝아지며
  *   안쪽으로 번진다. 문이 열리는 1.8초 동안 천천히 차오르고, 엔딩 화면이 덮는다.
  *
+ * - 재구성(settle): 공간이 선에서 면으로 돌아온 직후. 노이즈 결이 화면을 덮었다가
+ *   0.55초 안에 잦아든다 (WireframeReveal이 screen-transition-input으로 흘린다).
+ *
  * 입력 버퍼를 다른 좌표로 읽으므로(찢김) CONVOLUTION 이펙트다. 색수차와 같아서 제
  * 패스를 혼자 쓴다. 쉬는 동안(둘 다 0)에는 읽은 색을 그대로 내보낸다.
  */
 const FRAGMENT = /* glsl */ `
   uniform float uTear;
   uniform float uBurn;
+  uniform float uSettle;
   uniform float uTime;
 
   float hash(float n) {
@@ -42,6 +47,14 @@ const FRAGMENT = /* glsl */ `
       float grain = hash(p.x * 311.0 + p.y * 917.0 + uTime * 13.0);
       color.rgb = mix(color.rgb, vec3(grain) * 0.35, uTear * 0.35);
       color.rgb *= 1.0 - 0.6 * uTear;
+    }
+
+    if (uSettle > 0.001) {
+      // 굵은 결: 아직 채워지지 않은 자리가 어둡게 남는다. 결은 시간과 무관하게 고정이라
+      // 잦아드는 동안 같은 자리가 차오른다 (프레임마다 바뀌는 잡음이 아니다)
+      float cell = hash(floor(uv.x * 96.0) * 3.1 + floor(uv.y * 54.0) * 57.0);
+      float fill = step(cell, uSettle);
+      color.rgb = mix(color.rgb, color.rgb * 0.45, fill * 0.85);
     }
 
     if (uBurn > 0.001) {
@@ -67,6 +80,7 @@ export class ScreenTransitionEffect extends Effect {
       uniforms: new Map<string, Uniform>([
         ["uTear", new Uniform(0)],
         ["uBurn", new Uniform(0)],
+        ["uSettle", new Uniform(0)],
         ["uTime", new Uniform(0)],
       ]),
     });
@@ -79,6 +93,11 @@ export class ScreenTransitionEffect extends Effect {
 
   set burn(value: number) {
     const uniform = this.uniforms.get("uBurn");
+    if (uniform) uniform.value = value;
+  }
+
+  set settle(value: number) {
+    const uniform = this.uniforms.get("uSettle");
     if (uniform) uniform.value = value;
   }
 
@@ -151,6 +170,7 @@ export function ScreenTransitionDriver({
     effect.time = timing.now;
     effect.tear = tearAmount(timing.now - timing.tearStart);
     effect.burn = burnAmount(timing.now - timing.burnStart);
+    effect.settle = reducedMotion ? 0 : screenTransitionInput.settle;
   });
 
   return null;

@@ -95,6 +95,28 @@ export function phaseConfigOf(id: MemoryId, gamePhase: 1 | 2): MemoryPhaseConfig
 }
 
 /**
+ * 다시보기에서 1막 사진이 2막 사진의 **어느 부분**을 담고 있는가 (정규화 0~1).
+ *
+ * 두 바퀴의 그림을 가진 기억은 그 둘을 겹쳐 세워야 넘어갈 때 물체가 둘로 보이지
+ * 않는다 (PhotoMorph). 액자의 두 장은 같은 장면의 다른 크롭이다: 1막 사진은 2막
+ * 사진의 아래쪽 가운데를 잘라낸 것이라, 위로 21%가 잘려 나간 자리에 부모의 얼굴이
+ * 있다. 틀이 그만큼 물러나는 것이 곧 "얼굴이 돌아오는" 동작이다.
+ *
+ * 값은 두 그림의 밝기를 겹쳐 재서 얻었다 (정규화 상호상관 최대). 그림을 다시 뽑으면
+ * 다시 재야 한다. 대본이 아니라 그림의 치수라 YAML이 아니라 여기 있다.
+ */
+export const REPLAY_MORPH_WITHIN: Partial<Record<MemoryId, ReplayMorphWithin>> = {
+  frame: { x: 0.12, y: 0.2125, width: 0.69, height: 0.7867 },
+};
+
+export interface ReplayMorphWithin {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
  * 재난방송이 끊긴 자리에서 도는 전환 컷씬: 게임 중 일러스트가 화면을 통째로
  * 차지하는 유일한 자리다. 컷 내용은 content/cutscenes.yaml에 있다.
  */
