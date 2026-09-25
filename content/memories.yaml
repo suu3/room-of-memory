@@ -118,7 +118,7 @@ memories:
       minigame: photo-wipe
       resultScript: frame-photo
       unlockAfter: [console, ball]
-      replayStill: /assets/images/mg-photo-wipe-phase-1.webp
+      replayStill: /assets/images/mg-photo-wipe-phase-1.webp?v=20260912
     # 2차 (4페이즈): 안방 서류 셋을 다 본 뒤 금빛이 돈다. 조각을 맞추면 얼굴이 돌아온다.
     # 대사는 없다 (v4 3-6). 끝나는 순간 정적 비트(still-beat)가 흐르고 resolve로 넘어간다.
     phase2:
@@ -126,7 +126,7 @@ memories:
       from: p4
       unlockAfter: [research-note, id-card]
       cutscene: still-beat
-      replayStill: /assets/images/mg-photo-wipe-phase-2.webp
+      replayStill: /assets/images/mg-photo-wipe-phase-2.webp?v=20260912
 
   - id: phone
     icon: DeviceMobile

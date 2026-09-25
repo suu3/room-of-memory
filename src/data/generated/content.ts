@@ -93,7 +93,7 @@ export const MEMORIES: MemoryItem[] = [
         { id: "console", visit: 1 },
         { id: "ball", visit: 1 },
       ],
-      replayStill: "/assets/images/mg-photo-wipe-phase-1.webp",
+      replayStill: "/assets/images/mg-photo-wipe-phase-1.webp?v=20260912",
     },
     phase2: {
       interaction: { minigameId: "photo-puzzle" },
@@ -101,7 +101,7 @@ export const MEMORIES: MemoryItem[] = [
         { id: "research-note", visit: 2 },
         { id: "id-card", visit: 2 },
       ],
-      replayStill: "/assets/images/mg-photo-wipe-phase-2.webp",
+      replayStill: "/assets/images/mg-photo-wipe-phase-2.webp?v=20260912",
       from: "p4",
       cutscene: "still-beat",
     },
