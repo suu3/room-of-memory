@@ -103,12 +103,14 @@ export function CharacterSheetModal() {
         이름이 "수첩"이면 수첩처럼 보여야 한다. 낱장 종이에 이름만 바꾸면 껍데기와
         알맹이가 어긋난다. 왼쪽에 링 제본 여백, 페이지에 모눈, 위쪽에 종이 인덱스 탭.
         전부 CSS다 (globals.css의 .notebook-*).
+        높이는 탭과 무관하게 화면을 채운다. 소지품처럼 짧은 탭에서 수첩이 쪼그라들면
+        탭을 넘길 때마다 판이 튄다.
       */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label={t("characterSheet.title")}
-        className="relative flex max-h-full w-full max-w-5xl animate-fade-rise overflow-hidden rounded-lg border border-ink/12 bg-paper text-ink shadow-panel"
+        className="relative flex h-full max-h-full w-full max-w-5xl animate-fade-rise overflow-hidden rounded-lg border border-ink/12 bg-paper text-ink shadow-panel"
       >
         {/* 제본 여백. 구멍이 뚫린 이 폭만큼 페이지가 오른쪽에서 시작한다 */}
         <div
@@ -182,7 +184,7 @@ export function CharacterSheetModal() {
             딸려 움직인다. 수첩을 보는 동안 뒤가 흔들리면 수첩이 화면 위에 얹힌
             종이가 아니라 페이지의 일부처럼 보인다.
           */}
-          <div className="notebook-grid scroll-paper min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
+          <div className="notebook-grid scroll-paper min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5">
             {tab === "map" ? (
               <NotebookMap />
             ) : tab === "items" ? (
