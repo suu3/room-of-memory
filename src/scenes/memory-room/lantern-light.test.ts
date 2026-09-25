@@ -6,7 +6,7 @@ import {
   lanternAmount,
   lanternIntensity,
   lanternReach,
-} from "./lantern";
+} from "./lantern-light";
 
 describe("lantern", () => {
   it("문턱 위에서는 꺼져 있다: 진입 밝기와 문턱 자체에서 0", () => {

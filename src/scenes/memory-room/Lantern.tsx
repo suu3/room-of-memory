@@ -3,7 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { MathUtils, Plane, type PointLight, Vector3 } from "three";
-import { LANTERN_HEIGHT, lanternIntensity, lanternReach } from "./lantern";
+import { LANTERN_HEIGHT, lanternIntensity, lanternReach } from "./lantern-light";
 import { usePlayerPosition } from "./use-near-player";
 
 /** 바닥 평면. 커서의 광선이 여기 닿는 자리에 등이 선다 (MemoryRoomScene의 걷기 판정과 같은 면). */
@@ -15,7 +15,7 @@ const FOLLOW_LAMBDA = 7;
 const LEVEL_LAMBDA = 2.2;
 
 /**
- * 손 가까이만 비추는 등 (docs/visual-experiments.md 6장). 수치는 lantern.ts.
+ * 손 가까이만 비추는 등 (docs/visual-experiments.md 6장). 수치는 lantern-light.ts.
  *
  * 마우스 기기에서는 커서가 바닥에 닿는 자리, 손가락 기기에서는 몸의 자리다. 커서가 캔버스
  * 밖에 있으면(r3f의 pointer는 마지막 자리에 멈춘다) 광선이 바닥을 못 만날 때만 몸으로
