@@ -5,11 +5,13 @@ import { usePointerKind } from "@/i18n/control-hint";
 import { cursorTarget } from "@/scenes/memory-room/cursor-target";
 import { damp, RING_SIZE, ringGoal } from "./cursor-ring";
 
-/** 점이 손을 따라붙는 속도와 링이 따라붙는 속도(1/초). 링이 늦어야 무게가 읽힌다. */
-const DOT_LAMBDA = 30;
-const RING_LAMBDA = 14;
-/** 링이 조여들거나 오브젝트로 빨려드는 속도. 따라오는 것보다 조금 빠르다 */
-const MORPH_LAMBDA = 18;
+/**
+ * 링이 따라붙는 속도(1/초). 점은 손에 바로 붙는다. 점까지 늦으면 커서 자체가 굼뜨게
+ * 느껴진다. 링만 살짝 늦어 손의 속도를 그린다.
+ */
+const RING_LAMBDA = 32;
+/** 링이 조여들거나 오브젝트로 빨려드는 속도 */
+const MORPH_LAMBDA = 26;
 
 /**
  * 링이 조여드는 DOM. 화면 전체를 덮는 대사 넘기기 버튼은 뺀다. 화면 어디서나 조여 있게 된다.
@@ -68,7 +70,6 @@ export function CustomCursor() {
     root.classList.add("custom-cursor");
 
     const pointer = { x: OFFSCREEN, y: OFFSCREEN, shown: false, down: false };
-    const dot = { x: OFFSCREEN, y: OFFSCREEN };
     const ring = { x: OFFSCREEN, y: OFFSCREEN, scale: 1 };
     /** 손이 얹힌 만질 수 있는 DOM. 패널이 닫혀 사라지면 놓는다 */
     let touchable: Element | null = null;
@@ -125,8 +126,6 @@ export function CustomCursor() {
       const dotEl = dotRef.current;
       const ringEl = ringRef.current;
       if (!dotEl || !ringEl) return;
-      dot.x = damp(dot.x, pointer.x, DOT_LAMBDA, delta);
-      dot.y = damp(dot.y, pointer.y, DOT_LAMBDA, delta);
 
       if (touchable && !touchable.isConnected) touchable = null;
       const hot = touchable !== null;
@@ -138,7 +137,7 @@ export function CustomCursor() {
       ring.y = damp(ring.y, goal.y, lambda, delta);
       ring.scale = damp(ring.scale, goal.scale, MORPH_LAMBDA, delta);
 
-      dotEl.style.transform = `translate3d(${dot.x}px, ${dot.y}px, 0)`;
+      dotEl.style.transform = `translate3d(${pointer.x}px, ${pointer.y}px, 0)`;
       ringEl.style.transform = `translate3d(${ring.x - RING_SIZE / 2}px, ${ring.y - RING_SIZE / 2}px, 0) scale(${ring.scale})`;
       dotEl.dataset.shown = ringEl.dataset.shown = String(pointer.shown);
       ringEl.dataset.hot = String(hot || absorb !== null);

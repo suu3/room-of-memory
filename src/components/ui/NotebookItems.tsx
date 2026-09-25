@@ -26,7 +26,8 @@ export function NotebookItems() {
 
   if (carried.length === 0) {
     return (
-      <div className="mx-auto max-w-2xl py-10 text-center">
+      /* 빈 페이지 한가운데. 수첩은 탭과 무관하게 화면 높이라 위에 붙이면 아래가 텅 빈다 */
+      <div className="flex h-full items-center justify-center text-center">
         <p className="break-ko text-sm text-graphite">{t("characterSheet.itemsEmpty")}</p>
       </div>
     );
