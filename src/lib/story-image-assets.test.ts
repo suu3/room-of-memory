@@ -1,0 +1,73 @@
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import { ASSETS } from "./assets";
+
+const WEBP_ASSETS = {
+  "cutscene-day-school.webp": [1920, 1080],
+  "cutscene-day-elevator.webp": [1920, 1080],
+  "cutscene-day-run.webp": [1920, 1080],
+  "cutscene-day-door.webp": [1920, 1080],
+  "cutscene-day-news.webp": [1920, 1080],
+  "cutscene-survivor-1.webp": [800, 960],
+  "cutscene-survivor-2.webp": [800, 960],
+  "cutscene-survivor-3.webp": [800, 960],
+  "cutscene-survivor-4.webp": [800, 960],
+  "mg-card-flip-back.webp": [512, 716],
+  "mg-id-card-front.webp": [1024, 640],
+  "mg-id-card-back.webp": [1024, 640],
+  "mg-ampoule-label.webp": [1024, 256],
+  "mg-shelf-book-inside.webp": [512, 704],
+  "mg-papers-paper.webp": [768, 1024],
+} as const;
+
+function webpDimensions(bytes: Buffer): readonly [number, number] {
+  expect(bytes.toString("ascii", 0, 4)).toBe("RIFF");
+  expect(bytes.toString("ascii", 8, 12)).toBe("WEBP");
+
+  const chunk = bytes.toString("ascii", 12, 16);
+  if (chunk === "VP8X") {
+    return [bytes.readUIntLE(24, 3) + 1, bytes.readUIntLE(27, 3) + 1];
+  }
+  if (chunk === "VP8 ") {
+    return [bytes.readUInt16LE(26) & 0x3fff, bytes.readUInt16LE(28) & 0x3fff];
+  }
+  if (chunk === "VP8L") {
+    const packed = bytes.readUInt32LE(21);
+    return [(packed & 0x3fff) + 1, ((packed >> 14) & 0x3fff) + 1];
+  }
+  throw new Error(`Unsupported WebP chunk: ${chunk}`);
+}
+
+describe("story image assets", () => {
+  it.each(Object.entries(WEBP_ASSETS))("ships %s at its gameplay dimensions", (name, size) => {
+    const path = `public/assets/images/${name}`;
+    expect(existsSync(path), `${name} is missing`).toBe(true);
+
+    const bytes = readFileSync(path);
+    expect(webpDimensions(bytes)).toEqual(size);
+    expect(statSync(path).size, `${name} exceeds the 1 MB image budget`).toBeLessThanOrEqual(
+      1024 * 1024,
+    );
+  });
+
+  it("ships the reusable Raon logo as an SVG", () => {
+    const path = "public/assets/images/ui-raon-logo.svg";
+    expect(existsSync(path)).toBe(true);
+    const logo = readFileSync(path, "utf8");
+    expect(logo).toContain("<svg");
+    expect(logo).toContain('d="M68 151H188" stroke-width="12"');
+    expect(logo).toContain('d="M91 151a37 37 0 0 1 74 0" stroke-width="12"');
+  });
+
+  it("registers every new image in the shared asset map", () => {
+    const paths = Object.values(ASSETS.images);
+    for (const name of [...Object.keys(WEBP_ASSETS), "ui-raon-logo.svg"]) {
+      expect(
+        paths.some(
+          (path) => typeof path === "string" && path.split("?")[0] === `/assets/images/${name}`,
+        ),
+      ).toBe(true);
+    }
+    expect(ASSETS.images.raonLogo).toBe("/assets/images/ui-raon-logo.svg?v=2");
+  });
+});

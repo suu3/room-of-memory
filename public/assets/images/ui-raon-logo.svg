@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">라온생명과학연구소 로고</title>
+  <desc id="desc">둥근 테 안의 수평선 위로 해가 떠오르는 모양</desc>
+  <g fill="none" stroke="#D5AE78" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="128" cy="128" r="96" stroke-width="14" />
+    <path d="M68 151H188" stroke-width="12" />
+    <path d="M91 151a37 37 0 0 1 74 0" stroke-width="12" />
+    <path d="M128 76v20M88 94l15 16M168 94l-15 16" stroke-width="10" />
+  </g>
+</svg>

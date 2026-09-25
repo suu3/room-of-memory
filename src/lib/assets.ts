@@ -75,6 +75,26 @@ export const ASSETS = {
     creatorAvatar: "/assets/images/ui-creator-avatar.webp",
     /** 지원사업 CI (경기청년 갭이어 흰색 가로형 워드마크, 720×120). 어두운 판 위에만 올린다. */
     gapYearLogo: "/assets/images/ui-gapyear-logo.webp",
+    /** 라온생명과학연구소 공통 심볼. 출입증·앰플·컴퓨터 화면에서 같은 도형을 쓴다. */
+    raonLogo: "/assets/images/ui-raon-logo.svg?v=2",
+    /** 라디오 반전에서 번지는 '그날' 5연작. */
+    cutsceneDaySchool: "/assets/images/cutscene-day-school.webp",
+    cutsceneDayElevator: "/assets/images/cutscene-day-elevator.webp",
+    cutsceneDayRun: "/assets/images/cutscene-day-run.webp",
+    cutsceneDayDoor: "/assets/images/cutscene-day-door.webp",
+    cutsceneDayNews: "/assets/images/cutscene-day-news.webp",
+    /** 생존자 라디오 방송 중 좌·우로 번갈아 드는 세로 웹툰 칸. */
+    cutsceneSurvivor1: "/assets/images/cutscene-survivor-1.webp",
+    cutsceneSurvivor2: "/assets/images/cutscene-survivor-2.webp",
+    cutsceneSurvivor3: "/assets/images/cutscene-survivor-3.webp",
+    cutsceneSurvivor4: "/assets/images/cutscene-survivor-4.webp",
+    /** '뒤집으면 보인다' 조사 에셋. */
+    mgCardFlipBack: "/assets/images/mg-card-flip-back.webp",
+    mgIdCardFront: "/assets/images/mg-id-card-front.webp",
+    mgIdCardBack: "/assets/images/mg-id-card-back.webp",
+    mgAmpouleLabel: "/assets/images/mg-ampoule-label.webp",
+    mgShelfBookInside: "/assets/images/mg-shelf-book-inside.webp",
+    mgPapersPaper: "/assets/images/mg-papers-paper.webp",
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg?v=2",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
     mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp?v=2",
