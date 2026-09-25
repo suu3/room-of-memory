@@ -475,8 +475,10 @@ export const CLUE_PROPS = {
   workbook: { near: [-4.28, -2.45] as readonly [number, number], interactionRadius: 2.1 },
 } as const;
 
-/** 소파 앞 야구 가방의 배율. 가구(1.3)보다 크게 잡아야 바닥에서 눈에 든다. */
-const DUFFEL_SCALE = 1.6;
+/** 소파 앞 책가방의 배율. 가구(1.3)보다 크게 잡아야 바닥에서 눈에 든다. */
+const BACKPACK_SCALE = 1.6;
+/** 책가방 몸통 두께(0.2)의 절반. */
+const BACKPACK_HALF_THICKNESS = 0.1;
 
 /** 거실 가구 위에 얹는 기억의 자리: 1배 좌표를 가구와 같은 기준점으로 키운다. */
 function livingSpot(anchor: readonly [number, number], x: number, y: number, z: number): Vec3Tuple {
@@ -608,14 +610,14 @@ export const MEMORY_PLACEMENTS = {
   },
   duffel: {
     id: "duffel",
-    // 소파 앞 바닥에 던져둔 야구 가방. 사방이 트여 있어 다가가기 쉽다. 키운 소파의
+    // 소파 앞 바닥에 던져둔 책가방. 사방이 트여 있어 다가가기 쉽다. 키운 소파의
     // 앞턱(z -2.25)에서 한 걸음 앞: 붙이면 클릭 구가 가운데 쿠션의 앉는 자리를 문다.
     // 가구 배율보다 더 키운다: 바닥에 홀로 놓인 물건이라 같은 배율로는 작아 보인다.
-    // 몸통 반지름(0.19×배율)만큼 띄워 바닥에 얹는다.
+    // 몸통 두께의 절반만큼 띄워 바닥에 얹는다.
     // 클릭 구는 가방(길이 1.0)만 덮는 0.8: 더 크면 소파 쿠션의 앉는 자리까지 덮어 앉지 못한다
-    position: [-9.5, 0.19 * DUFFEL_SCALE + 0.01, -1.15],
+    position: [-9.5, BACKPACK_HALF_THICKNESS * BACKPACK_SCALE + 0.01, -1.15],
     rotation: [0, 0.42, 0],
-    scale: DUFFEL_SCALE,
+    scale: BACKPACK_SCALE,
     interactionRadius: 1.3,
     hitRadius: 0.8,
   },

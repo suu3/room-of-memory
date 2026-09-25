@@ -1,4 +1,4 @@
-import { useGLTF } from "@react-three/drei";
+import { RoundedBox, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import {
   type ReactNode,
@@ -883,56 +883,97 @@ function TableNoteMemory({ palette, opacity }: VisualProps) {
 const NOTE_HALF = 0.1;
 const NOTE_FOLD = 0.45;
 
-/**
- * 소파 앞에 던져둔 야구 가방: 비우고 다시 싸는 물건.
- *
- * 거실에서 유일하게 새로 서는 기억이다. 나머지는 이미 있던 가구를 다시 보는
- * 것이지만, 나갈 준비는 없던 행동이라 없던 물건이 필요하다.
- */
-function DuffelMemory({ palette, opacity }: VisualProps) {
+/** 소파 앞에 던져둔 책가방: 비우고 다시 싸는 물건. */
+function BackpackMemory({ palette, opacity }: VisualProps) {
   const transparent = opacity < 1;
+  const fabricMaterial = (color: string, roughness = 0.92) => (
+    <meshStandardMaterial
+      color={color}
+      roughness={roughness}
+      opacity={opacity}
+      transparent={transparent}
+    />
+  );
+
   return (
-    <group>
-      {/* 몸통: 눕힌 원통이 천 가방의 처진 실루엣에 가장 가깝다 */}
-      <mesh rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.19, 0.19, 0.62, 12]} />
-        <meshStandardMaterial
-          color={palette.sage}
-          roughness={0.9}
-          opacity={opacity}
-          transparent={transparent}
-        />
+    <group rotation={[0, -0.08, -0.04]}>
+      {/* 몸통 뒤로 비어져 나온 두 어깨끈. 서로 다른 각도로 흩어져 던져진 느낌을 낸다. */}
+      {([-1, 1] as const).map((side) => (
+        <group
+          key={side}
+          name="backpack-shoulder-strap"
+          position={[side * 0.2, 0.006, 0.05]}
+          rotation={[0, side * 0.14, side * 0.08]}
+        >
+          <mesh position={[side * 0.04, 0, 0.28]} rotation={[0, side * 0.16, 0]} castShadow>
+            <boxGeometry args={[0.075, 0.035, 0.42]} />
+            {fabricMaterial(palette.coal)}
+          </mesh>
+          <mesh position={[side * 0.1, -0.004, 0.49]} rotation={[0, side * 0.42, 0]} castShadow>
+            <boxGeometry args={[0.055, 0.026, 0.2]} />
+            {fabricMaterial(palette.frame)}
+          </mesh>
+        </group>
+      ))}
+
+      {/* 낮게 눕힌 둥근 사각 몸통이 학교 백팩의 단단한 실루엣을 만든다. */}
+      <RoundedBox
+        name="backpack-body"
+        args={[0.58, 0.2, 0.68]}
+        radius={0.075}
+        smoothness={3}
+        castShadow
+        receiveShadow
+      >
+        {fabricMaterial(palette.deep)}
+      </RoundedBox>
+
+      {/* 양 옆 천 패널은 몸통의 깊이와 각진 형태를 더 잘 읽히게 한다. */}
+      {([-1, 1] as const).map((side) => (
+        <mesh key={side} position={[side * 0.292, 0.005, 0.04]} castShadow>
+          <boxGeometry args={[0.025, 0.13, 0.45]} />
+          {fabricMaterial(palette.coal)}
+        </mesh>
+      ))}
+
+      {/* 앞주머니: 참고 이미지처럼 아래쪽 절반을 크게 덮는다. */}
+      <RoundedBox
+        name="backpack-front-pocket"
+        args={[0.49, 0.105, 0.29]}
+        radius={0.045}
+        smoothness={3}
+        position={[0, 0.13, 0.14]}
+        castShadow
+        receiveShadow
+      >
+        {fabricMaterial(palette.frame)}
+      </RoundedBox>
+
+      {/* 본체 지퍼와 앞주머니 지퍼. */}
+      <mesh position={[0, 0.108, -0.235]} castShadow={false}>
+        <boxGeometry args={[0.46, 0.018, 0.018]} />
+        {fabricMaterial(palette.trim, 0.62)}
       </mesh>
-      {/* 어깨끈: 몸통 위를 가로지른다 */}
-      <mesh position={[0, 0.16, 0]} rotation={[0.12, 0, 0]} castShadow>
-        <boxGeometry args={[0.5, 0.06, 0.09]} />
-        <meshStandardMaterial
-          color={palette.frame}
-          roughness={0.85}
-          opacity={opacity}
-          transparent={transparent}
-        />
+      <mesh position={[0, 0.187, 0.055]} castShadow={false}>
+        <boxGeometry args={[0.39, 0.014, 0.015]} />
+        {fabricMaterial(palette.trim, 0.62)}
       </mesh>
-      {/* 지퍼: 몸통 위쪽을 따라 난 줄 하나 */}
-      <mesh position={[0, 0.185, 0.03]} castShadow={false}>
-        <boxGeometry args={[0.56, 0.012, 0.02]} />
-        <meshStandardMaterial
-          color={palette.trim}
-          roughness={0.6}
-          opacity={opacity}
-          transparent={transparent}
-        />
-      </mesh>
-      {/* 옆주머니: 가방 한쪽 끝에 덧댄 천 */}
-      <mesh position={[-0.28, -0.02, 0.02]} castShadow>
-        <boxGeometry args={[0.1, 0.24, 0.3]} />
-        <meshStandardMaterial
-          color={palette.frame}
-          roughness={0.9}
-          opacity={opacity}
-          transparent={transparent}
-        />
-      </mesh>
+
+      {/* 위 손잡이는 세 토막으로 만든 낮은 U자다. */}
+      <group position={[0, 0.06, -0.39]}>
+        <mesh position={[-0.105, 0, 0.035]} rotation={[0, -0.35, 0]} castShadow>
+          <boxGeometry args={[0.035, 0.04, 0.14]} />
+          {fabricMaterial(palette.coal)}
+        </mesh>
+        <mesh position={[0.105, 0, 0.035]} rotation={[0, 0.35, 0]} castShadow>
+          <boxGeometry args={[0.035, 0.04, 0.14]} />
+          {fabricMaterial(palette.coal)}
+        </mesh>
+        <mesh position={[0, 0, -0.02]} castShadow>
+          <boxGeometry args={[0.19, 0.04, 0.035]} />
+          {fabricMaterial(palette.coal)}
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -1041,7 +1082,7 @@ function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId 
     case "fridge":
       return <FridgeDoorMemory palette={palette} opacity={opacity} />;
     case "duffel":
-      return <DuffelMemory palette={palette} opacity={opacity} />;
+      return <BackpackMemory palette={palette} opacity={opacity} />;
     case "shoes":
       return <ShoeCabinetMemory palette={palette} opacity={opacity} />;
     case "cards":

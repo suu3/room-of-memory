@@ -41,6 +41,17 @@ async function renderConsole() {
   );
 }
 
+async function renderDuffel() {
+  return ReactThreeTestRenderer.create(
+    <InteractiveMemory
+      id="duffel"
+      palette={TEST_PALETTE}
+      nearbyMemoryId={null}
+      onInteract={() => undefined}
+    />,
+  );
+}
+
 describe("interactive memory helpers", () => {
   beforeEach(() => {
     useMemoryRoomStore.getState().reset();
@@ -76,6 +87,19 @@ describe("interactive memory helpers", () => {
 
     const hit = renderer.scene.findAll((node) => node.props.name === "memory-hit-console");
     expect(hit).toHaveLength(1);
+    await renderer.unmount();
+  });
+
+  it("더플백 기억을 각진 본체와 앞주머니, 두 어깨끈이 있는 책가방으로 그린다", async () => {
+    const renderer = await renderDuffel();
+
+    expect(renderer.scene.findAll((node) => node.props.name === "backpack-body")).toHaveLength(1);
+    expect(
+      renderer.scene.findAll((node) => node.props.name === "backpack-front-pocket"),
+    ).toHaveLength(1);
+    expect(
+      renderer.scene.findAll((node) => node.props.name === "backpack-shoulder-strap"),
+    ).toHaveLength(2);
     await renderer.unmount();
   });
 });
