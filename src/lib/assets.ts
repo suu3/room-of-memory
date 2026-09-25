@@ -77,12 +77,13 @@ export const ASSETS = {
     gapYearLogo: "/assets/images/ui-gapyear-logo.webp",
     /** 라온생명과학연구소 공통 심볼. 출입증·앰플·컴퓨터 화면에서 같은 도형을 쓴다. */
     raonLogo: "/assets/images/ui-raon-logo.svg?v=2",
-    /** 라디오 반전에서 번지는 '그날' 5연작. */
-    cutsceneDaySchool: "/assets/images/cutscene-day-school.webp",
-    cutsceneDayElevator: "/assets/images/cutscene-day-elevator.webp",
-    cutsceneDayRun: "/assets/images/cutscene-day-run.webp",
-    cutsceneDayDoor: "/assets/images/cutscene-day-door.webp",
-    cutsceneDayNews: "/assets/images/cutscene-day-news.webp",
+    /** 라디오 반전에서 번지는 '그날' 6연작 (분기점 과거편, content/cutscenes.yaml의 radio-blackout). */
+    cutsceneDay1: "/assets/images/cutscene-day-1.webp",
+    cutsceneDay2: "/assets/images/cutscene-day-2.webp",
+    cutsceneDay3: "/assets/images/cutscene-day-3.webp",
+    cutsceneDay4: "/assets/images/cutscene-day-4.webp",
+    cutsceneDay5: "/assets/images/cutscene-day-5.webp",
+    cutsceneDay6: "/assets/images/cutscene-day-6.webp",
     /** 생존자 라디오 방송 중 좌·우로 번갈아 드는 세로 웹툰 칸. */
     cutsceneSurvivor1: "/assets/images/cutscene-survivor-1.webp",
     cutsceneSurvivor2: "/assets/images/cutscene-survivor-2.webp",

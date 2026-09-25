@@ -3,11 +3,12 @@ import { describe, expect, it } from "vitest";
 import { ASSETS } from "./assets";
 
 const WEBP_ASSETS = {
-  "cutscene-day-school.webp": [1920, 1080],
-  "cutscene-day-elevator.webp": [1920, 1080],
-  "cutscene-day-run.webp": [1920, 1080],
-  "cutscene-day-door.webp": [1920, 1080],
-  "cutscene-day-news.webp": [1920, 1080],
+  "cutscene-day-1.webp": [1920, 1080],
+  "cutscene-day-2.webp": [1920, 1080],
+  "cutscene-day-3.webp": [1920, 1080],
+  "cutscene-day-4.webp": [1920, 1080],
+  "cutscene-day-5.webp": [1920, 1080],
+  "cutscene-day-6.webp": [1920, 1080],
   "cutscene-survivor-1.webp": [800, 960],
   "cutscene-survivor-2.webp": [800, 960],
   "cutscene-survivor-3.webp": [800, 960],

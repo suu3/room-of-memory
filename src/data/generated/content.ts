@@ -481,28 +481,33 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "radio-blackout",
     cuts: [
       {
-        image: "/assets/images/cutscene-day-school.webp",
+        image: "/assets/images/cutscene-day-1.webp",
+        holdMs: 2400,
+        lines: [],
+      },
+      {
+        image: "/assets/images/cutscene-day-2.webp",
         holdMs: 1800,
         lines: [],
       },
       {
-        image: "/assets/images/cutscene-day-elevator.webp",
+        image: "/assets/images/cutscene-day-3.webp",
         holdMs: 1800,
         lines: [],
       },
       {
-        image: "/assets/images/cutscene-day-run.webp",
+        image: "/assets/images/cutscene-day-4.webp",
         holdMs: 1800,
         lines: [],
       },
       {
-        image: "/assets/images/cutscene-day-door.webp",
+        image: "/assets/images/cutscene-day-5.webp",
         holdMs: 1800,
         lines: [],
       },
       {
-        image: "/assets/images/cutscene-day-news.webp",
-        lines: [{ speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line1" }],
+        image: "/assets/images/cutscene-day-6.webp",
+        lines: [{ speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line1" }],
       },
     ],
   },

@@ -30,20 +30,26 @@ cutscenes:
   # 분기점의 이미지 나열: 그날이 한 장씩 지나간다. 말은 마지막 한 줄뿐이다.
   # 컷 사이에 대사가 없어 저절로 넘어간다 (holdMs). 그림이 들어오기 전에는 회색 판.
   # 끝나면 3D 방으로 돌아온다. 방은 가장 어둡고, BGM은 없고, 라디오는 빨갛게 깜빡인다.
+  # 여섯 컷 (docs/story.md 3장 분기점): 하교길에 엄마 문자 미리보기 → 엘리베이터의 감염자
+  # → 얼어붙은 얼굴 → 복도를 달림 → 잠근 현관에 주저앉음 → 불 꺼진 거실의 뉴스.
+  # 첫 컷은 휴대폰 알림을 읽을 틈을 조금 더 준다.
   radio-blackout:
-    - image: /assets/images/cutscene-day-school.webp
+    - image: /assets/images/cutscene-day-1.webp
+      holdMs: 2400
+      lines: []
+    - image: /assets/images/cutscene-day-2.webp
       holdMs: 1800
       lines: []
-    - image: /assets/images/cutscene-day-elevator.webp
+    - image: /assets/images/cutscene-day-3.webp
       holdMs: 1800
       lines: []
-    - image: /assets/images/cutscene-day-run.webp
+    - image: /assets/images/cutscene-day-4.webp
       holdMs: 1800
       lines: []
-    - image: /assets/images/cutscene-day-door.webp
+    - image: /assets/images/cutscene-day-5.webp
       holdMs: 1800
       lines: []
-    - image: /assets/images/cutscene-day-news.webp
+    - image: /assets/images/cutscene-day-6.webp
       lines:
         - speaker: hero
           ko: 그날 이후로 난 나가지 않고 있다. 어차피 나가 봐야 보이는 현실은 똑같으니까.
