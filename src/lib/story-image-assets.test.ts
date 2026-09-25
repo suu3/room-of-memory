@@ -12,7 +12,6 @@ const WEBP_ASSETS = {
   "cutscene-survivor-2.webp": [800, 960],
   "cutscene-survivor-3.webp": [800, 960],
   "cutscene-survivor-4.webp": [800, 960],
-  "mg-card-flip-back.webp": [512, 716],
   "mg-id-card-front.webp": [1024, 640],
   "mg-id-card-back.webp": [1024, 640],
   "mg-ampoule-label.webp": [1024, 256],

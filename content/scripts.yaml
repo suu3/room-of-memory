@@ -213,10 +213,10 @@ scripts:
     - speaker: mom
       ko: 다음에 오면 이거 마저 치자. 엄마가 이기고 있었던 거 기억해라. 하하하!
     - speaker: hero
-      ko: …한 장만 뒤집혀 있네.
+      ko: …카드 밑에 쪽지가 끼어 있네.
     # 카드 미궁(card-odd)의 규칙은 방 선반의 놀이책이 들고 있다 (src/data/room-clues.ts).
 
-  # 뒤집힌 카드 한 장(card-flip)의 뒷면: 엄마 메모. 냉장고 아래칸으로 가는 다리다 (v4.1 3장)
+  # 카드 밑에 끼워 둔 쪽지(card-flip)의 안쪽: 엄마 메모. 냉장고 아래칸으로 가는 다리다 (v4.1 3장)
   cards-memo:
     - speaker: hero
       ko: …엄마 글씨다.
@@ -276,7 +276,7 @@ scripts:
     - speaker: hero
       ko: 냉장고 아래칸. 메모가 붙어 있다.
     - speaker: hero
-      ko: 카드에 적혀 있던 그 칸이다.
+      ko: 쪽지에 적혀 있던 그 칸이다.
     - speaker: hero
       ko: …열어보자.
       en: …Let's open it.

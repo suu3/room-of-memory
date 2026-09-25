@@ -189,57 +189,69 @@ export function workbookObject(labels: WorkbookLabels): InspectObject {
   };
 }
 
-/* ── 식탁 카드 (2페이즈, 뒷면에 엄마 메모) ─────────────────────────────────── */
+/* ── 식탁 카드 밑의 쪽지 (2페이즈, 안쪽에 엄마 메모) ─────────────────────────── */
 
-/** 판 위에 엎어 둔 카드의 등: 트럼프 뒷무늬. 뒤집기 전에는 이것만 보인다. */
-const paintCardPattern: FacePainter = (ctx, { width, height }, palette) => {
-  ctx.fillStyle = palette.linen;
+/** 메모장에서 뜯은 노란 종이: 줄 친 바탕, 위쪽 뜯긴 자리, 가운데 접힌 자국. 방의 쪽지와 같은 색. */
+function paintNotePaper(
+  ctx: CanvasRenderingContext2D,
+  { width, height }: { width: number; height: number },
+  palette: RoomPalette,
+) {
+  ctx.fillStyle = palette.sun;
   ctx.fillRect(0, 0, width, height);
-  ctx.fillStyle = palette.clay;
-  ctx.fillRect(24, 24, width - 48, height - 48);
-  ctx.strokeStyle = palette.linen;
-  ctx.lineWidth = 3;
-  for (let offset = -height; offset < width + height; offset += 28) {
+  // 줄
+  ctx.strokeStyle = palette.trim;
+  ctx.globalAlpha = 0.35;
+  ctx.lineWidth = 2;
+  for (let y = height * 0.28; y < height - 20; y += height * 0.14) {
     ctx.beginPath();
-    ctx.moveTo(offset, 24);
-    ctx.lineTo(offset + height, height - 24);
+    ctx.moveTo(24, y);
+    ctx.lineTo(width - 24, y);
     ctx.stroke();
   }
-};
+  // 뜯긴 자리: 위쪽에 스프링 구멍이 찢겨 나간 자국
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = palette.trim;
+  for (let x = 30; x < width - 20; x += 36) {
+    ctx.beginPath();
+    ctx.arc(x, 12, 6, 0, Math.PI);
+    ctx.fill();
+  }
+  // 반으로 접었다 편 자국
+  ctx.globalAlpha = 0.3;
+  ctx.strokeStyle = palette.frame;
+  ctx.beginPath();
+  ctx.moveTo(width / 2, 0);
+  ctx.lineTo(width / 2, height);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
 
-/** 카드 한 장. 뒷면(찾을 면)이 엄마가 볼펜으로 적은 메모. */
-export function cardObject(memo: string, signature: string): InspectObject {
-  const paintMemo: FacePainter = (ctx, { width, height }, palette, font) => {
-    ctx.fillStyle = palette.linen;
-    ctx.fillRect(0, 0, width, height);
-    // 원래 카드 앞면의 무늬가 구석에 남아 있고, 빈 데에 메모를 적었다
-    ctx.fillStyle = palette.clay;
-    ctx.font = `700 64px ${font}`;
-    ctx.fillText("♥", 30, 86);
+/**
+ * 카드 판 밑에 끼워 둔 쪽지. 겉은 빈 종이이고, 뒤집으면(찾을 면) 엄마가 볼펜으로
+ * 적은 메모다. 판을 치다 말고 급히 적어 카드 밑에 밀어 넣은 것이다.
+ */
+export function cardNoteObject(memo: string, signature: string): InspectObject {
+  const paintMemo: FacePainter = (ctx, size, palette, font) => {
+    paintNotePaper(ctx, size, palette);
     handwriteLines(
       ctx,
       memo,
-      { x: width / 2, y: height * 0.4, width: width * 0.78 },
+      { x: size.width / 2, y: size.height * 0.42, width: size.width * 0.8 },
       46,
       font,
       ink(palette),
     );
-    handwrite(ctx, signature, width * 0.66, height * 0.78, 40, font, ink(palette));
+    handwrite(ctx, signature, size.width * 0.7, size.height * 0.8, 40, font, ink(palette));
   };
   return {
     shape: "box",
-    size: [0.5, 0.7, 0.012],
-    front: { paint: paintCardPattern },
-    // 그림(512×716)은 카드 둘레에 어두운 바탕이 16px 딸려 온다: 카드만 오려 붙이고 귀를 그 둥글기에 맞춘다
-    back: {
-      paint: paintMemo,
-      image: ASSETS.images.mgCardFlipBack,
-      imageCrop: { x: 16 / 512, y: 16 / 716, width: 480 / 512, height: 684 / 716 },
-    },
-    edge: "linen",
+    size: [0.74, 0.52, 0.006],
+    front: { paint: (ctx, size, palette) => paintNotePaper(ctx, size, palette) },
+    back: { paint: paintMemo },
+    edge: "sun",
     foundYaw: Math.PI,
     tilt: 0.3,
-    cornerRadius: 0.028,
   };
 }
 

@@ -849,7 +849,8 @@ function ShoeCabinetMemory({ palette, opacity }: VisualProps) {
  *
  * 원래 거실 가구(LivingRoomFurniture의 TableCards)가 미궁 문제(activePuzzle)로
  * 열던 물건인데, 2막 추리 체인의 한 칸이 되면서 기억으로 올라왔다. 미궁 축을
- * 따로 둘 이유가 사라졌다. 카드는 이제 대사도 기록도 남긴다.
+ * 따로 둘 이유가 사라졌다. 카드는 이제 대사도 기록도 남긴다. 판 밑에는 엄마 쪽지가
+ * 끼어 있다 (card-flip).
  */
 function TableCardsMemory({ palette, opacity }: VisualProps) {
   const transparent = opacity < 1;
@@ -876,6 +877,16 @@ function TableCardsMemory({ palette, opacity }: VisualProps) {
           />
         </mesh>
       ))}
+      {/* 엄마 쪽지: 오른쪽 앞 카드 밑에 반쯤 밀어 넣은 노란 메모지 (card-flip) */}
+      <mesh position={[0.4, 0.002, -0.2]} rotation={[0, 0.5, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.16, 0.004, 0.11]} />
+        <meshStandardMaterial
+          color={palette.sun}
+          roughness={0.85}
+          opacity={opacity}
+          transparent={transparent}
+        />
+      </mesh>
     </group>
   );
 }

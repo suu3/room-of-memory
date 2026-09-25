@@ -89,7 +89,6 @@ export const ASSETS = {
     cutsceneSurvivor3: "/assets/images/cutscene-survivor-3.webp",
     cutsceneSurvivor4: "/assets/images/cutscene-survivor-4.webp",
     /** '뒤집으면 보인다' 조사 에셋. */
-    mgCardFlipBack: "/assets/images/mg-card-flip-back.webp",
     mgIdCardFront: "/assets/images/mg-id-card-front.webp",
     mgIdCardBack: "/assets/images/mg-id-card-back.webp",
     mgAmpouleLabel: "/assets/images/mg-ampoule-label.webp",

@@ -48,11 +48,6 @@ export interface InspectFace {
   imageRect?: { x: number; y: number; width: number; height: number };
   /** `imageRect`로 붙일 때 그림 밖을 채우는 색. */
   imageBase?: keyof RoomPalette;
-  /**
-   * 그림 파일에서 쓸 부분 (그림 크기에 대한 비율, 0~1). 없으면 그림 전체.
-   * 카드 그림처럼 물건 둘레에 바탕이 딸려 온 그림에서 물건만 오려 낼 때 쓴다.
-   */
-  imageCrop?: { x: number; y: number; width: number; height: number };
 }
 
 export interface InspectObject {
@@ -76,7 +71,7 @@ export interface InspectObject {
   /** 카메라에 선 채 처음 보이는 기울기(x). 살짝 내려다보면 판이 아니라 물건으로 읽힌다. */
   tilt?: number;
   /**
-   * 상자의 앞뒤 면 네 귀를 둥글린다 (월드 반지름). 카드·출입증처럼 귀가 둥근 그림을
+   * 상자의 앞뒤 면 네 귀를 둥글린다 (월드 반지름). 출입증처럼 귀가 둥근 그림을
    * 네모난 판에 붙이면 귀퉁이의 바탕이 비치므로, 판 자체를 그림의 귀에 맞춰 깎는다.
    * 둥글린 상자는 옆면(`side`) 그림을 쓰지 않는다: 둘레가 하나의 테(`edge` 색)다.
    */
@@ -198,14 +193,9 @@ function useFaceTexture(
         ctx.fillStyle = palette[face.imageBase ?? "linen"];
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
-      const crop = face.imageCrop ?? FULL_RECT;
       const dest = rect ?? FULL_RECT;
       ctx.drawImage(
         image,
-        crop.x * image.naturalWidth,
-        crop.y * image.naturalHeight,
-        crop.width * image.naturalWidth,
-        crop.height * image.naturalHeight,
         dest.x * canvas.width,
         dest.y * canvas.height,
         dest.width * canvas.width,

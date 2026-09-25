@@ -7,7 +7,7 @@ import type { InspectObject } from "@/components/canvas/InspectTurntable";
 import {
   ampouleCaseObject,
   ampouleObject,
-  cardObject,
+  cardNoteObject,
   idCardObject,
 } from "@/components/canvas/inspect-objects";
 import { InspectView } from "@/components/ui/InspectView";
@@ -121,13 +121,13 @@ function InspectMinigame({
 
 const key = (value: CommonTextKey) => value;
 
-/** 식탁의 뒤집힌 카드 한 장 (2페이즈): 뒷면에 엄마 메모. */
+/** 식탁 카드 판 밑에 끼워 둔 쪽지 (2페이즈): 안쪽에 엄마 메모. */
 export function CardFlipMinigame(props: MinigameProps) {
   const { t } = useTranslation();
   const stages = useMemo<InspectStage[]>(
     () => [
       {
-        object: cardObject(t("minigame.cardFlip.memo"), t("minigame.cardFlip.signature")),
+        object: cardNoteObject(t("minigame.cardFlip.memo"), t("minigame.cardFlip.signature")),
         alt: t("minigame.cardFlip.alt"),
         found: t("minigame.cardFlip.found"),
       },
