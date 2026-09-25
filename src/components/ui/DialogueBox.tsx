@@ -60,14 +60,8 @@ export function DialogueBox() {
   const playbackCut =
     playback && !playback.intro && !playback.holding ? playback.cuts[playback.cutIndex] : undefined;
   const playbackLine = playbackCut?.lines[playback?.lineIndex ?? 0];
-  /**
-   * 내레이션 컷 (CutsceneCut.narration): 앞서 찍힌 줄이 창에 남아 쌓이고,
-   * 오토를 켜지 않아도 저절로 넘어간다.
-   */
+  /** 내레이션 컷 (CutsceneCut.narration): 오토를 켜지 않아도 저절로 넘어간다. */
   const narration = playbackLine !== undefined && playbackCut?.narration === true;
-  const earlierLines = narration
-    ? (playbackCut?.lines.slice(0, playback?.lineIndex ?? 0) ?? [])
-    : [];
 
   // 인트로 대사와 미니게임 결과 대사가 같은 창을 쓴다. 어느 쪽인지는 스토어가 들고 있다
   const script =
@@ -236,23 +230,12 @@ export function DialogueBox() {
               16px 창은 장면에 비해 작아 자막이 아니라 각주로 읽힌다. 여백·최소 높이는
               em이라 글자와 같이 자란다 (3.5em = 행간 1.75의 두 줄).
             */}
-            <div className="mt-[0.625em] min-h-[3.5em]">
-              {/* 내레이션 컷에서 앞서 찍힌 줄: 창에 남아 문단으로 쌓인다 */}
-              {earlierLines.map((line) => (
-                <p
-                  key={line.textKey}
-                  className="break-ko text-pretty text-[1em] leading-dialogue text-ivory"
-                >
-                  {tRoom(line.textKey)}
-                </p>
-              ))}
-              <p
-                key={lineKey}
-                className="break-ko text-pretty text-[1em] leading-dialogue text-ivory"
-              >
-                {typed}
-              </p>
-            </div>
+            <p
+              key={lineKey}
+              className="mt-[0.625em] min-h-[3.5em] break-ko text-pretty text-[1em] leading-dialogue text-ivory"
+            >
+              {typed}
+            </p>
             {/* 아래 줄: 왼쪽에 로그 입구, 오른쪽에 다음 줄 표식 */}
             <div className="flex items-center justify-between">
               {/*

@@ -108,10 +108,10 @@ describe("배트를 쥐는 두 줄의 화면", () => {
     }
   });
 
-  it("내레이션 컷은 누르지 않아도 줄이 쌓이며 흐르고, 다 찍히면 다음 컷으로 간다", () => {
+  it("내레이션 컷은 누르지 않아도 줄마다 새로 찍히며 흐르고, 다 찍히면 다음 컷으로 간다", () => {
     /*
      * 분기점 과거편: 회상은 사람이 넘기는 대화가 아니다. 오토를 켜지 않아도 한 줄씩
-     * 찍혀 창에 남고, 마지막 줄까지 읽을 틈을 준 뒤 다음 컷으로 넘어간다.
+     * 새로 찍히고(앞 줄은 창에서 비워진다), 마지막 줄까지 읽을 틈을 준 뒤 다음 컷으로 넘어간다.
      */
     vi.useFakeTimers();
     try {
@@ -139,8 +139,8 @@ describe("배트를 쥐는 두 줄의 화면", () => {
           vi.advanceTimersByTime(6000);
         });
         expect(playback()?.lineIndex).toBe(line);
-        // 앞서 찍힌 줄이 창에 남아 있다
-        expect(screen.getByText(firstText)).toBeTruthy();
+        // 앞 줄에 덧붙지 않고 창을 비우고 새로 친다
+        expect(screen.queryByText(firstText)).toBeNull();
       }
       act(() => {
         vi.advanceTimersByTime(6000);

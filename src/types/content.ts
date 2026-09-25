@@ -69,7 +69,7 @@ export interface ContentCut {
   panel?: "left" | "right";
   /** 컷이 뜨는 순간의 효과음. */
   sfx?: string;
-  /** 내레이션 컷: 줄이 저절로 찍혀 쌓이고, 다 찍히면 다음 컷으로. */
+  /** 내레이션 컷: 줄이 저절로 한 줄씩 새로 찍히고, 다 찍히면 다음 컷으로. */
   narration?: boolean;
   lines: ContentLine[];
 }
