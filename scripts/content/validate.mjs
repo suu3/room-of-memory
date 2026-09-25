@@ -173,8 +173,12 @@ export function validateContent(content, { minigameIds = [] } = {}) {
        * 대사만 흐른다. 그래서 경로 모양만 보고 실재 여부는 묻지 않는다.
        */
       if (cut.image !== undefined) {
-        if (typeof cut.image !== "string" || !/^\/assets\/images\/.+\.webp$/.test(cut.image)) {
-          issues.push(`${where}.image: /assets/images/**.webp 형태여야 한다.`);
+        // 같은 파일을 새 그림으로 바꾸면 ?v=를 올린다: 서비스 워커가 에셋을 캐시 우선으로 읽는다
+        if (
+          typeof cut.image !== "string" ||
+          !/^\/assets\/images\/[^?]+\.webp(\?v=[\w.-]+)?$/.test(cut.image)
+        ) {
+          issues.push(`${where}.image: /assets/images/**.webp(?v=버전) 형태여야 한다.`);
         }
       }
       if (cut.narration !== undefined && typeof cut.narration !== "boolean") {

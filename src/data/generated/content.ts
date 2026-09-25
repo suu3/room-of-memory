@@ -481,7 +481,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "radio-blackout",
     cuts: [
       {
-        image: "/assets/images/cutscene-day-1.webp",
+        image: "/assets/images/cutscene-day-1.webp?v=2",
         narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut1.line1" },
@@ -490,7 +490,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         ],
       },
       {
-        image: "/assets/images/cutscene-day-2.webp",
+        image: "/assets/images/cutscene-day-2.webp?v=2",
         narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut2.line1" },
@@ -499,34 +499,43 @@ export const CUTSCENES: Record<string, Cutscene> = {
         ],
       },
       {
-        image: "/assets/images/cutscene-day-3.webp",
+        image: "/assets/images/cutscene-day-3.webp?v=2",
+        narration: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut3.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut3.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut3.line3" },
+        ],
+      },
+      {
+        image: "/assets/images/cutscene-day-4.webp?v=2",
         holdMs: 1500,
         lines: [],
       },
       {
-        image: "/assets/images/cutscene-day-4.webp",
-        narration: true,
-        lines: [
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut4.line1" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut4.line2" },
-        ],
-      },
-      {
-        image: "/assets/images/cutscene-day-5.webp",
+        image: "/assets/images/cutscene-day-5.webp?v=2",
         narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line2" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line3" },
         ],
       },
       {
-        image: "/assets/images/cutscene-day-6.webp",
+        image: "/assets/images/cutscene-day-6.webp?v=2",
         narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line2" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line3" },
+        ],
+      },
+      {
+        image: "/assets/images/cutscene-day-7.webp?v=2",
+        narration: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut7.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut7.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut7.line3" },
         ],
       },
     ],

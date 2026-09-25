@@ -29,12 +29,12 @@ cutscenes:
   #
   # 분기점 과거편 (docs/story.md 3장 분기점): 그날이 한 컷씩 지나간다.
   # 내레이션 컷(narration)은 누르지 않아도 한 줄씩 타자기로 찍혀 창에 쌓이고, 다 찍히면
-  # 다음 컷으로 넘어간다. 3컷(얼어붙은 얼굴)만 말 없이 1.5초 정적이다.
+  # 다음 컷으로 넘어간다. 4컷(얼어붙은 얼굴)만 말 없이 1.5초 정적이다.
   # 끝나면 3D 방으로 돌아온다. 방은 가장 어둡고, BGM은 없고, 라디오는 빨갛게 깜빡인다.
   # 돌아와서 드는 혼잣말은 stages.yaml의 turn-bottom이다.
   radio-blackout:
     # 1컷: 교문 앞, 엄마 문자 미리보기
-    - image: /assets/images/cutscene-day-1.webp
+    - image: /assets/images/cutscene-day-1.webp?v=2
       narration: true
       lines:
         - speaker: hero
@@ -43,8 +43,18 @@ cutscenes:
           ko: 부활동 끝나고 폰을 보니 엄마 문자가 와 있었다.
         - speaker: hero
           ko: '"오늘은 부활동 하지 말고 바로 집에 와." …이상한 말이었다.'
-    # 2컷: 엘리베이터 문틈의 감염자
-    - image: /assets/images/cutscene-day-2.webp
+    # 2컷: 단지 안, 문 열린 채 버려진 차
+    - image: /assets/images/cutscene-day-2.webp?v=2
+      narration: true
+      lines:
+        - speaker: hero
+          ko: 단지 안이 조용했다.
+        - speaker: hero
+          ko: 문이 열린 채 서 있는 차. 사람은 없었다.
+        - speaker: hero
+          ko: …사이렌 소리가 멀리서 났다.
+    # 3컷: 엘리베이터 문틈의 감염자
+    - image: /assets/images/cutscene-day-3.webp?v=2
       narration: true
       lines:
         - speaker: hero
@@ -53,20 +63,20 @@ cutscenes:
           ko: 복도에 누가 서 있었다.
         - speaker: hero
           ko: 이상한 느낌이 들었다.
-    # 3컷: 놀란 얼굴. 말 없이 정적
-    - image: /assets/images/cutscene-day-3.webp
+    # 4컷: 놀란 얼굴. 말 없이 정적
+    - image: /assets/images/cutscene-day-4.webp?v=2
       holdMs: 1500
       lines: []
-    # 4컷: 복도를 달림
-    - image: /assets/images/cutscene-day-4.webp
+    # 5컷: 복도를 달림
+    - image: /assets/images/cutscene-day-5.webp?v=2
       narration: true
       lines:
         - speaker: hero
           ko: 정신없이 달렸다.
         - speaker: hero
           ko: 뒤에서 나는 소리는 사람 소리가 아니었다.
-    # 5컷: 현관에 주저앉음
-    - image: /assets/images/cutscene-day-5.webp
+    # 6컷: 현관에 주저앉음
+    - image: /assets/images/cutscene-day-6.webp?v=2
       narration: true
       lines:
         - speaker: hero
@@ -75,8 +85,8 @@ cutscenes:
           ko: 부모님은 여행 중이셨기에 집안엔 아무도 없었다.
         - speaker: hero
           ko: 급박했던 상황이 거짓이었던 듯 정적이 내려앉았다.
-    # 6컷: TV 불빛에 무표정
-    - image: /assets/images/cutscene-day-6.webp
+    # 7컷: TV 불빛에 무표정
+    - image: /assets/images/cutscene-day-7.webp?v=2
       narration: true
       lines:
         - speaker: hero

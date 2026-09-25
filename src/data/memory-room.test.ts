@@ -246,7 +246,8 @@ describe("v4 진행 형태", () => {
     for (const cutscene of Object.values(CUTSCENES)) {
       expect(cutscene.cuts.length).toBeGreaterThan(0);
       for (const cut of cutscene.cuts) {
-        if (cut.image !== undefined) expect(cut.image).toMatch(/^\/assets\/images\/.+\.webp$/);
+        if (cut.image !== undefined)
+          expect(cut.image).toMatch(/^\/assets\/images\/[^?]+\.webp(\?v=[\w.-]+)?$/);
         if (cut.lines.length === 0) expect(cut.holdMs ?? 0, cutscene.id).toBeGreaterThan(0);
         // 웹툰 칸은 그림이 있어야 선다
         if (cut.panel) expect(cut.image, cutscene.id).toBeDefined();
