@@ -19,7 +19,8 @@ import {
 } from "./difficulty";
 
 const SKIP_AFTER_MS = 30_000;
-const SKIP_AFTER_MISSES = 3;
+/** 실패(MAX_MISSES)보다 한 번 먼저: 스킵이 실패와 같은 순간에 뜨면 누를 틈이 없다. */
+const SKIP_AFTER_MISSES = 2;
 /** 다이얼 눈금 범위 (MHz): position 0~100% 를 이 범위로 매핑. */
 const FREQ_MIN = 88;
 const FREQ_MAX = 108;

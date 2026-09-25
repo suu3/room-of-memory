@@ -92,8 +92,9 @@ describe("난이도별 다이얼", () => {
     }
   });
 
-  it("실패 허용치는 배우는 값을 치를 만큼 넉넉하다", () => {
-    expect(MAX_MISSES).toBeGreaterThanOrEqual(8);
+  it("성공 셋, 실패 셋", () => {
+    expect(GOAL_HITS).toBe(3);
+    expect(MAX_MISSES).toBe(3);
   });
 });
 

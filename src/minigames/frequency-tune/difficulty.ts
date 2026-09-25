@@ -1,21 +1,21 @@
 /**
  * 주파수 맞추기의 난이도 곡선.
  *
- * 5번을 같은 난이도로 반복시키면 3번째부터는 지루한 반복이 된다. 명중할 때마다
- * 대역이 좁아지고 바늘이 빨라져서, 뒤로 갈수록 "겨우 잡는" 판이 되게 한다.
+ * 같은 난이도로 반복시키면 금세 지루한 반복이 된다. 명중할 때마다 대역이 좁아지고
+ * 바늘이 빨라져서, 뒤로 갈수록 "겨우 잡는" 판이 되게 한다.
  */
 
 import type { MinigameDifficulty } from "@/types/minigame";
 
-/** 클리어에 필요한 명중 횟수. */
-export const GOAL_HITS = 5;
+/** 클리어에 필요한 명중 횟수. 2026-09-26에 5에서 3으로: 분기점 앞에서 길게 붙들지 않는다. */
+export const GOAL_HITS = 3;
 /**
  * 이만큼 놓치면 실패: 실패도 유효한 결말이다(.claude/rules/minigames.md).
  *
- * 다섯이었다. 실측으로 유효 입력창이 130ms 남짓이던 판에서 다섯 번은 배우기도 전에
- * 끝나는 수였다. 여덟이면 첫 두어 번을 리듬을 재는 데 쓰고도 판이 남는다.
+ * 명중과 같은 셋이다 (2026-09-26, 8에서). 판이 짧아진 만큼 실패도 짧게 온다.
+ * 이지 모드는 그 전에 스킵이 뜬다 (index.tsx의 SKIP_AFTER_MISSES).
  */
-export const MAX_MISSES = 8;
+export const MAX_MISSES = 3;
 
 /**
  * 난이도별 다이얼. 대역 폭은 %(다이얼 전체 20MHz 기준: 5% = 1MHz), 주기는 바늘이
@@ -51,7 +51,7 @@ export const DEFAULT_DIFFICULTY: MinigameDifficulty = "easy";
  * 난이도 조절이 아니라 이야기다. 1바퀴의 라디오는 잡히지 않는 물건이었고,
  * 2바퀴의 라디오는 저쪽에서 이미 부르고 있는 물건이다. 손이 덜 드는 것이 맞다.
  */
-export const SECOND_ROUND_GOAL_HITS = 3;
+export const SECOND_ROUND_GOAL_HITS = 2;
 /** 2바퀴의 대역 보정 (%). 첫 판이 넓게 시작해 "이미 거의 잡혀 있다"로 읽힌다. */
 const SECOND_ROUND_BAND_BONUS = 5;
 
