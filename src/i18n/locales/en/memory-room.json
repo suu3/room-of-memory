@@ -145,7 +145,7 @@
     },
     "phone-stopped": {
       "line1": "The last message is from October 19.",
-      "line2": "엄마 대화방엔 아직 1이 떠 있네.",
+      "line2": "엄마 대화방도 그날 아침 문자에서 멈춰 있어.",
       "line3": "…나중에."
     },
     "window-silence": {
@@ -206,12 +206,12 @@
       "line3": "첫 보도가 오후 3시."
     },
     "phone-mom-intro": {
-      "line1": "엄마 대화방. 읽지 않음 1.",
+      "line1": "엄마 대화방. 마지막 문자는 그날 아침 거다.",
       "line2": "…"
     },
     "phone-mom-read": {
       "line1": "…7시 12분? 뉴스는 오후였는데.",
-      "line2": "…읽었어."
+      "line2": "…그게 마지막이었어."
     },
     "ball-echo": {
       "line1": "Maybe I can stop throwing it alone.",
@@ -270,8 +270,8 @@
     },
     "phone": {
       "title": "The Silence",
-      "phase1": "단톡은 그날 이후로 조용하다. 엄마 대화방에는 아직 1이 떠 있다. 나중에 보기로 했다.",
-      "phase2": "그날 아침 7시 12분, 엄마 문자. 끝나면 바로 집에 오라고. 뉴스는 오후였다. 이제야 읽었다."
+      "phase1": "단톡은 그날 이후로 조용하다. 엄마 대화방은 그날 아침 문자에서 멈춰 있다. 나중에 보기로 했다.",
+      "phase2": "그날 아침 7시 12분, 엄마 문자. 끝나면 바로 집에 오라고. 뉴스는 오후였다. 그게 엄마의 마지막 문자다."
     },
     "calendar": {
       "title": "October 19",

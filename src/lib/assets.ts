@@ -88,7 +88,7 @@ export const ASSETS = {
     /** 생존자 방송 웹툰 10칸 (3페이지, content/cutscenes.yaml의 survivor-broadcast). */
     cutsceneSurvivor1: "/assets/images/cutscene-survivor-1.webp?v=2",
     cutsceneSurvivor2: "/assets/images/cutscene-survivor-2.webp?v=2",
-    cutsceneSurvivor3: "/assets/images/cutscene-survivor-3.webp?v=2",
+    cutsceneSurvivor3: "/assets/images/cutscene-survivor-3.webp?v=3",
     cutsceneSurvivor4: "/assets/images/cutscene-survivor-4.webp?v=2",
     cutsceneSurvivor5: "/assets/images/cutscene-survivor-5.webp?v=2",
     cutsceneSurvivor6: "/assets/images/cutscene-survivor-6.webp?v=2",

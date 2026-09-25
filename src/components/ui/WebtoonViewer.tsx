@@ -1,7 +1,14 @@
 "use client";
 
 import type { ParseKeys } from "i18next";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { isInteractiveTarget } from "@/components/canvas/room-canvas-runtime";
 import { playSound } from "@/lib/audio";
@@ -9,7 +16,13 @@ import { useTypewriterState } from "@/lib/use-typewriter";
 import { type ActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 import type { CutsceneCut } from "@/types/interaction";
 import { typeTick } from "./dialogue-sfx";
-import { buildWebtoonPages, fitPageWidth, type WebtoonRow } from "./webtoon-layout";
+import {
+  buildWebtoonPages,
+  pageGap,
+  pagePosition,
+  pageWidth,
+  type WebtoonRow,
+} from "./webtoon-layout";
 
 /** 칸이 떠오르는 시간(ms). 말풍선은 칸이 다 선 뒤에 찍기 시작한다 (globals의 webtoon-panel-in). */
 const PANEL_IN_MS = 400;
@@ -147,17 +160,35 @@ export function WebtoonViewer({ active }: { active: ActivePlayback }) {
   }, [ended]);
 
   const viewport = useViewport();
-  const width = fitPageWidth(pages, viewport);
-  const gap = viewport.width < 640 ? 12 : 24;
+  const width = pageWidth(viewport);
+  const gap = pageGap(viewport);
+  // 말풍선 글자: 폭 따라 15→20px. 칸 밖으로 걸쳐도 되니 칸 크기에 묶지 않는다
+  const fontSize = Math.max(15, Math.min(20, width / 42));
 
   if (gone) return null;
 
   const renderPage = (page: number, motion: string) => {
     const rows = pages.find((each) => each.page === page)?.rows ?? [];
-    const lastShown = page === livePage && !ended ? active.cutIndex : Number.POSITIVE_INFINITY;
+    const live = page === livePage && !ended;
+    const lastShown = live ? active.cutIndex : Number.POSITIVE_INFINITY;
+    // 화면은 지금 칸이 든 줄을 따라 내려간다. 넘어가는 페이지·걷히는 웹툰은 마지막 줄에 멈춰 있다
+    const focusRow = live
+      ? rows.findIndex((row) => (row.indices as readonly number[]).includes(active.cutIndex))
+      : rows.length - 1;
+    const top = pagePosition({
+      rows,
+      width,
+      gap,
+      viewportHeight: viewport.height,
+      focusRow,
+      overhang: fontSize * BUBBLE_OVERHANG_EM,
+    });
     return (
-      <div key={`page-${page}`} className={`absolute inset-0 grid place-items-center ${motion}`}>
-        <div className="flex flex-col" style={{ width, gap }}>
+      <div key={`page-${page}`} className={`absolute inset-0 ${motion}`}>
+        <div
+          className="absolute top-0 left-1/2 flex flex-col transition-transform duration-700 ease-out"
+          style={{ width, gap, transform: `translate(-50%, ${top}px)` }}
+        >
           {rows.map((row) => (
             <PageRow
               key={row.indices[0]}
@@ -168,7 +199,8 @@ export function WebtoonViewer({ active }: { active: ActivePlayback }) {
               typed={typed}
               typing={typing}
               gap={gap}
-              fontSize={Math.max(12, Math.min(16, width / 30))}
+              width={width}
+              fontSize={fontSize}
             />
           ))}
         </div>
@@ -219,6 +251,7 @@ function PageRow({
   typed,
   typing,
   gap,
+  width,
   fontSize,
 }: {
   row: WebtoonRow;
@@ -228,21 +261,26 @@ function PageRow({
   typed: string;
   typing: boolean;
   gap: number;
+  width: number;
   fontSize: number;
 }) {
   return (
     <div className={row.kind === "full" ? "" : "grid grid-cols-2"} style={{ gap }}>
-      {row.indices.map((index) => {
+      {row.indices.map((index, slot) => {
         const cut = cuts[index];
         if (!cut) return null;
         return (
           <Panel
             key={index}
             cut={cut}
+            side={row.kind === "full" ? "full" : slot === 0 ? "left" : "right"}
+            // 앞 칸이 위에 선다: 칸 아래로 걸친 말풍선이 다음 칸 그림에 덮이지 않게
+            layer={cuts.length - index}
             shown={index <= lastShown}
             speaking={index === current}
             typed={typed}
             typing={typing}
+            pageWidth={width}
             fontSize={fontSize}
           />
         );
@@ -251,52 +289,92 @@ function PageRow({
   );
 }
 
+/** 칸 아래로 걸치는 말풍선 몫(em). 마지막 줄 아래에 이만큼 자리를 더 둔다. */
+const BUBBLE_OVERHANG_EM = 2.6;
+/** 3:4 칸의 말풍선 폭: 칸보다 넓게, 페이지 폭의 이만큼 (칸 밖으로 걸친다). */
+const PAIR_BUBBLE_WIDTH = 0.66;
+
+/** 그림에 얹는 의성어 (무음으로 하는 사람도 소리를 본다). 칸의 sfx로 고른다. */
+const SFX_CAPTION = { micTap: "playback.sfx.micTap" } as const;
+
 /**
  * 칸 하나. 검은 3px 테두리, 그림은 가운데 기준으로 채운다. 아직 차례가 안 온 칸은
  * 자리만 지킨다(보이지 않게): 칸이 들 때마다 페이지가 흔들리면 안 된다.
  */
 function Panel({
   cut,
+  side,
+  layer,
   shown,
   speaking,
   typed,
   typing,
+  pageWidth,
   fontSize,
 }: {
   cut: CutsceneCut;
+  side: "full" | "left" | "right";
+  layer: number;
   shown: boolean;
   speaking: boolean;
   typed: string;
   typing: boolean;
+  pageWidth: number;
   fontSize: number;
 }) {
+  const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
   const [missing, setMissing] = useState(false);
   const line = cut.lines[0];
   // 지나간 칸의 말풍선은 다 찍힌 채 남는다. 지금 칸은 찍히는 만큼만
   const bubbleText = line ? (speaking ? (typing ? typed : null) : tRoom(line.textKey)) : null;
+  const caption = cut.sfx ? SFX_CAPTION[cut.sfx as keyof typeof SFX_CAPTION] : undefined;
+  /*
+   * 말풍선은 칸 아래 테두리에 걸쳐 칸 밖으로 나간다. 16:9 칸은 칸 폭 안에서, 3:4 칸은
+   * 칸보다 넓게 페이지 안쪽으로 뻗는다 (왼쪽 칸은 오른쪽으로, 오른쪽 칸은 왼쪽으로).
+   */
+  const bubblePlace =
+    side === "full"
+      ? { left: "6%", right: "6%" }
+      : side === "left"
+        ? { left: "5%", width: pageWidth * PAIR_BUBBLE_WIDTH }
+        : { right: "5%", width: pageWidth * PAIR_BUBBLE_WIDTH };
 
   return (
     <div
-      className={`relative overflow-hidden border-[3px] border-scene-void bg-scene-storm ${
-        cut.ratio === "3:4" ? "aspect-[3/4]" : "aspect-video"
-      } ${shown ? "animate-webtoon-panel-in" : "invisible"}`}
+      className={`relative ${cut.ratio === "3:4" ? "aspect-[3/4]" : "aspect-video"} ${
+        shown ? "animate-webtoon-panel-in" : "invisible"
+      }`}
+      style={{ zIndex: layer }}
     >
-      {cut.image && !missing && (
-        /* biome-ignore lint/performance/noImgElement: 파일이 없을 때 onError로 빈 칸에 떨어져야 해서 최적화 파이프라인을 타지 않는다. */
-        <img
-          src={cut.image}
-          alt=""
-          draggable={false}
-          onError={() => setMissing(true)}
-          className="absolute inset-0 size-full select-none object-cover object-center"
-        />
+      {/* 그림은 칸 테두리 안에서만 잘린다. 말풍선·의성어는 이 바깥에 선다 */}
+      <div className="absolute inset-0 overflow-hidden border-[3px] border-scene-void bg-scene-storm">
+        {cut.image && !missing && (
+          /* biome-ignore lint/performance/noImgElement: 파일이 없을 때 onError로 빈 칸에 떨어져야 해서 최적화 파이프라인을 타지 않는다. */
+          <img
+            src={cut.image}
+            alt=""
+            draggable={false}
+            onError={() => setMissing(true)}
+            className="absolute inset-0 size-full select-none object-cover object-center"
+          />
+        )}
+      </div>
+      {caption && (
+        <p
+          aria-hidden
+          className="webtoon-sfx pointer-events-none absolute top-[9%] left-[36%] -rotate-8 font-bold italic tracking-[0.08em]"
+          style={{ fontSize: pageWidth / 13 }}
+        >
+          {t(caption)}
+        </p>
       )}
       {line && bubbleText !== null && (
         <RadioBubble
           speaker={tRoom(`characters.${line.speaker}.name` as ParseKeys<"memoryRoom">)}
           text={bubbleText}
           fontSize={fontSize}
+          place={bubblePlace}
         />
       )}
     </div>
@@ -304,18 +382,20 @@ function Panel({
 }
 
 /**
- * 라디오 말풍선: 꼬리 없는 둥근 사각형에 테두리가 지그재그로 떨린다 (전파). 칸 안
- * 아래쪽에 겹쳐 선다. 화자(???)는 왼쪽 위에 작게. 테두리는 크기를 재서 그린다: 비율로
+ * 라디오 말풍선: 꼬리 없는 둥근 사각형에 테두리가 지그재그로 떨린다 (전파). 칸 아래
+ * 테두리에 걸쳐 칸 밖으로 나간다: 칸 안에 가두면 그림에 묻혀 대사가 안 읽힌다. 화자(???)는 왼쪽 위에 작게. 테두리는 크기를 재서 그린다: 비율로
  * 늘이면 톱니가 칸 모양 따라 찌그러진다.
  */
 function RadioBubble({
   speaker,
   text,
   fontSize,
+  place,
 }: {
   speaker: string;
   text: string;
   fontSize: number;
+  place: CSSProperties;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -332,8 +412,9 @@ function RadioBubble({
   return (
     <div
       ref={ref}
-      className="absolute inset-x-[4%] bottom-[5%] animate-fade-rise px-[1.1em] pt-[0.7em] pb-[0.8em] text-ivory"
-      style={{ fontSize }}
+      // 칸 아래 테두리에 걸친다: 절반쯤이 칸 밖으로 나간다
+      className="absolute bottom-0 translate-y-[45%] animate-fade-rise px-[1.1em] pt-[0.7em] pb-[0.8em] text-ivory"
+      style={{ fontSize, ...place }}
     >
       {size.width > 0 && (
         <svg

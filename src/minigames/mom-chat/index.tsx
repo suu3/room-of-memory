@@ -7,19 +7,18 @@ import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { PhoneShell } from "../phone-chat/PhoneShell";
-import { MOM_UNREAD } from "../phone-chat/thread";
 import { useOnceCompleter } from "../shell";
 
 /** 엄마가 그날 아침 보낸 문자의 시각. 캐시 뉴스의 첫 보도(오후 3시대)보다 한참 앞이다. */
 export const MOM_MESSAGE_TIME = "07:12";
 
 /**
- * 폰 2차 (v4 3-4): 1막부터 떠 있던 엄마 대화방의 "읽지 않음 1"을 연다.
+ * 폰 2차 (v4 3-4): 1막 내내 미뤄 둔 엄마 대화방을 다시 연다.
  *
  * 잠금은 없다. 비밀번호를 풀어 여는 게 아니라, 미뤄 둔 방을 **스스로 여는** 동작이다.
- * 목록에서 엄마 방을 누르면 방이 열리고, 배지의 1이 사라진다. 문자는 한 통뿐이다:
- * 그날 아침 7시 12분, 끝나면 바로 집에 오라고. 뉴스는 오후였다 (컴퓨터 2차가 먼저
- * 보여 준다). 시각을 짚는 말은 결과 대사가 한 번만 한다.
+ * 문자는 그날 이미 읽은 한 통뿐이고, 그게 엄마의 마지막 문자다: 그날 아침 7시 12분,
+ * 끝나면 바로 집에 오라고. 뉴스는 오후였다 (컴퓨터 2차가 먼저 보여 준다). 다시 읽고서야
+ * 시각이 이상하게 읽힌다. 시각을 짚는 말은 결과 대사가 한 번만 한다.
  *
  * 실패는 없다. 읽는 인터랙션이다.
  */
@@ -91,14 +90,11 @@ export function MomChatMinigame({ onComplete, stage = "play" }: MinigameProps) {
                   {t("minigame.phoneChat.contact.mom")}
                 </span>
                 <span className="block truncate text-[0.75rem] text-bone/45">
-                  {t("minigame.phoneChat.family.momPreview")}
+                  {t("minigame.momChat.message")}
                 </span>
               </span>
               <span className="shrink-0 text-[0.6875rem] tabular-nums text-bone/40">
                 {MOM_MESSAGE_TIME}
-              </span>
-              <span className="min-w-[1.15rem] shrink-0 rounded-full bg-ember px-1 text-center text-[0.6875rem] font-bold leading-[1.15rem] text-paper">
-                {MOM_UNREAD}
               </span>
             </button>
           </div>

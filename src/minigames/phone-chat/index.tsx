@@ -13,7 +13,6 @@ import {
   FAMILY_CHAT,
   hasLater,
   isThreadComplete,
-  MOM_UNREAD,
   OUTGOING_CALLS,
   type PhoneTab,
   revealNext,
@@ -164,12 +163,11 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
         clock="20:47"
         tabs={[
           { id: "chat", label: t("minigame.phoneChat.tab.chat"), Icon: ChatCircleDots },
-          // 가족 탭의 배지는 엄마 대화방의 "1"이다. 가족 단톡을 열어 봐도 이 숫자는 안 준다
+          // 가족 탭엔 배지가 없다: 엄마 문자는 그날 이미 읽었다. 그 뒤로 온 것이 없을 뿐이다
           {
             id: "family",
             label: t("minigame.phoneChat.tab.family"),
             Icon: UsersThree,
-            badge: MOM_UNREAD,
           },
           {
             id: "calls",
@@ -222,8 +220,8 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
         ) : tab === "family" ? (
           <div className="size-full overflow-y-auto bg-scene-navy px-3 py-3">
             {/*
-              맨 위에 엄마와의 1:1 방이 고정돼 있다. 안 읽은 1이 그대로다. 누르지 않는다:
-              도해가 "나중에"로 미룬 방이다 (폰 2차 mom-chat이 연다).
+              맨 위에 엄마와의 1:1 방이 고정돼 있다. 마지막 문자는 그날 아침 7시 12분, 이미 읽은
+              문자다. 누르지 않는다: 도해가 "나중에"로 미룬 방이다 (폰 2차 mom-chat이 다시 연다).
             */}
             <div className="mb-3 flex items-center gap-2.5 rounded-xl bg-scene-dusk/60 px-3 py-2.5">
               <span className="min-w-0 flex-1">
@@ -231,13 +229,10 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
                   {t("minigame.phoneChat.contact.mom")}
                 </span>
                 <span className="block truncate text-[0.75rem] text-bone/45">
-                  {t("minigame.phoneChat.family.momPreview")}
+                  {t("minigame.momChat.message")}
                 </span>
               </span>
               <span className="shrink-0 text-[0.6875rem] tabular-nums text-bone/40">07:12</span>
-              <span className="min-w-[1.15rem] shrink-0 rounded-full bg-ember px-1 text-center text-[0.6875rem] font-bold leading-[1.15rem] text-paper">
-                {MOM_UNREAD}
-              </span>
             </div>
             <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
               {t("minigame.phoneChat.family.date")}

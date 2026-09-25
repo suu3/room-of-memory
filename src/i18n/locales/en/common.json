@@ -295,7 +295,6 @@
         "room": "Home",
         "members": "Mom, Dad, me",
         "date": "October 17",
-        "momPreview": "New message",
         "f1": "Dohae, Mom and Dad are off for three days.",
         "f2": "Fridge is stocked. Don't starve.",
         "f3": "Eat properly, and go easy on the games.",
@@ -410,7 +409,7 @@
       "help": "Open Mom's chat: click · Enter",
       "help_touch": "Tap Mom's chat to open it",
       "listTitle": "Chats",
-      "listSubtitle": "1 unread chat",
+      "listSubtitle": "1 chat",
       "roomSubtitle": "Direct message",
       "message": "Dohae, come straight home after school today. Skip club practice. Don't go anywhere else"
     },
@@ -561,7 +560,10 @@
   "playback": {
     "skip": "Skip",
     "close": "Close",
-    "replayTitle": "{{name}} · Replay"
+    "replayTitle": "{{name}} · Replay",
+    "sfx": {
+      "micTap": "Tap, tap"
+    }
   },
   "clue": {
     "read": "Look at the {{name}}",

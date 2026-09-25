@@ -295,7 +295,6 @@
         "room": "우리 집",
         "members": "엄마, 아빠, 나",
         "date": "10월 17일",
-        "momPreview": "새 메시지",
         "f1": "도해야, 엄마 아빠 2박 3일 다녀올게.",
         "f2": "냉장고 채워놨다. 굶지 말고.",
         "f3": "밥 잘 챙겨 먹고, 게임은 적당히 해.",
@@ -410,7 +409,7 @@
       "help": "엄마 대화방을 연다: 클릭 · Enter",
       "help_touch": "엄마 대화방을 눌러 연다",
       "listTitle": "채팅",
-      "listSubtitle": "안 읽은 대화 1",
+      "listSubtitle": "대화 1",
       "roomSubtitle": "1:1 대화",
       "message": "도해야 오늘 학교 끝나면 부활동 하지 말고 바로 집에 와. 딴 데 가지 말고"
     },
@@ -561,7 +560,10 @@
   "playback": {
     "skip": "건너뛰기",
     "close": "닫기",
-    "replayTitle": "{{name}} · 다시보기"
+    "replayTitle": "{{name}} · 다시보기",
+    "sfx": {
+      "micTap": "탁, 탁"
+    }
   },
   "clue": {
     "read": "{{name}} 보기",

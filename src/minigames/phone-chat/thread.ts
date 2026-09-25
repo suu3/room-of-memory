@@ -128,12 +128,6 @@ export const FAMILY_CHAT: ChatMessage[] = [
   { id: "f6", side: "me", textKey: "minigame.phoneChat.family.f6", time: "08:40" },
 ];
 
-/**
- * 엄마와의 1:1 대화방에 남은 안 읽은 메시지 수. 1막 내내 줄지 않는다.
- * 폰 2차(mom-chat)가 이 "1"을 연다.
- */
-export const MOM_UNREAD = 1;
-
 export type PhoneTab = "chat" | "family" | "calls";
 export const PHONE_TABS: PhoneTab[] = ["chat", "family", "calls"];
 

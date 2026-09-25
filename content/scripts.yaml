@@ -93,7 +93,7 @@ scripts:
       en: The last message is from October 19.
       ja: 最後のメッセージは10月19日。
     - speaker: hero
-      ko: 엄마 대화방엔 아직 1이 떠 있네.
+      ko: 엄마 대화방도 그날 아침 문자에서 멈춰 있어.
     - speaker: hero
       ko: …나중에.
 
@@ -238,10 +238,10 @@ scripts:
     - speaker: hero
       ko: 첫 보도가 오후 3시.
 
-  # 폰 2차: 1막부터 떠 있던 "읽지 않음 1"
+  # 폰 2차: 1막 내내 미뤄 둔 엄마 대화방. 그날 이미 읽은, 엄마의 마지막 문자
   phone-mom-intro:
     - speaker: hero
-      ko: 엄마 대화방. 읽지 않음 1.
+      ko: 엄마 대화방. 마지막 문자는 그날 아침 거다.
     - speaker: hero
       ko: …
 
@@ -250,7 +250,7 @@ scripts:
     - speaker: hero
       ko: …7시 12분? 뉴스는 오후였는데.
     - speaker: hero
-      ko: …읽었어.
+      ko: …그게 마지막이었어.
 
   # 곁가지 (2차)
   ball-echo:

@@ -559,7 +559,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [],
       },
       {
-        image: "/assets/images/cutscene-survivor-3.webp?v=2",
+        image: "/assets/images/cutscene-survivor-3.webp?v=3",
         holdMs: 1500,
         page: 1,
         ratio: "3:4",

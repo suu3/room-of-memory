@@ -1076,6 +1076,19 @@ body {
 }
 
 /*
+ * 웹툰 칸에 얹는 의성어 (생존자 방송 ①의 "탁, 탁"). 그림을 다시 뽑지 않고 글자로 얹는다.
+ * 아이보리 글자에 검은 외곽선과 그림자를 둘러 어떤 그림 위에서도 선다.
+ */
+.webtoon-sfx {
+  color: var(--color-ivory);
+  -webkit-text-stroke: 0.06em var(--color-scene-void);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.07em 0 var(--color-scene-void);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/*
  * 대사창 초상: 아래쪽을 패널 속으로 스며들게 한다. 원화의 밑단이 판으로 서지 않게.
  * 흐려지는 구간은 밑단 12%뿐이다. 그 대부분이 패널 뒤(초상 아래 20px)에 들어가, 패널
  * 위로 보이는 몸통은 불투명하게 남는다. 넓게 흐리면 뒤 배경이 옷 위로 비쳐 유령처럼 읽힌다.

@@ -49,30 +49,64 @@ export function buildWebtoonPages(cuts: readonly CutsceneCut[]): WebtoonPage[] {
   return pages;
 }
 
+/** 화면 폭에 따른 칸 간격(px): 모바일(640px 미만)은 12, 그 위는 24. */
+export function pageGap(viewport: { width: number }): number {
+  return viewport.width < 640 ? 12 : 24;
+}
+
 /**
- * 모든 페이지가 세로 스크롤 없이 한 화면에 들어오는 페이지 폭(px).
- *
- * 16:9 줄의 높이는 폭 × 9/16, 3:4 두 칸 줄은 (폭 − 간격)/2 × 4/3이다. 줄 사이 간격을
- * 더한 높이가 화면 높이(위아래 여백 뺀)를 넘지 않는 가장 넓은 폭을 고르고, 가장 긴
- * 페이지에 맞춰 모든 페이지가 같은 폭을 쓴다. 넘길 때 폭이 들쭉날쭉하면 책이 아니다.
- * 데스크톱은 900px, 모바일(640px 미만)은 여백 없이 화면 폭이 상한이다.
+ * 페이지 폭(px). 화면 높이에 맞춰 줄이지 않는다: 한 화면에 다 넣으면 데스크톱에서
+ * 폭이 400px 안팎으로 쪼그라들어 그림이 안 읽힌다. 대신 칸을 따라 화면이 내려간다
+ * (panOffset). 데스크톱은 900px, 모바일은 여백 없이 화면 폭이 상한이다.
  */
-export function fitPageWidth(
-  pages: readonly WebtoonPage[],
-  viewport: { width: number; height: number },
-): number {
-  const mobile = viewport.width < 640;
-  const gap = mobile ? 12 : 24;
-  const sidePad = mobile ? 0 : gap;
-  const availableHeight = viewport.height - gap * 2;
-  let width = Math.min(PAGE_MAX_WIDTH, viewport.width - sidePad * 2);
-  for (const page of pages) {
-    const fulls = page.rows.filter((row) => row.kind === "full").length;
-    const pairs = page.rows.length - fulls;
-    const perWidth = fulls * (9 / 16) + pairs * (2 / 3);
-    if (perWidth === 0) continue;
-    const fixed = (page.rows.length - 1) * gap - pairs * (2 / 3) * gap;
-    width = Math.min(width, (availableHeight - fixed) / perWidth);
+export function pageWidth(viewport: { width: number }): number {
+  const sidePad = viewport.width < 640 ? 0 : pageGap(viewport);
+  return Math.max(0, Math.floor(Math.min(PAGE_MAX_WIDTH, viewport.width - sidePad * 2)));
+}
+
+/** 줄마다의 위치와 높이(px), 페이지 전체 높이. 16:9 줄은 폭×9/16, 3:4 두 칸 줄은 (폭−간격)/2×4/3. */
+export function rowMetrics(rows: readonly WebtoonRow[], width: number, gap: number) {
+  const heights = rows.map((row) =>
+    row.kind === "full" ? (width * 9) / 16 : (((width - gap) / 2) * 4) / 3,
+  );
+  const tops: number[] = [];
+  let y = 0;
+  for (const height of heights) {
+    tops.push(y);
+    y += height + gap;
   }
-  return Math.max(0, Math.floor(width));
+  return { tops, heights, total: Math.max(0, y - gap) };
+}
+
+/**
+ * 페이지를 화면에 세우는 세로 위치(px, 화면 위에서 페이지 위까지).
+ *
+ * 한 화면에 다 들면 가운데 세운다. 넘치면 지금 칸이 있는 줄이 화면 가운데 오도록
+ * 끌어올리되, 페이지 위아래 끝(말풍선이 칸 아래로 걸치는 자리 포함)을 넘어 비우지 않는다.
+ */
+export function pagePosition({
+  rows,
+  width,
+  gap,
+  viewportHeight,
+  focusRow,
+  overhang,
+}: {
+  rows: readonly WebtoonRow[];
+  width: number;
+  gap: number;
+  viewportHeight: number;
+  /** 지금 칸이 든 줄. */
+  focusRow: number;
+  /** 마지막 줄 아래로 걸치는 말풍선 몫(px). */
+  overhang: number;
+}): number {
+  const { tops, heights, total } = rowMetrics(rows, width, gap);
+  const extent = total + overhang;
+  if (extent + gap * 2 <= viewportHeight) return (viewportHeight - extent) / 2;
+  const row = Math.min(Math.max(focusRow, 0), rows.length - 1);
+  const center = (tops[row] ?? 0) + (heights[row] ?? 0) / 2 + overhang / 2;
+  const top = viewportHeight / 2 - center;
+  const highest = viewportHeight - gap - extent;
+  return Math.min(gap, Math.max(highest, top));
 }

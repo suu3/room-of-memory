@@ -121,7 +121,7 @@ cutscenes:
       ratio: "3:4"
       holdMs: 1500
       lines: []
-    - image: /assets/images/cutscene-survivor-3.webp?v=2
+    - image: /assets/images/cutscene-survivor-3.webp?v=3
       page: 1
       ratio: "3:4"
       holdMs: 1500

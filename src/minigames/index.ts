@@ -77,7 +77,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     id: "mom-chat",
     mode: "overlay",
     // phone-chat과 같은 폰을 집어 드는 인터랙션: 패널 없이 기기만 떠오른다.
-    // 폰 2차 (v4 3-4): 1막부터 떠 있던 엄마 대화방의 "읽지 않음 1"을 연다
+    // 폰 2차 (v4 3-4): 1막 내내 미뤄 둔 엄마 대화방을 다시 연다. 그날 이미 읽은 마지막 문자
     presentation: "bare",
     component: lazy(() => import("./mom-chat").then((m) => ({ default: m.MomChatMinigame }))),
     titleKey: "minigame.momChat.title",
