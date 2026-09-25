@@ -42,10 +42,12 @@ stages:
       en: Going through them one by one keeps bringing that day back… Enough. Stop.
       ja: 一つずつ見てると、あの日のことが…いい、やめよう。
 
-  # 과거편 컷씬이 끝나고 3D 방으로 돌아온 순간의 한 줄
+  # 과거편 컷씬이 끝나고 3D 방으로 돌아온 순간의 두 줄. 줄바꿈은 YAML 개행 그대로 화면에 선다
   turn-bottom:
     monologue:
-      ko: 그날 이후로 난 집에 고립되어 있었다. 나가서 마주할 현실이 두려워서.
+      ko: |-
+        그날 이후로 난 집에 고립되어 있었다.
+        나가서 마주할 현실이 두려워서.
 
   turn-signal:
     monologue:

@@ -97,11 +97,14 @@ export function Monologue({
       }`}
     >
       <span aria-hidden className="monologue-veil absolute -inset-x-10 -inset-y-5 -z-10" />
-      {/* 글자는 폭 따라 20→30px(--text-monologue). 좁은 화면에서 넘치면 어절 단위로 접는다 */}
+      {/*
+        글자는 폭 따라 20→30px(--text-monologue). 좁은 화면에서 넘치면 어절 단위로 접는다.
+        대본의 개행(stages.yaml의 여러 줄 독백)은 그대로 줄을 꺾는다 (whitespace-pre-line)
+      */}
       <p
         /* 물러나는 글자들은 이미 읽힌 말의 잔상이라 보조기기에는 들려주지 않는다 */
         aria-hidden={perCharLeaving || undefined}
-        className={`monologue-text animate-fade-rise break-ko text-pretty font-pixel text-monologue leading-normal text-ivory transition-opacity duration-300 ${
+        className={`monologue-text animate-fade-rise whitespace-pre-line break-ko text-pretty font-pixel text-monologue leading-normal text-ivory transition-opacity duration-300 ${
           leavingText !== null && !perChar ? "opacity-0" : "opacity-100"
         }`}
       >
