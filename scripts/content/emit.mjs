@@ -1,5 +1,6 @@
 import { formatSource } from "./format.mjs";
-import { LOCALES } from "./schema.mjs";
+import { BASE_LOCALE, LOCALES, VISIT_KEYS } from "./schema.mjs";
+import { parseDependency, resolveDependencyVisit } from "./validate.mjs";
 
 /**
  * 콘텐츠 → 생성물.
@@ -51,10 +52,12 @@ function emitModule(content) {
     "  id: MemoryId;",
     "  /** 수집 패널에 표시할 아이콘 (Phosphor 또는 호환 커스텀) */",
     "  icon: MemoryIcon;",
-    "  /** Phase 1: 최초 수집 클릭. 없으면 1바퀴 내내 잠겨 있는 2바퀴 전용 기억이다. */",
+    "  /** 1차 조사 (p1). 없으면 1바퀴 내내 잠겨 있는 2바퀴 전용 기억이다. */",
     "  phase1?: MemoryPhaseConfig;",
-    "  /** Phase 2: 전원 수집 후 재클릭. 있는 아이템만 재클릭 대상. */",
+    "  /** 2차 조사. 열리는 페이즈는 from이 정한다. */",
     "  phase2?: MemoryPhaseConfig;",
+    "  /** 3차 조사: 2차를 마친 뒤의 되짚기. */",
+    "  phase3?: MemoryPhaseConfig;",
     "}",
     "",
     "export const MEMORIES: MemoryItem[] = [",
@@ -64,9 +67,9 @@ function emitModule(content) {
     lines.push("  {");
     lines.push(`    id: ${JSON.stringify(memory.id)},`);
     lines.push(`    icon: ${memory.icon},`);
-    for (const phase of ["phase1", "phase2"]) {
+    for (const [index, phase] of VISIT_KEYS.entries()) {
       if (!memory[phase]) continue;
-      lines.push(`    ${phase}: ${phaseLiteral(memory[phase])},`);
+      lines.push(`    ${phase}: ${phaseLiteral(memory[phase], index + 1, memories)},`);
     }
     lines.push("  },");
   }
@@ -94,6 +97,8 @@ function emitModule(content) {
       lines.push("      {");
       if (cut.image !== undefined) lines.push(`        image: ${JSON.stringify(cut.image)},`);
       if (cut.holdMs !== undefined) lines.push(`        holdMs: ${cut.holdMs},`);
+      if (cut.panel !== undefined) lines.push(`        panel: ${JSON.stringify(cut.panel)},`);
+      if (cut.sfx !== undefined) lines.push(`        sfx: ${JSON.stringify(cut.sfx)},`);
       lines.push("        lines: [");
       for (const line of lineLiterals(cut.lines, cutKey)) lines.push(`          ${line},`);
       lines.push("        ],");
@@ -107,7 +112,7 @@ function emitModule(content) {
   return formatSource("src/data/generated/content.ts", lines.join("\n"));
 }
 
-function phaseLiteral(config) {
+function phaseLiteral(config, visit, memories) {
   const interaction = [
     config.script !== undefined ? `scriptId: ${JSON.stringify(config.script)}` : null,
     config.minigame !== undefined ? `minigameId: ${JSON.stringify(config.minigame)}` : null,
@@ -119,9 +124,20 @@ function phaseLiteral(config) {
   const fields = [
     interaction.length > 0 ? `interaction: { ${interaction.join(", ")} }` : null,
     config.unlockAfter !== undefined
-      ? `unlockAfter: [${config.unlockAfter.map((id) => JSON.stringify(id)).join(", ")}]`
+      ? `unlockAfter: [${config.unlockAfter
+          .map((entry) => {
+            // 차수를 여기서 확정해 둔다. 게임은 "무엇의 몇 차"만 읽으면 된다
+            const dependency = parseDependency(entry);
+            const target = memories.find((memory) => memory.id === dependency.id);
+            const resolved = resolveDependencyVisit(target, dependency.visit, visit);
+            return `{ id: ${JSON.stringify(dependency.id)}, visit: ${resolved} }`;
+          })
+          .join(", ")}]`
       : null,
     config.replayStill !== undefined ? `replayStill: ${JSON.stringify(config.replayStill)}` : null,
+    config.from !== undefined ? `from: ${JSON.stringify(config.from)}` : null,
+    config.side === true ? "side: true" : null,
+    config.cutscene !== undefined ? `cutscene: ${JSON.stringify(config.cutscene)}` : null,
   ].filter(Boolean);
 
   return fields.length > 0 ? `{ ${fields.join(", ")} }` : "{}";
@@ -148,7 +164,11 @@ function lineLiterals(lines, keyPrefix) {
  */
 function emitLocale(content, base, locale) {
   const { memories, scripts, cutscenes, stages } = content;
-  const pick = (text) => text[locale];
+  // 빈 번역(TODO)은 기준 언어 문장으로 채운다. i18n의 fallbackLng와 같은 결과다
+  const pick = (text) =>
+    typeof text[locale] === "string" && text[locale].trim() !== ""
+      ? text[locale]
+      : text[BASE_LOCALE];
 
   const resource = {
     ...structuredClone(base ?? {}),
@@ -163,8 +183,12 @@ function emitLocale(content, base, locale) {
         memory.id,
         {
           title: pick(memory.lore.title),
-          ...(memory.lore.phase1 ? { phase1: pick(memory.lore.phase1) } : {}),
-          ...(memory.lore.phase2 ? { phase2: pick(memory.lore.phase2) } : {}),
+          ...Object.fromEntries(
+            VISIT_KEYS.filter((key) => memory.lore[key]).map((key) => [
+              key,
+              pick(memory.lore[key]),
+            ]),
+          ),
         },
       ]),
     ),

@@ -76,6 +76,15 @@
     },
     "ampoule": {
       "name": "앰플"
+    },
+    "research-note": {
+      "name": "연구 일지"
+    },
+    "id-card": {
+      "name": "출입증"
+    },
+    "not-a-trip": {
+      "name": "소집 공지"
     }
   }
 }

@@ -258,6 +258,9 @@ export function RoomCanvas() {
       shoes: tRoom("memories.shoes.name"),
       cards: tRoom("memories.cards.name"),
       ampoule: tRoom("memories.ampoule.name"),
+      "research-note": tRoom("memories.research-note.name"),
+      "id-card": tRoom("memories.id-card.name"),
+      "not-a-trip": tRoom("memories.not-a-trip.name"),
     }),
     [tRoom],
   );

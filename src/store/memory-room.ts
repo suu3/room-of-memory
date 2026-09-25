@@ -3,15 +3,15 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { DOOR_RULES } from "@/data/doors";
 import { ITEM_IDS, type ItemId } from "@/data/items";
 import {
-  ACT2_CHAIN,
-  ACT2_FINAL_MEMORY,
   CUTSCENE_BAT_GRIP,
-  CUTSCENE_FAREWELL,
+  CUTSCENE_P2_CLOSE,
+  CUTSCENE_P4_CLOSE,
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENES,
   MEMORY_BY_ID,
   MEMORY_GOAL,
   type MemoryId,
+  P4_FINAL_MEMORY,
   phaseConfigOf,
   REPLAY_MORPH_WITHIN,
   SCRIPTS,
@@ -25,6 +25,20 @@ import {
   PUZZLE_IDS,
   type PuzzleId,
 } from "@/data/room-clues";
+import {
+  anyVisitDone,
+  deadlineOf,
+  lastVisitDone,
+  nextVisit,
+  phaseAtLeast,
+  RECOVERY_VISITS,
+  refDone,
+  type StoryPhase,
+  storyPhaseOf,
+  type Visit,
+  visitOpen,
+  visitsOf,
+} from "@/data/story-phase";
 import { DOORWAY_IDS, type DoorwayId, type SpaceId } from "@/scenes/memory-room/spaces";
 import type { CurtainSide } from "@/types/curtain";
 import type { CutsceneCut, DialogueScriptLine } from "@/types/interaction";
@@ -32,12 +46,15 @@ import type { MinigameResult } from "@/types/minigame";
 import type { SeatId } from "@/types/seat";
 
 /**
- * 조사의 차수. 1차 = 1막의 첫 조사, 2차 = 2막의 재조사다.
+ * 바퀴. 1 = 1차 조사를 모으는 1페이즈, 2 = 그 뒤 전부 (분기점부터 결말까지).
  *
- * 막(Act)과 다른 축이다. 막은 "이야기가 어디까지 왔는가"이고 이건 "이 물건을
- * 몇 번째로 보고 있는가"라, 콘텐츠(phase1/phase2)와 짝이 맞는 쪽은 이쪽이다.
+ * 이야기의 페이즈(StoryPhase: intro/p1/turning/p2/p3/p4/resolve/ending)보다 거친
+ * 축이다. 밝기·BGM·진행 표시처럼 "1막인가 아닌가"만 보면 되는 곳이 쓴다.
+ * 조사 차수(Visit: 1·2·3차)는 또 다른 축이다: 콘텐츠의 phase1/2/3과 짝이 맞는다.
  */
 export type GamePhase = 1 | 2;
+
+export type { StoryPhase, Visit };
 
 /**
  * 막: 이야기의 단계이자 공간의 단계 (docs/content-design.md 2장).
@@ -56,6 +73,20 @@ export type Difficulty = "easy" | "normal";
 export type CharacterSheetTab = "profile" | "lore" | "map" | "items";
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
+/**
+ * 스치는 혼잣말 한 줄 (RemarkLine). 조사도 기록도 아닌, 물건을 눌렀을 때 도해가
+ * 흘리는 말이다. 본문은 common.json의 remark.* (문은 door.*).
+ */
+export type RemarkId =
+  | "door-stay"
+  | "door-ready"
+  | "computer-off"
+  | "toothbrush"
+  | "sink-locked"
+  | "sink-open"
+  | "piano-done"
+  | "parents-locked";
+
 export type UiLockId =
   | "hud-menu"
   | "character-sheet"
@@ -68,8 +99,8 @@ export type UiLockId =
 
 export interface ActiveInteraction {
   memoryId: MemoryId;
-  /** 인터랙션이 시작된 시점의 게임 페이즈 (완료 기록이 이 값을 따른다) */
-  gamePhase: GamePhase;
+  /** 몇 차 조사인가 (1·2·3). 완료 기록이 이 값을 따른다 */
+  gamePhase: Visit;
   phase: InteractionPhase;
   /** 재생 중인 대사 스크립트. 인트로 대사와 미니게임 결과 대사가 같은 대사창을 쓴다. */
   scriptId?: string;
@@ -111,10 +142,12 @@ export interface ActivePlayback {
 }
 
 export interface MemoryRoomState {
-  /** Phase 1 수집 완료 */
+  /** 1차 조사 완료 */
   collected: MemoryId[];
-  /** Phase 2 재클릭 완료 */
+  /** 2차 조사 완료 */
   revisited: MemoryId[];
+  /** 3차 조사 완료 (v4: 컴퓨터의 로고 매칭 하나) */
+  rechecked: MemoryId[];
   /** 진행 중인 인터랙션. 활성이면 다른 핫스팟 입력은 잠긴다. */
   activeInteraction: ActiveInteraction | null;
   /** 재생 중인 장면 (컷씬 또는 다시보기). 인터랙션과 마찬가지로 저장하지 않는다. */
@@ -294,11 +327,11 @@ export interface MemoryRoomState {
    */
   discoveries: DiscoveryId[];
   /**
-   * 닫힌 방문을 마지막으로 두드린 시각 (0 = 아직). 문이 안 열리는 이유를 한 줄
-   * 혼잣말로 흘리는 신호다 (DoorNudge): 잠긴 게 아니라 **안 여는** 것이라는 게
-   * 대사로 드러나야 한다 (docs/content-design.md 3-1).
+   * 지금 흐르는 혼잣말 한 줄과 그 시각 (없으면 null). 닫힌 방문·꺼진 컴퓨터·칫솔컵·
+   * 잠긴 하부장처럼 눌러도 조사가 아닌 물건이 한 줄을 흘리는 신호다 (RemarkLine).
+   * 방문의 줄은 잠긴 게 아니라 **안 여는** 것이라는 걸 말한다 (docs/content-design.md 3-1).
    */
-  doorNudgedAt: number;
+  remark: { id: RemarkId; at: number } | null;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   /** 재생을 한 칸 진행한다. 다음 줄 → 정적 → 다음 컷 → 종료 순. */
@@ -376,69 +409,78 @@ export interface MemoryRoomState {
   finishPuzzle: (result: MinigameResult) => void;
   /** 닫힌 방문을 두드렸다. 문이 열려 있으면 아무 일도 없다. */
   nudgeDoor: () => void;
+  /** 혼잣말 한 줄을 흘린다. 다른 화면이 떠 있으면 아무 일도 없다. */
+  sayRemark: (id: RemarkId) => void;
   /** 엔딩 시작: 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
   startEnding: () => void;
   reset: () => void;
 }
 
-type StateSnapshot = Pick<MemoryRoomState, "collected" | "revisited" | "doorOpened">;
+type StateSnapshot = Pick<MemoryRoomState, "collected" | "revisited" | "doorOpened"> &
+  Partial<Pick<MemoryRoomState, "rechecked" | "openedDoorways" | "introDone" | "endingStarted">>;
 
 export function gamePhaseOf(state: StateSnapshot): GamePhase {
   return state.collected.length >= MEMORY_GOAL ? 2 : 1;
 }
 
+/** 이야기의 페이즈 (v4 설계서 1-1). 진행에서 파생된다 (src/data/story-phase.ts). */
+export function storyPhase(state: StateSnapshot): StoryPhase {
+  return storyPhaseOf(state);
+}
+
 /**
- * 지금 몇 막인가.
+ * 지금 몇 막인가: 밝기·창밖처럼 거친 단계만 보면 되는 곳의 축.
  *
- * 경계를 진행도(수집 개수)가 아니라 **물건과 문**이 긋는다. 1막의 끝(수집 완주)과
- * 2막의 시작(방문 개방) 사이에는 전환 시퀀스 한 덩어리가 들어가는데, 그 구간을
- * 어느 막으로 셀지 애매하면 밝기·BGM·혼잣말이 제각각 다른 답을 낸다.
- * 여기서 한 번만 정한다. 전환 시퀀스는 아직 1막이다.
+ *   1막 방 (intro · p1 · turning) · 2막 방↔거실↔안방 (p2 · p3 · p4) · 3막 현관 (resolve)
+ *
+ * 경계는 문과 비트가 긋는다: 방문이 열리면 2막, 정적 비트(액자 2차)가 끝나면 3막이다.
  */
 export function actOf(state: StateSnapshot): Act {
-  if (state.revisited.includes(ACT2_FINAL_MEMORY)) return 3;
+  if (phaseAtLeast(storyPhaseOf(state), "resolve")) return 3;
   return state.doorOpened ? 2 : 1;
 }
 
 /**
- * 2막 추리가 얼마나 진행됐는가 (0~1). 밝기 상승 곡선의 분자·분모다.
- *
- * 세는 것은 필수 체인(ACT2_CHAIN)뿐이다. 곁가지(게임기·컴퓨터·폰)까지 분모에
- * 넣으면 그것들을 안 본 사람은 3막에 도착해도 방이 안 밝다. 곁가지를 사실상
- * 필수로 만드는 셈이다.
+ * 밝기가 얼마나 되살아났는가 (0~1). 분기점부터 결심까지의 필수 조사
+ * (RECOVERY_VISITS)를 센다. 곁가지는 분모에 안 낀다: 안 본 사람의 방이 덜 밝으면
+ * 곁가지가 사실상 필수가 된다.
  */
 export function actTwoProgress(state: StateSnapshot): number {
-  if (ACT2_CHAIN.length === 0) return 1;
-  const done = ACT2_CHAIN.filter((id) => state.revisited.includes(id)).length;
-  return done / ACT2_CHAIN.length;
+  if (RECOVERY_VISITS.length === 0) return 1;
+  const progress = { ...state, rechecked: state.rechecked ?? [] };
+  const done = RECOVERY_VISITS.filter((ref) => refDone(progress, ref)).length;
+  return done / RECOVERY_VISITS.length;
 }
 
+/**
+ * 이 기억의 핫스팟이 지금 어떤 상태인가.
+ *
+ *   available  다음 차수가 열려 있다 (페이즈가 됐고 해금 조건이 찼다)
+ *   locked     다음 차수가 아직 안 열렸는데, 아무 차수도 안 봤다 (처음 보는 물건)
+ *              또는 그 페이즈에 들어섰지만 해금 조건이 안 찼다
+ *   done       다 봤거나, 본 뒤 다음 차수가 아직 먼 페이즈에 있다 (금빛이 남는다)
+ */
 export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus {
-  const gamePhase = gamePhaseOf(state);
-  if (gamePhase === 1) {
-    if (state.collected.includes(id)) return "done";
-    const config = MEMORY_BY_ID[id].phase1;
-    /*
-     * 1바퀴에 없는 기억(컴퓨터)은 잠겨 있다. done이 아니라 locked다. done으로
-     * 두면 표식이 켜지고 다시보기까지 열려서, 아직 아무것도 안 본 물건이 이미
-     * 본 것처럼 보인다.
-     */
-    if (!config) return "locked";
-    const unlockAfter = config.unlockAfter ?? [];
-    return unlockAfter.every((dep) => state.collected.includes(dep)) ? "available" : "locked";
-  }
-  const config = MEMORY_BY_ID[id].phase2;
-  if (!config || state.revisited.includes(id)) return "done";
-  /*
-   * 라디오 목소리만은 문보다 앞이다. 그걸 들어야 문이 열리니까(selectDoorReady).
-   * 나머지 재조사는 전부 문 뒤에 있다: 문이 열리는 것이 2바퀴의 시작이고, 단서
-   * 수집은 방과 거실을 오가는 일이어야 한다. 문도 안 열었는데 방 안에서 2바퀴가
-   * 다 돌아가면 거실이 부록이 된다.
-   */
-  if (id !== "radio" && !state.doorOpened) return "locked";
-  const unlockAfter = config.unlockAfter ?? [];
-  return unlockAfter.every((dep) => state.revisited.includes(dep)) ? "available" : "locked";
+  const progress = {
+    ...state,
+    rechecked: state.rechecked ?? [],
+    openedDoorways: state.openedDoorways ?? [],
+  };
+  const visit = nextVisit(progress, id);
+  if (visit === undefined) return "done";
+  if (visitOpen(progress, id, visit)) return "available";
+  const seen = anyVisitDone(progress, id);
+  if (!seen) return "locked";
+  // 본 물건: 다음 차수의 페이즈에 이미 들어섰으면 조건을 기다리는 중(locked),
+  // 아직 먼 페이즈면 본 물건으로 가라앉아 있다(done)
+  const config = phaseConfigOf(id, visit);
+  const phase = storyPhaseOf(progress);
+  return config?.from && phaseAtLeast(phase, config.from) ? "locked" : "done";
 }
+
+/** 남은 밤 (3·2·1). 생존자 방송 전에는 null. */
+export const selectDeadline = (state: MemoryRoomState) => deadlineOf(storyPhaseOf(state));
+export const selectStoryPhase = (state: MemoryRoomState) => storyPhaseOf(state);
 
 /**
  * 이 단서를 지금 펼칠 수 있는가.
@@ -459,15 +501,12 @@ export function clueUnlocked(state: StateSnapshot, id: ClueId): boolean {
  * 그 자리를 대신한다. collected만 보면 그 기억은 영영 잠긴 채로 남는다.
  */
 export function isSeen(state: StateSnapshot, id: MemoryId): boolean {
-  return state.collected.includes(id) || state.revisited.includes(id);
+  return anyVisitDone({ ...state, rechecked: state.rechecked ?? [] }, id);
 }
 
 /**
- * 3막이 열렸는가: 앰플을 손에 넣었다는 뜻이다.
- *
- * "2차 조사를 전부 마쳤는가"가 아니다. 곁가지(게임기·컴퓨터·폰)까지 강제하면
- * 선택 콘텐츠가 관문이 되고, 추리 체인을 끝낸 플레이어가 왜 문이 안 열리는지
- * 알 길이 없어진다 (docs/content-design.md 6-2).
+ * 결심(resolve)에 들어섰는가: 4페이즈를 마치고 정적 비트까지 지났다는 뜻이다.
+ * 곁가지(게임기·공의 2차, 피아노)는 여기 끼지 않는다.
  */
 export function endingReady(state: StateSnapshot): boolean {
   return actOf(state) === 3;
@@ -498,7 +537,8 @@ export function openCutscene(id: string, { intro = false } = {}): ActivePlayback
     cutIndex: 0,
     lineIndex: 0,
     intro,
-    holding: false,
+    // 대사가 없는 컷(그림만 서는 정적)은 처음부터 정적이다
+    holding: !intro && cutscene.cuts[0]?.lines.length === 0,
   };
 }
 
@@ -511,7 +551,7 @@ export function openCutscene(id: string, { intro = false } = {}): ActivePlayback
  * 대사가 한 줄도 없는 기억(조사 자체가 미니게임뿐이었던 것들)은 그때 남긴
  * 기록을 나레이션으로 대신 세운다. 눌렀는데 아무 일도 없는 줄을 만들지 않는다.
  */
-export function buildMemoryReplay(id: MemoryId, gamePhase: GamePhase): ActivePlayback | null {
+export function buildMemoryReplay(id: MemoryId, gamePhase: Visit): ActivePlayback | null {
   const config = phaseConfigOf(id, gamePhase);
   if (!config) return null;
 
@@ -533,7 +573,7 @@ export function buildMemoryReplay(id: MemoryId, gamePhase: GamePhase): ActivePla
    * 이 장으로 밀어 넘긴다 (PhotoMorph). 지금은 액자 하나가 해당한다: 같은 장면을 두 장
    * 가진 기억이 거기뿐이다. 데이터가 정하므로 다른 기억에 두 장이 생기면 저절로 따라온다.
    */
-  const earlier = gamePhase === 2 ? phaseConfigOf(id, 1)?.replayStill : undefined;
+  const earlier = gamePhase > 1 ? phaseConfigOf(id, 1)?.replayStill : undefined;
   // 밀림은 그림이 **둘 다** 있고 서로 다를 때만 성립한다. 2막에 그림이 없는 기억
   // (사인볼)은 앞 그림만 실리면 갈 곳 없는 밀림이 된다
   const morphFrom =
@@ -563,13 +603,19 @@ export function nextPlaybackStep(active: ActivePlayback): ActivePlayback | null 
   const cut = active.cuts[active.cutIndex];
   if (!cut) return null;
 
+  // 대사가 없는 컷은 들어서자마자 정적이다. 한 칸을 더 누르게 하지 않는다
   const toNextCut = (): ActivePlayback | null =>
     active.cutIndex + 1 < active.cuts.length
-      ? { ...active, cutIndex: active.cutIndex + 1, lineIndex: 0, holding: false }
+      ? {
+          ...active,
+          cutIndex: active.cutIndex + 1,
+          lineIndex: 0,
+          holding: active.cuts[active.cutIndex + 1].lines.length === 0,
+        }
       : null;
 
   // 도입(라디오가 꺼지는 비트)이 끝나면 같은 컷의 첫 줄부터 시작한다
-  if (active.intro) return { ...active, intro: false };
+  if (active.intro) return { ...active, intro: false, holding: cut.lines.length === 0 };
   if (active.holding) return toNextCut();
   if (active.lineIndex + 1 < cut.lines.length) {
     return { ...active, lineIndex: active.lineIndex + 1 };
@@ -579,34 +625,52 @@ export function nextPlaybackStep(active: ActivePlayback): ActivePlayback | null 
   return toNextCut();
 }
 
-function complete(state: MemoryRoomState, id: MemoryId, gamePhase: GamePhase) {
-  if (gamePhase === 1) {
-    const collected = state.collected.includes(id) ? state.collected : [...state.collected, id];
-    /*
-     * 1바퀴를 방금 완주했다 = 라디오 재난방송이 막 끊긴 순간이다(라디오가 1바퀴의
-     * 마지막 관문이므로). 절망의 바닥에서 전환 컷씬으로 곧장 넘어간다. 방을 한 번
-     * 둘러보게 두면 바닥의 밀도가 흩어진다.
-     */
-    const finished = collected.length >= MEMORY_GOAL;
-    return {
-      collected,
-      activeInteraction: null,
-      activePlayback: finished
-        ? openCutscene(CUTSCENE_RADIO_BLACKOUT, { intro: true })
-        : state.activePlayback,
-    };
-  }
-  const revisited = state.revisited.includes(id) ? state.revisited : [...state.revisited, id];
-  /*
-   * 앰플이 2막의 마지막 칸이다. 쥐는 순간 작별의 회상이 곧장 뜬다. 거실을 한
-   * 바퀴 더 둘러보게 두면 발견의 밀도가 흩어지고, 3막이 열리는 이유가 물건이
-   * 아니라 시간처럼 보인다 (docs/content-design.md 4장 순서 6).
-   */
-  const closesActTwo = id === ACT2_FINAL_MEMORY && !state.revisited.includes(id);
+/** N차 조사를 마쳤다고 적은 진행 목록들. */
+function markVisit(state: MemoryRoomState, id: MemoryId, visit: Visit) {
+  const add = (list: MemoryId[]) => (list.includes(id) ? list : [...list, id]);
+  if (visit === 1) return { collected: add(state.collected) };
+  if (visit === 2) return { revisited: add(state.revisited) };
+  return { rechecked: add(state.rechecked) };
+}
+
+/**
+ * 조사를 마친 순간 곧장 트는 컷씬. 방을 한 바퀴 더 둘러보게 두면 그 순간의 밀도가
+ * 흩어진다. 한 번에 하나만 튼다: 앞의 것이 이긴다.
+ *
+ *   1. 1차를 다 모았다 = 라디오 재난방송이 막 끝났다 → 이미지 나열 (radio-blackout)
+ *   2. 조사 자체에 붙은 컷씬 (생존자 방송 · 정적 비트: memories.yaml의 cutscene)
+ *   3. 2페이즈를 방금 마쳤다 → p2-close
+ *   4. 4페이즈의 마지막 칸(액자 2차)이 방금 열렸다 → p4-close
+ */
+function cutsceneAfter(
+  before: MemoryRoomState,
+  after: MemoryRoomState,
+  id: MemoryId,
+  visit: Visit,
+): ActivePlayback | null {
+  if (visit === 1 && before.collected.length < MEMORY_GOAL && after.collected.length >= MEMORY_GOAL)
+    return openCutscene(CUTSCENE_RADIO_BLACKOUT, { intro: true });
+  const own = phaseConfigOf(id, visit)?.cutscene;
+  if (own) return openCutscene(own);
+  const was = storyPhaseOf(before);
+  const now = storyPhaseOf(after);
+  if (was === "p2" && now === "p3") return openCutscene(CUTSCENE_P2_CLOSE);
+  if (
+    now === "p4" &&
+    hotspotStatus(after, P4_FINAL_MEMORY) === "available" &&
+    hotspotStatus(before, P4_FINAL_MEMORY) !== "available"
+  )
+    return openCutscene(CUTSCENE_P4_CLOSE);
+  return null;
+}
+
+function complete(state: MemoryRoomState, id: MemoryId, visit: Visit) {
+  const marked = markVisit(state, id, visit);
+  const after = { ...state, ...marked };
   return {
-    revisited,
+    ...marked,
     activeInteraction: null,
-    activePlayback: closesActTwo ? openCutscene(CUTSCENE_FAREWELL) : state.activePlayback,
+    activePlayback: cutsceneAfter(state, after, id, visit) ?? state.activePlayback,
   };
 }
 
@@ -625,6 +689,7 @@ type PersistedProgress = Pick<
   MemoryRoomState,
   | "collected"
   | "revisited"
+  | "rechecked"
   | "doorOpened"
   | "batTaken"
   | "solvedPuzzles"
@@ -644,10 +709,12 @@ type PersistedProgress = Pick<
 const PERSIST_KEY = "rom-progress";
 /**
  * 2: 3막 개편. 배트가 방문 트리거에서 현관의 3막 물건으로 옮겨가고(batTaken),
- * 거실 추리 기억들이 생겼다. 옛 저장본은 sanitizeProgress가 걸러 낸다.
- * doorOpened의 조건이 바뀌었을 뿐 진행 자체는 그대로 이어진다.
+ * 거실 추리 기억들이 생겼다.
+ * 3: v4 페이즈 개편. 3차 조사(rechecked)가 생기고 페이즈가 진행에서 파생된다.
+ * 옛 저장본은 sanitizeProgress가 걸러 낸다. 목록이 어긋나도 페이즈가 파생값이라
+ * 저장본은 그대로 이어진다 (모르는 id만 버린다).
  */
-const PERSIST_VERSION = 2;
+const PERSIST_VERSION = 3;
 
 /**
  * 저장본을 지금 스키마에 맞춰 걸러낸다.
@@ -681,17 +748,33 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
    * 단, 1바퀴가 아예 없는 기억(컴퓨터)은 collected에 들어갈 길이 없으므로 예외다.
    */
   const revisited = ids(saved.revisited).filter(
-    (id) => collected.includes(id) || !MEMORY_BY_ID[id].phase1,
+    (id) => MEMORY_BY_ID[id].phase2 && (collected.includes(id) || !MEMORY_BY_ID[id].phase1),
+  );
+  // 3차는 2차를 마친 기억에만 붙는다
+  const rechecked = ids(saved.rechecked).filter(
+    (id) => MEMORY_BY_ID[id].phase3 && revisited.includes(id),
   );
 
   // 방문은 라디오 목소리를 들은 뒤에만 열린다. 조건이 안 맞는 저장본은 닫고 시작
   const doorOpened = saved.doorOpened === true && revisited.includes("radio" as MemoryId);
-  // 배트는 3막의 물건이다. 앰플이 없는 저장본에서 쥐고 있으면 손에서 내려놓는다
-  const batTaken = saved.batTaken === true && revisited.includes(ACT2_FINAL_MEMORY);
+  // 방문이 닫혀 있으면 그 너머의 문도 열려 있을 수 없다
+  const openedDoorways = doorOpened
+    ? DOORWAY_IDS.filter(
+        (id) =>
+          id !== "room-living" &&
+          Array.isArray(saved.openedDoorways) &&
+          (saved.openedDoorways as unknown[]).includes(id),
+      )
+    : [];
+  // 배트는 결심(resolve)의 물건이다. 거기 못 간 저장본에서 쥐고 있으면 손에서 내려놓는다
+  const batTaken =
+    saved.batTaken === true &&
+    endingReady({ collected, revisited, rechecked, doorOpened, openedDoorways });
 
   return {
     collected,
     revisited,
+    rechecked,
     doorOpened,
     batTaken,
     solvedPuzzles: Array.isArray(saved.solvedPuzzles)
@@ -719,15 +802,7 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     cluesSeen: Array.isArray(saved.cluesSeen)
       ? CLUE_IDS.filter((id) => (saved.cluesSeen as unknown[]).includes(id))
       : [],
-    // 방문이 닫혀 있으면 그 너머의 문도 열려 있을 수 없다
-    openedDoorways: doorOpened
-      ? DOORWAY_IDS.filter(
-          (id) =>
-            id !== "room-living" &&
-            Array.isArray(saved.openedDoorways) &&
-            (saved.openedDoorways as unknown[]).includes(id),
-        )
-      : [],
+    openedDoorways,
   };
 }
 
@@ -736,6 +811,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
     (set) => ({
       collected: [],
       revisited: [],
+      rechecked: [],
       activeInteraction: null,
       activePlayback: null,
       uiLocks: [],
@@ -771,14 +847,15 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       activePuzzle: null,
       solvedPuzzles: [],
       discoveries: [],
-      doorNudgedAt: 0,
+      remark: null,
       beginInteraction: (id) =>
         set((state) => {
           if (state.activePlayback) return state;
           // 1인칭에 있는 동안은 조사하지 않는다. 어둠 속의 할 일은 스위치 하나, 문 앞의 할 일은 나가기 하나다
           if (viewpointOf(state) !== null) return state;
           if (state.activeInteraction || hotspotStatus(state, id) !== "available") return state;
-          const gamePhase = gamePhaseOf(state);
+          const gamePhase = nextVisit(state, id);
+          if (gamePhase === undefined) return state;
           const interaction = phaseConfigOf(id, gamePhase)?.interaction;
           if (interaction?.scriptId) {
             return {
@@ -878,10 +955,9 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           // 이미 본 것만 되짚을 수 있다. beginInteraction은 available일 때만 돌아서 쓸 수 없다.
           if (state.activeInteraction || state.activePlayback) return state;
           if (!isSeen(state, id)) return state;
-          // 2바퀴까지 본 기억이면 마지막으로 본 쪽(phase2)을 되돌려준다
-          const item = MEMORY_BY_ID[id];
-          const gamePhase: GamePhase =
-            !item.phase1 || (state.revisited.includes(id) && item.phase2) ? 2 : 1;
+          // 여러 차수를 본 기억이면 마지막으로 본 차수를 되돌려준다
+          const gamePhase = lastVisitDone(state, id);
+          if (gamePhase === undefined) return state;
           const playback = buildMemoryReplay(id, gamePhase);
           return playback ? { activePlayback: playback } : state;
         }),
@@ -1030,6 +1106,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           // 다른 화면(대사·미니게임·재생·단서)이 떠 있으면 위에 얹지 않는다
           if (state.activeInteraction || state.activePlayback || state.activeClue) return state;
           if (state.activePuzzle || state.solvedPuzzles.includes(id)) return state;
+          // 하부장 다이얼은 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만 연다 (v4 3-5)
+          if (id === "sink-dial" && !selectSinkHintRead(state)) return state;
           return { activePuzzle: id };
         }),
       closePuzzle: () => set((state) => (state.activePuzzle ? { activePuzzle: null } : state)),
@@ -1037,14 +1115,44 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) => {
           if (!state.activePuzzle) return state;
           if (!result.cleared) return { activePuzzle: null };
+          const solved = state.activePuzzle;
+          /*
+           * 하부장이 열리면 그 안의 안방 열쇠가 손에 들어온다 (v4 3-5). 집는 동작을 따로
+           * 두지 않는다: 열린 칸 안에 열쇠 하나뿐이라 한 번 더 누르게 하면 심부름이다.
+           */
+          const reward: Partial<MemoryRoomState> =
+            solved === "sink-dial"
+              ? {
+                  inventory: state.inventory.includes("parents-key")
+                    ? state.inventory
+                    : [...state.inventory, "parents-key"],
+                  remark: { id: "sink-open", at: Date.now() },
+                }
+              : solved === "piano-melody"
+                ? { remark: { id: "piano-done", at: Date.now() } }
+                : {};
           return {
             activePuzzle: null,
-            solvedPuzzles: [...state.solvedPuzzles, state.activePuzzle],
+            solvedPuzzles: [...state.solvedPuzzles, solved],
+            ...reward,
           };
         }),
       nudgeDoor: () =>
         set((state) =>
-          state.doorOpened || selectSceneInputLocked(state) ? state : { doorNudgedAt: Date.now() },
+          state.doorOpened || selectSceneInputLocked(state)
+            ? state
+            : {
+                remark: {
+                  id: selectDoorReady(state) ? "door-ready" : "door-stay",
+                  at: Date.now(),
+                },
+              },
+        ),
+      sayRemark: (id) =>
+        set((state) =>
+          selectSceneInputLocked(state) || viewpointOf(state) !== null
+            ? state
+            : { remark: { id, at: Date.now() } },
         ),
       startEnding: () =>
         set((state) =>
@@ -1054,6 +1162,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) => ({
           collected: [],
           revisited: [],
+          rechecked: [],
           activeInteraction: null,
           activePlayback: null,
           uiLocks: [],
@@ -1082,7 +1191,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           activePuzzle: null,
           solvedPuzzles: [],
           discoveries: [],
-          doorNudgedAt: 0,
+          remark: null,
           resetRevision: state.resetRevision + 1,
         })),
     }),
@@ -1093,6 +1202,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       partialize: (state) => ({
         collected: state.collected,
         revisited: state.revisited,
+        rechecked: state.rechecked,
         doorOpened: state.doorOpened,
         batTaken: state.batTaken,
         solvedPuzzles: state.solvedPuzzles,
@@ -1167,13 +1277,14 @@ export const selectDoorwayReady = (id: DoorwayId) => (state: MemoryRoomState) =>
   !state.openedDoorways.includes(id) && doorwayReady(state, id);
 
 /**
- * 현관의 배트를 쥘 수 있는가: 앰플을 손에 넣은 뒤(3막), 아직 안 쥐었을 때.
+ * 현관의 배트를 쥘 수 있는가: 결심(resolve)에 들어선 뒤, 아직 안 쥐었을 때.
  *
  * 배트가 1막부터 현관에 서 있어도 켜지지 않는 이유다. 무기가 필요해지는 것은
- * 나갈 이유가 생긴 다음이고, 나갈 이유는 앰플이 만든다.
+ * 나갈 이유가 생긴 다음이고, 나갈 이유는 안방의 서류와 액자 앞의 정적 비트가 만든다.
+ * 정적 비트가 도는 동안에는 아직 아니다: 한 줄이 끝나야 금빛이 돈다.
  */
-export const selectBatReady = (state: Pick<MemoryRoomState, "revisited" | "batTaken">) =>
-  state.revisited.includes(ACT2_FINAL_MEMORY) && !state.batTaken;
+export const selectBatReady = (state: MemoryRoomState) =>
+  storyPhaseOf(state) === "resolve" && !state.batTaken && state.activePlayback === null;
 
 /** 배트를 쥐었는가: 현관문이 이걸 본다. */
 /** 팔을 들고 있어야 하는가: Player가 프레임마다 본다 (구독하지 않는다). */
@@ -1233,7 +1344,9 @@ export const selectSceneInputLocked = (state: MemoryRoomState) =>
  * 목소리를 잡고 나면(revisited) 더는 깜빡이지 않는다. 할 말을 이미 했으니까.
  */
 export const selectRadioSignaling = (state: MemoryRoomState) =>
-  gamePhaseOf(state) === 2 && !state.revisited.includes("radio") && state.activePlayback === null;
+  storyPhaseOf(state) === "turning" &&
+  !state.revisited.includes("radio") &&
+  state.activePlayback === null;
 
 /**
  * BGM이 뒤로 물러나야 하는 정도를 정하는 축. 미니게임은 효과음이, 대사는 글이
@@ -1282,8 +1395,8 @@ export type DialogueLogEntry = Pick<DialogueScriptLine, "speaker" | "textKey">;
 /** 로그에 남기는 최대 줄 수. 넘치면 오래된 줄부터 버린다. */
 const DIALOGUE_LOG_MAX = 200;
 
-/** 2막 필수 추리 체인의 길이. 밝기 상승 구간의 분모다 (actTwoProgress). */
-export const ACT2_TOTAL = ACT2_CHAIN.length;
+/** 되살아나는 길의 필수 조사 수. 밝기 상승 구간의 분모다 (actTwoProgress). */
+export const ACT2_TOTAL = RECOVERY_VISITS.length;
 
 /** 1막 조사 목표. 밝기 하강 구간의 분모다. 데이터 쪽 MEMORY_GOAL과 같은 수. */
 export const MEMORY_TOTAL = MEMORY_GOAL;
@@ -1294,3 +1407,25 @@ export const MEMORY_TOTAL = MEMORY_GOAL;
  */
 export const selectCollectedCount = (state: MemoryRoomState) => state.collected.length;
 export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.length;
+
+/**
+ * 아빠 메일의 하부장 힌트를 봤는가 (v4 1-3의 dadHintRead · logoMatched).
+ * 둘 다 컴퓨터 3차 조사(로고 매칭 → 메일) 한 번에 선다.
+ */
+export const selectSinkHintRead = (state: Pick<MemoryRoomState, "rechecked">) =>
+  state.rechecked.includes("computer" as MemoryId);
+
+/** 엄마 대화방의 "1"을 열었는가 (v4 1-3의 momChatRead): 폰 2차 조사. */
+export const selectMomChatRead = (state: Pick<MemoryRoomState, "revisited">) =>
+  state.revisited.includes("phone" as MemoryId);
+
+/** 생존자 방송을 들었는가 (v4 1-3의 heardSurvivorBroadcast): 라디오 2차 조사. */
+export const selectHeardSurvivorBroadcast = (state: Pick<MemoryRoomState, "revisited">) =>
+  state.revisited.includes("radio" as MemoryId);
+
+/** 정적 비트를 지났는가 (v4 1-3의 stillBeatDone): 결심에 들어섰다. */
+export const selectStillBeatDone = (state: MemoryRoomState) =>
+  phaseAtLeast(storyPhaseOf(state), "resolve");
+
+/** 이 기억의 차수 목록 (수첩·패널이 쓴다). */
+export { visitsOf };

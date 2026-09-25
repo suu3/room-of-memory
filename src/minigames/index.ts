@@ -73,14 +73,26 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.computerBrowse.title",
     helpKey: "minigame.computerBrowse.help",
   },
-  "phone-lock": {
-    id: "phone-lock",
+  "mom-chat": {
+    id: "mom-chat",
     mode: "overlay",
-    // phone-chat과 같은 폰을 집어 드는 인터랙션: 패널 없이 기기만 떠오른다
+    // phone-chat과 같은 폰을 집어 드는 인터랙션: 패널 없이 기기만 떠오른다.
+    // 폰 2차 (v4 3-4): 1막부터 떠 있던 엄마 대화방의 "읽지 않음 1"을 연다
     presentation: "bare",
-    component: lazy(() => import("./phone-lock").then((m) => ({ default: m.PhoneLockMinigame }))),
-    titleKey: "minigame.phoneLock.title",
-    helpKey: "minigame.phoneLock.help",
+    component: lazy(() => import("./mom-chat").then((m) => ({ default: m.MomChatMinigame }))),
+    titleKey: "minigame.momChat.title",
+    helpKey: "minigame.momChat.help",
+  },
+  "computer-logo": {
+    id: "computer-logo",
+    mode: "overlay",
+    // 컴퓨터 3차 (v4 3-5): 앰플 라벨의 로고 조각을 메일 첨부·캐시 뉴스의 로고와 맞춘다
+    presentation: "bare",
+    component: lazy(() =>
+      import("./computer-logo").then((m) => ({ default: m.ComputerLogoMinigame })),
+    ),
+    titleKey: "minigame.computerLogo.title",
+    helpKey: "minigame.computerLogo.help",
   },
   "fighter-duel": {
     id: "fighter-duel",
@@ -128,6 +140,14 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.angleTurn.title",
     helpKey: "minigame.angleTurn.help",
     // card-odd와 같은 이유로 rulesKeys를 비운다. 각도를 읽는 법은 캐비닛 위 시계에 있다
+  },
+  "sink-dial": {
+    id: "sink-dial",
+    // 세면대 하부장의 2자리 다이얼 (v4 3-5). 미궁 문제(PuzzleHost)로 돈다. 답은 등번호 11
+    mode: "overlay",
+    component: lazy(() => import("./sink-dial").then((m) => ({ default: m.SinkDialMinigame }))),
+    titleKey: "minigame.sinkDial.title",
+    helpKey: "minigame.sinkDial.help",
   },
   "piano-melody": {
     id: "piano-melody",

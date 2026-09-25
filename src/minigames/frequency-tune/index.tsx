@@ -69,8 +69,10 @@ export function FrequencyTuneMinigame({
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
   // 2바퀴는 판이 짧고 대역이 넓다. 이유는 ./difficulty.ts 참고
-  const goalHits = goalHitsFor(gamePhase);
-  const bandBonus = bandBonusFor(gamePhase);
+  // 3차 조사는 이 판을 쓰지 않지만, 쓰더라도 2바퀴 수치를 따른다
+  const round = gamePhase === 1 ? 1 : 2;
+  const goalHits = goalHitsFor(round);
+  const bandBonus = bandBonusFor(round);
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
   const [bandLeft, setBandLeft] = useState(() =>

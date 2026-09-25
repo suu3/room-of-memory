@@ -47,7 +47,7 @@ describe("지나간 대사 화면", () => {
     openLog();
 
     // 백드롭이 아니라 대사 한 줄을 정확히 누른다. 예전엔 여기서 닫히지 않았다
-    fireEvent.click(screen.getByText("그 날 시합, 진짜 엄청났었지."));
+    fireEvent.click(screen.getByText("전국대회 8강. 9회 말, 마지막 타석."));
     expect(useMemoryRoomStore.getState().dialogueLogOpen).toBe(false);
   });
 

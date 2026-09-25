@@ -98,15 +98,8 @@ describe("AdminPanel", () => {
     render(<AdminPanel />);
     fireEvent.click(screen.getByRole("button", { name: "DEV" }));
 
-    /*
-     * 엔딩은 배트를 쥔 뒤에만 붙고(sanitizeProgress), 배트는 앰플을 되찾아야
-     * 쥐어진다. 먼저 진행을 채워 둔다. 앰플은 1차가 없는 기억이라 한 번 누르면
-     * 곧장 2차(revisited)다 (admin-progress의 stagesOf).
-     */
-    const all = ["console", "window", "frame", "radio", "phone", "calendar", "ball"] as const;
-    for (const id of all)
-      fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${id}`) }));
-    fireEvent.click(screen.getByRole("button", { name: /^ampo/ }));
+    // 엔딩은 배트를 쥔 뒤에만 붙고(sanitizeProgress), 배트는 결심(resolve)에서야 쥐어진다
+    fireEvent.click(screen.getByRole("button", { name: "resolve" }));
     fireEvent.click(screen.getByLabelText("batTaken"));
 
     fireEvent.click(screen.getByLabelText("endingStarted"));

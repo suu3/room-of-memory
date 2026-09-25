@@ -645,6 +645,42 @@ export const MEMORY_PLACEMENTS = {
     scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.5,
   },
+
+  /*
+   * ── 안방의 기억 (4페이즈) ──────────────────────────────────────
+   *
+   * 책상(PARENTS_COLLIDERS의 desk: x -19.6~-17.4, z 5.7~6.5, 상판 윗면 1.13) 위에
+   * 서류 뭉치와 출입증, 침대 발치에 소집 공지 봉투. 책상 좌표는 PARENTS_COLLIDERS가
+   * 아래에 선언돼 있어 숫자로 옮겨 적는다 (layout.test가 두 값의 짝을 지킨다).
+   * 플레이어는 책상 앞 통로(z ≈ 5.1)에서 닿는다.
+   */
+  "research-note": {
+    id: "research-note",
+    // 예전 단서(ClueOverlay의 research-note) 서류 뭉치 자리 그대로
+    position: [-18.94, 1.13, 6.06],
+    rotation: [0, 0.08, 0],
+    scale: 1,
+    interactionRadius: 1.8,
+    hitRadius: 0.45,
+  },
+  "id-card": {
+    id: "id-card",
+    // 악보 조각(-18.28) 오른쪽, 책상 끝
+    position: [-17.78, 1.13, 6.1],
+    rotation: [0, -0.35, 0],
+    scale: 1,
+    interactionRadius: 1.8,
+    hitRadius: 0.32,
+  },
+  "not-a-trip": {
+    id: "not-a-trip",
+    // 침대(x -23~-20.2) 발치 이불 위. 침대는 통째로 콜라이더라 옆에서 닿는다
+    position: [-20.62, 0.82, 3.3],
+    rotation: [0, 0.5, 0],
+    scale: 1,
+    interactionRadius: 1.6,
+    hitRadius: 0.4,
+  },
 } as const satisfies Record<MemoryId, MemoryPlacement>;
 
 /**
@@ -671,7 +707,10 @@ export const MEMORY_SPACE = {
   shoes: "living",
   cards: "living",
   ampoule: "living",
-} as const satisfies Record<MemoryId, "room" | "living">;
+  "research-note": "parents",
+  "id-card": "parents",
+  "not-a-trip": "parents",
+} as const satisfies Record<MemoryId, "room" | "living" | "parents">;
 
 export type MemorySpace = (typeof MEMORY_SPACE)[MemoryId];
 
@@ -700,6 +739,11 @@ export const CAMERA_PRESETS = {
   shoes: { position: [-13.2, 2.6, 1.3], target: [-15.73, 0.75, -0.97] },
   cards: { position: [-7.4, 2.8, 4.6], target: [-10.0, 1.3, 2.0] },
   ampoule: { position: [-13.0, 2.4, -0.8], target: [-15.32, 0.6, -3.0] },
+  // 안방 기억: 방과 같은 사분면(+x·+z)에서 내려다본다. 책상은 +z 벽에 붙어 있지만
+  // 그 벽은 카메라 쪽이라 걷힌다 (CulledWall). 다른 사분면에서 보면 벽이 열렸다 닫힌다
+  "research-note": { position: [-16.3, 3.4, 8.6], target: [-18.94, 1.1, 6.0] },
+  "id-card": { position: [-15.4, 3.3, 8.4], target: [-17.8, 1.1, 6.05] },
+  "not-a-trip": { position: [-18.2, 2.9, 5.6], target: [-20.62, 0.8, 3.3] },
 } as const satisfies Record<"room" | "ending" | MemoryId, CameraPreset>;
 
 /*

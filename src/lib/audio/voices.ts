@@ -38,6 +38,8 @@ export type VoiceId =
   | "radioCut"
   | "radioWake"
   | "phoneBeep"
+  // 생존자 방송의 첫 컷: 마이크를 손가락으로 탁, 탁 두 번 (v4 3-3-1)
+  | "micTap"
   // 방 안의 곁가지 인터랙션 (서랍·의자)
   | "drawer"
   | "chairDrag"
@@ -282,6 +284,18 @@ export const VOICES: Record<VoiceId, Voice> = {
   radioCut: {
     tones: [{ from: 240, to: 60, waveform: "sawtooth", delay: 0.04, duration: 0.16, gain: 0.2 }],
     noise: { delay: 0, duration: 0.14, gain: 0.3, highpass: 900, lowpass: 6000 },
+  },
+  /**
+   * 마이크를 손가락으로 두 번 두드리는 소리 (생존자 방송, v4 3-3-1). 스피커를 한 번
+   * 거친 둔탁한 "퉁"이라 높은 쪽을 자른 노이즈에 낮은 사인 한 방씩을 겹친다.
+   * 두 번째가 조금 약하다: 사람 손가락이다.
+   */
+  micTap: {
+    tones: [
+      { from: 140, to: 70, waveform: "sine", delay: 0, duration: 0.09, gain: 0.34 },
+      { from: 130, to: 66, waveform: "sine", delay: 0.28, duration: 0.09, gain: 0.28 },
+    ],
+    noise: { delay: 0, duration: 0.36, gain: 0.22, highpass: 180, lowpass: 1600 },
   },
   /**
    * 꺼져 있던 라디오가 저 혼자 깨어나는 소리. 끊길 때의 하강음을 뒤집어 올리되

@@ -14,6 +14,7 @@ import {
   PHASE1_MEMORIES,
   SCRIPTS,
 } from "./memory-room";
+import { requiredVisits, visitConfig } from "./story-phase";
 
 /**
  * 기억이 나르면 안 되는 미궁 문제들: 지금은 현관 잠금(angle-turn) 하나다.
@@ -21,14 +22,17 @@ import {
  */
 const MAZE_MINIGAMES: readonly string[] = [...PUZZLE_IDS];
 
+/** ko 리소스에서 "scripts.radio-intro.line1" 같은 키의 값. */
+function readKey(path: string): unknown {
+  return path.split(".").reduce<unknown>((node, part) => {
+    if (node === null || typeof node !== "object") return undefined;
+    return (node as Record<string, unknown>)[part];
+  }, ko);
+}
+
 /** "scripts.radio-intro.line1" 같은 키가 ko 리소스에 실제로 있는지. */
 function hasKey(path: string): boolean {
-  return (
-    path.split(".").reduce<unknown>((node, part) => {
-      if (node === null || typeof node !== "object") return undefined;
-      return (node as Record<string, unknown>)[part];
-    }, ko) !== undefined
-  );
+  return readKey(path) !== undefined;
 }
 
 const ALL_LINES = [
@@ -53,7 +57,7 @@ describe("시나리오 데이터 정합성", () => {
 
   it("참조하는 미니게임이 레지스트리에 등록돼 있다", () => {
     const ids = MEMORIES.flatMap((memory) =>
-      [memory.phase1, memory.phase2].flatMap((config) =>
+      [memory.phase1, memory.phase2, memory.phase3].flatMap((config) =>
         config?.interaction?.minigameId ? [config.interaction.minigameId] : [],
       ),
     );
@@ -63,7 +67,7 @@ describe("시나리오 데이터 정합성", () => {
 
   it("참조하는 스크립트가 레지스트리에 등록돼 있다", () => {
     const ids = MEMORIES.flatMap((memory) =>
-      [memory.phase1, memory.phase2].flatMap((config) =>
+      [memory.phase1, memory.phase2, memory.phase3].flatMap((config) =>
         [config?.interaction?.scriptId, config?.interaction?.resultScriptId].filter(
           (id): id is string => id !== undefined,
         ),
@@ -76,7 +80,7 @@ describe("시나리오 데이터 정합성", () => {
   it("등록된 스크립트는 모두 쓰인다. 죽은 대사가 남지 않는다", () => {
     const used = new Set(
       MEMORIES.flatMap((memory) =>
-        [memory.phase1, memory.phase2].flatMap((config) =>
+        [memory.phase1, memory.phase2, memory.phase3].flatMap((config) =>
           [config?.interaction?.scriptId, config?.interaction?.resultScriptId].filter(Boolean),
         ),
       ),
@@ -87,10 +91,15 @@ describe("시나리오 데이터 정합성", () => {
 
   it("해금 조건이 실재하는 기억을 가리키고, 자기 자신을 기다리지 않는다", () => {
     for (const memory of MEMORIES) {
-      for (const config of [memory.phase1, memory.phase2]) {
+      for (const config of [memory.phase1, memory.phase2, memory.phase3]) {
         for (const dependency of config?.unlockAfter ?? []) {
-          expect(MEMORY_IDS).toContain(dependency);
-          expect(dependency).not.toBe(memory.id);
+          expect(MEMORY_IDS).toContain(dependency.id);
+          expect(dependency.id).not.toBe(memory.id);
+          // 가리키는 차수가 그 기억에 실제로 있다
+          expect(
+            visitConfig(dependency.id, dependency.visit),
+            JSON.stringify(dependency),
+          ).toBeDefined();
         }
       }
     }
@@ -144,67 +153,86 @@ describe("다시보기", () => {
   });
 });
 
-describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
-  it("라디오는 1바퀴의 나머지 전부를 기다린다. 재난방송이 마지막에 온다", () => {
-    const prerequisites = MEMORY_BY_ID.radio.phase1?.unlockAfter ?? [];
+describe("v4 진행 형태", () => {
+  const deps = (config?: { unlockAfter?: { id: MemoryId; visit: number }[] }) =>
+    (config?.unlockAfter ?? []).map((ref) => `${ref.id}@${ref.visit}`).sort();
 
-    expect([...prerequisites].sort()).toEqual(
+  it("1페이즈는 강도 순서다: 강도 1 → 강도 2 → 강도 3 → 라디오", () => {
+    expect(deps(MEMORY_BY_ID.console.phase1)).toEqual([]);
+    expect(deps(MEMORY_BY_ID.ball.phase1)).toEqual([]);
+    expect(deps(MEMORY_BY_ID.frame.phase1)).toEqual(["ball@1", "console@1"]);
+    expect(deps(MEMORY_BY_ID.phone.phase1)).toEqual(["ball@1", "console@1"]);
+    expect(deps(MEMORY_BY_ID.calendar.phase1)).toEqual(["phone@1"]);
+    expect(deps(MEMORY_BY_ID.window.phase1)).toEqual(["frame@1", "phone@1"]);
+    expect(deps(MEMORY_BY_ID.radio.phase1)).toEqual(
       PHASE1_MEMORIES.map((memory) => memory.id)
         .filter((id) => id !== "radio")
+        .map((id) => `${id}@1`)
         .sort(),
     );
+  });
+
+  it("1페이즈에서 컴퓨터는 조사 대상이 아니다", () => {
+    expect(PHASE1_MEMORIES.map((memory) => memory.id)).not.toContain("computer");
+  });
+
+  it("2페이즈 필수는 거실 넷 + 컴퓨터 2차 + 폰 2차, 폰은 컴퓨터를 기다린다", () => {
+    const p2 = requiredVisits("p2")
+      .map((ref) => `${ref.id}@${ref.visit}`)
+      .sort();
+    expect(p2).toEqual(["cards@2", "computer@2", "duffel@2", "fridge@2", "phone@2", "shoes@2"]);
+    expect(deps(MEMORY_BY_ID.phone.phase2)).toEqual(["computer@2"]);
+    for (const id of ["duffel", "fridge", "shoes", "cards", "computer"] as MemoryId[]) {
+      expect(deps(MEMORY_BY_ID[id].phase2), id).toEqual([]);
+    }
+  });
+
+  it("3페이즈: 앰플 → 컴퓨터 3차(로고). 하부장·안방 문은 퍼즐과 문이 잇는다", () => {
+    expect(
+      requiredVisits("p3")
+        .map((ref) => `${ref.id}@${ref.visit}`)
+        .sort(),
+    ).toEqual(["ampoule@2", "computer@3"]);
+    expect(deps(MEMORY_BY_ID.computer.phase3)).toEqual(["ampoule@2"]);
+    expect(PUZZLE_IDS).toContain("sink-dial");
+  });
+
+  it("4페이즈: 서류 셋 → 액자 2차, 액자가 끝나면 정적 비트", () => {
+    expect(deps(MEMORY_BY_ID.frame.phase2)).toEqual([
+      "id-card@2",
+      "not-a-trip@2",
+      "research-note@2",
+    ]);
+    expect(MEMORY_BY_ID.frame.phase2?.from).toBe("p4");
+    expect(MEMORY_BY_ID.frame.phase2?.cutscene).toBe("still-beat");
+  });
+
+  it("곁가지(게임기·공의 2차)는 어느 페이즈의 필수에도 안 낀다", () => {
+    for (const phase of ["turning", "p2", "p3", "p4"] as const) {
+      const ids = requiredVisits(phase).map((ref) => ref.id);
+      expect(ids).not.toContain("console");
+      expect(ids).not.toContain("ball");
+    }
   });
 
   it("바퀴마다 모으는 목록이 다르다. 진행 표시가 못 채울 칸을 세지 않는다", () => {
     const round1 = memoriesForPhase(1).map((memory) => memory.id);
     const round2 = memoriesForPhase(2).map((memory) => memory.id);
-
-    // 1바퀴에만 있는 것(창문·달력)과 2바퀴에만 있는 것(컴퓨터)이 서로 갈린다
     expect(round1).not.toContain("computer");
     expect(round2).toContain("computer");
     expect(round2).not.toContain("window");
-    expect(round2).not.toContain("calendar");
-    // 목록은 각 바퀴의 phase 설정과 정확히 같아야 한다
+    // 곁가지는 2바퀴 진행 표시의 분모가 아니다
+    expect(round2).not.toContain("console");
     expect(round1).toEqual(MEMORIES.filter((memory) => memory.phase1).map((memory) => memory.id));
-    expect(round2).toEqual(MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id));
   });
 
-  it("1막에 없는 기억은 컴퓨터와 거실 물건들이다. 2막에 처음 열린다", () => {
-    const phase2Only = MEMORIES.filter((memory) => !memory.phase1).map((memory) => memory.id);
-
-    expect(phase2Only.sort()).toEqual([
-      "ampoule",
-      "cards",
-      "computer",
-      "duffel",
-      "fridge",
-      "shoes",
-    ]);
-    // 1바퀴에 없는 기억을 1바퀴 조건으로 기다리면 그 기억은 영영 안 열린다
-    for (const memory of PHASE1_MEMORIES) {
-      expect(memory.phase1?.unlockAfter ?? [], memory.id).not.toContain("computer");
-    }
-  });
-
-  it("현관 잠금은 기억이 나르지 않는다. 문에 붙은 문제다", () => {
-    /*
-     * angle-turn은 거실 끝 현관 잠금장치에 붙는다 (docs/content-design.md 3-2,
-     * 스토어의 openPuzzle). 기억 쪽에 다시 붙으면 같은 문제가 두 입구를 갖는다.
-     * card-odd는 반대로 2막 추리 체인의 한 칸이 되면서 기억(cards)으로 올라갔다.
-     */
+  it("현관 잠금·하부장·피아노는 기억이 나르지 않는다. 물건에 붙은 문제다", () => {
     const carried = MEMORIES.flatMap((memory) =>
-      [memory.phase1, memory.phase2].flatMap((config) =>
+      [memory.phase1, memory.phase2, memory.phase3].flatMap((config) =>
         config?.interaction?.minigameId ? [config.interaction.minigameId] : [],
       ),
     );
     for (const maze of MAZE_MINIGAMES) expect(carried).not.toContain(maze);
-
-    const withMinigame = MEMORIES.filter((memory) => memory.phase2?.interaction?.minigameId).map(
-      (memory) => memory.id,
-    );
-    // 앰플은 서랍을 열고 집는 손(ampoule-pickup)이 있다. 미궁이 아니라 탐색이다.
-    // 라디오는 없다: 주파수 맞추기는 1차에만 뜨고, 2차는 곧장 목소리 대사다
-    expect(withMinigame.sort()).toEqual(["ampoule", "cards", "computer", "frame", "phone"]);
   });
 
   it("규칙이 화면에 없는 문제마다 단서와 미니게임 구현이 다 있다", () => {
@@ -215,33 +243,36 @@ describe("1바퀴 → 컷씬 → 2바퀴 진행 형태", () => {
     for (const id of PUZZLE_IDS) expect(MINIGAMES[id], id).toBeDefined();
   });
 
-  it("2막 곁가지는 라디오 목소리를 들은 뒤에만 열린다", () => {
-    for (const id of ["console", "computer", "fridge", "duffel"] as MemoryId[]) {
-      expect(MEMORY_BY_ID[id].phase2?.unlockAfter).toEqual(["radio"]);
-    }
-    // 폰은 컴퓨터의 여행 메일까지 기다린다. 엄마 문자가 그 사실을 받아 쓴다
-    expect(MEMORY_BY_ID.phone.phase2?.unlockAfter).toEqual(["radio", "computer"]);
-    // 라디오 자신은 2막의 첫 관문이라 아무것도 기다리지 않는다
-    expect(MEMORY_BY_ID.radio.phase2?.unlockAfter).toBeUndefined();
-  });
-
-  it("2막 추리 체인은 거실 ↔ 방을 두 번 왕복한다", () => {
-    // 왕복 상한 원칙: 방 방문 2회를 넘지 않는다 (docs/content-design.md 2장)
-    expect(MEMORY_BY_ID.frame.phase2?.unlockAfter).toEqual(["radio", "fridge", "duffel"]);
-    expect(MEMORY_BY_ID.shoes.phase2?.unlockAfter).toEqual(["frame"]);
-    expect(MEMORY_BY_ID.cards.phase2?.unlockAfter).toEqual(["frame"]);
-    expect(MEMORY_BY_ID.ball.phase2?.unlockAfter).toEqual(["shoes", "cards"]);
-    expect(MEMORY_BY_ID.ampoule.phase2?.unlockAfter).toEqual(["ball"]);
-  });
-
-  it("컷씬의 컷마다 대사가 하나 이상, 그림은 있다면 제 자리에", () => {
-    // 그림은 이제 선택이다. 작별의 회상(farewell)과 배트(bat-grip)는 공간이 비친 채 흐른다
+  it("컷씬의 컷마다 대사가 있거나 정적(holdMs)이 있다. 그림은 있다면 제 자리에", () => {
     for (const cutscene of Object.values(CUTSCENES)) {
       expect(cutscene.cuts.length).toBeGreaterThan(0);
       for (const cut of cutscene.cuts) {
         if (cut.image !== undefined) expect(cut.image).toMatch(/^\/assets\/images\/.+\.webp$/);
-        expect(cut.lines.length).toBeGreaterThan(0);
+        if (cut.lines.length === 0) expect(cut.holdMs ?? 0, cutscene.id).toBeGreaterThan(0);
+        // 웹툰 칸은 그림이 있어야 선다
+        if (cut.panel) expect(cut.image, cutscene.id).toBeDefined();
       }
     }
+  });
+
+  it("작별의 회상과 옛 라디오 목소리·폰 잠금 대사는 없다 (v4 7-3)", () => {
+    expect(CUTSCENES.farewell).toBeUndefined();
+    expect(SCRIPTS["radio-voice"]).toBeUndefined();
+    expect(Object.keys(SCRIPTS).filter((id) => id.startsWith("phone-unlock"))).toEqual([]);
+  });
+
+  it("1페이즈의 대사와 기록에는 '좀비'가 없다", () => {
+    const p1Scripts = PHASE1_MEMORIES.filter((memory) => memory.id !== "radio").flatMap((memory) =>
+      [memory.phase1?.interaction?.scriptId, memory.phase1?.interaction?.resultScriptId].filter(
+        (id): id is string => id !== undefined,
+      ),
+    );
+    const texts = p1Scripts.flatMap((id) =>
+      SCRIPTS[id].lines.map((line) => JSON.stringify(readKey(line.textKey))),
+    );
+    for (const memory of PHASE1_MEMORIES) {
+      texts.push(JSON.stringify(readKey(`lore.${memory.id}.phase1`)));
+    }
+    expect(texts.filter((text) => text.includes("좀비"))).toEqual([]);
   });
 });

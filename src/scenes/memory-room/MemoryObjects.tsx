@@ -25,7 +25,9 @@ import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { selectCanvasMinigameMemory } from "@/minigames/active";
 import {
   hotspotStatus,
+  isSeen,
   MEMORY_TOTAL,
+  type RemarkId,
   selectActTwoProgress,
   selectCollectedCount,
   selectRadioSignaling,
@@ -533,9 +535,12 @@ function RadioMemory({ palette, opacity }: VisualProps) {
  */
 const RADIO_SIGNAL_POSITION: Vec3Tuple = [0.132, 0.15, 0.052];
 /** 표시등 반경. 판이 아니라 구라 라디오를 어느 각도에서 봐도 보인다. */
-const RADIO_SIGNAL_RADIUS = 0.022;
-/** 깜빡임이 방으로 새어 나가는 정도. 방 조명(1.15~5.6)에 비해 아주 작다. */
-const RADIO_SIGNAL_LIGHT = 1.6;
+const RADIO_SIGNAL_RADIUS = 0.032;
+/**
+ * 깜빡임이 방으로 새어 나가는 정도. 분기점(v4 3-3)의 방은 가장 어둡고 BGM도 없어서,
+ * 이 빨간 빛이 방에서 유일하게 움직이는 것이다. 책상 언저리가 붉게 물들 만큼 준다.
+ */
+const RADIO_SIGNAL_LIGHT = 3.2;
 
 /**
  * 재난방송이 끊긴 뒤, 도해가 만지지도 않았는데 저 혼자 지직거리는 라디오.
@@ -570,7 +575,7 @@ function RadioSignal({ palette }: { palette: RoomPalette }) {
           toneMapped={false}
         />
       </mesh>
-      <pointLight ref={lightRef} color={palette.ember} intensity={0} distance={1.8} decay={2} />
+      <pointLight ref={lightRef} color={palette.ember} intensity={0} distance={2.8} decay={2} />
     </group>
   );
 }
@@ -937,6 +942,105 @@ function DuffelMemory({ palette, opacity }: VisualProps) {
   );
 }
 
+/** 얇은 판 하나: 종이·카드·봉투를 같은 모양으로 쌓는다. */
+function Sheet({
+  size,
+  position = [0, 0, 0],
+  rotation = [0, 0, 0],
+  color,
+  opacity,
+}: {
+  size: Vec3Tuple;
+  position?: Vec3Tuple;
+  rotation?: EulerTuple;
+  color: string;
+  opacity: number;
+}) {
+  return (
+    <mesh position={position} rotation={rotation} castShadow receiveShadow>
+      <boxGeometry args={size} />
+      <meshStandardMaterial
+        color={color}
+        roughness={0.85}
+        opacity={opacity}
+        transparent={opacity < 1}
+      />
+    </mesh>
+  );
+}
+
+/** 안방 책상 위 연구 일지: 서류 두 겹과 집게 하나. 예전 단서 서류 뭉치 자리다. */
+function ResearchNoteMemory({ palette, opacity }: VisualProps) {
+  return (
+    <group>
+      <Sheet
+        size={[0.55, 0.04, 0.4]}
+        position={[0, 0.02, 0]}
+        color={palette.linen}
+        opacity={opacity}
+      />
+      <Sheet
+        size={[0.5, 0.03, 0.36]}
+        position={[0.1, 0.055, -0.05]}
+        rotation={[0, 0.12, 0]}
+        color={palette.linen}
+        opacity={opacity}
+      />
+      <Sheet
+        size={[0.12, 0.02, 0.05]}
+        position={[0.1, 0.08, -0.2]}
+        color={palette.frame}
+        opacity={opacity}
+      />
+    </group>
+  );
+}
+
+/** 출입증 두 장: 목걸이 줄이 달린 카드. 로고 자리에 앰버 점 하나. */
+function IdCardMemory({ palette, opacity }: VisualProps) {
+  return (
+    <group>
+      {[-0.07, 0.07].map((x, index) => (
+        <group
+          key={x}
+          position={[x, 0.006 + index * 0.008, index * 0.04]}
+          rotation={[0, index * 0.3, 0]}
+        >
+          <Sheet size={[0.12, 0.006, 0.18]} color={palette.linen} opacity={opacity} />
+          <Sheet
+            size={[0.035, 0.004, 0.035]}
+            position={[0, 0.005, -0.05]}
+            color={palette.amber}
+            opacity={opacity}
+          />
+          <Sheet
+            size={[0.02, 0.004, 0.22]}
+            position={[0, 0.001, -0.2]}
+            color={palette.clay}
+            opacity={opacity}
+          />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** 이불 위의 봉투 하나: 연구소 소집 공지. */
+function NoticeMemory({ palette, opacity }: VisualProps) {
+  return (
+    <group>
+      <Sheet size={[0.34, 0.02, 0.22]} color={palette.linen} opacity={opacity} />
+      <Sheet
+        size={[0.3, 0.004, 0.02]}
+        position={[0, 0.012, -0.06]}
+        rotation={[0, 0, 0]}
+        color={palette.clay}
+        opacity={opacity}
+      />
+    </group>
+  );
+}
+
 function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId }) {
   switch (id) {
     case "console":
@@ -965,6 +1069,12 @@ function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId 
       return <TableCardsMemory palette={palette} opacity={opacity} />;
     case "ampoule":
       return <FridgeDrawerMemory palette={palette} opacity={opacity} />;
+    case "research-note":
+      return <ResearchNoteMemory palette={palette} opacity={opacity} />;
+    case "id-card":
+      return <IdCardMemory palette={palette} opacity={opacity} />;
+    case "not-a-trip":
+      return <NoticeMemory palette={palette} opacity={opacity} />;
   }
 }
 
@@ -1050,6 +1160,12 @@ function CollectedTint({
 /** 조사를 마치면 배경 오브젝트로 다시 열리는 기억 → 그때 펼칠 단서. */
 const BACKGROUND_CLUE = CLUE_AFTER_MEMORY as Partial<Record<MemoryId, ClueId>>;
 
+/**
+ * 아직 한 번도 안 본 채 잠긴 기억을 눌렀을 때 흘리는 혼잣말 (v4 3-2).
+ * 1페이즈의 컴퓨터는 꺼진 배경이다: 조사가 아니라 한 줄로 밀어낸다.
+ */
+const LOCKED_REMARK: Partial<Record<MemoryId, RemarkId>> = { computer: "computer-off" };
+
 export function InteractiveMemory({
   id,
   palette,
@@ -1063,6 +1179,9 @@ export function InteractiveMemory({
 }) {
   const status = useMemoryRoomStore((state) => hotspotStatus(state, id));
   const openClue = useMemoryRoomStore((state) => state.openClue);
+  const sayRemark = useMemoryRoomStore((state) => state.sayRemark);
+  const unseen = useMemoryRoomStore((state) => !isSeen(state, id));
+  const lockedRemark = status === "locked" && unseen ? LOCKED_REMARK[id] : undefined;
   /*
    * canvas 모드 미니게임이 이 자리에서 도는 동안(앰플 집기) 평소 모습·표식·판정 구는
    * 숨는다. 미니게임이 같은 자리에 같은 물건을 움직이는 모습으로 그리는데, 둘이
@@ -1118,6 +1237,8 @@ export function InteractiveMemory({
             punchRef.current = 0;
             playSound("open");
             openClue(backgroundClue);
+          } else if (lockedRemark) {
+            sayRemark(lockedRemark);
           }
           return;
         }

@@ -1,13 +1,14 @@
-import {
-  BatteryHigh,
-  CaretLeft,
-  CellSignalFull,
-  ChatCircleDots,
-  PhoneDisconnect,
-  WifiHigh,
-} from "@phosphor-icons/react";
+import { BatteryHigh, CaretLeft, CellSignalFull, type Icon, WifiHigh } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
-import type { PhoneTab } from "./thread";
+
+/** 하단 탭바의 한 칸. 탭이 없는 화면(엄마 대화방 하나만 여는 폰 2차)은 탭바를 안 그린다. */
+export interface PhoneTabItem<Id extends string> {
+  id: Id;
+  label: string;
+  Icon: Icon;
+  /** 빨간 배지 숫자. 0이면 안 띄운다. */
+  badge?: number;
+}
 
 /**
  * 실제 스마트폰 목업 껍데기.
@@ -25,24 +26,22 @@ import type { PhoneTab } from "./thread";
  */
 export const PHONE_BODY_CLASS = "h-[min(24rem,48dvh)]";
 
-export function PhoneShell({
+export function PhoneShell<Id extends string>({
   tab,
   onTab,
+  tabs,
   title,
   subtitle,
   clock,
-  badge,
-  tabLabels,
   children,
 }: {
-  tab: PhoneTab;
-  onTab: (tab: PhoneTab) => void;
+  tab?: Id;
+  onTab?: (tab: Id) => void;
+  /** 하단 탭바. 비우면 탭바 없이 본문만 선다. */
+  tabs?: readonly PhoneTabItem<Id>[];
   title: string;
   subtitle: string;
   clock: string;
-  /** 통화 탭에 띄울 통화 횟수. 0이면 안 띄운다. */
-  badge: number;
-  tabLabels: Record<PhoneTab, string>;
   children: ReactNode;
 }) {
   return (
@@ -76,32 +75,29 @@ export function PhoneShell({
           <div className={PHONE_BODY_CLASS}>{children}</div>
 
           {/* 하단 탭바: 앱을 오가는 자리 */}
-          <div className="flex border-t border-bone/10 bg-scene-coal">
-            {(
-              [
-                { id: "chat" as const, Icon: ChatCircleDots },
-                { id: "calls" as const, Icon: PhoneDisconnect },
-              ] satisfies { id: PhoneTab; Icon: typeof ChatCircleDots }[]
-            ).map(({ id, Icon }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => onTab(id)}
-                aria-pressed={tab === id}
-                className={`relative flex flex-1 cursor-pointer flex-col items-center gap-0.5 py-2.5 transition-colors ${
-                  tab === id ? "text-memory" : "text-bone/40 hover:text-bone/70"
-                }`}
-              >
-                <Icon size={20} weight={tab === id ? "fill" : "regular"} />
-                <span className="text-[0.6875rem] font-bold tracking-wider">{tabLabels[id]}</span>
-                {id === "calls" && badge > 0 ? (
-                  <span className="absolute right-[22%] top-1.5 min-w-[1.15rem] rounded-full bg-ember px-1 text-[0.6875rem] font-bold leading-[1.15rem] text-paper">
-                    {badge}
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </div>
+          {tabs && tabs.length > 0 ? (
+            <div className="flex border-t border-bone/10 bg-scene-coal">
+              {tabs.map(({ id, label, Icon: TabIcon, badge = 0 }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => onTab?.(id)}
+                  aria-pressed={tab === id}
+                  className={`relative flex flex-1 cursor-pointer flex-col items-center gap-0.5 py-2.5 transition-colors ${
+                    tab === id ? "text-memory" : "text-bone/40 hover:text-bone/70"
+                  }`}
+                >
+                  <TabIcon size={20} weight={tab === id ? "fill" : "regular"} />
+                  <span className="text-[0.6875rem] font-bold tracking-wider">{label}</span>
+                  {badge > 0 ? (
+                    <span className="absolute right-[18%] top-1.5 min-w-[1.15rem] rounded-full bg-ember px-1 text-[0.6875rem] font-bold leading-[1.15rem] text-paper">
+                      {badge}
+                    </span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
           {/* 홈 인디케이터 */}
           <div className="flex justify-center bg-scene-coal pb-1.5 pt-0.5">

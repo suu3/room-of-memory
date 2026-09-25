@@ -2,7 +2,7 @@
 
 import { CaretLeft, CaretRight, X } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CLUE_IDS, type ClueId } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
@@ -17,7 +17,6 @@ import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
 import { SUIT_GLYPH, SUITS, suitColor } from "@/minigames/card-odd/cards";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { CharacterModelViewer } from "./CharacterModelViewer";
-import { RESEARCH_REDACTION_RATIO, redactLine } from "./redaction";
 import { BUTTON_QUIET, PANEL_PAPER } from "./ui-classes";
 import { WorkbookClue } from "./WorkbookClue";
 
@@ -32,15 +31,7 @@ const CLUE_TEXT = {
   "desk-clock": { title: "clue.deskClock.title", caption: "clue.deskClock.caption" },
   workbook: { title: "clue.workbook.title", caption: "clue.workbook.caption" },
   mirror: { title: "clue.mirror.title", caption: "clue.mirror.caption" },
-  "research-note": { title: "clue.researchNote.title", caption: "clue.researchNote.caption" },
 } as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
-
-/** 안방 책상 위 서류의 줄. 아직 더미 문구다 (src/data/room-clues.ts의 research-note). */
-const RESEARCH_LINES = [
-  "clue.researchNote.l1",
-  "clue.researchNote.l2",
-  "clue.researchNote.l3",
-] as const;
 
 /** 놀이책의 펼쳐진 쪽에 적힌 줄: 트럼프 항목의 앞부분만 보인다. */
 const BOOK_LINES = ["clue.shelfBook.l1", "clue.shelfBook.l2"] as const;
@@ -107,12 +98,7 @@ export function ClueOverlay() {
   const { title: titleKey, caption: captionKey } = CLUE_TEXT[clue];
   const isNote = clue === "drawer-note";
   // 종이(쪽지·책)와 들고 돌리는 물건(문제집)·거울은 좁게, 격자를 그리는 것(달력·시계)은 넓게 편다
-  const narrow =
-    isNote ||
-    clue === "shelf-book" ||
-    clue === "workbook" ||
-    clue === "mirror" ||
-    clue === "research-note";
+  const narrow = isNote || clue === "shelf-book" || clue === "workbook" || clue === "mirror";
 
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center overflow-hidden p-4">
@@ -150,8 +136,6 @@ export function ClueOverlay() {
         ) : clue === "mirror" ? (
           /* 거울 속의 자기: 종이가 아니라 어두운 유리라 종이 판(PANEL_PAPER)을 두르지 않는다 */
           <CharacterModelViewer />
-        ) : clue === "research-note" ? (
-          <ResearchNote />
         ) : (
           <WallCalendar />
         )}
@@ -238,57 +222,6 @@ function ShelfBook() {
             {t(key)}
           </p>
         ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * 안방 책상 위 서류 (v3). 부모님이 연구원이었다는 것과 앰플이 치료제 같다는 것까지만
- * 흘리는 자리다 (docs/story.md 1장: 무엇을 알았고 어디로 갔는지는 미공개). 놀이책과
- * 같은 종이 판이다. 본문은 확정 전이라 더미 문구가 서 있다.
- *
- * 글자 일부가 지워지거나 깨져 있다 (docs/visual-experiments.md 11장 "깨진 글리프").
- * hover로 되살리는 것은 없다: 읽을 수 없다는 것이 이야기다. 어느 자리가 깨질지는
- * redactLine이 줄 번호와 길이 비율로 정하므로 ko/en/ja가 같은 자리에서 깨지고, 대사
- * 텍스트에 마크업이 들어가지 않는다. 움직이지 않는 효과라 effect-budget 게이트를
- * 타지 않는다.
- *
- * 블록 문자는 스크린리더가 "medium shade" 따위로 읽어 버리므로 aria-hidden으로 숨기고,
- * 그 자리에 "(읽을 수 없는 부분)"이라는 sr-only 문구를 대신 세운다. 눈으로 보는 사람이
- * 번진 잉크를 보는 것과 같은 정보다.
- */
-function ResearchNote() {
-  const { t } = useTranslation();
-
-  return (
-    <div className={`p-6 sm:p-8 ${PANEL_PAPER}`}>
-      <p className="border-b border-ink/10 pb-3 text-sm font-medium text-graphite">
-        {t("clue.researchNote.heading")}
-      </p>
-      <div className="flex flex-col gap-2 pt-4">
-        {RESEARCH_LINES.map((key, index) => {
-          // 조각의 key는 줄 안의 글자 위치다. 같은 줄이면 위치도 같아 안정적이다
-          let offset = 0;
-          return (
-            <p key={key} className="break-ko text-pretty text-base leading-relaxed text-ink">
-              {redactLine(t(key), index, RESEARCH_REDACTION_RATIO).map((segment) => {
-                const at = offset;
-                offset += segment.text.length;
-                if (!segment.broken) return <Fragment key={at}>{segment.text}</Fragment>;
-                return (
-                  <Fragment key={at}>
-                    {/* 낮은 대비: 잉크가 아니라 잉크가 있던 자리다. 복사해도 블록이 따라오지 않게 select-none */}
-                    <span aria-hidden className="select-none text-graphite/60">
-                      {segment.text}
-                    </span>
-                    <span className="sr-only">{t("clue.researchNote.illegible")}</span>
-                  </Fragment>
-                );
-              })}
-            </p>
-          );
-        })}
       </div>
     </div>
   );

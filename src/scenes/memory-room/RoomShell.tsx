@@ -354,7 +354,7 @@ export function RoomShell({
         문. 색은 늘 어둡다(frame): 금빛은 라디오 목소리를 잡은 뒤에만 잠깐 돈다.
 
         1막 내내 눌러볼 수 있고, 그때는 열리는 대신 안 여는 이유가 한 줄 흐른다
-        (DoorNudge). 잠긴 게 아니라 **안 여는** 것이라는 게 여기서 드러난다.
+        (RemarkLine). 잠긴 게 아니라 **안 여는** 것이라는 게 여기서 드러난다.
       */}
       {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
       <group

@@ -26,6 +26,8 @@ import {
   MEMORY_PLACEMENTS,
   MEMORY_SPACE,
   OPEN_DOOR_LEAF_COLLIDERS,
+  PARENTS_BOUNDS,
+  PARENTS_COLLIDERS,
   REFERENCE_ROOM_LAYOUT,
   ROOM_BOUNDS,
   ROOM_COLLIDERS,
@@ -52,6 +54,7 @@ function clearOf(colliders: readonly { minX: number; maxX: number; minZ: number;
 
 const isWalkable = clearOf(ROOM_COLLIDERS);
 const isWalkableInLiving = clearOf(LIVING_COLLIDERS);
+const isWalkableInParents = clearOf(PARENTS_COLLIDERS);
 
 /**
  * 기억 앞에 설 수 있는 자리가 한 칸이라도 있는가.
@@ -61,9 +64,15 @@ const isWalkableInLiving = clearOf(LIVING_COLLIDERS);
  */
 function hasReachableInteractionPoint(id: (typeof MEMORY_IDS)[number]) {
   const placement = MEMORY_PLACEMENTS[id];
-  const living = MEMORY_SPACE[id] === "living";
-  const bounds = living ? LIVING_BOUNDS : ROOM_BOUNDS;
-  const walkable = living ? isWalkableInLiving : isWalkable;
+  const space = MEMORY_SPACE[id];
+  const bounds =
+    space === "living" ? LIVING_BOUNDS : space === "parents" ? PARENTS_BOUNDS : ROOM_BOUNDS;
+  const walkable =
+    space === "living"
+      ? isWalkableInLiving
+      : space === "parents"
+        ? isWalkableInParents
+        : isWalkable;
   for (
     let x = bounds.minX + PLAYER_RADIUS;
     x <= bounds.maxX - PLAYER_RADIUS;

@@ -1,5 +1,8 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
+import { useEffect, useMemo } from "react";
+import { CanvasTexture, SRGBColorSpace } from "three";
+import { HERO_JERSEY_NUMBER } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
@@ -325,6 +328,44 @@ function Trophy({ palette, position }: { palette: RoomPalette; position: Vec3Tup
   );
 }
 
+/** 등번호를 굽는 캔버스 크기. 숫자 두 자리가 가로로 선다. */
+const NUMBER_CANVAS = { width: 128, height: 96 } as const;
+
+/**
+ * 유니폼 등판의 등번호 (v4 설계서 3-5). 세면대 하부장 다이얼의 답이다: 아빠 메일은
+ * "네 번호로 해놨다"까지만 말하고, 숫자는 이 유니폼이 들고 있다. 숫자는 room-clues의
+ * HERO_JERSEY_NUMBER 한 곳에서 온다.
+ *
+ * 글자는 캔버스에 한 번 구워 판에 붙인다. 폰트를 3D로 불러오면 번호 하나 때문에
+ * 글꼴 파일을 하나 더 받는다.
+ */
+function JerseyNumber({ palette, position }: { palette: RoomPalette; position: Vec3Tuple }) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = NUMBER_CANVAS.width;
+    canvas.height = NUMBER_CANVAS.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx || typeof ctx.fillText !== "function") return null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = palette.linen;
+    ctx.font = "bold 84px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(HERO_JERSEY_NUMBER), canvas.width / 2, canvas.height / 2 + 4);
+    const made = new CanvasTexture(canvas);
+    made.colorSpace = SRGBColorSpace;
+    return made;
+  }, [palette.linen]);
+  useEffect(() => () => texture?.dispose(), [texture]);
+  if (!texture) return null;
+  return (
+    <mesh name="jersey-number" position={position}>
+      <planeGeometry args={[0.36, 0.27]} />
+      <meshStandardMaterial map={texture} transparent roughness={0.8} depthWrite={false} />
+    </mesh>
+  );
+}
+
 export function RoomDecor({ palette }: { palette: RoomPalette }) {
   /*
    * 왼벽은 이제 걷힐 수 있다. 플레이어가 거실로 나가면 공유벽이 시야를 가려서
@@ -345,6 +386,7 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
         position={[6.4, 2.97, BACK_WALL_FACE_Z + 0.11]}
         scale={1}
       />
+      <JerseyNumber palette={palette} position={[6.4, 2.92, BACK_WALL_FACE_Z + 0.2]} />
       <FurnitureModel
         path={ASSETS.models.teamPennant}
         position={[4.3, 3.82, BACK_WALL_FACE_Z + 0.026]}

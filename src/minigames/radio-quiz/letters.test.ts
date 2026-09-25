@@ -2,7 +2,15 @@ import { describe, expect, it } from "vitest";
 import en from "@/i18n/locales/en/common.json";
 import ja from "@/i18n/locales/ja/common.json";
 import ko from "@/i18n/locales/ko/common.json";
-import { answerLetters, judgeSlots, parsePool, poolCoversAnswer, shufflePool } from "./letters";
+import {
+  answerLetters,
+  hintCount,
+  hintedSlots,
+  judgeSlots,
+  parsePool,
+  poolCoversAnswer,
+  shufflePool,
+} from "./letters";
 
 describe("letters", () => {
   it("공백 구분 풀을 글자 배열로 파싱한다", () => {
@@ -46,4 +54,20 @@ describe("radioQuiz 리소스", () => {
       expect(parsePool(quiz.pool).length).toBeGreaterThanOrEqual(10);
     });
   }
+});
+
+describe("오답 세 번마다 글자 힌트 (v4 3-3)", () => {
+  it("세 번 틀릴 때마다 한 글자, 마지막 글자는 끝까지 안 드러난다", () => {
+    expect(hintCount(0, 2)).toBe(0);
+    expect(hintCount(2, 2)).toBe(0);
+    expect(hintCount(3, 2)).toBe(1);
+    expect(hintCount(99, 2)).toBe(1);
+    expect(hintCount(6, 6)).toBe(2);
+  });
+
+  it("드러난 칸에는 정답 글자의 풀 인덱스가 앞에서부터 들어간다", () => {
+    const pool = ["비", "좀", "밤", "좀"];
+    expect(hintedSlots(pool, "좀비", 1)).toEqual([1, null]);
+    expect(hintedSlots(pool, "좀비", 0)).toEqual([null, null]);
+  });
 });

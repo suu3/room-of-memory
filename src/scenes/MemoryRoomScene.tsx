@@ -424,7 +424,7 @@ export function MemoryRoomScene({
               nearbyMemoryId={nearbyMemoryId}
               onInteract={onInteract}
             />
-            {/* 현관 옆 배트: 앰플을 쥐면 켜지는 3막 트리거 */}
+            {/* 현관 옆 배트: 결심(resolve)에 켜지는 트리거 */}
             <EndingTrigger palette={palette} />
           </group>
           {/* 거실 너머의 공간들 (v3). 문은 두 껍데기 밖, 양쪽 어디서든 보이게 */}
@@ -433,6 +433,12 @@ export function MemoryRoomScene({
           </group>
           <group visible={space === "parents"}>
             <ParentsRoomShell palette={palette} />
+            <MemoryObjects
+              space="parents"
+              palette={palette}
+              nearbyMemoryId={nearbyMemoryId}
+              onInteract={onInteract}
+            />
           </group>
           <group visible={inLivingRoom || space === "bathroom"}>
             <SpaceDoor id="living-bathroom" palette={palette} />

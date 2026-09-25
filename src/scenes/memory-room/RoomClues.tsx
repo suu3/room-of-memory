@@ -68,6 +68,53 @@ export function ClueProp({
 }
 
 /**
+ * 눌러 볼 수 있는 물건: 단서처럼 화면을 펼치지 않고 누르는 쪽(onPress)이 할 일을 정한다.
+ * 칫솔컵(혼잣말 한 줄)·세면대 하부장(혼잣말 또는 다이얼)이 쓴다. 곁가지 등급 글로우,
+ * 다가가면 켜진다는 문법은 ClueProp과 같다.
+ */
+export function TouchProp({
+  name,
+  near,
+  radius,
+  enabled = true,
+  onPress,
+  children,
+}: {
+  name: string;
+  near: readonly [number, number];
+  radius: number;
+  enabled?: boolean;
+  onPress: () => void;
+  children: ReactNode;
+}) {
+  const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
+  const active = enabled && !firstPerson;
+  const { hovered, handlers } = useGlowHover(active);
+  const nearPlayer = useNearPlayer(near[0], near[1], radius);
+
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
+    <group
+      name={`prop-${name}`}
+      {...handlers}
+      onClick={(event) => {
+        if (!active) return;
+        event.stopPropagation();
+        onPress();
+      }}
+    >
+      <MemoryGlowSelection
+        selectionKey={`prop-${name}`}
+        tier="prop"
+        enabled={active && (hovered || nearPlayer)}
+      >
+        {children}
+      </MemoryGlowSelection>
+    </group>
+  );
+}
+
+/**
  * 원래 있던 장식을 그대로 단서로 쓰는 자리들: 선반의 책 한 권, 캐비닛 위 시계.
  *
  * 2바퀴 미궁 문제(카드·회전)의 규칙을 들고 있다. 문제 화면에는 규칙이 한 줄도

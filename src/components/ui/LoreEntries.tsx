@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MEMORY_BY_ID, MEMORY_IDS, type MemoryId } from "@/data/memory-room";
+import { anyVisitDone, lastVisitDone, visitConfig, visitsOf } from "@/data/story-phase";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
 import { STAGGER_CLASS, staggerStyle } from "./stagger";
@@ -43,6 +44,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
   const { t: tRoom } = useTranslation("memoryRoom");
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
+  const rechecked = useMemoryRoomStore((state) => state.rechecked);
   const replayMemory = useMemoryRoomStore((state) => state.replayMemory);
 
   // 모바일도 두 칸: 한 칸이면 카드가 화면을 통째로 먹어 스크랩북이 아니라 피드가 된다
@@ -50,17 +52,16 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
     <div className="flex flex-col gap-4">
       <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
         {pageIds.map((id, index) => {
-          const memory = MEMORY_BY_ID[id];
-          const unlocked = collected.includes(id) || revisited.includes(id);
+          const progress = { collected, revisited, rechecked };
+          const unlocked = anyVisitDone(progress, id);
           /*
-           * 어느 바퀴의 문장을 세울지. 1바퀴가 없는 기억(컴퓨터)은 처음부터 2바퀴
-           * 문장만 있으므로 잠긴 동안에도 그쪽을 흐려 세운다. phase1 키를 찾으면
-           * 번역이 없어 키 문자열이 그대로 카드에 박힌다.
+           * 어느 차수의 문장을 세울지: 마지막으로 본 차수. 아직 아무것도 안 봤으면 가장 앞
+           * 차수의 문장을 흐려 세운다. 1차가 없는 기억(컴퓨터·안방 서류)은 처음부터 2차
+           * 문장이다. 없는 차수의 키를 찾으면 번역이 없어 키 문자열이 카드에 박힌다.
            */
-          const rewritten = !memory.phase1 || (revisited.includes(id) && Boolean(memory.phase2));
-          const phase = rewritten ? memory.phase2 : memory.phase1;
-          const bodyKey =
-            `lore.${id}.${rewritten ? "phase2" : "phase1"}` as ParseKeys<"memoryRoom">;
+          const visit = lastVisitDone(progress, id) ?? visitsOf(id)[0] ?? 1;
+          const phase = visitConfig(id, visit);
+          const bodyKey = `lore.${id}.phase${visit}` as ParseKeys<"memoryRoom">;
           const name = tRoom(`memories.${id}.name` as ParseKeys<"memoryRoom">);
 
           return (

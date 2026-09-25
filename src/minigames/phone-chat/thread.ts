@@ -82,8 +82,60 @@ export const OUTGOING_CALLS: OutgoingCall[] = [
   { id: "c4", toKey: "minigame.phoneChat.contact.mom", time: "20:31", count: 9 },
 ];
 
-export type PhoneTab = "chat" | "calls";
-export const PHONE_TABS: PhoneTab[] = ["chat", "calls"];
+/**
+ * 가족 단톡 (v4 3-2): 떠나던 날의 부모님 메시지 폭탄과 도해의 "응." 한 마디.
+ *
+ * 부모님은 쾌활하고 따뜻하게(물결, 이모티콘), 도해는 무뚝뚝하고 짧게 (가족 톤 가이드).
+ * 여행이라고 말하고 떠난 날이라, 말투가 밝을수록 나중에 되짚을 때 아프다.
+ * 한 번에 다 보인다. 읽어 내려가는 연출은 친구 단톡방 하나로 충분하다.
+ */
+export const FAMILY_CHAT: ChatMessage[] = [
+  {
+    id: "f1",
+    side: "them",
+    fromKey: "minigame.phoneChat.contact.mom",
+    textKey: "minigame.phoneChat.family.f1",
+    time: "08:02",
+  },
+  {
+    id: "f2",
+    side: "them",
+    fromKey: "minigame.phoneChat.contact.dad",
+    textKey: "minigame.phoneChat.family.f2",
+    time: "08:03",
+  },
+  {
+    id: "f3",
+    side: "them",
+    fromKey: "minigame.phoneChat.contact.mom",
+    textKey: "minigame.phoneChat.family.f3",
+    time: "08:03",
+  },
+  {
+    id: "f4",
+    side: "them",
+    fromKey: "minigame.phoneChat.contact.dad",
+    textKey: "minigame.phoneChat.family.f4",
+    time: "08:05",
+  },
+  {
+    id: "f5",
+    side: "them",
+    fromKey: "minigame.phoneChat.contact.mom",
+    textKey: "minigame.phoneChat.family.f5",
+    time: "08:11",
+  },
+  { id: "f6", side: "me", textKey: "minigame.phoneChat.family.f6", time: "08:40" },
+];
+
+/**
+ * 엄마와의 1:1 대화방에 남은 안 읽은 메시지 수. 1막 내내 줄지 않는다.
+ * 폰 2차(mom-chat)가 이 "1"을 연다.
+ */
+export const MOM_UNREAD = 1;
+
+export type PhoneTab = "chat" | "family" | "calls";
+export const PHONE_TABS: PhoneTab[] = ["chat", "family", "calls"];
 
 /** 건 전화 총 횟수: 탭 배지에 쓴다. */
 export function totalOutgoingCalls(calls: readonly OutgoingCall[] = OUTGOING_CALLS): number {
@@ -91,11 +143,11 @@ export function totalOutgoingCalls(calls: readonly OutgoingCall[] = OUTGOING_CAL
 }
 
 /**
- * 다 읽었는지. 단톡방을 맨 아래까지 읽어 내려가고 통화 기록까지 열어야 클리어다.
- * 둘 중 하나만 보면 그날의 절반만 본 셈이라.
+ * 다 읽었는지. 단톡방을 맨 아래까지 읽어 내려가고, 가족 단톡과 통화 기록까지
+ * 열어야 클리어다. 하나라도 빠지면 그날의 일부만 본 셈이라.
  */
-export function isThreadComplete(revealed: number, seenCalls: boolean): boolean {
-  return revealed >= GROUP_CHAT.length && seenCalls;
+export function isThreadComplete(revealed: number, seenCalls: boolean, seenFamily = true): boolean {
+  return revealed >= GROUP_CHAT.length && seenCalls && seenFamily;
 }
 
 /**

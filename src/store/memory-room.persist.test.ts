@@ -1,8 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { MEMORIES } from "@/data/memory-room";
+import { requiredVisits } from "@/data/story-phase";
 import { sanitizeProgress } from "./memory-room";
 
 const [first, second] = MEMORIES.map((memory) => memory.id);
+
+/** 결심(resolve)까지 온 저장본: 앞 페이즈의 필수 조사 전부 + 문 둘. */
+function resolveSave() {
+  const refs = (["p1", "turning", "p2", "p3", "p4"] as const).flatMap((phase) =>
+    requiredVisits(phase),
+  );
+  const pick = (visit: number) => refs.filter((ref) => ref.visit === visit).map((ref) => ref.id);
+  return {
+    collected: pick(1),
+    revisited: pick(2),
+    rechecked: pick(3),
+    doorOpened: true,
+    openedDoorways: ["living-bathroom", "living-parents"],
+  };
+}
 
 describe("sanitizeProgress", () => {
   it("keeps a well-formed save as-is", () => {
@@ -10,6 +26,7 @@ describe("sanitizeProgress", () => {
       sanitizeProgress({
         collected: [first, second],
         revisited: [first],
+        rechecked: [],
         doorOpened: false,
         batTaken: false,
         solvedPuzzles: ["angle-turn"],
@@ -28,6 +45,7 @@ describe("sanitizeProgress", () => {
     ).toEqual({
       collected: [first, second],
       revisited: [first],
+      rechecked: [],
       doorOpened: false,
       batTaken: false,
       solvedPuzzles: ["angle-turn"],
@@ -135,7 +153,7 @@ describe("sanitizeProgress", () => {
   });
 
   it("refuses an ending that the save has not earned", () => {
-    // 엔딩은 배트를 쥔 뒤에만 시작될 수 있고, 배트는 앰플을 되찾아야 쥐어진다
+    // 엔딩은 배트를 쥔 뒤에만 시작될 수 있고, 배트는 결심(정적 비트 뒤)에서야 쥐어진다
     expect(sanitizeProgress({ collected: [first], endingStarted: true }).endingStarted).toBe(false);
     expect(
       sanitizeProgress({
@@ -145,18 +163,22 @@ describe("sanitizeProgress", () => {
       }).endingStarted,
     ).toBe(false);
     expect(
-      sanitizeProgress({
-        collected: MEMORIES.map((memory) => memory.id),
-        revisited: ["ampoule"],
-        batTaken: true,
-        endingStarted: true,
-      }).endingStarted,
+      sanitizeProgress({ ...resolveSave(), batTaken: true, endingStarted: true }).endingStarted,
     ).toBe(true);
   });
 
-  it("puts the bat back when the save has no ampoule", () => {
+  it("puts the bat back when the save has not reached the resolve", () => {
     expect(sanitizeProgress({ batTaken: true }).batTaken).toBe(false);
-    expect(sanitizeProgress({ revisited: ["ampoule"], batTaken: true }).batTaken).toBe(true);
+    expect(sanitizeProgress({ ...resolveSave(), batTaken: true }).batTaken).toBe(true);
+  });
+
+  it("keeps a third visit only on top of its second", () => {
+    expect(
+      sanitizeProgress({ collected: [], revisited: [], rechecked: ["computer"] }).rechecked,
+    ).toEqual([]);
+    expect(
+      sanitizeProgress({ revisited: ["computer"], rechecked: ["computer", "ghost"] }).rechecked,
+    ).toEqual(["computer"]);
   });
 
   it("leaves the lights on unless the save says otherwise", () => {

@@ -3,7 +3,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ACT2_CHAIN, CUTSCENE_RADIO_BLACKOUT, PHASE1_MEMORIES } from "@/data/memory-room";
+import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
+import { progressAt } from "@/data/story-phase";
 import { i18n } from "@/i18n/config";
 import { openCutscene, useMemoryRoomStore } from "@/store/memory-room";
 import { DialogueBox } from "./DialogueBox";
@@ -27,11 +28,7 @@ describe("배트를 쥐는 두 줄의 화면", () => {
       })),
     );
     useMemoryRoomStore.getState().reset();
-    useMemoryRoomStore.setState({
-      collected: PHASE1_MEMORIES.map((memory) => memory.id),
-      revisited: [...ACT2_CHAIN],
-      doorOpened: true,
-    });
+    useMemoryRoomStore.setState(progressAt("resolve") as never);
   });
 
   afterEach(() => {

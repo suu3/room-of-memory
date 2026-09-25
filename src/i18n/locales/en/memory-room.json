@@ -76,6 +76,15 @@
     },
     "ampoule": {
       "name": "Ampoule"
+    },
+    "research-note": {
+      "name": "Research Log"
+    },
+    "id-card": {
+      "name": "ID Badges"
+    },
+    "not-a-trip": {
+      "name": "Recall Notice"
     }
   },
   "stages": {
@@ -85,83 +94,66 @@
     "p1-0": {
       "monologue": "What should I start with."
     },
-    "p1-1": {
+    "p1-mid": {
       "monologue": "The room's a little dark. …No, it's always been like this, hasn't it."
     },
-    "p1-3": {
+    "p1-late": {
       "monologue": "Going through them one by one keeps bringing that day back… Enough. Stop."
     },
-    "p1-5": {
-      "monologue": "Only a few left. …No. Forget it."
-    },
-    "p1-7": {
+    "turn-bottom": {
       "monologue": "I have seen all of it, and the room only got darker."
     },
-    "p2-0": {
-      "monologue": "…That was a real voice just now. The door side is bright."
+    "turn-signal": {
+      "monologue": "은강고 체육관. …문 쪽이 밝아."
     },
-    "p2-1": {
-      "monologue": "Let's start by getting ready to leave. Anything. Let's try."
+    "p2-enter": {
+      "monologue": "사흘."
     },
-    "p2-4": {
-      "monologue": "…Dad said it back then. That trip was strange."
+    "p3-enter": {
+      "monologue": "이틀 남았다."
     },
-    "p2-8": {
-      "monologue": "It was a lie. But it was for me. …Should I try?"
+    "p4-enter": {
+      "monologue": "오늘 밤이다."
     },
-    "p2-11": {
-      "monologue": "It looks different the second time. Time to go."
+    "resolve": {
+      "monologue": "가방, 앰플. 배트는 현관에 있다."
     }
   },
   "scripts": {
     "ball-intro": {
-      "line1": "That game that day. It was something else.",
-      "line2": "Let's see if I've still got my swing."
+      "line1": "전국대회 8강. 9회 말, 마지막 타석.",
+      "line2": "상대 포수가 미트를 탁탁, 두 번 치고 앉았다.",
+      "line3": "뭘 던져도 다 받아낼 것 같은 얼굴이었다.",
+      "line4": "…결국 그 공도 받아냈지.",
+      "line5": "경기 끝나고 그 녀석이 뭐라고 했는데, \"다음엔…\"까지만 들렸다."
     },
-    "frame-photo": {
-      "line1": "This is from the youth baseball tournament, the day I placed.",
-      "line2": "…Where are they right now?"
-    },
-    "frame-photo-echo": {
-      "line1": "…My parents' faces. I can finally see them properly.",
-      "line2": "When I find them, I'll start with this photo."
+    "ball-alone": {
+      "line1": "벽에 던지면 돌아온다. 그게 전부다.",
+      "line2": "받아줄 사람이 없다는 걸, 자꾸 잊는다."
     },
     "console-intro": {
       "line1": "Been a while. Time for a round.",
       "line2": "Loser bought snacks. That was the rule."
     },
     "console-alone": {
-      "line1": "I won."
+      "line1": "I won.",
+      "line2": "…받아줄 사람이 없네, 내기."
     },
     "console-echo": {
       "line1": "When I get out, we're playing a round."
     },
-    "window-silence": {
-      "line1": "The first few days, the sirens went all night.",
-      "line2": "Now… there's no sound at all."
+    "frame-photo": {
+      "line1": "This is from the youth baseball tournament, the day I placed.",
+      "line2": "…두 분 얼굴은 틀 밖으로 잘렸네."
     },
     "phone-stopped": {
       "line1": "The last message is from October 19.",
-      "line2": "The group chat has never been this quiet."
+      "line2": "엄마 대화방엔 아직 1이 떠 있네.",
+      "line3": "…나중에."
     },
-    "computer-power-on": {
-      "line1": "There was a person on the radio. Then the news from that day must be saved somewhere too.",
-      "line2": "The internet's been dead since that day… but whatever's saved will do.",
-      "line3": "I press the power button on the dust-covered tower."
-    },
-    "computer-archive": {
-      "line1": "Look at them, laughing away. I never did reply.",
-      "line2": "And after that… the world was stopping, little by little.",
-      "line3": "It wasn't just me. Everyone kept trying to reach each other, right to the end."
-    },
-    "phone-unlock-intro": {
-      "line1": "The phone just buzzed. …Now?",
-      "line2": "The first notification in weeks.",
-      "line3": "…The fingerprint won't take. I changed the passcode… what was it?"
-    },
-    "phone-unlock-result": {
-      "line1": "She sent these that day. They only arrived now.",
-      "line2": "She told me to wait. …I have waited long enough."
+    "window-silence": {
+      "line1": "The first few days, the sirens went all night.",
+      "line2": "Now… there's no sound at all."
     },
     "calendar-intro": {
       "line1": "The calendar stopped there too. October 19."
@@ -177,63 +169,89 @@
     "radio-broadcast": {
       "line1": "…This is an emergency broadcast. A zombie outbreak is underway. All citizens must take shelter indoors immediately.",
       "line2": "The infection has spread past the capital region into the entire south.",
-      "line3": "It has reached Busan. The areas still under control are…",
-      "line4": "Kssh… kkt…",
-      "line5": "…Right. That's how it was.",
-      "line6": "I hadn't forgotten. I was pretending I had."
+      "line3": "부산까지 감염 사태가 번졌습니다. …반복합니다. 긴급 재난 방송입니다.",
+      "line4": "…맞아. 그날이었다."
     },
-    "radio-voice": {
-      "line1": "…You went dead. I watched you go dead.",
-      "line2": "Ah, damn… is this thing even transmitting? Can anyone hear me?",
-      "line3": "If you're alive out there, come to us. Remember, the answer is here.",
-      "line4": "We'll talk once we're together… kssht… click.",
-      "line5": "That's a person. That's a real voice.",
-      "line6": "Nothing happens if I keep sitting here."
+    "duffel-pack": {
+      "line1": "야구 가방 비우자.",
+      "line2": "Water, cans, a flashlight. That should do it.",
+      "line3": "글러브는 두고 가고.",
+      "line4": "…혹시 모르니까."
+    },
+    "fridge-open": {
+      "line1": "If I'm going out, I should take something. Start with the fridge.",
+      "line2": "I've been eating for a month and it's still half full.",
+      "line3": "Two nights, they said. So why stock this much?"
+    },
+    "shoes-open": {
+      "line1": "The shoe cabinet. Haven't opened it in a long time.",
+      "line2": "Dad's hiking boots. Still here.",
+      "line3": "이번엔 안 걷는 여행이야~ 등산화는 놔두고 간다!",
+      "line4": "A trip with no walking, and two suitcases."
+    },
+    "cards-intro": {
+      "line1": "The cards are still laid out on the table.",
+      "line2": "다음에 오면 이거 마저 치자~"
+    },
+    "cards-unfinished": {
+      "line1": "The last hand never finished.",
+      "line2": "…다음에 오면, 이라."
+    },
+    "computer-power-on": {
+      "line1": "켜 봐야 인터넷도 안 되는데.",
+      "line2": "…저장된 거라도 보자.",
+      "line3": "I press the power button on the dust-covered tower."
+    },
+    "computer-archive": {
+      "line1": "아빠 메일. 여행 간다고 신났네.",
+      "line2": "뉴스는… 연구시설 근처에서 처음 났다고.",
+      "line3": "첫 보도가 오후 3시."
+    },
+    "phone-mom-intro": {
+      "line1": "엄마 대화방. 읽지 않음 1.",
+      "line2": "…"
+    },
+    "phone-mom-read": {
+      "line1": "…7시 12분? 뉴스는 오후였는데.",
+      "line2": "…읽었어."
     },
     "ball-echo": {
       "line1": "Maybe I can stop throwing it alone.",
       "line2": "When I find someone to catch it, we'll throw again."
     },
-    "fridge-open": {
-      "line1": "If I'm going out, I should take something. Start with the fridge.",
-      "line2": "I've been eating for a month and it's still half full.",
-      "line3": "Two nights, they said. So why stock this much?",
-      "line4": "…This wasn't packing for a trip."
-    },
-    "duffel-pack": {
-      "line1": "I'll empty the baseball bag. The glove stays.",
-      "line2": "Water, cans, a flashlight. That should do it.",
-      "line3": "First time I've packed anything in thirty days."
-    },
-    "shoes-open": {
-      "line1": "The shoe cabinet. Haven't opened it in a long time.",
-      "line2": "Dad's hiking boots. Still here.",
-      "line3": "No walking on this one. I'll leave the boots.",
-      "line4": "A trip with no walking, and two suitcases.",
-      "line5": "What exactly did you carry off with you?"
-    },
-    "cards-intro": {
-      "line1": "The cards are still laid out on the table.",
-      "line2": "We'll finish this hand next time."
-    },
-    "cards-unfinished": {
-      "line1": "The last hand never finished.",
-      "line2": "Next time, they said. Did they mean it?",
-      "line3": "No. They meant it. That's why nobody cleared the table."
-    },
     "ampoule-note": {
-      "line1": "The note on the fridge door. The magnet hid a second page.",
-      "line2": "Don't touch the bottom drawer. Your mother sorted it out.",
-      "line3": "The boots, the unfinished hand, and this note.",
-      "line4": "All of it wore the face of coming back. But sorting things out is what people do when they leave.",
-      "line5": "…Let's open it."
+      "line1": "냉장고 아래칸. 메모가 붙어 있다.",
+      "line2": "아래칸은 손대지 마~ 엄마가 정리해 놨다!",
+      "line3": "…Let's open it."
     },
     "ampoule-found": {
-      "line1": "What is this.",
-      "line2": "A glass ampoule. The label is half worn off. I can't read it.",
-      "line3": "They buried this under the food and left?",
-      "line4": "…They knew. They knew this was coming.",
-      "line5": "Then this isn't something they abandoned. It's something they left for me."
+      "line1": "보냉 케이스?",
+      "line2": "앰플이 하나. …옆 칸은 비어 있어.",
+      "line3": "라벨에 로고가 반쯤 남았네.",
+      "line4": "이 로고… 어디서 봤는데."
+    },
+    "computer-logo-intro": {
+      "line1": "그 로고. 아빠 메일에서 본 것 같은데."
+    },
+    "computer-logo-found": {
+      "line1": "라온생명과학연구소. …첨부에 있던 거랑 같아.",
+      "line2": "욕실 하부장 자물쇠, 엄마가 바꿔 달래서 바꿨다!",
+      "line3": "네 번호로 해놨다~ 이건 안 까먹겠지?",
+      "line4": "…내 번호."
+    },
+    "research-note-read": {
+      "line1": "연구 일지. 엄마 글씨다.",
+      "line2": "후보물질 R-7. 감염 초기 진행 억제 확인. 냉장 보관, 2개 제조.",
+      "line3": "두 개. …하나는 비어 있었는데."
+    },
+    "id-card-look": {
+      "line1": "출입증. 라온생명과학연구소.",
+      "line2": "아빠 이름, 엄마 이름.",
+      "line3": "앰플 라벨의 그 로고다."
+    },
+    "not-a-trip-read": {
+      "line1": "비상 대응팀 전원 소집. 10월 17일부터 연구소 상주. 가족에게는 여행으로 안내 바람.",
+      "line2": "…그래서 여행이라고 했구나."
     }
   },
   "lore": {
@@ -242,78 +260,113 @@
       "phase1": "Alone, winning and losing feel the same.",
       "phase2": "Maybe it gets fun again with two."
     },
-    "window": {
-      "title": "Outside",
-      "phase1": "I opened the curtain. Broken glass, a crushed car, stains that will not wash off. I closed it again."
+    "ball": {
+      "title": "Catch, Alone",
+      "phase1": "전국대회 8강, 진 경기. 상대 포수가 마지막 공을 받아냈다. 벽에 던지면 돌아온다. 받아줄 사람이 없다는 걸 자꾸 잊는다.",
+      "phase2": "If someone out there can catch it, this ball still has a use."
     },
     "frame": {
       "title": "My Parents",
       "phase1": "Dust on the glass, so I wiped it down. Even clean, their faces are the only ones I still can't see.",
-      "phase2": "I put the pieces back and the faces returned. We just haven't met yet."
-    },
-    "fridge": {
-      "title": "What They Stocked",
-      "phase2": "The fridge and the cupboard are still half full. Why was there a month of food in this house?"
-    },
-    "duffel": {
-      "title": "What to Take",
-      "phase2": "I emptied my baseball bag and packed it again. Water and cans this time, not a glove."
-    },
-    "computer": {
-      "title": "What Was Saved",
-      "phase2": "Dad's trip emails I never answered, and the news left in the cache. The world stopped little by little, then all at once."
-    },
-    "radio": {
-      "title": "That Broadcast",
-      "phase1": "They said it had reached Busan. I cannot pretend not to know anymore.",
-      "phase2": "A human voice came through the noise. \"Hey, is anyone there?\" I am not the only one."
+      "phase2": "흩어진 조각을 맞추니 얼굴이 돌아왔다. 액자를 세워 두고 나왔다."
     },
     "phone": {
       "title": "The Silence",
-      "phase1": "The group chat has been quiet since that day. Every missed call is one I made.",
-      "phase2": "Mom's texts from that day finally arrived. Lock the door and wait, she said. …I have waited enough."
+      "phase1": "단톡은 그날 이후로 조용하다. 엄마 대화방에는 아직 1이 떠 있다. 나중에 보기로 했다.",
+      "phase2": "그날 아침 7시 12분, 엄마 문자. 끝나면 바로 집에 오라고. 뉴스는 오후였다. 이제야 읽었다."
     },
     "calendar": {
       "title": "October 19",
       "phase1": "The numbers stopped on that day. After that I stopped writing dates and only made tally marks."
     },
-    "ball": {
-      "title": "Catch, Alone",
-      "phase1": "Throw it at the wall and it comes back. That is all. I keep forgetting there is no one to catch it.",
-      "phase2": "If someone out there can catch it, this ball still has a use."
+    "window": {
+      "title": "Outside",
+      "phase1": "I opened the curtain. Broken glass, a crushed car, stains that will not wash off. I closed it again."
+    },
+    "radio": {
+      "title": "That Broadcast",
+      "phase1": "They said it had reached Busan. I cannot pretend not to know anymore.",
+      "phase2": "빨간 불이 켜진 라디오에서 생존자 방송이 나왔다. 은강고 체육관. 사흘 밤 뒤에는 떠난다고 했다."
+    },
+    "duffel": {
+      "title": "What to Take",
+      "phase2": "야구 가방을 비우고 다시 쌌다. 물, 통조림, 손전등. 글러브는 두고 가려다 다시 넣었다."
+    },
+    "fridge": {
+      "title": "What They Stocked",
+      "phase2": "The fridge and the cupboard are still half full. Why was there a month of food in this house?"
     },
     "shoes": {
       "title": "The Boots They Left",
-      "phase2": "The hiking boots are still in the cabinet. A trip with no walking, they said. So why was there so much luggage?"
+      "phase2": "등산화는 신발장에 그대로다. 안 걷는 여행이라더니, 캐리어는 두 개였다."
     },
     "cards": {
       "title": "The Unfinished Hand",
       "phase2": "The cards are still on the table. We'll finish it next time, they said. The hand never moved."
     },
+    "computer": {
+      "title": "What Was Saved",
+      "phase2": "아빠 메일, 그리고 캐시에 남은 뉴스. 연구시설 근처에서 처음 났고, 첫 보도는 그날 오후 3시였다.",
+      "phase3": "앰플 라벨의 로고가 아빠 메일 첨부에 있었다. 하부장은 내 번호로 잠가 뒀다고 했다."
+    },
     "ampoule": {
       "title": "An Unmarked Ampoule",
-      "phase2": "The label is half worn away, unreadable. I am holding a question, not an answer."
+      "phase2": "보냉 케이스에 앰플 하나, 옆 칸은 비어 있었다. 라벨에는 로고가 반쯤 남아 있다."
+    },
+    "research-note": {
+      "title": "연구 일지",
+      "phase2": "엄마 글씨의 연구 일지. 앰플은 치료제 후보였다."
+    },
+    "id-card": {
+      "title": "출입증",
+      "phase2": "라온생명과학연구소 출입증 두 장. 아빠 이름, 엄마 이름. 앰플 라벨의 그 로고다."
+    },
+    "not-a-trip": {
+      "title": "소집 공지",
+      "phase2": "연구소 비상 소집 공지. 가족에게는 여행이라고 말해 두라고 적혀 있었다."
     }
   },
   "cutscenes": {
     "radio-blackout": {
-      "cut1": {
-        "line1": "…So that's all of it."
-      },
-      "cut2": {
-        "line1": "……"
-      },
-      "cut3": {
-        "line1": "…Hey. Is somebody there?",
-        "line2": "Huh? Who is that?"
+      "cut1": {},
+      "cut2": {},
+      "cut3": {},
+      "cut4": {},
+      "cut5": {
+        "line1": "그날 이후로 난 나가지 않고 있다. 어차피 나가 봐야 보이는 현실은 똑같으니까."
       }
     },
-    "farewell": {
+    "survivor-broadcast": {
       "cut1": {
-        "line1": "\"Back soon,\" they said, and left. Like always.",
-        "line2": "If I'd known that was the last of it, I'd have said something more.",
-        "line3": "…No. They knew. That's exactly why they said nothing.",
-        "line4": "They didn't leave me behind. They were keeping me."
+        "line1": "아, 이거 나가긴 하는 거야?"
+      },
+      "cut2": {
+        "line1": "생존자 있으면 들어. 우리 여기 모여 있어. 치료할 방법도 찾고 있고."
+      },
+      "cut3": {
+        "line1": "사흘 밤 지나면 여기서 이동한다. 그 뒤엔 우리도 어디로 갈지 몰라."
+      },
+      "cut4": {
+        "line1": "다시 한번 말한다. 은강고 체육관으로 모여. …늦지 말고 와."
+      },
+      "cut5": {
+        "line1": "은강고…? 그때 그…?"
+      }
+    },
+    "p2-close": {
+      "cut1": {
+        "line1": "여행이 아니었어. 둘 다 뭔가 알고 있었어."
+      }
+    },
+    "p4-close": {
+      "cut1": {
+        "line1": "…이게 답일지도 몰라."
+      }
+    },
+    "still-beat": {
+      "cut1": {},
+      "cut2": {
+        "line1": "…갔다 올게."
       }
     },
     "bat-grip": {

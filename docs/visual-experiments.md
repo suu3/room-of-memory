@@ -242,7 +242,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | **afterimage** (배트) | **1인칭 두 구간** (인트로 스위치 찾기 · 2막 첫 문 넘기) | `FirstPersonRig`, `viewpointOf`: 어둠 속에서 빛 하나를 향해 **실제로 걸어가는** 구간이 둘 있다 | 걷는 동안 잔상이 쌓이고, 스위치를 켜거나 문턱을 넘는 순간 **0으로 걷힌다**. 30일 만에 움직이는 몸. 스펙이 배트에 적은 문장("이동하는 동안 누적, 문 열림과 함께 0")이 그대로 맞는다 | feedback RT Effect 하나(ping-pong, 해상도 0.5, `ScreenTransition`처럼 커스텀 `Effect`). 1인칭 동안만 컴포저에 들어간다 | 누적 ← 걷는 속도(`movementInputRef`), 소멸 ← `introDone`·`doorwayDone`. `reducedMotion`이면 없음 |
 | **reaction-diffusion** (컵라면) | **화장실 타일 · 욕조** | `BathroomShell`·`Bathtub`: 넓은 단색 면. 2막에 처음 열리는 공간 | 30일 안 쓴 화장실의 타일 줄눈과 욕조 가장자리에 **물때·곰팡이 무늬**. 큰 면이라 읽힌다 | Gray-Scott 128² 두 장, **첫 진입에 N스텝 돌리고 멈춘다**(매 프레임 아님). 결과를 타일 머티리얼의 roughness·color에 곱한다 | 고정(다 자란 상태). 화장실은 1막을 겪지 않은 공간이라 진행 바인딩이 뜻이 없다: "시간이 멈춘 자리" |
 | **GodRays** (커튼) | **열리는 현관문** (엔딩) | `FrontDoor`: `endingStarted`에 문짝이 `openAngle`까지 1.8초 열리고 `burn`이 덮는다 | 문이 열리는 틈으로 **빛기둥**이 거실 바닥을 가로지른다. 30일 만의 바깥 빛. 게임에서 광원이 화면에 서는 유일한 자리 | 문 개구부 바깥에 밝은 판(광원 메시) + `GodRays` 한 패스. 엔딩 동안만 마운트, `burn`과 겹쳐 1.5초 | 세기 ← 문짝 각도 / `openAngle` |
-| **깨진 글리프** (대사) | **안방 연구 서류 · 앰플 라벨** | `ResearchNote`(ClueOverlay, 본문 더미), 앰플 "라벨은 반쯤 지워져 읽을 수 없다" | 서류의 몇 단어가 **지워지거나 깨져** 있다. hover 복원 없음: 읽을 수 없다는 것이 이야기다 | 문장 길이 비율로 같은 자리를 치환(ko/en/ja 공통 규칙, 유니코드 블록 문자 + 낮은 대비). 대사 스키마를 건드리지 않는다: 서류는 제 컴포넌트다 | 고정 |
+| **깨진 글리프** (대사) | **안방 연구 서류 · 앰플 라벨** | ~~`ResearchNote`(ClueOverlay)~~ v4에서 연구 일지가 기억(대사)으로 바뀌어 화면에서는 빠졌다. `redaction.ts`와 `/lab/redaction`만 남아 있다. 앰플 "라벨은 반쯤 지워져 읽을 수 없다" | 서류의 몇 단어가 **지워지거나 깨져** 있다. hover 복원 없음: 읽을 수 없다는 것이 이야기다 | 문장 길이 비율로 같은 자리를 치환(ko/en/ja 공통 규칙, 유니코드 블록 문자 + 낮은 대비). 대사 스키마를 건드리지 않는다: 서류는 제 컴포넌트다 | 고정 |
 | **와이어프레임 재구성** (1→2) | **새 공간 첫 진입** (화장실 · 안방) | `SPACES`·`DOORWAYS`, 수첩 평면도가 "지나간 문"을 기록한다 | 처음 문턱을 넘는 순간 그 공간이 **선에서 면으로** 채워진다(0.8초). 기억에서 재구성되는 집 | 그 공간 그룹의 머티리얼 `wireframe` on → dissolve. 라디오 재점화(7장)와 같은 문법, 공간마다 한 번 | 첫 진입 ← 평면도의 방문 기록 |
 | **feTurbulence 응결** (인트로) | **미니맵 순간이동** | `HudMiniMap`: 칸을 누르면 `landing`으로 몸이 간다. 지금은 컷 | 이동이 노이즈 속에서 **다시 응결**한다. 300ms | 7장의 정지 타일, opacity 0→1→0 | 이동 사건 |
 
@@ -297,7 +297,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | 효과 | 자리 | 게이트 | 바인딩 | 데모 |
 |---|---|---|---|---|
 | 혼잣말 글자 단위 퇴장 | `components/ui/Monologue.tsx`, `monologue-exit.ts` | cheap | `act` | `/lab/monologue-exit` |
-| 안방 서류 깨진 글자 | `components/ui/ClueOverlay.tsx`, `redaction.ts` | (정적) | 고정 | `/lab/redaction` |
+| 안방 서류 깨진 글자 | `redaction.ts` (v4에서 ClueOverlay의 서류 화면은 빠졌다) | (정적) | 고정 | `/lab/redaction` |
 | 컷씬 컷 간 노이즈 dissolve | `components/ui/PlaybackScene.tsx`, `CutDissolve.tsx`, `cut-dissolve.ts` | cheap | 컷 번호 → 결 | `/lab/cut-dissolve` |
 | 액자 다시보기의 사진 밀림 | `components/ui/PhotoMorph.tsx`, `photo-morph.ts`, `data`의 `REPLAY_MORPH_WITHIN` | cheap | 2막 액자 다시보기 | `/lab/photo-morph` |
 | 등 (커서 또는 몸) | `scenes/memory-room/Lantern.tsx`, `lantern.ts` | cheap, 1인칭 제외 | `level < 0.35` | (게임 안) |

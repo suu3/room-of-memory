@@ -44,7 +44,7 @@ function tokenColor(name: string): string {
 export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
-  const photo = PHOTOS[gamePhase];
+  const photo = PHOTOS[gamePhase === 1 ? 1 : 2];
   const complete = useOnceCompleter(onComplete);
   const [progress, setProgress] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(TIME_LIMIT_S);

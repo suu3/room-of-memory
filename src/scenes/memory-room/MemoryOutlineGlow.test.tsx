@@ -1,6 +1,7 @@
 import ReactThreeTestRenderer, { waitFor } from "@react-three/test-renderer";
 import { Color, type Mesh, type Object3D, WebGLRenderer } from "three";
 import { describe, expect, it } from "vitest";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import { InteractiveMemory } from "./MemoryObjects";
 import {
   createMemoryOutlineSettings,
@@ -310,6 +311,9 @@ describe("memory outline glow", () => {
   });
 
   it("keeps the selected production memory free of the legacy box border", async () => {
+    // 창문은 강도 3이라 강도 2(액자·폰)까지 본 방에서 빛난다
+    useMemoryRoomStore.getState().reset();
+    useMemoryRoomStore.setState({ collected: ["console", "ball", "frame", "phone"] });
     const renderer = await ReactThreeTestRenderer.create(
       <MemoryGlowRoot color={TEST_PALETTE.memory}>
         <InteractiveMemory

@@ -12,8 +12,11 @@ import {
   Cards,
   Desktop,
   DeviceMobile,
+  Envelope,
+  FileText,
   GameController,
   GridFour,
+  IdentificationCard,
   ImageSquare,
   Package,
   Radio,
@@ -26,18 +29,21 @@ import type { Cutscene, DialogueScript, MemoryPhaseConfig } from "@/types/intera
 /** 기억 id: content/memories.yaml에 적힌 순서 그대로. 패널에도 이 순서로 뜬다. */
 export const MEMORY_IDS = [
   "console",
-  "window",
+  "ball",
   "frame",
-  "fridge",
-  "duffel",
-  "computer",
-  "radio",
   "phone",
   "calendar",
-  "ball",
+  "window",
+  "radio",
+  "duffel",
+  "fridge",
   "shoes",
   "cards",
+  "computer",
   "ampoule",
+  "research-note",
+  "id-card",
+  "not-a-trip",
 ] as const;
 
 export type MemoryId = (typeof MEMORY_IDS)[number];
@@ -46,10 +52,12 @@ export interface MemoryItem {
   id: MemoryId;
   /** 수집 패널에 표시할 아이콘 (Phosphor 또는 호환 커스텀) */
   icon: MemoryIcon;
-  /** Phase 1: 최초 수집 클릭. 없으면 1바퀴 내내 잠겨 있는 2바퀴 전용 기억이다. */
+  /** 1차 조사 (p1). 없으면 1바퀴 내내 잠겨 있는 2바퀴 전용 기억이다. */
   phase1?: MemoryPhaseConfig;
-  /** Phase 2: 전원 수집 후 재클릭. 있는 아이템만 재클릭 대상. */
+  /** 2차 조사. 열리는 페이즈는 from이 정한다. */
   phase2?: MemoryPhaseConfig;
+  /** 3차 조사: 2차를 마친 뒤의 되짚기. */
+  phase3?: MemoryPhaseConfig;
 }
 
 export const MEMORIES: MemoryItem[] = [
@@ -63,75 +71,62 @@ export const MEMORIES: MemoryItem[] = [
         resultScriptId: "console-alone",
       },
     },
-    phase2: { interaction: { scriptId: "console-echo" }, unlockAfter: ["radio"] },
+    phase2: { interaction: { scriptId: "console-echo" }, from: "p2", side: true },
   },
   {
-    id: "window",
-    icon: GridFour,
+    id: "ball",
+    icon: Baseball,
     phase1: {
-      interaction: { minigameId: "window-view", resultScriptId: "window-silence" },
-      replayStill: "/assets/images/mg-window-view-outside.webp",
+      interaction: {
+        scriptId: "ball-intro",
+        minigameId: "ball-catch",
+        resultScriptId: "ball-alone",
+      },
+      replayStill: "/assets/images/mg-ball-catch-sunset-field.webp",
     },
+    phase2: { interaction: { scriptId: "ball-echo" }, from: "p2", side: true },
   },
   {
     id: "frame",
     icon: ImageSquare,
     phase1: {
       interaction: { minigameId: "photo-wipe", resultScriptId: "frame-photo" },
+      unlockAfter: [
+        { id: "console", visit: 1 },
+        { id: "ball", visit: 1 },
+      ],
       replayStill: "/assets/images/mg-photo-wipe-phase-1.webp",
     },
     phase2: {
-      interaction: { minigameId: "photo-puzzle", resultScriptId: "frame-photo-echo" },
-      unlockAfter: ["radio", "fridge", "duffel"],
+      interaction: { minigameId: "photo-puzzle" },
+      unlockAfter: [
+        { id: "research-note", visit: 2 },
+        { id: "id-card", visit: 2 },
+        { id: "not-a-trip", visit: 2 },
+      ],
       replayStill: "/assets/images/mg-photo-wipe-phase-2.webp",
+      from: "p4",
+      cutscene: "still-beat",
     },
-  },
-  {
-    id: "fridge",
-    icon: Package,
-    phase2: { interaction: { scriptId: "fridge-open" }, unlockAfter: ["radio"] },
-  },
-  {
-    id: "duffel",
-    icon: Bag,
-    phase2: { interaction: { scriptId: "duffel-pack" }, unlockAfter: ["radio"] },
-  },
-  {
-    id: "computer",
-    icon: Desktop,
-    phase2: {
-      interaction: {
-        scriptId: "computer-power-on",
-        minigameId: "computer-browse",
-        resultScriptId: "computer-archive",
-      },
-      unlockAfter: ["radio"],
-    },
-  },
-  {
-    id: "radio",
-    icon: Radio,
-    phase1: {
-      interaction: {
-        scriptId: "radio-intro",
-        minigameId: "radio-quiz",
-        resultScriptId: "radio-broadcast",
-      },
-      unlockAfter: ["console", "window", "frame", "phone", "calendar", "ball"],
-    },
-    phase2: { interaction: { scriptId: "radio-voice" } },
   },
   {
     id: "phone",
     icon: DeviceMobile,
-    phase1: { interaction: { minigameId: "phone-chat", resultScriptId: "phone-stopped" } },
+    phase1: {
+      interaction: { minigameId: "phone-chat", resultScriptId: "phone-stopped" },
+      unlockAfter: [
+        { id: "console", visit: 1 },
+        { id: "ball", visit: 1 },
+      ],
+    },
     phase2: {
       interaction: {
-        scriptId: "phone-unlock-intro",
-        minigameId: "phone-lock",
-        resultScriptId: "phone-unlock-result",
+        scriptId: "phone-mom-intro",
+        minigameId: "mom-chat",
+        resultScriptId: "phone-mom-read",
       },
-      unlockAfter: ["radio", "computer"],
+      unlockAfter: [{ id: "computer", visit: 2 }],
+      from: "p2",
     },
   },
   {
@@ -143,22 +138,55 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "calendar-flip",
         resultScriptId: "calendar-tally",
       },
-      unlockAfter: ["phone"],
+      unlockAfter: [{ id: "phone", visit: 1 }],
     },
   },
   {
-    id: "ball",
-    icon: Baseball,
+    id: "window",
+    icon: GridFour,
     phase1: {
-      interaction: { scriptId: "ball-intro", minigameId: "ball-catch" },
-      replayStill: "/assets/images/mg-ball-catch-sunset-field.webp",
+      interaction: { minigameId: "window-view", resultScriptId: "window-silence" },
+      unlockAfter: [
+        { id: "frame", visit: 1 },
+        { id: "phone", visit: 1 },
+      ],
+      replayStill: "/assets/images/mg-window-view-outside.webp",
     },
-    phase2: { interaction: { scriptId: "ball-echo" }, unlockAfter: ["shoes", "cards"] },
+  },
+  {
+    id: "radio",
+    icon: Radio,
+    phase1: {
+      interaction: {
+        scriptId: "radio-intro",
+        minigameId: "radio-quiz",
+        resultScriptId: "radio-broadcast",
+      },
+      unlockAfter: [
+        { id: "console", visit: 1 },
+        { id: "ball", visit: 1 },
+        { id: "frame", visit: 1 },
+        { id: "phone", visit: 1 },
+        { id: "calendar", visit: 1 },
+        { id: "window", visit: 1 },
+      ],
+    },
+    phase2: { from: "turning", cutscene: "survivor-broadcast" },
+  },
+  {
+    id: "duffel",
+    icon: Bag,
+    phase2: { interaction: { scriptId: "duffel-pack" }, from: "p2" },
+  },
+  {
+    id: "fridge",
+    icon: Package,
+    phase2: { interaction: { scriptId: "fridge-open" }, from: "p2" },
   },
   {
     id: "shoes",
     icon: Sneaker,
-    phase2: { interaction: { scriptId: "shoes-open" }, unlockAfter: ["frame"] },
+    phase2: { interaction: { scriptId: "shoes-open" }, from: "p2" },
   },
   {
     id: "cards",
@@ -169,7 +197,28 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "card-odd",
         resultScriptId: "cards-unfinished",
       },
-      unlockAfter: ["frame"],
+      from: "p2",
+    },
+  },
+  {
+    id: "computer",
+    icon: Desktop,
+    phase2: {
+      interaction: {
+        scriptId: "computer-power-on",
+        minigameId: "computer-browse",
+        resultScriptId: "computer-archive",
+      },
+      from: "p2",
+    },
+    phase3: {
+      interaction: {
+        scriptId: "computer-logo-intro",
+        minigameId: "computer-logo",
+        resultScriptId: "computer-logo-found",
+      },
+      unlockAfter: [{ id: "ampoule", visit: 2 }],
+      from: "p3",
     },
   },
   {
@@ -181,8 +230,23 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "ampoule-pickup",
         resultScriptId: "ampoule-found",
       },
-      unlockAfter: ["ball"],
+      from: "p3",
     },
+  },
+  {
+    id: "research-note",
+    icon: FileText,
+    phase2: { interaction: { scriptId: "research-note-read" }, from: "p4" },
+  },
+  {
+    id: "id-card",
+    icon: IdentificationCard,
+    phase2: { interaction: { scriptId: "id-card-look" }, from: "p4" },
+  },
+  {
+    id: "not-a-trip",
+    icon: Envelope,
+    phase2: { interaction: { scriptId: "not-a-trip-read" }, from: "p4" },
   },
 ];
 
@@ -191,22 +255,18 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   "ball-intro": {
     id: "ball-intro",
     lines: [
-      { speaker: "hero", textKey: "scripts.ball-intro.line1", expression: "smile" },
-      { speaker: "hero", textKey: "scripts.ball-intro.line2", expression: "smile" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line1" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line2" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line3" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line4" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line5" },
     ],
   },
-  "frame-photo": {
-    id: "frame-photo",
+  "ball-alone": {
+    id: "ball-alone",
     lines: [
-      { speaker: "hero", textKey: "scripts.frame-photo.line1", expression: "smile" },
-      { speaker: "hero", textKey: "scripts.frame-photo.line2" },
-    ],
-  },
-  "frame-photo-echo": {
-    id: "frame-photo-echo",
-    lines: [
-      { speaker: "hero", textKey: "scripts.frame-photo-echo.line1", expression: "surprised" },
-      { speaker: "hero", textKey: "scripts.frame-photo-echo.line2", expression: "smile" },
+      { speaker: "hero", textKey: "scripts.ball-alone.line1" },
+      { speaker: "hero", textKey: "scripts.ball-alone.line2" },
     ],
   },
   "console-intro": {
@@ -218,17 +278,20 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   },
   "console-alone": {
     id: "console-alone",
-    lines: [{ speaker: "hero", textKey: "scripts.console-alone.line1" }],
+    lines: [
+      { speaker: "hero", textKey: "scripts.console-alone.line1" },
+      { speaker: "hero", textKey: "scripts.console-alone.line2" },
+    ],
   },
   "console-echo": {
     id: "console-echo",
     lines: [{ speaker: "hero", textKey: "scripts.console-echo.line1", expression: "smile" }],
   },
-  "window-silence": {
-    id: "window-silence",
+  "frame-photo": {
+    id: "frame-photo",
     lines: [
-      { speaker: "hero", textKey: "scripts.window-silence.line1", expression: "surprised" },
-      { speaker: "hero", textKey: "scripts.window-silence.line2" },
+      { speaker: "hero", textKey: "scripts.frame-photo.line1", expression: "smile" },
+      { speaker: "hero", textKey: "scripts.frame-photo.line2" },
     ],
   },
   "phone-stopped": {
@@ -236,37 +299,14 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.phone-stopped.line1" },
       { speaker: "hero", textKey: "scripts.phone-stopped.line2" },
+      { speaker: "hero", textKey: "scripts.phone-stopped.line3" },
     ],
   },
-  "computer-power-on": {
-    id: "computer-power-on",
+  "window-silence": {
+    id: "window-silence",
     lines: [
-      { speaker: "hero", textKey: "scripts.computer-power-on.line1" },
-      { speaker: "hero", textKey: "scripts.computer-power-on.line2" },
-      { speaker: "hero", textKey: "scripts.computer-power-on.line3" },
-    ],
-  },
-  "computer-archive": {
-    id: "computer-archive",
-    lines: [
-      { speaker: "hero", textKey: "scripts.computer-archive.line1", expression: "smile" },
-      { speaker: "hero", textKey: "scripts.computer-archive.line2" },
-      { speaker: "hero", textKey: "scripts.computer-archive.line3" },
-    ],
-  },
-  "phone-unlock-intro": {
-    id: "phone-unlock-intro",
-    lines: [
-      { speaker: "hero", textKey: "scripts.phone-unlock-intro.line1", expression: "surprised" },
-      { speaker: "hero", textKey: "scripts.phone-unlock-intro.line2" },
-      { speaker: "hero", textKey: "scripts.phone-unlock-intro.line3" },
-    ],
-  },
-  "phone-unlock-result": {
-    id: "phone-unlock-result",
-    lines: [
-      { speaker: "hero", textKey: "scripts.phone-unlock-result.line1" },
-      { speaker: "hero", textKey: "scripts.phone-unlock-result.line2" },
+      { speaker: "hero", textKey: "scripts.window-silence.line1", expression: "surprised" },
+      { speaker: "hero", textKey: "scripts.window-silence.line2" },
     ],
   },
   "calendar-intro": {
@@ -293,36 +333,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "broadcast", textKey: "scripts.radio-broadcast.line1" },
       { speaker: "broadcast", textKey: "scripts.radio-broadcast.line2" },
       { speaker: "broadcast", textKey: "scripts.radio-broadcast.line3" },
-      { speaker: "broadcast", textKey: "scripts.radio-broadcast.line4" },
-      { speaker: "hero", textKey: "scripts.radio-broadcast.line5" },
-      { speaker: "hero", textKey: "scripts.radio-broadcast.line6" },
-    ],
-  },
-  "radio-voice": {
-    id: "radio-voice",
-    lines: [
-      { speaker: "hero", textKey: "scripts.radio-voice.line1" },
-      { speaker: "signal", textKey: "scripts.radio-voice.line2" },
-      { speaker: "signal", textKey: "scripts.radio-voice.line3" },
-      { speaker: "signal", textKey: "scripts.radio-voice.line4" },
-      { speaker: "hero", textKey: "scripts.radio-voice.line5", expression: "surprised" },
-      { speaker: "hero", textKey: "scripts.radio-voice.line6" },
-    ],
-  },
-  "ball-echo": {
-    id: "ball-echo",
-    lines: [
-      { speaker: "hero", textKey: "scripts.ball-echo.line1" },
-      { speaker: "hero", textKey: "scripts.ball-echo.line2", expression: "smile" },
-    ],
-  },
-  "fridge-open": {
-    id: "fridge-open",
-    lines: [
-      { speaker: "hero", textKey: "scripts.fridge-open.line1" },
-      { speaker: "hero", textKey: "scripts.fridge-open.line2" },
-      { speaker: "hero", textKey: "scripts.fridge-open.line3" },
-      { speaker: "hero", textKey: "scripts.fridge-open.line4" },
+      { speaker: "hero", textKey: "scripts.radio-broadcast.line4" },
     ],
   },
   "duffel-pack": {
@@ -331,6 +342,15 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.duffel-pack.line1" },
       { speaker: "hero", textKey: "scripts.duffel-pack.line2" },
       { speaker: "hero", textKey: "scripts.duffel-pack.line3" },
+      { speaker: "hero", textKey: "scripts.duffel-pack.line4" },
+    ],
+  },
+  "fridge-open": {
+    id: "fridge-open",
+    lines: [
+      { speaker: "hero", textKey: "scripts.fridge-open.line1" },
+      { speaker: "hero", textKey: "scripts.fridge-open.line2" },
+      { speaker: "hero", textKey: "scripts.fridge-open.line3" },
     ],
   },
   "shoes-open": {
@@ -340,7 +360,6 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.shoes-open.line2" },
       { speaker: "dad", textKey: "scripts.shoes-open.line3" },
       { speaker: "hero", textKey: "scripts.shoes-open.line4" },
-      { speaker: "hero", textKey: "scripts.shoes-open.line5" },
     ],
   },
   "cards-intro": {
@@ -355,7 +374,43 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.cards-unfinished.line1" },
       { speaker: "hero", textKey: "scripts.cards-unfinished.line2" },
-      { speaker: "hero", textKey: "scripts.cards-unfinished.line3" },
+    ],
+  },
+  "computer-power-on": {
+    id: "computer-power-on",
+    lines: [
+      { speaker: "hero", textKey: "scripts.computer-power-on.line1" },
+      { speaker: "hero", textKey: "scripts.computer-power-on.line2" },
+      { speaker: "hero", textKey: "scripts.computer-power-on.line3" },
+    ],
+  },
+  "computer-archive": {
+    id: "computer-archive",
+    lines: [
+      { speaker: "hero", textKey: "scripts.computer-archive.line1" },
+      { speaker: "hero", textKey: "scripts.computer-archive.line2" },
+      { speaker: "hero", textKey: "scripts.computer-archive.line3" },
+    ],
+  },
+  "phone-mom-intro": {
+    id: "phone-mom-intro",
+    lines: [
+      { speaker: "hero", textKey: "scripts.phone-mom-intro.line1" },
+      { speaker: "hero", textKey: "scripts.phone-mom-intro.line2" },
+    ],
+  },
+  "phone-mom-read": {
+    id: "phone-mom-read",
+    lines: [
+      { speaker: "hero", textKey: "scripts.phone-mom-read.line1" },
+      { speaker: "hero", textKey: "scripts.phone-mom-read.line2" },
+    ],
+  },
+  "ball-echo": {
+    id: "ball-echo",
+    lines: [
+      { speaker: "hero", textKey: "scripts.ball-echo.line1" },
+      { speaker: "hero", textKey: "scripts.ball-echo.line2", expression: "smile" },
     ],
   },
   "ampoule-note": {
@@ -364,8 +419,6 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.ampoule-note.line1" },
       { speaker: "dad", textKey: "scripts.ampoule-note.line2" },
       { speaker: "hero", textKey: "scripts.ampoule-note.line3" },
-      { speaker: "hero", textKey: "scripts.ampoule-note.line4" },
-      { speaker: "hero", textKey: "scripts.ampoule-note.line5" },
     ],
   },
   "ampoule-found": {
@@ -375,7 +428,42 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.ampoule-found.line2" },
       { speaker: "hero", textKey: "scripts.ampoule-found.line3" },
       { speaker: "hero", textKey: "scripts.ampoule-found.line4" },
-      { speaker: "hero", textKey: "scripts.ampoule-found.line5" },
+    ],
+  },
+  "computer-logo-intro": {
+    id: "computer-logo-intro",
+    lines: [{ speaker: "hero", textKey: "scripts.computer-logo-intro.line1" }],
+  },
+  "computer-logo-found": {
+    id: "computer-logo-found",
+    lines: [
+      { speaker: "hero", textKey: "scripts.computer-logo-found.line1" },
+      { speaker: "dad", textKey: "scripts.computer-logo-found.line2" },
+      { speaker: "dad", textKey: "scripts.computer-logo-found.line3" },
+      { speaker: "hero", textKey: "scripts.computer-logo-found.line4" },
+    ],
+  },
+  "research-note-read": {
+    id: "research-note-read",
+    lines: [
+      { speaker: "hero", textKey: "scripts.research-note-read.line1" },
+      { speaker: "narrator", textKey: "scripts.research-note-read.line2" },
+      { speaker: "hero", textKey: "scripts.research-note-read.line3" },
+    ],
+  },
+  "id-card-look": {
+    id: "id-card-look",
+    lines: [
+      { speaker: "hero", textKey: "scripts.id-card-look.line1" },
+      { speaker: "hero", textKey: "scripts.id-card-look.line2" },
+      { speaker: "hero", textKey: "scripts.id-card-look.line3" },
+    ],
+  },
+  "not-a-trip-read": {
+    id: "not-a-trip-read",
+    lines: [
+      { speaker: "narrator", textKey: "scripts.not-a-trip-read.line1" },
+      { speaker: "hero", textKey: "scripts.not-a-trip-read.line2" },
     ],
   },
 };
@@ -385,37 +473,92 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "radio-blackout",
     cuts: [
       {
-        image: "/assets/images/cutscene-radio-room.webp",
-        lines: [{ speaker: "hero", textKey: "cutscenes.radio-blackout.cut1.line1" }],
+        image: "/assets/images/cutscene-day-school.webp",
+        holdMs: 1800,
+        lines: [],
       },
       {
-        image: "/assets/images/cutscene-radio-hands.webp",
-        holdMs: 3200,
-        lines: [{ speaker: "hero", textKey: "cutscenes.radio-blackout.cut2.line1" }],
+        image: "/assets/images/cutscene-day-elevator.webp",
+        holdMs: 1800,
+        lines: [],
       },
       {
-        image: "/assets/images/cutscene-radio-signal.webp",
+        image: "/assets/images/cutscene-day-run.webp",
+        holdMs: 1800,
+        lines: [],
+      },
+      {
+        image: "/assets/images/cutscene-day-door.webp",
+        holdMs: 1800,
+        lines: [],
+      },
+      {
+        image: "/assets/images/cutscene-day-news.webp",
+        lines: [{ speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line1" }],
+      },
+    ],
+  },
+  "survivor-broadcast": {
+    id: "survivor-broadcast",
+    cuts: [
+      {
+        image: "/assets/images/cutscene-survivor-1.webp",
+        panel: "left",
+        sfx: "micTap",
+        lines: [{ speaker: "signal", textKey: "cutscenes.survivor-broadcast.cut1.line1" }],
+      },
+      {
+        image: "/assets/images/cutscene-survivor-2.webp",
+        panel: "right",
+        lines: [{ speaker: "signal", textKey: "cutscenes.survivor-broadcast.cut2.line1" }],
+      },
+      {
+        image: "/assets/images/cutscene-survivor-3.webp",
+        panel: "left",
+        lines: [{ speaker: "signal", textKey: "cutscenes.survivor-broadcast.cut3.line1" }],
+      },
+      {
+        image: "/assets/images/cutscene-survivor-4.webp",
+        panel: "right",
+        lines: [{ speaker: "signal", textKey: "cutscenes.survivor-broadcast.cut4.line1" }],
+      },
+      {
+        sfx: "radioCut",
         lines: [
-          { speaker: "signal", textKey: "cutscenes.radio-blackout.cut3.line1" },
           {
             speaker: "hero",
-            textKey: "cutscenes.radio-blackout.cut3.line2",
+            textKey: "cutscenes.survivor-broadcast.cut5.line1",
             expression: "surprised",
           },
         ],
       },
     ],
   },
-  farewell: {
-    id: "farewell",
+  "p2-close": {
+    id: "p2-close",
     cuts: [
       {
-        lines: [
-          { speaker: "hero", textKey: "cutscenes.farewell.cut1.line1" },
-          { speaker: "hero", textKey: "cutscenes.farewell.cut1.line2" },
-          { speaker: "hero", textKey: "cutscenes.farewell.cut1.line3" },
-          { speaker: "hero", textKey: "cutscenes.farewell.cut1.line4" },
-        ],
+        lines: [{ speaker: "hero", textKey: "cutscenes.p2-close.cut1.line1" }],
+      },
+    ],
+  },
+  "p4-close": {
+    id: "p4-close",
+    cuts: [
+      {
+        lines: [{ speaker: "hero", textKey: "cutscenes.p4-close.cut1.line1" }],
+      },
+    ],
+  },
+  "still-beat": {
+    id: "still-beat",
+    cuts: [
+      {
+        holdMs: 2600,
+        lines: [],
+      },
+      {
+        lines: [{ speaker: "hero", textKey: "cutscenes.still-beat.cut2.line1" }],
       },
     ],
   },

@@ -1,12 +1,14 @@
 "use client";
 
+import { playSound } from "@/lib/audio";
+import { selectSinkHintRead, useMemoryRoomStore } from "@/store/memory-room";
 import { BathroomFixtures, BathroomMirror, BathroomShower } from "./BathroomFixtures";
 import { BathroomStain } from "./BathroomStains";
 import { CulledWall } from "./CulledWall";
 import { InteriorSurface } from "./InteriorPrimitives";
-import { ItemPickup } from "./ItemPickup";
 import { BATHROOM_COLLIDERS, BATHROOM_DOOR_POSITION, BATHROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
+import { TouchProp } from "./RoomClues";
 import {
   endWallWithDoor,
   floorPart,
@@ -34,15 +36,17 @@ const PLINTH = plinthParts(SHELL);
 
 const [, sink] = BATHROOM_COLLIDERS;
 
-/**
- * 세면대 위에 놓인 열쇠 (자리 표시자 체인의 첫 물건, src/data/doors.ts). 대야 가장자리에
- * 얹혀 있다. 다가감 판정은 세면대 앞 한 걸음이다.
- */
-const KEY = {
-  position: [(sink.minX + sink.maxX) / 2 + 0.28, 0.87, sink.maxZ - 0.32] as Vec3Tuple,
-  near: [(sink.minX + sink.maxX) / 2, sink.minZ - 0.5] as readonly [number, number],
-  interactionRadius: 1.6,
+const SINK_X = (sink.minX + sink.maxX) / 2;
+/** 세면대 앞 한 걸음: 하부장과 칫솔컵이 같은 자리에서 켜진다. */
+const SINK_NEAR = [SINK_X, sink.minZ - 0.5] as const;
+const SINK_RADIUS = 1.6;
+/** 대야 밑 하부장 (v4 3-5): 엄마가 잠가 둔 칸. 다이얼(sink-dial)의 답은 등번호 11. */
+const CABINET = {
+  position: [SINK_X, 0.31, sink.maxZ - 0.31] as Vec3Tuple,
+  size: [0.72, 0.62, 0.42] as Vec3Tuple,
 } as const;
+/** 대야 왼쪽 가장자리의 칫솔컵: 칫솔 셋, 하나만 젖어 있다. */
+const CUP_POSITION: Vec3Tuple = [SINK_X - 0.32, 0.87, sink.maxZ - 0.3];
 
 function Box({
   part,
@@ -153,19 +157,102 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
 
       <BathroomFixtures palette={palette} />
 
-      {/* 안방 열쇠: 손잡이 고리와 날. 집으면 사라진다 */}
-      <ItemPickup id="parents-key" near={KEY.near} radius={KEY.interactionRadius}>
-        <group position={KEY.position} rotation={[0, 0.6, 0]}>
-          <mesh castShadow>
-            <torusGeometry args={[0.05, 0.016, 8, 16]} />
-            <meshStandardMaterial color={palette.amber} metalness={0.7} roughness={0.35} />
-          </mesh>
-          <mesh position={[0.11, 0, 0]} castShadow>
-            <boxGeometry args={[0.14, 0.012, 0.03]} />
-            <meshStandardMaterial color={palette.amber} metalness={0.7} roughness={0.35} />
-          </mesh>
-        </group>
-      </ItemPickup>
+      <SinkCabinet palette={palette} />
+      <ToothbrushCup palette={palette} />
     </group>
+  );
+}
+
+/**
+ * 세면대 하부장. 아빠 메일 힌트(컴퓨터 3차)를 보기 전에는 누르면 혼잣말만 흐르고,
+ * 본 뒤에는 다이얼이 열린다. 열리면 안방 열쇠가 손에 들어오고(store의 finishPuzzle)
+ * 문짝이 살짝 벌어진 채로 남는다.
+ */
+function SinkCabinet({ palette }: { palette: RoomPalette }) {
+  const hintRead = useMemoryRoomStore(selectSinkHintRead);
+  const opened = useMemoryRoomStore((state) => state.solvedPuzzles.includes("sink-dial"));
+  const openPuzzle = useMemoryRoomStore((state) => state.openPuzzle);
+  const sayRemark = useMemoryRoomStore((state) => state.sayRemark);
+  const [x, y, z] = CABINET.position;
+  const [width, height, depth] = CABINET.size;
+  const front = z - depth / 2;
+
+  return (
+    <TouchProp
+      name="sink-cabinet"
+      near={SINK_NEAR}
+      radius={SINK_RADIUS}
+      enabled={!opened}
+      onPress={() => {
+        if (hintRead) {
+          playSound("open");
+          openPuzzle("sink-dial");
+        } else {
+          playSound("deny");
+          sayRemark("sink-locked");
+        }
+      }}
+    >
+      <group name="sink-cabinet">
+        <mesh position={[x, y, z]} castShadow receiveShadow>
+          <boxGeometry args={[width, height, depth]} />
+          <meshStandardMaterial color={palette.linen} roughness={0.6} />
+        </mesh>
+        {/* 문짝 둘. 열리면 오른쪽 문이 살짝 벌어진다 */}
+        {[-1, 1].map((side) => (
+          <mesh
+            key={side}
+            position={[x + side * (width / 4), y, front - 0.012]}
+            rotation={[0, opened && side === 1 ? -0.5 : 0, 0]}
+            castShadow
+          >
+            <boxGeometry args={[width / 2 - 0.02, height - 0.06, 0.02]} />
+            <meshStandardMaterial color={palette.trim} roughness={0.55} />
+          </mesh>
+        ))}
+        {/* 다이얼 자물쇠: 두 문 사이의 작은 원판 */}
+        <mesh position={[x, y + 0.1, front - 0.03]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.045, 0.045, 0.02, 16]} />
+          <meshStandardMaterial color={palette.amber} metalness={0.6} roughness={0.35} />
+        </mesh>
+      </group>
+    </TouchProp>
+  );
+}
+
+/** 칫솔컵 (v4 3-5 쉼표 비트): 누르면 한 줄. 진행에는 아무것도 남기지 않는다. */
+function ToothbrushCup({ palette }: { palette: RoomPalette }) {
+  const sayRemark = useMemoryRoomStore((state) => state.sayRemark);
+  const [x, y, z] = CUP_POSITION;
+  return (
+    <TouchProp
+      name="toothbrush-cup"
+      near={SINK_NEAR}
+      radius={SINK_RADIUS}
+      onPress={() => {
+        playSound("select");
+        sayRemark("toothbrush");
+      }}
+    >
+      <group name="toothbrush-cup" position={[x, y, z]}>
+        <mesh position={[0, 0.05, 0]} castShadow>
+          <cylinderGeometry args={[0.04, 0.034, 0.1, 12]} />
+          <meshStandardMaterial color={palette.sage} roughness={0.5} />
+        </mesh>
+        {/* 칫솔 셋: 하나만 젖어서 색이 짙다 */}
+        {(
+          [
+            [-0.015, -0.12, palette.clay],
+            [0.012, 0.1, palette.daylight],
+            [0.0, 0.0, palette.frame],
+          ] as const
+        ).map(([dx, tilt, color]) => (
+          <mesh key={`${dx}:${tilt}`} position={[dx, 0.14, 0]} rotation={[0, 0, tilt]} castShadow>
+            <boxGeometry args={[0.012, 0.18, 0.012]} />
+            <meshStandardMaterial color={color} roughness={0.4} />
+          </mesh>
+        ))}
+      </group>
+    </TouchProp>
   );
 }

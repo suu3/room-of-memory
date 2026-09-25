@@ -76,6 +76,15 @@
     },
     "ampoule": {
       "name": "アンプル"
+    },
+    "research-note": {
+      "name": "研究日誌"
+    },
+    "id-card": {
+      "name": "入館証"
+    },
+    "not-a-trip": {
+      "name": "招集の通知"
     }
   }
 }

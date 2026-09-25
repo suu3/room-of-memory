@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  FAMILY_CHAT,
   GROUP_CHAT,
   hasLater,
   isThreadComplete,
@@ -85,7 +86,18 @@ describe("phone-chat thread", () => {
     expect(totalOutgoingCalls()).toBeGreaterThan(OUTGOING_CALLS.length);
   });
 
-  it("exposes exactly the two tabs the screen renders", () => {
-    expect(PHONE_TABS).toEqual(["chat", "calls"]);
+  it("exposes exactly the three tabs the screen renders", () => {
+    expect(PHONE_TABS).toEqual(["chat", "family", "calls"]);
+  });
+
+  it("needs the family chat opened too before the phone can be put down", () => {
+    expect(isThreadComplete(GROUP_CHAT.length, true, false)).toBe(false);
+    expect(isThreadComplete(GROUP_CHAT.length, true, true)).toBe(true);
+  });
+
+  it("keeps the family chat light: parents chatter, the son answers once", () => {
+    const mine = FAMILY_CHAT.filter((message) => message.side === "me");
+    expect(mine).toHaveLength(1);
+    expect(FAMILY_CHAT.length).toBeGreaterThan(3);
   });
 });

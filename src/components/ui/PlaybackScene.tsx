@@ -7,6 +7,7 @@ import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
 import { playSound, startNoiseBed } from "@/lib/audio";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
+import type { CutsceneCut } from "@/types/interaction";
 import { CutDissolve } from "./CutDissolve";
 import { grainForCut } from "./cut-dissolve";
 import { PhotoMorph } from "./PhotoMorph";
@@ -192,6 +193,16 @@ export function PlaybackScene() {
   }, [screening, cutIndex]);
 
   /*
+   * 컷에 붙은 효과음 (CutsceneCut.sfx): 생존자 방송 첫 컷의 마이크 탁, 탁. 그림이 뜨는
+   * 순간과 같은 박자에 한 번. 도입(방송이 끊기는 비트) 동안에는 울리지 않는다.
+   */
+  const cutSfx = stage === "cuts" ? cut?.sfx : undefined;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cutIndex·playbackKey는 본문에서 읽지 않고 "컷이 바뀌었다"는 신호로만 쓴다. 같은 효과음이 이어진 컷에서도 다시 울려야 한다.
+  useEffect(() => {
+    if (cutSfx) playSound(cutSfx);
+  }, [cutSfx, cutIndex, playbackKey]);
+
+  /*
    * 컷이 바뀌는 그림의 전환 (CutDissolve). 셔터 소리와 같은 박자에 노이즈 장막이 결을
    * 따라 걷힌다. 첫 컷은 판 자체가 떠오르는 등장(animate-playback-enter)이 있으니
    * 여기서 한 번 더 덮지 않는다. 켤지 끌지는 효과 예산 한 곳이 정한다 (effect-budget).
@@ -233,6 +244,14 @@ export function PlaybackScene() {
 
   if (!active) return null;
 
+  /*
+   * 웹툰 컷 (CutsceneCut.panel): 판을 통째로 덮지 않고 좌우 절반에 칸으로 선다. 지금
+   * 컷의 칸이 새로 들어오고, 반대편에는 그 전에 들어온 칸이 남는다. 좌우로 번갈아
+   * 들어오는 두 칸이 나란히 읽히는 것이 이 연출이다 (v4 3-3-1).
+   */
+  const panelMode = isCutscene && cut?.panel !== undefined && stage === "cuts";
+  const panels = panelMode ? latestPanels(active.cuts, active.cutIndex) : null;
+
   const image = cut?.image;
   const showImage = stage === "cuts" && image !== undefined && !missing.includes(image);
   const morphFrom = cut?.morphFrom;
@@ -268,7 +287,31 @@ export function PlaybackScene() {
           isCutscene ? "" : "pt-16 pb-60"
         }`}
       >
-        {showPlate && (
+        {panels && (
+          <div className="grid h-full max-h-full w-full max-w-[min(100%,177.7svh)] grid-cols-2 gap-[2%] p-[4%]">
+            {(["left", "right"] as const).map((side) => {
+              const panel = panels[side];
+              return (
+                <div key={side} className="relative min-h-0">
+                  {panel && (
+                    <WebtoonPanel
+                      key={`${playbackKey}:${panel.index}`}
+                      image={panel.cut.image}
+                      side={side}
+                      current={panel.index === active.cutIndex}
+                      sfxKey={panel.cut.sfx}
+                      missing={panel.cut.image ? missing.includes(panel.cut.image) : true}
+                      onMissing={(src) =>
+                        setMissing((ids) => (ids.includes(src) ? ids : [...ids, src]))
+                      }
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {showPlate && !panels && (
           <div
             className={`relative h-full max-h-full w-full ${
               isCutscene
@@ -382,6 +425,67 @@ export function PlaybackScene() {
           {t(isCutscene ? "playback.skip" : "playback.close")}
         </button>
       )}
+    </div>
+  );
+}
+
+/** 지금까지 들어온 칸 중 좌우 각각 가장 최근의 것. 같은 편의 옛 칸은 새 칸에 덮인다. */
+function latestPanels(cuts: readonly CutsceneCut[], upTo: number) {
+  const result: Partial<Record<"left" | "right", { cut: CutsceneCut; index: number }>> = {};
+  for (let index = 0; index <= upTo; index++) {
+    const cut = cuts[index];
+    if (cut?.panel) result[cut.panel] = { cut, index };
+  }
+  return result;
+}
+
+/** 그림이 아직 없을 때 칸 안에 세우는 의성어 (무음으로 하는 사람도 소리를 본다). */
+const SFX_CAPTION = { micTap: "playback.sfx.micTap" } as const;
+
+/**
+ * 웹툰 칸 하나. 자기 편에서 미끄러져 들어오며 떠오른다. 지금 말하는 칸이 아니면
+ * 한 톤 가라앉는다. 그림이 없으면 테두리만 선 빈 칸에 의성어를 대신 세운다.
+ */
+function WebtoonPanel({
+  image,
+  side,
+  current,
+  sfxKey,
+  missing,
+  onMissing,
+}: {
+  image?: string;
+  side: "left" | "right";
+  current: boolean;
+  sfxKey?: string;
+  missing: boolean;
+  onMissing: (src: string) => void;
+}) {
+  const { t } = useTranslation();
+  const caption = sfxKey ? SFX_CAPTION[sfxKey as keyof typeof SFX_CAPTION] : undefined;
+  return (
+    <div
+      className={`absolute inset-0 overflow-hidden rounded-sm border-2 border-ivory/80 bg-scene-storm shadow-panel transition-[opacity,filter] duration-500 ${
+        side === "left" ? "animate-panel-in-left" : "animate-panel-in-right"
+      } ${current ? "opacity-100" : "opacity-55 saturate-50"}`}
+    >
+      {image && !missing ? (
+        /* biome-ignore lint/performance/noImgElement: 파일이 없을 때 onError로 빈 칸에 떨어져야 해서 최적화 파이프라인을 타지 않는다. */
+        <img
+          src={image}
+          alt=""
+          draggable={false}
+          onError={() => onMissing(image)}
+          className="absolute inset-0 size-full select-none object-cover"
+        />
+      ) : caption ? (
+        <p
+          aria-hidden
+          className="absolute left-[8%] top-[8%] -rotate-6 font-pixel text-3xl tracking-[0.2em] text-memory"
+        >
+          {t(caption)}
+        </p>
+      ) : null}
     </div>
   );
 }

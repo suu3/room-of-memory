@@ -6,7 +6,14 @@ import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { FrequencyTuneMinigame } from "../frequency-tune";
 import { useOnceCompleter, useSkipEligible } from "../shell";
-import { answerLetters, judgeSlots, parsePool, shufflePool } from "./letters";
+import {
+  answerLetters,
+  hintCount,
+  hintedSlots,
+  judgeSlots,
+  parsePool,
+  shufflePool,
+} from "./letters";
 
 const SKIP_AFTER_MS = 30_000;
 const SKIP_AFTER_MISSES = 3;
@@ -37,6 +44,8 @@ function QuizBoard({
   /** 칸마다 든 풀 인덱스. 글자가 아니라 인덱스라 같은 글자가 풀에 둘 있어도 안 섞인다. */
   const [slots, setSlots] = useState<(number | null)[]>(() => letters.map(() => null));
   const [misses, setMisses] = useState(0);
+  /** 오답 세 번마다 앞에서부터 한 글자씩 드러난다. 드러난 칸은 지울 수 없다. */
+  const hints = hintCount(misses, letters.length);
   /** 판정 연출 중인가: 이 동안은 입력을 받지 않는다. */
   const [verdict, setVerdict] = useState<"wrong" | "correct" | null>(null);
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
@@ -56,7 +65,7 @@ function QuizBoard({
   };
 
   const erase = (slotIndex: number) => {
-    if (verdict || slots[slotIndex] === null) return;
+    if (verdict || slots[slotIndex] === null || slotIndex < hints) return;
     playSound("select");
     const next = [...slots];
     next[slotIndex] = null;
@@ -83,19 +92,20 @@ function QuizBoard({
     if (verdict === "wrong") {
       playSound("deny");
       const timer = setTimeout(() => {
-        setSlots(letters.map(() => null));
-        setMisses((count) => count + 1);
+        const nextMisses = misses + 1;
+        setSlots(hintedSlots(pool, answer, hintCount(nextMisses, letters.length)));
+        setMisses(nextMisses);
         setVerdict(null);
       }, WRONG_HOLD_MS);
       return () => clearTimeout(timer);
     }
-  }, [verdict, letters, complete]);
+  }, [verdict, letters, complete, misses, pool, answer]);
 
   // Backspace = 마지막으로 채운 칸 지우기 (키보드 플레이).
   const eraseLastRef = useRef(() => {});
   eraseLastRef.current = () => {
     const filled = slots.reduce<number>((last, slot, i) => (slot !== null ? i : last), -1);
-    if (filled >= 0) erase(filled);
+    if (filled >= hints) erase(filled);
   };
   useEffect(() => {
     if (stage === "result") return;
@@ -144,7 +154,12 @@ function QuizBoard({
               type="button"
               aria-label={t("minigame.radioQuiz.slotLabel", { index: slotIndex + 1 })}
               onClick={() => erase(slotIndex)}
-              className={`grid size-16 cursor-pointer place-items-center rounded-lg border-2 text-3xl font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${slotTone}`}
+              // 힌트로 드러난 칸은 금빛 점선: 내가 채운 글자와 구별된다
+              className={`grid size-16 cursor-pointer place-items-center rounded-lg border-2 text-3xl font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
+                slotIndex < hints && verdict === null
+                  ? "border-dashed border-memory/70 text-memory"
+                  : slotTone
+              }`}
             >
               {slots[slotIndex] !== null ? pool[slots[slotIndex] as number] : ""}
             </button>
@@ -161,6 +176,12 @@ function QuizBoard({
           }`}
         >
           {t("minigame.radioQuiz.wrong")}
+        </p>
+      )}
+      {/* 힌트가 막 열렸다는 한 줄. 오답 줄과 자리를 나눠 쓰지 않는다 */}
+      {stage !== "result" && hints > 0 && verdict === null && (
+        <p aria-live="polite" className="-mt-6 break-ko text-center text-sm text-memory/80">
+          {t("minigame.radioQuiz.hint", { value: hints })}
         </p>
       )}
 

@@ -1,6 +1,7 @@
 import type { ItemId } from "@/data/items";
 import type { MemoryId } from "@/data/memory-room";
 import type { DiscoveryId, PuzzleId } from "@/data/room-clues";
+import { type EnterablePhase, progressAt } from "@/data/story-phase";
 import { type DoorwayId, SPACE_IDS, SPACES, type SpaceId } from "@/scenes/memory-room/spaces";
 import { sanitizeProgress, useMemoryRoomStore } from "@/store/memory-room";
 import { cycleMemory } from "./admin-progress";
@@ -12,6 +13,7 @@ const DOOR_KEY_MEMORY = "radio" as MemoryId;
 export interface AdminPatch {
   collected?: MemoryId[];
   revisited?: MemoryId[];
+  rechecked?: MemoryId[];
   doorOpened?: boolean;
   batTaken?: boolean;
   solvedPuzzles?: PuzzleId[];
@@ -40,6 +42,7 @@ export function applyAdminPatch(patch: AdminPatch): void {
   const merged = {
     collected: state.collected,
     revisited: state.revisited,
+    rechecked: state.rechecked,
     doorOpened: state.doorOpened,
     batTaken: state.batTaken,
     solvedPuzzles: state.solvedPuzzles,
@@ -124,4 +127,32 @@ export function warpToSpace(space: AdminSpace): void {
 export function cycleAdminMemory(id: MemoryId): void {
   const { collected, revisited } = useMemoryRoomStore.getState();
   applyAdminPatch(cycleMemory({ collected, revisited }, id));
+}
+
+/** 건너뛸 수 있는 페이즈. intro는 새 게임, ending은 현관문을 눌러야 서니 뺀다. */
+export const ADMIN_PHASES = [
+  "p1",
+  "turning",
+  "p2",
+  "p3",
+  "p4",
+  "resolve",
+] as const satisfies readonly EnterablePhase[];
+
+/**
+ * 그 페이즈의 첫 순간으로 건너뛴다 (v4 설계서의 페이즈 표). 곁가지는 안 채운다.
+ * 문·열쇠·하부장처럼 페이즈를 가르는 것도 같이 맞춘다 (src/data/story-phase.ts의 progressAt).
+ */
+export function jumpToPhase(phase: EnterablePhase): void {
+  const { introDone, ...progress } = progressAt(phase);
+  applyAdminPatch({
+    ...progress,
+    openedDoorways: progress.openedDoorways as DoorwayId[],
+    inventory: progress.inventory as ItemId[],
+    solvedPuzzles: progress.solvedPuzzles as PuzzleId[],
+    batTaken: false,
+    endingStarted: false,
+    started: true,
+  });
+  useMemoryRoomStore.setState({ introDone, doorwayDone: progress.doorOpened, lightsOn: true });
 }

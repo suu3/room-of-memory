@@ -8,8 +8,9 @@
  * 대사나 진행을 고치려면 content/*.yaml을 고치고 `pnpm content:build`.
  * dev 서버의 /admin에서 편집하면 저장할 때 같은 파이프라인이 돈다.
  */
-import type { MemoryPhaseConfig } from "@/types/interaction";
+import type { MemoryPhaseConfig, Visit } from "@/types/interaction";
 import { MEMORIES, type MemoryId } from "./generated/content";
+import { visitConfig } from "./story-phase";
 
 export { CUTSCENES, MEMORIES, MEMORY_IDS, type MemoryItem, SCRIPTS } from "./generated/content";
 export type { MemoryId };
@@ -24,8 +25,14 @@ export const PHASE1_MEMORIES = MEMORIES.filter((memory) => memory.phase1);
 /** 1바퀴 수집 목표. 2바퀴 개방 조건이자 방 밝기 하강 구간의 분모다. */
 export const MEMORY_GOAL = PHASE1_MEMORIES.length;
 
-/** 2바퀴에 다시 조사하는 기억. 1바퀴에만 있던 것(창문·달력)은 여기 없다. */
-export const PHASE2_MEMORIES = MEMORIES.filter((memory) => memory.phase2);
+/**
+ * 2바퀴에 조사하는 기억: 2차나 3차가 있는 것. 1바퀴에만 있던 것(창문·달력)은 없다.
+ * 곁가지(게임기·공의 2차)는 뺀다. 진행 표시의 분모가 곁가지를 세면 안 본 사람의
+ * 칸이 영영 안 찬다.
+ */
+export const PHASE2_MEMORIES = MEMORIES.filter(
+  (memory) => (memory.phase2 && !memory.phase2.side) || memory.phase3,
+);
 
 /**
  * 이 바퀴에 모으는 기억들. 진행 표시와 기억 패널이 같은 목록을 본다.
@@ -88,10 +95,9 @@ export const MEMORY_BY_ID = Object.fromEntries(
   MEMORIES.map((memory) => [memory.id, memory]),
 ) as Record<MemoryId, (typeof MEMORIES)[number]>;
 
-/** 해당 게임 페이즈에서 아이템에 적용되는 설정. Phase 2 미대상이면 undefined. */
-export function phaseConfigOf(id: MemoryId, gamePhase: 1 | 2): MemoryPhaseConfig | undefined {
-  const item = MEMORY_BY_ID[id];
-  return gamePhase === 1 ? item.phase1 : item.phase2;
+/** 그 차수(1·2·3차 조사)에 적용되는 설정. 그 차수가 없으면 undefined. */
+export function phaseConfigOf(id: MemoryId, visit: Visit): MemoryPhaseConfig | undefined {
+  return visitConfig(id, visit);
 }
 
 /**
@@ -117,40 +123,19 @@ export interface ReplayMorphWithin {
 }
 
 /**
- * 재난방송이 끊긴 자리에서 도는 전환 컷씬: 게임 중 일러스트가 화면을 통째로
- * 차지하는 유일한 자리다. 컷 내용은 content/cutscenes.yaml에 있다.
+ * 라디오 1차(재난방송)를 마친 순간 도는 이미지 나열 컷씬 (v4 3-3). 컷 내용은
+ * content/cutscenes.yaml에 있다.
  */
 export const CUTSCENE_RADIO_BLACKOUT = "radio-blackout";
-/** 앰플을 쥔 직후의 작별의 회상. 이 재생이 끝나면 2막이 닫히고 3막이 열린다. */
-export const CUTSCENE_FAREWELL = "farewell";
+/** 2페이즈 필수 조사를 다 마친 순간의 한 줄 (v4 3-4). */
+export const CUTSCENE_P2_CLOSE = "p2-close";
+/** 4페이즈 안방 서류를 다 본 순간의 한 줄. 끝나면 방의 액자가 금빛으로 돈다 (v4 3-6). */
+export const CUTSCENE_P4_CLOSE = "p4-close";
 /** 현관의 배트를 쥔 순간의 두 줄. 끝나면 스토어가 배트를 쥔 것으로 적는다 (takeBat). */
 export const CUTSCENE_BAT_GRIP = "bat-grip";
 
 /**
- * 2막을 닫는 기억: 이걸 되찾으면 3막이 열린다 (docs/content-design.md 2장).
- *
- * 이름을 코드에 박는 대신 여기 한 곳에만 둔다. 흐름은 content/memories.yaml이
- * 소유하고, 코드는 "마지막 칸이 무엇인가"만 안다.
+ * 4페이즈의 마지막 칸: 방의 액자 2차. 안방 서류를 다 보면 이 칸이 열리는데, 열리는
+ * 순간이 p4-close가 도는 자리다. 이름을 코드에 박는 대신 여기 한 곳에만 둔다.
  */
-export const ACT2_FINAL_MEMORY = "ampoule" as MemoryId;
-
-/**
- * 2막의 필수 추리 체인. 앰플에서 `unlockAfter`를 거슬러 올라가 얻는다.
- * 목록을 손으로 적으면 YAML을 고칠 때마다 두 곳이 어긋난다.
- *
- * 이 체인 밖의 2차 조사(게임기·컴퓨터·폰)는 곁가지라 3막을 막지 않고, 밝기
- * 상승 곡선의 분모에도 끼지 않는다. 안 본 사람의 방이 덜 밝으면 곁가지가
- * 곁가지가 아니게 된다.
- */
-export const ACT2_CHAIN: MemoryId[] = (() => {
-  const chain: MemoryId[] = [];
-  const walk = (id: MemoryId) => {
-    if (chain.includes(id)) return;
-    const config = MEMORY_BY_ID[id]?.phase2;
-    if (!config) return;
-    for (const dep of config.unlockAfter ?? []) walk(dep);
-    chain.push(id);
-  };
-  walk(ACT2_FINAL_MEMORY);
-  return chain;
-})();
+export const P4_FINAL_MEMORY = "frame" as MemoryId;

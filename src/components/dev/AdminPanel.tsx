@@ -3,11 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MEMORIES } from "@/data/memory-room";
 import { DISCOVERY_IDS, PUZZLE_IDS } from "@/data/room-clues";
+import { storyPhaseOf } from "@/data/story-phase";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import {
+  ADMIN_PHASES,
   type AdminSpace,
   applyAdminPatch,
   cycleAdminMemory,
+  jumpToPhase,
   setAdminDoor,
   warpToSpace,
 } from "./admin-actions";
@@ -34,6 +37,7 @@ export function AdminPanel() {
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
+  const currentPhase = useMemoryRoomStore(storyPhaseOf);
   const batTaken = useMemoryRoomStore((state) => state.batTaken);
   const solvedPuzzles = useMemoryRoomStore((state) => state.solvedPuzzles);
   const discoveries = useMemoryRoomStore((state) => state.discoveries);
@@ -120,6 +124,23 @@ export function AdminPanel() {
                 </button>
               );
             })}
+          </div>
+
+          {/* 페이즈의 첫 순간으로 (v4). 지금 페이즈는 금빛 */}
+          <div className="flex flex-wrap items-center gap-1">
+            <span className="text-fog">phase</span>
+            {ADMIN_PHASES.map((phase) => (
+              <button
+                key={phase}
+                type="button"
+                onClick={() => jumpToPhase(phase)}
+                className={`cursor-pointer rounded-sm px-2 py-1 ${
+                  currentPhase === phase ? "bg-memory text-ink" : "bg-night text-bone"
+                }`}
+              >
+                {phase}
+              </button>
+            ))}
           </div>
 
           {/* 몸을 옮긴다. 위치는 스토어에 없어서 체크박스로는 안 되고 신호를 보내야 한다 */}

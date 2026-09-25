@@ -6,7 +6,7 @@ import { getMinigame } from ".";
 /** 지금 화면에 서 있어야 하는 미니게임. 판이 도는 중이거나, 판 위에 결과 대사가 뜬 상태. */
 export interface LiveMinigame {
   memoryId: MemoryId;
-  gamePhase: 1 | 2;
+  gamePhase: 1 | 2 | 3;
   definition: MinigameDefinition;
   /** "result"는 판이 끝나고 결과 대사가 그 위에 뜬 상태다 (src/types/minigame.ts의 stage). */
   stage: "play" | "result";

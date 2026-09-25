@@ -35,9 +35,9 @@ export interface MinigameProps {
    * 인터랙션이 시작된 게임 페이즈. 1차/2차 조사에서 같은 미니게임을 다르게
    * 연출할 때만 쓴다 (액자는 2차에서 그늘이 걷힌 사진이 나온다).
    * 스토어의 GamePhase와 같은 값이지만, 미니게임이 스토어에 의존하지 않도록
-   * 호스트가 props로 내려준다. 기본값은 1.
+   * 호스트가 props로 내려준다. 기본값은 1. 3은 3차 조사(컴퓨터 로고 매칭)다.
    */
-  gamePhase?: 1 | 2;
+  gamePhase?: 1 | 2 | 3;
   /** 난이도. 기본값 "easy". 수치를 난이도로 가르는 미니게임만 읽는다. */
   difficulty?: MinigameDifficulty;
   /**

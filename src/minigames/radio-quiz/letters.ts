@@ -49,3 +49,36 @@ export function judgeSlots(
   if (slots.some((slot) => slot === null)) return null;
   return slots.map((slot) => pool[slot as number]).join("") === answer;
 }
+
+/** 몇 번 틀릴 때마다 글자 하나를 드러내는가 (v4 설계서 3-3). */
+export const MISSES_PER_HINT = 3;
+
+/**
+ * 지금까지 드러난 글자 수. 마지막 한 글자는 끝까지 드러내지 않는다: 답을 통째로
+ * 보여주면 대답한 게 아니라 읽은 것이 된다. 그 너머는 스킵이 맡는다.
+ */
+export function hintCount(misses: number, answerLength: number): number {
+  return Math.max(0, Math.min(answerLength - 1, Math.floor(misses / MISSES_PER_HINT)));
+}
+
+/**
+ * 힌트로 드러난 앞쪽 칸을 채운 빈칸 배열. 칸에는 글자가 아니라 풀 인덱스가 든다.
+ * 같은 글자가 풀에 둘 있으면 앞의 것을 쓴다.
+ */
+export function hintedSlots(
+  pool: readonly string[],
+  answer: string,
+  hints: number,
+): (number | null)[] {
+  const letters = answerLetters(answer);
+  const taken = new Set<number>();
+  return letters.map((letter, index) => {
+    if (index >= hints) return null;
+    const found = pool.findIndex(
+      (candidate, poolIndex) => candidate === letter && !taken.has(poolIndex),
+    );
+    if (found === -1) return null;
+    taken.add(found);
+    return found;
+  });
+}

@@ -10,7 +10,10 @@ import type { CharacterExpression } from "./interaction";
 export const CONTENT_LOCALES = ["ko", "en", "ja"] as const;
 export type ContentLocale = (typeof CONTENT_LOCALES)[number];
 
-/** ko/en/ja가 전부 채워진 텍스트 한 덩어리. */
+/**
+ * 한 덩어리의 텍스트. ko는 반드시 있고, en/ja는 비어 있으면 "번역 TODO"로 세어져
+ * ko 문장이 대신 나간다 (scripts/content/validate.mjs의 countTranslationTodos).
+ */
 export type LocalizedText = Record<ContentLocale, string>;
 
 /** 대사 한 줄: 본문이 줄 안에 같이 있다는 점만 런타임 타입과 다르다. */
@@ -26,10 +29,16 @@ export interface ContentPhase {
   minigame?: string;
   /** 미니게임 클리어 뒤에 재생할 결과 대사 (scripts의 id). */
   resultScript?: string;
-  /** 같은 페이즈에서 먼저 완료돼야 하는 기억 id. */
+  /** 먼저 끝나야 하는 조사: `radio`(같은 차수) 또는 `computer@3`(3차). */
   unlockAfter?: string[];
   /** 다시보기에서 대사 뒤에 세우는 정지 그림 (public 기준 경로). */
   replayStill?: string;
+  /** 이 페이즈부터 열린다 (turning/p2/p3/p4). 2차 이후 조사에 필수. */
+  from?: string;
+  /** 곁가지: 페이즈를 넘기는 데 필요 없다. */
+  side?: boolean;
+  /** 이 조사를 마치는 순간 트는 컷씬 id. */
+  cutscene?: string;
 }
 
 /** 수첩에 남는 기록. 페이즈와 1:1: 있는 바퀴의 기록만 쓴다. */
@@ -37,6 +46,7 @@ export interface ContentLore {
   title: LocalizedText;
   phase1?: LocalizedText;
   phase2?: LocalizedText;
+  phase3?: LocalizedText;
 }
 
 export interface ContentMemory {
@@ -47,12 +57,18 @@ export interface ContentMemory {
   /** 없으면 1바퀴 내내 잠겨 있는 2바퀴 전용 기억이다. 둘 다 없으면 저장이 막힌다. */
   phase1?: ContentPhase;
   phase2?: ContentPhase;
+  /** 3차 조사: 2차를 마친 뒤의 되짚기. */
+  phase3?: ContentPhase;
 }
 
 export interface ContentCut {
   image?: string;
   /** 대사가 끝난 뒤 그림만 남기는 시간(ms). */
   holdMs?: number;
+  /** 웹툰 컷의 자리 (left/right). */
+  panel?: "left" | "right";
+  /** 컷이 뜨는 순간의 효과음. */
+  sfx?: string;
   lines: ContentLine[];
 }
 

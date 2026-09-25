@@ -3,7 +3,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { act } from "react";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { ACT2_CHAIN, PHASE1_MEMORIES } from "@/data/memory-room";
+import { progressAt } from "@/data/story-phase";
 import { i18n } from "@/i18n/config";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { CanvasMinigameSkip, MinigameHost } from "./MinigameHost";
@@ -34,11 +34,7 @@ function openConsole() {
  */
 function openAmpoule() {
   act(() => {
-    useMemoryRoomStore.setState({
-      collected: PHASE1_MEMORIES.map((memory) => memory.id),
-      revisited: ACT2_CHAIN.filter((id) => id !== "ampoule"),
-      doorOpened: true,
-    });
+    useMemoryRoomStore.setState(progressAt("p3") as never);
     useMemoryRoomStore.getState().beginInteraction("ampoule");
     for (
       let step = 0;

@@ -71,17 +71,55 @@ export interface CutsceneCut {
   morphWithin?: { x: number; y: number; width: number; height: number };
   lines: DialogueScriptLine[];
   /**
+   * 웹툰 컷의 자리. 있으면 그림이 판을 통째로 덮지 않고 그쪽 절반에 칸으로 선다.
+   * 앞 컷의 칸은 반대편에 남아, 좌우로 번갈아 들어오는 두 칸이 나란히 읽힌다.
+   */
+  panel?: "left" | "right";
+  /** 컷이 뜨는 순간 한 번 나는 효과음 (src/lib/audio/voices.ts의 이름). */
+  sfx?: CutSfx;
+  /**
    * 대사가 끝난 뒤 대사창 없이 그림만 남기는 시간(ms).
    * "정적 몇 초"가 연출의 일부인 컷에만 준다. 없으면 곧장 다음 컷으로 넘어간다.
    */
   holdMs?: number;
 }
 
+/** 컷에 붙는 효과음. scripts/content/schema.mjs의 CUT_SFX와 같아야 한다. */
+export type CutSfx = "micTap" | "radioCut" | "radioWake";
+
 /** 컷씬 하나. CUTSCENES 레지스트리(src/data)에 id로 등록. */
 export interface Cutscene {
   id: string;
   cuts: CutsceneCut[];
 }
+
+/** 조사 차수: 1차(phase1) · 2차(phase2) · 3차(phase3). */
+export type Visit = 1 | 2 | 3;
+
+/** "어느 기억의 몇 차 조사"라는 한 칸. */
+export interface VisitRef {
+  id: MemoryId;
+  visit: Visit;
+}
+
+/**
+ * 이야기의 페이즈 (v4 설계서 1-1). 저장하지 않고 진행 상태에서 파생된다
+ * (src/data/story-phase.ts). 순서가 곧 진행 순서다.
+ */
+export const STORY_PHASES = [
+  "intro",
+  "p1",
+  "turning",
+  "p2",
+  "p3",
+  "p4",
+  "resolve",
+  "ending",
+] as const;
+export type StoryPhase = (typeof STORY_PHASES)[number];
+
+/** 조사 설정의 from에 쓸 수 있는 페이즈. */
+export type FromPhase = "turning" | "p2" | "p3" | "p4";
 
 /**
  * 페이즈별 핫스팟 설정. 페이즈 규칙이 늘어나면 여기에 필드를 더한다.
@@ -90,8 +128,17 @@ export interface Cutscene {
 export interface MemoryPhaseConfig {
   /** 클릭 시 실행할 인터랙션. 없으면 즉시 완료. */
   interaction?: MemoryInteraction;
-  /** 같은 페이즈에서 이 아이템들이 먼저 완료되어야 클릭 가능 (순서 게이트). */
-  unlockAfter?: MemoryId[];
+  /**
+   * 이 조사들이 먼저 끝나야 클릭 가능 (순서 게이트). 차수는 생성 때 확정된다:
+   * `{ id: "computer", visit: 3 }`은 컴퓨터의 3차 조사다.
+   */
+  unlockAfter?: VisitRef[];
+  /** 이 페이즈부터 열린다 (2차 이후 조사). 1차 조사는 늘 p1이다. */
+  from?: FromPhase;
+  /** 곁가지: 페이즈를 넘기는 데 필요 없다. 밝기 곡선의 분모에도 안 낀다. */
+  side?: boolean;
+  /** 이 조사를 마치는 순간 트는 컷씬 (content/cutscenes.yaml의 id). */
+  cutscene?: string;
   /**
    * 다시보기에서 대사 뒤에 세우는 정지 그림.
    *

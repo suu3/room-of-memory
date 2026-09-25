@@ -333,6 +333,8 @@ describe("room interaction keyboard dispatch", () => {
   });
 
   it("opens closed curtains before dispatching the window memory", () => {
+    // 창문은 강도 3: 강도 2(액자·폰)를 본 뒤에 열린다
+    useMemoryRoomStore.setState({ collected: ["console", "ball", "frame", "phone"] });
     let opened = false;
     const dispatched: MemoryId[] = [];
 

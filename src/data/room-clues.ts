@@ -34,6 +34,16 @@ export const COMPUTER_PASSCODE = `${pad(NATIONALS_DATE.month)}${pad(NATIONALS_DA
 export const COMPUTER_PASSCODE_LENGTH = COMPUTER_PASSCODE.length;
 
 /**
+ * 도해의 등번호. 세면대 하부장 다이얼(sink-dial)의 답이고, 방의 유니폼·트로피에
+ * 그려진 숫자다 (v4 설계서 3-5). 아빠 메일은 "네 번호로 해놨다"까지만 말한다.
+ * 숫자를 한곳에 두는 이유는 NATIONALS_DATE와 같다: 답과 그림이 갈라지면 안 된다.
+ */
+export const HERO_JERSEY_NUMBER = 11;
+
+/** 세면대 하부장 다이얼의 답: 등번호 두 자리. */
+export const SINK_DIAL_CODE = String(HERO_JERSEY_NUMBER).padStart(2, "0");
+
+/**
  * 들여다볼 수 있는 배경 오브젝트. 클릭하면 화면 가운데에 확대되어 뜬다
  * (src/components/ui/ClueOverlay.tsx).
  *
@@ -45,9 +55,8 @@ export const COMPUTER_PASSCODE_LENGTH = COMPUTER_PASSCODE.length;
  * 캐릭터 모델)를 돌려본다. 같은 목록에 있는 이유는 여는 방식이 같아서다: 방의
  * 물건을 누르면 Canvas 밖 화면이 펼쳐진다 (ClueOverlay).
  *
- * research-note는 안방 책상 위 서류 (v3). 부모님이 연구원이었다는 것과 앰플이
- * 치료제 같다는 것까지만 흘리는 자리다. 본문은 아직 **더미 문구**다: 확정 전
- * 스토리 텍스트는 언어별 더미로 채운다 (.claude/rules/visual-novel.md).
+ * 안방 책상 위 서류는 v4에서 단서가 아니라 기억(research-note · id-card · not-a-trip)이
+ * 됐다. 4페이즈의 필수 조사라 대사와 기록이 남는다 (content/memories.yaml).
  */
 export const CLUE_IDS = [
   "drawer-note",
@@ -56,7 +65,6 @@ export const CLUE_IDS = [
   "desk-clock",
   "workbook",
   "mirror",
-  "research-note",
 ] as const;
 export type ClueId = (typeof CLUE_IDS)[number];
 
@@ -91,7 +99,6 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
   "shelf-book": "room",
   "desk-clock": "room",
   workbook: "room",
-  "research-note": "parents",
 };
 
 /** 어느 단서를 뒤집어야 무엇을 알게 되는가. 단서 화면(WorkbookClue)이 이 짝을 보고 적는다. */
@@ -128,10 +135,13 @@ export const RULE_CLUES = { "card-odd": "shelf-book", "angle-turn": "desk-clock"
  * 미궁 문제: 기억이 아니라 **잠금**이다. 수집에도 재조사에도 안 세어지고, 푼 기록만
  * solvedPuzzles에 남는다 (docs/content-design.md 3-2).
  *
+ * sink-dial은 세면대 하부장의 다이얼이다 (v4 3-5). 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만
+ * 열리고, 풀면 안방 열쇠(parents-key)가 손에 들어온다 (store의 finishPuzzle).
+ *
  * piano-melody는 거실 피아노의 멜로디 자물쇠다. 악보의 한 마디가 지워져 있고 그 마디는
  * 안방 책상의 찢어진 조각이 들고 있다: 이쪽 공간의 단서를 저쪽에서 찾는 축의 첫 매듭이다.
  */
-export const PUZZLE_IDS = ["angle-turn", "piano-melody"] as const;
+export const PUZZLE_IDS = ["angle-turn", "piano-melody", "sink-dial"] as const;
 export type PuzzleId = (typeof PUZZLE_IDS)[number];
 
 /**

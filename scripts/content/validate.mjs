@@ -2,7 +2,12 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { REPO_ROOT } from "./load.mjs";
 import {
+  BASE_LOCALE,
+  CUT_KEYS,
+  CUT_PANELS,
+  CUT_SFX,
   EXPRESSIONS,
+  FROM_PHASES,
   ICONS,
   ID_PATTERN,
   LOCALES,
@@ -10,7 +15,35 @@ import {
   PHASE_KEYS,
   SPEAKERS,
   STAGE_IDS,
+  VISIT_KEYS,
 } from "./schema.mjs";
+
+/**
+ * 해금 조건 한 칸을 읽는다: `radio`(같은 차수) 또는 `computer@3`(그 기억의 3차 조사).
+ *
+ * 차수를 적지 않으면 **기다리는 쪽과 같은 차수**를 본다. 그 기억에 그 차수가 없으면
+ * 그 아래로 가장 가까운 차수다 (2차에서 3차 전용 기억은 없으니, 3차 조사가 2차만 있는
+ * 앰플을 기다리면 앰플의 2차다). 게임(src/data/visits.ts)이 같은 규칙을 쓴다.
+ *
+ * @returns {{id: string, visit: number | undefined}}
+ */
+export function parseDependency(entry) {
+  const [id, visit] = String(entry).split("@");
+  return { id, visit: visit === undefined ? undefined : Number(visit) };
+}
+
+/** 기억이 가진 차수 번호들 (1·2·3). */
+function visitsOf(memory) {
+  return VISIT_KEYS.map((key, index) => (memory?.[key] ? index + 1 : 0)).filter(Boolean);
+}
+
+/** 해금 조건 한 칸이 가리키는 실제 차수. 없으면 undefined. */
+export function resolveDependencyVisit(memory, requestedVisit, dependentVisit) {
+  const visits = visitsOf(memory);
+  if (requestedVisit !== undefined)
+    return visits.includes(requestedVisit) ? requestedVisit : undefined;
+  return visits.filter((visit) => visit <= dependentVisit).at(-1) ?? visits[0];
+}
 
 /**
  * 콘텐츠 검증: 저장/생성 전에 걸러야 할 것들.
@@ -71,11 +104,15 @@ export function validateContent(content, { minigameIds = [] } = {}) {
      * 열리는 물건(컴퓨터)이 그렇다. 그런 기억은 1바퀴 수집 개수에서도 빠진다
      * (src/data/memory-room.ts의 PHASE1_MEMORIES).
      */
-    if (memory.phase1 === undefined && memory.phase2 === undefined) {
-      issues.push(`${id}: phase1도 phase2도 없다. 어느 바퀴에서도 못 여는 기억은 만들 수 없다.`);
+    if (VISIT_KEYS.every((key) => memory[key] === undefined)) {
+      issues.push(`${id}: 조사 차수가 하나도 없다. 어느 바퀴에서도 못 여는 기억은 만들 수 없다.`);
+    }
+    // 3차는 2차를 마친 뒤의 되짚기라 2차 없이 설 수 없다
+    if (memory.phase3 !== undefined && memory.phase2 === undefined) {
+      issues.push(`${id}.phase3: 2차(phase2)가 없는데 3차만 있다.`);
     }
 
-    for (const phase of ["phase1", "phase2"]) {
+    for (const phase of VISIT_KEYS) {
       const config = memory[phase];
       if (config === undefined) continue;
       if (!isPlainObject(config)) {
@@ -86,8 +123,10 @@ export function validateContent(content, { minigameIds = [] } = {}) {
         id,
         phase,
         config,
+        memories,
         memoryIds,
         scriptIds,
+        cutsceneIds: new Set(Object.keys(cutscenes)),
         minigameIds,
         usedScriptIds,
         issues,
@@ -115,6 +154,20 @@ export function validateContent(content, { minigameIds = [] } = {}) {
         issues.push(`${where}: 컷이 객체가 아니다.`);
         continue;
       }
+      for (const key of Object.keys(cut)) {
+        if (!CUT_KEYS.includes(key)) {
+          issues.push(`${where}: 모르는 키 "${key}" (쓸 수 있는 키: ${CUT_KEYS.join(", ")})`);
+        }
+      }
+      if (cut.panel !== undefined && !CUT_PANELS.includes(cut.panel)) {
+        issues.push(`${where}.panel: ${CUT_PANELS.join("/")} 중 하나여야 한다.`);
+      }
+      if (cut.panel !== undefined && cut.image === undefined) {
+        issues.push(`${where}.panel: 웹툰 컷은 그림(image)이 있어야 선다.`);
+      }
+      if (cut.sfx !== undefined && !CUT_SFX.includes(cut.sfx)) {
+        issues.push(`${where}.sfx: "${cut.sfx}"는 허용 목록에 없다 (${CUT_SFX.join(", ")}).`);
+      }
       /*
        * 컷씬 일러스트는 아직 리포에 없어도 된다. 없으면 회색 판이 자리를 지키고
        * 대사만 흐른다. 그래서 경로 모양만 보고 실재 여부는 묻지 않는다.
@@ -127,7 +180,12 @@ export function validateContent(content, { minigameIds = [] } = {}) {
       if (cut.holdMs !== undefined && !(Number.isFinite(cut.holdMs) && cut.holdMs > 0)) {
         issues.push(`${where}: holdMs는 0보다 큰 숫자여야 한다.`);
       }
-      validateLines(cut.lines, where, issues);
+      // 대사 없는 컷은 정적(holdMs)으로만 설 수 있다. 둘 다 없으면 넘길 방법이 없다
+      if (Array.isArray(cut.lines) && cut.lines.length === 0) {
+        if (!(cut.holdMs > 0)) issues.push(`${where}: 대사가 없는 컷은 holdMs가 있어야 넘어간다.`);
+      } else {
+        validateLines(cut.lines, where, issues);
+      }
     }
   }
 
@@ -143,18 +201,28 @@ export function validateContent(content, { minigameIds = [] } = {}) {
     if (!STAGE_IDS.includes(stageId)) issues.push(`stages.yaml: 모르는 독백 구간 "${stageId}".`);
   }
 
-  for (const phase of ["phase1", "phase2"]) {
-    for (const cycle of findUnlockCycles(memories, phase)) {
-      issues.push(`${phase}: 해금 조건이 순환한다 (${cycle}): 여기 묶인 기억은 아무도 못 연다.`);
-    }
+  for (const cycle of findUnlockCycles(memories)) {
+    issues.push(`해금 조건이 순환한다 (${cycle}): 여기 묶인 조사는 아무도 못 연다.`);
   }
 
   return issues;
 }
 
 function validatePhase(context) {
-  const { id, phase, config, memoryIds, scriptIds, minigameIds, usedScriptIds, issues } = context;
+  const {
+    id,
+    phase,
+    config,
+    memories,
+    memoryIds,
+    scriptIds,
+    cutsceneIds,
+    minigameIds,
+    usedScriptIds,
+    issues,
+  } = context;
   const where = `${id}.${phase}`;
+  const visit = VISIT_KEYS.indexOf(phase) + 1;
 
   for (const key of Object.keys(config)) {
     if (!PHASE_KEYS.includes(key)) {
@@ -184,43 +252,87 @@ function validatePhase(context) {
     if (!Array.isArray(config.unlockAfter)) {
       issues.push(`${where}.unlockAfter: 목록이어야 한다.`);
     } else {
-      for (const dependency of config.unlockAfter) {
-        if (!memoryIds.includes(dependency)) {
-          issues.push(`${where}.unlockAfter: "${dependency}"라는 기억이 없다.`);
-        } else if (dependency === id) {
+      for (const entry of config.unlockAfter) {
+        const dependency = parseDependency(entry);
+        const target = memories.find((memory) => memory?.id === dependency.id);
+        if (!memoryIds.includes(dependency.id)) {
+          issues.push(`${where}.unlockAfter: "${dependency.id}"라는 기억이 없다.`);
+        } else if (
+          dependency.visit !== undefined &&
+          resolveDependencyVisit(target, dependency.visit, visit) === undefined
+        ) {
+          issues.push(
+            `${where}.unlockAfter: "${dependency.id}"에는 ${dependency.visit}차 조사가 없다.`,
+          );
+        } else if (dependency.id === id) {
           issues.push(`${where}.unlockAfter: 자기 자신을 기다린다. 영원히 안 열린다.`);
         }
       }
     }
   }
 
+  if (config.from !== undefined) {
+    if (phase === "phase1") {
+      issues.push(`${where}.from: 1차 조사는 늘 p1에 열린다. from은 2차부터 쓴다.`);
+    } else if (!FROM_PHASES.includes(config.from)) {
+      issues.push(`${where}.from: ${FROM_PHASES.join("/")} 중 하나여야 한다.`);
+    }
+  } else if (phase !== "phase1") {
+    issues.push(`${where}.from: 2차 이후 조사는 어느 페이즈부터 열리는지 적어야 한다.`);
+  }
+  if (config.side !== undefined && typeof config.side !== "boolean") {
+    issues.push(`${where}.side: true/false여야 한다.`);
+  }
+  if (config.cutscene !== undefined && !cutsceneIds.has(config.cutscene)) {
+    issues.push(`${where}.cutscene: cutscenes.yaml에 "${config.cutscene}"가 없다.`);
+  }
+
   if (config.replayStill !== undefined) validateAssetPath(config.replayStill, where, issues);
 }
 
-/** 같은 페이즈 안에서 해금 조건이 순환하면 그 기억들은 아무도 못 연다. */
-export function findUnlockCycles(memories, phase) {
-  const graph = new Map(
-    memories
-      .filter((memory) => isPlainObject(memory[phase]))
-      .map((memory) => [memory.id, memory[phase].unlockAfter ?? []]),
-  );
+/**
+ * 해금 조건이 순환하면 그 조사들은 아무도 못 연다. 차수를 넘나드는 조건
+ * (`computer@3`)이 있어서 그래프의 마디는 "기억 · 차수" 한 쌍이다. 같은 기억의
+ * N차는 늘 N-1차 뒤라 그 간선도 함께 잇는다.
+ */
+export function findUnlockCycles(memories) {
+  const valid = memories.filter((memory) => isPlainObject(memory));
+  const byId = new Map(valid.map((memory) => [memory.id, memory]));
+  const graph = new Map();
+  for (const memory of valid) {
+    const visits = visitsOf(memory);
+    for (const visit of visits) {
+      const config = memory[VISIT_KEYS[visit - 1]];
+      const edges = [];
+      const previous = visits.filter((other) => other < visit).at(-1);
+      if (previous !== undefined) edges.push(`${memory.id}@${previous}`);
+      for (const entry of Array.isArray(config?.unlockAfter) ? config.unlockAfter : []) {
+        const dependency = parseDependency(entry);
+        const target = byId.get(dependency.id);
+        if (!target) continue;
+        const resolved = resolveDependencyVisit(target, dependency.visit, visit);
+        if (resolved !== undefined) edges.push(`${dependency.id}@${resolved}`);
+      }
+      graph.set(`${memory.id}@${visit}`, edges);
+    }
+  }
+
   const cycles = [];
   const state = new Map();
-
-  const walk = (id, trail) => {
-    if (state.get(id) === "done") return;
-    if (state.get(id) === "walking") {
-      cycles.push([...trail.slice(trail.indexOf(id)), id].join(" → "));
+  const walk = (node, trail) => {
+    if (state.get(node) === "done") return;
+    if (state.get(node) === "walking") {
+      cycles.push([...trail.slice(trail.indexOf(node)), node].join(" → "));
       return;
     }
-    state.set(id, "walking");
-    for (const dependency of graph.get(id) ?? []) {
-      if (graph.has(dependency)) walk(dependency, [...trail, id]);
+    state.set(node, "walking");
+    for (const next of graph.get(node) ?? []) {
+      if (graph.has(next)) walk(next, [...trail, node]);
     }
-    state.set(id, "done");
+    state.set(node, "done");
   };
 
-  for (const id of graph.keys()) walk(id, []);
+  for (const node of graph.keys()) walk(node, []);
   return cycles;
 }
 
@@ -236,7 +348,7 @@ function validateLore(memory, issues) {
    * 기록은 페이즈와 1:1이다. 그 바퀴가 있으면 그때의 문장도 있어야 하고(되짚었는데
    * 앞 바퀴 문장이 다시 뜨면 안 된다), 없는 바퀴의 문장은 아무 데서도 안 뜬다.
    */
-  for (const phase of ["phase1", "phase2"]) {
+  for (const phase of VISIT_KEYS) {
     if (memory[phase] !== undefined) {
       validateText(lore[phase], `${id}.lore.${phase}`, issues);
     } else if (lore[phase] !== undefined) {
@@ -266,18 +378,60 @@ function validateLines(lines, where, issues) {
   }
 }
 
-/** ko/en/ja가 전부 채워진 텍스트 묶음인지. */
+/**
+ * 텍스트 묶음인지. 기준 언어(ko)는 반드시 있어야 하고, 나머지 언어는 비어 있어도
+ * 막지 않는다. 빈 번역은 countTranslationTodos가 따로 센다.
+ */
 function validateText(value, where, issues) {
   if (!isPlainObject(value)) {
     issues.push(`${where}: ko/en/ja를 담은 항목이 아니다.`);
     return;
   }
+  if (!hasText(value[BASE_LOCALE])) issues.push(`${where}: ${BASE_LOCALE} 문장이 비어 있다.`);
   for (const locale of LOCALES) {
     const text = value[locale];
-    if (typeof text !== "string" || text.trim() === "") {
-      issues.push(`${where}: ${locale} 번역이 비어 있다.`);
+    if (text !== undefined && text !== null && typeof text !== "string") {
+      issues.push(`${where}: ${locale} 값이 문자열이 아니다.`);
     }
   }
+}
+
+function hasText(text) {
+  return typeof text === "string" && text.trim() !== "";
+}
+
+/**
+ * 아직 번역이 비어 있는 자리 (언어 · 위치). 막지는 않고 알리기만 한다.
+ *
+ * @returns {string[]} "en scripts.radio-intro.line1" 같은 목록
+ */
+export function countTranslationTodos(content) {
+  const todos = [];
+  const visit = (value, where) => {
+    if (!isPlainObject(value)) return;
+    for (const locale of LOCALES) {
+      if (locale !== BASE_LOCALE && !hasText(value[locale])) todos.push(`${locale} ${where}`);
+    }
+  };
+  for (const memory of content.memories ?? []) {
+    if (!isPlainObject(memory?.lore)) continue;
+    visit(memory.lore.title, `${memory.id}.lore.title`);
+    for (const key of VISIT_KEYS) visit(memory.lore[key], `${memory.id}.lore.${key}`);
+  }
+  for (const [id, lines] of Object.entries(content.scripts ?? {})) {
+    for (const [index, line] of (lines ?? []).entries())
+      visit(line, `scripts.${id}.line${index + 1}`);
+  }
+  for (const [id, cuts] of Object.entries(content.cutscenes ?? {})) {
+    for (const [cutIndex, cut] of (cuts ?? []).entries()) {
+      for (const [index, line] of (cut?.lines ?? []).entries()) {
+        visit(line, `cutscenes.${id}.cut${cutIndex + 1}.line${index + 1}`);
+      }
+    }
+  }
+  for (const [id, stage] of Object.entries(content.stages ?? {}))
+    visit(stage?.monologue, `stages.${id}`);
+  return todos;
 }
 
 /** public/ 아래 실재하는 파일을 가리키는지. 없는 그림은 회색 판으로 떨어진다. */

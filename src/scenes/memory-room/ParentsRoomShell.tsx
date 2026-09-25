@@ -6,7 +6,6 @@ import { ItemPickup } from "./ItemPickup";
 import { PARENTS_COLLIDERS, PARENTS_DOOR_POSITION, PARENTS_SHELL_BOUNDS } from "./layout";
 import { ParentsRoomFurniture } from "./ParentsRoomFurniture";
 import type { RoomPalette } from "./palette";
-import { ClueProp } from "./RoomClues";
 import {
   endWallWithDoor,
   floorPart,
@@ -35,11 +34,6 @@ const PLINTH = plinthParts(SHELL);
 
 const [, , desk] = PARENTS_COLLIDERS;
 
-/** 책상 위 서류 뭉치: 집어 들면 펼쳐진다 (ClueOverlay의 research-note). 다가감은 책상 앞 한 걸음. */
-const PAPERS = [
-  { size: [0.55, 0.06, 0.4], position: [desk.minX + 0.6, 1.15, desk.minZ + 0.4], color: "linen" },
-  { size: [0.5, 0.05, 0.36], position: [desk.minX + 0.72, 1.2, desk.minZ + 0.32], color: "linen" },
-] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple; color: keyof RoomPalette }[];
 /**
  * 서류 옆에 놓인 찢어진 악보 조각: 집어 가면 거실 피아노의 지워진 마디가 드러난다
  * (src/minigames/piano-melody). 서류와 같은 책상, 같은 다가감 반경이라 한 번 다가서면
@@ -61,6 +55,7 @@ const SHEET_SCRAP = [
   },
 ] as const satisfies readonly { size: Vec3Tuple; position: Vec3Tuple; color: keyof RoomPalette }[];
 
+/** 악보 조각에 다가서는 자리: 책상 앞 한 걸음. */
 const PAPERS_NEAR = {
   near: [(desk.minX + desk.maxX) / 2, desk.minZ - 0.5] as readonly [number, number],
   interactionRadius: 1.8,
@@ -86,9 +81,9 @@ function Box({
 /**
  * 안방 (v3). 거실 -x 벽(현관 쪽) 너머, 가장 오래 닫혀 있던 공간. 낮은 목가구와 겹쳐진 침구에 생활의 흔적이 남아 있다.
  *
- * 떡밥의 금고다: 부모님이 연구원이었다는 것과 앰플이 치료제 같다는 것**까지만** 흘린다.
- * 무엇을 알았고 어디로 갔는지는 끝까지 미공개다 (docs/story.md 1장). 책상 위 서류
- * 뭉치가 그 자리다. 어떤 단서를 놓을지는 방탈출 설계와 함께 정한다.
+ * 4페이즈의 클라이막스 (v4 3-6). 연구 일지·출입증·소집 공지(기억 셋)가 부모님이
+ * 연구원이었다는 것, 앰플이 치료제 후보라는 것, 여행이 아니었다는 것을 흘린다.
+ * 무엇을 알았고 어디로 갔는지는 끝까지 미공개다 (docs/story.md 1장).
  *
  * 벽은 차분한 세이지, 바닥은 거실과 같은 마루. 부모님이 꾸민 공간이라 방(네이비)과 다르다.
  */
@@ -135,11 +130,7 @@ export function ParentsRoomShell({ palette }: { palette: RoomPalette }) {
       </CulledWall>
 
       <ParentsRoomFurniture palette={palette} />
-      <ClueProp clue="research-note" near={PAPERS_NEAR.near} radius={PAPERS_NEAR.interactionRadius}>
-        {PAPERS.map((piece) => (
-          <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />
-        ))}
-      </ClueProp>
+      {/* 책상 위 서류·출입증과 침대 위 봉투는 기억이다 (MemoryObjects의 안방 몫) */}
       <ItemPickup id="piano-sheet" near={PAPERS_NEAR.near} radius={PAPERS_NEAR.interactionRadius}>
         {SHEET_SCRAP.map((piece) => (
           <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />

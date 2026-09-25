@@ -9,6 +9,7 @@
  */
 import process from "node:process";
 import { buildContent, readGenerated, writeGenerated } from "./content/index.mjs";
+import { countTranslationTodos } from "./content/validate.mjs";
 
 const check = process.argv.includes("--check");
 
@@ -19,6 +20,12 @@ if (built.issues.length > 0) {
   for (const issue of built.issues) console.error(`  · ${issue}`);
   console.error("");
   process.exit(1);
+}
+
+// 빈 번역은 막지 않는다. 기준 언어로 채워지고, 여기서 몇 자리가 남았는지만 알린다
+const todos = countTranslationTodos(built.content);
+if (todos.length > 0 && !check) {
+  console.log(`번역 TODO ${todos.length}자리 (ko 문장으로 대신 나간다)`);
 }
 
 if (!check) {

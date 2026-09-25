@@ -1,17 +1,20 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  ACT2_CHAIN,
   CUTSCENE_BAT_GRIP,
-  CUTSCENE_FAREWELL,
+  CUTSCENE_P2_CLOSE,
+  CUTSCENE_P4_CLOSE,
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENES,
   MEMORIES,
   MEMORY_BY_ID,
+  type MemoryId,
   PHASE1_MEMORIES,
   REPLAY_MORPH_WITHIN,
   SCRIPTS,
 } from "@/data/memory-room";
+import { requiredVisits } from "@/data/story-phase";
 import {
+  ACT2_TOTAL,
   actOf,
   actTwoProgress,
   buildMemoryReplay,
@@ -19,15 +22,21 @@ import {
   isAtCurtain,
   openCutscene,
   selectBatReady,
+  selectDeadline,
   selectDoorReady,
   selectDoorwayReady,
   selectEndingReady,
+  selectHeardSurvivorBroadcast,
   selectHeroNameKnown,
+  selectMomChatRead,
   selectMusicPhase,
   selectMusicPlaying,
   selectRadioSignaling,
   selectSceneInputLocked,
+  selectSinkHintRead,
+  selectStillBeatDone,
   selectViewpoint,
+  storyPhase,
   useMemoryRoomStore,
 } from "./memory-room";
 
@@ -188,7 +197,11 @@ describe("커튼 잡기", () => {
 describe("minigame result dialogue", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
+  // 액자는 강도 2라 강도 1 둘(게임기·공)을 본 뒤에 열린다
+  const openFrame = () => useMemoryRoomStore.setState({ collected: ["console", "ball"] });
+
   it("plays the result script over the minigame, then completes the memory", () => {
+    openFrame();
     useMemoryRoomStore.getState().beginInteraction("frame");
     useMemoryRoomStore.getState().finishMinigame({ cleared: true });
 
@@ -204,16 +217,17 @@ describe("minigame result dialogue", () => {
     useMemoryRoomStore.getState().advanceDialogue();
 
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
-    expect(useMemoryRoomStore.getState().collected).toEqual(["frame"]);
+    expect(useMemoryRoomStore.getState().collected).toEqual(["console", "ball", "frame"]);
   });
 
   it("closes without collecting when the minigame is failed, and stays retryable", () => {
+    openFrame();
     useMemoryRoomStore.getState().beginInteraction("frame");
     useMemoryRoomStore.getState().finishMinigame({ cleared: false });
 
     // 결과 대사도 없고 수집도 없다. 못 되찾은 기억을 되찾았다고 적지 않는다
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
-    expect(useMemoryRoomStore.getState().collected).toEqual([]);
+    expect(useMemoryRoomStore.getState().collected).toEqual(["console", "ball"]);
 
     // 막다른 길이 되면 안 된다: 핫스팟은 그대로 눌러서 다시 붙을 수 있다
     expect(hotspotStatus(useMemoryRoomStore.getState(), "frame")).toBe("available");
@@ -222,13 +236,14 @@ describe("minigame result dialogue", () => {
   });
 
   it("still collects when the player skips, since skipping reports cleared", () => {
+    openFrame();
     useMemoryRoomStore.getState().beginInteraction("frame");
     // 접근성 계약상 스킵은 cleared: true다 (src/types/minigame.ts)
     useMemoryRoomStore.getState().finishMinigame({ cleared: true });
     useMemoryRoomStore.getState().advanceDialogue();
     useMemoryRoomStore.getState().advanceDialogue();
 
-    expect(useMemoryRoomStore.getState().collected).toEqual(["frame"]);
+    expect(useMemoryRoomStore.getState().collected).toEqual(["console", "ball", "frame"]);
   });
 });
 
@@ -275,7 +290,10 @@ describe("수집한 기억 다시보기", () => {
     expect(playback?.lineIndex).toBe(0);
     // 도입(라디오가 꺼지는 비트)은 컷씬만의 것이다
     expect(playback?.intro).toBe(false);
-    expect(playback?.cuts[0].lines).toEqual(SCRIPTS["ball-intro"].lines);
+    expect(playback?.cuts[0].lines).toEqual([
+      ...SCRIPTS["ball-intro"].lines,
+      ...SCRIPTS["ball-alone"].lines,
+    ]);
   });
 
   /** 이 규칙이 이 기능의 전부다. 되짚기가 재도전이 되면 안 된다. */
@@ -287,6 +305,7 @@ describe("수집한 기억 다시보기", () => {
   });
 
   it("결과 대사까지 이어 붙인다. 미니게임만 빠진다", () => {
+    useMemoryRoomStore.setState({ collected: ["console", "ball"] });
     useMemoryRoomStore.getState().beginInteraction("frame");
     pushToEnd("frame");
     useMemoryRoomStore.getState().replayMemory("frame");
@@ -384,133 +403,138 @@ describe("수집한 기억 다시보기", () => {
   });
 });
 
-describe("3막: 앰플 · 배트 · 현관문", () => {
+/** 대사든 미니게임이든 나오는 대로 밀어붙여 지금 인터랙션을 끝낸다. */
+function finishInteraction(label: string) {
+  for (let step = 0; step < 32; step += 1) {
+    const active = useMemoryRoomStore.getState().activeInteraction;
+    if (!active) return;
+    if (active.phase === "minigame")
+      useMemoryRoomStore.getState().finishMinigame({ cleared: true });
+    else useMemoryRoomStore.getState().advanceDialogue();
+  }
+  throw new Error(`인터랙션이 끝나지 않는다: ${label}`);
+}
+
+/** 그 조사 칸들을 마친 진행. */
+function progressOf(refs: readonly { id: MemoryId; visit: number }[]) {
+  const pick = (visit: number) => refs.filter((ref) => ref.visit === visit).map((ref) => ref.id);
+  return { collected: pick(1), revisited: pick(2), rechecked: pick(3) };
+}
+
+type PhaseStart = "turning" | "p2" | "p3" | "p4" | "resolve";
+
+/** 그 페이즈에 막 들어선 순간 (곁가지 없이, 앞 페이즈의 필수 조사만 마친 상태). */
+function enterPhase(phase: PhaseStart) {
+  const order: PhaseStart[] = ["turning", "p2", "p3", "p4", "resolve"];
+  const at = order.indexOf(phase);
+  const refs = [...requiredVisits("p1")];
+  if (at >= 1) refs.push(...requiredVisits("turning"));
+  if (at >= 2) refs.push(...requiredVisits("p2"));
+  if (at >= 3) refs.push(...requiredVisits("p3"));
+  if (at >= 4) refs.push(...requiredVisits("p4"));
+  useMemoryRoomStore.setState({
+    ...progressOf(refs),
+    introDone: true,
+    doorOpened: at >= 1,
+    openedDoorways:
+      at >= 3 ? ["living-bathroom", "living-parents"] : at >= 1 ? ["living-bathroom"] : [],
+    inventory: at >= 3 ? ["parents-key"] : [],
+    solvedPuzzles: at >= 3 ? ["sink-dial"] : [],
+  });
+  expect(storyPhase(useMemoryRoomStore.getState())).toBe(phase);
+}
+
+const status = (id: MemoryId) => hotspotStatus(useMemoryRoomStore.getState(), id);
+
+describe("v4 페이즈: 진행에서 파생된다", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  /** 2막 추리 체인을 끝낸 상태: 앰플까지 손에 넣었다. */
-  function finishActTwo() {
-    useMemoryRoomStore.setState({
-      collected: PHASE1_MEMORIES.map((memory) => memory.id),
-      revisited: [...ACT2_CHAIN],
-      doorOpened: true,
-    });
-  }
+  it("새 게임은 인트로, 불을 켜면 p1", () => {
+    useMemoryRoomStore.getState().startGame();
+    expect(storyPhase(useMemoryRoomStore.getState())).toBe("intro");
+    useMemoryRoomStore.getState().toggleLights();
+    expect(storyPhase(useMemoryRoomStore.getState())).toBe("p1");
+  });
 
-  /** 현관 잠금(회전 미궁)을 푼 상태: 문의 두 번째 조건. */
-  function unlockFrontDoor() {
-    useMemoryRoomStore.setState({ solvedPuzzles: ["angle-turn"] });
-  }
+  it("기한은 방송 뒤부터 사흘 → 이틀 → 오늘 밤이다", () => {
+    enterPhase("turning");
+    expect(selectDeadline(useMemoryRoomStore.getState())).toBeNull();
+    enterPhase("p2");
+    expect(selectDeadline(useMemoryRoomStore.getState())).toBe(3);
+    enterPhase("p3");
+    expect(selectDeadline(useMemoryRoomStore.getState())).toBe(2);
+    enterPhase("p4");
+    expect(selectDeadline(useMemoryRoomStore.getState())).toBe(1);
+  });
 
-  it("앰플을 쥐기 전에는 3막이 아니다", () => {
-    useMemoryRoomStore.setState({
-      collected: PHASE1_MEMORIES.map((memory) => memory.id),
-      revisited: ACT2_CHAIN.filter((id) => id !== "ampoule"),
-      doorOpened: true,
-    });
-
+  it("막은 문과 비트가 긋는다: 방문이 열리면 2막, 정적 비트 뒤가 3막", () => {
+    enterPhase("turning");
+    expect(actOf(useMemoryRoomStore.getState())).toBe(1);
+    enterPhase("p4");
     expect(actOf(useMemoryRoomStore.getState())).toBe(2);
-    expect(selectEndingReady(useMemoryRoomStore.getState())).toBe(false);
-    expect(selectBatReady(useMemoryRoomStore.getState())).toBe(false);
-  });
-
-  it("곁가지(컴퓨터·폰·게임기)를 안 봐도 3막은 열린다", () => {
-    // 선택 콘텐츠가 관문이 되면 체인을 끝낸 플레이어가 왜 막혔는지 알 길이 없다
-    finishActTwo();
-
+    enterPhase("resolve");
     expect(actOf(useMemoryRoomStore.getState())).toBe(3);
-    expect(useMemoryRoomStore.getState().revisited).not.toContain("computer");
+    expect(selectEndingReady(useMemoryRoomStore.getState())).toBe(true);
   });
+});
 
-  it("배트를 쥐기 전에는 현관문이 안 열린다", () => {
-    finishActTwo();
-    unlockFrontDoor();
-
-    useMemoryRoomStore.getState().startEnding();
-
-    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
-  });
-
-  it("배트를 쥐어도 현관 잠금이 남아 있으면 안 열린다", () => {
-    finishActTwo();
-    useMemoryRoomStore.setState({ batTaken: true });
-
-    useMemoryRoomStore.getState().startEnding();
-
-    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
-  });
-
-  it("배트 + 잠금 해제면 현관문이 열린다", () => {
-    finishActTwo();
-    unlockFrontDoor();
-    useMemoryRoomStore.setState({ batTaken: true });
-
-    useMemoryRoomStore.getState().startEnding();
-
-    expect(useMemoryRoomStore.getState().endingStarted).toBe(true);
-  });
-
-  it("리셋하면 엔딩도 처음으로 돌아간다", () => {
-    finishActTwo();
-    unlockFrontDoor();
-    useMemoryRoomStore.setState({ batTaken: true });
-    useMemoryRoomStore.getState().startEnding();
-
+describe("1페이즈: 강도 순서대로 열린다", () => {
+  beforeEach(() => {
     useMemoryRoomStore.getState().reset();
+    useMemoryRoomStore.setState({ introDone: true });
+  });
 
-    const state = useMemoryRoomStore.getState();
-    expect(state.endingStarted).toBe(false);
-    expect(state.batTaken).toBe(false);
-    expect(actOf(state)).toBe(1);
+  const collect = (...ids: MemoryId[]) => useMemoryRoomStore.setState({ collected: ids });
+
+  it("처음에는 강도 1(게임기·공)만 열린다", () => {
+    expect(status("console")).toBe("available");
+    expect(status("ball")).toBe("available");
+    for (const id of ["frame", "phone", "calendar", "window", "radio"] as const) {
+      expect(status(id)).toBe("locked");
+    }
+  });
+
+  it("강도 1 둘을 보면 강도 2(액자·폰)가 열린다", () => {
+    collect("console");
+    expect(status("frame")).toBe("locked");
+    collect("console", "ball");
+    expect(status("frame")).toBe("available");
+    expect(status("phone")).toBe("available");
+    expect(status("calendar")).toBe("locked");
+    expect(status("window")).toBe("locked");
+  });
+
+  it("달력은 폰 뒤, 창문은 강도 2 둘 뒤에 열린다", () => {
+    collect("console", "ball", "phone");
+    expect(status("calendar")).toBe("available");
+    expect(status("window")).toBe("locked");
+    collect("console", "ball", "phone", "frame");
+    expect(status("window")).toBe("available");
+  });
+
+  it("라디오는 여섯을 다 봐야 열린다", () => {
+    collect("console", "ball", "phone", "frame", "calendar");
+    expect(status("radio")).toBe("locked");
+    collect("console", "ball", "phone", "frame", "calendar", "window");
+    expect(status("radio")).toBe("available");
+  });
+
+  it("1페이즈의 컴퓨터는 꺼진 배경이다. 잠겨 있고 본 적도 없다", () => {
+    expect(status("computer")).toBe("locked");
+    useMemoryRoomStore.getState().sayRemark("computer-off");
+    expect(useMemoryRoomStore.getState().remark?.id).toBe("computer-off");
   });
 });
 
-describe("2막 진행도: 밝기 상승 곡선의 분모", () => {
+describe("분기점: 라디오", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  it("필수 체인만 센다. 곁가지는 분자에도 분모에도 없다", () => {
-    useMemoryRoomStore.setState({ revisited: ["radio", "computer", "console"] });
-
-    // 셋을 봤지만 체인에 든 것은 라디오뿐이다
-    expect(actTwoProgress(useMemoryRoomStore.getState())).toBeCloseTo(1 / ACT2_CHAIN.length);
-  });
-
-  it("체인을 다 돌면 1이다", () => {
-    useMemoryRoomStore.setState({ revisited: [...ACT2_CHAIN] });
-
-    expect(actTwoProgress(useMemoryRoomStore.getState())).toBe(1);
-  });
-
-  it("체인은 앰플에서 거슬러 올라간 순서다", () => {
-    // 의존이 먼저 오고 앰플이 마지막: 어느 칸도 자기 선행 조건보다 앞서지 않는다
-    expect(ACT2_CHAIN[ACT2_CHAIN.length - 1]).toBe("ampoule");
-    expect(ACT2_CHAIN).toContain("radio");
-    expect(ACT2_CHAIN).not.toContain("computer");
-  });
-});
-
-describe("1바퀴 마지막 관문: 라디오", () => {
-  beforeEach(() => useMemoryRoomStore.getState().reset());
-
-  /** 라디오를 뺀 나머지를 다 조사한 상태. */
   function collectAllButRadio() {
     useMemoryRoomStore.setState({
+      introDone: true,
       collected: PHASE1_MEMORIES.map((memory) => memory.id).filter((id) => id !== "radio"),
     });
   }
-
-  it("나머지를 다 조사하기 전에는 라디오를 만질 수 없다", () => {
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "radio")).toBe("locked");
-
-    useMemoryRoomStore.getState().beginInteraction("radio");
-
-    expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
-  });
-
-  it("나머지 6개를 마치면 라디오가 열린다", () => {
-    collectAllButRadio();
-
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "radio")).toBe("available");
-  });
 
   it("진입 대사 → 튜닝 → 재난방송 순으로 흐른다", () => {
     collectAllButRadio();
@@ -526,6 +550,219 @@ describe("1바퀴 마지막 관문: 라디오", () => {
     const active = useMemoryRoomStore.getState().activeInteraction;
     expect(active?.scriptId).toBe("radio-broadcast");
     expect(active?.keepMinigame).toBe(true);
+  });
+
+  it("라디오 2차는 곧장 생존자 방송이다. 끝나면 방문이 금빛이다", () => {
+    enterPhase("turning");
+    expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(true);
+    expect(selectDoorReady(useMemoryRoomStore.getState())).toBe(false);
+
+    useMemoryRoomStore.getState().beginInteraction("radio");
+    const playback = useMemoryRoomStore.getState().activePlayback;
+    expect(playback?.cutsceneId).toBe("survivor-broadcast");
+    // 첫 컷은 왼쪽 칸이고 마이크를 탁, 탁 두드린다
+    expect(playback?.cuts[0].panel).toBe("left");
+    expect(playback?.cuts[0].sfx).toBe("micTap");
+    expect(selectHeardSurvivorBroadcast(useMemoryRoomStore.getState())).toBe(true);
+
+    useMemoryRoomStore.getState().endPlayback();
+    expect(selectDoorReady(useMemoryRoomStore.getState())).toBe(true);
+    useMemoryRoomStore.getState().openRoomDoor();
+    expect(storyPhase(useMemoryRoomStore.getState())).toBe("p2");
+  });
+});
+
+describe("2페이즈: 거실과 컴퓨터 → 엄마 대화방", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("거실 넷과 컴퓨터는 순서 없이 열리고, 폰 2차만 컴퓨터를 기다린다", () => {
+    enterPhase("p2");
+    for (const id of ["duffel", "fridge", "shoes", "cards", "computer"] as const) {
+      expect(status(id)).toBe("available");
+    }
+    expect(status("phone")).toBe("locked");
+    useMemoryRoomStore.setState({
+      revisited: [...useMemoryRoomStore.getState().revisited, "computer"],
+    });
+    expect(status("phone")).toBe("available");
+    // 3페이즈의 것들은 아직이다
+    expect(status("ampoule")).toBe("locked");
+  });
+
+  it("곁가지(게임기·공의 2차)는 열려 있지만 페이즈를 막지 않는다", () => {
+    enterPhase("p2");
+    expect(status("console")).toBe("available");
+    expect(status("ball")).toBe("available");
+    expect(requiredVisits("p2").map((ref) => ref.id)).not.toContain("console");
+  });
+
+  it("마지막 필수 조사를 마치는 순간 p2-close가 흐르고 3페이즈다", () => {
+    enterPhase("p2");
+    const allButPhone = requiredVisits("p2").filter((ref) => ref.id !== "phone");
+    useMemoryRoomStore.setState({
+      revisited: [...useMemoryRoomStore.getState().revisited, ...allButPhone.map((ref) => ref.id)],
+    });
+    expect(storyPhase(useMemoryRoomStore.getState())).toBe("p2");
+
+    useMemoryRoomStore.getState().beginInteraction("phone");
+    expect(useMemoryRoomStore.getState().activeInteraction?.scriptId).toBe("phone-mom-intro");
+    finishInteraction("phone");
+
+    const state = useMemoryRoomStore.getState();
+    expect(selectMomChatRead(state)).toBe(true);
+    expect(storyPhase(state)).toBe("p3");
+    expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_P2_CLOSE);
+  });
+});
+
+describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("앰플이 먼저, 컴퓨터 3차는 앰플 뒤에 열린다", () => {
+    enterPhase("p3");
+    expect(status("ampoule")).toBe("available");
+    // 컴퓨터는 2차를 봤고 3차가 앰플을 기다린다
+    expect(status("computer")).toBe("locked");
+    useMemoryRoomStore.setState({
+      revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
+    });
+    expect(status("computer")).toBe("available");
+  });
+
+  it("앰플은 대사 → 집기 → 결과 대사 순이고, 작별의 회상은 없다", () => {
+    enterPhase("p3");
+    useMemoryRoomStore.getState().beginInteraction("ampoule");
+    finishInteraction("ampoule");
+    const state = useMemoryRoomStore.getState();
+    expect(state.revisited).toContain("ampoule");
+    expect(state.activePlayback).toBeNull();
+  });
+
+  it("아빠 힌트 전에는 하부장을 못 연다. 힌트 뒤에 열면 안방 열쇠가 손에 들어온다", () => {
+    enterPhase("p3");
+    useMemoryRoomStore.getState().openPuzzle("sink-dial");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
+
+    useMemoryRoomStore.setState({
+      revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
+      rechecked: ["computer"],
+    });
+    expect(selectSinkHintRead(useMemoryRoomStore.getState())).toBe(true);
+    useMemoryRoomStore.getState().openPuzzle("sink-dial");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("sink-dial");
+    useMemoryRoomStore.getState().finishPuzzle({ cleared: true });
+
+    const state = useMemoryRoomStore.getState();
+    expect(state.inventory).toContain("parents-key");
+    expect(state.remark?.id).toBe("sink-open");
+    expect(selectDoorwayReady("living-parents")(state)).toBe(true);
+    state.openDoorway("living-parents");
+    expect(storyPhase(useMemoryRoomStore.getState())).toBe("p4");
+  });
+});
+
+describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("서류 셋을 다 보면 p4-close가 흐르고 액자 2차가 열린다", () => {
+    enterPhase("p4");
+    expect(status("frame")).toBe("locked");
+    useMemoryRoomStore.setState({
+      revisited: [...useMemoryRoomStore.getState().revisited, "research-note", "id-card"],
+    });
+    useMemoryRoomStore.getState().beginInteraction("not-a-trip");
+    finishInteraction("not-a-trip");
+
+    const state = useMemoryRoomStore.getState();
+    expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_P4_CLOSE);
+    expect(status("frame")).toBe("available");
+  });
+
+  it("액자 2차가 끝나면 정적 비트가 흐르고, 그게 끝나야 배트가 빛난다", () => {
+    enterPhase("p4");
+    useMemoryRoomStore.setState({
+      revisited: [
+        ...useMemoryRoomStore.getState().revisited,
+        "research-note",
+        "id-card",
+        "not-a-trip",
+      ],
+    });
+    useMemoryRoomStore.getState().beginInteraction("frame");
+    finishInteraction("frame");
+
+    const beat = useMemoryRoomStore.getState().activePlayback;
+    expect(beat?.cutsceneId).toBe("still-beat");
+    // 첫 컷은 대사 없는 정적이다
+    expect(beat?.holding).toBe(true);
+    expect(selectStillBeatDone(useMemoryRoomStore.getState())).toBe(true);
+    expect(selectBatReady(useMemoryRoomStore.getState())).toBe(false);
+    // 음악도 멎어 있다 (컷씬)
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
+
+    useMemoryRoomStore.getState().endPlayback();
+    expect(selectBatReady(useMemoryRoomStore.getState())).toBe(true);
+  });
+});
+
+describe("결심: 배트 · 현관문", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("피아노를 안 풀어도, 곁가지를 안 봐도 결심에 닿는다", () => {
+    enterPhase("resolve");
+    const state = useMemoryRoomStore.getState();
+    expect(state.solvedPuzzles).not.toContain("piano-melody");
+    expect(state.revisited).not.toContain("console");
+  });
+
+  it("배트를 쥐기 전에는 현관문이 안 열린다", () => {
+    enterPhase("resolve");
+    useMemoryRoomStore.setState({ solvedPuzzles: ["sink-dial", "angle-turn"] });
+    useMemoryRoomStore.getState().startEnding();
+    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
+  });
+
+  it("배트를 쥐어도 현관 잠금이 남아 있으면 안 열린다", () => {
+    enterPhase("resolve");
+    useMemoryRoomStore.setState({ batTaken: true });
+    useMemoryRoomStore.getState().startEnding();
+    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
+  });
+
+  it("배트 + 잠금 해제면 현관문이 열린다", () => {
+    enterPhase("resolve");
+    useMemoryRoomStore.setState({ batTaken: true, solvedPuzzles: ["sink-dial", "angle-turn"] });
+    useMemoryRoomStore.getState().startEnding();
+    expect(useMemoryRoomStore.getState().endingStarted).toBe(true);
+    expect(storyPhase(useMemoryRoomStore.getState())).toBe("ending");
+  });
+
+  it("리셋하면 엔딩도 처음으로 돌아간다", () => {
+    enterPhase("resolve");
+    useMemoryRoomStore.setState({ batTaken: true, solvedPuzzles: ["sink-dial", "angle-turn"] });
+    useMemoryRoomStore.getState().startEnding();
+
+    useMemoryRoomStore.getState().reset();
+
+    const state = useMemoryRoomStore.getState();
+    expect(state.endingStarted).toBe(false);
+    expect(state.batTaken).toBe(false);
+    expect(state.rechecked).toEqual([]);
+    expect(actOf(state)).toBe(1);
+  });
+});
+
+describe("밝기 상승 곡선의 분모", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("필수 조사만 센다. 곁가지는 분자에도 분모에도 없다", () => {
+    useMemoryRoomStore.setState({ revisited: ["radio", "console", "ball"] });
+    expect(actTwoProgress(useMemoryRoomStore.getState())).toBeCloseTo(1 / ACT2_TOTAL);
+  });
+
+  it("결심에 닿으면 1이다", () => {
+    enterPhase("resolve");
+    expect(actTwoProgress(useMemoryRoomStore.getState())).toBe(1);
   });
 });
 
@@ -648,15 +885,8 @@ describe("전환 컷씬", () => {
 describe("현관의 배트: 대사를 거쳐 손에 들어온다", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  function readyForBat() {
-    useMemoryRoomStore.setState({
-      collected: PHASE1_MEMORIES.map((memory) => memory.id),
-      revisited: [...ACT2_CHAIN],
-      doorOpened: true,
-    });
-  }
-
-  it("앰플이 없으면 쥐어도 아무 일도 없다", () => {
+  it("결심 전에는 쥐어도 아무 일도 없다", () => {
+    enterPhase("p4");
     useMemoryRoomStore.getState().takeBat();
 
     expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
@@ -664,19 +894,18 @@ describe("현관의 배트: 대사를 거쳐 손에 들어온다", () => {
   });
 
   it("쥐면 먼저 대사가 뜬다. 라디오 도입 없이", () => {
-    readyForBat();
+    enterPhase("resolve");
     useMemoryRoomStore.getState().takeBat();
 
     const playback = useMemoryRoomStore.getState().activePlayback;
     expect(playback?.kind).toBe("cutscene");
     expect(playback?.cutsceneId).toBe(CUTSCENE_BAT_GRIP);
-    // 지직거리다 꺼지는 도입은 라디오 컷씬만의 것이다
     expect(playback?.intro).toBe(false);
     expect(useMemoryRoomStore.getState().batTaken).toBe(false);
   });
 
   it("대사를 끝까지 넘기면 그때 배트가 손에 들어온다", () => {
-    readyForBat();
+    enterPhase("resolve");
     useMemoryRoomStore.getState().takeBat();
 
     for (let step = 0; step < 16 && useMemoryRoomStore.getState().activePlayback; step += 1) {
@@ -688,8 +917,7 @@ describe("현관의 배트: 대사를 거쳐 손에 들어온다", () => {
   });
 
   it("대사를 건너뛰어도 배트는 손에 들어온다", () => {
-    // 스킵은 유효한 결말이다. 배트까지 같이 무르면 죽은 버튼이 된다
-    readyForBat();
+    enterPhase("resolve");
     useMemoryRoomStore.getState().takeBat();
     useMemoryRoomStore.getState().endPlayback();
 
@@ -697,129 +925,19 @@ describe("현관의 배트: 대사를 거쳐 손에 들어온다", () => {
   });
 
   it("다른 재생이 도는 중에는 쥘 수 없다", () => {
-    readyForBat();
+    enterPhase("resolve");
     useMemoryRoomStore.setState({ activePlayback: openCutscene(CUTSCENE_RADIO_BLACKOUT) });
 
     useMemoryRoomStore.getState().takeBat();
 
     expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_RADIO_BLACKOUT);
-    // 라디오 컷씬이 끝나도 배트 대사가 아니었으니 배트는 벽에 그대로 서 있다
     useMemoryRoomStore.getState().endPlayback();
     expect(useMemoryRoomStore.getState().batTaken).toBe(false);
   });
-
-  it("앰플을 되찾는 순간 작별의 회상이 뜬다", () => {
-    useMemoryRoomStore.setState({
-      collected: PHASE1_MEMORIES.map((memory) => memory.id),
-      revisited: ACT2_CHAIN.filter((id) => id !== "ampoule"),
-      doorOpened: true,
-    });
-
-    useMemoryRoomStore.getState().beginInteraction("ampoule");
-    // 진입 대사("…열어보자")가 끝나면 서랍을 여는 손(ampoule-pickup)이 선다
-    const advance = () => {
-      for (
-        let step = 0;
-        step < 16 && useMemoryRoomStore.getState().activeInteraction?.phase === "dialogue";
-        step += 1
-      ) {
-        useMemoryRoomStore.getState().advanceDialogue();
-      }
-    };
-    advance();
-    expect(useMemoryRoomStore.getState().activeInteraction?.phase).toBe("minigame");
-    // 대사만으로는 앰플이 손에 들어오지 않는다. 집어야 한다
-    expect(useMemoryRoomStore.getState().revisited).not.toContain("ampoule");
-
-    useMemoryRoomStore.getState().finishMinigame({ cleared: true });
-    // 집은 뒤의 대사(ampoule-found)가 든 채로 흐르고, 그게 끝나야 조사가 닫힌다
-    expect(useMemoryRoomStore.getState().activeInteraction?.scriptId).toBe("ampoule-found");
-    advance();
-
-    const state = useMemoryRoomStore.getState();
-    expect(state.activeInteraction).toBeNull();
-    expect(state.revisited).toContain("ampoule");
-    expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_FAREWELL);
-  });
 });
 
-describe("2막: 라디오가 유일한 관문, 그다음은 체인", () => {
-  beforeEach(() => useMemoryRoomStore.getState().reset());
-
-  function startActTwo() {
-    useMemoryRoomStore.setState({ collected: PHASE1_MEMORIES.map((memory) => memory.id) });
-  }
-
-  it("라디오만 열려 있고 나머지 재조사는 잠겨 있다", () => {
-    startActTwo();
-    const state = useMemoryRoomStore.getState();
-
-    expect(hotspotStatus(state, "radio")).toBe("available");
-    for (const id of ["fridge", "duffel", "frame", "shoes", "cards", "ball"] as const) {
-      expect(hotspotStatus(state, id)).toBe("locked");
-    }
-  });
-
-  it("라디오 목소리를 잡아도 문을 열기 전에는 나머지가 잠겨 있다", () => {
-    // 문이 열리는 것이 2막의 시작이다. 추리는 방과 거실을 오가는 일이라,
-    // 문도 안 열었는데 방 안에서 2막이 다 돌면 거실이 부록이 된다
-    startActTwo();
-    useMemoryRoomStore.setState({ revisited: ["radio"] });
-    const state = useMemoryRoomStore.getState();
-
-    for (const id of ["fridge", "duffel", "frame", "ball"] as const) {
-      expect(hotspotStatus(state, id)).toBe("locked");
-    }
-  });
-
-  it("문이 열리면 거실의 준비 둘부터 켜진다", () => {
-    startActTwo();
-    useMemoryRoomStore.setState({ revisited: ["radio"], doorOpened: true });
-    const state = useMemoryRoomStore.getState();
-
-    expect(hotspotStatus(state, "fridge")).toBe("available");
-    expect(hotspotStatus(state, "duffel")).toBe("available");
-    // 액자는 준비를 마쳐야 켜진다. 거실에서 방으로 부르는 고리다
-    expect(hotspotStatus(state, "frame")).toBe("locked");
-  });
-
-  it("추리 체인은 거실 → 방 → 거실 → 방 → 거실로 접힌다", () => {
-    startActTwo();
-    const step = (...revisited: string[]) =>
-      useMemoryRoomStore.setState({ revisited: revisited as never, doorOpened: true });
-
-    step("radio", "fridge", "duffel");
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "frame")).toBe("available");
-    // 액자를 보기 전에는 거실 단서가 안 열린다
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "shoes")).toBe("locked");
-
-    step("radio", "fridge", "duffel", "frame");
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "shoes")).toBe("available");
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "cards")).toBe("available");
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "ball")).toBe("locked");
-
-    step("radio", "fridge", "duffel", "frame", "shoes", "cards");
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "ball")).toBe("available");
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "ampoule")).toBe("locked");
-
-    step("radio", "fridge", "duffel", "frame", "shoes", "cards", "ball");
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "ampoule")).toBe("available");
-  });
-
-  it("곁가지는 라디오 뒤에 바로 열린다. 체인을 기다리지 않는다", () => {
-    startActTwo();
-    useMemoryRoomStore.setState({ revisited: ["radio"], doorOpened: true });
-    const state = useMemoryRoomStore.getState();
-
-    expect(hotspotStatus(state, "console")).toBe("available");
-    expect(hotspotStatus(state, "computer")).toBe("available");
-    // 폰만 한 칸 뒤다. 컴퓨터의 여행 메일이 서야 엄마 문자가 근거를 얻는다
-    expect(hotspotStatus(state, "phone")).toBe("locked");
-    useMemoryRoomStore.setState({ revisited: ["radio", "computer"] });
-    expect(hotspotStatus(useMemoryRoomStore.getState(), "phone")).toBe("available");
-  });
-
-  it("2차 조사 대상 목록", () => {
+describe("2차 이후 조사 대상", () => {
+  it("2차가 있는 기억 목록", () => {
     const revisitable = MEMORIES.filter((memory) => memory.phase2)
       .map((memory) => memory.id)
       .sort();
@@ -832,10 +950,19 @@ describe("2막: 라디오가 유일한 관문, 그다음은 체인", () => {
       "duffel",
       "frame",
       "fridge",
+      "id-card",
       "console",
+      "not-a-trip",
       "phone",
       "radio",
+      "research-note",
       "shoes",
+    ]);
+  });
+
+  it("3차는 컴퓨터 하나다", () => {
+    expect(MEMORIES.filter((memory) => memory.phase3).map((memory) => memory.id)).toEqual([
+      "computer",
     ]);
   });
 });

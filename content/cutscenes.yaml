@@ -1,86 +1,113 @@
-# 컷씬: 일러스트 한 장이 화면을 통째로 차지하고 그 위로 대사가 흐르는 연출.
+# 컷씬: 일러스트 위로 대사가 흐르는 연출 (v4 설계서 3-3 · 3-6).
 #
 # 그림 안에 말풍선을 넣지 않는 것이 이 연출의 규칙이라, 대사는 컷씬 전용 창을
-# 새로 만들지 않고 기존 대사창(DialogueBox)이 그대로 받는다.
+# 새로 만들지 않고 기존 대사창(DialogueBox)이 그대로 받는다. 컷씬이 도는 동안
+# BGM은 멎는다 (selectMusicPlaying).
 #
 # 컷 하나의 형태:
 #   image   일러스트 경로 (public 기준). 파일이 아직 없어도 회색 판이 자리를 지킨다.
-#   holdMs  대사가 끝난 뒤 대사창 없이 그림만 남기는 시간(ms).
-#           "정적 몇 초"가 연출의 일부인 컷에만 준다. 없으면 곧장 다음 컷으로.
+#           없으면 그림 없이 방이 그대로 비친 채 대사창만 뜬다.
+#   panel   left | right. 웹툰 컷: 판을 통째로 덮지 않고 그쪽 절반에 칸으로 선다.
+#           앞 컷의 칸은 반대편에 남아, 좌우로 번갈아 들어오는 두 칸이 나란히 읽힌다.
+#   sfx     컷이 뜨는 순간 한 번 나는 효과음 (schema.mjs의 CUT_SFX).
+#   holdMs  대사가 끝난 뒤 대사창 없이 그림만 남기는 시간(ms). 대사가 없는 컷
+#           (lines: [])은 이 시간만큼 그림만 서 있다가 저절로 넘어간다.
 #   lines   scripts.yaml과 같은 형태 (speaker / expression / ko / en / ja).
+#
+# 어떤 컷씬이 언제 도는지:
+#   radio-blackout      라디오 1차(재난방송)를 마친 순간 (store가 1바퀴 완주에 연다)
+#   survivor-broadcast  라디오 2차 (memories.yaml의 cutscene)
+#   p2-close            2페이즈 필수 조사를 다 마친 순간 (store: STORY_CUTSCENES)
+#   p4-close            4페이즈 안방 서류 셋을 다 본 순간 (store: STORY_CUTSCENES)
+#   still-beat          액자 2차 (memories.yaml의 cutscene)
+#   bat-grip            현관 배트를 쥔 순간 (store의 takeBat)
+#
+# 컷씬 id를 바꾸면 src/data/memory-room.ts의 상수도 같이 고쳐야 한다.
 
 cutscenes:
   #
-  # 재난방송이 끊긴 자리에서 도는 전환 컷씬: 게임 중 일러스트가 화면을 통째로
-  # 차지하는 유일한 자리다. 특별한 순간이라는 신호이므로 두 번 쓰지 않는다.
-  #
-  # 톤은 차가운 현재다. 따뜻한 과거 회상은 여기 없다. 2바퀴에서 되찾을 온기를
-  # 미리 써버리면 상승 구간이 밋밋해진다.
-  #
-  # id를 바꾸면 src/data/memory-room.ts의 CUTSCENE_RADIO_BLACKOUT도 같이 고쳐야 한다.
+  # 분기점의 이미지 나열: 그날이 한 장씩 지나간다. 말은 마지막 한 줄뿐이다.
+  # 컷 사이에 대사가 없어 저절로 넘어간다 (holdMs). 그림이 들어오기 전에는 회색 판.
+  # 끝나면 3D 방으로 돌아온다. 방은 가장 어둡고, BGM은 없고, 라디오는 빨갛게 깜빡인다.
   radio-blackout:
-    - image: /assets/images/cutscene-radio-room.webp
+    - image: /assets/images/cutscene-day-school.webp
+      holdMs: 1800
+      lines: []
+    - image: /assets/images/cutscene-day-elevator.webp
+      holdMs: 1800
+      lines: []
+    - image: /assets/images/cutscene-day-run.webp
+      holdMs: 1800
+      lines: []
+    - image: /assets/images/cutscene-day-door.webp
+      holdMs: 1800
+      lines: []
+    - image: /assets/images/cutscene-day-news.webp
       lines:
         - speaker: hero
-          ko: …다 확인했네.
-          en: …So that's all of it.
-          ja: …全部、確かめたな。
+          ko: 그날 이후로 난 나가지 않고 있다. 어차피 나가 봐야 보이는 현실은 똑같으니까.
 
-    - image: /assets/images/cutscene-radio-hands.webp
-      # 말이 끊긴 자리에 남는 정적. 다음 컷의 목소리가 여기서 이질적으로 들어온다.
-      holdMs: 3200
-      lines:
-        - speaker: hero
-          ko: ……
-          en: ……
-          ja: ……
-
-    - image: /assets/images/cutscene-radio-signal.webp
+  #
+  # 생존자 방송: 웹툰 컷이 좌우로 번갈아 들어온다. 첫 컷에 마이크를 탁, 탁 두 번
+  # 두드리는 소리가 나고, 그림에도 의성어 "탁, 탁"이 그려진다 (무음으로 하는 사람도
+  # 알아볼 수 있게). 화자 이름은 ??? 그대로다. 이름은 게임 안에서 부르지 않는다.
+  survivor-broadcast:
+    - image: /assets/images/cutscene-survivor-1.webp
+      panel: left
+      sfx: micTap
       lines:
         - speaker: signal
-          ko: …거기, 누구 있어?
-          en: …Hey. Is somebody there?
-          ja: …そこ、誰かいるのか？
+          ko: 아, 이거 나가긴 하는 거야?
+    - image: /assets/images/cutscene-survivor-2.webp
+      panel: right
+      lines:
+        - speaker: signal
+          ko: 생존자 있으면 들어. 우리 여기 모여 있어. 치료할 방법도 찾고 있고.
+    - image: /assets/images/cutscene-survivor-3.webp
+      panel: left
+      lines:
+        - speaker: signal
+          ko: 사흘 밤 지나면 여기서 이동한다. 그 뒤엔 우리도 어디로 갈지 몰라.
+    - image: /assets/images/cutscene-survivor-4.webp
+      panel: right
+      lines:
+        - speaker: signal
+          ko: 다시 한번 말한다. 은강고 체육관으로 모여. …늦지 말고 와.
+    # 치지직: 방송이 끊기고 방으로 돌아온다
+    - sfx: radioCut
+      lines:
         - speaker: hero
           expression: surprised
-          ko: 어? 누구지?
-          en: Huh? Who is that?
-          ja: え？ 誰だ？
+          ko: 은강고…? 그때 그…?
 
   #
-  # 작별의 회상: 앰플을 손에 쥔 직후 (docs/content-design.md 4장 순서 6).
-  #
-  # 그림이 없다. 화면을 덮는 대신 거실이 그대로 비친 채 대사창만 뜬다. 일러스트가
-  # 화면을 통째로 차지하는 자리는 전환점(radio-blackout) 하나뿐이라는 원칙을
-  # 지킨다. 이 재생이 끝나면(건너뛰어도) 2막이 닫히고 3막이 열린다.
-  #
-  # id를 바꾸면 src/data/memory-room.ts의 CUTSCENE_FAREWELL도 같이 고쳐야 한다.
-  farewell:
+  # 2페이즈를 닫는 한 줄. 그림 없이 방이 비친 채로 흐른다.
+  p2-close:
     - lines:
         - speaker: hero
-          ko: 다녀올게, 하고 나갔어. 평소처럼.
-          en: "\"Back soon,\" they said, and left. Like always."
-          ja: 「行ってくるね」って出ていった。いつもみたいに。
-        - speaker: hero
-          ko: 그게 마지막인 줄 알았으면 뭐라도 더 말했을 텐데.
-          en: If I'd known that was the last of it, I'd have said something more.
-          ja: あれが最後だと知っていたら、何かもっと言えたのに。
-        - speaker: hero
-          ko: …아니다. 두 분은 알고 있었으니까, 그래서 아무 말도 안 한 거겠지.
-          en: …No. They knew. That's exactly why they said nothing.
-          ja: …いや。二人は知ってたから、だから何も言わなかったんだ。
-        - speaker: hero
-          ko: 버리고 간 게 아니라, 지킨 거야.
-          en: They didn't leave me behind. They were keeping me.
-          ja: 見捨てたんじゃない。守ったんだ。
+          ko: 여행이 아니었어. 둘 다 뭔가 알고 있었어.
 
   #
-  # 현관의 배트를 쥔 순간: 3막의 두 줄.
+  # 4페이즈 서류 셋을 다 본 뒤: 라디오의 "치료할 방법"과 앰플이 이어진다.
+  # 이 줄이 끝나면 방의 액자에 금빛이 돈다.
+  p4-close:
+    - lines:
+        - speaker: hero
+          ko: …이게 답일지도 몰라.
+
   #
-  # 여기도 그림이 없다. 대사가 끝나면(건너뛰어도) 스토어가 배트를 쥔 것으로
+  # 정적 비트: 액자 2차(얼굴이 돌아온 사진) 직후. BGM이 멎고 카메라가 머문 채
+  # 몇 초가 흐른 뒤 한 줄. 액자를 세워 두는 연출이다. 끝나면 현관 배트에 금빛이 돈다.
+  still-beat:
+    - holdMs: 2600
+      lines: []
+    - lines:
+        - speaker: hero
+          ko: …갔다 올게.
+
+  #
+  # 현관의 배트를 쥔 순간. 대사가 끝나면(건너뛰어도) 스토어가 배트를 쥔 것으로
   # 기록하고, 그때부터 현관문이 열린다 (takeBat).
-  #
-  # id를 바꾸면 src/data/memory-room.ts의 CUTSCENE_BAT_GRIP도 같이 고쳐야 한다.
   bat-grip:
     - lines:
         - speaker: hero

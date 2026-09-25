@@ -1,39 +1,51 @@
-# 기억 오브젝트: 목록·순서·해금 조건·인터랙션 흐름.
+# 기억 오브젝트: 목록·순서·해금 조건·인터랙션 흐름 (v4 설계서).
 #
 # 이 파일이 게임 진행의 뼈대다. 여기 적힌 순서가 기억 패널에 뜨는 순서이고,
-# unlockAfter가 "무엇을 먼저 조사해야 열리는가"를 정한다.
+# unlockAfter와 from이 "무엇을 먼저 해야 열리는가"를 정한다.
 #
 # 고치고 나면 `pnpm content:build`. 어드민(dev 서버의 /admin)에서 저장하면 자동으로 돈다.
 #
-# 배트는 여기 없다. 현관에 세워진 배트는 모으는 물건이 아니라 2막을 다 돌았을 때
-# (앰플 획득) 켜지는 3막 트리거다 (layout의 BAT_PLACEMENT, scenes의 EndingTrigger).
+# ── 페이즈 (저장하지 않고 진행에서 파생된다: src/data/story-phase.ts) ─────────────
 #
-# phase1 = 1막 조사, phase2 = 2막 재조사다 (docs/content-design.md 2장).
-# 2막의 추리 체인은 unlockAfter가 통째로 들고 있다:
+#   intro    불 꺼진 방. 스위치를 켜면 p1
+#   p1       방 조사. 강도 1 → 2 → 3 → 라디오(관문). 1차 조사(phase1)가 여기 산다
+#   turning  라디오 1차를 마친 뒤. 빨간 라디오 → 생존자 방송 → 방문 금빛
+#   p2       방문을 연 뒤. 거실 넷 + 컴퓨터 로그인 → 엄마 대화방
+#   p3       p2 필수 조사를 다 마치면. 앰플 → 컴퓨터 로고 매칭 → 하부장(11) → 안방 열쇠
+#   p4       안방 문을 연 뒤. 서류 셋 → 액자 2차 → 정적 비트
+#   resolve  정적 비트 뒤. 현관 배트 → 현관 잠금(angle-turn) → 문
+#   ending   현관문을 연 순간
 #
-#   radio(목소리) → fridge·duffel(준비) → frame(액자 2차) → shoes·cards(거실 단서)
-#   → ball(사인볼 재조사) → ampoule(앰플)
+# p2 → p3, p4 → resolve 전이는 그 페이즈의 필수 조사(from이 그 페이즈이고 side가
+# 아닌 것)를 전부 마치는 것이다. 하부장·안방 문은 기억이 아니라 퍼즐·문이라 여기 없다
+# (src/data/room-clues.ts의 PUZZLE_IDS, src/data/doors.ts).
 #
-# console·computer·phone은 이 체인 밖의 곁가지다. 안 봐도 3막에 갈 수 있다.
+# 배트는 여기 없다. 현관에 세워진 배트는 모으는 물건이 아니라 resolve에 켜지는
+# 트리거다 (layout의 BAT_PLACEMENT, scenes의 EndingTrigger).
 #
-# 한 항목의 형태:
+# ── 한 항목의 형태 ────────────────────────────────────────────────────────────
 #   id            기억 id. 코드·에셋·i18n 키가 전부 이 값을 쓴다.
 #   icon          기억 패널 아이콘. @phosphor-icons/react 이름 (schema.mjs의 허용 목록).
-#   lore          수첩에 남는 기록. phase1은 필수, phase2는 2바퀴 대상만.
-#   phase1        최초 수집 클릭. 모든 기억에 필수.
-#   phase2        전원 수집 후 재클릭. 있는 기억만 2바퀴 대상이 된다.
+#   lore          수첩에 남는 기록. 있는 차수(phase1/2/3)마다 하나씩.
+#   phase1        1차 조사 (p1).
+#   phase2        2차 조사. from이 열리는 페이즈를 정한다.
+#   phase3        3차 조사: 2차를 마친 뒤의 되짚기 (지금은 컴퓨터 하나).
 #
-# phase 안의 형태:
+# 차수 안의 형태:
 #   script        미니게임 앞에 트는 진입 대사 (scripts.yaml의 id)
 #   minigame      미니게임 id (src/minigames/index.ts 레지스트리)
 #   resultScript  미니게임 클리어 뒤의 결과 대사 (scripts.yaml의 id)
-#   unlockAfter   같은 페이즈에서 먼저 완료돼야 하는 기억 id 목록
+#   unlockAfter   먼저 끝나야 하는 조사. `radio`는 같은 차수, `computer@3`은 3차
+#   from          이 페이즈부터 열린다 (turning/p2/p3/p4). 2차 이후에 필수
+#   side          곁가지: true면 페이즈를 넘기는 데 필요 없다
+#   cutscene      이 조사를 마치는 순간 트는 컷씬 (cutscenes.yaml의 id)
 #   replayStill   다시보기에서 대사 뒤에 세우는 정지 그림 (public 기준 경로).
 #                 아직 비어 있는 칸과 거기에 무엇을 그릴지는 docs/replay-stills.md
 #
-# 셋 다 생략하면 클릭 즉시 완료된다.
+# 대사·미니게임·컷씬이 다 없으면 클릭 즉시 완료된다.
 
 memories:
+  # ─────────────────────────────────────────────── 1페이즈 · 강도 1 (처음부터)
   - id: console
     icon: GameController
     lore:
@@ -49,17 +61,118 @@ memories:
         ko: 다시 둘이 하면 또 재밌어질까.
         en: Maybe it gets fun again with two.
         ja: 二人ならまた楽しくなるかな。
-    # 1차: 내기하던 상대의 존재(진입) → 이겨도 반응이 없는 방(결과)
+    # 1차: 내기하던 상대의 존재(진입) → 이겨도 받아줄 사람이 없는 방(결과)
     phase1:
       script: console-intro
       minigame: fighter-duel
       resultScript: console-alone
-    # 2차: 대사만 흐른다. 카드 미궁(card-odd)은 거실 식탁 트럼프로 이사했다
-    # (docs/story.md 8장): 여기 다시 붙이지 말 것.
+    # 2차: 곁가지 (v4 3-4). 필수 체인에서 빠졌다. 카드 미궁(card-odd)은 거실 식탁
+    # 트럼프로 이사했다: 여기 다시 붙이지 말 것.
     phase2:
       script: console-echo
-      # 2바퀴는 라디오 목소리에서 시작한다. 재점등된 나머지는 그 뒤에 열린다
-      unlockAfter: [radio]
+      from: p2
+      side: true
+
+  - id: ball
+    icon: Baseball
+    lore:
+      title:
+        ko: 혼자 하는 캐치볼
+        en: Catch, Alone
+        ja: ひとりのキャッチボール
+      phase1:
+        ko: 전국대회 8강, 진 경기. 상대 포수가 마지막 공을 받아냈다. 벽에 던지면 돌아온다. 받아줄 사람이 없다는 걸 자꾸 잊는다.
+      phase2:
+        ko: 받아줄 사람이 어딘가에 있다면, 이 공은 아직 쓸 데가 있다.
+        en: If someone out there can catch it, this ball still has a use.
+        ja: 受けてくれる人がどこかにいるなら、このボールにはまだ使い道がある。
+    # 1차: 전국대회 8강 회상(재하 복선) → 캐치볼 → "받아줄 사람이 없다"
+    phase1:
+      script: ball-intro
+      minigame: ball-catch
+      resultScript: ball-alone
+      replayStill: /assets/images/mg-ball-catch-sunset-field.webp
+    # 2차: 곁가지. 회전 미궁(angle-turn)은 현관 잠금장치로 이사했다: 다시 붙이지 말 것.
+    phase2:
+      script: ball-echo
+      from: p2
+      side: true
+
+  # ─────────────────────────────────────────────── 1페이즈 · 강도 2 (강도 1 둘 다 뒤)
+  - id: frame
+    icon: ImageSquare
+    lore:
+      title:
+        ko: 부모님
+        en: My Parents
+        ja: 両親
+      # 왜 안 보이는지는 적지 않는다. 도해는 본 것만 적는다: 닦았는데도 그 얼굴만
+      # 안 보인다. "흐릿하다"처럼 이유를 지어내는 말도 쓰지 않는다.
+      phase1:
+        ko: 유리에 먼지가 껴서 한참을 닦았다. 다 닦았는데도 두 사람 얼굴만 눈에 들어오지 않는다.
+        en: Dust on the glass, so I wiped it down. Even clean, their faces are the only ones I still can't see.
+        ja: ガラスに埃がついていて長いこと拭いた。拭いても、二人の顔だけがどうしても見えない。
+      phase2:
+        ko: 흩어진 조각을 맞추니 얼굴이 돌아왔다. 액자를 세워 두고 나왔다.
+    phase1:
+      minigame: photo-wipe
+      resultScript: frame-photo
+      unlockAfter: [console, ball]
+      replayStill: /assets/images/mg-photo-wipe-phase-1.webp
+    # 2차 (4페이즈): 안방 서류 셋을 다 본 뒤 금빛이 돈다. 조각을 맞추면 얼굴이 돌아온다.
+    # 대사는 없다 (v4 3-6). 끝나는 순간 정적 비트(still-beat)가 흐르고 resolve로 넘어간다.
+    phase2:
+      minigame: photo-puzzle
+      from: p4
+      unlockAfter: [research-note, id-card, not-a-trip]
+      cutscene: still-beat
+      replayStill: /assets/images/mg-photo-wipe-phase-2.webp
+
+  - id: phone
+    icon: DeviceMobile
+    lore:
+      title:
+        ko: 끊긴 연락
+        en: The Silence
+        ja: 途切れた連絡
+      phase1:
+        ko: 단톡은 그날 이후로 조용하다. 엄마 대화방에는 아직 1이 떠 있다. 나중에 보기로 했다.
+      phase2:
+        ko: 그날 아침 7시 12분, 엄마 문자. 끝나면 바로 집에 오라고. 뉴스는 오후였다. 이제야 읽었다.
+    # 1차: 시끄러운 단톡 → 가족 단톡(부모님 메시지 폭탄 + 도해 "응.") → 결과 대사가
+    # "10월 19일"과 엄마 대화방의 "읽지 않음 1"을 못박는다
+    phase1:
+      minigame: phone-chat
+      resultScript: phone-stopped
+      unlockAfter: [console, ball]
+    # 2차 (2페이즈): 1막부터 떠 있던 "읽지 않음 1"을 연다. 잠금은 없다.
+    # 컴퓨터를 기다리는 이유: 캐시 뉴스의 첫 보도 시각(오후)을 먼저 봐야
+    # 엄마 문자의 7시 12분이 이상하게 읽힌다 (v4 3-4).
+    phase2:
+      script: phone-mom-intro
+      minigame: mom-chat
+      resultScript: phone-mom-read
+      from: p2
+      unlockAfter: [computer]
+
+  # ─────────────────────────────────────────────── 1페이즈 · 강도 3
+  - id: calendar
+    icon: CalendarHeart
+    lore:
+      title:
+        ko: 10월 19일
+        en: October 19
+        ja: 10月19日
+      phase1:
+        ko: 숫자가 그날에서 멈췄다. 그 뒤로는 날짜가 아니라 正자만 그었다.
+        en: The numbers stopped on that day. After that I stopped writing dates and only made tally marks.
+        ja: 数字はあの日で止まった。それからは日付ではなく、正の字だけを書いた。
+    # phone 뒤에만 열린다. 진입 대사가 단톡의 날짜(10월 19일)를 이어받는다.
+    phase1:
+      script: calendar-intro
+      minigame: calendar-flip
+      resultScript: calendar-tally
+      unlockAfter: [phone]
 
   - id: window
     icon: GridFour
@@ -72,110 +185,14 @@ memories:
         ko: 커튼을 걷었다. 깨진 유리, 찌그러진 차, 지워지지 않는 자국. 다시 닫았다.
         en: I opened the curtain. Broken glass, a crushed car, stains that will not wash off. I closed it again.
         ja: カーテンを開けた。割れたガラス、潰れた車、消えない跡。また閉めた。
-    # 커튼을 걷으면 그림 한 장: 미니게임이라기보다 들여다보는 오브젝트다.
-    # 진입 대사는 일부러 없다: 보기 전에 말을 얹으면 "들여다본다"는 동작이 늦어진다.
-    # 결과 대사가 사이렌→정적으로 사태의 경과를 흘린다.
+    # 커튼을 걷으면 그림 한 장. 강도 3이라 강도 2 둘(액자·폰)을 다 본 뒤에 열린다.
     phase1:
       minigame: window-view
       resultScript: window-silence
+      unlockAfter: [frame, phone]
       replayStill: /assets/images/mg-window-view-outside.webp
 
-  - id: frame
-    icon: ImageSquare
-    lore:
-      title:
-        ko: 부모님
-        en: My Parents
-        ja: 両親
-      # 왜 안 보이는지는 적지 않는다. 그림에서는 두 사람의 머리가 틀 밖에 있지만,
-      # 기록이 그 이유를 말해 버리면 플레이어가 1막에서 답을 먼저 쥔다. 도해는 본
-      # 것만 적는다: 닦았는데도 그 얼굴만 안 보인다. "흐릿하다"처럼 이유를 지어내는
-      # 말도 쓰지 않는다 (그림은 흐리지 않다).
-      phase1:
-        ko: 유리에 먼지가 껴서 한참을 닦았다. 다 닦았는데도 두 사람 얼굴만 눈에 들어오지 않는다.
-        en: Dust on the glass, so I wiped it down. Even clean, their faces are the only ones I still can't see.
-        ja: ガラスに埃がついていて長いこと拭いた。拭いても、二人の顔だけがどうしても見えない。
-      phase2:
-        ko: 흩어진 조각을 제자리에 놓으니 얼굴이 돌아왔다. 아직 못 만났을 뿐이다.
-        en: I put the pieces back and the faces returned. We just haven't met yet.
-        ja: 散らばった欠片を戻したら顔が返ってきた。まだ会えていないだけだ。
-    phase1:
-      minigame: photo-wipe
-      resultScript: frame-photo
-      replayStill: /assets/images/mg-photo-wipe-phase-1.webp
-    # 2차 조사: 흩어진 사진 조각을 맞추면 틀 밖에 있던 가족 얼굴이 틀 안으로 들어온다.
-    #
-    # 2막 추리의 두 번째 칸이다 (docs/content-design.md 4장). 거실에서 나갈 준비를
-    # 하다가(fridge·duffel) 켜지고, 여기서 "아빠가 뭔가 남겼다"를 인지해야 거실
-    # 단서(shoes·cards)가 열린다. 먼지 닦기(1차)→얼굴 직시(2차)가 외면→직면의
-    # 물리적 은유이므로 순서를 풀면 추리의 동기가 사라진다.
-    phase2:
-      minigame: photo-puzzle
-      resultScript: frame-photo-echo
-      unlockAfter: [radio, fridge, duffel]
-      replayStill: /assets/images/mg-photo-wipe-phase-2.webp
-
-  # ─────────────────────────────────────────────── 2막 · 거실 (준비)
-  #
-  # 각성 직후. 아직 비밀은 모르고 "뭐라도 해야겠다"는 행동 의지뿐이라, 추리가
-  # 아니라 나갈 준비부터 한다. 여기서 컵라면·간편식이 여행 준비가 아니라
-  # 아들이 버틸 식량이었다는 재해석 복선이 깔린다.
-  - id: fridge
-    icon: Package
-    lore:
-      title:
-        ko: 채워둔 것들
-        en: What They Stocked
-        ja: 詰めてあったもの
-      phase2:
-        ko: 냉장고도 찬장도 아직 반이 남았다. 한 달을 버틸 만큼이 왜 집에 있었을까.
-        en: The fridge and the cupboard are still half full. Why was there a month of food in this house?
-        ja: 冷蔵庫も戸棚もまだ半分残っている。ひと月分の食料が、なぜこの家にあったんだろう。
-    phase2:
-      script: fridge-open
-      unlockAfter: [radio]
-
-  - id: duffel
-    icon: Bag
-    lore:
-      title:
-        ko: 챙길 것들
-        en: What to Take
-        ja: 持っていくもの
-      phase2:
-        ko: 야구 가방을 비우고 다시 쌌다. 이번엔 글러브가 아니라 물과 통조림이다.
-        en: I emptied my baseball bag and packed it again. Water and cans this time, not a glove.
-        ja: 野球バッグを空にして詰め直した。今度はグローブじゃなく、水と缶詰だ。
-    phase2:
-      script: duffel-pack
-      unlockAfter: [radio]
-
-  # 컴퓨터는 유일한 2바퀴 전용 기억이다. phase1이 없다.
-  #
-  # 1바퀴 내내 책상 위에 꺼진 채로 서 있고, 조사 대상이 아니라 배경 오브젝트로만
-  # 읽힌다 (1바퀴 수집 개수에서도 빠진다. src/data의 PHASE1_MEMORIES). 2바퀴에
-  # 라디오 목소리를 잡고 나서야 전원을 넣을 이유가 생긴다.
-  #
-  # 열리는 순서: 부팅 → 잠금 화면(비밀번호 0724) → 저장된 메일 + 캐시된 뉴스.
-  # 비밀번호 단서는 기억이 아니라 방의 배경 오브젝트 둘에 갈라 두었다
-  # (책상 위 기록 노트 = 날짜, 협탁 서랍 속 쪽지 = 무슨 날짜인지: CLUE_PROPS).
-  - id: computer
-    icon: Desktop
-    lore:
-      title:
-        ko: 저장된 것들
-        en: What Was Saved
-        ja: 保存されていたもの
-      phase2:
-        ko: 답장 못 한 아빠의 여행 메일, 그리고 캐시에 남은 뉴스. 세상은 조금씩, 그러다 한꺼번에 멈췄다.
-        en: Dad's trip emails I never answered, and the news left in the cache. The world stopped little by little, then all at once.
-        ja: 返事できなかった父さんの旅行メールと、キャッシュに残ったニュース。世界は少しずつ、そして一気に止まった。
-    phase2:
-      script: computer-power-on
-      minigame: computer-browse
-      resultScript: computer-archive
-      unlockAfter: [radio]
-
+  # ─────────────────────────────────────────────── 분기점 · 라디오
   - id: radio
     icon: Radio
     lore:
@@ -188,117 +205,51 @@ memories:
         en: They said it had reached Busan. I cannot pretend not to know anymore.
         ja: 釜山まで広がったと言っていた。もう知らないふりはできない。
       phase2:
-        ko: 노이즈 사이로 사람 목소리가 들렸다. "야, 누구 없어?" 나 말고도 있다.
-        en: A human voice came through the noise. "Hey, is anyone there?" I am not the only one.
-        ja: ノイズの向こうから人の声がした。「なあ、誰かいないか？」 俺だけじゃない。
-    #
-    # 라디오는 1바퀴의 마지막 관문이다. 나머지를 다 조사해야 열린다.
-    #
-    # 순서를 강제하는 이유는 반전이 한 번뿐이기 때문이다. 라디오를 먼저 들으면
-    # 재난방송이 세계관을 통째로 열어버려서, 남은 오브젝트의 "일상에 난 균열"이
-    # 전부 이미 아는 이야기의 각주로 떨어진다.
-    #
-    # 1차: 진입 대사 → 튜닝 → 글자 맞추기("내가 방에 갇혀 있는 이유는?" 답: 좀비)
-    # → 재난방송(결과 대사). radio-quiz는 frequency-tune을 품은 2단계 미니게임이다
-    # (src/minigames/radio-quiz). 방송이 끊기면 전환 컷씬이 뜬다
-    # (store의 complete가 CUTSCENE_RADIO_BLACKOUT을 연다).
+        ko: 빨간 불이 켜진 라디오에서 생존자 방송이 나왔다. 은강고 체육관. 사흘 밤 뒤에는 떠난다고 했다.
+    # 1차 (관문): 나머지 여섯을 다 봐야 열린다. 반전은 한 번뿐이라 순서를 강제한다.
+    # 진입 대사 → 튜닝 → 글자 맞추기("내가 방에 갇혀 있는 이유는?" 답: 좀비, 오답 세 번마다
+    # 글자 힌트) → 재난방송(결과 대사) → 이미지 나열 컷씬(store가 radio-blackout을 연다).
     phase1:
       script: radio-intro
       minigame: radio-quiz
       resultScript: radio-broadcast
-      # 컴퓨터는 여기 없다. 1바퀴에 아예 안 열리는 기억이라 기다리면 영영 안 열린다
-      unlockAfter: [console, window, frame, phone, calendar, ball]
-    # 2차: 미니게임 없이 바로 대사다. 같은 다이얼 끝에 이번엔 사람이 있고, 라디오가
-    # 먼저 말을 건다. 튜닝을 두 번 시키지 않는다 (주파수 맞추기는 1차에만 뜬다).
-    # 2바퀴의 첫 관문이라 아무것도 기다리지 않는다.
+      unlockAfter: [console, ball, frame, phone, calendar, window]
+    # 2차 (분기점): 빨갛게 깜빡이는 라디오를 누르면 곧장 생존자 방송이 흐른다.
+    # 튜닝을 두 번 시키지 않는다. 끝나면 방문에 금빛이 돈다.
     phase2:
-      script: radio-voice
+      from: turning
+      cutscene: survivor-broadcast
 
-  - id: phone
-    icon: DeviceMobile
+  # ─────────────────────────────────────────────── 2페이즈 · 거실 (순서 자유)
+  - id: duffel
+    icon: Bag
     lore:
       title:
-        ko: 끊긴 연락
-        en: The Silence
-        ja: 途切れた連絡
-      phase1:
-        ko: 단톡은 그날 이후로 조용하다. 부재중 전화는 전부 내가 건 쪽이다.
-        en: The group chat has been quiet since that day. Every missed call is one I made.
-        ja: グループチャットはあの日から静かだ。不在着信は全部こちらからかけたものだ。
+        ko: 챙길 것들
+        en: What to Take
+        ja: 持っていくもの
       phase2:
-        ko: 그날 엄마가 보낸 문자가 이제야 도착했다. 문 잠그고 기다리라고 했다. …충분히 기다렸어.
-        en: Mom's texts from that day finally arrived. Lock the door and wait, she said. …I have waited enough.
-        ja: あの日母さんが送ったメッセージが、今になって届いた。鍵をかけて待ってなさいって。…もう十分待った。
-    # 1차: 채팅은 미니게임이 보여주고, 결과 대사가 "10월 19일"을 처음 못박는다
-    phase1:
-      minigame: phone-chat
-      resultScript: phone-stopped
-    # 2차: 전파가 돌아온 뒤(라디오 목소리), 그날 묶여 있던 엄마의 문자가 이제야
-    # 도착한다. 잠금 비번(1019)은 calendar가 심은 날짜가 단서다. 미궁의 첫 조각.
-    # 부모님 행방의 절반이 여기서 풀린다: 그날 여행 중이었고(그래서 집에 없다),
-    # 돌아오겠다고 했고, 못 왔다.
-    #
-    # computer를 기다리는 이유: "여행 중이었다"를 심는 건 컴퓨터의 아빠 메일이다.
-    # 그게 먼저 서지 않으면 엄마 문자의 "여행지에서 바로 출발했는데"가 근거 없이
-    # 튀어나온다. 1바퀴에서는 컴퓨터가 그 자리를 맡았지만 이제 둘 다 2바퀴에 있다.
+        ko: 야구 가방을 비우고 다시 쌌다. 물, 통조림, 손전등. 글러브는 두고 가려다 다시 넣었다.
     phase2:
-      script: phone-unlock-intro
-      minigame: phone-lock
-      resultScript: phone-unlock-result
-      unlockAfter: [radio, computer]
+      script: duffel-pack
+      from: p2
 
-  - id: calendar
-    icon: CalendarHeart
+  - id: fridge
+    icon: Package
     lore:
       title:
-        ko: 10월 19일
-        en: October 19
-        ja: 10月19日
-      phase1:
-        ko: 숫자가 그날에서 멈췄다. 그 뒤로는 날짜가 아니라 正자만 그었다.
-        en: The numbers stopped on that day. After that I stopped writing dates and only made tally marks.
-        ja: 数字はあの日で止まった。それからは日付ではなく、正の字だけを書いた。
-    # phone 뒤에만 열린다. 진입 대사가 단톡의 날짜(10월 19일)를 이어받는 구조라
-    # unlockAfter를 풀면 대사가 근거 없이 날짜를 아는 셈이 된다. 같이 고칠 것.
-    phase1:
-      script: calendar-intro
-      minigame: calendar-flip
-      resultScript: calendar-tally
-      unlockAfter: [phone]
-
-  - id: ball
-    icon: Baseball
-    lore:
-      title:
-        ko: 혼자 하는 캐치볼
-        en: Catch, Alone
-        ja: ひとりのキャッチボール
-      phase1:
-        ko: 벽에 던지면 돌아온다. 그게 전부다. 받아줄 사람이 없다는 걸 자꾸 잊는다.
-        en: Throw it at the wall and it comes back. That is all. I keep forgetting there is no one to catch it.
-        ja: 壁に投げれば返ってくる。それだけだ。受けてくれる人がいないことを、つい忘れる。
+        ko: 채워둔 것들
+        en: What They Stocked
+        ja: 詰めてあったもの
       phase2:
-        ko: 받아줄 사람이 어딘가에 있다면, 이 공은 아직 쓸 데가 있다.
-        en: If someone out there can catch it, this ball still has a use.
-        ja: 受けてくれる人がどこかにいるなら、このボールにはまだ使い道がある。
-    phase1:
-      script: ball-intro
-      minigame: ball-catch
-      replayStill: /assets/images/mg-ball-catch-sunset-field.webp
-    # 2차: 대사만 흐른다. 회전 미궁(angle-turn)은 거실 현관 잠금장치로 이사했다
-    # (docs/content-design.md 3-2): 여기 다시 붙이지 말 것.
-    #
-    # 2막 추리의 네 번째 칸이다. 거실 단서 둘을 본 뒤에 열리고, 희망 대사와
-    # "냉장고 아래칸"이라는 다음 단서가 한 클릭에 겹친다.
+        ko: 냉장고도 찬장도 아직 반이 남았다. 한 달을 버틸 만큼이 왜 집에 있었을까.
+        en: The fridge and the cupboard are still half full. Why was there a month of food in this house?
+        ja: 冷蔵庫も戸棚もまだ半分残っている。ひと月分の食料が、なぜこの家にあったんだろう。
+    # 위칸만. 아래칸("손대지 마")은 3페이즈의 앰플이다.
     phase2:
-      script: ball-echo
-      unlockAfter: [shoes, cards]
+      script: fridge-open
+      from: p2
 
-  # ─────────────────────────────────────────────── 2막 · 거실 (단서)
-  #
-  # 액자에서 "아빠가 뭔가 남겼다"를 인지한 뒤에 열리는 둘. 순서는 상관없다.
-  # 인터랙션은 서로 다른 동작이다. 신발장은 열기, 트럼프는 뒤집기
-  # (docs/content-design.md 4-1의 인터랙션 배분 원칙).
   - id: shoes
     icon: Sneaker
     lore:
@@ -307,12 +258,10 @@ memories:
         en: The Boots They Left
         ja: 置いていった登山靴
       phase2:
-        ko: 등산화는 신발장에 그대로다. 안 걷는 여행이라더니, 짐은 왜 그렇게 많았을까.
-        en: The hiking boots are still in the cabinet. A trip with no walking, they said. So why was there so much luggage?
-        ja: 登山靴は靴箱にそのままだ。歩かない旅行だと言っていたのに、荷物はなぜあんなに多かったんだろう。
+        ko: 등산화는 신발장에 그대로다. 안 걷는 여행이라더니, 캐리어는 두 개였다.
     phase2:
       script: shoes-open
-      unlockAfter: [frame]
+      from: p2
 
   - id: cards
     icon: Cards
@@ -329,18 +278,39 @@ memories:
       script: cards-intro
       minigame: card-odd
       resultScript: cards-unfinished
-      unlockAfter: [frame]
+      from: p2
 
-  # ─────────────────────────────────────────────── 2막 · 거실 (마지막)
+  # 컴퓨터: 1페이즈에는 꺼진 배경이다 (누르면 혼잣말 한 줄: RemarkId computer-off).
+  # 2차 (2페이즈): 로그인 0812(협탁 쪽지 + 달력 동그라미) → 아빠 메일 + 캐시 뉴스(첫 보도 시각).
+  # 3차 (3페이즈): 앰플 라벨의 로고를 쫓아 다시 켠다 → 로고 매칭 → 아빠 메일 속 하부장 힌트.
+  - id: computer
+    icon: Desktop
+    lore:
+      title:
+        ko: 저장된 것들
+        en: What Was Saved
+        ja: 保存されていたもの
+      phase2:
+        ko: 아빠 메일, 그리고 캐시에 남은 뉴스. 연구시설 근처에서 처음 났고, 첫 보도는 그날 오후 3시였다.
+      phase3:
+        ko: 앰플 라벨의 로고가 아빠 메일 첨부에 있었다. 하부장은 내 번호로 잠가 뒀다고 했다.
+    phase2:
+      script: computer-power-on
+      minigame: computer-browse
+      resultScript: computer-archive
+      from: p2
+    phase3:
+      script: computer-logo-intro
+      minigame: computer-logo
+      resultScript: computer-logo-found
+      from: p3
+      unlockAfter: [ampoule]
+
+  # ─────────────────────────────────────────────── 3페이즈 · 수상한 앰플
   #
-  # 2막의 끝이자 3막의 열쇠. 여기까지 오면 세 단서가 머릿속에서 맞물리고,
-  # "손대지 마"라던 냉장고 아래칸이 열린다. 완료되면 스토어가 작별의 회상
-  # (CUTSCENE_FAREWELL)을 틀고, 그 재생이 끝나는 자리에서 3막이 열린다.
-  #
-  # 앰플은 대사로만 얻는 게 아니라 손으로 집는다: 진입 대사가 "…열어보자"에서 끊기면
-  # 서랍이 밀려 나오고(ampoule-pickup, 씬 안에서 도는 canvas 미니게임), 식량 사이의
-  # 앰플을 눌러 들어 올린 채로 결과 대사가 흐른다. 엔딩에서 배트와 함께 들고 나가는
-  # 물건이라 실물이 있어야 한다 (docs/content-design.md 4-2).
+  # 냉장고 아래칸("손대지 마" 메모). 서랍이 밀려 나오고(ampoule-pickup, 씬 안에서 도는
+  # canvas 미니게임) 보냉 케이스의 앰플을 집는다. 옆 칸은 비어 있다. 라벨의 로고
+  # 조각이 방 컴퓨터로 이끈다 (컴퓨터 3차).
   - id: ampoule
     icon: Syringe
     lore:
@@ -349,11 +319,45 @@ memories:
         en: An Unmarked Ampoule
         ja: 正体不明のアンプル
       phase2:
-        ko: 라벨은 반쯤 지워져 읽을 수 없다. 답이 아니라 질문 하나를 손에 쥐었다.
-        en: The label is half worn away, unreadable. I am holding a question, not an answer.
-        ja: ラベルは半分消えていて読めない。答えではなく、問いをひとつ手にした。
+        ko: 보냉 케이스에 앰플 하나, 옆 칸은 비어 있었다. 라벨에는 로고가 반쯤 남아 있다.
     phase2:
       script: ampoule-note
       minigame: ampoule-pickup
       resultScript: ampoule-found
-      unlockAfter: [ball]
+      from: p3
+
+  # ─────────────────────────────────────────────── 4페이즈 · 안방 (순서 자유)
+  #
+  # 사태 이후 처음 들어가는 공간. 셋을 다 보면 방의 액자가 금빛으로 돈다 (frame 2차).
+  - id: research-note
+    icon: FileText
+    lore:
+      title:
+        ko: 연구 일지
+      phase2:
+        ko: 엄마 글씨의 연구 일지. 앰플은 치료제 후보였다.
+    phase2:
+      script: research-note-read
+      from: p4
+
+  - id: id-card
+    icon: IdentificationCard
+    lore:
+      title:
+        ko: 출입증
+      phase2:
+        ko: 라온생명과학연구소 출입증 두 장. 아빠 이름, 엄마 이름. 앰플 라벨의 그 로고다.
+    phase2:
+      script: id-card-look
+      from: p4
+
+  - id: not-a-trip
+    icon: Envelope
+    lore:
+      title:
+        ko: 소집 공지
+      phase2:
+        ko: 연구소 비상 소집 공지. 가족에게는 여행이라고 말해 두라고 적혀 있었다.
+    phase2:
+      script: not-a-trip-read
+      from: p4

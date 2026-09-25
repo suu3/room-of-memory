@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, PhoneDisconnect } from "@phosphor-icons/react";
+import { ChatCircleDots, Check, PhoneDisconnect, UsersThree } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
@@ -10,8 +10,10 @@ import { useOnceCompleter } from "../shell";
 import { PhoneShell } from "./PhoneShell";
 import {
   type ChatMessage,
+  FAMILY_CHAT,
   hasLater,
   isThreadComplete,
+  MOM_UNREAD,
   OUTGOING_CALLS,
   type PhoneTab,
   revealNext,
@@ -26,8 +28,9 @@ import {
  * 화면에 안 받은 전화가 줄줄이 떠 있는 것으로 이미 다 말했고, 거기에 한 줄을
  * 더 얹으면 화자가 플레이어를 부르는 것처럼 읽혀서 톤이 어긋난다.
  */
-function phoneHelpKey(tab: PhoneTab, chatDone: boolean, seenCalls: boolean) {
-  if (tab === "calls") return null;
+function phoneHelpKey(tab: PhoneTab, chatDone: boolean, seenCalls: boolean, seenFamily: boolean) {
+  if (tab !== "chat") return null;
+  if (chatDone && !seenFamily) return "minigame.phoneChat.helpFamily" as const;
   if (chatDone && !seenCalls) return "minigame.phoneChat.helpCalls" as const;
   return "minigame.phoneChat.help" as const;
 }
@@ -92,11 +95,12 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   const [tab, setTab] = useState<PhoneTab>("chat");
   const [revealed, setRevealed] = useState(INITIAL_REVEALED);
   const [seenCalls, setSeenCalls] = useState(false);
+  const [seenFamily, setSeenFamily] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const chatDone = !hasLater(revealed);
-  const done = isThreadComplete(revealed, seenCalls);
-  const helpKey = phoneHelpKey(tab, chatDone, seenCalls);
+  const done = isThreadComplete(revealed, seenCalls, seenFamily);
+  const helpKey = phoneHelpKey(tab, chatDone, seenCalls, seenFamily);
 
   /** 아래로 한 줄 더 읽어 내려간다. */
   const readNext = useCallback(() => {
@@ -112,6 +116,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
     playSound("select");
     setTab(next);
     if (next === "calls") setSeenCalls(true);
+    if (next === "family") setSeenFamily(true);
   }, []);
 
   // 새 줄이 아래에 붙는 화면이라 방금 열린 줄이 보이려면 바닥을 따라가야 한다.
@@ -142,16 +147,37 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
       <PhoneShell
         tab={tab}
         onTab={openTab}
-        title={t(tab === "chat" ? "minigame.phoneChat.chat.room" : "minigame.phoneChat.callsTitle")}
+        title={t(
+          tab === "chat"
+            ? "minigame.phoneChat.chat.room"
+            : tab === "family"
+              ? "minigame.phoneChat.family.room"
+              : "minigame.phoneChat.callsTitle",
+        )}
         subtitle={t(
-          tab === "chat" ? "minigame.phoneChat.chat.members" : "minigame.phoneChat.callsSubtitle",
+          tab === "chat"
+            ? "minigame.phoneChat.chat.members"
+            : tab === "family"
+              ? "minigame.phoneChat.family.members"
+              : "minigame.phoneChat.callsSubtitle",
         )}
         clock="20:47"
-        badge={seenCalls ? 0 : callTotal}
-        tabLabels={{
-          chat: t("minigame.phoneChat.tab.chat"),
-          calls: t("minigame.phoneChat.tab.calls"),
-        }}
+        tabs={[
+          { id: "chat", label: t("minigame.phoneChat.tab.chat"), Icon: ChatCircleDots },
+          // 가족 탭의 배지는 엄마 대화방의 "1"이다. 가족 단톡을 열어 봐도 이 숫자는 안 준다
+          {
+            id: "family",
+            label: t("minigame.phoneChat.tab.family"),
+            Icon: UsersThree,
+            badge: MOM_UNREAD,
+          },
+          {
+            id: "calls",
+            label: t("minigame.phoneChat.tab.calls"),
+            Icon: PhoneDisconnect,
+            badge: seenCalls ? 0 : callTotal,
+          },
+        ]}
       >
         {tab === "chat" ? (
           // 한 줄씩 붙는 대화창이라 role="log"가 맞는다. 새 줄이 스크린리더에 읽힌다.
@@ -192,6 +218,40 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
                 {t("minigame.phoneChat.moreBelow")}
               </p>
             ) : null}
+          </div>
+        ) : tab === "family" ? (
+          <div className="size-full overflow-y-auto bg-scene-navy px-3 py-3">
+            {/*
+              맨 위에 엄마와의 1:1 방이 고정돼 있다. 안 읽은 1이 그대로다. 누르지 않는다:
+              도해가 "나중에"로 미룬 방이다 (폰 2차 mom-chat이 연다).
+            */}
+            <div className="mb-3 flex items-center gap-2.5 rounded-xl bg-scene-dusk/60 px-3 py-2.5">
+              <span className="min-w-0 flex-1">
+                <span className="block text-[0.875rem] font-bold text-paper">
+                  {t("minigame.phoneChat.contact.mom")}
+                </span>
+                <span className="block truncate text-[0.75rem] text-bone/45">
+                  {t("minigame.phoneChat.family.momPreview")}
+                </span>
+              </span>
+              <span className="shrink-0 text-[0.6875rem] tabular-nums text-bone/40">07:12</span>
+              <span className="min-w-[1.15rem] shrink-0 rounded-full bg-ember px-1 text-center text-[0.6875rem] font-bold leading-[1.15rem] text-paper">
+                {MOM_UNREAD}
+              </span>
+            </div>
+            <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
+              {t("minigame.phoneChat.family.date")}
+            </p>
+            <ul className="flex flex-col gap-2.5">
+              {FAMILY_CHAT.map((message) => (
+                <Bubble
+                  key={message.id}
+                  message={message}
+                  text={t(message.textKey)}
+                  label={message.fromKey ? t(message.fromKey) : ""}
+                />
+              ))}
+            </ul>
           </div>
         ) : (
           <div className="size-full overflow-y-auto bg-scene-navy px-3 py-2">

@@ -36,7 +36,7 @@
     "exit": "Leave →",
     "ready": "The bedroom door is glowing",
     "exitReady": "The bat in the entryway is glowing",
-    "nudgeStay": "…There's nothing out there for me.",
+    "nudgeStay": "What's the point of going out.",
     "nudgeBat": "…Is it alright to go out now?"
   },
   "panel": {
@@ -136,7 +136,8 @@
       "answer": "ZOMBIE",
       "pool": "Z O M B I E R A D S K N",
       "wrong": "…No. That's not it.",
-      "slotLabel": "Blank {{index}}"
+      "slotLabel": "Blank {{index}}",
+      "hint": "Hint: the first {{value}} letter(s) revealed."
     },
     "photoWipe": {
       "title": "Wipe the Photo",
@@ -217,7 +218,7 @@
       "close": "Put the calendar down",
       "mark": {
         "incident": "{{month}}/{{day}}: the day it all stopped",
-        "nationals": "{{month}}/{{day}}: the national tournament"
+        "nationals": "{{month}}/{{day}}: the national tournament vs Eungang High"
       },
       "note": {
         "finals": "Finals",
@@ -265,7 +266,8 @@
       "openCalls": "See the call log",
       "tab": {
         "chat": "Group chat",
-        "calls": "Calls"
+        "calls": "Calls",
+        "family": "Family"
       },
       "chat": {
         "room": "Back row, baseball team",
@@ -287,6 +289,19 @@
         "dad": "Dad",
         "woojin": "Woojin",
         "taeo": "Taeo"
+      },
+      "helpFamily": "Open the Family tab too",
+      "family": {
+        "room": "Home 🏠",
+        "members": "Mom, Dad, me",
+        "date": "October 17",
+        "momPreview": "New message",
+        "f1": "Sweetie~ Mom and Dad are off for 3 days!! 🧳",
+        "f2": "Fridge is fully stocked~ don't starve 👍",
+        "f3": "Eat properly~ and go easy on the games lol",
+        "f4": "We'll send pics haha",
+        "f5": "Reply for once~~ 😤",
+        "f6": "k."
       }
     },
     "computerBrowse": {
@@ -316,54 +331,37 @@
       "truncated": "(the saved copy ends here)",
       "mail": {
         "m1": {
-          "subject": "We arrived safe",
-          "date": "October 15",
-          "b1": "Your mom and I got here fine. The sea is right outside the room.",
-          "b2": "She keeps telling me to send photos, so here are a few. Eat properly."
+          "subject": "Made it~",
+          "date": "October 17",
+          "b1": "Your mom and I got here fine. The sea is right outside the room!",
+          "b2": "She keeps telling me to send photos, so here are a few. Eat properly~"
         },
         "m2": {
-          "subject": "Back the day after tomorrow",
+          "subject": "Heading back tomorrow",
           "date": "October 18",
-          "b1": "We had a good rest. We should be home by evening the day after tomorrow.",
-          "b2": "Want us to bring you anything? Write back."
+          "b1": "Had a good rest. Home by tomorrow evening!",
+          "b2": "Want us to bring you anything? Write back~"
         }
       },
       "news": {
         "n1": {
-          "headline": "Unexplained behavioral cases reported… health authorities investigating",
-          "date": "October 12",
-          "b1": "Local hospitals report a growing number of similar symptoms. Authorities say they are not ruling out an infection.",
+          "headline": "Unexplained behavior reported near research facility… first report",
+          "date": "October 19, 15:08",
+          "b1": "Reports of unexplained behavior came in one after another near a research facility this afternoon. Authorities say they are not ruling out an infection.",
           "b2": "Experts urge people to avoid contact and report symptoms immediately."
         },
         "n2": {
-          "headline": "Signs of nationwide spread… government urges people to stay in",
-          "date": "October 17",
-          "b1": "Cases are being reported across the country. The government has advised against all non-essential travel.",
+          "headline": "Spreading fast… government urges people to stay in",
+          "date": "October 19, 17:40",
+          "b1": "Two hours after the first report, cases are coming in from nearby cities. The government has advised against going out at all.",
           "b2": "Major roads have begun to close."
         },
         "n3": {
           "headline": "BREAKING: Perimeter around the capital collapses",
-          "date": "October 19",
-          "b1": "The army said at dawn today that the outer perimeter"
+          "date": "October 19, 21:52",
+          "b1": "The army said tonight that the outer perimeter"
         }
       }
-    },
-    "phoneLock": {
-      "title": "Lock Screen",
-      "help": "Four-digit passcode: type with the number keys",
-      "help_touch": "Tap in the four-digit passcode",
-      "hint": "Hint: the day everything stopped",
-      "wrong": "Wrong passcode",
-      "sender": "Mom",
-      "notification": "3 new messages",
-      "erase": "Erase one digit",
-      "dateSent": "Sent on October 19",
-      "msg": {
-        "w1": "Dohae, you saw the news. Do not go outside",
-        "w2": "Dad and I left the trip right away but the roads are all blocked",
-        "w3": "Lock the door and wait. We'll be there soon"
-      },
-      "close": "Turn off the screen"
     },
     "photoPuzzle": {
       "title": "Piece It Together",
@@ -429,6 +427,45 @@
         "la": "La",
         "ti": "Ti"
       }
+    },
+    "momChat": {
+      "title": "Mom",
+      "help": "Open Mom's chat: click · Enter",
+      "help_touch": "Tap Mom's chat to open it",
+      "listTitle": "Chats",
+      "listSubtitle": "1 unread chat",
+      "roomSubtitle": "Direct message",
+      "message": "Sweetie~ come straight home after school today! No detours~"
+    },
+    "computerLogo": {
+      "title": "Saved Images",
+      "help": "Pick the logo that matches the label scrap: click",
+      "help_touch": "Tap the logo that matches the label scrap",
+      "app": "Photos · Saved pages",
+      "label": "What's left of the ampoule label",
+      "wrong": "…Not this one.",
+      "found": "The same logo in two places: the badge in Dad's photo, and the research facility gate in the news.",
+      "source": {
+        "hotel": "Mail attachment IMG_2183.jpg",
+        "badge": "Mail attachment IMG_2190.jpg",
+        "health": "Cached news: health authority briefing",
+        "gate": "Cached news: research facility gate"
+      },
+      "mail": {
+        "date": "October 16",
+        "subject": "Bathroom cabinet",
+        "b1": "Your mom wanted a new lock on the bathroom sink cabinet, so I changed it! A dial one~",
+        "b2": "Set it to your number~ you won't forget that one, right? 😎"
+      }
+    },
+    "sinkDial": {
+      "title": "Cabinet Dial",
+      "help": "Turn with ↑/↓, move with ←/→ · Enter to open",
+      "help_touch": "Tap the arrows to turn the digits, then tap Open",
+      "fails": "Wrong tries",
+      "up": "Turn digit {{index}} up",
+      "down": "Turn digit {{index}} down",
+      "open": "Open"
     }
   },
   "characterSheet": {
@@ -490,7 +527,10 @@
   "playback": {
     "skip": "Skip",
     "close": "Close",
-    "replayTitle": "{{name}} · Replay"
+    "replayTitle": "{{name}} · Replay",
+    "sfx": {
+      "micTap": "Tap, tap"
+    }
   },
   "clue": {
     "read": "Look at the {{name}}",
@@ -536,15 +576,6 @@
       "hint": "Drag or use the buttons to turn",
       "caption": "…I look rough. How many days has it been like this."
     },
-    "researchNote": {
-      "title": "Papers on the Desk",
-      "heading": "Title goes here",
-      "l1": "Placeholder line.",
-      "l2": "Placeholder line.",
-      "l3": "Placeholder line.",
-      "caption": "Placeholder line.",
-      "illegible": "(illegible)"
-    },
     "take": "Take {{name}}"
   },
   "items": {
@@ -586,5 +617,13 @@
   },
   "callout": {
     "frame": "…That photo frame. I should look at it again."
+  },
+  "remark": {
+    "computerOff": "No internet anyway, even if I turn it on.",
+    "toothbrush": "Three toothbrushes. …Only one is wet.",
+    "sinkLocked": "Locked. Did Mom lock it?",
+    "sinkOpen": "…The key to their room.",
+    "pianoDone": "…Mom used to play this.",
+    "parentsLocked": "Their room is locked."
   }
 }

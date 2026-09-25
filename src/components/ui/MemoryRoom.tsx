@@ -32,7 +32,6 @@ import { ContactModal } from "./ContactModal";
 import { CustomCursor } from "./CustomCursor";
 import { DialogueBox } from "./DialogueBox";
 import { DialogueLog } from "./DialogueLog";
-import { DoorNudge } from "./DoorNudge";
 import { EndingScreen } from "./EndingScreen";
 import { FeedbackModal } from "./FeedbackModal";
 import { HudGuideBanner, HudGuideDock, HudSpaceLine } from "./HudGuide";
@@ -45,6 +44,7 @@ import { Monologue } from "./Monologue";
 import { NotebookTab } from "./NotebookTab";
 import { PlaybackScene } from "./PlaybackScene";
 import { PuzzleHost } from "./PuzzleHost";
+import { RemarkLine } from "./RemarkLine";
 import { RoomCallout } from "./RoomCallout";
 import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
@@ -344,7 +344,7 @@ export function MemoryRoom() {
           <PuzzleHost />
           {/* 지나간 대사: 대사창 위에 얹힌다. 입구는 대사창 안의 작은 버튼 하나 */}
           <DialogueLog />
-          <DoorNudge />
+          <RemarkLine />
           {/* 거실에 있는 동안 방의 액자가 켜졌다는 한 줄 (content-design 4-3) */}
           <RoomCallout />
         </>
