@@ -561,10 +561,7 @@
   "playback": {
     "skip": "건너뛰기",
     "close": "닫기",
-    "replayTitle": "{{name}} · 다시보기",
-    "sfx": {
-      "micTap": "탁, 탁"
-    }
+    "replayTitle": "{{name}} · 다시보기"
   },
   "clue": {
     "read": "{{name}} 보기",

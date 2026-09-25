@@ -204,8 +204,10 @@ memories:
         ko: 부산까지 번졌다고 했다. 이제 모르는 척할 수가 없다.
         en: They said it had reached Busan. I cannot pretend not to know anymore.
         ja: 釜山まで広がったと言っていた。もう知らないふりはできない。
+      phase2Title:
+        ko: 은강고
       phase2:
-        ko: 빨간 불이 켜진 라디오에서 생존자 방송이 나왔다. 은강고 체육관. 사흘 밤 뒤에는 떠난다고 했다.
+        ko: 생존자가 있다. 은강고 체육관. 사흘 밤. …그 목소리, 어디서 들어봤는데.
     # 1차 (관문): 나머지 여섯을 다 봐야 열린다. 반전은 한 번뿐이라 순서를 강제한다.
     # 진입 대사 → 튜닝 → 글자 맞추기("내가 방에 갇혀 있는 이유는?" 답: 좀비, 오답 세 번마다
     # 글자 힌트) → 재난방송(결과 대사) → 이미지 나열 컷씬(store가 radio-blackout을 연다).
@@ -214,8 +216,9 @@ memories:
       minigame: radio-quiz
       resultScript: radio-broadcast
       unlockAfter: [console, ball, frame, phone, calendar, window]
-    # 2차 (분기점): 빨갛게 깜빡이는 라디오를 누르면 곧장 생존자 방송이 흐른다.
-    # 튜닝을 두 번 시키지 않는다. 끝나면 방문에 금빛이 돈다.
+    # 2차 (분기점): 빨갛게 깜빡이는 라디오를 누르면 곧장 생존자 방송(3페이지 웹툰)이 흐른다.
+    # 튜닝을 두 번 시키지 않는다. 끝나면 방에서 도해의 한마디, 방문에 금빛이 돈다.
+    # 수첩 제목은 이 차수부터 "은강고"다 (phase2Title). 1차만 본 동안은 "그날의 방송".
     phase2:
       from: turning
       cutscene: survivor-broadcast

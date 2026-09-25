@@ -84,6 +84,36 @@ describe("콘텐츠 검증 (v4 스키마)", () => {
     expect(validateContent(content).join("\n")).toContain("holdMs");
   });
 
+  it("웹툰 칸은 그림·비율이 있고, 3:4 칸은 둘씩 짝을 이룬다", () => {
+    const panel = (page: number, ratio: string) => ({
+      image: "/assets/images/x.webp",
+      page,
+      ratio,
+      holdMs: 1000,
+      lines: [],
+    });
+    const content = minimal();
+    content.cutscenes.quiet = [panel(1, "16:9"), panel(1, "3:4"), panel(1, "3:4")] as never;
+    expect(validateContent(content)).toEqual([]);
+
+    content.cutscenes.quiet = [panel(1, "3:4"), panel(1, "16:9")] as never;
+    expect(validateContent(content).join("\n")).toContain("짝");
+
+    content.cutscenes.quiet = [panel(1, "16:9"), panel(3, "16:9")] as never;
+    expect(validateContent(content).join("\n")).toContain("차례로");
+
+    content.cutscenes.quiet = [{ holdMs: 1000, lines: [] }, panel(1, "16:9")] as never;
+    expect(validateContent(content).join("\n")).toContain("뒤에만");
+  });
+
+  it("차수별 수첩 제목은 그 차수가 있는 기억에만 붙는다", () => {
+    const content = minimal();
+    (content.memories[0].lore as Record<string, unknown>).phase2Title = text("새 제목");
+    expect(validateContent(content)).toEqual([]);
+    (content.memories[1].lore as Record<string, unknown>).phase1Title = text("없는 차수");
+    expect(validateContent(content).join("\n")).toContain("phase1Title");
+  });
+
   it("차수를 안 적은 조건은 같은 차수, 없으면 그 아래 가장 가까운 차수다", () => {
     expect(parseDependency("computer@3")).toEqual({ id: "computer", visit: 3 });
     expect(parseDependency("radio")).toEqual({ id: "radio", visit: undefined });

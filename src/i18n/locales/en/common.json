@@ -561,10 +561,7 @@
   "playback": {
     "skip": "Skip",
     "close": "Close",
-    "replayTitle": "{{name}} · Replay",
-    "sfx": {
-      "micTap": "Tap, tap"
-    }
+    "replayTitle": "{{name}} · Replay"
   },
   "clue": {
     "read": "Look at the {{name}}",

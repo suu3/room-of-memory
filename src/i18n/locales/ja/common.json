@@ -561,10 +561,7 @@
   "playback": {
     "skip": "スキップ",
     "close": "閉じる",
-    "replayTitle": "{{name}} · 見返す",
-    "sfx": {
-      "micTap": "トン、トン"
-    }
+    "replayTitle": "{{name}} · 見返す"
   },
   "clue": {
     "read": "{{name}}を見る",

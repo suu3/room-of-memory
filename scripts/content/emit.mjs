@@ -97,7 +97,8 @@ function emitModule(content) {
       lines.push("      {");
       if (cut.image !== undefined) lines.push(`        image: ${JSON.stringify(cut.image)},`);
       if (cut.holdMs !== undefined) lines.push(`        holdMs: ${cut.holdMs},`);
-      if (cut.panel !== undefined) lines.push(`        panel: ${JSON.stringify(cut.panel)},`);
+      if (cut.page !== undefined) lines.push(`        page: ${cut.page},`);
+      if (cut.ratio !== undefined) lines.push(`        ratio: ${JSON.stringify(cut.ratio)},`);
       if (cut.sfx !== undefined) lines.push(`        sfx: ${JSON.stringify(cut.sfx)},`);
       if (cut.narration === true) lines.push("        narration: true,");
       lines.push("        lines: [");
@@ -188,6 +189,12 @@ function emitLocale(content, base, locale) {
             VISIT_KEYS.filter((key) => memory.lore[key]).map((key) => [
               key,
               pick(memory.lore[key]),
+            ]),
+          ),
+          ...Object.fromEntries(
+            VISIT_KEYS.filter((key) => memory.lore[`${key}Title`]).map((key) => [
+              `${key}Title`,
+              pick(memory.lore[`${key}Title`]),
             ]),
           ),
         },

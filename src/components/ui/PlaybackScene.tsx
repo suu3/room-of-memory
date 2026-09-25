@@ -7,16 +7,21 @@ import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
 import { playSound, startNoiseBed } from "@/lib/audio";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
-import type { CutsceneCut } from "@/types/interaction";
 import { CutDissolve } from "./CutDissolve";
 import { grainForCut } from "./cut-dissolve";
 import { PhotoMorph } from "./PhotoMorph";
 import { morphSeed } from "./photo-morph";
+import { WebtoonViewer } from "./WebtoonViewer";
 
 /** 방송이 마지막으로 지직거리는 구간. */
 const STATIC_MS = 1100;
 /** 뚝 끊긴 뒤의 암전. 여기서 아무 소리도 나지 않는 것이 이 비트의 내용이다. */
 const BLACKOUT_MS = 900;
+/**
+ * 방송이 끊기는 치지직(CutsceneCut.sfx의 radioSignOff)의 잡음 길이. 짧은 효과음 한 방
+ * (0.6초 한도, voices.test)이 아니라 연출이라 노이즈 베드로 깔고 끝에서 radioCut으로 끊는다.
+ */
+const SIGN_OFF_MS = 800;
 
 /**
  * 그림이 서 있는 동안 바닥에 까는 테이프 히스. 곡이 아니라 "재생 중"이라는 기척이다.
@@ -176,8 +181,10 @@ export function PlaybackScene() {
    * 그림이 서 있는 동안의 소리: 서는 순간 영사기가 걸리고(reelStart), 바닥에 히스가
    * 깔린다. 암전(blackout)에는 닿지 않는다. 거기서는 아무 소리도 안 나는 것이 내용이다.
    * 그림 없는 컷씬(bare)은 방에서 하는 말이라 방의 소리가 그대로 남는다.
+   * 웹툰(생존자 방송)은 필름이 아니라 라디오라 영사기도 셔터도 없다. 소리는 칸의 sfx 몫이다.
    */
-  const screening = active !== null && stage === "cuts" && !bare;
+  const webtoon = isCutscene && active?.cuts.some((each) => each.page !== undefined) === true;
+  const screening = active !== null && stage === "cuts" && !bare && !webtoon;
   useEffect(() => {
     if (!screening) return;
     playSound("reelStart");
@@ -199,7 +206,21 @@ export function PlaybackScene() {
   const cutSfx = stage === "cuts" ? cut?.sfx : undefined;
   // biome-ignore lint/correctness/useExhaustiveDependencies: cutIndex·playbackKey는 본문에서 읽지 않고 "컷이 바뀌었다"는 신호로만 쓴다. 같은 효과음이 이어진 컷에서도 다시 울려야 한다.
   useEffect(() => {
-    if (cutSfx) playSound(cutSfx);
+    if (!cutSfx) return;
+    if (cutSfx !== "radioSignOff") {
+      playSound(cutSfx);
+      return;
+    }
+    const bed = startNoiseBed({ gain: 0.09, highpass: 900, lowpass: 7000 });
+    bed?.setLevel(1);
+    const timer = window.setTimeout(() => {
+      bed?.stop();
+      playSound("radioCut");
+    }, SIGN_OFF_MS);
+    return () => {
+      window.clearTimeout(timer);
+      bed?.stop();
+    };
   }, [cutSfx, cutIndex, playbackKey]);
 
   /*
@@ -245,13 +266,8 @@ export function PlaybackScene() {
 
   if (!active) return null;
 
-  /*
-   * 웹툰 컷 (CutsceneCut.panel): 판을 통째로 덮지 않고 좌우 절반에 칸으로 선다. 지금
-   * 컷의 칸이 새로 들어오고, 반대편에는 그 전에 들어온 칸이 남는다. 좌우로 번갈아
-   * 들어오는 두 칸이 나란히 읽히는 것이 이 연출이다 (v4 3-3-1).
-   */
-  const panelMode = isCutscene && cut?.panel !== undefined && stage === "cuts";
-  const panels = panelMode ? latestPanels(active.cuts, active.cutIndex) : null;
+  // 생존자 방송: 페이지 단위 웹툰은 제 뷰어가 통째로 맡는다 (칸·말풍선·페이지 넘김)
+  if (webtoon) return <WebtoonViewer active={active} />;
 
   const image = cut?.image;
   const showImage = stage === "cuts" && image !== undefined && !missing.includes(image);
@@ -288,31 +304,7 @@ export function PlaybackScene() {
           isCutscene ? "" : "pt-16 pb-60"
         }`}
       >
-        {panels && (
-          <div className="grid h-full max-h-full w-full max-w-[min(100%,177.7svh)] grid-cols-2 gap-[2%] p-[4%]">
-            {(["left", "right"] as const).map((side) => {
-              const panel = panels[side];
-              return (
-                <div key={side} className="relative min-h-0">
-                  {panel && (
-                    <WebtoonPanel
-                      key={`${playbackKey}:${panel.index}`}
-                      image={panel.cut.image}
-                      side={side}
-                      current={panel.index === active.cutIndex}
-                      sfxKey={panel.cut.sfx}
-                      missing={panel.cut.image ? missing.includes(panel.cut.image) : true}
-                      onMissing={(src) =>
-                        setMissing((ids) => (ids.includes(src) ? ids : [...ids, src]))
-                      }
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-        {showPlate && !panels && (
+        {showPlate && (
           <div
             className={`relative h-full max-h-full w-full ${
               isCutscene
@@ -426,67 +418,6 @@ export function PlaybackScene() {
           {t(isCutscene ? "playback.skip" : "playback.close")}
         </button>
       )}
-    </div>
-  );
-}
-
-/** 지금까지 들어온 칸 중 좌우 각각 가장 최근의 것. 같은 편의 옛 칸은 새 칸에 덮인다. */
-function latestPanels(cuts: readonly CutsceneCut[], upTo: number) {
-  const result: Partial<Record<"left" | "right", { cut: CutsceneCut; index: number }>> = {};
-  for (let index = 0; index <= upTo; index++) {
-    const cut = cuts[index];
-    if (cut?.panel) result[cut.panel] = { cut, index };
-  }
-  return result;
-}
-
-/** 그림이 아직 없을 때 칸 안에 세우는 의성어 (무음으로 하는 사람도 소리를 본다). */
-const SFX_CAPTION = { micTap: "playback.sfx.micTap" } as const;
-
-/**
- * 웹툰 칸 하나. 자기 편에서 미끄러져 들어오며 떠오른다. 지금 말하는 칸이 아니면
- * 한 톤 가라앉는다. 그림이 없으면 테두리만 선 빈 칸에 의성어를 대신 세운다.
- */
-function WebtoonPanel({
-  image,
-  side,
-  current,
-  sfxKey,
-  missing,
-  onMissing,
-}: {
-  image?: string;
-  side: "left" | "right";
-  current: boolean;
-  sfxKey?: string;
-  missing: boolean;
-  onMissing: (src: string) => void;
-}) {
-  const { t } = useTranslation();
-  const caption = sfxKey ? SFX_CAPTION[sfxKey as keyof typeof SFX_CAPTION] : undefined;
-  return (
-    <div
-      className={`absolute inset-0 overflow-hidden rounded-sm border-2 border-ivory/80 bg-scene-storm shadow-panel transition-[opacity,filter] duration-500 ${
-        side === "left" ? "animate-panel-in-left" : "animate-panel-in-right"
-      } ${current ? "opacity-100" : "opacity-55 saturate-50"}`}
-    >
-      {image && !missing ? (
-        /* biome-ignore lint/performance/noImgElement: 파일이 없을 때 onError로 빈 칸에 떨어져야 해서 최적화 파이프라인을 타지 않는다. */
-        <img
-          src={image}
-          alt=""
-          draggable={false}
-          onError={() => onMissing(image)}
-          className="absolute inset-0 size-full select-none object-cover"
-        />
-      ) : caption ? (
-        <p
-          aria-hidden
-          className="absolute left-[8%] top-[8%] -rotate-6 font-pixel text-3xl tracking-[0.2em] text-memory"
-        >
-          {t(caption)}
-        </p>
-      ) : null}
     </div>
   );
 }

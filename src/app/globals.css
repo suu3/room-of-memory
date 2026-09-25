@@ -148,9 +148,15 @@
    * 보인다. 길이를 바꾸면 찢김의 꼭대기(0.15s)보다는 늦게 떠오르게 둘 것.
    */
   --animate-playback-enter: playback-enter 0.5s ease-out both;
-  /* 웹툰 칸이 제 편에서 밀려 들어온다 (생존자 방송, PlaybackScene의 WebtoonPanel) */
-  --animate-panel-in-left: panel-in-left 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  --animate-panel-in-right: panel-in-right 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  /*
+   * 생존자 방송 웹툰 (WebtoonViewer). 페이지 바탕이 0.3초에 깔리고, 칸은 12px 아래에서
+   * 0.4초에 떠오른다. 페이지 넘김은 0.5초: 옛 장이 왼쪽으로 나가고 새 장이 오른쪽에서
+   * 든다. 길이를 바꾸면 WebtoonViewer의 PANEL_IN_MS·PAGE_TURN_MS도 같이.
+   */
+  --animate-webtoon-page-fade: fade-only 0.3s ease-out both;
+  --animate-webtoon-panel-in: webtoon-panel-in 0.4s ease-out both;
+  --animate-webtoon-page-in: webtoon-page-in 0.5s cubic-bezier(0.3, 0.7, 0.2, 1) both;
+  --animate-webtoon-page-out: webtoon-page-out 0.5s cubic-bezier(0.5, 0, 0.7, 0.4) both;
   --animate-loading-sweep: loading-sweep 1.6s ease-in-out infinite;
   /*
    * 부팅 커튼이 걷히는 동작 (BootCurtain). 방의 창 커튼과 같은 몸짓이라 위로 접혀
@@ -322,10 +328,21 @@
     }
   }
 
-  @keyframes panel-in-left {
+  @keyframes webtoon-panel-in {
     from {
       opacity: 0;
-      transform: translateX(-6%);
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes webtoon-page-in {
+    from {
+      opacity: 0.4;
+      transform: translateX(100%);
     }
     to {
       opacity: 1;
@@ -333,14 +350,14 @@
     }
   }
 
-  @keyframes panel-in-right {
+  @keyframes webtoon-page-out {
     from {
-      opacity: 0;
-      transform: translateX(6%);
-    }
-    to {
       opacity: 1;
       transform: translateX(0);
+    }
+    to {
+      opacity: 0.4;
+      transform: translateX(-100%);
     }
   }
 

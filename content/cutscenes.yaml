@@ -1,15 +1,20 @@
 # 컷씬: 일러스트 위로 대사가 흐르는 연출 (v4 설계서 3-3 · 3-6).
 #
 # 그림 안에 말풍선을 넣지 않는 것이 이 연출의 규칙이라, 대사는 컷씬 전용 창을
-# 새로 만들지 않고 기존 대사창(DialogueBox)이 그대로 받는다. 컷씬이 도는 동안
+# 새로 만들지 않고 기존 대사창(DialogueBox)이 그대로 받는다. 예외는 웹툰(page)
+# 하나다: 생존자 방송은 라디오 말풍선이 칸 안에 선다. 컷씬이 도는 동안
 # BGM은 멎는다 (selectMusicPlaying).
 #
 # 컷 하나의 형태:
 #   image   일러스트 경로 (public 기준). 파일이 아직 없어도 회색 판이 자리를 지킨다.
 #           없으면 그림 없이 방이 그대로 비친 채 대사창만 뜬다.
-#   panel   left | right. 웹툰 컷: 판을 통째로 덮지 않고 그쪽 절반에 칸으로 선다.
-#           앞 컷의 칸은 반대편에 남아, 좌우로 번갈아 들어오는 두 칸이 나란히 읽힌다.
-#   sfx     컷이 뜨는 순간 한 번 나는 효과음 (schema.mjs의 CUT_SFX).
+#   page    웹툰 칸의 페이지(1부터). 있으면 웹툰 뷰어(WebtoonViewer)로 돈다: 페이지 안에서
+#           칸이 번호순으로 떠오르고, 대사는 칸 안의 라디오 말풍선(한 줄)이다. 페이지 없는
+#           컷은 맨 뒤에만: 웹툰이 걷힌 뒤 방에서 대사창으로 흐르는 한마디다.
+#   ratio   웹툰 칸의 비율. "16:9"는 페이지 폭 한 줄, "3:4"는 둘이 나란히 한 줄.
+#   narration  true면 누르지 않아도 줄이 저절로 찍히고 다 찍히면 다음 컷 (과거편).
+#   sfx     컷이 뜨는 순간 한 번 나는 효과음 (schema.mjs의 CUT_SFX). radioSignOff는
+#           0.8초 치지직 뒤 끊김.
 #   holdMs  대사가 끝난 뒤 대사창 없이 그림만 남기는 시간(ms). 대사가 없는 컷
 #           (lines: [])은 이 시간만큼 그림만 서 있다가 저절로 넘어간다.
 #   lines   scripts.yaml과 같은 형태 (speaker / expression / ko / en / ja).
@@ -97,34 +102,81 @@ cutscenes:
           ko: 사방에서 들려오는 비명소리에 귀를 막았다.
 
   #
-  # 생존자 방송: 웹툰 컷이 좌우로 번갈아 들어온다. 첫 컷에 마이크를 탁, 탁 두 번
-  # 두드리는 소리가 나고, 그림에도 의성어 "탁, 탁"이 그려진다 (무음으로 하는 사람도
-  # 알아볼 수 있게). 화자 이름은 ??? 그대로다. 이름은 게임 안에서 부르지 않는다.
+  # 생존자 방송: 3페이지 10칸 웹툰 (WebtoonViewer). 페이지 안에서 칸이 번호순으로
+  # 떠오르고, 방송 대사는 대사창이 아니라 칸 안의 라디오 말풍선이다. 16:9 칸은 페이지
+  # 폭 한 줄, 3:4 칸은 둘이 나란히 한 줄. 말풍선은 다 찍히면 0.6초 뒤, 대사 없는 칸은
+  # holdMs 뒤 다음 칸. 화자 이름은 ??? 그대로다. 이름은 게임 안에서 부르지 않는다.
+  # ①의 "탁, 탁"은 그림 몫이고 소리(micTap)만 낸다. 대사 칸마다 짧은 라디오 노이즈,
+  # ⑩에서 치지직 끊김. 웹툰이 걷히면 방에서 도해의 한마디가 대사창으로 흐른다.
   survivor-broadcast:
-    - image: /assets/images/cutscene-survivor-1.webp
-      panel: left
+    # 1페이지
+    - image: /assets/images/cutscene-survivor-1.webp?v=2
+      page: 1
+      ratio: "16:9"
       sfx: micTap
+      holdMs: 1500
+      lines: []
+    - image: /assets/images/cutscene-survivor-2.webp?v=2
+      page: 1
+      ratio: "3:4"
+      holdMs: 1500
+      lines: []
+    - image: /assets/images/cutscene-survivor-3.webp?v=2
+      page: 1
+      ratio: "3:4"
+      holdMs: 1500
+      lines: []
+    - image: /assets/images/cutscene-survivor-4.webp?v=2
+      page: 1
+      ratio: "16:9"
+      sfx: radioStatic
       lines:
         - speaker: signal
-          ko: 아, 이거 나가긴 하는 거야?
-    - image: /assets/images/cutscene-survivor-2.webp
-      panel: right
+          ko: 어이, 거기 누구 없어? …이거 나가긴 하는 거야?
+    # 2페이지
+    - image: /assets/images/cutscene-survivor-5.webp?v=2
+      page: 2
+      ratio: "3:4"
+      sfx: radioStatic
       lines:
         - speaker: signal
           ko: 생존자 있으면 들어. 우리 여기 모여 있어. 치료할 방법도 찾고 있고.
-    - image: /assets/images/cutscene-survivor-3.webp
-      panel: left
+    - image: /assets/images/cutscene-survivor-6.webp?v=2
+      page: 2
+      ratio: "3:4"
+      holdMs: 1500
+      lines: []
+    - image: /assets/images/cutscene-survivor-7.webp?v=2
+      page: 2
+      ratio: "16:9"
+      sfx: radioStatic
       lines:
         - speaker: signal
           ko: 사흘 밤 지나면 여기서 이동한다. 그 뒤엔 우리도 어디로 갈지 몰라.
-    - image: /assets/images/cutscene-survivor-4.webp
-      panel: right
+    # 3페이지
+    - image: /assets/images/cutscene-survivor-8.webp?v=2
+      page: 3
+      ratio: "16:9"
+      sfx: radioStatic
       lines:
         - speaker: signal
-          ko: 다시 한번 말한다. 은강고 체육관으로 모여. …늦지 말고 와.
-    # 치지직: 방송이 끊기고 방으로 돌아온다
-    - sfx: radioCut
+          ko: 다시 한번 말한다. 은강고 체육관으로 모여.
+    - image: /assets/images/cutscene-survivor-9.webp?v=2
+      page: 3
+      ratio: "3:4"
+      sfx: radioStatic
       lines:
+        - speaker: signal
+          ko: …늦지 말고 와.
+    # 치지직: 방송이 끊긴다. 0.8초 끊김 뒤 웹툰이 걷힌다
+    - image: /assets/images/cutscene-survivor-10.webp?v=2
+      page: 3
+      ratio: "3:4"
+      sfx: radioSignOff
+      holdMs: 1500
+      lines: []
+    # 방으로 돌아와서
+    - lines:
         - speaker: hero
           expression: surprised
           ko: 은강고…? 그때 그…?

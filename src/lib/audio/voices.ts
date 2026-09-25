@@ -37,6 +37,8 @@ export type VoiceId =
   | "radioLock"
   | "radioCut"
   | "radioWake"
+  // 생존자 방송 웹툰: 말풍선마다 짧은 노이즈, 끝의 치지직 끊김
+  | "radioStatic"
   | "phoneBeep"
   // 생존자 방송의 첫 컷: 마이크를 손가락으로 탁, 탁 두 번 (v4 3-3-1)
   | "micTap"
@@ -304,6 +306,14 @@ export const VOICES: Record<VoiceId, Voice> = {
   radioWake: {
     tones: [{ from: 90, to: 210, waveform: "sawtooth", delay: 0.02, duration: 0.12, gain: 0.08 }],
     noise: { delay: 0, duration: 0.22, gain: 0.16, highpass: 1400, lowpass: 5200, attack: 0.04 },
+  },
+  /**
+   * 방송 한 마디가 들기 직전의 짧은 지직. 송신 버튼을 누르는 순간의 잡음이라 대사를
+   * 덮지 않게 짧고 작다 (생존자 방송 웹툰의 말풍선마다).
+   */
+  radioStatic: {
+    tones: [],
+    noise: { delay: 0, duration: 0.28, gain: 0.12, highpass: 1200, lowpass: 6800, attack: 0.02 },
   },
   /**
    * 옛날 폰 문자 알림. 그 시절 알림음은 대개 사각파 두 방이었고, 지금 귀에 거슬리는

@@ -57,7 +57,7 @@ function freqAt(position: number): string {
 const LOCKED_STATIC = { floor: 0.09, spike: 0.32, everyMs: 220 };
 
 /**
- * 좌우로 흔들리는 바늘이 목표 대역을 지나는 순간 Space: 5회 맞추면 클리어.
+ * 좌우로 흔들리는 바늘이 목표 대역을 지나는 순간 Space: 3회 맞추면 클리어.
  * 맞출수록 대역이 좁아지고 바늘이 빨라진다 (./difficulty.ts).
  */
 export function FrequencyTuneMinigame({

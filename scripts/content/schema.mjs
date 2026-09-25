@@ -89,13 +89,16 @@ export const FROM_PHASES = ["turning", "p2", "p3", "p4"];
 export const VISIT_KEYS = ["phase1", "phase2", "phase3"];
 
 /** 컷에 붙일 수 있는 효과음 (src/lib/audio/voices.ts의 이름). 컷이 뜨는 순간 한 번 난다. */
-export const CUT_SFX = ["micTap", "radioCut", "radioWake"];
+export const CUT_SFX = ["micTap", "radioCut", "radioWake", "radioStatic", "radioSignOff"];
 
-/** 웹툰 컷의 자리. 없으면 그림이 판을 통째로 덮는다. */
-export const CUT_PANELS = ["left", "right"];
+/**
+ * 웹툰 칸의 비율. 16:9는 페이지 폭을 다 쓰는 한 줄, 3:4는 둘이 나란히 한 줄이다.
+ * 페이지(page)가 붙은 컷만 쓴다 (생존자 방송).
+ */
+export const CUT_RATIOS = ["16:9", "3:4"];
 
 /** 컷에서 허용하는 키. */
-export const CUT_KEYS = ["image", "holdMs", "panel", "sfx", "narration", "lines"];
+export const CUT_KEYS = ["image", "holdMs", "page", "ratio", "sfx", "narration", "lines"];
 
 /** 저작 파일과 그 안의 최상위 키. */
 export const SOURCES = {

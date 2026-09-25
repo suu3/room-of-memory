@@ -4,7 +4,7 @@ import { REPO_ROOT } from "./load.mjs";
 import {
   BASE_LOCALE,
   CUT_KEYS,
-  CUT_PANELS,
+  CUT_RATIOS,
   CUT_SFX,
   EXPRESSIONS,
   FROM_PHASES,
@@ -159,11 +159,20 @@ export function validateContent(content, { minigameIds = [] } = {}) {
           issues.push(`${where}: 모르는 키 "${key}" (쓸 수 있는 키: ${CUT_KEYS.join(", ")})`);
         }
       }
-      if (cut.panel !== undefined && !CUT_PANELS.includes(cut.panel)) {
-        issues.push(`${where}.panel: ${CUT_PANELS.join("/")} 중 하나여야 한다.`);
-      }
-      if (cut.panel !== undefined && cut.image === undefined) {
-        issues.push(`${where}.panel: 웹툰 컷은 그림(image)이 있어야 선다.`);
+      if (cut.page !== undefined) {
+        if (!(Number.isInteger(cut.page) && cut.page > 0)) {
+          issues.push(`${where}.page: 1부터 세는 정수여야 한다.`);
+        }
+        if (cut.image === undefined)
+          issues.push(`${where}.page: 웹툰 칸은 그림(image)이 있어야 선다.`);
+        if (!CUT_RATIOS.includes(cut.ratio)) {
+          issues.push(`${where}.ratio: 웹툰 칸은 ${CUT_RATIOS.join(" / ")} 중 하나여야 한다.`);
+        }
+        if (Array.isArray(cut.lines) && cut.lines.length > 1) {
+          issues.push(`${where}: 웹툰 칸의 말풍선은 한 줄이다.`);
+        }
+      } else if (cut.ratio !== undefined) {
+        issues.push(`${where}.ratio: 페이지(page)가 있는 웹툰 칸에만 쓴다.`);
       }
       if (cut.sfx !== undefined && !CUT_SFX.includes(cut.sfx)) {
         issues.push(`${where}.sfx: "${cut.sfx}"는 허용 목록에 없다 (${CUT_SFX.join(", ")}).`);
@@ -197,6 +206,7 @@ export function validateContent(content, { minigameIds = [] } = {}) {
         validateLines(cut.lines, where, issues);
       }
     }
+    validateWebtoonPages(id, cuts, issues);
   }
 
   for (const stageId of STAGE_IDS) {
@@ -346,6 +356,39 @@ export function findUnlockCycles(memories) {
   return cycles;
 }
 
+/**
+ * 웹툰 컷씬(page가 붙은 컷)의 모양. 페이지는 1부터 차례로 늘고, 페이지 안에서 3:4 칸은
+ * 둘씩 나란히 한 줄을 이룬다. 페이지 없는 컷은 맨 뒤에만 설 수 있다: 웹툰이 걷힌 뒤
+ * 방에서 흐르는 한마디(생존자 방송 뒤 도해의 반응)다.
+ */
+function validateWebtoonPages(id, cuts, issues) {
+  const paged = cuts.map((cut) => isPlainObject(cut) && cut.page !== undefined);
+  if (!paged.some(Boolean)) return;
+  const where = `cutscenes.${id}`;
+  const firstLoose = paged.indexOf(false);
+  if (firstLoose !== -1 && paged.slice(firstLoose).some(Boolean)) {
+    issues.push(`${where}: 페이지 없는 컷은 웹툰 칸들 뒤에만 올 수 있다.`);
+  }
+  let page = 0;
+  let tallRun = 0;
+  for (const [index, cut] of cuts.entries()) {
+    if (!paged[index]) break;
+    if (cut.page !== page) {
+      if (tallRun % 2 !== 0) issues.push(`${where}: ${page}페이지의 3:4 칸이 짝이 안 맞는다.`);
+      if (cut.page !== page + 1)
+        issues.push(`${where}.cut${index + 1}: 페이지는 1부터 차례로 는다.`);
+      page = cut.page;
+      tallRun = 0;
+    }
+    if (cut.ratio === "3:4") tallRun += 1;
+    else if (tallRun % 2 !== 0) {
+      issues.push(`${where}.cut${index + 1}: 앞의 3:4 칸이 짝 없이 혼자 남았다.`);
+      tallRun = 0;
+    }
+  }
+  if (tallRun % 2 !== 0) issues.push(`${where}: ${page}페이지의 3:4 칸이 짝이 안 맞는다.`);
+}
+
 function validateLore(memory, issues) {
   const { id, lore } = memory;
   if (!isPlainObject(lore)) {
@@ -363,6 +406,15 @@ function validateLore(memory, issues) {
       validateText(lore[phase], `${id}.lore.${phase}`, issues);
     } else if (lore[phase] !== undefined) {
       issues.push(`${id}.lore.${phase}: ${phase}가 없는 기억인데 그 바퀴 기록만 남아 있다.`);
+    }
+    // 그 차수부터 바뀌는 제목 (예: 라디오 2차의 "은강고"). 없으면 title을 쓴다
+    const titleKey = `${phase}Title`;
+    if (lore[titleKey] !== undefined) {
+      if (memory[phase] === undefined) {
+        issues.push(`${id}.lore.${titleKey}: ${phase}가 없는 기억인데 그 바퀴 제목만 남아 있다.`);
+      } else {
+        validateText(lore[titleKey], `${id}.lore.${titleKey}`, issues);
+      }
     }
   }
 }
@@ -426,7 +478,10 @@ export function countTranslationTodos(content) {
   for (const memory of content.memories ?? []) {
     if (!isPlainObject(memory?.lore)) continue;
     visit(memory.lore.title, `${memory.id}.lore.title`);
-    for (const key of VISIT_KEYS) visit(memory.lore[key], `${memory.id}.lore.${key}`);
+    for (const key of VISIT_KEYS) {
+      visit(memory.lore[key], `${memory.id}.lore.${key}`);
+      visit(memory.lore[`${key}Title`], `${memory.id}.lore.${key}Title`);
+    }
   }
   for (const [id, lines] of Object.entries(content.scripts ?? {})) {
     for (const [index, line] of (lines ?? []).entries())

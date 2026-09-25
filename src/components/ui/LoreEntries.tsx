@@ -41,7 +41,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
   const { t } = useTranslation();
   const [page, setPage] = useState(0);
   const pageIds = MEMORY_IDS.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  const { t: tRoom } = useTranslation("memoryRoom");
+  const { t: tRoom, i18n } = useTranslation("memoryRoom");
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const rechecked = useMemoryRoomStore((state) => state.rechecked);
@@ -62,6 +62,12 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
           const visit = lastVisitDone(progress, id) ?? visitsOf(id)[0] ?? 1;
           const phase = visitConfig(id, visit);
           const bodyKey = `lore.${id}.phase${visit}` as ParseKeys<"memoryRoom">;
+          // 제목은 그 차수부터 바뀔 수 있다 (lore.phaseNTitle). 가장 가까운 앞 차수의 것을 쓴다
+          const titleKey = ([3, 2, 1] as const)
+            .filter((each) => each <= visit)
+            .map((each) => `lore.${id}.phase${each}Title`)
+            .find((key) => i18n.exists(key, { ns: "memoryRoom" }));
+          const title = tRoom((titleKey ?? `lore.${id}.title`) as ParseKeys<"memoryRoom">);
           const name = tRoom(`memories.${id}.name` as ParseKeys<"memoryRoom">);
 
           return (
@@ -91,7 +97,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
               */}
                 <h3 className="mt-2.5 text-xs font-medium tracking-[0.06em] text-graphite">
                   {unlocked ? (
-                    tRoom(`lore.${id}.title` as ParseKeys<"memoryRoom">)
+                    title
                   ) : (
                     <>
                       <span className="sr-only">{t("characterSheet.loreLocked")}</span>

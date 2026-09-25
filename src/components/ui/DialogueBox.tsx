@@ -57,9 +57,11 @@ export function DialogueBox() {
   const setLogOpen = useMemoryRoomStore((state) => state.setDialogueLogOpen);
 
   // 도입(라디오가 꺼지는 비트)과 정적 구간에는 창이 뜨지 않는다. 침묵도 연출이다
+  // 웹툰 칸(page)의 대사는 칸 안의 말풍선이 받는다 (WebtoonViewer). 대사창은 웹툰이 걷힌 뒤의 한마디만
   const playbackCut =
     playback && !playback.intro && !playback.holding ? playback.cuts[playback.cutIndex] : undefined;
-  const playbackLine = playbackCut?.lines[playback?.lineIndex ?? 0];
+  const bubbleCut = playbackCut?.page !== undefined;
+  const playbackLine = bubbleCut ? undefined : playbackCut?.lines[playback?.lineIndex ?? 0];
   /** 내레이션 컷 (CutsceneCut.narration): 오토를 켜지 않아도 저절로 넘어간다. */
   const narration = playbackLine !== undefined && playbackCut?.narration === true;
 

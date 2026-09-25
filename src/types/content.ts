@@ -47,6 +47,10 @@ export interface ContentLore {
   phase1?: LocalizedText;
   phase2?: LocalizedText;
   phase3?: LocalizedText;
+  /** 그 차수부터 바뀌는 제목. 없으면 title. 앞 차수에서 제목이 먼저 스포일러가 되지 않게. */
+  phase1Title?: LocalizedText;
+  phase2Title?: LocalizedText;
+  phase3Title?: LocalizedText;
 }
 
 export interface ContentMemory {
@@ -65,8 +69,10 @@ export interface ContentCut {
   image?: string;
   /** 대사가 끝난 뒤 그림만 남기는 시간(ms). */
   holdMs?: number;
-  /** 웹툰 컷의 자리 (left/right). */
-  panel?: "left" | "right";
+  /** 웹툰 칸의 페이지 (1부터). */
+  page?: number;
+  /** 웹툰 칸의 비율. */
+  ratio?: "16:9" | "3:4";
   /** 컷이 뜨는 순간의 효과음. */
   sfx?: string;
   /** 내레이션 컷: 줄이 저절로 한 줄씩 새로 찍히고, 다 찍히면 다음 컷으로. */

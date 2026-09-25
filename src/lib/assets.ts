@@ -85,11 +85,17 @@ export const ASSETS = {
     cutsceneDay5: "/assets/images/cutscene-day-5.webp?v=2",
     cutsceneDay6: "/assets/images/cutscene-day-6.webp?v=2",
     cutsceneDay7: "/assets/images/cutscene-day-7.webp?v=2",
-    /** 생존자 라디오 방송 중 좌·우로 번갈아 드는 세로 웹툰 칸. */
-    cutsceneSurvivor1: "/assets/images/cutscene-survivor-1.webp",
-    cutsceneSurvivor2: "/assets/images/cutscene-survivor-2.webp",
-    cutsceneSurvivor3: "/assets/images/cutscene-survivor-3.webp",
-    cutsceneSurvivor4: "/assets/images/cutscene-survivor-4.webp",
+    /** 생존자 방송 웹툰 10칸 (3페이지, content/cutscenes.yaml의 survivor-broadcast). */
+    cutsceneSurvivor1: "/assets/images/cutscene-survivor-1.webp?v=2",
+    cutsceneSurvivor2: "/assets/images/cutscene-survivor-2.webp?v=2",
+    cutsceneSurvivor3: "/assets/images/cutscene-survivor-3.webp?v=2",
+    cutsceneSurvivor4: "/assets/images/cutscene-survivor-4.webp?v=2",
+    cutsceneSurvivor5: "/assets/images/cutscene-survivor-5.webp?v=2",
+    cutsceneSurvivor6: "/assets/images/cutscene-survivor-6.webp?v=2",
+    cutsceneSurvivor7: "/assets/images/cutscene-survivor-7.webp?v=2",
+    cutsceneSurvivor8: "/assets/images/cutscene-survivor-8.webp?v=2",
+    cutsceneSurvivor9: "/assets/images/cutscene-survivor-9.webp?v=2",
+    cutsceneSurvivor10: "/assets/images/cutscene-survivor-10.webp?v=2",
     /** '뒤집으면 보인다' 조사 에셋. */
     mgIdCardFront: "/assets/images/mg-id-card-front.webp",
     mgIdCardBack: "/assets/images/mg-id-card-back.webp",

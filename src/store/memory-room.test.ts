@@ -565,8 +565,9 @@ describe("분기점: 라디오", () => {
     useMemoryRoomStore.getState().beginInteraction("radio");
     const playback = useMemoryRoomStore.getState().activePlayback;
     expect(playback?.cutsceneId).toBe("survivor-broadcast");
-    // 첫 컷은 왼쪽 칸이고 마이크를 탁, 탁 두드린다
-    expect(playback?.cuts[0].panel).toBe("left");
+    // 3페이지 웹툰이고, 첫 칸은 16:9에 마이크를 탁, 탁 두드린다
+    expect(playback?.cuts[0].page).toBe(1);
+    expect(playback?.cuts[0].ratio).toBe("16:9");
     expect(playback?.cuts[0].sfx).toBe("micTap");
     expect(selectHeardSurvivorBroadcast(useMemoryRoomStore.getState())).toBe(true);
 

@@ -249,8 +249,11 @@ describe("v4 진행 형태", () => {
         if (cut.image !== undefined)
           expect(cut.image).toMatch(/^\/assets\/images\/[^?]+\.webp(\?v=[\w.-]+)?$/);
         if (cut.lines.length === 0) expect(cut.holdMs ?? 0, cutscene.id).toBeGreaterThan(0);
-        // 웹툰 칸은 그림이 있어야 선다
-        if (cut.panel) expect(cut.image, cutscene.id).toBeDefined();
+        // 웹툰 칸은 그림과 비율이 있어야 선다
+        if (cut.page !== undefined) {
+          expect(cut.image, cutscene.id).toBeDefined();
+          expect(cut.ratio, cutscene.id).toBeDefined();
+        }
       }
     }
   });

@@ -11,7 +11,7 @@ export const STORY_PHASES: readonly string[];
 export const FROM_PHASES: readonly string[];
 export const VISIT_KEYS: readonly string[];
 export const CUT_SFX: readonly string[];
-export const CUT_PANELS: readonly string[];
+export const CUT_RATIOS: readonly string[];
 export const CUT_KEYS: readonly string[];
 export const PHASE_KEYS: readonly string[];
 export const MEMORY_KEYS: readonly string[];

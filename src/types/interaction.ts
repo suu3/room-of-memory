@@ -71,10 +71,13 @@ export interface CutsceneCut {
   morphWithin?: { x: number; y: number; width: number; height: number };
   lines: DialogueScriptLine[];
   /**
-   * 웹툰 컷의 자리. 있으면 그림이 판을 통째로 덮지 않고 그쪽 절반에 칸으로 선다.
-   * 앞 컷의 칸은 반대편에 남아, 좌우로 번갈아 들어오는 두 칸이 나란히 읽힌다.
+   * 웹툰 칸의 페이지 (1부터). 있으면 이 컷씬은 웹툰 뷰어(WebtoonViewer)로 돈다: 페이지
+   * 안에서 칸이 번호순으로 떠오르고, 대사는 대사창이 아니라 칸 안의 라디오 말풍선이다.
+   * 페이지 없는 컷은 맨 뒤에만 선다: 웹툰이 걷힌 뒤 방에서 대사창으로 흐르는 한마디다.
    */
-  panel?: "left" | "right";
+  page?: number;
+  /** 웹툰 칸의 비율. 16:9는 페이지 폭 한 줄, 3:4는 둘이 나란히 한 줄. */
+  ratio?: "16:9" | "3:4";
   /** 컷이 뜨는 순간 한 번 나는 효과음 (src/lib/audio/voices.ts의 이름). */
   sfx?: CutSfx;
   /**
@@ -91,7 +94,7 @@ export interface CutsceneCut {
 }
 
 /** 컷에 붙는 효과음. scripts/content/schema.mjs의 CUT_SFX와 같아야 한다. */
-export type CutSfx = "micTap" | "radioCut" | "radioWake";
+export type CutSfx = "micTap" | "radioCut" | "radioWake" | "radioStatic" | "radioSignOff";
 
 /** 컷씬 하나. CUTSCENES 레지스트리(src/data)에 id로 등록. */
 export interface Cutscene {
