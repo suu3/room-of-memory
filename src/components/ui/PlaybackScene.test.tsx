@@ -80,4 +80,31 @@ describe("배트를 쥐는 두 줄의 화면", () => {
     expect(skip.className).toContain("bg-night/80");
     expect(skip.className).toContain("text-ivory");
   });
+
+  it("대사 없는 컷이 같은 정적으로 이어져도 컷마다 저절로 넘어간다", () => {
+    /*
+     * 이미지 나열(학교 → 엘리베이터 → …)은 컷마다 holdMs가 같고 대사가 없다. 컷이
+     * 바뀌어도 holding·holdMs가 그대로라 타이머가 다시 걸리지 않으면 둘째 컷에서 선다.
+     */
+    vi.useFakeTimers();
+    try {
+      useMemoryRoomStore.setState({
+        activePlayback: openCutscene(CUTSCENE_RADIO_BLACKOUT),
+      });
+      render(<PlaybackScene />);
+      const cutIndex = () => useMemoryRoomStore.getState().activePlayback?.cutIndex;
+      const firstHold = useMemoryRoomStore.getState().activePlayback?.cuts[0].holdMs ?? 0;
+      expect(firstHold).toBeGreaterThan(0);
+
+      for (const expected of [1, 2, 3]) {
+        const hold = useMemoryRoomStore.getState().activePlayback?.cuts[expected - 1].holdMs ?? 0;
+        act(() => {
+          vi.advanceTimersByTime(hold);
+        });
+        expect(cutIndex()).toBe(expected);
+      }
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

@@ -226,11 +226,12 @@ export function PlaybackScene() {
    */
   const holding = active?.holding === true && stage === "cuts";
   const holdMs = cut?.holdMs ?? 0;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cutIndex·playbackKey는 "컷이 바뀌었다"는 신호다. 대사 없는 컷이 같은 holdMs로 이어지면 holding·holdMs가 그대로라, 이것 없이는 둘째 컷에서 타이머가 다시 걸리지 않는다.
   useEffect(() => {
     if (!holding || holdMs <= 0) return;
     const timer = window.setTimeout(advancePlayback, holdMs);
     return () => window.clearTimeout(timer);
-  }, [holding, holdMs, advancePlayback]);
+  }, [holding, holdMs, advancePlayback, cutIndex, playbackKey]);
 
   // 다시보기는 Esc로 닫힌다. 되짚어 보다 그만두는 데 확인이 필요할 이유가 없다
   useEffect(() => {
