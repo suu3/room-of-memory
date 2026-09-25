@@ -17,7 +17,6 @@ export const PORTRAIT_SOURCES: Record<CharacterExpression, string> = {
   neutral: ASSETS.images.characterHeroNeutral,
   smile: ASSETS.images.characterHeroSmile,
   surprised: ASSETS.images.characterHeroSurprised,
-  embarrassed: ASSETS.images.characterHeroEmbarrassed,
 };
 
 export const PORTRAIT_EXPRESSIONS = Object.keys(PORTRAIT_SOURCES) as CharacterExpression[];

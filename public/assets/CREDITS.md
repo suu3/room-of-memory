@@ -16,7 +16,7 @@
 | images/mg-ball-catch-bat.webp | Style-matched with OpenAI built-in ImageGen for this project, 2026-09-25 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-ball-catch-impact.webp | Style-matched with OpenAI built-in ImageGen for this project, 2026-09-25 | OpenAI built-in ImageGen | Project-generated |
 | images/mg-frequency-tune-frame.webp | 사용자 제공 라디오 일러스트를 OpenAI built-in ImageGen으로 화풍 정리(2026-09-25). 외곽·표시창 알파 보존 | 미기재 (원본) · OpenAI built-in ImageGen (화풍 정리) | 프로젝트 편집 에셋 |
-| images/character-hero-neutral.webp, images/character-hero-smile.webp, images/character-hero-surprised.webp, images/character-hero-embarrassed.webp | 기존 주인공 초상을 OpenAI built-in ImageGen으로 선화·얼굴 비례·대일밴드 위치 정리 및 약한 당황 표정 추가(2026-09-25). 640×800, 투명 배경, 공통 알파 마스크 | 기존 프로젝트 에셋 (원본) · OpenAI built-in ImageGen (화풍·표정 편집) | 프로젝트 편집 에셋 |
+| images/character-hero-neutral.webp, images/character-hero-smile.webp, images/character-hero-surprised.webp | 사용자가 새로 넣은 주인공 초상 3장(2026-09-25 교체). 1348×1892 PNG를 이전 초상과 머리 폭·정수리 위치가 같도록 4:5로 잘라 640×800 webp로 변환. 투명 배경, 세 장 같은 크롭. embarrassed 표정은 이때 뺐다 | 미기재 (사용자 제공) | 미기재 |
 | images/character-hero-sheet.webp | 사용자가 새로 그린 LD 스케치를 OpenAI built-in ImageGen으로 기존 캐릭터 팔레트에 맞춰 채색·선화 정리(2026-09-25). SD 조각 제거, 상반신 크롭, 투명 배경 | suu3 (원본 스케치) · OpenAI built-in ImageGen (채색·마감) | 프로젝트 편집 에셋 |
 | images/mg-window-view-outside.webp | 사용자가 직접 넣은 창밖 일러스트(2026-08-04). webp로 변환 | 미기재 (사용자 제공) | 미기재 |
 | images/mg-photo-wipe-phase-1.webp, images/mg-photo-wipe-phase-2.webp | 사용자가 직접 넣은 액자 가족사진 일러스트 두 장(2026-09-12 교체). 1차는 부모 얼굴이 그늘에 묻힌 버전, 2차는 드러난 버전. webp | 미기재 (사용자 제공) | 미기재 |

@@ -6,7 +6,7 @@ import type { CharacterId } from "./scenario";
 export type MemoryRoomTextKey = ParseKeys<"memoryRoom">;
 
 /** 초상 프레임. 대사가 다 찍히면 이 표정으로 돌아온다 (타이핑 중에는 입 열린 프레임). */
-export type CharacterExpression = "neutral" | "smile" | "surprised" | "embarrassed";
+export type CharacterExpression = "neutral" | "smile" | "surprised";
 
 export interface DialogueScriptLine {
   speaker: CharacterId;
