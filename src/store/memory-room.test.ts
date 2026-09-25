@@ -529,6 +529,13 @@ describe("1페이즈: 강도 순서대로 열린다", () => {
     useMemoryRoomStore.getState().sayRemark("computer-off");
     expect(useMemoryRoomStore.getState().remark?.id).toBe("computer-off");
   });
+
+  it("이미 본 기억의 혼잣말은 어느 기억인지 같이 남긴다", () => {
+    useMemoryRoomStore.getState().sayRemark("seen", "cards" as MemoryId);
+    const remark = useMemoryRoomStore.getState().remark;
+    expect(remark?.id).toBe("seen");
+    expect(remark?.memoryId).toBe("cards");
+  });
 });
 
 describe("분기점: 라디오", () => {

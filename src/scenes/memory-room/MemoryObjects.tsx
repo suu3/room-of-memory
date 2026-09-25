@@ -1216,6 +1216,9 @@ export function InteractiveMemory({
             openClue(backgroundClue);
           } else if (lockedRemark) {
             sayRemark(lockedRemark);
+          } else if (!unseen) {
+            // 이미 본 기억: 다시 조사시키지 않고, 수첩에 남은 마지막 기록을 한 줄 흘린다
+            sayRemark("seen", id);
           }
           return;
         }

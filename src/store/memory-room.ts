@@ -88,7 +88,9 @@ export type RemarkId =
   | "sink-locked"
   | "sink-open"
   | "piano-done"
-  | "parents-locked";
+  | "parents-locked"
+  // 이미 본 기억을 다시 눌렀을 때: 그 기억의 마지막 기록 문장 (remark.memoryId)
+  | "seen";
 
 export type UiLockId =
   | "hud-menu"
@@ -336,7 +338,7 @@ export interface MemoryRoomState {
    * 잠긴 하부장처럼 눌러도 조사가 아닌 물건이 한 줄을 흘리는 신호다 (RemarkLine).
    * 방문의 줄은 잠긴 게 아니라 **안 여는** 것이라는 걸 말한다 (docs/content-design.md 3-1).
    */
-  remark: { id: RemarkId; at: number } | null;
+  remark: { id: RemarkId; at: number; memoryId?: MemoryId } | null;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   /** 재생을 한 칸 진행한다. 다음 줄 → 정적 → 다음 컷 → 종료 순. */
@@ -415,7 +417,8 @@ export interface MemoryRoomState {
   /** 닫힌 방문을 두드렸다. 문이 열려 있으면 아무 일도 없다. */
   nudgeDoor: () => void;
   /** 혼잣말 한 줄을 흘린다. 다른 화면이 떠 있으면 아무 일도 없다. */
-  sayRemark: (id: RemarkId) => void;
+  /** `seen`은 어느 기억의 기록인지(memoryId)를 같이 받는다. */
+  sayRemark: (id: RemarkId, memoryId?: MemoryId) => void;
   /** 엔딩 시작: 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
   startEnding: () => void;
   reset: () => void;
@@ -1186,11 +1189,11 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
                 },
               },
         ),
-      sayRemark: (id) =>
+      sayRemark: (id, memoryId) =>
         set((state) =>
           selectSceneInputLocked(state) || viewpointOf(state) !== null
             ? state
-            : { remark: { id, at: Date.now() } },
+            : { remark: { id, at: Date.now(), memoryId } },
         ),
       startEnding: () =>
         set((state) =>
