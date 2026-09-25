@@ -189,7 +189,7 @@ export function workbookObject(labels: WorkbookLabels): InspectObject {
   };
 }
 
-/* ── 식탁 카드 밑의 쪽지 (2페이즈, 안쪽에 엄마 메모) ─────────────────────────── */
+/* ── 식탁 위 쪽지 (2페이즈, 안쪽에 엄마 메모) ─────────────────────────── */
 
 /** 메모장에서 뜯은 노란 종이: 줄 친 바탕, 위쪽 뜯긴 자리, 가운데 접힌 자국. 방의 쪽지와 같은 색. */
 function paintNotePaper(
@@ -228,10 +228,10 @@ function paintNotePaper(
 }
 
 /**
- * 카드 판 밑에 끼워 둔 쪽지. 겉은 빈 종이이고, 뒤집으면(찾을 면) 엄마가 볼펜으로
- * 적은 메모다. 판을 치다 말고 급히 적어 카드 밑에 밀어 넣은 것이다.
+ * 식탁 위에 반으로 접어 둔 쪽지. 겉은 빈 종이이고, 뒤집으면(찾을 면) 엄마가 볼펜으로
+ * 적은 메모다.
  */
-export function cardNoteObject(memo: string, signature: string): InspectObject {
+export function tableNoteObject(memo: string, signature: string): InspectObject {
   const paintMemo: FacePainter = (ctx, size, palette, font) => {
     paintNotePaper(ctx, size, palette);
     handwriteLines(

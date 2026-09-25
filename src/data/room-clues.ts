@@ -140,8 +140,7 @@ export const RULE_CLUES = { "angle-turn": "desk-clock" } as const;
  * 미궁 문제 id: 기억이 아닌 물건에 붙는 문제다.
  *
  * 지금은 현관 잠금(angle-turn) 하나뿐이다. 식탁 트럼프(card-odd)는 2막 추리
- * 체인의 한 칸이 되면서 기억(`cards`)으로 올라갔다. 대사도 기록도 남는 조사라
- * 별개 축에 둘 이유가 없어졌다 (docs/content-design.md 4-1).
+ * 체인의 한 칸이 되면서 기억(`cards`)으로 올라갔고, 지금은 트럼프 대신 엄마 쪽지다.
  *
  * 여기 남은 것은 수집·재조사에 안 세어지고 완료는 solvedPuzzles에만 남는다.
  */

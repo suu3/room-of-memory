@@ -207,16 +207,11 @@ scripts:
 
   cards-intro:
     - speaker: hero
-      ko: 식탁에 카드가 그대로 있네.
-      en: The cards are still laid out on the table.
-      ja: 食卓にカードがそのまま残ってる。
-    - speaker: mom
-      ko: 다음에 오면 이거 마저 치자. 엄마가 이기고 있었던 거 기억해라. 하하하!
+      ko: 식탁 위에 쪽지가 있네.
     - speaker: hero
-      ko: …카드 밑에 쪽지가 끼어 있네.
-    # 카드 미궁(card-odd)의 규칙은 방 선반의 놀이책이 들고 있다 (src/data/room-clues.ts).
+      ko: 반으로 접혀 있다.
 
-  # 카드 밑에 끼워 둔 쪽지(card-flip)의 안쪽: 엄마 메모. 냉장고 아래칸으로 가는 다리다 (v4.1 3장)
+  # 식탁 위 쪽지(card-flip)의 안쪽: 엄마 메모. 냉장고 아래칸으로 가는 다리다 (v4.1 3장)
   cards-memo:
     - speaker: hero
       ko: …엄마 글씨다.

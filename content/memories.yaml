@@ -66,8 +66,8 @@ memories:
       script: console-intro
       minigame: fighter-duel
       resultScript: console-alone
-    # 2차: 곁가지 (v4 3-4). 필수 체인에서 빠졌다. 카드 미궁(card-odd)은 거실 식탁
-    # 트럼프로 이사했다: 여기 다시 붙이지 말 것.
+    # 2차: 곁가지 (v4 3-4). 필수 체인에서 빠졌다. 카드 미궁(card-odd)은 v4.1에서 뺐다:
+    # 여기 다시 붙이지 말 것.
     phase2:
       script: console-echo
       from: p2
@@ -263,17 +263,18 @@ memories:
       script: shoes-open
       from: p2
 
+  # 식탁 위 엄마 쪽지. id가 cards인 것은 트럼프 판이던 시절의 이름이다: 저장된 진행에
+  # 이 id가 남아 있어 바꾸지 않는다 (docs/story.md 2장, 엄마의 흔적)
   - id: cards
-    icon: Cards
+    icon: Note
     lore:
       title:
-        ko: 끝나지 않은 판
-        en: The Unfinished Hand
-        ja: 終わらなかった一局
+        ko: 식탁 위 쪽지
+        en: The Note on the Table
+        ja: 食卓のメモ
       phase2:
-        ko: 식탁에 그대로 있는 카드. 판 밑에 엄마 쪽지가 끼어 있었다. "아래칸 건드리지 마."
-    # 카드 판 밑에 끼워 둔 쪽지를 3D로 돌려 보면 안쪽에 엄마 메모 (card-flip, v4.1 3장).
-    # 트럼프 미궁(card-odd)은 v4.1에서 뺐다
+        ko: 식탁 위에 접어 둔 엄마 쪽지. "아래칸 건드리지 마." 여행 가는 사람이 남길 말은 아니다.
+    # 접힌 쪽지를 3D로 돌려 보면 안쪽에 엄마 메모 (card-flip, v4.1 3장)
     phase2:
       script: cards-intro
       minigame: card-flip

@@ -49,6 +49,7 @@ export const ICONS = [
   "ImageSquare",
   "Lamp",
   "MusicNotes",
+  "Note",
   "Package",
   "Radio",
   "Sneaker",

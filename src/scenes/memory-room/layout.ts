@@ -629,8 +629,8 @@ export const MEMORY_PLACEMENTS = {
   },
   cards: {
     id: "cards",
-    // 식탁 상판 윗면(0.975) 위에 펼쳐진 판. 상판 중심과 같은 자리다.
-    // 클릭 구는 판만 덮는 0.6: 1.9면 양끝 의자까지 덮어 앉으려는 클릭이 트럼프로 간다
+    // 식탁 상판 윗면(0.975) 위의 쪽지. 상판 중심과 같은 자리다.
+    // 클릭 구는 상판 가운데만 덮는 0.6: 1.9면 양끝 의자까지 덮어 앉으려는 클릭이 쪽지로 간다
     position: [LIVING_DINING_CENTER[0], scaleLivingHeight(0.975), LIVING_DINING_CENTER[1]],
     rotation: [0, 0, 0],
     scale: LIVING_FURNITURE_SCALE,

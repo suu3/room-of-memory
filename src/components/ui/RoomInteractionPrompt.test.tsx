@@ -18,7 +18,7 @@ const labels = {
   fridge: "Fridge",
   duffel: "Duffel",
   shoes: "Shoes",
-  cards: "Cards",
+  cards: "Note",
   ampoule: "Ampoule",
   "research-note": "Research Log",
   "id-card": "ID Badges",

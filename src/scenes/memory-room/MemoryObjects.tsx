@@ -845,59 +845,43 @@ function ShoeCabinetMemory({ palette, opacity }: VisualProps) {
 }
 
 /**
- * 식탁에 펼쳐진 트럼프: 넷이서 치다 만 판이 그대로다.
+ * 식탁 위 엄마 쪽지: 반으로 접어 세워 둔 노란 메모지 한 장 (card-flip).
  *
- * 원래 거실 가구(LivingRoomFurniture의 TableCards)가 미궁 문제(activePuzzle)로
- * 열던 물건인데, 2막 추리 체인의 한 칸이 되면서 기억으로 올라왔다. 미궁 축을
- * 따로 둘 이유가 사라졌다. 카드는 이제 대사도 기록도 남긴다. 판 밑에는 엄마 쪽지가
- * 끼어 있다 (card-flip).
+ * 원래는 치다 만 트럼프 판이었다. 판 밑에 메모를 끼우는 건 억지라 쪽지 하나만 남겼다.
+ * 넓은 상판 한가운데 작은 종이라, 텐트처럼 살짝 세워 그림자로 눈에 띄게 한다.
  */
-function TableCardsMemory({ palette, opacity }: VisualProps) {
+function TableNoteMemory({ palette, opacity }: VisualProps) {
   const transparent = opacity < 1;
   return (
-    <group>
-      {/* 덱: 반쯤 남은 더미 */}
-      <mesh position={[-0.15, 0.025, -0.02]} castShadow>
-        <boxGeometry args={[0.2, 0.05, 0.28]} />
-        <meshStandardMaterial
-          color={palette.trim}
-          roughness={0.7}
-          opacity={opacity}
-          transparent={transparent}
-        />
-      </mesh>
-      {SPREAD_CARDS.map(([x, z, turn]) => (
-        <mesh key={`${x}:${z}`} position={[x, 0.004, z]} rotation={[0, turn, 0]} castShadow>
-          <boxGeometry args={[0.18, 0.008, 0.26]} />
+    <group rotation={[0, 0.35, 0]}>
+      {([-1, 1] as const).map((side) => (
+        <mesh
+          key={side}
+          position={[
+            side * (NOTE_HALF / 2) * Math.cos(NOTE_FOLD),
+            (NOTE_HALF / 2) * Math.sin(NOTE_FOLD),
+            0,
+          ]}
+          rotation={[0, 0, -side * NOTE_FOLD]}
+          castShadow
+          receiveShadow
+        >
+          <boxGeometry args={[NOTE_HALF, 0.003, 0.14]} />
           <meshStandardMaterial
-            color={palette.linen}
-            roughness={0.7}
+            color={palette.sun}
+            roughness={0.85}
             opacity={opacity}
             transparent={transparent}
           />
         </mesh>
       ))}
-      {/* 엄마 쪽지: 오른쪽 앞 카드 밑에 반쯤 밀어 넣은 노란 메모지 (card-flip) */}
-      <mesh position={[0.4, 0.002, -0.2]} rotation={[0, 0.5, 0]} castShadow receiveShadow>
-        <boxGeometry args={[0.16, 0.004, 0.11]} />
-        <meshStandardMaterial
-          color={palette.sun}
-          roughness={0.85}
-          opacity={opacity}
-          transparent={transparent}
-        />
-      </mesh>
     </group>
   );
 }
 
-/** 흩어진 카드들: 식탁 상판 중심 기준의 [x, z, y회전]. */
-const SPREAD_CARDS = [
-  [-0.3, -0.25, 0.3],
-  [-0.1, 0.3, -0.5],
-  [0.25, 0.15, 0.9],
-  [0.3, -0.3, -0.15],
-] as const;
+/** 쪽지 반쪽의 폭과 접혀 선 각(상판에서 들린 각도). */
+const NOTE_HALF = 0.1;
+const NOTE_FOLD = 0.45;
 
 /**
  * 소파 앞에 던져둔 야구 가방: 비우고 다시 싸는 물건.
@@ -1061,7 +1045,7 @@ function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId 
     case "shoes":
       return <ShoeCabinetMemory palette={palette} opacity={opacity} />;
     case "cards":
-      return <TableCardsMemory palette={palette} opacity={opacity} />;
+      return <TableNoteMemory palette={palette} opacity={opacity} />;
     case "ampoule":
       return <FridgeDrawerMemory palette={palette} opacity={opacity} />;
     case "research-note":

@@ -9,7 +9,6 @@ import {
   Bag,
   Baseball,
   CalendarHeart,
-  Cards,
   Desktop,
   DeviceMobile,
   FileText,
@@ -17,6 +16,7 @@ import {
   GridFour,
   IdentificationCard,
   ImageSquare,
+  Note,
   Package,
   Radio,
   Sneaker,
@@ -187,7 +187,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "cards",
-    icon: Cards,
+    icon: Note,
     phase2: {
       interaction: {
         scriptId: "cards-intro",
@@ -373,8 +373,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "cards-intro",
     lines: [
       { speaker: "hero", textKey: "scripts.cards-intro.line1" },
-      { speaker: "mom", textKey: "scripts.cards-intro.line2" },
-      { speaker: "hero", textKey: "scripts.cards-intro.line3" },
+      { speaker: "hero", textKey: "scripts.cards-intro.line2" },
     ],
   },
   "cards-memo": {
