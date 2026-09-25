@@ -230,10 +230,16 @@ export function cardObject(memo: string, signature: string): InspectObject {
     shape: "box",
     size: [0.5, 0.7, 0.012],
     front: { paint: paintCardPattern },
-    back: { paint: paintMemo, image: ASSETS.images.mgCardFlipBack },
+    // 그림(512×716)은 카드 둘레에 어두운 바탕이 16px 딸려 온다: 카드만 오려 붙이고 귀를 그 둥글기에 맞춘다
+    back: {
+      paint: paintMemo,
+      image: ASSETS.images.mgCardFlipBack,
+      imageCrop: { x: 16 / 512, y: 16 / 716, width: 480 / 512, height: 684 / 716 },
+    },
     edge: "linen",
     foundYaw: Math.PI,
     tilt: 0.3,
+    cornerRadius: 0.028,
   };
 }
 
@@ -310,6 +316,8 @@ export function idCardObject(labels: IdCardLabels): InspectObject {
     edge: "linen",
     foundYaw: Math.PI,
     tilt: 0.25,
+    // 그림(1024×640)의 귀는 반지름 약 32px로 투명하게 깎여 있다: 판을 같은 둥글기로
+    cornerRadius: 0.027,
   };
 }
 

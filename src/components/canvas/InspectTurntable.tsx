@@ -2,7 +2,15 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
-import { CanvasTexture, type Group, MeshStandardMaterial, SRGBColorSpace } from "three";
+import {
+  CanvasTexture,
+  ExtrudeGeometry,
+  type Group,
+  MeshStandardMaterial,
+  Shape,
+  ShapeGeometry,
+  SRGBColorSpace,
+} from "three";
 import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/palette";
 
 /**
@@ -40,6 +48,11 @@ export interface InspectFace {
   imageRect?: { x: number; y: number; width: number; height: number };
   /** `imageRect`로 붙일 때 그림 밖을 채우는 색. */
   imageBase?: keyof RoomPalette;
+  /**
+   * 그림 파일에서 쓸 부분 (그림 크기에 대한 비율, 0~1). 없으면 그림 전체.
+   * 카드 그림처럼 물건 둘레에 바탕이 딸려 온 그림에서 물건만 오려 낼 때 쓴다.
+   */
+  imageCrop?: { x: number; y: number; width: number; height: number };
 }
 
 export interface InspectObject {
@@ -62,6 +75,12 @@ export interface InspectObject {
   foundYaw: number;
   /** 카메라에 선 채 처음 보이는 기울기(x). 살짝 내려다보면 판이 아니라 물건으로 읽힌다. */
   tilt?: number;
+  /**
+   * 상자의 앞뒤 면 네 귀를 둥글린다 (월드 반지름). 카드·출입증처럼 귀가 둥근 그림을
+   * 네모난 판에 붙이면 귀퉁이의 바탕이 비치므로, 판 자체를 그림의 귀에 맞춰 깎는다.
+   * 둥글린 상자는 옆면(`side`) 그림을 쓰지 않는다: 둘레가 하나의 테(`edge` 색)다.
+   */
+  cornerRadius?: number;
 }
 
 const CAMERA_Z = 2.3;
@@ -98,6 +117,52 @@ function canvasSize(worldWidth: number, worldHeight: number) {
   };
 }
 
+const FULL_RECT = { x: 0, y: 0, width: 1, height: 1 };
+
+/** 귀가 둥근 사각형 윤곽 (가운데가 원점). */
+function roundedRectShape(width: number, height: number, radius: number): Shape {
+  const x = width / 2;
+  const y = height / 2;
+  const r = Math.min(radius, x, y);
+  const shape = new Shape();
+  shape.moveTo(-x + r, -y);
+  shape.lineTo(x - r, -y);
+  shape.quadraticCurveTo(x, -y, x, -y + r);
+  shape.lineTo(x, y - r);
+  shape.quadraticCurveTo(x, y, x - r, y);
+  shape.lineTo(-x + r, y);
+  shape.quadraticCurveTo(-x, y, -x, y - r);
+  shape.lineTo(-x, -y + r);
+  shape.quadraticCurveTo(-x, -y, -x + r, -y);
+  return shape;
+}
+
+/**
+ * 귀가 둥근 판: 앞뒤 면이 같이 쓰는 평면 하나와 두께를 두르는 테.
+ * 평면의 uv는 판 전체를 0~1로 편다 (상자 면과 같은 그림이 같은 자리에 붙게).
+ */
+function roundedSlabGeometry(width: number, height: number, depth: number, radius: number) {
+  const shape = roundedRectShape(width, height, radius);
+  const face = new ShapeGeometry(shape, 8);
+  const position = face.getAttribute("position");
+  const uv = face.getAttribute("uv");
+  for (let index = 0; index < position.count; index++) {
+    uv.setXY(
+      index,
+      (position.getX(index) + width / 2) / width,
+      (position.getY(index) + height / 2) / height,
+    );
+  }
+  uv.needsUpdate = true;
+  // 두께만 두른다: 뚜껑은 앞뒤 평면이 맡으니 테 쪽 그룹(1)만 남긴다
+  const rim = new ExtrudeGeometry(shape, { depth, bevelEnabled: false, curveSegments: 8 });
+  rim.translate(0, 0, -depth / 2);
+  const sides = rim.groups.find((group) => group.materialIndex === 1);
+  rim.clearGroups();
+  if (sides) rim.addGroup(sides.start, sides.count, 0);
+  return { face, rim };
+}
+
 /** 면 하나를 텍스처로. 그림 파일이 오면 같은 캔버스에 덮어 그린다. 언마운트 때 내려놓는다. */
 function useFaceTexture(
   face: InspectFace | undefined,
@@ -128,20 +193,24 @@ function useFaceTexture(
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       const rect = face.imageRect;
-      if (!rect) {
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-      } else {
+      if (rect) {
         // 코드 그림은 그림 파일과 같은 것을 그리므로 통째로 걷어 내고 바탕만 남긴다
         ctx.fillStyle = palette[face.imageBase ?? "linen"];
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(
-          image,
-          rect.x * canvas.width,
-          rect.y * canvas.height,
-          rect.width * canvas.width,
-          rect.height * canvas.height,
-        );
       }
+      const crop = face.imageCrop ?? FULL_RECT;
+      const dest = rect ?? FULL_RECT;
+      ctx.drawImage(
+        image,
+        crop.x * image.naturalWidth,
+        crop.y * image.naturalHeight,
+        crop.width * image.naturalWidth,
+        crop.height * image.naturalHeight,
+        dest.x * canvas.width,
+        dest.y * canvas.height,
+        dest.width * canvas.width,
+        dest.height * canvas.height,
+      );
       texture.needsUpdate = true;
     };
     image.src = face.image;
@@ -205,6 +274,19 @@ function InspectedThing({
     [materials],
   );
 
+  const cornerRadius = cylinder ? undefined : object.cornerRadius;
+  const slab = useMemo(
+    () => (cornerRadius ? roundedSlabGeometry(width, height, depth, cornerRadius) : null),
+    [width, height, depth, cornerRadius],
+  );
+  useEffect(
+    () => () => {
+      slab?.face.dispose();
+      slab?.rim.dispose();
+    },
+    [slab],
+  );
+
   useFrame((_, delta) => {
     const group = groupRef.current;
     const frame = frameRef.current;
@@ -235,13 +317,27 @@ function InspectedThing({
   return (
     <group ref={frameRef}>
       <group ref={groupRef}>
-        <mesh material={materials}>
-          {cylinder ? (
-            <cylinderGeometry args={[width / 2, width / 2, height, 40]} />
-          ) : (
-            <boxGeometry args={object.size} />
-          )}
-        </mesh>
+        {slab ? (
+          // 상자 재질 순서(+x, -x, +y, -y, +z, -z)를 그대로 빌린다: 4가 앞면, 5가 뒷면, 1이 테
+          <>
+            <mesh geometry={slab.face} material={materials[4]} position={[0, 0, depth / 2]} />
+            <mesh
+              geometry={slab.face}
+              material={materials[5]}
+              position={[0, 0, -depth / 2]}
+              rotation={[0, Math.PI, 0]}
+            />
+            <mesh geometry={slab.rim} material={[materials[1]]} />
+          </>
+        ) : (
+          <mesh material={materials}>
+            {cylinder ? (
+              <cylinderGeometry args={[width / 2, width / 2, height, 40]} />
+            ) : (
+              <boxGeometry args={object.size} />
+            )}
+          </mesh>
+        )}
       </group>
     </group>
   );
