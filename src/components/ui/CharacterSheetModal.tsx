@@ -193,17 +193,17 @@ export function CharacterSheetModal() {
                 <LoreEntries onReplay={() => setOpen(false)} />
               </div>
             ) : (
-              /* SD 캐릭터 위쪽이 비어 있어서, 넓은 화면에서는 프로필을 그 자리에 겹친다 */
-              <div className="relative">
+              /* 시트는 빈자리 없는 세로 상반신이다. 겹치지 말고 넓은 화면에서는 옆에, 좁으면 아래에 둔다 */
+              <div className="md:grid md:grid-cols-5 md:items-start md:gap-8">
                 <Image
                   src={ASSETS.images.characterHeroSheet}
                   alt={t("characterSheet.alt")}
                   width={1750}
                   height={2653}
-                  sizes="(min-width: 768px) 920px, 100vw"
-                  className="h-auto w-full"
+                  sizes="(min-width: 768px) 400px, 60vw"
+                  className="mx-auto h-auto w-3/5 md:col-span-2 md:w-full"
                 />
-                <dl className="mt-6 flex w-full flex-col md:absolute md:right-[4%] md:top-[6%] md:mt-0 md:w-[38%]">
+                <dl className="mt-6 flex w-full flex-col md:col-span-3 md:mt-0">
                   {PROFILE_ROWS.map((row) => {
                     const revealed =
                       "revealAt" in row
