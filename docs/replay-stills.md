@@ -69,7 +69,7 @@
 
 - **부드러운 디지털 페인팅.** 배경화(anime background) 쪽이지 벡터 일러스트가 아니다.
   기준은 `mg-window-view-outside.webp`(창밖)와 `mg-photo-wipe-phase-2.webp`(가족 사진).
-  `mg-ball-catch-sunset-field.webp`(야구장)는 미니게임 배경을 겸하는 평면 벡터라
+  `mg-ball-catch-sunset-field.webp`(야구장)는 미니게임 배경을 겸하는 저채도 수채·셀 톤 일러스트라
   이 결의 기준이 아니다.
 - **채도를 낮춘 따뜻한 회색.** DESIGN.md의 씬 팔레트와 같은 온도다. 형광색·순색 금지.
   유일한 예외는 앰플의 `scene-accent-leaf`(#6AA36B)로, "방의 색에 섞이지 않는 낯선 물건

@@ -80,7 +80,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "ball-catch",
         resultScriptId: "ball-alone",
       },
-      replayStill: "/assets/images/mg-ball-catch-sunset-field.webp",
+      replayStill: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
     },
     phase2: { interaction: { scriptId: "ball-echo" }, from: "p2", side: true },
   },

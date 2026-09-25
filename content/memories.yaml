@@ -91,7 +91,7 @@ memories:
       script: ball-intro
       minigame: ball-catch
       resultScript: ball-alone
-      replayStill: /assets/images/mg-ball-catch-sunset-field.webp
+      replayStill: /assets/images/mg-ball-catch-sunset-field.webp?v=2
     # 2차: 곁가지. 회전 미궁(angle-turn)은 현관 잠금장치로 이사했다: 다시 붙이지 말 것.
     phase2:
       script: ball-echo

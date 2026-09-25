@@ -440,7 +440,8 @@ function validateAssetPath(value, where, issues) {
     issues.push(`${where}: 에셋 경로는 /assets/ 로 시작해야 한다 (${JSON.stringify(value)}).`);
     return;
   }
-  if (!existsSync(path.join(REPO_ROOT, "public", value))) {
+  const filePath = value.split(/[?#]/, 1)[0];
+  if (!existsSync(path.join(REPO_ROOT, "public", filePath))) {
     issues.push(`${where}: public${value} 파일이 리포에 없다.`);
   }
 }

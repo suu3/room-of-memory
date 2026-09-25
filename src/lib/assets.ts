@@ -75,17 +75,17 @@ export const ASSETS = {
     creatorAvatar: "/assets/images/ui-creator-avatar.webp",
     /** 지원사업 CI (경기청년 갭이어 흰색 가로형 워드마크, 720×120). 어두운 판 위에만 올린다. */
     gapYearLogo: "/assets/images/ui-gapyear-logo.webp",
-    mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg",
-    mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp",
-    mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp",
-    mgBallCatchBat: "/assets/images/mg-ball-catch-bat.webp",
-    mgBallCatchImpact: "/assets/images/mg-ball-catch-impact.webp",
+    mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg?v=2",
+    mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
+    mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp?v=2",
+    mgBallCatchBat: "/assets/images/mg-ball-catch-bat.webp?v=2",
+    mgBallCatchImpact: "/assets/images/mg-ball-catch-impact.webp?v=2",
     /**
      * 라디오 본체 일러스트 (1598×1174). 바깥 배경과 표시창이 알파로 뚫려 있어
      * 다이얼을 뒤에 깔고 이 이미지를 위에 얹으면 창 안에 든 것처럼 보인다.
      * 창 좌표는 src/minigames/frequency-tune/index.tsx의 DIAL_WINDOW.
      */
-    mgFrequencyTuneFrame: "/assets/images/mg-frequency-tune-frame.webp",
+    mgFrequencyTuneFrame: "/assets/images/mg-frequency-tune-frame.webp?v=2",
     /** 커튼을 걷었을 때 보이는 창밖 (1448×1086). 그날 이후의 도시가 그려져 있다. */
     mgWindowViewOutside: "/assets/images/mg-window-view-outside.webp",
     /**
@@ -135,9 +135,9 @@ export const ASSETS = {
     cutsceneRadioHands: "/assets/images/cutscene-radio-hands.webp",
     cutsceneRadioSignal: "/assets/images/cutscene-radio-signal.webp",
     /** 대사창 초상. 전부 같은 크롭이라 겹쳐서 opacity만 토글하면 정렬이 맞는다. */
-    characterHeroNeutral: "/assets/images/character-hero-neutral.webp",
-    characterHeroSmile: "/assets/images/character-hero-smile.webp",
-    characterHeroSurprised: "/assets/images/character-hero-surprised.webp",
+    characterHeroNeutral: "/assets/images/character-hero-neutral.webp?v=2",
+    characterHeroSmile: "/assets/images/character-hero-smile.webp?v=2",
+    characterHeroSurprised: "/assets/images/character-hero-surprised.webp?v=2",
     characterHeroEmbarrassed: "/assets/images/character-hero-embarrassed.webp",
     characterHeroSheet: "/assets/images/character-hero-sheet.webp",
   },

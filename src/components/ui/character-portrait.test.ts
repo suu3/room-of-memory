@@ -35,7 +35,9 @@ describe("portraitExpressionOf", () => {
 
   it("모든 표정에 소스 경로가 있다", () => {
     for (const expression of PORTRAIT_EXPRESSIONS) {
-      expect(PORTRAIT_SOURCES[expression]).toMatch(/^\/assets\/images\/character-hero-.+\.webp$/);
+      expect(PORTRAIT_SOURCES[expression]).toMatch(
+        /^\/assets\/images\/character-hero-.+\.webp(?:\?v=\d+)?$/,
+      );
     }
   });
 });

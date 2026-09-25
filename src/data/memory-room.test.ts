@@ -148,7 +148,8 @@ describe("다시보기", () => {
 
     expect(stills.length).toBeGreaterThan(0);
     for (const path of stills) {
-      expect(existsSync(`public${path}`), path).toBe(true);
+      const filePath = path.split(/[?#]/, 1)[0];
+      expect(existsSync(`public${filePath}`), path).toBe(true);
     }
   });
 });
