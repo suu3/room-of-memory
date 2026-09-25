@@ -88,21 +88,64 @@ describe("배트를 쥐는 두 줄의 화면", () => {
      */
     vi.useFakeTimers();
     try {
+      const opened = openCutscene(CUTSCENE_RADIO_BLACKOUT);
+      if (!opened) throw new Error("radio-blackout 컷씬이 없다");
+      const hold = { image: "/assets/images/cutscene-day-3.webp", holdMs: 1800, lines: [] };
       useMemoryRoomStore.setState({
-        activePlayback: openCutscene(CUTSCENE_RADIO_BLACKOUT),
+        activePlayback: { ...opened, cuts: [hold, hold, hold, hold], holding: true },
       });
       render(<PlaybackScene />);
       const cutIndex = () => useMemoryRoomStore.getState().activePlayback?.cutIndex;
-      const firstHold = useMemoryRoomStore.getState().activePlayback?.cuts[0].holdMs ?? 0;
-      expect(firstHold).toBeGreaterThan(0);
 
       for (const expected of [1, 2, 3]) {
-        const hold = useMemoryRoomStore.getState().activePlayback?.cuts[expected - 1].holdMs ?? 0;
         act(() => {
-          vi.advanceTimersByTime(hold);
+          vi.advanceTimersByTime(hold.holdMs);
         });
         expect(cutIndex()).toBe(expected);
       }
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("내레이션 컷은 누르지 않아도 줄이 쌓이며 흐르고, 다 찍히면 다음 컷으로 간다", () => {
+    /*
+     * 분기점 과거편: 회상은 사람이 넘기는 대화가 아니다. 오토를 켜지 않아도 한 줄씩
+     * 찍혀 창에 남고, 마지막 줄까지 읽을 틈을 준 뒤 다음 컷으로 넘어간다.
+     */
+    vi.useFakeTimers();
+    try {
+      useMemoryRoomStore.setState({
+        activePlayback: openCutscene(CUTSCENE_RADIO_BLACKOUT),
+        autoPlay: false,
+      });
+      render(
+        <>
+          <PlaybackScene />
+          <DialogueBox />
+        </>,
+      );
+      const playback = () => useMemoryRoomStore.getState().activePlayback;
+      const first = playback()?.cuts[0];
+      expect(first?.narration).toBe(true);
+      const count = first?.lines.length ?? 0;
+      expect(count).toBeGreaterThan(1);
+      const firstKey = first?.lines[0].textKey;
+      if (!firstKey) throw new Error("첫 컷에 대사가 없다");
+      const firstText = i18n.getFixedT(null, "memoryRoom")(firstKey);
+
+      for (let line = 1; line < count; line++) {
+        act(() => {
+          vi.advanceTimersByTime(6000);
+        });
+        expect(playback()?.lineIndex).toBe(line);
+        // 앞서 찍힌 줄이 창에 남아 있다
+        expect(screen.getByText(firstText)).toBeTruthy();
+      }
+      act(() => {
+        vi.advanceTimersByTime(6000);
+      });
+      expect(playback()?.cutIndex).toBe(1);
     } finally {
       vi.useRealTimers();
     }

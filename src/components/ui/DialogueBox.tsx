@@ -57,10 +57,17 @@ export function DialogueBox() {
   const setLogOpen = useMemoryRoomStore((state) => state.setDialogueLogOpen);
 
   // 도입(라디오가 꺼지는 비트)과 정적 구간에는 창이 뜨지 않는다. 침묵도 연출이다
-  const playbackLine =
-    playback && !playback.intro && !playback.holding
-      ? playback.cuts[playback.cutIndex]?.lines[playback.lineIndex]
-      : undefined;
+  const playbackCut =
+    playback && !playback.intro && !playback.holding ? playback.cuts[playback.cutIndex] : undefined;
+  const playbackLine = playbackCut?.lines[playback?.lineIndex ?? 0];
+  /**
+   * 내레이션 컷 (CutsceneCut.narration): 앞서 찍힌 줄이 창에 남아 쌓이고,
+   * 오토를 켜지 않아도 저절로 넘어간다.
+   */
+  const narration = playbackLine !== undefined && playbackCut?.narration === true;
+  const earlierLines = narration
+    ? (playbackCut?.lines.slice(0, playback?.lineIndex ?? 0) ?? [])
+    : [];
 
   // 인트로 대사와 미니게임 결과 대사가 같은 창을 쓴다. 어느 쪽인지는 스토어가 들고 있다
   const script =
@@ -124,14 +131,16 @@ export function DialogueBox() {
   /*
    * 오토: 다 찍힌 줄을 잠깐 붙들었다 넘긴다. 로그가 떠 있는 동안은 멈춘다. 지나간 줄을
    * 읽는 중인데 밑에서 대사가 계속 흐르면 로그가 읽는 사이에 다시 밀린다.
+   * 내레이션 컷은 오토 설정과 무관하게 같은 박자로 흐른다.
    */
+  const flowing = autoPlay || narration;
   useEffect(() => {
-    if (!autoPlay || !done || !open || logOpen) return;
+    if (!flowing || !done || !open || logOpen) return;
     const wait = Math.min(AUTO_MAX_MS, AUTO_BASE_MS + text.length * AUTO_PER_CHAR_MS);
     const timer = window.setTimeout(() => autoAdvanceRef.current(), wait);
     return () => window.clearTimeout(timer);
     // 줄이 바뀌면 타자 연출이 다시 돌아 done이 false로 떨어졌다 올라온다: 그게 곧 타이머의 재시작이다
-  }, [autoPlay, done, open, logOpen, text]);
+  }, [flowing, done, open, logOpen, text]);
 
   /*
    * 화면 아무 데나 클릭하는 것 말고 Enter와 Space로도 넘어간다. VN의 관례라 셋 중
@@ -227,12 +236,23 @@ export function DialogueBox() {
               16px 창은 장면에 비해 작아 자막이 아니라 각주로 읽힌다. 여백·최소 높이는
               em이라 글자와 같이 자란다 (3.5em = 행간 1.75의 두 줄).
             */}
-            <p
-              key={lineKey}
-              className="mt-[0.625em] min-h-[3.5em] break-ko text-pretty text-[1em] leading-dialogue text-ivory"
-            >
-              {typed}
-            </p>
+            <div className="mt-[0.625em] min-h-[3.5em]">
+              {/* 내레이션 컷에서 앞서 찍힌 줄: 창에 남아 문단으로 쌓인다 */}
+              {earlierLines.map((line) => (
+                <p
+                  key={line.textKey}
+                  className="break-ko text-pretty text-[1em] leading-dialogue text-ivory"
+                >
+                  {tRoom(line.textKey)}
+                </p>
+              ))}
+              <p
+                key={lineKey}
+                className="break-ko text-pretty text-[1em] leading-dialogue text-ivory"
+              >
+                {typed}
+              </p>
+            </div>
             {/* 아래 줄: 왼쪽에 로그 입구, 오른쪽에 다음 줄 표식 */}
             <div className="flex items-center justify-between">
               {/*

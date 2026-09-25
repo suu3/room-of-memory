@@ -99,6 +99,7 @@ function emitModule(content) {
       if (cut.holdMs !== undefined) lines.push(`        holdMs: ${cut.holdMs},`);
       if (cut.panel !== undefined) lines.push(`        panel: ${JSON.stringify(cut.panel)},`);
       if (cut.sfx !== undefined) lines.push(`        sfx: ${JSON.stringify(cut.sfx)},`);
+      if (cut.narration === true) lines.push("        narration: true,");
       lines.push("        lines: [");
       for (const line of lineLiterals(cut.lines, cutKey)) lines.push(`          ${line},`);
       lines.push("        ],");

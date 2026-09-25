@@ -7,7 +7,7 @@
 #   p1-0         p1, 강도 1 (처음부터)
 #   p1-mid       p1, 강도 2 진입 (게임기·공을 다 본 뒤)
 #   p1-late      p1, 강도 3 진입 (넷 이상 본 뒤)
-#   turn-bottom  turning, 생존자 방송 전. 가장 어두운 한 줄 (체념)
+#   turn-bottom  turning, 생존자 방송 전. 과거편에서 돌아온 가장 어두운 한 줄 (체념)
 #   turn-signal  turning, 방송을 들은 뒤 문이 열리기 전
 #   p2-enter     p2 진입. 기한 "사흘."
 #   p3-enter     p3 진입. 기한 "이틀 남았다."
@@ -42,11 +42,10 @@ stages:
       en: Going through them one by one keeps bringing that day back… Enough. Stop.
       ja: 一つずつ見てると、あの日のことが…いい、やめよう。
 
+  # 과거편 컷씬이 끝나고 3D 방으로 돌아온 순간의 한 줄
   turn-bottom:
     monologue:
-      ko: 다 봤는데, 방은 더 어두워졌다.
-      en: I have seen all of it, and the room only got darker.
-      ja: 全部見たのに、部屋はもっと暗くなった。
+      ko: 그날 이후로 난 집에 고립되어 있었다. 나가서 마주할 현실이 두려워서.
 
   turn-signal:
     monologue:

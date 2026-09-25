@@ -98,7 +98,7 @@
       "monologue": "Going through them one by one keeps bringing that day back… Enough. Stop."
     },
     "turn-bottom": {
-      "monologue": "I have seen all of it, and the room only got darker."
+      "monologue": "그날 이후로 난 집에 고립되어 있었다. 나가서 마주할 현실이 두려워서."
     },
     "turn-signal": {
       "monologue": "은강고 체육관. …문 쪽이 밝아."
@@ -322,13 +322,30 @@
   },
   "cutscenes": {
     "radio-blackout": {
-      "cut1": {},
-      "cut2": {},
+      "cut1": {
+        "line1": "그날은 평범한 날이었다.",
+        "line2": "부활동 끝나고 폰을 보니 엄마 문자가 와 있었다.",
+        "line3": "\"오늘은 부활동 하지 말고 바로 집에 와.\" …이상한 말이었다."
+      },
+      "cut2": {
+        "line1": "집 앞까지는 평소랑 똑같았다.",
+        "line2": "복도에 누가 서 있었다.",
+        "line3": "이상한 느낌이 들었다."
+      },
       "cut3": {},
-      "cut4": {},
-      "cut5": {},
+      "cut4": {
+        "line1": "정신없이 달렸다.",
+        "line2": "뒤에서 나는 소리는 사람 소리가 아니었다."
+      },
+      "cut5": {
+        "line1": "문을 잠갔다.",
+        "line2": "부모님은 여행 중이셨기에 집안엔 아무도 없었다.",
+        "line3": "급박했던 상황이 거짓이었던 듯 정적이 내려앉았다."
+      },
       "cut6": {
-        "line1": "그날 이후로 난 나가지 않고 있다. 어차피 나가 봐야 보이는 현실은 똑같으니까."
+        "line1": "뉴스는 아직 나오고 있었다.",
+        "line2": "감염, 확산, 대피. 아나운서가 낯선 말들을 다급하게 외치고 있었다.",
+        "line3": "사방에서 들려오는 비명소리에 귀를 막았다."
       }
     },
     "survivor-broadcast": {

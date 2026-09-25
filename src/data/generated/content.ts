@@ -482,32 +482,52 @@ export const CUTSCENES: Record<string, Cutscene> = {
     cuts: [
       {
         image: "/assets/images/cutscene-day-1.webp",
-        holdMs: 2400,
-        lines: [],
+        narration: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut1.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut1.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut1.line3" },
+        ],
       },
       {
         image: "/assets/images/cutscene-day-2.webp",
-        holdMs: 1800,
-        lines: [],
+        narration: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut2.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut2.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut2.line3" },
+        ],
       },
       {
         image: "/assets/images/cutscene-day-3.webp",
-        holdMs: 1800,
+        holdMs: 1500,
         lines: [],
       },
       {
         image: "/assets/images/cutscene-day-4.webp",
-        holdMs: 1800,
-        lines: [],
+        narration: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut4.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut4.line2" },
+        ],
       },
       {
         image: "/assets/images/cutscene-day-5.webp",
-        holdMs: 1800,
-        lines: [],
+        narration: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line3" },
+        ],
       },
       {
         image: "/assets/images/cutscene-day-6.webp",
-        lines: [{ speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line1" }],
+        narration: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line3" },
+        ],
       },
     ],
   },

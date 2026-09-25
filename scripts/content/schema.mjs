@@ -95,7 +95,7 @@ export const CUT_SFX = ["micTap", "radioCut", "radioWake"];
 export const CUT_PANELS = ["left", "right"];
 
 /** 컷에서 허용하는 키. */
-export const CUT_KEYS = ["image", "holdMs", "panel", "sfx", "lines"];
+export const CUT_KEYS = ["image", "holdMs", "panel", "sfx", "narration", "lines"];
 
 /** 저작 파일과 그 안의 최상위 키. */
 export const SOURCES = {

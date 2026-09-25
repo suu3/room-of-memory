@@ -177,6 +177,12 @@ export function validateContent(content, { minigameIds = [] } = {}) {
           issues.push(`${where}.image: /assets/images/**.webp 형태여야 한다.`);
         }
       }
+      if (cut.narration !== undefined && typeof cut.narration !== "boolean") {
+        issues.push(`${where}.narration: true/false여야 한다.`);
+      }
+      if (cut.narration === true && Array.isArray(cut.lines) && cut.lines.length === 0) {
+        issues.push(`${where}.narration: 내레이션 컷은 대사가 있어야 한다.`);
+      }
       if (cut.holdMs !== undefined && !(Number.isFinite(cut.holdMs) && cut.holdMs > 0)) {
         issues.push(`${where}: holdMs는 0보다 큰 숫자여야 한다.`);
       }
