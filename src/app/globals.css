@@ -1058,9 +1058,13 @@ body {
   mix-blend-mode: multiply;
 }
 
-/* 대사창 초상: 아래쪽을 패널 속으로 스며들게 한다. 원화의 밑단이 판으로 서지 않게. */
+/*
+ * 대사창 초상: 아래쪽을 패널 속으로 스며들게 한다. 원화의 밑단이 판으로 서지 않게.
+ * 흐려지는 구간은 밑단 12%뿐이다. 그 대부분이 패널 뒤(초상 아래 20px)에 들어가, 패널
+ * 위로 보이는 몸통은 불투명하게 남는다. 넓게 흐리면 뒤 배경이 옷 위로 비쳐 유령처럼 읽힌다.
+ */
 .portrait-fade {
-  mask-image: linear-gradient(to bottom, black 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 88%, transparent 100%);
 }
 
 /*
