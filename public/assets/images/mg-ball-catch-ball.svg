@@ -1,9 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <circle cx="256" cy="256" r="232" fill="#EFE7D6" stroke="#20222A" stroke-width="12"/>
-  <g fill="none" stroke="#9E5244" stroke-linecap="round">
-    <path d="M166 78C213 178 213 334 166 434" stroke-width="10"/>
-    <path d="M346 78C299 178 299 334 346 434" stroke-width="10"/>
-    <g stroke-width="7">
+  <defs>
+    <radialGradient id="ball" cx="36%" cy="28%" r="76%">
+      <stop offset="0" stop-color="#FAF7EF"/>
+      <stop offset="0.58" stop-color="#EEE7D8"/>
+      <stop offset="1" stop-color="#D7CDBB"/>
+    </radialGradient>
+    <linearGradient id="seam" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B66D62"/>
+      <stop offset="1" stop-color="#884C46"/>
+    </linearGradient>
+    <filter id="paper" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="8" result="noise"/>
+      <feComposite in="noise" in2="SourceGraphic" operator="in" result="texture"/>
+      <feBlend in="SourceGraphic" in2="texture" mode="multiply"/>
+    </filter>
+    <clipPath id="ball-clip">
+      <circle cx="256" cy="256" r="226"/>
+    </clipPath>
+  </defs>
+  <circle cx="256" cy="256" r="232" fill="url(#ball)" stroke="#49433F" stroke-width="8"/>
+  <g clip-path="url(#ball-clip)" opacity="0.12" filter="url(#paper)">
+    <rect x="24" y="24" width="464" height="464" fill="#8A8177"/>
+  </g>
+  <ellipse cx="184" cy="144" rx="92" ry="58" fill="#FFFDF7" opacity="0.34" transform="rotate(-24 184 144)"/>
+  <path d="M382 338C355 400 304 447 239 468" fill="none" stroke="#A69C8D" stroke-width="19" opacity="0.12" stroke-linecap="round"/>
+  <g fill="none" stroke="url(#seam)" stroke-linecap="round">
+    <path d="M166 78C213 178 213 334 166 434" stroke-width="9"/>
+    <path d="M346 78C299 178 299 334 346 434" stroke-width="9"/>
+    <g stroke-width="6">
       <path d="M164 108L185 118"/>
       <path d="M176 155L198 164"/>
       <path d="M184 205L207 211"/>
