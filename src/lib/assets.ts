@@ -139,7 +139,7 @@ export const ASSETS = {
     characterHeroSmile: "/assets/images/character-hero-smile.webp?v=2",
     characterHeroSurprised: "/assets/images/character-hero-surprised.webp?v=2",
     characterHeroEmbarrassed: "/assets/images/character-hero-embarrassed.webp",
-    characterHeroSheet: "/assets/images/character-hero-sheet.webp",
+    characterHeroSheet: "/assets/images/character-hero-sheet.webp?v=2",
   },
   /**
    * 3D 씬의 면에 깔리는 그림. UI가 <img>로 읽는 images/와 갈라 둔다: 이쪽은

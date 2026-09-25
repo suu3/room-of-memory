@@ -198,8 +198,8 @@ export function CharacterSheetModal() {
                 <Image
                   src={ASSETS.images.characterHeroSheet}
                   alt={t("characterSheet.alt")}
-                  width={1400}
-                  height={1570}
+                  width={1750}
+                  height={2653}
                   sizes="(min-width: 768px) 920px, 100vw"
                   className="h-auto w-full"
                 />
