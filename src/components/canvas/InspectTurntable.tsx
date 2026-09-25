@@ -33,6 +33,13 @@ export interface InspectFace {
   paint: FacePainter;
   /** 그림 파일 (public 기준). 오면 코드 그림을 덮는다. 없거나 못 불러오면 코드 그림 그대로. */
   image?: string;
+  /**
+   * 그림 파일을 면의 일부에만 붙인다 (면 크기에 대한 비율, 0~1). 없으면 면 전체.
+   * 앰플 라벨처럼 원통에 띠로 감기는 그림이 이 경우다: 나머지는 `imageBase` 색으로 칠한다.
+   */
+  imageRect?: { x: number; y: number; width: number; height: number };
+  /** `imageRect`로 붙일 때 그림 밖을 채우는 색. */
+  imageBase?: keyof RoomPalette;
 }
 
 export interface InspectObject {
@@ -120,14 +127,28 @@ function useFaceTexture(
       const canvas = texture.image as HTMLCanvasElement;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const rect = face.imageRect;
+      if (!rect) {
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      } else {
+        // 코드 그림은 그림 파일과 같은 것을 그리므로 통째로 걷어 내고 바탕만 남긴다
+        ctx.fillStyle = palette[face.imageBase ?? "linen"];
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(
+          image,
+          rect.x * canvas.width,
+          rect.y * canvas.height,
+          rect.width * canvas.width,
+          rect.height * canvas.height,
+        );
+      }
       texture.needsUpdate = true;
     };
     image.src = face.image;
     return () => {
       alive = false;
     };
-  }, [texture, face]);
+  }, [texture, face, palette]);
 
   useEffect(() => () => texture?.dispose(), [texture]);
   return texture;

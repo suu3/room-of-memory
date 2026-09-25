@@ -321,7 +321,7 @@ scripts:
     - speaker: hero
       ko: 여행이 아니라 연구소에 불려 간 거였어.
     - speaker: hero
-      ko: R-7. 치료제 후보. …두 개 만들었는데, 하나는 비어 있었어.
+      ko: RX-11. 치료제 후보. …두 개 만들었는데, 하나는 비어 있었어.
 
   # 출입증을 집어 든다: 3D로 뒤집는 판(id-card-flip) 앞
   id-card-look:

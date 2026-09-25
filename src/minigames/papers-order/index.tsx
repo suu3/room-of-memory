@@ -4,6 +4,7 @@ import { Check } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
+import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
@@ -120,6 +121,12 @@ export function PapersOrderMinigame({ onComplete, onSettled, stage = "play" }: M
                   disabled={solved || frozen}
                   onClick={() => pick(index)}
                   aria-pressed={isHeld}
+                  // 종이 결: 한 장을 찢은 조각이라 가운데 접힌 자리만 비친다
+                  style={{
+                    backgroundImage: `url(${ASSETS.images.mgPapersPaper})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: `center ${20 + index * 20}%`,
+                  }}
                   aria-label={t("minigame.papersOrder.pieceLabel", {
                     index: index + 1,
                     date: t(`minigame.papersOrder.pieces.${id}.date`),

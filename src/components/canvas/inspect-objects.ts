@@ -7,6 +7,8 @@
  *
  * 만든 객체는 부르는 쪽이 useMemo로 붙잡아야 한다. 면 그림이 바뀌면 텍스처를 다시 굽는다.
  */
+
+import { ASSETS } from "@/lib/assets";
 import type { RoomPalette } from "@/scenes/memory-room/palette";
 import type { FacePainter, InspectObject } from "./InspectTurntable";
 
@@ -33,21 +35,28 @@ export function paintRaonLogo(
   }
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
-  ctx.lineWidth = radius * 0.15;
+  // ui-raon-logo.svg와 같은 도형: 둥근 테, 수평선, 떠오르는 해, 빛살 셋 (테 반지름 96 기준 비율)
+  const u = radius / 96;
+  ctx.lineWidth = 12 * u;
   ctx.lineCap = "round";
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(cx, cy + radius * 0.35, radius * 0.65, Math.PI, 0);
+  ctx.moveTo(cx - 60 * u, cy + 23 * u);
+  ctx.lineTo(cx + 60 * u, cy + 23 * u);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(cx - radius * 0.8, cy + radius * 0.35);
-  ctx.lineTo(cx + radius * 0.8, cy + radius * 0.35);
+  ctx.arc(cx, cy + 23 * u, 37 * u, Math.PI, 0);
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(cx, cy - radius * 0.25, radius * 0.18, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(cx, cy - 52 * u);
+  ctx.lineTo(cx, cy - 32 * u);
+  ctx.moveTo(cx - 40 * u, cy - 34 * u);
+  ctx.lineTo(cx - 25 * u, cy - 18 * u);
+  ctx.moveTo(cx + 40 * u, cy - 34 * u);
+  ctx.lineTo(cx + 25 * u, cy - 18 * u);
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -221,7 +230,7 @@ export function cardObject(memo: string, signature: string): InspectObject {
     shape: "box",
     size: [0.5, 0.7, 0.012],
     front: { paint: paintCardPattern },
-    back: { paint: paintMemo, image: "/assets/images/mg-card-flip-back.webp" },
+    back: { paint: paintMemo, image: ASSETS.images.mgCardFlipBack },
     edge: "linen",
     foundYaw: Math.PI,
     tilt: 0.3,
@@ -254,7 +263,7 @@ export function shelfBookObject(title: string, number: string): InspectObject {
     shape: "box",
     size: [0.46, 0.66, 0.06],
     front: { paint: paintCover },
-    back: { paint: paintInside, image: "/assets/images/mg-shelf-book-inside.webp" },
+    back: { paint: paintInside, image: ASSETS.images.mgShelfBookInside },
     edge: "linen",
     foundYaw: Math.PI,
   };
@@ -296,8 +305,8 @@ export function idCardObject(labels: IdCardLabels): InspectObject {
   return {
     shape: "box",
     size: [0.86, 0.54, 0.012],
-    front: { paint: paintFront, image: "/assets/images/mg-id-card-front.webp" },
-    back: { paint: paintBack, image: "/assets/images/mg-id-card-back.webp" },
+    front: { paint: paintFront, image: ASSETS.images.mgIdCardFront },
+    back: { paint: paintBack, image: ASSETS.images.mgIdCardBack },
     edge: "linen",
     foundYaw: Math.PI,
     tilt: 0.25,
@@ -345,29 +354,63 @@ export function ampouleCaseObject(caution: string): InspectObject {
  * 케이스에서 꺼낸 앰플. 라벨은 반쯤 지워졌고, 남은 조각에 로고의 왼쪽 반이 있다.
  * 띠의 한가운데가 로고 자리라 π만큼 돌려야 보인다 (InspectObject.foundYaw).
  */
+/*
+ * 앰플 라벨은 옆면을 한 바퀴 다 덮지 않고 앞쪽 60%에 띠로 감긴다. 그림 파일
+ * (mg-ampoule-label.webp)은 4:1 가로 띠라 높이는 폭에서 나온다:
+ * 폭 = 둘레(π × 0.2) × 0.6, 높이 = 폭 / 4 → 옆면 높이(0.78)의 약 12%.
+ */
+const AMPOULE_DIAMETER = 0.2;
+const AMPOULE_HEIGHT = 0.78;
+const LABEL_U = { from: 0.2, to: 0.8 };
+const LABEL_ASPECT = 4;
+const LABEL_HEIGHT =
+  (Math.PI * AMPOULE_DIAMETER * (LABEL_U.to - LABEL_U.from)) / LABEL_ASPECT / AMPOULE_HEIGHT;
+/** 라벨 그림 안에서 로고가 선 가로 위치 (0~1). 반쯤 가려진 로고가 찾을 면이다. */
+const LABEL_LOGO_X = 0.15;
+const LOGO_U = LABEL_U.from + (LABEL_U.to - LABEL_U.from) * LABEL_LOGO_X;
+
 export function ampouleObject(): InspectObject {
+  const labelRect = {
+    x: LABEL_U.from,
+    y: 0.5 - LABEL_HEIGHT / 2,
+    width: LABEL_U.to - LABEL_U.from,
+    height: LABEL_HEIGHT,
+  };
   const paintLabel: FacePainter = (ctx, { width, height }, palette) => {
     ctx.fillStyle = palette.daylight;
     ctx.fillRect(0, 0, width, height);
     ctx.fillStyle = palette.linen;
-    ctx.fillRect(width * 0.3, height * 0.35, width * 0.4, height * 0.3);
-    paintRaonLogo(ctx, width / 2, height / 2, height * 0.11, palette.sage, true);
+    ctx.fillRect(
+      width * labelRect.x,
+      height * labelRect.y,
+      width * labelRect.width,
+      height * labelRect.height,
+    );
+    const logoX = width * LOGO_U;
+    paintRaonLogo(ctx, logoX, height / 2, height * labelRect.height * 0.35, palette.sage, true);
     // 지워진 자리: 긁힌 자국 몇 줄
     ctx.strokeStyle = palette.daylight;
-    ctx.lineWidth = 6;
-    for (let index = 0; index < 5; index++) {
+    ctx.lineWidth = 4;
+    for (let index = 0; index < 4; index++) {
+      const y = height * (labelRect.y + labelRect.height * (0.2 + index * 0.2));
       ctx.beginPath();
-      ctx.moveTo(width * 0.5, height * (0.38 + index * 0.06));
-      ctx.lineTo(width * 0.7, height * (0.36 + index * 0.06));
+      ctx.moveTo(logoX, y);
+      ctx.lineTo(logoX + width * 0.06, y - 3);
       ctx.stroke();
     }
   };
   return {
     shape: "cylinder",
-    size: [0.2, 0.78, 0.2],
-    front: { paint: paintLabel, image: "/assets/images/mg-ampoule-label.webp" },
+    size: [AMPOULE_DIAMETER, AMPOULE_HEIGHT, AMPOULE_DIAMETER],
+    front: {
+      paint: paintLabel,
+      image: ASSETS.images.mgAmpouleLabel,
+      imageRect: labelRect,
+      imageBase: "daylight",
+    },
     edge: "leaf",
-    foundYaw: Math.PI,
+    // 옆면의 u는 θ = 2πu 자리에 있고, 물건을 -θ만큼 돌리면 그 자리가 카메라를 본다
+    foundYaw: -2 * Math.PI * LOGO_U,
     tilt: 0.1,
   };
 }

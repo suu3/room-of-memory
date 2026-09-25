@@ -69,11 +69,11 @@ export function Logo({ kind, half = false }: { kind: LogoKind; half?: boolean })
       <g clipPath={half ? `url(#${clipId})` : undefined}>
         {kind === "raon" ? (
           <>
-            {/* 라온: 둥근 테 안에 떠오르는 해 하나 */}
+            {/* 라온: 둥근 테 안, 수평선 위로 떠오르는 해와 빛살 셋 (ui-raon-logo.svg와 같은 도형) */}
             <circle r={40} />
-            <path d="M-26 14 A26 26 0 0 1 26 14" />
-            <line x1={-32} y1={14} x2={32} y2={14} />
-            <circle cy={-10} r={7} fill="currentColor" stroke="none" />
+            <line x1={-25} y1={9.6} x2={25} y2={9.6} />
+            <path d="M-15.4 9.6 A15.4 15.4 0 0 1 15.4 9.6" />
+            <path d="M0 -21.7 V-13.3 M-16.7 -14.2 L-10.4 -7.5 M16.7 -14.2 L10.4 -7.5" />
           </>
         ) : kind === "hotel" ? (
           <>

@@ -461,10 +461,10 @@
     "idCardFlip": {
       "title": "ID Badge",
       "alt": "3D ID badge: drag to turn it",
-      "org": "Raon Life Science Institute",
-      "role": "Senior Researcher",
-      "dad": "Han Jeongwoo",
-      "mom": "Yun Seoyeong",
+      "org": "Laon Life Science Institute",
+      "role": "Principal · Senior Researcher",
+      "dad": "Han Soha",
+      "mom": "Seo Taeo",
       "found": "The logo on the back. The same one on the ampoule label."
     },
     "ampouleCase": {
@@ -485,15 +485,15 @@
       "pieces": {
         "p1": {
           "date": "Sep 28",
-          "text": "Raon Life Science Institute, Infectious Disease Team. Senior researchers Yun Seoyeong, Han Jeongwoo. Candidate R-7 trials begin."
+          "text": "Laon Life Science Institute. Principal researcher Han Soha (Vaccine Development), senior researcher Seo Taeo (Infectious Disease). Candidate RX-11 trials begin."
         },
         "p2": {
           "date": "Oct 9",
-          "text": "R-7 confirmed to slow early-stage infection. Listed as a treatment candidate."
+          "text": "RX-11 confirmed to slow early-stage infection. Listed as a treatment candidate."
         },
         "p3": {
           "date": "Oct 15",
-          "text": "Two R-7 ampoules produced. Keep refrigerated. Do not remove."
+          "text": "Two RX-11 ampoules produced. Keep refrigerated. Do not remove."
         },
         "p4": {
           "date": "Oct 16",
