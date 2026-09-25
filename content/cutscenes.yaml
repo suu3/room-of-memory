@@ -169,7 +169,7 @@ cutscenes:
         - speaker: signal
           ko: …늦지 말고 와.
     # 치지직: 방송이 끊긴다. 0.8초 끊김 뒤 웹툰이 걷힌다
-    - image: /assets/images/cutscene-survivor-10.webp?v=2
+    - image: /assets/images/cutscene-survivor-10.webp?v=3
       page: 3
       ratio: "3:4"
       sfx: radioSignOff

@@ -608,7 +608,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [{ speaker: "signal", textKey: "cutscenes.survivor-broadcast.cut9.line1" }],
       },
       {
-        image: "/assets/images/cutscene-survivor-10.webp?v=2",
+        image: "/assets/images/cutscene-survivor-10.webp?v=3",
         holdMs: 1500,
         page: 3,
         ratio: "3:4",

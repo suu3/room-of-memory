@@ -95,7 +95,7 @@ export const ASSETS = {
     cutsceneSurvivor7: "/assets/images/cutscene-survivor-7.webp?v=2",
     cutsceneSurvivor8: "/assets/images/cutscene-survivor-8.webp?v=2",
     cutsceneSurvivor9: "/assets/images/cutscene-survivor-9.webp?v=2",
-    cutsceneSurvivor10: "/assets/images/cutscene-survivor-10.webp?v=2",
+    cutsceneSurvivor10: "/assets/images/cutscene-survivor-10.webp?v=3",
     /** '뒤집으면 보인다' 조사 에셋. */
     mgIdCardFront: "/assets/images/mg-id-card-front.webp",
     mgIdCardBack: "/assets/images/mg-id-card-back.webp",
