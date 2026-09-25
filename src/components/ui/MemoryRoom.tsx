@@ -110,11 +110,11 @@ export function MemoryRoom() {
   const wide = useMediaQuery("(min-width: 768px)");
   /*
    * 햄버거를 접지 않고 메뉴를 한 줄로 펼칠 만큼 넓은가. 오른쪽 위 버튼과 가운데 혼잣말
-   * 기둥(44vw) 사이에 설정 줄이 들어갈 폭이 1536px(Tailwind 2xl)부터 남는다. 제일 긴
-   * 일본어 줄이 1440px에서는 기둥 끝에 닿는다. 패널과 줄은 입력 잠금·리스너가 달라
-   * 둘 중 하나만 마운트한다.
+   * 기둥(44vw) 사이에 설정 줄이 들어갈 폭은 1536px부터 남지만(제일 긴 일본어 기준),
+   * 거기서는 기둥 끝과 거의 붙는다. 넉넉히 떨어지는 1800px부터 펼친다: 풀HD 모니터에서
+   * 창을 꽉 채웠을 때만이다. 패널과 줄은 입력 잠금·리스너가 달라 둘 중 하나만 마운트한다.
    */
-  const menuInline = useMediaQuery("(min-width: 1536px)");
+  const menuInline = useMediaQuery("(min-width: 1800px)");
   const isBatReady = useMemoryRoomStore(selectBatReady);
   const isDoorReady = useMemoryRoomStore(selectDoorReady);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
@@ -273,7 +273,7 @@ export function MemoryRoom() {
         </footer>
       )}
 
-      {/* HUD: 메뉴(언어 · 난이도 · 오토 · 만든 사람 · 피드백 · 리셋)와 소리 on/off. 1536px부터 메뉴는 펼친 줄 */}
+      {/* HUD: 메뉴(언어 · 난이도 · 오토 · 만든 사람 · 피드백 · 리셋)와 소리 on/off. 1800px부터 메뉴는 펼친 줄 */}
       {/* 레이어링 순서: 대사(z-10) < HUD·모달(z-30) < 미니게임(z-40, HUD를 덮는다) < 성공 파티클(z-50) */}
       {started && (
         /*

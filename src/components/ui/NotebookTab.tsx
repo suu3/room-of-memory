@@ -20,6 +20,11 @@ export function NotebookTab() {
    * 갈지만 수첩은 갈지 않는다. 2바퀴에 들어서는 순간 배지가 7에서 0으로 떨어지면,
    * 열어 보면 일곱 개가 그대로 있는 수첩과 배지가 서로 다른 말을 한다.
    */
+  /*
+   * 햄버거 메뉴 패널이 열려 있는 동안은 물러난다. 패널이 화면 오른쪽 가운데까지 내려와
+   * 손잡이와 겹치는데, 손잡이가 DOM에서 뒤에 있어 패널 위로 올라탔다.
+   */
+  const menuOpen = useMemoryRoomStore((state) => state.uiLocks.includes("hud-menu"));
   const count = useMemoryRoomStore(
     (state) => MEMORIES.filter((memory) => isSeen(state, memory.id)).length,
   );
@@ -32,11 +37,13 @@ export function NotebookTab() {
         setCharacterSheetOpen(true, "lore");
       }}
       aria-label={t("panel.open")}
+      aria-hidden={menuOpen || undefined}
+      tabIndex={menuOpen ? -1 : undefined}
       onPointerEnter={playHoverSound}
       // 손잡이는 장면 가장자리에 붙은 어두운 탭이다. 밝은 종이 덩어리가 떠 있으면 안 된다.
       // 넓은 화면에서는 HUD 버튼과 같은 배율로 통째로 커진다 (--hud-zoom)
       // 커서가 얹히면 손잡이가 3px 빠져나온다. 서랍 손잡이처럼 "당겨진다"는 몸짓이다
-      className={`absolute right-0 top-1/2 z-30 flex h-30 w-11 -translate-y-1/2 cursor-pointer [zoom:var(--hud-zoom)] flex-col items-center justify-center gap-2 rounded-l-md border border-r-0 border-line bg-surface text-fog transition-[color,background-color,translate] duration-150 ease-out hover:-translate-x-[3px] hover:bg-surface-strong hover:text-ivory focus-visible:-translate-x-[3px] active:translate-x-0 active:bg-surface-strong ${FOCUS_RING}`}
+      className={`absolute right-0 top-1/2 z-30 flex h-30 w-11 -translate-y-1/2 cursor-pointer [zoom:var(--hud-zoom)] flex-col items-center justify-center gap-2 rounded-l-md border border-r-0 border-line bg-surface text-fog transition-[color,background-color,translate,opacity] duration-150 ease-out hover:-translate-x-[3px] hover:bg-surface-strong hover:text-ivory focus-visible:-translate-x-[3px] active:translate-x-0 active:bg-surface-strong ${FOCUS_RING} ${menuOpen ? "pointer-events-none opacity-0" : ""}`}
     >
       <span className="text-xs font-medium tracking-[0.06em] [writing-mode:vertical-rl]">
         {t("panel.title")}

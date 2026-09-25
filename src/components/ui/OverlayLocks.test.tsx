@@ -35,15 +35,30 @@ describe("room overlay input locks", () => {
       </>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
     fireEvent.click(screen.getByRole("button", { name: NOTEBOOK_TAB_NAME }));
-    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["hud-menu", "character-sheet"]);
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    expect(useMemoryRoomStore.getState().uiLocks).toEqual(["character-sheet", "hud-menu"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Close menu" }));
     expect(useMemoryRoomStore.getState().uiLocks).toEqual(["character-sheet"]);
 
     view.unmount();
     expect(useMemoryRoomStore.getState().uiLocks).toEqual([]);
+  });
+
+  it("hides the notebook edge tab under the open menu panel", () => {
+    render(
+      <>
+        <HudMenu />
+        <NotebookTab />
+      </>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    expect(screen.queryByRole("button", { name: NOTEBOOK_TAB_NAME })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Close menu" }));
+    expect(screen.getByRole("button", { name: NOTEBOOK_TAB_NAME })).toBeTruthy();
   });
 
   it("keeps the menu lock while reset confirmation replaces the dropdown", () => {
