@@ -2,9 +2,10 @@
 
 import { CaretLeft, CaretRight, X } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CLUE_IDS, type ClueId } from "@/data/room-clues";
+import { shelfBookObject } from "@/components/canvas/inspect-objects";
+import { CLUE_DISCOVERY, CLUE_IDS, type ClueId, HERO_JERSEY_NUMBER } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import {
@@ -14,9 +15,9 @@ import {
   NATIONALS_MONTH,
 } from "@/minigames/calendar-flip/calendar";
 import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
-import { SUIT_GLYPH, SUITS, suitColor } from "@/minigames/card-odd/cards";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { CharacterModelViewer } from "./CharacterModelViewer";
+import { InspectView } from "./InspectView";
 import { BUTTON_QUIET, PANEL_PAPER } from "./ui-classes";
 import { WorkbookClue } from "./WorkbookClue";
 
@@ -34,7 +35,6 @@ const CLUE_TEXT = {
 } as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
 
 /** 놀이책의 펼쳐진 쪽에 적힌 줄: 트럼프 항목의 앞부분만 보인다. */
-const BOOK_LINES = ["clue.shelfBook.l1", "clue.shelfBook.l2"] as const;
 
 /**
  * 화면에 안 보이는 조사 목록: 스크린리더와 키보드 전용.
@@ -128,7 +128,7 @@ export function ClueOverlay() {
         {isNote ? (
           <FoldedNote />
         ) : clue === "shelf-book" ? (
-          <ShelfBook />
+          <ShelfBookInspect />
         ) : clue === "desk-clock" ? (
           <DeskClock />
         ) : clue === "workbook" ? (
@@ -189,41 +189,30 @@ function FoldedNote() {
 }
 
 /**
- * 선반에서 뽑아 든 놀이책의 펼친 쪽: 게임기 2바퀴 카드 미궁의 규칙이 여기 있다.
- *
- * 규칙책으로 읽혀야지 문제 풀이로 읽히면 안 된다. 그래서 문양을 제 색으로 늘어놓기만
- * 하고, "이 중 틀린 것을 찾아라" 같은 말은 한 줄도 없다. 무엇에 쓰는 규칙인지는
- * 문제를 만난 사람이 알아본다 (src/data/room-clues.ts의 PUZZLE_CLUES).
+ * 선반에서 뽑아 든 거꾸로 꽂힌 책 (3D 인스펙트, v4.1 3장). 아빠 메일 "선반 정리 좀
+ * 해라."를 읽은 뒤에만 만질 수 있다. 뒤집으면 뒤표지 안쪽에 아빠 손글씨 "11": 하부장
+ * 번호다. 방의 유니폼 등번호와 겹친다 (room-clues의 HERO_JERSEY_NUMBER).
  */
-function ShelfBook() {
+function ShelfBookInspect() {
   const { t } = useTranslation();
-
+  const discover = useMemoryRoomStore((state) => state.discover);
+  const object = useMemo(
+    () => shelfBookObject(t("clue.shelfBook.bookTitle"), String(HERO_JERSEY_NUMBER)),
+    [t],
+  );
+  const onFound = useCallback(() => {
+    const code = CLUE_DISCOVERY["shelf-book"];
+    if (useMemoryRoomStore.getState().discoveries.includes(code)) return;
+    playSound("flip", { variation: 0.05 });
+    discover(code);
+  }, [discover]);
   return (
-    <div className={`p-6 sm:p-8 ${PANEL_PAPER}`}>
-      <p className="border-b border-ink/10 pb-3 text-sm font-medium text-graphite">
-        {t("clue.shelfBook.heading")}
-      </p>
-      {/* 색은 글로 적지 않고 문양을 제 색으로 찍어서 보여준다. 보면 아는 것을 설명하지 않는다 */}
-      <ul className="flex items-center justify-center gap-6 py-6 sm:gap-9">
-        {SUITS.map((suit) => (
-          <li
-            key={suit}
-            className={`text-4xl leading-none sm:text-5xl ${
-              suitColor(suit) === "red" ? "text-ember" : "text-ink"
-            }`}
-          >
-            {SUIT_GLYPH[suit]}
-          </li>
-        ))}
-      </ul>
-      <div className="flex flex-col gap-2 border-t border-ink/10 pt-4">
-        {BOOK_LINES.map((key) => (
-          <p key={key} className="break-ko text-pretty text-base leading-relaxed text-ink">
-            {t(key)}
-          </p>
-        ))}
-      </div>
-    </div>
+    <InspectView
+      object={object}
+      alt={t("clue.shelfBook.alt")}
+      hint={t("clue.shelfBook.hint")}
+      onFound={onFound}
+    />
   );
 }
 
@@ -235,7 +224,7 @@ const CLOCK_LABEL_RADIUS = 60;
 /**
  * 캐비닛 위 탁상시계: 사인볼 2바퀴 회전 미궁의 단서.
  *
- * 방에 놓인 시계는 멈춘 시각(20:47)을 가리키는 소품이지만, 집어 들면 누군가 연필로
+ * 방에 놓인 시계는 그날 멈춘 시각(16:20)을 가리키는 소품이지만, 집어 들면 누군가 연필로
  * 눈금마다 각도를 적어 둔 게 보인다. 그림이 "시계 방향으로 몇 도"라는 읽는 법만
  * 주고, 문제에 어떤 각이 쓰였는지는 말하지 않는다.
  */

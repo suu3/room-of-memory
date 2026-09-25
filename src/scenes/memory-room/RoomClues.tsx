@@ -3,7 +3,12 @@
 import type { ReactNode } from "react";
 import type { ClueId } from "@/data/room-clues";
 import { playSound } from "@/lib/audio";
-import { selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
+import {
+  clueUnlocked,
+  selectSinkHintRead,
+  selectViewpoint,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { CLUE_PROPS, DRAWER_NOTE, MIRROR_PLACEMENT } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import { MirrorReflection } from "./MirrorReflection";
@@ -27,6 +32,7 @@ export function ClueProp({
   near,
   radius,
   enabled = true,
+  beckon = false,
   children,
 }: {
   clue: ClueId;
@@ -34,6 +40,11 @@ export function ClueProp({
   radius: number;
   /** false면 만질 수도 빛날 수도 없다 (닫힌 서랍 속 쪽지). */
   enabled?: boolean;
+  /**
+   * 가까이 가지 않아도 기억처럼 금빛으로 부른다. 조사가 가리키는 다음 자리(아빠 메일 뒤의
+   * 거꾸로 꽂힌 책)에만 준다. 찾고 나면 부르는 쪽이 끈다.
+   */
+  beckon?: boolean;
   children: ReactNode;
 }) {
   const openClue = useMemoryRoomStore((state) => state.openClue);
@@ -58,8 +69,8 @@ export function ClueProp({
     >
       <MemoryGlowSelection
         selectionKey={`clue-${clue}`}
-        tier="prop"
-        enabled={active && (hovered || nearPlayer)}
+        tier={beckon ? "memory" : "prop"}
+        enabled={active && (beckon || hovered || nearPlayer)}
       >
         {children}
       </MemoryGlowSelection>
@@ -117,18 +128,24 @@ export function TouchProp({
 /**
  * 원래 있던 장식을 그대로 단서로 쓰는 자리들: 선반의 책 한 권, 캐비닛 위 시계.
  *
- * 2바퀴 미궁 문제(카드·회전)의 규칙을 들고 있다. 문제 화면에는 규칙이 한 줄도
+ * 선반의 책은 3페이즈 하부장 번호("11")를, 시계는 현관 잠금(angle-turn)의 규칙을 든다. 문제 화면에는 규칙이 한 줄도
  * 없으므로, 방을 뒤진 사람만 그림을 읽을 수 있다 (src/data/room-clues.ts).
  *
  * 새 도형을 만들지 않고 children으로 받는다. 이 물건들은 이미 방에 놓여 있고,
  * 여기서 다시 그리면 같은 책이 두 권 서게 된다.
  */
 export function ShelfBookClue({ children }: { children: ReactNode }) {
+  // 아빠 메일("선반 정리 좀 해라.")을 읽기 전에는 그냥 선반의 책이다. 읽은 뒤에는 "11"을
+  // 찾을 때까지 금빛으로 부른다 (v4.1 3장: 메일 → 선반 금빛 → 책)
+  const unlocked = useMemoryRoomStore((state) => clueUnlocked(state, "shelf-book"));
+  const found = useMemoryRoomStore(selectSinkHintRead);
   return (
     <ClueProp
       clue="shelf-book"
       near={CLUE_PROPS.shelfBook.near}
       radius={CLUE_PROPS.shelfBook.interactionRadius}
+      enabled={unlocked}
+      beckon={unlocked && !found}
     >
       {children}
     </ClueProp>

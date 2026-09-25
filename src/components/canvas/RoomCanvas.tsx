@@ -260,7 +260,6 @@ export function RoomCanvas() {
       ampoule: tRoom("memories.ampoule.name"),
       "research-note": tRoom("memories.research-note.name"),
       "id-card": tRoom("memories.id-card.name"),
-      "not-a-trip": tRoom("memories.not-a-trip.name"),
     }),
     [tRoom],
   );

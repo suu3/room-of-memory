@@ -22,7 +22,6 @@ const labels = {
   ampoule: "Ampoule",
   "research-note": "Research Log",
   "id-card": "ID Badges",
-  "not-a-trip": "Recall Notice",
 } satisfies Record<MemoryId, string>;
 
 afterEach(cleanup);

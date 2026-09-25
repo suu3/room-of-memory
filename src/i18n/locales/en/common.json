@@ -292,16 +292,16 @@
       },
       "helpFamily": "Open the Family tab too",
       "family": {
-        "room": "Home 🏠",
+        "room": "Home",
         "members": "Mom, Dad, me",
         "date": "October 17",
         "momPreview": "New message",
-        "f1": "Sweetie~ Mom and Dad are off for 3 days!! 🧳",
-        "f2": "Fridge is fully stocked~ don't starve 👍",
-        "f3": "Eat properly~ and go easy on the games lol",
-        "f4": "We'll send pics haha",
-        "f5": "Reply for once~~ 😤",
-        "f6": "k."
+        "f1": "Dohae, Mom and Dad are off for three days.",
+        "f2": "Fridge is stocked. Don't starve.",
+        "f3": "Eat properly, and go easy on the games.",
+        "f4": "We'll send pictures. Hahaha!",
+        "f5": "Write back for once.",
+        "f6": "Okay."
       }
     },
     "computerBrowse": {
@@ -331,16 +331,16 @@
       "truncated": "(the saved copy ends here)",
       "mail": {
         "m1": {
-          "subject": "Made it~",
+          "subject": "We made it",
           "date": "October 17",
-          "b1": "Your mom and I got here fine. The sea is right outside the room!",
-          "b2": "She keeps telling me to send photos, so here are a few. Eat properly~"
+          "b1": "Your mom and I got here safe. We'll rest up for three days.",
+          "b2": "Your mom wants me to send pictures, so here are a few. Eat properly."
         },
         "m2": {
           "subject": "Heading back tomorrow",
           "date": "October 18",
-          "b1": "Had a good rest. Home by tomorrow evening!",
-          "b2": "Want us to bring you anything? Write back~"
+          "b1": "Had a good rest. We'll be home tomorrow evening.",
+          "b2": "Want us to bring you anything? Write back."
         }
       },
       "news": {
@@ -379,29 +379,6 @@
       "submit": "Enter",
       "blanks": "The answer has {{count}} digits"
     },
-    "cardOdd": {
-      "title": "Cards That Aren't There",
-      "help": "Write the numbers of the wrong cards, left to right",
-      "attempts": "Wrong answers",
-      "answerLabel": "Answer",
-      "placeholder": "Type your answer",
-      "submit": "Enter",
-      "cardLabel": "{{ink}} {{rank}} of {{suit}}, lower index {{orientation}}",
-      "ink": {
-        "black": "black",
-        "red": "red"
-      },
-      "orientation": {
-        "flipped": "upside down",
-        "upright": "upright"
-      },
-      "suit": {
-        "spade": "spades",
-        "heart": "hearts",
-        "diamond": "diamonds",
-        "club": "clubs"
-      }
-    },
     "answer": {
       "backspace": "Delete"
     },
@@ -435,7 +412,7 @@
       "listTitle": "Chats",
       "listSubtitle": "1 unread chat",
       "roomSubtitle": "Direct message",
-      "message": "Sweetie~ come straight home after school today! No detours~"
+      "message": "Dohae, come straight home after school today. Skip club practice. Don't go anywhere else"
     },
     "computerLogo": {
       "title": "Saved Images",
@@ -453,19 +430,76 @@
       },
       "mail": {
         "date": "October 16",
-        "subject": "Bathroom cabinet",
-        "b1": "Your mom wanted a new lock on the bathroom sink cabinet, so I changed it! A dial one~",
-        "b2": "Set it to your number~ you won't forget that one, right? 😎"
+        "subject": "A word from Dad",
+        "b1": "Tidy up your shelf.",
+        "b2": "Dad."
       }
     },
     "sinkDial": {
       "title": "Cabinet Dial",
-      "help": "Turn with ↑/↓, move with ←/→ · Enter to open",
-      "help_touch": "Tap the arrows to turn the digits, then tap Open",
+      "help": "Drag the drums up or down to roll them · ↑/↓ to turn, ←/→ to switch · Enter to open",
+      "help_touch": "Roll the drums up or down with your finger, then tap Open",
       "fails": "Wrong tries",
       "up": "Turn digit {{index}} up",
       "down": "Turn digit {{index}} down",
-      "open": "Open"
+      "open": "Open",
+      "alt": "Two number drums. Currently {{value}}"
+    },
+    "inspect": {
+      "help": "Drag to turn it · wheel or buttons to zoom",
+      "help_touch": "Drag with your finger to turn it",
+      "putDown": "Put it down",
+      "next": "Next"
+    },
+    "cardFlip": {
+      "title": "The Face-Down Card",
+      "alt": "3D card: drag to turn it",
+      "memo": "Don't touch the bottom drawer.",
+      "signature": "Mom",
+      "found": "Mom's handwriting on the back."
+    },
+    "idCardFlip": {
+      "title": "ID Badge",
+      "alt": "3D ID badge: drag to turn it",
+      "org": "Raon Life Science Institute",
+      "role": "Senior Researcher",
+      "dad": "Han Jeongwoo",
+      "mom": "Yun Seoyeong",
+      "found": "The logo on the back. The same one on the ampoule label."
+    },
+    "ampouleCase": {
+      "title": "Cooler Case",
+      "caution": "Handle with care · Keep refrigerated",
+      "caseAlt": "3D cooler case: drag to turn it",
+      "ampouleAlt": "3D ampoule: drag to turn it",
+      "slotFound": "One of the two slots is empty.",
+      "labelFound": "Half a logo is left on the label."
+    },
+    "papersOrder": {
+      "title": "Scattered Papers",
+      "help": "Pick up a piece and tap another spot to swap · Space to pick up, ↑/↓ to move",
+      "help_touch": "Tap a piece, then tap where it goes",
+      "inPlace": "In place",
+      "pieceLabel": "Position {{index}}: {{date}}, {{text}}",
+      "joined": "In date order, the record reads straight through.",
+      "pieces": {
+        "p1": {
+          "date": "Sep 28",
+          "text": "Raon Life Science Institute, Infectious Disease Team. Senior researchers Yun Seoyeong, Han Jeongwoo. Candidate R-7 trials begin."
+        },
+        "p2": {
+          "date": "Oct 9",
+          "text": "R-7 confirmed to slow early-stage infection. Listed as a treatment candidate."
+        },
+        "p3": {
+          "date": "Oct 15",
+          "text": "Two R-7 ampoules produced. Keep refrigerated. Do not remove."
+        },
+        "p4": {
+          "date": "Oct 16",
+          "text": "All emergency response staff recalled. On-site from the 17th. Tell families it is a trip."
+        }
+      }
     }
   },
   "characterSheet": {
@@ -547,11 +581,11 @@
       "caption": "Two circles. One is that day; the other is some day before it."
     },
     "shelfBook": {
-      "title": "Book on the Shelf",
-      "heading": "Games of the World · Playing Cards",
-      "l1": "Four suits. Spades and clubs print in black, hearts and diamonds in red.",
-      "l2": "Each face is printed twice, the second upside down, so either end reads the same.",
-      "caption": "Bought it in grade school and barely opened it."
+      "title": "The Upside-Down Book",
+      "alt": "3D book: drag to turn it",
+      "hint": "Drag to turn; wheel or buttons to zoom",
+      "bookTitle": "Baseball Rules Explained",
+      "caption": "A book Dad bought me. It was the only one shelved upside down."
     },
     "deskClock": {
       "title": "Desk Clock",

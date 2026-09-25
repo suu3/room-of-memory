@@ -1,13 +1,26 @@
 "use client";
 
 import { CaretDown, CaretUp, LockSimpleOpen } from "@phosphor-icons/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import {
+  type PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { SINK_DIAL_CODE } from "@/data/room-clues";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
+
+/** 드럼은 Canvas라 클라이언트에서만 뜬다 (.claude/rules/r3f.md). */
+const DialDrums = dynamic(() => import("@/components/canvas/DialDrums"), { ssr: false });
+
+/** 세로로 이만큼 끌면 한 눈금 넘어간다(px). */
+const DRAG_PX_PER_STEP = 34;
 
 /** 몇 번 틀리면 스킵을 내주는가. 시간 경과 쪽이 먼저 오면 그쪽이 이긴다. */
 const FAILS_BEFORE_SKIP = 4;
@@ -32,13 +45,24 @@ export function dialMatches(digits: readonly number[], code: string = SINK_DIAL_
  * 말하고, 숫자는 방의 유니폼·트로피가 들고 있다. 이 판은 아빠 힌트를 본 뒤에만
  * 열린다 (store의 openPuzzle). 그 전에 하부장을 누르면 혼잣말만 흐른다.
  *
- * 조작: 칸을 고르고(←/→) 돌린다(↑/↓). 맞으면 저절로 열린다. 버튼으로도 된다.
+ * 3D 드럼 (v4.1): 숫자 원통 두 개를 세로로 끌어 굴린다. 끄는 동안 드럼이 손을 따라
+ * 덜 넘어간 만큼 기울고, 한 눈금을 넘기면 딸깍 넘어간다. 아래로 끌면 +1.
+ * 키보드: 칸을 고르고(←/→) 돌린다(↑/↓), Enter로 연다. 드럼 옆 버튼으로도 된다.
  */
 export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
-  const [digits, setDigits] = useState<number[]>(() => SINK_DIAL_CODE.split("").map(() => 0));
+  // 누적 눈금: 9→0에서 드럼이 거꾸로 한 바퀴 돌지 않게. 숫자는 mod 10
+  const [steps, setSteps] = useState<number[]>(() => SINK_DIAL_CODE.split("").map(() => 0));
+  const digits = steps.map((value) => ((value % 10) + 10) % 10);
+  const dragRef = useRef<number[]>(steps.map(() => 0));
+  const dragging = useRef<{
+    index: number;
+    pointerId: number;
+    lastY: number;
+    carry: number;
+  } | null>(null);
   const [focus, setFocus] = useState(0);
   const [fails, setFails] = useState(0);
   const [solved, setSolved] = useState(false);
@@ -48,9 +72,7 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
     (index: number, step: 1 | -1) => {
       if (solved) return;
       playSound("select", { variation: 0.06 });
-      setDigits((current) =>
-        current.map((value, i) => (i === index ? turnDigit(value, step) : value)),
-      );
+      setSteps((current) => current.map((value, i) => (i === index ? value + step : value)));
     },
     [solved],
   );
@@ -72,6 +94,44 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
     const timer = window.setTimeout(() => complete({ cleared: true }), SETTLE_MS);
     return () => window.clearTimeout(timer);
   }, [solved, complete]);
+
+  const onPointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (solved) return;
+      const box = event.currentTarget.getBoundingClientRect();
+      const index = Math.min(
+        steps.length - 1,
+        Math.max(0, Math.floor(((event.clientX - box.left) / box.width) * steps.length)),
+      );
+      event.currentTarget.setPointerCapture(event.pointerId);
+      dragging.current = { index, pointerId: event.pointerId, lastY: event.clientY, carry: 0 };
+      setFocus(index);
+    },
+    [solved, steps.length],
+  );
+
+  const onPointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const drag = dragging.current;
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      drag.carry += event.clientY - drag.lastY;
+      drag.lastY = event.clientY;
+      while (Math.abs(drag.carry) >= DRAG_PX_PER_STEP) {
+        const step = drag.carry > 0 ? 1 : -1;
+        drag.carry -= step * DRAG_PX_PER_STEP;
+        turn(drag.index, step);
+      }
+      dragRef.current[drag.index] = drag.carry / DRAG_PX_PER_STEP;
+    },
+    [turn],
+  );
+
+  const endDrag = useCallback(() => {
+    const drag = dragging.current;
+    if (!drag) return;
+    dragRef.current[drag.index] = 0;
+    dragging.current = null;
+  }, []);
 
   const keyRef = useRef<(event: KeyboardEvent) => void>(() => {});
   keyRef.current = (event) => {
@@ -104,48 +164,32 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
       onSkip={() => complete({ cleared: true })}
     >
       <div className="flex flex-col items-center gap-5 rounded-md border border-ink/12 bg-paper px-5 py-6">
-        <div className="flex items-center gap-4">
-          {digits.map((value, index) => (
-            <div
-              // biome-ignore lint/suspicious/noArrayIndexKey: 고정 자리수 다이얼
-              key={index}
-              className="flex flex-col items-center gap-1"
-            >
-              <button
-                type="button"
-                aria-label={t("minigame.sinkDial.up", { index: index + 1 })}
-                onClick={() => {
-                  setFocus(index);
-                  turn(index, 1);
-                }}
-                className="grid size-10 cursor-pointer place-items-center rounded-sm text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink"
-              >
-                <CaretUp size={20} weight="bold" />
-              </button>
-              <span
-                className={`grid h-20 w-16 place-items-center rounded-md border-2 text-5xl font-bold tabular-nums ${
-                  solved
-                    ? "border-memory bg-memory/15 text-ink"
-                    : focus === index
-                      ? "border-ink/60 bg-ink/5 text-ink"
-                      : "border-ink/20 text-ink"
-                }`}
-              >
-                {value}
-              </span>
-              <button
-                type="button"
-                aria-label={t("minigame.sinkDial.down", { index: index + 1 })}
-                onClick={() => {
-                  setFocus(index);
-                  turn(index, -1);
-                }}
-                className="grid size-10 cursor-pointer place-items-center rounded-sm text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink"
-              >
-                <CaretDown size={20} weight="bold" />
-              </button>
-            </div>
-          ))}
+        <div className="flex items-center gap-2">
+          <DialButtons
+            index={0}
+            onTurn={(step) => {
+              setFocus(0);
+              turn(0, step);
+            }}
+          />
+          <div
+            role="img"
+            aria-label={t("minigame.sinkDial.alt", { value: digits.join(" ") })}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+            className="h-44 w-60 cursor-grab touch-none rounded-md border border-ink/10 bg-bone/25 active:cursor-grabbing sm:h-52 sm:w-72"
+          >
+            <DialDrums steps={steps} dragRef={dragRef} focus={focus} solved={solved} />
+          </div>
+          <DialButtons
+            index={1}
+            onTurn={(step) => {
+              setFocus(1);
+              turn(1, step);
+            }}
+          />
         </div>
         <button
           type="button"
@@ -158,5 +202,33 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
         </button>
       </div>
     </MinigameShell>
+  );
+}
+
+/** 드럼 옆의 올리기·내리기 버튼 (키보드·스크린리더용 같은 조작). */
+function DialButtons({ index, onTurn }: { index: number; onTurn: (step: 1 | -1) => void }) {
+  const { t } = useTranslation();
+  const className =
+    "grid size-10 cursor-pointer place-items-center rounded-sm text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink";
+  return (
+    <div className="flex flex-col gap-2">
+      {/* 드럼은 아래로 굴리면 +1이라, 위 버튼이 +1 (위의 숫자를 끌어내린다) */}
+      <button
+        type="button"
+        aria-label={t("minigame.sinkDial.up", { index: index + 1 })}
+        onClick={() => onTurn(1)}
+        className={className}
+      >
+        <CaretUp size={20} weight="bold" />
+      </button>
+      <button
+        type="button"
+        aria-label={t("minigame.sinkDial.down", { index: index + 1 })}
+        onClick={() => onTurn(-1)}
+        className={className}
+      >
+        <CaretDown size={20} weight="bold" />
+      </button>
+    </div>
   );
 }

@@ -82,9 +82,6 @@
     },
     "id-card": {
       "name": "ID Badges"
-    },
-    "not-a-trip": {
-      "name": "Recall Notice"
     }
   },
   "stages": {
@@ -186,16 +183,18 @@
     "shoes-open": {
       "line1": "The shoe cabinet. Haven't opened it in a long time.",
       "line2": "Dad's hiking boots. Still here.",
-      "line3": "이번엔 안 걷는 여행이야~ 등산화는 놔두고 간다!",
-      "line4": "A trip with no walking, and two suitcases."
+      "line3": "이번엔 안 걷는 여행이다. 등산화는 놔두고 간다.",
+      "line4": "A trip with no walking, and two suitcases.",
+      "line5": "캐리어 두 개 자리가 비어 있네."
     },
     "cards-intro": {
       "line1": "The cards are still laid out on the table.",
-      "line2": "다음에 오면 이거 마저 치자~"
+      "line2": "다음에 오면 이거 마저 치자. 엄마가 이기고 있었던 거 기억해라. 하하하!",
+      "line3": "…한 장만 뒤집혀 있네."
     },
-    "cards-unfinished": {
-      "line1": "The last hand never finished.",
-      "line2": "…다음에 오면, 이라."
+    "cards-memo": {
+      "line1": "…엄마 글씨다.",
+      "line2": "아래칸. 냉장고 아래칸 말인가."
     },
     "computer-power-on": {
       "line1": "켜 봐야 인터넷도 안 되는데.",
@@ -221,37 +220,37 @@
     },
     "ampoule-note": {
       "line1": "냉장고 아래칸. 메모가 붙어 있다.",
-      "line2": "아래칸은 손대지 마~ 엄마가 정리해 놨다!",
+      "line2": "카드에 적혀 있던 그 칸이다.",
       "line3": "…Let's open it."
     },
     "ampoule-found": {
-      "line1": "보냉 케이스?",
-      "line2": "앰플이 하나. …옆 칸은 비어 있어.",
-      "line3": "라벨에 로고가 반쯤 남았네.",
-      "line4": "이 로고… 어디서 봤는데."
+      "line1": "앰플이 하나. …옆 칸은 비어 있어.",
+      "line2": "라벨에 로고가 반쯤 남았네.",
+      "line3": "이 로고… 어디서 봤는데."
     },
     "computer-logo-intro": {
       "line1": "그 로고. 아빠 메일에서 본 것 같은데."
     },
     "computer-logo-found": {
       "line1": "라온생명과학연구소. …첨부에 있던 거랑 같아.",
-      "line2": "욕실 하부장 자물쇠, 엄마가 바꿔 달래서 바꿨다!",
-      "line3": "네 번호로 해놨다~ 이건 안 까먹겠지?",
-      "line4": "…내 번호."
+      "line2": "선반 정리 좀 해라.",
+      "line3": "…선반?"
+    },
+    "research-note-intro": {
+      "line1": "책상 위에 서류가 흩어져 있다.",
+      "line2": "엄마 글씨다. 조각마다 날짜가 적혀 있네."
     },
     "research-note-read": {
-      "line1": "연구 일지. 엄마 글씨다.",
-      "line2": "후보물질 R-7. 감염 초기 진행 억제 확인. 냉장 보관, 2개 제조.",
-      "line3": "두 개. …하나는 비어 있었는데."
+      "line1": "둘 다 연구원이었어. 라온생명과학연구소.",
+      "line2": "여행이 아니라 연구소에 불려 간 거였어.",
+      "line3": "R-7. 치료제 후보. …두 개 만들었는데, 하나는 비어 있었어."
     },
     "id-card-look": {
-      "line1": "출입증. 라온생명과학연구소.",
-      "line2": "아빠 이름, 엄마 이름.",
-      "line3": "앰플 라벨의 그 로고다."
+      "line1": "출입증이다. 아빠 거랑 엄마 거."
     },
-    "not-a-trip-read": {
-      "line1": "비상 대응팀 전원 소집. 10월 17일부터 연구소 상주. 가족에게는 여행으로 안내 바람.",
-      "line2": "…그래서 여행이라고 했구나."
+    "id-card-found": {
+      "line1": "라온생명과학연구소. 아빠 이름, 엄마 이름.",
+      "line2": "뒷면의 로고… 앰플 라벨의 그 로고다."
     }
   },
   "lore": {
@@ -302,7 +301,7 @@
     },
     "cards": {
       "title": "The Unfinished Hand",
-      "phase2": "The cards are still on the table. We'll finish it next time, they said. The hand never moved."
+      "phase2": "식탁에 그대로 있는 카드. 한 장만 뒤집혀 있었고, 뒷면에 엄마 메모가 있었다. \"아래칸 건드리지 마.\""
     },
     "computer": {
       "title": "What Was Saved",
@@ -315,15 +314,11 @@
     },
     "research-note": {
       "title": "연구 일지",
-      "phase2": "엄마 글씨의 연구 일지. 앰플은 치료제 후보였다."
+      "phase2": "날짜순으로 놓은 엄마의 기록. 둘 다 라온 연구원이었고, 앰플은 치료제 후보였다. 여행은 연구소 소집이었다."
     },
     "id-card": {
       "title": "출입증",
-      "phase2": "라온생명과학연구소 출입증 두 장. 아빠 이름, 엄마 이름. 앰플 라벨의 그 로고다."
-    },
-    "not-a-trip": {
-      "title": "소집 공지",
-      "phase2": "연구소 비상 소집 공지. 가족에게는 여행이라고 말해 두라고 적혀 있었다."
+      "phase2": "라온생명과학연구소 출입증. 아빠 이름, 엄마 이름. 뒷면에 앰플 라벨의 그 로고가 있었다."
     }
   },
   "cutscenes": {
@@ -351,6 +346,11 @@
       },
       "cut5": {
         "line1": "은강고…? 그때 그…?"
+      }
+    },
+    "trip-doubt": {
+      "cut1": {
+        "line1": "2박 3일인데 캐리어가 두 개. 가져간 짐은 한 달치였어."
       }
     },
     "p2-close": {

@@ -491,9 +491,13 @@ const { plant, storageBox, clock } = CABINET_TOP_PROPS;
  */
 const CLOCK_CENTER: Vec3Tuple = [clock.x, 1.43, -2.82];
 const CLOCK_FACE_Z = 0.055;
-/** 멈춰 선 시각. 폰 잠금화면과 같은 20:47이다. 방 안의 두 시계가 어긋나면 안 된다. */
-const CLOCK_HOUR = 20;
-const CLOCK_MINUTE = 47;
+/**
+ * 멈춰 선 시각: 10월 19일, 그날 하교하던 16:20 (v4.1 3장). 현관 잠금(angle-turn)의
+ * 단서 시계라, 시각에도 뜻을 준다. 그날 이 방의 시간이 거기서 멈췄다.
+ * 풀이 규칙(눈금마다 적힌 각도)은 이 시각과 상관없다.
+ */
+const CLOCK_HOUR = 16;
+const CLOCK_MINUTE = 20;
 /** 12시 방향에서 시계방향으로 도는 각. three의 +Z 회전은 반시계라 부호가 뒤집힌다. */
 const MINUTE_ANGLE = -(CLOCK_MINUTE / 60) * Math.PI * 2;
 const HOUR_ANGLE = -(((CLOCK_HOUR % 12) + CLOCK_MINUTE / 60) / 12) * Math.PI * 2;

@@ -672,15 +672,6 @@ export const MEMORY_PLACEMENTS = {
     interactionRadius: 1.8,
     hitRadius: 0.32,
   },
-  "not-a-trip": {
-    id: "not-a-trip",
-    // 침대(x -23~-20.2) 발치 이불 위. 침대는 통째로 콜라이더라 옆에서 닿는다
-    position: [-20.62, 0.82, 3.3],
-    rotation: [0, 0.5, 0],
-    scale: 1,
-    interactionRadius: 1.6,
-    hitRadius: 0.4,
-  },
 } as const satisfies Record<MemoryId, MemoryPlacement>;
 
 /**
@@ -709,7 +700,6 @@ export const MEMORY_SPACE = {
   ampoule: "living",
   "research-note": "parents",
   "id-card": "parents",
-  "not-a-trip": "parents",
 } as const satisfies Record<MemoryId, "room" | "living" | "parents">;
 
 export type MemorySpace = (typeof MEMORY_SPACE)[MemoryId];
@@ -743,7 +733,6 @@ export const CAMERA_PRESETS = {
   // 그 벽은 카메라 쪽이라 걷힌다 (CulledWall). 다른 사분면에서 보면 벽이 열렸다 닫힌다
   "research-note": { position: [-16.3, 3.4, 8.6], target: [-18.94, 1.1, 6.0] },
   "id-card": { position: [-15.4, 3.3, 8.4], target: [-17.8, 1.1, 6.05] },
-  "not-a-trip": { position: [-18.2, 2.9, 5.6], target: [-20.62, 0.8, 3.3] },
 } as const satisfies Record<"room" | "ending" | MemoryId, CameraPreset>;
 
 /*

@@ -1025,22 +1025,6 @@ function IdCardMemory({ palette, opacity }: VisualProps) {
   );
 }
 
-/** 이불 위의 봉투 하나: 연구소 소집 공지. */
-function NoticeMemory({ palette, opacity }: VisualProps) {
-  return (
-    <group>
-      <Sheet size={[0.34, 0.02, 0.22]} color={palette.linen} opacity={opacity} />
-      <Sheet
-        size={[0.3, 0.004, 0.02]}
-        position={[0, 0.012, -0.06]}
-        rotation={[0, 0, 0]}
-        color={palette.clay}
-        opacity={opacity}
-      />
-    </group>
-  );
-}
-
 function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId }) {
   switch (id) {
     case "console":
@@ -1073,8 +1057,6 @@ function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId 
       return <ResearchNoteMemory palette={palette} opacity={opacity} />;
     case "id-card":
       return <IdCardMemory palette={palette} opacity={opacity} />;
-    case "not-a-trip":
-      return <NoticeMemory palette={palette} opacity={opacity} />;
   }
 }
 

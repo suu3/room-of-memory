@@ -1,6 +1,23 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { ActiveInteraction } from "@/store/memory-room";
 import { liveMinigameOf, selectCanvasMinigameMemory } from "./active";
+
+/*
+ * v4.1에서 앰플은 3D 인스펙트(ampoule-case, overlay)로 바뀌어 지금 콘텐츠에는 canvas 판을
+ * 쓰는 기억이 없다. 씬 안 판의 계약은 남아 있으므로, 앰플 2차가 예전처럼 canvas 판
+ * (ampoule-pickup)을 쓴다고 바꿔 끼워 그 경로를 지킨다.
+ */
+vi.mock("@/data/memory-room", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/data/memory-room")>();
+  return {
+    ...actual,
+    phaseConfigOf: ((id, visit) => {
+      const config = actual.phaseConfigOf(id, visit);
+      if (id !== "ampoule" || visit !== 2 || !config?.interaction) return config;
+      return { ...config, interaction: { ...config.interaction, minigameId: "ampoule-pickup" } };
+    }) as typeof actual.phaseConfigOf,
+  };
+});
 
 const consolePlay: ActiveInteraction = {
   memoryId: "console",

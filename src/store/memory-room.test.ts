@@ -4,6 +4,7 @@ import {
   CUTSCENE_P2_CLOSE,
   CUTSCENE_P4_CLOSE,
   CUTSCENE_RADIO_BLACKOUT,
+  CUTSCENE_TRIP_DOUBT,
   CUTSCENES,
   MEMORIES,
   MEMORY_BY_ID,
@@ -18,6 +19,7 @@ import {
   actOf,
   actTwoProgress,
   buildMemoryReplay,
+  clueUnlocked,
   hotspotStatus,
   isAtCurtain,
   openCutscene,
@@ -28,15 +30,18 @@ import {
   selectEndingReady,
   selectHeardSurvivorBroadcast,
   selectHeroNameKnown,
+  selectIdCardFlipped,
   selectMomChatRead,
   selectMusicPhase,
   selectMusicPlaying,
+  selectPapersOrdered,
   selectRadioSignaling,
   selectSceneInputLocked,
   selectSinkHintRead,
   selectStillBeatDone,
   selectViewpoint,
   storyPhase,
+  tripDoubted,
   useMemoryRoomStore,
 } from "./memory-room";
 
@@ -615,6 +620,55 @@ describe("2페이즈: 거실과 컴퓨터 → 엄마 대화방", () => {
   });
 });
 
+describe("v4.1 추리: 캐리어 개수와 컷씬 줄", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("신발장과 아빠 메일을 둘 다 보면 trip-doubt가 흐른다. 한쪽만으로는 안 흐른다", () => {
+    enterPhase("p2");
+    useMemoryRoomStore.getState().beginInteraction("shoes");
+    finishInteraction("shoes");
+    expect(tripDoubted(useMemoryRoomStore.getState())).toBe(false);
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+
+    useMemoryRoomStore.getState().beginInteraction("computer");
+    finishInteraction("computer");
+    const state = useMemoryRoomStore.getState();
+    expect(tripDoubted(state)).toBe(true);
+    expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_TRIP_DOUBT);
+  });
+
+  it("한 조사가 컷씬 둘을 부르면 줄을 서서 차례로 흐른다 (trip-doubt → p2-close)", () => {
+    enterPhase("p2");
+    const allButComputer = requiredVisits("p2").filter((ref) => ref.id !== "computer");
+    useMemoryRoomStore.setState({
+      revisited: [
+        ...useMemoryRoomStore.getState().revisited,
+        ...allButComputer.map((ref) => ref.id),
+      ],
+    });
+    useMemoryRoomStore.getState().beginInteraction("computer");
+    finishInteraction("computer");
+
+    expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_TRIP_DOUBT);
+    expect(useMemoryRoomStore.getState().queuedPlaybacks.map((p) => p.cutsceneId)).toEqual([
+      CUTSCENE_P2_CLOSE,
+    ]);
+    // 건너뛰어도 줄의 다음 것이 선다
+    useMemoryRoomStore.getState().endPlayback();
+    expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_P2_CLOSE);
+    useMemoryRoomStore.getState().endPlayback();
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+    expect(useMemoryRoomStore.getState().queuedPlaybacks).toEqual([]);
+  });
+
+  it("거꾸로 꽂힌 책은 아빠 메일(컴퓨터 3차)을 읽은 뒤에야 집힌다", () => {
+    enterPhase("p3");
+    expect(clueUnlocked(useMemoryRoomStore.getState(), "shelf-book")).toBe(false);
+    useMemoryRoomStore.setState({ rechecked: ["computer"] });
+    expect(clueUnlocked(useMemoryRoomStore.getState(), "shelf-book")).toBe(true);
+  });
+});
+
 describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
@@ -647,6 +701,11 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
       revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
       rechecked: ["computer"],
     });
+    // 메일만으로는 모른다: 거꾸로 꽂힌 책의 "11"을 봐야 번호를 안다 (v4.1)
+    expect(selectSinkHintRead(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().openPuzzle("sink-dial");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
+    useMemoryRoomStore.getState().discover("sink-code");
     expect(selectSinkHintRead(useMemoryRoomStore.getState())).toBe(true);
     useMemoryRoomStore.getState().openPuzzle("sink-dial");
     expect(useMemoryRoomStore.getState().activePuzzle).toBe("sink-dial");
@@ -664,14 +723,16 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
 describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  it("서류 셋을 다 보면 p4-close가 흐르고 액자 2차가 열린다", () => {
+  it("서류 순서와 출입증을 마치면 p4-close가 흐르고 액자 2차가 열린다", () => {
     enterPhase("p4");
     expect(status("frame")).toBe("locked");
     useMemoryRoomStore.setState({
-      revisited: [...useMemoryRoomStore.getState().revisited, "research-note", "id-card"],
+      revisited: [...useMemoryRoomStore.getState().revisited, "research-note"],
     });
-    useMemoryRoomStore.getState().beginInteraction("not-a-trip");
-    finishInteraction("not-a-trip");
+    expect(selectPapersOrdered(useMemoryRoomStore.getState())).toBe(true);
+    expect(selectIdCardFlipped(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().beginInteraction("id-card");
+    finishInteraction("id-card");
 
     const state = useMemoryRoomStore.getState();
     expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_P4_CLOSE);
@@ -681,12 +742,7 @@ describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
   it("액자 2차가 끝나면 정적 비트가 흐르고, 그게 끝나야 배트가 빛난다", () => {
     enterPhase("p4");
     useMemoryRoomStore.setState({
-      revisited: [
-        ...useMemoryRoomStore.getState().revisited,
-        "research-note",
-        "id-card",
-        "not-a-trip",
-      ],
+      revisited: [...useMemoryRoomStore.getState().revisited, "research-note", "id-card"],
     });
     useMemoryRoomStore.getState().beginInteraction("frame");
     finishInteraction("frame");
@@ -952,7 +1008,6 @@ describe("2차 이후 조사 대상", () => {
       "fridge",
       "id-card",
       "console",
-      "not-a-trip",
       "phone",
       "radio",
       "research-note",

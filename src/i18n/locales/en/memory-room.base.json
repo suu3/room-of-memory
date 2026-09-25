@@ -82,9 +82,6 @@
     },
     "id-card": {
       "name": "ID Badges"
-    },
-    "not-a-trip": {
-      "name": "Recall Notice"
     }
   }
 }

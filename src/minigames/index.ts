@@ -121,25 +121,48 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.windowView.title",
     helpKey: "minigame.windowView.help",
   },
-  "card-odd": {
-    id: "card-odd",
-    mode: "overlay",
-    component: lazy(() => import("./card-odd").then((m) => ({ default: m.CardOddMinigame }))),
-    titleKey: "minigame.cardOdd.title",
-    helpKey: "minigame.cardOdd.help",
-    /*
-     * rulesKeys를 일부러 비운다. 이건 미니게임이 아니라 미궁 문제라, 무엇이 틀린
-     * 카드인지 시작 카드에서 알려주면 문제가 통째로 사라진다. 카드가 지키는 규칙은
-     * 방의 다른 오브젝트 대사에 흩어 두고, 여기서는 답 형식만 말한다.
-     */
-  },
   "angle-turn": {
     id: "angle-turn",
     mode: "overlay",
     component: lazy(() => import("./angle-turn").then((m) => ({ default: m.AngleTurnMinigame }))),
     titleKey: "minigame.angleTurn.title",
     helpKey: "minigame.angleTurn.help",
-    // card-odd와 같은 이유로 rulesKeys를 비운다. 각도를 읽는 법은 캐비닛 위 시계에 있다
+    // rulesKeys를 비운다. 각도를 읽는 법은 캐비닛 위 시계에 있다
+  },
+  // ── 3D 인스펙트 (v4.1 2장): 집어 든 물건을 돌려 찾을 면을 본다 ──────────────
+  "card-flip": {
+    id: "card-flip",
+    mode: "overlay",
+    presentation: "bare",
+    component: lazy(() => import("./inspect").then((m) => ({ default: m.CardFlipMinigame }))),
+    titleKey: "minigame.cardFlip.title",
+    helpKey: "minigame.inspect.help",
+  },
+  "id-card-flip": {
+    id: "id-card-flip",
+    mode: "overlay",
+    presentation: "bare",
+    component: lazy(() => import("./inspect").then((m) => ({ default: m.IdCardFlipMinigame }))),
+    titleKey: "minigame.idCardFlip.title",
+    helpKey: "minigame.inspect.help",
+  },
+  "ampoule-case": {
+    id: "ampoule-case",
+    mode: "overlay",
+    presentation: "bare",
+    component: lazy(() => import("./inspect").then((m) => ({ default: m.AmpouleCaseMinigame }))),
+    titleKey: "minigame.ampouleCase.title",
+    helpKey: "minigame.inspect.help",
+  },
+  "papers-order": {
+    id: "papers-order",
+    // 안방 책상 위 서류 조각을 날짜순으로 (v4.1 7장). 여행이 아니었다는 소집 공지도 이 안에 있다
+    mode: "overlay",
+    component: lazy(() =>
+      import("./papers-order").then((m) => ({ default: m.PapersOrderMinigame })),
+    ),
+    titleKey: "minigame.papersOrder.title",
+    helpKey: "minigame.papersOrder.help",
   },
   "sink-dial": {
     id: "sink-dial",

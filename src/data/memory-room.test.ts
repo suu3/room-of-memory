@@ -197,12 +197,10 @@ describe("v4 진행 형태", () => {
     expect(PUZZLE_IDS).toContain("sink-dial");
   });
 
-  it("4페이즈: 서류 셋 → 액자 2차, 액자가 끝나면 정적 비트", () => {
-    expect(deps(MEMORY_BY_ID.frame.phase2)).toEqual([
-      "id-card@2",
-      "not-a-trip@2",
-      "research-note@2",
-    ]);
+  it("4페이즈: 서류 순서 + 출입증 → 액자 2차, 액자가 끝나면 정적 비트", () => {
+    expect(deps(MEMORY_BY_ID.frame.phase2)).toEqual(["id-card@2", "research-note@2"]);
+    expect(MEMORY_BY_ID["research-note"].phase2?.interaction?.minigameId).toBe("papers-order");
+    expect(MEMORY_BY_ID["id-card"].phase2?.interaction?.minigameId).toBe("id-card-flip");
     expect(MEMORY_BY_ID.frame.phase2?.from).toBe("p4");
     expect(MEMORY_BY_ID.frame.phase2?.cutscene).toBe("still-beat");
   });

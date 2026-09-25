@@ -17,8 +17,9 @@
 # 어떤 컷씬이 언제 도는지:
 #   radio-blackout      라디오 1차(재난방송)를 마친 순간 (store가 1바퀴 완주에 연다)
 #   survivor-broadcast  라디오 2차 (memories.yaml의 cutscene)
+#   trip-doubt          신발장 + 아빠 메일을 둘 다 본 순간 (store: tripDoubted)
 #   p2-close            2페이즈 필수 조사를 다 마친 순간 (store: STORY_CUTSCENES)
-#   p4-close            4페이즈 안방 서류 셋을 다 본 순간 (store: STORY_CUTSCENES)
+#   p4-close            4페이즈 서류 순서 + 출입증을 마친 순간 (store: STORY_CUTSCENES)
 #   still-beat          액자 2차 (memories.yaml의 cutscene)
 #   bat-grip            현관 배트를 쥔 순간 (store의 takeBat)
 #
@@ -81,6 +82,13 @@ cutscenes:
           ko: 은강고…? 그때 그…?
 
   #
+  # 캐리어 개수 추리의 결론 (v4.1 3장). 신발장과 아빠 메일("2박 3일")을 둘 다 본 순간.
+  trip-doubt:
+    - lines:
+        - speaker: hero
+          ko: 2박 3일인데 캐리어가 두 개. 가져간 짐은 한 달치였어.
+
+  #
   # 2페이즈를 닫는 한 줄. 그림 없이 방이 비친 채로 흐른다.
   p2-close:
     - lines:
@@ -88,7 +96,7 @@ cutscenes:
           ko: 여행이 아니었어. 둘 다 뭔가 알고 있었어.
 
   #
-  # 4페이즈 서류 셋을 다 본 뒤: 라디오의 "치료할 방법"과 앰플이 이어진다.
+  # 4페이즈 서류와 출입증을 마친 뒤: 라디오의 "치료할 방법"과 앰플이 이어진다.
   # 이 줄이 끝나면 방의 액자에 금빛이 돈다.
   p4-close:
     - lines:

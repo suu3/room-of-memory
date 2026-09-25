@@ -253,24 +253,37 @@ const SHELF_BOOKS = [
 ] as const satisfies readonly { x: number; height: number; color: keyof RoomPalette }[];
 
 /**
- * 집어 들 수 있는 한 권. 밝은 색(linen)이라 네 권 중 눈에 먼저 걸리는 책이고,
+ * 거꾸로 꽂힌 한 권 (v4.1 3장). 밝은 색(linen)이라 네 권 중 눈에 먼저 걸리는 책이고,
  * 다가감 판정도 이 x를 기준으로 잡혀 있다 (layout의 CLUE_PROPS.shelfBook).
  */
 const CLUE_BOOK_X = 4.86;
 
-/** 선반에 꽂힌 책 한 권. 단서로 쓰는 한 권도 같은 도형을 쓴다. 겉으로는 구별되지 않는다. */
+/**
+ * 선반에 꽂힌 책 한 권. 책등에 제목 띠가 하나씩 있는데, 다른 책은 위쪽에, 거꾸로
+ * 꽂힌 한 권만 아래쪽에 있다. 나란히 보면 한 권만 뒤집혀 있다는 게 보인다.
+ */
 function ShelfBook({
   book,
   palette,
+  upsideDown = false,
 }: {
   book: (typeof SHELF_BOOKS)[number];
   palette: RoomPalette;
+  upsideDown?: boolean;
 }) {
+  const bandY = (upsideDown ? -1 : 1) * book.height * 0.3;
   return (
-    <mesh position={[book.x, BACK_SHELF_TOP_Y + book.height / 2, -3.66]} castShadow receiveShadow>
-      <boxGeometry args={[0.11, book.height, 0.3]} />
-      <meshStandardMaterial color={palette[book.color]} roughness={0.85} />
-    </mesh>
+    <group position={[book.x, BACK_SHELF_TOP_Y + book.height / 2, -3.66]}>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[0.11, book.height, 0.3]} />
+        <meshStandardMaterial color={palette[book.color]} roughness={0.85} />
+      </mesh>
+      {/* 책등의 제목 띠: 방 쪽(+z) 면에 얇게 */}
+      <mesh position={[0, bandY, 0.152]}>
+        <boxGeometry args={[0.08, 0.06, 0.004]} />
+        <meshStandardMaterial color={palette.frame} roughness={0.8} />
+      </mesh>
+    </group>
   );
 }
 
@@ -411,7 +424,7 @@ export function RoomDecor({ palette }: { palette: RoomPalette }) {
       {SHELF_BOOKS.map((book) =>
         book.x === CLUE_BOOK_X ? (
           <ShelfBookClue key={book.x}>
-            <ShelfBook book={book} palette={palette} />
+            <ShelfBook book={book} palette={palette} upsideDown />
           </ShelfBookClue>
         ) : (
           <ShelfBook key={book.x} book={book} palette={palette} />

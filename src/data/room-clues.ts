@@ -55,7 +55,7 @@ export const SINK_DIAL_CODE = String(HERO_JERSEY_NUMBER).padStart(2, "0");
  * 캐릭터 모델)를 돌려본다. 같은 목록에 있는 이유는 여는 방식이 같아서다: 방의
  * 물건을 누르면 Canvas 밖 화면이 펼쳐진다 (ClueOverlay).
  *
- * 안방 책상 위 서류는 v4에서 단서가 아니라 기억(research-note · id-card · not-a-trip)이
+ * 안방 책상 위 서류는 v4에서 단서가 아니라 기억(research-note · id-card)이
  * 됐다. 4페이즈의 필수 조사라 대사와 기록이 남는다 (content/memories.yaml).
  */
 export const CLUE_IDS = [
@@ -79,7 +79,7 @@ export type ClueId = (typeof CLUE_IDS)[number];
  * 이름을 알기 전까지 수첩의 이름 칸과 나이 칸은 흐리고, 대사창의 화자는 "나"다.
  * 저장된다 (store의 discoveries).
  */
-export const DISCOVERY_IDS = ["hero-name"] as const;
+export const DISCOVERY_IDS = ["hero-name", "sink-code"] as const;
 export type DiscoveryId = (typeof DISCOVERY_IDS)[number];
 
 /**
@@ -101,10 +101,25 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
   workbook: "room",
 };
 
-/** 어느 단서를 뒤집어야 무엇을 알게 되는가. 단서 화면(WorkbookClue)이 이 짝을 보고 적는다. */
-export const CLUE_DISCOVERY = { workbook: "hero-name" } as const satisfies Partial<
-  Record<ClueId, DiscoveryId>
->;
+/**
+ * 어느 단서를 뒤집어야 무엇을 알게 되는가. 단서 화면(3D 인스펙트)이 이 짝을 보고 적는다.
+ *
+ * "뒤집으면 보인다" (v4.1 2장): 1페이즈 문제집 뒤표지의 이름, 3페이즈 거꾸로 꽂힌 책
+ * 뒤표지 안쪽의 "11"(sink-code = 하부장 번호, v4.1의 dadHintRead). 같은 조작이 페이즈를
+ * 따라 의미가 커진다.
+ */
+export const CLUE_DISCOVERY = {
+  workbook: "hero-name",
+  "shelf-book": "sink-code",
+} as const satisfies Partial<Record<ClueId, DiscoveryId>>;
+
+/**
+ * 조사를 마쳐야 비로소 만질 수 있게 되는 단서. 거꾸로 꽂힌 책은 아빠 메일("선반 정리
+ * 좀 해라.", 컴퓨터 3차)을 읽기 전에는 그냥 선반의 책이다.
+ */
+export const CLUE_AFTER_VISIT = {
+  "shelf-book": { id: "computer", visit: 3 },
+} as const satisfies Partial<Record<ClueId, { id: string; visit: 1 | 2 | 3 }>>;
 
 /**
  * 손 쓰는 문제의 규칙이 어디에 있는가.
@@ -112,7 +127,6 @@ export const CLUE_DISCOVERY = { workbook: "hero-name" } as const satisfies Parti
  * 어느 쪽도 화면에 규칙을 한 줄도 적지 않는다. 적는 순간 문제가 아니라 안내가
  * 되기 때문이다. 대신 방에 놓인 물건이 규칙을 들고 있다:
  *
- *   선반 위 놀이책: 트럼프의 색과 대칭 (거실 식탁 트럼프 = 기억 cards, card-odd)
  *   캐비닛 위 시계: 바늘이 도는 각도 (현관 잠금장치, angle-turn)
  *
  * 비밀번호 단서와 같은 원칙을 지킨다: 물건은 규칙까지만 말하고 "저 문제에 써라"는
@@ -120,7 +134,7 @@ export const CLUE_DISCOVERY = { workbook: "hero-name" } as const satisfies Parti
  *
  * 못 찾아도 진행은 안 막힌다. 둘 다 일정 시간 뒤 스킵이 나온다.
  */
-export const RULE_CLUES = { "card-odd": "shelf-book", "angle-turn": "desk-clock" } as const;
+export const RULE_CLUES = { "angle-turn": "desk-clock" } as const;
 
 /**
  * 미궁 문제 id: 기억이 아닌 물건에 붙는 문제다.

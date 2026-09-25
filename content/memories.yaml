@@ -124,7 +124,7 @@ memories:
     phase2:
       minigame: photo-puzzle
       from: p4
-      unlockAfter: [research-note, id-card, not-a-trip]
+      unlockAfter: [research-note, id-card]
       cutscene: still-beat
       replayStill: /assets/images/mg-photo-wipe-phase-2.webp
 
@@ -271,13 +271,13 @@ memories:
         en: The Unfinished Hand
         ja: 終わらなかった一局
       phase2:
-        ko: 식탁에 그대로 있는 카드. 다음에 오면 마저 치자고 했으면서, 판은 그대로다.
-        en: The cards are still on the table. We'll finish it next time, they said. The hand never moved.
-        ja: 食卓に残ったままのカード。次に来たら続きをやろうと言っていたのに、局はそのままだ。
+        ko: 식탁에 그대로 있는 카드. 한 장만 뒤집혀 있었고, 뒷면에 엄마 메모가 있었다. "아래칸 건드리지 마."
+    # 판 위에 한 장만 뒤집힌 카드를 3D로 돌려 보면 뒷면에 엄마 메모 (card-flip, v4.1 3장).
+    # 트럼프 미궁(card-odd)은 v4.1에서 뺐다
     phase2:
       script: cards-intro
-      minigame: card-odd
-      resultScript: cards-unfinished
+      minigame: card-flip
+      resultScript: cards-memo
       from: p2
 
   # 컴퓨터: 1페이즈에는 꺼진 배경이다 (누르면 혼잣말 한 줄: RemarkId computer-off).
@@ -308,9 +308,9 @@ memories:
 
   # ─────────────────────────────────────────────── 3페이즈 · 수상한 앰플
   #
-  # 냉장고 아래칸("손대지 마" 메모). 서랍이 밀려 나오고(ampoule-pickup, 씬 안에서 도는
-  # canvas 미니게임) 보냉 케이스의 앰플을 집는다. 옆 칸은 비어 있다. 라벨의 로고
-  # 조각이 방 컴퓨터로 이끈다 (컴퓨터 3차).
+  # 냉장고 아래칸("아래칸 건드리지 마" 카드 메모). 보냉 케이스를 3D로 돌려 옆면의
+  # 빈 슬롯을 보고, 앰플을 꺼내 돌려 라벨의 로고 조각을 본다 (ampoule-case, v4.1 6장).
+  # 로고 조각이 방 컴퓨터로 이끈다 (컴퓨터 3차).
   - id: ampoule
     icon: Syringe
     lore:
@@ -322,22 +322,26 @@ memories:
         ko: 보냉 케이스에 앰플 하나, 옆 칸은 비어 있었다. 라벨에는 로고가 반쯤 남아 있다.
     phase2:
       script: ampoule-note
-      minigame: ampoule-pickup
+      minigame: ampoule-case
       resultScript: ampoule-found
       from: p3
 
   # ─────────────────────────────────────────────── 4페이즈 · 안방 (순서 자유)
   #
-  # 사태 이후 처음 들어가는 공간. 셋을 다 보면 방의 액자가 금빛으로 돈다 (frame 2차).
+  # 사태 이후 처음 들어가는 공간. 서류 순서 맞추기와 출입증 뒤집기를 마치면 "…이게 답일지도
+  # 몰라." 한 줄 뒤에 방의 액자가 금빛으로 돈다 (frame 2차). 여행이 아니었다는 소집 공지는
+  # v4.1에서 서류 조각 하나로 합쳤다 (not-a-trip 삭제).
   - id: research-note
     icon: FileText
     lore:
       title:
         ko: 연구 일지
       phase2:
-        ko: 엄마 글씨의 연구 일지. 앰플은 치료제 후보였다.
+        ko: 날짜순으로 놓은 엄마의 기록. 둘 다 라온 연구원이었고, 앰플은 치료제 후보였다. 여행은 연구소 소집이었다.
     phase2:
-      script: research-note-read
+      script: research-note-intro
+      minigame: papers-order
+      resultScript: research-note-read
       from: p4
 
   - id: id-card
@@ -346,18 +350,9 @@ memories:
       title:
         ko: 출입증
       phase2:
-        ko: 라온생명과학연구소 출입증 두 장. 아빠 이름, 엄마 이름. 앰플 라벨의 그 로고다.
+        ko: 라온생명과학연구소 출입증. 아빠 이름, 엄마 이름. 뒷면에 앰플 라벨의 그 로고가 있었다.
     phase2:
       script: id-card-look
-      from: p4
-
-  - id: not-a-trip
-    icon: Envelope
-    lore:
-      title:
-        ko: 소집 공지
-      phase2:
-        ko: 연구소 비상 소집 공지. 가족에게는 여행이라고 말해 두라고 적혀 있었다.
-    phase2:
-      script: not-a-trip-read
+      minigame: id-card-flip
+      resultScript: id-card-found
       from: p4

@@ -2,11 +2,28 @@
 
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { act } from "react";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { progressAt } from "@/data/story-phase";
 import { i18n } from "@/i18n/config";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { CanvasMinigameSkip, MinigameHost } from "./MinigameHost";
+
+/*
+ * v4.1에서 앰플은 3D 인스펙트(ampoule-case, overlay)로 바뀌어 지금 콘텐츠에는 canvas 판을
+ * 쓰는 기억이 없다. 씬 안 판의 계약은 남아 있으므로, 앰플 2차가 예전처럼 canvas 판
+ * (ampoule-pickup)을 쓴다고 바꿔 끼워 그 경로를 지킨다.
+ */
+vi.mock("@/data/memory-room", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/data/memory-room")>();
+  return {
+    ...actual,
+    phaseConfigOf: ((id, visit) => {
+      const config = actual.phaseConfigOf(id, visit);
+      if (id !== "ampoule" || visit !== 2 || !config?.interaction) return config;
+      return { ...config, interaction: { ...config.interaction, minigameId: "ampoule-pickup" } };
+    }) as typeof actual.phaseConfigOf,
+  };
+});
 
 /**
  * 게임기(격투 게임)를 조사한 상태로 만든다. 시작 카드가 뜨는 자리.

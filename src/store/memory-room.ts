@@ -7,6 +7,7 @@ import {
   CUTSCENE_P2_CLOSE,
   CUTSCENE_P4_CLOSE,
   CUTSCENE_RADIO_BLACKOUT,
+  CUTSCENE_TRIP_DOUBT,
   CUTSCENES,
   MEMORY_BY_ID,
   MEMORY_GOAL,
@@ -18,6 +19,7 @@ import {
 } from "@/data/memory-room";
 import {
   CLUE_AFTER_MEMORY,
+  CLUE_AFTER_VISIT,
   CLUE_IDS,
   type ClueId,
   DISCOVERY_IDS,
@@ -36,6 +38,7 @@ import {
   type StoryPhase,
   storyPhaseOf,
   type Visit,
+  visitDone,
   visitOpen,
   visitsOf,
 } from "@/data/story-phase";
@@ -152,6 +155,8 @@ export interface MemoryRoomState {
   activeInteraction: ActiveInteraction | null;
   /** 재생 중인 장면 (컷씬 또는 다시보기). 인터랙션과 마찬가지로 저장하지 않는다. */
   activePlayback: ActivePlayback | null;
+  /** 지금 재생이 끝나면 이어서 흐를 컷씬들 (한 조사에 여러 비트가 걸릴 때). 저장하지 않는다. */
+  queuedPlaybacks: ActivePlayback[];
   /** DOM overlay sources currently blocking scene controls. */
   uiLocks: UiLockId[];
   /** 캐릭터 시트 모달: HUD 메뉴와 대사창 초상 두 곳에서 열리므로 스토어가 소유한다. */
@@ -491,7 +496,15 @@ export const selectStoryPhase = (state: MemoryRoomState) => storyPhaseOf(state);
  */
 export function clueUnlocked(state: StateSnapshot, id: ClueId): boolean {
   const owner = Object.entries(CLUE_AFTER_MEMORY).find(([, clue]) => clue === id)?.[0];
-  return owner === undefined || state.collected.includes(owner as MemoryId);
+  if (owner !== undefined && !state.collected.includes(owner as MemoryId)) return false;
+  // 조사를 마쳐야 만질 수 있는 단서 (거꾸로 꽂힌 책 = 아빠 메일 뒤)
+  const after = (CLUE_AFTER_VISIT as Partial<Record<ClueId, { id: string; visit: Visit }>>)[id];
+  if (after === undefined) return true;
+  return visitDone(
+    { ...state, rechecked: state.rechecked ?? [] },
+    after.id as MemoryId,
+    after.visit,
+  );
 }
 
 /**
@@ -634,43 +647,61 @@ function markVisit(state: MemoryRoomState, id: MemoryId, visit: Visit) {
 }
 
 /**
- * 조사를 마친 순간 곧장 트는 컷씬. 방을 한 바퀴 더 둘러보게 두면 그 순간의 밀도가
- * 흩어진다. 한 번에 하나만 튼다: 앞의 것이 이긴다.
+ * 캐리어 개수 추리 (v4.1 3장): 신발장(등산화 · 비어 있는 캐리어 두 자리)과 컴퓨터 2차
+ * (아빠 메일의 "2박 3일")를 둘 다 본 순간 결론 한 줄이 흐른다. 옷장 옷걸이는 신발장
+ * 대사로 합쳤다. 둘 다 2페이즈 필수 조사라 `tripDoubted`는 2페이즈를 마치기 전에 반드시 선다.
+ */
+export const TRIP_CLUES: readonly MemoryId[] = ["shoes", "computer"] as MemoryId[];
+
+/** 캐리어 개수 추리를 마쳤는가 (v4.1 4장의 tripDoubted). */
+export function tripDoubted(state: Pick<MemoryRoomState, "revisited">): boolean {
+  return TRIP_CLUES.every((id) => state.revisited.includes(id));
+}
+
+/**
+ * 조사를 마친 순간 곧장 트는 컷씬들, 트는 순서대로. 방을 한 바퀴 더 둘러보게 두면
+ * 그 순간의 밀도가 흩어진다. 한 번에 여럿이 걸리면 차례로 이어서 흐른다
+ * (queuedPlaybacks).
  *
  *   1. 1차를 다 모았다 = 라디오 재난방송이 막 끝났다 → 이미지 나열 (radio-blackout)
  *   2. 조사 자체에 붙은 컷씬 (생존자 방송 · 정적 비트: memories.yaml의 cutscene)
- *   3. 2페이즈를 방금 마쳤다 → p2-close
- *   4. 4페이즈의 마지막 칸(액자 2차)이 방금 열렸다 → p4-close
+ *   3. 캐리어 개수 추리가 방금 맞물렸다 → trip-doubt
+ *   4. 2페이즈를 방금 마쳤다 → p2-close
+ *   5. 4페이즈의 마지막 칸(액자 2차)이 방금 열렸다 → p4-close
  */
-function cutsceneAfter(
+function cutscenesAfter(
   before: MemoryRoomState,
   after: MemoryRoomState,
   id: MemoryId,
   visit: Visit,
-): ActivePlayback | null {
+): ActivePlayback[] {
+  const queue: (ActivePlayback | null)[] = [];
   if (visit === 1 && before.collected.length < MEMORY_GOAL && after.collected.length >= MEMORY_GOAL)
-    return openCutscene(CUTSCENE_RADIO_BLACKOUT, { intro: true });
+    queue.push(openCutscene(CUTSCENE_RADIO_BLACKOUT, { intro: true }));
   const own = phaseConfigOf(id, visit)?.cutscene;
-  if (own) return openCutscene(own);
+  if (own) queue.push(openCutscene(own));
+  if (tripDoubted(after) && !tripDoubted(before)) queue.push(openCutscene(CUTSCENE_TRIP_DOUBT));
   const was = storyPhaseOf(before);
   const now = storyPhaseOf(after);
-  if (was === "p2" && now === "p3") return openCutscene(CUTSCENE_P2_CLOSE);
+  if (was === "p2" && now === "p3") queue.push(openCutscene(CUTSCENE_P2_CLOSE));
   if (
     now === "p4" &&
     hotspotStatus(after, P4_FINAL_MEMORY) === "available" &&
     hotspotStatus(before, P4_FINAL_MEMORY) !== "available"
   )
-    return openCutscene(CUTSCENE_P4_CLOSE);
-  return null;
+    queue.push(openCutscene(CUTSCENE_P4_CLOSE));
+  return queue.filter((playback): playback is ActivePlayback => playback !== null);
 }
 
 function complete(state: MemoryRoomState, id: MemoryId, visit: Visit) {
   const marked = markVisit(state, id, visit);
   const after = { ...state, ...marked };
+  const [first, ...rest] = cutscenesAfter(state, after, id, visit);
   return {
     ...marked,
     activeInteraction: null,
-    activePlayback: cutsceneAfter(state, after, id, visit) ?? state.activePlayback,
+    activePlayback: first ?? state.activePlayback,
+    queuedPlaybacks: first ? [...state.queuedPlaybacks, ...rest] : state.queuedPlaybacks,
   };
 }
 
@@ -814,6 +845,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       rechecked: [],
       activeInteraction: null,
       activePlayback: null,
+      queuedPlaybacks: [],
       uiLocks: [],
       characterSheetOpen: false,
       characterSheetTab: "profile",
@@ -900,9 +932,13 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       advancePlayback: () =>
         set((state) => {
           if (!state.activePlayback) return state;
-          const next = nextPlaybackStep(state.activePlayback);
+          const stepped = nextPlaybackStep(state.activePlayback);
+          // 한 컷씬이 끝나면 줄 서 있던 다음 컷씬이 이어서 흐른다
+          const [queued, ...rest] = stepped === null ? state.queuedPlaybacks : [];
+          const next = stepped ?? queued ?? null;
           return {
             activePlayback: next,
+            ...(stepped === null ? { queuedPlaybacks: rest } : {}),
             // 두 줄이 다 흘렀으면 그때 배트가 손에 들어온다. 재생의 끝이 곧 손잡이다
             ...(next === null && batGripEnding(state) ? { batTaken: true } : {}),
           };
@@ -911,7 +947,9 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) =>
           state.activePlayback
             ? {
-                activePlayback: null,
+                // 건너뛰면 지금 컷씬만 닫힌다. 줄 서 있던 다음 컷씬은 그대로 흐른다
+                activePlayback: state.queuedPlaybacks[0] ?? null,
+                queuedPlaybacks: state.queuedPlaybacks.slice(1),
                 // 건너뛰어도 배트는 손에 들어온다. 스킵은 유효한 결말이다
                 ...(batGripEnding(state) ? { batTaken: true } : {}),
               }
@@ -1165,6 +1203,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           rechecked: [],
           activeInteraction: null,
           activePlayback: null,
+          queuedPlaybacks: [],
           uiLocks: [],
           characterSheetOpen: false,
           characterSheetTab: "profile",
@@ -1409,15 +1448,39 @@ export const selectCollectedCount = (state: MemoryRoomState) => state.collected.
 export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.length;
 
 /**
- * 아빠 메일의 하부장 힌트를 봤는가 (v4 1-3의 dadHintRead · logoMatched).
- * 둘 다 컴퓨터 3차 조사(로고 매칭 → 메일) 한 번에 선다.
+ * 하부장 번호를 알았는가 (v4.1의 dadHintRead). 아빠 메일("선반 정리 좀 해라.")을 읽고,
+ * 거꾸로 꽂힌 책을 뒤집어 뒤표지 안쪽의 "11"을 본 순간 선다 (discoveries의 sink-code).
  */
-export const selectSinkHintRead = (state: Pick<MemoryRoomState, "rechecked">) =>
+export const selectSinkHintRead = (state: Pick<MemoryRoomState, "discoveries">) =>
+  state.discoveries.includes("sink-code");
+
+/** 아빠 메일("선반 정리 좀 해라.")을 읽었는가: 컴퓨터 3차. 선반의 책이 금빛으로 돈다. */
+export const selectShelfHintRead = (state: Pick<MemoryRoomState, "rechecked">) =>
   state.rechecked.includes("computer" as MemoryId);
 
 /** 엄마 대화방의 "1"을 열었는가 (v4 1-3의 momChatRead): 폰 2차 조사. */
 export const selectMomChatRead = (state: Pick<MemoryRoomState, "revisited">) =>
   state.revisited.includes("phone" as MemoryId);
+
+/*
+ * v4.1 4장의 추리 플래그. 저장하지 않고 조사 기록에서 읽는다 (페이즈와 같은 원칙):
+ * 조사를 마친 순간이 곧 그 추리를 마친 순간이라 따로 적으면 두 기록이 어긋날 수만 있다.
+ */
+
+/** 시각 대조 (timeGapNoticed): 엄마 문자 7:12가 뉴스 첫 보도보다 먼저였다. 폰 2차의 결과 대사. */
+export const selectTimeGapNoticed = selectMomChatRead;
+
+/** 카드 뒷면의 엄마 메모를 봤는가 (momCardRead): 카드 2차. 냉장고 아래칸으로 이끈다. */
+export const selectMomCardRead = (state: Pick<MemoryRoomState, "revisited">) =>
+  state.revisited.includes("cards" as MemoryId);
+
+/** 서류 조각을 날짜순으로 놓았는가 (papersOrdered): 연구 일지 2차. */
+export const selectPapersOrdered = (state: Pick<MemoryRoomState, "revisited">) =>
+  state.revisited.includes("research-note" as MemoryId);
+
+/** 출입증 뒷면의 로고를 봤는가 (idCardFlipped): 출입증 2차. */
+export const selectIdCardFlipped = (state: Pick<MemoryRoomState, "revisited">) =>
+  state.revisited.includes("id-card" as MemoryId);
 
 /** 생존자 방송을 들었는가 (v4 1-3의 heardSurvivorBroadcast): 라디오 2차 조사. */
 export const selectHeardSurvivorBroadcast = (state: Pick<MemoryRoomState, "revisited">) =>

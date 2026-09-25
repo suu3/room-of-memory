@@ -12,7 +12,6 @@ import {
   Cards,
   Desktop,
   DeviceMobile,
-  Envelope,
   FileText,
   GameController,
   GridFour,
@@ -43,7 +42,6 @@ export const MEMORY_IDS = [
   "ampoule",
   "research-note",
   "id-card",
-  "not-a-trip",
 ] as const;
 
 export type MemoryId = (typeof MEMORY_IDS)[number];
@@ -102,7 +100,6 @@ export const MEMORIES: MemoryItem[] = [
       unlockAfter: [
         { id: "research-note", visit: 2 },
         { id: "id-card", visit: 2 },
-        { id: "not-a-trip", visit: 2 },
       ],
       replayStill: "/assets/images/mg-photo-wipe-phase-2.webp",
       from: "p4",
@@ -194,8 +191,8 @@ export const MEMORIES: MemoryItem[] = [
     phase2: {
       interaction: {
         scriptId: "cards-intro",
-        minigameId: "card-odd",
-        resultScriptId: "cards-unfinished",
+        minigameId: "card-flip",
+        resultScriptId: "cards-memo",
       },
       from: "p2",
     },
@@ -227,7 +224,7 @@ export const MEMORIES: MemoryItem[] = [
     phase2: {
       interaction: {
         scriptId: "ampoule-note",
-        minigameId: "ampoule-pickup",
+        minigameId: "ampoule-case",
         resultScriptId: "ampoule-found",
       },
       from: "p3",
@@ -236,17 +233,26 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "research-note",
     icon: FileText,
-    phase2: { interaction: { scriptId: "research-note-read" }, from: "p4" },
+    phase2: {
+      interaction: {
+        scriptId: "research-note-intro",
+        minigameId: "papers-order",
+        resultScriptId: "research-note-read",
+      },
+      from: "p4",
+    },
   },
   {
     id: "id-card",
     icon: IdentificationCard,
-    phase2: { interaction: { scriptId: "id-card-look" }, from: "p4" },
-  },
-  {
-    id: "not-a-trip",
-    icon: Envelope,
-    phase2: { interaction: { scriptId: "not-a-trip-read" }, from: "p4" },
+    phase2: {
+      interaction: {
+        scriptId: "id-card-look",
+        minigameId: "id-card-flip",
+        resultScriptId: "id-card-found",
+      },
+      from: "p4",
+    },
   },
 ];
 
@@ -360,6 +366,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.shoes-open.line2" },
       { speaker: "dad", textKey: "scripts.shoes-open.line3" },
       { speaker: "hero", textKey: "scripts.shoes-open.line4" },
+      { speaker: "hero", textKey: "scripts.shoes-open.line5" },
     ],
   },
   "cards-intro": {
@@ -367,13 +374,14 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.cards-intro.line1" },
       { speaker: "mom", textKey: "scripts.cards-intro.line2" },
+      { speaker: "hero", textKey: "scripts.cards-intro.line3" },
     ],
   },
-  "cards-unfinished": {
-    id: "cards-unfinished",
+  "cards-memo": {
+    id: "cards-memo",
     lines: [
-      { speaker: "hero", textKey: "scripts.cards-unfinished.line1" },
-      { speaker: "hero", textKey: "scripts.cards-unfinished.line2" },
+      { speaker: "hero", textKey: "scripts.cards-memo.line1" },
+      { speaker: "hero", textKey: "scripts.cards-memo.line2" },
     ],
   },
   "computer-power-on": {
@@ -417,17 +425,16 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "ampoule-note",
     lines: [
       { speaker: "hero", textKey: "scripts.ampoule-note.line1" },
-      { speaker: "dad", textKey: "scripts.ampoule-note.line2" },
+      { speaker: "hero", textKey: "scripts.ampoule-note.line2" },
       { speaker: "hero", textKey: "scripts.ampoule-note.line3" },
     ],
   },
   "ampoule-found": {
     id: "ampoule-found",
     lines: [
-      { speaker: "hero", textKey: "scripts.ampoule-found.line1", expression: "surprised" },
+      { speaker: "hero", textKey: "scripts.ampoule-found.line1" },
       { speaker: "hero", textKey: "scripts.ampoule-found.line2" },
       { speaker: "hero", textKey: "scripts.ampoule-found.line3" },
-      { speaker: "hero", textKey: "scripts.ampoule-found.line4" },
     ],
   },
   "computer-logo-intro": {
@@ -439,31 +446,33 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.computer-logo-found.line1" },
       { speaker: "dad", textKey: "scripts.computer-logo-found.line2" },
-      { speaker: "dad", textKey: "scripts.computer-logo-found.line3" },
-      { speaker: "hero", textKey: "scripts.computer-logo-found.line4" },
+      { speaker: "hero", textKey: "scripts.computer-logo-found.line3" },
+    ],
+  },
+  "research-note-intro": {
+    id: "research-note-intro",
+    lines: [
+      { speaker: "hero", textKey: "scripts.research-note-intro.line1" },
+      { speaker: "hero", textKey: "scripts.research-note-intro.line2" },
     ],
   },
   "research-note-read": {
     id: "research-note-read",
     lines: [
       { speaker: "hero", textKey: "scripts.research-note-read.line1" },
-      { speaker: "narrator", textKey: "scripts.research-note-read.line2" },
+      { speaker: "hero", textKey: "scripts.research-note-read.line2" },
       { speaker: "hero", textKey: "scripts.research-note-read.line3" },
     ],
   },
   "id-card-look": {
     id: "id-card-look",
-    lines: [
-      { speaker: "hero", textKey: "scripts.id-card-look.line1" },
-      { speaker: "hero", textKey: "scripts.id-card-look.line2" },
-      { speaker: "hero", textKey: "scripts.id-card-look.line3" },
-    ],
+    lines: [{ speaker: "hero", textKey: "scripts.id-card-look.line1" }],
   },
-  "not-a-trip-read": {
-    id: "not-a-trip-read",
+  "id-card-found": {
+    id: "id-card-found",
     lines: [
-      { speaker: "narrator", textKey: "scripts.not-a-trip-read.line1" },
-      { speaker: "hero", textKey: "scripts.not-a-trip-read.line2" },
+      { speaker: "hero", textKey: "scripts.id-card-found.line1" },
+      { speaker: "hero", textKey: "scripts.id-card-found.line2" },
     ],
   },
 };
@@ -531,6 +540,14 @@ export const CUTSCENES: Record<string, Cutscene> = {
             expression: "surprised",
           },
         ],
+      },
+    ],
+  },
+  "trip-doubt": {
+    id: "trip-doubt",
+    cuts: [
+      {
+        lines: [{ speaker: "hero", textKey: "cutscenes.trip-doubt.cut1.line1" }],
       },
     ],
   },
