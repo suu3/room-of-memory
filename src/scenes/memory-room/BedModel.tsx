@@ -43,7 +43,8 @@ const REDUCED_LAMBDA = 18;
  * 이불의 호흡 (docs/visual-experiments.md 5장 "침대"). 정점 셰이더에 노이즈 한 줄: 이불이
  * 숨 쉬듯 아주 조금 일렁인다. 진폭은 모델 단위(BED_SCALE 0.7이라 화면에서는 더 작다)이고
  * 주기는 4초 남짓(0.25Hz). 초당 3회 밝기 변화 금지와는 한참 멀다.
- * 접힌 이불(누웠을 때)도 그대로 숨 쉰다: 그때는 진짜로 사람이 아래에 있다.
+ * 누가 누워 있을 때만 숨 쉰다. 빈 침대의 이불이 혼자 꿀렁이면 숨이 아니라 이상 현상으로
+ * 읽힌다 (방에 막 들어온 첫 화면에서 특히).
  */
 const BREATH_AMPLITUDE = 0.016;
 const BREATH_RATE = 1.5;
@@ -132,7 +133,7 @@ function LoadedBed({ palette, onModelReady }: BedModelProps) {
     [materials],
   );
 
-  const breathing = useEffectEnabled("cheap") && !reducedMotion;
+  const breathing = useEffectEnabled("cheap") && !reducedMotion && occupied;
 
   // 글로우 선택은 마운트된 메쉬를 훑어 모은다. 모델이 나중에 붙으면 다시 훑게 알린다.
   useEffect(() => {
