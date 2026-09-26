@@ -368,15 +368,6 @@
       "moves": "Moves",
       "tile": "Piece {{value}}"
     },
-    "angleTurn": {
-      "title": "Turned Letters",
-      "help": "Write the answer, left to right",
-      "attempts": "Wrong answers",
-      "answerLabel": "Answer",
-      "placeholder": "Type your answer",
-      "submit": "Enter",
-      "blanks": "The answer has {{count}} digits"
-    },
     "answer": {
       "backspace": "Delete"
     },
@@ -585,13 +576,6 @@
       "bookTitle": "Baseball Rules Explained",
       "caption": "A book Dad bought me. It was the only one shelved upside down."
     },
-    "deskClock": {
-      "title": "Desk Clock",
-      "heading": "Numbers penciled on the ticks",
-      "figure": "A clock face marked every 45 degrees, clockwise",
-      "l1": "Start at 0 and count the way the hands turn. Half a turn is 180.",
-      "caption": "No idea when I wrote these. Bored during homework, probably."
-    },
     "workbook": {
       "title": "Workbook on the Desk",
       "alt": "3D workbook: drag to turn it",
@@ -656,6 +640,8 @@
     "sinkLocked": "Locked. Did Mom lock it?",
     "sinkOpen": "…The key to their room.",
     "pianoDone": "…Mom used to play this.",
-    "parentsLocked": "Their room is locked."
+    "parentsLocked": "Their room is locked.",
+    "clockStopped": "4:20. …When did it stop?",
+    "clockRunning": "…It's ticking again. Whether it's right, I can't tell."
   }
 }

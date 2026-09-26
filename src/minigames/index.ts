@@ -118,14 +118,6 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.windowView.title",
     helpKey: "minigame.windowView.help",
   },
-  "angle-turn": {
-    id: "angle-turn",
-    mode: "overlay",
-    component: lazy(() => import("./angle-turn").then((m) => ({ default: m.AngleTurnMinigame }))),
-    titleKey: "minigame.angleTurn.title",
-    helpKey: "minigame.angleTurn.help",
-    // rulesKeys를 비운다. 각도를 읽는 법은 캐비닛 위 시계에 있다
-  },
   // ── 3D 인스펙트 (v4.1 2장): 집어 든 물건을 돌려 찾을 면을 본다 ──────────────
   "card-flip": {
     id: "card-flip",

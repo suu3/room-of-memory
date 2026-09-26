@@ -89,6 +89,9 @@ export type RemarkId =
   | "sink-open"
   | "piano-done"
   | "parents-locked"
+  // 캐비닛 위 탁상시계: 1막에는 멈춘 시각, 2막부터 다시 가는 초침
+  | "clock-stopped"
+  | "clock-running"
   // 이미 본 기억을 다시 눌렀을 때: 그 기억의 마지막 기록 문장 (remark.memoryId)
   | "seen";
 
@@ -326,7 +329,7 @@ export interface MemoryRoomState {
    * 남는다 (docs/content-design.md 3-2).
    */
   activePuzzle: PuzzleId | null;
-  /** 풀어낸 미궁 문제. 저장된다. 현관 잠금(angle-turn)이 엔딩의 두 번째 조건이다. */
+  /** 풀어낸 미궁 문제. 저장된다. */
   solvedPuzzles: PuzzleId[];
   /**
    * 방을 뒤지다 알게 된 자기 자신에 대한 사실 (지금은 이름 하나). 저장된다.
@@ -1195,10 +1198,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
             ? state
             : { remark: { id, at: Date.now(), memoryId } },
         ),
-      startEnding: () =>
-        set((state) =>
-          state.batTaken && selectFrontDoorUnlocked(state) ? { endingStarted: true } : state,
-        ),
+      startEnding: () => set((state) => (state.batTaken ? { endingStarted: true } : state)),
       reset: () =>
         set((state) => ({
           collected: [],
@@ -1338,12 +1338,6 @@ export const selectBatTaken = (state: MemoryRoomState) => state.batTaken;
 /** 방문이 열려 있는가: 걷기 영역과 문짝 회전이 같이 본다. */
 export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;
 
-/**
- * 현관 잠금(angle-turn 미궁)이 풀렸는가: 엔딩의 두 번째 조건이다.
- * 기억을 다 되찾아도(endingReady) 이게 안 풀리면 현관문은 잠금 화면을 연다.
- */
-export const selectFrontDoorUnlocked = (state: MemoryRoomState) =>
-  state.solvedPuzzles.includes("angle-turn");
 /**
  * 지금 카메라가 도해의 1인칭에 있는가, 있다면 어느 구간인가.
  *

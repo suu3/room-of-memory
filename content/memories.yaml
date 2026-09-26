@@ -13,7 +13,7 @@
 #   p2       방문을 연 뒤. 거실 넷 + 컴퓨터 로그인 → 엄마 대화방
 #   p3       p2 필수 조사를 다 마치면. 앰플 → 컴퓨터 로고 매칭 → 하부장(11) → 안방 열쇠
 #   p4       안방 문을 연 뒤. 서류 셋 → 액자 2차 → 정적 비트
-#   resolve  정적 비트 뒤. 현관 배트 → 현관 잠금(angle-turn) → 문
+#   resolve  정적 비트 뒤. 현관 배트 → 문
 #   ending   현관문을 연 순간
 #
 # p2 → p3, p4 → resolve 전이는 그 페이즈의 필수 조사(from이 그 페이즈이고 side가
@@ -92,7 +92,7 @@ memories:
       minigame: ball-catch
       resultScript: ball-alone
       replayStill: /assets/images/mg-ball-catch-sunset-field.webp?v=2
-    # 2차: 곁가지. 회전 미궁(angle-turn)은 현관 잠금장치로 이사했다: 다시 붙이지 말 것.
+    # 2차: 곁가지. 회전 미궁(angle-turn)은 뺐다 (현관 잠금에서도 빠짐): 다시 붙이지 말 것.
     phase2:
       script: ball-echo
       from: p2

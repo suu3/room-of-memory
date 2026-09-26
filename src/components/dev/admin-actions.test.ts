@@ -28,8 +28,8 @@ describe("applyAdminPatch", () => {
   });
 
   it("keeps solved puzzles", () => {
-    applyAdminPatch({ solvedPuzzles: ["angle-turn"] });
-    expect(useMemoryRoomStore.getState().solvedPuzzles).toEqual(["angle-turn"]);
+    applyAdminPatch({ solvedPuzzles: ["piano-melody"] });
+    expect(useMemoryRoomStore.getState().solvedPuzzles).toEqual(["piano-melody"]);
   });
 
   it("applies started even though sanitizeProgress does not carry it", () => {

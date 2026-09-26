@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
 import { playSound } from "@/lib/audio";
-import { selectBatTaken, selectFrontDoorUnlocked, useMemoryRoomStore } from "@/store/memory-room";
+import { selectBatTaken, useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { setEndingLightMesh } from "./ending-light";
 import {
@@ -186,21 +186,17 @@ function ShellBox({
 /**
  * 현관문: 3막의 마지막 물건 (docs/content-design.md 3-2).
  *
- * 잠금이 안 풀렸으면 클릭이 잠금 화면(글자 세 쌍 미궁, angle-turn)을 연다.
- * 각도를 읽는 법은 방의 탁상시계가 들고 있다. 도해가 30일 전에 자기 손으로
- * 걸어 잠근 문이라, 나가려면 그걸 먼저 풀어야 한다.
+ * 잠금 퍼즐은 없다. 30일 만에 나가는 문이라, 여기서 문제를 풀게 하면 결심의 순간이
+ * 퍼즐에 묻힌다. 배트를 쥐면 그걸로 준비가 끝난 것이다.
  *
- * 금빛으로 켜지는 것은 **배트를 쥔 뒤**다. 배트는 앰플을 손에 넣어야 켜지므로
+ * 금빛으로 켜지고 눌리는 것은 **배트를 쥔 뒤**다. 배트는 앰플을 손에 넣어야 켜지므로
  * (selectBatReady), 문이 열릴 때 도해의 손에는 배트와 앰플이 둘 다 있다.
  */
 function FrontDoor({ palette }: { palette: RoomPalette }) {
   const ready = useMemoryRoomStore(selectBatTaken);
-  const unlocked = useMemoryRoomStore(selectFrontDoorUnlocked);
   const started = useMemoryRoomStore((state) => state.endingStarted);
   const startEnding = useMemoryRoomStore((state) => state.startEnding);
-  const openPuzzle = useMemoryRoomStore((state) => state.openPuzzle);
-  // 잠긴 동안은 언제든 눌러 잠금을 들여다볼 수 있고, 풀린 뒤에는 엔딩이 준비돼야 눌린다
-  const clickable = !started && (!unlocked || ready);
+  const clickable = !started && ready;
   const { hovered, handlers } = useGlowHover(clickable);
   const near = useNearPlayer(
     FRONT_DOOR_INTERACTION.near[0],
@@ -232,12 +228,6 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
       onClick={(event) => {
         if (!clickable) return;
         event.stopPropagation();
-        if (!unlocked) {
-          // 잠금 화면부터: 문제가 풀려야 문이 열 물건이 된다
-          playSound("select");
-          openPuzzle("angle-turn");
-          return;
-        }
         playSound("open");
         startEnding();
       }}

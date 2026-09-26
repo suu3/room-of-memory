@@ -463,7 +463,7 @@ export const DRAWER_NOTE = {
 export const CLUE_PROPS = {
   /** 뒷벽 선반에 꽂힌 책들 중 한 권 (RoomDecor의 SHELF_BOOKS). */
   shelfBook: { near: [4.86, -3.66] as readonly [number, number], interactionRadius: 2.2 },
-  /** 캐비닛 상판의 탁상시계 (RoomFurniture의 DeskClock). */
+  /** 캐비닛 상판의 탁상시계 (RoomFurniture의 DeskClock). 단서가 아니라 누르면 한 줄 흘리는 물건이다. */
   deskClock: {
     near: [CABINET_TOP_PROPS.clock.x, -2.82] as readonly [number, number],
     interactionRadius: 2.1,

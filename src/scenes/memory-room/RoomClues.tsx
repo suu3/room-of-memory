@@ -126,12 +126,10 @@ export function TouchProp({
 }
 
 /**
- * 원래 있던 장식을 그대로 단서로 쓰는 자리들: 선반의 책 한 권, 캐비닛 위 시계.
+ * 원래 있던 장식을 그대로 단서로 쓰는 자리: 선반의 책 한 권. 3페이즈 하부장 번호("11")를
+ * 든다 (src/data/room-clues.ts).
  *
- * 선반의 책은 3페이즈 하부장 번호("11")를, 시계는 현관 잠금(angle-turn)의 규칙을 든다. 문제 화면에는 규칙이 한 줄도
- * 없으므로, 방을 뒤진 사람만 그림을 읽을 수 있다 (src/data/room-clues.ts).
- *
- * 새 도형을 만들지 않고 children으로 받는다. 이 물건들은 이미 방에 놓여 있고,
+ * 새 도형을 만들지 않고 children으로 받는다. 이 책은 이미 방에 놓여 있고,
  * 여기서 다시 그리면 같은 책이 두 권 서게 된다.
  */
 export function ShelfBookClue({ children }: { children: ReactNode }) {
@@ -162,18 +160,6 @@ export function WorkbookClue({ children }: { children: ReactNode }) {
       clue="workbook"
       near={CLUE_PROPS.workbook.near}
       radius={CLUE_PROPS.workbook.interactionRadius}
-    >
-      {children}
-    </ClueProp>
-  );
-}
-
-export function DeskClockClue({ children }: { children: ReactNode }) {
-  return (
-    <ClueProp
-      clue="desk-clock"
-      near={CLUE_PROPS.deskClock.near}
-      radius={CLUE_PROPS.deskClock.interactionRadius}
     >
       {children}
     </ClueProp>

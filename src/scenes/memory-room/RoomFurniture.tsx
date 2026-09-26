@@ -36,13 +36,14 @@ import {
   CHAIR_POSITION,
   CHAIR_ROTATION,
   CHAIR_SEAT,
+  CLUE_PROPS,
   DESK_POSITION,
   DESK_ROTATION,
   DRAWER_TRAVEL,
 } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
-import { DeskClockClue, DrawerNoteClue } from "./RoomClues";
+import { DrawerNoteClue, TouchProp } from "./RoomClues";
 import { StudentDeskProps, StudentRoomProps } from "./StudentProps";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
@@ -492,9 +493,8 @@ const { plant, storageBox, clock } = CABINET_TOP_PROPS;
 const CLOCK_CENTER: Vec3Tuple = [clock.x, 1.43, -2.82];
 const CLOCK_FACE_Z = 0.055;
 /**
- * 멈춰 선 시각: 10월 19일, 그날 하교하던 16:20 (v4.1 3장). 현관 잠금(angle-turn)의
- * 단서 시계라, 시각에도 뜻을 준다. 그날 이 방의 시간이 거기서 멈췄다.
- * 풀이 규칙(눈금마다 적힌 각도)은 이 시각과 상관없다.
+ * 멈춰 선 시각: 10월 19일, 그날 하교하던 16:20 (v4.1 3장). 그날 이 방의 시간이
+ * 거기서 멈췄다.
  */
 const CLOCK_HOUR = 16;
 const CLOCK_MINUTE = 20;
@@ -562,16 +562,26 @@ function ClockHand({
 }
 
 /**
- * 캐비닛 위 탁상시계. 멈춘 시각을 가리키는 소품이면서, 집어 들면 눈금마다 각도가
- * 적힌 게 보인다. 사인볼 2바퀴 회전 미궁의 단서다 (src/data/room-clues.ts).
+ * 캐비닛 위 탁상시계. 멈춘 시각을 가리키는 소품이고, 누르면 한 줄을 흘린다
+ * (칫솔컵과 같은 쉼표 비트). 1막에는 멈춘 시각을, 2막부터는 다시 가는 초침을 말한다.
+ * 예전에는 현관 잠금(angle-turn)의 각도 단서였지만 그 퍼즐을 빼면서 단서 자리도 내려놓았다.
  */
 function DeskClock({ palette }: FurnitureProps) {
   // 문이 열리면(2막) 초침이 다시 간다. 모션을 끈 사람에게는 멈춘 채 둔다
   const act = useMemoryRoomStore(selectAct);
+  const sayRemark = useMemoryRoomStore((state) => state.sayRemark);
   const motionAllowed = useEffectEnabled("cheap");
   const secondsRunning = act >= 2 && motionAllowed;
   return (
-    <DeskClockClue>
+    <TouchProp
+      name="desk-clock"
+      near={CLUE_PROPS.deskClock.near}
+      radius={CLUE_PROPS.deskClock.interactionRadius}
+      onPress={() => {
+        playSound("select");
+        sayRemark(act >= 2 ? "clock-running" : "clock-stopped");
+      }}
+    >
       <group name="desk-clock" position={CLOCK_CENTER}>
         <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
           <cylinderGeometry args={[0.28, 0.28, 0.1, 24]} />
@@ -602,7 +612,7 @@ function DeskClock({ palette }: FurnitureProps) {
           <meshStandardMaterial color={palette.clay} roughness={0.6} />
         </mesh>
       </group>
-    </DeskClockClue>
+    </TouchProp>
   );
 }
 

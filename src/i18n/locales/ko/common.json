@@ -368,15 +368,6 @@
       "moves": "움직인 횟수",
       "tile": "{{value}}번 조각"
     },
-    "angleTurn": {
-      "title": "돌아간 글자",
-      "help": "답을 왼쪽부터 이어 적으세요",
-      "attempts": "틀린 횟수",
-      "answerLabel": "답",
-      "placeholder": "답을 입력하세요",
-      "submit": "확인",
-      "blanks": "답은 {{count}}자리"
-    },
     "answer": {
       "backspace": "지우기"
     },
@@ -585,13 +576,6 @@
       "bookTitle": "야구 규칙 해설",
       "caption": "아빠가 사다 준 책. 이것만 거꾸로 꽂혀 있었다."
     },
-    "deskClock": {
-      "title": "탁상시계",
-      "heading": "눈금마다 적힌 숫자",
-      "figure": "시계 방향으로 45도씩 각도가 적힌 시계판",
-      "l1": "0에서 시작해 바늘이 도는 쪽으로 센다. 반 바퀴가 180.",
-      "caption": "언제 적어둔 건지. 숙제하다 심심해서 그랬던 것 같기도 하고."
-    },
     "workbook": {
       "title": "책상 위 문제집",
       "alt": "3D 문제집: 끌어서 돌려볼 수 있다",
@@ -656,6 +640,8 @@
     "sinkLocked": "잠겨 있네. 엄마가 잠갔나.",
     "sinkOpen": "…안방 열쇠.",
     "pianoDone": "…이 곡, 엄마가 치던 거다.",
-    "parentsLocked": "안방은 잠겨 있다."
+    "parentsLocked": "안방은 잠겨 있다.",
+    "clockStopped": "4시 20분. …언제부터 멈춰 있었지.",
+    "clockRunning": "…다시 간다. 맞는 시각인지는 모르겠지만."
   }
 }

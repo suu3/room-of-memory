@@ -781,21 +781,13 @@ describe("결심: 배트 · 현관문", () => {
 
   it("배트를 쥐기 전에는 현관문이 안 열린다", () => {
     enterPhase("resolve");
-    useMemoryRoomStore.setState({ solvedPuzzles: ["sink-dial", "angle-turn"] });
     useMemoryRoomStore.getState().startEnding();
     expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
   });
 
-  it("배트를 쥐어도 현관 잠금이 남아 있으면 안 열린다", () => {
+  it("배트를 쥐면 현관문이 열린다. 잠금 퍼즐은 없다", () => {
     enterPhase("resolve");
     useMemoryRoomStore.setState({ batTaken: true });
-    useMemoryRoomStore.getState().startEnding();
-    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
-  });
-
-  it("배트 + 잠금 해제면 현관문이 열린다", () => {
-    enterPhase("resolve");
-    useMemoryRoomStore.setState({ batTaken: true, solvedPuzzles: ["sink-dial", "angle-turn"] });
     useMemoryRoomStore.getState().startEnding();
     expect(useMemoryRoomStore.getState().endingStarted).toBe(true);
     expect(storyPhase(useMemoryRoomStore.getState())).toBe("ending");
@@ -803,7 +795,7 @@ describe("결심: 배트 · 현관문", () => {
 
   it("리셋하면 엔딩도 처음으로 돌아간다", () => {
     enterPhase("resolve");
-    useMemoryRoomStore.setState({ batTaken: true, solvedPuzzles: ["sink-dial", "angle-turn"] });
+    useMemoryRoomStore.setState({ batTaken: true });
     useMemoryRoomStore.getState().startEnding();
 
     useMemoryRoomStore.getState().reset();
@@ -1030,51 +1022,51 @@ describe("2차 이후 조사 대상", () => {
   });
 });
 
-describe("미궁 문제: 현관 잠금", () => {
+describe("미궁 문제: 피아노 멜로디 자물쇠", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   it("붙잡고 → 풀면 solvedPuzzles에 남고, 다시는 안 열린다", () => {
-    useMemoryRoomStore.getState().openPuzzle("angle-turn");
-    expect(useMemoryRoomStore.getState().activePuzzle).toBe("angle-turn");
+    useMemoryRoomStore.getState().openPuzzle("piano-melody");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("piano-melody");
 
     useMemoryRoomStore.getState().finishPuzzle({ cleared: true });
 
     const state = useMemoryRoomStore.getState();
     expect(state.activePuzzle).toBeNull();
-    expect(state.solvedPuzzles).toEqual(["angle-turn"]);
+    expect(state.solvedPuzzles).toContain("piano-melody");
 
-    state.openPuzzle("angle-turn");
+    state.openPuzzle("piano-melody");
     expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
   });
 
   it("내려놓으면 아무것도 안 남는다. 물건은 다시 클릭할 수 있다", () => {
-    useMemoryRoomStore.getState().openPuzzle("angle-turn");
+    useMemoryRoomStore.getState().openPuzzle("piano-melody");
     useMemoryRoomStore.getState().closePuzzle();
 
     const state = useMemoryRoomStore.getState();
     expect(state.activePuzzle).toBeNull();
     expect(state.solvedPuzzles).toEqual([]);
 
-    state.openPuzzle("angle-turn");
-    expect(useMemoryRoomStore.getState().activePuzzle).toBe("angle-turn");
+    state.openPuzzle("piano-melody");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("piano-melody");
   });
 
   it("다른 화면이 떠 있으면 문제가 열리지 않는다", () => {
     useMemoryRoomStore.getState().openClue("drawer-note");
 
-    useMemoryRoomStore.getState().openPuzzle("angle-turn");
+    useMemoryRoomStore.getState().openPuzzle("piano-melody");
 
     expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
   });
 
   it("문제가 떠 있는 동안 씬 입력이 잠긴다", () => {
-    useMemoryRoomStore.getState().openPuzzle("angle-turn");
+    useMemoryRoomStore.getState().openPuzzle("piano-melody");
 
     expect(selectSceneInputLocked(useMemoryRoomStore.getState())).toBe(true);
   });
 
   it("리셋하면 푼 문제도 처음으로 돌아간다", () => {
-    useMemoryRoomStore.getState().openPuzzle("angle-turn");
+    useMemoryRoomStore.getState().openPuzzle("piano-melody");
     useMemoryRoomStore.getState().finishPuzzle({ cleared: true });
 
     useMemoryRoomStore.getState().reset();

@@ -22,6 +22,8 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen">, CommonTextKey> = {
   "sink-open": "remark.sinkOpen",
   "piano-done": "remark.pianoDone",
   "parents-locked": "remark.parentsLocked",
+  "clock-stopped": "remark.clockStopped",
+  "clock-running": "remark.clockRunning",
 };
 
 /**

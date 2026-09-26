@@ -62,7 +62,6 @@ export const CLUE_IDS = [
   "drawer-note",
   "wall-calendar",
   "shelf-book",
-  "desk-clock",
   "workbook",
   "mirror",
 ] as const;
@@ -97,7 +96,6 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
   "drawer-note": "room",
   "wall-calendar": "room",
   "shelf-book": "room",
-  "desk-clock": "room",
   workbook: "room",
 };
 
@@ -122,29 +120,6 @@ export const CLUE_AFTER_VISIT = {
 } as const satisfies Partial<Record<ClueId, { id: string; visit: 1 | 2 | 3 }>>;
 
 /**
- * 손 쓰는 문제의 규칙이 어디에 있는가.
- *
- * 어느 쪽도 화면에 규칙을 한 줄도 적지 않는다. 적는 순간 문제가 아니라 안내가
- * 되기 때문이다. 대신 방에 놓인 물건이 규칙을 들고 있다:
- *
- *   캐비닛 위 시계: 바늘이 도는 각도 (현관 잠금장치, angle-turn)
- *
- * 비밀번호 단서와 같은 원칙을 지킨다: 물건은 규칙까지만 말하고 "저 문제에 써라"는
- * 말하지 않는다. 지시하는 순간 단서가 심부름표가 된다.
- *
- * 못 찾아도 진행은 안 막힌다. 둘 다 일정 시간 뒤 스킵이 나온다.
- */
-export const RULE_CLUES = { "angle-turn": "desk-clock" } as const;
-
-/**
- * 미궁 문제 id: 기억이 아닌 물건에 붙는 문제다.
- *
- * 지금은 현관 잠금(angle-turn) 하나뿐이다. 식탁 트럼프(card-odd)는 2막 추리
- * 체인의 한 칸이 되면서 기억(`cards`)으로 올라갔고, 지금은 트럼프 대신 엄마 쪽지다.
- *
- * 여기 남은 것은 수집·재조사에 안 세어지고 완료는 solvedPuzzles에만 남는다.
- */
-/**
  * 미궁 문제: 기억이 아니라 **잠금**이다. 수집에도 재조사에도 안 세어지고, 푼 기록만
  * solvedPuzzles에 남는다 (docs/content-design.md 3-2).
  *
@@ -153,8 +128,11 @@ export const RULE_CLUES = { "angle-turn": "desk-clock" } as const;
  *
  * piano-melody는 거실 피아노의 멜로디 자물쇠다. 악보의 한 마디가 지워져 있고 그 마디는
  * 안방 책상의 찢어진 조각이 들고 있다: 이쪽 공간의 단서를 저쪽에서 찾는 축의 첫 매듭이다.
+ *
+ * 현관 잠금(angle-turn, 시계 각도 미궁)은 뺐다. 30일 만에 나가는 문 앞에서 산수를
+ * 시키면 결심의 순간이 퍼즐에 묻힌다. 현관은 배트를 쥐면 바로 열린다.
  */
-export const PUZZLE_IDS = ["angle-turn", "piano-melody", "sink-dial"] as const;
+export const PUZZLE_IDS = ["piano-melody", "sink-dial"] as const;
 export type PuzzleId = (typeof PUZZLE_IDS)[number];
 
 /**

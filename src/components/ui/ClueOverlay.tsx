@@ -29,7 +29,6 @@ const CLUE_TEXT = {
   "drawer-note": { title: "clue.drawerNote.title", caption: "clue.drawerNote.caption" },
   "wall-calendar": { title: "clue.wallCalendar.title", caption: "clue.wallCalendar.caption" },
   "shelf-book": { title: "clue.shelfBook.title", caption: "clue.shelfBook.caption" },
-  "desk-clock": { title: "clue.deskClock.title", caption: "clue.deskClock.caption" },
   workbook: { title: "clue.workbook.title", caption: "clue.workbook.caption" },
   mirror: { title: "clue.mirror.title", caption: "clue.mirror.caption" },
 } as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
@@ -97,7 +96,7 @@ export function ClueOverlay() {
 
   const { title: titleKey, caption: captionKey } = CLUE_TEXT[clue];
   const isNote = clue === "drawer-note";
-  // 종이(쪽지·책)와 들고 돌리는 물건(문제집)·거울은 좁게, 격자를 그리는 것(달력·시계)은 넓게 편다
+  // 종이(쪽지·책)와 들고 돌리는 물건(문제집)·거울은 좁게, 격자를 그리는 것(달력)은 넓게 편다
   const narrow = isNote || clue === "shelf-book" || clue === "workbook" || clue === "mirror";
 
   return (
@@ -129,8 +128,6 @@ export function ClueOverlay() {
           <FoldedNote />
         ) : clue === "shelf-book" ? (
           <ShelfBookInspect />
-        ) : clue === "desk-clock" ? (
-          <DeskClock />
         ) : clue === "workbook" ? (
           <WorkbookClue />
         ) : clue === "mirror" ? (
@@ -213,78 +210,6 @@ function ShelfBookInspect() {
       hint={t("clue.shelfBook.hint")}
       onFound={onFound}
     />
-  );
-}
-
-/** 각도 눈금을 매길 자리: 시계 방향 45° 간격. */
-const CLOCK_TICKS = [0, 45, 90, 135, 180, 225, 270, 315] as const;
-const CLOCK_RADIUS = 78;
-const CLOCK_LABEL_RADIUS = 60;
-
-/**
- * 캐비닛 위 탁상시계: 사인볼 2바퀴 회전 미궁의 단서.
- *
- * 방에 놓인 시계는 그날 멈춘 시각(16:20)을 가리키는 소품이지만, 집어 들면 누군가 연필로
- * 눈금마다 각도를 적어 둔 게 보인다. 그림이 "시계 방향으로 몇 도"라는 읽는 법만
- * 주고, 문제에 어떤 각이 쓰였는지는 말하지 않는다.
- */
-function DeskClock() {
-  const { t } = useTranslation();
-
-  return (
-    <div className={`p-6 sm:p-8 ${PANEL_PAPER}`}>
-      <p className="border-b border-ink/10 pb-3 text-sm font-medium text-graphite">
-        {t("clue.deskClock.heading")}
-      </p>
-      <svg
-        viewBox="-100 -100 200 200"
-        role="img"
-        aria-label={t("clue.deskClock.figure")}
-        className="mx-auto my-4 w-full max-w-[16rem]"
-      >
-        <circle r={CLOCK_RADIUS} fill="none" stroke="currentColor" className="text-ink/15" />
-        {CLOCK_TICKS.map((degrees) => {
-          // SVG는 x축에서 시작해 시계 방향으로 돈다. 12시(위)에서 출발하도록 90도 뺀다
-          const radians = ((degrees - 90) * Math.PI) / 180;
-          return (
-            <g key={degrees}>
-              <line
-                x1={Math.cos(radians) * (CLOCK_RADIUS - 9)}
-                y1={Math.sin(radians) * (CLOCK_RADIUS - 9)}
-                x2={Math.cos(radians) * CLOCK_RADIUS}
-                y2={Math.sin(radians) * CLOCK_RADIUS}
-                stroke="currentColor"
-                strokeWidth={2}
-                className="text-ink/35"
-              />
-              <text
-                x={Math.cos(radians) * CLOCK_LABEL_RADIUS}
-                y={Math.sin(radians) * CLOCK_LABEL_RADIUS}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={15}
-                className="fill-ink/55 font-bold"
-              >
-                {degrees}
-              </text>
-            </g>
-          );
-        })}
-        {/* 도는 방향을 화살표 하나로 못박는다. 반시계로 읽으면 답이 전부 뒤집힌다 */}
-        <path
-          d="M 0 -34 A 34 34 0 0 1 29 17"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={3}
-          strokeLinecap="round"
-          className="text-memory"
-        />
-        <path d="M 29 17 l -11 -1 l 6 10 z" className="fill-memory" />
-      </svg>
-      <p className="break-ko text-pretty border-t border-ink/10 pt-4 text-base leading-relaxed text-ink">
-        {t("clue.deskClock.l1")}
-      </p>
-    </div>
   );
 }
 

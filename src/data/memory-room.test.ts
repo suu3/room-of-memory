@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { PUZZLE_IDS, RULE_CLUES } from "@/data/room-clues";
+import { PUZZLE_IDS } from "@/data/room-clues";
 import ko from "@/i18n/locales/ko/memory-room.json";
 import { MINIGAMES } from "@/minigames";
 import { buildMemoryReplay } from "@/store/memory-room";
@@ -17,8 +17,8 @@ import {
 import { requiredVisits, visitConfig } from "./story-phase";
 
 /**
- * 기억이 나르면 안 되는 미궁 문제들: 지금은 현관 잠금(angle-turn) 하나다.
- * 규칙이 화면에 없고 단서가 방에 흩어져 있다 (src/data/room-clues.ts의 RULE_CLUES).
+ * 기억이 나르면 안 되는 미궁 문제들: 물건에 붙은 잠금(하부장·피아노)이다
+ * (src/data/room-clues.ts의 PUZZLE_IDS).
  */
 const MAZE_MINIGAMES: readonly string[] = [...PUZZLE_IDS];
 
@@ -234,11 +234,7 @@ describe("v4 진행 형태", () => {
     for (const maze of MAZE_MINIGAMES) expect(carried).not.toContain(maze);
   });
 
-  it("규칙이 화면에 없는 문제마다 단서와 미니게임 구현이 다 있다", () => {
-    for (const id of Object.keys(RULE_CLUES) as (keyof typeof RULE_CLUES)[]) {
-      expect(MINIGAMES[id], id).toBeDefined();
-      expect(RULE_CLUES[id], id).toBeDefined();
-    }
+  it("미궁 문제마다 미니게임 구현이 있다", () => {
     for (const id of PUZZLE_IDS) expect(MINIGAMES[id], id).toBeDefined();
   });
 
