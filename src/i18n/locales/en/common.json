@@ -449,23 +449,35 @@
       "help": "Drag to turn it · wheel or buttons to zoom",
       "help_touch": "Drag with your finger to turn it",
       "putDown": "Put it down",
-      "next": "Next"
+      "next": "Next",
+      "helpTilt": "Drag to turn it, drag up or down to tilt it",
+      "helpTilt_touch": "Drag to turn it, drag up or down to tilt it",
+      "helpUnfold": "Drag upward to unfold it",
+      "helpUnfold_touch": "Drag upward with your finger to unfold it",
+      "helpPages": "Drag sideways or use the buttons to turn the pages",
+      "helpPages_touch": "Swipe sideways to turn the pages",
+      "tiltBack": "Tilt back",
+      "tiltForward": "Tilt forward",
+      "unfold": "Unfold",
+      "prevPage": "Previous page",
+      "nextPage": "Next page",
+      "page": "{{value}} / {{total}}"
     },
     "cardFlip": {
       "title": "The Note on the Table",
-      "alt": "3D note: drag to turn it",
+      "alt": "3D folded note: drag upward to unfold it",
       "memo": "Don't touch the bottom drawer.",
       "signature": "Mom",
-      "found": "Mom's handwriting on the inside."
+      "found": "Unfolded, it's Mom's handwriting."
     },
     "idCardFlip": {
       "title": "ID Badge",
-      "alt": "3D ID badge: drag to turn it",
+      "alt": "3D ID badge: drag to turn and tilt it",
       "org": "Laon Life Science Institute",
       "role": "Senior · Principal Researcher",
       "dad": "Seo Taeo",
       "mom": "Han Soha",
-      "found": "The logo on the back. The same one on the ampoule label."
+      "found": "Catching the light, a logo rises from the seal over the photo. The one on the ampoule label."
     },
     "ampouleCase": {
       "title": "Cooler Case",
@@ -550,7 +562,11 @@
     "newGameTitle": "Start over from the beginning?",
     "newGameBody": "The {{count}} memories you gathered will be lost. Your language setting is kept.",
     "newGameConfirm": "Start over",
-    "newGameCancel": "Cancel"
+    "newGameCancel": "Cancel",
+    "soundLabel": "Sound",
+    "soundStateOn": "On",
+    "soundStateOff": "Off",
+    "soundHint": "best played with sound on"
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",
@@ -586,8 +602,8 @@
     },
     "shelfBook": {
       "title": "The Upside-Down Book",
-      "alt": "3D book: drag to turn it",
-      "hint": "Drag to turn; wheel or buttons to zoom",
+      "alt": "3D book: drag sideways to turn the pages",
+      "hint": "Drag sideways or use the buttons to turn the pages",
       "bookTitle": "Baseball Rules Explained",
       "caption": "A book Dad bought me. It was the only one shelved upside down."
     },

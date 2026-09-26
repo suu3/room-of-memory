@@ -338,14 +338,14 @@ scripts:
     - speaker: hero
       ko: RX-11. 치료제 후보. …두 개 만들었는데, 하나는 비어 있었어.
 
-  # 출입증을 집어 든다: 3D로 뒤집는 판(id-card-flip) 앞
+  # 출입증을 집어 든다: 3D로 기울여 보는 판(id-card-flip) 앞
   id-card-look:
     - speaker: hero
       ko: 출입증이다. 아빠 거랑 엄마 거.
 
-  # 뒷면을 본 뒤
+  # 홀로그램의 로고를 본 뒤
   id-card-found:
     - speaker: hero
       ko: 라온생명과학연구소. 아빠 이름, 엄마 이름.
     - speaker: hero
-      ko: 뒷면의 로고… 앰플 라벨의 그 로고다.
+      ko: 빛에 비추니 사진 위에 로고가… 앰플 라벨의 그 로고다.

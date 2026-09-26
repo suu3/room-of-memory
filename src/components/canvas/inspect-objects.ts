@@ -1,16 +1,18 @@
 /**
- * 3D 인스펙트로 돌려 보는 물건들 (InspectTurntable, v4.1 2장).
+ * 3D 인스펙트로 집어 드는 물건들 (InspectTurntable, v4.1 2장).
  *
- * 물건마다 모양·면 그림·찾을 면만 다르다. 글자는 언어를 따라야 하므로 부르는 쪽이
- * 번역한 문자열을 넘기고, 여기서는 그리기만 한다. 그림 파일(`image`)이 들어오면
- * 코드 그림을 덮는다: 파일이 없어도 게임은 돈다 (docs/v4.md의 에셋 표).
+ * 물건마다 모양·면 그림과 **손이 하는 일**이 다르다: 문제집은 돌려서 뒤표지를, 쪽지는
+ * 펼쳐서 안쪽을, 책은 장을 넘겨 귀 접힌 쪽을, 출입증은 기울여 홀로그램을 본다. 글자는
+ * 언어를 따라야 하므로 부르는 쪽이 번역한 문자열을 넘기고, 여기서는 그리기만 한다.
+ * 그림 파일(`image`)이 들어오면 코드 그림을 덮는다: 파일이 없어도 게임은 돈다
+ * (docs/v4.md의 에셋 표).
  *
  * 만든 객체는 부르는 쪽이 useMemo로 붙잡아야 한다. 면 그림이 바뀌면 텍스처를 다시 굽는다.
  */
 
 import { ASSETS } from "@/lib/assets";
 import type { RoomPalette } from "@/scenes/memory-room/palette";
-import type { FacePainter, InspectObject } from "./InspectTurntable";
+import type { FacePainter, InspectFace, InspectObject } from "./InspectTurntable";
 
 /** 방의 기억 색 대신 쓰는 손글씨 잉크. 팔레트의 가장 짙은 색. */
 const ink = (palette: RoomPalette) => palette.frame;
@@ -204,6 +206,7 @@ function paintNotePaper(
   ctx: CanvasRenderingContext2D,
   { width, height }: { width: number; height: number },
   palette: RoomPalette,
+  crease: "down" | "across" = "down",
 ) {
   ctx.fillStyle = palette.sun;
   ctx.fillRect(0, 0, width, height);
@@ -229,43 +232,119 @@ function paintNotePaper(
   ctx.globalAlpha = 0.3;
   ctx.strokeStyle = palette.frame;
   ctx.beginPath();
-  ctx.moveTo(width / 2, 0);
-  ctx.lineTo(width / 2, height);
+  if (crease === "across") {
+    ctx.moveTo(0, height / 2);
+    ctx.lineTo(width, height / 2);
+  } else {
+    ctx.moveTo(width / 2, 0);
+    ctx.lineTo(width / 2, height);
+  }
   ctx.stroke();
   ctx.globalAlpha = 1;
 }
 
 /**
- * 식탁 위에 반으로 접어 둔 쪽지. 겉은 빈 종이이고, 뒤집으면(찾을 면) 엄마가 볼펜으로
- * 적은 메모다.
+ * 식탁 위에 반으로 접어 둔 쪽지. 겉은 빈 종이이고, 위로 끌어 펼치면 안쪽에 엄마가
+ * 볼펜으로 적은 메모다. 접힌 자국은 가로(윗반이 아랫반 위로 엎어진다)라 메모는
+ * 위아래 반쪽에 나뉘어 붙는다: 글줄은 접힌 선을 피해 윗반과 아랫반에 따로 앉힌다.
  */
 export function tableNoteObject(memo: string, signature: string): InspectObject {
   const paintMemo: FacePainter = (ctx, size, palette, font) => {
-    paintNotePaper(ctx, size, palette);
+    paintNotePaper(ctx, size, palette, "across");
     handwriteLines(
       ctx,
       memo,
-      { x: size.width / 2, y: size.height * 0.42, width: size.width * 0.8 },
+      { x: size.width / 2, y: size.height * 0.3, width: size.width * 0.8 },
       46,
       font,
       ink(palette),
     );
-    handwrite(ctx, signature, size.width * 0.7, size.height * 0.8, 40, font, ink(palette));
+    handwrite(ctx, signature, size.width * 0.7, size.height * 0.78, 40, font, ink(palette));
   };
   return {
-    shape: "box",
+    shape: "folded-note",
     size: [0.74, 0.52, 0.006],
-    front: { paint: (ctx, size, palette) => paintNotePaper(ctx, size, palette) },
-    back: { paint: paintMemo },
-    edge: "sun",
-    foundYaw: Math.PI,
+    paper: (ctx, size, palette) => paintNotePaper(ctx, size, palette, "across"),
+    memo: paintMemo,
     tilt: 0.3,
   };
 }
 
-/* ── 거꾸로 꽂힌 책 (3페이즈, 뒤표지 안쪽에 "11") ────────────────────────────── */
+/* ── 거꾸로 꽂힌 책 (3페이즈, 귀 접힌 쪽에 "11") ───────────────────────────── */
 
-/** 선반의 책: 앞표지는 야구 규칙 해설서, 뒤표지 안쪽에 아빠 손글씨 번호. */
+/** 책의 낱장 수. 앞표지 한 장 + 본문 넉 장. 찾을 쪽은 세 장 넘긴 오른쪽이다. */
+const SHELF_BOOK_SHEETS = 5;
+/** 찾을 쪽의 `pages` 인덱스: 낱장 3의 앞면. */
+export const SHELF_BOOK_TARGET = 6;
+
+/** 인쇄된 본문 흉내: 글줄을 회색 막대로 놓는다. 읽을 글이 아니라 "글이 있다"는 결이다. */
+function paintPrintedPage(pageNumber: number, onRight: boolean): FacePainter {
+  return (ctx, { width, height }, palette, font) => {
+    ctx.fillStyle = palette.linen;
+    ctx.fillRect(0, 0, width, height);
+    // 책등 쪽 그늘: 오른쪽 쪽은 왼쪽 가장자리가, 왼쪽 쪽은 오른쪽 가장자리가 어둡다
+    const shade = ctx.createLinearGradient(
+      onRight ? 0 : width,
+      0,
+      onRight ? width * 0.18 : width * 0.82,
+      0,
+    );
+    shade.addColorStop(0, "rgba(0, 0, 0, 0.16)");
+    shade.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = shade;
+    ctx.fillRect(0, 0, width, height);
+    const left = width * (onRight ? 0.16 : 0.1);
+    const right = width * (onRight ? 0.9 : 0.84);
+    ctx.fillStyle = palette.trim;
+    ctx.globalAlpha = 0.75;
+    // 소제목 한 줄과 문단 셋. 줄 길이는 쪽 번호에서 정해져 늘 같다 (리렌더에 흔들리지 않는다)
+    ctx.fillRect(left, height * 0.1, (right - left) * 0.42, height * 0.022);
+    let y = height * 0.16;
+    for (let line = 0; line < 22; line++) {
+      const seed = Math.sin(pageNumber * 7.1 + line * 3.3) * 0.5 + 0.5;
+      const endOfParagraph = line % 8 === 7;
+      const length = endOfParagraph ? 0.35 + seed * 0.4 : 0.92 + seed * 0.08;
+      ctx.fillRect(left, y, (right - left) * length, height * 0.013);
+      y += height * (endOfParagraph ? 0.05 : 0.033);
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = palette.frame;
+    ctx.font = `500 ${Math.round(height * 0.028)}px ${font}`;
+    ctx.textAlign = onRight ? "right" : "left";
+    ctx.fillText(String(pageNumber), onRight ? right : left, height * 0.95);
+  };
+}
+
+/** 귀 접힌 쪽: 오른쪽 위 귀퉁이가 안으로 접혀 있다. 그림 파일이 덮인 뒤에도 위에 남는다. */
+const paintDogEar: FacePainter = (ctx, { width }, palette) => {
+  const size = width * 0.2;
+  // 접혀서 드러난 자리: 뒤 쪽(다음 장)이 비친다
+  ctx.fillStyle = palette.trim;
+  ctx.beginPath();
+  ctx.moveTo(width - size, 0);
+  ctx.lineTo(width, 0);
+  ctx.lineTo(width, size);
+  ctx.closePath();
+  ctx.fill();
+  // 접힌 귀 자체: 종이 뒷면이 위로 올라와 조금 밝다
+  ctx.fillStyle = palette.daylight;
+  ctx.beginPath();
+  ctx.moveTo(width - size, 0);
+  ctx.lineTo(width, size);
+  ctx.lineTo(width - size, size);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = palette.frame;
+  ctx.globalAlpha = 0.35;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+};
+
+/**
+ * 선반의 책: 앞표지는 야구 규칙 해설서. 장을 넘기면 세 장째 오른쪽, 귀 접힌 쪽 한가운데에
+ * 아빠 손글씨 번호가 있다. 거꾸로 꽂아 둔 건 이 쪽을 찾으라는 표시였다.
+ */
 export function shelfBookObject(title: string, number: string): InspectObject {
   const paintCover: FacePainter = (ctx, { width, height }, palette, font) => {
     ctx.fillStyle = palette.sage;
@@ -276,26 +355,52 @@ export function shelfBookObject(title: string, number: string): InspectObject {
     ctx.fillText(title, width / 2, height * 0.32);
     ctx.fillRect(width * 0.2, height * 0.38, width * 0.6, 3);
   };
-  const paintInside: FacePainter = (ctx, { width, height }, palette, font) => {
-    // 표지를 열면 나오는 면지: 누렇게 바랜 종이
+  const paintEndpaper: FacePainter = (ctx, { width, height }, palette) => {
+    // 표지 안쪽의 면지: 누렇게 바랜 종이
     ctx.fillStyle = palette.linen;
     ctx.fillRect(0, 0, width, height);
     ctx.strokeStyle = palette.sage;
     ctx.lineWidth = 18;
     ctx.strokeRect(0, 0, width, height);
+  };
+  const paintMarked: FacePainter = (ctx, { width, height }, palette, font) => {
+    paintPrintedPage(SHELF_BOOK_TARGET - 1, true)(ctx, { width, height }, palette, font);
     handwrite(ctx, number, width / 2, height * 0.46, 220, font, ink(palette), -0.08);
   };
+  const pages: InspectFace[] = [];
+  for (let sheet = 0; sheet < SHELF_BOOK_SHEETS; sheet++) {
+    const frontIndex = sheet * 2;
+    const backIndex = sheet * 2 + 1;
+    pages.push(
+      sheet === 0
+        ? { paint: paintCover }
+        : frontIndex === SHELF_BOOK_TARGET
+          ? { paint: paintMarked, image: ASSETS.images.mgShelfBookInside, overlay: paintDogEar }
+          : { paint: paintPrintedPage(frontIndex - 1, true) },
+    );
+    pages.push(
+      sheet === 0 ? { paint: paintEndpaper } : { paint: paintPrintedPage(backIndex - 1, false) },
+    );
+  }
   return {
-    shape: "box",
-    size: [0.46, 0.66, 0.06],
-    front: { paint: paintCover },
-    back: { paint: paintInside, image: ASSETS.images.mgShelfBookInside },
-    edge: "linen",
-    foundYaw: Math.PI,
+    shape: "book",
+    size: [0.46, 0.66, 0.03],
+    cover: "sage",
+    pages,
+    target: SHELF_BOOK_TARGET,
+    tilt: 0.5,
   };
 }
 
-/* ── 출입증 (4페이즈, 뒷면에 라온 로고) ─────────────────────────────────────── */
+/* ── 출입증 (4페이즈, 사진 위 홀로그램에 라온 로고) ────────────────────────── */
+
+/**
+ * 홀로그램 씰이 앉는 자리: 아빠 사진 위 (mg-id-card-front.webp 1024×640의 548~738 ×
+ * 190~435). 신분증의 위조 방지 씰이 사진을 덮는 것과 같다.
+ */
+const ID_CARD_SEAL = { x: 0.535, y: 0.297, width: 0.186, height: 0.383 };
+/** 씰의 로고가 떠오르는 각도: 윗변을 살짝 뒤로 눕히고(빛을 받게) 조금 돌린 자리. */
+const ID_CARD_SPOT = { pitch: -0.45, yaw: 0.35 };
 
 export interface IdCardLabels {
   org: string;
@@ -303,7 +408,11 @@ export interface IdCardLabels {
   names: readonly [string, string];
 }
 
-/** 출입증 두 장 중 위의 한 장. 앞면에 이름, 뒷면에 연구소 로고. */
+/**
+ * 출입증 두 장 중 위의 한 장. 앞면에 이름, 사진 위에 홀로그램 씰. 뒷면은 그냥 뒷면이다.
+ * 씰은 어느 각도에서나 무지갯빛 결이 비쳐 "여기 뭔가 있다"고 말하지만, 로고는 빛을 받는
+ * 각도(ID_CARD_SPOT) 근처에서만 떠오른다.
+ */
 export function idCardObject(labels: IdCardLabels): InspectObject {
   const paintFront: FacePainter = (ctx, { width, height }, palette, font) => {
     ctx.fillStyle = palette.linen;
@@ -328,16 +437,23 @@ export function idCardObject(labels: IdCardLabels): InspectObject {
     ctx.fillRect(0, 0, width, height);
     paintRaonLogo(ctx, width / 2, height / 2, height * 0.3, palette.sage);
   };
+  // 씰의 로고: 투명 바탕에 금빛 선. 씰 크기에 맞춰 세로의 6할
+  const paintSeal: FacePainter = (ctx, { width, height }, palette) => {
+    ctx.clearRect(0, 0, width, height);
+    paintRaonLogo(ctx, width / 2, height / 2, Math.min(width, height) * 0.36, palette.memory);
+  };
   return {
     shape: "box",
     size: [0.86, 0.54, 0.012],
     front: { paint: paintFront, image: ASSETS.images.mgIdCardFront },
     back: { paint: paintBack, image: ASSETS.images.mgIdCardBack },
     edge: "linen",
-    foundYaw: Math.PI,
+    // 찾는 것은 면이 아니라 각도다 (hologram). 이 값은 안 쓴다
+    foundYaw: 0,
     tilt: 0.25,
     // 그림(1024×640)의 귀는 반지름 약 32px로 투명하게 깎여 있다: 판을 같은 둥글기로
     cornerRadius: 0.027,
+    hologram: { paint: paintSeal, rect: ID_CARD_SEAL, spot: ID_CARD_SPOT },
   };
 }
 

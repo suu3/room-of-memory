@@ -449,23 +449,35 @@
       "help": "끌어서 돌려 보세요 · 휠이나 버튼으로 확대",
       "help_touch": "손가락으로 끌어 돌려 보세요",
       "putDown": "내려놓는다",
-      "next": "다음"
+      "next": "다음",
+      "helpTilt": "끌어서 돌리고, 위아래로 끌어 기울여 보세요",
+      "helpTilt_touch": "손가락으로 돌리고, 위아래로 끌어 기울여 보세요",
+      "helpUnfold": "위로 끌어 펼쳐 보세요",
+      "helpUnfold_touch": "손가락으로 위로 끌어 펼쳐 보세요",
+      "helpPages": "좌우로 끌거나 버튼으로 장을 넘겨 보세요",
+      "helpPages_touch": "좌우로 밀어 장을 넘겨 보세요",
+      "tiltBack": "뒤로 기울이기",
+      "tiltForward": "앞으로 기울이기",
+      "unfold": "펼친다",
+      "prevPage": "이전 장",
+      "nextPage": "다음 장",
+      "page": "{{value}} / {{total}}"
     },
     "cardFlip": {
       "title": "식탁 위 쪽지",
-      "alt": "3D 쪽지: 끌어서 돌려볼 수 있다",
+      "alt": "3D 접힌 쪽지: 위로 끌어 펼칠 수 있다",
       "memo": "아래칸 건드리지 마.",
       "signature": "엄마가",
-      "found": "안쪽에 엄마 글씨가 있다."
+      "found": "펼치자 엄마 글씨다."
     },
     "idCardFlip": {
       "title": "출입증",
-      "alt": "3D 출입증: 끌어서 돌려볼 수 있다",
+      "alt": "3D 출입증: 끌어서 돌리고 기울일 수 있다",
       "org": "라온생명과학연구소",
       "role": "선임연구원 · 책임연구원",
       "dad": "서태오",
       "mom": "한소하",
-      "found": "뒷면의 로고. 앰플 라벨의 그 로고다."
+      "found": "빛에 비추자 사진 위 씰에 로고가 떠올랐다. 앰플 라벨의 그 로고다."
     },
     "ampouleCase": {
       "title": "보냉 케이스",
@@ -550,7 +562,11 @@
     "newGameTitle": "처음부터 시작할까요?",
     "newGameBody": "모아 둔 기억 {{count}}개가 사라집니다. 언어 설정은 유지됩니다.",
     "newGameConfirm": "처음부터",
-    "newGameCancel": "취소"
+    "newGameCancel": "취소",
+    "soundLabel": "소리",
+    "soundStateOn": "켜짐",
+    "soundStateOff": "꺼짐",
+    "soundHint": "켜고 플레이하기를 권해요"
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",
@@ -586,8 +602,8 @@
     },
     "shelfBook": {
       "title": "거꾸로 꽂힌 책",
-      "alt": "3D 책: 끌어서 돌려볼 수 있다",
-      "hint": "끌어서 돌리고, 휠이나 버튼으로 확대",
+      "alt": "3D 책: 좌우로 끌어 장을 넘길 수 있다",
+      "hint": "좌우로 끌거나 버튼으로 장을 넘겨 보세요",
       "bookTitle": "야구 규칙 해설",
       "caption": "아빠가 사다 준 책. 이것만 거꾸로 꽂혀 있었다."
     },

@@ -4,6 +4,7 @@ import { Check } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { InspectObject } from "@/components/canvas/InspectTurntable";
+import { inspectControlOf } from "@/components/canvas/InspectTurntable";
 import {
   ampouleCaseObject,
   ampouleObject,
@@ -26,12 +27,20 @@ interface InspectStage {
   found: string;
 }
 
+/** 손이 하는 일마다 다른 조작 안내 (`_touch` 변형은 useControlHint가 고른다). */
+const HELP_KEY = {
+  turn: "minigame.inspect.help",
+  tilt: "minigame.inspect.helpTilt",
+  unfold: "minigame.inspect.helpUnfold",
+  pages: "minigame.inspect.helpPages",
+} as const satisfies Record<ReturnType<typeof inspectControlOf>["kind"], CommonTextKey>;
+
 /**
- * 3D 인스펙트 미니게임의 껍데기 (v4.1 2장). 물건을 돌려 찾을 면을 보면 한 줄이 서고,
+ * 3D 인스펙트 미니게임의 껍데기 (v4.1 2장). 물건을 만져 찾을 것을 보면 한 줄이 서고,
  * "내려놓는다"를 누르면 끝난다. 단계가 둘이면(앰플 케이스 → 앰플) 앞 단계를 찾은 뒤
- * "다음"으로 다음 물건을 집는다.
+ * "다음"으로 다음 물건을 집는다. 손이 하는 일(돌리기·기울이기·펼치기)은 물건이 정한다.
  *
- * 실패는 없다: 돌려 보는 인터랙션이다. 스킵은 찾은 것으로 친다(cleared).
+ * 실패는 없다: 만져 보는 인터랙션이다. 스킵은 찾은 것으로 친다(cleared).
  */
 function InspectMinigame({
   stages,
@@ -81,7 +90,7 @@ function InspectMinigame({
         key={index}
         object={current.object}
         alt={current.alt}
-        hint={hint("minigame.inspect.help")}
+        hint={hint(HELP_KEY[inspectControlOf(current.object).kind])}
         onFound={onFound}
         className="w-full"
       />
@@ -121,7 +130,7 @@ function InspectMinigame({
 
 const key = (value: CommonTextKey) => value;
 
-/** 식탁 위 쪽지 (2페이즈): 안쪽에 엄마 메모. */
+/** 식탁 위 쪽지 (2페이즈): 위로 끌어 펼치면 안쪽에 엄마 메모. */
 export function CardFlipMinigame(props: MinigameProps) {
   const { t } = useTranslation();
   const stages = useMemo<InspectStage[]>(
@@ -137,7 +146,7 @@ export function CardFlipMinigame(props: MinigameProps) {
   return <InspectMinigame stages={stages} {...props} />;
 }
 
-/** 안방 출입증 (4페이즈): 뒷면에 라온 로고. */
+/** 안방 출입증 (4페이즈): 기울여 빛에 비추면 사진 위 홀로그램에 라온 로고. */
 export function IdCardFlipMinigame(props: MinigameProps) {
   const { t } = useTranslation();
   const stages = useMemo<InspectStage[]>(

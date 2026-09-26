@@ -137,6 +137,28 @@ describe("TitleScreen", () => {
     expect(useMemoryRoomStore.getState().started).toBe(true);
   });
 
+  it("소리를 켜고 플레이하라는 권장이 켜진 토글로 선다", () => {
+    render(<TitleScreen />);
+
+    const sound = screen.getByRole("button", { name: "Sound" });
+    expect(sound.getAttribute("aria-pressed")).toBe("true");
+    expect(sound.textContent).toContain("On");
+    expect(sound.textContent).toContain("best played with sound on");
+  });
+
+  it("소리 토글을 누르면 음소거되고 꺼짐으로 읽힌다", () => {
+    render(<TitleScreen />);
+
+    const sound = screen.getByRole("button", { name: "Sound" });
+    fireEvent.click(sound);
+
+    expect(useMemoryRoomStore.getState().soundMuted).toBe(true);
+    expect(sound.getAttribute("aria-pressed")).toBe("false");
+    expect(sound.textContent).toContain("Off");
+    // 권장 문구는 꺼져 있을 때도 남아, 켜라는 이유를 계속 말한다
+    expect(sound.textContent).toContain("best played with sound on");
+  });
+
   it("새 게임 확인에서 취소하면 아무것도 지워지지 않는다", () => {
     setSaved();
     render(<TitleScreen />);

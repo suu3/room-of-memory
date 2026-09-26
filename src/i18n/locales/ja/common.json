@@ -449,23 +449,35 @@
       "help": "ドラッグで回してみよう · ホイールかボタンで拡大",
       "help_touch": "指でドラッグして回してみよう",
       "putDown": "置く",
-      "next": "次へ"
+      "next": "次へ",
+      "helpTilt": "ドラッグで回し、上下にドラッグして傾けてみよう",
+      "helpTilt_touch": "指で回し、上下にドラッグして傾けてみよう",
+      "helpUnfold": "上にドラッグして開いてみよう",
+      "helpUnfold_touch": "指で上にドラッグして開いてみよう",
+      "helpPages": "左右にドラッグかボタンでページをめくろう",
+      "helpPages_touch": "左右にスワイプしてページをめくろう",
+      "tiltBack": "後ろに傾ける",
+      "tiltForward": "前に傾ける",
+      "unfold": "開く",
+      "prevPage": "前のページ",
+      "nextPage": "次のページ",
+      "page": "{{value}} / {{total}}"
     },
     "cardFlip": {
       "title": "食卓のメモ",
-      "alt": "3Dのメモ: ドラッグで回せる",
+      "alt": "3Dの折られたメモ: 上にドラッグで開ける",
       "memo": "下の段は触らないで。",
       "signature": "母より",
-      "found": "内側に母さんの字がある。"
+      "found": "開くと母さんの字だ。"
     },
     "idCardFlip": {
       "title": "入館証",
-      "alt": "3Dの入館証: ドラッグで回せる",
+      "alt": "3Dの入館証: ドラッグで回して傾けられる",
       "org": "ラオン生命科学研究所",
       "role": "主任研究員 · 責任研究員",
       "dad": "ソ・テオ",
       "mom": "ハン・ソハ",
-      "found": "裏のロゴ。アンプルのラベルのあのロゴだ。"
+      "found": "光に当てると、写真の上のシールにロゴが浮かんだ。アンプルのラベルのあのロゴだ。"
     },
     "ampouleCase": {
       "title": "保冷ケース",
@@ -550,7 +562,11 @@
     "newGameTitle": "はじめから始めますか？",
     "newGameBody": "集めた記憶{{count}}個が失われます。言語設定は維持されます。",
     "newGameConfirm": "はじめから",
-    "newGameCancel": "キャンセル"
+    "newGameCancel": "キャンセル",
+    "soundLabel": "サウンド",
+    "soundStateOn": "オン",
+    "soundStateOff": "オフ",
+    "soundHint": "オンにしてのプレイをおすすめします"
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",
@@ -586,8 +602,8 @@
     },
     "shelfBook": {
       "title": "逆さに差された本",
-      "alt": "3Dの本: ドラッグで回せる",
-      "hint": "ドラッグで回し、ホイールかボタンで拡大",
+      "alt": "3Dの本: 左右にドラッグでページをめくれる",
+      "hint": "左右にドラッグかボタンでページをめくろう",
       "bookTitle": "野球ルール解説",
       "caption": "父さんが買ってくれた本。これだけ逆さに差してあった。"
     },

@@ -130,6 +130,8 @@ export function RoomCanvas() {
   /** 1인칭의 시선. 끌기·키가 쓰고 FirstPersonRig가 프레임마다 읽는다. */
   const lookRef = useRef<LookAngles>({ yaw: 0, pitch: 0 });
   const [webGLFailed, setWebGLFailed] = useState(() => !canInitializeWebGL());
+  const _hmrProbe = 1;
+  void _hmrProbe;
   const [nearbyMemoryId, setNearbyMemoryId] = useState<MemoryId | null>(null);
   const [focusMemoryId, setFocusMemoryId] = useState<MemoryId | null>(null);
   /** 타이틀 구도(디오라마 전체)와 플레이 구도(플레이어 추적) 두 가지. */

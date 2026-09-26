@@ -7,49 +7,71 @@ import {
   CanvasTexture,
   ExtrudeGeometry,
   type Group,
+  MeshBasicMaterial,
   MeshStandardMaterial,
+  RepeatWrapping,
   Shape,
   ShapeGeometry,
   SRGBColorSpace,
 } from "three";
 import { AMPOULE_MODEL_HEIGHT, Ampoule } from "@/scenes/memory-room/Ampoule";
 import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/palette";
+import { InspectBook } from "./InspectBook";
+import { InspectFoldedNote } from "./InspectFoldedNote";
+import {
+  clampPitchDrag,
+  type HologramSpot,
+  hologramVisibility,
+  INSPECT_CAMERA,
+  pitchFromDrag,
+  ReadTimer,
+  SHADOW_GAP,
+  VIEW_HEIGHT,
+  ZOOM_DAMP,
+} from "./inspect-math";
+import {
+  bodyFont,
+  canvasSize,
+  type FacePainter,
+  type InspectFace,
+  useFaceTexture,
+} from "./inspect-textures";
+
+export { ZOOM_MAX, ZOOM_MIN } from "./inspect-math";
+export type { FacePainter, InspectFace } from "./inspect-textures";
 
 /**
- * 집어 들고 돌려 보는 물건 (3D 인스펙트, v4.1 2장).
+ * 집어 들고 살펴보는 물건 (3D 인스펙트, v4.1 2장).
  *
- * 문제집(뒤표지의 이름)에서 시작한 조작을 한 컴포넌트로 모았다: 카드 뒷면의 엄마 메모,
- * 앰플 케이스 옆면의 빈 슬롯과 앰플 라벨의 로고, 거꾸로 꽂힌 책 뒤표지 안쪽의 "11",
- * 출입증 뒷면의 라온 로고. 물건마다 바뀌는 것은 모양·면 그림·찾을 면뿐이다
- * (src/components/canvas/inspect-objects.ts). "뒤집으면 보인다"가 페이즈마다 반복된다.
+ * 문제집(뒤표지의 이름)에서 시작한 판이다. 처음엔 물건마다 모양·면 그림·찾을 면만 갈라
+ * "뒤집으면 보인다"를 페이즈마다 되풀이했는데, 같은 트릭이 넷이면 셋은 답을 아는 채로
+ * 돌리는 일이 된다. 그래서 손이 하는 일을 물건마다 갈랐다 (`InspectControl`):
  *
- * 면 그림은 캔버스에 코드로 그린다. 글자가 언어를 따라야 해서다 (ko/en/ja). 그림 파일
- * (`image`)이 주어지면 불러오는 대로 그 위를 덮고, 없으면 코드 그림이 그대로 남는다.
+ *   turn    돌려서 다른 면을 본다 (문제집 · 앰플 케이스 · 앰플)
+ *   tilt    기울여 빛에 비춘다: 출입증의 홀로그램은 한 각도에서만 떠오른다
+ *   unfold  위로 끌어 접힌 것을 편다: 식탁 쪽지 (InspectFoldedNote)
+ *   pages   장을 넘긴다: 거꾸로 꽂힌 책, 귀 접힌 쪽에 "11" (InspectBook)
  *
- * 찾을 면이 카메라를 향한 채 잠깐 머물면(`READ_SECONDS`) 발견으로 쳐서 `onFound`를
- * 한 번 부른다. 휙 지나간 건 못 본 것이다. 저 혼자 돌지 않는다: 돌리는 손이 있어야
- * 나오는 단서라서.
+ * 면 그림은 코드로 그리고 그림 파일이 오면 덮는다 (inspect-textures). 찾을 것을 잠깐
+ * 마주 보고 있어야(READ_SECONDS) 발견으로 쳐서 `onFound`를 한 번 부른다. 저 혼자 돌지
+ * 않는다: 돌리는 손이 있어야 나오는 단서라서.
  */
 
-/** 면 하나를 그리는 손. 캔버스 크기는 면의 비율을 따른다. */
-export type FacePainter = (
-  ctx: CanvasRenderingContext2D,
-  size: { width: number; height: number },
-  palette: RoomPalette,
-  font: string,
-) => void;
+/** 물건마다 손이 하는 일. InspectView가 끌기·버튼을 이걸로 해석한다. */
+export type InspectControl =
+  | { kind: "turn" }
+  | { kind: "tilt" }
+  | { kind: "unfold" }
+  | { kind: "pages"; sheets: number };
 
-export interface InspectFace {
+/** 앞면에 붙은 홀로그램 씰. 어느 각도에서나 무지갯빛 결은 비치지만 로고는 `spot`에서만 선다. */
+export interface InspectHologram {
+  /** 로고 그림. 투명 바탕 위에 그린다: 그 밖은 씰의 결이 비친다. */
   paint: FacePainter;
-  /** 그림 파일 (public 기준). 오면 코드 그림을 덮는다. 없거나 못 불러오면 코드 그림 그대로. */
-  image?: string;
-  /**
-   * 그림 파일을 면의 일부에만 붙인다 (면 크기에 대한 비율, 0~1). 없으면 면 전체.
-   * 앰플 라벨처럼 원통에 띠로 감기는 그림이 이 경우다: 나머지는 `imageBase` 색으로 칠한다.
-   */
-  imageRect?: { x: number; y: number; width: number; height: number };
-  /** `imageRect`로 붙일 때 그림 밖을 채우는 색. */
-  imageBase?: keyof RoomPalette;
+  /** 앞면에서 차지하는 자리 (면 크기 비율, 왼쪽 위 원점). */
+  rect: { x: number; y: number; width: number; height: number };
+  /** 로고가 떠오르는 각도. */
+  spot: HologramSpot;
 }
 
 interface PrimitiveInspectObject {
@@ -67,7 +89,8 @@ interface PrimitiveInspectObject {
   edge: keyof RoomPalette;
   /**
    * 찾을 면이 카메라를 향하는 회전각(y). 0이 앞면, π가 뒷면, -π/2가 오른쪽 옆면.
-   * 원통은 띠의 한가운데(u=0.5)가 π에서 카메라를 본다.
+   * 원통은 띠의 한가운데(u=0.5)가 π에서 카메라를 본다. `hologram`이 있으면 안 쓴다:
+   * 찾는 것이 면이 아니라 각도다.
    */
   foundYaw: number;
   /** 카메라에 선 채 처음 보이는 기울기(x). 살짝 내려다보면 판이 아니라 물건으로 읽힌다. */
@@ -78,6 +101,8 @@ interface PrimitiveInspectObject {
    * 둥글린 상자는 옆면(`side`) 그림을 쓰지 않는다: 둘레가 하나의 테(`edge` 색)다.
    */
   cornerRadius?: number;
+  /** 앞면의 홀로그램 씰. 있으면 손은 `tilt`가 된다: 세로 끌기가 기울이기다. */
+  hologram?: InspectHologram;
 }
 
 interface ModelInspectObject {
@@ -90,45 +115,62 @@ interface ModelInspectObject {
   tilt?: number;
 }
 
-export type InspectObject = PrimitiveInspectObject | ModelInspectObject;
+/** 반으로 접힌 종이. 위로 끌면 윗반이 접힌 자국을 축으로 펴진다. 펴진 안쪽이 찾을 것. */
+export interface FoldedNoteInspectObject {
+  shape: "folded-note";
+  /** 펼쳤을 때의 [폭, 높이, 두께]. */
+  size: [number, number, number];
+  /** 겉면 (빈 종이). */
+  paper: FacePainter;
+  /** 안쪽 (메모). 펼친 종이 전체에 그린다: 윗반은 접히는 쪽에, 아랫반은 바닥 쪽에 붙는다. */
+  memo: FacePainter;
+  tilt?: number;
+}
 
-const CAMERA_Z = 2.3;
-const CAMERA_FOV = 30;
-/** 카메라가 한 화면에 담는 세로 길이 (월드). 확대했을 때 어디까지 옮길 수 있는지의 기준. */
-const VIEW_HEIGHT = 2 * CAMERA_Z * Math.tan((CAMERA_FOV / 2) * (Math.PI / 180));
-/** 발밑 그림자를 물건 아래 끝에서 이만큼 띄운다 (월드). 붙이면 바닥에 박힌 것처럼 보인다. */
-const SHADOW_GAP = 0.03;
-/** 세로로 끈 픽셀을 월드 거리로. */
-const DRAG_PX_TO_WORLD = 0.003;
-const ZOOM_DAMP = 14;
-export const ZOOM_MIN = 1;
-export const ZOOM_MAX = 2.4;
-/** 찾을 면을 마주 본 것으로 치는 기준: 목표각과의 차이의 cos가 이보다 크면 (±37° 안). */
-const FACING_COS = 0.8;
-/** 이만큼 마주 보고 있어야 읽은 것으로 친다(초). */
-const READ_SECONDS = 0.35;
-/** 면 그림의 긴 변 해상도. 손글씨가 또렷하려면 512는 있어야 한다. */
-const FACE_RESOLUTION = 704;
+/**
+ * 장을 넘기는 책. `pages`는 낱장의 앞·뒤를 번갈아 담는다 (짝수 = 오른쪽에 보이는 앞면,
+ * 홀수 = 넘긴 뒤 왼쪽에 남는 뒷면). 0번이 앞표지다: 처음엔 덮인 채로 놓인다.
+ */
+export interface BookInspectObject {
+  shape: "book";
+  /** 한 쪽의 [폭, 높이], 그리고 표지 두께. */
+  size: [number, number, number];
+  /** 뒤표지·책등의 색. */
+  cover: keyof RoomPalette;
+  pages: readonly InspectFace[];
+  /** 찾을 쪽 (`pages` 인덱스). */
+  target: number;
+  tilt?: number;
+}
 
-/** 페이지의 글꼴을 그대로 쓴다: 방의 UI와 같은 Pretendard가 next/font로 이미 실려 있다. */
-function bodyFont(): string {
-  try {
-    return getComputedStyle(document.body).fontFamily || "sans-serif";
-  } catch {
-    return "sans-serif";
+export type InspectObject =
+  | PrimitiveInspectObject
+  | ModelInspectObject
+  | FoldedNoteInspectObject
+  | BookInspectObject;
+
+/** 이 물건에 손이 하는 일. */
+export function inspectControlOf(object: InspectObject): InspectControl {
+  switch (object.shape) {
+    case "folded-note":
+      return { kind: "unfold" };
+    case "book":
+      return { kind: "pages", sheets: object.pages.length / 2 };
+    case "box":
+      return object.hologram ? { kind: "tilt" } : { kind: "turn" };
+    default:
+      return { kind: "turn" };
   }
 }
 
-/** 면의 월드 치수 → 캔버스 크기 (긴 변을 FACE_RESOLUTION에 맞춘다). */
-function canvasSize(worldWidth: number, worldHeight: number) {
-  const scale = FACE_RESOLUTION / Math.max(worldWidth, worldHeight);
-  return {
-    width: Math.max(64, Math.round(worldWidth * scale)),
-    height: Math.max(64, Math.round(worldHeight * scale)),
-  };
-}
-
-const FULL_RECT = { x: 0, y: 0, width: 1, height: 1 };
+/** 세로로 끈 픽셀을 월드 거리로. */
+const DRAG_PX_TO_WORLD = 0.003;
+/** 찾을 면을 마주 본 것으로 치는 기준: 목표각과의 차이의 cos가 이보다 크면 (±37° 안). */
+const FACING_COS = 0.8;
+/** 홀로그램 로고가 이만큼 떠올라야 읽은 것으로 친다. */
+const HOLOGRAM_READ = 0.6;
+/** 씰의 결(무지갯빛 띠)이 늘 비치는 정도. 로고가 없을 때도 "여기 뭔가 있다"고 말한다. */
+const SHEEN_OPACITY = 0.3;
 
 /** 귀가 둥근 사각형 윤곽 (가운데가 원점). */
 function roundedRectShape(width: number, height: number, radius: number): Shape {
@@ -174,59 +216,100 @@ function roundedSlabGeometry(width: number, height: number, depth: number, radiu
   return { face, rim };
 }
 
-/** 면 하나를 텍스처로. 그림 파일이 오면 같은 캔버스에 덮어 그린다. 언마운트 때 내려놓는다. */
-function useFaceTexture(
-  face: InspectFace | undefined,
-  size: { width: number; height: number },
-  palette: RoomPalette,
-  font: string,
-): CanvasTexture | null {
-  const texture = useMemo(() => {
-    if (!face) return null;
-    const canvas = document.createElement("canvas");
-    canvas.width = size.width;
-    canvas.height = size.height;
-    const ctx = canvas.getContext("2d");
-    if (ctx && typeof ctx.fillRect === "function") face.paint(ctx, size, palette, font);
-    const made = new CanvasTexture(canvas);
-    made.colorSpace = SRGBColorSpace;
-    made.anisotropy = 4;
-    return made;
-  }, [face, size, palette, font]);
-
-  useEffect(() => {
-    if (!texture || !face?.image) return;
-    const image = new Image();
-    let alive = true;
-    image.onload = () => {
-      if (!alive) return;
-      const canvas = texture.image as HTMLCanvasElement;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      const rect = face.imageRect;
-      if (rect) {
-        // 코드 그림은 그림 파일과 같은 것을 그리므로 통째로 걷어 내고 바탕만 남긴다
-        ctx.fillStyle = palette[face.imageBase ?? "linen"];
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-      const dest = rect ?? FULL_RECT;
-      ctx.drawImage(
-        image,
-        dest.x * canvas.width,
-        dest.y * canvas.height,
-        dest.width * canvas.width,
-        dest.height * canvas.height,
-      );
-      texture.needsUpdate = true;
-    };
-    image.src = face.image;
-    return () => {
-      alive = false;
-    };
-  }, [texture, face, palette]);
-
-  useEffect(() => () => texture?.dispose(), [texture]);
+/**
+ * 홀로그램 씰의 결: 팔레트의 색 넷이 비스듬한 띠로 이어진 무지개. 기울기에 따라 띠가
+ * 흘러가도록 텍스처의 offset만 움직인다 (RepeatWrapping). 실제 씰이 그렇듯 색은 옅고
+ * 결만 보인다.
+ */
+function sheenTexture(palette: RoomPalette): CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 64;
+  const ctx = canvas.getContext("2d");
+  if (ctx && typeof ctx.createLinearGradient === "function") {
+    const gradient = ctx.createLinearGradient(0, 0, 256, 64);
+    const stops = [palette.daylight, palette.memory, palette.sage, palette.ember, palette.daylight];
+    stops.forEach((color, index) => {
+      gradient.addColorStop(index / (stops.length - 1), color);
+    });
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 256, 64);
+  }
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.wrapS = RepeatWrapping;
+  texture.wrapT = RepeatWrapping;
   return texture;
+}
+
+/** 출입증 앞면에 붙는 씰: 결 한 겹 위에 로고 한 겹. 각도에 따라 로고의 불투명도만 바뀐다. */
+function HologramSeal({
+  hologram,
+  size,
+  palette,
+  font,
+  logoRef,
+  sheenRef,
+}: {
+  hologram: InspectHologram;
+  size: [number, number, number];
+  palette: RoomPalette;
+  font: string;
+  logoRef: MutableRefObject<MeshBasicMaterial | null>;
+  sheenRef: MutableRefObject<CanvasTexture | null>;
+}) {
+  const [width, height, depth] = size;
+  const { rect } = hologram;
+  const sealWidth = rect.width * width;
+  const sealHeight = rect.height * height;
+  const logoFace = useMemo<InspectFace>(() => ({ paint: hologram.paint }), [hologram.paint]);
+  const logoSize = useMemo(() => canvasSize(sealWidth, sealHeight, 512), [sealWidth, sealHeight]);
+  const logo = useFaceTexture(logoFace, logoSize, palette, font);
+  const sheen = useMemo(() => sheenTexture(palette), [palette]);
+  useEffect(() => {
+    sheenRef.current = sheen;
+    return () => {
+      sheenRef.current = null;
+      sheen.dispose();
+    };
+  }, [sheen, sheenRef]);
+  const materials = useMemo(() => {
+    const sheenMaterial = new MeshBasicMaterial({
+      map: sheen,
+      transparent: true,
+      opacity: SHEEN_OPACITY,
+      depthWrite: false,
+    });
+    const logoMaterial = new MeshBasicMaterial({
+      map: logo,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+    return { sheen: sheenMaterial, logo: logoMaterial };
+  }, [sheen, logo]);
+  useEffect(() => {
+    logoRef.current = materials.logo;
+    return () => {
+      logoRef.current = null;
+      materials.sheen.dispose();
+      materials.logo.dispose();
+    };
+  }, [materials, logoRef]);
+
+  // 면 그림의 왼쪽 위(0,0)가 판의 (-w/2, +h/2)다
+  const x = (rect.x + rect.width / 2 - 0.5) * width;
+  const y = (0.5 - rect.y - rect.height / 2) * height;
+  return (
+    <>
+      <mesh material={materials.sheen} position={[x, y, depth / 2 + 0.002]}>
+        <planeGeometry args={[sealWidth, sealHeight]} />
+      </mesh>
+      <mesh material={materials.logo} position={[x, y, depth / 2 + 0.004]}>
+        <planeGeometry args={[sealWidth, sealHeight]} />
+      </mesh>
+    </>
+  );
 }
 
 function InspectedThing({
@@ -235,24 +318,28 @@ function InspectedThing({
   zoomRef,
   dragYRef,
   onFound,
+  palette,
+  font,
 }: {
-  object: InspectObject;
+  object: PrimitiveInspectObject | ModelInspectObject;
   yawRef: MutableRefObject<number>;
   zoomRef: MutableRefObject<number>;
   dragYRef: MutableRefObject<number>;
   onFound: () => void;
+  palette: RoomPalette;
+  font: string;
 }) {
   const groupRef = useRef<Group>(null);
   const frameRef = useRef<Group>(null);
-  const readRef = useRef(0);
-  const foundRef = useRef(false);
+  const readRef = useRef(new ReadTimer());
   const onFoundRef = useRef(onFound);
   onFoundRef.current = onFound;
-  const palette = useMemo(resolveRoomPalette, []);
-  const font = useMemo(bodyFont, []);
+  const logoRef = useRef<MeshBasicMaterial | null>(null);
+  const sheenRef = useRef<CanvasTexture | null>(null);
   const [width, height, depth] = object.size;
   const cylinder = object.shape === "cylinder";
   const modeled = object.shape === "model";
+  const hologram = object.shape === "box" ? object.hologram : undefined;
 
   const frontSize = useMemo(
     () => (cylinder ? canvasSize(Math.PI * width, height) : canvasSize(width, height)),
@@ -299,27 +386,37 @@ function InspectedThing({
     const group = groupRef.current;
     const frame = frameRef.current;
     if (!group || !frame) return;
-    group.rotation.y = yawRef.current;
-
-    // 확대는 겉 그룹을 키운다. 화면 밖으로 나가는 만큼은 세로로 끌어 옮겨 본다
+    const ease = 1 - Math.exp(-ZOOM_DAMP * delta);
     const zoom = zoomRef.current;
+    frame.scale.setScalar(frame.scale.x + (zoom - frame.scale.x) * ease);
+
+    if (hologram) {
+      /*
+       * 기울이기: 세로 끌기가 판을 눕히고 세운다. 돌린 뒤에 기울여야 하므로(YXZ)
+       * 순서를 못박는다. 씰의 결은 각도 따라 흘러가고, 로고는 빛을 받는 한 점 근처에서만
+       * 떠오른다 (hologramVisibility). 확대해도 옮기지는 않는다: 세로 끌기는 기울기의 몫이다.
+       */
+      dragYRef.current = clampPitchDrag(dragYRef.current);
+      const pitch = pitchFromDrag(dragYRef.current);
+      group.rotation.order = "YXZ";
+      group.rotation.set(pitch, yawRef.current, 0);
+      frame.position.y += (0 - frame.position.y) * ease;
+      const visible = hologramVisibility(pitch, yawRef.current, hologram.spot);
+      if (logoRef.current) logoRef.current.opacity = visible;
+      if (sheenRef.current) sheenRef.current.offset.set(pitch * 0.9 + yawRef.current * 0.4, 0);
+      if (readRef.current.tick(visible > HOLOGRAM_READ, delta)) onFoundRef.current();
+      return;
+    }
+
+    group.rotation.y = yawRef.current;
+    // 확대는 겉 그룹을 키운다. 화면 밖으로 나가는 만큼은 세로로 끌어 옮겨 본다
     const overflow = Math.max(0, (height * zoom - VIEW_HEIGHT) / 2);
     const wanted = Math.max(-overflow, Math.min(overflow, -dragYRef.current * DRAG_PX_TO_WORLD));
     dragYRef.current = -wanted / DRAG_PX_TO_WORLD;
-    const ease = 1 - Math.exp(-ZOOM_DAMP * delta);
-    frame.scale.setScalar(frame.scale.x + (zoom - frame.scale.x) * ease);
     frame.position.y += (wanted - frame.position.y) * ease;
 
-    if (foundRef.current) return;
-    if (Math.cos(yawRef.current - object.foundYaw) > FACING_COS) {
-      readRef.current += delta;
-      if (readRef.current >= READ_SECONDS) {
-        foundRef.current = true;
-        onFoundRef.current();
-      }
-    } else {
-      readRef.current = 0;
-    }
+    const facing = Math.cos(yawRef.current - object.foundYaw) > FACING_COS;
+    if (readRef.current.tick(facing, delta)) onFoundRef.current();
   });
 
   return (
@@ -358,6 +455,16 @@ function InspectedThing({
             )}
           </mesh>
         )}
+        {hologram && (
+          <HologramSeal
+            hologram={hologram}
+            size={object.size}
+            palette={palette}
+            font={font}
+            logoRef={logoRef}
+            sheenRef={sheenRef}
+          />
+        )}
       </group>
     </group>
   );
@@ -368,6 +475,7 @@ export default function InspectTurntable({
   yawRef,
   zoomRef,
   dragYRef,
+  pageRef,
   onFound,
 }: {
   object: InspectObject;
@@ -375,15 +483,21 @@ export default function InspectTurntable({
   yawRef: MutableRefObject<number>;
   /** 확대 배율 (ZOOM_MIN~ZOOM_MAX). */
   zoomRef: MutableRefObject<number>;
-  /** 세로로 끈 거리(px). 확대한 물건을 위아래로 옮겨 보는 데 쓴다. */
+  /**
+   * 세로로 끈 거리(px). 손이 하는 일에 따라 뜻이 다르다: 돌리기(turn)는 확대한 물건을
+   * 위아래로 옮기고, 기울이기(tilt)는 판을 눕히고, 펼치기(unfold)는 접힌 것을 편다.
+   */
   dragYRef: MutableRefObject<number>;
-  /** 찾을 면을 읽었을 때 한 번. */
+  /** 넘긴 장 수 (책만). */
+  pageRef?: MutableRefObject<number>;
+  /** 찾을 것을 읽었을 때 한 번. */
   onFound: () => void;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
+  const font = useMemo(bodyFont, []);
   return (
     <Canvas
-      camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
+      camera={{ position: [0, 0, INSPECT_CAMERA.z], fov: INSPECT_CAMERA.fov }}
       gl={{ alpha: true, antialias: true }}
       dpr={[1, 2]}
       style={{ touchAction: "none" }}
@@ -399,13 +513,36 @@ export default function InspectTurntable({
       <directionalLight position={[-2.6, 1.4, -2.4]} intensity={2.2} color={palette.memory} />
       <directionalLight position={[2.6, 0.4, -2]} intensity={1.2} color={palette.memory} />
       <group rotation={[object.tilt ?? 0.16, 0, 0]}>
-        <InspectedThing
-          object={object}
-          yawRef={yawRef}
-          zoomRef={zoomRef}
-          dragYRef={dragYRef}
-          onFound={onFound}
-        />
+        {object.shape === "folded-note" ? (
+          <InspectFoldedNote
+            object={object}
+            yawRef={yawRef}
+            zoomRef={zoomRef}
+            dragYRef={dragYRef}
+            onFound={onFound}
+            palette={palette}
+            font={font}
+          />
+        ) : object.shape === "book" ? (
+          <InspectBook
+            object={object}
+            zoomRef={zoomRef}
+            pageRef={pageRef}
+            onFound={onFound}
+            palette={palette}
+            font={font}
+          />
+        ) : (
+          <InspectedThing
+            object={object}
+            yawRef={yawRef}
+            zoomRef={zoomRef}
+            dragYRef={dragYRef}
+            onFound={onFound}
+            palette={palette}
+            font={font}
+          />
+        )}
       </group>
     </Canvas>
   );
