@@ -138,6 +138,14 @@ const paintWorkbookFront: FacePainter = (ctx, { width, height }, palette, font) 
   ctx.fillText("개념 정리 + 유형별 연습", 46, 430);
   ctx.font = `500 21px ${font}`;
   ctx.fillText("오답까지, 한 번 더", 46, 586);
+  // 수능 한 달 전에 붙여 둔 디데이 스티커. 게임이 "그날"을 수능 한 달 전으로 못박는 첫 사물이다
+  ctx.save();
+  ctx.translate(width - 108, 96);
+  ctx.rotate(0.06);
+  ctx.fillStyle = palette.linen;
+  ctx.fillRect(-78, -40, 156, 80);
+  ctx.restore();
+  handwrite(ctx, "수능 D-30", width - 108, 96, 30, font, palette.clay, 0.06);
 };
 
 function paintWorkbookBack(labels: WorkbookLabels): FacePainter {

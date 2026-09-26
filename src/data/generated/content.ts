@@ -266,6 +266,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.ball-intro.line3" },
       { speaker: "hero", textKey: "scripts.ball-intro.line4" },
       { speaker: "hero", textKey: "scripts.ball-intro.line5" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line6" },
     ],
   },
   "ball-alone": {
@@ -280,6 +281,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.console-intro.line1", expression: "smile" },
       { speaker: "hero", textKey: "scripts.console-intro.line2", expression: "smile" },
+      { speaker: "hero", textKey: "scripts.console-intro.line3" },
     ],
   },
   "console-alone": {

@@ -23,7 +23,10 @@ scripts:
   # 발랄하게. 재난·고립의 힌트는 끝맺음 한 줄로만 새어 나온다.
 
   # 전국대회 8강, 진 경기의 회상 (재하 복선). 이름은 끝까지 부르지 않는다.
+  # 첫 줄은 일상: 야구가 도해에게 무엇이었는지를 먼저 깔고 8강으로 들어간다
   ball-intro:
+    - speaker: hero
+      ko: 야구부 3년. 마지막 여름이었다.
     - speaker: hero
       ko: 전국대회 8강. 9회 말, 마지막 타석.
     - speaker: hero
@@ -53,6 +56,9 @@ scripts:
       ko: 지는 쪽이 매점 쏘는 거였는데.
       en: Loser bought snacks. That was the rule.
       ja: 負けたほうが売店おごり、って決まりだったのに。
+    # 친구 이름을 여기서 먼저 부른다. 폰 단톡의 우진이 낯선 이름이 아니게 (단톡 w2: 도해가 전날 졌다)
+    - speaker: hero
+      ko: 우진이한텐 늘 졌는데.
     # 카드 미궁의 규칙은 여기 적지 않는다. 선반 위 놀이책이 들고 있다
     # (src/data/room-clues.ts의 PUZZLE_CLUES). 대사로 흘리면 안 찾아도 풀린다.
 
