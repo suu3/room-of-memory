@@ -7,7 +7,7 @@ import { type StoryProgress, storyPhaseOf } from "./story-phase";
  * (scripts/content/schema.mjs의 STAGE_IDS가 그걸 검증한다).
  *
  * 페이즈(v4 설계서 1-1)로 갈리고, 1페이즈 안에서는 강도 단계로 한 번 더 갈린다.
- * 기한 독백(p2 "사흘." · p3 "이틀 남았다." · p4 "오늘 밤이다.")은 그 페이즈에 들어서는
+ * 기한 독백(p2 "사흘 밤 안에 가야 해." · p3 "이틀 남았다." · p4 "오늘 밤이다.")은 그 페이즈에 들어서는
  * 순간 한 번 찍히고, 페이즈가 이어지는 동안 그대로 걸려 있다.
  */
 export const MONOLOGUE_IDS = [

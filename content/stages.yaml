@@ -9,7 +9,7 @@
 #   p1-late      p1, 강도 3 진입 (넷 이상 본 뒤)
 #   turn-bottom  turning, 생존자 방송 전. 과거편에서 돌아온 가장 어두운 한 줄 (체념)
 #   turn-signal  turning, 방송을 들은 뒤 문이 열리기 전
-#   p2-enter     p2 진입. 기한 "사흘."
+#   p2-enter     p2 진입. 기한 "사흘 밤 안에 가야 해."
 #   p3-enter     p3 진입. 기한 "이틀 남았다."
 #   p4-enter     p4 진입. 기한 "오늘 밤이다."
 #   resolve      정적 비트 뒤. 현관으로
@@ -55,7 +55,7 @@ stages:
 
   p2-enter:
     monologue:
-      ko: 사흘.
+      ko: 사흘 밤 안에 가야 해.
 
   p3-enter:
     monologue:
