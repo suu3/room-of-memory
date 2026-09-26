@@ -1,14 +1,7 @@
 "use client";
 
 import type { ParseKeys } from "i18next";
-import {
-  type CSSProperties,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { isInteractiveTarget } from "@/components/canvas/room-canvas-runtime";
 import { playSound } from "@/lib/audio";
@@ -382,9 +375,9 @@ function Panel({
 }
 
 /**
- * 라디오 말풍선: 꼬리 없는 둥근 사각형에 테두리가 지그재그로 떨린다 (전파). 칸 아래
- * 테두리에 걸쳐 칸 밖으로 나간다: 칸 안에 가두면 그림에 묻혀 대사가 안 읽힌다. 화자(???)는 왼쪽 위에 작게. 테두리는 크기를 재서 그린다: 비율로
- * 늘이면 톱니가 칸 모양 따라 찌그러진다.
+ * 라디오 말풍선: 꼬리 없는 흰 둥근 사각형에 잉크색 3px 테두리(칸 테두리와 같은 두께).
+ * 칸 아래 테두리에 걸쳐 칸 밖으로 나간다: 칸 안에 가두면 그림에 묻혀 대사가 안 읽힌다.
+ * 화자(???)는 왼쪽 위에 작게.
  */
 function RadioBubble({
   speaker,
@@ -397,86 +390,19 @@ function RadioBubble({
   fontSize: number;
   place: CSSProperties;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
-  useLayoutEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    const measure = () => setSize({ width: node.offsetWidth, height: node.offsetHeight });
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div
-      ref={ref}
       // 칸 아래 테두리에 걸친다: 절반쯤이 칸 밖으로 나간다
-      className="absolute bottom-0 translate-y-[45%] animate-fade-rise px-[1.1em] pt-[0.7em] pb-[0.8em] text-ivory"
+      className="absolute bottom-0 translate-y-[45%] animate-fade-rise rounded-[1.2em] border-[3px] border-ink bg-ivory px-[1.1em] pt-[0.7em] pb-[0.8em] text-ink"
       style={{ fontSize, ...place }}
     >
-      {size.width > 0 && (
-        <svg
-          aria-hidden
-          focusable="false"
-          className="absolute inset-0 overflow-visible"
-          width={size.width}
-          height={size.height}
-        >
-          <title>radio</title>
-          <path
-            d={zigzagOutline(size.width, size.height)}
-            fill="var(--color-night)"
-            stroke="var(--color-ivory)"
-            strokeWidth={1.5}
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
-      <span className="relative block text-[0.7em] leading-none tracking-[0.2em] text-fog">
+      <span className="block text-[0.7em] leading-none tracking-[0.2em] text-ink/60">
         {speaker}
       </span>
       {/* 두 줄 높이를 늘 잡아 둔다: 찍히는 동안 말풍선이 자라며 칸을 흔들지 않게 */}
-      <p className="relative mt-[0.45em] min-h-[3em] break-ko text-pretty leading-[1.5]">{text}</p>
+      <p className="mt-[0.45em] min-h-[3em] break-ko text-pretty leading-[1.5]">{text}</p>
     </div>
   );
-}
-
-/** 떨리는 테두리의 톱니 간격(px)과 높이(px), 모서리 둥글기(px). */
-const ZIG_STEP = 9;
-const ZIG_AMP = 2.4;
-const ZIG_RADIUS = 10;
-
-/** 둥근 사각형 둘레를 톱니로 떤 경로. 모서리는 곡선으로 두고 변만 떤다. */
-export function zigzagOutline(width: number, height: number): string {
-  const r = Math.min(ZIG_RADIUS, width / 4, height / 4);
-  const x0 = 0;
-  const y0 = 0;
-  const x1 = width;
-  const y1 = height;
-  const parts: string[] = [`M ${x0 + r} ${y0}`];
-  const edge = (ax: number, ay: number, bx: number, by: number, nx: number, ny: number) => {
-    const length = Math.hypot(bx - ax, by - ay);
-    const teeth = Math.max(2, Math.round(length / ZIG_STEP));
-    for (let step = 1; step <= teeth; step++) {
-      const along = step / teeth;
-      // 끝점은 제자리(모서리 곡선과 이어지게), 사이는 안팎으로 번갈아
-      const offset = step === teeth ? 0 : step % 2 === 1 ? ZIG_AMP : -ZIG_AMP / 2;
-      const x = ax + (bx - ax) * along + nx * offset;
-      const y = ay + (by - ay) * along + ny * offset;
-      parts.push(`L ${x.toFixed(1)} ${y.toFixed(1)}`);
-    }
-  };
-  edge(x0 + r, y0, x1 - r, y0, 0, -1);
-  parts.push(`Q ${x1} ${y0} ${x1} ${y0 + r}`);
-  edge(x1, y0 + r, x1, y1 - r, 1, 0);
-  parts.push(`Q ${x1} ${y1} ${x1 - r} ${y1}`);
-  edge(x1 - r, y1, x0 + r, y1, 0, 1);
-  parts.push(`Q ${x0} ${y1} ${x0} ${y1 - r}`);
-  edge(x0, y1 - r, x0, y0 + r, -1, 0);
-  parts.push(`Q ${x0} ${y0} ${x0 + r} ${y0}`, "Z");
-  return parts.join(" ");
 }
 
 /** 창 크기. 페이지가 한 화면에 들어오도록 폭을 계산하는 데 쓴다. */
