@@ -80,6 +80,9 @@
     "research-note": {
       "name": "연구 일지"
     },
+    "report-card": {
+      "name": "모의고사 성적표"
+    },
     "id-card": {
       "name": "출입증"
     }

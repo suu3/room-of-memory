@@ -29,8 +29,12 @@ export const RIVAL_START = 5;
 export const WALK_FORWARD = 2.6;
 export const WALK_BACK = 2.1;
 
-/** 한 판의 길이. 다 못 끝내면 체력이 많은 쪽이 이긴다 (격투 게임의 타임업). */
-export const MATCH_MS = 75_000;
+/**
+ * 한 판의 길이. 다 못 끝내면 체력이 많은 쪽이 이긴다 (격투 게임의 타임업).
+ * 2026-09-26에 75초에서 30초로: 1막 첫 기억에서 오래 붙들지 않는다. 한 방의 세기
+ * (DuelTuning의 heroDamageScale)도 같이 올려서 30초 안에 KO가 난다.
+ */
+export const MATCH_MS = 30_000;
 
 /* ------------------------------------------------------------------- 점프 */
 
@@ -150,6 +154,8 @@ export const MAX_HP = 100;
 /* --------------------------------------------------------------- 난이도 */
 
 export interface DuelTuning {
+  /** 내 한 방의 배수. 판을 짧게 끊으려고 체력이 빨리 닳게 한다. */
+  heroDamageScale: number;
   /** 상대 한 방의 배수. */
   rivalDamageScale: number;
   /** 예고 시간(ms). 길수록 읽을 틈이 넓다. */
@@ -169,10 +175,21 @@ export const DUEL_TUNINGS: Record<MinigameDifficulty, DuelTuning> = {
    * 바로바로 공격"). 예고를 길게, 뜸을 길게, 무는 확률을 낮춘다.
    * 그래도 어렵다는 UT가 또 나와(모바일 터치 버튼으로는 더 그렇다) 한 번 더 풀었다:
    * 이지는 격투 게임을 몰라도 약공격 연타와 뒤로 물러서기만으로 이길 수 있어야 한다.
+   *
+   * 2026-09-26: 판을 짧게 끊으려고 한 방의 세기를 양쪽 다 올렸다. 이지는 약공격 열
+   * 번 남짓이면 KO다. 상대 쪽은 덜 올려서 이지가 여전히 이기기 쉬운 판으로 남는다.
    */
-  easy: { rivalDamageScale: 0.5, tellMs: 520, thinkMs: 900, blockChance: 0.3, punishChance: 0.15 },
+  easy: {
+    heroDamageScale: 2.2,
+    rivalDamageScale: 0.8,
+    tellMs: 520,
+    thinkMs: 900,
+    blockChance: 0.3,
+    punishChance: 0.15,
+  },
   normal: {
-    rivalDamageScale: 1,
+    heroDamageScale: 1.6,
+    rivalDamageScale: 1.6,
     tellMs: 200,
     thinkMs: 260,
     blockChance: 0.9,
@@ -599,8 +616,8 @@ export function advance(
   if (heroTick.landed) {
     const event = resolveHit(heroSide, distance);
     if (event) {
-      applyEvent(heroSide, event, 1);
-      events.push(event);
+      applyEvent(heroSide, event, tuning.heroDamageScale);
+      events.push({ ...event, damage: Math.round(event.damage * tuning.heroDamageScale) });
     }
   }
   if (rivalTick.landed) {

@@ -35,10 +35,12 @@ describe("monologueIdFor", () => {
 
   it("1페이즈는 강도를 따라 내려간다", () => {
     expect(monologueIdFor(p1([]))).toBe("p1-0");
-    expect(monologueIdFor(p1(["console"]))).toBe("p1-0");
-    // 강도 1 둘을 다 봤다 = 강도 2에 들어섰다
-    expect(monologueIdFor(p1(["console", "ball"]))).toBe("p1-mid");
-    expect(monologueIdFor(p1(["console", "ball", "frame", "phone"]))).toBe("p1-late");
+    expect(monologueIdFor(p1(["report-card", "console"]))).toBe("p1-0");
+    // 강도 0과 강도 1 둘을 다 봤다 = 강도 2에 들어섰다
+    expect(monologueIdFor(p1(["report-card", "console", "ball"]))).toBe("p1-mid");
+    expect(monologueIdFor(p1(["report-card", "console", "ball", "frame", "phone"]))).toBe(
+      "p1-late",
+    );
   });
 
   it("분기점: 바닥의 한 줄, 방송을 들으면 문 쪽으로", () => {

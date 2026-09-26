@@ -3,7 +3,8 @@ import { MEMORIES } from "@/data/memory-room";
 import { requiredVisits } from "@/data/story-phase";
 import { sanitizeProgress } from "./memory-room";
 
-const [first, second] = MEMORIES.map((memory) => memory.id);
+/** 2차가 있는 기억 둘: 1차만 있는 기억(성적표)은 revisited에 남을 수 없다. */
+const [first, second] = MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id);
 
 /** 결심(resolve)까지 온 저장본: 앞 페이즈의 필수 조사 전부 + 문 둘. */
 function resolveSave() {

@@ -24,10 +24,10 @@ export const MONOLOGUE_IDS = [
 ] as const;
 export type MonologueId = (typeof MONOLOGUE_IDS)[number];
 
-/** 1페이즈에서 강도 2에 들어섰다고 보는 수: 강도 1(게임기·공) 둘을 다 봤다. */
-const P1_MID_AT = 2;
-/** 강도 3에 들어섰다고 보는 수: 강도 2까지 넷을 봤다. */
-const P1_LATE_AT = 4;
+/** 1페이즈에서 강도 2에 들어섰다고 보는 수: 강도 0(성적표) 하나와 강도 1(게임기·공) 둘을 다 봤다. */
+const P1_MID_AT = 3;
+/** 강도 3에 들어섰다고 보는 수: 강도 2까지 다섯을 봤다. */
+const P1_LATE_AT = 5;
 
 /** 2바퀴에서 다시 조사한 개수: 진행 표시(HUD)와 같은 목록을 센다. */
 export function phaseTwoCount(revisited: readonly MemoryId[]): number {

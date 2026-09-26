@@ -127,6 +127,8 @@ export interface ReplayMorphWithin {
  * content/cutscenes.yaml에 있다.
  */
 export const CUTSCENE_RADIO_BLACKOUT = "radio-blackout";
+/** 문제집 뒤표지에서 이름을 찾고 내려놓은 순간의 자기소개 세 줄 (store의 closeClue). */
+export const CUTSCENE_WORKBOOK_NAME = "workbook-name";
 /** 캐리어 개수 추리가 맞물린 순간의 결론 한 줄 (v4.1 3장, store의 tripDoubted). */
 export const CUTSCENE_TRIP_DOUBT = "trip-doubt";
 /** 2페이즈 필수 조사를 다 마친 순간의 한 줄 (v4 3-4). */

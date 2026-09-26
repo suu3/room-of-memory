@@ -9,6 +9,7 @@ import {
   ampouleCaseObject,
   ampouleObject,
   idCardObject,
+  reportCardObject,
   tableNoteObject,
 } from "@/components/canvas/inspect-objects";
 import { InspectView } from "@/components/ui/InspectView";
@@ -129,6 +130,28 @@ function InspectMinigame({
 }
 
 const key = (value: CommonTextKey) => value;
+
+/** 모의고사 성적표 (1페이즈): 뒷면 학부모 확인란에 엄마 서명과 아빠 한마디. */
+export function ReportCardFlipMinigame(props: MinigameProps) {
+  const { t } = useTranslation();
+  const stages = useMemo<InspectStage[]>(
+    () => [
+      {
+        object: reportCardObject({
+          heading: t("minigame.reportCardFlip.heading"),
+          subjects: t("minigame.reportCardFlip.subjects"),
+          parentLabel: t("minigame.reportCardFlip.parentLabel"),
+          momNote: t("minigame.reportCardFlip.momNote"),
+          dadNote: t("minigame.reportCardFlip.dadNote"),
+        }),
+        alt: t("minigame.reportCardFlip.alt"),
+        found: t("minigame.reportCardFlip.found"),
+      },
+    ],
+    [t],
+  );
+  return <InspectMinigame stages={stages} {...props} />;
+}
 
 /** 식탁 위 쪽지 (2페이즈): 위로 끌어 펼치면 안쪽에 엄마 메모. */
 export function CardFlipMinigame(props: MinigameProps) {

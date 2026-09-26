@@ -8,6 +8,7 @@ import {
   CUTSCENE_P4_CLOSE,
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENE_TRIP_DOUBT,
+  CUTSCENE_WORKBOOK_NAME,
   CUTSCENES,
   MEMORY_BY_ID,
   MEMORY_GOAL,
@@ -21,6 +22,7 @@ import { type NotebookTabId, notebookEntries, unreadNotebookTabs } from "@/data/
 import {
   CLUE_AFTER_MEMORY,
   CLUE_AFTER_VISIT,
+  CLUE_DISCOVERY,
   CLUE_IDS,
   type ClueId,
   DISCOVERY_IDS,
@@ -299,6 +301,12 @@ export interface MemoryRoomState {
    * 자리가 여기밖에 없다.
    */
   activeClue: ClueId | null;
+  /**
+   * 문제집에서 이름을 막 찾았고, 아직 자기소개 대사(workbook-name)가 안 흘렀다.
+   * 인스펙트 화면 위로 대사창을 겹치지 않으려고 문제집을 내려놓는 순간(closeClue)에
+   * 튼다. 저장하지 않는다: 이름을 찾는 일은 한 번뿐이라 다시 설 일이 없다.
+   */
+  nameIntroPending: boolean;
   /**
    * 대사가 저절로 넘어가는가 (비주얼 노벨의 오토). 저장된다.
    *
@@ -969,6 +977,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       walkTarget: null,
       curtainGrab: null,
       activeClue: null,
+      nameIntroPending: false,
       activePuzzle: null,
       solvedPuzzles: [],
       discoveries: [],
@@ -1152,10 +1161,26 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
                   : [...state.cluesSeen, id],
               },
         ),
-      closeClue: () => set((state) => (state.activeClue ? { activeClue: null } : state)),
+      closeClue: () =>
+        set((state) => {
+          if (!state.activeClue) return state;
+          if (!state.nameIntroPending || state.activePlayback)
+            return { activeClue: null, nameIntroPending: false };
+          return {
+            activeClue: null,
+            nameIntroPending: false,
+            activePlayback: openCutscene(CUTSCENE_WORKBOOK_NAME),
+          };
+        }),
       discover: (id) =>
         set((state) =>
-          state.discoveries.includes(id) ? state : { discoveries: [...state.discoveries, id] },
+          state.discoveries.includes(id)
+            ? state
+            : {
+                discoveries: [...state.discoveries, id],
+                // 문제집의 이름: 내려놓는 순간 자기소개가 흐른다 (closeClue)
+                ...(id === CLUE_DISCOVERY.workbook ? { nameIntroPending: true } : {}),
+              },
         ),
       openRoomDoor: () => set((state) => (selectDoorReady(state) ? { doorOpened: true } : state)),
       takeItem: (id) =>
@@ -1328,6 +1353,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           walkTarget: null,
           curtainGrab: null,
           activeClue: null,
+          nameIntroPending: false,
           cluesSeen: [],
           dialogueLog: [],
           dialogueLogOpen: false,

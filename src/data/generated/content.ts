@@ -11,6 +11,7 @@ import {
   CalendarHeart,
   Desktop,
   DeviceMobile,
+  Exam,
   FileText,
   GameController,
   GridFour,
@@ -27,6 +28,7 @@ import type { Cutscene, DialogueScript, MemoryPhaseConfig } from "@/types/intera
 
 /** 기억 id: content/memories.yaml에 적힌 순서 그대로. 패널에도 이 순서로 뜬다. */
 export const MEMORY_IDS = [
+  "report-card",
   "console",
   "ball",
   "frame",
@@ -60,6 +62,17 @@ export interface MemoryItem {
 
 export const MEMORIES: MemoryItem[] = [
   {
+    id: "report-card",
+    icon: Exam,
+    phase1: {
+      interaction: {
+        scriptId: "report-card-intro",
+        minigameId: "report-card-flip",
+        resultScriptId: "report-card-read",
+      },
+    },
+  },
+  {
     id: "console",
     icon: GameController,
     phase1: {
@@ -68,6 +81,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "fighter-duel",
         resultScriptId: "console-alone",
       },
+      unlockAfter: [{ id: "report-card", visit: 1 }],
       cutscene: "console-flashback",
     },
     phase2: { interaction: { scriptId: "console-echo" }, from: "p2", side: true },
@@ -81,6 +95,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "ball-catch",
         resultScriptId: "ball-alone",
       },
+      unlockAfter: [{ id: "report-card", visit: 1 }],
       replayStill: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
       cutscene: "ball-flashback",
     },
@@ -162,6 +177,7 @@ export const MEMORIES: MemoryItem[] = [
         resultScriptId: "radio-broadcast",
       },
       unlockAfter: [
+        { id: "report-card", visit: 1 },
         { id: "console", visit: 1 },
         { id: "ball", visit: 1 },
         { id: "frame", visit: 1 },
@@ -260,6 +276,23 @@ export const MEMORIES: MemoryItem[] = [
 
 /** 대사 스크립트 레지스트리: 본문은 i18n 리소스(memoryRoom.scripts.*)에 있다. */
 export const SCRIPTS: Record<string, DialogueScript> = {
+  "report-card-intro": {
+    id: "report-card-intro",
+    lines: [
+      { speaker: "hero", textKey: "scripts.report-card-intro.line1" },
+      { speaker: "hero", textKey: "scripts.report-card-intro.line2" },
+    ],
+  },
+  "report-card-read": {
+    id: "report-card-read",
+    lines: [
+      { speaker: "hero", textKey: "scripts.report-card-read.line1" },
+      { speaker: "dad", textKey: "scripts.report-card-read.line2" },
+      { speaker: "hero", textKey: "scripts.report-card-read.line3" },
+      { speaker: "hero", textKey: "scripts.report-card-read.line4" },
+      { speaker: "hero", textKey: "scripts.report-card-read.line5" },
+    ],
+  },
   "ball-intro": {
     id: "ball-intro",
     lines: [
@@ -480,6 +513,18 @@ export const SCRIPTS: Record<string, DialogueScript> = {
 };
 
 export const CUTSCENES: Record<string, Cutscene> = {
+  "workbook-name": {
+    id: "workbook-name",
+    cuts: [
+      {
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.workbook-name.cut1.line1" },
+          { speaker: "hero", textKey: "cutscenes.workbook-name.cut1.line2" },
+          { speaker: "hero", textKey: "cutscenes.workbook-name.cut1.line3" },
+        ],
+      },
+    ],
+  },
   "console-flashback": {
     id: "console-flashback",
     cuts: [
