@@ -39,8 +39,9 @@ export function NotebookTab() {
   const calling = useMemoryRoomStore(selectOnboardingStep) === "notebook";
   /*
    * 수첩에 새로 적혔는데 아직 안 펼쳐 본 페이지 (src/data/notebook.ts). 하나라도 있으면
-   * 손잡이 모서리에 금빛 점이 서고, 누르면 그 페이지부터 편다. 점은 숨쉬지 않는다:
-   * 부르는 건 온보딩(calling) 한 번뿐이고, 알림은 조용히 있다가 눈에 띄면 그만이다.
+   * 손잡이 모서리에 금빛 점이 서서 고리를 번지고(notice-ripple) 손잡이 테두리가 금빛으로
+   * 물든다. 누르면 그 페이지부터 편다. 처음엔 점만 조용히 세웠는데 화면 가장자리라 눈에
+   * 안 띄어 새 기록을 놓쳤다. 빨강(ember)은 되돌릴 수 없는 동작 몫이라 금빛을 지킨다.
    */
   const firstUnread = useMemoryRoomStore(selectUnreadNotebookTabs).split(",")[0] as
     | CharacterSheetTab
@@ -65,7 +66,7 @@ export function NotebookTab() {
       // 넓은 화면에서는 HUD 버튼과 같은 배율로 통째로 커진다 (--hud-zoom)
       // 커서가 얹히면 손잡이가 4px 넓어진다. 서랍 손잡이처럼 "당겨진다"는 몸짓이다.
       // 통째로 밀면 오른쪽 끝이 화면 가장자리에서 떨어져 틈이 보인다. 폭으로 늘린다
-      className={`absolute right-0 top-1/2 z-30 flex h-30 w-11 -translate-y-1/2 cursor-pointer [zoom:var(--hud-zoom)] flex-col items-center justify-center gap-2 rounded-l-md border border-r-0 border-line bg-surface text-fog transition-[color,background-color,width,opacity] duration-150 ease-out hover:w-12 hover:bg-surface-strong hover:text-ivory focus-visible:w-12 active:w-11 active:bg-surface-strong ${FOCUS_RING} ${menuOpen ? "pointer-events-none opacity-0" : ""} ${calling ? "animate-hotspot-glow text-ivory" : ""}`}
+      className={`absolute right-0 top-1/2 z-30 flex h-30 w-11 -translate-y-1/2 cursor-pointer [zoom:var(--hud-zoom)] flex-col items-center justify-center gap-2 rounded-l-md border border-r-0 border-line bg-surface text-fog transition-[color,background-color,width,opacity] duration-150 ease-out hover:w-12 hover:bg-surface-strong hover:text-ivory focus-visible:w-12 active:w-11 active:bg-surface-strong ${FOCUS_RING} ${menuOpen ? "pointer-events-none opacity-0" : ""} ${calling ? "animate-hotspot-glow text-ivory" : ""} ${firstUnread && !calling ? "border-memory/60 text-ivory" : ""}`}
     >
       <span className="text-xs font-medium tracking-[0.06em] [writing-mode:vertical-rl]">
         {t("panel.title")}
@@ -74,10 +75,11 @@ export function NotebookTab() {
         {count}
       </span>
       {firstUnread && !calling && (
-        <span
-          aria-hidden
-          className="absolute left-1.5 top-1.5 size-2 rounded-full bg-memory ring-2 ring-surface"
-        />
+        <span aria-hidden className="absolute left-1 top-1 size-3">
+          {/* 번지는 고리: 채운 원은 옅어지면 사라지므로 테두리로 번진다. 움직임 줄이기 설정이면 점만 남는다 */}
+          <span className="absolute inset-0 rounded-full border-2 border-memory motion-safe:animate-notice-ripple" />
+          <span className="absolute inset-0 rounded-full bg-memory ring-2 ring-surface" />
+        </span>
       )}
       {(calling || firstUnread) && <span className="sr-only">{t("panel.newEntry")}</span>}
     </button>

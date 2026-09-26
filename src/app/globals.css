@@ -110,6 +110,12 @@
 
   --animate-hotspot-glow: hotspot-glow 2.4s ease-in-out infinite;
   --animate-bob-arrow: bob-arrow 1.3s ease-in-out infinite;
+  /*
+   * 안 읽은 수첩 기록: 금빛 점에서 고리가 번져 나간다 (NotebookTab). 조용한 점만으로는
+   * 화면 가장자리에서 눈에 안 띄어 새 기록을 놓쳤다. 번지는 동안 빠르고 끝에서 느리게,
+   * 한 번 번진 뒤 잠깐 쉬었다 다시 번진다. 수첩을 펼치면 멈춘다 (DESIGN.md > Motion).
+   */
+  --animate-notice-ripple: notice-ripple 1.6s ease-out infinite;
   /* 패널 등장: DESIGN.md > Motion (180~240ms) */
   --animate-fade-rise: fade-rise 0.22s ease-out both;
   /*
@@ -247,6 +253,21 @@
       box-shadow:
         0 0 14px color-mix(in srgb, var(--color-memory) 85%, transparent),
         0 0 0 7px transparent;
+    }
+  }
+
+  @keyframes notice-ripple {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    45% {
+      opacity: 0.7;
+    }
+    80%,
+    100% {
+      transform: scale(3.4);
+      opacity: 0;
     }
   }
 
