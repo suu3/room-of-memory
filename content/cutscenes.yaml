@@ -152,7 +152,7 @@ cutscenes:
       sfx: radioStatic
       lines:
         - speaker: signal
-          ko: 사흘 밤 지나면 여기서 이동한다. 그 뒤엔 우리도 어디로 갈지 몰라.
+          ko: 나흘 밤 지나면 여기서 이동한다. 그 뒤엔 우리도 어디로 갈지 몰라.
     # 3페이지
     - image: /assets/images/cutscene-survivor-8.webp?v=2
       page: 3
@@ -197,11 +197,16 @@ cutscenes:
 
   #
   # 4페이즈 서류와 출입증을 마친 뒤: 라디오의 "치료할 방법"과 앰플이 이어진다.
+  # 이어서 각오를 한 번 더 다진다: 부모님의 진실 → 앰플 → 기한 안에 체육관. 목적을 잊지 않게.
   # 이 줄이 끝나면 방의 액자에 금빛이 돈다.
   p4-close:
     - lines:
         - speaker: hero
           ko: …이게 답일지도 몰라.
+        - speaker: hero
+          ko: 엄마 아빠는 이걸 지키려고 간 거였어. 여행이 아니라.
+        - speaker: hero
+          ko: 앰플을 들고, 나흘 안에 은강고 체육관으로 간다.
 
   #
   # 정적 비트: 액자 2차(얼굴이 돌아온 사진) 직후. BGM이 멎고 카메라가 머문 채

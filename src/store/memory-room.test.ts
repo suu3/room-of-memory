@@ -462,15 +462,15 @@ describe("v4 페이즈: 진행에서 파생된다", () => {
     expect(storyPhase(useMemoryRoomStore.getState())).toBe("p1");
   });
 
-  it("기한은 방송 뒤부터 사흘 → 이틀 → 오늘 밤이다", () => {
+  it("기한은 방송 뒤부터 나흘이고, 하루 안의 일이라 페이즈가 넘어가도 줄지 않는다", () => {
     enterPhase("turning");
     expect(selectDeadline(useMemoryRoomStore.getState())).toBeNull();
     enterPhase("p2");
-    expect(selectDeadline(useMemoryRoomStore.getState())).toBe(3);
+    expect(selectDeadline(useMemoryRoomStore.getState())).toBe(4);
     enterPhase("p3");
-    expect(selectDeadline(useMemoryRoomStore.getState())).toBe(2);
-    enterPhase("p4");
-    expect(selectDeadline(useMemoryRoomStore.getState())).toBe(1);
+    expect(selectDeadline(useMemoryRoomStore.getState())).toBe(4);
+    enterPhase("resolve");
+    expect(selectDeadline(useMemoryRoomStore.getState())).toBe(4);
   });
 
   it("막은 문과 비트가 긋는다: 방문이 열리면 2막, 정적 비트 뒤가 3막", () => {

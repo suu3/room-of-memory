@@ -156,14 +156,11 @@ export function storyPhaseOf(state: StoryProgress): StoryPhase {
 }
 
 /**
- * 남은 밤 (v4 1-3의 deadline). 생존자 방송이 "사흘 밤 지나면 이동한다"고 한 뒤부터
- * 센다: p2 = 3, p3 = 2, p4 이후 = 1. 방송 전에는 없다.
+ * 남은 밤 (v4 1-3의 deadline). 생존자 방송이 "나흘 밤 지나면 이동한다"고 한 뒤부터 4.
+ * 방송부터 현관까지가 전부 하루 안의 일이라 페이즈가 넘어가도 줄지 않는다. 방송 전에는 없다.
  */
-export function deadlineOf(phase: StoryPhase): 3 | 2 | 1 | null {
-  if (phase === "p2") return 3;
-  if (phase === "p3") return 2;
-  if (phaseAtLeast(phase, "p4")) return 1;
-  return null;
+export function deadlineOf(phase: StoryPhase): 4 | null {
+  return phaseAtLeast(phase, "p2") ? 4 : null;
 }
 
 /**

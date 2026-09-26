@@ -104,13 +104,13 @@
       "monologue": "은강고 체육관. …문 쪽이 밝아."
     },
     "p2-enter": {
-      "monologue": "사흘 밤 안에 가야 해."
+      "monologue": "나흘 밤 안에 가야 해."
     },
     "p3-enter": {
-      "monologue": "이틀 남았다."
+      "monologue": "엄마가 숨긴 게 더 있어."
     },
     "p4-enter": {
-      "monologue": "오늘 밤이다."
+      "monologue": "안방. 그날 이후로 처음 들어온다."
     },
     "resolve": {
       "monologue": "가방, 앰플. 배트는 현관에 있다."
@@ -284,7 +284,7 @@
     "radio": {
       "title": "That Broadcast",
       "phase1": "They said it had reached Busan. I cannot pretend not to know anymore.",
-      "phase2": "생존자가 있다. 은강고 체육관. 사흘 밤. …그 목소리, 어디서 들어봤는데.",
+      "phase2": "생존자가 있다. 은강고 체육관. 나흘 밤. …그 목소리, 어디서 들어봤는데.",
       "phase2Title": "은강고"
     },
     "duffel": {
@@ -366,7 +366,7 @@
       },
       "cut6": {},
       "cut7": {
-        "line1": "사흘 밤 지나면 여기서 이동한다. 그 뒤엔 우리도 어디로 갈지 몰라."
+        "line1": "나흘 밤 지나면 여기서 이동한다. 그 뒤엔 우리도 어디로 갈지 몰라."
       },
       "cut8": {
         "line1": "다시 한번 말한다. 은강고 체육관으로 모여."
@@ -391,7 +391,9 @@
     },
     "p4-close": {
       "cut1": {
-        "line1": "…이게 답일지도 몰라."
+        "line1": "…이게 답일지도 몰라.",
+        "line2": "엄마 아빠는 이걸 지키려고 간 거였어. 여행이 아니라.",
+        "line3": "앰플을 들고, 나흘 안에 은강고 체육관으로 간다."
       }
     },
     "still-beat": {

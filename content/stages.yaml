@@ -9,10 +9,12 @@
 #   p1-late      p1, 강도 3 진입 (넷 이상 본 뒤)
 #   turn-bottom  turning, 생존자 방송 전. 과거편에서 돌아온 가장 어두운 한 줄 (체념)
 #   turn-signal  turning, 방송을 들은 뒤 문이 열리기 전
-#   p2-enter     p2 진입. 기한 "사흘 밤 안에 가야 해."
-#   p3-enter     p3 진입. 기한 "이틀 남았다."
-#   p4-enter     p4 진입. 기한 "오늘 밤이다."
+#   p2-enter     p2 진입. 기한 "나흘 밤 안에 가야 해."
+#   p3-enter     p3 진입. 엄마가 숨긴 것을 쫓는다
+#   p4-enter     p4 진입. 사태 이후 처음 들어서는 안방
 #   resolve      정적 비트 뒤. 현관으로
+#
+# 방송부터 현관까지는 전부 하루 안의 일이다. 페이즈가 넘어가도 날은 바뀌지 않는다.
 #
 # 배경 그라디언트·글로우 세기 같은 시각값은 대본이 아니라 디자인 토큰이라
 # src/data/memory-room.ts의 ROOM_STAGES에 그대로 있다.
@@ -55,15 +57,15 @@ stages:
 
   p2-enter:
     monologue:
-      ko: 사흘 밤 안에 가야 해.
+      ko: 나흘 밤 안에 가야 해.
 
   p3-enter:
     monologue:
-      ko: 이틀 남았다.
+      ko: 엄마가 숨긴 게 더 있어.
 
   p4-enter:
     monologue:
-      ko: 오늘 밤이다.
+      ko: 안방. 그날 이후로 처음 들어온다.
 
   resolve:
     monologue:
