@@ -375,7 +375,7 @@ export function MemoryRoom() {
       */}
       <BootCurtain />
 
-      {/* 마우스를 따라오는 점과 링. 맨 위(z-70)라 커튼·모달 위에서도 손이 보인다 */}
+      {/* 마우스를 따라오는 점과 링. 맨 위(개발 패널보다도 위)라 커튼·모달·DEV 패널 위에서도 손이 보인다 */}
       <CustomCursor />
     </div>
   );

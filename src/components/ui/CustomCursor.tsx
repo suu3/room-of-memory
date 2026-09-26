@@ -159,8 +159,9 @@ export function CustomCursor() {
 
   if (!active) return null;
 
+  // 네이티브 커서가 전부 숨어 있어서 이 층은 무엇보다 위여야 한다. 개발 패널(z-[99999])보다도
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-[70]">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-[100000]">
       <span ref={rippleRef} className="cursor-ripple" />
       <span ref={dotRef} className="cursor-dot" />
       <span ref={ringRef} className="cursor-ring" />
