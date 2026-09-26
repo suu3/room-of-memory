@@ -8,6 +8,7 @@
 |---|---|---|---|
 | models/ch1-baseball-bat.glb | GPT로 제작한 야구배트 모델 (2026-09-12 사용자 출처 확인) | GPT | 프로젝트 생성 에셋 |
 | models/ch1-baseball.glb | 프로젝트 제작자가 직접 만든 야구공 모델 (2026-09-12 사용자 출처 확인) | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
+| models/ch1-report-card.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-26). 원본: scripts/create-report-card.mjs. A4 비율 종이에 접힌 자국·스테이플러·가상 성적표 인쇄를 절차적 지오메트리로 구성. DESIGN.md 씬 팔레트, Meshopt 압축, 외부 메시·텍스처 없음 | Codex | 프로젝트 생성 에셋 |
 | fonts/PretendardVariable.woff2 | https://github.com/orioncactus/pretendard (v1.3.9) | 길형진 (orioncactus) | SIL OFL 1.1 |
 | fonts/Galmuri14.woff2 | https://quiple.dev/galmuri (눈누 웹폰트 빌드 https://noonnu.cc/font_page/1610) | Lee Minseo (quiple) | SIL OFL 1.1 |
 | images/ui-creator-avatar.webp | 제작자가 직접 그린 토끼 낙서(2026-09-11). 만든 사람 화면의 프로필. ivory 배경으로 평탄화하고 정사각 512px로 잘라 webp 변환 | suu3 (프로젝트 제작자) | 프로젝트 저작물 |

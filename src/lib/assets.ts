@@ -23,6 +23,8 @@ export const ASSETS = {
     curtainPullLeft: "/assets/models/curtain-pull-left.glb?v=tripo-20260915",
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
+    /** 책상 위에 눕혀 놓는 A4 성적표. 재생성: scripts/create-report-card.mjs. */
+    reportCard: "/assets/models/ch1-report-card.glb?v=20260926",
     radio: "/assets/models/ch1-radio.glb?v=original-20260912",
     /** 러그 위 게임패드 (사용자 제공, Meshopt 압축). 원본은 세워진 자세(앞면 +z, 밑면 y=0)라 씬에서 눕힌다. */
     gamepad: "/assets/models/ch1-gamepad.glb",
@@ -85,11 +87,11 @@ export const ASSETS = {
     /** 라온생명과학연구소 공통 심볼. 출입증·앰플·컴퓨터 화면에서 같은 도형을 쓴다. */
     raonLogo: "/assets/images/ui-raon-logo.svg?v=2",
     /** 라디오 반전에서 번지는 '그날' 7연작 (분기점 과거편, content/cutscenes.yaml의 radio-blackout). */
-    cutsceneDay1: "/assets/images/cutscene-day-1.webp?v=2",
+    cutsceneDay1: "/assets/images/cutscene-day-1.webp?v=3",
     cutsceneDay2: "/assets/images/cutscene-day-2.webp?v=2",
     cutsceneDay3: "/assets/images/cutscene-day-3.webp?v=2",
     cutsceneDay4: "/assets/images/cutscene-day-4.webp?v=2",
-    cutsceneDay5: "/assets/images/cutscene-day-5.webp?v=2",
+    cutsceneDay5: "/assets/images/cutscene-day-5.webp?v=3",
     cutsceneDay6: "/assets/images/cutscene-day-6.webp?v=2",
     cutsceneDay7: "/assets/images/cutscene-day-7.webp?v=2",
     /** 생존자 방송 웹툰 10칸 (3페이지, content/cutscenes.yaml의 survivor-broadcast). */
