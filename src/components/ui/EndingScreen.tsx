@@ -128,13 +128,17 @@ export function EndingScreen() {
       {stage === "card" ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 bg-scene-void/95 px-6 backdrop-blur-md">
           <div className="flex animate-fade-rise flex-col items-center gap-5 text-center">
-            {/* 제작자가 그린 인사 그림. 흰 바탕째 종이 한 장처럼 올린다 */}
+            {/*
+              제작자가 그린 인사 그림. 흰 바탕째 종이 한 장처럼 올린다. 높이를 못박아 두는
+              이유: 그림은 카드가 선 뒤에 받아지므로, max-h만 걸면 받기 전엔 0이었다가
+              뜨는 순간 문구와 버튼이 아래로 밀린다. width/height 비율이 폭을 잡는다.
+            */}
             <Image
               src={ASSETS.images.endingThanks}
               alt={t("ending.thanksAlt")}
               width={761}
               height={789}
-              className="h-auto max-h-[34dvh] w-auto rounded-md shadow-panel"
+              className="h-[34dvh] w-auto rounded-md shadow-panel"
             />
             <p className="font-pixel text-xs tracking-[0.3em] text-memory">{t("ending.eyebrow")}</p>
             <h2 className="max-w-lg break-ko text-pretty font-pixel text-3xl leading-snug text-ivory md:text-4xl">
