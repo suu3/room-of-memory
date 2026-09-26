@@ -67,6 +67,8 @@ export const ASSETS = {
     curtain: "/assets/models/room-curtain.glb",
     /** 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있다. */
     rabbitDoll: "/assets/models/rabbit-doll.glb?v=fix-20260906",
+    /** 라온생명과학연구소 RX-11 유리 바이알. 재생성: scripts/create-ampoule.mjs */
+    ampoule: "/assets/models/room-laon-ampoule.glb?v=2",
   },
   images: {
     /** 로딩 애니메이션 (420x400, 8프레임, 프레임당 140ms). */

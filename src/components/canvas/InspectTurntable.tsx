@@ -11,6 +11,7 @@ import {
   ShapeGeometry,
   SRGBColorSpace,
 } from "three";
+import { AMPOULE_MODEL_HEIGHT, Ampoule } from "@/scenes/memory-room/Ampoule";
 import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/palette";
 
 /**
@@ -50,7 +51,7 @@ export interface InspectFace {
   imageBase?: keyof RoomPalette;
 }
 
-export interface InspectObject {
+interface PrimitiveInspectObject {
   /** 상자는 판·책·카드, 원통은 앰플. */
   shape: "box" | "cylinder";
   /** 상자: [폭, 높이, 두께]. 원통: [지름, 높이, 지름]. */
@@ -77,6 +78,18 @@ export interface InspectObject {
    */
   cornerRadius?: number;
 }
+
+interface ModelInspectObject {
+  /** 공용 GLB 소품. 현재는 서랍의 앰플과 같은 모델 하나만 쓴다. */
+  shape: "model";
+  model: "ampoule";
+  /** 회전 조사 화면에서 차지할 [폭, 높이, 깊이]. */
+  size: [number, number, number];
+  foundYaw: number;
+  tilt?: number;
+}
+
+export type InspectObject = PrimitiveInspectObject | ModelInspectObject;
 
 const CAMERA_Z = 2.3;
 const CAMERA_FOV = 30;
@@ -236,17 +249,19 @@ function InspectedThing({
   const font = useMemo(bodyFont, []);
   const [width, height, depth] = object.size;
   const cylinder = object.shape === "cylinder";
+  const modeled = object.shape === "model";
 
   const frontSize = useMemo(
     () => (cylinder ? canvasSize(Math.PI * width, height) : canvasSize(width, height)),
     [cylinder, width, height],
   );
   const sideSize = useMemo(() => canvasSize(depth, height), [depth, height]);
-  const front = useFaceTexture(object.front, frontSize, palette, font);
-  const back = useFaceTexture(object.back, frontSize, palette, font);
-  const side = useFaceTexture(object.side, sideSize, palette, font);
+  const front = useFaceTexture(modeled ? undefined : object.front, frontSize, palette, font);
+  const back = useFaceTexture(modeled ? undefined : object.back, frontSize, palette, font);
+  const side = useFaceTexture(modeled ? undefined : object.side, sideSize, palette, font);
 
   const materials = useMemo(() => {
+    if (modeled) return [];
     const edge = new MeshStandardMaterial({ color: palette[object.edge], roughness: 0.85 });
     const faceMaterial = (texture: CanvasTexture | null) =>
       texture ? new MeshStandardMaterial({ map: texture, roughness: 0.7 }) : edge;
@@ -256,7 +271,7 @@ function InspectedThing({
     }
     // BoxGeometry의 면 순서: +x, -x, +y, -y, +z(앞), -z(뒤)
     return [faceMaterial(side), edge, edge, edge, faceMaterial(front), faceMaterial(back)];
-  }, [palette, object.edge, cylinder, front, back, side]);
+  }, [palette, object, modeled, cylinder, front, back, side]);
   useEffect(
     () => () => {
       for (const material of new Set(materials)) material.dispose();
@@ -264,7 +279,7 @@ function InspectedThing({
     [materials],
   );
 
-  const cornerRadius = cylinder ? undefined : object.cornerRadius;
+  const cornerRadius = object.shape === "box" ? object.cornerRadius : undefined;
   const slab = useMemo(
     () => (cornerRadius ? roundedSlabGeometry(width, height, depth, cornerRadius) : null),
     [width, height, depth, cornerRadius],
@@ -307,7 +322,11 @@ function InspectedThing({
   return (
     <group ref={frameRef}>
       <group ref={groupRef}>
-        {slab ? (
+        {modeled ? (
+          <group scale={height / AMPOULE_MODEL_HEIGHT}>
+            <Ampoule palette={palette} refractive />
+          </group>
+        ) : slab ? (
           // 상자 재질 순서(+x, -x, +y, -y, +z, -z)를 그대로 빌린다: 4가 앞면, 5가 뒷면, 1이 테
           <>
             <mesh geometry={slab.face} material={materials[4]} position={[0, 0, depth / 2]} />

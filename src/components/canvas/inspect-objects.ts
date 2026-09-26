@@ -370,67 +370,14 @@ export function ampouleCaseObject(caution: string): InspectObject {
   };
 }
 
-/**
- * 케이스에서 꺼낸 앰플. 라벨은 반쯤 지워졌고, 남은 조각에 로고의 왼쪽 반이 있다.
- * 띠의 한가운데가 로고 자리라 π만큼 돌려야 보인다 (InspectObject.foundYaw).
- */
-/*
- * 앰플 라벨은 옆면을 한 바퀴 다 덮지 않고 앞쪽 60%에 띠로 감긴다. 그림 파일
- * (mg-ampoule-label.webp)은 4:1 가로 띠라 높이는 폭에서 나온다:
- * 폭 = 둘레(π × 0.2) × 0.6, 높이 = 폭 / 4 → 옆면 높이(0.78)의 약 12%.
- */
-const AMPOULE_DIAMETER = 0.2;
-const AMPOULE_HEIGHT = 0.78;
-const LABEL_U = { from: 0.2, to: 0.8 };
-const LABEL_ASPECT = 4;
-const LABEL_HEIGHT =
-  (Math.PI * AMPOULE_DIAMETER * (LABEL_U.to - LABEL_U.from)) / LABEL_ASPECT / AMPOULE_HEIGHT;
-/** 라벨 그림 안에서 로고가 선 가로 위치 (0~1). 반쯤 가려진 로고가 찾을 면이다. */
-const LABEL_LOGO_X = 0.15;
-const LOGO_U = LABEL_U.from + (LABEL_U.to - LABEL_U.from) * LABEL_LOGO_X;
-
+/** 케이스에서 꺼낸 앰플. 서랍에서 집는 것과 같은 GLB의 훼손된 라벨을 돌려 본다. */
 export function ampouleObject(): InspectObject {
-  const labelRect = {
-    x: LABEL_U.from,
-    y: 0.5 - LABEL_HEIGHT / 2,
-    width: LABEL_U.to - LABEL_U.from,
-    height: LABEL_HEIGHT,
-  };
-  const paintLabel: FacePainter = (ctx, { width, height }, palette) => {
-    ctx.fillStyle = palette.daylight;
-    ctx.fillRect(0, 0, width, height);
-    ctx.fillStyle = palette.linen;
-    ctx.fillRect(
-      width * labelRect.x,
-      height * labelRect.y,
-      width * labelRect.width,
-      height * labelRect.height,
-    );
-    const logoX = width * LOGO_U;
-    paintRaonLogo(ctx, logoX, height / 2, height * labelRect.height * 0.35, palette.sage, true);
-    // 지워진 자리: 긁힌 자국 몇 줄
-    ctx.strokeStyle = palette.daylight;
-    ctx.lineWidth = 4;
-    for (let index = 0; index < 4; index++) {
-      const y = height * (labelRect.y + labelRect.height * (0.2 + index * 0.2));
-      ctx.beginPath();
-      ctx.moveTo(logoX, y);
-      ctx.lineTo(logoX + width * 0.06, y - 3);
-      ctx.stroke();
-    }
-  };
   return {
-    shape: "cylinder",
-    size: [AMPOULE_DIAMETER, AMPOULE_HEIGHT, AMPOULE_DIAMETER],
-    front: {
-      paint: paintLabel,
-      image: ASSETS.images.mgAmpouleLabel,
-      imageRect: labelRect,
-      imageBase: "daylight",
-    },
-    edge: "leaf",
-    // 옆면의 u는 θ = 2πu 자리에 있고, 물건을 -θ만큼 돌리면 그 자리가 카메라를 본다
-    foundYaw: -2 * Math.PI * LOGO_U,
+    shape: "model",
+    model: "ampoule",
+    size: [0.28, 0.78, 0.28],
+    // 라벨의 왼쪽 15%에 남은 로고가 카메라를 향하는 각도.
+    foundYaw: Math.PI * 0.525,
     tilt: 0.1,
   };
 }

@@ -10,6 +10,12 @@ import { DRAWER_OPEN_DURATION, DRAWER_TRAVEL, LIFT_DURATION } from "./motion";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
+// 이 스위트는 집기 입력·모션 계약을 검사한다. GLB 디코딩 계약은 ampoule-model.test.ts가
+// 실제 파일로 따로 검사하므로, 상대 URL을 읽지 못하는 jsdom에서는 시각 모델만 경계에서 뺀다.
+vi.mock("@/scenes/memory-room/Ampoule", () => ({
+  Ampoule: () => <group name="ampoule" />,
+}));
+
 /** 이벤트 객체 흉내: 핸들러가 부르는 stopPropagation만 있으면 된다. */
 const click = { stopPropagation: () => undefined };
 
