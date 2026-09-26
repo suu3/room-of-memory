@@ -80,6 +80,9 @@
     "research-note": {
       "name": "Research Log"
     },
+    "report-card": {
+      "name": "Mock Exam Report"
+    },
     "id-card": {
       "name": "ID Badges"
     }

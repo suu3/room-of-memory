@@ -22,6 +22,7 @@
 # 어떤 컷씬이 언제 도는지:
 #   console-flashback  게임기 1차 (memories.yaml의 cutscene)
 #   ball-flashback      공 1차 (memories.yaml의 cutscene)
+#   workbook-name       문제집 뒤표지의 이름을 보고 내려놓은 순간 (store의 closeClue)
 #   radio-blackout      라디오 1차(재난방송)를 마친 순간 (store가 1바퀴 완주에 연다)
 #   survivor-broadcast  라디오 2차 (memories.yaml의 cutscene)
 #   trip-doubt          신발장 + 아빠 메일을 둘 다 본 순간 (store: tripDoubted)
@@ -33,6 +34,18 @@
 # 컷씬 id를 바꾸면 src/data/memory-room.ts의 상수도 같이 고쳐야 한다.
 
 cutscenes:
+  #
+  # 문제집 뒤표지에서 이름을 찾고 내려놓는 순간 (store의 closeClue). 그림 없이 방에서
+  # 대사창만 흐른다. 도해가 누구인지를 처음으로 소리 내어 말하는 자리다.
+  workbook-name:
+    - lines:
+        - speaker: hero
+          ko: 한도해, 고3. …내 글씨다.
+        - speaker: hero
+          ko: 여름에 야구부 은퇴하고, 그때부터 수험생.
+        - speaker: hero
+          ko: 이 문제집도 그때 산 거다.
+
   #
   # 1페이즈 회상: 강도 1의 두 기억만. 결과 대사("받아줄 사람이 없다") 바로 뒤에
   # "받아주던 사람이 있던 때"를 한 장 세우고, 그림 없는 한 줄로 빈 방에 돌아온다.

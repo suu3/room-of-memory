@@ -1063,8 +1063,34 @@ function IdCardMemory({ palette, opacity }: VisualProps) {
   );
 }
 
+/** 책상 위 모의고사 성적표: 종이 한 장, 머리띠와 등급표 줄만. glb가 오면 교체한다. */
+function ReportCardMemory({ palette, opacity }: VisualProps) {
+  return (
+    <group>
+      <Sheet size={[0.3, 0.004, 0.42]} color={palette.linen} opacity={opacity} />
+      <Sheet
+        size={[0.3, 0.004, 0.07]}
+        position={[0, 0.002, -0.175]}
+        color={palette.sage}
+        opacity={opacity}
+      />
+      {[-0.06, 0, 0.06].map((z) => (
+        <Sheet
+          key={z}
+          size={[0.24, 0.004, 0.012]}
+          position={[0, 0.002, z]}
+          color={palette.frame}
+          opacity={opacity}
+        />
+      ))}
+    </group>
+  );
+}
+
 function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId }) {
   switch (id) {
+    case "report-card":
+      return <ReportCardMemory palette={palette} opacity={opacity} />;
     case "console":
       return <Gamepad palette={palette} opacity={opacity} />;
     case "ball":

@@ -5,6 +5,7 @@ import {
   CUTSCENE_P4_CLOSE,
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENE_TRIP_DOUBT,
+  CUTSCENE_WORKBOOK_NAME,
   CUTSCENES,
   MEMORIES,
   MEMORY_BY_ID,
@@ -60,7 +61,7 @@ describe("scene input locks", () => {
   });
 
   it("locks scene input for an active interaction without UI locks", () => {
-    useMemoryRoomStore.getState().beginInteraction("console");
+    useMemoryRoomStore.getState().beginInteraction("report-card");
 
     expect(selectSceneInputLocked(useMemoryRoomStore.getState())).toBe(true);
   });
@@ -282,6 +283,8 @@ describe("수집한 기억 다시보기", () => {
 
   /** ball은 대사로 시작하는 기억이라 재생이 대사부터 다시 도는지 보기 좋다. */
   function collectBall() {
+    // 강도 1은 성적표(강도 0) 뒤에 열린다
+    useMemoryRoomStore.setState({ collected: ["report-card"] });
     useMemoryRoomStore.getState().beginInteraction("ball");
     pushToEnd("ball");
   }
@@ -329,6 +332,7 @@ describe("수집한 기억 다시보기", () => {
   });
 
   it("진입 대사(①)와 결과 대사(③)를 그 순서로 잇는다", () => {
+    useMemoryRoomStore.setState({ collected: ["report-card"] });
     useMemoryRoomStore.getState().beginInteraction("console");
     pushToEnd("console");
     useMemoryRoomStore.getState().replayMemory("console");
@@ -503,19 +507,37 @@ describe("1페이즈 첫머리: 문제집 → 수첩", () => {
     expect(step()).toBeNull();
   });
 
-  it("이름을 알기 전에는 문제집만 부르고 강도 1도 잠겨 있다", () => {
+  it("이름을 알기 전에는 문제집만 부르고 강도 0도 잠겨 있다", () => {
     expect(step()).toBe("workbook");
+    expect(status("report-card")).toBe("locked");
     expect(status("console")).toBe("locked");
     expect(status("ball")).toBe("locked");
     useMemoryRoomStore.getState().beginInteraction("console");
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
   });
 
-  it("문제집 뒤표지를 보면 강도 1이 열리고 수첩이 부른다. 막지는 않는다", () => {
+  it("문제집 뒤표지를 보면 강도 0(성적표)이 열리고 수첩이 부른다. 막지는 않는다", () => {
     useMemoryRoomStore.getState().discover("hero-name");
     expect(step()).toBe("notebook");
-    expect(status("console")).toBe("available");
-    expect(status("ball")).toBe("available");
+    expect(status("report-card")).toBe("available");
+    // 야구 회상(강도 1)은 성적표 뒤다
+    expect(status("console")).toBe("locked");
+    expect(status("ball")).toBe("locked");
+  });
+
+  it("문제집에서 이름을 찾고 내려놓는 순간 자기소개가 한 번 흐른다", () => {
+    useMemoryRoomStore.setState({ activeClue: "workbook" });
+    useMemoryRoomStore.getState().discover("hero-name");
+    // 인스펙트 화면 위로는 겹치지 않는다
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+    useMemoryRoomStore.getState().closeClue();
+    expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_WORKBOOK_NAME);
+
+    // 다시 집어 들었다 내려놓아도 또 흐르지 않는다
+    useMemoryRoomStore.setState({ activePlayback: null, activeClue: "workbook" });
+    useMemoryRoomStore.getState().discover("hero-name");
+    useMemoryRoomStore.getState().closeClue();
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
   });
 
   it("수첩을 한 번 펼치면 안내가 끝난다", () => {
@@ -545,13 +567,27 @@ describe("1페이즈: 강도 순서대로 열린다", () => {
 
   const collect = (...ids: MemoryId[]) => useMemoryRoomStore.setState({ collected: ids });
 
-  it("처음에는 강도 1(게임기·공)만 열린다", () => {
+  it("처음에는 강도 0(성적표)만 열린다", () => {
     useMemoryRoomStore.setState({ discoveries: ["hero-name"] });
-    expect(status("console")).toBe("available");
-    expect(status("ball")).toBe("available");
-    for (const id of ["frame", "phone", "calendar", "window", "radio"] as const) {
+    expect(status("report-card")).toBe("available");
+    for (const id of [
+      "console",
+      "ball",
+      "frame",
+      "phone",
+      "calendar",
+      "window",
+      "radio",
+    ] as const) {
       expect(status(id)).toBe("locked");
     }
+  });
+
+  it("성적표를 보면 강도 1(게임기·공)이 열린다", () => {
+    collect("report-card");
+    expect(status("console")).toBe("available");
+    expect(status("ball")).toBe("available");
+    expect(status("frame")).toBe("locked");
   });
 
   it("강도 1 둘을 보면 강도 2(액자·폰)가 열린다", () => {
@@ -572,10 +608,10 @@ describe("1페이즈: 강도 순서대로 열린다", () => {
     expect(status("window")).toBe("available");
   });
 
-  it("라디오는 여섯을 다 봐야 열린다", () => {
-    collect("console", "ball", "phone", "frame", "calendar");
-    expect(status("radio")).toBe("locked");
+  it("라디오는 일곱을 다 봐야 열린다", () => {
     collect("console", "ball", "phone", "frame", "calendar", "window");
+    expect(status("radio")).toBe("locked");
+    collect("report-card", "console", "ball", "phone", "frame", "calendar", "window");
     expect(status("radio")).toBe("available");
   });
 

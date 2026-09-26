@@ -506,6 +506,19 @@ function livingSpot(
 }
 
 export const MEMORY_PLACEMENTS = {
+  /*
+   * 책상 앞 모서리, 의자(z -1.68~-0.72)와 문제집 더미(z≈-2.45) 사이에 놓인 성적표 한 장.
+   * 뒤쪽 필기구 세트(z≈-1.85, x≈-5.04)와 겹치지 않게 통로 쪽(+x)으로 뺐다. 플레이어는
+   * 의자 옆 통로(z≈-2.06)에서 닿는다. y는 책상 상판 윗면(1.11)에 종이 두께만큼 띄운 값.
+   */
+  "report-card": {
+    id: "report-card",
+    position: [-4.22, 1.115, -1.95],
+    rotation: [0, 0.35, 0],
+    scale: 1,
+    interactionRadius: 1.4,
+    hitRadius: 0.35,
+  },
   console: {
     id: "console",
     // 러그 위에 던져둔 게임패드. 사방이 트여 있어 다가가기 쉽다.
@@ -706,6 +719,7 @@ export function hitRadiusOf(placement: MemoryPlacement): number {
 }
 
 export const MEMORY_SPACE = {
+  "report-card": "room",
   console: "room",
   window: "room",
   frame: "room",
@@ -730,6 +744,8 @@ export const CAMERA_PRESETS = {
   room: { position: [14.2, 10.4, 15.4], target: [0.8, 2.35, 1.2] },
   /** 엔딩: 거실 끝 현관문을 열 때 (v2에서 배트 → 현관문으로 옮겨왔다). */
   ending: { position: [-12.1, 3.1, 0.95], target: [-15.95, 0.9, -1.6] },
+  // 컴퓨터와 같은 통로(+x·+z)에서 책상 앞 모서리의 성적표를 비스듬히 내려다본다
+  "report-card": { position: [-1.1, 2.9, 0.4], target: [-4.22, 1.1, -1.95] },
   console: { position: [4.4, 2.4, 6.9], target: [1.05, 0.35, 4.05] },
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
   frame: { position: [4.05, 2.6, 0.75], target: [1.42, 1.4, -2.7] },

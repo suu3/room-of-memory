@@ -458,6 +458,16 @@
       "signature": "Mom",
       "found": "Mom's handwriting on the inside."
     },
+    "reportCardFlip": {
+      "title": "September Mock Exam Report",
+      "alt": "3D report card: drag to turn it",
+      "heading": "September Mock Exam Results",
+      "subjects": "Korean 3 · Math 4 · English 2 · Elective 3",
+      "parentLabel": "Parent check",
+      "momNote": "Let's find a math tutor",
+      "dadNote": "Better than your dad did",
+      "found": "The parent box on the back. Mom's signature, a word from Dad."
+    },
     "idCardFlip": {
       "title": "ID Badge",
       "alt": "3D ID badge: drag to turn it",
