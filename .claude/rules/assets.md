@@ -10,6 +10,7 @@
 | 텍스처 | `public/assets/textures/` | `.webp` 또는 `.ktx2`, 2의 제곱 크기, 최대 2048px | 2MB |
 | BGM | `public/assets/audio/bgm/` | `.mp3` 128kbps 또는 `.ogg` | 3MB |
 | SFX | `public/assets/audio/sfx/` | `.mp3`/`.ogg` | 500KB |
+| 영상 | `public/assets/video/` | `.mp4` (H.264 + AAC, faststart), 1080p 이하 | 15MB (엔딩 영상 1개 기준) |
 | 이미지 | `public/assets/images/` | `.webp` (UI), `.svg` (아이콘) | 1MB |
 | 폰트 | `public/assets/fonts/` | `.woff2`. 신규 폰트는 한글 서브셋 필수 (예외: PretendardVariable.woff2는 전 웨이트 가변폰트라 2.0MB 통짜 허용, next/font/local이 셀프호스팅) | 2MB |
 

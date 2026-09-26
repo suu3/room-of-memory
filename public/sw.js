@@ -73,6 +73,9 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   // 다른 출처는 손대지 않는다. 이 게임은 외부 스토리지를 쓰지 않으므로 전부 동일 출처다.
   if (url.origin !== self.location.origin) return;
+  // 영상은 브라우저가 Range로 조각조각 받는다. 캐시의 통짜 200을 돌려주면 Safari가
+  // 재생을 못 하고, 206은 캐시에 넣지도 않으므로 아예 네트워크에 맡긴다.
+  if (request.headers.has("range")) return;
 
   if (ASSET_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) {
     event.respondWith(cacheFirst(request));

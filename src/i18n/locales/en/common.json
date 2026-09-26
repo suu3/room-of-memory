@@ -548,8 +548,9 @@
   "ending": {
     "eyebrow": "THE DOOR OPENS",
     "line": "He opens the door and steps outside.",
-    "note": "The ending film goes here. Its last shot picks up exactly where you left off: bat in hand, door swinging open.",
-    "again": "Start again"
+    "again": "Start again",
+    "replay": "Watch the film again",
+    "play": "Play"
   },
   "playback": {
     "skip": "Skip",
