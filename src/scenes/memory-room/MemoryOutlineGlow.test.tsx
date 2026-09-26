@@ -177,6 +177,8 @@ describe("memory outline glow", () => {
     expect(settings.outer.pulseSpeed).toBeGreaterThan(0);
     expect(settings).toHaveProperty("composer.autoClear", false);
     expect(settings).toHaveProperty("composer.multisampling", 2);
+    // MSAA + 깊이 텍스처는 스텐실이 있어야 깊이 블릿 포맷이 맞는다 (아래 createMemoryOutlineSettings 주석)
+    expect(settings).toHaveProperty("composer.stencilBuffer", true);
   });
 
   it("keeps prop meshes off the halo layer so xRay edges cannot cut across the room", async () => {

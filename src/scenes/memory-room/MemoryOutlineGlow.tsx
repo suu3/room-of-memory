@@ -160,7 +160,15 @@ export function createMemoryOutlineSettings(color: string) {
   const hiddenEdgeColor = new Color(color).offsetHSL(0, -0.12, -0.12).getHex();
 
   return {
-    composer: { autoClear: false, multisampling: 2 },
+    /*
+     * stencilBuffer는 스텐실을 쓰려는 게 아니라 깊이 블릿의 포맷을 맞추려는 것이다. postprocessing
+     * 6.39는 패스마다 입력 버퍼에만 깊이 텍스처(FloatType)를 붙였다 떼며 두 버퍼를 맞바꾸는데,
+     * three r185는 그때 해상(resolve) FBO의 깊이만 다시 붙이고 MSAA 깊이 렌더버퍼는 처음 할당한
+     * 포맷(32F)으로 둔다. 텍스처가 떼어진 차례에 해상 쪽이 24비트 렌더버퍼가 되어 MSAA 해상
+     * 블릿이 "Depth/stencil buffer format combination not allowed"로 거부됐다 (프레임마다 경고).
+     * 스텐실이 있으면 깊이 텍스처도 빈 상태의 렌더버퍼도 DEPTH24_STENCIL8로 같아져 블릿이 맞는다.
+     */
+    composer: { autoClear: false, multisampling: 2, stencilBuffer: true },
     edgeColor,
     hiddenEdgeColor,
     // inner는 윤곽선, outer는 그 바깥으로 번지는 숨쉬는 광량: 둘 다 약하면 화면에서 안 보인다.
