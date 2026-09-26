@@ -42,5 +42,5 @@
 | textures/room-poster-baseball.webp | 사용자가 직접 넣은 고교야구대회 포스터 일러스트(2026-09-16). 방 왼쪽 벽 책상 위에 건다. 원본 1024×1536(webp)을 512×768로 축소해 재인코딩 | 미기재 (사용자 제공) | 미기재 |
 | images/ui-gapyear-logo.webp | 경기도미래세대재단이 지원사업 참여자용으로 배포한 경기청년 갭이어 CI 묶음(2026-09-20 사용자 제공)의 흰색 가로형 워드마크. 원본 PNG 2349×391을 720px로 축소해 무손실 webp로 변환. 만든 사람 화면의 지원사업 표기에만 쓴다. README용 메인(컬러) 가로형은 같은 처리로 docs/gapyear-logo.webp에 둔다 | 경기도·경기도미래세대재단 | 지원사업 표기 용도로만 사용 (재단 CI, 재배포·변형 금지) |
 | images/ui-raon-logo.svg, images/mg-id-card-front.webp, images/mg-id-card-back.webp, images/mg-ampoule-label.webp, images/mg-shelf-book-inside.webp, images/mg-papers-paper.webp | DESIGN.md 토큰으로 직접 제작한 라온 브랜드·조사 소품 원화 | Codex | 프로젝트 생성 에셋 |
-| images/cutscene-survivor-1.webp ~ images/cutscene-survivor-10.webp | 생존자 방송 웹툰 10칸. 사용자가 Midjourney로 만든 PNG·JPEG(2026-09-26)를 webp q82로 변환 (16:9 1456×816, 3:4 928×1232) | Midjourney | Midjourney 이용약관에 따른 사용자 생성물 |
-| images/cutscene-day-1.webp ~ images/cutscene-day-7.webp | 분기점 과거편 7컷. 사용자가 Midjourney로 만든 PNG(2026-09-26)를 1456×816 webp q82로 변환 | Midjourney | Midjourney 이용약관에 따른 사용자 생성물 |
+| images/cutscene-survivor-1.webp ~ images/cutscene-survivor-10.webp | 생존자 방송 웹툰 10칸. 사용자가 Midjourney로 생성한 뒤 직접 리터칭한 PNG·JPEG(2026-09-26)를 webp q82로 변환 (16:9 1456×816, 3:4 928×1232) | Midjourney (생성) · suu3 (리터칭) | Midjourney 이용약관에 따른 사용자 생성물 |
+| images/cutscene-day-1.webp ~ images/cutscene-day-7.webp | 분기점 과거편 7컷. 사용자가 Midjourney로 생성한 뒤 직접 리터칭한 PNG(2026-09-26)를 1456×816 webp q82로 변환 | Midjourney (생성) · suu3 (리터칭) | Midjourney 이용약관에 따른 사용자 생성물 |
