@@ -9,6 +9,7 @@ import { selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
 import { LIGHT_SWITCH_PLACEMENT } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
+import { SpaceLight } from "./SpaceLight";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
 
@@ -132,7 +133,7 @@ export function LightSwitch({ palette }: { palette: RoomPalette }) {
         </group>
       </MemoryGlowSelection>
       {/* 표시등이 벽에 번지는 빛. 인트로에서만 세기가 붙는다 */}
-      <pointLight
+      <SpaceLight
         ref={pilotLightRef}
         position={[0, 0, 0.12]}
         color={palette.memory}

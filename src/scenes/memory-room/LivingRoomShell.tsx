@@ -21,6 +21,7 @@ import {
 import { approach } from "./memory-motion";
 import type { RoomPalette } from "./palette";
 import { DOOR_HOLE_Z } from "./RoomShell";
+import { SpaceLight } from "./SpaceLight";
 import {
   endWallWithDoor,
   WALL_STUB_TOP_Y as SHELL_STUB_TOP_Y,
@@ -143,14 +144,6 @@ function RoomDoorway({ palette }: { palette: RoomPalette }) {
         emissive={palette.memory}
         emissiveIntensity={0.45}
       />
-      {/* 방에서 문간으로 떨어지는 빛: 현관 쪽 빛과 같은 문법, 방향만 반대다 */}
-      <pointLight
-        position={[SHARED_WALL_X - 0.6, 2.2, ROOM_DOOR_POSITION[2]]}
-        color={palette.memory}
-        intensity={0.55}
-        distance={6}
-        decay={2}
-      />
     </group>
   );
 }
@@ -233,8 +226,12 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
       }}
       {...handlers}
     >
-      <group ref={leafRef}>
-        <FrontDoorLeaf palette={palette} ready={ready} glowRef={glowRef} />
+      {/* 경첩은 손잡이 반대쪽 모서리다 (방문 SpaceDoor와 같은 문법). 가운데를 축으로 돌리면
+          문짝이 회전문처럼 돈다 */}
+      <group ref={leafRef} position={[-ROOM_DOOR_LEAF.hingeOffset, 0, 0]}>
+        <group position={[ROOM_DOOR_LEAF.hingeOffset, 0, 0]}>
+          <FrontDoorLeaf palette={palette} ready={ready} glowRef={glowRef} />
+        </group>
       </group>
       {DOOR_FRAME.map((part) => (
         <ShellBox key={part.position.join(":")} part={part} color={palette.frame} />
@@ -349,9 +346,18 @@ export function LivingRoomShell({
 
       <FrontDoor palette={palette} />
       {inLivingRoom && <RoomDoorway palette={palette} />}
+      {/* 방에서 문간으로 떨어지는 빛: 현관 쪽 빛과 같은 문법, 방향만 반대다. 문간 얼굴과 달리
+          늘 세워 두고 세기만 끈다. 광원이 생겼다 사라지면 재질이 통째로 재컴파일된다 (SpaceLight) */}
+      <SpaceLight
+        position={[SHARED_WALL_X - 0.6, 2.2, ROOM_DOOR_POSITION[2]]}
+        color={palette.memory}
+        intensity={inLivingRoom ? 0.55 : 0}
+        distance={6}
+        decay={2}
+      />
 
       {/* 현관 쪽에서 새어 드는 빛: 방문 밑 금빛 틈의 출처가 여기다 */}
-      <pointLight
+      <SpaceLight
         position={[FRONT_DOOR_POSITION[0] + 0.8, 2.4, FRONT_DOOR_POSITION[2]]}
         color={palette.memory}
         intensity={0.5}

@@ -44,6 +44,7 @@ import {
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { DrawerNoteClue, TouchProp } from "./RoomClues";
+import { SpaceLight } from "./SpaceLight";
 import { StudentDeskProps, StudentRoomProps } from "./StudentProps";
 import { useSideCue } from "./side-cue";
 import type { Vec3Tuple } from "./types";
@@ -412,7 +413,6 @@ function DeskLamp({ palette }: FurnitureProps) {
     if (!light || !bulb) return;
     light.intensity = MathUtils.damp(light.intensity, on ? LAMP_INTENSITY : 0, 6, delta);
     bulb.emissiveIntensity = MathUtils.damp(bulb.emissiveIntensity, on ? 1.4 : 0, 6, delta);
-    light.visible = light.intensity > 0.01;
   });
 
   return (
@@ -449,12 +449,11 @@ function DeskLamp({ palette }: FurnitureProps) {
           roughness={0.6}
         />
       </mesh>
-      <pointLight
+      <SpaceLight
         ref={lightRef}
         position={[LAMP_LOCAL[0], LAMP_LOCAL[1] + LAMP_BULB_HEIGHT, LAMP_LOCAL[2]]}
         color={palette.sun}
         intensity={0}
-        visible={false}
         distance={LAMP_REACH}
         decay={2}
       />

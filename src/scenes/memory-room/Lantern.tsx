@@ -19,13 +19,16 @@ const LEVEL_LAMBDA = 2.2;
  *
  * 마우스 기기에서는 커서가 바닥에 닿는 자리, 손가락 기기에서는 몸의 자리다. 커서가 캔버스
  * 밖에 있으면(r3f의 pointer는 마지막 자리에 멈춘다) 광선이 바닥을 못 만날 때만 몸으로
- * 돌아온다. 1인칭 구간에서는 마운트하지 않는다: 그 구간은 빛 하나만 보여야 한다.
+ * 돌아온다. 1인칭 구간에서는 꺼 둔다(enabled): 그 구간은 빛 하나만 보여야 한다.
  */
 export function Lantern({
+  enabled,
   level,
   color,
   followCursor,
 }: {
+  /** 켤 수 있는 구간인가. 아니면 세기만 0으로 내려간다 (광원은 늘 세워 둔다). */
+  enabled: boolean;
   /** 방 밝기 (0~1). 문턱(LANTERN_THRESHOLD) 아래에서만 켜진다. */
   level: number;
   color: string;
@@ -38,12 +41,14 @@ export function Lantern({
   useFrame((state, delta) => {
     const light = lightRef.current;
     if (!light) return;
-    const goalIntensity = lanternIntensity(level);
+    const goalIntensity = enabled ? lanternIntensity(level) : 0;
     light.intensity = MathUtils.damp(light.intensity, goalIntensity, LEVEL_LAMBDA, delta);
     light.distance = MathUtils.damp(light.distance, lanternReach(level), LEVEL_LAMBDA, delta);
-    // 꺼진 등은 조명 계산에서 빠진다. 세기 0인 광원도 셰이더에서는 값을 먹는다
-    light.visible = light.intensity > 0.02;
-    if (!light.visible) return;
+    /*
+     * 꺼진 등도 광원으로 남겨 둔다 (visible을 끄지 않는다). 광원 수가 바뀌면 화면의 모든
+     * 재질이 재컴파일돼 멈칫한다. 세기 0인 광원 하나의 값보다 그 멈칫이 훨씬 비싸다.
+     */
+    if (light.intensity <= 0.02) return;
 
     let x = player.current.x;
     let z = player.current.z;
@@ -67,7 +72,6 @@ export function Lantern({
       intensity={0}
       distance={lanternReach(level)}
       decay={2}
-      visible={false}
     />
   );
 }

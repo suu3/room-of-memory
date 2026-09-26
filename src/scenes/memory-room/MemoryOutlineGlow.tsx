@@ -393,6 +393,57 @@ export function MemoryGlowRoot({
     [selection.memory, selection.prop],
   );
 
+  /*
+   * 패스 목록은 메모해 둔다. EffectComposer(@react-three/postprocessing)는 children 배열이
+   * 새로 오면 모든 패스를 떼고 EffectPass를 새로 만들어 붙이는데, 그때 렌더 타깃이 통째로
+   * 다시 할당된다. 매 렌더 새 배열을 넘기면 공간을 옮기거나 커서가 물건에 닿을 때마다
+   * 후처리가 재구성돼 화면이 멈칫했다.
+   *
+   * 같은 이유로 아웃라인 선택은 prop이 아니라 아래 effect가 이펙트에 직접 넣는다.
+   * 선택은 호버마다 바뀐다.
+   */
+  const passes = useMemo(
+    () => [
+      ...(aoColor
+        ? [<N8AO key="ao" halfRes quality="performance" color={aoColor} {...AO_SETTINGS} />]
+        : []),
+      // 잔상은 장면 바로 다음: 뒤의 패스들이 끌린 화면 위에 얹힌다
+      ...(afterimage ? [<primitive key="afterimage" object={afterimage} />] : []),
+      // 빛기둥은 광원 판을 따로 그려 합치는 이펙트라 제 패스를 혼자 쓴다
+      ...(godRays ? [<primitive key="godrays" object={godRays} />] : []),
+      // 초점 띠는 색수차보다 앞: 윤곽선·그레인은 흐려진 화면 위에 또렷하게 얹혀야 한다
+      ...(tiltEnabled ? [<primitive key="tilt" object={tilt} />] : []),
+      <primitive key="aberration" object={film.aberration} />,
+      <Outline
+        key="inner"
+        ref={innerRef}
+        visibleEdgeColor={settings.edgeColor}
+        hiddenEdgeColor={settings.hiddenEdgeColor}
+        {...settings.inner}
+      />,
+      // 숨쉬는 헤일로 + 벽 너머 투과는 기억만: 곁가지는 윤곽선 한 줄에서 멈춘다
+      <Outline
+        key="outer"
+        ref={outerRef}
+        visibleEdgeColor={settings.edgeColor}
+        hiddenEdgeColor={settings.hiddenEdgeColor}
+        {...settings.outer}
+      />,
+      <primitive key="grain" object={film.grain} />,
+      <primitive key="transition" object={transition} />,
+    ],
+    [aoColor, afterimage, godRays, tiltEnabled, tilt, film, settings, transition],
+  );
+  // 패스가 다시 만들어지면 Outline이 선택을 비우고 시작하므로 그때도 다시 넣는다
+  useEffect(() => {
+    void passes;
+    innerRef.current?.selection.set(touchable);
+  }, [touchable, passes]);
+  useEffect(() => {
+    void passes;
+    outerRef.current?.selection.set(selection.memory);
+  }, [selection.memory, passes]);
+
   return (
     <MemoryGlowSelectionContext.Provider value={updateSelection}>
       {children}
@@ -409,37 +460,7 @@ export function MemoryGlowRoot({
           아웃라인 둘과 그레인은 한 패스로 합쳐진다. 화면 전환은 맨 마지막: 그레인까지
           얹힌 화면이 통째로 넘어간다.
         */}
-        {[
-          ...(aoColor
-            ? [<N8AO key="ao" halfRes quality="performance" color={aoColor} {...AO_SETTINGS} />]
-            : []),
-          // 잔상은 장면 바로 다음: 뒤의 패스들이 끌린 화면 위에 얹힌다
-          ...(afterimage ? [<primitive key="afterimage" object={afterimage} />] : []),
-          // 빛기둥은 광원 판을 따로 그려 합치는 이펙트라 제 패스를 혼자 쓴다
-          ...(godRays ? [<primitive key="godrays" object={godRays} />] : []),
-          // 초점 띠는 색수차보다 앞: 윤곽선·그레인은 흐려진 화면 위에 또렷하게 얹혀야 한다
-          ...(tiltEnabled ? [<primitive key="tilt" object={tilt} />] : []),
-          <primitive key="aberration" object={film.aberration} />,
-          <Outline
-            key="inner"
-            ref={innerRef}
-            selection={touchable}
-            visibleEdgeColor={settings.edgeColor}
-            hiddenEdgeColor={settings.hiddenEdgeColor}
-            {...settings.inner}
-          />,
-          // 숨쉬는 헤일로 + 벽 너머 투과는 기억만: 곁가지는 윤곽선 한 줄에서 멈춘다
-          <Outline
-            key="outer"
-            ref={outerRef}
-            selection={selection.memory}
-            visibleEdgeColor={settings.edgeColor}
-            hiddenEdgeColor={settings.hiddenEdgeColor}
-            {...settings.outer}
-          />,
-          <primitive key="grain" object={film.grain} />,
-          <primitive key="transition" object={transition} />,
-        ]}
+        {passes}
       </EffectComposer>
       <ScreenTransitionDriver effect={transition} reducedMotion={reducedMotion} />
       {tiltEnabled && <TiltShiftDriver effect={tilt} />}

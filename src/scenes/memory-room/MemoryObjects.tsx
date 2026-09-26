@@ -46,6 +46,7 @@ import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-m
 import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
 import { radioSignalLevel } from "./radio-signal";
+import { SpaceLight } from "./SpaceLight";
 import type { EulerTuple, Vec3Tuple } from "./types";
 import { useCoverTexture } from "./use-cover-texture";
 import { useGlowHover } from "./use-glow-hover";
@@ -558,24 +559,25 @@ function RadioSignal({ palette }: { palette: RoomPalette }) {
   useFrame((state) => {
     const level = radioSignalLevel(state.clock.elapsedTime);
     if (materialRef.current) materialRef.current.emissiveIntensity = level * 2.2;
-    if (lightRef.current) lightRef.current.intensity = level * RADIO_SIGNAL_LIGHT;
+    if (lightRef.current) lightRef.current.intensity = signaling ? level * RADIO_SIGNAL_LIGHT : 0;
   });
-
-  if (!signaling) return null;
 
   return (
     <group position={RADIO_SIGNAL_POSITION}>
-      <mesh>
-        <sphereGeometry args={[RADIO_SIGNAL_RADIUS, 10, 8]} />
-        <meshStandardMaterial
-          ref={materialRef}
-          color={palette.ember}
-          emissive={palette.ember}
-          emissiveIntensity={0}
-          toneMapped={false}
-        />
-      </mesh>
-      <pointLight ref={lightRef} color={palette.ember} intensity={0} distance={2.8} decay={2} />
+      {signaling ? (
+        <mesh>
+          <sphereGeometry args={[RADIO_SIGNAL_RADIUS, 10, 8]} />
+          <meshStandardMaterial
+            ref={materialRef}
+            color={palette.ember}
+            emissive={palette.ember}
+            emissiveIntensity={0}
+            toneMapped={false}
+          />
+        </mesh>
+      ) : null}
+      {/* 빛은 깜빡이지 않는 동안에도 세워 둔다. 광원이 생겼다 사라지면 재질이 통째로 재컴파일된다 */}
+      <SpaceLight ref={lightRef} color={palette.ember} intensity={0} distance={2.8} decay={2} />
     </group>
   );
 }

@@ -17,6 +17,7 @@ import {
   LIVING_FURNITURE_SCALE,
   LIVING_PIANO_CENTER,
   LIVING_PIANO_ROTATION,
+  LIVING_SHOE_CABINET_AT,
   PIANO_STAND,
   scaleLivingPoint,
 } from "./layout";
@@ -433,7 +434,7 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
           rotationY={chair.rotationY}
         />
       ))}
-      <LivingPiece anchor={LIVING_ANCHORS.shoeCabinet}>
+      <LivingPiece anchor={LIVING_ANCHORS.shoeCabinet} at={LIVING_SHOE_CABINET_AT}>
         <Boxes parts={SHOE_CABINET_PARTS} palette={palette} />
         <LivingShoes palette={palette} />
       </LivingPiece>

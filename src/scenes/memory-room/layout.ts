@@ -136,6 +136,15 @@ export const LIVING_ANCHORS = {
 } as const satisfies Record<string, readonly [number, number]>;
 
 /**
+ * 신발장이 키운 뒤 서는 자리: 현관문과 안방문 **사이**의 -x 벽.
+ *
+ * 원래 현관문의 -z 쪽(냉장고 옆)에 있었는데, 그러면 현관문이 안방문 쪽으로 밀려 두 문이
+ * 3.6m 간격으로 붙어 섰다. 현관문을 냉장고 옆으로 보내고 신발장이 두 문 사이를 채운다.
+ * z는 키운 장의 +z 끝(2.85)이 안방문 틀(3.99)에서 1m 넘게 떨어지는 자리다.
+ */
+export const LIVING_SHOE_CABINET_AT = [LIVING_SHELL_BOUNDS.minX, 2.75] as const;
+
+/**
  * 식탁 세트가 키운 뒤 서는 자리: **소파 앞**.
  *
  * 원래는 -x 벽 앞(-13.2, 3.4)이었다. 그 자리는 현관문(z 1.25)·안방문(z 3.7)이 나란히
@@ -242,12 +251,11 @@ export const LIVING_COLLIDERS = [
     { minX: -14.75, maxX: -12.85, minZ: 2.3, maxZ: 4.75 },
     LIVING_DINING_CENTER,
   ), // dining table + chairs (빠진 의자 포함)
-  scaleLivingAabb(LIVING_ANCHORS.shoeCabinet, {
-    minX: -16.5,
-    maxX: -15.85,
-    minZ: -1.7,
-    maxZ: 0.35,
-  }), // shoe cabinet
+  scaleLivingAabb(
+    LIVING_ANCHORS.shoeCabinet,
+    { minX: -16.5, maxX: -15.85, minZ: -1.7, maxZ: 0.35 },
+    LIVING_SHOE_CABINET_AT,
+  ), // shoe cabinet
   scaleLivingAabb(LIVING_ANCHORS.fridge, { minX: -15.85, maxX: -14.8, minZ: -4, maxZ: -3.2 }), // fridge (-z 구석)
   scaleLivingAabb(
     LIVING_ANCHORS.piano,
@@ -261,8 +269,12 @@ export const LIVING_COLLIDERS = [
 /**
  * 현관문: 거실 -x 끝 벽. 배트가 방문을 열게 되면서 엔딩 트리거가 여기로 왔다
  * (docs/content-design.md 3-2). 회전은 방문과 반대: 문이 벽 안쪽을 본다.
+ *
+ * z는 냉장고 옆이다. 같은 벽의 안방문(z 4.9)과 붙어 서지 않게 벽의 -z 쪽 끝으로 보냈다
+ * (둘 사이는 신발장이 채운다: LIVING_SHOE_CABINET_AT). 문틀(±0.91)이 냉장고 발자국
+ * (z -2.96까지)을 물지 않는 가장 먼 자리다.
  */
-export const FRONT_DOOR_POSITION = [LIVING_SHELL_BOUNDS.minX + 0.14, 1.7, 1.25] as const;
+export const FRONT_DOOR_POSITION = [LIVING_SHELL_BOUNDS.minX + 0.14, 1.7, -1.6] as const;
 export const FRONT_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
 export const FRONT_DOOR_INTERACTION = {
   near: [FRONT_DOOR_POSITION[0], FRONT_DOOR_POSITION[2]] as readonly [number, number],
@@ -372,7 +384,8 @@ export const ROOM_COLLIDERS = [
  * 자연스럽다.
  */
 export const BAT_PLACEMENT = {
-  position: [-15.95, 1.48, 2.5],
+  // 현관문 +z 옆, 신발장 앞. 문짝이 열리는 자리(문 중심 ±0.82)는 비운다
+  position: [-15.95, 1.48, -0.55],
   rotation: [0, 0, Math.PI - 0.22],
   scale: 1.6,
   interactionRadius: 1.35,
@@ -481,8 +494,14 @@ const BACKPACK_SCALE = 1.6;
 const BACKPACK_HALF_THICKNESS = 0.1;
 
 /** 거실 가구 위에 얹는 기억의 자리: 1배 좌표를 가구와 같은 기준점으로 키운다. */
-function livingSpot(anchor: readonly [number, number], x: number, y: number, z: number): Vec3Tuple {
-  const [sx, sz] = scaleLivingPoint(anchor, x, z);
+function livingSpot(
+  anchor: readonly [number, number],
+  x: number,
+  y: number,
+  z: number,
+  at: readonly [number, number] = anchor,
+): Vec3Tuple {
+  const [sx, sz] = scaleLivingPoint(anchor, x, z, at);
   return [sx, scaleLivingHeight(y), sz];
 }
 
@@ -624,7 +643,7 @@ export const MEMORY_PLACEMENTS = {
   shoes: {
     id: "shoes",
     // 신발장 문 앞면(x -15.91)에서 5mm 앞
-    position: livingSpot(LIVING_ANCHORS.shoeCabinet, -15.905, 0.55, -0.68),
+    position: livingSpot(LIVING_ANCHORS.shoeCabinet, -15.905, 0.55, -0.68, LIVING_SHOE_CABINET_AT),
     rotation: [0, Math.PI / 2, 0],
     scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.45,
@@ -710,7 +729,7 @@ export const CAMERA_PRESETS = {
   // room.target.y를 올리면 시선 중심이 위로 가면서 방이 화면 아래쪽으로 내려온다
   room: { position: [14.2, 10.4, 15.4], target: [0.8, 2.35, 1.2] },
   /** 엔딩: 거실 끝 현관문을 열 때 (v2에서 배트 → 현관문으로 옮겨왔다). */
-  ending: { position: [-12.1, 3.1, 3.8], target: [-15.95, 0.9, 1.25] },
+  ending: { position: [-12.1, 3.1, 0.95], target: [-15.95, 0.9, -1.6] },
   console: { position: [4.4, 2.4, 6.9], target: [1.05, 0.35, 4.05] },
   window: { position: [4.7, 4.2, 2.1], target: [1.15, 2.4, -3.7] },
   frame: { position: [4.05, 2.6, 0.75], target: [1.42, 1.4, -2.7] },
@@ -728,7 +747,7 @@ export const CAMERA_PRESETS = {
   // 거실 기억의 시선은 키운 가구의 자리(MEMORY_PLACEMENTS)를 본다
   fridge: { position: [-12.7, 3.2, -0.5], target: [-15.32, 1.5, -3.0] },
   duffel: { position: [-6.9, 2.2, 1.4], target: [-9.5, 0.35, -1.15] },
-  shoes: { position: [-13.2, 2.6, 1.3], target: [-15.73, 0.75, -0.97] },
+  shoes: { position: [-13.2, 2.6, 4.0], target: [-15.73, 0.75, 1.52] },
   cards: { position: [-7.4, 2.8, 4.6], target: [-10.0, 1.3, 2.0] },
   ampoule: { position: [-13.0, 2.4, -0.8], target: [-15.32, 0.6, -3.0] },
   // 안방 기억: 방과 같은 사분면(+x·+z)에서 내려다본다. 책상은 +z 벽에 붙어 있지만

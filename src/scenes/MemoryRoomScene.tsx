@@ -49,6 +49,7 @@ import { RoomFurniture } from "./memory-room/RoomFurniture";
 import { RoomShell } from "./memory-room/RoomShell";
 import { RoomSurroundings } from "./memory-room/RoomSurroundings";
 import { SpaceDoor } from "./memory-room/SpaceDoor";
+import { SpaceLightGate } from "./memory-room/SpaceLight";
 import { SPACES } from "./memory-room/spaces";
 import { PlayerPositionProvider } from "./memory-room/use-near-player";
 import {
@@ -161,8 +162,12 @@ function StageLighting({
     );
     windowGlow.distance = follow(windowGlow.distance, roomLightValue(WINDOW_GLOW_REACH, warm));
     sun.intensity = follow(sun.intensity, sunGoal);
-    // 세기가 0인 볕은 그림자 패스도 돌리지 않는다
-    sun.visible = sun.intensity > 0.01;
+    /*
+     * 세기가 0인 볕은 그림자맵을 다시 그리지 않는다. visible·castShadow를 끄면 안 된다:
+     * 보이는 광원·그림자 개수는 셰이더에 박혀 있어서, 거실에 들어서는 순간(창이 없어
+     * 볕이 꺼진다) 화면의 모든 재질이 한꺼번에 재컴파일돼 한참 멈췄다.
+     */
+    sun.shadow.autoUpdate = sun.intensity > 0.01;
   });
 
   return (
@@ -216,7 +221,6 @@ function StageLighting({
         target={sunTarget}
         color={palette.sun}
         intensity={0}
-        visible={false}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -347,6 +351,85 @@ export function MemoryRoomScene({
   const lanternEnabled = cheapEffects && viewpoint === null && lightsOn;
   const followCursor = usePointerKind() !== "touch";
 
+  /*
+   * 공간마다의 내용물은 메모해 둔다. 이 씬은 space를 구독해서 문턱을 넘을 때마다 다시
+   * 그려지는데, 그때 네 공간의 가구·기억·벽(수백 개의 컴포넌트)이 통째로 다시 렌더되어
+   * 전환 순간이 멈칫했다. 바뀌는 건 각 그룹의 visible뿐이다.
+   */
+  const decay = outsideDecay({
+    collected: collectedCount,
+    memoryTotal: MEMORY_TOTAL,
+    phase: gamePhase,
+  });
+  const roomContent = useMemo(
+    () => (
+      <>
+        <RoomShell palette={palette} doorOpen={doorOpened} outsideDecay={decay} />
+        {/* 벽에 붙은 것들: 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
+        <RoomDecor palette={palette} />
+        <RoomFurniture
+          palette={palette}
+          curtainPull={curtainPull}
+          onCurtainPull={onCurtainPull}
+          onCurtainRelease={onCurtainRelease}
+        />
+        <MemoryObjects
+          space="room"
+          palette={palette}
+          nearbyMemoryId={nearbyMemoryId}
+          onInteract={onInteract}
+        />
+      </>
+    ),
+    [
+      palette,
+      doorOpened,
+      decay,
+      curtainPull,
+      onCurtainPull,
+      onCurtainRelease,
+      nearbyMemoryId,
+      onInteract,
+    ],
+  );
+  const livingContent = useMemo(
+    () => (
+      <>
+        <LivingRoomShell palette={palette} inLivingRoom={inLivingRoom} />
+        <LivingRoomFurniture palette={palette} />
+        <MemoryObjects
+          space="living"
+          palette={palette}
+          nearbyMemoryId={nearbyMemoryId}
+          onInteract={onInteract}
+        />
+        {/* 현관 옆 배트: 결심(resolve)에 켜지는 트리거 */}
+        <EndingTrigger palette={palette} />
+      </>
+    ),
+    [palette, inLivingRoom, nearbyMemoryId, onInteract],
+  );
+  const bathroomContent = useMemo(() => <BathroomShell palette={palette} />, [palette]);
+  const parentsContent = useMemo(
+    () => (
+      <>
+        <ParentsRoomShell palette={palette} />
+        <MemoryObjects
+          space="parents"
+          palette={palette}
+          nearbyMemoryId={nearbyMemoryId}
+          onInteract={onInteract}
+        />
+      </>
+    ),
+    [palette, nearbyMemoryId, onInteract],
+  );
+  const bathroomDoor = useMemo(
+    () => <SpaceDoor id="living-bathroom" palette={palette} />,
+    [palette],
+  );
+  const parentsDoor = useMemo(() => <SpaceDoor id="living-parents" palette={palette} />, [palette]);
+
   return (
     // 커튼·전등 스위치처럼 표식 없이 근접으로만 켜지는 것들이 플레이어 위치를 본다
     <PlayerPositionProvider value={playerPositionRef}>
@@ -384,31 +467,7 @@ export function MemoryRoomScene({
         */}
         {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
         <group name="walkable" onClick={handleFloorClick}>
-          <group visible={inRoom}>
-            <RoomShell
-              palette={palette}
-              doorOpen={doorOpened}
-              outsideDecay={outsideDecay({
-                collected: collectedCount,
-                memoryTotal: MEMORY_TOTAL,
-                phase: gamePhase,
-              })}
-            />
-            {/* 벽에 붙은 것들: 포스터·페넌트·선반 소품. 만질 수 없어 빛나지 않는다 */}
-            <RoomDecor palette={palette} />
-            <RoomFurniture
-              palette={palette}
-              curtainPull={curtainPull}
-              onCurtainPull={onCurtainPull}
-              onCurtainRelease={onCurtainRelease}
-            />
-            <MemoryObjects
-              space="room"
-              palette={palette}
-              nearbyMemoryId={nearbyMemoryId}
-              onInteract={onInteract}
-            />
-          </group>
+          <group visible={inRoom}>{roomContent}</group>
           {/*
             방문 너머: 2막에 문이 열리면 걸어 나갈 수 있다.
             문 넘기(1인칭)를 하는 동안은 방에 선 채로도 거실이 선다. 열린 문 너머가
@@ -416,36 +475,13 @@ export function MemoryRoomScene({
             평소의 "한 번에 한 방"으로 돌아온다.
           */}
           <group visible={inLivingRoom || (inRoom && viewpoint === "doorway")}>
-            <LivingRoomShell palette={palette} inLivingRoom={inLivingRoom} />
-            <LivingRoomFurniture palette={palette} />
-            <MemoryObjects
-              space="living"
-              palette={palette}
-              nearbyMemoryId={nearbyMemoryId}
-              onInteract={onInteract}
-            />
-            {/* 현관 옆 배트: 결심(resolve)에 켜지는 트리거 */}
-            <EndingTrigger palette={palette} />
+            {livingContent}
           </group>
           {/* 거실 너머의 공간들 (v3). 문은 두 껍데기 밖, 양쪽 어디서든 보이게 */}
-          <group visible={space === "bathroom"}>
-            <BathroomShell palette={palette} />
-          </group>
-          <group visible={space === "parents"}>
-            <ParentsRoomShell palette={palette} />
-            <MemoryObjects
-              space="parents"
-              palette={palette}
-              nearbyMemoryId={nearbyMemoryId}
-              onInteract={onInteract}
-            />
-          </group>
-          <group visible={inLivingRoom || space === "bathroom"}>
-            <SpaceDoor id="living-bathroom" palette={palette} />
-          </group>
-          <group visible={inLivingRoom || space === "parents"}>
-            <SpaceDoor id="living-parents" palette={palette} />
-          </group>
+          <group visible={space === "bathroom"}>{bathroomContent}</group>
+          <group visible={space === "parents"}>{parentsContent}</group>
+          <group visible={inLivingRoom || space === "bathroom"}>{bathroomDoor}</group>
+          <group visible={inLivingRoom || space === "parents"}>{parentsDoor}</group>
           {/*
             canvas 모드 미니게임(냉장고 아래칸의 앰플 집기)은 두 공간 그룹 밖에 선다.
             판은 그 물건 앞에 서 있을 때만 도니까 공간은 저절로 맞고, 글로우 루트 안이라
@@ -475,9 +511,15 @@ export function MemoryRoomScene({
         />
       </group>
       {/* 손 가까이의 등. 글로우 루트 밖: 빛이지 물건이 아니다. 공간을 가리지 않고 몸을 따라간다 */}
-      {lanternEnabled && (
-        <Lantern level={level} color={palette.linen} followCursor={followCursor} />
-      )}
+      {/* 늘 마운트해 두고 세기만 끈다. 광원이 생겼다 사라지면 재질이 통째로 재컴파일된다 */}
+      <Lantern
+        enabled={lanternEnabled}
+        level={level}
+        color={palette.linen}
+        followCursor={followCursor}
+      />
+      {/* 공간 그룹 안의 광원(SpaceLight)이 숨은 공간에서 개수는 지키고 빛만 끄게 한다 */}
+      <SpaceLightGate />
       {/* 바닥 클릭의 목적지 링. 글로우 루트 밖: 만질 수 있는 것이 아니라 표식이다 */}
       <WalkMarker color={palette.memory} />
       {/* 기억을 되찾는 순간 물건에서 솟는 티끌. 글로우 루트 밖: 빛이지 물건이 아니다 */}
