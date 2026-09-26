@@ -201,7 +201,12 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
             aria-hidden
             className="mx-auto mb-2 block size-1.5 rounded-full bg-screen-chrome/25"
           />
-          <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-night">
+          {/*
+            화면 비율. 넓은 화면은 노트북답게 16:10이지만, 폰 세로 화면에서는 판 폭이
+            330px 남짓이라 16:10이면 높이가 200px뿐이다: 잠금 화면의 키패드와 힌트가
+            위아래로 잘려 나갔다. 좁은 폭에서는 세로로 긴 3:4로 세워 키패드가 다 선다.
+          */}
+          <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-night sm:aspect-[16/10]">
             {screen === "boot" ? (
               // 화면 전체가 "건너뛰기"다. 로그를 다 읽을 이유는 없고, 기다리는
               // 몇 초가 연출일 뿐이라 아무 데나 눌러 넘길 수 있어야 한다

@@ -199,10 +199,12 @@ export function DialogueBox() {
 
       {/*
         창 자체는 보여주기만 한다. 클릭은 뒤의 전체 화면 버튼이 받는다.
-        아래쪽은 기기의 safe-area만큼 더 띄운다. 홈 바 뒤로 창이 밀려 들어가면
-        마지막 줄이 잘린다. 위쪽 여백(pt)은 초상의 자리다: 창 위로 온전히 올라와야 한다.
+        아래쪽은 기기의 safe-area **위에** 더 띄운다 (max가 아니라 합). 폰에서는 홈 바와
+        브라우저 하단 막대가 그 자리를 차지해서, safe-area에 딱 붙인 창은 손가락과 막대
+        사이에 끼어 잘 안 보였다. 넓은 화면은 그런 막대가 없어 전처럼 둔다.
+        위쪽 여백(pt)은 초상의 자리다: 창 위로 온전히 올라와야 한다.
       */}
-      <div className="pointer-events-none absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 w-full max-w-[clamp(840px,66vw,1040px)] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-[max(2rem,env(safe-area-inset-bottom))] lg:bottom-[max(2.5rem,env(safe-area-inset-bottom))]">
+      <div className="pointer-events-none absolute bottom-[calc(2.5rem+env(safe-area-inset-bottom))] left-1/2 w-full max-w-[clamp(840px,66vw,1040px)] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-[max(2rem,env(safe-area-inset-bottom))] lg:bottom-[max(2.5rem,env(safe-area-inset-bottom))]">
         <div className="relative">
           {/*
             얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다.
@@ -238,8 +240,9 @@ export function DialogueBox() {
             >
               {typed}
             </p>
-            {/* 아래 줄: 왼쪽에 로그 입구, 오른쪽에 다음 줄 표식 */}
-            <div className="flex items-center justify-between">
+            {/* 아래 줄: 왼쪽에 로그 입구, 오른쪽에 다음 줄 표식. 본문과 한 줄 띄운다:
+                붙여 두면 로그 버튼이 대사의 다음 줄처럼 읽힌다 */}
+            <div className="mt-[0.75em] flex items-center justify-between">
               {/*
                 창 안에서 유일하게 눌리는 것이라 포인터를 되살린다 (창은 pointer-events-none).
                 전체 화면 넘기기 버튼보다 위에 있어야 이 버튼이 먼저 클릭을 받는다.

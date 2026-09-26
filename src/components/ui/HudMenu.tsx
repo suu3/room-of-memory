@@ -249,7 +249,9 @@ export function HudMenu({ inline = false }: { inline?: boolean }) {
           // 넓은 화면에서는 버튼(--text-hud)과 같은 배율로 통째로 커진다 (--hud-zoom)
           // 바탕은 PANEL_DARK의 반투명 surface가 아니라 불투명한 night다. 패널 뒤로 소리
           // 버튼·미니맵이 비쳐 보여 패널 위에 겹친 것처럼 읽혔다
-          className="absolute right-0 top-full mt-2 w-68 animate-fade-rise rounded-md border border-line bg-night p-4 text-ivory shadow-panel [zoom:var(--hud-zoom)]"
+          // 세로가 짧은 화면(가로 폰)에서는 패널이 화면 밖으로 나간다. 버튼 아래부터
+          // 바닥 여백까지로 높이를 막고 안에서 스크롤시킨다. 6rem = 위 HUD 줄 + 아래 여백
+          className="absolute right-0 top-full mt-2 max-h-[calc(100dvh-6rem)] w-68 animate-fade-rise overflow-y-auto overscroll-contain rounded-md border border-line bg-night p-4 text-ivory shadow-panel [zoom:var(--hud-zoom)]"
         >
           {/* 눈에 보이는 라벨. 읽히는 이름은 각 fieldset의 legend라 여기서는 소리를 끈다. 둘 다 읽으면 "언어 선택 언어 선택" */}
           <p aria-hidden className={`px-1 ${SECTION_LABEL}`}>
