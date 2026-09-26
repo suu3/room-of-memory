@@ -52,6 +52,7 @@ import { RoomSurroundings } from "./memory-room/RoomSurroundings";
 import { SpaceDoor } from "./memory-room/SpaceDoor";
 import { SpaceLightGate } from "./memory-room/SpaceLight";
 import { SPACES } from "./memory-room/spaces";
+import { sunShadowAutoUpdate } from "./memory-room/sun-shadow";
 import { PlayerPositionProvider } from "./memory-room/use-near-player";
 import {
   lampScaled,
@@ -163,12 +164,8 @@ function StageLighting({
     );
     windowGlow.distance = follow(windowGlow.distance, roomLightValue(WINDOW_GLOW_REACH, warm));
     sun.intensity = follow(sun.intensity, sunGoal);
-    /*
-     * 세기가 0인 볕은 그림자맵을 다시 그리지 않는다. visible·castShadow를 끄면 안 된다:
-     * 보이는 광원·그림자 개수는 셰이더에 박혀 있어서, 거실에 들어서는 순간(창이 없어
-     * 볕이 꺼진다) 화면의 모든 재질이 한꺼번에 재컴파일돼 한참 멈췄다.
-     */
-    sun.shadow.autoUpdate = sun.intensity > 0.01;
+    // 볕이 꺼지면 그림자맵을 다시 그리지 않는다. 단 맵이 아직 없으면 그린다 (sun-shadow.ts)
+    sun.shadow.autoUpdate = sunShadowAutoUpdate(sun.intensity, sun.shadow.map !== null);
   });
 
   return (
