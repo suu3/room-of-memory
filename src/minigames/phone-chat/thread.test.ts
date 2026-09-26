@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  CHAT_ROOMS,
   FAMILY_CHAT,
+  FRIEND,
   GROUP_CHAT,
   hasLater,
   isThreadComplete,
@@ -62,21 +64,19 @@ describe("phone-chat thread", () => {
     }
   });
 
-  it("splits into a lively past and an unread-2 silence: nothing in between", () => {
-    // 살아 있는 구간(안읽음 없음) 뒤로는 도해 혼자, 전부 안읽음 2: 이 대비가 연출의 전부다
-    const firstUnread = GROUP_CHAT.findIndex((message) => message.unread !== undefined);
-    expect(firstUnread).toBeGreaterThan(0);
-    const lively = GROUP_CHAT.slice(0, firstUnread);
-    expect(lively.some((message) => message.side === "them")).toBe(true);
-    expect(lively.some((message) => message.side === "me")).toBe(true);
-    for (const message of lively) {
-      expect(message.unread).toBeUndefined();
-    }
-    for (const message of GROUP_CHAT.slice(firstUnread)) {
-      expect(message.side).toBe("me");
-      // 셋이 쓰는 방이라 안읽음 최대치가 2: 이 값이 "둘 다 읽지 않았다"를 말한다
-      expect(message.unread).toBe(2);
-    }
+  it("is the two friends' room: Juwan talks most and has the last word, then silence", () => {
+    const senders = new Set(GROUP_CHAT.map((message) => message.fromKey).filter(Boolean));
+    expect(senders).toEqual(new Set([FRIEND.yunho, FRIEND.juwan]));
+    const count = (key: string) => GROUP_CHAT.filter((message) => message.fromKey === key).length;
+    expect(count(FRIEND.juwan)).toBeGreaterThan(count(FRIEND.yunho));
+    expect(GROUP_CHAT.at(-1)?.fromKey).toBe(FRIEND.juwan);
+    // 도해가 그 뒤로 보낸 줄은 없다: 방은 주완의 장난에서 멈춘다
+    expect(GROUP_CHAT.at(-1)?.side).toBe("them");
+  });
+
+  it("logs several unanswered calls the player placed to Yunho", () => {
+    const toYunho = OUTGOING_CALLS.filter((call) => call.toKey === FRIEND.yunho);
+    expect(toYunho.reduce((sum, call) => sum + call.count, 0)).toBeGreaterThan(1);
   });
 
   it("counts every call the player placed for the tab badge", () => {
@@ -86,8 +86,10 @@ describe("phone-chat thread", () => {
     expect(totalOutgoingCalls()).toBeGreaterThan(OUTGOING_CALLS.length);
   });
 
-  it("exposes exactly the three tabs the screen renders", () => {
-    expect(PHONE_TABS).toEqual(["chat", "family", "calls"]);
+  it("has two tabs (chats, calls) and lists only the friends' and family rooms", () => {
+    expect(PHONE_TABS).toEqual(["chat", "calls"]);
+    // 엄마 1:1 방(그날 아침 문자)은 1페이즈 폰에 없다
+    expect(CHAT_ROOMS).toEqual(["friends", "family"]);
   });
 
   it("needs the family chat opened too before the phone can be put down", () => {

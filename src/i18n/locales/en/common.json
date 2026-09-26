@@ -268,21 +268,21 @@
       "next": "Next",
       "openCalls": "See the call log",
       "tab": {
-        "chat": "Group chat",
-        "calls": "Calls",
-        "family": "Family"
+        "chat": "Chats",
+        "calls": "Calls"
       },
       "chat": {
-        "room": "Back row, baseball team",
-        "w1": "pc cafe after school?",
-        "t1": "can't, cram school :( you two go",
-        "m1": "deal. loser buys snacks",
-        "m2": "today i'm winning",
-        "w2": "bet lol. don't cry like yesterday",
-        "m3": "hey where are you",
-        "m4": "you're not picking up either",
-        "m5": "if this is a joke, drop it",
-        "members": "Woojin, Taeo, me"
+        "room": "Snack Run Crew",
+        "j1": "yo Dohae keep first break free tomorrow",
+        "j2": "rematch for earlier",
+        "y1": "you wanna lose again?",
+        "j3": "i actually practiced this time lol got a callus on my thumb",
+        "m1": "loser buys snacks",
+        "j4": "deal. two banana milks",
+        "y2": "Dohae catch after lunch?",
+        "m2": "sure",
+        "j5": "tomorrow loser buys snacks AND shaves his head lmaooo",
+        "members": "Yunho, Juwan, me"
       },
       "callsSubtitle": "No answer",
       "callsTitle": "Recents",
@@ -290,10 +290,10 @@
       "contact": {
         "mom": "Mom",
         "dad": "Dad",
-        "woojin": "Woojin",
-        "taeo": "Taeo"
+        "yunho": "Yunho",
+        "juwan": "Juwan"
       },
-      "helpFamily": "Open the Family tab too",
+      "helpFamily": "Open the family chat too",
       "family": {
         "room": "Home",
         "members": "Mom, Dad, me",
@@ -304,6 +304,13 @@
         "f4": "We'll send pictures. Hahaha!",
         "f5": "Write back for once.",
         "f6": "Okay."
+      },
+      "helpFriends": "Open the friends' chat too",
+      "helpList": "Tap a chat to open it",
+      "list": {
+        "title": "Chats",
+        "subtitle": "{{value}} chats",
+        "back": "Back to chats"
       }
     },
     "computerBrowse": {
@@ -455,9 +462,9 @@
       "title": "ID Badge",
       "alt": "3D ID badge: drag to turn it",
       "org": "Laon Life Science Institute",
-      "role": "Principal · Senior Researcher",
-      "dad": "Han Soha",
-      "mom": "Seo Taeo",
+      "role": "Senior · Principal Researcher",
+      "dad": "Seo Taeo",
+      "mom": "Han Soha",
       "found": "The logo on the back. The same one on the ampoule label."
     },
     "ampouleCase": {

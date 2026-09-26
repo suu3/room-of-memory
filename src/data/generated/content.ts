@@ -68,6 +68,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "fighter-duel",
         resultScriptId: "console-alone",
       },
+      cutscene: "console-flashback",
     },
     phase2: { interaction: { scriptId: "console-echo" }, from: "p2", side: true },
   },
@@ -81,6 +82,7 @@ export const MEMORIES: MemoryItem[] = [
         resultScriptId: "ball-alone",
       },
       replayStill: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
+      cutscene: "ball-flashback",
     },
     phase2: { interaction: { scriptId: "ball-echo" }, from: "p2", side: true },
   },
@@ -263,10 +265,12 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.ball-intro.line1" },
       { speaker: "hero", textKey: "scripts.ball-intro.line2" },
-      { speaker: "hero", textKey: "scripts.ball-intro.line3" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line3", expression: "smile" },
       { speaker: "hero", textKey: "scripts.ball-intro.line4" },
       { speaker: "hero", textKey: "scripts.ball-intro.line5" },
       { speaker: "hero", textKey: "scripts.ball-intro.line6" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line7" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line8" },
     ],
   },
   "ball-alone": {
@@ -274,6 +278,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.ball-alone.line1" },
       { speaker: "hero", textKey: "scripts.ball-alone.line2" },
+      { speaker: "hero", textKey: "scripts.ball-alone.line3" },
     ],
   },
   "console-intro": {
@@ -281,13 +286,12 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.console-intro.line1", expression: "smile" },
       { speaker: "hero", textKey: "scripts.console-intro.line2", expression: "smile" },
-      { speaker: "hero", textKey: "scripts.console-intro.line3" },
     ],
   },
   "console-alone": {
     id: "console-alone",
     lines: [
-      { speaker: "hero", textKey: "scripts.console-alone.line1" },
+      { speaker: "hero", textKey: "scripts.console-alone.line1", expression: "smile" },
       { speaker: "hero", textKey: "scripts.console-alone.line2" },
     ],
   },
@@ -299,16 +303,13 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "frame-photo",
     lines: [
       { speaker: "hero", textKey: "scripts.frame-photo.line1", expression: "smile" },
-      { speaker: "hero", textKey: "scripts.frame-photo.line2" },
+      { speaker: "hero", textKey: "scripts.frame-photo.line2", expression: "smile" },
+      { speaker: "hero", textKey: "scripts.frame-photo.line3" },
     ],
   },
   "phone-stopped": {
     id: "phone-stopped",
-    lines: [
-      { speaker: "hero", textKey: "scripts.phone-stopped.line1" },
-      { speaker: "hero", textKey: "scripts.phone-stopped.line2" },
-      { speaker: "hero", textKey: "scripts.phone-stopped.line3" },
-    ],
+    lines: [{ speaker: "hero", textKey: "scripts.phone-stopped.line1" }],
   },
   "window-silence": {
     id: "window-silence",
@@ -479,6 +480,38 @@ export const SCRIPTS: Record<string, DialogueScript> = {
 };
 
 export const CUTSCENES: Record<string, Cutscene> = {
+  "console-flashback": {
+    id: "console-flashback",
+    cuts: [
+      {
+        image: "/assets/images/cutscene-console-flashback.webp",
+        holdMs: 1200,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.console-flashback.cut1.line1" },
+          { speaker: "hero", textKey: "cutscenes.console-flashback.cut1.line2" },
+        ],
+      },
+      {
+        lines: [{ speaker: "hero", textKey: "cutscenes.console-flashback.cut2.line1" }],
+      },
+    ],
+  },
+  "ball-flashback": {
+    id: "ball-flashback",
+    cuts: [
+      {
+        image: "/assets/images/cutscene-ball-flashback.webp",
+        holdMs: 1500,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line1" },
+          { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line2" },
+        ],
+      },
+      {
+        lines: [{ speaker: "hero", textKey: "cutscenes.ball-flashback.cut2.line1" }],
+      },
+    ],
+  },
   "radio-blackout": {
     id: "radio-blackout",
     cuts: [

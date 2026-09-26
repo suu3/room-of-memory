@@ -119,36 +119,37 @@
   "scripts": {
     "ball-intro": {
       "line1": "야구부 3년. 마지막 여름이었다.",
-      "line2": "전국대회 8강. 9회 말, 마지막 타석.",
-      "line3": "상대 포수가 미트를 탁탁, 두 번 치고 앉았다.",
-      "line4": "뭘 던져도 다 받아낼 것 같은 얼굴이었다.",
-      "line5": "…결국 그 공도 받아냈지.",
-      "line6": "경기 끝나고 그 녀석이 뭐라고 했는데, \"다음엔…\"까지만 들렸다."
+      "line2": "전국대회 8강, 은강고전. 9회 말 투아웃, 마지막 타석은 나였다.",
+      "line3": "Yunho yelled from the on-deck circle. \"Hit it, Han Do-hae!\"",
+      "line4": "상대 포수가 미트를 탁탁, 두 번 치고 앉았다.",
+      "line5": "뭘 쳐도 다 받아낼 것 같은 얼굴이었다.",
+      "line6": "풀카운트. 방망이에 맞은 공이 뒤로 높이 떴다.",
+      "line7": "그 녀석이 마스크를 벗어 던지고 달려가 잡았다. 그걸로 끝.",
+      "line8": "경기 끝나고 그 녀석이 뭐라고 했는데, \"다음엔…\"까지만 들렸다."
     },
     "ball-alone": {
       "line1": "벽에 던지면 돌아온다. 그게 전부다.",
-      "line2": "받아줄 사람이 없다는 걸, 자꾸 잊는다."
+      "line2": "I liked the sound it made hitting Yunho's mitt.",
+      "line3": "받아줄 사람이 없다는 걸, 자꾸 잊는다."
     },
     "console-intro": {
       "line1": "Been a while. Time for a round.",
-      "line2": "Loser bought snacks. That was the rule.",
-      "line3": "우진이한텐 늘 졌는데."
+      "line2": "With Juwan, loser bought snacks. He lost every time."
     },
     "console-alone": {
-      "line1": "I won.",
-      "line2": "…받아줄 사람이 없네, 내기."
+      "line1": "I won. Juwan, two banana milks.",
+      "line2": "…Winning doesn't matter when there's no one to pay up."
     },
     "console-echo": {
       "line1": "When I get out, we're playing a round."
     },
     "frame-photo": {
       "line1": "This is from the youth baseball tournament, the day I placed.",
-      "line2": "…두 분 얼굴이 흐릿하네."
+      "line2": "Yunho's in it too. He's been catching my throws since back then.",
+      "line3": "…두 분 얼굴이 흐릿하네."
     },
     "phone-stopped": {
-      "line1": "The last message is from October 19.",
-      "line2": "엄마 대화방도 그날 아침 문자에서 멈춰 있어.",
-      "line3": "…나중에."
+      "line1": "The last message is from October 19."
     },
     "window-silence": {
       "line1": "The first few days, the sirens went all night.",
@@ -262,7 +263,7 @@
     },
     "ball": {
       "title": "Catch, Alone",
-      "phase1": "전국대회 8강, 진 경기. 상대 포수가 마지막 공을 받아냈다. 벽에 던지면 돌아온다. 받아줄 사람이 없다는 걸 자꾸 잊는다.",
+      "phase1": "전국대회 8강, 은강고전. 내 마지막 타석의 뜬공을 상대 포수가 잡아내며 끝났다. 벽에 던지면 돌아온다. 늘 윤호가 받아 주던 공인데, 받아줄 사람이 없다는 걸 자꾸 잊는다.",
       "phase2": "If someone out there can catch it, this ball still has a use."
     },
     "frame": {
@@ -272,7 +273,7 @@
     },
     "phone": {
       "title": "The Silence",
-      "phase1": "단톡은 그날 이후로 조용하다. 엄마 대화방은 그날 아침 문자에서 멈춰 있다. 나중에 보기로 했다.",
+      "phase1": "단톡은 그날 이후로 조용하다.",
       "phase2": "그날 아침 7시 12분, 엄마 문자. 끝나면 바로 집에 오라고. 뉴스는 오후였다. 그게 엄마의 마지막 문자다."
     },
     "calendar": {
@@ -324,6 +325,24 @@
     }
   },
   "cutscenes": {
+    "console-flashback": {
+      "cut1": {
+        "line1": "그날도 주완이 졌다. 삼 연패.",
+        "line2": "애들이 소리 지르는 걸 뒤로 하고, 걔는 매점까지 뛰었다."
+      },
+      "cut2": {
+        "line1": "…그땐 이기는 게 재밌었는데."
+      }
+    },
+    "ball-flashback": {
+      "cut1": {
+        "line1": "그 녀석이 마스크를 벗는데, 해가 등 뒤에 있었다.",
+        "line2": "얼굴은 기억이 안 난다. 미트 낀 손만 선명하다."
+      },
+      "cut2": {
+        "line1": "…그 공, 지금 던지면 받아주려나."
+      }
+    },
     "radio-blackout": {
       "cut1": {
         "line1": "그날은 평범한 날이었다.",

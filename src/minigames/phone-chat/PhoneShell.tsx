@@ -33,6 +33,8 @@ export function PhoneShell<Id extends string>({
   title,
   subtitle,
   clock,
+  onBack,
+  backLabel,
   children,
 }: {
   tab?: Id;
@@ -42,6 +44,9 @@ export function PhoneShell<Id extends string>({
   title: string;
   subtitle: string;
   clock: string;
+  /** 있으면 헤더의 왼쪽 화살표가 눌리는 뒤로 가기 버튼이 된다 (대화방 → 목록). */
+  onBack?: () => void;
+  backLabel?: string;
   children: ReactNode;
 }) {
   return (
@@ -65,7 +70,18 @@ export function PhoneShell<Id extends string>({
 
           {/* 앱 헤더 */}
           <div className="flex items-center gap-2.5 border-b border-bone/10 px-3.5 pb-3 pt-1.5">
-            <CaretLeft size={18} weight="bold" className="shrink-0 text-bone/45" aria-hidden />
+            {onBack ? (
+              <button
+                type="button"
+                onClick={onBack}
+                aria-label={backLabel}
+                className="-m-1 shrink-0 cursor-pointer rounded-full p-1 text-bone/70 transition-colors hover:text-paper"
+              >
+                <CaretLeft size={18} weight="bold" />
+              </button>
+            ) : (
+              <CaretLeft size={18} weight="bold" className="shrink-0 text-bone/45" aria-hidden />
+            )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-[0.9375rem] font-bold text-paper">{title}</p>
               <p className="truncate text-[0.75rem] text-bone/45">{subtitle}</p>

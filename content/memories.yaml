@@ -61,11 +61,13 @@ memories:
         ko: 다시 둘이 하면 또 재밌어질까.
         en: Maybe it gets fun again with two.
         ja: 二人ならまた楽しくなるかな。
-    # 1차: 내기하던 상대의 존재(진입) → 이겨도 받아줄 사람이 없는 방(결과)
+    # 1차: 주완과의 매점 내기(진입) → 이겨도 매점 사 줄 주완이 없는 방(결과)
+    # → 교실에서 지고 매점 뛰던 회상(console-flashback)
     phase1:
       script: console-intro
       minigame: fighter-duel
       resultScript: console-alone
+      cutscene: console-flashback
     # 2차: 곁가지 (v4 3-4). 필수 체인에서 빠졌다. 카드 미궁(card-odd)은 v4.1에서 뺐다:
     # 여기 다시 붙이지 말 것.
     phase2:
@@ -81,16 +83,18 @@ memories:
         en: Catch, Alone
         ja: ひとりのキャッチボール
       phase1:
-        ko: 전국대회 8강, 진 경기. 상대 포수가 마지막 공을 받아냈다. 벽에 던지면 돌아온다. 받아줄 사람이 없다는 걸 자꾸 잊는다.
+        ko: 전국대회 8강, 은강고전. 내 마지막 타석의 뜬공을 상대 포수가 잡아내며 끝났다. 벽에 던지면 돌아온다. 늘 윤호가 받아 주던 공인데, 받아줄 사람이 없다는 걸 자꾸 잊는다.
       phase2:
         ko: 받아줄 사람이 어딘가에 있다면, 이 공은 아직 쓸 데가 있다.
         en: If someone out there can catch it, this ball still has a use.
         ja: 受けてくれる人がどこかにいるなら、このボールにはまだ使い道がある。
-    # 1차: 전국대회 8강 회상(재하 복선) → 캐치볼 → "받아줄 사람이 없다"
+    # 1차: 전국대회 8강 회상(재하 복선, 우리 포수 윤호) → 캐치볼 → "받아줄 사람(윤호)이 없다"
+    # → 역광 속 포수의 미트(ball-flashback)
     phase1:
       script: ball-intro
       minigame: ball-catch
       resultScript: ball-alone
+      cutscene: ball-flashback
       replayStill: /assets/images/mg-ball-catch-sunset-field.webp?v=2
     # 2차: 곁가지. 회전 미궁(angle-turn)은 뺐다 (현관 잠금에서도 빠짐): 다시 붙이지 말 것.
     phase2:
@@ -136,11 +140,11 @@ memories:
         en: The Silence
         ja: 途切れた連絡
       phase1:
-        ko: 단톡은 그날 이후로 조용하다. 엄마 대화방은 그날 아침 문자에서 멈춰 있다. 나중에 보기로 했다.
+        ko: 단톡은 그날 이후로 조용하다.
       phase2:
         ko: 그날 아침 7시 12분, 엄마 문자. 끝나면 바로 집에 오라고. 뉴스는 오후였다. 그게 엄마의 마지막 문자다.
     # 1차: 시끄러운 단톡 → 가족 단톡(부모님 메시지 폭탄 + 도해 "응.") → 결과 대사가
-    # "10월 19일"과 그날 아침에서 멈춘 엄마 대화방을 못박는다
+    # "10월 19일"을 못박는다. 엄마 대화방은 여기서 보이지도, 말하지도 않는다
     phase1:
       minigame: phone-chat
       resultScript: phone-stopped

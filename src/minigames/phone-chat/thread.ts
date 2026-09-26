@@ -4,10 +4,8 @@
  * 대사 본문은 여기 넣지 않는다. 시나리오 규칙(.claude/rules/visual-novel.md)대로
  * i18n 키만 담고 ko/en/ja는 common.json이 갖는다.
  *
- * 단톡방은 그날 오후까지 평범하게 살아 있다가, 어느 순간부터 도해 혼자다.
- * 무슨 일이 있었는지는 아무도 입에 올리지 않는다. 내 메시지 옆에 안읽음 2가
- * 끝까지 남아 있는 것이 이 화면의 전부다. 통화 기록은 로어(memory-room의
- * lore.phone)가 말하는 "부재중 전화는 전부 내가 건 쪽이다"를 그대로 보여준다.
+ * 친구 단톡방은 그날 점심까지 평범하게 떠들다가 거기서 멈춘다. 무슨 일이 있었는지는
+ * 아무도 입에 올리지 않는다. 통화 기록은 도해가 건 전화만 줄줄이 보여준다.
  */
 
 import type { CommonTextKey } from "@/types/minigame";
@@ -35,50 +33,85 @@ export interface OutgoingCall {
   count: number;
 }
 
+/** 친구 둘. 이름은 i18n이 갖고, 코드는 이 키로만 가리킨다 (docs/story.md 친구 설정). */
+export const FRIEND = {
+  /** 나윤호: 야구부 포수. 도해 공을 늘 받아주던 친구. */
+  yunho: "minigame.phoneChat.contact.yunho",
+  /** 서주완: 같은 반, 야구부 아님. 격투 게임 매점 내기에서 늘 지던, 단톡에서 제일 시끄러운 친구. */
+  juwan: "minigame.phoneChat.contact.juwan",
+} as const satisfies Record<string, CommonTextKey>;
+
 /**
- * 친구들 단톡방: 셋이 쓰는 방(우진·태오·나)이라 안읽음 최대치가 2다.
+ * 친구들 단톡방: 셋이 쓰는 방(윤호·주완·나).
  *
- * 위쪽(과거)은 피시방 내기로 떠드는 평범한 방과 후다. 16시 이후로는 도해의
- * 목소리만 남고, 그 줄들에는 안읽음 2가 그대로 붙어 있다. 둘 다 한 번도
- * 읽지 않았다는 것만이 그날의 증거다.
+ * 그날 점심시간의 평범한 수다다. 주완이 제일 떠들고, 마지막 줄도 주완의 장난이다.
+ * 그 뒤로는 아무 말도 없다. 무슨 일이 있었는지, 둘이 어디 있는지는 한 줄도 적지 않는다.
  *
  * 재난을 입에 올리는 줄은 한 줄도 넣지 않는다. 세계관을 여는 반전은
- * 강도 4의 라디오 한 곳이 갖는다 (docs/content-design.md 6-1).
+ * 라디오 한 곳이 갖는다 (docs/content-design.md 6-1).
  */
 export const GROUP_CHAT: ChatMessage[] = [
   {
-    id: "w1",
+    id: "j1",
     side: "them",
-    fromKey: "minigame.phoneChat.contact.woojin",
-    textKey: "minigame.phoneChat.chat.w1",
-    time: "15:42",
+    fromKey: FRIEND.juwan,
+    textKey: "minigame.phoneChat.chat.j1",
+    time: "12:31",
   },
   {
-    id: "t1",
+    id: "j2",
     side: "them",
-    fromKey: "minigame.phoneChat.contact.taeo",
-    textKey: "minigame.phoneChat.chat.t1",
-    time: "15:43",
+    fromKey: FRIEND.juwan,
+    textKey: "minigame.phoneChat.chat.j2",
+    time: "12:31",
   },
-  { id: "m1", side: "me", textKey: "minigame.phoneChat.chat.m1", time: "15:44" },
-  { id: "m2", side: "me", textKey: "minigame.phoneChat.chat.m2", time: "15:45" },
   {
-    id: "w2",
+    id: "y1",
     side: "them",
-    fromKey: "minigame.phoneChat.contact.woojin",
-    textKey: "minigame.phoneChat.chat.w2",
-    time: "15:46",
+    fromKey: FRIEND.yunho,
+    textKey: "minigame.phoneChat.chat.y1",
+    time: "12:33",
   },
-  { id: "m3", side: "me", textKey: "minigame.phoneChat.chat.m3", time: "16:40", unread: 2 },
-  { id: "m4", side: "me", textKey: "minigame.phoneChat.chat.m4", time: "18:41", unread: 2 },
-  { id: "m5", side: "me", textKey: "minigame.phoneChat.chat.m5", time: "19:03", unread: 2 },
+  {
+    id: "j3",
+    side: "them",
+    fromKey: FRIEND.juwan,
+    textKey: "minigame.phoneChat.chat.j3",
+    time: "12:33",
+  },
+  { id: "m1", side: "me", textKey: "minigame.phoneChat.chat.m1", time: "12:34" },
+  {
+    id: "j4",
+    side: "them",
+    fromKey: FRIEND.juwan,
+    textKey: "minigame.phoneChat.chat.j4",
+    time: "12:35",
+  },
+  {
+    id: "y2",
+    side: "them",
+    fromKey: FRIEND.yunho,
+    textKey: "minigame.phoneChat.chat.y2",
+    time: "12:40",
+  },
+  { id: "m2", side: "me", textKey: "minigame.phoneChat.chat.m2", time: "12:40" },
+  {
+    id: "j5",
+    side: "them",
+    fromKey: FRIEND.juwan,
+    textKey: "minigame.phoneChat.chat.j5",
+    time: "12:52",
+  },
 ];
 
-/** 도해가 건 전화. 아무도 받지 않았고, 뒤로 갈수록 다시 거는 횟수가 늘어난다. */
+/**
+ * 도해가 건 전화. 아무도 받지 않았다. 윤호에게 건 것이 먼저, 그리고 또 한 번.
+ * 뒤로 갈수록 다시 거는 횟수가 늘어난다.
+ */
 export const OUTGOING_CALLS: OutgoingCall[] = [
-  { id: "c1", toKey: "minigame.phoneChat.contact.woojin", time: "18:22", count: 2 },
-  { id: "c2", toKey: "minigame.phoneChat.contact.taeo", time: "18:35", count: 2 },
-  { id: "c3", toKey: "minigame.phoneChat.contact.dad", time: "19:12", count: 4 },
+  { id: "c1", toKey: FRIEND.yunho, time: "16:41", count: 3 },
+  { id: "c2", toKey: "minigame.phoneChat.contact.dad", time: "19:12", count: 4 },
+  { id: "c3", toKey: FRIEND.yunho, time: "19:40", count: 5 },
   { id: "c4", toKey: "minigame.phoneChat.contact.mom", time: "20:31", count: 9 },
 ];
 
@@ -128,8 +161,16 @@ export const FAMILY_CHAT: ChatMessage[] = [
   { id: "f6", side: "me", textKey: "minigame.phoneChat.family.f6", time: "08:40" },
 ];
 
-export type PhoneTab = "chat" | "family" | "calls";
-export const PHONE_TABS: PhoneTab[] = ["chat", "family", "calls"];
+/** 하단 탭: 채팅(대화방 목록) · 통화. */
+export type PhoneTab = "chat" | "calls";
+export const PHONE_TABS: PhoneTab[] = ["chat", "calls"];
+
+/**
+ * 채팅 탭의 대화방 목록. 1페이즈의 폰에는 이 둘뿐이다.
+ * 엄마와의 1:1 방(그날 아침 문자)은 여기 없다: 폰 2차(mom-chat)가 처음 연다.
+ */
+export type ChatRoomId = "friends" | "family";
+export const CHAT_ROOMS: ChatRoomId[] = ["friends", "family"];
 
 /** 건 전화 총 횟수: 탭 배지에 쓴다. */
 export function totalOutgoingCalls(calls: readonly OutgoingCall[] = OUTGOING_CALLS): number {
@@ -137,7 +178,7 @@ export function totalOutgoingCalls(calls: readonly OutgoingCall[] = OUTGOING_CAL
 }
 
 /**
- * 다 읽었는지. 단톡방을 맨 아래까지 읽어 내려가고, 가족 단톡과 통화 기록까지
+ * 다 읽었는지. 친구 단톡방을 맨 아래까지 읽어 내려가고, 가족 단톡방과 통화 기록까지
  * 열어야 클리어다. 하나라도 빠지면 그날의 일부만 본 셈이라.
  */
 export function isThreadComplete(revealed: number, seenCalls: boolean, seenFamily = true): boolean {

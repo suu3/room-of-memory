@@ -217,10 +217,11 @@ describe("minigame result dialogue", () => {
     // 미니게임 화면이 대사창 뒤에 남는다
     expect(active?.keepMinigame).toBe(true);
 
-    // 두 줄을 다 넘기면 인터랙션이 끝나고 기억이 수집된다
+    // 줄을 끝까지 넘기면 인터랙션이 끝나고 기억이 수집된다
+    const lines = SCRIPTS["frame-photo"].lines.length;
     useMemoryRoomStore.getState().advanceDialogue();
     expect(useMemoryRoomStore.getState().activeInteraction?.lineIndex).toBe(1);
-    useMemoryRoomStore.getState().advanceDialogue();
+    for (let step = 1; step < lines; step += 1) useMemoryRoomStore.getState().advanceDialogue();
 
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
     expect(useMemoryRoomStore.getState().collected).toEqual(["console", "ball", "frame"]);
@@ -246,8 +247,7 @@ describe("minigame result dialogue", () => {
     useMemoryRoomStore.getState().beginInteraction("frame");
     // 접근성 계약상 스킵은 cleared: true다 (src/types/minigame.ts)
     useMemoryRoomStore.getState().finishMinigame({ cleared: true });
-    useMemoryRoomStore.getState().advanceDialogue();
-    useMemoryRoomStore.getState().advanceDialogue();
+    for (const _ of SCRIPTS["frame-photo"].lines) useMemoryRoomStore.getState().advanceDialogue();
 
     expect(useMemoryRoomStore.getState().collected).toEqual(["console", "ball", "frame"]);
   });
@@ -264,7 +264,13 @@ describe("수집한 기억 다시보기", () => {
   function pushToEnd(label: string) {
     for (let step = 0; step < 32; step += 1) {
       const active = useMemoryRoomStore.getState().activeInteraction;
-      if (!active) return;
+      if (!active) {
+        // 조사를 마치며 뜬 컷씬(1페이즈 회상 등)은 다시보기와 무관하니 닫고 끝낸다
+        for (let n = 0; n < 8 && useMemoryRoomStore.getState().activePlayback; n += 1) {
+          useMemoryRoomStore.getState().endPlayback();
+        }
+        return;
+      }
       if (active.phase === "minigame") {
         useMemoryRoomStore.getState().finishMinigame({ cleared: true });
       } else {

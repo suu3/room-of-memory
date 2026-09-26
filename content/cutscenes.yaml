@@ -20,6 +20,8 @@
 #   lines   scripts.yaml과 같은 형태 (speaker / expression / ko / en / ja).
 #
 # 어떤 컷씬이 언제 도는지:
+#   console-flashback  게임기 1차 (memories.yaml의 cutscene)
+#   ball-flashback      공 1차 (memories.yaml의 cutscene)
 #   radio-blackout      라디오 1차(재난방송)를 마친 순간 (store가 1바퀴 완주에 연다)
 #   survivor-broadcast  라디오 2차 (memories.yaml의 cutscene)
 #   trip-doubt          신발장 + 아빠 메일을 둘 다 본 순간 (store: tripDoubted)
@@ -31,6 +33,43 @@
 # 컷씬 id를 바꾸면 src/data/memory-room.ts의 상수도 같이 고쳐야 한다.
 
 cutscenes:
+  #
+  # 1페이즈 회상: 강도 1의 두 기억만. 결과 대사("받아줄 사람이 없다") 바로 뒤에
+  # "받아주던 사람이 있던 때"를 한 장 세우고, 그림 없는 한 줄로 빈 방에 돌아온다.
+  # 뒤이은 라디오 컷씬들보다 가볍게: 그림 한 장, 대사 두 줄, 짧은 정적.
+  # 강도 2부터(액자·폰)는 회상을 붙이지 않는다. 부모님 얼굴(액자 2차)과
+  # 엄마 문자(폰 2차)의 보상을 먼저 써 버리기 때문이다.
+  #
+  # 쉬는 시간 교실, 지는 쪽이 매점. 늘 지던 건 주완(같은 반, 야구부 아님).
+  # 친구들은 얼굴이 잘리거나 뒤통수만 나온다.
+  console-flashback:
+    - image: /assets/images/cutscene-console-flashback.webp
+      holdMs: 1200
+      lines:
+        - speaker: hero
+          ko: 그날도 주완이 졌다. 삼 연패.
+        - speaker: hero
+          ko: 애들이 소리 지르는 걸 뒤로 하고, 걔는 매점까지 뛰었다.
+    - lines:
+        - speaker: hero
+          ko: …그땐 이기는 게 재밌었는데.
+
+  #
+  # 8강이 끝난 직후 홈플레이트. 해가 포수 등 뒤에 있어 얼굴이 역광에 묻힌다.
+  # 보이는 건 미트 낀 손뿐이다: 엔딩 합류 컷(얼굴 대신 미트)과 짝이다 (docs/story.md).
+  # "다음엔…"의 뒷말은 여기서도 풀지 않는다. 생존자 방송 끝이 가져간다.
+  ball-flashback:
+    - image: /assets/images/cutscene-ball-flashback.webp
+      holdMs: 1500
+      lines:
+        - speaker: hero
+          ko: 그 녀석이 마스크를 벗는데, 해가 등 뒤에 있었다.
+        - speaker: hero
+          ko: 얼굴은 기억이 안 난다. 미트 낀 손만 선명하다.
+    - lines:
+        - speaker: hero
+          ko: …그 공, 지금 던지면 받아주려나.
+
   #
   # 분기점 과거편 (docs/story.md 3장 분기점): 그날이 한 컷씩 지나간다.
   # 내레이션 컷(narration)은 누르지 않아도 줄마다 창을 비우고 타자기로 새로 찍히며, 다 찍히면

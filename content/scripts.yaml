@@ -23,25 +23,38 @@ scripts:
   # 발랄하게. 재난·고립의 힌트는 끝맺음 한 줄로만 새어 나온다.
 
   # 전국대회 8강, 진 경기의 회상 (재하 복선). 이름은 끝까지 부르지 않는다.
-  # 첫 줄은 일상: 야구가 도해에게 무엇이었는지를 먼저 깔고 8강으로 들어간다
+  # 첫 줄은 일상: 야구가 도해에게 무엇이었는지를 먼저 깔고 8강으로 들어간다.
+  # 도해의 타석이 마지막 기회였고, 은강고 포수가 그 타구를 잡아내며 경기가 끝났다.
   ball-intro:
     - speaker: hero
       ko: 야구부 3년. 마지막 여름이었다.
     - speaker: hero
-      ko: 전국대회 8강. 9회 말, 마지막 타석.
+      ko: 전국대회 8강, 은강고전. 9회 말 투아웃, 마지막 타석은 나였다.
+    # 우리 쪽 포수 윤호는 다음 타자였다. 도해가 뜬공으로 끝나 윤호는 치지 못했다
+    - speaker: hero
+      expression: smile
+      ko: 대기 타석에서 윤호가 소리쳤다. "쳐, 한도해!"
+      en: 'Yunho yelled from the on-deck circle. "Hit it, Han Do-hae!"'
+      ja: ネクストの円からユノが叫んだ。「打て、ハン・ドヘ!」
     - speaker: hero
       ko: 상대 포수가 미트를 탁탁, 두 번 치고 앉았다.
     - speaker: hero
-      ko: 뭘 던져도 다 받아낼 것 같은 얼굴이었다.
+      ko: 뭘 쳐도 다 받아낼 것 같은 얼굴이었다.
     - speaker: hero
-      ko: …결국 그 공도 받아냈지.
+      ko: 풀카운트. 방망이에 맞은 공이 뒤로 높이 떴다.
+    - speaker: hero
+      ko: 그 녀석이 마스크를 벗어 던지고 달려가 잡았다. 그걸로 끝.
     - speaker: hero
       ko: 경기 끝나고 그 녀석이 뭐라고 했는데, "다음엔…"까지만 들렸다.
 
-  # 캐치볼을 마친 뒤: 벽은 공을 돌려주기만 한다
+  # 캐치볼을 마친 뒤: 벽은 공을 돌려주기만 한다. 받아줄 사람은 윤호였다 (생사·행방은 말하지 않는다)
   ball-alone:
     - speaker: hero
       ko: 벽에 던지면 돌아온다. 그게 전부다.
+    - speaker: hero
+      ko: 윤호 미트에 꽂힐 때 나던 그 소리, 좋았는데.
+      en: I liked the sound it made hitting Yunho's mitt.
+      ja: ユノのミットに収まるときのあの音、好きだったのに。
     - speaker: hero
       ko: 받아줄 사람이 없다는 걸, 자꾸 잊는다.
 
@@ -53,23 +66,23 @@ scripts:
       ja: 久しぶりに一戦やるか。
     - speaker: hero
       expression: smile
-      ko: 지는 쪽이 매점 쏘는 거였는데.
-      en: Loser bought snacks. That was the rule.
-      ja: 負けたほうが売店おごり、って決まりだったのに。
-    # 친구 이름을 여기서 먼저 부른다. 폰 단톡의 우진이 낯선 이름이 아니게 (단톡 w2: 도해가 전날 졌다)
-    - speaker: hero
-      ko: 우진이한텐 늘 졌는데.
+      ko: 주완이랑은 지는 쪽이 매점 쏘는 거였는데. 걔가 맨날 졌지만.
+      en: With Juwan, loser bought snacks. He lost every time.
+      ja: ジュワンとは、負けたほうが売店おごりだった。いつもあいつが負けてたけど。
     # 카드 미궁의 규칙은 여기 적지 않는다. 선반 위 놀이책이 들고 있다
     # (src/data/room-clues.ts의 PUZZLE_CLUES). 대사로 흘리면 안 찾아도 풀린다.
 
     # 이겨도 매점을 쏠 사람이 없다. 덧붙이는 말 없이 짧게 끊는다
   console-alone:
     - speaker: hero
-      ko: 이겼다.
-      en: I won.
-      ja: 勝った。
+      expression: smile
+      ko: 이겼다. 주완아, 바나나우유 두 개.
+      en: I won. Juwan, two banana milks.
+      ja: 勝った。ジュワン、バナナ牛乳二本な。
     - speaker: hero
-      ko: …받아줄 사람이 없네, 내기.
+      ko: …이겨도 사 줄 사람이 없네.
+      en: …Winning doesn't matter when there's no one to pay up.
+      ja: …勝っても、おごってくれるやつがいない。
 
   # 2차 (곁가지)
   console-echo:
@@ -89,19 +102,20 @@ scripts:
       en: This is from the youth baseball tournament, the day I placed.
       ja: これ、少年野球の大会で入賞したときの写真だ。
     - speaker: hero
+      expression: smile
+      ko: 옆에 윤호도 있네. 이때부터 내 공은 다 저 녀석이 받았지.
+      en: Yunho's in it too. He's been catching my throws since back then.
+      ja: 隣にユノもいる。この頃から、俺の球は全部あいつが受けてた。
+    - speaker: hero
       ko: …두 분 얼굴이 흐릿하네.
 
-  # 단톡이 멈춘 날짜를 처음으로 못박고, 엄마 대화방의 "1"을 외면한다.
+  # 단톡이 멈춘 날짜를 처음으로 못박는다. 엄마 대화방은 1페이즈에서 말하지 않는다 (폰 2차의 몫).
   # 강도 2는 "이상하다"까지만: "다 끊겼다"는 단정은 라디오 전에 하지 않는다
   phone-stopped:
     - speaker: hero
       ko: 마지막 메시지가 10월 19일.
       en: The last message is from October 19.
       ja: 最後のメッセージは10月19日。
-    - speaker: hero
-      ko: 엄마 대화방도 그날 아침 문자에서 멈춰 있어.
-    - speaker: hero
-      ko: …나중에.
 
   # ─────────────────────────────────────────────── 1페이즈 · 강도 3
 

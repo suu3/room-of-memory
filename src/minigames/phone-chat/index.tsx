@@ -9,8 +9,11 @@ import type { MinigameProps } from "@/types/minigame";
 import { useOnceCompleter } from "../shell";
 import { PhoneShell } from "./PhoneShell";
 import {
+  CHAT_ROOMS,
   type ChatMessage,
+  type ChatRoomId,
   FAMILY_CHAT,
+  GROUP_CHAT,
   hasLater,
   isThreadComplete,
   OUTGOING_CALLS,
@@ -21,18 +24,41 @@ import {
 } from "./thread";
 
 /**
- * 지금 화면에서 뭘 하면 되는지 한 줄. 탭과 진행에 따라 바뀐다.
+ * 지금 화면에서 뭘 하면 되는지 한 줄. 탭·열린 방·진행에 따라 바뀐다.
  *
  * 통화 기록 탭에서는 아무 말도 하지 않는다(null). 안내를 붙일 자리가 아니다.
  * 화면에 안 받은 전화가 줄줄이 떠 있는 것으로 이미 다 말했고, 거기에 한 줄을
  * 더 얹으면 화자가 플레이어를 부르는 것처럼 읽혀서 톤이 어긋난다.
  */
-function phoneHelpKey(tab: PhoneTab, chatDone: boolean, seenCalls: boolean, seenFamily: boolean) {
+function phoneHelpKey(
+  tab: PhoneTab,
+  room: ChatRoomId | null,
+  chatDone: boolean,
+  seenCalls: boolean,
+  seenFamily: boolean,
+) {
   if (tab !== "chat") return null;
-  if (chatDone && !seenFamily) return "minigame.phoneChat.helpFamily" as const;
-  if (chatDone && !seenCalls) return "minigame.phoneChat.helpCalls" as const;
-  return "minigame.phoneChat.help" as const;
+  if (room === "friends" && !chatDone) return "minigame.phoneChat.help" as const;
+  if (room === null && !chatDone && !seenFamily) return "minigame.phoneChat.helpList" as const;
+  if (!chatDone) return "minigame.phoneChat.helpFriends" as const;
+  if (!seenFamily) return "minigame.phoneChat.helpFamily" as const;
+  if (!seenCalls) return "minigame.phoneChat.helpCalls" as const;
+  return null;
 }
+
+/** 목록의 한 줄에 쓰는 방 정보: 이름, 미리보기(마지막 줄), 날짜, 인원 아이콘. */
+const ROOM_META = {
+  friends: {
+    nameKey: "minigame.phoneChat.chat.room",
+    last: GROUP_CHAT[GROUP_CHAT.length - 1],
+    dateKey: "minigame.phoneChat.date",
+  },
+  family: {
+    nameKey: "minigame.phoneChat.family.room",
+    last: FAMILY_CHAT[FAMILY_CHAT.length - 1],
+    dateKey: "minigame.phoneChat.family.date",
+  },
+} as const;
 
 /** 폰을 열었을 때 이미 펼쳐져 있는 만큼. 대화의 첫 몇 줄만 보인다. */
 const INITIAL_REVEALED = 2;
@@ -82,16 +108,19 @@ function Bubble({
 /**
  * 스마트폰을 확대해 그날의 기록을 읽는다.
  *
- * 단톡방은 클릭(또는 Space/↓)으로 첫 줄부터 한 줄씩 읽어 내려가고, 통화 기록
- * 탭을 열면 도해가 누구에게 몇 번이나 걸었는지 보인다. 둘 다 봐야 끝난다.
- * 한쪽만 보면 그날의 절반만 본 셈이라. 실패 조건은 두지 않았다. 읽는 게 목적인
- * 인터랙션이다.
+ * 하단 탭은 채팅과 통화 둘이다. 채팅 탭은 대화방 목록(친구 단톡방 · 가족 단톡방)에서
+ * 방을 눌러 들어간다. 친구 단톡방은 클릭(또는 Space/↓)으로 첫 줄부터 한 줄씩 읽어
+ * 내려가고, 가족 단톡방은 한 번에 보인다. 통화 탭을 열면 도해가 누구에게 몇 번이나
+ * 걸었는지 보인다. 셋 다 봐야 끝난다. 실패 조건은 두지 않았다. 읽는 게 목적인 인터랙션이다.
+ *
+ * 엄마와의 1:1 방(그날 아침 7시 12분 문자)은 1페이즈 폰에 없다. 폰 2차(mom-chat)의 몫이다.
  */
 export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
   const [tab, setTab] = useState<PhoneTab>("chat");
+  const [room, setRoom] = useState<ChatRoomId | null>(null);
   const [revealed, setRevealed] = useState(INITIAL_REVEALED);
   const [seenCalls, setSeenCalls] = useState(false);
   const [seenFamily, setSeenFamily] = useState(false);
@@ -99,7 +128,8 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
 
   const chatDone = !hasLater(revealed);
   const done = isThreadComplete(revealed, seenCalls, seenFamily);
-  const helpKey = phoneHelpKey(tab, chatDone, seenCalls, seenFamily);
+  const helpKey = phoneHelpKey(tab, room, chatDone, seenCalls, seenFamily);
+  const readingFriends = tab === "chat" && room === "friends";
 
   /** 아래로 한 줄 더 읽어 내려간다. */
   const readNext = useCallback(() => {
@@ -115,6 +145,11 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
     playSound("select");
     setTab(next);
     if (next === "calls") setSeenCalls(true);
+  }, []);
+
+  const openRoom = useCallback((next: ChatRoomId | null) => {
+    playSound("select");
+    setRoom(next);
     if (next === "family") setSeenFamily(true);
   }, []);
 
@@ -123,13 +158,13 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: revealed는 본문에서 읽지 않고 "줄이 늘었다"는 신호로만 쓴다.
   useEffect(() => {
     const node = scrollRef.current;
-    if (!node || tab !== "chat") return;
+    if (!node || !readingFriends) return;
     node.scrollTop = node.scrollHeight;
-  }, [tab, revealed]);
+  }, [readingFriends, revealed]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (tab !== "chat") return;
+      if (!readingFriends) return;
       if (event.code === "Space" || event.code === "ArrowDown" || event.code === "Enter") {
         event.preventDefault();
         readNext();
@@ -137,38 +172,43 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [readNext, tab]);
+  }, [readNext, readingFriends]);
 
   const callTotal = totalOutgoingCalls();
+
+  const header =
+    tab === "calls"
+      ? {
+          title: t("minigame.phoneChat.callsTitle"),
+          subtitle: t("minigame.phoneChat.callsSubtitle"),
+        }
+      : room === "friends"
+        ? {
+            title: t("minigame.phoneChat.chat.room"),
+            subtitle: t("minigame.phoneChat.chat.members"),
+          }
+        : room === "family"
+          ? {
+              title: t("minigame.phoneChat.family.room"),
+              subtitle: t("minigame.phoneChat.family.members"),
+            }
+          : {
+              title: t("minigame.phoneChat.list.title"),
+              subtitle: t("minigame.phoneChat.list.subtitle", { value: CHAT_ROOMS.length }),
+            };
 
   return (
     <div className="flex animate-fade-rise flex-col items-center gap-4">
       <PhoneShell
         tab={tab}
         onTab={openTab}
-        title={t(
-          tab === "chat"
-            ? "minigame.phoneChat.chat.room"
-            : tab === "family"
-              ? "minigame.phoneChat.family.room"
-              : "minigame.phoneChat.callsTitle",
-        )}
-        subtitle={t(
-          tab === "chat"
-            ? "minigame.phoneChat.chat.members"
-            : tab === "family"
-              ? "minigame.phoneChat.family.members"
-              : "minigame.phoneChat.callsSubtitle",
-        )}
+        title={header.title}
+        subtitle={header.subtitle}
         clock="20:47"
+        onBack={tab === "chat" && room !== null ? () => openRoom(null) : undefined}
+        backLabel={t("minigame.phoneChat.list.back")}
         tabs={[
           { id: "chat", label: t("minigame.phoneChat.tab.chat"), Icon: ChatCircleDots },
-          // 가족 탭엔 배지가 없다: 엄마 문자는 그날 이미 읽었다. 그 뒤로 온 것이 없을 뿐이다
-          {
-            id: "family",
-            label: t("minigame.phoneChat.tab.family"),
-            Icon: UsersThree,
-          },
           {
             id: "calls",
             label: t("minigame.phoneChat.tab.calls"),
@@ -177,9 +217,39 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
           },
         ]}
       >
-        {tab === "chat" ? (
+        {tab === "chat" && room === null ? (
+          <ul className="size-full overflow-y-auto bg-scene-navy px-2 py-2">
+            {CHAT_ROOMS.map((id) => {
+              const meta = ROOM_META[id];
+              return (
+                <li key={id}>
+                  <button
+                    type="button"
+                    onClick={() => openRoom(id)}
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-3 text-left transition-colors hover:bg-scene-dusk/60"
+                  >
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-scene-dusk text-bone/70">
+                      <UsersThree size={20} weight="fill" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[0.875rem] font-bold text-paper">
+                        {t(meta.nameKey)}
+                      </span>
+                      <span className="block truncate text-[0.75rem] text-bone/45">
+                        {t(meta.last.textKey)}
+                      </span>
+                    </span>
+                    <span className="shrink-0 self-start pt-0.5 text-[0.6875rem] tabular-nums text-bone/40">
+                      {t(meta.dateKey)}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : readingFriends ? (
           // 한 줄씩 붙는 대화창이라 role="log"가 맞는다. 새 줄이 스크린리더에 읽힌다.
-          // 클릭은 다음 줄 넘기기. 키보드 경로는 창 전역 핸들러와 아래 "다음" 버튼이 맡는다.
+          // 클릭은 다음 줄 넘기기. 키보드 경로는 창 전역 핸들러가 맡는다.
           <div
             ref={scrollRef}
             role="log"
@@ -217,23 +287,8 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
               </p>
             ) : null}
           </div>
-        ) : tab === "family" ? (
+        ) : tab === "chat" ? (
           <div className="size-full overflow-y-auto bg-scene-navy px-3 py-3">
-            {/*
-              맨 위에 엄마와의 1:1 방이 고정돼 있다. 마지막 문자는 그날 아침 7시 12분, 이미 읽은
-              문자다. 누르지 않는다: 도해가 "나중에"로 미룬 방이다 (폰 2차 mom-chat이 다시 연다).
-            */}
-            <div className="mb-3 flex items-center gap-2.5 rounded-xl bg-scene-dusk/60 px-3 py-2.5">
-              <span className="min-w-0 flex-1">
-                <span className="block text-[0.875rem] font-bold text-paper">
-                  {t("minigame.phoneChat.contact.mom")}
-                </span>
-                <span className="block truncate text-[0.75rem] text-bone/45">
-                  {t("minigame.momChat.message")}
-                </span>
-              </span>
-              <span className="shrink-0 text-[0.6875rem] tabular-nums text-bone/40">07:12</span>
-            </div>
             <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
               {t("minigame.phoneChat.family.date")}
             </p>
