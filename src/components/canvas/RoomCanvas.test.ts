@@ -8,6 +8,7 @@ import {
   canInitializeWebGL,
   clampRoomOrbit,
   clampRoomZoomScale,
+  contextLossResponse,
   dispatchMemoryInteraction,
   handleRoomInteractionKeyDown,
   handleRoomOrbitKeyDown,
@@ -363,5 +364,22 @@ describe("room interaction keyboard dispatch", () => {
 
     expect(secondHandled).toBe(true);
     expect(dispatched).toEqual(["window"]);
+  });
+});
+
+describe("contextLossResponse", () => {
+  it("처음 몇 번은 캔버스를 다시 세운다. 컨텍스트 손실은 기기 탓이 아니라 브라우저의 일상이다", () => {
+    expect(contextLossResponse(1)).toBe("remount");
+    expect(contextLossResponse(2)).toBe("remount");
+  });
+
+  it("거듭 잃으면 그때 기기 탓으로 보고 폴백으로 간다", () => {
+    expect(contextLossResponse(3)).toBe("fail");
+    expect(contextLossResponse(99)).toBe("fail");
+  });
+
+  it("이상한 횟수는 폴백이 아니라 다시 세우기로 본다. 폴백은 돌아올 수 없는 길이다", () => {
+    expect(contextLossResponse(0)).toBe("remount");
+    expect(contextLossResponse(Number.NaN)).toBe("remount");
   });
 });

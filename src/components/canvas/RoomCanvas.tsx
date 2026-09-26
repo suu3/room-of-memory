@@ -46,6 +46,7 @@ import type { MovementAxes } from "@/types/movement";
 import { RoomLoadReporter } from "./RoomLoadReporter";
 import {
   canInitializeWebGL,
+  contextLossResponse,
   dispatchMemoryInteraction,
   handleRoomInteractionKeyDown,
   handleRoomOrbitKeyDown,
@@ -130,8 +131,12 @@ export function RoomCanvas() {
   /** 1인칭의 시선. 끌기·키가 쓰고 FirstPersonRig가 프레임마다 읽는다. */
   const lookRef = useRef<LookAngles>({ yaw: 0, pitch: 0 });
   const [webGLFailed, setWebGLFailed] = useState(() => !canInitializeWebGL());
-  const _hmrProbe = 1;
-  void _hmrProbe;
+  /**
+   * 캔버스의 세대. 컨텍스트를 잃으면 하나 올려 <Canvas>를 (오류 경계째) 다시 세운다.
+   * 카메라·커튼·플레이어 자리는 이 컴포넌트의 상태와 ref에 있어 그대로 남는다.
+   */
+  const [canvasEpoch, setCanvasEpoch] = useState(0);
+  const contextLossesRef = useRef(0);
   const [nearbyMemoryId, setNearbyMemoryId] = useState<MemoryId | null>(null);
   const [focusMemoryId, setFocusMemoryId] = useState<MemoryId | null>(null);
   /** 타이틀 구도(디오라마 전체)와 플레이 구도(플레이어 추적) 두 가지. */
@@ -224,9 +229,24 @@ export function RoomCanvas() {
   /** 키보드·프롬프트 버튼 경로: 드래그를 못 하는 사용자를 위해 양쪽을 한 번에 젖힌다. */
   const openBothCurtains = useCallback(() => setPull(() => ({ left: 1, right: 1 })), [setPull]);
 
+  /** 컨텍스트를 아예 못 만든다: 이건 정말 기기 탓이다. */
   const handleWebGLFailure = useCallback((event: Event) => {
     if (event.cancelable) event.preventDefault();
     setWebGLFailed(true);
+  }, []);
+
+  /*
+   * 컨텍스트를 잃었다. 폴백이 아니라 캔버스를 다시 세운다 (contextLossResponse 주석).
+   * preventDefault는 브라우저에 "복구해도 된다"고 알리는 표준 절차라 그대로 둔다.
+   * 다시 세워지며 버려지는 옛 캔버스의 손실(r3f가 언마운트 0.5초 뒤 강제로 잃게 한다)은
+   * ref가 이미 떼어져 여기 닿지 않지만, 혹시 닿아도 지금 캔버스가 아니면 무시한다.
+   */
+  const handleContextLost = useCallback((event: Event) => {
+    if (event.cancelable) event.preventDefault();
+    if (event.target !== canvasElementRef.current) return;
+    contextLossesRef.current += 1;
+    if (contextLossResponse(contextLossesRef.current) === "fail") setWebGLFailed(true);
+    else setCanvasEpoch((epoch) => epoch + 1);
   }, []);
 
   const attachCanvasRef = useCallback(
@@ -235,16 +255,16 @@ export function RoomCanvas() {
       if (previousCanvas === canvas) return;
       if (previousCanvas) {
         previousCanvas.removeEventListener("webglcontextcreationerror", handleWebGLFailure);
-        previousCanvas.removeEventListener("webglcontextlost", handleWebGLFailure);
+        previousCanvas.removeEventListener("webglcontextlost", handleContextLost);
       }
 
       canvasElementRef.current = canvas;
       if (canvas) {
         canvas.addEventListener("webglcontextcreationerror", handleWebGLFailure);
-        canvas.addEventListener("webglcontextlost", handleWebGLFailure);
+        canvas.addEventListener("webglcontextlost", handleContextLost);
       }
     },
-    [handleWebGLFailure],
+    [handleWebGLFailure, handleContextLost],
   );
 
   const labels = useMemo<Record<MemoryId, string>>(
@@ -564,7 +584,9 @@ export function RoomCanvas() {
           <CanvasMinigameSkip />
         </>
       ) : (
-        <CanvasErrorBoundary fallbackText={t("scene.webglFallback")}>
+        // key: 컨텍스트를 잃으면 오류 경계째 새로 세운다. 잃은 컨텍스트로 그리다 난 오류가
+        // 경계에 남아 있으면 새 캔버스가 서도 폴백 글만 보인다
+        <CanvasErrorBoundary key={canvasEpoch} fallbackText={t("scene.webglFallback")}>
           <Canvas
             ref={attachCanvasRef}
             className="absolute inset-0 z-0"

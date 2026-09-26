@@ -359,8 +359,6 @@ export function MemoryGlowRoot({
   /** 1인칭 구간의 이동 입력. 주면 그 동안 잔상 패스가 붙는다. null이면 없다. */
   firstPersonTrail?: MutableRefObject<MovementAxes> | null;
 }>) {
-  const _hmrProbe = 1;
-  void _hmrProbe;
   const aoColor = useMemo(
     () => (ambientOcclusion ? new Color(ambientOcclusion.color) : null),
     [ambientOcclusion],

@@ -210,6 +210,27 @@ function createBrowserProbeCanvas(): WebGLProbeCanvas {
   return document.createElement("canvas") as unknown as WebGLProbeCanvas;
 }
 
+/**
+ * 컨텍스트를 잃었을 때 캔버스를 다시 세우는 횟수 상한. 그 다음은 기기 탓으로 보고 폴백이다.
+ *
+ * `webglcontextlost`는 "이 기기는 3D가 안 된다"가 아니다. 탭을 오래 뒤에 두거나, GPU가
+ * 리셋되거나, 개발 중 핫 리로드로 컨텍스트가 두 개 겹치는 순간 브라우저가 하나를 거둬 가는
+ * 일상적인 사건이다. 예전에는 한 번이라도 나면 영구 폴백("표시할 수 없습니다")으로 떨어져
+ * 새로고침 말고는 돌아올 길이 없었다. 몇 번은 다시 세우고, 거듭 잃을 때만 포기한다.
+ */
+export const MAX_CONTEXT_RECOVERIES = 2;
+
+export type ContextLossResponse = "remount" | "fail";
+
+/** n번째(1부터) 손실에 어떻게 응하나. 이상한 값은 폴백이 아니라 다시 세우기로 본다: 폴백은 돌아올 수 없는 길이다. */
+export function contextLossResponse(
+  losses: number,
+  max: number = MAX_CONTEXT_RECOVERIES,
+): ContextLossResponse {
+  if (!Number.isFinite(losses)) return "remount";
+  return losses > max ? "fail" : "remount";
+}
+
 export function canInitializeWebGL(
   createCanvas: WebGLProbeCanvasFactory = createBrowserProbeCanvas,
 ): boolean {
