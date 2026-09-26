@@ -548,7 +548,7 @@
   "ending": {
     "eyebrow": "THE DOOR OPENS",
     "line": "扉を開けて、外へ出る。",
-    "again": "もう一度",
+    "again": "最初に戻る",
     "replay": "映像をもう一度",
     "play": "再生"
   },

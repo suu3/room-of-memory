@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ASSETS } from "@/lib/assets";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { EndingConfetti } from "./EndingConfetti";
 import { BUTTON_PRIMARY, BUTTON_QUIET } from "./ui-classes";
 
 /** 문이 열리는 걸 보여주고 나서 화면을 덮는다. 배트를 쥔 손과 문이 이어져 보이도록. */
@@ -21,7 +22,8 @@ type EndingStage = "door" | "film" | "card";
  * 현관문을 연 뒤의 엔딩.
  *
  * 문이 열리는 박자를 보여준 뒤 엔딩 영상을 튼다. 영상의 마지막 컷(배트를 쥐고 문을
- * 열고 나가는 장면)이 방금 한 동작과 이어진다. 끝나거나 건너뛰면 카드가 선다.
+ * 열고 나가는 장면)이 방금 한 동작과 이어진다. 끝나거나 건너뛰면 색종이와 함께
+ * 카드가 서고, "처음으로"가 타이틀로 돌려보낸다 (store.reset).
  *
  * 소리째 재생은 문을 누른 클릭이 남긴 사용자 활성화에 기댄다. 브라우저가 그래도
  * 막으면(iOS 등) 재생 버튼을 세워 한 번 더 누르게 한다. 영상을 못 받으면 카드로 간다.
@@ -140,6 +142,7 @@ export function EndingScreen() {
               </button>
             </div>
           </div>
+          <EndingConfetti />
         </div>
       ) : null}
     </div>
