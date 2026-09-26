@@ -1,5 +1,6 @@
 "use client";
 
+import { ContactShadows } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import {
@@ -95,6 +96,8 @@ const CAMERA_Z = 2.3;
 const CAMERA_FOV = 30;
 /** 카메라가 한 화면에 담는 세로 길이 (월드). 확대했을 때 어디까지 옮길 수 있는지의 기준. */
 const VIEW_HEIGHT = 2 * CAMERA_Z * Math.tan((CAMERA_FOV / 2) * (Math.PI / 180));
+/** 발밑 그림자를 물건 아래 끝에서 이만큼 띄운다 (월드). 붙이면 바닥에 박힌 것처럼 보인다. */
+const SHADOW_GAP = 0.03;
 /** 세로로 끈 픽셀을 월드 거리로. */
 const DRAG_PX_TO_WORLD = 0.003;
 const ZOOM_DAMP = 14;
@@ -321,6 +324,14 @@ function InspectedThing({
 
   return (
     <group ref={frameRef}>
+      {/* 발밑 그림자: 확대·세로 이동을 물건과 함께 따라가도록 frame 안에 둔다 */}
+      <ContactShadows
+        position={[0, -height / 2 - SHADOW_GAP, 0]}
+        opacity={0.75}
+        scale={Math.max(width, depth) * 3.2}
+        blur={2.4}
+        far={height}
+      />
       <group ref={groupRef}>
         {modeled ? (
           <group scale={height / AMPOULE_MODEL_HEIGHT}>
@@ -369,17 +380,24 @@ export default function InspectTurntable({
   /** 찾을 면을 읽었을 때 한 번. */
   onFound: () => void;
 }) {
+  const palette = useMemo(resolveRoomPalette, []);
   return (
     <Canvas
-      // 손에 든 물건이라 방의 밤 조명이 아니라 밝은 실내 광으로 세운다
       camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
       gl={{ alpha: true, antialias: true }}
       dpr={[1, 2]}
       style={{ touchAction: "none" }}
     >
-      <ambientLight intensity={1.3} />
-      <directionalLight position={[2, 3, 3]} intensity={1.6} />
-      <directionalLight position={[-3, 1, -2]} intensity={0.5} />
+      {/*
+       * 어두운 무대 위의 물건 (배경은 DOM의 .inspect-stage). 고르게 밝히던 실내 광을 걷고
+       * 앞 위의 핀 조명 하나로 세운다: 찾을 면은 늘 카메라 쪽이라 글씨는 그대로 읽힌다.
+       * 뒤에서 기억 빛(memory)이 윤곽을 따라 금테를 두르고, 발밑 그림자가 바닥을 만든다.
+       */}
+      <ambientLight intensity={0.4} />
+      <spotLight position={[1.4, 2.4, 2.8]} angle={0.3} penumbra={1} decay={0} intensity={3.2} />
+      <directionalLight position={[-1.5, -0.6, 2.5]} intensity={0.35} />
+      <directionalLight position={[-2.6, 1.4, -2.4]} intensity={2.2} color={palette.memory} />
+      <directionalLight position={[2.6, 0.4, -2]} intensity={1.2} color={palette.memory} />
       <group rotation={[object.tilt ?? 0.16, 0, 0]}>
         <InspectedThing
           object={object}

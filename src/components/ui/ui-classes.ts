@@ -30,10 +30,11 @@ export const BUTTON_QUIET = `${BUTTON_BASE} border-line bg-transparent px-4 py-2
 export const BUTTON_DESTRUCTIVE = `${BUTTON_BASE} border-ember bg-ember px-4 py-2.5 text-ivory hover:border-ember/85 hover:bg-ember/85 active:bg-ember/75`;
 /** 종이 위의 조용한 버튼 (수첩·종이 단서). */
 export const BUTTON_QUIET_PAPER = `${BUTTON_BASE} border-ink/15 bg-transparent px-3 py-1.5 text-graphite hover:border-ink/40 hover:text-ink active:bg-ink/5`;
-/** 종이 위의 돌리기 아이콘 버튼 (집어 든 문제집). */
-export const TURN_BUTTON_PAPER = `cursor-pointer rounded-sm border border-ink/10 bg-bone/40 p-1.5 text-graphite transition-colors hover:text-ink active:bg-bone/70 ${FOCUS_RING}`;
 /** 어두운 패널 위의 돌리기 아이콘 버튼 (거울 속 캐릭터). */
 export const TURN_BUTTON_DARK = `cursor-pointer rounded-sm border border-line bg-surface p-1.5 text-fog transition-colors hover:text-ivory active:bg-surface-strong ${FOCUS_RING}`;
+
+/** 인스펙트 무대 위에 뜨는 조작 버튼 (돌리기·확대). 알약 모양 받침 안에 테 없이 선다. */
+export const STAGE_ICON_BUTTON = `grid size-8 cursor-pointer place-items-center rounded-full text-fog transition-colors duration-150 hover:bg-ivory/10 hover:text-ivory active:bg-ivory/15 ${FOCUS_RING}`;
 
 /** 선택 칩 (언어·난이도·분류). 상태는 색만이 아니라 aria-pressed와 채움으로 말한다. */
 export const CHIP_BASE = `cursor-pointer rounded-sm border px-3 py-1.5 text-sm font-medium leading-none transition-colors duration-150 ${FOCUS_RING}`;

@@ -850,6 +850,25 @@ body {
 }
 
 /*
+ * 집어 든 물건을 돌려 보는 무대 (InspectView). 방보다 한 톤 밝은 청회색 한가운데로
+ * 기억 빛이 옅게 고이고, 가장자리는 밤으로 가라앉는다. 핀 조명을 받는 물건만 떠오른다.
+ */
+.inspect-stage {
+  background:
+    radial-gradient(
+      46% 52% at 50% 40%,
+      color-mix(in srgb, var(--color-memory) 16%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      120% 100% at 50% 38%,
+      var(--color-scene-storm) 0%,
+      var(--color-scene-deep) 58%,
+      var(--color-night) 100%
+    );
+}
+
+/*
  * 1인칭 인트로에서 불을 켜는 순간의 덮개 (ViewpointTransition).
  *
  * 예전에는 순백(ivory)이 전면을 덮었다. 캄캄한 방에서 한 프레임에 흰 화면으로 튀는 것은

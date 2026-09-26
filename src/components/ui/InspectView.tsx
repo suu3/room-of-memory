@@ -7,10 +7,16 @@ import {
   MagnifyingGlassPlus,
 } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
-import { type WheelEvent as ReactWheelEvent, useCallback, useRef } from "react";
+import {
+  type WheelEvent as ReactWheelEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type { InspectObject } from "@/components/canvas/InspectTurntable";
-import { PANEL_PAPER, TURN_BUTTON_PAPER } from "./ui-classes";
+import { STAGE_ICON_BUTTON } from "./ui-classes";
 import { TURN_STEP, useTurntableDrag } from "./use-turntable-drag";
 
 /** Canvas는 클라이언트에서만 뜬다 (.claude/rules/r3f.md): 물건을 집어 들 때 비로소 받는다. */
@@ -25,6 +31,8 @@ const ZOOM_MAX = 2.4;
 const WHEEL_ZOOM_RATE = 0.0018;
 /** 버튼 한 번에 곱해지는 배율. */
 const ZOOM_STEP = 1.35;
+/** 조작 안내가 떠 있는 시간(ms). 그 전에 물건을 잡으면 바로 걷힌다. */
+const HINT_MS = 4500;
 
 /**
  * 집어 든 물건을 돌려 보는 판 (3D 인스펙트의 DOM 쪽, v4.1 2장).
@@ -69,14 +77,24 @@ export function InspectView({
     [zoomBy],
   );
 
+  // 안내는 처음에만: 손이 물건을 잡았거나 잠시 지나면 걷혀 무대에 물건만 남는다
+  const [hintShown, setHintShown] = useState(true);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setHintShown(false), HINT_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
-    <div className={`p-4 sm:p-5 ${PANEL_PAPER} ${className}`}>
+    <div
+      className={`inspect-stage relative overflow-hidden rounded-lg border border-line shadow-panel ${className}`}
+    >
       <div
         role="img"
         aria-label={alt}
         {...handlers}
+        onPointerDownCapture={() => setHintShown(false)}
         onWheel={onWheel}
-        className="h-64 w-full cursor-grab touch-none overscroll-contain rounded-md border border-ink/10 bg-bone/25 active:cursor-grabbing sm:h-80"
+        className="h-64 w-full cursor-grab touch-none overscroll-contain active:cursor-grabbing sm:h-80"
       >
         <InspectTurntable
           object={object}
@@ -86,41 +104,45 @@ export function InspectView({
           onFound={onFound}
         />
       </div>
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <span className="text-xs text-graphite">{hint}</span>
-        <div className="flex flex-none gap-1">
+      <p
+        className={`pointer-events-none absolute inset-x-0 top-3 px-4 text-center text-xs text-fog transition-opacity duration-500 ${hintShown ? "opacity-100" : "opacity-0"}`}
+      >
+        {hint}
+      </p>
+      <div className="flex justify-center pb-3">
+        <div className="flex items-center gap-0.5 rounded-full border border-line bg-surface p-1 backdrop-blur-sm">
           <button
             type="button"
             onClick={() => turn(-TURN_STEP)}
             aria-label={t("characterSheet.turnLeft")}
-            className={TURN_BUTTON_PAPER}
+            className={STAGE_ICON_BUTTON}
           >
-            <ArrowCounterClockwise size={13} weight="bold" />
+            <ArrowCounterClockwise size={15} weight="bold" />
           </button>
           <button
             type="button"
             onClick={() => turn(TURN_STEP)}
             aria-label={t("characterSheet.turnRight")}
-            className={TURN_BUTTON_PAPER}
+            className={STAGE_ICON_BUTTON}
           >
-            <ArrowClockwise size={13} weight="bold" />
+            <ArrowClockwise size={15} weight="bold" />
           </button>
-          <span aria-hidden className="mx-1 w-px self-stretch bg-ink/10" />
+          <span aria-hidden className="mx-1 h-4 w-px bg-line" />
           <button
             type="button"
             onClick={() => zoomBy(1 / ZOOM_STEP)}
             aria-label={t("clue.workbook.zoomOut")}
-            className={TURN_BUTTON_PAPER}
+            className={STAGE_ICON_BUTTON}
           >
-            <MagnifyingGlassMinus size={13} weight="bold" />
+            <MagnifyingGlassMinus size={15} weight="bold" />
           </button>
           <button
             type="button"
             onClick={() => zoomBy(ZOOM_STEP)}
             aria-label={t("clue.workbook.zoomIn")}
-            className={TURN_BUTTON_PAPER}
+            className={STAGE_ICON_BUTTON}
           >
-            <MagnifyingGlassPlus size={13} weight="bold" />
+            <MagnifyingGlassPlus size={15} weight="bold" />
           </button>
         </div>
       </div>
