@@ -15,15 +15,16 @@
  * 카드 앞의 번호는 목록 순번이 아니라 **열리는 차례**다. 같은 번호는 같이 열린다.
  */
 import { useCallback, useEffect, useState } from "react";
-import type {
-  ContentCut,
-  ContentLine,
-  ContentMemory,
-  ContentOptions,
-  ContentPhase,
-  GameContent,
-  LocalizedText,
-  SaveResult,
+import {
+  CONTENT_LOCALES,
+  type ContentCut,
+  type ContentLine,
+  type ContentMemory,
+  type ContentOptions,
+  type ContentPhase,
+  type GameContent,
+  type LocalizedText,
+  type SaveResult,
 } from "@/types/content";
 import {
   Button,
@@ -300,6 +301,52 @@ function phaseDigest(phase: ContentPhase | undefined): string | null {
     phase.resultScript ? "결과 대사" : null,
   ].filter((part): part is string => part !== null);
   return parts.length > 0 ? parts.join(" · ") : "바로 수집";
+}
+
+/* ── 대사 검색 ────────────────────────────────────────────────────────── */
+
+/** 검색어를 비교할 모양으로. 대소문자만 접는다 (한글·가나는 그대로). */
+function searchKey(query: string): string {
+  return query.trim().toLowerCase();
+}
+
+/** 줄 하나가 검색어에 걸리는가. 세 언어 본문과 화자를 다 본다. 빈 검색어는 아무것도 안 건다. */
+function lineMatches(line: ContentLine, key: string): boolean {
+  if (!key) return false;
+  if (line.speaker.toLowerCase().includes(key)) return true;
+  return CONTENT_LOCALES.some((locale) => line[locale]?.toLowerCase().includes(key));
+}
+
+/** 줄 편집 칸의 테두리. 검색에 걸린 줄은 강조색으로 선다. */
+function lineBoxClass(hit: boolean): string {
+  return hit
+    ? "rounded-sm border border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] p-3"
+    : "rounded-sm border border-[var(--admin-line)] p-3";
+}
+
+/** 검색칸 + 걸린 개수. 대사·컷씬 탭이 같이 쓴다. */
+function SearchBar({
+  value,
+  onChange,
+  result,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  result: string | null;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <div className="min-w-64 flex-1">
+        <TextInput
+          value={value}
+          placeholder="대사 검색: 본문(ko/en/ja) · 화자 · id"
+          onChange={onChange}
+        />
+      </div>
+      {result ? <span className={`text-sm ${mutedClass}`}>{result}</span> : null}
+      {value ? <Button onClick={() => onChange("")}>지우기</Button> : null}
+    </div>
+  );
 }
 
 /* ── 흐름 ─────────────────────────────────────────────────────────────── */
@@ -707,6 +754,8 @@ function scriptUsage(content: GameContent): Record<string, string[]> {
     for (const [round, phase] of [
       ["1바퀴", memory.phase1],
       ["2바퀴", memory.phase2],
+      // 3차(되짚기)도 스크립트를 가리킨다. 빠뜨리면 멀쩡한 대사에 "안 붙었다"가 뜬다
+      ["3바퀴", memory.phase3],
     ] as const) {
       if (!phase) continue;
       mark(phase.script, round, "① 게임 전");
@@ -731,8 +780,34 @@ function ScriptsTab({
   const setLines = (id: string, lines: ContentLine[]) =>
     onChange({ ...content, scripts: { ...content.scripts, [id]: lines } });
 
+  const [query, setQuery] = useState("");
   const usage = scriptUsage(content);
-  const ids = Object.keys(content.scripts);
+  const key = searchKey(query);
+
+  // id로 걸리면 스크립트째, 본문·화자로 걸리면 그 줄이 있는 스크립트가 남는다
+  const matchesScript = (id: string, lines: ContentLine[], term: string) =>
+    !term || id.toLowerCase().includes(term) || lines.some((line) => lineMatches(line, term));
+  const entries = Object.entries(content.scripts).filter(([id, lines]) =>
+    matchesScript(id, lines, key),
+  );
+  const ids = entries.map(([id]) => id);
+  const hitLines = entries.reduce(
+    (sum, [, lines]) => sum + lines.filter((line) => lineMatches(line, key)).length,
+    0,
+  );
+
+  // 검색어가 바뀌면 걸린 카드를 펼친다. 줄을 찾으러 온 거라 접혀 있으면 한 번 더 눌러야 한다
+  const search = (next: string) => {
+    setQuery(next);
+    const term = searchKey(next);
+    if (!term) return;
+    cards.setAll(
+      Object.entries(content.scripts)
+        .filter(([id, lines]) => matchesScript(id, lines, term))
+        .map(([id]) => id),
+      true,
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -747,7 +822,17 @@ function ScriptsTab({
         />
       </div>
 
-      {Object.entries(content.scripts).map(([id, lines]) => (
+      <SearchBar
+        value={query}
+        onChange={search}
+        result={key ? `스크립트 ${entries.length}개 · 줄 ${hitLines}개` : null}
+      />
+
+      {key && entries.length === 0 ? (
+        <p className={`text-sm ${mutedClass}`}>걸리는 대사가 없다.</p>
+      ) : null}
+
+      {entries.map(([id, lines]) => (
         <Card
           key={id}
           open={cards.isOpen(id)}
@@ -772,7 +857,12 @@ function ScriptsTab({
             </span>
           }
         >
-          <LinesEditor lines={lines} options={options} onChange={(next) => setLines(id, next)} />
+          <LinesEditor
+            lines={lines}
+            options={options}
+            highlight={key}
+            onChange={(next) => setLines(id, next)}
+          />
         </Card>
       ))}
     </div>
@@ -782,10 +872,13 @@ function ScriptsTab({
 function LinesEditor({
   lines,
   options,
+  highlight = "",
   onChange,
 }: {
   lines: ContentLine[];
   options: ContentOptions;
+  /** 검색어(searchKey). 걸린 줄의 테두리를 강조색으로 바꾼다 */
+  highlight?: string;
   onChange: (lines: ContentLine[]) => void;
 }) {
   const setLine = (index: number, line: ContentLine) => {
@@ -807,7 +900,7 @@ function LinesEditor({
       {lines.map((line, index) => (
         // 줄에는 고유 id가 없다. 순서가 곧 정체성이라 인덱스를 키로 쓴다
         // biome-ignore lint/suspicious/noArrayIndexKey: 줄의 정체성은 순서 그 자체다
-        <div key={index} className="rounded-sm border border-[var(--admin-line)] p-3">
+        <div key={index} className={lineBoxClass(lineMatches(line, highlight))}>
           <div className="mb-2 flex flex-wrap items-end gap-3">
             <span className={`pb-2 font-mono text-xs ${mutedClass}`}>
               {index + 1}번째 줄 / {lines.length}
@@ -891,7 +984,38 @@ function CutscenesTab({
   const setCuts = (id: string, cuts: ContentCut[]) =>
     onChange({ ...content, cutscenes: { ...content.cutscenes, [id]: cuts } });
 
-  const ids = Object.keys(content.cutscenes);
+  const [query, setQuery] = useState("");
+  const key = searchKey(query);
+
+  const matchesCutscene = (id: string, cuts: ContentCut[], term: string) =>
+    !term ||
+    id.toLowerCase().includes(term) ||
+    cuts.some((cut) => cut.lines.some((line) => lineMatches(line, term)));
+  const entries = Object.entries(content.cutscenes).filter(([id, cuts]) =>
+    matchesCutscene(id, cuts, key),
+  );
+  const ids = entries.map(([id]) => id);
+  const hitLines = entries.reduce(
+    (sum, [, cuts]) =>
+      sum +
+      cuts.reduce(
+        (each, cut) => each + cut.lines.filter((line) => lineMatches(line, key)).length,
+        0,
+      ),
+    0,
+  );
+
+  const search = (next: string) => {
+    setQuery(next);
+    const term = searchKey(next);
+    if (!term) return;
+    cards.setAll(
+      Object.entries(content.cutscenes)
+        .filter(([id, cuts]) => matchesCutscene(id, cuts, term))
+        .map(([id]) => id),
+      true,
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -905,7 +1029,17 @@ function CutscenesTab({
         />
       </div>
 
-      {Object.entries(content.cutscenes).map(([id, cuts]) => (
+      <SearchBar
+        value={query}
+        onChange={search}
+        result={key ? `컷씬 ${entries.length}개 · 줄 ${hitLines}개` : null}
+      />
+
+      {key && entries.length === 0 ? (
+        <p className={`text-sm ${mutedClass}`}>걸리는 대사가 없다.</p>
+      ) : null}
+
+      {entries.map(([id, cuts]) => (
         <Card
           key={id}
           open={cards.isOpen(id)}
@@ -954,6 +1088,7 @@ function CutscenesTab({
                   <LinesEditor
                     lines={cut.lines}
                     options={options}
+                    highlight={key}
                     onChange={(lines) => {
                       const next = [...cuts];
                       next[index] = { ...cut, lines };
