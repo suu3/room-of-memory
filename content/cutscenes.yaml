@@ -78,7 +78,7 @@ cutscenes:
   # 돌아와서 드는 혼잣말은 stages.yaml의 turn-bottom이다.
   radio-blackout:
     # 1컷: 교문 앞, 엄마 문자 미리보기
-    - image: /assets/images/cutscene-day-1.webp?v=2
+    - image: /assets/images/cutscene-day-1.webp?v=3
       narration: true
       lines:
         - speaker: hero
@@ -112,7 +112,7 @@ cutscenes:
       holdMs: 1500
       lines: []
     # 5컷: 복도를 달림
-    - image: /assets/images/cutscene-day-5.webp?v=2
+    - image: /assets/images/cutscene-day-5.webp?v=3
       narration: true
       lines:
         - speaker: hero
