@@ -67,6 +67,8 @@ export interface ContentMemory {
 
 export interface ContentCut {
   image?: string;
+  /** 검정 화면 컷: 그림 없이 어둠 위에 대사만 흐른다. image·page와 같이 쓰지 않는다. */
+  black?: boolean;
   /** 대사가 끝난 뒤 그림만 남기는 시간(ms). */
   holdMs?: number;
   /** 웹툰 칸의 페이지 (1부터). */

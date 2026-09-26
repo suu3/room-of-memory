@@ -96,6 +96,7 @@ function emitModule(content) {
       const cutKey = `cutscenes.${id}.cut${index + 1}`;
       lines.push("      {");
       if (cut.image !== undefined) lines.push(`        image: ${JSON.stringify(cut.image)},`);
+      if (cut.black === true) lines.push("        black: true,");
       if (cut.holdMs !== undefined) lines.push(`        holdMs: ${cut.holdMs},`);
       if (cut.page !== undefined) lines.push(`        page: ${cut.page},`);
       if (cut.ratio !== undefined) lines.push(`        ratio: ${JSON.stringify(cut.ratio)},`);

@@ -7,7 +7,7 @@
 #   p1-0         p1, 강도 1 (처음부터)
 #   p1-mid       p1, 강도 2 진입 (게임기·공을 다 본 뒤)
 #   p1-late      p1, 강도 3 진입 (넷 이상 본 뒤)
-#   turn-bottom  turning, 생존자 방송 전. 과거편에서 돌아온 가장 어두운 한 줄 (체념)
+#   turn-bottom  turning, 생존자 방송 전. 과거편에서 돌아온 방, 빨갛게 깜빡이는 라디오 앞의 한 줄
 #   turn-signal  turning, 방송을 들은 뒤 문이 열리기 전
 #   p2-enter     p2 진입. 기한 "나흘 밤 안에 가야 해."
 #   p3-enter     p3 진입. 엄마가 숨긴 것을 쫓는다
@@ -44,12 +44,12 @@ stages:
       en: Going through them one by one keeps bringing that day back… Enough. Stop.
       ja: 一つずつ見てると、あの日のことが…いい、やめよう。
 
-  # 과거편 컷씬이 끝나고 3D 방으로 돌아온 순간의 두 줄. 줄바꿈은 YAML 개행 그대로 화면에 선다
+  # 과거편 컷씬이 끝나고 3D 방으로 돌아온 순간. "그날 이후" 두 줄은 컷씬의 마지막 검정 컷
+  # (cutscenes.yaml radio-blackout 8컷)이 대사창으로 말한다. 여기는 그 뒤, 라디오가 빨갛게
+  # 깜빡이는 걸 알아채는 혼잣말이다. 재난방송은 자동 반복이었는데 그게 아닌 신호가 든다.
   turn-bottom:
     monologue:
-      ko: |-
-        그날 이후로 난 집에 고립되어 있었다.
-        나가서 마주할 현실이 두려워서.
+      ko: …그럴 리가 없는데. 라디오에 다른 신호가 잡힌다.
 
   turn-signal:
     monologue:

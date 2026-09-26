@@ -81,6 +81,22 @@ describe("배트를 쥐는 두 줄의 화면", () => {
     expect(skip.className).toContain("text-ivory");
   });
 
+  it("검정 화면 컷은 그림도 신호의 판도 세우지 않는다", () => {
+    /*
+     * 과거편의 마지막 컷: 그날에서 지금으로 건너오는 두 줄은 어둠 위에만 선다.
+     * 그림 없는 컷의 자리를 신호의 판(파형)이 채우면 방송 화면으로 읽힌다.
+     */
+    const opened = openCutscene(CUTSCENE_RADIO_BLACKOUT);
+    if (!opened) throw new Error("radio-blackout 컷씬이 없다");
+    const last = opened.cuts.length - 1;
+    expect(opened.cuts[last]?.black).toBe(true);
+    useMemoryRoomStore.setState({ activePlayback: { ...opened, cutIndex: last } });
+    const { container } = render(<PlaybackScene />);
+
+    expect(container.querySelector(".animate-signal-wave")).toBeNull();
+    expect(container.querySelector("img")).toBeNull();
+  });
+
   it("대사 없는 컷이 같은 정적으로 이어져도 컷마다 저절로 넘어간다", () => {
     /*
      * 이미지 나열(학교 → 엘리베이터 → …)은 컷마다 holdMs가 같고 대사가 없다. 컷이

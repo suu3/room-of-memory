@@ -51,6 +51,12 @@ export interface CutsceneCut {
    */
   image?: string;
   /**
+   * 검정 화면 컷. 그림도 신호의 판도 세우지 않고, 어둠(scene-void) 위에 대사창만 뜬다.
+   * 과거편이 끝나고 방으로 돌아오기 직전, 회상이 아니라 "지금"을 말하는 한 컷이다.
+   * `image`·`page`와 같이 쓰지 않는다 (scripts/content/validate.mjs가 막는다).
+   */
+  black?: boolean;
+  /**
    * 그림을 판에 맞추는 방식. 컷씬 일러는 판에 맞춰 그려지므로 "cover"(기본),
    * 다시보기 스틸은 비율이 제각각이라 잘리지 않게 "contain"으로 세운다.
    */

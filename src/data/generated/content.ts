@@ -577,6 +577,14 @@ export const CUTSCENES: Record<string, Cutscene> = {
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut7.line3" },
         ],
       },
+      {
+        black: true,
+        narration: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut8.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut8.line2" },
+        ],
+      },
     ],
   },
   "survivor-broadcast": {

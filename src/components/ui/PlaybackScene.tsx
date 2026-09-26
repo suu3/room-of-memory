@@ -277,9 +277,11 @@ export function PlaybackScene() {
   /**
    * 컷씬에서는 그림이 아직 없어도 자리를 지킨다. 다시보기는 보여줄 게 없으면 비운다.
    * 애초에 그림 없이 설계된 컷씬(bare)은 판도 세우지 않는다. 회색 판은 "올 그림"의
-   * 자리이지, 없는 그림의 자리가 아니다.
+   * 자리이지, 없는 그림의 자리가 아니다. 검정 화면 컷(black)도 판을 비운다: 그림이
+   * 없는 게 아니라 어둠 자체가 그림이라, 신호의 판이 대신 서면 안 된다.
    */
-  const showPlate = stage === "cuts" && ((isCutscene && !bare) || image !== undefined);
+  const showPlate =
+    stage === "cuts" && cut?.black !== true && ((isCutscene && !bare) || image !== undefined);
 
   return (
     // z-40: 미니게임과 같은 층. 재생은 인터랙션이 닫힌 뒤에 열려 둘이 겹치지 않는다.

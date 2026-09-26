@@ -78,6 +78,17 @@ describe("콘텐츠 검증 (v4 스키마)", () => {
     expect(findUnlockCycles(content.memories).length).toBeGreaterThan(0);
   });
 
+  it("검정 화면 컷은 그림·웹툰 칸과 같이 서지 못한다", () => {
+    const content = minimal();
+    const line = { speaker: "hero", ...text("a") };
+    content.cutscenes.quiet = [
+      { black: true, image: "/assets/images/x.webp", lines: [line] },
+    ] as never;
+    expect(validateContent(content).join("\n")).toContain("black");
+    content.cutscenes.quiet = [{ black: true, lines: [line] }] as never;
+    expect(validateContent(content).join("\n")).not.toContain("black");
+  });
+
   it("대사 없는 컷은 정적(holdMs)이 있어야 넘어간다", () => {
     const content = minimal();
     content.cutscenes.quiet[0] = { lines: [] } as never;

@@ -8,6 +8,8 @@
 # 컷 하나의 형태:
 #   image   일러스트 경로 (public 기준). 파일이 아직 없어도 회색 판이 자리를 지킨다.
 #           없으면 그림 없이 방이 그대로 비친 채 대사창만 뜬다.
+#   black   true면 검정 화면. 그림도 판도 없이 어둠 위에 대사창만 뜬다 (과거편의 마지막 컷).
+#           image·page와 같이 못 쓴다.
 #   page    웹툰 칸의 페이지(1부터). 있으면 웹툰 뷰어(WebtoonViewer)로 돈다: 페이지 안에서
 #           칸이 번호순으로 떠오르고, 대사는 칸 안의 라디오 말풍선(한 줄)이다. 페이지 없는
 #           컷은 맨 뒤에만: 웹툰이 걷힌 뒤 방에서 대사창으로 흐르는 한마디다.
@@ -84,8 +86,9 @@ cutscenes:
   # 분기점 과거편 (docs/story.md 3장 분기점): 그날이 한 컷씩 지나간다.
   # 내레이션 컷(narration)은 누르지 않아도 줄마다 창을 비우고 타자기로 새로 찍히며, 다 찍히면
   # 다음 컷으로 넘어간다. 4컷(얼어붙은 얼굴)만 말 없이 1.5초 정적이다.
+  # 8컷은 검정 화면(black): 그날의 회상이 끝나고 "그날 이후"를 대사창으로 말한다.
   # 끝나면 3D 방으로 돌아온다. 방은 가장 어둡고, BGM은 없고, 라디오는 빨갛게 깜빡인다.
-  # 돌아와서 드는 혼잣말은 stages.yaml의 turn-bottom이다.
+  # 돌아와서 드는 혼잣말은 stages.yaml의 turn-bottom (라디오에 다른 신호가 잡힌다).
   radio-blackout:
     # 1컷: 교문 앞, 엄마 문자 미리보기
     - image: /assets/images/cutscene-day-1.webp?v=3
@@ -149,6 +152,14 @@ cutscenes:
           ko: 감염, 확산, 대피. 아나운서가 낯선 말들을 다급하게 외치고 있었다.
         - speaker: hero
           ko: 사방에서 들려오는 비명소리에 귀를 막았다.
+    # 8컷: 검정 화면. 그날에서 지금으로 건너오는 두 줄
+    - black: true
+      narration: true
+      lines:
+        - speaker: hero
+          ko: 그날 이후로 난 집에 고립되어 있었다.
+        - speaker: hero
+          ko: 나가서 마주할 현실이 두려워서.
 
   #
   # 생존자 방송: 3페이지 10칸 웹툰 (WebtoonViewer). 페이지 안에서 칸이 번호순으로
@@ -190,7 +201,7 @@ cutscenes:
       sfx: radioStatic
       lines:
         - speaker: signal
-          ko: 생존자 있으면 들어. 우리 여기 모여 있어. 치료할 방법도 찾고 있고.
+          ko: 여기 은강고 체육관에 생존자들 모여 있어.
     - image: /assets/images/cutscene-survivor-6.webp?v=2
       page: 2
       ratio: "3:4"
@@ -202,7 +213,7 @@ cutscenes:
       sfx: radioStatic
       lines:
         - speaker: signal
-          ko: 나흘 밤 지나면 여기서 이동한다. 그 뒤엔 우리도 어디로 갈지 몰라.
+          ko: 방송실 장비에 송신기 물려서 쏘는 거라 멀리는 안 가. 이 동네면 들릴 거야.
     # 3페이지
     - image: /assets/images/cutscene-survivor-8.webp?v=2
       page: 3
@@ -210,14 +221,14 @@ cutscenes:
       sfx: radioStatic
       lines:
         - speaker: signal
-          ko: 다시 한번 말한다. 은강고 체육관으로 모여.
+          ko: 나흘 밤 지나면 여기서 이동한다. 헬기가 뜬다는 정보를 입수했어.
     - image: /assets/images/cutscene-survivor-9.webp?v=2
       page: 3
       ratio: "3:4"
       sfx: radioStatic
       lines:
         - speaker: signal
-          ko: …늦지 말고 와.
+          ko: 그러니까 듣고 있는 사람이 있다면 은강고 체육관으로 모여. …늦지 말고 와.
     # 치지직: 방송이 끊긴다. 0.8초 끊김 뒤 웹툰이 걷힌다
     - image: /assets/images/cutscene-survivor-10.webp?v=3
       page: 3

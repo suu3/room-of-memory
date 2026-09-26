@@ -193,6 +193,13 @@ export function validateContent(content, { minigameIds = [] } = {}) {
       if (cut.narration !== undefined && typeof cut.narration !== "boolean") {
         issues.push(`${where}.narration: true/false여야 한다.`);
       }
+      if (cut.black !== undefined && typeof cut.black !== "boolean") {
+        issues.push(`${where}.black: true/false여야 한다.`);
+      }
+      // 검정 화면은 그림의 자리를 비우는 컷이다. 그림이나 웹툰 칸과 같이 서지 않는다
+      if (cut.black === true && (cut.image !== undefined || cut.page !== undefined)) {
+        issues.push(`${where}.black: 검정 화면 컷에는 image·page를 같이 쓸 수 없다.`);
+      }
       if (cut.narration === true && Array.isArray(cut.lines) && cut.lines.length === 0) {
         issues.push(`${where}.narration: 내레이션 컷은 대사가 있어야 한다.`);
       }
