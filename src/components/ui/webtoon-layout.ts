@@ -54,14 +54,28 @@ export function pageGap(viewport: { width: number }): number {
   return viewport.width < 640 ? 12 : 24;
 }
 
+/** 칸 아래로 걸치는 말풍선 몫의 상한(px): 가장 큰 글자(20px) × 2.6em. */
+const MAX_BUBBLE_OVERHANG = 52;
+
 /**
- * 페이지 폭(px). 화면 높이에 맞춰 줄이지 않는다: 한 화면에 다 넣으면 데스크톱에서
- * 폭이 400px 안팎으로 쪼그라들어 그림이 안 읽힌다. 대신 칸을 따라 화면이 내려간다
- * (panOffset). 데스크톱은 900px, 모바일은 여백 없이 화면 폭이 상한이다.
+ * 페이지 폭(px). 페이지 전체를 화면 높이에 맞춰 줄이지 않는다: 한 화면에 다 넣으면
+ * 데스크톱에서 폭이 400px 안팎으로 쪼그라들어 그림이 안 읽힌다. 대신 칸을 따라 화면이
+ * 내려간다 (pagePosition). 데스크톱은 900px, 모바일은 여백 없이 화면 폭이 상한이다.
+ *
+ * 다만 **줄 하나**는 화면에 통째로 들어야 한다. 가로로 든 폰(812×375)에서 폭만 보고
+ * 잡으면 3:4 두 칸 줄이 490px로 화면보다 커서 칸의 위아래가 잘린다. 높이가 주어지면
+ * 가장 높은 줄(3:4 두 칸)과 말풍선이 들어가는 폭까지만 쓴다.
  */
-export function pageWidth(viewport: { width: number }): number {
-  const sidePad = viewport.width < 640 ? 0 : pageGap(viewport);
-  return Math.max(0, Math.floor(Math.min(PAGE_MAX_WIDTH, viewport.width - sidePad * 2)));
+export function pageWidth(viewport: { width: number; height?: number }): number {
+  const gap = pageGap(viewport);
+  const sidePad = viewport.width < 640 ? 0 : gap;
+  let width = Math.min(PAGE_MAX_WIDTH, viewport.width - sidePad * 2);
+  if (viewport.height !== undefined) {
+    // 3:4 두 칸 줄의 높이는 (폭 − 간격) × 2/3. 위아래 간격과 말풍선 몫을 뺀 높이에 맞춘다
+    const room = viewport.height - gap * 2 - MAX_BUBBLE_OVERHANG;
+    width = Math.min(width, room * 1.5 + gap);
+  }
+  return Math.max(0, Math.floor(width));
 }
 
 /** 줄마다의 위치와 높이(px), 페이지 전체 높이. 16:9 줄은 폭×9/16, 3:4 두 칸 줄은 (폭−간격)/2×4/3. */

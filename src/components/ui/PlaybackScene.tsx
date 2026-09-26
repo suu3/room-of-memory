@@ -306,10 +306,15 @@ export function PlaybackScene() {
       >
         {showPlate && (
           <div
-            className={`relative h-full max-h-full w-full ${
+            className={`relative max-h-full w-full ${
+              /*
+               * 컷씬 판은 16:9를 지킨다. 높이까지 꽉 채우면(h-full) 가로세로가 둘 다 정해져
+               * aspect가 무시되고, 세로로 든 폰에서 판이 화면만큼 길어져 그림의 가운데 띠만
+               * 남는다 (object-cover). 폭을 먼저 정하고 높이는 비율로 따라오게 둔다.
+               */
               isCutscene
                 ? "aspect-video max-w-[min(100%,177.7svh)] bg-scene-storm"
-                : "max-w-[min(88%,92svh)]"
+                : "h-full max-w-[min(88%,92svh)]"
             }`}
           >
             {/*

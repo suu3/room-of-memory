@@ -32,6 +32,17 @@ describe("생존자 방송 웹툰의 페이지", () => {
   it("폭은 화면 높이에 묶이지 않는다: 데스크톱 900px, 모바일은 화면 폭", () => {
     expect(pageWidth({ width: 1440 })).toBe(PAGE_MAX_WIDTH);
     expect(pageWidth({ width: 375 })).toBe(375);
+    expect(pageWidth({ width: 375, height: 667 })).toBe(375);
+    expect(pageWidth({ width: 1440, height: 900 })).toBe(PAGE_MAX_WIDTH);
+  });
+
+  it("가로로 든 폰에서는 가장 높은 줄(3:4 두 칸)이 화면 높이 안에 든다", () => {
+    const viewport = { width: 812, height: 375 };
+    const width = pageWidth(viewport);
+    const gap = pageGap(viewport);
+    const pair = rowMetrics([{ kind: "pair", indices: [0, 1] }], width, gap).total;
+    expect(width).toBeLessThan(812);
+    expect(pair + gap * 2 + 52).toBeLessThanOrEqual(viewport.height);
   });
 
   it.each([
