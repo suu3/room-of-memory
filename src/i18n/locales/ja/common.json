@@ -548,9 +548,12 @@
   "ending": {
     "eyebrow": "THE DOOR OPENS",
     "line": "扉を開けて、外へ出る。",
+    "congrats": "おめでとうございます。エンディングに到達しました。",
     "again": "最初に戻る",
     "replay": "映像をもう一度",
-    "play": "再生"
+    "play": "再生",
+    "saveImage": "イラストを保存",
+    "thanksAlt": "バットを持ったドヘが Thank you! とあいさつするイラスト"
   },
   "playback": {
     "skip": "スキップ",

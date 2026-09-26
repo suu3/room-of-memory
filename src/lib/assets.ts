@@ -73,6 +73,11 @@ export const ASSETS = {
   images: {
     /** 로딩 애니메이션 (420x400, 8프레임, 프레임당 140ms). */
     uiLoading: "/assets/images/ui-loading.gif?v=20260910-grounded-bounce",
+    /**
+     * 엔딩 카드의 "Thank you!" 그림 (761×789, 제작자가 그린 배트 든 도해). 흰 바탕이 그림의
+     * 일부라 어두운 카드 위에 종이처럼 올린다. 카드의 "그림 저장"이 이 파일을 그대로 내려받는다.
+     */
+    endingThanks: "/assets/images/ui-ending-thanks.webp",
     /** 만든 사람 화면의 프로필 그림 (512×512, 제작자의 토끼 낙서). 둥글게 잘라 쓴다. */
     creatorAvatar: "/assets/images/ui-creator-avatar.webp",
     /** 지원사업 CI (경기청년 갭이어 흰색 가로형 워드마크, 720×120). 어두운 판 위에만 올린다. */

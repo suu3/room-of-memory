@@ -548,9 +548,12 @@
   "ending": {
     "eyebrow": "THE DOOR OPENS",
     "line": "He opens the door and steps outside.",
+    "congrats": "Congratulations. You have reached the ending.",
     "again": "Back to the start",
     "replay": "Watch the film again",
-    "play": "Play"
+    "play": "Play",
+    "saveImage": "Save the drawing",
+    "thanksAlt": "Dohae holding a bat, saying Thank you!"
   },
   "playback": {
     "skip": "Skip",

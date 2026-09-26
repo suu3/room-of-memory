@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowCounterClockwise, ArrowRight, Play } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, ArrowRight, DownloadSimple, Play } from "@phosphor-icons/react";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ASSETS } from "@/lib/assets";
@@ -126,16 +127,33 @@ export function EndingScreen() {
 
       {stage === "card" ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 bg-scene-void/95 px-6 backdrop-blur-md">
-          <div className="flex animate-fade-rise flex-col items-center gap-7 text-center">
+          <div className="flex animate-fade-rise flex-col items-center gap-5 text-center">
+            {/* 제작자가 그린 인사 그림. 흰 바탕째 종이 한 장처럼 올린다 */}
+            <Image
+              src={ASSETS.images.endingThanks}
+              alt={t("ending.thanksAlt")}
+              width={761}
+              height={789}
+              className="h-auto max-h-[34dvh] w-auto rounded-md shadow-panel"
+            />
             <p className="font-pixel text-xs tracking-[0.3em] text-memory">{t("ending.eyebrow")}</p>
             <h2 className="max-w-lg break-ko text-pretty font-pixel text-3xl leading-snug text-ivory md:text-4xl">
               {t("ending.line")}
             </h2>
+            <p className="break-ko text-pretty text-base text-fog">{t("ending.congrats")}</p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
               <button type="button" onClick={replay} className={`${BUTTON_QUIET} px-6 py-3`}>
                 <ArrowCounterClockwise size={15} weight="bold" />
                 {t("ending.replay")}
               </button>
+              <a
+                href={ASSETS.images.endingThanks}
+                download="room-of-memory-thank-you.webp"
+                className={`${BUTTON_QUIET} px-6 py-3`}
+              >
+                <DownloadSimple size={15} weight="bold" />
+                {t("ending.saveImage")}
+              </a>
               <button type="button" onClick={reset} className={`${BUTTON_PRIMARY} px-8 py-3`}>
                 {t("ending.again")}
                 <ArrowRight size={15} weight="bold" />

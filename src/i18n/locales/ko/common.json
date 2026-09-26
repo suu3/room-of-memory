@@ -548,9 +548,12 @@
   "ending": {
     "eyebrow": "THE DOOR OPENS",
     "line": "문을 열고, 밖으로 나간다.",
+    "congrats": "축하합니다. 엔딩에 도달하셨습니다.",
     "again": "처음으로",
     "replay": "영상 다시 보기",
-    "play": "재생"
+    "play": "재생",
+    "saveImage": "그림 저장",
+    "thanksAlt": "배트를 든 도해가 Thank you!라고 인사하는 그림"
   },
   "playback": {
     "skip": "건너뛰기",
