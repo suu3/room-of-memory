@@ -1,7 +1,7 @@
 "use client";
 
 import type { ParseKeys } from "i18next";
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { type CSSProperties, Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { isInteractiveTarget } from "@/components/canvas/room-canvas-runtime";
 import { playSound } from "@/lib/audio";
@@ -366,6 +366,7 @@ function Panel({
         <RadioBubble
           speaker={tRoom(`characters.${line.speaker}.name` as ParseKeys<"memoryRoom">)}
           text={bubbleText}
+          fullText={tRoom(line.textKey)}
           fontSize={fontSize}
           place={bubblePlace}
         />
@@ -375,34 +376,66 @@ function Panel({
 }
 
 /**
- * 라디오 말풍선: 꼬리 없는 흰 둥근 사각형에 잉크색 3px 테두리(칸 테두리와 같은 두께).
- * 칸 아래 테두리에 걸쳐 칸 밖으로 나간다: 칸 안에 가두면 그림에 묻혀 대사가 안 읽힌다.
- * 화자(???)는 왼쪽 위에 작게.
+ * 라디오 말풍선: 웹툰식 흰 타원에 잉크색 2px 선, 글은 가운데로 모은다. 목소리의 주인이
+ * 칸 밖에 있어 꼬리는 달지 않는다. 칸 아래 테두리에 걸쳐 칸 밖으로 나간다: 칸 안에 가두면
+ * 그림에 묻혀 대사가 안 읽힌다. 화자(???)는 윗줄 가운데에 작게.
+ *
+ * 줄은 문장 끝에서 꺾는다: 문장 하나를 한 덩어리(inline-block)로 두어 "모여 / 있어"처럼
+ * 말 가운데서 끊기지 않게 한다. 한 줄에 안 드는 긴 문장만 덩어리 안에서 고르게 나뉜다
+ * (text-balance). 찍히는 동안에도 줄바꿈이 흔들리지 않게 아직 안 찍힌 글자를 보이지 않게
+ * 미리 깔아 둔다. 그래야 처음부터 다 찍힌 모양으로 줄이 나뉜다.
  */
 function RadioBubble({
   speaker,
   text,
+  fullText,
   fontSize,
   place,
 }: {
   speaker: string;
   text: string;
+  fullText: string;
   fontSize: number;
   place: CSSProperties;
 }) {
   return (
     <div
-      // 칸 아래 테두리에 걸친다: 절반쯤이 칸 밖으로 나간다
-      className="absolute bottom-0 translate-y-[45%] animate-fade-rise rounded-[1.2em] border-[3px] border-ink bg-ivory px-[1.1em] pt-[0.7em] pb-[0.8em] text-ink"
-      style={{ fontSize, ...place }}
+      /*
+       * 칸 아래 테두리에 걸친다: 칸 밖으로 나가는 몫은 BUBBLE_OVERHANG_EM으로 고정 (마지막
+       * 줄 아래 여백이 이 값을 믿는다). 옆 안쪽 여백은 폭의 비율이라야 글이 타원 곡선 안에 든다
+       */
+      className="absolute animate-fade-rise rounded-[50%] border-2 border-ink bg-ivory px-[16%] py-[1.7em] text-center text-ink"
+      style={{ fontSize, bottom: `-${BUBBLE_OVERHANG_EM}em`, ...place }}
     >
       <span className="block text-[0.7em] leading-none tracking-[0.2em] text-ink/60">
         {speaker}
       </span>
       {/* 두 줄 높이를 늘 잡아 둔다: 찍히는 동안 말풍선이 자라며 칸을 흔들지 않게 */}
-      <p className="mt-[0.45em] min-h-[3em] break-ko text-pretty leading-[1.5]">{text}</p>
+      <p className="mt-[0.45em] min-h-[3em] break-ko text-balance leading-[1.5]">
+        {sentenceSpans(fullText).map(({ start, sentence }, index) => {
+          const shown = Math.max(0, Math.min(sentence.length, text.length - start));
+          return (
+            <Fragment key={start}>
+              {index > 0 && " "}
+              <span className="inline-block text-balance">
+                {sentence.slice(0, shown)}
+                <span className="invisible">{sentence.slice(shown)}</span>
+              </span>
+            </Fragment>
+          );
+        })}
+      </p>
     </div>
   );
+}
+
+/** 문장 끝(. ? ! …) 뒤 공백에서 가른 문장들과 각 문장이 원문에서 시작하는 자리. */
+export function sentenceSpans(text: string): { start: number; sentence: string }[] {
+  const spans: { start: number; sentence: string }[] = [];
+  for (const match of text.matchAll(/\S.*?(?:[.?!…]+(?=\s|$)|$)/gu)) {
+    spans.push({ start: match.index, sentence: match[0] });
+  }
+  return spans;
 }
 
 /** 창 크기. 페이지가 한 화면에 들어오도록 폭을 계산하는 데 쓴다. */
