@@ -24,6 +24,21 @@ describe("letters", () => {
     expect([...shuffled].sort()).toEqual([...pool].sort());
   });
 
+  it("정답 글자는 풀에서 서로 붙어 있지 않다 (어떻게 섞였든)", async () => {
+    const { separateAnswer } = await import("./letters");
+    const pool = parsePool("좀 꿈 비 밤 재 억 빛 문 방 밖");
+    for (let round = 0; round < 300; round++) {
+      const spread = separateAnswer(shufflePool(pool), "좀비");
+      expect([...spread].sort()).toEqual([...pool].sort());
+      for (let index = 0; index < spread.length - 1; index++) {
+        const pair = `${spread[index]}${spread[index + 1]}`;
+        expect(["좀비", "비좀"]).not.toContain(pair);
+      }
+    }
+    // 붙은 채로 들어와도 떼어 놓는다
+    expect(separateAnswer(["좀", "비", "꿈", "밤"], "좀비")).not.toEqual(["좀", "비", "꿈", "밤"]);
+  });
+
   it("빈칸이 남으면 판정하지 않는다", () => {
     expect(judgeSlots([0, null], ["좀", "비"], "좀비")).toBeNull();
   });

@@ -40,6 +40,29 @@ export function shufflePool(pool: string[], random: () => number = Math.random):
   return shuffled;
 }
 
+/**
+ * 정답 글자끼리 풀에서 붙어 있지 않게 떼어 놓는다. 섞은 결과에 "좀 비"가 나란히 서면
+ * 퀴즈가 아니라 읽기가 된다. 붙은 쌍의 뒤 글자를, 양옆에 정답 글자가 없는 자리의
+ * 다른 글자와 바꾼다. 원본은 건드리지 않는다.
+ */
+export function separateAnswer(pool: readonly string[], answer: string): string[] {
+  const letters = new Set(answerLetters(answer));
+  const spread = [...pool];
+  const isAnswer = (index: number) =>
+    index >= 0 && index < spread.length && letters.has(spread[index]);
+  const fits = (index: number) =>
+    !letters.has(spread[index]) && !isAnswer(index - 1) && !isAnswer(index + 1);
+  for (let index = 0; index < spread.length - 1; index++) {
+    if (!isAnswer(index) || !isAnswer(index + 1)) continue;
+    // 바꿔 넣을 자리: 붙은 쌍에서 멀리 떨어진 곳부터 찾는다
+    const candidates = spread.map((_, at) => at).filter((at) => Math.abs(at - (index + 1)) > 1);
+    const target = candidates.find(fits);
+    if (target === undefined) break;
+    [spread[index + 1], spread[target]] = [spread[target], spread[index + 1]];
+  }
+  return spread;
+}
+
 /** 채워진 칸들이 정답을 이루는가. 빈칸이 남아 있으면 아직 판정하지 않는다(null). */
 export function judgeSlots(
   slots: readonly (number | null)[],

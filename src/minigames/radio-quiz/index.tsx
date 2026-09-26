@@ -12,6 +12,7 @@ import {
   hintedSlots,
   judgeSlots,
   parsePool,
+  separateAnswer,
   shufflePool,
 } from "./letters";
 
@@ -40,7 +41,11 @@ function QuizBoard({
   const answer = t("minigame.radioQuiz.answer");
   const letters = useMemo(() => answerLetters(answer), [answer]);
   // 풀은 마운트마다 한 번 섞는다. 리렌더마다 섞이면 누르려던 글자가 도망간다.
-  const pool = useMemo(() => shufflePool(parsePool(t("minigame.radioQuiz.pool"))), [t]);
+  // 섞은 뒤 정답 글자끼리는 떼어 놓는다: "좀 비"가 나란히 서면 읽는 것이지 답하는 게 아니다
+  const pool = useMemo(
+    () => separateAnswer(shufflePool(parsePool(t("minigame.radioQuiz.pool"))), answer),
+    [t, answer],
+  );
   /** 칸마다 든 풀 인덱스. 글자가 아니라 인덱스라 같은 글자가 풀에 둘 있어도 안 섞인다. */
   const [slots, setSlots] = useState<(number | null)[]>(() => letters.map(() => null));
   const [misses, setMisses] = useState(0);
