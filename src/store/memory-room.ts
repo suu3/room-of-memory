@@ -337,6 +337,11 @@ export interface MemoryRoomState {
    */
   discoveries: DiscoveryId[];
   /**
+   * 수첩을 한 번이라도 펼쳤는가. 저장된다. 처음 이름을 알게 된 뒤 수첩 손잡이가
+   * 부르는 것(onboardingStep의 "notebook")을 끄는 데만 쓴다.
+   */
+  notebookOpened: boolean;
+  /**
    * 지금 흐르는 혼잣말 한 줄과 그 시각 (없으면 null). 닫힌 방문·꺼진 컴퓨터·칫솔컵·
    * 잠긴 하부장처럼 눌러도 조사가 아닌 물건이 한 줄을 흘리는 신호다 (RemarkLine).
    * 방문의 줄은 잠긴 게 아니라 **안 여는** 것이라는 걸 말한다 (docs/content-design.md 3-1).
@@ -428,7 +433,39 @@ export interface MemoryRoomState {
 }
 
 type StateSnapshot = Pick<MemoryRoomState, "collected" | "revisited" | "doorOpened"> &
-  Partial<Pick<MemoryRoomState, "rechecked" | "openedDoorways" | "introDone" | "endingStarted">>;
+  Partial<
+    Pick<
+      MemoryRoomState,
+      | "rechecked"
+      | "openedDoorways"
+      | "introDone"
+      | "endingStarted"
+      | "discoveries"
+      | "notebookOpened"
+    >
+  >;
+
+export type OnboardingStep = "workbook" | "notebook";
+
+/**
+ * 1페이즈 첫머리의 안내 두 걸음. 저장하지 않고 진행에서 파생된다.
+ *
+ *   workbook  불을 켜고 아직 이름을 모른다. 책상 위 문제집만 부르고, 기억은 잠가 둔다.
+ *             돌려 보는 조작(3D 인스펙트)을 처음 배우는 자리이고, 기억부터 누르면
+ *             이 조작을 한참 뒤(카드·출입증)에야 처음 만난다.
+ *   notebook  이름을 알았는데 수첩을 한 번도 안 열었다. 수첩 손잡이가 부른다. 막지는
+ *             않는다: 기억은 이미 열려 있다. 이름을 알았다는 건 수첩이 말하는데, 수첩이
+ *             있는 줄 모르면 그 말이 닿지 않는다.
+ *
+ * 기억을 하나라도 모았으면 둘 다 지난 것으로 본다. 이 안내 전의 저장본이 그렇다.
+ * `discoveries`를 모르는 스냅샷(이름표를 안 넘기는 호출부)은 안내 없이 본다.
+ */
+export function onboardingStep(state: StateSnapshot): OnboardingStep | null {
+  if (state.discoveries === undefined || state.collected.length > 0) return null;
+  if (storyPhaseOf(state) !== "p1") return null;
+  if (!state.discoveries.includes("hero-name")) return "workbook";
+  return state.notebookOpened ? null : "notebook";
+}
 
 export function gamePhaseOf(state: StateSnapshot): GamePhase {
   return state.collected.length >= MEMORY_GOAL ? 2 : 1;
@@ -479,7 +516,10 @@ export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus
   };
   const visit = nextVisit(progress, id);
   if (visit === undefined) return "done";
-  if (visitOpen(progress, id, visit)) return "available";
+  if (visitOpen(progress, id, visit)) {
+    // 문제집을 뒤집어 보기 전에는 강도 1도 잠가 둔다 (onboardingStep)
+    return onboardingStep(state) === "workbook" ? "locked" : "available";
+  }
   const seen = anyVisitDone(progress, id);
   if (!seen) return "locked";
   // 본 물건: 다음 차수의 페이즈에 이미 들어섰으면 조건을 기다리는 중(locked),
@@ -731,6 +771,7 @@ type PersistedProgress = Pick<
   | "batTaken"
   | "solvedPuzzles"
   | "discoveries"
+  | "notebookOpened"
   | "endingStarted"
   | "soundMuted"
   | "difficulty"
@@ -821,6 +862,8 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
       ? DISCOVERY_IDS.filter((id) => (saved.discoveries as unknown[]).includes(id))
       : [],
     endingStarted: saved.endingStarted === true && batTaken,
+    // 이 값을 모르는 옛 저장본은 기억을 하나라도 봤으면 수첩도 안다고 본다
+    notebookOpened: saved.notebookOpened === true || collected.length > 0,
     soundMuted: saved.soundMuted === true,
     // 모르는 값은 스킵이 보이는 쪽(easy)으로: normal이 잘못 살아나면 접근성 장치가 사라진다
     difficulty: saved.difficulty === "normal" ? "normal" : "easy",
@@ -885,6 +928,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       activePuzzle: null,
       solvedPuzzles: [],
       discoveries: [],
+      notebookOpened: false,
       remark: null,
       beginInteraction: (id) =>
         set((state) => {
@@ -1017,6 +1061,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) => ({
           characterSheetOpen: open,
           characterSheetTab: tab ?? state.characterSheetTab,
+          notebookOpened: state.notebookOpened || open,
         })),
       setCharacterSheetTab: (tab) => set({ characterSheetTab: tab }),
       setContactOpen: (open) => set({ contactOpen: open }),
@@ -1233,6 +1278,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           activePuzzle: null,
           solvedPuzzles: [],
           discoveries: [],
+          notebookOpened: false,
           remark: null,
           resetRevision: state.resetRevision + 1,
         })),
@@ -1249,6 +1295,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         batTaken: state.batTaken,
         solvedPuzzles: state.solvedPuzzles,
         discoveries: state.discoveries,
+        notebookOpened: state.notebookOpened,
         endingStarted: state.endingStarted,
         soundMuted: state.soundMuted,
         difficulty: state.difficulty,
@@ -1266,6 +1313,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
 );
 
 export const selectCollected = (state: MemoryRoomState) => state.collected;
+export const selectOnboardingStep = (state: MemoryRoomState) => onboardingStep(state);
 /** 주인공의 이름을 아는가: 수첩 이름·나이 칸과 대사창 화자 이름표가 이걸 본다. */
 export const selectHeroNameKnown = (state: MemoryRoomState) =>
   state.discoveries.includes("hero-name");

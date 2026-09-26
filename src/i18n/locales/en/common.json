@@ -26,7 +26,10 @@
       "bat": "Pick up the bat by the front door",
       "exit": "Leave through the front door",
       "lights": "It's dark. Find the light switch on the wall and turn it on",
-      "doorway": "Step out through the open door"
+      "doorway": "Step out through the open door",
+      "workbook": "Click the glowing workbook on the desk and turn it around",
+      "workbook_touch": "Tap the glowing workbook on the desk and turn it around",
+      "notebook": "Open the notebook on the right edge"
     },
     "here": "You are here: {{value}}",
     "travel": "Travel"
@@ -46,7 +49,8 @@
     "replayAction": "Replay",
     "prevPage": "Previous page",
     "nextPage": "Next page",
-    "pages": "Turn record pages"
+    "pages": "Turn record pages",
+    "newEntry": "New entry"
   },
   "hotspot": {
     "collectedLabel": "{{name}}: collected memory",

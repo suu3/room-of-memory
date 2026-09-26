@@ -31,6 +31,7 @@ describe("sanitizeProgress", () => {
         batTaken: false,
         solvedPuzzles: ["piano-melody"],
         discoveries: ["hero-name"],
+        notebookOpened: true,
         endingStarted: false,
         soundMuted: true,
         lightsOn: false,
@@ -50,6 +51,7 @@ describe("sanitizeProgress", () => {
       batTaken: false,
       solvedPuzzles: ["piano-melody"],
       discoveries: ["hero-name"],
+      notebookOpened: true,
       endingStarted: false,
       soundMuted: true,
       lightsOn: false,
@@ -61,6 +63,11 @@ describe("sanitizeProgress", () => {
       cluesSeen: ["drawer-note"],
       autoPlay: true,
     });
+  });
+
+  it("수첩을 펼친 적을 모르는 옛 저장본은 기억을 봤으면 펼친 것으로 본다", () => {
+    expect(sanitizeProgress({ collected: [first] }).notebookOpened).toBe(true);
+    expect(sanitizeProgress({}).notebookOpened).toBe(false);
   });
 
   it("가진 물건은 아는 것만 남기고, 없으면 빈손이다", () => {

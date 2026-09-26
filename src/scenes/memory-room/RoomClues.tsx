@@ -5,6 +5,7 @@ import type { ClueId } from "@/data/room-clues";
 import { playSound } from "@/lib/audio";
 import {
   clueUnlocked,
+  selectOnboardingStep,
   selectSinkHintRead,
   selectViewpoint,
   useMemoryRoomStore,
@@ -13,6 +14,7 @@ import { CLUE_PROPS, DRAWER_NOTE, MIRROR_PLACEMENT } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import { MirrorReflection } from "./MirrorReflection";
 import type { RoomPalette } from "./palette";
+import { useSideCue } from "./side-cue";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
 
@@ -53,6 +55,7 @@ export function ClueProp({
   const active = enabled && !firstPerson;
   const { hovered, handlers } = useGlowHover(active);
   const nearPlayer = useNearPlayer(near[0], near[1], radius);
+  const cue = useSideCue();
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
@@ -70,7 +73,7 @@ export function ClueProp({
       <MemoryGlowSelection
         selectionKey={`clue-${clue}`}
         tier={beckon ? "memory" : "prop"}
-        enabled={active && (beckon || hovered || nearPlayer)}
+        enabled={active && (beckon || cue || hovered || nearPlayer)}
       >
         {children}
       </MemoryGlowSelection>
@@ -102,6 +105,7 @@ export function TouchProp({
   const active = enabled && !firstPerson;
   const { hovered, handlers } = useGlowHover(active);
   const nearPlayer = useNearPlayer(near[0], near[1], radius);
+  const cue = useSideCue();
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
@@ -117,7 +121,7 @@ export function TouchProp({
       <MemoryGlowSelection
         selectionKey={`prop-${name}`}
         tier="prop"
-        enabled={active && (hovered || nearPlayer)}
+        enabled={active && (cue || hovered || nearPlayer)}
       >
         {children}
       </MemoryGlowSelection>
@@ -153,13 +157,18 @@ export function ShelfBookClue({ children }: { children: ReactNode }) {
 /**
  * 책상 위 문제집 더미. 집어 들면 화면 가운데에서 돌려볼 수 있고, 뒤표지에 이름이
  * 적혀 있다 (src/data/room-clues.ts의 DISCOVERY_IDS). 앞면만 보고 내려놓으면 모른다.
+ *
+ * 불을 켠 직후에는 이것만 금빛으로 부른다 (store의 onboardingStep). 돌려 보는 조작을
+ * 처음 배우는 자리라 기억보다 먼저 온다. 이름을 찾으면 부르기를 끈다.
  */
 export function WorkbookClue({ children }: { children: ReactNode }) {
+  const first = useMemoryRoomStore(selectOnboardingStep) === "workbook";
   return (
     <ClueProp
       clue="workbook"
       near={CLUE_PROPS.workbook.near}
       radius={CLUE_PROPS.workbook.interactionRadius}
+      beckon={first}
     >
       {children}
     </ClueProp>

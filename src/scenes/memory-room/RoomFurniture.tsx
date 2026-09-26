@@ -45,6 +45,7 @@ import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { DrawerNoteClue, TouchProp } from "./RoomClues";
 import { StudentDeskProps, StudentRoomProps } from "./StudentProps";
+import { useSideCue } from "./side-cue";
 import type { Vec3Tuple } from "./types";
 import { useGlowHover } from "./use-glow-hover";
 import { useNearPlayer } from "./use-near-player";
@@ -256,6 +257,8 @@ function Drawer({
   const groupRef = useRef<Group>(null);
   const { hovered, handlers } = useGlowHover(true);
   const nearPlayer = useNearPlayer(near[0], near[1], FURNITURE_NEAR_RADIUS);
+  // 1페이즈에는 멀리서도 옅게 보인다: 서랍은 어디서 눌러도 열린다 (side-cue)
+  const cue = useSideCue();
   const reducedMotion = usePrefersReducedMotion();
 
   useFrame((_, delta) => {
@@ -283,7 +286,7 @@ function Drawer({
         setOpen((current) => !current);
       }}
     >
-      <MemoryGlowSelection selectionKey={name} tier="prop" enabled={hovered || nearPlayer}>
+      <MemoryGlowSelection selectionKey={name} tier="prop" enabled={cue || hovered || nearPlayer}>
         <BoxParts parts={parts} palette={palette} />
       </MemoryGlowSelection>
       {children?.(open)}

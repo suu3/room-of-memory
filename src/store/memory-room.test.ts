@@ -34,6 +34,7 @@ import {
   selectMomChatRead,
   selectMusicPhase,
   selectMusicPlaying,
+  selectOnboardingStep,
   selectPapersOrdered,
   selectRadioSignaling,
   selectSceneInputLocked,
@@ -483,6 +484,53 @@ describe("v4 페이즈: 진행에서 파생된다", () => {
   });
 });
 
+describe("1페이즈 첫머리: 문제집 → 수첩", () => {
+  beforeEach(() => {
+    useMemoryRoomStore.getState().reset();
+    useMemoryRoomStore.setState({ introDone: true });
+  });
+
+  const step = () => selectOnboardingStep(useMemoryRoomStore.getState());
+
+  it("불 켜기 전에는 안내가 없다", () => {
+    useMemoryRoomStore.setState({ introDone: false });
+    expect(step()).toBeNull();
+  });
+
+  it("이름을 알기 전에는 문제집만 부르고 강도 1도 잠겨 있다", () => {
+    expect(step()).toBe("workbook");
+    expect(status("console")).toBe("locked");
+    expect(status("ball")).toBe("locked");
+    useMemoryRoomStore.getState().beginInteraction("console");
+    expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
+  });
+
+  it("문제집 뒤표지를 보면 강도 1이 열리고 수첩이 부른다. 막지는 않는다", () => {
+    useMemoryRoomStore.getState().discover("hero-name");
+    expect(step()).toBe("notebook");
+    expect(status("console")).toBe("available");
+    expect(status("ball")).toBe("available");
+  });
+
+  it("수첩을 한 번 펼치면 안내가 끝난다", () => {
+    useMemoryRoomStore.getState().discover("hero-name");
+    useMemoryRoomStore.getState().setCharacterSheetOpen(true, "lore");
+    useMemoryRoomStore.getState().setCharacterSheetOpen(false);
+    expect(step()).toBeNull();
+  });
+
+  it("수첩을 안 열어도 기억을 하나 보면 안내가 끝난다", () => {
+    useMemoryRoomStore.setState({ discoveries: ["hero-name"], collected: ["console"] });
+    expect(step()).toBeNull();
+  });
+
+  it("리셋하면 수첩도 처음 보는 것으로 돌아간다", () => {
+    useMemoryRoomStore.getState().setCharacterSheetOpen(true);
+    useMemoryRoomStore.getState().reset();
+    expect(useMemoryRoomStore.getState().notebookOpened).toBe(false);
+  });
+});
+
 describe("1페이즈: 강도 순서대로 열린다", () => {
   beforeEach(() => {
     useMemoryRoomStore.getState().reset();
@@ -492,6 +540,7 @@ describe("1페이즈: 강도 순서대로 열린다", () => {
   const collect = (...ids: MemoryId[]) => useMemoryRoomStore.setState({ collected: ids });
 
   it("처음에는 강도 1(게임기·공)만 열린다", () => {
+    useMemoryRoomStore.setState({ discoveries: ["hero-name"] });
     expect(status("console")).toBe("available");
     expect(status("ball")).toBe("available");
     for (const id of ["frame", "phone", "calendar", "window", "radio"] as const) {

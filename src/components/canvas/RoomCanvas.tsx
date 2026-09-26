@@ -184,6 +184,8 @@ export function RoomCanvas() {
   const revisited = useMemoryRoomStore((state) => state.revisited);
   // 2바퀴 재조사가 문 뒤에 있어서(hotspotStatus), 문이 열리는 순간 표식이 재점등된다
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
+  // 문제집을 보기 전에는 강도 1도 잠겨 있다 (onboardingStep). 스크린리더 이름도 그걸 따른다
+  const discoveries = useMemoryRoomStore((state) => state.discoveries);
   const beginInteraction = useMemoryRoomStore((state) => state.beginInteraction);
   const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
   const curtainPull = curtainState?.revision === resetRevision ? curtainState.pull : CURTAIN_CLOSED;
@@ -267,9 +269,12 @@ export function RoomCanvas() {
   const statuses = useMemo(
     () =>
       Object.fromEntries(
-        MEMORY_IDS.map((id) => [id, hotspotStatus({ collected, revisited, doorOpened }, id)]),
+        MEMORY_IDS.map((id) => [
+          id,
+          hotspotStatus({ collected, revisited, doorOpened, discoveries }, id),
+        ]),
       ) as Record<MemoryId, HotspotStatus>,
-    [collected, revisited, doorOpened],
+    [collected, revisited, doorOpened, discoveries],
   );
 
   /**

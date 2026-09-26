@@ -26,7 +26,10 @@
       "bat": "현관 옆 배트를 집으세요",
       "exit": "현관문으로 나가세요",
       "lights": "어둠 속에서 벽의 전등 스위치를 찾아 불을 켜세요",
-      "doorway": "열린 문으로 나가세요"
+      "doorway": "열린 문으로 나가세요",
+      "workbook": "책상 위 빛나는 문제집을 클릭해 이리저리 돌려 보세요",
+      "workbook_touch": "책상 위 빛나는 문제집을 탭해 이리저리 돌려 보세요",
+      "notebook": "오른쪽 끝의 수첩을 펼쳐 보세요"
     },
     "here": "지금 있는 곳: {{value}}",
     "travel": "공간 이동"
@@ -46,7 +49,8 @@
     "replayAction": "다시보기",
     "prevPage": "이전 장",
     "nextPage": "다음 장",
-    "pages": "기록 장 넘기기"
+    "pages": "기록 장 넘기기",
+    "newEntry": "새 기록"
   },
   "hotspot": {
     "collectedLabel": "{{name}}: 수집한 기억",

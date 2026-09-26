@@ -9,6 +9,7 @@ import {
   selectBatTaken,
   selectDoorOpened,
   selectDoorReady,
+  selectOnboardingStep,
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
@@ -23,6 +24,8 @@ type GuideKey =
   | "hud.guide.lights"
   | "hud.guide.doorway"
   | "hud.guide.examine"
+  | "hud.guide.workbook"
+  | "hud.guide.notebook"
   | "hud.guide.door"
   | "hud.guide.revisit"
   | "hud.guide.bat"
@@ -58,6 +61,8 @@ function useHudGuide() {
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 1인칭 구간에는 할 일이 하나뿐이다: 스위치, 또는 문. 나머지 목표는 그 뒤에 온다
   const viewpoint = useMemoryRoomStore(selectViewpoint);
+  // 불을 켠 직후의 두 걸음: 문제집을 돌려 보고, 수첩을 펼친다 (store의 onboardingStep)
+  const onboarding = useMemoryRoomStore(selectOnboardingStep);
 
   const key: GuideKey =
     viewpoint === "intro"
@@ -72,7 +77,11 @@ function useHudGuide() {
               ? "hud.guide.revisit"
               : doorReady
                 ? "hud.guide.door"
-                : "hud.guide.examine";
+                : onboarding === "workbook"
+                  ? "hud.guide.workbook"
+                  : onboarding === "notebook"
+                    ? "hud.guide.notebook"
+                    : "hud.guide.examine";
 
   /** 가운데 배너에 떠 있는 목표. key와 다르면 새 목표가 막 들어온 것이다. */
   const [bannerKey, setBannerKey] = useState<GuideKey | null>(key);
