@@ -56,7 +56,7 @@ scripts:
     # 카드 미궁의 규칙은 여기 적지 않는다. 선반 위 놀이책이 들고 있다
     # (src/data/room-clues.ts의 PUZZLE_CLUES). 대사로 흘리면 안 찾아도 풀린다.
 
-  # 이겨도 매점을 쏠 사람이 없다. 덧붙이는 말 없이 짧게 끊는다
+    # 이겨도 매점을 쏠 사람이 없다. 덧붙이는 말 없이 짧게 끊는다
   console-alone:
     - speaker: hero
       ko: 이겼다.
@@ -83,7 +83,7 @@ scripts:
       en: This is from the youth baseball tournament, the day I placed.
       ja: これ、少年野球の大会で入賞したときの写真だ。
     - speaker: hero
-      ko: …두 분 얼굴은 틀 밖으로 잘렸네.
+      ko: …두 분 얼굴이 흐릿하네.
 
   # 단톡이 멈춘 날짜를 처음으로 못박고, 엄마 대화방의 "1"을 외면한다.
   # 강도 2는 "이상하다"까지만: "다 끊겼다"는 단정은 라디오 전에 하지 않는다
@@ -255,21 +255,21 @@ scripts:
   # 곁가지 (2차)
   ball-echo:
     - speaker: hero
-      ko: 혼자 던지는 건 이제 그만해도 되려나.
-      en: Maybe I can stop throwing it alone.
-      ja: ひとりで投げるのは、もうやめてもいいかな。
+      ko: ...던지는 감각을 잊고 있었어.
+      en: ""
+      ja: ""
     - speaker: hero
       expression: smile
-      ko: 받아줄 놈 찾으면, 그때 다시 던지자.
-      en: When I find someone to catch it, we'll throw again.
-      ja: 受けてくれるやつを見つけたら、そのときまた投げよう。
+      ko: 나가면 다시 던지는거야
+      en: ""
+      ja: ""
 
   # ─────────────────────────────────────────────── 3페이즈 · 앰플
 
   # 냉장고 아래칸의 "손대지 마" 메모. 아빠는 쾌활하게
   ampoule-note:
     - speaker: hero
-      ko: 냉장고 아래칸. 메모가 붙어 있다.
+      ko: 냉장고 아래칸에 메모가 붙어 있다.
     - speaker: hero
       ko: 쪽지에 적혀 있던 그 칸이다.
     - speaker: hero
@@ -312,7 +312,7 @@ scripts:
   # 날짜순으로 놓은 뒤: 연구원 신분, 치료제 후보, 여행이 아니었다는 것
   research-note-read:
     - speaker: hero
-      ko: 둘 다 연구원이었어. 라온생명과학연구소.
+      ko: 두 분 다 연구원이었어. 라온생명과학연구소.
     - speaker: hero
       ko: 여행이 아니라 연구소에 불려 간 거였어.
     - speaker: hero
