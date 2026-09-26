@@ -141,6 +141,10 @@ describe("TitleScreen", () => {
     render(<TitleScreen />);
 
     const sound = screen.getByRole("button", { name: "Sound" });
+    // 새 게임 바로 아래에 붙는다. 무엇에 대한 권장인지 붙어 있어야 읽힌다
+    expect(sound.parentElement?.previousElementSibling).toBe(
+      screen.getByRole("button", { name: "New Game" }),
+    );
     expect(sound.getAttribute("aria-pressed")).toBe("true");
     expect(sound.textContent).toContain("On");
     expect(sound.textContent).toContain("best played with sound on");

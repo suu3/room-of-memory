@@ -16,6 +16,7 @@ import { HudLogLine } from "./HudLogLine";
 import { playHoverSound } from "./hover-sfx";
 import { LanguageToggle } from "./LanguageToggle";
 import { RisingDust } from "./RisingDust";
+import { SoundToggle } from "./SoundToggle";
 import { STAGGER_CLASS, staggerStyle } from "./stagger";
 import { BACKDROP, BUTTON_DESTRUCTIVE, BUTTON_QUIET, PANEL_DARK } from "./ui-classes";
 
@@ -433,6 +434,17 @@ export function TitleScreen() {
                   <p className="-mt-1 mb-1 pl-9 break-ko text-xs leading-normal text-ash">
                     {t("titleScreen.saved", { count: collectedCount })}
                   </p>
+                ) : null}
+                {/*
+                  소리 권장은 새 게임 바로 아래에. BGM과 효과음이 이야기를 끄는 게임인데
+                  자동재생 정책 때문에 첫 클릭 전에는 아무 소리도 안 나므로, 시작하기 직전
+                  눈이 머무는 자리에서 "소리가 있는 게임"임을 말하고 그 자리에서 켜고 끈다.
+                  이어하기 아래 진행 줄과 같은 작은 글자라 메뉴 항목과 무게가 안 겹친다.
+                */}
+                {item.key === "new-game" ? (
+                  <div className="-mt-1 mb-1 pl-9">
+                    <SoundToggle tone="title" />
+                  </div>
                 ) : null}
               </Fragment>
             ))}
