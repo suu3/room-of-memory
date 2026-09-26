@@ -754,7 +754,14 @@ export const CAMERA_PRESETS = {
   // 그 벽은 카메라 쪽이라 걷힌다 (CulledWall). 다른 사분면에서 보면 벽이 열렸다 닫힌다
   "research-note": { position: [-16.3, 3.4, 8.6], target: [-18.94, 1.1, 6.0] },
   "id-card": { position: [-15.4, 3.3, 8.4], target: [-17.8, 1.1, 6.05] },
-} as const satisfies Record<"room" | "ending" | MemoryId, CameraPreset>;
+  /*
+   * 화장실 세면대 하부장: 열쇠가 나오는 순간의 크레인 샷 (crane-shot.ts). 타깃은 하부장
+   * 상자의 중심(BathroomShell의 CABINET)이고, 방향은 거실 물건들과 같은 +x·+z다. 하부장은
+   * 안쪽 벽(+z)에 붙어 있어 이 방향에서는 윗면과 벌어진 문짝이 보인다. 문 안을 들여다보는
+   * 각도가 아니라 "저 작은 칸"으로 밀고 들어가는 각도다.
+   */
+  "sink-cabinet": { position: [-9.63, 2.1, 12.19], target: [-12.25, 0.4, 9.69] },
+} as const satisfies Record<"room" | "ending" | "sink-cabinet" | MemoryId, CameraPreset>;
 
 /*
  * ---------------------------------------------------------------- 화장실 · 안방 (v3)

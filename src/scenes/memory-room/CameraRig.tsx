@@ -5,7 +5,8 @@ import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { MathUtils, type OrthographicCamera, Vector3 } from "three";
 import { focusZoomFor, MIN_ROOM_ZOOM_SCALE } from "@/components/canvas/room-canvas-runtime";
 import type { MemoryId } from "@/data/memory-room";
-import { openDoorwayIds, useMemoryRoomStore } from "@/store/memory-room";
+import { type CameraHoldId, openDoorwayIds, useMemoryRoomStore } from "@/store/memory-room";
+import { CRANE_SHOT, craneZoomFor } from "./crane-shot";
 import { EVENT_PULSE, subscribeEventPulse } from "./event-pulse";
 import { CAMERA_PRESETS } from "./layout";
 import { followLimits, spaceCenter } from "./spaces";
@@ -110,8 +111,8 @@ const KICK_LAMBDA = 5;
  */
 const SHAKE = { roll: 0.011, yaw: 0.007, lambda: 2.4, rollHz: 37, yawHz: 29 } as const;
 
-/** 카메라가 붙을 수 있는 대상: 기억 오브젝트와 엔딩(문 옆 배트). */
-export type CameraFocusId = MemoryId | "ending";
+/** 카메라가 붙을 수 있는 대상: 기억 오브젝트, 엔딩(문 옆 배트), 붙들리는 물건(하부장). */
+export type CameraFocusId = MemoryId | "ending" | CameraHoldId;
 
 export function CameraRig({
   focusId,
@@ -149,7 +150,9 @@ export function CameraRig({
   );
   const preset = CAMERA_PRESETS[focusId ?? "room"];
   const follows = following && focusId === null;
-  const zoomGoal = focusZoomFor(roomZoom, focusId !== null);
+  /** 크레인 샷: 조사 확대보다 깊고 프리셋 전환보다 느리다 (crane-shot.ts). */
+  const crane = focusId === "sink-cabinet";
+  const zoomGoal = crane ? craneZoomFor(roomZoom) : focusZoomFor(roomZoom, focusId !== null);
   /** 방 안으로 내려앉기 시작한 뒤 흐른 시간. following이 켜질 때 0으로 되감는다. */
   const enterElapsed = useRef(0);
   /** 마우스 자리(-1~1). 타이틀에서만 읽고, 시작하면 0으로 수렴시킨다. */
@@ -207,7 +210,15 @@ export function CameraRig({
     }
     if (follows) enterElapsed.current += delta;
     const entering = follows && enterElapsed.current < ENTER_DURATION_S;
-    const lambda = reducedMotion ? 18 : entering ? ENTER_LAMBDA : follows ? FOLLOW_LAMBDA : 7;
+    const lambda = reducedMotion
+      ? 18
+      : entering
+        ? ENTER_LAMBDA
+        : follows
+          ? FOLLOW_LAMBDA
+          : crane
+            ? CRANE_SHOT.lambda
+            : 7;
 
     if (follows) {
       // 자유 이동 중: 방 한가운데 고정이 아니라 플레이어를 따라본다.

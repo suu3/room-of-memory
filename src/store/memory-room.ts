@@ -81,6 +81,9 @@ export type HotspotStatus = "locked" | "available" | "done";
  * 스치는 혼잣말 한 줄 (RemarkLine). 조사도 기록도 아닌, 물건을 눌렀을 때 도해가
  * 흘리는 말이다. 본문은 common.json의 remark.* (문은 door.*).
  */
+/** 카메라가 붙들릴 수 있는 대상. 기억이 아닌 물건이라 CameraFocusId와 따로 센다. */
+export type CameraHoldId = "sink-cabinet";
+
 export type RemarkId =
   | "door-stay"
   | "door-ready"
@@ -353,6 +356,13 @@ export interface MemoryRoomState {
    * 방문의 줄은 잠긴 게 아니라 **안 여는** 것이라는 걸 말한다 (docs/content-design.md 3-1).
    */
   remark: { id: RemarkId; at: number; memoryId?: MemoryId } | null;
+  /**
+   * 카메라가 붙들려 있는 대상 (없으면 null). 조사도 재생도 아닌 연출 한 컷: 하부장이 열리는
+   * 순간 열쇠가 있던 칸으로 밀고 들어가는 크레인 샷 (scenes/memory-room/crane-shot.ts).
+   * 붙들린 동안 씬 입력은 잠기고(selectSceneInputLocked), 씬이 시간을 재서 놓는다(endCameraHold).
+   * 화면 상태라 저장하지 않는다.
+   */
+  cameraHold: CameraHoldId | null;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   /** 재생을 한 칸 진행한다. 다음 줄 → 정적 → 다음 컷 → 종료 순. */
@@ -435,6 +445,8 @@ export interface MemoryRoomState {
   /** 혼잣말 한 줄을 흘린다. 다른 화면이 떠 있으면 아무 일도 없다. */
   /** `seen`은 어느 기억의 기록인지(memoryId)를 같이 받는다. */
   sayRemark: (id: RemarkId, memoryId?: MemoryId) => void;
+  /** 붙들린 카메라를 놓는다. 크레인 샷이 머무는 시간이 끝났을 때 씬이 부른다. */
+  endCameraHold: () => void;
   /** 엔딩 시작: 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
   startEnding: () => void;
   reset: () => void;
@@ -963,6 +975,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       notebookOpened: false,
       notebookRead: [],
       remark: null,
+      cameraHold: null,
       beginInteraction: (id) =>
         set((state) => {
           if (state.activePlayback) return state;
@@ -1256,6 +1269,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
                     ? state.inventory
                     : [...state.inventory, "parents-key"],
                   remark: { id: "sink-open", at: Date.now() },
+                  // 열쇠가 있던 칸으로 카메라가 밀고 들어간다 (crane-shot.ts)
+                  cameraHold: "sink-cabinet" as const,
                 }
               : solved === "piano-melody"
                 ? { remark: { id: "piano-done", at: Date.now() } }
@@ -1283,6 +1298,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
             ? state
             : { remark: { id, at: Date.now(), memoryId } },
         ),
+      endCameraHold: () => set((state) => (state.cameraHold ? { cameraHold: null } : state)),
       startEnding: () => set((state) => (state.batTaken ? { endingStarted: true } : state)),
       reset: () =>
         set((state) => ({
@@ -1321,6 +1337,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           notebookOpened: false,
           notebookRead: [],
           remark: null,
+          cameraHold: null,
           resetRevision: state.resetRevision + 1,
         })),
     }),
@@ -1466,6 +1483,8 @@ export const selectSceneInputLocked = (state: MemoryRoomState) =>
   state.activeInteraction !== null ||
   state.activePlayback !== null ||
   state.activePuzzle !== null ||
+  // 크레인 샷이 도는 동안 걸어 나가면 카메라가 빈자리를 본다
+  state.cameraHold !== null ||
   state.uiLocks.length > 0;
 
 /**
@@ -1509,7 +1528,13 @@ export const selectMusicPlaying = (state: MemoryRoomState) =>
   state.introDone &&
   !state.endingStarted &&
   state.activePlayback?.kind !== "cutscene" &&
-  !(gamePhaseOf(state) === 2 && !state.doorOpened);
+  !(gamePhaseOf(state) === 2 && !state.doorOpened) &&
+  /*
+   * 안방(p4)은 곡이 없다 (docs/visual-experiments.md 14장 "새"). 부모님의 서류를 읽는
+   * 동안은 방의 소리만 남고, 정적 비트를 지나 결심(resolve)에 들어서는 순간 곡이 그
+   * 정적 위에 다시 든다. 안방 문이 열리는 순간이 곡이 멎는 순간이다.
+   */
+  storyPhaseOf(state) !== "p4";
 
 /**
  * BGM이 몇 번째 곡을 틀어야 하는가. 곡은 막이 아니라 **전환 컷씬**을 기준으로

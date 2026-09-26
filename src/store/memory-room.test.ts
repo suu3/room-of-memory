@@ -781,10 +781,59 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
     state.openDoorway("living-parents");
     expect(storyPhase(useMemoryRoomStore.getState())).toBe("p4");
   });
+
+  it("하부장이 열리면 카메라가 열쇠로 밀고 들어간다. 그동안 입력은 잠기고, 놓으면 풀린다", () => {
+    enterPhase("p3");
+    useMemoryRoomStore.setState({
+      revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
+      rechecked: ["computer"],
+    });
+    useMemoryRoomStore.getState().discover("sink-code");
+    useMemoryRoomStore.getState().openPuzzle("sink-dial");
+    expect(useMemoryRoomStore.getState().cameraHold).toBeNull();
+
+    // 못 풀고 내려놓으면 카메라는 그대로다
+    useMemoryRoomStore.getState().finishPuzzle({ cleared: false });
+    expect(useMemoryRoomStore.getState().cameraHold).toBeNull();
+
+    useMemoryRoomStore.getState().openPuzzle("sink-dial");
+    useMemoryRoomStore.getState().finishPuzzle({ cleared: true });
+    const held = useMemoryRoomStore.getState();
+    expect(held.cameraHold).toBe("sink-cabinet");
+    expect(selectSceneInputLocked(held)).toBe(true);
+
+    held.endCameraHold();
+    const released = useMemoryRoomStore.getState();
+    expect(released.cameraHold).toBeNull();
+    expect(selectSceneInputLocked(released)).toBe(false);
+    // 놓는 것은 한 번뿐이다. 다시 놓아도 아무 일도 없다
+    released.endCameraHold();
+    expect(useMemoryRoomStore.getState()).toBe(released);
+  });
+
+  it("리셋하면 붙들린 카메라도 놓는다", () => {
+    useMemoryRoomStore.setState({ cameraHold: "sink-cabinet" });
+    useMemoryRoomStore.getState().reset();
+    expect(useMemoryRoomStore.getState().cameraHold).toBeNull();
+  });
 });
 
 describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("안방(p4)은 곡이 없다. 정적 비트를 지나 결심에 들어서면 다시 든다 (The Birds)", () => {
+    enterPhase("p3");
+    useMemoryRoomStore.setState({ started: true });
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
+
+    enterPhase("p4");
+    useMemoryRoomStore.setState({ started: true });
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(false);
+
+    enterPhase("resolve");
+    useMemoryRoomStore.setState({ started: true });
+    expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
+  });
 
   it("서류 순서와 출입증을 마치면 p4-close가 흐르고 액자 2차가 열린다", () => {
     enterPhase("p4");

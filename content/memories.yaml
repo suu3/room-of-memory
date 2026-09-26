@@ -62,7 +62,7 @@ memories:
         en: Maybe it gets fun again with two.
         ja: 二人ならまた楽しくなるかな。
     # 1차: 주완과의 매점 내기(진입) → 이겨도 매점 사 줄 주완이 없는 방(결과)
-    # → 교실에서 지고 매점 뛰던 회상(console-flashback)
+    # → 주완과 2P로 하던 때의 회상(console-flashback)
     phase1:
       script: console-intro
       minigame: fighter-duel
@@ -89,7 +89,7 @@ memories:
         en: If someone out there can catch it, this ball still has a use.
         ja: 受けてくれる人がどこかにいるなら、このボールにはまだ使い道がある。
     # 1차: 전국대회 8강 회상(재하 복선, 우리 포수 윤호) → 캐치볼 → "받아줄 사람(윤호)이 없다"
-    # → 역광 속 포수의 미트(ball-flashback)
+    # → 역광 속 은강고 포수의 미트, 윤호를 떠올림(ball-flashback)
     phase1:
       script: ball-intro
       minigame: ball-catch

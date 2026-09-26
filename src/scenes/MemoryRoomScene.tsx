@@ -29,6 +29,7 @@ import { BathroomShell } from "./memory-room/BathroomShell";
 import { CameraRig } from "./memory-room/CameraRig";
 import { CanvasMinigameHost } from "./memory-room/CanvasMinigameHost";
 import { CursorTargetProjector } from "./memory-room/CursorTargetProjector";
+import { CRANE_SHOT } from "./memory-room/crane-shot";
 import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
 import { DustMotes } from "./memory-room/DustMotes";
 import { EndingTrigger } from "./memory-room/EndingTrigger";
@@ -299,6 +300,17 @@ export function MemoryRoomScene({
   const canvasPuzzle = useMemoryRoomStore(selectCanvasPuzzle);
   const walkTo = useMemoryRoomStore((state) => state.walkTo);
   /*
+   * 붙들린 카메라 (크레인 샷): 하부장이 열리면 열쇠가 있던 칸으로 밀고 들어갔다가, 머무는
+   * 시간이 끝나면 놓는다. 시계는 여기서 잰다. 스토어는 시간을 모르는 게 낫다 (remark와 같다).
+   */
+  const cameraHold = useMemoryRoomStore((state) => state.cameraHold);
+  const endCameraHold = useMemoryRoomStore((state) => state.endCameraHold);
+  useEffect(() => {
+    if (cameraHold === null) return;
+    const timer = window.setTimeout(endCameraHold, CRANE_SHOT.holdMs);
+    return () => window.clearTimeout(timer);
+  }, [cameraHold, endCameraHold]);
+  /*
    * 숨긴 공간은 클릭도 받지 않는다 (event-visibility). 방은 카메라와 거실 사이에 있어서,
    * 이 필터가 없으면 거실 바닥을 눌러도 숨은 방의 야구공이 먼저 눌린다.
    */
@@ -535,7 +547,7 @@ export function MemoryRoomScene({
       {/* 재구성 전환: 라디오 재점화와 새 공간 첫 진입에 방이 선으로 풀렸다 채워진다 */}
       <WireframeReveal enabled={cheapEffects} />
       <CameraRig
-        focusId={endingStarted ? "ending" : focusMemoryId}
+        focusId={endingStarted ? "ending" : (cameraHold ?? focusMemoryId)}
         roomZoom={roomZoom}
         zoomScale={zoomScale}
         orbitAzimuth={orbitAzimuth}

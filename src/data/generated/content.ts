@@ -484,15 +484,19 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "console-flashback",
     cuts: [
       {
-        image: "/assets/images/cutscene-console-flashback.webp",
+        image: "/assets/images/mg-cutscene-console-flashback.webp?v=2",
         holdMs: 1200,
         lines: [
           { speaker: "hero", textKey: "cutscenes.console-flashback.cut1.line1" },
           { speaker: "hero", textKey: "cutscenes.console-flashback.cut1.line2" },
+          {
+            speaker: "hero",
+            textKey: "cutscenes.console-flashback.cut1.line3",
+            expression: "smile",
+          },
+          { speaker: "hero", textKey: "cutscenes.console-flashback.cut1.line4" },
+          { speaker: "hero", textKey: "cutscenes.console-flashback.cut1.line5" },
         ],
-      },
-      {
-        lines: [{ speaker: "hero", textKey: "cutscenes.console-flashback.cut2.line1" }],
       },
     ],
   },
@@ -500,15 +504,15 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "ball-flashback",
     cuts: [
       {
-        image: "/assets/images/cutscene-ball-flashback.webp",
+        image: "/assets/images/mg-cutscene-ball-flashback.webp?v=2",
         holdMs: 1500,
         lines: [
           { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line1" },
           { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line2" },
+          { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line3", expression: "smile" },
+          { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line4" },
+          { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line5" },
         ],
-      },
-      {
-        lines: [{ speaker: "hero", textKey: "cutscenes.ball-flashback.cut2.line1" }],
       },
     ],
   },
