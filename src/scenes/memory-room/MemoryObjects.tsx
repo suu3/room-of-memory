@@ -59,6 +59,8 @@ const MODEL_PATHS = {
   radio: ASSETS.models.radio,
   console: ASSETS.models.gamepad,
   phone: ASSETS.models.smartphone,
+  // 대체물(ReportCardMemory)과 같은 A4 0.30×0.42, 밑면 가운데 원점, 인쇄면 +Y라 자세 보정이 없다
+  "report-card": ASSETS.models.reportCard,
 } as const satisfies Partial<Record<MemoryId, string>>;
 
 /** 게임패드 glb 가로 3.06을 러그 위 소품 크기(0.5 안팎)로 줄이는 배율. */
@@ -1063,7 +1065,7 @@ function IdCardMemory({ palette, opacity }: VisualProps) {
   );
 }
 
-/** 책상 위 모의고사 성적표: 종이 한 장, 머리띠와 등급표 줄만. glb가 오면 교체한다. */
+/** 책상 위 모의고사 성적표: glb(ch1-report-card)가 뜨기 전의 대체물. 종이 한 장, 머리띠와 등급표 줄만. */
 function ReportCardMemory({ palette, opacity }: VisualProps) {
   return (
     <group>
