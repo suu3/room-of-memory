@@ -5,11 +5,11 @@ export type SwingResult = "hit" | "early" | "late";
 /**
  * 난이도별 판. 이지는 다섯 번의 기회 안에 세 번만 맞히면 된다. 다섯 번을 전부 맞혀야
  * 하는 판은 무결점을 요구하는 셈이라, 라운드마다 빨라지는 공 앞에서 배우는 값이 곧
- * 패배였다. 보통은 예전 그대로 다섯 번이다.
+ * 패배였다. 보통도 2026-09-26부터 세 번이다 (판을 짧게). 대신 기회가 넷이라 덜 봐준다.
  */
 export const SWING_TUNINGS: Record<MinigameDifficulty, { goal: number; maxMisses: number }> = {
   easy: { goal: 3, maxMisses: 5 },
-  normal: { goal: 5, maxMisses: 5 },
+  normal: { goal: 3, maxMisses: 4 },
 };
 
 /**
