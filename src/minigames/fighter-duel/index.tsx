@@ -428,40 +428,45 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
       </div>
 
       {/*
-        조작판. 키보드가 본체이고 이 버튼은 터치의 손이다. 두 줄로 나누지 않는 이유는
-        걷기와 치기가 동시에 일어나는 게임이라 손이 한 줄 안에 있어야 하기 때문이다.
+        조작판. 키보드가 본체이고 이 버튼은 터치의 손이다. 이동과 공격을 두 줄로
+        나눈다: 한 줄에 여섯 칸을 늘어놓으니 어느 게 발이고 어느 게 손인지 한눈에 안
+        읽혔다 (UT). 폰에서는 두 줄이 양손 엄지의 자리이기도 하다.
       */}
-      <div className="mt-3 flex flex-wrap items-stretch justify-center gap-2">
-        <ControlKey
-          cap="←"
-          label={t("minigame.fighterDuel.control.back")}
-          {...holdProps("ArrowLeft")}
-        />
-        <ControlKey
-          cap="→"
-          label={t("minigame.fighterDuel.control.forward")}
-          {...holdProps("ArrowRight")}
-        />
-        <ControlKey
-          cap="↑"
-          label={t("minigame.fighterDuel.control.jump")}
-          onPointerDown={(event) => {
-            event.preventDefault();
-            jumpRef.current = true;
-          }}
-        />
-        {(["jab", "heavy", "throw"] as const).map((attack, index) => (
+      <div className="mt-3 flex flex-col items-center gap-2">
+        <div className="flex items-stretch justify-center gap-2">
           <ControlKey
-            key={attack}
-            cap={["J", "K", "L"][index]}
-            label={t(`minigame.fighterDuel.move.${attack}`)}
-            accent
+            cap="←"
+            label={t("minigame.fighterDuel.control.back")}
+            {...holdProps("ArrowLeft")}
+          />
+          <ControlKey
+            cap="↑"
+            label={t("minigame.fighterDuel.control.jump")}
             onPointerDown={(event) => {
               event.preventDefault();
-              queuedRef.current = attack;
+              jumpRef.current = true;
             }}
           />
-        ))}
+          <ControlKey
+            cap="→"
+            label={t("minigame.fighterDuel.control.forward")}
+            {...holdProps("ArrowRight")}
+          />
+        </div>
+        <div className="flex items-stretch justify-center gap-2">
+          {(["jab", "heavy", "throw"] as const).map((attack, index) => (
+            <ControlKey
+              key={attack}
+              cap={["J", "K", "L"][index]}
+              label={t(`minigame.fighterDuel.move.${attack}`)}
+              accent
+              onPointerDown={(event) => {
+                event.preventDefault();
+                queuedRef.current = attack;
+              }}
+            />
+          ))}
+        </div>
       </div>
     </MinigameShell>
   );
@@ -483,7 +488,7 @@ function ControlKey({
       type="button"
       // 게임의 손은 키보드다. 이 버튼은 터치용이라 포커스 순서에서 빠진다
       tabIndex={-1}
-      className={`flex min-w-16 select-none flex-col items-center gap-0.5 rounded-sm border px-2.5 py-1.5 transition-colors ${
+      className={`flex min-w-20 touch-none select-none flex-col items-center gap-0.5 rounded-sm border px-2.5 py-1.5 transition-colors ${
         accent ? "border-memory/45 bg-memory/10" : "border-bone/25 bg-night/60"
       }`}
       {...handlers}

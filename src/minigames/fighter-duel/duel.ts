@@ -167,8 +167,10 @@ export const DUEL_TUNINGS: Record<MinigameDifficulty, DuelTuning> = {
    * 이지는 "덜 아픈 상대"가 아니라 **덜 몰아붙이는 상대**다. 한 방의 세기만 낮췄더니
    * 쉬지 않고 들어오는 손 때문에 때릴 틈 자체가 없었다 (UT: "상대가 너무 빠르게
    * 바로바로 공격"). 예고를 길게, 뜸을 길게, 무는 확률을 낮춘다.
+   * 그래도 어렵다는 UT가 또 나와(모바일 터치 버튼으로는 더 그렇다) 한 번 더 풀었다:
+   * 이지는 격투 게임을 몰라도 약공격 연타와 뒤로 물러서기만으로 이길 수 있어야 한다.
    */
-  easy: { rivalDamageScale: 0.7, tellMs: 380, thinkMs: 620, blockChance: 0.5, punishChance: 0.3 },
+  easy: { rivalDamageScale: 0.5, tellMs: 520, thinkMs: 900, blockChance: 0.3, punishChance: 0.15 },
   normal: {
     rivalDamageScale: 1,
     tellMs: 200,

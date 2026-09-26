@@ -103,14 +103,11 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.fighterDuel.title",
     helpKey: "minigame.fighterDuel.help",
     /*
-     * 두 줄: 삼각 상성과 프레임. 미니게임 하나 붙잡고 읽을 분량이 아니라 시작
-     * 버튼을 누르기 전에 훑는 분량이어야 한다 (UT: "미니겜이니까 더 짧아도 될 듯").
-     *
-     * 조작은 바로 위 helpKey가 이미 말하고, 조작판도 화면 안에 있다. 나머지는
-     * 화면이 스스로 말한다: 거리는 눈으로 보이고, 카운터·콤보는 들어간 뒤에 뜬다.
-     * 몰라도 판이 도는 규칙은 카드에 적지 않는다.
+     * 한 줄: 삼각 상성만. 시작 버튼을 누르기 전에 훑는 분량이어야 한다 (UT: "게임
+     * 설명이 너무 길다"). 프레임·카운터는 몰라도 판이 돈다: 들어간 뒤 화면이 알려 준다.
+     * 조작은 helpKey와 화면 안 조작판이 이미 말한다.
      */
-    rulesKeys: ["minigame.fighterDuel.rules.triangle", "minigame.fighterDuel.rules.frames"],
+    rulesKeys: ["minigame.fighterDuel.rules.triangle"],
     failKey: "minigame.fighterDuel.fail",
   },
   "window-view": {
