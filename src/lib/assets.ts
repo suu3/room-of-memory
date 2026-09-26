@@ -23,6 +23,8 @@ export const ASSETS = {
     curtainPullLeft: "/assets/models/curtain-pull-left.glb?v=tripo-20260915",
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
+    /** 책상 위에 눕혀 놓는 A4 성적표. 재생성: scripts/create-report-card.mjs. */
+    reportCard: "/assets/models/ch1-report-card.glb?v=20260926",
     radio: "/assets/models/ch1-radio.glb?v=original-20260912",
     /** 러그 위 게임패드 (사용자 제공, Meshopt 압축). 원본은 세워진 자세(앞면 +z, 밑면 y=0)라 씬에서 눕힌다. */
     gamepad: "/assets/models/ch1-gamepad.glb",
