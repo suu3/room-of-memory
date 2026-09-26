@@ -31,6 +31,8 @@ vi.mock("@/data/memory-room", async (importOriginal) => {
  */
 function openConsole() {
   act(() => {
+    // 강도 1은 성적표(강도 0) 뒤에 열린다
+    useMemoryRoomStore.setState({ collected: ["report-card"] });
     useMemoryRoomStore.getState().beginInteraction("console");
     for (
       let step = 0;

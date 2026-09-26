@@ -42,6 +42,7 @@ export const ICONS = [
   "Desktop",
   "DeviceMobile",
   "Envelope",
+  "Exam",
   "FileText",
   "GameController",
   "GridFour",

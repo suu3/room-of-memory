@@ -45,7 +45,25 @@
 # 대사·미니게임·컷씬이 다 없으면 클릭 즉시 완료된다.
 
 memories:
-  # ─────────────────────────────────────────────── 1페이즈 · 강도 1 (처음부터)
+  # ─────────────────────────────────────────────── 1페이즈 · 강도 0 (문제집 뒤)
+  #
+  # 야구 회상보다 먼저 "누구의 방인가"를 깐다: 고3, 수능 한 달 전, 부모님.
+  # 문제집(이름)을 뒤집은 뒤 가장 먼저 열리는 기억이고, 강도 1(게임기·공)은 이것 뒤에 열린다.
+  # 재난의 힌트는 결과 대사 끝 한 줄("…이었나")로만 샌다.
+  - id: report-card
+    icon: Exam
+    lore:
+      title:
+        ko: 9월 모의고사
+      phase1:
+        ko: 수학은 또 4등급. 엄마는 과외 얘기를, 아빠는 자기 때 얘기를 했다. 야구가 끝난 여름 뒤로 남은 건 수능이었다.
+    # 성적표를 3D로 돌려 뒷면의 학부모 확인란(엄마 서명·아빠 한마디)을 본다 (report-card-flip)
+    phase1:
+      script: report-card-intro
+      minigame: report-card-flip
+      resultScript: report-card-read
+
+  # ─────────────────────────────────────────────── 1페이즈 · 강도 1 (성적표 뒤)
   - id: console
     icon: GameController
     lore:
@@ -67,6 +85,7 @@ memories:
       script: console-intro
       minigame: fighter-duel
       resultScript: console-alone
+      unlockAfter: [report-card]
       cutscene: console-flashback
     # 2차: 곁가지 (v4 3-4). 필수 체인에서 빠졌다. 카드 미궁(card-odd)은 v4.1에서 뺐다:
     # 여기 다시 붙이지 말 것.
@@ -94,6 +113,7 @@ memories:
       script: ball-intro
       minigame: ball-catch
       resultScript: ball-alone
+      unlockAfter: [report-card]
       cutscene: ball-flashback
       replayStill: /assets/images/mg-ball-catch-sunset-field.webp?v=2
     # 2차: 곁가지. 회전 미궁(angle-turn)은 뺐다 (현관 잠금에서도 빠짐): 다시 붙이지 말 것.
@@ -212,14 +232,14 @@ memories:
         ko: 은강고
       phase2:
         ko: 생존자가 있다. 은강고 체육관. 나흘 밤. …그 목소리, 어디서 들어봤는데.
-    # 1차 (관문): 나머지 여섯을 다 봐야 열린다. 반전은 한 번뿐이라 순서를 강제한다.
+    # 1차 (관문): 나머지 일곱을 다 봐야 열린다. 반전은 한 번뿐이라 순서를 강제한다.
     # 진입 대사 → 튜닝 → 글자 맞추기("내가 방에 갇혀 있는 이유는?" 답: 좀비, 오답 세 번마다
     # 글자 힌트) → 재난방송(결과 대사) → 이미지 나열 컷씬(store가 radio-blackout을 연다).
     phase1:
       script: radio-intro
       minigame: radio-quiz
       resultScript: radio-broadcast
-      unlockAfter: [console, ball, frame, phone, calendar, window]
+      unlockAfter: [report-card, console, ball, frame, phone, calendar, window]
     # 2차 (분기점): 빨갛게 깜빡이는 라디오를 누르면 곧장 생존자 방송(3페이지 웹툰)이 흐른다.
     # 튜닝을 두 번 시키지 않는다. 끝나면 방에서 도해의 한마디, 방문에 금빛이 돈다.
     # 수첩 제목은 이 차수부터 "은강고"다 (phase2Title). 1차만 본 동안은 "그날의 방송".
