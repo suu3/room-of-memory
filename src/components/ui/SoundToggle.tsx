@@ -6,7 +6,17 @@ import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { playHoverSound } from "./hover-sfx";
-import { HUD_ICON_BUTTON } from "./ui-classes";
+import { FOCUS_RING, HUD_ICON_BUTTON } from "./ui-classes";
+
+/**
+ * hud: 방 위에 떠 있는 아이콘 버튼.
+ * title: 타이틀 아래 띠의 글자 버튼. "켜짐 · 켜고 플레이하기를 권해요"처럼 상태와
+ *        권장을 한 줄로 읽히게 하고, 눌러서 바로 바꾼다.
+ */
+export type SoundToggleTone = "hud" | "title";
+
+/** 타이틀 띠의 값 글자(조작 안내의 dd)와 같은 옷을 입는다. 상태는 색으로 한 번 더 말한다 */
+const TITLE_BUTTON = `inline-flex cursor-pointer items-center gap-1.5 rounded-sm font-pixel text-sm leading-normal transition-colors duration-150 hover:text-memory ${FOCUS_RING}`;
 
 /**
  * 소리 on/off. HUD 메뉴 안에 있던 걸 밖으로 꺼냈다.
@@ -17,14 +27,49 @@ import { HUD_ICON_BUTTON } from "./ui-classes";
  * 플레이 첫 순간이다. 그때 화면에 오디오 단서가 하나도 없으면 안 된다.
  *
  * 메뉴 안에는 남기지 않는다. 같은 스위치가 두 군데 있으면 어느 쪽이 진짜인지 헷갈린다.
+ * 타이틀 화면의 것(tone="title")은 방 HUD와 동시에 보이지 않으므로 예외다. 소리가 서사를
+ * 끄는 게임인데 첫 화면에 소리 이야기가 없으면 무음으로 시작한 사람은 절반을 놓친다.
  */
-export function SoundToggle() {
+export function SoundToggle({ tone = "hud" }: { tone?: SoundToggleTone }) {
   const { t } = useTranslation();
   const soundMuted = useMemoryRoomStore((state) => state.soundMuted);
   const setSoundMuted = useMemoryRoomStore((state) => state.setSoundMuted);
   const label = t(soundMuted ? "hud.soundOff" : "hud.soundOn");
   /** 켠 횟수. 켤 때마다 링이 다시 마운트되어 한 번 번진다. 끌 때는 아무것도 번지지 않는다 */
   const [pulseKey, setPulseKey] = useState(0);
+
+  const toggle = () => {
+    // 켤 때만 소리를 낸다. 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다
+    if (soundMuted) {
+      playSound("select");
+      setPulseKey((key) => key + 1);
+    }
+    setSoundMuted(!soundMuted);
+  };
+
+  if (tone === "title") {
+    return (
+      <button
+        type="button"
+        aria-pressed={!soundMuted}
+        aria-label={t("titleScreen.soundLabel")}
+        onPointerEnter={playHoverSound}
+        onClick={toggle}
+        className={`${TITLE_BUTTON} ${soundMuted ? "text-ash" : "text-ivory/85"}`}
+      >
+        {soundMuted ? (
+          <SpeakerSimpleSlash size="1.1em" weight="bold" aria-hidden />
+        ) : (
+          <SpeakerSimpleHigh size="1.1em" weight="bold" aria-hidden />
+        )}
+        <span className="break-ko">
+          {t(soundMuted ? "titleScreen.soundStateOff" : "titleScreen.soundStateOn")}
+          {" · "}
+          {t("titleScreen.soundHint")}
+        </span>
+      </button>
+    );
+  }
 
   return (
     <button
@@ -33,14 +78,7 @@ export function SoundToggle() {
       aria-label={label}
       onPointerEnter={playHoverSound}
       title={label}
-      onClick={() => {
-        // 켤 때만 소리를 낸다. 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다
-        if (soundMuted) {
-          playSound("select");
-          setPulseKey((key) => key + 1);
-        }
-        setSoundMuted(!soundMuted);
-      }}
+      onClick={toggle}
       // 꺼져 있을 때 글자색을 죽인다. 빗금 아이콘만으로도 읽히지만, 작은 아이콘 하나가
       // 유일한 표시라 상태를 색으로도 한 번 더 말해 준다.
       className={`relative ${HUD_ICON_BUTTON} ${soundMuted ? "text-ash" : ""}`}

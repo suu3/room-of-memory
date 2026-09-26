@@ -16,6 +16,7 @@ import { HudLogLine } from "./HudLogLine";
 import { playHoverSound } from "./hover-sfx";
 import { LanguageToggle } from "./LanguageToggle";
 import { RisingDust } from "./RisingDust";
+import { SoundToggle } from "./SoundToggle";
 import { STAGGER_CLASS, staggerStyle } from "./stagger";
 import { BACKDROP, BUTTON_DESTRUCTIVE, BUTTON_QUIET, PANEL_DARK } from "./ui-classes";
 
@@ -484,6 +485,18 @@ export function TitleScreen() {
                   </dd>
                 </div>
               ))}
+              {/*
+                소리. BGM과 효과음이 이야기를 끄는 게임인데, 자동재생 정책 때문에 첫 클릭
+                전에는 아무 소리도 안 난다. 그래서 "소리가 있는 게임"이라는 걸 글로 먼저
+                말하고, 읽은 자리에서 바로 켜고 끌 수 있게 값 자리를 토글로 만든다.
+                조작 항목과 같은 라벨·값 구조라 같은 종류의 안내로 읽힌다.
+              */}
+              <div className="flex items-baseline gap-2">
+                <dt className={`break-ko ${CONTROL_LABEL_CLASS}`}>{t("titleScreen.soundLabel")}</dt>
+                <dd>
+                  <SoundToggle tone="title" />
+                </dd>
+              </div>
             </dl>
           </section>
 
