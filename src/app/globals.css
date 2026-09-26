@@ -1667,29 +1667,26 @@ body {
 }
 
 /*
- * 시점 전환의 노이즈 겹 (ViewpointTransition, docs/visual-experiments.md 7장·11장).
+ * 시점 전환의 초점 맞춤 (ViewpointTransition).
  *
- * .film-grain과 같은 feTurbulence 정지 타일이다. 타일은 움직이지 않고 투명도만 걷힌다:
- * 노이즈 속에서 방이 응결한다. 불을 켜는 덮개(.viewpoint-lamp) 위에 얹히거나(lightsOn),
- * 평면도로 몸을 옮기는 320ms를 혼자 덮는다(.viewpoint-noise-only는 바탕색 없이 타일만).
+ * 흐렸던 방이 선명해진다. 불을 켜는 덮개(.viewpoint-lamp) 밑에서 같이 걷히거나(lightsOn),
+ * 평면도로 몸을 옮기는 순간을 혼자 짧게 덮는다(warp). 시작 반경은 --viewpoint-blur.
+ * 덮개가 닫혀 버티는 동안은 흐린 채로 있다가, 걷히기 시작할 때 애니메이션이 붙는다.
  */
-.viewpoint-noise {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.9'/></svg>");
-  background-color: var(--color-scene-void);
-  background-blend-mode: screen;
-  opacity: 0.85;
+.viewpoint-focus {
+  -webkit-backdrop-filter: blur(var(--viewpoint-blur, 12px));
+  backdrop-filter: blur(var(--viewpoint-blur, 12px));
 }
-.viewpoint-noise-only {
-  background: transparent;
+.animate-viewpoint-focus {
+  animation: viewpoint-focus 1s cubic-bezier(0.2, 0.6, 0.3, 1) both;
 }
-.animate-viewpoint-noise {
-  animation: viewpoint-noise-fade 900ms ease-in both;
-}
-@keyframes viewpoint-noise-fade {
+@keyframes viewpoint-focus {
   from {
-    opacity: 0.85;
+    -webkit-backdrop-filter: blur(var(--viewpoint-blur, 12px));
+    backdrop-filter: blur(var(--viewpoint-blur, 12px));
   }
   to {
-    opacity: 0;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
   }
 }

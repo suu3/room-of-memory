@@ -142,7 +142,7 @@
 
 | 시점 | 지금 코드 | 판정 | 처리 |
 |---|---|---|---|
-| **인트로 → 방** | 부팅 커튼 → 타이틀 → 1인칭 어둠에서 스위치를 찾아 켬 → `.viewpoint-lamp` 덮개 1.3초 | ✅ | 스위치를 켜는 순간의 덮개에 SVG `feTurbulence` 정지 타일을 얹어 opacity 1→0 (노이즈 속에서 방이 응결). 타일은 정지, 투명도만 움직인다(번쩍임 아님). `reducedMotion`이면 지금처럼 어둠(void)으로만. 같은 타일을 **미니맵 순간이동**(`HudMiniMap`, 지금은 컷)의 300ms 덮개로도 쓴다 |
+| **인트로 → 방** | 부팅 커튼 → 타이틀 → 1인칭 어둠에서 스위치를 찾아 켬 → `.viewpoint-lamp` 덮개 1.3초 | ✅ | 스위치를 켜는 순간의 덮개 밑에 초점 맞춤(`backdrop-filter: blur` 14px→0)을 겹친다: 불 켠 직후 눈이 빛에 적응한다. 처음엔 `feTurbulence` 노이즈 타일이었는데 잡음이 방의 톤과 따로 놀아 바꿨다. `reducedMotion`이면 흐림 없이 어둠(void)으로만. 같은 흐림(8px)을 **미니맵 순간이동**의 짧은 덮개로도 쓴다 |
 | **1막 → 2막** | 컷씬 시작에 신호 끊김 찢기(`tear`). 방문 열림은 1인칭 "어둠 속 빛 하나" 구간 | 🔶 | 스펙은 "라디오 목소리 직후"에 와이어프레임 → 채움. 코드에서 그 자리는 **전환 컷씬이 끝나 3D로 돌아오는 순간**(라디오 재점화)이다. 그때 모든 머티리얼 `wireframe` on → 1초 안에 dissolve로 채운다(`tear`의 짝). 방문 열림(1인칭 금빛)에는 얹지 않는다: 그 구간의 그림은 이미 정해져 있다. 같은 문법을 **화장실·안방에 처음 들어서는 순간**에도 쓴다(11장): 문이 열리며 드러나는 공간이 선에서 면으로 채워진다 |
 | **회상 컷 간** | `PlaybackScene`이 컷을 바꾼다(opacity 700ms) | ✅ | Canvas 2D 노이즈 threshold dissolve 600ms(30fps로 충분). 노이즈 셋(종이 섬유·필름 그레인·물 얼룩)은 `feTurbulence` 변형 세 장을 한 번 구워 재사용. 2D 재생 화면의 "기록물의 결"(`DESIGN.md > Texture`)과 같은 재질이라 맞다 |
 | **같은 장면의 두 바퀴** | 다시보기가 그 바퀴의 스틸 한 장만 세운다 | ➕ | 액자는 같은 장면을 두 장 가진 유일한 기억이다. 2막에 되짚으면 1막의 사진으로 열렸다가 2막의 사진으로 넘어간다(`PhotoMorph`): 틀이 물러나며 잘려 있던 바깥(부모 얼굴)이 들어오고, 두 그림은 늘 겹쳐 세워져 소년이 제자리에 있다. 밀어내는 변위는 컷 dissolve의 물 얼룩과 같은 결이라 한 화면 안에서 재질이 갈라지지 않는다. 겹쳐 세우는 사각형은 두 그림을 재서 얻은 값(`REPLAY_MORPH_WITHIN`)이다 |
@@ -316,7 +316,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | 재구성 (와이어프레임 → 면) | `WireframeReveal.tsx`, `reconstruction.ts`, `ScreenTransition` `settle` | cheap | 라디오 재점화, 화장실·안방 첫 진입 | (게임 안) |
 | 1인칭 잔상 | `AfterimagePass.ts`, `afterimage.ts`, `MemoryOutlineGlow.tsx` | heavy, 1인칭에서만 | 걷는 속도 | (게임 안) |
 | 현관문 빛기둥 | `LivingRoomShell.tsx` `EndingLightPlane`, `ending-light.ts`, `MemoryOutlineGlow.tsx` (GodRays) | heavy, 엔딩에서만 | `endingStarted` | (게임 안) |
-| 스위치 켤 때 · 평면도 이동의 노이즈 응결 | `components/ui/ViewpointTransition.tsx`, `globals.css` `.viewpoint-noise` | cheap | 시점 전환, `warpTarget` | (게임 안) |
+| 스위치 켤 때 · 평면도 이동의 초점 맞춤 (노이즈 응결에서 교체) | `components/ui/ViewpointTransition.tsx`, `globals.css` `.viewpoint-focus` | cheap | 시점 전환, `warpTarget` | (게임 안) |
 
 **아직 안 본 것.** 전부 브라우저 없이(테스트·타입·빌드) 검증했다. 실제 화면에서 봐야 정할
 값: 등의 세기(`lantern-light.ts`), 틸트 시프트의 띠 폭(`tilt-focus.ts`), 컵라면 무늬의 가시성,
