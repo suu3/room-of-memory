@@ -4,7 +4,7 @@ import ReactThreeTestRenderer from "@react-three/test-renderer";
 import { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MinigameResult } from "@/types/minigame";
-import { PianoMelodyMinigame } from "./index";
+import { keyboardFov, PianoMelodyMinigame } from "./index";
 import { PIANO_KEYS } from "./keys";
 import { MELODY, type Solfege } from "./melody";
 
@@ -102,5 +102,19 @@ describe("PianoMelodyMinigame", () => {
       vi.advanceTimersByTime(1000);
     });
     expect(results).toHaveLength(0);
+  });
+});
+
+describe("건반 카메라의 화각", () => {
+  it("넓은 화면은 기본 화각 그대로다", () => {
+    expect(keyboardFov(16 / 9)).toBe(40);
+  });
+
+  it("세로로 든 폰에서는 화각을 넓혀 건반 양끝이 잘리지 않게 한다", () => {
+    const portrait = keyboardFov(390 / 844);
+    expect(portrait).toBeGreaterThan(80);
+    expect(portrait).toBeLessThanOrEqual(100);
+    // 좁아질수록 넓어진다
+    expect(keyboardFov(0.75)).toBeGreaterThan(keyboardFov(1));
   });
 });

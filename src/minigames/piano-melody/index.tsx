@@ -44,6 +44,22 @@ const LID_LAMBDA = 5;
 const CAMERA_FORWARD = 1.9;
 const CAMERA_LIFT = 1.15;
 const CAMERA_FOV = 40;
+/**
+ * 위 거리와 화각이 맞춰진 화면 비율(가로/세로). 이보다 좁은 화면(세로로 든 폰)에서는
+ * 세로 화각을 넓혀 **가로로 보이는 폭**을 이 비율일 때만큼 지킨다. 화각을 고정하면
+ * 세로 화면에서 가로 폭이 반 넘게 줄어 양끝 건반과 악보가 잘린다.
+ */
+const CAMERA_FIT_ASPECT = 1.6;
+/** 세로 화각의 상한(도). 이 위로는 화면 위아래가 눈에 띄게 휜다. */
+const CAMERA_MAX_FOV = 100;
+
+/** 화면 비율에 맞춘 세로 화각(도). 넓은 화면은 CAMERA_FOV 그대로다. */
+export function keyboardFov(aspect: number): number {
+  if (aspect >= CAMERA_FIT_ASPECT) return CAMERA_FOV;
+  const half = Math.tan(((CAMERA_FOV / 2) * Math.PI) / 180);
+  const fov = (2 * Math.atan((half * CAMERA_FIT_ASPECT) / aspect) * 180) / Math.PI;
+  return Math.min(CAMERA_MAX_FOV, fov);
+}
 /** 시선은 건반보다 조금 위를 본다: 건반 한 벌과 보면대의 악보가 한 화면에 들어온다. */
 const CAMERA_TARGET_LIFT = 0.39;
 
@@ -144,6 +160,7 @@ function KeyboardCamera() {
 
   useLayoutEffect(() => {
     camera.aspect = size.width / size.height;
+    camera.fov = keyboardFov(camera.aspect);
     camera.updateProjectionMatrix();
   }, [camera, size]);
 
