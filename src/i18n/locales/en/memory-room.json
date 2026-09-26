@@ -118,11 +118,12 @@
   },
   "scripts": {
     "ball-intro": {
-      "line1": "전국대회 8강. 9회 말, 마지막 타석.",
-      "line2": "상대 포수가 미트를 탁탁, 두 번 치고 앉았다.",
-      "line3": "뭘 던져도 다 받아낼 것 같은 얼굴이었다.",
-      "line4": "…결국 그 공도 받아냈지.",
-      "line5": "경기 끝나고 그 녀석이 뭐라고 했는데, \"다음엔…\"까지만 들렸다."
+      "line1": "야구부 3년. 마지막 여름이었다.",
+      "line2": "전국대회 8강. 9회 말, 마지막 타석.",
+      "line3": "상대 포수가 미트를 탁탁, 두 번 치고 앉았다.",
+      "line4": "뭘 던져도 다 받아낼 것 같은 얼굴이었다.",
+      "line5": "…결국 그 공도 받아냈지.",
+      "line6": "경기 끝나고 그 녀석이 뭐라고 했는데, \"다음엔…\"까지만 들렸다."
     },
     "ball-alone": {
       "line1": "벽에 던지면 돌아온다. 그게 전부다.",
@@ -130,7 +131,8 @@
     },
     "console-intro": {
       "line1": "Been a while. Time for a round.",
-      "line2": "Loser bought snacks. That was the rule."
+      "line2": "Loser bought snacks. That was the rule.",
+      "line3": "우진이한텐 늘 졌는데."
     },
     "console-alone": {
       "line1": "I won.",
