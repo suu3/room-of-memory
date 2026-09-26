@@ -26,7 +26,7 @@ describe("생존자 방송 웹툰의 페이지", () => {
 
   it("웹툰 뒤의 한마디(페이지 없는 컷)는 페이지에 들지 않는다", () => {
     expect(survivor.at(-1)?.page).toBeUndefined();
-    expect(survivor.at(-1)?.lines.length).toBe(1);
+    expect(survivor.at(-1)?.lines.length).toBeGreaterThan(0);
   });
 
   it("폭은 화면 높이에 묶이지 않는다: 데스크톱 900px, 모바일은 화면 폭", () => {

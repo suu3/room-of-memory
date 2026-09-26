@@ -657,6 +657,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
             textKey: "cutscenes.survivor-broadcast.cut11.line1",
             expression: "surprised",
           },
+          { speaker: "hero", textKey: "cutscenes.survivor-broadcast.cut11.line2" },
         ],
       },
     ],

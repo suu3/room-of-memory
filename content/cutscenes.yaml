@@ -214,11 +214,16 @@ cutscenes:
       sfx: radioSignOff
       holdMs: 1500
       lines: []
-    # 방으로 돌아와서
+    # 방으로 돌아와서. 학교 이름은 재하를 가리키고, 목소리는 흐린 채 둔다:
+    # "또래 남자"가 윤호나 주완일 수 있다는 여지 (속편 떡밥, 확인해 주지 않는다)
     - lines:
         - speaker: hero
           expression: surprised
           ko: 은강고…? 그때 그…?
+        - speaker: hero
+          ko: …목소리가 좀 익숙한데.
+          en: …That voice sounds kind of familiar.
+          ja: …なんか、聞き覚えのある声だな。
 
   #
   # 캐리어 개수 추리의 결론 (v4.1 3장). 신발장과 아빠 메일("2박 3일")을 둘 다 본 순간.
