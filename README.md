@@ -53,9 +53,9 @@ AI를 여러 개 써볼 수 있어서 재밌었고, 배운 블렌더도 요긴�
 
 ## 제작 툴
 
-3D와 일러스트는 자체 제작도 있고 AI도 있습니다.
+3D와 일러스트는 자체 제작도 있고 AI도 있습니다. AI가 뽑은 걸 손으로 리터칭하고, 그걸 다시 AI에 넣어 다듬는 핑퐁을 여러 번 돌렸습니다.
 
-사용 툴: Claude, GPT, Tripo AI 등.
+사용 툴: Claude, GPT, Midjourney, Higgsfield, Tripo AI 등.
 
 <br>
 
