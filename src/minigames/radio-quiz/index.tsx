@@ -132,7 +132,13 @@ function QuizBoard({
 
   const board = (
     <div className="flex flex-col items-center gap-8">
-      <p className="break-ko text-pretty text-center text-2xl font-bold leading-relaxed text-paper">
+      {/*
+        질문은 픽셀 서체다. 방송 대신 튀어나온 "문제"라 방의 글자(Pretendard)와 다른 결이어야
+        하고, 옛 게임의 퀴즈 화면처럼 읽혀야 긴장이 놀이로 넘어간다. 크기는 14의 배수(28px):
+        Galmuri14는 그 배수가 아니면 획이 뭉개진다 (globals.css의 .title-logo 참고).
+        굵은 웨이트가 없는 서체라 font-bold를 걸지 않는다.
+      */}
+      <p className="break-ko text-pretty text-center font-pixel text-[1.75rem] leading-relaxed text-paper">
         {t("minigame.radioQuiz.question")}
       </p>
 
