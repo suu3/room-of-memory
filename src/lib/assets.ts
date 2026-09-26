@@ -231,5 +231,10 @@ export const ASSETS = {
      * 넣을 때 규격: mp3/ogg, 500KB 이하 (.claude/rules/assets.md).
      */
     batHit: "/assets/audio/sfx/mg-ball-catch-bat-hit.mp3",
+    /**
+     * 생존자 방송 첫 컷의 미트 소리. 포수 복선이라 가죽을 치는 실물 소리여야 한다.
+     * 체육관 미트 영상(힉스필드)에서 두 번 치는 1.26초만 잘라 Opus로 담았다.
+     */
+    mittTap: "/assets/audio/sfx/sfx-mitt-tap.ogg",
   } as Partial<Record<VoiceId, string>>,
 } as const;

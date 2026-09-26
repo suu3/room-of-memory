@@ -40,8 +40,8 @@ export type VoiceId =
   // 생존자 방송 웹툰: 말풍선마다 짧은 노이즈, 끝의 치지직 끊김
   | "radioStatic"
   | "phoneBeep"
-  // 생존자 방송의 첫 컷: 마이크를 손가락으로 탁, 탁 두 번 (v4 3-3-1)
-  | "micTap"
+  // 생존자 방송의 첫 컷: 방송 전에 미트를 탁, 탁 두 번 친다 (포수 복선, v4 3-3-1)
+  | "mittTap"
   // 방 안의 곁가지 인터랙션 (서랍·의자)
   | "drawer"
   | "chairDrag"
@@ -288,16 +288,20 @@ export const VOICES: Record<VoiceId, Voice> = {
     noise: { delay: 0, duration: 0.14, gain: 0.3, highpass: 900, lowpass: 6000 },
   },
   /**
-   * 마이크를 손가락으로 두 번 두드리는 소리 (생존자 방송, v4 3-3-1). 스피커를 한 번
-   * 거친 둔탁한 "퉁"이라 높은 쪽을 자른 노이즈에 낮은 사인 한 방씩을 겹친다.
-   * 두 번째가 조금 약하다: 사람 손가락이다.
+   * 주먹으로 미트를 두 번 치는 소리 (생존자 방송 첫 컷, v4 3-3-1). 1막 사인볼 회상의
+   * "상대 포수가 미트를 탁탁, 두 번 치고 앉았다"와 이어지는 포수 복선이다.
+   *
+   * 실제로 울리는 건 파일이다 (ASSETS.sfx.mittTap, 체육관 미트 영상에서 뽑은 실제 미트
+   * 소리). 이 합성은 파일을 아직 못 받았을 때의 대역: 가죽의 둔탁한 "퍽"이라 낮은 사인에
+   * 높은 쪽을 깊게 자른 노이즈를 겹친다. 파일의 간격(0.7초)은 합성 보이스 길이 한도(0.6초)를
+   * 넘어서, 대역은 0.45초 간격으로 줄여 둔다.
    */
-  micTap: {
+  mittTap: {
     tones: [
-      { from: 140, to: 70, waveform: "sine", delay: 0, duration: 0.09, gain: 0.34 },
-      { from: 130, to: 66, waveform: "sine", delay: 0.28, duration: 0.09, gain: 0.28 },
+      { from: 110, to: 55, waveform: "sine", delay: 0, duration: 0.1, gain: 0.36 },
+      { from: 105, to: 52, waveform: "sine", delay: 0.45, duration: 0.1, gain: 0.32 },
     ],
-    noise: { delay: 0, duration: 0.36, gain: 0.22, highpass: 180, lowpass: 1600 },
+    noise: { delay: 0, duration: 0.55, gain: 0.2, highpass: 120, lowpass: 900 },
   },
   /**
    * 꺼져 있던 라디오가 저 혼자 깨어나는 소리. 끊길 때의 하강음을 뒤집어 올리되

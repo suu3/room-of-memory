@@ -12,6 +12,7 @@ import {
   startMusic,
   stopMusic,
 } from "./music";
+import { preloadSamples } from "./samples";
 
 export {
   type NoiseBed,
@@ -74,7 +75,14 @@ export function useAudioRuntime() {
   );
 
   useEffect(() => {
-    const wake = () => unlockAudio();
+    /*
+     * 깨우는 김에 방송 첫 컷의 미트 소리 파일을 받아 둔다. 그 컷은 뜨자마자 울려서,
+     * 그때 받기 시작하면 첫 재생은 합성 대역으로 나간다. 14KB라 미리 받아도 부담이 없다.
+     */
+    const wake = () => {
+      unlockAudio();
+      preloadSamples(["mittTap"]);
+    };
     window.addEventListener("pointerdown", wake, { once: true });
     window.addEventListener("keydown", wake, { once: true });
     return () => {

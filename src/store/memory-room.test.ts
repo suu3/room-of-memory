@@ -630,7 +630,7 @@ describe("분기점: 라디오", () => {
     // 3페이지 웹툰이고, 첫 칸은 16:9에 마이크를 탁, 탁 두드린다
     expect(playback?.cuts[0].page).toBe(1);
     expect(playback?.cuts[0].ratio).toBe("16:9");
-    expect(playback?.cuts[0].sfx).toBe("micTap");
+    expect(playback?.cuts[0].sfx).toBe("mittTap");
     expect(selectHeardSurvivorBroadcast(useMemoryRoomStore.getState())).toBe(true);
 
     useMemoryRoomStore.getState().endPlayback();

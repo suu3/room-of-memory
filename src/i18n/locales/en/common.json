@@ -567,7 +567,7 @@
     "close": "Close",
     "replayTitle": "{{name}} · Replay",
     "sfx": {
-      "micTap": "Tap, tap"
+      "mittTap": "Thump, thump"
     }
   },
   "clue": {

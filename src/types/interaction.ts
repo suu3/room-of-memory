@@ -94,7 +94,7 @@ export interface CutsceneCut {
 }
 
 /** 컷에 붙는 효과음. scripts/content/schema.mjs의 CUT_SFX와 같아야 한다. */
-export type CutSfx = "micTap" | "radioCut" | "radioWake" | "radioStatic" | "radioSignOff";
+export type CutSfx = "mittTap" | "radioCut" | "radioWake" | "radioStatic" | "radioSignOff";
 
 /** 컷씬 하나. CUTSCENES 레지스트리(src/data)에 id로 등록. */
 export interface Cutscene {

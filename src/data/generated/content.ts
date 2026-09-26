@@ -583,7 +583,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         holdMs: 1500,
         page: 1,
         ratio: "16:9",
-        sfx: "micTap",
+        sfx: "mittTap",
         lines: [],
       },
       {

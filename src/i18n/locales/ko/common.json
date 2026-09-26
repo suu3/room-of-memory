@@ -567,7 +567,7 @@
     "close": "닫기",
     "replayTitle": "{{name}} · 다시보기",
     "sfx": {
-      "micTap": "탁, 탁"
+      "mittTap": "탁, 탁"
     }
   },
   "clue": {

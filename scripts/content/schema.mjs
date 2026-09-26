@@ -89,7 +89,7 @@ export const FROM_PHASES = ["turning", "p2", "p3", "p4"];
 export const VISIT_KEYS = ["phase1", "phase2", "phase3"];
 
 /** 컷에 붙일 수 있는 효과음 (src/lib/audio/voices.ts의 이름). 컷이 뜨는 순간 한 번 난다. */
-export const CUT_SFX = ["micTap", "radioCut", "radioWake", "radioStatic", "radioSignOff"];
+export const CUT_SFX = ["mittTap", "radioCut", "radioWake", "radioStatic", "radioSignOff"];
 
 /**
  * 웹툰 칸의 비율. 16:9는 페이지 폭을 다 쓰는 한 줄, 3:4는 둘이 나란히 한 줄이다.

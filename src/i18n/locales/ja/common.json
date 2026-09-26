@@ -567,7 +567,7 @@
     "close": "閉じる",
     "replayTitle": "{{name}} · 見返す",
     "sfx": {
-      "micTap": "トン、トン"
+      "mittTap": "パン、パン"
     }
   },
   "clue": {

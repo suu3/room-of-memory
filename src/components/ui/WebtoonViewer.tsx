@@ -288,7 +288,7 @@ const BUBBLE_OVERHANG_EM = 2.6;
 const PAIR_BUBBLE_WIDTH = 0.66;
 
 /** 그림에 얹는 의성어 (무음으로 하는 사람도 소리를 본다). 칸의 sfx로 고른다. */
-const SFX_CAPTION = { micTap: "playback.sfx.micTap" } as const;
+const SFX_CAPTION = { mittTap: "playback.sfx.mittTap" } as const;
 
 /**
  * 칸 하나. 검은 3px 테두리, 그림은 가운데 기준으로 채운다. 아직 차례가 안 온 칸은
