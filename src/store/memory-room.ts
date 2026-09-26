@@ -17,6 +17,7 @@ import {
   REPLAY_MORPH_WITHIN,
   SCRIPTS,
 } from "@/data/memory-room";
+import { type NotebookTabId, notebookEntries, unreadNotebookTabs } from "@/data/notebook";
 import {
   CLUE_AFTER_MEMORY,
   CLUE_AFTER_VISIT,
@@ -73,7 +74,7 @@ export type Act = 1 | 2 | 3;
  */
 export type Difficulty = "easy" | "normal";
 /** 수첩(캐릭터 시트)의 페이지: 프로필과 기록(기억 스크랩북). */
-export type CharacterSheetTab = "profile" | "lore" | "map" | "items";
+export type CharacterSheetTab = NotebookTabId;
 export type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
 /**
@@ -342,6 +343,11 @@ export interface MemoryRoomState {
    */
   notebookOpened: boolean;
   /**
+   * 수첩에서 펼쳐 본 항목의 이름 (src/data/notebook.ts의 notebookEntries). 저장된다.
+   * 적혀 있는데 여기 없는 항목이 "안 읽은 알림"이다: 수첩 손잡이와 그 페이지 탭에 점이 선다.
+   */
+  notebookRead: string[];
+  /**
    * 지금 흐르는 혼잣말 한 줄과 그 시각 (없으면 null). 닫힌 방문·꺼진 컴퓨터·칫솔컵·
    * 잠긴 하부장처럼 눌러도 조사가 아닌 물건이 한 줄을 흘리는 신호다 (RemarkLine).
    * 방문의 줄은 잠긴 게 아니라 **안 여는** 것이라는 걸 말한다 (docs/content-design.md 3-1).
@@ -362,6 +368,8 @@ export interface MemoryRoomState {
   /** tab을 주면 그 페이지를 펼친 채 연다. 안 주면 마지막 페이지 그대로. */
   setCharacterSheetOpen: (open: boolean, tab?: CharacterSheetTab) => void;
   setCharacterSheetTab: (tab: CharacterSheetTab) => void;
+  /** 이 페이지에 지금 적힌 것을 전부 읽은 것으로 친다. 수첩이 그 페이지를 펼쳤을 때 부른다. */
+  markNotebookRead: (tab: CharacterSheetTab) => void;
   setContactOpen: (open: boolean) => void;
   setFeedbackOpen: (open: boolean) => void;
   startGame: () => void;
@@ -772,6 +780,7 @@ type PersistedProgress = Pick<
   | "solvedPuzzles"
   | "discoveries"
   | "notebookOpened"
+  | "notebookRead"
   | "endingStarted"
   | "soundMuted"
   | "difficulty"
@@ -848,6 +857,12 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
   const batTaken =
     saved.batTaken === true &&
     endingReady({ collected, revisited, rechecked, doorOpened, openedDoorways });
+  const discoveries = Array.isArray(saved.discoveries)
+    ? DISCOVERY_IDS.filter((id) => (saved.discoveries as unknown[]).includes(id))
+    : [];
+  const inventory = Array.isArray(saved.inventory)
+    ? ITEM_IDS.filter((id) => (saved.inventory as unknown[]).includes(id))
+    : [];
 
   return {
     collected,
@@ -858,9 +873,7 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     solvedPuzzles: Array.isArray(saved.solvedPuzzles)
       ? PUZZLE_IDS.filter((id) => (saved.solvedPuzzles as unknown[]).includes(id))
       : [],
-    discoveries: Array.isArray(saved.discoveries)
-      ? DISCOVERY_IDS.filter((id) => (saved.discoveries as unknown[]).includes(id))
-      : [],
+    discoveries,
     endingStarted: saved.endingStarted === true && batTaken,
     // 이 값을 모르는 옛 저장본은 기억을 하나라도 봤으면 수첩도 안다고 본다
     notebookOpened: saved.notebookOpened === true || collected.length > 0,
@@ -873,9 +886,7 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     introDone: saved.introDone === true || collected.length > 0,
     // 문이 안 열렸으면 문 넘기도 없다. 이 값을 모르는 옛 저장본은 문이 열렸으면 지난 것으로
     doorwayDone: doorOpened && saved.doorwayDone !== false,
-    inventory: Array.isArray(saved.inventory)
-      ? ITEM_IDS.filter((id) => (saved.inventory as unknown[]).includes(id))
-      : [],
+    inventory,
     // 오토는 껐다 켰다 하는 설정이라, 모르는 값이면 꺼진 쪽이 기본이다
     autoPlay: saved.autoPlay === true,
     // 본 적 있는 단서. 목록에서 사라진 id는 조용히 버린다 (기억 id와 같은 규칙)
@@ -883,6 +894,27 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
       ? CLUE_IDS.filter((id) => (saved.cluesSeen as unknown[]).includes(id))
       : [],
     openedDoorways,
+    notebookRead: Array.isArray(saved.notebookRead)
+      ? Array.from(
+          new Set(
+            (saved.notebookRead as unknown[]).filter(
+              (entry): entry is string => typeof entry === "string",
+            ),
+          ),
+        )
+      : // 알림이 생기기 전의 저장본: 이미 적혀 있던 것은 읽은 것으로 본다. 이어하기 하자마자
+        // 모든 페이지에 점이 서면 정작 새로 생긴 것이 묻힌다
+        Object.values(
+          notebookEntries({
+            collected,
+            revisited,
+            rechecked,
+            doorOpened,
+            openedDoorways,
+            discoveries,
+            inventory,
+          }),
+        ).flat(),
   };
 }
 
@@ -929,6 +961,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       solvedPuzzles: [],
       discoveries: [],
       notebookOpened: false,
+      notebookRead: [],
       remark: null,
       beginInteraction: (id) =>
         set((state) => {
@@ -1064,6 +1097,13 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           notebookOpened: state.notebookOpened || open,
         })),
       setCharacterSheetTab: (tab) => set({ characterSheetTab: tab }),
+      markNotebookRead: (tab) =>
+        set((state) => {
+          const unread = notebookEntries(state)[tab].filter(
+            (entry) => !state.notebookRead.includes(entry),
+          );
+          return unread.length === 0 ? state : { notebookRead: [...state.notebookRead, ...unread] };
+        }),
       setContactOpen: (open) => set({ contactOpen: open }),
       setFeedbackOpen: (open) => set({ feedbackOpen: open }),
       // 새 게임은 불 꺼진 방에서 시작한다 (인트로). 인트로를 지난 저장본은 불을 건드리지 않는다
@@ -1279,6 +1319,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           solvedPuzzles: [],
           discoveries: [],
           notebookOpened: false,
+          notebookRead: [],
           remark: null,
           resetRevision: state.resetRevision + 1,
         })),
@@ -1296,6 +1337,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         solvedPuzzles: state.solvedPuzzles,
         discoveries: state.discoveries,
         notebookOpened: state.notebookOpened,
+        notebookRead: state.notebookRead,
         endingStarted: state.endingStarted,
         soundMuted: state.soundMuted,
         difficulty: state.difficulty,
@@ -1314,6 +1356,12 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
 
 export const selectCollected = (state: MemoryRoomState) => state.collected;
 export const selectOnboardingStep = (state: MemoryRoomState) => onboardingStep(state);
+/**
+ * 안 읽은 것이 있는 수첩 페이지를 쉼표로 이은 한 줄 (없으면 빈 문자열).
+ * 배열을 돌려주면 부를 때마다 새 배열이라 구독하는 쪽이 매번 다시 그린다. 글자는 같으면 같다.
+ */
+export const selectUnreadNotebookTabs = (state: MemoryRoomState) =>
+  unreadNotebookTabs(state).join(",");
 /** 주인공의 이름을 아는가: 수첩 이름·나이 칸과 대사창 화자 이름표가 이걸 본다. */
 export const selectHeroNameKnown = (state: MemoryRoomState) =>
   state.discoveries.includes("hero-name");

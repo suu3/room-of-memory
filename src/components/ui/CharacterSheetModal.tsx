@@ -5,13 +5,14 @@ import type { ParseKeys } from "i18next";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import type { DiscoveryId } from "@/data/room-clues";
+import { PROFILE_ROWS } from "@/data/notebook";
 import { ASSETS } from "@/lib/assets";
 import {
   type CharacterSheetTab,
   selectCollected,
   selectDoorOpened,
   selectHeroNameKnown,
+  selectUnreadNotebookTabs,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
@@ -23,6 +24,7 @@ import { NotebookMap } from "./NotebookMap";
  * 시트에 싣는 항목. 사태 이전/이후의 성격 변화와 오브젝트 단서는 일부러 뺐다.
  * 플레이 전에 열어볼 수 있는 화면이라 이야기의 전제를 미리 흘리면 안 된다.
  *
+ * 칸 목록은 src/data/notebook.ts의 PROFILE_ROWS다 (안 읽은 알림도 같은 목록을 센다).
  * `revealAt`은 이 항목이 열리는 데 필요한 수집 개수. 처음엔 전부 흐리게 덮여 있고,
  * 기억을 모을수록 위에서부터 하나씩 드러난다. 기억 7개에 항목 3개라 간격을 두었다.
  *
@@ -41,16 +43,6 @@ const TAB_LABEL = {
   map: "characterSheet.tabMap",
   items: "characterSheet.tabItems",
 } as const satisfies Record<CharacterSheetTab, string>;
-
-const PROFILE_ROWS = [
-  { index: 0, discovery: "hero-name" },
-  { index: 1, revealAt: 3 },
-  { index: 2, revealAt: 5 },
-  { index: 3, revealAt: 7 },
-] as const satisfies readonly (
-  | { index: number; revealAt: number }
-  | { index: number; discovery: DiscoveryId }
-)[];
 
 /** HUD 메뉴와 대사창 초상 두 곳에서 열리는 캐릭터 자료 모달. */
 export function CharacterSheetModal() {
@@ -73,6 +65,14 @@ export function CharacterSheetModal() {
     ? ["profile", "lore", "map", "items"]
     : ["profile", "lore", "items"];
   const tab = tabs.includes(stored) ? stored : "profile";
+  const markRead = useMemoryRoomStore((state) => state.markNotebookRead);
+  const unread = useMemoryRoomStore(selectUnreadNotebookTabs).split(",");
+
+  /* 펼친 페이지는 읽은 것이다. 펼쳐 둔 사이에 새로 적힌 것도 (unread가 바뀌면) 같이 읽힌다 */
+  const unreadKey = unread.join(",");
+  useEffect(() => {
+    if (open && unreadKey.split(",").includes(tab)) markRead(tab);
+  }, [open, tab, unreadKey, markRead]);
 
   useEffect(() => {
     setUiLock("character-sheet", open);
@@ -163,6 +163,16 @@ export function CharacterSheetModal() {
                     }`}
                   >
                     {t(TAB_LABEL[id])}
+                    {/* 아직 안 펼쳐 본 것이 적힌 페이지: 탭 글자 옆 금빛 점 하나 */}
+                    {id !== tab && unread.includes(id) && (
+                      <>
+                        <span
+                          aria-hidden
+                          className="ml-1.5 inline-block size-1.5 -translate-y-0.5 rounded-full bg-memory align-middle"
+                        />
+                        <span className="sr-only">{t("panel.newEntry")}</span>
+                      </>
+                    )}
                   </button>
                 ))}
               </div>

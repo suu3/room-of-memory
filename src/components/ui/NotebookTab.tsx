@@ -3,7 +3,13 @@
 import { useTranslation } from "react-i18next";
 import { MEMORIES } from "@/data/memory-room";
 import { playSound } from "@/lib/audio";
-import { isSeen, selectOnboardingStep, useMemoryRoomStore } from "@/store/memory-room";
+import {
+  type CharacterSheetTab,
+  isSeen,
+  selectOnboardingStep,
+  selectUnreadNotebookTabs,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { playHoverSound } from "./hover-sfx";
 import { FOCUS_RING } from "./ui-classes";
 
@@ -31,6 +37,14 @@ export function NotebookTab() {
    * 수첩인 줄 모르면 그 말이 닿지 않는다. 막지는 않는다: 한 번 열면 다시는 안 부른다.
    */
   const calling = useMemoryRoomStore(selectOnboardingStep) === "notebook";
+  /*
+   * 수첩에 새로 적혔는데 아직 안 펼쳐 본 페이지 (src/data/notebook.ts). 하나라도 있으면
+   * 손잡이 모서리에 금빛 점이 서고, 누르면 그 페이지부터 편다. 점은 숨쉬지 않는다:
+   * 부르는 건 온보딩(calling) 한 번뿐이고, 알림은 조용히 있다가 눈에 띄면 그만이다.
+   */
+  const firstUnread = useMemoryRoomStore(selectUnreadNotebookTabs).split(",")[0] as
+    | CharacterSheetTab
+    | "";
   const count = useMemoryRoomStore(
     (state) => MEMORIES.filter((memory) => isSeen(state, memory.id)).length,
   );
@@ -41,7 +55,7 @@ export function NotebookTab() {
       onClick={() => {
         playSound("open");
         // 부르던 참이면 이름이 적힌 첫 장으로 편다. 방금 알게 된 게 거기 있다
-        setCharacterSheetOpen(true, calling ? "profile" : "lore");
+        setCharacterSheetOpen(true, calling ? "profile" : firstUnread || "lore");
       }}
       aria-label={t("panel.open")}
       aria-hidden={menuOpen || undefined}
@@ -59,7 +73,13 @@ export function NotebookTab() {
       <span className="grid h-4 min-w-4 place-items-center rounded-sm bg-memory px-1 text-xs font-medium tabular-nums text-night">
         {count}
       </span>
-      {calling && <span className="sr-only">{t("panel.newEntry")}</span>}
+      {firstUnread && !calling && (
+        <span
+          aria-hidden
+          className="absolute left-1.5 top-1.5 size-2 rounded-full bg-memory ring-2 ring-surface"
+        />
+      )}
+      {(calling || firstUnread) && <span className="sr-only">{t("panel.newEntry")}</span>}
     </button>
   );
 }

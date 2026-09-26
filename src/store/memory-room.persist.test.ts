@@ -42,6 +42,7 @@ describe("sanitizeProgress", () => {
         inventory: ["parents-key"],
         cluesSeen: ["drawer-note"],
         autoPlay: true,
+        notebookRead: ["profile:0"],
       }),
     ).toEqual({
       collected: [first, second],
@@ -62,7 +63,23 @@ describe("sanitizeProgress", () => {
       inventory: ["parents-key"],
       cluesSeen: ["drawer-note"],
       autoPlay: true,
+      notebookRead: ["profile:0"],
     });
+  });
+
+  it("알림이 생기기 전의 저장본은 이미 적힌 것을 읽은 것으로 본다", () => {
+    const read = sanitizeProgress({
+      collected: [first],
+      discoveries: ["hero-name"],
+      inventory: ["parents-key"],
+    }).notebookRead;
+    expect(read).toEqual(expect.arrayContaining(["profile:0", "item:parents-key"]));
+    expect(read?.some((entry) => entry.startsWith(`lore:${first}@`))).toBe(true);
+    // 적혀 있던 목록이 있으면 그걸 믿는다. 글자가 아닌 값만 턴다
+    expect(
+      sanitizeProgress({ collected: [first], notebookRead: ["x", 3, "x"] }).notebookRead,
+    ).toEqual(["x"]);
+    expect(sanitizeProgress({}).notebookRead).toEqual([]);
   });
 
   it("수첩을 펼친 적을 모르는 옛 저장본은 기억을 봤으면 펼친 것으로 본다", () => {
