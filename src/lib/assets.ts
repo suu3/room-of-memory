@@ -139,7 +139,7 @@ export const ASSETS = {
      * src/minigames/fighter-duel/sprites.ts 주석 참고
      * (7프레임 가로 시트, 1568×320: idle·strike·guard·throw·hurt·ko·win).
      */
-    mgFighterDuelHero: "/assets/images/mg-fighter-duel-hero.webp",
+    mgFighterDuelHero: "/assets/images/mg-fighter-duel-hero.webp?v=cutout-20260928",
     mgFighterDuelRival: "/assets/images/mg-fighter-duel-rival.webp",
     /** 격투 미니게임 무대 배경 (960×256). 없으면 CSS 그라디언트가 그대로 보인다. */
     mgFighterDuelStage: "/assets/images/mg-fighter-duel-stage.webp",
