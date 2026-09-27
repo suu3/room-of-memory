@@ -190,6 +190,10 @@ export function MinigameHost() {
   const canvasHosted = definition?.mode === "canvas" ? definition : undefined;
   /** 탐색형 오브젝트: 시작 카드도 패널도 없이 물건만 떠오른다. */
   const bare = hosted?.presentation === "bare";
+  /** 시작 카드 없이 열리되 패널 한 장이 뒤에 깔린다. 닫기는 그 패널 모서리에 선다. */
+  const framed = hosted?.presentation === "framed";
+  /** 시작 카드를 거치지 않는 두 방식. */
+  const direct = bare || framed;
 
   useEffect(() => {
     if (active?.phase === "minigame" && !hosted && !canvasHosted) {
@@ -198,8 +202,8 @@ export function MinigameHost() {
   }, [active, hosted, canvasHosted, finishMinigame]);
 
   const activeKey = active ? `${active.memoryId}:${active.gamePhase}` : null;
-  // bare는 "시작"을 거치지 않는다. 물건을 집었으면 이미 들여다보는 중이다.
-  const started = bare || (startedKey !== null && startedKey === activeKey);
+  // bare·framed는 "시작"을 거치지 않는다. 물건을 집었으면 이미 들여다보는 중이다.
+  const started = direct || (startedKey !== null && startedKey === activeKey);
   /**
    * 승부가 난 뒤부터 결과 대사가 끝날 때까지는 닫을 수 없다.
    * 이 구간에서 닫히면 다 이긴 판이 수집도 안 된 채 사라진다.
@@ -237,8 +241,8 @@ export function MinigameHost() {
 
   // 시작 카드가 뜨면 버튼에 포커스 (키보드 플레이)
   useEffect(() => {
-    if (hosted && !bare && !started) startButtonRef.current?.focus();
-  }, [hosted, bare, started]);
+    if (hosted && !direct && !started) startButtonRef.current?.focus();
+  }, [hosted, direct, started]);
 
   // Esc = 바깥 클릭과 같은 닫기 (키보드 접근성). 승부가 난 뒤에는 닫기를 막는다
   useEffect(() => {
@@ -251,6 +255,20 @@ export function MinigameHost() {
   }, [hosted, canvasHosted, sealed, cancelMinigame]);
 
   const Minigame = hosted?.component;
+  const closeButton = (
+    <button
+      type="button"
+      aria-label={t("minigame.close")}
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={() => {
+        playSound("close");
+        cancelMinigame();
+      }}
+      className={`absolute ${bare ? "right-4 top-4" : "right-3 top-3"} z-10 ${HUD_ICON_BUTTON_SOLID}`}
+    >
+      <X size={20} weight="bold" />
+    </button>
+  );
   return (
     <>
       {burstId > 0 && <SuccessBurst key={burstId} onDone={() => setBurstId(0)} />}
@@ -328,8 +346,8 @@ export function MinigameHost() {
           className={`absolute inset-0 z-40 grid animate-backdrop-in place-items-center ${
             // 탐색형은 방을 덜 가린다. 물건을 든 채로도 방이 보여야 "그 방 안"이다.
             // 뒤쪽 방이 완전히 사라질 만큼 뭉개지 않는다 (3px)
-            bare ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-[3px]"
-          } ${resultStage ? "bg-scene-void/75 pb-56" : bare ? "" : "bg-scene-void/40"}`}
+            direct ? "bg-scene-void/55 backdrop-blur-[2px]" : "backdrop-blur-[3px]"
+          } ${resultStage ? "bg-scene-void/75 pb-56" : direct ? "" : "bg-scene-void/40"}`}
           onPointerDown={(event) => {
             if (event.target !== event.currentTarget || sealed || started) return;
             cancelMinigame();
@@ -338,25 +356,18 @@ export function MinigameHost() {
           {/*
             닫기. 백드롭이 잠긴 동안 유일하게 남는 출구라 늘 보인다. 스킵(건너뛰기)은
             일정 시간이 지나야 뜨고 의미도 다르다(스킵은 수집으로 친다, 닫기는 아니다).
-            프레임이 있는 게임은 그 우측 상단 모서리에 모으고, 틀 없이 물건만 떠오르는
-            탐색형은 화면 구석에 둔다.
+            프레임이 있는 게임(framed 포함)은 그 우측 상단 모서리에 모으고, 틀 없이 물건만
+            떠오르는 탐색형은 화면 구석에 둔다.
           */}
+          {/*
+            탐색형의 닫기는 판(animate-fade-rise) 밖, 이 층에 바로 붙인다. 판 안에 두면
+            애니메이션이 남긴 transform이 fixed의 기준을 판으로 바꿔, 화면 구석이 아니라
+            물건 모서리에 얹힌다. 이 층은 화면을 덮으니(inset-0) absolute로 구석에 선다.
+          */}
+          {started && bare && !sealed && closeButton}
           {started ? (
-            <div className="relative animate-fade-rise">
-              {!sealed && (
-                <button
-                  type="button"
-                  aria-label={t("minigame.close")}
-                  onPointerDown={(event) => event.stopPropagation()}
-                  onClick={() => {
-                    playSound("close");
-                    cancelMinigame();
-                  }}
-                  className={`${bare ? "fixed right-4 top-4" : "absolute right-3 top-3"} z-10 ${HUD_ICON_BUTTON_SOLID}`}
-                >
-                  <X size={20} weight="bold" />
-                </button>
-              )}
+            <div className={`relative animate-fade-rise ${framed ? `p-6 ${PANEL_FRAME}` : ""}`}>
+              {!sealed && !bare && closeButton}
               <Suspense fallback={null}>
                 <Minigame
                   key={retry}

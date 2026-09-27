@@ -99,8 +99,10 @@ export type MinigameMode = "canvas" | "overlay";
  * "panel"은 제목·조작법·스킵이 달린 미니게임 카드다. "bare"는 그 껍데기 없이
  * 오브젝트만 떠오른다. 방탈출처럼 "물건을 집어서 들여다보는" 인터랙션은
  * 시작 카드도 패널도 없어야 게임이 아니라 탐색으로 읽힌다.
+ * "framed"는 bare처럼 시작 카드 없이 곧장 열리되, 뒤에 패널 한 장을 깔고 닫기를
+ * 그 모서리에 둔다. 물건 둘레가 비어 화면 구석의 닫기가 어디 것인지 흐려지는 경우다 (달력).
  */
-export type MinigamePresentation = "panel" | "bare";
+export type MinigamePresentation = "panel" | "bare" | "framed";
 
 export interface MinigameDefinition {
   id: string;

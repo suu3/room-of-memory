@@ -48,7 +48,8 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
   "calendar-flip": {
     id: "calendar-flip",
     mode: "overlay",
-    presentation: "bare",
+    // 벽 달력은 둘레가 비어 구석의 닫기가 떠 보인다. 패널을 깔아 닫기를 그 모서리에 모은다
+    presentation: "framed",
     component: lazy(() =>
       import("./calendar-flip").then((m) => ({ default: m.CalendarFlipMinigame })),
     ),
