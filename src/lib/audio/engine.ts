@@ -221,10 +221,19 @@ export function playSound(id: VoiceId, options: PlayOptions = {}) {
  * MIN_REPEAT_S가 막는다. 건반은 **음높이가 곧 뜻**이고 같은 음을 연달아 누르는
  * 일도 흔해서(솔미미), 소리 이름이 아니라 주파수를 받는 통로가 따로 필요하다.
  *
- * 파형은 삼각파에 짧은 감쇠: 합성으로 피아노를 흉내 내는 대신 "음이 하나 울렸다"만
- * 정직하게 낸다. 감쇠가 길면 건반을 빨리 누를 때 음이 겹쳐 뭉갠다.
+ * 사인파 배음을 겹쳐 맑은 건반 소리를 낸다. 삼각파 하나는 폰 스피커에서 먹먹한
+ * "삑"으로 들렸다 (2026-09-28). 높은 배음일수록 작고 빨리 죽어서, 치는 순간은
+ * 또렷하고 꼬리는 기음만 남아 둥글게 사라진다. 한 옥타브 위 배음이 "맑음"을 맡는다.
+ * 꼬리는 길게 두되 감쇠가 지수라 빨리 눌러도 앞 음이 금방 물러나 뭉개지지 않는다.
  */
-export function playTone(frequency: number, { duration = 0.42, gain = 0.3 } = {}) {
+const PIANO_PARTIALS: readonly { ratio: number; gain: number; decay: number }[] = [
+  { ratio: 1, gain: 1, decay: 1 },
+  { ratio: 2, gain: 0.45, decay: 0.6 },
+  { ratio: 3, gain: 0.18, decay: 0.4 },
+  { ratio: 4, gain: 0.08, decay: 0.28 },
+];
+
+export function playTone(frequency: number, { duration = 1.1, gain = 0.26 } = {}) {
   if (muted) return;
   const ctx = ensureContext();
   if (!ctx || !sfxBus) return;
@@ -233,7 +242,15 @@ export function playTone(frequency: number, { duration = 0.42, gain = 0.3 } = {}
   scheduleVoice(
     ctx,
     sfxBus,
-    { tones: [{ from: frequency, waveform: "triangle", delay: 0, duration, gain }] },
+    {
+      tones: PIANO_PARTIALS.map((partial) => ({
+        from: frequency * partial.ratio,
+        waveform: "sine" as const,
+        delay: 0,
+        duration: duration * partial.decay,
+        gain: gain * partial.gain,
+      })),
+    },
     ctx.currentTime + 0.001,
   );
 }
