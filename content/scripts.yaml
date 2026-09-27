@@ -13,7 +13,7 @@
 #
 # 여러 줄 대사는 YAML 블록(>-)이 아니라 한 줄로 쓴다. 줄바꿈은 대사창이 알아서 한다.
 #
-# 톤 (스토리.md 가족 톤 가이드): 부모님은 쾌활하고 따뜻하게(물결, 이모티콘),
+# 톤 (docs/story.md 가족 톤 가이드): 부모님은 짧고 따뜻하게(물결·이모티콘 없이),
 # 도해는 무뚝뚝하고 짧게. "보고 싶어", "미안해", "사랑해" 같은 직접 감정 대사와
 # 긴 독백은 쓰지 않는다. 1페이즈에서는 "좀비"라는 말을 쓰지 않는다.
 
@@ -39,9 +39,9 @@ scripts:
       en: The evening I showed it to them.
       ja: 成績表を見せた日の夜。
     - speaker: mom
-      ko: 수학은 과외 한번 알아볼까~?
-      en: Maybe we should look into a math tutor~?
-      ja: 数学は家庭教師でも探してみる~?
+      ko: 수학은 과외 한번 알아볼까?
+      en: Maybe we should look into a math tutor?
+      ja: 数学は家庭教師でも探してみる?
     - speaker: dad
       ko: 공부가 꼭 인생의 답은 아냐.
       en: Studying isn't the only answer in life, you know.
