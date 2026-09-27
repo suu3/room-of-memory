@@ -35,9 +35,19 @@ const DAY_COUNT = 31;
  *   (폰 → 달력) 처음부터 적혀 있으면 안 된다.
  * - 신호: 라디오가 잡음뿐인 동안 `● NO SIGNAL` ash, 목소리를 잡은 뒤 `● SIGNAL FOUND` 앰버.
  */
-export function HudLogLine({ className = "" }: { className?: string }) {
+export function HudLogLine({
+  className = "",
+  signal = true,
+}: {
+  className?: string;
+  /**
+   * 신호 조각(● NO SIGNAL / SIGNAL FOUND)을 이 줄에 붙일지. 타이틀은 false로 두고 신호를
+   * 오른쪽 위 귀퉁이에 따로 세운다 (HudSignalLight): 날짜까지 붙은 한 줄은 폰 폭에서
+   * 오른쪽이 잘렸다. 인게임 넓은 화면의 아래 띠는 자리가 넉넉해 한 줄 그대로다.
+   */
+  signal?: boolean;
+}) {
   const act = useMemoryRoomStore(selectAct);
-  const signal = useMemoryRoomStore((state) => selectDoorReady(state) || selectDoorOpened(state));
   const dayKnown = useMemoryRoomStore((state) => state.collected.includes(DAY_MEMORY));
   const tainted = act === 3;
 
@@ -55,11 +65,31 @@ export function HudLogLine({ className = "" }: { className?: string }) {
           <span className="text-fog">DAY {DAY_COUNT}</span>
         </>
       ) : null}
-      <span className="h-px w-[1.5em] bg-line" />
-      <span className={`flex items-center gap-[0.5em] ${signal ? "text-memory" : "text-ash"}`}>
-        <span className="text-[0.6em]">●</span>
-        {signal ? "SIGNAL FOUND" : "NO SIGNAL"}
-      </span>
+      {signal ? (
+        <>
+          <span className="h-px w-[1.5em] bg-line" />
+          <HudSignalLight />
+        </>
+      ) : null}
     </p>
+  );
+}
+
+/**
+ * 신호 조각 하나: 라디오가 잡음뿐인 동안 `● NO SIGNAL` ash, 목소리를 잡은 뒤 `● SIGNAL FOUND`
+ * 앰버. 기록 줄 안에도 들어가고, 타이틀에서는 오른쪽 위 귀퉁이의 상태등으로 혼자 선다.
+ */
+export function HudSignalLight({ className = "" }: { className?: string }) {
+  const signal = useMemoryRoomStore((state) => selectDoorReady(state) || selectDoorOpened(state));
+  return (
+    <span
+      aria-hidden
+      className={`flex items-center gap-[0.5em] whitespace-nowrap font-pixel tracking-[0.12em] ${
+        signal ? "text-memory" : "text-ash"
+      } ${className}`}
+    >
+      <span className="text-[0.6em]">●</span>
+      {signal ? "SIGNAL FOUND" : "NO SIGNAL"}
+    </span>
   );
 }

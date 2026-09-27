@@ -163,6 +163,25 @@ describe("TitleScreen", () => {
     expect(screen.getAllByRole("button", { name: "Sound" })).toHaveLength(1);
   });
 
+  it("기록 줄에는 번호(·날짜)만 남고, 신호는 오른쪽 위에 따로 선다", () => {
+    setSaved();
+    const { container } = render(<TitleScreen />);
+
+    const eyebrow = [...container.querySelectorAll("p")].find((p) =>
+      p.textContent?.includes("MEMORY LOG"),
+    );
+    expect(eyebrow).toBeTruthy();
+    expect(eyebrow?.textContent).not.toContain("SIGNAL");
+    const signals = [...container.querySelectorAll("span")].filter((span) =>
+      /SIGNAL/.test(span.textContent ?? ""),
+    );
+    // 신호 조각은 한 군데만: 눈썹줄에도 있으면 폰에서 그 줄이 잘리던 문제로 돌아간다
+    expect(signals.filter((span) => !span.querySelector("span"))).toHaveLength(0);
+    expect(signals.length).toBeGreaterThan(0);
+    const outer = signals[0];
+    expect(outer.closest("p")).toBeNull();
+  });
+
   it("소리 토글을 누르면 음소거되고 꺼짐으로 읽힌다", () => {
     render(<TitleScreen />);
 

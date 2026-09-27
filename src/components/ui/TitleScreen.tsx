@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { HudLogLine } from "./HudLogLine";
+import { HudLogLine, HudSignalLight } from "./HudLogLine";
 import { playHoverSound } from "./hover-sfx";
 import { LanguageToggle } from "./LanguageToggle";
 import { RisingDust } from "./RisingDust";
@@ -340,6 +340,19 @@ export function TitleScreen() {
         <RisingDust count={22} />
 
         {/*
+          신호 상태등. 기록 줄(제목 위)에 날짜·신호까지 한 줄로 붙이면 폰 폭에서 오른쪽이
+          잘려서, 신호만 떼어 오른쪽 위 귀퉁이에 세운다. 인게임에서는 그 자리가 메뉴
+          버튼이라 타이틀에서만 비어 있는 자리다. 여백은 이 그릇의 패딩과 같게 잡아 기록
+          줄과 같은 높이에 선다.
+        */}
+        <div
+          className={`absolute right-6 top-7 sm:right-10 sm:top-10 md:right-16 md:top-14 ${reveal(0).className}`}
+          style={reveal(0).style}
+        >
+          <HudSignalLight className="text-xs" />
+        </div>
+
+        {/*
           화면 네 귀의 모서리 선. 가운데에 글자 한 덩어리만 떠 있으면 화면이 "비었다"가
           아니라 "덜 놓였다"로 읽힌다. 상자를 하나 더 세우는 대신 귀퉁이만 1px로 집어
           화면에 틀을 준다 (DESIGN.md: 헤어라인 1px 실선만, 점선·2px 금지).
@@ -377,7 +390,7 @@ export function TitleScreen() {
               "게임"까지는 못 간다. 작은 영문 픽셀 라벨 하나가 이 화면을 어떤 기록의 첫
               장으로 만든다. 앰버는 여기서 처음 나오고, 아래 기본 선택(새 게임)으로 이어진다.
             */}
-            <HudLogLine className="mb-1 text-xs" />
+            <HudLogLine className="mb-1 text-xs" signal={false} />
             <h1 className="title-logo break-ko font-pixel leading-tight text-ivory">
               {t("title")}
             </h1>
