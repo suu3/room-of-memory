@@ -56,12 +56,10 @@ memories:
       title:
         ko: 9월 모의고사
       phase1:
-        ko: 수학은 또 4등급. 엄마는 과외 얘기를, 아빠는 자기 때 얘기를 했다. 야구가 끝난 여름 뒤로 남은 건 수능이었다.
-    # 성적표를 3D로 돌려 뒷면의 학부모 확인란(엄마 서명·아빠 한마디)을 본다 (report-card-flip)
+        ko: 성적은 좋지 않았다. 엄마는 과외 얘기를 꺼냈고, 아빠는 공부가 인생의 답은 아니라고 했다. 야구 대회가 끝나고 남은 건 수능이었다.
+    # 미니게임 없이 책상 위 성적표를 둘러보고 대사만 흐른다
     phase1:
       script: report-card-intro
-      minigame: report-card-flip
-      resultScript: report-card-read
 
   # ─────────────────────────────────────────────── 1페이즈 · 강도 1 (성적표 뒤)
   - id: console
@@ -79,7 +77,7 @@ memories:
         ko: 다시 둘이 하면 또 재밌어질까.
         en: Maybe it gets fun again with two.
         ja: 二人ならまた楽しくなるかな。
-    # 1차: 주완과의 매점 내기(진입) → 이겨도 매점 사 줄 주완이 없는 방(결과)
+    # 1차: 주완과의 내기 게임(진입) → 혼자 이긴 판(결과)
     # → 주완과 2P로 하던 때의 회상(console-flashback)
     phase1:
       script: console-intro
@@ -285,7 +283,7 @@ memories:
         en: The Boots They Left
         ja: 置いていった登山靴
       phase2:
-        ko: 등산화는 신발장에 그대로다. 안 걷는 여행이라더니, 캐리어는 두 개였다.
+        ko: 등산화는 신발장에 그대로다. 가볍게 다녀온다더니, 캐리어는 두 개였다.
     phase2:
       script: shoes-open
       from: p2

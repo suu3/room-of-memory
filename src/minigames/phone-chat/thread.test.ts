@@ -64,19 +64,24 @@ describe("phone-chat thread", () => {
     }
   });
 
-  it("is the two friends' room: Juwan talks most and has the last word, then silence", () => {
+  it("is the two friends' room: Juwan has the last word, then silence", () => {
     const senders = new Set(GROUP_CHAT.map((message) => message.fromKey).filter(Boolean));
     expect(senders).toEqual(new Set([FRIEND.yunho, FRIEND.juwan]));
-    const count = (key: string) => GROUP_CHAT.filter((message) => message.fromKey === key).length;
-    expect(count(FRIEND.juwan)).toBeGreaterThan(count(FRIEND.yunho));
     expect(GROUP_CHAT.at(-1)?.fromKey).toBe(FRIEND.juwan);
-    // 도해가 그 뒤로 보낸 줄은 없다: 방은 주완의 장난에서 멈춘다
+    // 도해가 그 뒤로 보낸 줄은 없다: 방은 주완의 "ㄱㄱ"에서 멈춘다
     expect(GROUP_CHAT.at(-1)?.side).toBe("them");
   });
 
-  it("logs several unanswered calls the player placed to Yunho", () => {
-    const toYunho = OUTGOING_CALLS.filter((call) => call.toKey === FRIEND.yunho);
-    expect(toYunho.reduce((sum, call) => sum + call.count, 0)).toBeGreaterThan(1);
+  it("starts with calls to friends, then turns urgent with calls to the parents", () => {
+    // 초록(평범한 발신)이 먼저, 빨강(그 시점 이후)이 뒤: 섞이지 않는다
+    const firstUrgent = OUTGOING_CALLS.findIndex((call) => call.urgent);
+    expect(firstUrgent).toBeGreaterThan(0);
+    expect(OUTGOING_CALLS.slice(firstUrgent).every((call) => call.urgent)).toBe(true);
+    const friends = new Set<string>(Object.values(FRIEND));
+    expect(OUTGOING_CALLS.slice(0, firstUrgent).every((call) => friends.has(call.toKey))).toBe(
+      true,
+    );
+    expect(OUTGOING_CALLS.slice(firstUrgent).some((call) => friends.has(call.toKey))).toBe(false);
   });
 
   it("counts every call the player placed for the tab badge", () => {

@@ -272,16 +272,17 @@
         "calls": "Calls"
       },
       "chat": {
-        "room": "Snack Run Crew",
-        "j1": "yo Dohae keep first break free tomorrow",
-        "j2": "rematch for earlier",
-        "y1": "you wanna lose again?",
-        "j3": "i actually practiced this time lol got a callus on my thumb",
-        "m1": "loser buys snacks",
-        "j4": "deal. two banana milks",
-        "y2": "Dohae catch after lunch?",
-        "m2": "sure",
-        "j5": "tomorrow loser buys snacks AND shaves his head lmaooo",
+        "room": "Seniors Who Gave Up on College",
+        "j1": "yo Dohae after school tmrw?",
+        "j2": "u got nothing to do anyway",
+        "y1": "smh guys suneung is in a month",
+        "j3": "u really think a month of studying changes anything for me?",
+        "y2": "lol",
+        "m1": "lol",
+        "m2": "k",
+        "y3": "lol",
+        "y4": "ok actually i wanna come too",
+        "j4": "lesgo",
         "members": "Yunho, Juwan, me"
       },
       "callsSubtitle": "No answer",
@@ -469,16 +470,6 @@
       "memo": "Don't touch the bottom drawer.",
       "signature": "Mom",
       "found": "Unfolded, it's Mom's handwriting."
-    },
-    "reportCardFlip": {
-      "title": "September Mock Exam Report",
-      "alt": "3D report card: drag to turn it",
-      "heading": "September Mock Exam Results",
-      "subjects": "Korean 3 · Math 4 · English 2 · Elective 3",
-      "parentLabel": "Parent check",
-      "momNote": "Let's find a math tutor",
-      "dadNote": "Better than your dad did",
-      "found": "The parent box on the back. Mom's signature, a word from Dad."
     },
     "idCardFlip": {
       "title": "ID Badge",

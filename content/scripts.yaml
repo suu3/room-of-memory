@@ -22,24 +22,25 @@ scripts:
   #
   # 성적표: 수능 한 달 전의 고3, 그리고 부모님. 야구 회상보다 먼저 온다.
 
+  # 책상 위 성적표를 둘러본다. 뒤 여섯 줄은 성적표를 보여드린 날 저녁의 회상.
+  # 부모님은 평소처럼, 도해는 짧게. 끝 한 줄만 어긋난다
   report-card-intro:
     - speaker: hero
       ko: 9월 모의고사 성적표. 수능 전 마지막 모의고사였다.
     - speaker: hero
-      ko: 수학은 또 4등급.
-
-  # 뒷면 학부모 확인란을 본 뒤. 부모님은 평소처럼, 도해는 짧게. 끝 한 줄만 어긋난다
-  report-card-read:
+      ko: 성적이 좋지는 않았다.
     - speaker: hero
-      ko: 엄마는 사인하면서 과외 얘기부터 꺼냈다.
+      ko: 성적표를 내밀었던 날 저녁.
+    - speaker: mom
+      ko: 수학은 과외 한번 알아볼까~?
     - speaker: dad
-      ko: 아빠 때는 5등급이었다. 잘했네.
+      ko: 공부가 꼭 인생의 답은 아냐.
     - speaker: hero
-      ko: …그게 위로예요?
+      ko: …위로 맞죠?
     - speaker: hero
-      ko: 야구는 여름에 끝났고, 남은 건 수능 하나였다.
+      ko: 야구 대회가 끝나고 나니 남은 건 수능뿐이었다.
     - speaker: hero
-      ko: 수능까지 한 달. …이었나.
+      ko: 수능까지 한 달 남았었던가.
 
   # ─────────────────────────────────────────────── 1페이즈 · 강도 1
   #
@@ -85,35 +86,25 @@ scripts:
     - speaker: hero
       expression: smile
       ko: 오랜만에 한 판 해볼까.
-      en: Been a while. Time for a round.
-      ja: 久しぶりに一戦やるか。
     - speaker: hero
       expression: smile
-      ko: 주완이랑은 지는 쪽이 매점 쏘는 거였는데. 걔가 맨날 졌지만.
-      en: With Juwan, loser bought snacks. He lost every time.
-      ja: ジュワンとは、負けたほうが売店おごりだった。いつもあいつが負けてたけど。
+      ko: 주완이랑 자주 내기 게임 했었는데. 걔가 맨날 졌지만.
     # 카드 미궁의 규칙은 여기 적지 않는다. 선반 위 놀이책이 들고 있다
     # (src/data/room-clues.ts의 PUZZLE_CLUES). 대사로 흘리면 안 찾아도 풀린다.
 
-    # 이겨도 매점을 쏠 사람이 없다. 덧붙이는 말 없이 짧게 끊는다
+    # 이겨도 내기를 받아 줄 사람이 없다
   console-alone:
     - speaker: hero
       expression: smile
-      ko: 이겼다. 주완아, 바나나우유 두 개.
-      en: I won. Juwan, two banana milks.
-      ja: 勝った。ジュワン、バナナ牛乳二本な。
+      ko: 이겼다.
     - speaker: hero
-      ko: …이겨도 사 줄 사람이 없네.
-      en: …Winning doesn't matter when there's no one to pay up.
-      ja: …勝っても、おごってくれるやつがいない。
+      ko: …나 혼자서 이기는 게 무슨 의미가 있지?
 
   # 2차 (곁가지)
   console-echo:
     - speaker: hero
       expression: smile
-      ko: 나가면 한 판 할거야.
-      en: When I get out, we're playing a round.
-      ja: 外に出たら 一戦やるんだ。
+      ko: 모든 일이 끝나면 그때 다시 하자.
 
   # ─────────────────────────────────────────────── 1페이즈 · 강도 2
 
@@ -231,22 +222,16 @@ scripts:
 
   shoes-open:
     - speaker: hero
-      ko: 신발장. 열어본 지 한참 됐네.
-      en: The shoe cabinet. Haven't opened it in a long time.
-      ja: 靴箱。開けるのは久しぶりだ。
+      ko: 신발장을 열어 본 지 한참 됐네.
     - speaker: hero
-      ko: 아빠 등산화. 그대로 있어.
-      en: Dad's hiking boots. Still here.
-      ja: 父さんの登山靴。そのままだ。
+      ko: 아빠 등산화가 그대로 있어.
     - speaker: dad
-      ko: 이번엔 안 걷는 여행이다. 등산화는 놔두고 간다.
-    - speaker: hero
-      ko: 안 걷는 여행인데, 캐리어는 두 개였잖아.
-      en: A trip with no walking, and two suitcases.
-      ja: 歩かない旅行なのに、スーツケースは二つだったよな。
+      ko: 이번 여행은 가볍게 근교만 구경하다 올 거야.
     # 캐리어 개수 추리의 단서 하나 (v4.1 3장). 옷장 옷걸이는 이 한 줄로 합쳤다
     - speaker: hero
-      ko: 캐리어 두 개 자리가 비어 있네.
+      ko: 가볍다고 했는데, 분명 캐리어를 두 개 들고 가셨지.
+    - speaker: hero
+      ko: …캐리어 자리가 비어 있어.
 
   cards-intro:
     - speaker: hero
@@ -364,7 +349,7 @@ scripts:
   # 출입증을 집어 든다: 3D로 기울여 보는 판(id-card-flip) 앞
   id-card-look:
     - speaker: hero
-      ko: 출입증이다. 아빠 거랑 엄마 거.
+      ko: 아빠와 엄마 회사 출입증 같은데.
 
   # 홀로그램의 로고를 본 뒤
   id-card-found:

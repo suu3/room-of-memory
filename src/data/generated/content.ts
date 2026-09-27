@@ -64,13 +64,7 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "report-card",
     icon: Exam,
-    phase1: {
-      interaction: {
-        scriptId: "report-card-intro",
-        minigameId: "report-card-flip",
-        resultScriptId: "report-card-read",
-      },
-    },
+    phase1: { interaction: { scriptId: "report-card-intro" } },
   },
   {
     id: "console",
@@ -281,16 +275,12 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.report-card-intro.line1" },
       { speaker: "hero", textKey: "scripts.report-card-intro.line2" },
-    ],
-  },
-  "report-card-read": {
-    id: "report-card-read",
-    lines: [
-      { speaker: "hero", textKey: "scripts.report-card-read.line1" },
-      { speaker: "dad", textKey: "scripts.report-card-read.line2" },
-      { speaker: "hero", textKey: "scripts.report-card-read.line3" },
-      { speaker: "hero", textKey: "scripts.report-card-read.line4" },
-      { speaker: "hero", textKey: "scripts.report-card-read.line5" },
+      { speaker: "hero", textKey: "scripts.report-card-intro.line3" },
+      { speaker: "mom", textKey: "scripts.report-card-intro.line4" },
+      { speaker: "dad", textKey: "scripts.report-card-intro.line5" },
+      { speaker: "hero", textKey: "scripts.report-card-intro.line6" },
+      { speaker: "hero", textKey: "scripts.report-card-intro.line7" },
+      { speaker: "hero", textKey: "scripts.report-card-intro.line8" },
     ],
   },
   "ball-intro": {

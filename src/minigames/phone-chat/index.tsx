@@ -311,11 +311,21 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
                   key={call.id}
                   className="flex animate-fade-rise items-center gap-3 border-b border-bone/8 px-1.5 py-3 last:border-b-0"
                 >
-                  <PhoneDisconnect size={18} weight="fill" className="shrink-0 text-ember" />
-                  <span className="min-w-0 flex-1 truncate text-[0.9375rem] font-bold text-ember">
+                  <PhoneDisconnect
+                    size={18}
+                    weight="fill"
+                    className={`shrink-0 ${call.urgent ? "text-ember" : "text-scene-leaf"}`}
+                  />
+                  <span
+                    className={`min-w-0 flex-1 truncate text-[0.9375rem] font-bold ${call.urgent ? "text-ember" : "text-scene-leaf"}`}
+                  >
                     {t(call.toKey)}
                     {call.count > 1 ? (
-                      <span className="ml-1 font-normal text-ember/65">({call.count})</span>
+                      <span
+                        className={`ml-1 font-normal ${call.urgent ? "text-ember/65" : "text-scene-leaf/65"}`}
+                      >
+                        ({call.count})
+                      </span>
                     ) : null}
                   </span>
                   <span className="shrink-0 text-[0.75rem] tabular-nums text-bone/40">

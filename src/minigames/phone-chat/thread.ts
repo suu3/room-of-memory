@@ -4,7 +4,7 @@
  * 대사 본문은 여기 넣지 않는다. 시나리오 규칙(.claude/rules/visual-novel.md)대로
  * i18n 키만 담고 ko/en/ja는 common.json이 갖는다.
  *
- * 친구 단톡방은 그날 점심까지 평범하게 떠들다가 거기서 멈춘다. 무슨 일이 있었는지는
+ * 친구 단톡방은 그 전날 밤까지 평범하게 떠들다가 거기서 멈춘다. 무슨 일이 있었는지는
  * 아무도 입에 올리지 않는다. 통화 기록은 도해가 건 전화만 줄줄이 보여준다.
  */
 
@@ -31,6 +31,8 @@ export interface OutgoingCall {
   time: string;
   /** 연달아 건 횟수: 화면에 (N)으로 붙는다. */
   count: number;
+  /** 그 시점 이후의 전화: 초록 대신 빨강으로 선다. */
+  urgent?: boolean;
 }
 
 /** 친구 둘. 이름은 i18n이 갖고, 코드는 이 키로만 가리킨다 (docs/story.md 친구 설정). */
@@ -42,10 +44,11 @@ export const FRIEND = {
 } as const satisfies Record<string, CommonTextKey>;
 
 /**
- * 친구들 단톡방: 셋이 쓰는 방(윤호·주완·나).
+ * 친구들 단톡방: 셋이 쓰는 방(윤호·주완·나). 방 이름은 "대학 포기한 고삼들의 모임".
  *
- * 그날 점심시간의 평범한 수다다. 주완이 제일 떠들고, 마지막 줄도 주완의 장난이다.
- * 그 뒤로는 아무 말도 없다. 무슨 일이 있었는지, 둘이 어디 있는지는 한 줄도 적지 않는다.
+ * 수능 한 달 전 밤의 평범한 수다다. 주완이 내일 놀자고 조르고, 윤호가 핀잔을 주다
+ * 끼워 달라고 하고, 마지막 줄은 주완의 "ㄱㄱ"다. 그 뒤로는 아무 말도 없다.
+ * 무슨 일이 있었는지, 둘이 어디 있는지는 한 줄도 적지 않는다.
  *
  * 재난을 입에 올리는 줄은 한 줄도 넣지 않는다. 세계관을 여는 반전은
  * 라디오 한 곳이 갖는다 (docs/content-design.md 6-1).
@@ -56,63 +59,71 @@ export const GROUP_CHAT: ChatMessage[] = [
     side: "them",
     fromKey: FRIEND.juwan,
     textKey: "minigame.phoneChat.chat.j1",
-    time: "12:31",
+    time: "21:12",
   },
   {
     id: "j2",
     side: "them",
     fromKey: FRIEND.juwan,
     textKey: "minigame.phoneChat.chat.j2",
-    time: "12:31",
+    time: "21:12",
   },
   {
     id: "y1",
     side: "them",
     fromKey: FRIEND.yunho,
     textKey: "minigame.phoneChat.chat.y1",
-    time: "12:33",
+    time: "21:14",
   },
   {
     id: "j3",
     side: "them",
     fromKey: FRIEND.juwan,
     textKey: "minigame.phoneChat.chat.j3",
-    time: "12:33",
-  },
-  { id: "m1", side: "me", textKey: "minigame.phoneChat.chat.m1", time: "12:34" },
-  {
-    id: "j4",
-    side: "them",
-    fromKey: FRIEND.juwan,
-    textKey: "minigame.phoneChat.chat.j4",
-    time: "12:35",
+    time: "21:15",
   },
   {
     id: "y2",
     side: "them",
     fromKey: FRIEND.yunho,
     textKey: "minigame.phoneChat.chat.y2",
-    time: "12:40",
+    time: "21:15",
   },
-  { id: "m2", side: "me", textKey: "minigame.phoneChat.chat.m2", time: "12:40" },
+  { id: "m1", side: "me", textKey: "minigame.phoneChat.chat.m1", time: "21:20" },
+  { id: "m2", side: "me", textKey: "minigame.phoneChat.chat.m2", time: "21:20" },
   {
-    id: "j5",
+    id: "y3",
+    side: "them",
+    fromKey: FRIEND.yunho,
+    textKey: "minigame.phoneChat.chat.y3",
+    time: "21:21",
+  },
+  {
+    id: "y4",
+    side: "them",
+    fromKey: FRIEND.yunho,
+    textKey: "minigame.phoneChat.chat.y4",
+    time: "21:21",
+  },
+  {
+    id: "j4",
     side: "them",
     fromKey: FRIEND.juwan,
-    textKey: "minigame.phoneChat.chat.j5",
-    time: "12:52",
+    textKey: "minigame.phoneChat.chat.j4",
+    time: "21:22",
   },
 ];
 
 /**
- * 도해가 건 전화. 아무도 받지 않았다. 윤호에게 건 것이 먼저, 그리고 또 한 번.
- * 뒤로 갈수록 다시 거는 횟수가 늘어난다.
+ * 도해가 건 전화. 아무도 받지 않았다.
+ * 처음엔 친구들에게 건 평범한 발신(초록)이다가, 어느 시점부터는 부모님께 거푸 건
+ * 전화(빨강)로 바뀐다. 뒤로 갈수록 다시 거는 횟수가 늘어난다.
  */
 export const OUTGOING_CALLS: OutgoingCall[] = [
-  { id: "c1", toKey: FRIEND.yunho, time: "16:41", count: 3 },
-  { id: "c2", toKey: "minigame.phoneChat.contact.dad", time: "19:12", count: 4 },
-  { id: "c3", toKey: FRIEND.yunho, time: "19:40", count: 5 },
-  { id: "c4", toKey: "minigame.phoneChat.contact.mom", time: "20:31", count: 9 },
+  { id: "c1", toKey: FRIEND.yunho, time: "16:41", count: 1 },
+  { id: "c2", toKey: FRIEND.juwan, time: "16:58", count: 2 },
+  { id: "c3", toKey: "minigame.phoneChat.contact.dad", time: "19:12", count: 4, urgent: true },
+  { id: "c4", toKey: "minigame.phoneChat.contact.mom", time: "20:31", count: 6, urgent: true },
 ];
 
 /**
