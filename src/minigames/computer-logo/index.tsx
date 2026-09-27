@@ -13,7 +13,7 @@ const MISSES_BEFORE_SKIP = 3;
 const SKIP_AFTER_MS = 45_000;
 /** 틀린 칸이 붉게 떠 있는 시간(ms). */
 const WRONG_HOLD_MS = 520;
-/** 맞춘 두 칸이 금빛으로 선 뒤 메일로 넘어가기까지(ms). */
+/** 두 칸을 다 맞춰 금빛으로 선 뒤 메일로 넘어가기까지(ms). */
 const MATCH_HOLD_MS = 900;
 
 export type LogoKind = "raon" | "hotel" | "health";
@@ -27,7 +27,8 @@ export interface LogoCandidate {
 
 /**
  * 고를 수 있는 그림 넷. 라온 로고는 두 군데(아빠 메일 첨부 · 캐시 뉴스의 연구시설
- * 정문)에 있다. 어느 쪽을 골라도 맞다: 둘이 같은 로고라는 게 이 장면의 발견이다.
+ * 정문)에 있다. 둘 다 골라야 넘어간다: 둘이 같은 로고라는 게 이 장면의 발견이다.
+ * 하나만 맞으면 끝나던 때는 "정답이 둘"로 읽혀 어색했다 (2026-09-28).
  */
 export const LOGO_CANDIDATES: readonly LogoCandidate[] = [
   { id: "hotel", logo: "hotel", sourceKey: "minigame.computerLogo.source.hotel" },
@@ -40,6 +41,9 @@ export const LOGO_CANDIDATES: readonly LogoCandidate[] = [
 export function matchesLabel(candidate: LogoCandidate): boolean {
   return candidate.logo === "raon";
 }
+
+/** 넘어가려면 맞춰야 하는 칸 수: 같은 로고가 있는 곳 전부. */
+export const MATCH_COUNT = LOGO_CANDIDATES.filter(matchesLabel).length;
 
 /**
  * 로고 그림. 색은 currentColor 하나라 부르는 쪽의 글자색(토큰)을 따른다.
@@ -101,7 +105,7 @@ type Screen = "match" | "mail";
  * 컴퓨터 3차 (v4 3-5): 앰플 라벨에 남은 로고 조각을 쫓아 다시 켠 컴퓨터.
  *
  * 로그인은 2차에서 이미 했으니 곧장 저장된 그림들이 뜬다. 왼쪽에 라벨 조각, 오른쪽에
- * 메일 첨부와 캐시 뉴스에서 건진 그림 넷. 조각과 같은 로고를 고르면 같은 로고가
+ * 메일 첨부와 캐시 뉴스에서 건진 그림 넷. 조각과 같은 로고 둘을 다 고르면 같은 로고가
  * 두 군데(아빠의 출입증 사진, 연구시설 정문)에 있었다는 게 드러나고, 그 첨부가
  * 달린 아빠 메일이 열린다. 메일 끝에 하부장 번호의 힌트가 있다.
  *
@@ -114,6 +118,8 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
   const frozen = stage === "result";
   const [screen, setScreen] = useState<Screen>(frozen ? "mail" : "match");
   const [picked, setPicked] = useState<string | null>(null);
+  /** 맞춘 칸. 금빛으로 남고 다시 누를 수 없다. */
+  const [found, setFound] = useState<readonly string[]>([]);
   const [verdict, setVerdict] = useState<"wrong" | "right" | null>(null);
   const [misses, setMisses] = useState(0);
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
@@ -121,17 +127,19 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
 
   const pick = useCallback(
     (candidate: LogoCandidate) => {
-      if (verdict || frozen || screen !== "match") return;
+      if (verdict || frozen || screen !== "match" || found.includes(candidate.id)) return;
       setPicked(candidate.id);
       if (matchesLabel(candidate)) {
         playSound("radioLock");
-        setVerdict("right");
+        const next = [...found, candidate.id];
+        setFound(next);
+        if (next.length === MATCH_COUNT) setVerdict("right");
       } else {
         playSound("deny");
         setVerdict("wrong");
       }
     },
-    [verdict, frozen, screen],
+    [verdict, frozen, screen, found],
   );
 
   useEffect(() => {
@@ -164,8 +172,7 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
   }, [frozen, screen, complete]);
 
   const tone = (candidate: LogoCandidate) => {
-    if (verdict === "right" && matchesLabel(candidate))
-      return "border-memory bg-memory/15 text-memory";
+    if (found.includes(candidate.id)) return "border-memory bg-memory/15 text-memory";
     if (verdict === "wrong" && picked === candidate.id)
       return "border-ember bg-ember/15 text-ember";
     return "border-bone/25 bg-scene-void/40 text-bone/80 hover:border-memory hover:text-memory";
@@ -203,7 +210,7 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
                   <button
                     type="button"
                     onClick={() => pick(candidate)}
-                    disabled={verdict !== null}
+                    disabled={verdict !== null || found.includes(candidate.id)}
                     className={`flex w-full cursor-pointer flex-col items-center gap-2 rounded-lg border p-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory disabled:cursor-default ${tone(candidate)}`}
                   >
                     <span className="size-16">
@@ -276,7 +283,9 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
             >
               {verdict === "wrong"
                 ? t("minigame.computerLogo.wrong")
-                : hint("minigame.computerLogo.help")}
+                : found.length > 0 && verdict === null
+                  ? t("minigame.computerLogo.more")
+                  : hint("minigame.computerLogo.help")}
             </p>
             {skipVisible ? (
               <button

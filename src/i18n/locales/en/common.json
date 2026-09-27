@@ -414,11 +414,12 @@
     },
     "computerLogo": {
       "title": "Saved Images",
-      "help": "Pick the logo that matches the label scrap: click",
-      "help_touch": "Tap the logo that matches the label scrap",
+      "help": "Pick the two logos that match the label scrap: click",
+      "help_touch": "Tap the two logos that match the label scrap",
       "app": "Photos · Saved pages",
       "label": "What's left of the ampoule label",
       "wrong": "…Not this one.",
+      "more": "…I saw this one somewhere else too.",
       "found": "The same logo in two places: the badge in Dad's photo, and the research facility gate in the news.",
       "source": {
         "hotel": "Mail attachment IMG_2183.jpg",
