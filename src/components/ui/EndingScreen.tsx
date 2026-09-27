@@ -36,6 +36,7 @@ export function EndingScreen() {
   const soundMuted = useMemoryRoomStore((state) => state.soundMuted);
   const reset = useMemoryRoomStore((state) => state.reset);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
+  const setSceneCovered = useMemoryRoomStore((state) => state.setSceneCovered);
   const [stage, setStage] = useState<EndingStage>("door");
   const [blocked, setBlocked] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -44,6 +45,13 @@ export function EndingScreen() {
     setUiLock("ending", endingStarted);
     return () => setUiLock("ending", false);
   }, [endingStarted, setUiLock]);
+
+  // 영상·카드가 방을 덮는 동안 3D는 그리지 않는다. 뒤에서 도는 방(god rays 포함)이
+  // 영상 디코딩과 GPU를 다퉈 재생이 끊긴다. 문 박자에는 방이 보여야 하므로 그린다
+  useEffect(() => {
+    setSceneCovered(endingStarted && stage !== "door");
+    return () => setSceneCovered(false);
+  }, [endingStarted, stage, setSceneCovered]);
 
   // 문이 열리는 한 박자를 보여준 뒤에 영상으로 넘어간다.
   useEffect(() => {

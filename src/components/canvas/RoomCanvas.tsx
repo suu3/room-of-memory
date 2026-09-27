@@ -151,6 +151,7 @@ export function RoomCanvas() {
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
   /** 시작 전에는 방 모형 전체를 보여주고, 시작하면 그 안으로 내려앉는다. */
   const started = useMemoryRoomStore((state) => state.started);
+  const sceneCovered = useMemoryRoomStore((state) => state.sceneCovered);
   const roomZoom = started ? zoomByFraming.play : zoomByFraming.overview;
   /** 1인칭 구간(인트로·2막 도입). 그동안 회전·배율 입력은 잠기고 시선 입력이 대신 선다. */
   const viewpoint = useMemoryRoomStore(selectViewpoint);
@@ -595,6 +596,8 @@ export function RoomCanvas() {
             // three r185에서 PCFSoftShadowMap(= shadows 기본값)이 deprecated라 PCF로 명시한다
             shadows="percentage"
             dpr={dpr}
+            // 엔딩 영상이 덮는 동안은 멈춘다. 마지막 프레임이 그대로 남아 페이드 뒤에 선다
+            frameloop={sceneCovered ? "never" : "always"}
             camera={initialCamera}
             // alpha: true: 캔버스 뒤 DOM 워시가 비쳐야 한다 (창밖 번짐을 3D에 두면
             // three가 투명 오브젝트를 항상 불투명 뒤에 그려서 벽을 뚫고 덧칠된다)

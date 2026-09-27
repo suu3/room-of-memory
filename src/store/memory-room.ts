@@ -172,6 +172,11 @@ export interface MemoryRoomState {
   queuedPlaybacks: ActivePlayback[];
   /** DOM overlay sources currently blocking scene controls. */
   uiLocks: UiLockId[];
+  /**
+   * DOM이 3D 씬을 통째로 덮고 있다 (엔딩 영상·카드). 캔버스가 그리기를 멈춰 영상 디코딩에
+   * GPU를 비켜 준다. 저장하지 않는다.
+   */
+  sceneCovered: boolean;
   /** 캐릭터 시트 모달: HUD 메뉴와 대사창 초상 두 곳에서 열리므로 스토어가 소유한다. */
   characterSheetOpen: boolean;
   /**
@@ -385,6 +390,7 @@ export interface MemoryRoomState {
   /** 수집한 기억을 다시 재생한다 (수집 상태는 그대로). */
   replayMemory: (id: MemoryId) => void;
   setUiLock: (id: UiLockId, locked: boolean) => void;
+  setSceneCovered: (covered: boolean) => void;
   /** tab을 주면 그 페이지를 펼친 채 연다. 안 주면 마지막 페이지 그대로. */
   setCharacterSheetOpen: (open: boolean, tab?: CharacterSheetTab) => void;
   setCharacterSheetTab: (tab: CharacterSheetTab) => void;
@@ -950,6 +956,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       activePlayback: null,
       queuedPlaybacks: [],
       uiLocks: [],
+      sceneCovered: false,
       characterSheetOpen: false,
       characterSheetTab: "profile",
       contactOpen: false,
@@ -1114,6 +1121,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
             uiLocks: locked ? [...state.uiLocks, id] : state.uiLocks.filter((lock) => lock !== id),
           };
         }),
+      setSceneCovered: (covered) =>
+        set((state) => (state.sceneCovered === covered ? state : { sceneCovered: covered })),
       setCharacterSheetOpen: (open, tab) =>
         set((state) => ({
           characterSheetOpen: open,
@@ -1336,6 +1345,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           activePlayback: null,
           queuedPlaybacks: [],
           uiLocks: [],
+          sceneCovered: false,
           characterSheetOpen: false,
           characterSheetTab: "profile",
           contactOpen: false,
