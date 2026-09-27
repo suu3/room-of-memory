@@ -158,14 +158,14 @@ scripts:
       ja: これ、少年野球の大会で入賞したときの写真だ。
     - speaker: hero
       expression: smile
-      ko: 옆에 윤호도 있네. 이때부터 내 공은 다 저 녀석이 받았지.
-      en: Yunho's in it too. He's been catching my throws since back then.
-      ja: 隣にユノもいる。この頃から、俺の球は全部あいつが受けてた。
+      ko: 아마 옆에 윤호도 있었을 것이다. 그때부터 야구를 같이 해왔으니까.
+      en: Yunho was probably next to me. We've played baseball together since then.
+      ja: たぶん隣にはユノもいたはずだ。あの頃から一緒に野球をやってきたから。
     - speaker: hero
       expression: puzzled
-      ko: …두 분 얼굴이 흐릿하네.
-      en: …Mom and Dad's faces are blurry.
-      ja: …二人の顔がぼやけてる。
+      ko: …부모님 얼굴이 흐릿하다.
+      en: …My parents' faces are blurry.
+      ja: …両親の顔がぼやけている。
 
   # 단톡이 멈춘 날짜를 처음으로 못박는다. 엄마 대화방은 1페이즈에서 말하지 않는다 (폰 2차의 몫).
   # 강도 2는 "이상하다"까지만: "다 끊겼다"는 단정은 라디오 전에 하지 않는다
