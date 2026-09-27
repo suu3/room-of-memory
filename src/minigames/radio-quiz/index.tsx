@@ -189,10 +189,20 @@ function QuizBoard({
           {t("minigame.radioQuiz.wrong")}
         </p>
       )}
-      {/* 힌트가 막 열렸다는 한 줄. 오답 줄과 자리를 나눠 쓰지 않는다 */}
-      {stage !== "result" && hints > 0 && verdict === null && (
-        <p aria-live="polite" className="-mt-6 break-ko text-center text-sm text-memory/80">
-          {t("minigame.radioQuiz.hint", { value: hints })}
+      {/*
+        힌트가 막 열렸다는 한 줄. 오답 줄과 자리를 나눠 쓰지 않는다.
+        자리는 처음부터 잡아 두고 투명도만 바꾼다. 판이 화면 가운데 서 있어서 줄 하나가
+        생기고 없어질 때마다(판정 연출 동안 숨는다) 판 전체가 위아래로 출렁였다.
+      */}
+      {stage !== "result" && (
+        <p
+          aria-live="polite"
+          aria-hidden={hints === 0 || verdict !== null}
+          className={`-mt-6 min-h-5 break-ko text-center text-sm text-memory/80 transition-opacity ${
+            hints > 0 && verdict === null ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {hints > 0 && t("minigame.radioQuiz.hint", { value: hints })}
         </p>
       )}
 
@@ -229,18 +239,25 @@ function QuizBoard({
   }
 
   return (
-    <div className="flex w-[min(40rem,94vw)] animate-fade-rise flex-col items-center gap-9">
+    /*
+      pt-14: 틀이 없는 판이라 호스트의 닫기(X, 오른쪽 위 모서리)가 질문 글자 위에 얹혔다.
+      닫기 몫의 줄을 비워 두어 질문이 그 아래에서 시작한다.
+    */
+    <div className="flex w-[min(40rem,94vw)] animate-fade-rise flex-col items-center gap-9 pt-14">
       {board}
-      {/* 스킵은 접근성 장치라 연출을 위해서도 없애지 않는다. 조건이 차면 조용히 선다 */}
-      {(skipByTime || misses >= SKIP_AFTER_MISSES) && (
-        <button
-          type="button"
-          onClick={() => complete({ cleared: true })}
-          className="cursor-pointer whitespace-nowrap rounded-full border border-bone/40 px-5 py-1.5 text-sm font-bold tracking-widest text-bone/70 transition-all hover:border-bone hover:text-paper active:translate-y-px"
-        >
-          {t("minigame.skip")}
-        </button>
-      )}
+      {/*
+        스킵은 접근성 장치라 연출을 위해서도 없애지 않는다. 조건이 차면 조용히 선다.
+        자리는 처음부터 잡아 둔다 (invisible): 뒤늦게 끼어들면 가운데 선 판이 통째로 올라간다.
+      */}
+      <button
+        type="button"
+        onClick={() => complete({ cleared: true })}
+        className={`cursor-pointer whitespace-nowrap rounded-full border border-bone/40 px-5 py-1.5 text-sm font-bold tracking-widest text-bone/70 transition-all hover:border-bone hover:text-paper active:translate-y-px ${
+          skipByTime || misses >= SKIP_AFTER_MISSES ? "" : "invisible"
+        }`}
+      >
+        {t("minigame.skip")}
+      </button>
     </div>
   );
 }
