@@ -595,7 +595,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         ],
       },
       {
-        image: "/assets/images/cutscene-day-6.webp?v=2",
+        image: "/assets/images/cutscene-day-6.webp?v=3",
         narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line1" },

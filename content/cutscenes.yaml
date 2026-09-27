@@ -146,7 +146,7 @@ cutscenes:
         - speaker: hero
           ko: 뒤에서 나는 소리는 사람 소리가 아니었다.
     # 6컷: 현관에 주저앉음
-    - image: /assets/images/cutscene-day-6.webp?v=2
+    - image: /assets/images/cutscene-day-6.webp?v=3
       narration: true
       lines:
         - speaker: hero

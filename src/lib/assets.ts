@@ -92,7 +92,7 @@ export const ASSETS = {
     cutsceneDay3: "/assets/images/cutscene-day-3.webp?v=2",
     cutsceneDay4: "/assets/images/cutscene-day-4.webp?v=2",
     cutsceneDay5: "/assets/images/cutscene-day-5.webp?v=3",
-    cutsceneDay6: "/assets/images/cutscene-day-6.webp?v=2",
+    cutsceneDay6: "/assets/images/cutscene-day-6.webp?v=3",
     cutsceneDay7: "/assets/images/cutscene-day-7.webp?v=2",
     /** 생존자 방송 웹툰 10칸 (3페이지, content/cutscenes.yaml의 survivor-broadcast). */
     cutsceneSurvivor1: "/assets/images/cutscene-survivor-1.webp?v=2",
