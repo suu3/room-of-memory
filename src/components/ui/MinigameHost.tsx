@@ -6,7 +6,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { phaseConfigOf } from "@/data/memory-room";
 import { useControlHint } from "@/i18n/control-hint";
-import { playSound } from "@/lib/audio";
+import { playSound, startOverlayMusic, stopOverlayMusic } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
 import { liveMinigameOf, selectCanvasPuzzle } from "@/minigames/active";
 import { MinigameHelp } from "@/minigames/shell";
@@ -218,6 +218,17 @@ export function MinigameHost() {
     setOutcome(null);
     setRetry(0);
   }, [activeKey]);
+
+  /*
+   * 판 전용 곡(게임기의 8비트)은 시작을 누른 뒤부터 판이 도는 동안만. 시작 카드에서는
+   * 아직 방이고, 결과 대사로 넘어가면 방 곡이 돌아온다: 게임을 끄고 현실로 돌아오는 소리다.
+   */
+  const overlayMusic = active?.phase === "minigame" && started ? hosted?.music : undefined;
+  useEffect(() => {
+    if (!overlayMusic) return;
+    startOverlayMusic(overlayMusic);
+    return () => stopOverlayMusic();
+  }, [overlayMusic]);
 
   // 시작 카드가 뜨면 버튼에 포커스 (키보드 플레이)
   useEffect(() => {

@@ -30,7 +30,9 @@ export {
   setMusicLevel,
   setMusicTrim,
   startMusic,
+  startOverlayMusic,
   stopMusic,
+  stopOverlayMusic,
 } from "./music";
 export { musicCutoff, musicReverb, musicVolume } from "./music-curve";
 export { preloadSamples } from "./samples";

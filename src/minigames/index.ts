@@ -1,4 +1,5 @@
 import { lazy } from "react";
+import { ASSETS } from "@/lib/assets";
 import type { MinigameDefinition } from "@/types/minigame";
 
 /**
@@ -108,6 +109,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
      * 조작은 helpKey와 화면 안 조작판이 이미 말한다.
      */
     rulesKeys: ["minigame.fighterDuel.rules.triangle"],
+    music: ASSETS.bgm.fighterDuel,
     failKey: "minigame.fighterDuel.fail",
   },
   "window-view": {

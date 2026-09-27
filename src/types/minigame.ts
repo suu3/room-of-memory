@@ -115,4 +115,12 @@ export interface MinigameDefinition {
    * 실패가 없는 미니게임(탐색형)은 채울 이유가 없다.
    */
   failKey?: CommonTextKey;
+  /**
+   * 판이 도는 동안 방 곡 대신 틀 루프 (src/lib/assets.ts의 경로).
+   *
+   * 화면 속 세계(게임기)처럼 방 밖의 소리가 나는 판만 채운다. 방 안에서 하는 일은
+   * 방 곡이 눌린 채 계속 흐르는 게 맞다. 이 곡은 밝기 곡선을 받지 않는다: 가라앉는
+   * 방과 멀쩡한 게임 소리의 대비가 곧 "외면"이다.
+   */
+  music?: string;
 }

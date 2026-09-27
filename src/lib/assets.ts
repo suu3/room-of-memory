@@ -219,6 +219,11 @@ export const ASSETS = {
      * 못 받으면 1바퀴 곡이 그대로 이어진다.
      */
     roomSecondLight: ["/assets/audio/bgm/bgm-room-second-light.ogg"],
+    /**
+     * 게임기(fighter-duel)를 켠 동안 방 곡 대신 드는 8비트 루프. 방 TV 스피커 소리로
+     * 깎아 구웠다. 코드 합성이라 곡을 바꾸려면 scripts/create-fighter-duel-chip.mjs를 고친다.
+     */
+    fighterDuel: "/assets/audio/bgm/mg-fighter-duel-chip.ogg",
   },
   /**
    * 파일로 대신할 효과음. 여기 없는 보이스는 전부 합성이다(src/lib/audio/voices.ts).

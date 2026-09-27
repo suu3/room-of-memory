@@ -41,6 +41,13 @@ const FADE_OUT_S = 1.2;
 const SINK_CUTOFF_HZ = 180;
 /** 트랙을 갈아탈 때 두 곡이 겹치는 시간(초). */
 const SWAP_S = 2.2;
+/**
+ * 방 곡을 비우고 드는 곡(게임기의 8비트)의 음량. 밝은 방의 곡과 비슷한 자리다.
+ * 곡은 방 곡과 LUFS를 맞춰 구웠다(−17 LUFS 근처). TV 한 대 소리라 방 곡을 넘지 않는다.
+ */
+const OVERLAY_VOLUME = 0.42;
+/** 방 곡이 비켜나고 새 곡이 드는 시간(초). 스위치를 켠 느낌이라 교차보다 짧다. */
+const OVERLAY_FADE_S = 0.5;
 
 /** 리버브 임펄스 길이(초)와 감쇠 지수. 방 하나 크기의 잔향. */
 const IMPULSE_S = 2.4;
@@ -74,8 +81,19 @@ let level = 0;
 let duck = 1;
 let trim = 1;
 
+/** 방 곡 대신 도는 곡 (startOverlayMusic). 도는 동안 방 곡은 0으로 비켜 있다. */
+interface OverlayVoice {
+  src: string;
+  source: AudioBufferSourceNode;
+  gain: GainNode;
+}
+let overlay: OverlayVoice | null = null;
+/** 틀어 달라고 한(로딩 중 포함) 곡. 없으면 방 곡이 제자리다. */
+let overlayRequest: string | null = null;
+
 function targetVolume(): number {
-  return musicVolume(level) * duck * trim;
+  // 다른 곡이 드는 동안 방 곡은 멈추지 않고 소리만 비운다. 돌아왔을 때 흐르던 자리에서 이어진다
+  return overlayRequest ? 0 : musicVolume(level) * duck * trim;
 }
 
 /**
@@ -113,14 +131,19 @@ function bakeLoop(context: AudioContext, source: AudioBuffer): AudioBuffer {
   return baked;
 }
 
-async function loadBuffer(context: AudioContext, src: string): Promise<AudioBuffer> {
-  const cached = buffers.get(src);
+/**
+ * `fold`가 false면 루프 접기 없이 받은 그대로 쓴다. 마디 길이에 딱 맞춰 구운 곡
+ * (게임기 8비트)은 꼬리를 접으면 박자가 한 조각 어긋난다.
+ */
+async function loadBuffer(context: AudioContext, src: string, fold = true): Promise<AudioBuffer> {
+  const key = fold ? src : `raw:${src}`;
+  const cached = buffers.get(key);
   if (cached) return cached;
   const response = await fetch(src);
   if (!response.ok) throw new Error(`BGM을 받지 못했다: ${src} (${response.status})`);
   const decoded = await context.decodeAudioData(await response.arrayBuffer());
-  const baked = bakeLoop(context, decoded);
-  buffers.set(src, baked);
+  const baked = fold ? bakeLoop(context, decoded) : decoded;
+  buffers.set(key, baked);
   return baked;
 }
 
@@ -299,12 +322,86 @@ export function setMusicTrim(next: number) {
   voice.gain.gain.setTargetAtTime(targetVolume(), graph.context.currentTime, VOLUME_GLIDE_S);
 }
 
+/** 방 곡을 지금 목표 음량으로 옮긴다 (덕킹·트림·곡 비키기가 바뀔 때). */
+function glideRoomVolume(seconds: number) {
+  const graph = audioGraph();
+  if (!voice || !graph) return;
+  voice.gain.gain.setTargetAtTime(targetVolume(), graph.context.currentTime, seconds / 3);
+}
+
+function stopOverlayVoice(playing: OverlayVoice, fadeSeconds: number) {
+  const graph = audioGraph();
+  if (!graph) return;
+  const now = graph.context.currentTime;
+  playing.gain.gain.cancelScheduledValues(now);
+  playing.gain.gain.setTargetAtTime(0.0001, now, Math.max(0.01, fadeSeconds / 3));
+  playing.source.stop(now + fadeSeconds);
+  playing.source.onended = () => {
+    playing.source.disconnect();
+    playing.gain.disconnect();
+  };
+}
+
+/**
+ * 방 곡을 비우고 다른 곡을 튼다: 화면 속 세계(게임기)의 소리.
+ *
+ * 방 곡을 끊지 않고 소리만 0으로 내린다. 판을 끄면 방 곡이 그 사이 흘러간 자리에서
+ * 다시 올라온다. 밝기 곡선·리버브는 이 곡에 걸지 않는다. 방이 가라앉아도 게임은
+ * 멀쩡하게 신난다. 그 대비가 연출이다.
+ *
+ * 곡을 못 받으면 방 곡을 도로 올린다. 게임기가 무음이 되는 것보다 낫다.
+ */
+export function startOverlayMusic(src: string) {
+  if (overlayRequest === src) return;
+  const graph = audioGraph();
+  if (!graph) return;
+  if (overlay) {
+    stopOverlayVoice(overlay, OVERLAY_FADE_S);
+    overlay = null;
+  }
+  overlayRequest = src;
+  glideRoomVolume(OVERLAY_FADE_S);
+
+  void loadBuffer(graph.context, src, false)
+    .then((buffer) => {
+      if (overlayRequest !== src) return;
+      const { context, master } = graph;
+      const source = context.createBufferSource();
+      const gain = context.createGain();
+      source.buffer = buffer;
+      source.loop = true;
+      gain.gain.value = 0.0001;
+      source.connect(gain).connect(master);
+      source.start();
+      gain.gain.setTargetAtTime(OVERLAY_VOLUME, context.currentTime, OVERLAY_FADE_S / 3);
+      overlay = { src, source, gain };
+    })
+    .catch((error) => {
+      if (overlayRequest !== src) return;
+      overlayRequest = null;
+      glideRoomVolume(OVERLAY_FADE_S);
+      console.warn(error);
+    });
+}
+
+/** 비켜 있던 방 곡을 도로 올린다. 도는 곡이 없으면 아무 일도 없다. */
+export function stopOverlayMusic() {
+  if (!overlayRequest) return;
+  overlayRequest = null;
+  if (overlay) stopOverlayVoice(overlay, FADE_OUT_S);
+  overlay = null;
+  glideRoomVolume(FADE_OUT_S);
+}
+
 /** 테스트·핫리로드 탈출구. disposeAudio가 컨텍스트를 닫기 전에 불린다. */
 export function disposeMusic() {
   currentRequest = null;
   const playing = voice;
   voice = null;
   if (playing) retire(playing, 0.01);
+  overlayRequest = null;
+  if (overlay) stopOverlayVoice(overlay, 0.01);
+  overlay = null;
   buffers.clear();
   missing.clear();
   impulse = null;
