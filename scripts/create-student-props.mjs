@@ -285,18 +285,14 @@ function bookshelf() {
   box(group, [1.6, 2.32, 0.055], [0, 1.16, -0.3325], "wood");
   for (const x of [-0.755, 0.755]) box(group, [0.09, 2.35, 0.72], [x, 1.175, 0], "wood");
   for (const y of [0.08, 0.8, 1.52, 2.3]) box(group, [1.51, 0.1, 0.72], [0, y, 0], "wood");
-  // Mixed heights, tilted books and subject bands read at the room camera distance.
+  // Mixed heights, tilted books and lower subject bands read at the room camera distance.
   for (let row = 0; row < 3; row++) {
     const base = [0.13, 0.85, 1.57][row];
     for (let i = 0; i < 6; i++) {
       const height = 0.46 + ((i * 3 + row) % 4) * 0.045;
       const x = -0.61 + i * 0.137;
       const color = ["fabric", "linen", "sage", "clay"][(i + row) % 4];
-      const titleY = base + height * 0.78;
       box(group, [0.105, height, 0.43], [x, base + height / 2, 0.07], color);
-      box(group, [0.048, 0.036, 0.006], [x, titleY, 0.288], "linen");
-      for (let line = 0; line < 3; line++)
-        box(group, [0.03, 0.004, 0.004], [x, titleY + 0.009 - line * 0.009, 0.293], "frame");
       box(group, [0.08, 0.014, 0.004], [x, base + 0.075, 0.293], "trim");
     }
     book(group, 0.46, base, 0.015, 0.33, 0.48, 0.065, "fabric", 1, -0.03);

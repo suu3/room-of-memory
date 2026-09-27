@@ -48,7 +48,7 @@ export const ASSETS = {
     snackBag: "/assets/models/room-snack-bag.glb?v=20260910-flat",
     studyPapers: "/assets/models/room-study-papers.glb?v=20260910",
     cupNoodleTrash: "/assets/models/room-cup-noodle-trash.glb?v=20260910-upright2",
-    studentBookshelf: "/assets/models/room-student-bookshelf.glb?v=labels-20260927",
+    studentBookshelf: "/assets/models/room-student-bookshelf.glb?v=no-labels-20260927",
     rug: "/assets/models/room-rug.glb?v=original-20260912",
     leafyPlant: "/assets/models/room-potted-plant.glb?v=original-20260912",
     /** 둥근 선인장과 도자기 화분. 재생성: scripts/create-cactus.mjs */
@@ -69,9 +69,9 @@ export const ASSETS = {
     curtain: "/assets/models/room-curtain.glb",
     /**
      * 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있고,
-     * scripts/recolor-rabbit-doll.mjs가 방의 clay·linen 팔레트를 입힌다.
+     * scripts/recolor-rabbit-doll.mjs가 방의 clay·linen 팔레트를 밝게 섞어 입힌다.
      */
-    rabbitDoll: "/assets/models/rabbit-doll.glb?v=palette-20260927",
+    rabbitDoll: "/assets/models/rabbit-doll.glb?v=light-palette-20260927",
     /** 라온생명과학연구소 RX-11 유리 바이알. 재생성: scripts/create-ampoule.mjs */
     ampoule: "/assets/models/room-laon-ampoule.glb?v=2",
   },
@@ -124,7 +124,7 @@ export const ASSETS = {
      * 다이얼을 뒤에 깔고 이 이미지를 위에 얹으면 창 안에 든 것처럼 보인다.
      * 창 좌표는 src/minigames/frequency-tune/index.tsx의 DIAL_WINDOW.
      */
-    mgFrequencyTuneFrame: "/assets/images/mg-frequency-tune-frame.webp?v=2",
+    mgFrequencyTuneFrame: "/assets/images/mg-frequency-tune-frame.webp?v=cutout-20260928",
     /** 커튼을 걷었을 때 보이는 창밖 (1448×1086). 그날 이후의 도시가 그려져 있다. */
     mgWindowViewOutside: "/assets/images/mg-window-view-outside.webp",
     /**

@@ -34,13 +34,13 @@ function expectColor(actual: number[] | undefined, expected: number[]) {
 }
 
 describe("shipped rabbit doll model", () => {
-  it("uses the room clay and linen palette instead of saturated pink and white", () => {
+  it("uses a lighter clay-linen blend for the body while keeping linen accents", () => {
     const model = modelHeader();
-    const clay = [0.376262, 0.177888, 0.130136, 1];
+    const lightClay = [0.41069, 0.261445, 0.207024, 1];
     const linen = [0.491021, 0.456411, 0.386429, 1];
 
     for (const node of ["Cube", "Cube.001", "Roundcube"]) {
-      expectColor(colorForNode(model, node), clay);
+      expectColor(colorForNode(model, node), lightClay);
     }
     for (const node of ["Cube.004", "Sphere"]) {
       expectColor(colorForNode(model, node), linen);

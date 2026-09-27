@@ -75,7 +75,7 @@ describe("shipped student props", () => {
     });
   }
 
-  it("keeps bookshelf spine title plates smaller than the book spines", async () => {
+  it("keeps bookshelf spines free of title plates and title lines", async () => {
     const url = ASSETS.models.studentBookshelf;
     const bytes = readFileSync(`public${url.split("?")[0]}`);
     const jsonLength = bytes.readUInt32LE(12);
@@ -103,43 +103,36 @@ describe("shipped student props", () => {
       .setMeshoptDecoder(MeshoptDecoder)
       .parseAsync(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length), "");
     scene.updateMatrixWorld(true);
-    const linenMesh = scene.children
-      .flatMap((child) => child.children)
-      .find((child) => {
-        const material = (child as Mesh).material;
-        return material && !Array.isArray(material) && material.name === "linen";
-      }) as Mesh | undefined;
-    if (!linenMesh) throw new Error("missing linen mesh");
+    const countFrontTriangles = (materialName: string, minZ: number, maxZ: number) => {
+      const materialMesh = scene.children
+        .flatMap((child) => child.children)
+        .find((child) => {
+          const material = (child as Mesh).material;
+          return material && !Array.isArray(material) && material.name === materialName;
+        }) as Mesh | undefined;
+      if (!materialMesh) return 0;
 
-    const position = linenMesh.geometry.getAttribute("position");
-    const index = linenMesh.geometry.index;
-    const titlePlateTriangles: { width: number; height: number }[] = [];
-    const triangleCount = (index?.count ?? position.count) / 3;
-    for (let triangle = 0; triangle < triangleCount; triangle++) {
-      const vertices = [0, 1, 2].map((corner) => {
-        const item = triangle * 3 + corner;
-        const vertex = index ? index.getX(item) : item;
-        return new Vector3(
-          position.getX(vertex),
-          position.getY(vertex),
-          position.getZ(vertex),
-        ).applyMatrix4(linenMesh.matrixWorld);
-      });
-      if (vertices.every(({ z }) => z > 0.29 && z < 0.292)) {
-        const xs = vertices.map(({ x }) => x);
-        const ys = vertices.map(({ y }) => y);
-        titlePlateTriangles.push({
-          width: Math.max(...xs) - Math.min(...xs),
-          height: Math.max(...ys) - Math.min(...ys),
+      const position = materialMesh.geometry.getAttribute("position");
+      const index = materialMesh.geometry.index;
+      let count = 0;
+      const triangleCount = (index?.count ?? position.count) / 3;
+      for (let triangle = 0; triangle < triangleCount; triangle++) {
+        const vertices = [0, 1, 2].map((corner) => {
+          const item = triangle * 3 + corner;
+          const vertex = index ? index.getX(item) : item;
+          return new Vector3(
+            position.getX(vertex),
+            position.getY(vertex),
+            position.getZ(vertex),
+          ).applyMatrix4(materialMesh.matrixWorld);
         });
+        if (vertices.every(({ z }) => z > minZ && z < maxZ)) count++;
       }
-    }
+      return count;
+    };
 
     expect(primitives.length).toBeLessThanOrEqual(8);
-    expect(titlePlateTriangles).toHaveLength(36);
-    for (const triangle of titlePlateTriangles) {
-      expect(triangle.width).toBeLessThanOrEqual(0.05);
-      expect(triangle.height).toBeLessThanOrEqual(0.04);
-    }
+    expect(countFrontTriangles("linen", 0.29, 0.292)).toBe(0);
+    expect(countFrontTriangles("frame", 0.294, 0.296)).toBe(0);
   });
 });

@@ -45,9 +45,13 @@ function packGlb(json, binary) {
 const { json, binary } = unpackGlb(readFileSync(modelPath));
 const clay = sceneColor("clay");
 const linen = sceneColor("linen");
+const lightClay = [
+  ...new Color().fromArray(clay).lerp(new Color().fromArray(linen), 0.3).toArray(),
+  1,
+];
 
 for (const materialIndex of [0, 1]) {
-  json.materials[materialIndex].pbrMetallicRoughness.baseColorFactor = clay;
+  json.materials[materialIndex].pbrMetallicRoughness.baseColorFactor = lightClay;
 }
 json.materials[2].pbrMetallicRoughness.baseColorFactor = linen;
 
