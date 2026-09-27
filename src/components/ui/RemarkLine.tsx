@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { lastVisitDone } from "@/data/story-phase";
 import { usePointerKind } from "@/i18n/control-hint";
-import { type RemarkId, useMemoryRoomStore } from "@/store/memory-room";
+import {
+  type RemarkId,
+  selectBatReady,
+  selectDoorReady,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import type { CommonTextKey } from "@/types/minigame";
 
 /** 한 줄이 떠 있는 최소 시간(ms). 읽고 한 박자 쉴 만큼: 대사창이 아니라 스치는 혼잣말이다. */
@@ -42,14 +47,24 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen">, CommonTextKey> = {
  * 줄이 서는 높이. 마우스 기기는 바닥 위 80px. 터치 기기는 왼쪽 아래에 조이스틱
  * (MovementJoystick: 바닥 위 96~208px, 그 밑에 "이동" 라벨 72~88px)이 있어 같은 높이면
  * 긴 문장의 왼쪽 끝이 원판 아랫단과 라벨을 물고 지나갔다. 원판 위(224px)로 올린다.
+ *
+ * 넓은 화면에서 문·배트 안내 줄("방문이 빛난다", MemoryRoom)이 떠 있으면 그 줄이
+ * 바닥 위 64~92px에 선다. 80px에 서면 두 줄짜리 기록 문장의 아랫단이 그 위를 덮어서
+ * (2026-09-27) 안내 줄 위(112px)로 비켜선다. 좁은 화면의 안내 줄은 32px라 닿지 않는다.
  */
 const POSITION_CLASS = { keys: "bottom-20", touch: "bottom-56" } as const;
+const ABOVE_CALLOUT_CLASS = { keys: "bottom-20 md:bottom-28", touch: "bottom-56" } as const;
 
 export function RemarkLine() {
   const { t } = useTranslation();
   const pointerKind = usePointerKind();
   const { t: tRoom } = useTranslation("memoryRoom");
   const remark = useMemoryRoomStore((state) => state.remark);
+  // MemoryRoom의 문·배트 안내 줄과 같은 조건
+  const calloutShown = useMemoryRoomStore(
+    (state) => (selectDoorReady(state) || selectBatReady(state)) && !state.endingStarted,
+  );
+  const position = (calloutShown ? ABOVE_CALLOUT_CLASS : POSITION_CLASS)[pointerKind];
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const rechecked = useMemoryRoomStore((state) => state.rechecked);
@@ -81,7 +96,7 @@ export function RemarkLine() {
     <p
       // 누를 때마다 새로 떠오른다. key가 바뀌어야 애니메이션이 다시 돈다
       key={remark.at}
-      className={`monologue-text pointer-events-none absolute ${POSITION_CLASS[pointerKind]} left-1/2 z-10 w-full max-w-xl -translate-x-1/2 animate-fade-rise break-ko text-pretty px-4 text-center font-pixel text-lg leading-normal text-ivory`}
+      className={`monologue-text pointer-events-none absolute ${position} left-1/2 z-10 w-full max-w-xl -translate-x-1/2 animate-fade-rise break-ko text-pretty px-4 text-center font-pixel text-lg leading-normal text-ivory`}
     >
       {text}
     </p>
