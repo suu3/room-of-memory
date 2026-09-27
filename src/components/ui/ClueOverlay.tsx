@@ -24,8 +24,8 @@ import { InspectView } from "./InspectView";
 import { BUTTON_QUIET, PANEL_PAPER } from "./ui-classes";
 import { WorkbookClue } from "./WorkbookClue";
 
-/** 서랍 속 쪽지에 적힌 줄. 아빠가 급히 적은 메모라 세 줄이 전부다. */
-const NOTE_LINES = ["clue.drawerNote.l1", "clue.drawerNote.l2", "clue.drawerNote.l3"] as const;
+/** 서랍 속 쪽지에 적힌 줄. 도해가 예전에 적어 둔 메모라 두 줄이 전부다. */
+const NOTE_LINES = ["clue.drawerNote.l1", "clue.drawerNote.l2"] as const;
 
 /** 단서마다의 제목·본문 번역 키. 화면에도 쓰이고 키보드 목록의 이름도 여기서 온다. */
 const CLUE_TEXT = {
@@ -186,12 +186,8 @@ function FoldedNote() {
         {NOTE_LINES.map((key, index) => (
           <p
             key={key}
-            className={`break-ko text-pretty leading-relaxed ${
-              index === 0
-                ? "text-lg font-medium text-ink"
-                : index === NOTE_LINES.length - 1
-                  ? "self-end text-sm text-graphite"
-                  : "text-base text-ink"
+            className={`break-ko text-pretty leading-relaxed text-ink ${
+              index === 0 ? "text-lg font-medium" : "text-base"
             }`}
           >
             {t(key)}

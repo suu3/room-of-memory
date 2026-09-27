@@ -52,7 +52,6 @@ describe("컴퓨터 비밀번호 단서", () => {
       "drawerNote.caption",
       "drawerNote.l1",
       "drawerNote.l2",
-      "drawerNote.l3",
       "wallCalendar.title",
       "wallCalendar.caption",
       "workbook.title",

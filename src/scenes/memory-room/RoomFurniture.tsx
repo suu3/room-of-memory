@@ -355,7 +355,7 @@ function Nightstand({ palette }: FurnitureProps) {
         near={[NIGHTSTAND_DRAWER[0].position[0], NIGHTSTAND_DRAWER[0].position[2]]}
         palette={palette}
       >
-        {/* 아빠가 넣어둔 쪽지: 컴퓨터 비밀번호 단서의 절반이다 */}
+        {/* 도해가 예전에 적어 둔 쪽지: 컴퓨터 비밀번호 단서의 절반이다 */}
         {(open) => <DrawerNoteClue palette={palette} open={open} />}
       </Drawer>
     </group>
