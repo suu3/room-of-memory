@@ -214,7 +214,6 @@
         "fri": "金",
         "sat": "土"
       },
-      "survived": "{{value}}日 生き延びた",
       "pageOf": "{{value}} / {{total}}",
       "close": "カレンダーを置く",
       "mark": {

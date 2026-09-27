@@ -1,15 +1,6 @@
 import type {} from "@react-three/fiber";
-import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
-import { CanvasTexture, Color, type MeshBasicMaterial, SRGBColorSpace } from "three";
-import { prefersReducedMotion } from "@/lib/reduced-motion";
-import { useMemoryRoomStore } from "@/store/memory-room";
-import {
-  NEIGHBOR_LIGHT,
-  neighborLightOffset,
-  neighborLightOpacity,
-  neighborLightVisible,
-} from "./neighbor-light";
+import { useEffect, useMemo } from "react";
+import { CanvasTexture, Color, SRGBColorSpace } from "three";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 
@@ -29,8 +20,8 @@ import type { Vec3Tuple } from "./types";
  * 가장자리가 드러났다. 왼쪽 끝(x≈-3.3)은 아직 뒷벽(x≥-6) 안쪽이라 옆으로 새지 않는다.
  *
  * 노을은 색으로만 말한다. 도시 실루엣과 처박힌 차를 세워 봤는데 창 하나가 그림이
- * 되어 방의 색면들과 따로 놀았다. 남긴 것은 하늘 그라디언트와 별 몇 개, 그리고 생존자
- * 방송 뒤에 켜지는 맞은편 창 하나다 (NeighborWindow, neighbor-light.ts).
+ * 되어 방의 색면들과 따로 놀았다. 남긴 것은 하늘 그라디언트와 별 몇 개다. 생존자 방송 뒤에
+ * 켜지던 맞은편 창 하나도 창에 붙은 네모로 읽혀 뺐다 (2026-09-27).
  */
 const MARGIN = { left: 3.2, right: 1.3, top: 0.28, bottom: 1.5 } as const;
 
@@ -42,8 +33,6 @@ const MARGIN = { left: 3.2, right: 1.3, top: 0.28, bottom: 1.5 } as const;
 const LAYER_Z = {
   sky: -0.75,
   stars: -0.66,
-  /** 맞은편 창은 별보다 앞, 유리 바로 뒤. 시차가 가장 작아 회전해도 개구부 안에 남는다. */
-  neighbor: -0.6,
 } as const;
 
 interface WindowViewProps {
@@ -147,66 +136,7 @@ function Stars({ span, height, color }: { span: number; height: number; color: s
   );
 }
 
-/**
- * 맞은편 동의 불 켜진 창 하나 (docs/visual-experiments.md 14장 "이창"). 생존자 방송을 듣고
- * 나면 어둠 속에 창 하나가 천천히 켜진다. 누군가 살아 있다는 것을 대사 없이 말하는 그림이다.
- *
- * 불투명도는 프레임마다 ref로 굴린다 (.claude/rules/r3f.md: useFrame 안 setState 금지).
- * 켜지는 데 8초쯤 걸린다. 스위치가 아니라 저녁이 오는 속도다. 번쩍임 규칙과는 다른 시간 축.
- *
- * 자리는 창 개구부 기준이다. 이 그룹은 여백만큼 옮겨진 판의 중심에 서 있으므로, 개구부
- * 중심으로 되돌리는 오프셋을 받아 뺀다.
- */
-function NeighborWindow({
-  palette,
-  opening,
-  offset,
-}: {
-  palette: RoomPalette;
-  /** 창 개구부 크기. 자리는 이 안에서 정한다. */
-  opening: { width: number; height: number };
-  /** 판 중심 → 창 개구부 중심 (판이 여백만큼 옮겨진 것을 되돌린다). */
-  offset: readonly [x: number, y: number];
-}) {
-  const lit = useMemoryRoomStore(neighborLightVisible);
-  const glassRef = useRef<MeshBasicMaterial>(null);
-  const haloRef = useRef<MeshBasicMaterial>(null);
-  const opacityRef = useRef(0);
-  const instant = useMemo(prefersReducedMotion, []);
-  const [x, y] = neighborLightOffset(opening);
-  const [w, h] = NEIGHBOR_LIGHT.size;
-
-  useFrame((_, delta) => {
-    const next = neighborLightOpacity(opacityRef.current, lit, delta, instant);
-    if (next === opacityRef.current) return;
-    opacityRef.current = next;
-    if (glassRef.current) glassRef.current.opacity = next;
-    if (haloRef.current) haloRef.current.opacity = next * NEIGHBOR_LIGHT.haloOpacity;
-  });
-
-  return (
-    <group name="neighbor-window" position={[x - offset[0], y - offset[1], LAYER_Z.neighbor]}>
-      {/* 유리 너머로 번지는 빛. 색면이 "빛"으로 읽히게 하는 최소한의 후광 */}
-      <mesh position={[0, 0, -0.005]}>
-        <planeGeometry args={[w * NEIGHBOR_LIGHT.halo, h * NEIGHBOR_LIGHT.halo]} />
-        <meshBasicMaterial
-          ref={haloRef}
-          color={palette.amber}
-          transparent
-          opacity={0}
-          depthWrite={false}
-        />
-      </mesh>
-      <mesh>
-        <planeGeometry args={[w, h]} />
-        <meshBasicMaterial ref={glassRef} color={palette.sun} transparent opacity={0} />
-      </mesh>
-    </group>
-  );
-}
-
 export function WindowView({ palette, decay, center, width, height }: WindowViewProps) {
-  const opening = useMemo(() => ({ width, height }), [width, height]);
   const viewWidth = width + MARGIN.left + MARGIN.right;
   const viewHeight = height + MARGIN.top + MARGIN.bottom;
   // 여백이 한쪽으로 치우쳤으니 판의 중심도 그만큼 옮긴다.
@@ -231,8 +161,6 @@ export function WindowView({ palette, decay, center, width, height }: WindowView
       <group position={[0, 0, LAYER_Z.stars]}>
         <Stars span={viewWidth} height={viewHeight} color={palette.trim} />
       </group>
-
-      <NeighborWindow palette={palette} opening={opening} offset={[offsetX, offsetY]} />
     </group>
   );
 }

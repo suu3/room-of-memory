@@ -25,7 +25,7 @@ import { CalendarPageImage, preloadCalendarPages, useCalendarPage } from "./Page
 const FADE_MS = 320;
 
 /** 사건 이후 장: 날짜 대신 버틴 날을 세는 正자만 남는다. */
-function TallySheet({ days, label }: { days: number; label: string }) {
+function TallySheet({ days }: { days: number }) {
   const { full, remainder } = tallyGroups(days);
   return (
     <div className="flex h-64 flex-col items-center justify-center gap-4">
@@ -48,7 +48,6 @@ function TallySheet({ days, label }: { days: number; label: string }) {
           </span>
         ) : null}
       </div>
-      <p className="text-xs tracking-widest text-ink/45">{label}</p>
     </div>
   );
 }
@@ -64,12 +63,8 @@ function MonthSheet({ month }: { month: number }) {
 
 /** 장 그림이 없을 때 코드가 그리는 내용: 격자, 사건 뒤로는 正자. */
 function PageContent({ month }: { month: number }) {
-  const { t } = useTranslation();
   return isAftermath(month) ? (
-    <TallySheet
-      days={survivedDays(CALENDAR_YEAR, month)}
-      label={t("minigame.calendarFlip.survived", { value: survivedDays(CALENDAR_YEAR, month) })}
-    />
+    <TallySheet days={survivedDays(CALENDAR_YEAR, month)} />
   ) : (
     <MonthSheet month={month} />
   );

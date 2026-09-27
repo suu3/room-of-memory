@@ -214,7 +214,6 @@
         "fri": "금",
         "sat": "토"
       },
-      "survived": "{{value}}일 버텼다",
       "pageOf": "{{value}} / {{total}}",
       "close": "달력을 내려놓는다",
       "mark": {

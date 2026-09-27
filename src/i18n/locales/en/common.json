@@ -214,7 +214,6 @@
         "fri": "F",
         "sat": "S"
       },
-      "survived": "{{value}} days survived",
       "pageOf": "{{value}} / {{total}}",
       "close": "Put the calendar down",
       "mark": {

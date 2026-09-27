@@ -6,15 +6,7 @@ import { useTranslation } from "react-i18next";
 import { NATIONALS_DATE } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
 import { blurBackdrop } from "@/lib/image-blur";
-import {
-  CALENDAR_YEAR,
-  dayAnchor,
-  isAftermath,
-  leadingBlanks,
-  notesOf,
-  PAGE_IMAGE,
-  survivedDays,
-} from "./calendar";
+import { CALENDAR_YEAR, dayAnchor, leadingBlanks, notesOf, PAGE_IMAGE } from "./calendar";
 
 /** 한 번 받아진 장 그림. 넘길 때마다 새로 서는 종이가 대체 장을 한 번 거쳐 튀지 않게 기억해 둔다. */
 const loadedPages = new Set<string>();
@@ -89,8 +81,6 @@ const MEMO_WIDTH = 230;
 /** 칸 위쪽에서 메모 첫 줄까지. 숫자 밑이다. 금빛 동그라미가 있는 날은 동그라미 밑. */
 const MEMO_TOP = 80;
 const MEMO_TOP_RINGED = 102;
-/** 11월 밑 여백에 적는 버틴 날 수의 자리. */
-const TALLY_LABEL_Y = 1528;
 
 const pct = (value: number, of: number) => `${((value / of) * 100).toFixed(3)}%`;
 const cqw = (px: number) => `${((px / W) * 100).toFixed(3)}cqw`;
@@ -179,16 +169,6 @@ export function CalendarPageImage({ month, source }: { month: number; source: st
           style={memoStyle(month, NATIONALS_DATE.day, MEMO_TOP_RINGED)}
         >
           {t("minigame.calendarFlip.note.nationals")}
-        </p>
-      ) : null}
-
-      {/* 사건 뒤의 장: 正자 밑 여백에 버틴 날 수 */}
-      {isAftermath(month) ? (
-        <p
-          className="absolute inset-x-0 -translate-y-1/2 text-center tracking-widest text-ink/55"
-          style={{ top: pct(TALLY_LABEL_Y, H), fontSize: cqw(MEMO_FONT) }}
-        >
-          {t("minigame.calendarFlip.survived", { value: survivedDays(CALENDAR_YEAR, month) })}
         </p>
       ) : null}
     </div>

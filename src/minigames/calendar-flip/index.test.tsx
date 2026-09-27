@@ -4,14 +4,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { i18n } from "@/i18n/config";
 import type { MinigameResult } from "@/types/minigame";
-import {
-  CALENDAR_MONTHS,
-  CALENDAR_YEAR,
-  INCIDENT_DATE,
-  LAST_MONTH,
-  START_MONTH,
-  survivedDays,
-} from "./calendar";
+import { CALENDAR_MONTHS, CALENDAR_YEAR, INCIDENT_DATE, LAST_MONTH, START_MONTH } from "./calendar";
 
 /** 화면 아래 장 번호는 월이 아니라 몇 번째 장인지를 센다 (7월이 1장). */
 const pageLabel = (month: number) => `${month - START_MONTH + 1} / ${CALENDAR_MONTHS.length}`;
@@ -46,12 +39,12 @@ describe("CalendarFlipMinigame", () => {
 
     flipForward(INCIDENT_DATE.month - START_MONTH);
     // 사건이 난 달까지는 아직 달력이다
-    expect(screen.queryByText(/days survived/)).toBeNull();
+    expect(screen.queryAllByText("正")).toHaveLength(0);
 
     flipForward(1);
-    const days = survivedDays(CALENDAR_YEAR, INCIDENT_DATE.month + 1);
-    expect(screen.getByText(`${days} days survived`)).toBeTruthy();
     expect(screen.getAllByText("正").length).toBeGreaterThan(0);
+    // 버틴 날 수는 글로 적지 않는다: 正자만 남는다
+    expect(screen.queryByText(/survived/)).toBeNull();
   });
 
   it("only offers to close after the last sheet, and reports it once", () => {

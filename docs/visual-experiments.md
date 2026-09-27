@@ -333,7 +333,6 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 
 | 연출 | 출처 | 자리 | 구현 | 바인딩 |
 |---|---|---|---|---|
-| 맞은편 창 하나가 켜진다 | 히치콕 *이창*: 창 하나가 세상의 전부 | 방 창밖, 생존자 방송 뒤 | `WindowView.tsx` `NeighborWindow`, `neighbor-light.ts` | `revisited ∋ radio` (되돌아가지 않음) |
 | 안방은 곡이 없다 | 히치콕 *새*: 음악 없는 영화 | 4페이즈 전체 | `selectMusicPlaying`이 `p4`에서 false | `storyPhaseOf === "p4"` |
 | 열쇠로 밀고 들어가는 크레인 | 히치콕 *오명*: 무도회장에서 손 안의 열쇠까지 | 하부장이 열리는 순간 | `cameraHold` (스토어) → `CameraRig` 크레인 lambda·배율, `crane-shot.ts` | `finishPuzzle("sink-dial")` → 4.2초 뒤 `endCameraHold` |
 
