@@ -26,9 +26,9 @@ scripts:
   # 부모님은 평소처럼, 도해는 짧게. 끝 한 줄만 어긋난다
   report-card-intro:
     - speaker: hero
-      ko: 이건 9월 모의고사 성적표네...
-      en: This is my September mock exam report...
-      ja: これ、9月の模試の成績表か...
+      ko: 이건 9월 모의고사 성적표네.
+      en: This is my September mock exam report.
+      ja: これ、9月の模試の成績表か.
     - speaker: hero
       expression: sad
       ko: 수능 전 마지막 모의고사였지만 성적이 좋지는 않았다.
@@ -153,7 +153,7 @@ scripts:
   frame-photo:
     - speaker: hero
       expression: smile
-      ko: 이건 유소년 야구대회에서 입상했을 때의 사진이야.
+      ko: 이건 유소년 야구대회에서 입상했을 때의 사진이다.
       en: This is from the youth baseball tournament, the day we placed.
       ja: これ、少年野球の大会で入賞したときの写真だ。
     - speaker: hero
