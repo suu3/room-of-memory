@@ -13,6 +13,18 @@ import { transposeVoice, VOICES, type Voice, type VoiceId, voiceDuration } from 
 
 let context: AudioContext | null = null;
 let master: GainNode | null = null;
+/**
+ * 효과음만 모이는 버스. 음악(music.ts)은 master로 바로 가고 효과음은 여기를 한 번 더 거친다.
+ * 보이스마다 악보에 적힌 게인은 서로 간의 크기 비율이고, 음악에 대한 전체 크기는 이 한 값이 정한다.
+ * 폰 스피커에서 효과음이 곡을 뚫고 튀어나와 전체를 약 -3dB 내렸다 (2026-09-27).
+ */
+let sfxBus: GainNode | null = null;
+const SFX_LEVEL = 0.7;
+/**
+ * 파일 효과음의 개별 크기. 합성 보이스는 악보에 게인이 있지만 파일은 원본 크기 그대로라
+ * 여기서 맞춘다. 뽁(open)은 창이 뜰 때마다 울리는데 원본이 유독 커서 한 번 더 깎는다.
+ */
+const SAMPLE_GAIN: Partial<Record<VoiceId, number>> = { open: 0.65 };
 let muted = false;
 let volume = 0.7;
 /** 같은 소리가 한 프레임에 여러 번 겹쳐 터지는 걸 막는다. */
@@ -30,6 +42,9 @@ function ensureContext(): AudioContext | null {
   master = context.createGain();
   master.gain.value = muted ? 0 : volume;
   master.connect(context.destination);
+  sfxBus = context.createGain();
+  sfxBus.gain.value = SFX_LEVEL;
+  sfxBus.connect(master);
   return context;
 }
 
@@ -122,20 +137,37 @@ export function registerSample(id: VoiceId, buffer: AudioBuffer) {
   samples.set(id, buffer);
 }
 
-function playSample(ctx: AudioContext, output: GainNode, buffer: AudioBuffer, rate: number) {
+function playSample(
+  ctx: AudioContext,
+  output: GainNode,
+  buffer: AudioBuffer,
+  rate: number,
+  level = 1,
+) {
   const source = ctx.createBufferSource();
   source.buffer = buffer;
   source.playbackRate.value = rate;
-  source.connect(output);
+  if (level === 1) {
+    source.connect(output);
+    source.start();
+    source.onended = () => source.disconnect();
+    return;
+  }
+  const gain = ctx.createGain();
+  gain.gain.value = level;
+  source.connect(gain).connect(output);
   source.start();
-  source.onended = () => source.disconnect();
+  source.onended = () => {
+    source.disconnect();
+    gain.disconnect();
+  };
 }
 
 /** 소리 하나 재생. 컨텍스트가 아직 없으면(제스처 전) 조용히 넘어간다. */
 export function playSound(id: VoiceId, options: PlayOptions = {}) {
   if (muted) return;
   const ctx = ensureContext();
-  if (!ctx || !master) return;
+  if (!ctx || !sfxBus) return;
   // 탭을 다녀오면 suspended로 돌아와 있을 수 있다.
   if (ctx.state === "suspended") void ctx.resume();
 
@@ -150,10 +182,10 @@ export function playSound(id: VoiceId, options: PlayOptions = {}) {
 
   const sample = samples.get(id);
   if (sample) {
-    playSample(ctx, master, sample, ratio);
+    playSample(ctx, sfxBus, sample, ratio, SAMPLE_GAIN[id]);
     return;
   }
-  scheduleVoice(ctx, master, transposeVoice(VOICES[id], ratio), now + 0.001);
+  scheduleVoice(ctx, sfxBus, transposeVoice(VOICES[id], ratio), now + 0.001);
 }
 
 /**
@@ -169,12 +201,12 @@ export function playSound(id: VoiceId, options: PlayOptions = {}) {
 export function playTone(frequency: number, { duration = 0.42, gain = 0.3 } = {}) {
   if (muted) return;
   const ctx = ensureContext();
-  if (!ctx || !master) return;
+  if (!ctx || !sfxBus) return;
   if (ctx.state === "suspended") void ctx.resume();
 
   scheduleVoice(
     ctx,
-    master,
+    sfxBus,
     { tones: [{ from: frequency, waveform: "triangle", delay: 0, duration, gain }] },
     ctx.currentTime + 0.001,
   );
@@ -218,7 +250,7 @@ function getBedBuffer(ctx: AudioContext): AudioBuffer {
 
 export function startNoiseBed({ gain: peak, highpass, lowpass }: NoiseBedOptions): NoiseBed | null {
   const ctx = ensureContext();
-  if (!ctx || !master) return null;
+  if (!ctx || !sfxBus) return null;
   if (ctx.state === "suspended") void ctx.resume();
 
   const source = ctx.createBufferSource();
@@ -234,7 +266,7 @@ export function startNoiseBed({ gain: peak, highpass, lowpass }: NoiseBedOptions
   // 0에서 시작해야 켜지는 순간 "퍽" 하고 튀지 않는다.
   gain.gain.value = 0;
 
-  source.connect(highpassFilter).connect(lowpassFilter).connect(gain).connect(master);
+  source.connect(highpassFilter).connect(lowpassFilter).connect(gain).connect(sfxBus);
   source.start();
 
   let stopped = false;
@@ -301,6 +333,7 @@ export function disposeAudio() {
   void context?.close();
   context = null;
   master = null;
+  sfxBus = null;
   noiseBuffer = null;
   bedBuffer = null;
   samples.clear();
