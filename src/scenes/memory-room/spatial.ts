@@ -30,6 +30,37 @@ function collides(x: number, z: number, radius: number, obstacles: readonly Aabb
   return false;
 }
 
+function distanceSquaredToBox(x: number, z: number, box: Aabb2): number {
+  const closestX = Math.max(box.minX, Math.min(x, box.maxX));
+  const closestZ = Math.max(box.minZ, Math.min(z, box.maxZ));
+  return (x - closestX) ** 2 + (z - closestZ) ** 2;
+}
+
+/**
+ * (fromX, fromZ)에서 (toX, toZ)로 한 걸음 가는 것을 막는가.
+ *
+ * 이미 파묻혀 있는 상자는 더 파고드는 쪽만 막는다. 콜라이더가 몸 위에 새로 생기는
+ * 경우가 있다: 방문을 열면 열린 문짝(OPEN_DOOR_LEAF_COLLIDERS)이 문 옆에 서 있던 몸과
+ * 겹친다. "도착점이 겹치면 막는다"만 보면 거기서 어느 쪽으로도 한 걸음에 다 빠져나갈 수
+ * 없어 제자리에 갇힌다 (1인칭 문 넘기에서 문 쪽으로 못 걷던 버그).
+ */
+function blocksStep(
+  fromX: number,
+  fromZ: number,
+  toX: number,
+  toZ: number,
+  radius: number,
+  obstacles: readonly Aabb2[],
+): boolean {
+  for (let index = 0; index < obstacles.length; index += 1) {
+    const box = obstacles[index];
+    if (!intersects(toX, toZ, radius, box)) continue;
+    if (!intersects(fromX, fromZ, radius, box)) return true;
+    if (distanceSquaredToBox(toX, toZ, box) < distanceSquaredToBox(fromX, fromZ, box)) return true;
+  }
+  return false;
+}
+
 export function normalizeMovement(input: Vec2): Vec2 {
   const length = Math.hypot(input.x, input.z);
   if (length <= 1) return input;
@@ -128,9 +159,11 @@ export function moveThroughZones(
   output?: Vec2,
 ): Vec2 {
   const nextX = slideAxis(origin.x + delta.x, origin.z, origin.x, radius, zones, "x");
-  const afterX = collides(nextX, origin.z, radius, obstacles) ? origin.x : nextX;
+  const afterX = blocksStep(origin.x, origin.z, nextX, origin.z, radius, obstacles)
+    ? origin.x
+    : nextX;
   const nextZ = slideAxis(origin.z + delta.z, afterX, origin.z, radius, zones, "z");
-  const afterZ = collides(afterX, nextZ, radius, obstacles) ? origin.z : nextZ;
+  const afterZ = blocksStep(afterX, origin.z, afterX, nextZ, radius, obstacles) ? origin.z : nextZ;
   const result = output ?? { x: 0, z: 0 };
   result.x = afterX;
   result.z = afterZ;
