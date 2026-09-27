@@ -1,8 +1,8 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { EffectComposer, N8AO, Outline, TiltShiftEffect } from "@react-three/postprocessing";
-import { GodRaysEffect, KernelSize, type OutlineEffect } from "postprocessing";
+import { EffectComposer, N8AO, Outline } from "@react-three/postprocessing";
+import { GodRaysEffect, KernelSize, type OutlineEffect, TiltShiftEffect } from "postprocessing";
 import {
   Component,
   createContext,
@@ -19,7 +19,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Color, type Group, MathUtils, type Mesh, type Object3D, type Uniform } from "three";
+import { Color, type Group, MathUtils, type Mesh, type Object3D } from "three";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { selectAct, selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
@@ -224,20 +224,29 @@ function GlowHoverPulse({
 }
 
 /**
- * 틸트 시프트 (docs/visual-experiments.md 6장). 화면 가운데 띠만 초점이고 위아래가
- * 흐려져 방이 디오라마로 읽힌다. 수치는 tilt-focus.ts. 인스턴스를 직접 들고 uniform만
- * 만지는 이유는 FilmLook과 같다: 래퍼는 프롭이 바뀌면 이펙트를 새로 만든다.
+ * 틸트 시프트 (docs/visual-experiments.md 6장). 화면 가운데 가로 띠만 초점이고 위아래가
+ * 흐려져 방이 디오라마로 읽힌다. 수치는 tilt-focus.ts. 인스턴스를 직접 들고 값만 미는
+ * 이유는 FilmLook과 같다: 래퍼는 프롭이 바뀌면 이펙트를 새로 만든다.
+ *
+ * postprocessing 본판의 TiltShiftEffect를 쓴다 (래퍼의 TiltShift2가 아니다). 본판은 반해상도
+ * Kawase 블러라 상하좌우로 고르게 뭉개지고, 띠를 offset·focusArea·feather로 받는다. 래퍼 판은
+ * 한 방향 스트릭 블러이고 `start`·`end`가 띠의 위아래가 아니라 초점선의 두 점이라, 띠의 위아래를
+ * 넣었더니 왼쪽 가장자리를 지나는 세로선이 되어 화면 전체가 흐려졌다 (tilt-focus.ts 주석).
  */
 function useTiltShiftEffect() {
   const effect = useMemo(() => {
     const initial = tiltFocus(1, false);
-    return new TiltShiftEffect({
-      blur: initial.blur,
-      taper: initial.taper,
-      start: initial.start,
-      end: initial.end,
-      samples: 8,
+    const tilt = new TiltShiftEffect({
+      offset: initial.offset,
+      rotation: 0,
+      focusArea: initial.focusArea,
+      feather: initial.feather,
+      kernelSize: KernelSize.MEDIUM,
+      // 아웃라인 outer와 같은 반해상도. 흐려질 그림이라 해상도가 아깝지 않다
+      resolutionScale: 0.5,
     });
+    tilt.blurPass.scale = initial.blurScale;
+    return tilt;
   }, []);
   useEffect(() => () => effect.dispose(), [effect]);
   return effect;
@@ -245,26 +254,27 @@ function useTiltShiftEffect() {
 
 /** 초점 띠가 막과 앉기를 따라간다. 띠가 내려앉는 데 1초쯤: 앉는 동작과 같은 호흡이다. */
 const TILT_LAMBDA = 3;
+/** 이보다 작은 변화는 setter를 부르지 않는다. setter마다 maskParams를 다시 계산한다. */
+const TILT_EPSILON = 1e-4;
 
 function TiltShiftDriver({ effect }: { effect: TiltShiftEffect }) {
   const act = useMemoryRoomStore(selectAct);
   const seated = useMemoryRoomStore((state) => state.seatedAt !== null);
-  const uniforms = effect.uniforms as Map<string, Uniform>;
+  /** damp로 굴리는 본값. 이펙트의 getter를 매 프레임 읽지 않으려고 따로 든다. */
+  const current = useRef(tiltFocus(1, false));
 
   useFrame((_, delta) => {
     const goal = tiltFocus(act, seated);
-    const blur = uniforms.get("blur");
-    const taper = uniforms.get("taper");
-    const start = uniforms.get("start");
-    const end = uniforms.get("end");
-    if (!blur || !taper || !start || !end) return;
-    blur.value = MathUtils.damp(blur.value as number, goal.blur, TILT_LAMBDA, delta);
-    taper.value = MathUtils.damp(taper.value as number, goal.taper, TILT_LAMBDA, delta);
-    // start·end는 래퍼가 배열 그대로 uniform에 넣는다 ([x, y]). 두 번째 성분이 화면 높이다
-    const startBand = start.value as [number, number];
-    const endBand = end.value as [number, number];
-    startBand[1] = MathUtils.damp(startBand[1], goal.start[1], TILT_LAMBDA, delta);
-    endBand[1] = MathUtils.damp(endBand[1], goal.end[1], TILT_LAMBDA, delta);
+    const value = current.current;
+    const offset = MathUtils.damp(value.offset, goal.offset, TILT_LAMBDA, delta);
+    const focusArea = MathUtils.damp(value.focusArea, goal.focusArea, TILT_LAMBDA, delta);
+    const feather = MathUtils.damp(value.feather, goal.feather, TILT_LAMBDA, delta);
+    const blurScale = MathUtils.damp(value.blurScale, goal.blurScale, TILT_LAMBDA, delta);
+    if (Math.abs(offset - value.offset) > TILT_EPSILON) effect.offset = offset;
+    if (Math.abs(focusArea - value.focusArea) > TILT_EPSILON) effect.focusArea = focusArea;
+    if (Math.abs(feather - value.feather) > TILT_EPSILON) effect.feather = feather;
+    if (Math.abs(blurScale - value.blurScale) > TILT_EPSILON) effect.blurPass.scale = blurScale;
+    current.current = { offset, focusArea, feather, blurScale };
   });
   return null;
 }
