@@ -22,8 +22,8 @@ import {
   selectMonologueHidden,
   selectMusicForeground,
   selectMusicPhase,
-  selectResultMusic,
   selectMusicPlaying,
+  selectResultMusic,
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
