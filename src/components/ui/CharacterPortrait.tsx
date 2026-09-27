@@ -6,23 +6,21 @@ import {
   PORTRAIT_BASE_EXPRESSION,
   PORTRAIT_OVERLAY_EXPRESSIONS,
   PORTRAIT_SOURCES,
-  portraitExpressionOf,
 } from "./character-portrait";
 
 const PORTRAIT_SIZES = "(min-width: 768px) 180px, (min-width: 640px) 140px, 104px";
 const PORTRAIT_IMAGE_CLASS = "object-contain object-bottom drop-shadow-lg";
 
 interface CharacterPortraitProps {
-  /** 대사가 지정한 쉬는 표정. */
+  /**
+   * 대사가 지정한 표정. 글자가 찍히는 동안에도 그대로 든다: 입 열린 프레임이
+   * 놀람 한 장뿐이라, 타이핑 중에 바꿔 끼우면 쓸쓸한 줄도 놀란 얼굴로 읽혔다.
+   */
   expression: CharacterExpression;
-  /** 타자 연출이 진행 중인지: true면 입이 열린다. */
-  talking: boolean;
 }
 
 /** 대사창 위에 서는 초상. 순수 장식이므로 클릭 대상이 아니다 (캐릭터 시트는 HUD 메뉴로). */
-export function CharacterPortrait({ expression, talking }: CharacterPortraitProps) {
-  const shown = portraitExpressionOf(expression, talking);
-
+export function CharacterPortrait({ expression }: CharacterPortraitProps) {
   return (
     <div
       aria-hidden
@@ -55,7 +53,7 @@ export function CharacterPortrait({ expression, talking }: CharacterPortraitProp
           draggable={false}
           // 겹쳐두고 opacity만 바꾼다. src를 갈아끼우면 프레임마다 깜빡인다
           className={`${PORTRAIT_IMAGE_CLASS} transition-opacity duration-200 ${
-            candidate === shown ? "opacity-100" : "opacity-0"
+            candidate === expression ? "opacity-100" : "opacity-0"
           }`}
         />
       ))}

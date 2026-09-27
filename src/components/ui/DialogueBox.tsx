@@ -212,7 +212,7 @@ export function DialogueBox() {
             초상까지 세우면 같은 화면에 도해가 둘이 된다.
           */}
           {!playbackLine && hasPortrait(scriptLine.speaker) && (
-            <CharacterPortrait expression={scriptLine.expression ?? "neutral"} talking={!done} />
+            <CharacterPortrait expression={scriptLine.expression ?? "neutral"} />
           )}
           {/*
             공간에 깔리는 어두운 자막 패널 (.dialogue-panel). 사방 테두리·긴 가로선·큰 라운드는

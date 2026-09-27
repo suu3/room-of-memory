@@ -6,7 +6,7 @@
 # 한 줄의 형태:
 #   speaker     화자 id. 이름은 i18n의 characters.<id>.name (memory-room.base.json).
 #               hero=한도해, broadcast=긴급 재난 방송, signal=???, narrator=기록, dad, mom
-#   expression  초상 표정. neutral(기본) | smile | surprised.
+#   expression  초상 표정. neutral(기본) | smile | surprised | sad(가라앉음) | puzzled(의아함).
 #               hero가 아닌 화자는 초상이 없어서 무시된다.
 #   ko/en/ja    본문. ko는 필수. en/ja가 비어 있으면 "번역 TODO"로 세어지고 ko가 대신 나간다.
 #               마크업·이스케이프 금지.
@@ -28,6 +28,7 @@ scripts:
     - speaker: hero
       ko: 9월 모의고사 성적표. 수능 전 마지막 모의고사였다.
     - speaker: hero
+      expression: sad
       ko: 성적이 좋지는 않았다.
     - speaker: hero
       ko: 성적표를 내밀었던 날 저녁.
@@ -36,6 +37,7 @@ scripts:
     - speaker: dad
       ko: 공부가 꼭 인생의 답은 아냐.
     - speaker: hero
+      expression: puzzled
       ko: …위로 맞죠?
     - speaker: hero
       ko: 야구 대회가 끝나고 나니 남은 건 수능뿐이었다.
@@ -67,8 +69,10 @@ scripts:
     - speaker: hero
       ko: 풀카운트. 방망이에 맞은 공이 뒤로 높이 떴다.
     - speaker: hero
+      expression: sad
       ko: 그 녀석이 마스크를 벗어 던지고 달려가 잡았다. 그걸로 끝.
     - speaker: hero
+      expression: puzzled
       ko: 경기 끝나고 그 녀석이 뭐라고 했는데, "다음엔…"까지만 들렸다.
 
   # 캐치볼을 마친 뒤: 벽은 공을 돌려주기만 한다. 받아줄 사람은 윤호였다 (생사·행방은 말하지 않는다)
@@ -76,10 +80,12 @@ scripts:
     - speaker: hero
       ko: 벽에 던지면 돌아온다. 그게 전부다.
     - speaker: hero
+      expression: sad
       ko: 윤호 미트에 꽂힐 때 나던 그 소리, 좋았는데.
       en: I liked the sound it made hitting Yunho's mitt.
       ja: ユノのミットに収まるときのあの音、好きだったのに。
     - speaker: hero
+      expression: sad
       ko: 받아줄 사람이 없다는 걸, 자꾸 잊는다.
 
   console-intro:
@@ -98,6 +104,7 @@ scripts:
       expression: smile
       ko: 이겼다.
     - speaker: hero
+      expression: sad
       ko: …나 혼자서 이기는 게 무슨 의미가 있지?
 
   # 2차 (곁가지)
@@ -121,6 +128,7 @@ scripts:
       en: Yunho's in it too. He's been catching my throws since back then.
       ja: 隣にユノもいる。この頃から、俺の球は全部あいつが受けてた。
     - speaker: hero
+      expression: puzzled
       ko: …두 분 얼굴이 흐릿하네.
 
   # 단톡이 멈춘 날짜를 처음으로 못박는다. 엄마 대화방은 1페이즈에서 말하지 않는다 (폰 2차의 몫).
@@ -135,11 +143,12 @@ scripts:
 
   window-silence:
     - speaker: hero
-      expression: surprised
+      expression: sad
       ko: 처음엔 사이렌이 밤새 울렸는데.
       en: The first few days, the sirens went all night.
       ja: 最初のころは、サイレンが夜通し鳴ってたのに。
     - speaker: hero
+      expression: sad
       ko: 지금은… 아무 소리도 안 나.
       en: Now… there's no sound at all.
       ja: 今は…何の音もしない。
@@ -154,10 +163,12 @@ scripts:
   # 고립이 얼마나 길었는지. 숫자는 일부러 안 박는다 (세다 만 것까지가 정서)
   calendar-tally:
     - speaker: hero
+      expression: puzzled
       ko: 正자가… 몇 개더라.
       en: How many tally marks is that now…
       ja: 正の字…いくつになったっけ。
     - speaker: hero
+      expression: sad
       ko: 세다 말았다. 세면 더 길게 느껴져서.
       en: I stopped counting. Counting makes it feel longer.
       ja: 数えるのはやめた。数えると、もっと長く感じるから。
@@ -170,6 +181,7 @@ scripts:
       en: The radio is the only thing left.
       ja: 残ってるのはラジオだけか。
     - speaker: hero
+      expression: sad
       ko: …어차피 노이즈밖에 안 잡히겠지만.
       en: …It only ever picks up noise anyway.
       ja: …どうせノイズしか入らないけど。
@@ -188,6 +200,7 @@ scripts:
     - speaker: broadcast
       ko: 부산까지 감염 사태가 번졌습니다. …반복합니다. 긴급 재난 방송입니다.
     - speaker: hero
+      expression: sad
       ko: …맞아. 그날이었다.
 
   # ─────────────────────────────────────────────── 2페이즈 · 거실
@@ -212,10 +225,12 @@ scripts:
       en: If I'm going out, I should take something. Start with the fridge.
       ja: 出るなら何か持っていかないと。まずは冷蔵庫から。
     - speaker: hero
+      expression: puzzled
       ko: 한 달을 먹었는데 아직 반이 남았어.
       en: I've been eating for a month and it's still half full.
       ja: ひと月食べてきたのに、まだ半分残ってる。
     - speaker: hero
+      expression: puzzled
       ko: 2박 3일 다녀온다면서, 왜 이만큼을 채워놨을까.
       en: Two nights, they said. So why stock this much?
       ja: 二泊三日って言ってたのに、なんでこんなに詰めていったんだ。
@@ -224,13 +239,16 @@ scripts:
     - speaker: hero
       ko: 신발장을 열어 본 지 한참 됐네.
     - speaker: hero
+      expression: puzzled
       ko: 아빠 등산화가 그대로 있어.
     - speaker: dad
       ko: 이번 여행은 가볍게 근교만 구경하다 올 거야.
     # 캐리어 개수 추리의 단서 하나 (v4.1 3장). 옷장 옷걸이는 이 한 줄로 합쳤다
     - speaker: hero
+      expression: puzzled
       ko: 가볍다고 했는데, 분명 캐리어를 두 개 들고 가셨지.
     - speaker: hero
+      expression: puzzled
       ko: …캐리어 자리가 비어 있어.
 
   cards-intro:
@@ -244,6 +262,7 @@ scripts:
     - speaker: hero
       ko: …엄마 글씨다.
     - speaker: hero
+      expression: puzzled
       ko: 아래칸. 냉장고 아래칸 말인가.
 
   # 컴퓨터 2차: 로그인 → 저장된 메일 + 캐시 뉴스. 켜지기도 전에 "비밀번호"를 말하지 않는다
@@ -262,6 +281,7 @@ scripts:
     - speaker: hero
       ko: 아빠 메일. 여행 간다고 신났네.
     - speaker: hero
+      expression: puzzled
       ko: 뉴스는… 연구시설 근처에서 처음 났다고.
     - speaker: hero
       ko: 첫 보도가 오후 3시.
@@ -269,20 +289,25 @@ scripts:
   # 폰 2차: 1막 내내 미뤄 둔 엄마 대화방. 그날 이미 읽은, 엄마의 마지막 문자
   phone-mom-intro:
     - speaker: hero
+      expression: sad
       ko: 엄마 대화방. 마지막 문자는 그날 아침 거다.
     - speaker: hero
+      expression: sad
       ko: …
 
   # 엄마 문자를 읽은 뒤. 시각 비교를 한 번 짚는다
   phone-mom-read:
     - speaker: hero
+      expression: puzzled
       ko: …7시 12분? 뉴스는 오후였는데.
     - speaker: hero
+      expression: sad
       ko: …그게 마지막이었어.
 
   # 곁가지 (2차)
   ball-echo:
     - speaker: hero
+      expression: sad
       ko: ...던지는 감각을 잊고 있었어.
       en: ""
       ja: ""
@@ -308,15 +333,18 @@ scripts:
   # 케이스와 앰플을 돌려 본 뒤 흐른다. 빈 슬롯, 라벨의 로고 조각 → 방 컴퓨터로
   ampoule-found:
     - speaker: hero
+      expression: puzzled
       ko: 앰플이 하나. …옆 칸은 비어 있어.
     - speaker: hero
       ko: 라벨에 로고가 반쯤 남았네.
     - speaker: hero
+      expression: puzzled
       ko: 이 로고… 어디서 봤는데.
 
   # 컴퓨터 3차 진입: 로고를 쫓아 다시 켠다
   computer-logo-intro:
     - speaker: hero
+      expression: puzzled
       ko: 그 로고. 아빠 메일에서 본 것 같은데.
 
   # 로고를 맞춘 뒤: 아빠 메일 속 하부장 힌트
@@ -326,6 +354,7 @@ scripts:
     - speaker: dad
       ko: 선반 정리 좀 해라.
     - speaker: hero
+      expression: puzzled
       ko: …선반?
 
   # ─────────────────────────────────────────────── 4페이즈 · 안방
@@ -342,8 +371,10 @@ scripts:
     - speaker: hero
       ko: 두 분 다 연구원이었어. 라온생명과학연구소.
     - speaker: hero
+      expression: surprised
       ko: 여행이 아니라 연구소에 불려 간 거였어.
     - speaker: hero
+      expression: sad
       ko: RX-11. 치료제 후보. …두 개 만들었는데, 하나는 비어 있었어.
 
   # 출입증을 집어 든다: 3D로 기울여 보는 판(id-card-flip) 앞
@@ -356,4 +387,5 @@ scripts:
     - speaker: hero
       ko: 라온생명과학연구소. 아빠 이름, 엄마 이름.
     - speaker: hero
+      expression: surprised
       ko: 빛에 비추니 사진 위에 로고가… 앰플 라벨의 그 로고다.

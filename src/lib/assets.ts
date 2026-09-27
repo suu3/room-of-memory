@@ -174,6 +174,8 @@ export const ASSETS = {
     characterHeroNeutral: "/assets/images/character-hero-neutral.webp?v=3",
     characterHeroSmile: "/assets/images/character-hero-smile.webp?v=3",
     characterHeroSurprised: "/assets/images/character-hero-surprised.webp?v=3",
+    characterHeroSad: "/assets/images/character-hero-sad.webp?v=1",
+    characterHeroPuzzled: "/assets/images/character-hero-puzzled.webp?v=1",
     characterHeroSheet: "/assets/images/character-hero-sheet.webp?v=2",
   },
   /**

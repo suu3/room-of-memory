@@ -274,11 +274,11 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "report-card-intro",
     lines: [
       { speaker: "hero", textKey: "scripts.report-card-intro.line1" },
-      { speaker: "hero", textKey: "scripts.report-card-intro.line2" },
+      { speaker: "hero", textKey: "scripts.report-card-intro.line2", expression: "sad" },
       { speaker: "hero", textKey: "scripts.report-card-intro.line3" },
       { speaker: "mom", textKey: "scripts.report-card-intro.line4" },
       { speaker: "dad", textKey: "scripts.report-card-intro.line5" },
-      { speaker: "hero", textKey: "scripts.report-card-intro.line6" },
+      { speaker: "hero", textKey: "scripts.report-card-intro.line6", expression: "puzzled" },
       { speaker: "hero", textKey: "scripts.report-card-intro.line7" },
       { speaker: "hero", textKey: "scripts.report-card-intro.line8" },
     ],
@@ -292,16 +292,16 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.ball-intro.line4" },
       { speaker: "hero", textKey: "scripts.ball-intro.line5" },
       { speaker: "hero", textKey: "scripts.ball-intro.line6" },
-      { speaker: "hero", textKey: "scripts.ball-intro.line7" },
-      { speaker: "hero", textKey: "scripts.ball-intro.line8" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line7", expression: "sad" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line8", expression: "puzzled" },
     ],
   },
   "ball-alone": {
     id: "ball-alone",
     lines: [
       { speaker: "hero", textKey: "scripts.ball-alone.line1" },
-      { speaker: "hero", textKey: "scripts.ball-alone.line2" },
-      { speaker: "hero", textKey: "scripts.ball-alone.line3" },
+      { speaker: "hero", textKey: "scripts.ball-alone.line2", expression: "sad" },
+      { speaker: "hero", textKey: "scripts.ball-alone.line3", expression: "sad" },
     ],
   },
   "console-intro": {
@@ -315,7 +315,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "console-alone",
     lines: [
       { speaker: "hero", textKey: "scripts.console-alone.line1", expression: "smile" },
-      { speaker: "hero", textKey: "scripts.console-alone.line2" },
+      { speaker: "hero", textKey: "scripts.console-alone.line2", expression: "sad" },
     ],
   },
   "console-echo": {
@@ -327,7 +327,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.frame-photo.line1", expression: "smile" },
       { speaker: "hero", textKey: "scripts.frame-photo.line2", expression: "smile" },
-      { speaker: "hero", textKey: "scripts.frame-photo.line3" },
+      { speaker: "hero", textKey: "scripts.frame-photo.line3", expression: "puzzled" },
     ],
   },
   "phone-stopped": {
@@ -337,8 +337,8 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   "window-silence": {
     id: "window-silence",
     lines: [
-      { speaker: "hero", textKey: "scripts.window-silence.line1", expression: "surprised" },
-      { speaker: "hero", textKey: "scripts.window-silence.line2" },
+      { speaker: "hero", textKey: "scripts.window-silence.line1", expression: "sad" },
+      { speaker: "hero", textKey: "scripts.window-silence.line2", expression: "sad" },
     ],
   },
   "calendar-intro": {
@@ -348,15 +348,15 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   "calendar-tally": {
     id: "calendar-tally",
     lines: [
-      { speaker: "hero", textKey: "scripts.calendar-tally.line1" },
-      { speaker: "hero", textKey: "scripts.calendar-tally.line2" },
+      { speaker: "hero", textKey: "scripts.calendar-tally.line1", expression: "puzzled" },
+      { speaker: "hero", textKey: "scripts.calendar-tally.line2", expression: "sad" },
     ],
   },
   "radio-intro": {
     id: "radio-intro",
     lines: [
       { speaker: "hero", textKey: "scripts.radio-intro.line1" },
-      { speaker: "hero", textKey: "scripts.radio-intro.line2" },
+      { speaker: "hero", textKey: "scripts.radio-intro.line2", expression: "sad" },
     ],
   },
   "radio-broadcast": {
@@ -365,7 +365,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "broadcast", textKey: "scripts.radio-broadcast.line1" },
       { speaker: "broadcast", textKey: "scripts.radio-broadcast.line2" },
       { speaker: "broadcast", textKey: "scripts.radio-broadcast.line3" },
-      { speaker: "hero", textKey: "scripts.radio-broadcast.line4" },
+      { speaker: "hero", textKey: "scripts.radio-broadcast.line4", expression: "sad" },
     ],
   },
   "duffel-pack": {
@@ -381,18 +381,18 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "fridge-open",
     lines: [
       { speaker: "hero", textKey: "scripts.fridge-open.line1" },
-      { speaker: "hero", textKey: "scripts.fridge-open.line2" },
-      { speaker: "hero", textKey: "scripts.fridge-open.line3" },
+      { speaker: "hero", textKey: "scripts.fridge-open.line2", expression: "puzzled" },
+      { speaker: "hero", textKey: "scripts.fridge-open.line3", expression: "puzzled" },
     ],
   },
   "shoes-open": {
     id: "shoes-open",
     lines: [
       { speaker: "hero", textKey: "scripts.shoes-open.line1" },
-      { speaker: "hero", textKey: "scripts.shoes-open.line2" },
+      { speaker: "hero", textKey: "scripts.shoes-open.line2", expression: "puzzled" },
       { speaker: "dad", textKey: "scripts.shoes-open.line3" },
-      { speaker: "hero", textKey: "scripts.shoes-open.line4" },
-      { speaker: "hero", textKey: "scripts.shoes-open.line5" },
+      { speaker: "hero", textKey: "scripts.shoes-open.line4", expression: "puzzled" },
+      { speaker: "hero", textKey: "scripts.shoes-open.line5", expression: "puzzled" },
     ],
   },
   "cards-intro": {
@@ -406,7 +406,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "cards-memo",
     lines: [
       { speaker: "hero", textKey: "scripts.cards-memo.line1" },
-      { speaker: "hero", textKey: "scripts.cards-memo.line2" },
+      { speaker: "hero", textKey: "scripts.cards-memo.line2", expression: "puzzled" },
     ],
   },
   "computer-power-on": {
@@ -421,28 +421,28 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "computer-archive",
     lines: [
       { speaker: "hero", textKey: "scripts.computer-archive.line1" },
-      { speaker: "hero", textKey: "scripts.computer-archive.line2" },
+      { speaker: "hero", textKey: "scripts.computer-archive.line2", expression: "puzzled" },
       { speaker: "hero", textKey: "scripts.computer-archive.line3" },
     ],
   },
   "phone-mom-intro": {
     id: "phone-mom-intro",
     lines: [
-      { speaker: "hero", textKey: "scripts.phone-mom-intro.line1" },
-      { speaker: "hero", textKey: "scripts.phone-mom-intro.line2" },
+      { speaker: "hero", textKey: "scripts.phone-mom-intro.line1", expression: "sad" },
+      { speaker: "hero", textKey: "scripts.phone-mom-intro.line2", expression: "sad" },
     ],
   },
   "phone-mom-read": {
     id: "phone-mom-read",
     lines: [
-      { speaker: "hero", textKey: "scripts.phone-mom-read.line1" },
-      { speaker: "hero", textKey: "scripts.phone-mom-read.line2" },
+      { speaker: "hero", textKey: "scripts.phone-mom-read.line1", expression: "puzzled" },
+      { speaker: "hero", textKey: "scripts.phone-mom-read.line2", expression: "sad" },
     ],
   },
   "ball-echo": {
     id: "ball-echo",
     lines: [
-      { speaker: "hero", textKey: "scripts.ball-echo.line1" },
+      { speaker: "hero", textKey: "scripts.ball-echo.line1", expression: "sad" },
       { speaker: "hero", textKey: "scripts.ball-echo.line2", expression: "smile" },
     ],
   },
@@ -457,21 +457,23 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   "ampoule-found": {
     id: "ampoule-found",
     lines: [
-      { speaker: "hero", textKey: "scripts.ampoule-found.line1" },
+      { speaker: "hero", textKey: "scripts.ampoule-found.line1", expression: "puzzled" },
       { speaker: "hero", textKey: "scripts.ampoule-found.line2" },
-      { speaker: "hero", textKey: "scripts.ampoule-found.line3" },
+      { speaker: "hero", textKey: "scripts.ampoule-found.line3", expression: "puzzled" },
     ],
   },
   "computer-logo-intro": {
     id: "computer-logo-intro",
-    lines: [{ speaker: "hero", textKey: "scripts.computer-logo-intro.line1" }],
+    lines: [
+      { speaker: "hero", textKey: "scripts.computer-logo-intro.line1", expression: "puzzled" },
+    ],
   },
   "computer-logo-found": {
     id: "computer-logo-found",
     lines: [
       { speaker: "hero", textKey: "scripts.computer-logo-found.line1" },
       { speaker: "dad", textKey: "scripts.computer-logo-found.line2" },
-      { speaker: "hero", textKey: "scripts.computer-logo-found.line3" },
+      { speaker: "hero", textKey: "scripts.computer-logo-found.line3", expression: "puzzled" },
     ],
   },
   "research-note-intro": {
@@ -485,8 +487,8 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "research-note-read",
     lines: [
       { speaker: "hero", textKey: "scripts.research-note-read.line1" },
-      { speaker: "hero", textKey: "scripts.research-note-read.line2" },
-      { speaker: "hero", textKey: "scripts.research-note-read.line3" },
+      { speaker: "hero", textKey: "scripts.research-note-read.line2", expression: "surprised" },
+      { speaker: "hero", textKey: "scripts.research-note-read.line3", expression: "sad" },
     ],
   },
   "id-card-look": {
@@ -497,7 +499,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "id-card-found",
     lines: [
       { speaker: "hero", textKey: "scripts.id-card-found.line1" },
-      { speaker: "hero", textKey: "scripts.id-card-found.line2" },
+      { speaker: "hero", textKey: "scripts.id-card-found.line2", expression: "surprised" },
     ],
   },
 };
