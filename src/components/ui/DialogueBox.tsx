@@ -204,7 +204,7 @@ export function DialogueBox() {
         사이에 끼어 잘 안 보였다. 넓은 화면은 그런 막대가 없어 전처럼 둔다.
         위쪽 여백(pt)은 초상의 자리다: 창 위로 온전히 올라와야 한다.
       */}
-      <div className="pointer-events-none absolute bottom-[calc(2.5rem+env(safe-area-inset-bottom))] left-1/2 w-full max-w-[clamp(840px,66vw,1040px)] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-[max(2rem,env(safe-area-inset-bottom))] lg:bottom-[max(2.5rem,env(safe-area-inset-bottom))]">
+      <div className="pointer-events-none absolute bottom-[calc(3.5rem+env(safe-area-inset-bottom))] left-1/2 w-full max-w-[clamp(840px,66vw,1040px)] -translate-x-1/2 animate-fade-rise px-4 sm:bottom-[max(2rem,env(safe-area-inset-bottom))] lg:bottom-[max(2.5rem,env(safe-area-inset-bottom))]">
         <div className="relative">
           {/*
             얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다.
