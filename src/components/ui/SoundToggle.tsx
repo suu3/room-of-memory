@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { playHoverSound } from "./hover-sfx";
+import { KEYCAP_CLASS } from "./Keycap";
 import { FOCUS_RING, HUD_ICON_BUTTON } from "./ui-classes";
 
 /**
@@ -16,7 +17,7 @@ import { FOCUS_RING, HUD_ICON_BUTTON } from "./ui-classes";
 export type SoundToggleTone = "hud" | "title";
 
 /** 이어하기 아래 진행 줄과 같은 옷(작은 본문 글자 · ash). 메뉴 항목과 무게가 겹치지 않는다 */
-const TITLE_BUTTON = `inline-flex cursor-pointer items-center gap-1.5 rounded-sm text-xs leading-normal text-ash transition-colors duration-150 hover:text-ivory ${FOCUS_RING}`;
+const TITLE_BUTTON = `group inline-flex cursor-pointer items-center gap-1.5 rounded-sm text-xs leading-normal text-ash transition-colors duration-150 hover:text-ivory ${FOCUS_RING}`;
 
 /**
  * 소리 on/off. HUD 메뉴 안에 있던 걸 밖으로 꺼냈다.
@@ -57,16 +58,20 @@ export function SoundToggle({ tone = "hud" }: { tone?: SoundToggleTone }) {
         onClick={toggle}
         className={TITLE_BUTTON}
       >
-        {soundMuted ? (
-          <SpeakerSimpleSlash size="1.1em" weight="bold" aria-hidden />
-        ) : (
-          <SpeakerSimpleHigh size="1.1em" weight="bold" aria-hidden />
-        )}
-        <span className="break-ko">
+        {/* 상태는 키캡으로: 조작 줄의 다른 캡(클릭·WASD·E)과 같은 "누르는 것"으로 읽힌다 */}
+        <span
+          className={`${KEYCAP_CLASS} gap-1 transition-colors duration-150 group-hover:border-memory ${
+            soundMuted ? "text-ash" : ""
+          }`}
+        >
+          {soundMuted ? (
+            <SpeakerSimpleSlash size="1.1em" weight="bold" aria-hidden />
+          ) : (
+            <SpeakerSimpleHigh size="1.1em" weight="bold" aria-hidden />
+          )}
           {t(soundMuted ? "titleScreen.soundStateOff" : "titleScreen.soundStateOn")}
-          {" · "}
-          {t("titleScreen.soundHint")}
         </span>
+        <span className="break-ko">{t("titleScreen.soundHint")}</span>
       </button>
     );
   }

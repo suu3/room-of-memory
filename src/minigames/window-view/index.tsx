@@ -3,8 +3,10 @@
 import { Check } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { KeyHint } from "@/components/ui/Keycap";
 import { useControlHint } from "@/i18n/control-hint";
 import { ASSETS } from "@/lib/assets";
+import { blurBackdrop } from "@/lib/image-blur";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { useSkipEligible } from "../shell";
@@ -140,6 +142,7 @@ export function WindowViewMinigame({ onComplete }: MinigameProps) {
             width={FRAME.width}
             height={FRAME.height}
             draggable={false}
+            style={blurBackdrop(ASSETS.images.mgWindowViewOutside)}
             className="block h-auto w-full select-none"
           />
           {/* 밤의 색: 노을 그림을 방의 시간대로 끌어내린다 */}
@@ -215,7 +218,9 @@ export function WindowViewMinigame({ onComplete }: MinigameProps) {
       </p>
 
       <p className="max-w-[86vw] break-ko text-pretty text-center text-xs tracking-widest text-bone/55">
-        {allFound ? t("minigame.windowView.help") : hint("minigame.windowView.lookHelp")}
+        <KeyHint
+          text={allFound ? t("minigame.windowView.help") : hint("minigame.windowView.lookHelp")}
+        />
       </p>
 
       {canClose && (

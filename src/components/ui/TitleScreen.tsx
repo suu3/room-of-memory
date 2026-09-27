@@ -15,6 +15,7 @@ import { playSound, startCueMusic, stopCueMusic } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { HudLogLine, HudSignalLight } from "./HudLogLine";
 import { playHoverSound } from "./hover-sfx";
+import { KeyHint } from "./Keycap";
 import { LanguageToggle } from "./LanguageToggle";
 import { RisingDust } from "./RisingDust";
 import { SoundToggle } from "./SoundToggle";
@@ -519,7 +520,7 @@ export function TitleScreen() {
                 <div key={control.key} className="flex items-baseline gap-2">
                   <dt className={`break-ko ${CONTROL_LABEL_CLASS}`}>{control.label}</dt>
                   <dd className="break-ko font-pixel text-sm leading-normal text-ivory/85">
-                    {control.value}
+                    <KeyHint text={control.value} />
                   </dd>
                 </div>
               ))}

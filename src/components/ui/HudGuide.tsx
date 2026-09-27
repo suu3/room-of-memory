@@ -13,6 +13,7 @@ import {
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
+import { KeyHint } from "./Keycap";
 
 /**
  * 새 목표가 화면 가운데에 머무는 시간(ms). 읽고 넘길 만큼만. 그 뒤 왼쪽 위 진행 바
@@ -118,7 +119,11 @@ export function HudGuideBanner({ hidden = false }: { hidden?: boolean }) {
         <Icon size="1.15em" weight="bold" className="shrink-0 text-memory" aria-hidden />
         <span className="break-ko">{text}</span>
       </p>
-      {control && <p className="break-ko text-xs text-fog">{control}</p>}
+      {control && (
+        <p className="break-ko text-xs text-fog">
+          <KeyHint text={control} />
+        </p>
+      )}
     </div>
   );
 }

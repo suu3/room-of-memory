@@ -11,6 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { KeyHint } from "@/components/ui/Keycap";
 import { COMPUTER_PASSCODE, COMPUTER_PASSCODE_LENGTH } from "@/data/room-clues";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
@@ -402,7 +403,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
           {screen === "lock" ? (
             <>
               <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
-                {hint("minigame.computerBrowse.lockHelp")}
+                <KeyHint text={hint("minigame.computerBrowse.lockHelp")} />
               </p>
               {skipVisible && (
                 <button

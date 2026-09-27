@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Keycap, KeyHint } from "@/components/ui/Keycap";
 import { BUTTON_QUIET, PANEL_FRAME } from "@/components/ui/ui-classes";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import type { MinigameResult } from "@/types/minigame";
@@ -87,19 +88,19 @@ export function splitHelpKeys(help: string): { text: string; keys: string[] } {
   return { text: help, keys: [] };
 }
 
-/** 조작 안내 한 줄: 끝의 키 이름만 키캡으로 떼어 낸다. 시작 카드와 프레임이 같이 쓴다. */
+/**
+ * 조작 안내 한 줄: 끝의 키 이름은 떼어 뒤에 세우고, 문장 속 키는 제자리에서 키캡으로
+ * 바꾼다 ("클릭 · Space · →"). 시작 카드와 프레임이 같이 쓴다.
+ */
 export function MinigameHelp({ help, className }: { help: string; className?: string }) {
   const { text, keys } = splitHelpKeys(help);
   return (
     <p className={className}>
-      {text}
+      <KeyHint text={text} />
       {keys.map((key) => (
-        <kbd
-          key={key}
-          className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-xs border border-line bg-night/50 px-1.5 align-middle font-sans text-[11px] font-medium leading-none text-ivory"
-        >
+        <Keycap key={key} className="ml-2">
           {key}
-        </kbd>
+        </Keycap>
       ))}
     </p>
   );
