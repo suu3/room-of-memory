@@ -23,26 +23,26 @@ stages:
   p0-dark:
     monologue:
       ko: …또 잠들었었나. 어둡다.
-      en: …Did I doze off again. It's dark.
+      en: …Did I fall asleep again? It's dark.
       ja: …また寝てたのか。暗い。
 
   p1-0:
     monologue:
       ko: 뭐부터 할까.
-      en: What should I start with.
+      en: Where should I start?
       ja: 何からやろうか。
 
   p1-mid:
     monologue:
-      ko: 방이 좀 어둡네. …아니다, 원래 이랬나.
-      en: The room's a little dark. …No, it's always been like this, hasn't it.
-      ja: 部屋がちょっと暗いな。…いや、元からこうだったか。
+      ko: 방이 어두워진 것 같다.
+      en: "The room seems to have gotten darker."
+      ja: "部屋が暗くなった気がする。"
 
   p1-late:
     monologue:
-      ko: 하나씩 보다 보니까 자꾸 그날이… 됐어, 그만.
-      en: Going through them one by one keeps bringing that day back… Enough. Stop.
-      ja: 一つずつ見てると、あの日のことが…いい、やめよう。
+      ko: 하나씩 보다 보니 자꾸 그날이 떠오른다.
+      en: Going through things one by one, that day keeps coming back to me.
+      ja: 一つずつ見ていると、あの日のことが何度も浮かんでくる。
 
   # 과거편 컷씬이 끝나고 3D 방으로 돌아온 순간. "그날 이후" 두 줄은 컷씬의 마지막 검정 컷
   # (cutscenes.yaml radio-blackout 8컷)이 대사창으로 말한다. 여기는 그 뒤, 라디오가 빨갛게
@@ -50,23 +50,35 @@ stages:
   turn-bottom:
     monologue:
       ko: …그럴 리가 없는데. 라디오에 다른 신호가 잡힌다.
+      en: …That can't be right. The radio's picking up a different signal.
+      ja: …そんなはずないのに。ラジオが別の信号を拾ってる。
 
   turn-signal:
     monologue:
-      ko: 은강고 체육관. …문 쪽이 밝아.
+      ko: 은강고 체육관이라고 했지.
+      en: The Eungang High gym, they said.
+      ja: 銀江高の体育館って言ってたよな。
 
   p2-enter:
     monologue:
       ko: 나흘 밤 안에 가야 해.
+      en: I have to get there within four nights.
+      ja: 四晩のうちに行かないと。
 
   p3-enter:
     monologue:
       ko: 엄마가 숨긴 게 더 있어.
+      en: Mom was hiding something else.
+      ja: 母さんが隠したものが、まだある。
 
   p4-enter:
     monologue:
-      ko: 안방. 그날 이후로 처음 들어온다.
+      ko: 부모님이 쓰시던 안방. 그날 이후로 처음 들어온다.
+      en: Mom and Dad's bedroom. First time I've been in here since that day.
+      ja: 父さんと母さんが使っていた寝室。あの日以来、初めて入る。
 
   resolve:
     monologue:
       ko: 가방, 앰플. 배트는 현관에 있다.
+      en: Bag, ampoule. The bat's by the front door.
+      ja: バッグ、アンプル。バットは玄関にある。

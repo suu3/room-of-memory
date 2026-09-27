@@ -26,23 +26,39 @@ scripts:
   # 부모님은 평소처럼, 도해는 짧게. 끝 한 줄만 어긋난다
   report-card-intro:
     - speaker: hero
-      ko: 9월 모의고사 성적표. 수능 전 마지막 모의고사였다.
+      ko: 이건 9월 모의고사 성적표네...
+      en: This is my September mock exam report...
+      ja: これ、9月の模試の成績表か...
     - speaker: hero
       expression: sad
-      ko: 성적이 좋지는 않았다.
+      ko: 수능 전 마지막 모의고사였지만 성적이 좋지는 않았다.
+      en: It was the last mock exam before the real one, and my scores weren't great.
+      ja: 本番前の最後の模試だったのに、成績は良くなかった。
     - speaker: hero
       ko: 성적표를 내밀었던 날 저녁.
+      en: The evening I showed it to them.
+      ja: 成績表を見せた日の夜。
     - speaker: mom
       ko: 수학은 과외 한번 알아볼까~?
+      en: Maybe we should look into a math tutor~?
+      ja: 数学は家庭教師でも探してみる~?
     - speaker: dad
       ko: 공부가 꼭 인생의 답은 아냐.
+      en: Studying isn't the only answer in life, you know.
+      ja: 勉強だけが人生の答えじゃないぞ。
     - speaker: hero
       expression: puzzled
       ko: …위로 맞죠?
+      en: …That's supposed to be comforting, right?
+      ja: …それ、慰めてるんだよね?
     - speaker: hero
       ko: 야구 대회가 끝나고 나니 남은 건 수능뿐이었다.
+      en: Once the baseball tournament was over, all that was left was the entrance exam.
+      ja: 野球の大会が終わったら、残ってたのは受験だけだった。
     - speaker: hero
-      ko: 수능까지 한 달 남았었던가.
+      ko: 원래대로라면 수능까지 한달..이었겠지.
+      en: If things were normal, the exam would be.. a month away.
+      ja: 本当なら、試験まであと一か月..だったんだろうな。
 
   # ─────────────────────────────────────────────── 1페이즈 · 강도 1
   #
@@ -54,47 +70,59 @@ scripts:
   ball-intro:
     - speaker: hero
       ko: 야구부 3년. 마지막 여름이었다.
+      en: Three years on the baseball team. It was my last summer.
+      ja: 野球部で三年。最後の夏だった。
     - speaker: hero
       ko: 전국대회 8강, 은강고전. 9회 말 투아웃, 마지막 타석은 나였다.
+      en: Nationals quarterfinal, against Eungang High. Bottom of the ninth, two outs, and I was the last batter.
+      ja: 全国大会ベスト8、銀江高戦。九回裏ツーアウト、最後の打席は俺だった。
     # 우리 쪽 포수 윤호는 다음 타자였다. 도해가 뜬공으로 끝나 윤호는 치지 못했다
     - speaker: hero
       expression: smile
       ko: 대기 타석에서 윤호가 소리쳤다. "쳐, 한도해!"
       en: 'Yunho yelled from the on-deck circle. "Hit it, Han Do-hae!"'
-      ja: ネクストの円からユノが叫んだ。「打て、ハン・ドヘ!」
+      ja: ネクストバッターズサークルからユノが叫んだ。「打て、ハン・ドヘ!」
     - speaker: hero
       ko: 상대 포수가 미트를 탁탁, 두 번 치고 앉았다.
+      en: Their catcher smacked his mitt twice, thwack thwack, and crouched down.
+      ja: 相手のキャッチャーがミットをパンパンと二度叩いて、座った。
     - speaker: hero
-      ko: 뭘 쳐도 다 받아낼 것 같은 얼굴이었다.
+      ko: 어떻게 휘두르든 다 잡아낼 것 같은 자신감 넘치는 모습이었다.
+      en: He looked so sure of himself, like he'd catch anything no matter how I swung.
+      ja: どう振っても全部捕ってみせる、そんな自信に満ちた姿だった。
     - speaker: hero
       ko: 풀카운트. 방망이에 맞은 공이 뒤로 높이 떴다.
+      en: Full count. The ball came off my bat and popped up high behind the plate.
+      ja: フルカウント。バットに当たった球が、後ろへ高く上がった。
     - speaker: hero
       expression: sad
       ko: 그 녀석이 마스크를 벗어 던지고 달려가 잡았다. 그걸로 끝.
+      en: He tossed his mask, ran it down, and caught it. That was it.
+      ja: あいつがマスクを投げ捨てて走り、捕った。それで終わり。
     - speaker: hero
       expression: puzzled
-      ko: 경기 끝나고 그 녀석이 뭐라고 했는데, "다음엔…"까지만 들렸다.
+      ko: 그게 내 마지막 야구 시합이었다.
+      en: That was my last baseball game.
+      ja: それが俺の最後の野球の試合だった。
 
   # 캐치볼을 마친 뒤: 벽은 공을 돌려주기만 한다. 받아줄 사람은 윤호였다 (생사·행방은 말하지 않는다)
   ball-alone:
     - speaker: hero
-      ko: 벽에 던지면 돌아온다. 그게 전부다.
-    - speaker: hero
-      expression: sad
-      ko: 윤호 미트에 꽂힐 때 나던 그 소리, 좋았는데.
-      en: I liked the sound it made hitting Yunho's mitt.
-      ja: ユノのミットに収まるときのあの音、好きだったのに。
-    - speaker: hero
-      expression: sad
-      ko: 받아줄 사람이 없다는 걸, 자꾸 잊는다.
+      ko: 다시 던져도 그때의 피가 도는 감각은 느껴지지 않는다.
+      en: Even when I throw again, I don't feel that rush in my blood like I used to.
+      ja: もう一度投げても、あの頃の血が騒ぐ感覚は戻ってこない。
 
   console-intro:
     - speaker: hero
       expression: smile
       ko: 오랜만에 한 판 해볼까.
+      en: Haven't played in a while. One round?
+      ja: 久しぶりに一戦やってみるか。
     - speaker: hero
       expression: smile
       ko: 주완이랑 자주 내기 게임 했었는데. 걔가 맨날 졌지만.
+      en: Juwan and I used to play for bets all the time. He always lost, though.
+      ja: ジュワンとよく賭けて勝負してたな。いつもあいつが負けてたけど。
     # 카드 미궁의 규칙은 여기 적지 않는다. 선반 위 놀이책이 들고 있다
     # (src/data/room-clues.ts의 PUZZLE_CLUES). 대사로 흘리면 안 찾아도 풀린다.
 
@@ -103,15 +131,21 @@ scripts:
     - speaker: hero
       expression: smile
       ko: 이겼다.
+      en: I won.
+      ja: 勝った。
     - speaker: hero
       expression: sad
       ko: …나 혼자서 이기는 게 무슨 의미가 있지?
+      en: …What's the point of winning by myself?
+      ja: …一人で勝って、何の意味があるんだ?
 
   # 2차 (곁가지)
   console-echo:
     - speaker: hero
       expression: smile
       ko: 모든 일이 끝나면 그때 다시 하자.
+      en: When all this is over, let's play again.
+      ja: 全部終わったら、そのときまたやろう。
 
   # ─────────────────────────────────────────────── 1페이즈 · 강도 2
 
@@ -120,7 +154,7 @@ scripts:
     - speaker: hero
       expression: smile
       ko: 이건 유소년 야구대회에서 입상했을 때의 사진이야.
-      en: This is from the youth baseball tournament, the day I placed.
+      en: This is from the youth baseball tournament, the day we placed.
       ja: これ、少年野球の大会で入賞したときの写真だ。
     - speaker: hero
       expression: smile
@@ -130,6 +164,8 @@ scripts:
     - speaker: hero
       expression: puzzled
       ko: …두 분 얼굴이 흐릿하네.
+      en: …Mom and Dad's faces are blurry.
+      ja: …二人の顔がぼやけてる。
 
   # 단톡이 멈춘 날짜를 처음으로 못박는다. 엄마 대화방은 1페이즈에서 말하지 않는다 (폰 2차의 몫).
   # 강도 2는 "이상하다"까지만: "다 끊겼다"는 단정은 라디오 전에 하지 않는다
@@ -183,8 +219,8 @@ scripts:
     - speaker: hero
       expression: sad
       ko: …어차피 노이즈밖에 안 잡히겠지만.
-      en: …It only ever picks up noise anyway.
-      ja: …どうせノイズしか入らないけど。
+      en: …Not that it'll pick up anything but noise.
+      ja: …どうせノイズしか入らないだろうけど。
 
   # 재난방송 (자동 반복 송출 톤). 글자 맞추기(답: 좀비)에 대답한 직후라 방송이
   # 그 답을 확인한다. 끝의 한 줄 뒤로 이미지 나열 컷씬(radio-blackout)이 이어진다.
@@ -199,9 +235,13 @@ scripts:
       ja: 感染は首都圏を越え、南部全域へ拡大しています。
     - speaker: broadcast
       ko: 부산까지 감염 사태가 번졌습니다. …반복합니다. 긴급 재난 방송입니다.
+      en: The infection has now reached Busan. …Repeat. This is an emergency broadcast.
+      ja: 感染は釜山まで広がりました。…繰り返します。緊急災害放送です。
     - speaker: hero
       expression: sad
       ko: …맞아. 그날이었다.
+      en: …Right. It was that day.
+      ja: …そうだ。あの日だった。
 
   # ─────────────────────────────────────────────── 2페이즈 · 거실
 
@@ -209,14 +249,20 @@ scripts:
   duffel-pack:
     - speaker: hero
       ko: 야구 가방 비우자.
+      en: Let's empty out my baseball bag.
+      ja: 野球バッグを空けよう。
     - speaker: hero
       ko: 물, 통조림, 손전등. 이 정도면 되겠지.
       en: Water, cans, a flashlight. That should do it.
       ja: 水、缶詰、懐中電灯。これくらいでいいか。
     - speaker: hero
       ko: 글러브는 두고 가고.
+      en: Leave the glove behind.
+      ja: グローブは置いていこう。
     - speaker: hero
       ko: …혹시 모르니까.
+      en: …Just in case.
+      ja: …念のため。
 
   # 위칸. 숫자만 이상해한다. 결론은 말하지 않는다
   fridge-open:
@@ -238,39 +284,61 @@ scripts:
   shoes-open:
     - speaker: hero
       ko: 신발장을 열어 본 지 한참 됐네.
+      en: It's been ages since I opened the shoe cabinet.
+      ja: 靴箱を開けるのも久しぶりだな。
     - speaker: hero
       expression: puzzled
       ko: 아빠 등산화가 그대로 있어.
+      en: Dad's hiking boots are still here.
+      ja: 父さんの登山靴がそのまま残ってる。
     - speaker: dad
       ko: 이번 여행은 가볍게 근교만 구경하다 올 거야.
+      en: We're keeping this trip light. Just a little sightseeing close by!
+      ja: 今回の旅行は軽めに、近場を見て回ってくるだけだよ。
     # 캐리어 개수 추리의 단서 하나 (v4.1 3장). 옷장 옷걸이는 이 한 줄로 합쳤다
     - speaker: hero
       expression: puzzled
       ko: 가볍다고 했는데, 분명 캐리어를 두 개 들고 가셨지.
+      en: They said light, but they definitely took two suitcases.
+      ja: 軽くって言ってたのに、確かスーツケースを二つ持っていったよな。
     - speaker: hero
       expression: puzzled
       ko: …캐리어 자리가 비어 있어.
+      en: …The spot where the suitcases go is empty.
+      ja: …スーツケースの置き場所が空いてる。
 
   cards-intro:
     - speaker: hero
       ko: 식탁 위에 쪽지가 있네.
+      en: There's a note on the table.
+      ja: 食卓の上にメモがある。
     - speaker: hero
       ko: 반으로 접혀 있다.
+      en: It's folded in half.
+      ja: 半分に折りたたまれている。
 
   # 식탁 위 쪽지(card-flip)의 안쪽: 엄마 메모. 냉장고 아래칸으로 가는 다리다 (v4.1 3장)
   cards-memo:
     - speaker: hero
       ko: …엄마 글씨다.
+      en: …It's Mom's handwriting.
+      ja: …母さんの字だ。
     - speaker: hero
       expression: puzzled
       ko: 아래칸. 냉장고 아래칸 말인가.
+      en: The bottom drawer. Does she mean the one in the fridge?
+      ja: 下の段。冷蔵庫の下の段のことか。
 
   # 컴퓨터 2차: 로그인 → 저장된 메일 + 캐시 뉴스. 켜지기도 전에 "비밀번호"를 말하지 않는다
   computer-power-on:
     - speaker: hero
       ko: 켜 봐야 인터넷도 안 되는데.
+      en: Not like the internet works even if I turn it on.
+      ja: つけたところで、ネットもつながらないのに。
     - speaker: hero
       ko: …저장된 거라도 보자.
+      en: …I'll at least look at what's saved.
+      ja: …保存されてるものだけでも見てみよう。
     - speaker: hero
       ko: 먼지 쌓인 본체에 전원을 넣는다.
       en: I press the power button on the dust-covered tower.
@@ -280,42 +348,56 @@ scripts:
   computer-archive:
     - speaker: hero
       ko: 아빠 메일. 여행 간다고 신났네.
+      en: Dad's email. He sounds so excited about the trip.
+      ja: 父さんのメール。旅行だってはしゃいでるな。
     - speaker: hero
       expression: puzzled
       ko: 뉴스는… 연구시설 근처에서 처음 났다고.
+      en: The news says… it started near a research facility.
+      ja: ニュースだと…研究施設の近くで最初に起きたって。
     - speaker: hero
       ko: 첫 보도가 오후 3시.
+      en: The first report was at 3 p.m.
+      ja: 最初の報道が午後3時。
 
   # 폰 2차: 1막 내내 미뤄 둔 엄마 대화방. 그날 이미 읽은, 엄마의 마지막 문자
   phone-mom-intro:
     - speaker: hero
       expression: sad
       ko: 엄마 대화방. 마지막 문자는 그날 아침 거다.
+      en: My chat with Mom. The last message is from that morning.
+      ja: 母さんとのトーク。最後のメッセージはあの日の朝のだ。
     - speaker: hero
       expression: sad
       ko: …
+      en: …
+      ja: …
 
   # 엄마 문자를 읽은 뒤. 시각 비교를 한 번 짚는다
   phone-mom-read:
     - speaker: hero
       expression: puzzled
       ko: …7시 12분? 뉴스는 오후였는데.
+      en: …7:12? The news didn't come out until the afternoon.
+      ja: …7時12分? ニュースは午後だったのに。
     - speaker: hero
       expression: sad
       ko: …그게 마지막이었어.
+      en: …That was the last one.
+      ja: …それが最後だった。
 
   # 곁가지 (2차)
   ball-echo:
     - speaker: hero
       expression: sad
       ko: ...던지는 감각을 잊고 있었어.
-      en: ""
-      ja: ""
+      en: "...I'd forgotten what throwing feels like."
+      ja: "...投げる感覚を忘れてた。"
     - speaker: hero
       expression: smile
       ko: 나가면 다시 던지는거야
-      en: ""
-      ja: ""
+      en: "Once I'm out of here, I'm throwing again."
+      ja: "外に出たら、また投げるんだ。"
 
   # ─────────────────────────────────────────────── 3페이즈 · 앰플
 
@@ -323,8 +405,12 @@ scripts:
   ampoule-note:
     - speaker: hero
       ko: 냉장고 아래칸에 메모가 붙어 있다.
+      en: There's a note stuck on the fridge's bottom drawer.
+      ja: 冷蔵庫の下の段にメモが貼ってある。
     - speaker: hero
       ko: 쪽지에 적혀 있던 그 칸이다.
+      en: It's the drawer from Mom's note.
+      ja: メモに書いてあった、あの段だ。
     - speaker: hero
       ko: …열어보자.
       en: …Let's open it.
@@ -335,27 +421,41 @@ scripts:
     - speaker: hero
       expression: puzzled
       ko: 앰플이 하나. …옆 칸은 비어 있어.
+      en: One ampoule. …The slot next to it is empty.
+      ja: アンプルが一本。…隣の枠は空だ。
     - speaker: hero
       ko: 라벨에 로고가 반쯤 남았네.
+      en: Half a logo is left on the label.
+      ja: ラベルにロゴが半分残ってる。
     - speaker: hero
       expression: puzzled
       ko: 이 로고… 어디서 봤는데.
+      en: This logo… I've seen it somewhere.
+      ja: このロゴ…どこかで見たことある。
 
   # 컴퓨터 3차 진입: 로고를 쫓아 다시 켠다
   computer-logo-intro:
     - speaker: hero
       expression: puzzled
       ko: 그 로고. 아빠 메일에서 본 것 같은데.
+      en: That logo. I think I saw it in Dad's email.
+      ja: あのロゴ。父さんのメールで見た気がする。
 
   # 로고를 맞춘 뒤: 아빠 메일 속 하부장 힌트
   computer-logo-found:
     - speaker: hero
       ko: 라온생명과학연구소. …첨부에 있던 거랑 같아.
+      en: Raon Life Science Institute. …Same as the one in the attachment.
+      ja: ラオン生命科学研究所。…添付にあったのと同じだ。
     - speaker: dad
       ko: 선반 정리 좀 해라.
+      en: Tidy up the shelves a bit, will you?
+      ja: 棚の整理ぐらいしろ。
     - speaker: hero
       expression: puzzled
       ko: …선반?
+      en: …The shelves?
+      ja: …棚?
 
   # ─────────────────────────────────────────────── 4페이즈 · 안방
 
@@ -363,29 +463,45 @@ scripts:
   research-note-intro:
     - speaker: hero
       ko: 책상 위에 서류가 흩어져 있다.
+      en: Papers are scattered across the desk.
+      ja: 机の上に書類が散らばっている。
     - speaker: hero
       ko: 엄마 글씨다. 조각마다 날짜가 적혀 있네.
+      en: Mom's handwriting. Each piece has a date on it.
+      ja: 母さんの字だ。一枚ずつ日付が書いてある。
 
   # 날짜순으로 놓은 뒤: 연구원 신분, 치료제 후보, 여행이 아니었다는 것
   research-note-read:
     - speaker: hero
       ko: 두 분 다 연구원이었어. 라온생명과학연구소.
+      en: They were both researchers. At Raon Life Science Institute.
+      ja: 二人とも研究員だったんだ。ラオン生命科学研究所の。
     - speaker: hero
       expression: surprised
       ko: 여행이 아니라 연구소에 불려 간 거였어.
+      en: It wasn't a trip. They were called in to the institute.
+      ja: 旅行じゃなくて、研究所に呼び出されてたんだ。
     - speaker: hero
       expression: sad
       ko: RX-11. 치료제 후보. …두 개 만들었는데, 하나는 비어 있었어.
+      en: RX-11. A candidate cure. …They made two, and one slot was empty.
+      ja: RX-11。治療薬の候補。…二本作ったのに、一つは空いていた。
 
   # 출입증을 집어 든다: 3D로 기울여 보는 판(id-card-flip) 앞
   id-card-look:
     - speaker: hero
-      ko: 아빠와 엄마 회사 출입증 같은데.
+      ko: 아빠와 엄마 회사 출입증 같은데..?
+      en: These look like Mom and Dad's work badges..?
+      ja: 父さんと母さんの会社の入館証みたいだけど..?
 
   # 홀로그램의 로고를 본 뒤
   id-card-found:
     - speaker: hero
       ko: 라온생명과학연구소. 아빠 이름, 엄마 이름.
+      en: Raon Life Science Institute. Dad's name, Mom's name.
+      ja: ラオン生命科学研究所。父さんの名前、母さんの名前。
     - speaker: hero
       expression: surprised
-      ko: 빛에 비추니 사진 위에 로고가… 앰플 라벨의 그 로고다.
+      ko: 빛에 비추니 사진 위에 로고가 보인다. 앰플 라벨의 그 로고다.
+      en: Held up to the light, a logo shows over the photo. It's the one from the ampoule label.
+      ja: 光にかざすと、写真の上にロゴが見える。アンプルのラベルのあのロゴだ。

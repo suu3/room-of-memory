@@ -303,11 +303,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   },
   "ball-alone": {
     id: "ball-alone",
-    lines: [
-      { speaker: "hero", textKey: "scripts.ball-alone.line1" },
-      { speaker: "hero", textKey: "scripts.ball-alone.line2", expression: "sad" },
-      { speaker: "hero", textKey: "scripts.ball-alone.line3", expression: "sad" },
-    ],
+    lines: [{ speaker: "hero", textKey: "scripts.ball-alone.line1" }],
   },
   "console-intro": {
     id: "console-intro",

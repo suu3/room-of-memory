@@ -89,77 +89,75 @@
   },
   "stages": {
     "p0-dark": {
-      "monologue": "…Did I doze off again. It's dark."
+      "monologue": "…Did I fall asleep again? It's dark."
     },
     "p1-0": {
-      "monologue": "What should I start with."
+      "monologue": "Where should I start?"
     },
     "p1-mid": {
-      "monologue": "The room's a little dark. …No, it's always been like this, hasn't it."
+      "monologue": "The room seems to have gotten darker."
     },
     "p1-late": {
-      "monologue": "Going through them one by one keeps bringing that day back… Enough. Stop."
+      "monologue": "Going through things one by one, that day keeps coming back to me."
     },
     "turn-bottom": {
-      "monologue": "…그럴 리가 없는데. 라디오에 다른 신호가 잡힌다."
+      "monologue": "…That can't be right. The radio's picking up a different signal."
     },
     "turn-signal": {
-      "monologue": "은강고 체육관. …문 쪽이 밝아."
+      "monologue": "The Eungang High gym, they said."
     },
     "p2-enter": {
-      "monologue": "나흘 밤 안에 가야 해."
+      "monologue": "I have to get there within four nights."
     },
     "p3-enter": {
-      "monologue": "엄마가 숨긴 게 더 있어."
+      "monologue": "Mom was hiding something else."
     },
     "p4-enter": {
-      "monologue": "안방. 그날 이후로 처음 들어온다."
+      "monologue": "Mom and Dad's bedroom. First time I've been in here since that day."
     },
     "resolve": {
-      "monologue": "가방, 앰플. 배트는 현관에 있다."
+      "monologue": "Bag, ampoule. The bat's by the front door."
     }
   },
   "scripts": {
     "report-card-intro": {
-      "line1": "9월 모의고사 성적표. 수능 전 마지막 모의고사였다.",
-      "line2": "성적이 좋지는 않았다.",
-      "line3": "성적표를 내밀었던 날 저녁.",
-      "line4": "수학은 과외 한번 알아볼까~?",
-      "line5": "공부가 꼭 인생의 답은 아냐.",
-      "line6": "…위로 맞죠?",
-      "line7": "야구 대회가 끝나고 나니 남은 건 수능뿐이었다.",
-      "line8": "수능까지 한 달 남았었던가."
+      "line1": "This is my September mock exam report...",
+      "line2": "It was the last mock exam before the real one, and my scores weren't great.",
+      "line3": "The evening I showed it to them.",
+      "line4": "Maybe we should look into a math tutor~?",
+      "line5": "Studying isn't the only answer in life, you know.",
+      "line6": "…That's supposed to be comforting, right?",
+      "line7": "Once the baseball tournament was over, all that was left was the entrance exam.",
+      "line8": "If things were normal, the exam would be.. a month away."
     },
     "ball-intro": {
-      "line1": "야구부 3년. 마지막 여름이었다.",
-      "line2": "전국대회 8강, 은강고전. 9회 말 투아웃, 마지막 타석은 나였다.",
+      "line1": "Three years on the baseball team. It was my last summer.",
+      "line2": "Nationals quarterfinal, against Eungang High. Bottom of the ninth, two outs, and I was the last batter.",
       "line3": "Yunho yelled from the on-deck circle. \"Hit it, Han Do-hae!\"",
-      "line4": "상대 포수가 미트를 탁탁, 두 번 치고 앉았다.",
-      "line5": "뭘 쳐도 다 받아낼 것 같은 얼굴이었다.",
-      "line6": "풀카운트. 방망이에 맞은 공이 뒤로 높이 떴다.",
-      "line7": "그 녀석이 마스크를 벗어 던지고 달려가 잡았다. 그걸로 끝.",
-      "line8": "경기 끝나고 그 녀석이 뭐라고 했는데, \"다음엔…\"까지만 들렸다."
+      "line4": "Their catcher smacked his mitt twice, thwack thwack, and crouched down.",
+      "line5": "He looked so sure of himself, like he'd catch anything no matter how I swung.",
+      "line6": "Full count. The ball came off my bat and popped up high behind the plate.",
+      "line7": "He tossed his mask, ran it down, and caught it. That was it.",
+      "line8": "That was my last baseball game."
     },
     "ball-alone": {
-      "line1": "벽에 던지면 돌아온다. 그게 전부다.",
-      "line2": "I liked the sound it made hitting Yunho's mitt.",
-      "line3": "받아줄 사람이 없다는 걸, 자꾸 잊는다."
+      "line1": "Even when I throw again, I don't feel that rush in my blood like I used to."
     },
     "console-intro": {
-      "line1": "오랜만에 한 판 해볼까.",
-      "line2": "주완이랑 자주 내기 게임 했었는데. 걔가 맨날 졌지만."
+      "line1": "Haven't played in a while. One round?",
+      "line2": "Juwan and I used to play for bets all the time. He always lost, though."
     },
     "console-alone": {
-      "line1": "이겼다.",
-      "line2": "…나 혼자서 이기는 게 무슨 의미가 있지?"
+      "line1": "I won.",
+      "line2": "…What's the point of winning by myself?"
     },
     "console-echo": {
-      "line1": "모든 일이 끝나면 그때 다시 하자."
+      "line1": "When all this is over, let's play again."
     },
     "frame-photo": {
-      "line1": "This is from the youth baseball tournament, the day I placed.",
+      "line1": "This is from the youth baseball tournament, the day we placed.",
       "line2": "Yunho's in it too. He's been catching my throws since back then.",
-      "line3": "…두 분 얼굴이 흐릿하네."
+      "line3": "…Mom and Dad's faces are blurry."
     },
     "phone-stopped": {
       "line1": "The last message is from October 19."
@@ -177,19 +175,19 @@
     },
     "radio-intro": {
       "line1": "The radio is the only thing left.",
-      "line2": "…It only ever picks up noise anyway."
+      "line2": "…Not that it'll pick up anything but noise."
     },
     "radio-broadcast": {
       "line1": "…This is an emergency broadcast. A zombie outbreak is underway. All citizens must take shelter indoors immediately.",
       "line2": "The infection has spread past the capital region into the entire south.",
-      "line3": "부산까지 감염 사태가 번졌습니다. …반복합니다. 긴급 재난 방송입니다.",
-      "line4": "…맞아. 그날이었다."
+      "line3": "The infection has now reached Busan. …Repeat. This is an emergency broadcast.",
+      "line4": "…Right. It was that day."
     },
     "duffel-pack": {
-      "line1": "야구 가방 비우자.",
+      "line1": "Let's empty out my baseball bag.",
       "line2": "Water, cans, a flashlight. That should do it.",
-      "line3": "글러브는 두고 가고.",
-      "line4": "…혹시 모르니까."
+      "line3": "Leave the glove behind.",
+      "line4": "…Just in case."
     },
     "fridge-open": {
       "line1": "If I'm going out, I should take something. Start with the fridge.",
@@ -197,81 +195,81 @@
       "line3": "Two nights, they said. So why stock this much?"
     },
     "shoes-open": {
-      "line1": "신발장을 열어 본 지 한참 됐네.",
-      "line2": "아빠 등산화가 그대로 있어.",
-      "line3": "이번 여행은 가볍게 근교만 구경하다 올 거야.",
-      "line4": "가볍다고 했는데, 분명 캐리어를 두 개 들고 가셨지.",
-      "line5": "…캐리어 자리가 비어 있어."
+      "line1": "It's been ages since I opened the shoe cabinet.",
+      "line2": "Dad's hiking boots are still here.",
+      "line3": "We're keeping this trip light. Just a little sightseeing close by!",
+      "line4": "They said light, but they definitely took two suitcases.",
+      "line5": "…The spot where the suitcases go is empty."
     },
     "cards-intro": {
-      "line1": "식탁 위에 쪽지가 있네.",
-      "line2": "반으로 접혀 있다."
+      "line1": "There's a note on the table.",
+      "line2": "It's folded in half."
     },
     "cards-memo": {
-      "line1": "…엄마 글씨다.",
-      "line2": "아래칸. 냉장고 아래칸 말인가."
+      "line1": "…It's Mom's handwriting.",
+      "line2": "The bottom drawer. Does she mean the one in the fridge?"
     },
     "computer-power-on": {
-      "line1": "켜 봐야 인터넷도 안 되는데.",
-      "line2": "…저장된 거라도 보자.",
+      "line1": "Not like the internet works even if I turn it on.",
+      "line2": "…I'll at least look at what's saved.",
       "line3": "I press the power button on the dust-covered tower."
     },
     "computer-archive": {
-      "line1": "아빠 메일. 여행 간다고 신났네.",
-      "line2": "뉴스는… 연구시설 근처에서 처음 났다고.",
-      "line3": "첫 보도가 오후 3시."
+      "line1": "Dad's email. He sounds so excited about the trip.",
+      "line2": "The news says… it started near a research facility.",
+      "line3": "The first report was at 3 p.m."
     },
     "phone-mom-intro": {
-      "line1": "엄마 대화방. 마지막 문자는 그날 아침 거다.",
+      "line1": "My chat with Mom. The last message is from that morning.",
       "line2": "…"
     },
     "phone-mom-read": {
-      "line1": "…7시 12분? 뉴스는 오후였는데.",
-      "line2": "…그게 마지막이었어."
+      "line1": "…7:12? The news didn't come out until the afternoon.",
+      "line2": "…That was the last one."
     },
     "ball-echo": {
-      "line1": "...던지는 감각을 잊고 있었어.",
-      "line2": "나가면 다시 던지는거야"
+      "line1": "...I'd forgotten what throwing feels like.",
+      "line2": "Once I'm out of here, I'm throwing again."
     },
     "ampoule-note": {
-      "line1": "냉장고 아래칸에 메모가 붙어 있다.",
-      "line2": "쪽지에 적혀 있던 그 칸이다.",
+      "line1": "There's a note stuck on the fridge's bottom drawer.",
+      "line2": "It's the drawer from Mom's note.",
       "line3": "…Let's open it."
     },
     "ampoule-found": {
-      "line1": "앰플이 하나. …옆 칸은 비어 있어.",
-      "line2": "라벨에 로고가 반쯤 남았네.",
-      "line3": "이 로고… 어디서 봤는데."
+      "line1": "One ampoule. …The slot next to it is empty.",
+      "line2": "Half a logo is left on the label.",
+      "line3": "This logo… I've seen it somewhere."
     },
     "computer-logo-intro": {
-      "line1": "그 로고. 아빠 메일에서 본 것 같은데."
+      "line1": "That logo. I think I saw it in Dad's email."
     },
     "computer-logo-found": {
-      "line1": "라온생명과학연구소. …첨부에 있던 거랑 같아.",
-      "line2": "선반 정리 좀 해라.",
-      "line3": "…선반?"
+      "line1": "Raon Life Science Institute. …Same as the one in the attachment.",
+      "line2": "Tidy up the shelves a bit, will you?",
+      "line3": "…The shelves?"
     },
     "research-note-intro": {
-      "line1": "책상 위에 서류가 흩어져 있다.",
-      "line2": "엄마 글씨다. 조각마다 날짜가 적혀 있네."
+      "line1": "Papers are scattered across the desk.",
+      "line2": "Mom's handwriting. Each piece has a date on it."
     },
     "research-note-read": {
-      "line1": "두 분 다 연구원이었어. 라온생명과학연구소.",
-      "line2": "여행이 아니라 연구소에 불려 간 거였어.",
-      "line3": "RX-11. 치료제 후보. …두 개 만들었는데, 하나는 비어 있었어."
+      "line1": "They were both researchers. At Raon Life Science Institute.",
+      "line2": "It wasn't a trip. They were called in to the institute.",
+      "line3": "RX-11. A candidate cure. …They made two, and one slot was empty."
     },
     "id-card-look": {
-      "line1": "아빠와 엄마 회사 출입증 같은데."
+      "line1": "These look like Mom and Dad's work badges..?"
     },
     "id-card-found": {
-      "line1": "라온생명과학연구소. 아빠 이름, 엄마 이름.",
-      "line2": "빛에 비추니 사진 위에 로고가… 앰플 라벨의 그 로고다."
+      "line1": "Raon Life Science Institute. Dad's name, Mom's name.",
+      "line2": "Held up to the light, a logo shows over the photo. It's the one from the ampoule label."
     }
   },
   "lore": {
     "report-card": {
-      "title": "9월 모의고사",
-      "phase1": "성적은 좋지 않았다. 엄마는 과외 얘기를 꺼냈고, 아빠는 공부가 인생의 답은 아니라고 했다. 야구 대회가 끝나고 남은 건 수능이었다."
+      "title": "September Mock Exam",
+      "phase1": "My scores weren't good. Mom brought up getting a tutor, and Dad said studying isn't the answer to everything. With the baseball tournament over, all that was left was the entrance exam."
     },
     "console": {
       "title": "Not fun anymore",
@@ -280,127 +278,127 @@
     },
     "ball": {
       "title": "Catch, Alone",
-      "phase1": "전국대회 8강, 은강고전. 내 마지막 타석의 뜬공을 상대 포수가 잡아내며 끝났다. 벽에 던지면 돌아온다. 늘 윤호가 받아 주던 공인데, 받아줄 사람이 없다는 걸 자꾸 잊는다.",
+      "phase1": "Nationals quarterfinal, against Eungang High. It ended when their catcher caught the pop-up from my last at-bat. Throw it at the wall and it comes back. Yunho always used to catch it, and I keep forgetting there's no one here to catch it now.",
       "phase2": "If someone out there can catch it, this ball still has a use."
     },
     "frame": {
       "title": "My Parents",
-      "phase1": "Dust on the glass, so I wiped it down. Even clean, their faces are the only ones I still can't see.",
-      "phase2": "흩어진 조각을 맞추니 얼굴이 돌아왔다. 액자를 세워 두고 나왔다."
+      "phase1": "The glass was dusty, so I wiped it for a long time. Even clean, their two faces are the only ones I can't take in.",
+      "phase2": "I tried hard to picture my parents, whom I haven't seen in so long. Then I pulled myself together, stood the frame back up, and left."
     },
     "phone": {
       "title": "The Silence",
-      "phase1": "단톡은 그날 이후로 조용하다.",
-      "phase2": "그날 아침 7시 12분, 엄마 문자. 끝나면 바로 집에 오라고. 뉴스는 오후였다. 그게 엄마의 마지막 문자다."
+      "phase1": "The group chat has been quiet since that day.",
+      "phase2": "At 7:12 that morning, Mom had texted me to come straight home when I was done. That was her last text."
     },
     "calendar": {
       "title": "October 19",
-      "phase1": "The numbers stopped on that day. After that I stopped writing dates and only made tally marks."
+      "phase1": "To count the days that went by, I just kept making tally marks."
     },
     "window": {
       "title": "Outside",
-      "phase1": "I opened the curtain. Broken glass, a crushed car, stains that will not wash off. I closed it again."
+      "phase1": "I opened the curtain. Broken glass, a crushed car, stains that won't wash off. The view was so quiet and so strange that I closed the window again."
     },
     "radio": {
       "title": "That Broadcast",
-      "phase1": "They said it had reached Busan. I cannot pretend not to know anymore.",
-      "phase2": "생존자가 있다. 은강고 체육관. 나흘 밤. …그 목소리, 어디서 들어봤는데.",
-      "phase2Title": "은강고"
+      "phase1": "I'm afraid to face what's really out there.",
+      "phase2": "They said there are survivors at the Eungang High gym. Four nights, huh... …I've heard that voice somewhere.",
+      "phase2Title": "Eungang High"
     },
     "duffel": {
       "title": "What to Take",
-      "phase2": "야구 가방을 비우고 다시 쌌다. 물, 통조림, 손전등. 글러브는 두고 가려다 다시 넣었다."
+      "phase2": "I emptied the bag and packed it again. Water, canned food, a flashlight. I almost left the glove behind, then put it back in."
     },
     "fridge": {
       "title": "What They Stocked",
-      "phase2": "The fridge and the cupboard are still half full. Why was there a month of food in this house?"
+      "phase2": "The fridge and the cupboards are still half full of food. Why did our ordinary home have enough to last a month?"
     },
     "shoes": {
       "title": "The Boots They Left",
-      "phase2": "등산화는 신발장에 그대로다. 가볍게 다녀온다더니, 캐리어는 두 개였다."
+      "phase2": "The hiking boots are still in the shoe cabinet. They said it'd be a light trip, but they took two suitcases."
     },
     "cards": {
       "title": "The Note on the Table",
-      "phase2": "식탁 위에 접어 둔 엄마 쪽지. \"아래칸 건드리지 마.\" 여행 가는 사람이 남길 말은 아니다."
+      "phase2": "\"Don't touch the bottom drawer.\" Mom's folded note is sitting on the table."
     },
     "computer": {
       "title": "What Was Saved",
-      "phase2": "아빠 메일, 그리고 캐시에 남은 뉴스. 연구시설 근처에서 처음 났고, 첫 보도는 그날 오후 3시였다.",
-      "phase3": "앰플 라벨의 로고가 아빠 메일 첨부에 있었다. 하부장은 내 번호로 잠가 뒀다고 했다."
+      "phase2": "Dad's emails and the news. It all started near a research facility, and the first report came out at 3 p.m. that day.",
+      "phase3": "The logo on the ampoule label was in an attachment to Dad's email. He said he'd locked the lower cabinet with my number."
     },
     "ampoule": {
       "title": "An Unmarked Ampoule",
-      "phase2": "보냉 케이스에 앰플 하나, 옆 칸은 비어 있었다. 라벨에는 로고가 반쯤 남아 있다."
+      "phase2": "One ampoule in the cold case, the slot next to it empty. Half of a faded logo is left on the label."
     },
     "research-note": {
-      "title": "연구 일지",
-      "phase2": "날짜순으로 놓은 엄마의 기록. 둘 다 라온 연구원이었고, 앰플은 치료제 후보였다. 여행은 연구소 소집이었다."
+      "title": "Research Log",
+      "phase2": "Mom's notes, laid out by date. They were both researchers at Raon, and the ampoule was a candidate cure. The trip was a summons to the institute."
     },
     "id-card": {
-      "title": "출입증",
-      "phase2": "라온생명과학연구소 출입증. 아빠 이름, 엄마 이름. 사진 위 홀로그램에 앰플 라벨의 그 로고가 떠올랐다."
+      "title": "Access Badges",
+      "phase2": "Raon Life Science Institute access badges. Dad's name, Mom's name. The hologram over the photo suddenly brought back the logo left on the ampoule label."
     }
   },
   "cutscenes": {
     "workbook-name": {
       "cut1": {
-        "line1": "한도해, 고3. …내 글씨다.",
-        "line2": "여름에 야구부 은퇴하고, 그때부터 수험생.",
-        "line3": "이 문제집도 그때 산 거다."
+        "line1": "Han Do-hae, senior year. …That's my handwriting.",
+        "line2": "I played my last season with the baseball team in the summer, and after that it was back to senior-year life.",
+        "line3": "I bought this workbook back then, too."
       }
     },
     "console-flashback": {
       "cut1": {
-        "line1": "게임은 같은 반 친구인 주완이와 자주 했었다.",
-        "line2": "시험 끝난 주에 자주 집에 놀러와서 2p로 격투 게임을 자주 플레이 했었다.",
-        "line3": "내가 좀 더 많이 이겼었던 것 같다.",
-        "line4": "다음에는 캐릭터 바꿔서 하자고 했었지.",
-        "line5": "…마지막으로 한 게 언젠지 기억이 안나네."
+        "line1": "I used to play games a lot with Juwan, a friend from my class.",
+        "line2": "The week exams ended, he'd come over and we'd play fighting games in two-player mode.",
+        "line3": "I think I won a little more often.",
+        "line4": "We said we'd swap characters next time.",
+        "line5": "…I can't remember the last time we played."
       }
     },
     "ball-flashback": {
       "cut1": {
-        "line1": "야구를 오래해온 나는 야구로 유명한 청서고에 진학했다.",
-        "line2": "올해 있었던 전국 대회 8강에서는 근처 학교이자 야구 라이벌인 은강고와 맞붙게 되었다.",
-        "line3": "2루수인 나는, 포수인 절친 윤호와 기합을 다졌었다.",
-        "line4": "하지만 결국 졌었지. 시합 종료를 알리는 은강고 포수의 마지막 미트 소리가 기억에 남는다.",
-        "line5": "윤호는 지금 뭘하고 있을까?"
+        "line1": "I'd played baseball for years, so I went to Cheongseo High, a school known for baseball.",
+        "line2": "In this year's nationals quarterfinal, we faced Eungang High, a nearby school and our baseball rival.",
+        "line3": "I played second base, and I psyched myself up with my best friend Yunho, our catcher.",
+        "line4": "But we lost in the end. I still remember the last pop of Eungang's catcher's mitt, the sound that ended the game.",
+        "line5": "I wonder what Yunho's doing now."
       }
     },
     "radio-blackout": {
       "cut1": {
-        "line1": "그날은 평범한 날이었다.",
-        "line2": "부활동 끝나고 폰을 보니 엄마 문자가 와 있었다.",
-        "line3": "\"오늘은 부활동 하지 말고 바로 집에 와.\" …이상한 말이었다."
+        "line1": "It was an ordinary day.",
+        "line2": "After practice, I checked my phone and there was a text from Mom.",
+        "line3": "\"Skip practice today and come straight home.\" …That was a strange thing to say."
       },
       "cut2": {
-        "line1": "단지 안이 조용했다.",
-        "line2": "문이 열린 채 서 있는 차. 사람은 없었다.",
-        "line3": "…사이렌 소리가 멀리서 났다."
+        "line1": "The apartment complex was quiet.",
+        "line2": "A car sitting there with its door open. No one around.",
+        "line3": "…Sirens wailed in the distance."
       },
       "cut3": {
-        "line1": "집 앞까지는 평소랑 똑같았다.",
-        "line2": "복도에 누가 서 있었다.",
-        "line3": "이상한 느낌이 들었다."
+        "line1": "All the way to my door, everything was the same as always.",
+        "line2": "Someone was standing in the hallway.",
+        "line3": "Something felt off."
       },
       "cut4": {},
       "cut5": {
-        "line1": "정신없이 달렸다.",
-        "line2": "뒤에서 나는 소리는 사람 소리가 아니었다."
+        "line1": "I ran without thinking.",
+        "line2": "The sounds behind me weren't human."
       },
       "cut6": {
-        "line1": "문을 잠갔다.",
-        "line2": "부모님은 여행 중이셨기에 집안엔 아무도 없었다.",
-        "line3": "급박했던 상황이 거짓이었던 듯 정적이 내려앉았다."
+        "line1": "I locked the door.",
+        "line2": "Mom and Dad were away on their trip, so there was no one home.",
+        "line3": "Silence settled in, as if none of the panic had been real."
       },
       "cut7": {
-        "line1": "뉴스는 아직 나오고 있었다.",
-        "line2": "감염, 확산, 대피. 아나운서가 낯선 말들을 다급하게 외치고 있었다.",
-        "line3": "사방에서 들려오는 비명소리에 귀를 막았다."
+        "line1": "The news was still on.",
+        "line2": "Infection, spread, evacuation. The anchor was shouting unfamiliar words in a panic.",
+        "line3": "Screams came from every direction. I covered my ears."
       },
       "cut8": {
-        "line1": "그날 이후로 난 집에 고립되어 있었다.",
-        "line2": "나가서 마주할 현실이 두려워서."
+        "line1": "Ever since that day, I've been shut in at home.",
+        "line2": "Because I was afraid of what I'd have to face out there."
       }
     },
     "survivor-broadcast": {
@@ -408,48 +406,48 @@
       "cut2": {},
       "cut3": {},
       "cut4": {
-        "line1": "어이, 거기 누구 없어? …이거 나가긴 하는 거야?"
+        "line1": "Hey, anyone out there? …Is this even going out?"
       },
       "cut5": {
-        "line1": "여기 은강고 체육관에 생존자들 모여 있어."
+        "line1": "We've got survivors gathered here at the Eungang High gym."
       },
       "cut6": {},
       "cut7": {
-        "line1": "방송실 장비에 송신기 물려서 쏘는 거라 멀리는 안 가. 이 동네면 들릴 거야."
+        "line1": "I hooked a transmitter up to the broadcast room gear, so it won't reach far. You'll hear it around here, though."
       },
       "cut8": {
-        "line1": "나흘 밤 지나면 여기서 이동한다. 헬기가 뜬다는 정보를 입수했어."
+        "line1": "After four nights, we're moving out. We got word a helicopter's coming."
       },
       "cut9": {
-        "line1": "그러니까 듣고 있는 사람이 있다면 은강고 체육관으로 모여. …늦지 말고 와."
+        "line1": "So if anyone's listening, get to the Eungang High gym. …Don't be late."
       },
       "cut10": {},
       "cut11": {
-        "line1": "은강고…? 그때 그…?",
+        "line1": "Eungang High…? That guy from back then…?",
         "line2": "…That voice sounds kind of familiar."
       }
     },
     "trip-doubt": {
       "cut1": {
-        "line1": "2박 3일인데 캐리어가 두 개. 가져간 짐은 한 달치였어."
+        "line1": "Two nights, but two suitcases. They packed for a month."
       }
     },
     "p2-close": {
       "cut1": {
-        "line1": "여행이 아니었어. 둘 다 뭔가 알고 있었어."
+        "line1": "It wasn't a trip. They both knew something."
       }
     },
     "p4-close": {
       "cut1": {
-        "line1": "…이게 답일지도 몰라.",
-        "line2": "엄마 아빠는 이걸 지키려고 간 거였어. 여행이 아니라.",
-        "line3": "앰플을 들고, 나흘 안에 은강고 체육관으로 간다."
+        "line1": "…This might be the answer.",
+        "line2": "Mom and Dad left to protect this. It was never a trip.",
+        "line3": "Take the ampoule and get to the Eungang High gym within four days."
       }
     },
     "still-beat": {
       "cut1": {},
       "cut2": {
-        "line1": "…갔다 올게."
+        "line1": "…I'll be back."
       }
     },
     "bat-grip": {

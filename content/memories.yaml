@@ -59,8 +59,12 @@ memories:
     lore:
       title:
         ko: 9월 모의고사
+        en: September Mock Exam
+        ja: 9月の模試
       phase1:
         ko: 성적은 좋지 않았다. 엄마는 과외 얘기를 꺼냈고, 아빠는 공부가 인생의 답은 아니라고 했다. 야구 대회가 끝나고 남은 건 수능이었다.
+        en: My scores weren't good. Mom brought up getting a tutor, and Dad said studying isn't the answer to everything. With the baseball tournament over, all that was left was the entrance exam.
+        ja: 成績は良くなかった。母さんは家庭教師の話を持ち出して、父さんは勉強だけが人生の答えじゃないと言った。野球の大会が終わって、残ったのは受験だけだった。
     # 미니게임 없이 책상 위 성적표를 둘러보고 대사만 흐른다
     phase1:
       script: report-card-intro
@@ -105,6 +109,8 @@ memories:
         ja: ひとりのキャッチボール
       phase1:
         ko: 전국대회 8강, 은강고전. 내 마지막 타석의 뜬공을 상대 포수가 잡아내며 끝났다. 벽에 던지면 돌아온다. 늘 윤호가 받아 주던 공인데, 받아줄 사람이 없다는 걸 자꾸 잊는다.
+        en: Nationals quarterfinal, against Eungang High. It ended when their catcher caught the pop-up from my last at-bat. Throw it at the wall and it comes back. Yunho always used to catch it, and I keep forgetting there's no one here to catch it now.
+        ja: 全国大会ベスト8、銀江高戦。俺の最後の打席のフライを、相手のキャッチャーが捕って終わった。壁に投げれば返ってくる。いつもユノが受けてくれた球なのに、受ける人がいないことをつい忘れてしまう。
       phase2:
         ko: 받아줄 사람이 어딘가에 있다면, 이 공은 아직 쓸 데가 있다.
         en: If someone out there can catch it, this ball still has a use.
@@ -136,10 +142,12 @@ memories:
       # 안 보인다. "흐릿하다"처럼 이유를 지어내는 말도 쓰지 않는다.
       phase1:
         ko: 유리에 먼지가 껴서 한참을 닦았다. 다 닦았는데도 두 사람 얼굴만 눈에 들어오지 않는다.
-        en: Dust on the glass, so I wiped it down. Even clean, their faces are the only ones I still can't see.
-        ja: ガラスに埃がついていて長いこと拭いた。拭いても、二人の顔だけがどうしても見えない。
+        en: The glass was dusty, so I wiped it for a long time. Even clean, their two faces are the only ones I can't take in.
+        ja: ガラスに埃がついていて、長いこと拭いた。拭き終えても、二人の顔だけがどうしても目に入ってこない。
       phase2:
-        ko: 흩어진 조각을 맞추니 얼굴이 돌아왔다. 액자를 세워 두고 나왔다.
+        ko: 못본 지 오래 된 부모님을 열심히 떠올렸다. 다시 마음을 잡고 액자를 세워 두고 나왔다.
+        en: I tried hard to picture my parents, whom I haven't seen in so long. Then I pulled myself together, stood the frame back up, and left.
+        ja: 長いこと会っていない両親を、必死に思い浮かべた。気持ちを立て直して、写真立てを起こしてから部屋を出た。
     phase1:
       minigame: photo-wipe
       resultScript: frame-photo
@@ -164,8 +172,12 @@ memories:
         ja: 途切れた連絡
       phase1:
         ko: 단톡은 그날 이후로 조용하다.
+        en: The group chat has been quiet since that day.
+        ja: グループチャットは、あの日から静かなままだ。
       phase2:
-        ko: 그날 아침 7시 12분, 엄마 문자. 끝나면 바로 집에 오라고. 뉴스는 오후였다. 그게 엄마의 마지막 문자다.
+        ko: 그날 아침 7시 12분에는 끝나면 바로 집에 오라는 엄마 문자가 와 있었다. 그게 엄마의 마지막 문자다.
+        en: At 7:12 that morning, Mom had texted me to come straight home when I was done. That was her last text.
+        ja: あの日の朝7時12分、終わったらすぐ帰ってきなさいという母さんのメッセージが届いていた。それが母さんの最後のメッセージだ。
     # 1차: 시끄러운 단톡 → 가족 단톡(부모님 메시지 폭탄 + 도해 "응.") → 결과 대사가
     # "10월 19일"을 못박는다. 엄마 대화방은 여기서 보이지도, 말하지도 않는다
     phase1:
@@ -192,9 +204,9 @@ memories:
         en: October 19
         ja: 10月19日
       phase1:
-        ko: 숫자가 그날에서 멈췄다. 그 뒤로는 날짜가 아니라 正자만 그었다.
-        en: The numbers stopped on that day. After that I stopped writing dates and only made tally marks.
-        ja: 数字はあの日で止まった。それからは日付ではなく、正の字だけを書いた。
+        ko: 지나간 날들을 세려고 正자만 그었다.
+        en: "To count the days that went by, I just kept making tally marks."
+        ja: "過ぎた日を数えようと、正の字だけを書いた。"
     # phone 뒤에만 열린다. 진입 대사가 단톡의 날짜(10월 19일)를 이어받는다.
     phase1:
       script: calendar-intro
@@ -210,9 +222,9 @@ memories:
         en: Outside
         ja: 窓の外
       phase1:
-        ko: 커튼을 걷었다. 깨진 유리, 찌그러진 차, 지워지지 않는 자국. 다시 닫았다.
-        en: I opened the curtain. Broken glass, a crushed car, stains that will not wash off. I closed it again.
-        ja: カーテンを開けた。割れたガラス、潰れた車、消えない跡。また閉めた。
+        ko: 커튼을 걷었다. 깨진 유리, 찌그러진 차, 지워지지 않는 자국. 조용하면서 기묘한 풍경에 창문을 다시 닫았다.
+        en: I opened the curtain. Broken glass, a crushed car, stains that won't wash off. The view was so quiet and so strange that I closed the window again.
+        ja: カーテンを開けた。割れたガラス、潰れた車、消えない跡。静かで奇妙な景色に、また窓を閉めた。
     # 커튼을 걷으면 그림 한 장. 강도 3이라 강도 2 둘(액자·폰)을 다 본 뒤에 열린다.
     phase1:
       minigame: window-view
@@ -229,13 +241,17 @@ memories:
         en: That Broadcast
         ja: あの日の放送
       phase1:
-        ko: 부산까지 번졌다고 했다. 이제 모르는 척할 수가 없다.
-        en: They said it had reached Busan. I cannot pretend not to know anymore.
-        ja: 釜山まで広がったと言っていた。もう知らないふりはできない。
+        ko: 바깥 현실을 마주하는게 두렵다.
+        en: "I'm afraid to face what's really out there."
+        ja: "外の現実と向き合うのが怖い。"
       phase2Title:
         ko: 은강고
+        en: Eungang High
+        ja: 銀江高
       phase2:
-        ko: 생존자가 있다. 은강고 체육관. 나흘 밤. …그 목소리, 어디서 들어봤는데.
+        ko: 은강고 체육관에 생존자가 있다고 했다. 나흘 밤까지라... …그 목소리, 어디서 들어봤는데.
+        en: They said there are survivors at the Eungang High gym. Four nights, huh... …I've heard that voice somewhere.
+        ja: 銀江高の体育館に生存者がいると言っていた。四晩まで、か... …あの声、どこかで聞いたことがある。
     # 1차 (관문): 나머지 일곱을 다 봐야 열린다. 반전은 한 번뿐이라 순서를 강제한다.
     # 진입 대사 → 튜닝 → 글자 맞추기("내가 이 방에 고립된 이유" 답: 좀비, 오답 세 번마다
     # 글자 힌트) → 재난방송(결과 대사) → 이미지 나열 컷씬(store가 radio-blackout을 연다).
@@ -260,7 +276,9 @@ memories:
         en: What to Take
         ja: 持っていくもの
       phase2:
-        ko: 야구 가방을 비우고 다시 쌌다. 물, 통조림, 손전등. 글러브는 두고 가려다 다시 넣었다.
+        ko: 가방을 비우고 다시 쌌다. 물, 통조림, 손전등. 글러브는 두고 가려다 다시 넣었다.
+        en: I emptied the bag and packed it again. Water, canned food, a flashlight. I almost left the glove behind, then put it back in.
+        ja: バッグを空にして詰め直した。水、缶詰、懐中電灯。グローブは置いていこうとして、やっぱり入れた。
     phase2:
       script: duffel-pack
       from: p2
@@ -273,9 +291,9 @@ memories:
         en: What They Stocked
         ja: 詰めてあったもの
       phase2:
-        ko: 냉장고도 찬장도 아직 반이 남았다. 한 달을 버틸 만큼이 왜 집에 있었을까.
-        en: The fridge and the cupboard are still half full. Why was there a month of food in this house?
-        ja: 冷蔵庫も戸棚もまだ半分残っている。ひと月分の食料が、なぜこの家にあったんだろう。
+        ko: 냉장고도 찬장도 아직 음식이 반이 남았다. 한 달을 버틸 만큼의 식량이 왜 평범한 우리 집에 있었을까.
+        en: "The fridge and the cupboards are still half full of food. Why did our ordinary home have enough to last a month?"
+        ja: "冷蔵庫も戸棚も、まだ食べ物が半分残っている。ひと月もつほどの食料が、どうして普通のうちにあったんだろう。"
     # 위칸만. 아래칸("손대지 마")은 3페이즈의 앰플이다.
     phase2:
       script: fridge-open
@@ -290,6 +308,8 @@ memories:
         ja: 置いていった登山靴
       phase2:
         ko: 등산화는 신발장에 그대로다. 가볍게 다녀온다더니, 캐리어는 두 개였다.
+        en: The hiking boots are still in the shoe cabinet. They said it'd be a light trip, but they took two suitcases.
+        ja: 登山靴は靴箱にそのままだ。軽く行ってくると言っていたのに、スーツケースは二つだった。
     phase2:
       script: shoes-open
       from: p2
@@ -304,7 +324,9 @@ memories:
         en: The Note on the Table
         ja: 食卓のメモ
       phase2:
-        ko: 식탁 위에 접어 둔 엄마 쪽지. "아래칸 건드리지 마." 여행 가는 사람이 남길 말은 아니다.
+        ko: '"아래칸 건드리지 마." 식탁 위에 접어 둔 엄마 쪽지가 보인다.'
+        en: "\"Don't touch the bottom drawer.\" Mom's folded note is sitting on the table."
+        ja: 「下の段は触らないで。」食卓の上に、母さんが折りたたんだメモがある。
     # 접힌 쪽지를 3D로 펼치면 안쪽에 엄마 메모 (card-flip, v4.1 3장)
     phase2:
       script: cards-intro
@@ -323,9 +345,13 @@ memories:
         en: What Was Saved
         ja: 保存されていたもの
       phase2:
-        ko: 아빠 메일, 그리고 캐시에 남은 뉴스. 연구시설 근처에서 처음 났고, 첫 보도는 그날 오후 3시였다.
+        ko: 아빠 메일과 뉴스. 연구시설 근처에서 처음 사태가 벌어졌고, 첫 보도는 그날 오후 3시였다.
+        en: Dad's emails and the news. It all started near a research facility, and the first report came out at 3 p.m. that day.
+        ja: 父さんのメールとニュース。騒ぎは研究施設の近くで始まって、最初の報道はあの日の午後3時だった。
       phase3:
         ko: 앰플 라벨의 로고가 아빠 메일 첨부에 있었다. 하부장은 내 번호로 잠가 뒀다고 했다.
+        en: The logo on the ampoule label was in an attachment to Dad's email. He said he'd locked the lower cabinet with my number.
+        ja: アンプルのラベルのロゴが、父さんのメールの添付にあった。下の戸棚は俺の番号で鍵をかけておいたと書いてあった。
     phase2:
       script: computer-power-on
       minigame: computer-browse
@@ -351,7 +377,9 @@ memories:
         en: An Unmarked Ampoule
         ja: 正体不明のアンプル
       phase2:
-        ko: 보냉 케이스에 앰플 하나, 옆 칸은 비어 있었다. 라벨에는 로고가 반쯤 남아 있다.
+        ko: 보냉 케이스에 앰플 하나, 옆 칸은 비어 있었다. 라벨에는 지워진 로고가 반쯤 남아 있다.
+        en: One ampoule in the cold case, the slot next to it empty. Half of a faded logo is left on the label.
+        ja: 保冷ケースにアンプルが一本、隣の枠は空だった。ラベルには消えかけたロゴが半分残っている。
     phase2:
       script: ampoule-note
       minigame: ampoule-case
@@ -368,8 +396,12 @@ memories:
     lore:
       title:
         ko: 연구 일지
+        en: Research Log
+        ja: 研究日誌
       phase2:
         ko: 날짜순으로 놓은 엄마의 기록. 둘 다 라온 연구원이었고, 앰플은 치료제 후보였다. 여행은 연구소 소집이었다.
+        en: Mom's notes, laid out by date. They were both researchers at Raon, and the ampoule was a candidate cure. The trip was a summons to the institute.
+        ja: 日付順に並べた母さんの記録。二人ともラオンの研究員で、アンプルは治療薬の候補だった。旅行は研究所からの招集だった。
     phase2:
       script: research-note-intro
       minigame: papers-order
@@ -381,8 +413,12 @@ memories:
     lore:
       title:
         ko: 출입증
+        en: Access Badges
+        ja: 入館証
       phase2:
-        ko: 라온생명과학연구소 출입증. 아빠 이름, 엄마 이름. 사진 위 홀로그램에 앰플 라벨의 그 로고가 떠올랐다.
+        ko: 라온생명과학연구소 출입증. 아빠 이름, 엄마 이름. 사진 위 홀로그램에 앰플 라벨에 남아있던 그 로고가 문득 생각났다.
+        en: Raon Life Science Institute access badges. Dad's name, Mom's name. The hologram over the photo suddenly brought back the logo left on the ampoule label.
+        ja: ラオン生命科学研究所の入館証。父さんの名前、母さんの名前。写真の上のホログラムを見て、アンプルのラベルに残っていたあのロゴをふと思い出した。
     phase2:
       script: id-card-look
       minigame: id-card-flip
