@@ -16,8 +16,8 @@ import { selectViewpoint, useMemoryRoomStore, type Viewpoint } from "@/store/mem
  *   문 넘기는 문 쪽의 금빛(memory). 그 빛이 곧 그 구간의 목적지였으니까.
  *
  * 불 켜기의 덮개는 순백이 아니다. 캄캄한 방에서 한 프레임에 흰 화면으로 튀면 밝기 차가
- * 가장 큰 전환이라 광과민성에 위험하다. 밤에 볕 색을 섞은 중간 밝기로 덮고 걷는 시간을
- * 조금 더 준다 (globals.css의 .viewpoint-lamp: 모션을 끈 판에서는 어둠으로 잇는다).
+ * 가장 큰 전환이라 광과민성에 위험하다. 어둠으로 덮어 두었다가 누런빛으로 물들며 천천히
+ * 걷는다: 처음이 가장 느려서 눈이 적응할 틈이 있다 (globals.css의 .viewpoint-lamp).
  *
  * 한 겹이 더 있다: 초점 맞춤(.viewpoint-focus). 불을 켤 때는 덮개가 걷히는 동안 방이
  * 흐릿하게 번졌다가 선명해진다. 불 켠 직후 눈이 빛에 적응하는 몸짓이다. 수첩 평면도로 몸을
@@ -26,12 +26,26 @@ import { selectViewpoint, useMemoryRoomStore, type Viewpoint } from "@/store/mem
  *
  * 그리는 것뿐이다. 카메라를 바꿔 끼우는 일은 FirstPersonRig가 마운트·언마운트로 한다.
  */
-/** `blurPx`: 초점 맞춤이 시작하는 흐림 반경. 없으면 흐림 겹이 없다. */
+/**
+ * `blurPx`: 초점 맞춤이 시작하는 흐림 반경. 없으면 흐림 겹이 없다.
+ * `lift`: 걷히는 애니메이션. 불 켜기만 어둠에서 누런빛으로 천천히 밝아지는 따로의 곡선이다
+ * (한 번에 밝아지면 눈이 아프다: globals.css의 .viewpoint-lamp).
+ */
 const TONES = {
-  enter: { className: "bg-scene-void", durationMs: 1400, blurPx: 0 },
-  lightsOn: { className: "viewpoint-lamp", durationMs: 1300, blurPx: 14 },
-  doorway: { className: "bg-memory", durationMs: 1000, blurPx: 0 },
-  warp: { className: "bg-transparent", durationMs: 360, blurPx: 8 },
+  enter: {
+    className: "bg-scene-void",
+    lift: "animate-viewpoint-fade",
+    durationMs: 1400,
+    blurPx: 0,
+  },
+  lightsOn: {
+    className: "viewpoint-lamp",
+    lift: "animate-viewpoint-dawn",
+    durationMs: 2800,
+    blurPx: 14,
+  },
+  doorway: { className: "bg-memory", lift: "animate-viewpoint-fade", durationMs: 1000, blurPx: 0 },
+  warp: { className: "bg-transparent", lift: "animate-viewpoint-fade", durationMs: 360, blurPx: 8 },
 } as const;
 
 type Tone = keyof typeof TONES;
@@ -103,7 +117,7 @@ export function ViewpointTransition() {
   }, [flash, lifting]);
 
   if (!flash) return null;
-  const { className, durationMs, blurPx } = TONES[flash.tone];
+  const { className, lift, durationMs, blurPx } = TONES[flash.tone];
 
   return (
     // 같은 색이 연달아 와도 다시 덮이게 key로 새로 마운트한다
@@ -130,7 +144,7 @@ export function ViewpointTransition() {
       <div
         aria-hidden
         className={`pointer-events-none absolute inset-0 z-40 ${className} ${
-          lifting ? "animate-viewpoint-fade" : "opacity-100"
+          lifting ? lift : "opacity-100"
         }`}
         style={lifting ? { animationDuration: `${durationMs}ms` } : undefined}
       />

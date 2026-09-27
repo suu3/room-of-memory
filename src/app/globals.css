@@ -896,9 +896,32 @@ body {
  * 밝기 차가 가장 큰 전환이라 눈에 아프고, 광과민성이 있는 사람에게는 위험하다. 전등이
  * 막 켜졌을 때의 누르스름한 빛 정도(볕 색을 밤에 섞은 값)로 낮춘다. 모션을 끈 판에서는
  * 밝은 덮개를 아예 두지 않고 어둠에서 어둠으로 잇는다.
+ *
+ * 그 누런빛으로도 한 프레임에 튀면 여전히 눈이 부셨다. 그래서 덮개는 어둠으로 닫혀 있다가,
+ * 걷힐 때(.animate-viewpoint-dawn) 누런빛으로 천천히 물들며 옅어진다. 처음이 가장 느리다:
+ * 어둠에 익은 눈이 빛에 적응할 틈을 준다.
  */
 .viewpoint-lamp {
-  background: color-mix(in srgb, var(--color-scene-sun) 42%, var(--color-night));
+  background: var(--color-scene-void);
+}
+.animate-viewpoint-dawn {
+  animation: viewpoint-dawn 1s linear both;
+}
+@keyframes viewpoint-dawn {
+  0% {
+    background-color: var(--color-scene-void);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 1);
+  }
+  40% {
+    background-color: color-mix(in srgb, var(--color-scene-sun) 30%, var(--color-night));
+    opacity: 0.85;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+  100% {
+    background-color: color-mix(in srgb, var(--color-scene-sun) 30%, var(--color-night));
+    opacity: 0;
+  }
 }
 
 /*
@@ -1486,6 +1509,10 @@ body {
   /* 불을 켜는 덮개도 밝히지 않는다. 어둠에서 어둠으로, 밝기는 씬 조명이 천천히 올린다 */
   .viewpoint-lamp {
     background: var(--color-scene-void);
+  }
+  .animate-viewpoint-dawn {
+    animation-name: viewpoint-fade;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 1);
   }
 
   /* 찢김이 없으니 기다릴 이유도 없다 */
