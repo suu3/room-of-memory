@@ -117,6 +117,8 @@ export function MemoryRoom() {
   const menuInline = useMediaQuery("(min-width: 1800px)");
   const isBatReady = useMemoryRoomStore(selectBatReady);
   const isDoorReady = useMemoryRoomStore(selectDoorReady);
+  /** 방문이 열리면 오른쪽 위에 평면도(HudMiniMap)가 한 줄 더 선다. 혼잣말 기둥이 그만큼 내려앉는다 */
+  const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 타이틀 화면이 떠 있는 동안에는 인게임 HUD를 아예 렌더하지 않는다. 블러 너머로 비친다.
   const started = useMemoryRoomStore((state) => state.started);
@@ -320,13 +322,19 @@ export function MemoryRoom() {
             다시 나타나서, 대사창이 닫히는 것과 겹쳐 깜빡임으로 보인다.
           */}
           {/*
-              폰에서는 두 칸 내려 앉는다(top-44). 이 기둥은 좁은 화면에서 폭을 거의 다
-              쓰기 때문에 위쪽 HUD를 좌우 양쪽으로 다 지나간다. 왼쪽 위 헤더는 제목·진행·
-              목표·소지품 넉 줄이고, 오른쪽 위는 햄버거·소리에 미니맵까지 석 줄이라
-              (바닥이 163px) 그보다 아래에서 시작해야 글자가 겹치지 않는다. md부터는
-              좌우로 비켜설 폭이 남아 예전 자리(top-28)를 그대로 쓴다.
+              폰에서 이 기둥은 폭을 거의 다 쓰기 때문에 위쪽 HUD를 좌우 양쪽으로 다 지나간다.
+              그래서 양쪽 HUD 중 더 긴 쪽 밑에서 시작해야 글자가 겹치지 않는다. 방문이 열리기
+              전에는 왼쪽 헤더(제목·진행·목표, 바닥 102px)와 오른쪽 햄버거·소리(바닥 104px)뿐이라
+              top-32(128px)면 되고, 열린 뒤에는 오른쪽에 평면도가 한 줄 더 서고(바닥 174px)
+              왼쪽에도 소지품 줄이 생겨 top-44(176px)까지 내려앉는다. 한 값으로 두면 1막 내내
+              헤더와 혼잣말 사이가 휑하게 비었다 (2026-09-27). md부터는 좌우로 비켜설 폭이
+              남아 예전 자리(top-28)를 그대로 쓴다.
             */}
-          <div className="pointer-events-none absolute left-1/2 top-44 z-10 flex w-[min(clamp(640px,44vw,840px),calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-28 md:gap-3 lg:top-16">
+          <div
+            className={`pointer-events-none absolute left-1/2 z-10 flex w-[min(clamp(640px,44vw,840px),calc(100vw-32px))] -translate-x-1/2 flex-col items-center gap-2.5 md:top-28 md:gap-3 lg:top-16 ${
+              doorOpened ? "top-44" : "top-32"
+            }`}
+          >
             {/* 인트로(불 켜기 전)에는 어둠 속의 한 줄(p0-dark)이 걸린다 (monologueIdFor) */}
             <Monologue monologueId={monologueId} hidden={monologueHidden} />
             <HudGuideBanner hidden={monologueHidden} />
