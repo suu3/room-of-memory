@@ -66,12 +66,14 @@ export function NotebookTab() {
       // 넓은 화면에서는 HUD 버튼과 같은 배율로 통째로 커진다 (--hud-zoom)
       // 커서가 얹히면 손잡이가 4px 넓어진다. 서랍 손잡이처럼 "당겨진다"는 몸짓이다.
       // 통째로 밀면 오른쪽 끝이 화면 가장자리에서 떨어져 틈이 보인다. 폭으로 늘린다
-      className={`absolute right-0 top-1/2 z-30 flex h-30 w-11 -translate-y-1/2 cursor-pointer [zoom:var(--hud-zoom)] flex-col items-center justify-center gap-2 rounded-l-md border border-r-0 border-line bg-surface text-fog transition-[color,background-color,width,opacity] duration-150 ease-out hover:w-12 hover:bg-surface-strong hover:text-ivory focus-visible:w-12 active:w-11 active:bg-surface-strong ${FOCUS_RING} ${menuOpen ? "pointer-events-none opacity-0" : ""} ${calling ? "animate-hotspot-glow text-ivory" : ""} ${firstUnread && !calling ? "border-memory/60 text-ivory" : ""}`}
+      // 높이는 고정하지 않는다. en "Collected Memories"처럼 긴 제목이면 손잡이가 길어져야
+      // 숫자 배지가 아래 테두리에 닿지 않는다 (min-h-30 + py-3)
+      className={`absolute right-0 top-1/2 z-30 flex min-h-30 w-11 -translate-y-1/2 py-3 cursor-pointer [zoom:var(--hud-zoom)] flex-col items-center justify-center gap-2 rounded-l-md border border-r-0 border-line bg-surface text-fog transition-[color,background-color,width,opacity] duration-150 ease-out hover:w-12 hover:bg-surface-strong hover:text-ivory focus-visible:w-12 active:w-11 active:bg-surface-strong ${FOCUS_RING} ${menuOpen ? "pointer-events-none opacity-0" : ""} ${calling ? "animate-hotspot-glow text-ivory" : ""} ${firstUnread && !calling ? "border-memory/60 text-ivory" : ""}`}
     >
       <span className="text-xs font-medium tracking-[0.06em] [writing-mode:vertical-rl]">
         {t("panel.title")}
       </span>
-      <span className="grid h-4 min-w-4 place-items-center rounded-sm bg-memory px-1 text-xs font-medium tabular-nums text-night">
+      <span className="grid h-4 min-w-4 shrink-0 place-items-center rounded-sm bg-memory px-1 text-xs font-medium tabular-nums text-night">
         {count}
       </span>
       {firstUnread && !calling && (
