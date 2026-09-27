@@ -41,6 +41,7 @@ import {
   selectRadioSignaling,
   selectResultMusic,
   selectSceneInputLocked,
+  selectSignalSilenceRunning,
   selectSinkHintRead,
   selectStillBeatDone,
   selectViewpoint,
@@ -675,6 +676,11 @@ describe("분기점: 라디오", () => {
 
   it("라디오 2차는 곧장 생존자 방송이다. 끝나면 방문이 금빛이다", () => {
     enterPhase("turning");
+    // 과거편에서 돌아온 정적: 라디오는 꺼져 있고 2차도 안 열린다
+    expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().beginInteraction("radio");
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+    useMemoryRoomStore.getState().catchSignal();
     expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(true);
     expect(selectDoorReady(useMemoryRoomStore.getState())).toBe(false);
 
@@ -1068,7 +1074,13 @@ describe("전환 컷씬", () => {
 
     useMemoryRoomStore.getState().endPlayback();
 
+    // 곧장 깨어나지 않는다. 정적이 먼저 흐른다 (SignalCatch가 시간을 잰다)
+    expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.setState({ started: true });
+    expect(selectSignalSilenceRunning(useMemoryRoomStore.getState())).toBe(true);
+    useMemoryRoomStore.getState().catchSignal();
     expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(true);
+    expect(selectSignalSilenceRunning(useMemoryRoomStore.getState())).toBe(false);
     // 목소리를 잡고 나면 더는 부르지 않는다
     useMemoryRoomStore.setState({ revisited: ["radio"] });
     expect(selectRadioSignaling(useMemoryRoomStore.getState())).toBe(false);

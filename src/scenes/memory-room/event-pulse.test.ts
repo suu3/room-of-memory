@@ -21,8 +21,11 @@ describe("subscribeEventPulse", () => {
   it("라디오가 깨어나는 순간에만 radioWake 세기로 울린다", () => {
     const pulses: number[] = [];
     const unsubscribe = subscribeEventPulse((strength) => pulses.push(strength));
-    // 1바퀴를 다 모으면 2막: 라디오가 저 혼자 살아난다 (selectRadioSignaling)
+    // 1바퀴를 다 모으면 분기점: 정적 뒤 라디오가 저 혼자 살아난다 (selectRadioSignaling)
     useMemoryRoomStore.setState({ collected: PHASE1_MEMORIES.map((memory) => memory.id) });
+    // 곧장이 아니라 정적 끝에 신호가 잡히는 순간이다
+    expect(pulses).not.toContain(EVENT_PULSE.radioWake);
+    useMemoryRoomStore.getState().catchSignal();
     expect(pulses).toContain(EVENT_PULSE.radioWake);
     const count = pulses.length;
     // 같은 상태가 이어지는 동안에는 다시 울리지 않는다

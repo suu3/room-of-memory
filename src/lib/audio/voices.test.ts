@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { transposeVoice, VOICES, type VoiceId, voiceDuration } from "./voices";
 
 const IDS = Object.keys(VOICES) as VoiceId[];
+/**
+ * 조작에 대한 반응이 아니라 방에서 일어나는 사건인 소리. 누른 손에 붙지 않아서 다음
+ * 조작을 덮을 일이 없다: 정적 끝에 라디오가 부풀어 오르며 깨어나는 소리 하나.
+ */
+const SCENE_VOICES: readonly VoiceId[] = ["radioWake"];
 
 describe("synthesised sound voices", () => {
   it("keeps every voice short enough to feel like feedback, not music", () => {
@@ -9,7 +14,7 @@ describe("synthesised sound voices", () => {
       const duration = voiceDuration(VOICES[id]);
       expect(duration, id).toBeGreaterThan(0);
       // 0.6초를 넘으면 다음 조작을 덮어 "반응"이 아니라 "연출"로 읽힌다
-      expect(duration, id).toBeLessThanOrEqual(0.6);
+      expect(duration, id).toBeLessThanOrEqual(SCENE_VOICES.includes(id) ? 1.6 : 0.6);
     }
   });
 

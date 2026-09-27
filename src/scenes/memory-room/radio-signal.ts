@@ -15,3 +15,15 @@ export function radioSignalLevel(time: number): number {
   const gated = Math.max(0, raw);
   return gated * gated;
 }
+
+/** 깨어난 뒤 깜빡임이 제 세기에 닿기까지(초). 소리(radioWake)가 부풀어 오르는 길이와 맞춘다. */
+export const RADIO_WAKE_RAMP_S = 1.4;
+
+/**
+ * 깨어난 지 `elapsed`초 된 라디오의 깜빡임 배율(0~1). 정적 끝에 불빛이 탁 켜지면
+ * 스위치를 켠 것처럼 보인다. 신호가 멀리서 잡혀 들어오듯 부드럽게 차오른다.
+ */
+export function radioWakeRamp(elapsed: number): number {
+  const t = Math.min(1, Math.max(0, elapsed / RADIO_WAKE_RAMP_S));
+  return t * t * (3 - 2 * t);
+}

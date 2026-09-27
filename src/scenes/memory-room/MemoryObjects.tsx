@@ -45,7 +45,7 @@ import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow"
 import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-motion";
 import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
-import { radioSignalLevel } from "./radio-signal";
+import { radioSignalLevel, radioWakeRamp } from "./radio-signal";
 import { SpaceLight } from "./SpaceLight";
 import type { EulerTuple, Vec3Tuple } from "./types";
 import { useCoverTexture } from "./use-cover-texture";
@@ -557,9 +557,16 @@ function RadioSignal({ palette }: { palette: RoomPalette }) {
   const materialRef = useRef<MeshStandardMaterial>(null);
   const lightRef = useRef<PointLight>(null);
 
+  /** 깨어난 시각 (clock 기준). 깜빡임이 이때부터 서서히 차오른다 */
+  const wokeAtRef = useRef<number | null>(null);
+
   // setState 없이 매 프레임 값만 민다 (.claude/rules/r3f.md)
   useFrame((state) => {
-    const level = radioSignalLevel(state.clock.elapsedTime);
+    const time = state.clock.elapsedTime;
+    if (!signaling) wokeAtRef.current = null;
+    else if (wokeAtRef.current === null) wokeAtRef.current = time;
+    const woke = wokeAtRef.current === null ? 0 : time - wokeAtRef.current;
+    const level = radioSignalLevel(time) * radioWakeRamp(woke);
     if (materialRef.current) materialRef.current.emissiveIntensity = level * 2.2;
     if (lightRef.current) lightRef.current.intensity = signaling ? level * RADIO_SIGNAL_LIGHT : 0;
   });

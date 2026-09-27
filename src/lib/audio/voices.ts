@@ -327,12 +327,13 @@ export const VOICES: Record<VoiceId, Voice> = {
     noise: { delay: 0, duration: 0.55, gain: 0.2, highpass: 120, lowpass: 900 },
   },
   /**
-   * 꺼져 있던 라디오가 저 혼자 깨어나는 소리. 끊길 때의 하강음을 뒤집어 올리되
-   * 훨씬 작게: 도해를 놀래키는 소리가 아니라 방 건너에서 겨우 들리는 기척이다.
+   * 꺼 둔 라디오가 정적 끝에 저 혼자 깨어나는 소리. 잡음이 멀리서 1초쯤 부풀어 오르다가
+   * 끝에서 끊길 때의 하강음을 뒤집어 올린다. 한 번에 터뜨리지 않는 건 신호가 먼 데서
+   * 잡혀 들어오는 느낌을 주려는 것이고, 앞의 정적이 길어서 작게 불어나도 충분히 들린다.
    */
   radioWake: {
-    tones: [{ from: 90, to: 210, waveform: "sawtooth", delay: 0.02, duration: 0.12, gain: 0.08 }],
-    noise: { delay: 0, duration: 0.22, gain: 0.16, highpass: 1400, lowpass: 5200, attack: 0.04 },
+    tones: [{ from: 90, to: 210, waveform: "sawtooth", delay: 0.95, duration: 0.14, gain: 0.08 }],
+    noise: { delay: 0, duration: 1.4, gain: 0.16, highpass: 1400, lowpass: 5200, attack: 0.95 },
   },
   /**
    * 방송 한 마디가 들기 직전의 짧은 지직. 송신 버튼을 누르는 순간의 잡음이라 대사를

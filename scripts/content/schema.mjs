@@ -67,6 +67,7 @@ export const STAGE_IDS = [
   "p1-0",
   "p1-mid",
   "p1-late",
+  "turn-silence",
   "turn-bottom",
   "turn-signal",
   "p2-enter",

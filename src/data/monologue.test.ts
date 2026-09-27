@@ -43,8 +43,9 @@ describe("monologueIdFor", () => {
     );
   });
 
-  it("분기점: 바닥의 한 줄, 방송을 들으면 문 쪽으로", () => {
-    expect(monologueIdFor(through(["p1"]))).toBe("turn-bottom");
+  it("분기점: 정적의 한 줄, 신호가 잡히면 바닥의 한 줄, 방송을 들으면 문 쪽으로", () => {
+    expect(monologueIdFor(through(["p1"], { signalCaught: false }))).toBe("turn-silence");
+    expect(monologueIdFor(through(["p1"], { signalCaught: true }))).toBe("turn-bottom");
     expect(monologueIdFor(through(["p1", "turning"]))).toBe("turn-signal");
   });
 

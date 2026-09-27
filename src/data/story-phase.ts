@@ -127,6 +127,11 @@ export interface StoryProgress extends VisitProgress {
   doorOpened: boolean;
   openedDoorways?: readonly string[];
   endingStarted?: boolean;
+  /**
+   * 과거편에서 돌아온 방에 라디오 신호가 잡혔는가. false면 아직 정적 구간이다
+   * (signalSilence). 모르는 스냅샷(undefined)은 이미 잡힌 것으로 본다.
+   */
+  signalCaught?: boolean;
 }
 
 /** 이 조사들을 다 마쳤는가. */
@@ -155,6 +160,23 @@ export function storyPhaseOf(state: StoryProgress): StoryPhase {
   return "resolve";
 }
 
+/** 분기점에서 먼저 말을 거는 기억. 2차가 생존자 방송이다. */
+export const SIGNAL_MEMORY = "radio" as MemoryId;
+
+/**
+ * 분기점의 정적 구간: 과거편에서 돌아와 신호가 잡히기 전.
+ *
+ * 절망이 내려앉을 시간이다. 라디오는 꺼진 채 깜빡이지 않고, 2차(생존자 방송)도 아직
+ * 열리지 않는다. 정적이 끝나는 때는 방이 정한다 (SignalCatch: 시간이 흐르거나 뭔가를 만지거나).
+ */
+export function signalSilence(state: StoryProgress): boolean {
+  return (
+    state.signalCaught === false &&
+    storyPhaseOf(state) === "turning" &&
+    !state.revisited.includes(SIGNAL_MEMORY)
+  );
+}
+
 /**
  * 남은 밤 (v4 1-3의 deadline). 생존자 방송이 "나흘 밤 지나면 이동한다"고 한 뒤부터 4.
  * 방송부터 현관까지가 전부 하루 안의 일이라 페이즈가 넘어가도 줄지 않는다. 방송 전에는 없다.
@@ -173,6 +195,8 @@ export function visitOpen(state: StoryProgress, id: MemoryId, visit: Visit): boo
   const config = visitConfig(id, visit);
   if (!config) return false;
   const phase = storyPhaseOf(state);
+  // 정적 구간에는 라디오가 아직 아무 말도 하지 않는다
+  if (id === SIGNAL_MEMORY && visit === 2 && signalSilence(state)) return false;
   if (visit === 1) {
     // 인트로 동안에도 1차 조사는 열려 있다. 만지지 못하게 막는 것은 1인칭 시점이다
     // (store의 viewpointOf). 불을 켜는 순간 방이 그대로 이어진다

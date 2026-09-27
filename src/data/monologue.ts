@@ -1,6 +1,6 @@
 import type { MemoryId } from "./generated/content";
 import { PHASE2_MEMORIES } from "./memory-room";
-import { type StoryProgress, storyPhaseOf } from "./story-phase";
+import { SIGNAL_MEMORY, type StoryProgress, signalSilence, storyPhaseOf } from "./story-phase";
 
 /**
  * 상단 독백의 구간 id. content/stages.yaml의 키와 같아야 한다
@@ -15,6 +15,7 @@ export const MONOLOGUE_IDS = [
   "p1-0",
   "p1-mid",
   "p1-late",
+  "turn-silence",
   "turn-bottom",
   "turn-signal",
   "p2-enter",
@@ -48,7 +49,9 @@ export function monologueIdFor(state: StoryProgress): MonologueId {
     }
     case "turning":
       // 생존자 방송을 들었다(라디오 2차) = 문이 금빛이다
-      return state.revisited.includes("radio" as MemoryId) ? "turn-signal" : "turn-bottom";
+      if (state.revisited.includes(SIGNAL_MEMORY)) return "turn-signal";
+      // 과거편에서 막 돌아와 신호가 잡히기 전: 라디오를 끄고 가라앉는 한 줄
+      return signalSilence(state) ? "turn-silence" : "turn-bottom";
     case "p2":
       return "p2-enter";
     case "p3":

@@ -47,6 +47,7 @@ import { PlaybackScene } from "./PlaybackScene";
 import { PuzzleHost } from "./PuzzleHost";
 import { RemarkLine } from "./RemarkLine";
 import { RoomCallout } from "./RoomCallout";
+import { SignalCatch } from "./SignalCatch";
 import { SoundToggle } from "./SoundToggle";
 import { TitleScreen } from "./TitleScreen";
 import { ViewpointTransition } from "./ViewpointTransition";
@@ -360,6 +361,8 @@ export function MemoryRoom() {
           {/* 지나간 대사: 대사창 위에 얹힌다. 입구는 대사창 안의 작은 버튼 하나 */}
           <DialogueLog />
           <RemarkLine />
+          {/* 과거편 뒤의 정적을 재다가 라디오에 신호를 잡아 준다 (그리는 것 없음) */}
+          <SignalCatch />
           {/* 거실에 있는 동안 방의 액자가 켜졌다는 한 줄 (content-design 4-3) */}
           <RoomCallout />
         </>

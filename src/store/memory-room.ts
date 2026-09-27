@@ -38,7 +38,9 @@ import {
   phaseAtLeast,
   RECOVERY_VISITS,
   refDone,
+  SIGNAL_MEMORY,
   type StoryPhase,
+  signalSilence,
   storyPhaseOf,
   type Visit,
   visitDone,
@@ -379,6 +381,14 @@ export interface MemoryRoomState {
    * 화면 상태라 저장하지 않는다.
    */
   cameraHold: CameraHoldId | null;
+  /**
+   * 과거편에서 돌아온 방에 라디오 신호가 잡혔는가. 잡히기 전이 분기점의 정적 구간이다
+   * (story-phase의 signalSilence): 라디오는 꺼진 채 깜빡이지 않고, 2차도 안 열린다.
+   *
+   * 저장하지 않는다. 정적 구간에서 새로고침하면 정적부터 다시 흐른다. 그 구간을 지난
+   * 진행은 페이즈가 이미 넘어갔거나 라디오 2차를 마쳐서 이 값을 보지 않는다.
+   */
+  signalCaught: boolean;
   beginInteraction: (id: MemoryId) => void;
   advanceDialogue: () => void;
   /** 재생을 한 칸 진행한다. 다음 줄 → 정적 → 다음 컷 → 종료 순. */
@@ -462,6 +472,8 @@ export interface MemoryRoomState {
   /** 혼잣말 한 줄을 흘린다. 다른 화면이 떠 있으면 아무 일도 없다. */
   /** `seen`은 어느 기억의 기록인지(memoryId)를 같이 받는다. */
   sayRemark: (id: RemarkId, memoryId?: MemoryId) => void;
+  /** 라디오에 신호가 잡힌다. 정적 구간이 아니면 아무 일도 없다 (SignalCatch만 부른다). */
+  catchSignal: () => void;
   /** 붙들린 카메라를 놓는다. 크레인 샷이 머무는 시간이 끝났을 때 씬이 부른다. */
   endCameraHold: () => void;
   /** 엔딩 시작: 조건을 못 채웠으면 아무 일도 일어나지 않는다. */
@@ -479,6 +491,7 @@ type StateSnapshot = Pick<MemoryRoomState, "collected" | "revisited" | "doorOpen
       | "endingStarted"
       | "discoveries"
       | "notebookOpened"
+      | "signalCaught"
     >
   >;
 
@@ -994,6 +1007,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       notebookRead: [],
       remark: null,
       cameraHold: null,
+      signalCaught: false,
       beginInteraction: (id) =>
         set((state) => {
           if (state.activePlayback) return state;
@@ -1343,6 +1357,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
             ? state
             : { remark: { id, at: Date.now(), memoryId } },
         ),
+      catchSignal: () => set((state) => (signalSilence(state) ? { signalCaught: true } : state)),
       endCameraHold: () => set((state) => (state.cameraHold ? { cameraHold: null } : state)),
       startEnding: () => set((state) => (state.batTaken ? { endingStarted: true } : state)),
       reset: () => {
@@ -1387,6 +1402,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           notebookRead: [],
           remark: null,
           cameraHold: null,
+          signalCaught: false,
           resetRevision: state.resetRevision + 1,
         }));
       },
@@ -1541,13 +1557,29 @@ export const selectSceneInputLocked = (state: MemoryRoomState) =>
  * 라디오가 저 혼자 살아나 있는가.
  *
  * 재난방송이 끊기면서 라디오는 확실히 죽는다. 2바퀴의 문은 도해가 다시 만지는 게
- * 아니라 라디오가 먼저 말을 거는 것이라, 컷씬이 끝난 자리에서 저절로 지직거린다.
+ * 아니라 라디오가 먼저 말을 거는 것이라, 저 혼자 지직거린다. 컷씬이 끝나자마자가 아니라
+ * 정적 구간(signalSilence) 뒤에 깨어난다: 절망이 내려앉을 틈 없이 희망이 들면 둘 다 가볍다.
  * 목소리를 잡고 나면(revisited) 더는 깜빡이지 않는다. 할 말을 이미 했으니까.
  */
 export const selectRadioSignaling = (state: MemoryRoomState) =>
   storyPhaseOf(state) === "turning" &&
-  !state.revisited.includes("radio") &&
+  state.signalCaught &&
+  !state.revisited.includes(SIGNAL_MEMORY) &&
   state.activePlayback === null;
+
+/**
+ * 분기점의 정적이 흐르고 있는가: 과거편에서 돌아와 신호가 잡히기 전이고, 방이 비어 있다.
+ *
+ * 대사·컷씬·메뉴가 떠 있는 동안은 정적이 아니라 그 화면이다. 그 사이에는 시간을 세지
+ * 않는다 (SignalCatch가 이 값이 참인 동안만 잰다).
+ */
+export const selectSignalSilenceRunning = (state: MemoryRoomState) =>
+  signalSilence(state) &&
+  state.started &&
+  state.activePlayback === null &&
+  state.queuedPlaybacks.length === 0 &&
+  state.activeInteraction === null &&
+  state.uiLocks.length === 0;
 
 /**
  * BGM이 뒤로 물러나야 하는 정도를 정하는 축. 미니게임은 효과음이, 대사는 글이
