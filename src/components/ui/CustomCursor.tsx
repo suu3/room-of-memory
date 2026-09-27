@@ -159,12 +159,22 @@ export function CustomCursor() {
 
   if (!active) return null;
 
-  // 네이티브 커서가 전부 숨어 있어서 이 층은 무엇보다 위여야 한다. 개발 패널(z-[99999])보다도
+  // 네이티브 커서가 전부 숨어 있어서 이 층은 무엇보다 위여야 한다. 개발 패널(z-[99999])보다도.
+  // 점과 링은 층 자체가 difference로 섞인다. z-index를 가진 층은 쌓임 맥락이라 안쪽 요소의
+  // 블렌드는 층 밖(페이지)에 닿지 않는다. 그러면 상아색 점이 수첩 종이(거의 같은 색) 위에서
+  // 사라졌다. 파문은 금빛 그대로 보여야 해서 따로 둔다
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-[100000]">
-      <span ref={rippleRef} className="cursor-ripple" />
-      <span ref={dotRef} className="cursor-dot" />
-      <span ref={ringRef} className="cursor-ring" />
-    </div>
+    <>
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-[100000]">
+        <span ref={rippleRef} className="cursor-ripple" />
+      </div>
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-[100000] mix-blend-difference"
+      >
+        <span ref={dotRef} className="cursor-dot" />
+        <span ref={ringRef} className="cursor-ring" />
+      </div>
+    </>
   );
 }

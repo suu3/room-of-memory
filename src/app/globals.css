@@ -1236,7 +1236,8 @@ body {
  * 이긴다. body의 인라인 cursor(useGlowHover)는 body 자신에게만 닿고, 실제로 손이
  * 얹히는 캔버스는 이 규칙이 덮는다.
  *
- * 점은 difference 블렌드라 밝은 종이 위에서는 어둡게, 어두운 방에서는 밝게 선다.
+ * 점과 링은 difference 블렌드라 밝은 종이 위에서는 어둡게, 어두운 방에서는 밝게 선다.
+ * 블렌드는 점이 아니라 감싼 층(CustomCursor)에 건다. z-index 층 안쪽의 블렌드는 층 밖에 안 닿는다.
  * 링은 늘 원이고 자리·배율만 프레임마다 인라인으로 받는다 (버튼 위에서 조여들고
  * 오브젝트로 빨려든다: ui/cursor-ring.ts). 만질 수 있는 것 위에서 금빛이 되고, 누르는
  * 동안 한 번 더 조여든다.
@@ -1267,7 +1268,6 @@ body {
   height: 6px;
   margin: -3px;
   background: var(--color-ivory);
-  mix-blend-mode: difference;
 }
 
 .cursor-ring {
