@@ -34,19 +34,25 @@ export interface TiltFocus {
  * 바깥 55%가 번지는 구간이고 안쪽 45%가 또렷한 심이다.
  */
 const BY_ACT: Record<Act, { blur: number; taper: number }> = {
-  1: { blur: 0.28, taper: 0.55 },
-  2: { blur: 0.14, taper: 0.7 },
-  3: { blur: 0.14, taper: 0.7 },
+  1: { blur: 0.14, taper: 0.55 },
+  2: { blur: 0.07, taper: 0.7 },
+  3: { blur: 0.07, taper: 0.7 },
 };
 
-/** 서 있을 때 띠의 중심(화면 높이 비율, 0 = 아래)과 반폭. 카메라가 플레이어를 따라오므로 가운데다. */
-const STANDING = { center: 0.5, half: 0.2 } as const;
+/**
+ * 서 있을 때 띠의 중심(화면 높이 비율, 0 = 아래)과 반폭. 카메라가 플레이어를 따라오므로 가운데다.
+ *
+ * 처음 화면에서 본 값(반폭 0.2, 흐림 0.28)은 캐릭터 둘레만 남고 책상·침대가 다 뭉개져
+ * "왜 캐릭터 빼고 다 흐리냐"로 읽혔다 (2026-09-27). 띠를 화면의 6할로 넓히고 흐림을 절반으로
+ * 낮춰, 모형 느낌은 가장자리에만 남기고 방은 다 보이게 한다.
+ */
+const STANDING = { center: 0.5, half: 0.3 } as const;
 /** 앉았을 때: 눈높이가 내려온 만큼 띠도 내려오고, 반폭은 줄어든다. */
-const SEATED = { center: 0.42, half: 0.11 } as const;
+const SEATED = { center: 0.42, half: 0.18 } as const;
 
 /**
- * 흐림(0~1)을 블러 scale로 옮기는 배율. 커널 MEDIUM·반해상도에서 scale 0.56(1막)이면 화면
- * 위아래가 확실히 뭉개지고, 0.28(2막)이면 흐린 걸 알아볼 만큼만 남는다.
+ * 흐림(0~1)을 블러 scale로 옮기는 배율. 커널 MEDIUM·반해상도에서 scale 0.28(1막)이면 화면
+ * 위아래 가장자리가 부드럽게 물러나고, 0.14(2막)이면 흐린 걸 알아볼 만큼만 남는다.
  */
 const BLUR_SCALE = 2;
 
