@@ -25,6 +25,7 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen">, CommonTextKey> = {
   "parents-locked": "remark.parentsLocked",
   "clock-stopped": "remark.clockStopped",
   "clock-running": "remark.clockRunning",
+  aircon: "remark.aircon",
 };
 
 /**

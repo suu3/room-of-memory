@@ -568,6 +568,36 @@ function ClockHand({
  * (칫솔컵과 같은 쉼표 비트). 1막에는 멈춘 시각을, 2막부터는 다시 가는 초침을 말한다.
  * 예전에는 현관 잠금(angle-turn)의 각도 단서였지만 그 퍼즐을 빼면서 단서 자리도 내려놓았다.
  */
+/** 천장 에어컨의 자리와, 그 아래 서서 올려다보는 바닥 자리(책상 오른쪽 옆). */
+const CEILING_AC = {
+  /** 천장(y 4.7)에서 조금 내려 단다. 천장에 바짝 붙이면 윗면이 벽 두께에 묻혀 납작해 보인다. */
+  position: [-2.75, 4.18, -3.25] as Vec3Tuple,
+  near: [-2.75, -2.4] as const,
+  interactionRadius: 1.6,
+} as const;
+
+/**
+ * 천장 에어컨 (쉼표 비트): 누르면 한 줄. 진행에는 아무것도 남기지 않는다. 확대는 이 게임에서
+ * 조사의 문법이라 하지 않는다. 11월 19일의 방에서 에어컨은 틀 일이 없는 물건이고, 그 한 줄이
+ * 계절과 흐른 시간을 한 번 더 말한다.
+ */
+function CeilingAc() {
+  const sayRemark = useMemoryRoomStore((state) => state.sayRemark);
+  return (
+    <TouchProp
+      name="ceiling-ac"
+      near={CEILING_AC.near}
+      radius={CEILING_AC.interactionRadius}
+      onPress={() => {
+        playSound("select");
+        sayRemark("aircon");
+      }}
+    >
+      <FurnitureModel path={ASSETS.models.ceilingAc} position={CEILING_AC.position} scale={1} />
+    </TouchProp>
+  );
+}
+
 function DeskClock({ palette }: FurnitureProps) {
   // 문이 열리면(2막) 초침이 다시 간다. 모션을 끈 사람에게는 멈춘 채 둔다
   const act = useMemoryRoomStore(selectAct);
@@ -973,8 +1003,7 @@ export function RoomFurniture({
 }) {
   return (
     <group name="room-furniture">
-      {/* 천장(y 4.7)에서 조금 내려 단다. 천장에 바짝 붙이면 윗면이 벽 두께에 묻혀 납작해 보인다. */}
-      <FurnitureModel path={ASSETS.models.ceilingAc} position={[-2.75, 4.18, -3.25]} scale={1} />
+      <CeilingAc />
       <Bed palette={palette} />
       <Desk palette={palette} />
       <Chair palette={palette} />

@@ -98,6 +98,8 @@ export type RemarkId =
   // 캐비닛 위 탁상시계: 1막에는 멈춘 시각, 2막부터 다시 가는 초침
   | "clock-stopped"
   | "clock-running"
+  // 천장 에어컨 (쉼표 비트): 11월이라 틀 일이 없다. 진행에 아무것도 남기지 않는다
+  | "aircon"
   // 이미 본 기억을 다시 눌렀을 때: 그 기억의 마지막 기록 문장 (remark.memoryId)
   | "seen";
 
