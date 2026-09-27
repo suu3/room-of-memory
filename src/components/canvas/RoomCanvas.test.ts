@@ -320,7 +320,7 @@ describe("room interaction keyboard dispatch", () => {
     });
 
     const handled = handleRoomInteractionKeyDown(event, {
-      nearbyMemoryId: "console",
+      nearbyMemoryId: "report-card",
       inputLocked: false,
       interact: (id) =>
         dispatchMemoryInteraction(useMemoryRoomStore.getState(), id, (dispatchedId) => {
@@ -330,7 +330,7 @@ describe("room interaction keyboard dispatch", () => {
 
     expect(handled).toBe(true);
     expect(event.defaultPrevented).toBe(true);
-    expect(dispatched).toEqual(["console"]);
+    expect(dispatched).toEqual(["report-card"]);
   });
 
   it("opens closed curtains before dispatching the window memory", () => {

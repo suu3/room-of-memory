@@ -21,8 +21,11 @@ import {
 } from "./puzzle";
 
 const SKIP_AFTER_MS = 40_000;
-/** 섞는 수. 3×3에서 이 정도면 한눈에 답이 보이지도, 손이 지치지도 않는다. */
-const SCRAMBLE_MOVES = 24;
+/**
+ * 섞는 수. 2026-09-26에 24에서 12로: 클라이맥스 직전이라 퍼즐에 오래 붙들지 않는다.
+ * 이 정도면 한눈에 답이 보이진 않고, 열 번 남짓 밀면 맞는다.
+ */
+const SCRAMBLE_MOVES = 12;
 /** 조각 하나가 잘라 쓸 배경의 크기: 가로·세로 **둘 다** 격자 배수여야 한다. */
 const TILE_BACKGROUND_SIZE = `${PUZZLE_SIZE * 100}% ${PUZZLE_SIZE * 100}%`;
 

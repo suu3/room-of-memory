@@ -158,9 +158,11 @@ describe("v4 진행 형태", () => {
   const deps = (config?: { unlockAfter?: { id: MemoryId; visit: number }[] }) =>
     (config?.unlockAfter ?? []).map((ref) => `${ref.id}@${ref.visit}`).sort();
 
-  it("1페이즈는 강도 순서다: 강도 1 → 강도 2 → 강도 3 → 라디오", () => {
-    expect(deps(MEMORY_BY_ID.console.phase1)).toEqual([]);
-    expect(deps(MEMORY_BY_ID.ball.phase1)).toEqual([]);
+  it("1페이즈는 강도 순서다: 강도 0 → 강도 1 → 강도 2 → 강도 3 → 라디오", () => {
+    // 성적표(수능·부모님)가 야구 회상보다 먼저다
+    expect(deps(MEMORY_BY_ID["report-card"].phase1)).toEqual([]);
+    expect(deps(MEMORY_BY_ID.console.phase1)).toEqual(["report-card@1"]);
+    expect(deps(MEMORY_BY_ID.ball.phase1)).toEqual(["report-card@1"]);
     expect(deps(MEMORY_BY_ID.frame.phase1)).toEqual(["ball@1", "console@1"]);
     expect(deps(MEMORY_BY_ID.phone.phase1)).toEqual(["ball@1", "console@1"]);
     expect(deps(MEMORY_BY_ID.calendar.phase1)).toEqual(["phone@1"]);

@@ -119,6 +119,14 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     helpKey: "minigame.windowView.help",
   },
   // ── 3D 인스펙트 (v4.1 2장): 집어 든 물건을 돌려 찾을 면을 본다 ──────────────
+  "report-card-flip": {
+    id: "report-card-flip",
+    mode: "overlay",
+    presentation: "bare",
+    component: lazy(() => import("./inspect").then((m) => ({ default: m.ReportCardFlipMinigame }))),
+    titleKey: "minigame.reportCardFlip.title",
+    helpKey: "minigame.inspect.help",
+  },
   "card-flip": {
     id: "card-flip",
     mode: "overlay",

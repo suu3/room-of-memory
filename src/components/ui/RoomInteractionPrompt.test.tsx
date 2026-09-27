@@ -7,6 +7,7 @@ import type { HotspotStatus } from "@/store/memory-room";
 import { RoomInteractionPrompt } from "./RoomInteractionPrompt";
 
 const labels = {
+  "report-card": "Mock Exam Report",
   console: "Console",
   window: "Window",
   frame: "Frame",

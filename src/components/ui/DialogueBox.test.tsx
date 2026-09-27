@@ -14,10 +14,10 @@ function lineIndex() {
 
 function openDialogue() {
   act(() => {
-    useMemoryRoomStore.getState().beginInteraction("console");
+    useMemoryRoomStore.getState().beginInteraction("report-card");
   });
   if (useMemoryRoomStore.getState().activeInteraction?.phase !== "dialogue") {
-    throw new Error("게임기가 대사로 시작하지 않는다");
+    throw new Error("성적표가 대사로 시작하지 않는다");
   }
 }
 

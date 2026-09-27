@@ -12,9 +12,10 @@ import { CLOTH_CURSOR } from "./cloth";
 import { PhotoFrame } from "./frame";
 import { createWipeGrid, wipeCircle } from "./wipe-grid";
 
-const CLEAR_RATIO = 0.7;
-const TIME_LIMIT_S = 40;
-const SKIP_AFTER_MS = 15_000;
+/** 2026-09-26에 70%·40초·15초에서 줄였다: 절반만 닦아도 얼굴 자리가 드러난다. */
+const CLEAR_RATIO = 0.5;
+const TIME_LIMIT_S = 25;
+const SKIP_AFTER_MS = 10_000;
 /**
  * 파티클(rAF)이 멈춘 탭에서도 결과 대사로 넘어가게 하는 하드 폴백.
  * SuccessBurst가 스스로 끝나는 시간(2.3초)보다 넉넉히 뒤여야 한다. 짧으면
