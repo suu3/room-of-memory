@@ -106,8 +106,8 @@ export const ASSETS = {
     cutsceneSurvivor9: "/assets/images/cutscene-survivor-9.webp?v=2",
     cutsceneSurvivor10: "/assets/images/cutscene-survivor-10.webp?v=3",
     /** '뒤집으면 보인다' 조사 에셋. */
-    mgIdCardFront: "/assets/images/mg-id-card-front.webp",
-    mgIdCardBack: "/assets/images/mg-id-card-back.webp",
+    mgIdCardFront: "/assets/images/mg-id-card-front.webp?v=3",
+    mgIdCardBack: "/assets/images/mg-id-card-back.webp?v=3",
     mgAmpouleLabel: "/assets/images/mg-ampoule-label.webp",
     mgShelfBookInside: "/assets/images/mg-shelf-book-inside.webp",
     mgPapersPaper: "/assets/images/mg-papers-paper.webp",
