@@ -27,6 +27,7 @@ import {
 } from "./player-animation";
 import { captureMovementKeyDown, MOVEMENT_KEYS, resolveMovementInput } from "./player-input";
 import { LIE_TILT, STEP_RATE } from "./player-rig";
+import { planSeatRoute, pointAlong, type SeatRoute } from "./seat-route";
 import { SEATS, type Seat } from "./seats";
 import {
   advanceSitPhases,
@@ -118,8 +119,9 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
    * 자리는 스토어가 갖고(가구가 앉힌다), 몸이 거기까지 가는 건 여기서 한다. **걸어가서**
    * 앉고, 일어선 다음 걸어 돌아온다 (sit-motion의 advanceSitPhases).
    *
-   * `standing`은 앉기 직전에 서 있던 자리다. 좌석은 콜라이더 안(의자 위)이라 일어설
-   * 자리를 새로 찾는 대신 왔던 자리를 기억하는 편이 확실하다.
+   * `route`는 앉기 직전에 서 있던 자리에서 다가서는 자리까지의 길이다 (seat-route). 가구를
+   * 돌아가고, 일어설 때는 같은 길을 거꾸로 걸어 제자리로 돌아온다. 좌석은 콜라이더 안(의자
+   * 위)이라 일어설 자리를 새로 찾는 대신 왔던 자리를 기억하는 편이 확실하다.
    */
   const seatedAt = useMemoryRoomStore((state) => state.seatedAt);
   const phasesRef = useRef<SitPhases>({ travel: 0, sit: 0 });
@@ -127,11 +129,13 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
   const liePhasesRef = useRef<LiePhases>({ perch: 0, recline: 0 });
   const seatRef = useRef<{
     seat: Seat;
-    standing: { x: number; z: number; facing: number };
-    /** 자리까지 걷는 데 걸리는 시간(초)과 걸어가는 방향. */
+    route: SeatRoute;
+    /** 자리까지 걷는 데 걸리는 시간(초)과 다가서는 자리에 닿을 때 보는 방향. */
     travelSeconds: number;
     approach: number;
   } | null>(null);
+  /** 길 위의 한 점을 담아 쓰는 그릇 (프레임마다 새 객체를 만들지 않는다). */
+  const routePointRef = useRef<Vec2>({ x: 0, z: 0 });
   /*
    * 커튼 잡기.
    *
@@ -273,16 +277,21 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
       useMemoryRoomStore.getState().endCurtainGrab();
       grabRef.current = null;
     }
-    // 걸어가는 목표는 앉는 자리가 아니라 그 앞에 서는 자리다 (침대는 옆에 선다).
-    const spot = seat.approach ?? seat.anchor;
-    const toSeatX = spot.x - group.position.x;
-    const toSeatZ = spot.z - group.position.z;
-    const distance = Math.hypot(toSeatX, toSeatZ);
+    // 걸어가는 목표는 앉는 자리가 아니라 그 옆에 서는 자리다 (의자·침대는 옆에 선다).
+    // 가구를 돌아가는 길이다. 곧장 가면 의자와 책상을 뚫는다
+    const walkable = walkableFor(useMemoryRoomStore.getState());
+    const route = planSeatRoute(
+      { x: group.position.x, z: group.position.z },
+      seat,
+      PLAYER_RADIUS,
+      walkable.zones,
+      walkable.colliders,
+    );
     seatRef.current = {
       seat,
-      standing: { x: group.position.x, z: group.position.z, facing: facing.rotation.y },
-      travelSeconds: distance < MIN_TRAVEL_DISTANCE ? 0 : distance / PLAYER_SPEED,
-      approach: Math.atan2(toSeatX, toSeatZ),
+      route,
+      travelSeconds: route.length < MIN_TRAVEL_DISTANCE ? 0 : route.length / PLAYER_SPEED,
+      approach: route.arrive,
     };
   }, [seatedAt]);
 
@@ -486,9 +495,10 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
     let sitWeight = sitting01;
     if (parked) {
       const { anchor, bodyY, facing: seatFacing, perch } = parked.seat;
-      const spot = parked.seat.approach ?? anchor;
-      const { standing, approach } = parked;
+      const { approach } = parked;
       const eased = sitEase(phases.travel);
+      // 걷는 구간은 길을 따라간다 (일어설 때는 같은 길을 거꾸로)
+      const walked = pointAlong(parked.route, eased, routePointRef.current);
       /*
        * 눕는 자리는 앉는 구간이 둘로 갈린다 (sit-motion의 liePhasesOf): 가장자리(perch)에
        * 걸터앉고, 그 다음에야 발을 올리며 뒤로 눕는다(recline). 서서 판자처럼 넘어가던
@@ -507,26 +517,22 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
       const perchY = perch?.bodyY ?? bodyY;
       const perchFacing = perch?.facing ?? seatFacing;
       // 걷는 구간은 서는 자리까지, 앉는 구간은 거기서 걸터앉는 자리까지, 눕는 구간은 다시 눕는 자리까지.
-      const nextX = lerp(
-        lerp(lerp(standing.x, spot.x, eased), perchX, settle01),
-        anchor.x,
-        recline01,
-      );
-      const nextZ = lerp(
-        lerp(lerp(standing.z, spot.z, eased), perchZ, settle01),
-        anchor.z,
-        recline01,
-      );
-      const traveled = Math.hypot(nextX - group.position.x, nextZ - group.position.z);
+      const nextX = lerp(lerp(walked.x, perchX, settle01), anchor.x, recline01);
+      const nextZ = lerp(lerp(walked.z, perchZ, settle01), anchor.z, recline01);
+      const stepX = nextX - group.position.x;
+      const stepZ = nextZ - group.position.z;
+      const traveled = Math.hypot(stepX, stepZ);
       group.position.x = nextX;
       group.position.z = nextZ;
       group.position.y = lerp(lerp(0, perchY, settle01), bodyY, recline01);
-      // 걸어갈 때는 가는 쪽을 보고(돌아올 때는 그 반대), 앉으면서 의자 쪽으로 돌아앉는다.
+      // 걸어갈 때는 가는 쪽을 보고(길이 꺾이면 같이 꺾인다), 앉으면서 의자 쪽으로 돌아앉는다.
+      // 앉는 구간의 출발 방향은 다가서는 자리에 닿을 때의 방향이다 (일어설 때는 그 반대).
       const walkFacing = seated ? approach : approach + Math.PI;
+      const stepFacing = traveled > 1e-5 ? Math.atan2(stepX, stepZ) : facing.rotation.y;
       facing.rotation.y =
         phases.sit > 0
           ? lerpAngle(lerpAngle(walkFacing, perchFacing, settle01), seatFacing, recline01)
-          : dampAngle(facing.rotation.y, walkFacing, TURN_LAMBDA, delta);
+          : dampAngle(facing.rotation.y, stepFacing, TURN_LAMBDA, delta);
       // 눕는 자리는 젖히는 토막에 몸을 뒤로 눕힌다. 발 원점을 축으로 머리가 베개 쪽으로 간다.
       if (lieRef.current) {
         lieRef.current.rotation.x = lying ? -(Math.PI / 2 - LIE_TILT) * recline01 : 0;

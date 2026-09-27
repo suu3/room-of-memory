@@ -25,7 +25,7 @@ import type { Vec2 } from "./spatial";
  * 앉는 자세는 하나(Sit 클립)뿐이고 가구마다 좌면 높이만 다르다. 몸은 `좌면 - SIT_CONTACT_Y`
  * 에 얹히고, 앞뒤 위치는 좌면 앞턱에서 역산한다 (seatAnchor). 눕는 자세는 Idle을 통째로
  * 눕힌 것이라(player-rig의 LIE_TILT) 앞턱 계산이 없다. 대신 침대 옆에 먼저 서는 자리
- * (`approach`)가 있다. 한가운데까지 걸어 들어가면 매트리스를 뚫고 걷는다.
+ * (`approaches`)가 있다. 한가운데까지 걸어 들어가면 매트리스를 뚫고 걷는다.
  */
 
 export type { SeatId };
@@ -39,10 +39,11 @@ export interface Seat {
   /** 앉으면 몸(리그 루트)이 놓이는 자리. */
   anchor: Vec2;
   /**
-   * 앉기 전에 걸어가서 서는 자리. 생략하면 anchor까지 걸어간다 (의자는 앉는 자리로
-   * 곧장 들어가도 된다). 침대는 옆에 섰다가 눕는 동작 중에 anchor로 올라간다.
+   * 앉기 전에 걸어가서 서는 자리의 후보. 걸어서 가장 가까운 것으로 간다 (seat-route).
+   * 생략하면 anchor까지 걸어간다. 침대는 옆에 섰다가 눕는 동작 중에 anchor로 올라가고,
+   * 책상 의자는 옆에 섰다가 앉으면서 좌면으로 들어간다.
    */
-  approach?: Vec2;
+  approaches?: readonly Vec2[];
   /**
    * 눕기 전에 걸터앉는 자리 (눕는 자리에만). 가장자리에 앉았다가 발을 올리며 anchor로
    * 눕는다. 서서 곧장 뒤로 넘어가면 사람이 눕는 걸로 안 읽힌다 (sit-motion의 liePhasesOf).
@@ -99,6 +100,20 @@ const DESK_CHAIR_CENTER: Vec2 = {
   x: CHAIR_POSITION[0] + CHAIR_PULL.distance,
   z: CHAIR_POSITION[2],
 };
+const DESK_CHAIR_ANCHOR = seatAnchor(DESK_CHAIR_CENTER, DESK_CHAIR_FACING, DESK_CHAIR_HALF_DEPTH);
+/**
+ * 의자 옆면에서 서는 자리까지: 좌면 반폭에 플레이어 반지름(0.38)과 여유를 더한 거리.
+ * 앉는 자리는 의자 콜라이더 안이라 거기까지 걸으면 의자를 뚫는다. 빠져나온 의자 옆에
+ * 섰다가 앉는 동작 중에 좌면으로 들어간다. 양옆 중 걸어서 가까운 쪽으로 간다.
+ *
+ * x를 앉는 자리가 아니라 빠진 의자 한가운데에 두는 건 라디오 때문이다: 앉는 자리 옆이면
+ * 책상 모서리의 라디오 클릭 구(반경 1.05) 안이라 그 바닥을 누르면 라디오가 눌린다.
+ */
+const DESK_CHAIR_SIDE_OFF = CHAIR_SEAT.half + 0.45;
+const DESK_CHAIR_APPROACHES: readonly Vec2[] = [
+  { x: DESK_CHAIR_CENTER.x, z: CHAIR_POSITION[2] - DESK_CHAIR_SIDE_OFF },
+  { x: DESK_CHAIR_CENTER.x, z: CHAIR_POSITION[2] + DESK_CHAIR_SIDE_OFF },
+];
 
 /*
  * ── 방: 침대 ────────────────────────────────────────────────────
@@ -224,7 +239,8 @@ export const SEATS: Record<SeatId, Seat> = {
   "desk-chair": {
     id: "desk-chair",
     space: "room",
-    anchor: seatAnchor(DESK_CHAIR_CENTER, DESK_CHAIR_FACING, DESK_CHAIR_HALF_DEPTH),
+    anchor: DESK_CHAIR_ANCHOR,
+    approaches: DESK_CHAIR_APPROACHES,
     bodyY: DESK_CHAIR_SEAT_Y - SIT_CONTACT_Y,
     facing: DESK_CHAIR_FACING,
     near: { x: CHAIR_POSITION[0], z: CHAIR_POSITION[2] },
@@ -236,7 +252,7 @@ export const SEATS: Record<SeatId, Seat> = {
     space: "room",
     pose: "lie",
     anchor: { x: BED_ORIGIN.x, z: BED_LIE_Z },
-    approach: BED_APPROACH,
+    approaches: [BED_APPROACH],
     perch: BED_PERCH,
     bodyY: BED_MATTRESS_TOP_Y,
     facing: 0,

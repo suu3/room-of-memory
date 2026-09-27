@@ -98,8 +98,8 @@ describe("seats", () => {
     const bed = SEATS.bed;
     const bedFootprint = ROOM_COLLIDERS[1];
     expect(bed.pose).toBe("lie");
-    expect(bed.approach).toBeDefined();
-    const approach = bed.approach ?? bed.anchor;
+    expect(bed.approaches).toHaveLength(1);
+    const approach = bed.approaches?.[0] ?? bed.anchor;
     expect(isWalkable(approach.x, approach.z, PLAYER_RADIUS, ZONES, COLLIDERS)).toBe(true);
     expect(bed.anchor.x).toBeGreaterThan(bedFootprint.minX);
     expect(bed.anchor.x).toBeLessThan(bedFootprint.maxX);

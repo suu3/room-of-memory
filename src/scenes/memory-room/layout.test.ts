@@ -103,7 +103,7 @@ describe("memory-room layout", () => {
      * 자리·다가서는 자리 어디에도 닿지 않아야 침대가 침대로 눌린다.
      */
     for (const seat of Object.values(SEATS)) {
-      const spots = [seat.anchor, seat.near, seat.approach, seat.perch].filter(
+      const spots = [seat.anchor, seat.near, ...(seat.approaches ?? []), seat.perch].filter(
         (spot): spot is { x: number; z: number } => spot !== undefined,
       );
       for (const id of MEMORY_IDS) {
