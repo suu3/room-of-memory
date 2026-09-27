@@ -267,7 +267,7 @@ scripts:
   # 위칸. 숫자만 이상해한다. 결론은 말하지 않는다
   fridge-open:
     - speaker: hero
-      ko: 나갈 거면 뭐라도 챙겨야지. 냉장고부터.
+      ko: 나갈 거면 뭐라도 챙겨야지. 냉장고부터 보자.
       en: If I'm going out, I should take something. Start with the fridge.
       ja: 出るなら何か持っていかないと。まずは冷蔵庫から。
     - speaker: hero
@@ -277,7 +277,7 @@ scripts:
       ja: ひと月食べてきたのに、まだ半分残ってる。
     - speaker: hero
       expression: puzzled
-      ko: 2박 3일 다녀온다면서, 왜 이만큼을 채워놨을까.
+      ko: 2박 3일 다녀온다고 하셨는데, 왜 이만큼이나 채워놓으셨을까.
       en: Two nights, they said. So why stock this much?
       ja: 二泊三日って言ってたのに、なんでこんなに詰めていったんだ。
 

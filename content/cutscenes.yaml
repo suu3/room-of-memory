@@ -42,9 +42,9 @@ cutscenes:
   workbook-name:
     - lines:
         - speaker: hero
-          ko: 한도해, 고3. …내 글씨다.
-          en: Han Do-hae, senior year. …That's my handwriting.
-          ja: ハン・ドヘ、高3。…俺の字だ。
+          ko: 수능 기출문제집. 한도해. 내 글씨다.
+          en: Past entrance-exam questions. Han Do-hae. That's my handwriting.
+          ja: 入試の過去問題集。ハン・ドヘ。俺の字だ。
         - speaker: hero
           ko: 여름에 마지막 야구부 활동을 끝내고 그때부터 고삼 생활로 돌아갔다.
           en: I played my last season with the baseball team in the summer, and after that it was back to senior-year life.
