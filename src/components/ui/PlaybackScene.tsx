@@ -404,7 +404,8 @@ export function PlaybackScene() {
 
       {/* 무엇을 되짚는 중인지: 다시보기는 진행이 아니라 열람이라 제목이 필요하다 */}
       {!isCutscene && active.memoryId && (
-        <p className="pointer-events-none absolute left-1/2 top-8 z-10 -translate-x-1/2 font-pixel text-xs tracking-[0.2em] text-memory">
+        /* 폭은 오른쪽 위 닫기 버튼 몫을 양쪽에서 비운다. 긴 이름은 버튼 밑으로 파고들지 않고 줄을 바꾼다 */
+        <p className="pointer-events-none absolute left-1/2 top-8 z-10 w-max max-w-[calc(100%-12rem)] -translate-x-1/2 text-balance text-center font-pixel text-xs tracking-[0.2em] text-memory">
           {t("playback.replayTitle", {
             name: tRoom(`memories.${active.memoryId}.name` as ParseKeys<"memoryRoom">),
           })}
@@ -415,12 +416,13 @@ export function PlaybackScene() {
         나가는 문. 컷씬에서는 접근성 장치인 건너뛰기이고, 다시보기에서는 그냥 닫기다.
         건너뛸 진행이 없으니 같은 말을 쓰면 안 된다. 구석에 서 있되 흐리지는 않다.
         어두운 그림 위에서 안 보이는 건너뛰기는 접근성 장치가 아니라 장식이다.
+        자리는 오른쪽 위다. 아래 구석에 두면 대사창(z-50, 폰에서는 폭을 다 쓴다)이 덮는다.
       */}
       {stage === "cuts" && (
         <button
           type="button"
           onClick={endPlayback}
-          className="absolute bottom-6 right-6 z-10 cursor-pointer rounded-sm border border-fog/50 bg-night/80 px-3.5 py-2 font-pixel text-xs tracking-[0.2em] text-ivory shadow-chip transition-colors duration-150 hover:border-ivory/70 hover:bg-night focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+          className="absolute right-6 top-6 z-10 cursor-pointer rounded-sm border border-fog/50 bg-night/80 px-3.5 py-2 font-pixel text-xs tracking-[0.2em] text-ivory shadow-chip transition-colors duration-150 hover:border-ivory/70 hover:bg-night focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
           {t(isCutscene ? "playback.skip" : "playback.close")}
         </button>

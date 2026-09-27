@@ -638,30 +638,22 @@ export function openCutscene(id: string, { intro = false } = {}): ActivePlayback
 }
 
 /**
- * 다시보기 재생을 엮는다. 미니게임은 빼고 그때의 대사와 그림만 잇는다.
+ * 다시보기 재생을 엮는다. 미니게임은 빼고 그때의 그림과 수첩 기록 한 줄만 세운다.
  *
  * 이미 푼 판을 다시 풀리는 것은 되짚기가 아니라 재도전이다. 기억 패널과 수첩은
  * "무엇을 봤는지"를 다시 보여주는 자리라, 손을 다시 쓰게 만들면 안 된다.
  *
- * 대사가 한 줄도 없는 기억(조사 자체가 미니게임뿐이었던 것들)은 그때 남긴
- * 기록을 나레이션으로 대신 세운다. 눌렀는데 아무 일도 없는 줄을 만들지 않는다.
+ * 대사를 통째로 다시 틀지 않는다. 예전에는 진입·결과 대사를 이어 붙여 사인볼이 11줄,
+ * 성적표가 8줄이었다. 되짚기는 한 번 본 장면을 다시 읽는 게 아니라 무엇이었는지를
+ * 떠올리는 자리라, 그때 수첩에 남긴 기록(lore) 한 문단이면 된다 (2026-09-27).
  */
 export function buildMemoryReplay(id: MemoryId, gamePhase: Visit): ActivePlayback | null {
   const config = phaseConfigOf(id, gamePhase);
   if (!config) return null;
 
-  const spoken = [config.interaction?.scriptId, config.interaction?.resultScriptId].flatMap(
-    (scriptId) => (scriptId ? (SCRIPTS[scriptId]?.lines ?? []) : []),
-  );
-  const lines =
-    spoken.length > 0
-      ? spoken
-      : [
-          {
-            speaker: "narrator",
-            textKey: `lore.${id}.phase${gamePhase}`,
-          } as DialogueScriptLine,
-        ];
+  const lines = [
+    { speaker: "narrator", textKey: `lore.${id}.phase${gamePhase}` } as DialogueScriptLine,
+  ];
 
   /*
    * 되짚는 그림이 1막에도 있었고 2막에 다른 한 장으로 바뀌었다면, 그 한 장으로 열었다가

@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  LANTERN_BODY_CLEARANCE,
   LANTERN_MAX_INTENSITY,
   LANTERN_REACH,
   LANTERN_THRESHOLD,
   lanternAmount,
+  lanternClearOfBody,
   lanternIntensity,
   lanternReach,
 } from "./lantern-light";
@@ -36,5 +38,21 @@ describe("lantern", () => {
     expect(lanternAmount(-1)).toBe(1);
     expect(lanternAmount(Number.NaN)).toBe(1);
     expect(lanternAmount(5)).toBe(0);
+  });
+
+  it("몸 자리에 세우면 광원이 머리 속에 들므로 카메라 쪽 몸 밖으로 민다 (손가락 기기)", () => {
+    const out = { x: 0, z: 0 };
+    lanternClearOfBody({ x: 1, z: 2 }, { x: 1, z: 2 }, { x: 1, z: 12 }, out);
+    expect(out.x).toBeCloseTo(1);
+    expect(out.z).toBeCloseTo(2 + LANTERN_BODY_CLEARANCE);
+  });
+
+  it("몸 가까이의 커서 자리는 같은 방향으로 밀고, 충분히 먼 자리는 그대로 둔다", () => {
+    const out = { x: 0, z: 0 };
+    lanternClearOfBody({ x: 0.2, z: 0 }, { x: 0, z: 0 }, { x: 0, z: 10 }, out);
+    expect(out.x).toBeCloseTo(LANTERN_BODY_CLEARANCE);
+    expect(out.z).toBeCloseTo(0);
+    lanternClearOfBody({ x: 3, z: -1 }, { x: 0, z: 0 }, { x: 0, z: 10 }, out);
+    expect(out).toEqual({ x: 3, z: -1 });
   });
 });

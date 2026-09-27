@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
+import { initialLook } from "./first-person";
 import { DOORWAY_ZONE, LIVING_BOUNDS, ROOM_BOUNDS } from "./layout";
-import { findNearestMemory, moveCircle, moveThroughZones, normalizeMovement } from "./spatial";
+import { walkColliders, walkZones } from "./spaces";
+import {
+  findNearestMemory,
+  isWalkable,
+  moveCircle,
+  moveThroughZones,
+  normalizeMovement,
+} from "./spatial";
 
 describe("normalizeMovement", () => {
   it("keeps diagonal movement at unit length", () => {
@@ -85,6 +93,45 @@ describe("moveThroughZones", () => {
     const result = moveThroughZones(againstWall, { x: -1, z: 0 }, RADIUS, zones, []);
 
     expect(result.x).toBeCloseTo(ROOM_BOUNDS.minX + RADIUS, 5);
+  });
+
+  it("still blocks a box the walker is not already inside", () => {
+    const box = { minX: 0.5, maxX: 1.5, minZ: -0.5, maxZ: 0.5 };
+
+    const result = moveThroughZones({ x: 0, z: 0 }, { x: 0.3, z: 0 }, RADIUS, [ROOM_BOUNDS], [box]);
+
+    expect(result.x).toBe(0);
+  });
+
+  it("lets a walker the open door leaf landed on walk on, but not deeper into it", () => {
+    /*
+     * 문 옆(판이 젖혀지는 자리)에 서서 방문을 열면 열린 문짝 콜라이더가 몸과 겹친 채
+     * 생긴다. 1인칭 문 넘기는 문을 보고 시작하므로 앞으로 걸으면 문 쪽이다.
+     */
+    const open = walkColliders(["room-living"]);
+    const openZones = walkZones(["room-living"]);
+    const start = { x: -4.8, z: 5.55 };
+    expect(isWalkable(start.x, start.z, RADIUS, openZones, open)).toBe(false);
+
+    const look = initialLook("doorway", start);
+    const forward = { x: -Math.sin(look.yaw), z: -Math.cos(look.yaw) };
+    const step = 0.04;
+    const position = { ...start };
+    for (let index = 0; index < 60; index += 1) {
+      moveThroughZones(
+        position,
+        { x: forward.x * step, z: forward.z * step },
+        RADIUS,
+        openZones,
+        open,
+        position,
+      );
+    }
+    expect(position.x).toBeLessThan(ROOM_BOUNDS.minX);
+
+    // 판 쪽(+z)으로는 더 파고들지 못한다
+    const deeper = moveThroughZones(start, { x: 0, z: step }, RADIUS, openZones, open);
+    expect(deeper.z).toBe(start.z);
   });
 });
 

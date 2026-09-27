@@ -92,7 +92,8 @@ export function CharacterSheetModal() {
 
   return (
     // grid가 아니라 flex: grid의 auto row는 내용만큼 늘어나서 max-h-full이 무력해진다
-    <div className="absolute inset-0 z-30 flex items-center justify-center overflow-hidden p-4">
+    // overflow-clip: hidden이면 주소창이 오르내릴 때 브라우저가 이 상자를 굴려 수첩 위쪽(탭)이 잘린다
+    <div className="absolute inset-0 z-30 flex items-center justify-center overflow-clip p-4">
       <button
         type="button"
         aria-label={t("characterSheet.close")}
@@ -110,7 +111,7 @@ export function CharacterSheetModal() {
         role="dialog"
         aria-modal="true"
         aria-label={t("characterSheet.title")}
-        className="relative flex h-full max-h-full w-full max-w-5xl animate-fade-rise overflow-hidden rounded-lg border border-ink/12 bg-paper text-ink shadow-panel"
+        className="relative flex h-full max-h-full w-full max-w-5xl animate-fade-rise overflow-clip rounded-lg border border-ink/12 bg-paper text-ink shadow-panel"
       >
         {/* 제본 여백. 구멍이 뚫린 이 폭만큼 페이지가 오른쪽에서 시작한다 */}
         <div

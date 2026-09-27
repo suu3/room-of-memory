@@ -13,6 +13,18 @@ import { transposeVoice, VOICES, type Voice, type VoiceId, voiceDuration } from 
 
 let context: AudioContext | null = null;
 let master: GainNode | null = null;
+/**
+ * 효과음만 모이는 버스. 음악(music.ts)은 master로 바로 가고 효과음은 여기를 한 번 더 거친다.
+ * 보이스마다 악보에 적힌 게인은 서로 간의 크기 비율이고, 음악에 대한 전체 크기는 이 한 값이 정한다.
+ * 폰 스피커에서 효과음이 곡을 뚫고 튀어나와 전체를 약 -3dB 내렸다 (2026-09-27).
+ */
+let sfxBus: GainNode | null = null;
+const SFX_LEVEL = 0.7;
+/**
+ * 파일 효과음의 개별 크기. 합성 보이스는 악보에 게인이 있지만 파일은 원본 크기 그대로라
+ * 여기서 맞춘다. 뽁(open)은 창이 뜰 때마다 울리는데 원본이 유독 커서 한 번 더 깎는다.
+ */
+const SAMPLE_GAIN: Partial<Record<VoiceId, number>> = { open: 0.65 };
 let muted = false;
 let volume = 0.7;
 /** 같은 소리가 한 프레임에 여러 번 겹쳐 터지는 걸 막는다. */
@@ -30,7 +42,36 @@ function ensureContext(): AudioContext | null {
   master = context.createGain();
   master.gain.value = muted ? 0 : volume;
   master.connect(context.destination);
+  sfxBus = context.createGain();
+  sfxBus.gain.value = SFX_LEVEL;
+  sfxBus.connect(master);
+  // 한 번만 건다. 리스너는 모듈의 context를 보므로 disposeAudio 뒤 새 컨텍스트에도 그대로 듣는다
+  if (!visibilityBound && typeof document !== "undefined") {
+    visibilityBound = true;
+    document.addEventListener("visibilitychange", onVisibilityChange);
+  }
   return context;
+}
+
+/**
+ * 다른 앱으로 넘어가 있는 동안은 오디오 컨텍스트를 세운다.
+ *
+ * 폰 브라우저는 뒤로 간 탭의 타이머와 렌더 스레드를 조이면서도 오디오 스레드는 반쯤
+ * 살려 둔다. 곡이 조인 타이머에 맞춰 예약되니 소리가 뚝뚝 끊기며 버벅였다. 안 보이는
+ * 동안 들려줄 것도 없으니 통째로 멈췄다가, 돌아오면 그 자리에서 잇는다.
+ */
+let visibilityBound = false;
+function isBackgrounded(): boolean {
+  return typeof document !== "undefined" && document.visibilityState === "hidden";
+}
+function onVisibilityChange() {
+  if (!context || context.state === "closed") return;
+  if (isBackgrounded()) void context.suspend();
+  else void context.resume();
+}
+/** 멈춘 컨텍스트를 깨운다. 뒤로 가 있는 동안에는 깨우지 않는다 (onVisibilityChange). */
+function wake(ctx: AudioContext) {
+  if (ctx.state !== "running" && !isBackgrounded()) void ctx.resume();
 }
 
 /** 짧은 화이트 노이즈 버퍼. 매번 만들지 않고 한 번만 만들어 돌려쓴다. */
@@ -122,22 +163,39 @@ export function registerSample(id: VoiceId, buffer: AudioBuffer) {
   samples.set(id, buffer);
 }
 
-function playSample(ctx: AudioContext, output: GainNode, buffer: AudioBuffer, rate: number) {
+function playSample(
+  ctx: AudioContext,
+  output: GainNode,
+  buffer: AudioBuffer,
+  rate: number,
+  level = 1,
+) {
   const source = ctx.createBufferSource();
   source.buffer = buffer;
   source.playbackRate.value = rate;
-  source.connect(output);
+  if (level === 1) {
+    source.connect(output);
+    source.start();
+    source.onended = () => source.disconnect();
+    return;
+  }
+  const gain = ctx.createGain();
+  gain.gain.value = level;
+  source.connect(gain).connect(output);
   source.start();
-  source.onended = () => source.disconnect();
+  source.onended = () => {
+    source.disconnect();
+    gain.disconnect();
+  };
 }
 
 /** 소리 하나 재생. 컨텍스트가 아직 없으면(제스처 전) 조용히 넘어간다. */
 export function playSound(id: VoiceId, options: PlayOptions = {}) {
   if (muted) return;
   const ctx = ensureContext();
-  if (!ctx || !master) return;
+  if (!ctx || !sfxBus) return;
   // 탭을 다녀오면 suspended로 돌아와 있을 수 있다.
-  if (ctx.state === "suspended") void ctx.resume();
+  wake(ctx);
 
   const now = ctx.currentTime;
   const previous = lastPlayedAt.get(id) ?? -Infinity;
@@ -150,10 +208,10 @@ export function playSound(id: VoiceId, options: PlayOptions = {}) {
 
   const sample = samples.get(id);
   if (sample) {
-    playSample(ctx, master, sample, ratio);
+    playSample(ctx, sfxBus, sample, ratio, SAMPLE_GAIN[id]);
     return;
   }
-  scheduleVoice(ctx, master, transposeVoice(VOICES[id], ratio), now + 0.001);
+  scheduleVoice(ctx, sfxBus, transposeVoice(VOICES[id], ratio), now + 0.001);
 }
 
 /**
@@ -169,12 +227,12 @@ export function playSound(id: VoiceId, options: PlayOptions = {}) {
 export function playTone(frequency: number, { duration = 0.42, gain = 0.3 } = {}) {
   if (muted) return;
   const ctx = ensureContext();
-  if (!ctx || !master) return;
-  if (ctx.state === "suspended") void ctx.resume();
+  if (!ctx || !sfxBus) return;
+  wake(ctx);
 
   scheduleVoice(
     ctx,
-    master,
+    sfxBus,
     { tones: [{ from: frequency, waveform: "triangle", delay: 0, duration, gain }] },
     ctx.currentTime + 0.001,
   );
@@ -218,8 +276,8 @@ function getBedBuffer(ctx: AudioContext): AudioBuffer {
 
 export function startNoiseBed({ gain: peak, highpass, lowpass }: NoiseBedOptions): NoiseBed | null {
   const ctx = ensureContext();
-  if (!ctx || !master) return null;
-  if (ctx.state === "suspended") void ctx.resume();
+  if (!ctx || !sfxBus) return null;
+  wake(ctx);
 
   const source = ctx.createBufferSource();
   source.buffer = getBedBuffer(ctx);
@@ -234,7 +292,7 @@ export function startNoiseBed({ gain: peak, highpass, lowpass }: NoiseBedOptions
   // 0에서 시작해야 켜지는 순간 "퍽" 하고 튀지 않는다.
   gain.gain.value = 0;
 
-  source.connect(highpassFilter).connect(lowpassFilter).connect(gain).connect(master);
+  source.connect(highpassFilter).connect(lowpassFilter).connect(gain).connect(sfxBus);
   source.start();
 
   let stopped = false;
@@ -269,14 +327,14 @@ export function startNoiseBed({ gain: peak, highpass, lowpass }: NoiseBedOptions
 export function audioGraph(): { context: AudioContext; master: GainNode } | null {
   const ctx = ensureContext();
   if (!ctx || !master) return null;
-  if (ctx.state === "suspended") void ctx.resume();
+  wake(ctx);
   return { context: ctx, master };
 }
 
 /** 첫 사용자 제스처에서 부른다. 이후 재생이 정책에 막히지 않는다. */
 export function unlockAudio() {
   const ctx = ensureContext();
-  if (ctx?.state === "suspended") void ctx.resume();
+  if (ctx) wake(ctx);
 }
 
 export function setAudioMuted(next: boolean) {
@@ -301,6 +359,7 @@ export function disposeAudio() {
   void context?.close();
   context = null;
   master = null;
+  sfxBus = null;
   noiseBuffer = null;
   bedBuffer = null;
   samples.clear();

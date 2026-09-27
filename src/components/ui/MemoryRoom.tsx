@@ -139,7 +139,13 @@ export function MemoryRoom() {
   });
 
   return (
-    <div className="relative h-dvh w-full overflow-hidden bg-night">
+    /*
+     * overflow-hidden이 아니라 clip: hidden은 스크롤바만 없을 뿐 프로그램으로는 굴러간다.
+     * 모바일에서 주소창이 들어가고 나오며 뷰포트가 바뀌면 브라우저가 포커스된 요소를
+     * 보이게 하려고 이 상자를 굴리고, 그러면 수첩 같은 오버레이의 위쪽이 화면 밖으로
+     * 밀린 채 남았다. clip은 스크롤 컨테이너가 아니라 아예 굴러가지 않는다.
+     */
+    <div className="relative h-dvh w-full overflow-clip bg-night">
       {/* 플레이 가능한 3D 방 */}
       <RoomCanvas />
 

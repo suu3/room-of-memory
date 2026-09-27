@@ -296,7 +296,7 @@ describe("수집한 기억 다시보기", () => {
     expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
   });
 
-  it("수집한 기억은 그때의 대사를 다시 재생한다", () => {
+  it("수집한 기억은 그때의 수첩 기록 한 줄로 다시 선다", () => {
     collectBall();
     useMemoryRoomStore.getState().replayMemory("ball");
 
@@ -306,10 +306,7 @@ describe("수집한 기억 다시보기", () => {
     expect(playback?.lineIndex).toBe(0);
     // 도입(라디오가 꺼지는 비트)은 컷씬만의 것이다
     expect(playback?.intro).toBe(false);
-    expect(playback?.cuts[0].lines).toEqual([
-      ...SCRIPTS["ball-intro"].lines,
-      ...SCRIPTS["ball-alone"].lines,
-    ]);
+    expect(playback?.cuts[0].lines).toEqual([{ speaker: "narrator", textKey: "lore.ball.phase1" }]);
   });
 
   /** 이 규칙이 이 기능의 전부다. 되짚기가 재도전이 되면 안 된다. */
@@ -320,34 +317,21 @@ describe("수집한 기억 다시보기", () => {
     expect(useMemoryRoomStore.getState().activeInteraction).toBeNull();
   });
 
-  it("결과 대사까지 이어 붙인다. 미니게임만 빠진다", () => {
+  it("대사를 다시 틀지 않는다. 그림과 기록 한 줄만 선다", () => {
     useMemoryRoomStore.setState({ collected: ["console", "ball"] });
     useMemoryRoomStore.getState().beginInteraction("frame");
     pushToEnd("frame");
     useMemoryRoomStore.getState().replayMemory("frame");
 
     const playback = useMemoryRoomStore.getState().activePlayback;
-    expect(playback?.cuts[0].lines).toEqual(SCRIPTS["frame-photo"].lines);
+    expect(playback?.cuts[0].lines).toEqual([
+      { speaker: "narrator", textKey: "lore.frame.phase1" },
+    ]);
     // 그때 본 사진이 대사 뒤에 선다
     expect(playback?.cuts[0].image).toBeDefined();
   });
 
-  it("진입 대사(①)와 결과 대사(③)를 그 순서로 잇는다", () => {
-    useMemoryRoomStore.setState({ collected: ["report-card"] });
-    useMemoryRoomStore.getState().beginInteraction("console");
-    pushToEnd("console");
-    useMemoryRoomStore.getState().replayMemory("console");
-
-    const lines = useMemoryRoomStore.getState().activePlayback?.cuts[0].lines;
-    expect(lines).toEqual([...SCRIPTS["console-intro"].lines, ...SCRIPTS["console-alone"].lines]);
-  });
-
-  it("어떤 기억의 다시보기도 빈 줄로 서지 않는다. 대사가 없으면 기록이 대신 선다", () => {
-    /*
-     * 지금 대본은 모든 기억에 대사가 있어 lore 폴백이 실데이터로는 돌지 않지만,
-     * 대본은 어드민에서 언제든 바뀐다. 대사를 다 비운 기억이 생겨도 다시보기가
-     * "눌렀는데 아무 일도 없는 줄"이 되지 않는다는 계약을 여기 묶어 둔다.
-     */
+  it("어떤 기억의 다시보기도 빈 줄로 서지 않는다", () => {
     useMemoryRoomStore.setState({
       collected: PHASE1_MEMORIES.map((memory) => memory.id),
       // 1바퀴가 없는 기억(컴퓨터)은 2바퀴 재조사가 다시보기를 여는 열쇠다
@@ -369,9 +353,9 @@ describe("수집한 기억 다시보기", () => {
     });
     useMemoryRoomStore.getState().replayMemory("ball");
 
-    expect(useMemoryRoomStore.getState().activePlayback?.cuts[0].lines).toEqual(
-      SCRIPTS["ball-echo"].lines,
-    );
+    expect(useMemoryRoomStore.getState().activePlayback?.cuts[0].lines).toEqual([
+      { speaker: "narrator", textKey: "lore.ball.phase2" },
+    ]);
   });
 
   it("재생이 끝나도 수집·재조사 기록이 늘지 않는다", () => {
