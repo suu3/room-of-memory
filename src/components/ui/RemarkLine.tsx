@@ -4,6 +4,7 @@ import type { ParseKeys } from "i18next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { lastVisitDone } from "@/data/story-phase";
+import { usePointerKind } from "@/i18n/control-hint";
 import { type RemarkId, useMemoryRoomStore } from "@/store/memory-room";
 import type { CommonTextKey } from "@/types/minigame";
 
@@ -36,8 +37,16 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen">, CommonTextKey> = {
  * 이미 본 기억을 다시 누르면(`seen`) 수첩에 남은 그 기억의 마지막 기록 문장이 흐른다.
  * 조사를 다시 시키지 않으면서, 누른 손에 아무 대답도 없는 일은 만들지 않는다.
  */
+/**
+ * 줄이 서는 높이. 마우스 기기는 바닥 위 80px. 터치 기기는 왼쪽 아래에 조이스틱
+ * (MovementJoystick: 바닥 위 96~208px, 그 밑에 "이동" 라벨 72~88px)이 있어 같은 높이면
+ * 긴 문장의 왼쪽 끝이 원판 아랫단과 라벨을 물고 지나갔다. 원판 위(224px)로 올린다.
+ */
+const POSITION_CLASS = { keys: "bottom-20", touch: "bottom-56" } as const;
+
 export function RemarkLine() {
   const { t } = useTranslation();
+  const pointerKind = usePointerKind();
   const { t: tRoom } = useTranslation("memoryRoom");
   const remark = useMemoryRoomStore((state) => state.remark);
   const collected = useMemoryRoomStore((state) => state.collected);
@@ -71,7 +80,7 @@ export function RemarkLine() {
     <p
       // 누를 때마다 새로 떠오른다. key가 바뀌어야 애니메이션이 다시 돈다
       key={remark.at}
-      className="monologue-text pointer-events-none absolute bottom-20 left-1/2 z-10 w-full max-w-xl -translate-x-1/2 animate-fade-rise break-ko text-pretty px-4 text-center font-pixel text-lg leading-normal text-ivory"
+      className={`monologue-text pointer-events-none absolute ${POSITION_CLASS[pointerKind]} left-1/2 z-10 w-full max-w-xl -translate-x-1/2 animate-fade-rise break-ko text-pretty px-4 text-center font-pixel text-lg leading-normal text-ivory`}
     >
       {text}
     </p>

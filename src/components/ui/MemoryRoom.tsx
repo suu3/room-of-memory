@@ -19,6 +19,7 @@ import {
   selectBatReady,
   selectCollected,
   selectDoorReady,
+  selectMonologueHidden,
   selectMusicForeground,
   selectMusicPhase,
   selectMusicPlaying,
@@ -91,14 +92,8 @@ export function MemoryRoom() {
   const roundMemories = memoriesForPhase(round);
   const roundDone = round === 1 ? collected : revisited;
   const count = roundMemories.filter((memory) => roundDone.includes(memory.id)).length;
-  // 대사창·컷씬·미니게임·단서가 떠 있는 동안 상단 독백은 물러난다. 말은 한 번에 하나만.
-  const monologueHidden = useMemoryRoomStore(
-    (state) =>
-      state.activeInteraction !== null ||
-      state.activePlayback !== null ||
-      state.activePuzzle !== null ||
-      state.activeClue !== null,
-  );
+  // 대사창·컷씬·미니게임·단서·메뉴가 떠 있는 동안 상단 독백은 물러난다. 말은 한 번에 하나만.
+  const monologueHidden = useMemoryRoomStore(selectMonologueHidden);
   const monologueId = useMemoryRoomStore(monologueIdFor);
   /*
    * 화면 네 귀를 다 쓸 만큼 넓은가 (Tailwind md). 넓으면 "지금 할 일"이 왼쪽 위 헤더가
@@ -154,11 +149,12 @@ export function MemoryRoom() {
         자리에서 한 줄씩 알린다.
       */}
       {/* 넓은 화면에서는 아래 띠(목표·기록 라벨) 위에 선다 (md:bottom-16) */}
-      {isDoorReady && !endingStarted ? (
+      {/* started: 타이틀에는 띄우지 않는다. 저장된 진행이 문 앞이면 타이틀 아래 띠의 조작 안내 위에 겹쳐 떴다 */}
+      {started && isDoorReady && !endingStarted ? (
         <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory md:bottom-16">
           {t("door.ready")}
         </p>
-      ) : isBatReady && !endingStarted ? (
+      ) : started && isBatReady && !endingStarted ? (
         <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory md:bottom-16">
           {t("door.exitReady")}
         </p>

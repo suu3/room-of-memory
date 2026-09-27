@@ -33,6 +33,7 @@ import {
   selectHeroNameKnown,
   selectIdCardFlipped,
   selectMomChatRead,
+  selectMonologueHidden,
   selectMusicPhase,
   selectMusicPlaying,
   selectOnboardingStep,
@@ -1441,5 +1442,22 @@ describe("다시보기의 사진 밀림", () => {
     expect(MEMORY_BY_ID.ball.phase2?.replayStill).toBeUndefined();
     expect(cut?.morphFrom).toBeUndefined();
     expect(cut?.morphWithin).toBeUndefined();
+  });
+});
+
+describe("selectMonologueHidden", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("메뉴 패널이 내려와 있는 동안 혼잣말이 물러난다. 좁은 화면에서 패널이 그 줄을 덮는다", () => {
+    expect(selectMonologueHidden(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().setUiLock("hud-menu", true);
+    expect(selectMonologueHidden(useMemoryRoomStore.getState())).toBe(true);
+    useMemoryRoomStore.getState().setUiLock("hud-menu", false);
+    expect(selectMonologueHidden(useMemoryRoomStore.getState())).toBe(false);
+  });
+
+  it("다른 잠금(타이틀 등)은 혼잣말을 건드리지 않는다", () => {
+    useMemoryRoomStore.getState().setUiLock("title", true);
+    expect(selectMonologueHidden(useMemoryRoomStore.getState())).toBe(false);
   });
 });

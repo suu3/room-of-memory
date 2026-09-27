@@ -1548,6 +1548,18 @@ export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogu
  * 구간인데 곡이 돌아와 버리면 그 정적이 사라진다. 2막 곡은 문이 열리는 순간,
  * 이 정적 위에 처음 든다 (selectMusicPhase, docs/content-design.md 8장).
  */
+/**
+ * 상단 독백(혼잣말·목표 배너)이 물러나야 하는가. 말은 한 번에 하나만: 대사창·컷씬·미니게임·
+ * 단서가 떠 있는 동안, 그리고 메뉴 패널이 내려와 있는 동안. 메뉴는 오른쪽 위에서 내려오는
+ * 판이라 좁은 화면에서는 혼잣말 줄을 그대로 덮었다 (수첩 손잡이가 같은 잠금을 보고 숨는 것과 같다).
+ */
+export const selectMonologueHidden = (state: MemoryRoomState) =>
+  state.activeInteraction !== null ||
+  state.activePlayback !== null ||
+  state.activePuzzle !== null ||
+  state.activeClue !== null ||
+  state.uiLocks.includes("hud-menu");
+
 export const selectMusicPlaying = (state: MemoryRoomState) =>
   state.started &&
   // 곡은 스위치를 켜는 순간 시작한다. 어둠 속에서는 정적뿐이다 (인트로)
