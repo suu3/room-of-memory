@@ -67,8 +67,11 @@ export const ASSETS = {
      * 바꾸면 같은 이름으로 내보내고 ?v=를 올린다.
      */
     curtain: "/assets/models/room-curtain.glb",
-    /** 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있다. */
-    rabbitDoll: "/assets/models/rabbit-doll.glb?v=fix-20260906",
+    /**
+     * 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있고,
+     * scripts/recolor-rabbit-doll.mjs가 방의 clay·linen 팔레트를 입힌다.
+     */
+    rabbitDoll: "/assets/models/rabbit-doll.glb?v=palette-20260927",
     /** 라온생명과학연구소 RX-11 유리 바이알. 재생성: scripts/create-ampoule.mjs */
     ampoule: "/assets/models/room-laon-ampoule.glb?v=2",
   },
