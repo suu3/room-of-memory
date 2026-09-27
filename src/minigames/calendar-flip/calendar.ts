@@ -50,9 +50,9 @@ export const TALLY_PER_MARK = 5;
  * 평범했던 달에 연필로 적힌 메모. 문구는 i18n(minigame.calendarFlip.note.<key>)에 있다.
  *
  * 7~9월이 빈 달력이면 사건까지 가는 길이 길기만 하고 읽히는 건 없다. 시합·시험·방학이
- * 적힌 석 달이 10월 19일의 붉은 동그라미와 11월의 正자를 대비시킨다. 10월의 여행 메모는
+ * 적힌 석 달이 아무 표시 없는 10월 19일과 11월의 正자를 대비시킨다. 10월의 여행 메모는
  * 컴퓨터 메일("10월 15일 잘 도착했다")과 같은 날짜선 위에 선다.
- * 전국대회(8월 12일)와 사건(10월 19일)은 여기 없다. 그 둘은 색이 있는 표시다.
+ * 전국대회(8월 12일)는 여기 없다. 그날은 금빛 동그라미로 따로 그어진다.
  */
 export type NoteKey =
   | "finals"
@@ -108,9 +108,17 @@ export function firstWeekday(year: number, month: number): number {
   return new Date(year, month - 1, 1).getDay();
 }
 
+/**
+ * 1일 앞의 빈칸 수. 달력은 **월요일부터** 시작한다: 장 그림(mg-calendar-flip-*)이
+ * 월요일 시작이라 코드가 그리는 대체 장도 같은 줄에 맞춘다.
+ */
+export function leadingBlanks(year: number, month: number): number {
+  return (firstWeekday(year, month) + 6) % 7;
+}
+
 /** 달력 한 장의 칸. 1일 앞의 빈칸은 null이라 그리드에 그대로 흘려 넣을 수 있다. */
 export function monthCells(year: number, month: number): (number | null)[] {
-  const lead = firstWeekday(year, month);
+  const lead = leadingBlanks(year, month);
   const total = daysInMonth(year, month);
   const cells: (number | null)[] = new Array(lead).fill(null);
   for (let day = 1; day <= total; day += 1) cells.push(day);
@@ -131,26 +139,47 @@ export function isAftermath(month: number): boolean {
   return month > INCIDENT_DATE.month;
 }
 
-export function isIncidentDay(month: number, day: number | null): boolean {
-  return day !== null && month === INCIDENT_DATE.month && day === INCIDENT_DATE.day;
-}
-
 /**
- * 전국대회 날인가: 사건 표시(붉은 동그라미)와 달리 금빛으로 그어진 날이다.
+ * 전국대회 날인가: 달력에서 유일하게 금빛 동그라미가 그어진 날이다.
  *
  * 이 표시가 컴퓨터 비밀번호의 유일한 숫자 출처다 (src/data/room-clues.ts).
- * 사건 표시와 색을 갈라 두는 게 중요하다: 같은 색이면 10월 19일과 뒤섞여
- * "표시된 날"이 둘 중 어느 쪽인지 알 수 없다.
+ * 10월 19일에는 아무 표시도 없다. 예고 없이 닥친 날이라 미리 동그라미를 칠 수가 없었다.
  */
 export function isNationalsDay(month: number, day: number | null): boolean {
   return day !== null && month === NATIONALS_DATE.month && day === NATIONALS_DATE.day;
 }
 
 /** 이 달에 표시된 날이 있는가: 격자 밑에 붙는 설명 줄의 조건. */
-export function markedDayOf(month: number): "incident" | "nationals" | null {
-  if (month === INCIDENT_DATE.month) return "incident";
-  if (month === NATIONALS_DATE.month) return "nationals";
-  return null;
+export function markedDayOf(month: number): "nationals" | null {
+  return month === NATIONALS_DATE.month ? "nationals" : null;
+}
+
+/**
+ * 장 그림(1080×1600)에서 날짜 격자가 놓인 자리. 그림 위에 표시(동그라미·연필 점)를
+ * 코드로 얹을 때 쓴다. 그림을 새로 그리면 이 값도 같이 맞춘다.
+ */
+export const PAGE_IMAGE = {
+  width: 1080,
+  height: 1600,
+  gridLeft: 70,
+  gridTop: 426,
+  cellWidth: 940 / 7,
+  cellHeight: 175,
+  /** 칸 위쪽에서 날짜 숫자 한가운데까지. */
+  numberOffset: 49,
+} as const;
+
+/** 그 날짜 숫자의 한가운데가 그림의 어디인가 (0~1 비율). */
+export function dayAnchor(month: number, day: number): { x: number; y: number } {
+  const index = leadingBlanks(CALENDAR_YEAR, month) + day - 1;
+  const column = index % 7;
+  const row = Math.floor(index / 7);
+  return {
+    x: (PAGE_IMAGE.gridLeft + (column + 0.5) * PAGE_IMAGE.cellWidth) / PAGE_IMAGE.width,
+    y:
+      (PAGE_IMAGE.gridTop + row * PAGE_IMAGE.cellHeight + PAGE_IMAGE.numberOffset) /
+      PAGE_IMAGE.height,
+  };
 }
 
 /** 사건 이후의 달은 날짜가 아니라 버틴 날 수로 센다. */

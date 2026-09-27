@@ -220,7 +220,6 @@
       "pageOf": "{{value}} / {{total}}",
       "close": "달력을 내려놓는다",
       "mark": {
-        "incident": "{{month}}월 {{day}}일: 다 멈춘 날",
         "nationals": "{{month}}월 {{day}}일: 전국대회 vs 은강고"
       },
       "note": {
@@ -231,7 +230,8 @@
         "schoolStart": "개학",
         "mockExam": "모의고사",
         "dday60": "수능 D-60",
-        "trip": "엄마 아빠 여행 (5박)"
+        "trip": "엄마 아빠 여행가심",
+        "nationals": "전국대회 vs 은강고"
       }
     },
     "windowView": {
@@ -475,9 +475,16 @@
       "title": "출입증",
       "alt": "3D 출입증: 끌어서 돌리고 기울일 수 있다",
       "org": "라온생명과학연구소",
-      "role": "선임연구원 · 책임연구원",
-      "dad": "서태오",
-      "mom": "한소하",
+      "dad": {
+        "department": "감염병연구부",
+        "name": "서태오",
+        "role": "선임연구원"
+      },
+      "mom": {
+        "department": "백신개발실",
+        "name": "한소하",
+        "role": "책임연구원"
+      },
       "found": "빛에 비추자 사진 위 씰에 로고가 떠올랐다. 앰플 라벨의 그 로고다."
     },
     "ampouleCase": {

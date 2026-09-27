@@ -220,7 +220,6 @@
       "pageOf": "{{value}} / {{total}}",
       "close": "Put the calendar down",
       "mark": {
-        "incident": "{{month}}/{{day}}: the day it all stopped",
         "nationals": "{{month}}/{{day}}: the national tournament vs Eungang High"
       },
       "note": {
@@ -231,7 +230,8 @@
         "schoolStart": "School starts",
         "mockExam": "Mock exam",
         "dday60": "CSAT D-60",
-        "trip": "Mom & Dad's trip (5 nights)"
+        "trip": "Mom & Dad away on a trip",
+        "nationals": "Nationals vs Eungang High"
       }
     },
     "windowView": {
@@ -475,9 +475,16 @@
       "title": "ID Badge",
       "alt": "3D ID badge: drag to turn and tilt it",
       "org": "Laon Life Science Institute",
-      "role": "Senior · Principal Researcher",
-      "dad": "Seo Taeo",
-      "mom": "Han Soha",
+      "dad": {
+        "department": "Infectious Disease",
+        "name": "Seo Taeo",
+        "role": "Senior Researcher"
+      },
+      "mom": {
+        "department": "Vaccine Development",
+        "name": "Han Soha",
+        "role": "Principal Researcher"
+      },
       "found": "Catching the light, a logo rises from the seal over the photo. The one on the ampoule label."
     },
     "ampouleCase": {

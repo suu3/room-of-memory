@@ -76,10 +76,10 @@ export const ASSETS = {
     /** 로딩 애니메이션 (420x400, 8프레임, 프레임당 140ms). */
     uiLoading: "/assets/images/ui-loading.gif?v=20260910-grounded-bounce",
     /**
-     * 엔딩 카드의 "Thank you!" 그림 (761×789, 제작자가 그린 배트 든 도해). 흰 바탕이 그림의
+     * 엔딩 카드의 "Thank you!" 그림 (1160×1533, 제작자가 그린 배트 든 도해). 흰 바탕이 그림의
      * 일부라 어두운 카드 위에 종이처럼 올린다. 카드의 "그림 저장"이 이 파일을 그대로 내려받는다.
      */
-    endingThanks: "/assets/images/ui-ending-thanks.webp",
+    endingThanks: "/assets/images/ui-ending-thanks.webp?v=2",
     /** 만든 사람 화면의 프로필 그림 (512×512, 제작자의 토끼 낙서). 둥글게 잘라 쓴다. */
     creatorAvatar: "/assets/images/ui-creator-avatar.webp",
     /** 지원사업 CI (경기청년 갭이어 흰색 가로형 워드마크, 720×120). 어두운 판 위에만 올린다. */
@@ -106,8 +106,8 @@ export const ASSETS = {
     cutsceneSurvivor9: "/assets/images/cutscene-survivor-9.webp?v=2",
     cutsceneSurvivor10: "/assets/images/cutscene-survivor-10.webp?v=3",
     /** '뒤집으면 보인다' 조사 에셋. */
-    mgIdCardFront: "/assets/images/mg-id-card-front.webp?v=3",
-    mgIdCardBack: "/assets/images/mg-id-card-back.webp?v=3",
+    mgIdCardFront: "/assets/images/mg-id-card-front.webp?v=4",
+    mgIdCardBack: "/assets/images/mg-id-card-back.webp?v=4",
     mgAmpouleLabel: "/assets/images/mg-ampoule-label.webp",
     mgShelfBookInside: "/assets/images/mg-shelf-book-inside.webp",
     mgPapersPaper: "/assets/images/mg-papers-paper.webp",
@@ -141,12 +141,12 @@ export const ASSETS = {
     /** 격투 미니게임 무대 배경 (960×256). 없으면 CSS 그라디언트가 그대로 보인다. */
     mgFighterDuelStage: "/assets/images/mg-fighter-duel-stage.webp",
     /*
-     * 달력 장 그림 (7~11월). 아직 리포에 없어도 된다. 파일이 없으면 코드가 그리는
-     * 날짜 격자·正자 장이 그대로 선다 (src/minigames/calendar-flip).
+     * 달력 장 그림 (7~11월, 1080×1600). 빈 달력 그림이고 11월만 正자 낙서가 그려져 있다.
+     * 전국대회 금빛 동그라미와 메모 점은 코드가 그림 위에 얹는다 (calendar-flip/PageImage).
+     * 파일을 못 받으면 코드가 그리는 날짜 격자·正자 장이 대신 선다.
      *
-     * 규격: 세로로 긴 한 장(권장 3:4 안팎, 잘리지 않게 판에 맞춰 들어간다).
-     * 요일 배치는 CALENDAR_YEAR(2026) 기준으로 그릴 것: 코드가 그리는 대체 장이
-     * 같은 해로 격자를 만들기 때문에 해가 어긋나면 둘이 다른 달력이 된다.
+     * 2026년 달력, 월요일 시작. 격자 자리는 calendar.ts의 PAGE_IMAGE와 맞물려 있어서
+     * 그림을 새로 그리면 그 값도 같이 맞춘다. 같은 파일을 바꾸면 ?v=를 붙여 올린다.
      */
     mgCalendarFlipPages: {
       7: "/assets/images/mg-calendar-flip-07.webp",

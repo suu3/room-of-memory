@@ -4,16 +4,16 @@ import {
   CALENDAR_MONTHS,
   CALENDAR_YEAR,
   clampMonth,
+  dayAnchor,
   daysInMonth,
   FIRST_MONTH,
-  firstWeekday,
   flipMonth,
   hasNote,
   INCIDENT_DATE,
   isAftermath,
-  isIncidentDay,
   isLastPage,
   LAST_MONTH,
+  leadingBlanks,
   MONTH_NOTES,
   monthCells,
   notesOf,
@@ -33,7 +33,7 @@ describe("calendar-flip pages", () => {
 
   it("lays out a page as leading blanks then every day of the month", () => {
     const cells = monthCells(CALENDAR_YEAR, INCIDENT_DATE.month);
-    const lead = firstWeekday(CALENDAR_YEAR, INCIDENT_DATE.month);
+    const lead = leadingBlanks(CALENDAR_YEAR, INCIDENT_DATE.month);
 
     expect(cells).toHaveLength(lead + daysInMonth(CALENDAR_YEAR, INCIDENT_DATE.month));
     expect(cells.slice(0, lead).every((cell) => cell === null)).toBe(true);
@@ -72,11 +72,18 @@ describe("calendar-flip pages", () => {
     );
   });
 
-  it("circles exactly one day of one month", () => {
-    expect(isIncidentDay(INCIDENT_DATE.month, INCIDENT_DATE.day)).toBe(true);
-    expect(isIncidentDay(INCIDENT_DATE.month, INCIDENT_DATE.day + 1)).toBe(false);
-    expect(isIncidentDay(INCIDENT_DATE.month + 1, INCIDENT_DATE.day)).toBe(false);
-    expect(isIncidentDay(INCIDENT_DATE.month, null)).toBe(false);
+  it("starts each week on Monday, like the page images", () => {
+    // 2026-10-01은 목요일: 월·화·수 세 칸이 비고, 19일(월)은 넷째 줄 첫 칸이다
+    expect(leadingBlanks(CALENDAR_YEAR, 10)).toBe(3);
+    expect(leadingBlanks(CALENDAR_YEAR, 11)).toBe(6);
+    expect(monthCells(CALENDAR_YEAR, 10).indexOf(INCIDENT_DATE.day) % 7).toBe(0);
+  });
+
+  it("finds a day's number on the page image", () => {
+    // 8월 12일은 셋째 줄 수요일 칸: 그림에서 숫자 12가 선 자리 (x 405, y 825 안팎)
+    const anchor = dayAnchor(NATIONALS_DATE.month, NATIONALS_DATE.day);
+    expect(Math.abs(anchor.x * 1080 - 405)).toBeLessThan(4);
+    expect(Math.abs(anchor.y * 1600 - 825)).toBeLessThan(4);
   });
 
   it("splits survived days into 正 marks with the leftover strokes", () => {
@@ -120,9 +127,25 @@ describe("calendar-flip pages", () => {
         expect(hasNote(Number(month), note.day)).toBe(true);
       }
     }
-    // 색이 있는 표시(사건·전국대회)와 연필 메모는 같은 날에 겹치지 않는다
+    // 금빛 표시와 연필 메모는 같은 날에 겹치지 않는다. 10월 19일에는 아무것도 적혀 있지 않다
     expect(hasNote(INCIDENT_DATE.month, INCIDENT_DATE.day)).toBe(false);
     expect(hasNote(NATIONALS_DATE.month, NATIONALS_DATE.day)).toBe(false);
+    // 장 그림 위 메모는 옆 칸으로 조금 삐져나간다(PageImage). 같은 줄 옆 칸에는 메모·동그라미가 없어야 겹치지 않는다
+    for (const [month, notes] of Object.entries(MONTH_NOTES)) {
+      const written = notes.map((note) => note.day);
+      if (Number(month) === NATIONALS_DATE.month) written.push(NATIONALS_DATE.day);
+      for (const day of written) {
+        const index = monthCells(CALENDAR_YEAR, Number(month)).indexOf(day);
+        const neighbours = [day - 1, day + 1].filter((other) => {
+          const at = monthCells(CALENDAR_YEAR, Number(month)).indexOf(other);
+          return at >= 0 && Math.floor(at / 7) === Math.floor(index / 7);
+        });
+        expect(
+          neighbours.some((other) => written.includes(other)),
+          `${month}/${day}`,
+        ).toBe(false);
+      }
+    }
     // 여행 메모는 컴퓨터 메일("10월 15일 잘 도착했다")보다 앞에 선다
     expect(notesOf(10).some((note) => note.key === "trip" && note.day < 15)).toBe(true);
   });

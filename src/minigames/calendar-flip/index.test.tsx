@@ -78,7 +78,7 @@ describe("CalendarFlipMinigame", () => {
   });
 });
 
-describe("the turning sheet", () => {
+describe("changing sheets", () => {
   beforeAll(async () => {
     await i18n.changeLanguage("en");
   });
@@ -87,36 +87,28 @@ describe("the turning sheet", () => {
     await i18n.changeLanguage("ko");
   });
 
-  it("lays a turning sheet over the page underneath while it flips", () => {
+  it("fades the leaving sheet out over the new one", () => {
     const { container } = render(<CalendarFlipMinigame onComplete={vi.fn()} />);
-    expect(container.querySelectorAll(".animate-calendar-flip")).toHaveLength(0);
+    expect(container.querySelectorAll(".animate-calendar-fade")).toHaveLength(0);
 
     fireEvent.click(screen.getByRole("button", { name: "Next month" }));
 
-    // 넘어가는 종이 한 장이 밑장 위에 겹친다
-    const turning = container.querySelectorAll(".animate-calendar-flip");
-    expect(turning).toHaveLength(1);
-    // 앞으로 넘길 때는 키프레임을 그대로: 되돌릴 때만 거꾸로 돌린다
-    expect(turning[0].className).not.toContain("animation-direction:reverse");
-    // 앞면은 떠나는 달, 밑장은 새 달: 두 장이 동시에 서 있어야 넘김이 보인다
+    // 떠나는 장 한 장이 새 장 위에 겹쳐 옅어진다
+    expect(container.querySelectorAll(".animate-calendar-fade")).toHaveLength(1);
+    // 떠나는 달과 새 달: 두 장이 동시에 서 있어야 겹쳐 바뀌는 게 보인다
     expect(screen.getAllByText(String(CALENDAR_YEAR))).toHaveLength(2);
   });
 
-  it("runs the same keyframes backwards when turning back", () => {
+  it("restarts the fade when turning again before it ends", () => {
     const { container } = render(<CalendarFlipMinigame onComplete={vi.fn()} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Next month" }));
+    const first = container.querySelector(".animate-calendar-fade");
     fireEvent.click(screen.getByRole("button", { name: "Previous month" }));
 
-    const turning = container.querySelectorAll(".animate-calendar-flip");
-    expect(turning).toHaveLength(1);
-    expect(turning[0].className).toContain("animation-direction:reverse");
-    // 그늘·그림자도 같이 뒤집혀야 짝이 맞는다
-    expect(container.querySelectorAll(".animate-calendar-shade")[0].className).toContain(
-      "animation-direction:reverse",
-    );
-    expect(container.querySelectorAll(".animate-calendar-cast")[0].className).toContain(
-      "animation-direction:reverse",
-    );
+    // 새로 마운트된 한 장만 남는다
+    const fading = container.querySelectorAll(".animate-calendar-fade");
+    expect(fading).toHaveLength(1);
+    expect(fading[0]).not.toBe(first);
   });
 });

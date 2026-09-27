@@ -15,6 +15,7 @@ import {
   NATIONALS_MONTH,
 } from "@/minigames/calendar-flip/calendar";
 import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
+import { CalendarPageImage, useCalendarPage } from "@/minigames/calendar-flip/PageImage";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { CharacterModelViewer } from "./CharacterModelViewer";
 import { InspectView } from "./InspectView";
@@ -223,6 +224,7 @@ function ShelfBookInspect() {
 function WallCalendar() {
   const { t } = useTranslation();
   const [month, setMonth] = useState<number>(NATIONALS_MONTH);
+  const page = useCalendarPage(month);
 
   /*
    * 正자 장(11월)까지는 안 간다. 거기엔 날짜 격자가 없어서 이 화면이 그릴 게
@@ -263,8 +265,9 @@ function WallCalendar() {
           <CaretRight size={20} weight="bold" />
         </button>
       </div>
-      <div className="pt-4">
-        <MonthGrid month={month} />
+      {/* 넘기는 미니게임과 같은 장 그림. 판이 넓어도 세로로 너무 길어지지 않게 폭을 묶는다 */}
+      <div className="mx-auto w-full max-w-[22rem] pt-4">
+        {page ? <CalendarPageImage month={month} source={page} /> : <MonthGrid month={month} />}
       </div>
     </div>
   );

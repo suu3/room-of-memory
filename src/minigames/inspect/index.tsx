@@ -154,8 +154,16 @@ export function IdCardFlipMinigame(props: MinigameProps) {
       {
         object: idCardObject({
           org: t("minigame.idCardFlip.org"),
-          role: t("minigame.idCardFlip.role"),
-          names: [t("minigame.idCardFlip.dad"), t("minigame.idCardFlip.mom")],
+          mom: {
+            department: t("minigame.idCardFlip.mom.department"),
+            name: t("minigame.idCardFlip.mom.name"),
+            role: t("minigame.idCardFlip.mom.role"),
+          },
+          dad: {
+            department: t("minigame.idCardFlip.dad.department"),
+            name: t("minigame.idCardFlip.dad.name"),
+            role: t("minigame.idCardFlip.dad.role"),
+          },
         }),
         alt: t("minigame.idCardFlip.alt"),
         found: t("minigame.idCardFlip.found"),

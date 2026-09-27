@@ -220,7 +220,6 @@
       "pageOf": "{{value}} / {{total}}",
       "close": "カレンダーを置く",
       "mark": {
-        "incident": "{{month}}月{{day}}日: 全部止まった日",
         "nationals": "{{month}}月{{day}}日: 全国大会 vs 銀江高"
       },
       "note": {
@@ -231,7 +230,8 @@
         "schoolStart": "始業",
         "mockExam": "模試",
         "dday60": "修能 D-60",
-        "trip": "父さん母さん旅行（5泊）"
+        "trip": "父さん母さん旅行中",
+        "nationals": "全国大会 vs 銀江高"
       }
     },
     "windowView": {
@@ -475,9 +475,16 @@
       "title": "入館証",
       "alt": "3Dの入館証: ドラッグで回して傾けられる",
       "org": "ラオン生命科学研究所",
-      "role": "主任研究員 · 責任研究員",
-      "dad": "ソ・テオ",
-      "mom": "ハン・ソハ",
+      "dad": {
+        "department": "感染症研究部",
+        "name": "ソ・テオ",
+        "role": "主任研究員"
+      },
+      "mom": {
+        "department": "ワクチン開発室",
+        "name": "ハン・ソハ",
+        "role": "責任研究員"
+      },
       "found": "光に当てると、写真の上のシールにロゴが浮かんだ。アンプルのラベルのあのロゴだ。"
     },
     "ampouleCase": {

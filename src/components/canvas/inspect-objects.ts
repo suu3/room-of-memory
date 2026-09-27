@@ -404,8 +404,8 @@ const ID_CARD_SPOT = { pitch: -0.45, yaw: 0.35 };
 
 export interface IdCardLabels {
   org: string;
-  role: string;
-  names: readonly [string, string];
+  mom: { department: string; name: string; role: string };
+  dad: { department: string; name: string; role: string };
 }
 
 /**
@@ -414,28 +414,75 @@ export interface IdCardLabels {
  * 각도(ID_CARD_SPOT) 근처에서만 떠오른다.
  */
 export function idCardObject(labels: IdCardLabels): InspectObject {
-  const paintFront: FacePainter = (ctx, { width, height }, palette, font) => {
+  // 원화의 1024×640 좌표를 사용한다. 실제 텍스처 해상도에 맞춰 함께 축소한다.
+  const printLine = (
+    ctx: CanvasRenderingContext2D,
+    font: string,
+    text: string,
+    x: number,
+    y: number,
+    maxWidth: number,
+    size: number,
+    weight: number,
+  ) => {
+    ctx.font = `${weight} ${size}px ${font}`;
+    const measured = ctx.measureText(text).width;
+    if (measured > maxWidth) {
+      ctx.font = `${weight} ${(size * maxWidth) / measured}px ${font}`;
+    }
+    ctx.fillText(text, x, y, maxWidth);
+  };
+  const overlayFront: FacePainter = (ctx, { width, height }, palette, font) => {
+    ctx.save();
+    ctx.scale(width / 1024, height / 640);
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.globalAlpha = 0.96;
     ctx.fillStyle = palette.linen;
-    ctx.fillRect(0, 0, width, height);
-    ctx.fillStyle = palette.sage;
-    ctx.fillRect(0, 0, width, height * 0.2);
-    ctx.fillStyle = palette.linen;
-    ctx.font = `700 38px ${font}`;
-    ctx.fillText(labels.org, 28, height * 0.13);
-    // 사진 자리: 얼굴은 비워 둔다
-    ctx.fillStyle = palette.trim;
-    ctx.fillRect(28, height * 0.28, width * 0.26, height * 0.6);
+    printLine(ctx, font, labels.org, 126, 60, 820, 32, 700);
+    // 밝은 머리글은 일반 합성, 종이 위 잉크만 multiply로 재질에 섞는다.
+    ctx.globalCompositeOperation = "multiply";
     ctx.fillStyle = palette.frame;
-    ctx.font = `500 30px ${font}`;
-    ctx.fillText(labels.role, width * 0.36, height * 0.4);
-    ctx.font = `700 44px ${font}`;
-    ctx.fillText(labels.names[0], width * 0.36, height * 0.56);
-    ctx.fillText(labels.names[1], width * 0.36, height * 0.72);
+    for (const [person, x] of [
+      [labels.mom, 278],
+      [labels.dad, 759],
+    ] as const) {
+      ctx.globalAlpha = 0.94;
+      printLine(ctx, font, person.department, x, 250, 210, 26, 500);
+      printLine(ctx, font, person.name, x, 309, 210, 40, 700);
+      ctx.globalAlpha = 0.8;
+      printLine(ctx, font, person.role, x, 351, 210, 24, 400);
+    }
+    ctx.restore();
+  };
+  const overlayBack: FacePainter = (ctx, { width, height }, palette, font) => {
+    ctx.save();
+    ctx.scale(width / 1024, height / 640);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    ctx.globalAlpha = 0.96;
+    ctx.fillStyle = palette.linen;
+    printLine(ctx, font, labels.org, 512, 475, 760, 36, 700);
+    ctx.restore();
+  };
+  const paintFront: FacePainter = (ctx, { width, height }, palette) => {
+    ctx.save();
+    ctx.scale(width / 1024, height / 640);
+    ctx.fillStyle = palette.linen;
+    ctx.fillRect(0, 0, 1024, 640);
+    ctx.fillStyle = palette.coal;
+    ctx.fillRect(0, 0, 1024, 117);
+    paintRaonLogo(ctx, 73, 60, 32, palette.memory);
+    // 이미지 로딩 전에도 같은 배치를 쓴다. 글자는 overlay에서 한 번만 그린다.
+    ctx.fillStyle = palette.trim;
+    ctx.fillRect(66, 191, 186, 244);
+    ctx.fillRect(548, 191, 186, 244);
+    ctx.restore();
   };
   const paintBack: FacePainter = (ctx, { width, height }, palette) => {
-    ctx.fillStyle = palette.linen;
+    ctx.fillStyle = palette.coal;
     ctx.fillRect(0, 0, width, height);
-    paintRaonLogo(ctx, width / 2, height / 2, height * 0.3, palette.sage);
+    paintRaonLogo(ctx, width / 2, height * 0.438, height * 0.214, palette.memory);
   };
   // 씰의 로고: 투명 바탕에 금빛 선. 씰 크기에 맞춰 세로의 6할
   const paintSeal: FacePainter = (ctx, { width, height }, palette) => {
@@ -445,13 +492,13 @@ export function idCardObject(labels: IdCardLabels): InspectObject {
   return {
     shape: "box",
     size: [0.86, 0.54, 0.012],
-    front: { paint: paintFront, image: ASSETS.images.mgIdCardFront },
-    back: { paint: paintBack, image: ASSETS.images.mgIdCardBack },
+    front: { paint: paintFront, image: ASSETS.images.mgIdCardFront, overlay: overlayFront },
+    back: { paint: paintBack, image: ASSETS.images.mgIdCardBack, overlay: overlayBack },
     edge: "linen",
     // 찾는 것은 면이 아니라 각도다 (hologram). 이 값은 안 쓴다
     foundYaw: 0,
     tilt: 0.25,
-    // 그림(1024×640)의 귀는 반지름 약 32px로 투명하게 깎여 있다: 판을 같은 둥글기로
+    // 그림(1024×640)의 귀는 반지름 약 32px다: 판을 같은 둥글기로 잘라 바깥 픽셀을 가린다
     cornerRadius: 0.027,
     hologram: { paint: paintSeal, rect: ID_CARD_SEAL, spot: ID_CARD_SPOT },
   };

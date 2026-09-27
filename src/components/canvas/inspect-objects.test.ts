@@ -42,7 +42,11 @@ describe("손이 하는 일이 물건마다 갈린다 (뒤집기는 문제집 �
   });
 
   it("출입증은 기울인다: 찾는 것이 면이 아니라 각도다", () => {
-    const card = idCardObject({ org: "라온", role: "연구원", names: ["서태오", "한소하"] });
+    const card = idCardObject({
+      org: "라온",
+      mom: { department: "백신개발실", name: "한소하", role: "책임연구원" },
+      dad: { department: "감염병연구부", name: "서태오", role: "선임연구원" },
+    });
     expect(inspectControlOf(card)).toEqual({ kind: "tilt" });
     if (card.shape !== "box") throw new Error("box expected");
     expect(card.hologram?.spot.pitch).toBeLessThan(0);

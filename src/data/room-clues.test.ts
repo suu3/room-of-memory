@@ -35,8 +35,8 @@ describe("컴퓨터 비밀번호 단서", () => {
     expect(markedDayOf(NATIONALS_DATE.month)).toBe("nationals");
   });
 
-  it("사건 표시와 겹치지 않는다. 동그라미가 둘이라 색으로만 갈린다", () => {
-    expect(markedDayOf(NATIONALS_DATE.month)).not.toBe("incident");
+  it("동그라미는 이 하나뿐이다. 사건이 난 달에는 표시가 없다", () => {
+    expect(markedDayOf(10)).toBeNull();
   });
 
   it("달력은 조사를 마친 뒤 배경 오브젝트가 된다", () => {
