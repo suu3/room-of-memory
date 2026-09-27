@@ -2,8 +2,9 @@
 
 import { CaretLeft, CaretRight, X } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { InspectCapture } from "@/components/canvas/InspectTurntable";
 import { shelfBookObject } from "@/components/canvas/inspect-objects";
 import { CLUE_DISCOVERY, CLUE_IDS, type ClueId, HERO_JERSEY_NUMBER } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
@@ -17,6 +18,7 @@ import {
 import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
 import { CalendarPageImage, useCalendarPage } from "@/minigames/calendar-flip/PageImage";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { useStillStore, WORKBOOK_STILL_KEY } from "@/store/stills";
 import { CharacterModelViewer } from "./CharacterModelViewer";
 import { InspectView } from "./InspectView";
 import { BUTTON_QUIET, PANEL_PAPER } from "./ui-classes";
@@ -75,9 +77,23 @@ function ClueKeyboardList() {
 export function ClueOverlay() {
   const { t } = useTranslation();
   const clue = useMemoryRoomStore((state) => state.activeClue);
-  const closeClue = useMemoryRoomStore((state) => state.closeClue);
+  const storeCloseClue = useMemoryRoomStore((state) => state.closeClue);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const open = clue !== null;
+  const captureRef = useRef<InspectCapture | null>(null);
+
+  /*
+   * 문제집에서 이름을 찾고 내려놓으면 이름 대사가 이어진다. 그 대사는 방금 본 뒤표지 위에
+   * 흘러야 "무엇을 보고 한 말인지"가 이어진다: 판이 걷히기 전에 한 장을 찍어 둔다
+   * (PlaybackScene이 그 컷씬 동안 세운다). 이름 대사가 안 이어지는 닫기는 찍지 않는다.
+   */
+  const closeClue = useCallback(() => {
+    if (clue === "workbook" && useMemoryRoomStore.getState().nameIntroPending) {
+      const still = captureRef.current?.();
+      if (still) useStillStore.getState().putStill(WORKBOOK_STILL_KEY, still);
+    }
+    storeCloseClue();
+  }, [clue, storeCloseClue]);
 
   useEffect(() => {
     setUiLock("clue", open);
@@ -130,7 +146,7 @@ export function ClueOverlay() {
         ) : clue === "shelf-book" ? (
           <ShelfBookInspect />
         ) : clue === "workbook" ? (
-          <WorkbookClue />
+          <WorkbookClue captureRef={captureRef} />
         ) : clue === "mirror" ? (
           /* 거울 속의 자기: 종이가 아니라 어두운 유리라 종이 판(PANEL_PAPER)을 두르지 않는다 */
           <CharacterModelViewer />

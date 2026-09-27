@@ -207,7 +207,8 @@
     },
     "cards-memo": {
       "line1": "…It's Mom's handwriting.",
-      "line2": "The bottom drawer. Does she mean the one in the fridge?"
+      "line2": "The bottom drawer. Does she mean the one in the fridge?",
+      "line3": "And the two strokes after RX… what was she counting?"
     },
     "computer-power-on": {
       "line1": "Not like the internet works even if I turn it on.",
@@ -319,7 +320,7 @@
     },
     "cards": {
       "title": "The Note on the Table",
-      "phase2": "\"Don't touch the bottom drawer.\" Mom's folded note is sitting on the table."
+      "phase2": "\"Bottom drawer. RX ||\" Mom's folded note on the table. It doesn't say what she counted two of."
     },
     "computer": {
       "title": "What Was Saved",

@@ -3,13 +3,15 @@
 import type { ParseKeys } from "i18next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
+import { CUTSCENE_RADIO_BLACKOUT, CUTSCENE_WORKBOOK_NAME } from "@/data/memory-room";
 import { playSound, startNoiseBed } from "@/lib/audio";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { blurBackdrop } from "@/lib/image-blur";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
+import { useStillStore, WORKBOOK_STILL_KEY } from "@/store/stills";
 import { CutDissolve } from "./CutDissolve";
 import { grainForCut } from "./cut-dissolve";
+import { InspectStill } from "./InspectStill";
 import { PhotoMorph } from "./PhotoMorph";
 import { morphSeed } from "./photo-morph";
 import { WebtoonViewer } from "./WebtoonViewer";
@@ -123,6 +125,15 @@ function SignalVisual({ tone }: { tone: "dying" | "alive" }) {
  * 두 재생의 태도는 다르다. 컷씬은 방을 통째로 덮고 진행을 밀어붙이지만,
  * 다시보기는 이미 지나간 것을 들춰 보는 것뿐이라 방이 뒤에 비쳐야 한다.
  */
+/**
+ * 그림 없는 컷씬 중 방금 집어 본 물건 위에 흐르는 것: 그 물건을 내려놓던 순간 찍어 둔
+ * 한 장(store/stills)을 판 크기 그대로 세운다. 문제집의 이름 대사가 뒤표지 위에 흐른다.
+ * 미니게임의 결과 대사가 판 위에 흐르는 것과 같은 모양이다.
+ */
+const CUTSCENE_AFTERIMAGE: Partial<Record<string, string>> = {
+  [CUTSCENE_WORKBOOK_NAME]: WORKBOOK_STILL_KEY,
+};
+
 export function PlaybackScene() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
@@ -142,6 +153,13 @@ export function PlaybackScene() {
   /** 재생이 바뀔 때마다 도입을 다시 돌리기 위한 열쇠. */
   const playbackKey = active ? `${active.kind}:${active.cutsceneId ?? active.memoryId}` : null;
   const cut = active?.cuts[active.cutIndex];
+  const afterimageKey =
+    active?.kind === "cutscene" && active.cutsceneId
+      ? CUTSCENE_AFTERIMAGE[active.cutsceneId]
+      : undefined;
+  const afterimage = useStillStore((state) =>
+    afterimageKey ? state.stills[afterimageKey] : undefined,
+  );
 
   /*
    * 컷씬이 열릴 때마다 처음부터: 방송이 끊기고, 잠깐 아무것도 없다가, 그림이 뜬다.
@@ -375,6 +393,13 @@ export function PlaybackScene() {
           </div>
         )}
       </div>
+
+      {/* 방금 내려놓은 물건: 대사창(아래) 자리를 비우고 판 크기 그대로 선다 */}
+      {bare && afterimage && (
+        <div className="pointer-events-none absolute inset-0 grid place-items-center p-4 pb-56">
+          <InspectStill src={afterimage} alt="" className="w-full max-w-lg animate-fade-rise" />
+        </div>
+      )}
 
       {/*
         필름 먼지와 스크래치 (.film-dust, DESIGN.md > Texture). 3D 방의 그레인은 셰이더가

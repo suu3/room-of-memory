@@ -1,7 +1,7 @@
 "use client";
 
 import { ContactShadows } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import {
   CanvasTexture,
@@ -14,6 +14,7 @@ import {
   ShapeGeometry,
   SRGBColorSpace,
 } from "three";
+import { composeStill } from "@/lib/still-capture";
 import { AMPOULE_MODEL_HEIGHT, Ampoule } from "@/scenes/memory-room/Ampoule";
 import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/palette";
 import { InspectBook } from "./InspectBook";
@@ -470,6 +471,29 @@ function InspectedThing({
   );
 }
 
+/** 지금 판을 한 장으로 찍는 함수. 판이 떠 있지 않으면 null. */
+export type InspectCapture = () => string | null;
+
+/**
+ * 판을 찍는 손잡이를 바깥에 건넨다. 찍는 순간 한 번 더 그려 버퍼를 채운 뒤 곧장 읽는다:
+ * preserveDrawingBuffer를 켜면 매 프레임 비용이 들고, 찍는 일은 조사 한 번에 한 번뿐이다.
+ */
+function CaptureBridge({ captureRef }: { captureRef: MutableRefObject<InspectCapture | null> }) {
+  const gl = useThree((state) => state.gl);
+  const scene = useThree((state) => state.scene);
+  const camera = useThree((state) => state.camera);
+  useEffect(() => {
+    captureRef.current = () => {
+      gl.render(scene, camera);
+      return composeStill(gl.domElement);
+    };
+    return () => {
+      captureRef.current = null;
+    };
+  }, [captureRef, gl, scene, camera]);
+  return null;
+}
+
 export default function InspectTurntable({
   object,
   yawRef,
@@ -477,6 +501,7 @@ export default function InspectTurntable({
   dragYRef,
   pageRef,
   onFound,
+  captureRef,
 }: {
   object: InspectObject;
   /** 바깥(드래그·버튼)이 쥐고 있는 각도. */
@@ -492,6 +517,8 @@ export default function InspectTurntable({
   pageRef?: MutableRefObject<number>;
   /** 찾을 것을 읽었을 때 한 번. */
   onFound: () => void;
+  /** 있으면 판을 찍는 함수가 여기 걸린다 (결과 대사·수첩 카드의 정지 그림). */
+  captureRef?: MutableRefObject<InspectCapture | null>;
 }) {
   const palette = useMemo(resolveRoomPalette, []);
   const font = useMemo(bodyFont, []);
@@ -502,6 +529,7 @@ export default function InspectTurntable({
       dpr={[1, 2]}
       style={{ touchAction: "none" }}
     >
+      {captureRef && <CaptureBridge captureRef={captureRef} />}
       {/*
        * 어두운 무대 위의 물건 (배경은 DOM의 .inspect-stage). 고르게 밝히던 실내 광을 걷고
        * 앞 위의 핀 조명 하나로 세운다: 찾을 면은 늘 카메라 쪽이라 글씨는 그대로 읽힌다.

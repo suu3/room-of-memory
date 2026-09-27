@@ -26,6 +26,12 @@ export interface MinigameResult {
    * 호스트는 파티클을 한 번 더 터뜨리지 않는다.
    */
   celebrated?: boolean;
+  /**
+   * 끝나는 순간의 판을 찍은 정지 그림 (JPEG data URL). 3D로 집어 보는 판만 싣는다.
+   * 엔진이 저장해 두고 결과 대사 동안 판 대신 세우며, 수첩 카드·다시보기에도 같은
+   * 한 장을 쓴다 (src/store/stills.ts). 미리 그린 replayStill이 있으면 그쪽이 앞선다.
+   */
+  still?: string;
 }
 
 export interface MinigameProps {
@@ -62,6 +68,11 @@ export interface MinigameProps {
    * 따로 그리는 미니게임은 이 값을 보고 판을 멈춘 그림(정지 화면)으로 바꾼다.
    */
   stage?: "play" | "result";
+  /**
+   * 결과 단계에서 판 대신 세울 정지 그림. 판이 끝날 때 `MinigameResult.still`로 넘긴
+   * 그 한 장을 호스트가 돌려준다. 3D 판은 결과 대사 동안 돌지 않고 이 그림으로 굳는다.
+   */
+  still?: string;
   /**
    * 판이 끝나 결과가 확정됐음을 알린다. onComplete보다 먼저 부른다.
    *

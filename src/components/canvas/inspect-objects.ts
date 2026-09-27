@@ -95,16 +95,19 @@ function handwriteLines(
 ) {
   ctx.font = `italic 700 ${size}px ${font}`;
   const lines: string[] = [];
-  let line = "";
-  for (const char of Array.from(text)) {
-    if (ctx.measureText(line + char).width > box.width && line) {
-      lines.push(line);
-      line = char.trimStart();
-    } else {
-      line += char;
+  // 줄바꿈(\n)은 적은 사람이 끊은 자리다: 폭이 남아도 거기서 내려 쓴다
+  for (const paragraph of text.split("\n")) {
+    let line = "";
+    for (const char of Array.from(paragraph)) {
+      if (ctx.measureText(line + char).width > box.width && line) {
+        lines.push(line);
+        line = char.trimStart();
+      } else {
+        line += char;
+      }
     }
+    if (line) lines.push(line);
   }
-  if (line) lines.push(line);
   lines.forEach((each, index) => {
     handwrite(ctx, each, box.x, box.y + index * size * 1.35, size, font, color);
   });

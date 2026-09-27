@@ -11,6 +11,7 @@ import { getMinigame } from "@/minigames";
 import { liveMinigameOf, selectCanvasPuzzle } from "@/minigames/active";
 import { MinigameHelp } from "@/minigames/shell";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
+import { stillKeyOf, useStillStore } from "@/store/stills";
 import type { MinigameResult } from "@/types/minigame";
 import { ExitFade } from "./ExitFade";
 import { SuccessBurst } from "./SuccessBurst";
@@ -155,6 +156,10 @@ export function MinigameHost() {
   const cancelMinigame = useMemoryRoomStore((state) => state.cancelMinigame);
   // 난이도는 판 안의 수치(대역·속도·피해량)로만 들어간다. 스킵 게이트는 shell이 따로 본다
   const difficulty = useMemoryRoomStore((state) => state.difficulty);
+  /** 결과 대사 동안 판 대신 세울 그 순간의 한 장 (3D 인스펙트만 찍는다). */
+  const still = useStillStore((state) =>
+    active ? state.stills[stillKeyOf(active.memoryId, active.gamePhase)] : undefined,
+  );
   /** 시작 버튼을 누른 인터랙션 키: 인터랙션이 바뀌면 자연히 시작 카드로 돌아간다. */
   const [startedKey, setStartedKey] = useState<string | null>(null);
   /**
@@ -358,6 +363,7 @@ export function MinigameHost() {
                   gamePhase={active.gamePhase}
                   difficulty={difficulty}
                   stage={resultStage ? "result" : "play"}
+                  still={resultStage ? still : undefined}
                   onSettled={() => setSettledKey(activeKey)}
                   onComplete={(result) => {
                     playSound(result.cleared ? "success" : "fail");

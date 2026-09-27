@@ -328,6 +328,11 @@ scripts:
       ko: 아래칸. 냉장고 아래칸 말인가.
       en: The bottom drawer. Does she mean the one in the fridge?
       ja: 下の段。冷蔵庫の下の段のことか。
+    - speaker: hero
+      expression: puzzled
+      ko: RX 옆에 그은 두 줄은… 뭘 센 거지.
+      en: And the two strokes after RX… what was she counting?
+      ja: RXの横の二本線は…何を数えたんだ。
 
   # 컴퓨터 2차: 로그인 → 저장된 메일 + 캐시 뉴스. 켜지기도 전에 "비밀번호"를 말하지 않는다
   computer-power-on:

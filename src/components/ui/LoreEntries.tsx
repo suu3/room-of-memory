@@ -9,6 +9,7 @@ import { MEMORY_BY_ID, MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { anyVisitDone, lastVisitDone, visitConfig, visitsOf } from "@/data/story-phase";
 import { blurDataUrlOf } from "@/lib/image-blur";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { stillKeyOf, useStillStore } from "@/store/stills";
 import { BlurredValue } from "./BlurredValue";
 import { STAGGER_CLASS, staggerStyle } from "./stagger";
 import { BUTTON_QUIET_PAPER } from "./ui-classes";
@@ -47,6 +48,8 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const rechecked = useMemoryRoomStore((state) => state.rechecked);
   const replayMemory = useMemoryRoomStore((state) => state.replayMemory);
+  /** 3D로 집어 본 물건을 그때 찍어 둔 한 장. 미리 그린 스틸이 없는 칸을 채운다. */
+  const captured = useStillStore((state) => state.stills);
 
   // 모바일도 두 칸: 한 칸이면 카드가 화면을 통째로 먹어 스크랩북이 아니라 피드가 된다
   return (
@@ -89,7 +92,12 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
                   className="-top-2 -translate-x-1/2 -rotate-2 absolute left-1/2 h-4 w-14 rounded-[1px] bg-bone/55 mix-blend-multiply"
                 />
 
-                <LoreStill id={id} name={name} unlocked={unlocked} still={phase?.replayStill} />
+                <LoreStill
+                  id={id}
+                  name={name}
+                  unlocked={unlocked}
+                  still={phase?.replayStill ?? captured[stillKeyOf(id, visit)]}
+                />
 
                 {/*
                 잠긴 항목은 제목도 싣지 않는다. 제목만 봐도 무슨 일이 있었는지 짐작된다.
@@ -179,6 +187,9 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
  * 세 가지 상태가 있다. 아직 조사하지 않았으면 **빈 사진 자리**(모서리 홀더만 남은
  * 칸)다. 아이콘조차 넣지 않는 이유는, 무엇이 들어올 자리인지까지 알려주면
  * "아직 모르는 물건"이라는 상태가 사라지기 때문이다.
+ *
+ * 3D로 집어 본 물건(쪽지·출입증·앰플)은 내려놓던 순간 찍은 한 장이 들어온다
+ * (store/stills). 결과 대사 동안 판 대신 섰던 바로 그 그림이다.
  *
  * 조사했는데 그때 본 장면이 한 장으로 남지 않는 기억(게임기·라디오·폰·달력)은
  * 아이콘 판으로 대신한다. 미니게임 화면을 억지로 스크린샷처럼 끼워 넣는 것보다,

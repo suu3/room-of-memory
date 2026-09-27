@@ -408,6 +408,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.cards-memo.line1" },
       { speaker: "hero", textKey: "scripts.cards-memo.line2", expression: "puzzled" },
+      { speaker: "hero", textKey: "scripts.cards-memo.line3", expression: "puzzled" },
     ],
   },
   "computer-power-on": {

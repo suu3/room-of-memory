@@ -324,9 +324,9 @@ memories:
         en: The Note on the Table
         ja: 食卓のメモ
       phase2:
-        ko: '"아래칸 건드리지 마." 식탁 위에 접어 둔 엄마 쪽지가 보인다.'
-        en: "\"Don't touch the bottom drawer.\" Mom's folded note is sitting on the table."
-        ja: 「下の段は触らないで。」食卓の上に、母さんが折りたたんだメモがある。
+        ko: '"아래칸. RX ||" 식탁 위에 접어 둔 엄마 쪽지. 무엇을 두 개 센 건지는 적혀 있지 않다.'
+        en: "\"Bottom drawer. RX ||\" Mom's folded note on the table. It doesn't say what she counted two of."
+        ja: 「下の段。RX ||」食卓の上に、母さんが折りたたんだメモ。何を二つ数えたのかは書いていない。
     # 접힌 쪽지를 3D로 펼치면 안쪽에 엄마 메모 (card-flip, v4.1 3장)
     phase2:
       script: cards-intro
@@ -366,7 +366,7 @@ memories:
 
   # ─────────────────────────────────────────────── 3페이즈 · 수상한 앰플
   #
-  # 냉장고 아래칸("아래칸 건드리지 마" 쪽지). 보냉 케이스를 3D로 돌려 옆면의
+  # 냉장고 아래칸("아래칸. RX ||" 쪽지: 두 줄은 앰플 두 개, 하나는 빈 슬롯). 보냉 케이스를 3D로 돌려 옆면의
   # 빈 슬롯을 보고, 앰플을 꺼내 돌려 라벨의 로고 조각을 본다 (ampoule-case, v4.1 6장).
   # 로고 조각이 방 컴퓨터로 이끈다 (컴퓨터 3차).
   - id: ampoule

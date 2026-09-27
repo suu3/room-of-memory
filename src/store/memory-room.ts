@@ -46,6 +46,7 @@ import {
   visitsOf,
 } from "@/data/story-phase";
 import { DOORWAY_IDS, type DoorwayId, type SpaceId } from "@/scenes/memory-room/spaces";
+import { stillKeyOf, useStillStore } from "@/store/stills";
 import type { CurtainSide } from "@/types/curtain";
 import type { CutsceneCut, DialogueScriptLine, ResultMusic } from "@/types/interaction";
 import type { MinigameResult } from "@/types/minigame";
@@ -647,7 +648,12 @@ export function openCutscene(id: string, { intro = false } = {}): ActivePlayback
  * 성적표가 8줄이었다. 되짚기는 한 번 본 장면을 다시 읽는 게 아니라 무엇이었는지를
  * 떠올리는 자리라, 그때 수첩에 남긴 기록(lore) 한 문단이면 된다 (2026-09-27).
  */
-export function buildMemoryReplay(id: MemoryId, gamePhase: Visit): ActivePlayback | null {
+export function buildMemoryReplay(
+  id: MemoryId,
+  gamePhase: Visit,
+  /** 3D로 집어 본 판을 그때 찍어 둔 한 장 (store/stills). 미리 그린 replayStill이 앞선다. */
+  captured?: string,
+): ActivePlayback | null {
   const config = phaseConfigOf(id, gamePhase);
   if (!config) return null;
 
@@ -670,7 +676,9 @@ export function buildMemoryReplay(id: MemoryId, gamePhase: Visit): ActivePlaybac
   return {
     kind: "replay",
     memoryId: id,
-    cuts: [{ image: config.replayStill, fit: "contain", morphFrom, morphWithin, lines }],
+    cuts: [
+      { image: config.replayStill ?? captured, fit: "contain", morphFrom, morphWithin, lines },
+    ],
     cutIndex: 0,
     lineIndex: 0,
     // 다시보기에는 도입이 없다. 라디오가 꺼지는 비트는 그 컷씬만의 것이다
@@ -940,7 +948,7 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
 
 export const useMemoryRoomStore = create<MemoryRoomState>()(
   persist<MemoryRoomState, [], [], Partial<PersistedProgress>>(
-    (set) => ({
+    (set, get) => ({
       collected: [],
       revisited: [],
       rechecked: [],
@@ -1061,7 +1069,14 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
               }
             : state,
         ),
-      finishMinigame: (result) =>
+      finishMinigame: (result) => {
+        // 판이 찍어 넘긴 한 장: 결과 대사·수첩 카드·다시보기가 같이 쓴다 (store/stills)
+        const live = get().activeInteraction;
+        if (live?.phase === "minigame" && result.cleared && result.still) {
+          useStillStore
+            .getState()
+            .putStill(stillKeyOf(live.memoryId, live.gamePhase), result.still);
+        }
         set((state) => {
           const active = state.activeInteraction;
           if (active?.phase !== "minigame") return state;
@@ -1089,7 +1104,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
            */
           if (!result.cleared) return { activeInteraction: null };
           return complete(state, active.memoryId, active.gamePhase);
-        }),
+        });
+      },
       cancelMinigame: () =>
         set((state) =>
           state.activeInteraction?.phase === "minigame" ? { activeInteraction: null } : state,
@@ -1102,7 +1118,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           // 여러 차수를 본 기억이면 마지막으로 본 차수를 되돌려준다
           const gamePhase = lastVisitDone(state, id);
           if (gamePhase === undefined) return state;
-          const playback = buildMemoryReplay(id, gamePhase);
+          const captured = useStillStore.getState().stills[stillKeyOf(id, gamePhase)];
+          const playback = buildMemoryReplay(id, gamePhase, captured);
           return playback ? { activePlayback: playback } : state;
         }),
       setUiLock: (id, locked) =>
@@ -1328,7 +1345,9 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         ),
       endCameraHold: () => set((state) => (state.cameraHold ? { cameraHold: null } : state)),
       startEnding: () => set((state) => (state.batTaken ? { endingStarted: true } : state)),
-      reset: () =>
+      reset: () => {
+        // 찍어 둔 그림도 지난 판의 것이다
+        useStillStore.getState().clearStills();
         set((state) => ({
           collected: [],
           revisited: [],
@@ -1369,7 +1388,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           remark: null,
           cameraHold: null,
           resetRevision: state.resetRevision + 1,
-        })),
+        }));
+      },
     }),
     {
       name: PERSIST_KEY,
