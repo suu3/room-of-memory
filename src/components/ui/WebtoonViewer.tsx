@@ -5,6 +5,7 @@ import { type CSSProperties, Fragment, useCallback, useEffect, useRef, useState 
 import { useTranslation } from "react-i18next";
 import { isInteractiveTarget } from "@/components/canvas/room-canvas-runtime";
 import { playSound } from "@/lib/audio";
+import { blurBackdrop } from "@/lib/image-blur";
 import { useTypewriterState } from "@/lib/use-typewriter";
 import { type ActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 import type { CutsceneCut } from "@/types/interaction";
@@ -349,6 +350,8 @@ function Panel({
             alt=""
             draggable={false}
             onError={() => setMissing(true)}
+            // 칸이 떠오를 때 그림이 아직이면 빈 칸 대신 흐린 판이 선다
+            style={blurBackdrop(cut.image)}
             className="absolute inset-0 size-full select-none object-cover object-center"
           />
         )}

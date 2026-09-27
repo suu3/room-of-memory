@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NATIONALS_DATE } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
+import { blurBackdrop } from "@/lib/image-blur";
 import {
   CALENDAR_YEAR,
   dayAnchor,
@@ -150,6 +151,7 @@ export function CalendarPageImage({ month, source }: { month: number; source: st
         src={source}
         alt={t("minigame.calendarFlip.month", { value: month })}
         draggable={false}
+        style={blurBackdrop(source, "fill")}
         className="absolute inset-0 size-full select-none"
       />
 

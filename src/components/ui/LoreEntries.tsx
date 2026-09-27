@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MEMORY_BY_ID, MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { anyVisitDone, lastVisitDone, visitConfig, visitsOf } from "@/data/story-phase";
+import { blurDataUrlOf } from "@/lib/image-blur";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
 import { STAGGER_CLASS, staggerStyle } from "./stagger";
@@ -227,11 +228,15 @@ function LoreStill({
     );
   }
 
+  // 다시보기 스틸 파일만 흐린 판이 있다. 찍어 둔 스틸(data URL)은 이미 손에 있다
+  const blur = blurDataUrlOf(still);
   return (
     <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2px] bg-bone/40">
       <Image
         src={still}
         alt={t("characterSheet.loreStill", { name })}
+        placeholder={blur ? "blur" : "empty"}
+        blurDataURL={blur}
         fill
         sizes="(min-width: 1024px) 260px, (min-width: 640px) 45vw, 90vw"
         className="animate-fade-rise object-cover"

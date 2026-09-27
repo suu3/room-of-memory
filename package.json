@@ -19,7 +19,8 @@
     "content:build": "node scripts/build-content.mjs",
     "content:check": "node scripts/build-content.mjs --check",
     "audio:bgm": "node scripts/prepare-bgm.mjs",
-    "model:prep": "node scripts/prepare-model.mjs"
+    "model:prep": "node scripts/prepare-model.mjs",
+    "images:blur": "node scripts/build-image-blur.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -51,6 +52,7 @@
     "@types/three": "^0.185.1",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "sharp": "0.34.5",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10",

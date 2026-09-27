@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
+import { blurDataUrlOf } from "@/lib/image-blur";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { EndingConfetti } from "./EndingConfetti";
 import { BUTTON_PRIMARY, BUTTON_QUIET } from "./ui-classes";
@@ -152,6 +153,8 @@ export function EndingScreen() {
               alt={t("ending.thanksAlt")}
               width={1160}
               height={1533}
+              placeholder="blur"
+              blurDataURL={blurDataUrlOf(ASSETS.images.endingThanks)}
               className="h-[34dvh] w-auto rounded-md shadow-panel"
             />
             <p className="font-pixel text-xs tracking-[0.3em] text-memory">{t("ending.eyebrow")}</p>

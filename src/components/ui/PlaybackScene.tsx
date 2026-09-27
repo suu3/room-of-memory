@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
 import { playSound, startNoiseBed } from "@/lib/audio";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
+import { blurBackdrop } from "@/lib/image-blur";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 import { CutDissolve } from "./CutDissolve";
 import { grainForCut } from "./cut-dissolve";
@@ -340,6 +341,11 @@ export function PlaybackScene() {
                 alt=""
                 draggable={false}
                 onError={() => setMissing((ids) => (ids.includes(image) ? ids : [...ids, image]))}
+                // 받아지기 전엔 흐린 판이 선다. 맞춤은 아래 object-fit과 같아야 받는 순간 튀지 않는다
+                style={blurBackdrop(
+                  image,
+                  cut?.fit === "contain" || !isCutscene ? "contain" : "cover",
+                )}
                 // 다시보기 스틸은 통째로 보인다. 잘라 채우면 사진 윗단이 화면 밖으로 나간다
                 className={`absolute inset-0 size-full select-none transition-opacity duration-300 ${
                   cut?.fit === "contain" || !isCutscene ? "object-contain" : "object-cover"

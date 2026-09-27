@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next";
 import { KeyHint } from "@/components/ui/Keycap";
 import { useControlHint } from "@/i18n/control-hint";
 import { ASSETS } from "@/lib/assets";
-import { blurBackdrop } from "@/lib/image-blur";
 import { playSound } from "@/lib/audio";
+import { blurBackdrop } from "@/lib/image-blur";
 import type { MinigameProps } from "@/types/minigame";
 import { useSkipEligible } from "../shell";
 import {
