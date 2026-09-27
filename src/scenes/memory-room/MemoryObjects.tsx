@@ -1331,11 +1331,22 @@ export function InteractiveMemory({
             </group>
           }
           helpers={
-            // 수집 완료 표시는 3D에 그리지 않는다. 우측 "기억 수집" 패널이 담당한다.
-            <mesh name={`memory-hit-${id}`}>
-              <sphereGeometry args={[hitRadiusOf(placement), 12, 8]} />
-              <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-            </mesh>
+            /*
+             * 수집 완료 표시는 3D에 그리지 않는다. 우측 "기억 수집" 패널이 담당한다.
+             *
+             * 판정 구는 눌러서 뭔가 일어날 때만 세운다. 끝난 기억·잠긴 기억까지 구를
+             * 들고 있으면 옆 물건의 클릭을 삼킨다: 신발장 앞 신발(반경 1.45)이 현관
+             * 배트(1.35)와 거의 한 덩어리로 겹쳐, 다 모은 뒤 배트를 눌러도 신발이
+             * "이미 본 기억"으로 받아 버렸다. r3f는 카메라에 가까운 교차부터 부르고
+             * stopPropagation에서 멈추므로 뒤의 배트는 이벤트를 아예 못 본다.
+             * 끝난 기억의 혼잣말·잠긴 컴퓨터의 한 줄은 실물을 눌렀을 때만 나온다.
+             */
+            clickable ? (
+              <mesh name={`memory-hit-${id}`}>
+                <sphereGeometry args={[hitRadiusOf(placement), 12, 8]} />
+                <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+              </mesh>
+            ) : null
           }
         />
       )}

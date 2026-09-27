@@ -82,10 +82,37 @@ describe("interactive memory helpers", () => {
     await renderer.unmount();
   });
 
-  it("클릭 판정용 히트 구는 그대로 남는다", async () => {
+  it("지금 조사할 수 있는 기억은 클릭 판정용 히트 구를 세운다", async () => {
+    // 게임기는 성적표 뒤에 열린다 (content/memories.yaml unlockAfter)
+    useMemoryRoomStore.setState({ collected: ["report-card"] });
     const renderer = await renderConsole();
 
     const hit = renderer.scene.findAll((node) => node.props.name === "memory-hit-console");
+    expect(hit).toHaveLength(1);
+    await renderer.unmount();
+  });
+
+  it("수집을 마친 기억은 히트 구를 내려 옆 물건의 클릭을 삼키지 않는다", async () => {
+    useMemoryRoomStore.setState({ collected: ["report-card", "console"] });
+    const renderer = await renderConsole();
+
+    const hit = renderer.scene.findAll((node) => node.props.name === "memory-hit-console");
+    expect(hit).toHaveLength(0);
+    await renderer.unmount();
+  });
+
+  it("끝난 뒤에도 다시 펼치는 기억(달력)은 히트 구를 남긴다", async () => {
+    useMemoryRoomStore.setState({ collected: ["calendar"] });
+    const renderer = await ReactThreeTestRenderer.create(
+      <InteractiveMemory
+        id="calendar"
+        palette={TEST_PALETTE}
+        nearbyMemoryId={null}
+        onInteract={() => undefined}
+      />,
+    );
+
+    const hit = renderer.scene.findAll((node) => node.props.name === "memory-hit-calendar");
     expect(hit).toHaveLength(1);
     await renderer.unmount();
   });
