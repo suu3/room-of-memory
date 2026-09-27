@@ -548,8 +548,7 @@
     "tabItems": "Carrying",
     "itemsEmpty": "Not carrying anything yet.",
     "itemsHint": "What you pick up stays here. It is used on its own where it belongs.",
-    "mapTravelHint": "Tap a room to go there.",
-    "mapOpen": "Open the floor plan"
+    "mapTravelHint": "Tap a room to go there."
   },
   "titleScreen": {
     "tagline": "Gather the memories scattered across a room that never opened.",

@@ -39,7 +39,6 @@ import { FeedbackModal } from "./FeedbackModal";
 import { HudGuideBanner, HudGuideDock, HudSpaceLine } from "./HudGuide";
 import { HudLogLine } from "./HudLogLine";
 import { HudMenu } from "./HudMenu";
-import { HudMiniMap } from "./HudMiniMap";
 import { InventoryStrip } from "./InventoryStrip";
 import { MinigameHost } from "./MinigameHost";
 import { Monologue } from "./Monologue";
@@ -113,7 +112,7 @@ export function MemoryRoom() {
   const menuInline = useMediaQuery("(min-width: 1800px)");
   const isBatReady = useMemoryRoomStore(selectBatReady);
   const isDoorReady = useMemoryRoomStore(selectDoorReady);
-  /** 방문이 열리면 오른쪽 위에 평면도(HudMiniMap)가 한 줄 더 선다. 혼잣말 기둥이 그만큼 내려앉는다 */
+  /** 방문이 열리면 왼쪽 위 헤더에 소지품 줄이 생긴다. 혼잣말 기둥이 그만큼 내려앉는다 */
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 타이틀 화면이 떠 있는 동안에는 인게임 HUD를 아예 렌더하지 않는다. 블러 너머로 비친다.
@@ -302,9 +301,11 @@ export function MemoryRoom() {
                 <HudMenu />
               </div>
             )}
+            {/*
+              평면도는 HUD에 꺼내 두지 않는다. 방문이 열리면 수첩의 평면도 탭에 새 기록
+              알림이 켜지고, 수첩 탭을 누르면 그 페이지로 바로 열린다 (notebookEntries의 map)
+            */}
             <SoundToggle />
-            {/* 작은 평면도 겸 이동 버튼. 방문이 열린 뒤에만 뜬다 */}
-            <HudMiniMap />
           </div>
         </div>
       )}
@@ -331,8 +332,8 @@ export function MemoryRoom() {
               폰에서 이 기둥은 폭을 거의 다 쓰기 때문에 위쪽 HUD를 좌우 양쪽으로 다 지나간다.
               그래서 양쪽 HUD 중 더 긴 쪽 밑에서 시작해야 글자가 겹치지 않는다. 방문이 열리기
               전에는 왼쪽 헤더(제목·진행·목표, 바닥 102px)와 오른쪽 햄버거·소리(바닥 104px)뿐이라
-              top-32(128px)면 되고, 열린 뒤에는 오른쪽에 평면도가 한 줄 더 서고(바닥 174px)
-              왼쪽에도 소지품 줄이 생겨 top-44(176px)까지 내려앉는다. 한 값으로 두면 1막 내내
+              top-32(128px)면 되고, 열린 뒤에는 왼쪽에 소지품 줄이 생겨 top-44(176px)까지
+              내려앉는다. 한 값으로 두면 1막 내내
               헤더와 혼잣말 사이가 휑하게 비었다 (2026-09-27). md부터는 좌우로 비켜설 폭이
               남아 예전 자리(top-28)를 그대로 쓴다.
             */}

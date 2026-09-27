@@ -548,8 +548,7 @@
     "tabItems": "持ち物",
     "itemsEmpty": "まだ何も持っていない。",
     "itemsHint": "拾ったものはここに残る。使う場所へ行けば勝手に使われる。",
-    "mapTravelHint": "部屋を押すとそこへ行く。",
-    "mapOpen": "間取り図を開く"
+    "mapTravelHint": "部屋を押すとそこへ行く。"
   },
   "titleScreen": {
     "tagline": "閉じた部屋に散らばった記憶を、ひとつずつ取り戻す物語。",

@@ -548,8 +548,7 @@
     "tabItems": "소지품",
     "itemsEmpty": "아직 아무것도 들고 있지 않다.",
     "itemsHint": "주운 것은 여기 남는다. 쓰는 자리에 가면 저절로 쓰인다.",
-    "mapTravelHint": "칸을 누르면 그리로 간다.",
-    "mapOpen": "평면도 열기"
+    "mapTravelHint": "칸을 누르면 그리로 간다."
   },
   "titleScreen": {
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
