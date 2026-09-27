@@ -121,10 +121,12 @@ export function PapersOrderMinigame({ onComplete, onSettled, stage = "play" }: M
                   disabled={solved || frozen}
                   onClick={() => pick(index)}
                   aria-pressed={isHeld}
-                  // 종이 결: 한 장을 찢은 조각이라 가운데 접힌 자리만 비친다
+                  // 종이 결: 한 장을 찢은 조각이라 가운데 접힌 자리만 비친다.
+                  // 그림 좌우에 어두운 바탕 테(768px 중 양쪽 ~40px)가 있어 cover로 깔면 날짜가
+                  // 그 위에 얹혀 잘려 보였다. 폭을 118%로 키워 테를 칸 밖으로 민다
                   style={{
                     backgroundImage: `url(${ASSETS.images.mgPapersPaper})`,
-                    backgroundSize: "cover",
+                    backgroundSize: "118% auto",
                     backgroundPosition: `center ${20 + index * 20}%`,
                   }}
                   aria-label={t("minigame.papersOrder.pieceLabel", {
