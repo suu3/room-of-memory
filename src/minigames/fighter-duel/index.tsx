@@ -61,7 +61,11 @@ const WALK_KEYS = new Set<string>([...WALK_BACK_KEYS, ...WALK_IN_KEYS]);
 const JUMP_KEYS = new Set<string>(["ArrowUp", "KeyW", "Space"]);
 /** 가장 높이 떴을 때 화면에서 올라가는 높이(px). */
 const JUMP_LIFT_PX = 74;
-/** 기술은 눌린 순간 한 번만 먹는다. 붙잡고 있어도 연타가 되지 않는다. */
+/**
+ * 기술은 눌린 순간 한 번만 먹는다. 붙잡고 있어도 연타가 되지 않는다.
+ * 안내는 Z X C다: 방향키가 오른손이니 공격은 왼손에 둔다. J K L은 방향키와 같은 손이라
+ * 두 손이 겹쳤다. WASD로 걷는 사람을 위해 J K L도 그대로 받는다.
+ */
 const ATTACK_KEYS: Record<string, Attack> = {
   KeyJ: "jab",
   KeyZ: "jab",
@@ -432,7 +436,7 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
         나눈다: 한 줄에 여섯 칸을 늘어놓으니 어느 게 발이고 어느 게 손인지 한눈에 안
         읽혔다 (UT). 폰에서는 두 줄이 양손 엄지의 자리이기도 하다.
       */}
-      <div className="mt-3 flex flex-col items-center gap-2">
+      <div className="mt-3 flex flex-col items-center gap-4">
         <div className="flex items-stretch justify-center gap-2">
           <ControlKey
             cap="←"
@@ -457,7 +461,7 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
           {(["jab", "heavy", "throw"] as const).map((attack, index) => (
             <ControlKey
               key={attack}
-              cap={["J", "K", "L"][index]}
+              cap={["Z", "X", "C"][index]}
               label={t(`minigame.fighterDuel.move.${attack}`)}
               accent
               onPointerDown={(event) => {

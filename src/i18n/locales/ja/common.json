@@ -164,7 +164,7 @@
     },
     "fighterDuel": {
       "title": "格闘ゲーム",
-      "help": "方向キーで移動・J K Lで攻撃",
+      "help": "方向キーで移動・Z X Cで攻撃",
       "help_touch": "下のボタンで移動と攻撃",
       "rules": {
         "triangle": "投げはガードに、ガードは攻撃に、攻撃は投げに勝つ"

@@ -164,7 +164,7 @@
     },
     "fighterDuel": {
       "title": "The Fighting Game",
-      "help": "Arrows to move · J K L to attack",
+      "help": "Arrows to move · Z X C to attack",
       "help_touch": "Use the buttons below to move and attack",
       "rules": {
         "triangle": "Throw beats guard, guard beats strike, strike beats throw"
