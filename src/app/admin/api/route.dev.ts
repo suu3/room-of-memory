@@ -10,7 +10,13 @@ import { NextResponse } from "next/server";
 import type { ContentOptions, GameContent } from "@/types/content";
 import { loadContent, saveContent } from "../../../../scripts/content/index.mjs";
 import { loadMinigameIds } from "../../../../scripts/content/load.mjs";
-import { EXPRESSIONS, ICONS, SPEAKERS, STAGE_IDS } from "../../../../scripts/content/schema.mjs";
+import {
+  EXPRESSIONS,
+  ICONS,
+  RESULT_MUSIC,
+  SPEAKERS,
+  STAGE_IDS,
+} from "../../../../scripts/content/schema.mjs";
 
 /** 저장이 파일시스템을 건드리므로 캐시되면 안 된다. */
 export const dynamic = "force-dynamic";
@@ -24,6 +30,7 @@ export async function GET() {
     expressions: [...EXPRESSIONS],
     minigameIds,
     stageIds: [...STAGE_IDS],
+    resultMusic: [...RESULT_MUSIC] as ContentOptions["resultMusic"],
   };
 
   return NextResponse.json({ content, options });

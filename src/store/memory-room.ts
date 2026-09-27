@@ -47,7 +47,7 @@ import {
 } from "@/data/story-phase";
 import { DOORWAY_IDS, type DoorwayId, type SpaceId } from "@/scenes/memory-room/spaces";
 import type { CurtainSide } from "@/types/curtain";
-import type { CutsceneCut, DialogueScriptLine } from "@/types/interaction";
+import type { CutsceneCut, DialogueScriptLine, ResultMusic } from "@/types/interaction";
 import type { MinigameResult } from "@/types/minigame";
 import type { SeatId } from "@/types/seat";
 
@@ -1587,6 +1587,19 @@ export const selectMusicPlaying = (state: MemoryRoomState) =>
  * (라디오 목소리)은 아직 1막의 끝자락이라 곡도 1막 것이 남아야 한다.
  */
 export const selectMusicPhase = (state: MemoryRoomState): 1 | 2 => (state.doorOpened ? 2 : 1);
+
+/**
+ * 결과 대사 동안 방 곡 대신 들어야 하는 곡 (content/memories.yaml의 resultMusic).
+ *
+ * 방 곡이 흐르는 자리에서만 든다. 곡이 멎은 구간(전환·안방·컷씬)은 정적이 연출이라,
+ * 대본에 걸려 있어도 그 정적을 깨지 않는다.
+ */
+export const selectResultMusic = (state: MemoryRoomState): ResultMusic | null => {
+  const active = state.activeInteraction;
+  if (active?.phase !== "dialogue" || !active.keepMinigame) return null;
+  if (!selectMusicPlaying(state)) return null;
+  return phaseConfigOf(active.memoryId, active.gamePhase)?.interaction?.resultMusic ?? null;
+};
 
 /** 로그 한 줄: 누가 무엇을 말했는가. 본문은 키로 남는다 (dialogueLog 주석). */
 export type DialogueLogEntry = Pick<DialogueScriptLine, "speaker" | "textKey">;

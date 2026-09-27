@@ -34,7 +34,15 @@ export interface MemoryInteraction {
    * 이 대사 동안 미니게임 화면은 뒤에 남는다. 방금 드러난 장면을 보며 듣는다.
    */
   resultScriptId?: string;
+  /**
+   * 결과 대사 동안 방 곡을 비우고 드는 곡. 타이틀 곡이 게임 안에서 다시 들리는 자리라
+   * 감정이 가장 높은 몇 곳에만 건다 (content/memories.yaml의 resultMusic).
+   */
+  resultMusic?: ResultMusic;
 }
+
+/** 결과 대사에 걸 수 있는 곡 (scripts/content/schema.mjs의 RESULT_MUSIC와 같아야 한다). */
+export type ResultMusic = "title";
 
 /**
  * 컷씬 한 컷: 일러스트 한 장과 그 위로 흐르는 대사.

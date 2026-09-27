@@ -22,6 +22,7 @@ import {
   selectMonologueHidden,
   selectMusicForeground,
   selectMusicPhase,
+  selectResultMusic,
   selectMusicPlaying,
   selectViewpoint,
   useMemoryRoomStore,
@@ -131,11 +132,14 @@ export function MemoryRoom() {
   const musicPlaying = useMemoryRoomStore(selectMusicPlaying);
   // 곡이 갈리는 자리는 밝기와 다르다. 2막 곡은 방문이 열려야 든다
   const musicPhase = useMemoryRoomStore(selectMusicPhase);
+  // 회상이 가장 짙은 결과 대사 몇 곳에서는 타이틀 곡이 돌아온다 (memories.yaml의 resultMusic)
+  const resultMusic = useMemoryRoomStore(selectResultMusic);
   useRoomMusic({
     playing: musicPlaying,
     phase: musicPhase,
     level: heardLevel,
     foreground: musicForeground,
+    resultMusic,
   });
 
   return (

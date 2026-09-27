@@ -60,6 +60,16 @@ describe("콘텐츠 검증 (v4 스키마)", () => {
     expect(validateContent(content).join("\n")).toContain("ko 문장이 비어 있다");
   });
 
+  it("결과 대사의 곡은 허용 목록에 있고, 결과 대사가 있어야 붙는다", () => {
+    const content = minimal();
+    const phase1: Record<string, unknown> = { script: "hello", resultMusic: "title" };
+    content.memories[0].phase1 = phase1 as (typeof content.memories)[0]["phase1"];
+    expect(validateContent(content).join("\n")).toContain("resultScript 없이는");
+
+    phase1.resultMusic = "lullaby";
+    expect(validateContent(content).join("\n")).toContain("허용 목록에 없다");
+  });
+
   it("2차 이후 조사는 from이 있어야 한다", () => {
     const content = minimal();
     delete (content.memories[0].phase2 as { from?: string }).from;

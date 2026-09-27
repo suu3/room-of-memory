@@ -89,6 +89,12 @@ export const FROM_PHASES = ["turning", "p2", "p3", "p4"];
 /** 조사 차수: phase1(1차) · phase2(2차) · phase3(3차). */
 export const VISIT_KEYS = ["phase1", "phase2", "phase3"];
 
+/**
+ * 결과 대사 동안 방 곡 대신 드는 곡 (resultMusic). 지금은 타이틀 곡 하나다.
+ * 이름과 파일의 짝은 src/lib/audio/index.ts의 RESULT_MUSIC_TRACK.
+ */
+export const RESULT_MUSIC = ["title"];
+
 /** 컷에 붙일 수 있는 효과음 (src/lib/audio/voices.ts의 이름). 컷이 뜨는 순간 한 번 난다. */
 export const CUT_SFX = ["mittTap", "radioCut", "radioWake", "radioStatic", "radioSignOff"];
 
@@ -114,6 +120,7 @@ export const PHASE_KEYS = [
   "script",
   "minigame",
   "resultScript",
+  "resultMusic",
   "unlockAfter",
   "replayStill",
   "from",

@@ -10,6 +10,7 @@ export const STAGE_IDS: readonly string[];
 export const STORY_PHASES: readonly string[];
 export const FROM_PHASES: readonly string[];
 export const VISIT_KEYS: readonly string[];
+export const RESULT_MUSIC: readonly string[];
 export const CUT_SFX: readonly string[];
 export const CUT_RATIOS: readonly string[];
 export const CUT_KEYS: readonly string[];

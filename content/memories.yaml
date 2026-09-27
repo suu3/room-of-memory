@@ -35,6 +35,10 @@
 #   script        미니게임 앞에 트는 진입 대사 (scripts.yaml의 id)
 #   minigame      미니게임 id (src/minigames/index.ts 레지스트리)
 #   resultScript  미니게임 클리어 뒤의 결과 대사 (scripts.yaml의 id)
+#   resultMusic   결과 대사 동안 방 곡 대신 트는 곡. 지금은 `title`(타이틀 곡) 하나.
+#                 타이틀에서 들은 곡이 게임 안에서 돌아오는 자리라 아껴 쓴다: 회상이
+#                 가장 짙은 두 곳(액자 1차, 엄마의 마지막 문자)에만 건다. 곡이 없는
+#                 구간(전환, 안방 p4)에서는 걸어도 들리지 않는다
 #   unlockAfter   먼저 끝나야 하는 조사. `radio`는 같은 차수, `computer@3`은 3차
 #   from          이 페이즈부터 열린다 (turning/p2/p3/p4). 2차 이후에 필수
 #   side          곁가지: true면 페이즈를 넘기는 데 필요 없다
@@ -139,6 +143,7 @@ memories:
     phase1:
       minigame: photo-wipe
       resultScript: frame-photo
+      resultMusic: title
       unlockAfter: [console, ball]
       replayStill: /assets/images/mg-photo-wipe-phase-1.webp?v=20260912
     # 2차 (4페이즈): 안방 서류 셋을 다 본 뒤 금빛이 돈다. 조각을 맞추면 얼굴이 돌아온다.
@@ -174,6 +179,7 @@ memories:
       script: phone-mom-intro
       minigame: mom-chat
       resultScript: phone-mom-read
+      resultMusic: title
       from: p2
       unlockAfter: [computer]
 

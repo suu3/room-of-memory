@@ -4,7 +4,7 @@
  * 게임이 실제로 읽는 것은 이걸 생성한 결과(src/data/generated/content.ts + i18n
  * 리소스)다. 여기 타입은 "사람이 쓰는 형태"를 가리킨다.
  */
-import type { CharacterExpression } from "./interaction";
+import type { CharacterExpression, ResultMusic } from "./interaction";
 
 /** 지원 언어. src/i18n/config.ts의 SUPPORTED_LOCALES와 같아야 한다. */
 export const CONTENT_LOCALES = ["ko", "en", "ja"] as const;
@@ -29,6 +29,8 @@ export interface ContentPhase {
   minigame?: string;
   /** 미니게임 클리어 뒤에 재생할 결과 대사 (scripts의 id). */
   resultScript?: string;
+  /** 결과 대사 동안 방 곡 대신 드는 곡 (schema.mjs의 RESULT_MUSIC). */
+  resultMusic?: ResultMusic;
   /** 먼저 끝나야 하는 조사: `radio`(같은 차수) 또는 `computer@3`(3차). */
   unlockAfter?: string[];
   /** 다시보기에서 대사 뒤에 세우는 정지 그림 (public 기준 경로). */
@@ -102,6 +104,7 @@ export interface ContentOptions {
   expressions: CharacterExpression[];
   minigameIds: string[];
   stageIds: string[];
+  resultMusic: ResultMusic[];
 }
 
 /** 저장 결과. issues가 비어 있지 않으면 아무것도 쓰이지 않았다. */

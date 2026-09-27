@@ -13,6 +13,7 @@ import {
   LOCALES,
   MEMORY_KEYS,
   PHASE_KEYS,
+  RESULT_MUSIC,
   SPEAKERS,
   STAGE_IDS,
   VISIT_KEYS,
@@ -273,6 +274,18 @@ function validatePhase(context) {
   }
   if (config.resultScript !== undefined && config.minigame === undefined) {
     issues.push(`${where}: resultScript는 미니게임의 결과 대사라 minigame 없이는 못 쓴다.`);
+  }
+  if (config.resultMusic !== undefined) {
+    if (!RESULT_MUSIC.includes(config.resultMusic)) {
+      issues.push(
+        `${where}.resultMusic: "${config.resultMusic}"는 허용 목록에 없다 (${RESULT_MUSIC.join(", ")}).`,
+      );
+    }
+    if (config.resultScript === undefined) {
+      issues.push(
+        `${where}: resultMusic은 결과 대사 동안 트는 곡이라 resultScript 없이는 못 쓴다.`,
+      );
+    }
   }
 
   if (config.unlockAfter !== undefined) {

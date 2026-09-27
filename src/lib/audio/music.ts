@@ -351,7 +351,17 @@ function stopOverlayVoice(playing: OverlayVoice, fadeSeconds: number) {
  *
  * 곡을 못 받으면 방 곡을 도로 올린다. 게임기가 무음이 되는 것보다 낫다.
  */
-export function startOverlayMusic(src: string) {
+export function startOverlayMusic(
+  src: string,
+  {
+    fold = false,
+    volume = OVERLAY_VOLUME,
+  }: {
+    /** 루프 이음새를 접는가 (loadBuffer). 마디에 맞춰 구운 곡이 아니면 접는다. */
+    fold?: boolean;
+    volume?: number;
+  } = {},
+) {
   if (overlayRequest === src) return;
   const graph = audioGraph();
   if (!graph) return;
@@ -362,7 +372,7 @@ export function startOverlayMusic(src: string) {
   overlayRequest = src;
   glideRoomVolume(OVERLAY_FADE_S);
 
-  void loadBuffer(graph.context, src, false)
+  void loadBuffer(graph.context, src, fold)
     .then((buffer) => {
       if (overlayRequest !== src) return;
       const { context, master } = graph;
@@ -373,7 +383,7 @@ export function startOverlayMusic(src: string) {
       gain.gain.value = 0.0001;
       source.connect(gain).connect(master);
       source.start();
-      gain.gain.setTargetAtTime(OVERLAY_VOLUME, context.currentTime, OVERLAY_FADE_S / 3);
+      gain.gain.setTargetAtTime(volume, context.currentTime, OVERLAY_FADE_S / 3);
       overlay = { src, source, gain };
     })
     .catch((error) => {

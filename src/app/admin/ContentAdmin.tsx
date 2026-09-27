@@ -685,10 +685,31 @@ function PhaseEditor({
               value={phase.resultScript}
               options={scriptIds}
               labelOf={scriptLabel}
-              onChange={(value) => set("resultScript", value)}
+              onChange={(value) => {
+                // 결과 대사를 비우면 그 위의 곡도 같이 비운다. 남겨 두면 저장이 막힌다
+                if (value) return set("resultScript", value);
+                const { resultScript: _script, resultMusic: _music, ...rest } = phase;
+                onChange(rest);
+              }}
             />
           </Field>
           {phase.resultScript ? <ScriptPreview lines={scripts[phase.resultScript]} /> : null}
+          {phase.resultScript ? (
+            <div className="mt-2">
+              <Field
+                label="결과 대사 동안 트는 곡"
+                hint="비우면 방 곡이 그대로 흐른다. title은 타이틀 곡이 돌아오는 자리라 회상이 가장 짙은 몇 곳에만 건다."
+              >
+                <Select
+                  allowEmpty
+                  emptyLabel="(방 곡)"
+                  value={phase.resultMusic}
+                  options={options.resultMusic}
+                  onChange={(value) => set("resultMusic", value)}
+                />
+              </Field>
+            </div>
+          ) : null}
         </div>
       </div>
 

@@ -122,6 +122,7 @@ function phaseLiteral(config, visit, memories) {
     config.resultScript !== undefined
       ? `resultScriptId: ${JSON.stringify(config.resultScript)}`
       : null,
+    config.resultMusic !== undefined ? `resultMusic: ${JSON.stringify(config.resultMusic)}` : null,
   ].filter(Boolean);
 
   const fields = [

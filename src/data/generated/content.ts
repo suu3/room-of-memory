@@ -99,7 +99,11 @@ export const MEMORIES: MemoryItem[] = [
     id: "frame",
     icon: ImageSquare,
     phase1: {
-      interaction: { minigameId: "photo-wipe", resultScriptId: "frame-photo" },
+      interaction: {
+        minigameId: "photo-wipe",
+        resultScriptId: "frame-photo",
+        resultMusic: "title",
+      },
       unlockAfter: [
         { id: "console", visit: 1 },
         { id: "ball", visit: 1 },
@@ -132,6 +136,7 @@ export const MEMORIES: MemoryItem[] = [
         scriptId: "phone-mom-intro",
         minigameId: "mom-chat",
         resultScriptId: "phone-mom-read",
+        resultMusic: "title",
       },
       unlockAfter: [{ id: "computer", visit: 2 }],
       from: "p2",

@@ -39,6 +39,7 @@ import {
   selectOnboardingStep,
   selectPapersOrdered,
   selectRadioSignaling,
+  selectResultMusic,
   selectSceneInputLocked,
   selectSinkHintRead,
   selectStillBeatDone,
@@ -392,6 +393,38 @@ describe("수집한 기억 다시보기", () => {
     useMemoryRoomStore.getState().replayMemory("ball");
 
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
+  });
+
+  it("타이틀 곡은 resultMusic이 걸린 결과 대사 동안만, 방 곡이 흐르는 자리에서만 든다", () => {
+    useMemoryRoomStore.getState().startGame();
+    useMemoryRoomStore.getState().toggleLights();
+    const resultDialogue = {
+      memoryId: "frame" as const,
+      gamePhase: 1 as const,
+      phase: "dialogue" as const,
+      scriptId: "frame-photo",
+      keepMinigame: true,
+      lineIndex: 0,
+    };
+
+    useMemoryRoomStore.setState({ activeInteraction: resultDialogue });
+    expect(selectResultMusic(useMemoryRoomStore.getState())).toBe("title");
+
+    // 미니게임 앞의 진입 대사는 아니다
+    useMemoryRoomStore.setState({
+      activeInteraction: { ...resultDialogue, keepMinigame: undefined },
+    });
+    expect(selectResultMusic(useMemoryRoomStore.getState())).toBeNull();
+
+    // 걸려 있지 않은 결과 대사는 방 곡 그대로
+    useMemoryRoomStore.setState({
+      activeInteraction: { ...resultDialogue, memoryId: "ball", scriptId: "ball-alone" },
+    });
+    expect(selectResultMusic(useMemoryRoomStore.getState())).toBeNull();
+
+    // 곡이 멎은 자리(엔딩)에서는 정적을 깨지 않는다
+    useMemoryRoomStore.setState({ activeInteraction: resultDialogue, endingStarted: true });
+    expect(selectResultMusic(useMemoryRoomStore.getState())).toBeNull();
   });
 
   it("2바퀴 곡은 수집 완료가 아니라 문이 열려야 든다", () => {

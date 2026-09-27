@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { ASSETS } from "@/lib/assets";
 import { selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
+import type { ResultMusic } from "@/types/interaction";
 import { disposeAudio as disposeEngine, playSound, setAudioMuted, unlockAudio } from "./engine";
 import {
   disposeMusic,
@@ -10,7 +11,9 @@ import {
   setMusicLevel,
   setMusicTrim,
   startMusic,
+  startOverlayMusic,
   stopMusic,
+  stopOverlayMusic,
 } from "./music";
 import { preloadSamples } from "./samples";
 
@@ -125,6 +128,16 @@ const ROUND_TRACK = { 1: ASSETS.bgm.room, 2: ASSETS.bgm.roomSecondLight } as con
  */
 const ROUND_TRIM = { 1: 1.35, 2: 1 } as const;
 
+/** 결과 대사에 걸 수 있는 곡의 파일 (content/memories.yaml의 resultMusic). */
+const RESULT_MUSIC_TRACK: Record<ResultMusic, string> = { title: ASSETS.bgm.title };
+
+/**
+ * 결과 대사 위의 곡 음량. 대사창 아래라 방 곡을 대사만큼 누른 자리(밝은 방 곡 ×
+ * DIALOGUE_DUCK)에 맞춘다. 타이틀에서는 원음(1)으로 틀지만, 여기서 그대로 틀면 방 곡이
+ * 비켜난 자리에 곡이 갑자기 앞으로 튀어나온다.
+ */
+const RESULT_MUSIC_VOLUME = 0.3;
+
 /**
  * 방 BGM을 방 밝기와 바퀴에 물린다.
  *
@@ -143,6 +156,7 @@ export function useRoomMusic({
   phase,
   level,
   foreground,
+  resultMusic,
 }: {
   playing: boolean;
   /** 지금 몇 바퀴인가. 곡을 고르는 유일한 기준이다. */
@@ -150,6 +164,8 @@ export function useRoomMusic({
   level: number;
   /** 지금 화면의 주인공. BGM은 그 뒤로 물러난다. */
   foreground: "room" | "dialogue" | "minigame";
+  /** 결과 대사 동안 방 곡 대신 드는 곡. 방 곡은 멈추지 않고 비켜 있다가 흐르던 자리로 돌아온다. */
+  resultMusic: ResultMusic | null;
 }) {
   useEffect(() => {
     if (!playing) {
@@ -170,6 +186,16 @@ export function useRoomMusic({
     else if (foreground === "dialogue") setMusicDuck(DIALOGUE_DUCK);
     else setMusicDuck(1);
   }, [foreground]);
+
+  useEffect(() => {
+    if (!resultMusic) return;
+    // 타이틀 곡은 루프를 접어 구웠다 (TitleScreen의 startCueMusic과 같은 버퍼를 쓴다)
+    startOverlayMusic(RESULT_MUSIC_TRACK[resultMusic], {
+      fold: true,
+      volume: RESULT_MUSIC_VOLUME,
+    });
+    return () => stopOverlayMusic();
+  }, [resultMusic]);
 }
 
 /** 이벤트 핸들러에서 부르기 좋은 형태: `onClick={playing("select")}`. */
