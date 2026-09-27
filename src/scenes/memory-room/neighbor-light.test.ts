@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   NEIGHBOR_LIGHT,
+  NEIGHBOR_PARALLAX_X,
   neighborLightOffset,
   neighborLightOpacity,
   neighborLightVisible,
@@ -9,11 +10,15 @@ import {
 describe("neighborLightOffset", () => {
   const opening = { width: 2.84, height: 2.4 };
 
-  it("창 개구부 안쪽, 지평선 띠에 선다. 카메라가 비스듬해 보이는 자리가 왼쪽·아래로 밀리는 만큼 그쪽이다", () => {
+  it("보이는 자리(시차 보정 뒤)가 창 개구부 안쪽 지평선 띠에 있고, 닫힌 커튼의 가운데 틈은 피한다", () => {
     const [x, y] = neighborLightOffset(opening);
-    expect(Math.abs(x)).toBeLessThan(opening.width / 2 - NEIGHBOR_LIGHT.size[0]);
+    const seenX = x + NEIGHBOR_PARALLAX_X;
+    const haloHalf = (NEIGHBOR_LIGHT.size[0] * NEIGHBOR_LIGHT.halo) / 2;
+    // 후광까지 개구부 안에
+    expect(seenX - haloHalf).toBeGreaterThan(-opening.width / 2);
+    // 후광의 오른쪽 끝이 가운데 틈(대략 ±0.3)에 닿지 않는다: 닿으면 타이틀에서 커튼 사이로 노란 조각이 선다
+    expect(seenX + haloHalf).toBeLessThan(-0.3);
     expect(Math.abs(y)).toBeLessThan(opening.height / 2 - NEIGHBOR_LIGHT.size[1]);
-    expect(x).toBeLessThan(0);
     expect(y).toBeLessThan(0);
   });
 });

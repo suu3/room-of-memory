@@ -16,24 +16,38 @@ export const NEIGHBOR_LIGHT = {
   /** 창 하나의 크기(월드 유닛). 별(0.012~0.026)보다 크되 창 개구부(2.84×2.4)의 한 뼘이다. 0.11×0.15로는 놀이 배율에서 별과 구분이 안 됐다. */
   size: [0.16, 0.22] as readonly [number, number],
   /** 창을 감싸는 번짐 판의 배율과 불투명도. 색면이 유리 너머의 빛으로 읽히게 하는 최소치. */
-  halo: 2.8,
-  haloOpacity: 0.16,
+  halo: 2.2,
+  haloOpacity: 0.14,
   /** 켜진 뒤 차오르는 속도(damp lambda). 0.45면 8초쯤에 거의 다 켜진다. 스위치가 아니라 저녁이 오듯. */
   lambda: 0.45,
 } as const;
 
 /**
  * 창 개구부 중심 기준 자리. 아이소메트릭 카메라가 창을 비스듬히 내려다봐서 개구부를 통해
- * 보이는 배경막의 지점이 왼쪽·아래로 밀린다 (WindowView의 MARGIN이 그쪽에 큰 이유).
- * 그 밀린 만큼 왼쪽·아래에 두어야 기본 시점에서 개구부 가운데쯤에 보인다. 지평선 띠(볕이
- * 남은 아래쪽 색)에 서야 "건너편 건물"로 읽힌다: 별 사이에 두면 별 하나가 더 큰 것뿐이다.
+ * 보이는 배경막의 지점이 왼쪽·아래로 밀린다 (WindowView의 MARGIN이 그쪽에 큰 이유). 배경막
+ * 위의 점은 기본 시점에서 개구부 폭의 0.2쯤 오른쪽에 보인다.
+ *
+ * 커튼이 닫혀 있을 때 가운데 틈에 걸리지 않게, 개구부 왼쪽 끝 가까이 둔다 (보이는 자리로는
+ * 중심에서 0.25 폭 왼쪽, 후광까지 왼쪽 커튼 뒤다). 처음(0.16 왼쪽)에는 보이는 자리가 딱 틈
+ * 한가운데라 타이틀에서 커튼 사이로 노란 조각이 서 있었고, 창에 웬 스위치가 붙은 것처럼
+ * 읽혔다. 0.34로 옮겨도 후광이 틈을 밝혔다 (2026-09-27). 이제 커튼을 젖혀야 보인다: 창밖을
+ * 내다보는 사람에게만 켜지는 불이다.
+ * 지평선 띠(볕이 남은 아래쪽 색)에 서야 "건너편 건물"로 읽힌다: 별 사이에 두면 별 하나가
+ * 더 큰 것뿐이다.
  */
 export function neighborLightOffset(opening: {
   width: number;
   height: number;
 }): readonly [x: number, y: number] {
-  return [-opening.width * 0.16, -opening.height * 0.2];
+  return [-opening.width * 0.45, -opening.height * 0.2];
 }
+
+/**
+ * 배경막 위의 점이 개구부에서 보이는 자리는 이만큼 오른쪽으로 밀린다. 시선이 (−0.64, −0.38,
+ * −0.67)이고 판이 유리 뒤 0.6에 서므로 0.6 × 0.64 / 0.67. 자리를 정하거나 검사할 때 이 값을
+ * 더한 곳이 실제로 보이는 곳이다.
+ */
+export const NEIGHBOR_PARALLAX_X = 0.57;
 
 /** 생존자 방송을 들었는가 (라디오 2차). 스토어의 selectHeardSurvivorBroadcast와 같은 판정이다. */
 export function neighborLightVisible(state: { revisited: readonly MemoryId[] }): boolean {
