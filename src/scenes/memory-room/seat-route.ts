@@ -38,24 +38,21 @@ export function approachesOf(seat: Seat): readonly Vec2[] {
 }
 
 /**
- * 앉는 순간 의자가 빠져 나간다 (Seat.pull). 콜라이더는 제자리에 있으므로, 걸어가는 동안
- * 빠진 의자를 스치지 않도록 빠진 자리의 발자국을 하나 더 막는다. 제자리 좌면 중심(near)을
- * 품은 발자국이 그 의자다.
+ * 앉는 순간 의자가 빠져 나간다 (Seat.pull). 콜라이더는 제자리 의자만 막으므로, 걸어가는
+ * 동안 빠진 의자를 스치지 않도록 빠진 자리의 발자국을 하나 더 막는다.
  */
 function withPulledSeat(seat: Seat, obstacles: readonly Aabb2[]): readonly Aabb2[] {
-  const { pull, near } = seat;
-  if (!pull) return obstacles;
-  const own = obstacles.find(
-    (box) => near.x >= box.minX && near.x <= box.maxX && near.z >= box.minZ && near.z <= box.maxZ,
-  );
-  if (!own) return obstacles;
+  const { pull, near, footprintHalf } = seat;
+  if (!pull || footprintHalf === undefined) return obstacles;
+  const x = near.x + pull.x;
+  const z = near.z + pull.z;
   return [
     ...obstacles,
     {
-      minX: own.minX + pull.x,
-      maxX: own.maxX + pull.x,
-      minZ: own.minZ + pull.z,
-      maxZ: own.maxZ + pull.z,
+      minX: x - footprintHalf,
+      maxX: x + footprintHalf,
+      minZ: z - footprintHalf,
+      maxZ: z + footprintHalf,
     },
   ];
 }

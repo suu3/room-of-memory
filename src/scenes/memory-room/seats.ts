@@ -63,6 +63,11 @@ export interface Seat {
    * 의자는 빼지 않으면 앉은 몸이 상판을 뚫는다.
    */
   pull?: { x: number; z: number; turn: number };
+  /**
+   * 빠져 나온 의자 발자국의 반폭. 걸어가는 길이 빠진 의자를 스치지 않게 막는 데 쓴다
+   * (seat-route). 콜라이더는 제자리 의자만 막는다.
+   */
+  footprintHalf?: number;
 }
 
 /**
@@ -80,6 +85,30 @@ export function seatOffsetFromCenter(halfDepth: number): number {
 function seatAnchor(center: Vec2, facing: number, halfDepth: number): Vec2 {
   const distance = seatOffsetFromCenter(halfDepth);
   return { x: center.x + Math.sin(facing) * distance, z: center.z + Math.cos(facing) * distance };
+}
+
+/**
+ * 좌석 발자국 가장자리에서 서는 자리까지: 플레이어 반지름(0.38)에 여유를 더한 값.
+ * 앉는 자리는 가구 콜라이더 안이라 거기까지 곧장 걸으면 가구를 뚫는다. 이만큼 떨어진
+ * 자리에 섰다가 앉는 동작 중에 좌면으로 들어간다 (seat-route).
+ */
+const STAND_CLEARANCE = 0.45;
+
+/** 좌면 양옆에 서는 자리 둘. 사람은 의자를 빼고 옆에서 들어가 앉는다. */
+function sideApproaches(center: Vec2, facing: number, halfWidth: number): readonly Vec2[] {
+  const distance = halfWidth + STAND_CLEARANCE;
+  // 정면 (sin, cos)에 수직인 방향
+  const sideX = Math.cos(facing) * distance;
+  const sideZ = -Math.sin(facing) * distance;
+  return [
+    { x: center.x + sideX, z: center.z + sideZ },
+    { x: center.x - sideX, z: center.z - sideZ },
+  ];
+}
+
+/** 좌면 정면에 서는 자리 하나. 소파처럼 앞에서 돌아앉는 자리다. */
+function frontApproach(center: Vec2, facing: number, distance: number): readonly Vec2[] {
+  return [{ x: center.x + Math.sin(facing) * distance, z: center.z + Math.cos(facing) * distance }];
 }
 
 /** 다가가야 앉을 수 있는 거리. 서랍·커튼과 같은 값이라 방의 손 닿는 거리가 하나로 읽힌다. */
@@ -102,18 +131,17 @@ const DESK_CHAIR_CENTER: Vec2 = {
 };
 const DESK_CHAIR_ANCHOR = seatAnchor(DESK_CHAIR_CENTER, DESK_CHAIR_FACING, DESK_CHAIR_HALF_DEPTH);
 /**
- * 의자 옆면에서 서는 자리까지: 좌면 반폭에 플레이어 반지름(0.38)과 여유를 더한 거리.
- * 앉는 자리는 의자 콜라이더 안이라 거기까지 걸으면 의자를 뚫는다. 빠져나온 의자 옆에
- * 섰다가 앉는 동작 중에 좌면으로 들어간다. 양옆 중 걸어서 가까운 쪽으로 간다.
+ * 빠져나온 의자 옆에 섰다가 앉는 동작 중에 좌면으로 들어간다. 양옆 중 걸어서 가까운
+ * 쪽으로 간다. 옆은 틀어지기 전의 정면(-x) 기준이다: 방 축에 맞춰 서야 책상과 나란하다.
  *
  * x를 앉는 자리가 아니라 빠진 의자 한가운데에 두는 건 라디오 때문이다: 앉는 자리 옆이면
  * 책상 모서리의 라디오 클릭 구(반경 1.05) 안이라 그 바닥을 누르면 라디오가 눌린다.
  */
-const DESK_CHAIR_SIDE_OFF = CHAIR_SEAT.half + 0.45;
-const DESK_CHAIR_APPROACHES: readonly Vec2[] = [
-  { x: DESK_CHAIR_CENTER.x, z: CHAIR_POSITION[2] - DESK_CHAIR_SIDE_OFF },
-  { x: DESK_CHAIR_CENTER.x, z: CHAIR_POSITION[2] + DESK_CHAIR_SIDE_OFF },
-];
+const DESK_CHAIR_APPROACHES = sideApproaches(
+  DESK_CHAIR_CENTER,
+  -Math.PI / 2,
+  DESK_CHAIR_HALF_DEPTH,
+);
 
 /*
  * ── 방: 침대 ────────────────────────────────────────────────────
@@ -178,6 +206,13 @@ const DINING_HALF_DEPTH = 0.22 * LIVING_FURNITURE_SCALE;
 const DINING_SEAT_Y = scaleLivingHeight(0.595);
 /** 상판 모서리(중심에서 0.8) 밖으로 몸통이 나가는 거리: 어깨 반폭 뒤로 0.18 여유. */
 const DINING_PULL = 0.8 * LIVING_FURNITURE_SCALE;
+/**
+ * 빠져 나와 있는 의자 앞에 서는 거리. 의자가 식탁 발자국(의자 포함) 모서리에 걸쳐 있어서
+ * 좌면 앞턱에서 한 걸음이면 아직 식탁 발자국에 닿는다. 그만큼 더 물러선다.
+ */
+const DINING_FRONT_STAND = 1.0;
+/** 빠진 의자 옆에 서는 줄을 앉는 자리에서 식탁 쪽으로 당기는 양. 피아노와 여유를 둔다. */
+const DINING_SIDE_INSET = 0.1;
 function diningChairCenter(seat: (typeof LIVING_DINING_CHAIRS)[number]["seat"]): Vec2 {
   const chair = LIVING_DINING_CHAIRS.find((entry) => entry.seat === seat);
   if (!chair) throw new Error(`no dining chair for seat ${seat}`);
@@ -202,14 +237,33 @@ const [PIANO_BENCH_X, PIANO_BENCH_Z] = scaleLivingPoint(
 );
 const PIANO_BENCH_CENTER: Vec2 = { x: PIANO_BENCH_X, z: PIANO_BENCH_Z };
 const PIANO_BENCH_HALF_DEPTH = 0.17 * LIVING_FURNITURE_SCALE;
+/**
+ * 걸상 뒤에 서는 거리. 피아노 발자국(LIVING_COLLIDERS의 piano)이 걸상까지 품고 있어서
+ * 그 뒷변 밖으로 플레이어 반지름만큼 나가야 한다.
+ */
+const PIANO_BENCH_BEHIND = 0.75;
 const PIANO_BENCH_SEAT_Y = scaleLivingHeight(0.57);
 
-function sofaSeat(id: SeatId, x: number, seatY: number): Seat {
+/** 소파 발자국(LIVING_COLLIDERS의 sofa) 앞면. 다리까지 친 값이라 몸통 앞면보다 앞이다. */
+const [, SOFA_FOOTPRINT_FRONT_Z] = scaleLivingPoint(LIVING_ANCHORS.sofa, -9.5, -2.2);
+
+/**
+ * 소파는 옆이 아니라 앞에 섰다가 돌아앉는다. 이웃 쿠션이 옆을 막고 있다. 발자국 앞면에서
+ * 한 걸음 물러난 자리다.
+ *
+ * 가운데 쿠션 앞 바닥에는 가방(duffel)이 놓여 있어 거기 서면 가방이 눌린다. 가운데
+ * 자리는 양옆 쿠션 앞에 섰다가 옆으로 옮겨 앉는다 (`standXs`).
+ */
+function sofaSeat(id: SeatId, x: number, seatY: number, standXs: readonly number[] = [x]): Seat {
   const center: Vec2 = { x, z: SOFA_CUSHION_Z };
   return {
     id,
     space: "living",
     anchor: seatAnchor(center, 0, SOFA_HALF_DEPTH),
+    approaches: standXs.map((standX) => ({
+      x: standX,
+      z: SOFA_FOOTPRINT_FRONT_Z + STAND_CLEARANCE,
+    })),
     bodyY: seatY - SIT_CONTACT_Y,
     facing: 0,
     near: center,
@@ -217,21 +271,39 @@ function sofaSeat(id: SeatId, x: number, seatY: number): Seat {
   };
 }
 
+/**
+ * 식탁 의자. 상판 밑에서 빼는 둘은 빠진 의자 옆에 섰다가 들어간다. 이미 빠져 나와 등을
+ * 돌린 하나는 옆이 식탁이라 앞에 섰다가 돌아앉는다.
+ */
 function diningSeat(id: SeatId, center: Vec2, facing: number, pulled: boolean): Seat {
   // 빠져 나가는 방향은 정면의 반대다. 상판 밑에서 몸을 빼내는 몫이라 회전은 붙이지 않는다.
   const pull = pulled
     ? { x: -Math.sin(facing) * DINING_PULL, z: -Math.cos(facing) * DINING_PULL, turn: 0 }
     : undefined;
   const seatCenter: Vec2 = { x: center.x + (pull?.x ?? 0), z: center.z + (pull?.z ?? 0) };
+  const anchor = seatAnchor(seatCenter, facing, DINING_HALF_DEPTH);
   return {
     id,
     space: "living",
-    anchor: seatAnchor(seatCenter, facing, DINING_HALF_DEPTH),
+    anchor,
+    // 옆에 서는 줄은 빠진 의자 한가운데가 아니라 몸이 앉는 자리보다 식탁 쪽이다: 문 쪽
+    // 의자는 빠지면 피아노와 한 뼘 남짓이라, 한가운데 옆에 서면 피아노 발자국에 걸린다
+    approaches: pulled
+      ? sideApproaches(
+          {
+            x: anchor.x + Math.sin(facing) * DINING_SIDE_INSET,
+            z: anchor.z + Math.cos(facing) * DINING_SIDE_INSET,
+          },
+          facing,
+          DINING_HALF_DEPTH,
+        )
+      : frontApproach(seatCenter, facing, DINING_FRONT_STAND),
     bodyY: DINING_SEAT_Y - SIT_CONTACT_Y,
     facing,
     near: center,
     reach: SEAT_REACH,
     pull,
+    footprintHalf: pulled ? DINING_HALF_DEPTH : undefined,
   };
 }
 
@@ -246,6 +318,7 @@ export const SEATS: Record<SeatId, Seat> = {
     near: { x: CHAIR_POSITION[0], z: CHAIR_POSITION[2] },
     reach: SEAT_REACH,
     pull: { x: CHAIR_PULL.distance, z: 0, turn: CHAIR_PULL.turn },
+    footprintHalf: DESK_CHAIR_HALF_DEPTH,
   },
   bed: {
     id: "bed",
@@ -260,7 +333,10 @@ export const SEATS: Record<SeatId, Seat> = {
     reach: BED_REACH,
   },
   "sofa-left": sofaSeat("sofa-left", sofaCushionX(-10.28), SOFA_SIDE_SEAT_Y),
-  "sofa-center": sofaSeat("sofa-center", sofaCushionX(-9.5), SOFA_CENTER_SEAT_Y),
+  "sofa-center": sofaSeat("sofa-center", sofaCushionX(-9.5), SOFA_CENTER_SEAT_Y, [
+    sofaCushionX(-10.28),
+    sofaCushionX(-8.72),
+  ]),
   "sofa-right": sofaSeat("sofa-right", sofaCushionX(-8.72), SOFA_SIDE_SEAT_Y),
   // 창 쪽·문 쪽 둘은 상판 밑에 들어가 있고, 셋째는 이미 빠져 나와 등을 돌린 채다.
   "dining-window": diningSeat(
@@ -281,6 +357,13 @@ export const SEATS: Record<SeatId, Seat> = {
     id: "piano-bench",
     space: "living",
     anchor: seatAnchor(PIANO_BENCH_CENTER, LIVING_PIANO_ROTATION, PIANO_BENCH_HALF_DEPTH),
+    // 앞은 피아노이고 양옆은 피아노 발자국(걸상 포함) 안이다. 등받이 없는 걸상이라 뒤에
+    // 섰다가 넘어 앉는다
+    approaches: frontApproach(
+      PIANO_BENCH_CENTER,
+      LIVING_PIANO_ROTATION + Math.PI,
+      PIANO_BENCH_BEHIND,
+    ),
     bodyY: PIANO_BENCH_SEAT_Y - SIT_CONTACT_Y,
     facing: LIVING_PIANO_ROTATION,
     near: PIANO_BENCH_CENTER,

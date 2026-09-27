@@ -18,8 +18,8 @@ const COLLIDERS = [...ROOM_COLLIDERS, ...LIVING_COLLIDERS] as const;
 const chair = SEATS["desk-chair"];
 
 /** 길을 촘촘히 짚어 가며 가구·벽에 걸리는 점이 있는지 본다. */
-function routeClear(start: Vec2): boolean {
-  const route = planSeatRoute(start, chair, PLAYER_RADIUS, ZONES, COLLIDERS);
+function routeClear(start: Vec2, seat = chair): boolean {
+  const route = planSeatRoute(start, seat, PLAYER_RADIUS, ZONES, COLLIDERS);
   const at: Vec2 = { x: 0, z: 0 };
   for (let i = 0; i <= 200; i += 1) {
     pointAlong(route, i / 200, at);
@@ -29,6 +29,31 @@ function routeClear(start: Vec2): boolean {
 }
 
 describe("seat route", () => {
+  it("모든 자리에 서는 자리가 있고, 전부 걸을 수 있다", () => {
+    for (const seat of Object.values(SEATS)) {
+      expect(seat.approaches?.length, seat.id).toBeGreaterThan(0);
+      for (const spot of seat.approaches ?? []) {
+        expect(
+          isWalkable(spot.x, spot.z, PLAYER_RADIUS, ZONES, COLLIDERS),
+          `${seat.id} ${spot.x.toFixed(2)},${spot.z.toFixed(2)}`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("빠져 나온 의자 발자국 밖에 선다", () => {
+    for (const seat of Object.values(SEATS)) {
+      if (!seat.pull || seat.footprintHalf === undefined) continue;
+      const x = seat.near.x + seat.pull.x;
+      const z = seat.near.z + seat.pull.z;
+      const half = seat.footprintHalf;
+      for (const spot of seat.approaches ?? []) {
+        const pulled = [{ minX: x - half, maxX: x + half, minZ: z - half, maxZ: z + half }];
+        expect(isWalkable(spot.x, spot.z, PLAYER_RADIUS, ZONES, pulled), seat.id).toBe(true);
+      }
+    }
+  });
+
   it("책상 의자는 양옆에 서는 자리가 있고, 둘 다 걸을 수 있다", () => {
     expect(chair.approaches).toHaveLength(2);
     for (const spot of chair.approaches ?? []) {
@@ -47,8 +72,25 @@ describe("seat route", () => {
     }
   });
 
+  it("거실 어디에서 눌러도 가구를 뚫지 않고 서는 자리까지 간다", () => {
+    // 소파 앞 · 식탁과 피아노 사이 아래 · 현관 쪽 · 방문 쪽
+    const starts = [
+      { x: -12, z: -1 },
+      { x: -8.3, z: 4.5 },
+      { x: -14.5, z: 3 },
+      { x: -7, z: 0 },
+    ];
+    for (const seat of Object.values(SEATS)) {
+      if (seat.space !== "living") continue;
+      for (const start of starts) {
+        expect(routeClear(start, seat), `${seat.id} from ${start.x},${start.z}`).toBe(true);
+      }
+    }
+  });
+
   it("양옆 중 걸어서 가까운 쪽으로 간다", () => {
-    const [windowSide, doorSide] = chair.approaches ?? [];
+    // 창 쪽이 -z, 문 쪽이 +z
+    const [windowSide, doorSide] = [...(chair.approaches ?? [])].sort((a, b) => a.z - b.z);
     const fromDoor = planSeatRoute({ x: -2.4, z: 0.6 }, chair, PLAYER_RADIUS, ZONES, COLLIDERS);
     expect(fromDoor.points.at(-1)).toEqual(doorSide);
     const fromWindow = planSeatRoute({ x: -2.4, z: -2.8 }, chair, PLAYER_RADIUS, ZONES, COLLIDERS);
