@@ -48,7 +48,7 @@ export const ASSETS = {
     snackBag: "/assets/models/room-snack-bag.glb?v=20260910-flat",
     studyPapers: "/assets/models/room-study-papers.glb?v=20260910",
     cupNoodleTrash: "/assets/models/room-cup-noodle-trash.glb?v=20260910-upright2",
-    studentBookshelf: "/assets/models/room-student-bookshelf.glb?v=20260910",
+    studentBookshelf: "/assets/models/room-student-bookshelf.glb?v=labels-20260927",
     rug: "/assets/models/room-rug.glb?v=original-20260912",
     leafyPlant: "/assets/models/room-potted-plant.glb?v=original-20260912",
     /** 둥근 선인장과 도자기 화분. 재생성: scripts/create-cactus.mjs */

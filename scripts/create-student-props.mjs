@@ -292,10 +292,11 @@ function bookshelf() {
       const height = 0.46 + ((i * 3 + row) % 4) * 0.045;
       const x = -0.61 + i * 0.137;
       const color = ["fabric", "linen", "sage", "clay"][(i + row) % 4];
+      const titleY = base + height * 0.78;
       box(group, [0.105, height, 0.43], [x, base + height / 2, 0.07], color);
-      box(group, [0.075, 0.075, 0.006], [x, base + height * 0.78, 0.288], "linen");
+      box(group, [0.048, 0.036, 0.006], [x, titleY, 0.288], "linen");
       for (let line = 0; line < 3; line++)
-        box(group, [0.048, 0.008, 0.004], [x, base + height * 0.77 - line * 0.016, 0.293], "frame");
+        box(group, [0.03, 0.004, 0.004], [x, titleY + 0.009 - line * 0.009, 0.293], "frame");
       box(group, [0.08, 0.014, 0.004], [x, base + 0.075, 0.293], "trim");
     }
     book(group, 0.46, base, 0.015, 0.33, 0.48, 0.065, "fabric", 1, -0.03);
