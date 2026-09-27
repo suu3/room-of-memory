@@ -114,6 +114,14 @@
     "title": "You took a wrong turn",
     "body": "There is nothing at this address. Let's head back to the room."
   },
+  "loadError": {
+    "offlineTitle": "Connection lost",
+    "offlineBody": "The room drifted away for a moment. It will open again on its own once you're back online.",
+    "title": "The room couldn't open",
+    "body": "The door seems stuck for a moment. Please try again.",
+    "retry": "Try again",
+    "waiting": "Waiting for connection"
+  },
   "minigame": {
     "start": "Start",
     "skip": "Skip",
