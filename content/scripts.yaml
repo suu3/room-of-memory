@@ -213,9 +213,9 @@ scripts:
 
   radio-intro:
     - speaker: hero
-      ko: 이제 남은 건 라디오뿐이네.
-      en: The radio is the only thing left.
-      ja: 残ってるのはラジオだけか。
+      ko: 라디오라도 켜 볼까.
+      en: Maybe I'll try the radio.
+      ja: ラジオでもつけてみるか。
     - speaker: hero
       expression: sad
       ko: …어차피 노이즈밖에 안 잡히겠지만.
