@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, EnvelopeSimple, WifiSlash } from "@phosphor-icons/react";
+import { Check, EnvelopeSimple, Paperclip, WifiSlash } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
@@ -227,32 +227,47 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
                 {t("minigame.computerLogo.mail.subject")}
               </h3>
             </header>
-            <div className="flex items-center gap-3 rounded-lg bg-scene-void/40 p-3">
-              <span className="size-12 shrink-0 text-memory">
-                <Logo kind="raon" />
-              </span>
-              <p className="break-ko text-sm text-bone/70">{t("minigame.computerLogo.found")}</p>
-            </div>
             <p className="break-ko text-pretty leading-relaxed">
               {t("minigame.computerLogo.mail.b1")}
             </p>
             <p className="break-ko text-pretty leading-relaxed">
               {t("minigame.computerLogo.mail.b2")}
             </p>
+            {/* 첨부: 방금 맞춘 출입증 사진. 발견을 메일 본문에 끼우지 않고 첨부 썸네일로 둔다 */}
+            <footer className="flex flex-col gap-2 border-t border-bone/10 pt-3">
+              <p className="flex items-center gap-1.5 text-[0.75rem] text-bone/50">
+                <Paperclip size={12} weight="bold" aria-hidden />
+                {t("minigame.computerLogo.mail.attachment")}
+              </p>
+              <figure className="flex w-28 flex-col items-center gap-1.5 rounded-lg border border-memory/40 bg-scene-void/40 p-2">
+                <span className="size-14 text-memory">
+                  <Logo kind="raon" />
+                </span>
+                <figcaption className="w-full truncate text-center text-[0.75rem] text-bone/60">
+                  {t("minigame.computerLogo.mail.file")}
+                </figcaption>
+              </figure>
+            </footer>
           </article>
         )}
       </div>
 
       <div className="flex min-h-9 items-center gap-3">
         {frozen ? null : screen === "mail" ? (
-          <button
-            type="button"
-            onClick={() => complete({ cleared: true })}
-            className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-6 py-2 text-sm font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
-          >
-            <Check size={16} weight="bold" />
-            {t("minigame.computerBrowse.close")}
-          </button>
+          <div className="flex flex-col items-center gap-3">
+            {/* 도현의 깨달음은 메일 밖에 선다: 아빠가 쓴 글로 읽히지 않게 */}
+            <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/60">
+              {t("minigame.computerLogo.found")}
+            </p>
+            <button
+              type="button"
+              onClick={() => complete({ cleared: true })}
+              className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-6 py-2 text-sm font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <Check size={16} weight="bold" />
+              {t("minigame.computerBrowse.close")}
+            </button>
+          </div>
         ) : (
           <>
             <p
