@@ -436,12 +436,12 @@ export function TitleScreen() {
                   </p>
                 ) : null}
                 {/*
-                  소리 권장은 새 게임 바로 아래에. BGM과 효과음이 이야기를 끄는 게임인데
-                  자동재생 정책 때문에 첫 클릭 전에는 아무 소리도 안 나므로, 시작하기 직전
-                  눈이 머무는 자리에서 "소리가 있는 게임"임을 말하고 그 자리에서 켜고 끈다.
-                  이어하기 아래 진행 줄과 같은 작은 글자라 메뉴 항목과 무게가 안 겹친다.
+                  소리 권장은 처음 하는 판에서만 새 게임 바로 아래에. BGM과 효과음이 이야기를
+                  끄는 게임인데 자동재생 정책 때문에 첫 클릭 전에는 아무 소리도 안 나므로,
+                  시작하기 직전 눈이 머무는 자리에서 "소리가 있는 게임"임을 말하고 그 자리에서
+                  켜고 끈다. 이어하는 판에서는 새 게임 밑이 눈이 안 가는 자리라 조작 띠로 내려간다.
                 */}
-                {item.key === "new-game" ? (
+                {item.key === "new-game" && !hasSave ? (
                   <div className="-mt-1 mb-1 pl-9">
                     <SoundToggle tone="title" />
                   </div>
@@ -496,6 +496,17 @@ export function TitleScreen() {
                   </dd>
                 </div>
               ))}
+              {/* 이어하는 판의 소리 토글. 조작 항목과 같은 라벨·값 구조라 같은 종류의 안내로 읽힌다 */}
+              {hasSave ? (
+                <div className="flex items-baseline gap-2">
+                  <dt className={`break-ko ${CONTROL_LABEL_CLASS}`}>
+                    {t("titleScreen.soundLabel")}
+                  </dt>
+                  <dd>
+                    <SoundToggle tone="title" />
+                  </dd>
+                </div>
+              ) : null}
             </dl>
           </section>
 

@@ -150,6 +150,19 @@ describe("TitleScreen", () => {
     expect(sound.textContent).toContain("best played with sound on");
   });
 
+  it("저장이 있는 판에서는 소리 토글이 새 게임 아래가 아니라 조작 띠에 선다", () => {
+    setSaved();
+    render(<TitleScreen />);
+
+    const sound = screen.getByRole("button", { name: "Sound" });
+    // 이어하는 사람에게 새 게임 밑은 눈이 안 가는 자리다. 조작 안내와 같은 줄(dl)에 선다
+    expect(sound.closest("dl")).not.toBeNull();
+    expect(sound.parentElement?.previousElementSibling).not.toBe(
+      screen.getByRole("button", { name: "New Game" }),
+    );
+    expect(screen.getAllByRole("button", { name: "Sound" })).toHaveLength(1);
+  });
+
   it("소리 토글을 누르면 음소거되고 꺼짐으로 읽힌다", () => {
     render(<TitleScreen />);
 
