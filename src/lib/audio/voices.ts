@@ -45,7 +45,14 @@ export type VoiceId =
   // 방 안의 곁가지 인터랙션 (서랍·의자)
   | "drawer"
   | "chairDrag"
-  | "sit";
+  | "sit"
+  // 방 안의 실물 소리: 파일이 있으면 파일이 울린다 (ASSETS.sfx)
+  | "doorOpen"
+  | "lightSwitch"
+  // 컴퓨터 조사의 부팅 화면: 하드가 돌고 팬이 도는 소리
+  | "computerBoot"
+  // 엔딩 카드: 색종이가 쏟아지는 순간
+  | "confetti";
 
 export type Waveform = "sine" | "triangle" | "square" | "sawtooth";
 
@@ -99,6 +106,14 @@ const D5 = 587.33;
 function pluck(frequency: number, delay: number, gain = 0.34): Tone {
   return { from: frequency, waveform: "sine", delay, duration: 0.26, gain };
 }
+
+/**
+ * 엔딩 축하에만 쓰는 윗음. 위의 음계가 피하던 "코인 소리"를 여기서는 피하지 않는다:
+ * 게임을 끝까지 온 사람을 축하하는 자리라 한 번쯤 들떠도 된다.
+ */
+const E5 = 659.25;
+const A5 = 880;
+const D6 = 1174.66;
 
 export const VOICES: Record<VoiceId, Voice> = {
   /** 호버: 있는 듯 없는 듯. 계속 울리는 소리라 제일 작다. */
@@ -168,9 +183,17 @@ export const VOICES: Record<VoiceId, Voice> = {
    * 글자가 찍히는 틱. 타자기의 "탁"이 아니라 목소리의 자리표시다: 음정이 있어야
    * 화자마다 높이를 달리해 "누가 말하는지"가 귀로도 갈린다 (DialogueBox의 SPEAKER_PITCH).
    * 어택만 남기고 바로 끊는다. 꼬리가 있으면 초당 일곱 번 울릴 때 웅웅거리는 띠가 된다.
+   *
+   * 원래는 A3(220Hz) 사인 한 줄이었다. 그 높이의 짧은 사인은 음정이 아니라 "뚝"으로
+   * 뭉개지고, 연타하면 모터처럼 들렸다. 한 옥타브 올려 나무 건반처럼 만든다: 삼각파
+   * 몸통 + 금방 사라지는 3배음(말렛이 닿는 반짝임) + 아주 짧은 마찰(자음의 "톡").
    */
   type: {
-    tones: [{ from: A3, to: 196, waveform: "sine", delay: 0, duration: 0.045, gain: 0.12 }],
+    tones: [
+      { from: A4, to: 415, waveform: "triangle", delay: 0, duration: 0.05, gain: 0.105 },
+      { from: A4 * 3, waveform: "sine", delay: 0, duration: 0.018, gain: 0.018 },
+    ],
+    noise: { delay: 0, duration: 0.012, gain: 0.035, highpass: 2600, lowpass: 7000 },
   },
   /**
    * 라디오 너머의 목소리(broadcast·signal)가 찍히는 틱. 사람이 아니라 전파라 음정이
@@ -185,7 +208,7 @@ export const VOICES: Record<VoiceId, Voice> = {
    * 것처럼, 같은 음에서 짧은 마찰 한 번과 함께 내려앉는다.
    */
   typeSkip: {
-    tones: [{ from: A3, to: 165, waveform: "sine", delay: 0, duration: 0.08, gain: 0.14 }],
+    tones: [{ from: A4, to: 330, waveform: "triangle", delay: 0, duration: 0.08, gain: 0.12 }],
     noise: { delay: 0, duration: 0.06, gain: 0.12, highpass: 1200, lowpass: 5200 },
   },
   /**
@@ -356,6 +379,38 @@ export const VOICES: Record<VoiceId, Voice> = {
   sit: {
     tones: [{ from: 120, to: 82, waveform: "sine", delay: 0, duration: 0.16, gain: 0.11 }],
     noise: { delay: 0, duration: 0.2, gain: 0.13, highpass: 300, lowpass: 1400, attack: 0.06 },
+  },
+  /**
+   * 문이 열리는 소리. 실물 녹음(sfx-door-open.ogg)이 대신 울리고, 이건 파일을 못 받았을
+   * 때의 대역이다. 경첩이 끼익 내려가는 낮은 글라이드에 문짝이 밀리는 마찰을 깐다.
+   */
+  doorOpen: {
+    tones: [{ from: 220, to: 150, waveform: "triangle", delay: 0, duration: 0.42, gain: 0.14 }],
+    noise: { delay: 0.02, duration: 0.4, gain: 0.12, highpass: 250, lowpass: 1800, attack: 0.08 },
+  },
+  /** 벽 스위치 딸깍. 파일이 있으면 파일이 울린다. 대역은 짧은 마찰 한 번과 낮은 톡. */
+  lightSwitch: {
+    tones: [{ from: 1400, to: 900, waveform: "sine", delay: 0, duration: 0.03, gain: 0.18 }],
+    noise: { delay: 0, duration: 0.03, gain: 0.3, highpass: 1800, lowpass: 9000 },
+  },
+  /** 컴퓨터 부팅. 파일(mg-computer-browse-boot.ogg)의 대역: 전원이 들어오는 낮은 웅 한 번. */
+  computerBoot: {
+    tones: [{ from: 60, to: 120, waveform: "sine", delay: 0, duration: 0.5, gain: 0.2 }],
+    noise: { delay: 0.05, duration: 0.45, gain: 0.06, highpass: 400, lowpass: 2400, attack: 0.2 },
+  },
+  /**
+   * 엔딩 카드의 색종이. 폭죽 터지는 "펑"(노이즈) 뒤로 종소리가 한 계단씩 올라간다.
+   * 효과음 길이 한도(0.6초) 안에서 끝난다. 색종이가 쏟아지는 건 화면이 맡는다.
+   */
+  confetti: {
+    tones: [
+      pluck(A4, 0.03, 0.26),
+      pluck(D5, 0.09, 0.26),
+      pluck(E5, 0.15, 0.24),
+      pluck(A5, 0.21, 0.22),
+      { from: D6, waveform: "sine", delay: 0.28, duration: 0.3, gain: 0.16 },
+    ],
+    noise: { delay: 0, duration: 0.14, gain: 0.4, highpass: 900, lowpass: 7000 },
   },
 };
 

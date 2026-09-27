@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ASSETS } from "@/lib/assets";
+import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { EndingConfetti } from "./EndingConfetti";
 import { BUTTON_PRIMARY, BUTTON_QUIET } from "./ui-classes";
@@ -68,6 +69,11 @@ export function EndingScreen() {
   useEffect(() => {
     if (stage === "film") play();
   }, [stage, play]);
+
+  // 카드가 서는 순간 색종이와 함께 축하음. 움직임 줄이기로 색종이를 안 그려도 소리는 난다
+  useEffect(() => {
+    if (stage === "card") playSound("confetti");
+  }, [stage]);
 
   const replay = useCallback(() => {
     const video = videoRef.current;
@@ -136,8 +142,8 @@ export function EndingScreen() {
             <Image
               src={ASSETS.images.endingThanks}
               alt={t("ending.thanksAlt")}
-              width={761}
-              height={789}
+              width={1160}
+              height={1533}
               className="h-[34dvh] w-auto rounded-md shadow-panel"
             />
             <p className="font-pixel text-xs tracking-[0.3em] text-memory">{t("ending.eyebrow")}</p>

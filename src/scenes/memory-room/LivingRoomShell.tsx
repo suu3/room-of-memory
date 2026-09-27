@@ -221,7 +221,7 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
       onClick={(event) => {
         if (!clickable) return;
         event.stopPropagation();
-        playSound("open");
+        playSound("doorOpen");
         startEnding();
       }}
       {...handlers}

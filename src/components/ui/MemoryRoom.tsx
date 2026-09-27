@@ -151,11 +151,11 @@ export function MemoryRoom() {
       {/* 넓은 화면에서는 아래 띠(목표·기록 라벨) 위에 선다 (md:bottom-16) */}
       {/* started: 타이틀에는 띄우지 않는다. 저장된 진행이 문 앞이면 타이틀 아래 띠의 조작 안내 위에 겹쳐 떴다 */}
       {started && isDoorReady && !endingStarted ? (
-        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory md:bottom-16">
+        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise whitespace-nowrap font-pixel text-base tracking-[0.12em] text-memory md:bottom-16 md:text-lg">
           {t("door.ready")}
         </p>
       ) : started && isBatReady && !endingStarted ? (
-        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise font-pixel text-xs tracking-[0.2em] text-memory md:bottom-16">
+        <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise whitespace-nowrap font-pixel text-base tracking-[0.12em] text-memory md:bottom-16 md:text-lg">
           {t("door.exitReady")}
         </p>
       ) : null}

@@ -10,7 +10,8 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
-import { playSound } from "@/lib/audio";
+import { ASSETS } from "@/lib/assets";
+import { playSound, startCueMusic, stopCueMusic } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { HudLogLine, HudSignalLight } from "./HudLogLine";
 import { playHoverSound } from "./hover-sfx";
@@ -176,6 +177,19 @@ export function TitleScreen() {
     },
     [],
   );
+
+  /*
+   * 타이틀 곡. 이 화면은 게임 중에도 마운트된 채 null만 돌려주므로 started를 보고
+   * 켜고 끈다. 첫 제스처 전에는 컨텍스트가 멈춰 있어 곡도 첫 클릭·키 입력에 든다.
+   * 게임에 들어가면 곡이 내려가고, 방 곡은 불을 켜야 드니 그 사이는 어둠의 정적이다.
+   */
+  useEffect(() => {
+    if (started) {
+      stopCueMusic();
+      return;
+    }
+    startCueMusic(ASSETS.bgm.title);
+  }, [started]);
 
   // 커튼이 다 걷힌 뒤에 포커스를 준다. 커튼 뒤의 안 보이는 메뉴에 포커스를 박아
   // 두면 키보드로 눌러 보고 아무 일도 안 일어나는 걸 겪은 뒤에야 기다려야 한다는

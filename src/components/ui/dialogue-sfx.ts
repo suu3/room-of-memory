@@ -8,8 +8,8 @@ import type { CharacterId } from "@/types/scenario";
 
 /**
  * 화자마다 틱의 높이가 다르다. 초상이 없는 화자(아빠·엄마)도 귀로는 갈린다.
- * 비율은 라단조 5음계 안에서 고른다: 기준 A3에서 아빠는 4도 아래(E3), 엄마는
- * 4도 위(D4). 어느 화자가 이어 말해도 앞 사람의 틱과 부딪히지 않는다.
+ * 비율은 라단조 5음계 안에서 고른다: 기준 A4에서 아빠는 4도 아래(E4), 엄마는
+ * 4도 위(D5). 어느 화자가 이어 말해도 앞 사람의 틱과 부딪히지 않는다.
  * 내레이터는 도해와 같은 음에서 반음도 안 되게만 낮춘다: 다른 사람이 아니라 거리다.
  */
 const SPEAKER_PITCH: Partial<Record<CharacterId, number>> = {
@@ -47,6 +47,6 @@ export function typeTick(speaker: CharacterId, char: string, count: number): Typ
   if (count % TICK_EVERY !== 1) return null;
   if (!SOUNDING.test(char)) return null;
   if (RADIO_SPEAKERS.includes(speaker)) return { id: "typeRadio", options: { variation: 0.12 } };
-  // 살짝 흔든다. 완전히 같은 음의 연타는 말이 아니라 알람이다
-  return { id: "type", options: { pitch: SPEAKER_PITCH[speaker] ?? 1, variation: 0.04 } };
+  // 흔든다. 완전히 같은 음의 연타는 말이 아니라 알람이다. 반음(6%) 안쪽이라 화자는 안 섞인다
+  return { id: "type", options: { pitch: SPEAKER_PITCH[speaker] ?? 1, variation: 0.05 } };
 }

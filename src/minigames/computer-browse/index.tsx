@@ -88,6 +88,11 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
 
   /* ── 부팅 ─────────────────────────────────────────────────────────── */
 
+  // 전원이 들어오는 소리. 건너뛰어도 끊지 않는다: 컴퓨터는 로그인 화면 뒤에서도 돌고 있다
+  useEffect(() => {
+    if (screen === "boot" && !frozen) playSound("computerBoot");
+  }, [screen, frozen]);
+
   // 상태 줄이 하나씩 지나가고, 다 지나가면 한 박자 쉬었다 로그인 화면으로.
   useEffect(() => {
     if (screen !== "boot" || frozen) return;

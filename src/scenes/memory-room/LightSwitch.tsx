@@ -94,7 +94,7 @@ export function LightSwitch({ palette }: { palette: RoomPalette }) {
       onClick={(event) => {
         event.stopPropagation();
         // 딸깍은 조작음이라 방 밝기와 무관하게 늘 같은 크기로 울린다
-        playSound("select");
+        playSound("lightSwitch");
         toggleLights();
       }}
     >

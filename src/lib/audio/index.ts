@@ -29,8 +29,10 @@ export {
   setMusicDuck,
   setMusicLevel,
   setMusicTrim,
+  startCueMusic,
   startMusic,
   startOverlayMusic,
+  stopCueMusic,
   stopMusic,
   stopOverlayMusic,
 } from "./music";
@@ -78,12 +80,13 @@ export function useAudioRuntime() {
 
   useEffect(() => {
     /*
-     * 깨우는 김에 방송 첫 컷의 미트 소리 파일을 받아 둔다. 그 컷은 뜨자마자 울려서,
-     * 그때 받기 시작하면 첫 재생은 합성 대역으로 나간다. 14KB라 미리 받아도 부담이 없다.
+     * 깨우는 김에 실물 효과음 파일을 받아 둔다. 미트 소리는 방송 첫 컷이 뜨자마자, 스위치는
+     * 인트로 첫 조작에 울려서 그때 받기 시작하면 첫 재생은 합성 대역으로 나간다.
+     * 클릭·뽁은 첫 화면부터 운다. 전부 합쳐 수십 KB라 미리 받아도 부담이 없다.
      */
     const wake = () => {
       unlockAudio();
-      preloadSamples(["mittTap"]);
+      preloadSamples(["select", "open", "mittTap", "doorOpen", "lightSwitch", "computerBoot"]);
     };
     window.addEventListener("pointerdown", wake, { once: true });
     window.addEventListener("keydown", wake, { once: true });

@@ -393,8 +393,83 @@ export function stopOverlayMusic() {
   glideRoomVolume(FADE_OUT_S);
 }
 
+/**
+ * 방 바깥의 곡: 타이틀. 방 곡은 게임에 들어가 불을 켜야 드므로 둘은 겹치지 않는다.
+ * 밝기·리버브·덕킹을 받지 않고 원음 그대로 마스터로 간다.
+ */
+interface CueVoice {
+  src: string;
+  source: AudioBufferSourceNode;
+  gain: GainNode;
+}
+let cue: CueVoice | null = null;
+/** 틀어 달라고 한(로딩 중 포함) 곡. 같은 곡을 두 번 받지 않는다. */
+let cueRequest: string | null = null;
+
+/** 방 바깥 곡이 차오르는 시간(초). 화면이 서는 동안 천천히 든다. */
+const CUE_FADE_IN_S = 1.6;
+
+function stopCueVoice(playing: CueVoice, fadeSeconds: number) {
+  const graph = audioGraph();
+  if (!graph) return;
+  const now = graph.context.currentTime;
+  playing.gain.gain.cancelScheduledValues(now);
+  playing.gain.gain.setTargetAtTime(0.0001, now, Math.max(0.01, fadeSeconds / 3));
+  playing.source.stop(now + fadeSeconds);
+  playing.source.onended = () => {
+    playing.source.disconnect();
+    playing.gain.disconnect();
+  };
+}
+
+/**
+ * 방 바깥 곡을 루프로 튼다. 같은 곡이 이미 돌거나 받는 중이면 아무 일도 하지 않는다.
+ * `volume`은 파일 레벨 보정(1=그대로)이고 마스터 음량이 한 번 더 곱해진다.
+ *
+ * 첫 제스처 전에 불려도 된다. 컨텍스트가 suspended로 만들어져 시각이 멈춰 있다가,
+ * 첫 클릭·키 입력에 깨어나는 순간(useAudioRuntime) 곡이 머리부터 차오른다.
+ */
+export function startCueMusic(src: string, volume = 1) {
+  if (cueRequest === src) return;
+  const graph = audioGraph();
+  if (!graph) return;
+  if (cue) stopCueVoice(cue, SWAP_S);
+  cue = null;
+  cueRequest = src;
+
+  void loadBuffer(graph.context, src)
+    .then((buffer) => {
+      if (cueRequest !== src) return;
+      const { context, master } = graph;
+      const source = context.createBufferSource();
+      const gain = context.createGain();
+      source.buffer = buffer;
+      source.loop = true;
+      gain.gain.value = 0.0001;
+      source.connect(gain).connect(master);
+      source.start();
+      gain.gain.setTargetAtTime(volume, context.currentTime, CUE_FADE_IN_S / 3);
+      cue = { src, source, gain };
+    })
+    .catch((error) => {
+      if (cueRequest === src) cueRequest = null;
+      // 곡이 없어도 타이틀은 선다. 조용할 뿐이다
+      console.warn(error);
+    });
+}
+
+/** 방 바깥 곡을 내린다. 도는 곡이 없으면 아무 일도 없다. */
+export function stopCueMusic(fadeSeconds = FADE_OUT_S) {
+  cueRequest = null;
+  if (cue) stopCueVoice(cue, fadeSeconds);
+  cue = null;
+}
+
 /** 테스트·핫리로드 탈출구. disposeAudio가 컨텍스트를 닫기 전에 불린다. */
 export function disposeMusic() {
+  cueRequest = null;
+  if (cue) stopCueVoice(cue, 0.01);
+  cue = null;
   currentRequest = null;
   const playing = voice;
   voice = null;

@@ -2,7 +2,7 @@
 /**
  * 받아온 BGM 원본을 리포에 넣을 수 있는 형태로 굽는다.
  *
- *   pnpm audio:bgm <입력파일> <daylight|second-light>
+ *   pnpm audio:bgm <입력파일> <daylight|second-light|title>
  *
  * 하는 일은 세 가지다:
  *
@@ -27,6 +27,7 @@ import path from "node:path";
 const SLOTS = {
   daylight: "bgm-room-daylight.ogg",
   "second-light": "bgm-room-second-light.ogg",
+  title: "bgm-title-winter-morning.ogg",
 };
 
 const OUT_DIR = "public/assets/audio/bgm";

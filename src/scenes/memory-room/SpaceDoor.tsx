@@ -59,7 +59,7 @@ export function SpaceDoor({ id, palette }: { id: DoorwayId; palette: RoomPalette
           playSound("deny");
           return;
         }
-        playSound("open");
+        playSound("doorOpen");
         openDoorway(id);
       }}
     >

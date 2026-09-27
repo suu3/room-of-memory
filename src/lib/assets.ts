@@ -203,17 +203,15 @@ export const ASSETS = {
    */
   bgm: {
     /**
+     * 타이틀: 게임에 들어가기 전의 적막한 솔로 피아노. 첫 클릭·키 입력에 차오르고
+     * 게임에 들어가면 내려간다. 방 곡과 달리 밝기 곡선을 타지 않는다.
+     */
+    title: "/assets/audio/bgm/bgm-title-winter-morning.ogg",
+    /**
      * 1바퀴: 발랄한 일상 곡. 조사할수록 컷오프가 닫히고 리버브가 늘며 열화되어
      * 라디오 직전에는 거의 정적에 닿는다 (src/lib/audio/music-curve.ts).
-     *
-     * daylight가 들어와 있으므로 실제로 도는 건 첫 줄이다. 뒤에 선 winter-morning은
-     * modern classical 솔로 피아노라 톤이 다르다. daylight를 못 받았을 때만 서는
-     * 자리 지킴이로 남겨 둔다.
      */
-    room: [
-      "/assets/audio/bgm/bgm-room-daylight.ogg",
-      "/assets/audio/bgm/bgm-room-winter-morning.ogg",
-    ],
+    room: ["/assets/audio/bgm/bgm-room-daylight.ogg"],
     /**
      * 2바퀴: 컷씬의 정적을 지나 새로 드는 따뜻한 곡. 대신 설 곡이 없어서 이 파일을
      * 못 받으면 1바퀴 곡이 그대로 이어진다.
@@ -233,6 +231,15 @@ export const ASSETS = {
    */
   sfx: {
     /**
+     * 클릭(select)과 뽁(open): 게임 내내 가장 자주 우는 두 소리라 합성음 대신 실물 UI음으로
+     * 바꿨다. 클릭은 메뉴·버튼·물건 조사 전부, 뽁은 창·카드·수첩이 튀어나올 때다.
+     * 둘 다 앞 무음을 자르고 소리 부분만 0.1~0.2초 남겼다.
+     */
+    select: "/assets/audio/sfx/sfx-ui-click.ogg",
+    open: "/assets/audio/sfx/sfx-ui-pop.ogg",
+    /** 컴퓨터 조사의 부팅 화면(약 2.8초)에 맞춰 원본 12초 중 앞 3.6초만, 끝은 페이드. */
+    computerBoot: "/assets/audio/sfx/mg-computer-browse-boot.ogg",
+    /**
      * 배트가 공을 맞히는 순간. 나무가 쪼개지는 크랙은 오실레이터로 끝까지 못 간다.
      * 이 목록에 파일이 필요한 소리가 하나뿐인 이유이자, 그 하나인 이유.
      * 넣을 때 규격: mp3/ogg, 500KB 이하 (.claude/rules/assets.md).
@@ -243,5 +250,12 @@ export const ASSETS = {
      * 체육관 미트 영상(힉스필드)에서 두 번 치는 1.26초만 잘라 Opus로 담았다.
      */
     mittTap: "/assets/audio/sfx/sfx-mitt-tap.ogg",
+    /**
+     * 방문·안방·현관 문이 열리는 소리. 문 하나 열 때마다 새 공간이 열리는 순간이라
+     * 합성 UI음(open)이 아니라 실물 경첩 소리로 낸다. 앞 무음을 자르고 Opus 모노로 담았다.
+     */
+    doorOpen: "/assets/audio/sfx/sfx-door-open.ogg",
+    /** 벽 스위치 딸깍. 게임의 첫 조작이라 실물 소리로. 딸-깍 두 번 닿는 0.29초만 잘랐다. */
+    lightSwitch: "/assets/audio/sfx/sfx-light-switch.ogg",
   } as Partial<Record<VoiceId, string>>,
 } as const;

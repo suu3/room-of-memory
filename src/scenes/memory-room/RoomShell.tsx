@@ -355,7 +355,7 @@ export function RoomShell({
           if (doorOpen) return;
           event.stopPropagation();
           if (doorReady) {
-            playSound("open");
+            playSound("doorOpen");
             openRoomDoor();
             return;
           }
