@@ -146,7 +146,7 @@ describe("calendar-flip pages", () => {
         ).toBe(false);
       }
     }
-    // 여행 메모는 컴퓨터 메일("10월 15일 잘 도착했다")보다 앞에 선다
+    // 여행 메모는 컴퓨터 메일("10월 15일 잘 도착했어")보다 앞에 선다
     expect(notesOf(10).some((note) => note.key === "trip" && note.day < 15)).toBe(true);
   });
 });
