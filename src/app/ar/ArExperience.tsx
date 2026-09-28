@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type Group, Matrix4, type PerspectiveCamera, Quaternion, Vector3 } from "three";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
 import { LOCALE_PATHS } from "@/i18n/locale-routes";
 import { ASSETS } from "@/lib/assets";
 import { selectLocale, useSettingsStore } from "@/store/settings";
@@ -272,15 +273,20 @@ export function ArExperience() {
           <Link href="/ar/target" className="text-sm text-fog underline">
             {t("intro.noCard")}
           </Link>
+          {/* 언어는 시작 화면에서만 고른다. 카메라가 켜진 뒤 화면을 덮는 버튼은 적을수록 좋다 */}
+          <div className="absolute top-[max(1rem,env(safe-area-inset-top))] left-4">
+            <LanguageToggle tone="dark" />
+          </div>
         </div>
       ) : (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
-            <p className="rounded-sm border border-line bg-surface px-3 py-2 text-ivory shadow-panel">
-              {t(
-                `status.${phase === "starting" ? "starting" : phase === "scanning" ? "scanning" : "found"}`,
-              )}
-            </p>
+            {/* 찾은 뒤에는 말하지 않는다: 튀어나온 도해가 곧 신호다 */}
+            {phase !== "found" ? (
+              <p className="rounded-sm border border-line bg-surface px-3 py-2 text-ivory shadow-panel">
+                {t(phase === "starting" ? "status.starting" : "status.scanning")}
+              </p>
+            ) : null}
             <button
               type="button"
               onClick={() => setMount((current) => (current === "flat" ? "upright" : "flat"))}
@@ -305,7 +311,7 @@ export function ArExperience() {
         href={LOCALE_PATHS[locale]}
         className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 rounded-full border border-line bg-night/70 px-4 py-2 text-sm"
       >
-        {t("toRoom")}
+        {t("toGame")}
       </a>
     </main>
   );

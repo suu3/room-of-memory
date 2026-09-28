@@ -7,8 +7,7 @@
   },
   "status": {
     "starting": "Starting camera…",
-    "scanning": "Frame the front of the card",
-    "found": "Found it!"
+    "scanning": "Frame the front of the card"
   },
   "mount": {
     "toUpright": "Tap if the card is standing up",
@@ -27,5 +26,5 @@
     "denied": "Camera access is blocked. Allow it in your browser settings and try again.",
     "unknown": "Couldn't start AR. Please try again in a moment."
   },
-  "toRoom": "Go to Room of Memory"
+  "toGame": "Play the game"
 }
