@@ -34,7 +34,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     component: lazy(() => import("./photo-wipe").then((m) => ({ default: m.PhotoWipeMinigame }))),
     titleKey: "minigame.photoWipe.title",
     helpKey: "minigame.photoWipe.help",
-    failKey: "minigame.photoWipe.fail",
+    // 실패가 없다: 시간 제한 없이 닦을 만큼 닦는다
   },
   "photo-puzzle": {
     id: "photo-puzzle",

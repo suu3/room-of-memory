@@ -12,9 +12,12 @@ import { CLOTH_CURSOR } from "./cloth";
 import { PhotoFrame } from "./frame";
 import { createWipeGrid, wipeCircle } from "./wipe-grid";
 
-/** 2026-09-26에 70%·40초·15초에서 줄였다: 절반만 닦아도 얼굴 자리가 드러난다. */
-const CLEAR_RATIO = 0.5;
-const TIME_LIMIT_S = 25;
+/**
+ * 이만큼 닦아야 끝난다. 2026-09-26에 70%→50%로 낮췄다가, 절반도 안 닦은 느낌에서 끝나
+ * 허전하다는 피드백으로 80%로 올렸다 (2026-09-28). 대신 시간 제한을 없앴다: 먼지를 닦는
+ * 손에 초시계를 붙이면 사진을 보는 게 아니라 시간과 싸우게 된다.
+ */
+const CLEAR_RATIO = 0.8;
 const SKIP_AFTER_MS = 10_000;
 /**
  * 파티클(rAF)이 멈춘 탭에서도 결과 대사로 넘어가게 하는 하드 폴백.
@@ -41,15 +44,14 @@ function tokenColor(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-/** 뿌옇게 덮인 액자 사진을 닦아 선명도 70% 이상 만들면 클리어. 제한 시간 초과 시 실패. */
+/** 뿌옇게 덮인 액자 사진을 닦아 선명도 80% 이상 만들면 클리어. 시간 제한도 실패도 없다. */
 export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
   const photo = PHOTOS[gamePhase === 1 ? 1 : 2];
   const complete = useOnceCompleter(onComplete);
   const [progress, setProgress] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(TIME_LIMIT_S);
-  /** 프로스트 레이어를 그린 뒤에야 타이머가 돈다. 로딩 시간을 플레이 시간에서 깎지 않는다. */
+  /** 프로스트 레이어를 그린 뒤에야 닦을 수 있다. */
   const [ready, setReady] = useState(false);
   /** 성공 직후 단계: 사진이 완전히 드러나고 결과 대사가 뜬다. 닫는 건 플레이어 몫. */
   const [revealed, setRevealed] = useState(false);
@@ -133,22 +135,6 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
     }
   };
 
-  // 제한 시간
-  useEffect(() => {
-    if (!ready || revealed) return;
-    const timer = setInterval(() => {
-      setSecondsLeft((seconds) => {
-        if (seconds <= 1) {
-          clearInterval(timer);
-          complete({ cleared: false, score: Math.round(progressRef.current * 100) });
-          return 0;
-        }
-        return seconds - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [complete, ready, revealed]);
-
   // 파티클이 다 터진 뒤에 결과를 보고한다. 결과 대사는 이 화면을 뒤에 두고 뜬다.
   // 파티클은 rAF 기반이라 탭이 백그라운드면 끝나지 않는다 → setTimeout 폴백을 함께 건다.
   useEffect(() => {
@@ -204,17 +190,7 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
       title={t("minigame.photoWipe.title")}
       help={hint("minigame.photoWipe.help")}
       stats={
-        <>
-          <MinigameStat
-            label={t("minigame.labelClarity")}
-            value={`${Math.round(progress * 100)}%`}
-          />
-          <MinigameStat
-            label={t("minigame.labelTime")}
-            value={secondsLeft}
-            tone={secondsLeft <= 10 ? "warning" : "progress"}
-          />
-        </>
+        <MinigameStat label={t("minigame.labelClarity")} value={`${Math.round(progress * 100)}%`} />
       }
       skipVisible={skipEligible}
       onSkip={() => revealRef.current()}

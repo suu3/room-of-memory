@@ -161,8 +161,7 @@
     "photoWipe": {
       "title": "Wipe the Photo",
       "help": "Drag with the mouse to wipe the dust away",
-      "help_touch": "Swipe with a finger to wipe the dust away",
-      "fail": "There's still dust on it. …Let me wipe again."
+      "help_touch": "Swipe with a finger to wipe the dust away"
     },
     "ballCatch": {
       "title": "Swing!",
@@ -214,7 +213,6 @@
     "labelSuccess": "HITS",
     "labelMiss": "MISS",
     "labelClarity": "Clarity",
-    "labelTime": "Time left",
     "calendarFlip": {
       "title": "Flipping the calendar",
       "help": "Flip through the calendar: ← →",

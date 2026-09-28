@@ -161,8 +161,7 @@
     "photoWipe": {
       "title": "写真を拭く",
       "help": "マウスでドラッグしてほこりを拭き取ってください",
-      "help_touch": "指でこすってほこりを拭き取ってください",
-      "fail": "まだほこりが残ってる。…もう一度拭こう。"
+      "help_touch": "指でこすってほこりを拭き取ってください"
     },
     "ballCatch": {
       "title": "スイング！",
@@ -214,7 +213,6 @@
     "labelSuccess": "成功",
     "labelMiss": "失敗",
     "labelClarity": "鮮明度",
-    "labelTime": "残り時間",
     "calendarFlip": {
       "title": "カレンダーをめくる",
       "help": "カレンダーをめくる: ← →",
