@@ -254,10 +254,10 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
     }
 
     const batGroup = batRef.current;
-    if (batGroup && action === "bat" && handL && foreL && foreR) {
+    if (batGroup && action === "bat" && handL) {
       // 배트는 목표가 아니라 실제로 모인 두 손바닥 사이에 끼운다
-      const palms = palmPoint(foreL, handL, leftHandPositionRef.current);
-      palms.add(palmPoint(foreR, handR, gripRef.current)).multiplyScalar(0.5);
+      const palms = palmPoint(handL, leftHandPositionRef.current);
+      palms.add(palmPoint(handR, gripRef.current)).multiplyScalar(0.5);
       model.worldToLocal(palms);
       placeHeldBat(palms, batDirection3, batGroup.position, batGroup.quaternion);
     }

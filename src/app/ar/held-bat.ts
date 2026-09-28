@@ -12,7 +12,7 @@ const BAT_MODEL_AXIS = new Vector3(0, 1, 0);
 /** 두 손 한가운데가 오는 자리 (손잡이 끝에서 배트 축을 따라). 그립 아래쪽, 노브 바로 위다. */
 const GRIP_FROM_KNOB = 0.12;
 /** 두 손 사이 간격 (배트 축을 따라). 오른손 타자는 오른손이 위(배럴 쪽)다. */
-export const HAND_GAP = 0.08;
+export const HAND_GAP = 0.075;
 
 /** 수평각·올림각 → 모델 공간의 단위 방향. 0,0이 정면(+Z), 수평각 +가 캐릭터의 왼쪽(+X). */
 export function batDirection(yaw: number, pitch: number, out: Vector3): Vector3 {
@@ -32,21 +32,15 @@ export function placeHeldBat(
 }
 
 /**
- * 손 뼈의 기준점은 손목이다. 배트와 IK는 손바닥 가운데에 맞춘다: 손목에 맞추면 배트가 손목을
- * 지나가 손과 따로 논다. 손바닥은 아래팔이 가리키는 쪽으로 이만큼 더 나간 자리로 본다.
+ * 손 뼈의 기준점은 손목이다. 배트와 IK는 주먹 한가운데에 맞춘다: 손목에 맞추면 배트가 손목을
+ * 지나가 손과 따로 논다. 값은 손 뼈에 붙은 정점(가중치 0.5 이상)들의 중심을 손 뼈 좌표로 잰 것
+ * (player-blocky.glb, 좌우 거의 같다). 모델을 바꾸면 다시 잰다.
  */
-const PALM_REACH = 0.035;
-const wrist = new Vector3();
-const elbow = new Vector3();
+const PALM_LOCAL = new Vector3(0.005, 0.05, 0.014);
 
-/** 손바닥 가운데 (월드 좌표). */
-export function palmPoint(fore: Object3D, hand: Object3D, out: Vector3): Vector3 {
-  hand.getWorldPosition(wrist);
-  fore.getWorldPosition(elbow);
-  out.subVectors(wrist, elbow);
-  const length = out.length();
-  if (length < 1e-6) return out.copy(wrist);
-  return out.multiplyScalar(PALM_REACH / length).add(wrist);
+/** 주먹 한가운데 (월드 좌표). */
+export function palmPoint(hand: Object3D, out: Vector3): Vector3 {
+  return hand.localToWorld(out.copy(PALM_LOCAL));
 }
 
 const pivot = new Vector3();
@@ -60,11 +54,11 @@ const startUpper = new Quaternion();
 const startFore = new Quaternion();
 
 /** 뼈 하나를 돌려 손바닥이 목표 쪽을 보게 한다 (CCD 한 걸음). */
-function turnToward(bone: Object3D, fore: Object3D, hand: Object3D, target: Vector3) {
+function turnToward(bone: Object3D, hand: Object3D, target: Vector3) {
   const parent = bone.parent;
   if (!parent) return;
   bone.getWorldPosition(pivot);
-  palmPoint(fore, hand, handWorld);
+  palmPoint(hand, handWorld);
   toHand.subVectors(handWorld, pivot);
   toTarget.subVectors(target, pivot);
   if (toHand.lengthSq() < 1e-8 || toTarget.lengthSq() < 1e-8) return;
@@ -93,8 +87,8 @@ export function reachHandTo(
   startUpper.copy(upper.quaternion);
   startFore.copy(fore.quaternion);
   for (let step = 0; step < IK_ITERATIONS; step += 1) {
-    turnToward(fore, fore, hand, target);
-    turnToward(upper, fore, hand, target);
+    turnToward(fore, hand, target);
+    turnToward(upper, hand, target);
   }
   if (weight < 1) {
     upper.quaternion.copy(startUpper.slerp(upper.quaternion, weight));
