@@ -55,12 +55,14 @@ function CanvasInteraction() {
 /**
  * 미궁 문제의 canvas 판 (거실 피아노).
  *
- * 결과 카드가 없으니 소리는 여기서 낸다: overlay 쪽 PuzzleHost가 하던 몫이다.
+ * 소리는 여기서 낸다: overlay 쪽 PuzzleHost가 하던 몫이다. 풀리면 곧장 닫지 않고
+ * settlePuzzle로 알린다. 결과 카드는 DOM이라 PuzzleHost가 세운다.
  * 손에 든 것(carrying)은 문제 화면이 "저쪽에서 가져온 것"을 보고 달라지는 데 쓴다.
  */
 function CanvasPuzzle() {
   const puzzle = useMemoryRoomStore(selectCanvasPuzzle);
   const finishPuzzle = useMemoryRoomStore((state) => state.finishPuzzle);
+  const settlePuzzle = useMemoryRoomStore((state) => state.settlePuzzle);
   const carrying = useMemoryRoomStore((state) => state.inventory);
   if (!puzzle) return null;
 
@@ -73,7 +75,8 @@ function CanvasPuzzle() {
         carrying={carrying}
         onComplete={(result) => {
           playSound(result.cleared ? "success" : "fail");
-          finishPuzzle(result);
+          if (result.cleared) settlePuzzle();
+          else finishPuzzle(result);
         }}
       />
     </Suspense>

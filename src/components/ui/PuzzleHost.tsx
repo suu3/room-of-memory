@@ -1,15 +1,74 @@
 "use client";
 
 import { ArrowUUpLeft, X } from "@phosphor-icons/react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
 import { MinigameHelp } from "@/minigames/shell";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { ExitFade } from "./ExitFade";
 import { SuccessBurst } from "./SuccessBurst";
-import { BUTTON_QUIET, HUD_ICON_BUTTON_SOLID } from "./ui-classes";
+import { BUTTON_PRIMARY, BUTTON_QUIET, HUD_ICON_BUTTON_SOLID, PANEL_FRAME } from "./ui-classes";
+
+/** 결과를 읽기 전에 "계속"이 눌리지 않게 버튼을 늦게 세운다 (MinigameHost의 RESULT_HOLD_MS). */
+const RESULT_HOLD_MS = 600;
+
+/**
+ * 풀린 문제의 결과 카드. 기억 미니게임의 결과 카드(MinigameHost)와 같은 옷이다.
+ *
+ * 저절로 넘어가지 않는다. 미궁은 대사도 수첩 기록도 안 딸려서, 카드가 스르르 사라지면
+ * 풀린 건지 그냥 닫힌 건지 다시 헷갈린다. "계속"을 누르면 그때 보상(열쇠·혼잣말)이 나간다.
+ */
+function PuzzleResultCard({ line, onContinue }: { line: string; onContinue: () => void }) {
+  const { t } = useTranslation();
+  const [settled, setSettled] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const hold = window.setTimeout(() => setSettled(true), RESULT_HOLD_MS);
+    return () => window.clearTimeout(hold);
+  }, []);
+
+  // 버튼이 서면 포커스도 따라간다. 키보드로 풀던 사람이 Enter 한 번으로 이어가게
+  useEffect(() => {
+    if (settled) buttonRef.current?.focus();
+  }, [settled]);
+
+  return (
+    <ExitFade
+      role="status"
+      aria-live="polite"
+      className="absolute inset-0 z-50 grid animate-backdrop-in place-items-center bg-scene-void/55 p-4"
+    >
+      <div
+        className={`w-[22rem] max-w-[92vw] animate-fade-rise border-memory/50 p-6 text-center ${PANEL_FRAME}`}
+      >
+        <p className="font-pixel text-xs tracking-[0.3em] text-memory">
+          {t("minigame.puzzleResult.title")}
+        </p>
+        <p className="mt-3 break-ko text-pretty text-lg font-medium leading-snug text-ivory">
+          {line}
+        </p>
+        <div
+          className={`mt-5 flex justify-center transition-opacity duration-300 ${
+            settled ? "opacity-100" : "pointer-events-none opacity-0"
+          }`}
+        >
+          <button
+            ref={buttonRef}
+            type="button"
+            onClick={onContinue}
+            className={`${BUTTON_PRIMARY} px-6`}
+          >
+            {t("minigame.result.continue")}
+          </button>
+        </div>
+      </div>
+    </ExitFade>
+  );
+}
 
 /**
  * 미궁 문제 호스트: 기억 인터랙션 밖에서 도는 미니게임 (거실의 식탁 트럼프,
@@ -28,6 +87,8 @@ export function PuzzleHost() {
   const active = useMemoryRoomStore((state) => state.activePuzzle);
   const finishPuzzle = useMemoryRoomStore((state) => state.finishPuzzle);
   const closePuzzle = useMemoryRoomStore((state) => state.closePuzzle);
+  const settlePuzzle = useMemoryRoomStore((state) => state.settlePuzzle);
+  const cleared = useMemoryRoomStore((state) => state.puzzleCleared);
   // 손에 든 것. 문제 화면이 "저쪽에서 가져온 것"을 보고 달라진다 (MinigameProps의 carrying)
   const carrying = useMemoryRoomStore((state) => state.inventory);
   /** 결과가 확정돼 더는 닫을 수 없는 문제 id (onSettled: src/types/minigame.ts). */
@@ -38,7 +99,7 @@ export function PuzzleHost() {
   const hosted = definition?.mode === "overlay" ? definition : undefined;
   /** 씬 안에서 도는 판: 여기서는 안내와 닫기만 맡는다. */
   const canvasHosted = definition?.mode === "canvas" ? definition : undefined;
-  const sealed = settledId !== null && settledId === active;
+  const sealed = cleared || (settledId !== null && settledId === active);
 
   // 미등록 id로는 판을 세울 수 없다. 조용히 닫아서 진행이 막히지 않게 한다
   useEffect(() => {
@@ -48,6 +109,11 @@ export function PuzzleHost() {
   useEffect(() => {
     if (active === null) setSettledId(null);
   }, [active]);
+
+  // 풀린 순간 금빛 입자. canvas 판(피아노)은 씬에서 풀리므로 결과를 스토어로 보고 띄운다
+  useEffect(() => {
+    if (cleared) setBurstId((id) => id + 1);
+  }, [cleared]);
 
   // Esc = 내려놓기. 답이 확정된 뒤에는 막는다 (MinigameHost와 같은 규칙)
   useEffect(() => {
@@ -63,6 +129,15 @@ export function PuzzleHost() {
   return (
     <>
       {burstId > 0 && <SuccessBurst key={burstId} onDone={() => setBurstId(0)} />}
+      {active && cleared && (
+        <PuzzleResultCard
+          line={t(definition?.solvedKey ?? "minigame.puzzleResult.default")}
+          onContinue={() => {
+            playSound("select");
+            finishPuzzle({ cleared: true });
+          }}
+        />
+      )}
       {/*
         canvas 판(거실 피아노): 판은 씬이 그리고 있다. 백드롭도 틀도 없이 조작 안내
         한 줄과 닫기만 띄운다. 안내 자리는 근접 안내(RoomInteractionPrompt)와 같다.
@@ -126,8 +201,9 @@ export function PuzzleHost() {
                 onSettled={() => setSettledId(active)}
                 onComplete={(result) => {
                   playSound(result.cleared ? "success" : "fail");
-                  if (result.cleared && !result.celebrated) setBurstId((id) => id + 1);
-                  finishPuzzle(result);
+                  // 풀렸으면 곧장 닫지 않고 결과 카드를 세운다 (입자는 위의 effect가)
+                  if (result.cleared) settlePuzzle();
+                  else finishPuzzle(result);
                 }}
               />
             </Suspense>

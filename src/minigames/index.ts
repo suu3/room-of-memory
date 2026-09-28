@@ -163,6 +163,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     component: lazy(() => import("./sink-dial").then((m) => ({ default: m.SinkDialMinigame }))),
     titleKey: "minigame.sinkDial.title",
     helpKey: "minigame.sinkDial.help",
+    solvedKey: "minigame.sinkDial.solved",
   },
   "piano-melody": {
     id: "piano-melody",
@@ -175,6 +176,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     ),
     titleKey: "minigame.pianoMelody.title",
     helpKey: "minigame.pianoMelody.help",
+    solvedKey: "minigame.pianoMelody.solved",
     // 규칙은 악보가 다 말한다. 적힌 대로 누르면 된다는 걸 목록으로 또 적을 이유가 없다.
     // failKey도 없다: 틀리면 처음으로 되감길 뿐, 이 문제에 "실패"라는 끝은 없다
   },

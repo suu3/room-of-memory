@@ -351,6 +351,13 @@ export interface MemoryRoomState {
    * 남는다 (docs/content-design.md 3-2).
    */
   activePuzzle: PuzzleId | null;
+  /**
+   * 붙잡은 문제를 방금 풀었다: 결과 카드가 떠 있다. 카드의 "계속"이 finishPuzzle을
+   * 불러 보상(열쇠·혼잣말·카메라)이 나가기 전까지는 activePuzzle도 그대로다.
+   * 이게 없으면 판이 풀리자마자 조용히 닫혀서, 맞힌 건지 그냥 꺼진 건지 알 수 없었다.
+   * 저장하지 않는다.
+   */
+  puzzleCleared: boolean;
   /** 풀어낸 미궁 문제. 저장된다. */
   solvedPuzzles: PuzzleId[];
   /**
@@ -465,6 +472,8 @@ export interface MemoryRoomState {
   openPuzzle: (id: PuzzleId) => void;
   /** 풀지 않고 내려놓는다. 물건은 다시 클릭할 수 있다. */
   closePuzzle: () => void;
+  /** 판이 풀렸다: 결과 카드를 세운다. 실제 완료는 카드를 넘길 때 finishPuzzle로. */
+  settlePuzzle: () => void;
   /** 문제가 끝났다 (클리어 또는 스킵: 미니게임 계약상 스킵도 cleared다). */
   finishPuzzle: (result: MinigameResult) => void;
   /** 닫힌 방문을 두드렸다. 문이 열려 있으면 아무 일도 없다. */
@@ -1001,6 +1010,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       activeClue: null,
       nameIntroPending: false,
       activePuzzle: null,
+      puzzleCleared: false,
       solvedPuzzles: [],
       discoveries: [],
       notebookOpened: false,
@@ -1275,6 +1285,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           curtainGrab: null,
           walkTarget: null,
           activePuzzle: null,
+          puzzleCleared: false,
           activeInteraction:
             state.activeInteraction?.phase === "minigame" ? null : state.activeInteraction,
         })),
@@ -1311,11 +1322,19 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           if (id === "sink-dial" && !selectSinkHintRead(state)) return state;
           return { activePuzzle: id };
         }),
-      closePuzzle: () => set((state) => (state.activePuzzle ? { activePuzzle: null } : state)),
+      closePuzzle: () =>
+        set((state) =>
+          // 풀린 뒤에는 내려놓을 수 없다: 카드의 "계속"만이 문제를 닫는다
+          state.activePuzzle && !state.puzzleCleared ? { activePuzzle: null } : state,
+        ),
+      settlePuzzle: () =>
+        set((state) =>
+          state.activePuzzle && !state.puzzleCleared ? { puzzleCleared: true } : state,
+        ),
       finishPuzzle: (result) =>
         set((state) => {
           if (!state.activePuzzle) return state;
-          if (!result.cleared) return { activePuzzle: null };
+          if (!result.cleared) return { activePuzzle: null, puzzleCleared: false };
           const solved = state.activePuzzle;
           /*
            * 하부장이 열리면 그 안의 안방 열쇠가 손에 들어온다 (v4 3-5). 집는 동작을 따로
@@ -1336,6 +1355,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
                 : {};
           return {
             activePuzzle: null,
+            puzzleCleared: false,
             solvedPuzzles: [...state.solvedPuzzles, solved],
             ...reward,
           };
@@ -1396,6 +1416,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           dialogueLog: [],
           dialogueLogOpen: false,
           activePuzzle: null,
+          puzzleCleared: false,
           solvedPuzzles: [],
           discoveries: [],
           notebookOpened: false,

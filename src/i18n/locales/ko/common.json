@@ -388,6 +388,10 @@
     "answer": {
       "backspace": "지우기"
     },
+    "puzzleResult": {
+      "title": "풀었다",
+      "default": "자물쇠가 풀렸다."
+    },
     "result": {
       "clearedTitle": "기억을 되찾았다",
       "recorded": "수첩에 기록됨",
@@ -398,6 +402,7 @@
       "later": "나중에 하기"
     },
     "pianoMelody": {
+      "solved": "곡이 끝까지 이어졌다.",
       "title": "피아노",
       "help": "건반을 눌러 본다 · 1 2 3 4 5 6 7",
       "help_touch": "건반을 눌러 본다",
@@ -445,6 +450,7 @@
       }
     },
     "sinkDial": {
+      "solved": "하부장이 열렸다.",
       "title": "하부장 다이얼",
       "help": "드럼을 위아래로 끌어 굴린다 · ↑/↓로 돌리고 ←/→로 칸을 옮긴다 · Enter로 연다",
       "help_touch": "드럼을 손가락으로 위아래로 굴리고, 열기를 누르세요",

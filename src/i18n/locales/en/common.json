@@ -388,6 +388,10 @@
     "answer": {
       "backspace": "Delete"
     },
+    "puzzleResult": {
+      "title": "SOLVED",
+      "default": "The lock came undone."
+    },
     "result": {
       "clearedTitle": "MEMORY RECOVERED",
       "recorded": "Written in the notebook",
@@ -398,6 +402,7 @@
       "later": "Maybe later"
     },
     "pianoMelody": {
+      "solved": "The melody played through to the end.",
       "title": "The Piano",
       "help": "Try the keys · 1 2 3 4 5 6 7",
       "help_touch": "Try the keys",
@@ -445,6 +450,7 @@
       }
     },
     "sinkDial": {
+      "solved": "The cabinet opened.",
       "title": "Cabinet Dial",
       "help": "Drag the drums up or down to roll them · ↑/↓ to turn, ←/→ to switch · Enter to open",
       "help_touch": "Roll the drums up or down with your finger, then tap Open",

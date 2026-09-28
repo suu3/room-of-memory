@@ -1221,6 +1221,29 @@ describe("미궁 문제: 피아노 멜로디 자물쇠", () => {
     expect(useMemoryRoomStore.getState().activePuzzle).toBe("piano-melody");
   });
 
+  it("풀린 순간에는 결과 카드가 서고, 넘기기 전까지 보상도 닫기도 없다", () => {
+    const store = useMemoryRoomStore.getState();
+    store.openPuzzle("piano-melody");
+    store.settlePuzzle();
+
+    let state = useMemoryRoomStore.getState();
+    expect(state.puzzleCleared).toBe(true);
+    expect(state.activePuzzle).toBe("piano-melody");
+    expect(state.solvedPuzzles).toEqual([]);
+
+    // 풀린 판은 내려놓을 수 없다: 푼 것이 사라지면 안 된다
+    state.closePuzzle();
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("piano-melody");
+
+    // 카드의 "계속"
+    state.finishPuzzle({ cleared: true });
+    state = useMemoryRoomStore.getState();
+    expect(state.puzzleCleared).toBe(false);
+    expect(state.activePuzzle).toBeNull();
+    expect(state.solvedPuzzles).toContain("piano-melody");
+    expect(state.remark?.id).toBe("piano-done");
+  });
+
   it("다른 화면이 떠 있으면 문제가 열리지 않는다", () => {
     useMemoryRoomStore.getState().openClue("drawer-note");
 

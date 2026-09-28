@@ -129,6 +129,11 @@ export interface MinigameDefinition {
    */
   failKey?: CommonTextKey;
   /**
+   * 미궁 문제(PuzzleHost)가 풀렸을 때 결과 카드에 실을 한 줄. 무엇이 풀렸는지 말한다.
+   * 비우면 공통 문구(minigame.puzzleResult.default). 기억 미니게임은 쓰지 않는다.
+   */
+  solvedKey?: CommonTextKey;
+  /**
    * 판이 도는 동안 방 곡 대신 틀 루프 (src/lib/assets.ts의 경로).
    *
    * 화면 속 세계(게임기)처럼 방 밖의 소리가 나는 판만 채운다. 방 안에서 하는 일은
