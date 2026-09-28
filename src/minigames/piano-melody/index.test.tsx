@@ -85,6 +85,25 @@ describe("PianoMelodyMinigame", () => {
     expect(results).toHaveLength(0);
   });
 
+  it("악보 조각 없이 누르면 막혔다고 알리고, 곡을 다 쳐도 풀리지 않는다", async () => {
+    const results: MinigameResult[] = [];
+    const onBlocked = vi.fn();
+    const renderer = await ReactThreeTestRenderer.create(
+      <PianoMelodyMinigame
+        onComplete={(result) => results.push(result)}
+        onBlocked={onBlocked}
+        carrying={[]}
+      />,
+    );
+
+    for (const note of MELODY) await press(renderer, whiteKeyIndex(note));
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(onBlocked).toHaveBeenCalled();
+    expect(results).toHaveLength(0);
+  });
+
   it("검은 건반은 언제나 틀린 음이다", async () => {
     const { renderer, results } = await renderPiano();
 

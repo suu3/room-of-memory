@@ -358,6 +358,8 @@ export interface MemoryRoomState {
    * 저장하지 않는다.
    */
   puzzleCleared: boolean;
+  /** 붙잡은 문제가 손에 없는 물건 때문에 입력을 막았다: 무엇이 필요한지 한 줄이 선다. 저장 안 함. */
+  puzzleBlocked: boolean;
   /** 풀어낸 미궁 문제. 저장된다. */
   solvedPuzzles: PuzzleId[];
   /**
@@ -474,6 +476,8 @@ export interface MemoryRoomState {
   closePuzzle: () => void;
   /** 판이 풀렸다: 결과 카드를 세운다. 실제 완료는 카드를 넘길 때 finishPuzzle로. */
   settlePuzzle: () => void;
+  /** 판이 손에 없는 물건 때문에 입력을 막았다 (MinigameProps.onBlocked). */
+  blockPuzzle: () => void;
   /** 문제가 끝났다 (클리어 또는 스킵: 미니게임 계약상 스킵도 cleared다). */
   finishPuzzle: (result: MinigameResult) => void;
   /** 닫힌 방문을 두드렸다. 문이 열려 있으면 아무 일도 없다. */
@@ -1011,6 +1015,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       nameIntroPending: false,
       activePuzzle: null,
       puzzleCleared: false,
+      puzzleBlocked: false,
       solvedPuzzles: [],
       discoveries: [],
       notebookOpened: false,
@@ -1286,6 +1291,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           walkTarget: null,
           activePuzzle: null,
           puzzleCleared: false,
+          puzzleBlocked: false,
           activeInteraction:
             state.activeInteraction?.phase === "minigame" ? null : state.activeInteraction,
         })),
@@ -1320,12 +1326,16 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           if (state.activePuzzle || state.solvedPuzzles.includes(id)) return state;
           // 하부장 다이얼은 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만 연다 (v4 3-5)
           if (id === "sink-dial" && !selectSinkHintRead(state)) return state;
-          return { activePuzzle: id };
+          return { activePuzzle: id, puzzleBlocked: false };
         }),
       closePuzzle: () =>
         set((state) =>
           // 풀린 뒤에는 내려놓을 수 없다: 카드의 "계속"만이 문제를 닫는다
           state.activePuzzle && !state.puzzleCleared ? { activePuzzle: null } : state,
+        ),
+      blockPuzzle: () =>
+        set((state) =>
+          state.activePuzzle && !state.puzzleBlocked ? { puzzleBlocked: true } : state,
         ),
       settlePuzzle: () =>
         set((state) =>
@@ -1356,6 +1366,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           return {
             activePuzzle: null,
             puzzleCleared: false,
+            puzzleBlocked: false,
             solvedPuzzles: [...state.solvedPuzzles, solved],
             ...reward,
           };
@@ -1417,6 +1428,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           dialogueLogOpen: false,
           activePuzzle: null,
           puzzleCleared: false,
+          puzzleBlocked: false,
           solvedPuzzles: [],
           discoveries: [],
           notebookOpened: false,

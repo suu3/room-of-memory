@@ -196,7 +196,7 @@ function KeyboardCamera() {
  *
  * 스토어를 만지지 않는다. 결과는 onComplete 한 번뿐이다 (.claude/rules/minigames.md).
  */
-export function PianoMelodyMinigame({ onComplete, onSettled, carrying }: MinigameProps) {
+export function PianoMelodyMinigame({ onComplete, onSettled, onBlocked, carrying }: MinigameProps) {
   const hasScrap = carrying?.includes("piano-sheet") ?? false;
   const palette = useMemo(resolveRoomPalette, []);
   const complete = useOnceCompleter(onComplete);
@@ -214,6 +214,13 @@ export function PianoMelodyMinigame({ onComplete, onSettled, carrying }: Minigam
     const key = PIANO_KEYS[index];
     if (doneRef.current || lockedRef.current) return;
     pressRef.current[index] = 1;
+    // 악보 조각이 없으면 건반은 눌리기만 하고 소리가 안 난다. 무엇을 칠지 모르는 채로
+    // 두드리게 두지 않고 "악보가 필요하다"를 호스트가 띄운다 (needsItem)
+    if (!hasScrap) {
+      playSound("deny");
+      onBlocked?.();
+      return;
+    }
     playTone(NOTE_HZ[key.note]);
 
     // 검은 건반은 곡에 없는 음이다. 눌리기는 하되 언제나 틀린 음이 된다

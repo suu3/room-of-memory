@@ -63,6 +63,7 @@ function CanvasPuzzle() {
   const puzzle = useMemoryRoomStore(selectCanvasPuzzle);
   const finishPuzzle = useMemoryRoomStore((state) => state.finishPuzzle);
   const settlePuzzle = useMemoryRoomStore((state) => state.settlePuzzle);
+  const blockPuzzle = useMemoryRoomStore((state) => state.blockPuzzle);
   const carrying = useMemoryRoomStore((state) => state.inventory);
   if (!puzzle) return null;
 
@@ -73,6 +74,7 @@ function CanvasPuzzle() {
         key={puzzle.id}
         gamePhase={2}
         carrying={carrying}
+        onBlocked={blockPuzzle}
         onComplete={(result) => {
           playSound(result.cleared ? "success" : "fail");
           if (result.cleared) settlePuzzle();

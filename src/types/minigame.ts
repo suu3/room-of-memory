@@ -55,6 +55,11 @@ export interface MinigameProps {
    */
   carrying?: readonly string[];
   /**
+   * 손에 없는 물건 때문에 입력을 받지 않았다 (피아노: 악보 조각 없이 건반을 눌렀다).
+   * 호스트가 무엇이 필요한지 한 줄을 띄운다 (MinigameDefinition의 needsItem).
+   */
+  onBlocked?: () => void;
+  /**
    * Player asked to skip (accessibility requirement: every minigame must
    * call onComplete({ cleared: true }) when skipped).
    */
@@ -134,8 +139,8 @@ export interface MinigameDefinition {
    */
   solvedKey?: CommonTextKey;
   /**
-   * 풀려면 다른 공간에서 가져와야 하는 물건. 손에 없으면 호스트가 안내 밑에 이 한 줄을
-   * 더 띄운다 (피아노: 악보 한 마디가 번져 안 보인다). 판 자신은 carrying을 보고 막는다.
+   * 풀려면 다른 공간에서 가져와야 하는 물건. 판은 열리지만, 손에 없는 채로 조작하면
+   * 판이 onBlocked를 부르고 호스트가 안내 밑에 이 한 줄을 띄운다 (피아노: 악보가 필요하다).
    */
   needsItem?: { id: string; hintKey: CommonTextKey };
   /**

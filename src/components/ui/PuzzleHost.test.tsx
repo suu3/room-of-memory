@@ -42,9 +42,13 @@ it("피아노를 풀면 결과 카드가 서고, 계속을 눌러야 문제가 �
   expect(state.solvedPuzzles).toContain("piano-melody");
 });
 
-it("악보 조각 없이 피아노 앞에 앉으면 지워진 마디 안내가 선다", () => {
+it("악보 조각 없이 건반을 누르면 악보가 필요하다는 한 줄이 선다", () => {
   act(() => useMemoryRoomStore.getState().openPuzzle("piano-melody"));
   render(<PuzzleHost />);
+  // 앉자마자는 아니다: 살펴볼 틈을 둔다
+  expect(screen.queryByText(i18n.t("minigame.pianoMelody.missing"))).toBeNull();
+  // 판(CanvasMinigameHost)이 건반 입력을 막았다고 알린다
+  act(() => useMemoryRoomStore.getState().blockPuzzle());
   expect(screen.getByText(i18n.t("minigame.pianoMelody.missing"))).toBeTruthy();
   cleanup();
 
@@ -52,6 +56,7 @@ it("악보 조각 없이 피아노 앞에 앉으면 지워진 마디 안내가 �
     useMemoryRoomStore.getState().closePuzzle();
     useMemoryRoomStore.getState().takeItem("piano-sheet");
     useMemoryRoomStore.getState().openPuzzle("piano-melody");
+    useMemoryRoomStore.getState().blockPuzzle();
   });
   render(<PuzzleHost />);
   expect(screen.queryByText(i18n.t("minigame.pianoMelody.missing"))).toBeNull();

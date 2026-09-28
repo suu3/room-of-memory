@@ -89,6 +89,8 @@ export function PuzzleHost() {
   const closePuzzle = useMemoryRoomStore((state) => state.closePuzzle);
   const settlePuzzle = useMemoryRoomStore((state) => state.settlePuzzle);
   const cleared = useMemoryRoomStore((state) => state.puzzleCleared);
+  const blocked = useMemoryRoomStore((state) => state.puzzleBlocked);
+  const blockPuzzle = useMemoryRoomStore((state) => state.blockPuzzle);
   // 손에 든 것. 문제 화면이 "저쪽에서 가져온 것"을 보고 달라진다 (MinigameProps의 carrying)
   const carrying = useMemoryRoomStore((state) => state.inventory);
   /** 결과가 확정돼 더는 닫을 수 없는 문제 id (onSettled: src/types/minigame.ts). */
@@ -149,9 +151,11 @@ export function PuzzleHost() {
             className="rounded-sm border border-line bg-surface px-3 py-1.5 text-center text-xs font-medium text-ivory shadow-chip"
           >
             <MinigameHelp help={hint(canvasHosted.helpKey)} className="break-ko text-pretty" />
-            {canvasHosted.needsItem &&
+            {/* 필요한 물건 없이 조작했을 때만: 판에 앉자마자 막힌다고 말하면 살펴볼 틈이 없다 */}
+            {blocked &&
+              canvasHosted.needsItem &&
               !(carrying as readonly string[]).includes(canvasHosted.needsItem.id) && (
-                <p className="mt-1 break-ko text-pretty text-fog">
+                <p className="mt-1 break-ko text-pretty text-memory">
                   {t(canvasHosted.needsItem.hintKey)}
                 </p>
               )}
@@ -204,6 +208,7 @@ export function PuzzleHost() {
               <Minigame
                 gamePhase={2}
                 carrying={carrying}
+                onBlocked={blockPuzzle}
                 onSettled={() => setSettledId(active)}
                 onComplete={(result) => {
                   playSound(result.cleared ? "success" : "fail");
