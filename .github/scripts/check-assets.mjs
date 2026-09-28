@@ -51,6 +51,13 @@ const RULES = [
     label: "이미지",
   },
   {
+    // 웹 AR 이미지 타깃(MindAR 컴파일 결과). /ar/compile이 굽는다.
+    prefix: "ar/",
+    limit: 1 * MB,
+    formats: [".mind"],
+    label: "AR 타깃",
+  },
+  {
     prefix: "fonts/",
     limit: 2 * MB,
     formats: [".woff2"],

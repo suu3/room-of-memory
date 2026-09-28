@@ -1,9 +1,12 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import enAr from "./locales/en/ar.json";
 import enCommon from "./locales/en/common.json";
 import enMemoryRoom from "./locales/en/memory-room.json";
+import jaAr from "./locales/ja/ar.json";
 import jaCommon from "./locales/ja/common.json";
 import jaMemoryRoom from "./locales/ja/memory-room.json";
+import koAr from "./locales/ko/ar.json";
 import koCommon from "./locales/ko/common.json";
 import koMemoryRoom from "./locales/ko/memory-room.json";
 
@@ -12,9 +15,9 @@ export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "ko";
 
 export const resources = {
-  ko: { common: koCommon, memoryRoom: koMemoryRoom },
-  en: { common: enCommon, memoryRoom: enMemoryRoom },
-  ja: { common: jaCommon, memoryRoom: jaMemoryRoom },
+  ko: { common: koCommon, memoryRoom: koMemoryRoom, ar: koAr },
+  en: { common: enCommon, memoryRoom: enMemoryRoom, ar: enAr },
+  ja: { common: jaCommon, memoryRoom: jaMemoryRoom, ar: jaAr },
 } as const;
 
 if (!i18n.isInitialized) {

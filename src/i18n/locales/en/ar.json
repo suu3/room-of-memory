@@ -1,0 +1,31 @@
+{
+  "intro": {
+    "title": "Point your camera at the photocard",
+    "body": "Turn on the camera and frame the front of the card. Do-hae will pop out.",
+    "start": "Turn on camera",
+    "noCard": "No card? Show the test image"
+  },
+  "status": {
+    "starting": "Starting camera…",
+    "scanning": "Frame the front of the card",
+    "found": "Found it!"
+  },
+  "mount": {
+    "toUpright": "Tap if the card is standing up",
+    "toFlat": "Tap if the card is lying flat"
+  },
+  "actions": {
+    "label": "Character action",
+    "toss": "Toss ball",
+    "stand": "Stand",
+    "walk": "Walk in place",
+    "sit": "Sit",
+    "bat": "Swing bat"
+  },
+  "error": {
+    "noCamera": "This browser can't open the camera. Please try another browser.",
+    "denied": "Camera access is blocked. Allow it in your browser settings and try again.",
+    "unknown": "Couldn't start AR. Please try again in a moment."
+  },
+  "toRoom": "Go to Room of Memory"
+}
