@@ -15,6 +15,23 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
   },
   icons: { apple: "/icons/apple-touch-icon.png?v=20260910" },
+  /*
+   * 링크 미리보기. 그림은 같은 폴더의 opengraph-image.jpg·twitter-image.jpg(파일 규칙)가
+   * 붙는다: 타이틀 화면을 1200×630으로 찍고 메뉴·조작 안내·언어 토글만 걷어낸 한 장이다.
+   * 타이틀 화면이 바뀌면 다시 찍는다.
+   */
+  openGraph: {
+    type: "website",
+    siteName: "기억의 방",
+    title: "기억의 방",
+    description: "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "기억의 방",
+    description: "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
+  },
 };
 
 export const viewport: Viewport = {
