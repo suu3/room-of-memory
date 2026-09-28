@@ -184,8 +184,9 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
   },
   "ampoule-pickup": {
     id: "ampoule-pickup",
-    // 유일한 canvas 모드: 씬의 냉장고 그 자리에서 서랍이 열리고 앰플이 손에 들린다.
+    // canvas 모드(piano-melody와 둘): 씬의 냉장고 그 자리에서 서랍이 열리고 앰플이 손에 들린다.
     // 호스트는 씬 쪽(src/scenes/memory-room/CanvasMinigameHost.tsx). 카드 없이 물건만.
+    // 지금은 content/에서 가리키는 곳이 없다. 레지스트리에만 남아 있다
     mode: "canvas",
     presentation: "bare",
     component: lazy(() =>

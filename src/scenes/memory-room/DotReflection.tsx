@@ -25,7 +25,7 @@ import type { EulerTuple, Vec3Tuple } from "./types";
 const REFLECTION_SIZE = 256;
 
 /**
- * 반사를 다시 그리는 간격(프레임). 거울(2)보다 성기다. TV는 소파 건너편이고 도트로
+ * 반사를 다시 그리는 간격(프레임). 거울(2)보다 성기다. 모니터는 책상 안쪽이고 도트로
  * 뭉개져 있어서 두 프레임 묵은 반사를 눈으로 가릴 수 없다. 씬을 한 번 더 그리는 값이
  * 셋 중 하나로 준다.
  */
@@ -52,7 +52,7 @@ const LEVEL_LAMBDA = 2.2;
  * 원 밖은 BETWEEN_DOTS까지 눌러 인광체 사이의 검은 틈이 된다.
  *
  * three 버전이 바뀌어 붙일 자리를 못 찾으면 셰이더를 손대지 않고 그대로 돌려준다.
- * 그때는 도트 없는 어두운 반사가 선다. 거실이 통째로 안 뜨는 것보다 낫다.
+ * 그때는 도트 없는 어두운 반사가 선다. 방이 통째로 안 뜨는 것보다 낫다.
  */
 function patchDotScreen(vertexShader: string, fragmentShader: string) {
   const vertexAnchor = "varying vec4 vUv;";
@@ -110,7 +110,7 @@ function patchDotScreen(vertexShader: string, fragmentShader: string) {
  * 한 프레임에 한 번, 그 공간에 있을 때만 그린다. 컴포저의 다른 패스(AO의 깊이·법선,
  * 아웃라인 마스크)도 씬을 훑으며 onBeforeRender를 부르므로 오버라이드 재질이 걸린
  * 패스와 메인 카메라가 아닌 렌더는 건너뛴다 (거울과 같은 가드). 다른 공간에 있을 때는
- * 마지막 반사가 유리에 남는데, 문 너머로 보이는 TV는 손톱만 해서 티가 안 난다.
+ * 마지막 반사가 유리에 남는데, 문 너머로 보이는 모니터는 손톱만 해서 티가 안 난다.
  *
  * 거울과 달리 MIRROR_ONLY_LAYER를 켜지 않는다. 1인칭 구간에서는 몸이 그 층으로 옮겨
  * 있어 유리에 비치지 않지만, 어둠 속에서 빛 하나만 보여야 하는 구간이라 그편이 맞다.

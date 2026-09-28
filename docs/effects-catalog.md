@@ -485,20 +485,26 @@ intro → p1 → turning → p2 → p3 → p4 → resolve → ending
 
 ## 24. 부록: 코드와 문서가 어긋난 곳
 
-조사 중에 발견한 것들이다. 고칠지는 따로 판단하면 된다.
+조사 중에 발견한 것들이다. 주석·문서만 틀렸던 것은 코드에 맞춰 고쳤다. 남은 것은 동작을 바꿔야 하는 일이라 고칠지는 따로 판단하면 된다.
 
-1. `walk-to.ts` 머리 주석은 "경로 탐색은 없다"고 적었지만, 실제로는 `pathfind.ts`의 A*를 쓴다.
-2. 악보 잉크 연출: 문서는 "미리 구운 프레임을 역재생"이라고 적었지만, 실제로는 매 프레임 blur로 다시 칠한다.
-3. `RoomClues.tsx`의 거울 주석("1인칭에서만 비춘다")이 `MirrorReflection.tsx`(3인칭에서도 비춤)와 다르다. 코드는 후자다.
-4. `dot-screen.ts` 주석이 아직 옛 TV(`TvReflection.tsx`)를 가리킨다. 지금 자리는 책상 모니터다.
-5. 방문만 애니메이션 없이 즉시 열린다. 다른 문은 approach로 젖혀진다.
-6. `RoomSurroundings`의 `OuterDrift`가 color와 pixelRatio uniform을 useMemo 객체에 쓴다. 규약대로라면 화면에 반영되지 않는다.
-7. `MemoryBurst`의 useEffect 두 개에 의존성 배열이 없다.
-8. `ampoule-pickup`은 레지스트리에만 있고 콘텐츠에서는 쓰지 않는다. 레지스트리 주석의 "유일한 canvas 모드"도 틀렸다(piano-melody도 canvas 모드다).
-9. `PuzzleHost` 주석이 없는 퍼즐(식탁 트럼프, 현관 잠금)을 언급한다.
-10. photo-wipe에는 키보드 경로가 없고, normal 모드에서는 스킵도 안 나온다. 키보드 사용자는 끝낼 방법이 없다.
-11. 커서 링: DESIGN.md는 "버튼을 알약으로 감싼다"고 적었지만 코드는 0.7로 조인다(의도적 변경).
-12. 시점 전환: DESIGN.md는 "노이즈 타일 응결"이라고 적었지만 코드는 backdrop blur로 초점을 맞춘다.
-13. 죽은 CSS: `.animate-page-flip-next/-prev`, `bat-swing` 키프레임. `redaction.ts`는 lab에서만 쓴다.
-14. DESIGN.md는 "숫자 = 선택지"를 규정하지만, 선택지 UI 컴포넌트는 현재 없다.
-15. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
+### 남은 것 (동작)
+
+1. 방문만 애니메이션 없이 즉시 열린다. 다른 문은 approach로 젖혀진다.
+2. `RoomSurroundings`의 `OuterDrift`가 color와 pixelRatio uniform을 useMemo 객체에 쓴다. 규약대로라면 화면에 반영되지 않는다.
+3. `MemoryBurst`의 useEffect 두 개에 의존성 배열이 없다.
+4. `ampoule-pickup`은 레지스트리에만 있고 콘텐츠에서는 쓰지 않는다 (레지스트리 주석에는 적어 두었다).
+5. photo-wipe에는 키보드 경로가 없다. 키보드 사용자는 스킵이 뜰 때까지 기다려야 끝낼 수 있다.
+6. 죽은 CSS: `.animate-page-flip-next/-prev`, `bat-swing` 키프레임. `redaction.ts`는 lab에서만 쓴다.
+7. DESIGN.md는 "숫자 = 선택지"를 규정하지만, 선택지 UI 컴포넌트는 현재 없다.
+8. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
+
+### 고친 것 (주석·문서를 코드에 맞춤)
+
+- `walk-to.ts` 머리 주석: "경로 탐색은 없다" → 길은 `pathfind.ts`의 A*가 찾고 여기는 경유점을 따라가는 한 걸음.
+- 악보 잉크(`visual-experiments.md` 11장): "미리 구운 프레임을 역재생" → 매 프레임 blur로 다시 칠한다.
+- `RoomClues.tsx`의 거울 주석: "1인칭에서만 비춘다" → 늘 비추고 3인칭은 두 프레임에 한 번.
+- `dot-screen.ts`·`DotReflection.tsx`: 옛 TV(`TvReflection.tsx`)·거실 언급 → 책상 모니터(`DotReflection.tsx`)·방.
+- `minigames/index.ts`: ampoule-pickup의 "유일한 canvas 모드" → piano-melody와 둘.
+- `PuzzleHost` 주석: 없는 퍼즐(식탁 트럼프, 현관 잠금) → 피아노·세면대 하부장 다이얼.
+- DESIGN.md 커서 링: "버튼을 알약으로 감싼다" → 손 자리에서 0.7배로 조여든다.
+- DESIGN.md·`visual-experiments.md` 시점 전환: "노이즈 타일 응결" → backdrop blur 초점 맞춤.

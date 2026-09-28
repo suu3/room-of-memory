@@ -71,15 +71,15 @@ function PuzzleResultCard({ line, onContinue }: { line: string; onContinue: () =
 }
 
 /**
- * 미궁 문제 호스트: 기억 인터랙션 밖에서 도는 미니게임 (거실의 식탁 트럼프,
- * 현관 잠금장치, 거실 피아노).
+ * 미궁 문제 호스트: 기억 인터랙션 밖에서 도는 미니게임 (거실 피아노,
+ * 세면대 하부장 다이얼. 목록은 room-clues.ts의 PUZZLE_IDS).
  *
  * MinigameHost와 닮았지만 더 단순하다: 시작 카드가 없고(미궁은 규칙 설명이
  * 없는 게 규칙이라 카드에 적을 것도 없다. 그림을 바로 들이민다), 결과 대사
  * 단계도 없다(대사가 안 딸린다). 풀리면 solvedPuzzles에 남고 그걸로 끝이다.
  *
  * canvas 모드 문제(피아노)는 씬이 판을 세운다. 여기서는 DOM이어야 하는 두 가지,
- * 조작 안내 한 줄과 돌아가기만 그 위에 얹는다 (MinigameHost가 앰플에 하는 것과 같다).
+ * 조작 안내 한 줄과 돌아가기만 그 위에 얹는다 (MinigameHost가 canvas 모드 미니게임에 하는 것과 같다).
  */
 export function PuzzleHost() {
   const { t } = useTranslation();

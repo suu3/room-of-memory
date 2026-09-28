@@ -178,10 +178,9 @@ export function WorkbookClue({ children }: { children: ReactNode }) {
 /**
  * 문 쪽 왼벽의 전신거울. 누르면 거울 속 자기를 돌려보는 화면이 뜬다 (ClueOverlay).
  *
- * 유리는 1인칭 구간(1인칭)에서만 진짜로 비춘다 (MirrorReflection). 씬을 한 번 더
- * 그리는 반사라 늘 켜 두면 모바일 예산을 넘고, 아이소메트릭에서는 어차피 천장만
- * 비친다. 평소에는 매끈한 어두운 유리다. 벽에 붙은 물건이라 RoomShell의 왼벽
- * (CulledWall) 안에 선다.
+ * 유리는 시점과 상관없이 늘 비춘다 (MirrorReflection). 씬을 한 번 더 그리는 반사라
+ * 3인칭에서는 두 프레임에 한 번만 다시 그려 값을 줄이고, 1인칭에서는 얼굴을 들이대는
+ * 자리라 매 프레임 그린다. 벽에 붙은 물건이라 RoomShell의 왼벽(CulledWall) 안에 선다.
  */
 export function MirrorClue({ palette }: { palette: RoomPalette }) {
   const { frameSize, glassSize, lean } = MIRROR_PLACEMENT;
