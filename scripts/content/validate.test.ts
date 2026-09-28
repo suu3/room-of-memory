@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { STAGE_IDS } from "./schema.mjs";
 import {
   countTranslationTodos,
   findUnlockCycles,
@@ -30,21 +31,7 @@ function minimal() {
     ],
     scripts: { hello: [{ speaker: "hero", ...text("안녕") }] },
     cutscenes: { quiet: [{ holdMs: 1000, lines: [] }] },
-    stages: Object.fromEntries(
-      [
-        "p0-dark",
-        "p1-0",
-        "p1-mid",
-        "p1-late",
-        "turn-silence",
-        "turn-bottom",
-        "turn-signal",
-        "p2-enter",
-        "p3-enter",
-        "p4-enter",
-        "resolve",
-      ].map((id) => [id, { monologue: text(id) }]),
-    ),
+    stages: Object.fromEntries(STAGE_IDS.map((id) => [id, { monologue: text(id) }])),
   };
 }
 

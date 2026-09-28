@@ -4,13 +4,15 @@ import { CursorClick, HandTap, MapPin } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PACK_TOTAL } from "@/data/story-phase";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import {
-  selectBatReady,
-  selectBatTaken,
   selectDoorOpened,
   selectDoorReady,
+  selectExitReady,
   selectOnboardingStep,
+  selectPackedCount,
+  selectPacking,
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
@@ -62,7 +64,7 @@ type GuideKey =
   | "hud.guide.notebook"
   | "hud.guide.door"
   | "hud.guide.revisit"
-  | "hud.guide.bat"
+  | "hud.guide.pack"
   | "hud.guide.exit";
 
 /**
@@ -90,8 +92,9 @@ function useHudGuide() {
   const pointer = usePointerKind();
   const doorReady = useMemoryRoomStore(selectDoorReady);
   const doorOpened = useMemoryRoomStore(selectDoorOpened);
-  const batReady = useMemoryRoomStore(selectBatReady);
-  const batTaken = useMemoryRoomStore(selectBatTaken);
+  const packing = useMemoryRoomStore(selectPacking);
+  const packed = useMemoryRoomStore(selectPackedCount);
+  const exitReady = useMemoryRoomStore(selectExitReady);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 1인칭 구간에는 할 일이 하나뿐이다: 스위치, 또는 문. 나머지 목표는 그 뒤에 온다
   const viewpoint = useMemoryRoomStore(selectViewpoint);
@@ -106,10 +109,10 @@ function useHudGuide() {
       ? "hud.guide.lights"
       : viewpoint === "doorway"
         ? "hud.guide.doorway"
-        : batTaken
+        : exitReady
           ? "hud.guide.exit"
-          : batReady
-            ? "hud.guide.bat"
+          : packing
+            ? "hud.guide.pack"
             : doorOpened
               ? "hud.guide.revisit"
               : doorReady
@@ -127,7 +130,7 @@ function useHudGuide() {
   const generic = key === "hud.guide.examine" || key === "hud.guide.revisit";
   const specific = generic && stepText !== null;
   /** 배너를 다시 띄우는 기준. 이지 모드에서는 짚는 물건이 바뀔 때마다 새 목표다. */
-  const goal = specific ? `${key}|${stepId}` : key;
+  const goal = specific ? `${key}|${stepId}` : key === "hud.guide.pack" ? `${key}|${packed}` : key;
 
   /** 가운데 배너에 떠 있는 목표. goal과 다르면 새 목표가 막 들어온 것이다. */
   const [bannerKey, setBannerKey] = useState<string | null>(goal);
@@ -138,7 +141,11 @@ function useHudGuide() {
   }, [goal]);
 
   return {
-    text: specific ? stepText : hint(key),
+    text: specific
+      ? stepText
+      : key === "hud.guide.pack"
+        ? hint(key, { done: packed, total: PACK_TOTAL })
+        : hint(key),
     /** 1인칭에서만 붙는 조작 한 줄. 둘러보는 법은 이 구간에서 처음 필요해진다. */
     control: viewpoint !== null ? hint("scene.lookHint") : null,
     Icon: pointer === "touch" ? HandTap : CursorClick,

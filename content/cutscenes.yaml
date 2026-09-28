@@ -387,7 +387,8 @@ cutscenes:
 
   #
   # 현관의 배트를 쥔 순간. 대사가 끝나면(건너뛰어도) 스토어가 배트를 쥔 것으로
-  # 기록하고, 그때부터 현관문이 열린다 (takeBat).
+  # 기록한다 (takeBat). 배트는 떠나기 전 챙길 것 셋(가방·앰플·배트) 중 하나라, 셋을 다
+  # 챙겨야 현관문이 열린다. "나가자."는 그때 위쪽 혼잣말(stages.yaml resolve-ready)이 맡는다.
   bat-grip:
     - lines:
         - speaker: hero
@@ -395,6 +396,6 @@ cutscenes:
           en: Three years with this bat. All I ever hit with it was a ball.
           ja: 三年使ったバットだ。これで打ったのはボールだけだったのに。
         - speaker: hero
-          ko: …가자.
-          en: …Let's go.
-          ja: …行こう。
+          ko: …이것도 가져간다.
+          en: …This comes too.
+          ja: …これも持っていく。

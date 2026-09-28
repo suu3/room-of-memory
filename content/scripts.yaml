@@ -264,6 +264,13 @@ scripts:
       en: …Just in case.
       ja: …念のため。
 
+  # 떠나기 전 가방을 멘다. 2차에서 두고 가려다 넣은 글러브를 받는다
+  duffel-take:
+    - speaker: hero
+      ko: 물, 통조림, 손전등. 다 들었다.
+    - speaker: hero
+      ko: …글러브도.
+
   # 위칸. 숫자만 이상해한다. 결론은 말하지 않는다
   fridge-open:
     - speaker: hero
@@ -437,6 +444,16 @@ scripts:
       ko: 이 로고… 어디서 봤는데.
       en: This logo… I've seen it somewhere.
       ja: このロゴ…どこかで見たことある。
+
+  # 떠나기 전: 내려놓았던 앰플을 다시 집는다 (ampoule-pickup 앞)
+  ampoule-take:
+    - speaker: hero
+      ko: 이건 두고 갈 수 없어.
+
+  # ampoule-pickup 뒤
+  ampoule-taken:
+    - speaker: hero
+      ko: 엄마 아빠가 남겨 둔 거야. 내가 가져간다.
 
   # 컴퓨터 3차 진입: 로고를 쫓아 다시 켠다
   computer-logo-intro:

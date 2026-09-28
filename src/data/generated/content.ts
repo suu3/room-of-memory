@@ -191,6 +191,7 @@ export const MEMORIES: MemoryItem[] = [
     id: "duffel",
     icon: Bag,
     phase2: { interaction: { scriptId: "duffel-pack" }, from: "p2" },
+    phase3: { interaction: { scriptId: "duffel-take" }, from: "resolve" },
   },
   {
     id: "fridge",
@@ -245,6 +246,14 @@ export const MEMORIES: MemoryItem[] = [
         resultScriptId: "ampoule-found",
       },
       from: "p3",
+    },
+    phase3: {
+      interaction: {
+        scriptId: "ampoule-take",
+        minigameId: "ampoule-pickup",
+        resultScriptId: "ampoule-taken",
+      },
+      from: "resolve",
     },
   },
   {
@@ -378,6 +387,13 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.duffel-pack.line4" },
     ],
   },
+  "duffel-take": {
+    id: "duffel-take",
+    lines: [
+      { speaker: "hero", textKey: "scripts.duffel-take.line1" },
+      { speaker: "hero", textKey: "scripts.duffel-take.line2" },
+    ],
+  },
   "fridge-open": {
     id: "fridge-open",
     lines: [
@@ -463,6 +479,14 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.ampoule-found.line2" },
       { speaker: "hero", textKey: "scripts.ampoule-found.line3", expression: "puzzled" },
     ],
+  },
+  "ampoule-take": {
+    id: "ampoule-take",
+    lines: [{ speaker: "hero", textKey: "scripts.ampoule-take.line1" }],
+  },
+  "ampoule-taken": {
+    id: "ampoule-taken",
+    lines: [{ speaker: "hero", textKey: "scripts.ampoule-taken.line1" }],
   },
   "computer-logo-intro": {
     id: "computer-logo-intro",

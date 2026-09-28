@@ -833,14 +833,16 @@ function FridgeDoorMemory({ palette, opacity }: VisualProps) {
   return <DoorOutline width={0.86} height={0.7} color={palette.linen} opacity={opacity} />;
 }
 
-/** 냉장고 아래칸: "손대지 마"라던 칸. 앰플이 여기 있다. */
 /**
- * 냉장고 아래칸: "손대지 마"라던 서랍. 조사 전엔 닫혀 있고, 앰플을 꺼낸 뒤엔 식량만
- * 남은 채 열려 있다. 여는 순간과 집는 손은 canvas 미니게임(ampoule-pickup)이 같은
+ * 냉장고 아래칸: "손대지 마"라던 서랍. 앰플이 여기 있다.
+ *
+ * 3페이즈 조사(ampoule-case)는 앰플을 들여다보고 **내려놓는다**. 서랍은 닫힌 채다.
+ * 떠나기 전 마지막 조사(3차, ampoule-pickup)에서 서랍이 밀려 나오고 앰플을 집어 든다.
+ * 그 뒤로는 식량만 남은 채 열려 있다. 여는 순간과 집는 손은 canvas 미니게임이 같은
  * 자리에서 그린다. 그동안 이 모습은 숨는다 (InteractiveMemory의 liveCanvasMinigame).
  */
 function FridgeDrawerMemory({ palette, opacity }: VisualProps) {
-  const emptied = useMemoryRoomStore((state) => state.revisited.includes("ampoule"));
+  const emptied = useMemoryRoomStore((state) => state.rechecked.includes("ampoule"));
   return (
     <group position={[0, 0, emptied ? DRAWER_TRAVEL : 0]}>
       <FridgeDrawer palette={palette} opacity={opacity}>
@@ -894,7 +896,51 @@ function TableNoteMemory({ palette, opacity }: VisualProps) {
 const NOTE_HALF = 0.1;
 const NOTE_FOLD = 0.45;
 
-/** 소파 앞에 던져둔 책가방: 비우고 다시 싸는 물건. */
+/** 챙겨 가는 물건이 들려 나가는 시간(초). 현관 배트(EndingTrigger)와 같은 박자다. */
+const CARRY_DURATION = 0.45;
+/** 들려 올라가는 높이 (물건 로컬). */
+const CARRY_LIFT = 0.6;
+
+/**
+ * 떠나기 전 챙긴 물건: 들려 올라가며 작아져 사라진다 (현관 배트와 같은 문법).
+ * 이미 챙긴 채로 들어왔으면(이어하기) 처음부터 없다. 다시 나타나지 않는다.
+ */
+function CarriedAway({ taken, children }: { taken: boolean; children: ReactNode }) {
+  const groupRef = useRef<Group>(null);
+  const [takenAtMount] = useState(taken);
+  const progressRef = useRef(takenAtMount ? 1 : 0);
+
+  useFrame((_, delta) => {
+    const group = groupRef.current;
+    if (!group || !taken) return;
+    if (progressRef.current >= 1) {
+      group.visible = false;
+      return;
+    }
+    progressRef.current = Math.min(1, progressRef.current + delta / CARRY_DURATION);
+    const t = progressRef.current;
+    group.position.y = t * CARRY_LIFT;
+    group.scale.setScalar(Math.max(0.001, 1 - t));
+  });
+
+  return (
+    <group ref={groupRef} visible={!takenAtMount}>
+      {children}
+    </group>
+  );
+}
+
+/** 떠나기 전 가방을 멨는가 (duffel 3차). 멘 가방은 방에서 사라진다. */
+function CarriedBackpack(props: VisualProps) {
+  const taken = useMemoryRoomStore((state) => state.rechecked.includes("duffel"));
+  return (
+    <CarriedAway taken={taken}>
+      <BackpackMemory {...props} />
+    </CarriedAway>
+  );
+}
+
+/** 소파 앞에 던져둔 책가방: 비우고 다시 싸는 물건. 떠나기 전에 메고 나간다. */
 function BackpackMemory({ palette, opacity }: VisualProps) {
   const transparent = opacity < 1;
   const fabricMaterial = (color: string, roughness = 0.92) => (
@@ -1119,7 +1165,7 @@ function PrimitiveVisual({ id, palette, opacity }: VisualProps & { id: MemoryId 
     case "fridge":
       return <FridgeDoorMemory palette={palette} opacity={opacity} />;
     case "duffel":
-      return <BackpackMemory palette={palette} opacity={opacity} />;
+      return <CarriedBackpack palette={palette} opacity={opacity} />;
     case "shoes":
       return <ShoeCabinetMemory palette={palette} opacity={opacity} />;
     case "cards":

@@ -16,13 +16,13 @@ import {
 import {
   selectAct,
   selectActTwoProgress,
-  selectBatReady,
   selectCollected,
   selectDoorReady,
   selectMonologueHidden,
   selectMusicForeground,
   selectMusicPhase,
   selectMusicPlaying,
+  selectPacking,
   selectResultMusic,
   selectViewpoint,
   useMemoryRoomStore,
@@ -111,7 +111,9 @@ export function MemoryRoom() {
    * 창을 꽉 채웠을 때만이다. 패널과 줄은 입력 잠금·리스너가 달라 둘 중 하나만 마운트한다.
    */
   const menuInline = useMediaQuery("(min-width: 1800px)");
-  const isBatReady = useMemoryRoomStore(selectBatReady);
+  const isPacking = useMemoryRoomStore(selectPacking);
+  /** 조사·미니게임이 떠 있는가. 그동안 아래 알림은 물러난다 (앰플 줍기의 돌아가기 버튼과 겹쳤다). */
+  const interacting = useMemoryRoomStore((state) => state.activeInteraction !== null);
   const isDoorReady = useMemoryRoomStore(selectDoorReady);
   /** 물건을 들면 왼쪽 위 헤더에 소지품 줄이 생긴다 (InventoryStrip). 혼잣말 기둥이 그만큼 내려앉는다 */
   const carrying = useMemoryRoomStore((state) => state.inventory.length > 0);
@@ -164,9 +166,10 @@ export function MemoryRoom() {
         <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise whitespace-nowrap font-pixel text-base tracking-[0.12em] text-memory md:bottom-16 md:text-lg">
           {t("door.ready")}
         </p>
-      ) : started && isBatReady && !endingStarted ? (
+      ) : started && isPacking && !interacting && !endingStarted ? (
+        // 떠나기 전 챙길 것이 빛나는 동안. 다 챙기면 알림 대신 위쪽 혼잣말이 "나가자."로 결심을 말한다
         <p className="monologue-text pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-fade-rise whitespace-nowrap font-pixel text-base tracking-[0.12em] text-memory md:bottom-16 md:text-lg">
-          {t("door.exitReady")}
+          {t("door.packReady")}
         </p>
       ) : null}
 

@@ -29,6 +29,7 @@ import {
   selectDoorReady,
   selectDoorwayReady,
   selectEndingReady,
+  selectExitReady,
   selectHeardSurvivorBroadcast,
   selectHeroNameKnown,
   selectIdCardFlipped,
@@ -37,6 +38,8 @@ import {
   selectMusicPhase,
   selectMusicPlaying,
   selectOnboardingStep,
+  selectPackedCount,
+  selectPacking,
   selectPapersOrdered,
   selectRadioSignaling,
   selectResultMusic,
@@ -933,7 +936,7 @@ describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
   });
 });
 
-describe("결심: 배트 · 현관문", () => {
+describe("결심: 챙길 것(가방 · 앰플 · 배트) · 현관문", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   it("피아노를 안 풀어도, 곁가지를 안 봐도 결심에 닿는다", () => {
@@ -949,9 +952,34 @@ describe("결심: 배트 · 현관문", () => {
     expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
   });
 
-  it("배트를 쥐면 현관문이 열린다. 잠금 퍼즐은 없다", () => {
+  it("결심에 들어서면 가방·앰플·배트가 한꺼번에 열린다. 순서는 없다", () => {
     enterPhase("resolve");
-    useMemoryRoomStore.setState({ batTaken: true });
+    const state = useMemoryRoomStore.getState();
+    expect(hotspotStatus(state, "duffel" as MemoryId)).toBe("available");
+    expect(hotspotStatus(state, "ampoule" as MemoryId)).toBe("available");
+    expect(selectBatReady(state)).toBe(true);
+    expect(selectPacking(state)).toBe(true);
+    expect(selectPackedCount(state)).toBe(0);
+  });
+
+  it("배트만 쥐어서는 현관문이 안 열린다: 가방과 앰플도 챙겨야 한다", () => {
+    enterPhase("resolve");
+    useMemoryRoomStore.setState({ batTaken: true, rechecked: ["duffel" as MemoryId] });
+    expect(selectPackedCount(useMemoryRoomStore.getState())).toBe(2);
+    expect(selectExitReady(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().startEnding();
+    expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
+  });
+
+  it("셋을 다 챙기면 현관문이 열린다. 잠금 퍼즐은 없다", () => {
+    enterPhase("resolve");
+    const { rechecked } = useMemoryRoomStore.getState();
+    useMemoryRoomStore.setState({
+      batTaken: true,
+      rechecked: [...rechecked, "duffel" as MemoryId, "ampoule" as MemoryId],
+    });
+    expect(selectPacking(useMemoryRoomStore.getState())).toBe(false);
+    expect(selectExitReady(useMemoryRoomStore.getState())).toBe(true);
     useMemoryRoomStore.getState().startEnding();
     expect(useMemoryRoomStore.getState().endingStarted).toBe(true);
     expect(storyPhase(useMemoryRoomStore.getState())).toBe("ending");
@@ -959,8 +987,13 @@ describe("결심: 배트 · 현관문", () => {
 
   it("리셋하면 엔딩도 처음으로 돌아간다", () => {
     enterPhase("resolve");
-    useMemoryRoomStore.setState({ batTaken: true });
+    const { rechecked } = useMemoryRoomStore.getState();
+    useMemoryRoomStore.setState({
+      batTaken: true,
+      rechecked: [...rechecked, "duffel" as MemoryId, "ampoule" as MemoryId],
+    });
     useMemoryRoomStore.getState().startEnding();
+    expect(useMemoryRoomStore.getState().endingStarted).toBe(true);
 
     useMemoryRoomStore.getState().reset();
 
@@ -1185,10 +1218,13 @@ describe("2차 이후 조사 대상", () => {
     ]);
   });
 
-  it("3차는 컴퓨터 하나다", () => {
+  it("3차는 컴퓨터(로고)와, 떠나기 전 챙기는 가방·앰플이다", () => {
     expect(MEMORIES.filter((memory) => memory.phase3).map((memory) => memory.id)).toEqual([
+      "duffel",
       "computer",
+      "ampoule",
     ]);
+    expect(requiredVisits("resolve").map((ref) => ref.id)).toEqual(["duffel", "ampoule"]);
   });
 });
 

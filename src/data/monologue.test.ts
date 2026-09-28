@@ -70,6 +70,20 @@ describe("monologueIdFor", () => {
     ).toBe("resolve");
   });
 
+  it("떠나기 전 셋(가방·앰플·배트)을 다 챙기면 결심 한 줄(resolve-ready)로 바뀐다", () => {
+    const resolve = through(["p1", "turning", "p2", "p3", "p4"], {
+      doorOpened: true,
+      openedDoorways: ["living-bathroom", "living-parents"],
+    });
+    const bagAndAmpoule = [...(resolve.rechecked ?? []), "duffel", "ampoule"] as MemoryId[];
+    // 배트만, 또는 가방·앰플만으로는 아직이다
+    expect(monologueIdFor({ ...resolve, batTaken: true })).toBe("resolve");
+    expect(monologueIdFor({ ...resolve, rechecked: bagAndAmpoule })).toBe("resolve");
+    expect(monologueIdFor({ ...resolve, rechecked: bagAndAmpoule, batTaken: true })).toBe(
+      "resolve-ready",
+    );
+  });
+
   it("모든 구간 id가 대본에 있다", () => {
     for (const id of MONOLOGUE_IDS) {
       expect((stages.stages as Record<string, unknown>)[id], id).toBeDefined();

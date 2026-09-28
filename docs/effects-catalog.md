@@ -6663,9 +6663,8 @@ function canDrawText(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderi
 
 ### 남은 것 (동작)
 
-1. `ampoule-pickup`은 레지스트리에만 있고 콘텐츠에서는 쓰지 않는다. v4.1(2f757c7)에서 앰플 조사가 `ampoule-case`(3D 인스펙트: 보냉 케이스의 빈 슬롯 → 앰플 라벨의 로고 조각)로 바뀌며 밀려났다. 서랍이 열리고 앰플을 집어 드는 연출뿐이라 추리에 필요한 단서(빈 슬롯·로고)를 보여 줄 자리가 없었다. 지우려면 "기억 조사 중 canvas 미니게임" 경로(MinigameHost·active 테스트가 이걸로 지킨다)와 앰플 굴절(`Ampoule.tsx` `refractive`)을 남길지 먼저 정해야 한다.
-2. photo-wipe에는 키보드 경로가 없다. 키보드 사용자는 스킵이 뜰 때까지 기다려야 끝낼 수 있다.
-3. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
+1. photo-wipe에는 키보드 경로가 없다. 키보드 사용자는 스킵이 뜰 때까지 기다려야 끝낼 수 있다.
+2. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
 
 ### 고친 것 (주석·문서를 코드에 맞춤)
 
@@ -6681,6 +6680,7 @@ function canDrawText(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderi
 
 ### 고친 것 (코드)
 
+- `ampoule-pickup`이 콘텐츠에서 안 쓰이던 것(v4.1에서 `ampoule-case`로 바뀌며 밀려남)을, 떠나기 전 앰플을 집어 드는 마지막 조사(앰플 3차, `from: resolve`)로 되살렸다. 가방·배트와 함께 셋을 다 챙겨야 현관문이 열린다.
 - 방문이 애니메이션 없이 즉시 열리던 것을 다른 문과 같은 approach 젖힘으로 맞췄다 (`use-door-swing.ts`, 방문·화장실·안방 문이 같이 쓴다).
 - `OuterDrift`: color·pixelRatio 갱신을 머티리얼의 uniform에 직접 쓴다. 예전에는 pixelRatio가 DPR이 바뀌어도 반영되지 않았다.
 - `MemoryBurst`: 두 useEffect에 의존성 배열을 달았다 (매 렌더 실행하던 것만 사라지고 결과는 같다).

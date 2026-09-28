@@ -1,4 +1,10 @@
-import { SIGNAL_MEMORY, type StoryProgress, signalSilence, storyPhaseOf } from "./story-phase";
+import {
+  packedForExit,
+  SIGNAL_MEMORY,
+  type StoryProgress,
+  signalSilence,
+  storyPhaseOf,
+} from "./story-phase";
 
 /**
  * 상단 독백의 구간 id. content/stages.yaml의 키와 같아야 한다
@@ -20,6 +26,7 @@ export const MONOLOGUE_IDS = [
   "p3-enter",
   "p4-enter",
   "resolve",
+  "resolve-ready",
 ] as const;
 export type MonologueId = (typeof MONOLOGUE_IDS)[number];
 
@@ -52,6 +59,7 @@ export function monologueIdFor(state: StoryProgress): MonologueId {
     case "p4":
       return "p4-enter";
     default:
-      return "resolve";
+      // 챙길 것 셋(가방·앰플·배트)을 다 챙기면 "…가자."로 바뀐다
+      return packedForExit(state) ? "resolve-ready" : "resolve";
   }
 }

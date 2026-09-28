@@ -107,10 +107,18 @@ export function requiredVisits(phase: FromPhase | "p1"): VisitRef[] {
 /**
  * 밝기가 되살아나는 길: 분기점부터 결심까지의 필수 조사 전부. 곁가지는 안 센다.
  * 안 본 사람의 방이 덜 밝으면 곁가지가 곁가지가 아니게 된다.
+ * 떠나기 전 챙기기(from: resolve)도 안 센다. 회복은 결심에 닿는 순간 끝났고, 챙기는 건
+ * 출발 준비다.
  */
 export const RECOVERY_VISITS: readonly VisitRef[] = ALL_VISITS.filter((ref) => {
   const config = visitConfig(ref.id, ref.visit);
-  return ref.visit > 1 && config !== undefined && !config.side && config.from !== undefined;
+  return (
+    ref.visit > 1 &&
+    config !== undefined &&
+    !config.side &&
+    config.from !== undefined &&
+    config.from !== "resolve"
+  );
 });
 
 /** 페이즈 순서. a가 b보다 뒤이거나 같은가. */
@@ -124,6 +132,8 @@ export interface StoryProgress extends VisitProgress {
   doorOpened: boolean;
   openedDoorways?: readonly string[];
   endingStarted?: boolean;
+  /** 현관의 배트를 쥐었는가. 떠나기 전 챙길 것 셋 중 하나다 (packedForExit). */
+  batTaken?: boolean;
   /**
    * 과거편에서 돌아온 방에 라디오 신호가 잡혔는가. false면 아직 정적 구간이다
    * (signalSilence). 모르는 스냅샷(undefined)은 이미 잡힌 것으로 본다.
@@ -139,6 +149,23 @@ function allDone(state: VisitProgress, refs: readonly VisitRef[]): boolean {
 const P1_REQUIRED = requiredVisits("p1");
 const P2_REQUIRED = requiredVisits("p2");
 const P4_REQUIRED = requiredVisits("p4");
+/** 떠나기 전 챙길 것 중 조사로 하는 것 (가방·앰플). 배트는 현관의 물건이라 따로 센다. */
+export const RESOLVE_REQUIRED = requiredVisits("resolve");
+
+/** 떠나기 전 챙길 것의 수: 조사(가방·앰플) + 배트. */
+export const PACK_TOTAL = RESOLVE_REQUIRED.length + 1;
+
+/** 지금까지 챙긴 것의 수 (0~PACK_TOTAL). resolve 전에는 0이다. */
+export function packedCount(state: StoryProgress): number {
+  if (storyPhaseOf(state) !== "resolve") return 0;
+  const visits = RESOLVE_REQUIRED.filter((ref) => refDone(state, ref)).length;
+  return visits + (state.batTaken ? 1 : 0);
+}
+
+/** 떠날 준비가 끝났는가: 챙길 것을 다 챙겼다. 현관문이 이걸 본다. */
+export function packedForExit(state: StoryProgress): boolean {
+  return packedCount(state) === PACK_TOTAL;
+}
 
 /** 안방 문: 이 문이 열리는 순간이 4페이즈의 시작이다 (v4 1-2). */
 export const PARENTS_DOORWAY = "living-parents";

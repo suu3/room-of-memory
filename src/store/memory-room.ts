@@ -35,6 +35,8 @@ import {
   deadlineOf,
   lastVisitDone,
   nextVisit,
+  packedCount,
+  packedForExit,
   phaseAtLeast,
   RECOVERY_VISITS,
   refDone,
@@ -1396,7 +1398,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         ),
       catchSignal: () => set((state) => (signalSilence(state) ? { signalCaught: true } : state)),
       endCameraHold: () => set((state) => (state.cameraHold ? { cameraHold: null } : state)),
-      startEnding: () => set((state) => (state.batTaken ? { endingStarted: true } : state)),
+      // 챙길 것(가방·앰플·배트)을 다 챙겨야 현관문이 열린다
+      startEnding: () => set((state) => (packedForExit(state) ? { endingStarted: true } : state)),
       reset: () => {
         // 찍어 둔 그림도 지난 판의 것이다
         useStillStore.getState().clearStills();
@@ -1545,12 +1548,23 @@ export const selectDoorwayReady = (id: DoorwayId) => (state: MemoryRoomState) =>
 export const selectBatReady = (state: MemoryRoomState) =>
   storyPhaseOf(state) === "resolve" && !state.batTaken && state.activePlayback === null;
 
-/** 배트를 쥐었는가: 현관문이 이걸 본다. */
+/** 배트를 쥐었는가. 챙길 것 셋 중 하나다 (packedForExit). */
 /** 팔을 들고 있어야 하는가: Player가 프레임마다 본다 (구독하지 않는다). */
 /** 커튼이 손을 따라도 되는가: 몸이 창가에 닿은 뒤다. */
 export const isAtCurtain = (state: MemoryRoomState) => state.curtainGrab?.arrived === true;
 
 export const selectBatTaken = (state: MemoryRoomState) => state.batTaken;
+
+/** 떠나기 전 챙길 것을 챙기는 중인가: resolve에 들어섰고 아직 다 못 챙겼다. */
+export const selectPacking = (state: MemoryRoomState) =>
+  storyPhaseOf(state) === "resolve" && !packedForExit(state) && state.activePlayback === null;
+
+/** 챙긴 수. 안내 줄의 "n/3"이 본다. */
+export const selectPackedCount = (state: MemoryRoomState) => packedCount(state);
+
+/** 현관문을 열 수 있는가: 가방·앰플·배트를 다 챙겼다. */
+export const selectExitReady = (state: MemoryRoomState) =>
+  packedForExit(state) && !state.endingStarted;
 
 /** 방문이 열려 있는가: 걷기 영역과 문짝 회전이 같이 본다. */
 export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;

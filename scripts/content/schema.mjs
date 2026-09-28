@@ -74,6 +74,7 @@ export const STAGE_IDS = [
   "p3-enter",
   "p4-enter",
   "resolve",
+  "resolve-ready",
 ];
 
 /**
@@ -85,7 +86,7 @@ export const STAGE_IDS = [
 export const STORY_PHASES = ["intro", "p1", "turning", "p2", "p3", "p4", "resolve", "ending"];
 
 /** 조사 설정의 `from`에 쓸 수 있는 페이즈. 1차 조사는 늘 p1이라 여기 없다. */
-export const FROM_PHASES = ["turning", "p2", "p3", "p4"];
+export const FROM_PHASES = ["turning", "p2", "p3", "p4", "resolve"];
 
 /** 조사 차수: phase1(1차) · phase2(2차) · phase3(3차). */
 export const VISIT_KEYS = ["phase1", "phase2", "phase3"];

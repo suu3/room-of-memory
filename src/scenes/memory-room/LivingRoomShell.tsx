@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
 import { playSound } from "@/lib/audio";
-import { selectBatTaken, useMemoryRoomStore } from "@/store/memory-room";
+import { selectExitReady, useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { setEndingLightMesh } from "./ending-light";
 import {
@@ -180,13 +180,13 @@ function ShellBox({
  * 현관문: 3막의 마지막 물건 (docs/content-design.md 3-2).
  *
  * 잠금 퍼즐은 없다. 30일 만에 나가는 문이라, 여기서 문제를 풀게 하면 결심의 순간이
- * 퍼즐에 묻힌다. 배트를 쥐면 그걸로 준비가 끝난 것이다.
+ * 퍼즐에 묻힌다. 떠날 준비는 챙기는 것으로 끝난다.
  *
- * 금빛으로 켜지고 눌리는 것은 **배트를 쥔 뒤**다. 배트는 앰플을 손에 넣어야 켜지므로
- * (selectBatReady), 문이 열릴 때 도해의 손에는 배트와 앰플이 둘 다 있다.
+ * 금빛으로 켜지고 눌리는 것은 **챙길 것 셋(가방·앰플·배트)을 다 챙긴 뒤**다
+ * (selectExitReady). 순서는 자유라, 문이 열릴 때 도해에게는 셋이 다 있다.
  */
 function FrontDoor({ palette }: { palette: RoomPalette }) {
-  const ready = useMemoryRoomStore(selectBatTaken);
+  const ready = useMemoryRoomStore(selectExitReady);
   const started = useMemoryRoomStore((state) => state.endingStarted);
   const startEnding = useMemoryRoomStore((state) => state.startEnding);
   const clickable = !started && ready;

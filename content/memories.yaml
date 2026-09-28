@@ -279,9 +279,15 @@ memories:
         ko: 가방을 비우고 다시 쌌다. 물, 통조림, 손전등. 글러브는 두고 가려다 다시 넣었다.
         en: I emptied the bag and packed it again. Water, canned food, a flashlight. I almost left the glove behind, then put it back in.
         ja: バッグを空にして詰め直した。水、缶詰、懐中電灯。グローブは置いていこうとして、やっぱり入れた。
+      phase3:
+        ko: 싸 둔 가방을 멨다. 물, 통조림, 손전등. 그리고 글러브.
     phase2:
       script: duffel-pack
       from: p2
+    # 떠나기 전 챙길 것 셋 중 하나 (배트·앰플과 함께, 순서 자유). 셋을 다 챙겨야 현관문이 빛난다
+    phase3:
+      script: duffel-take
+      from: resolve
 
   - id: fridge
     icon: Package
@@ -362,7 +368,9 @@ memories:
       minigame: computer-logo
       resultScript: computer-logo-found
       from: p3
-      unlockAfter: [ampoule]
+      # 앰플의 3페이즈 조사(2차) 뒤. 차수를 못박는다: 앰플에는 떠나기 전 3차가 있어서
+      # 그냥 [ampoule]이면 같은 차수(3차)로 읽혀 3페이즈가 막힌다
+      unlockAfter: [ampoule@2]
 
   # ─────────────────────────────────────────────── 3페이즈 · 수상한 앰플
   #
@@ -380,11 +388,20 @@ memories:
         ko: 보냉 케이스에 앰플 하나, 옆 칸은 비어 있었다. 라벨에는 지워진 로고가 반쯤 남아 있다.
         en: One ampoule in the cold case, the slot next to it empty. Half of a faded logo is left on the label.
         ja: 保冷ケースにアンプルが一本、隣の枠は空だった。ラベルには消えかけたロゴが半分残っている。
+      phase3:
+        ko: 앰플을 챙겼다. 엄마 아빠가 남겨 둔 하나. 치료제일지도 모르는 그것.
     phase2:
       script: ampoule-note
       minigame: ampoule-case
       resultScript: ampoule-found
       from: p3
+    # 3페이즈에 들여다보고 내려놓았던 앰플을, 떠나기 전에 서랍에서 집어 든다 (ampoule-pickup:
+    # 씬 안에서 서랍이 밀려 나오고 앰플이 손에 들린다). 챙길 것 셋 중 하나
+    phase3:
+      script: ampoule-take
+      minigame: ampoule-pickup
+      resultScript: ampoule-taken
+      from: resolve
 
   # ─────────────────────────────────────────────── 4페이즈 · 안방 (순서 자유)
   #

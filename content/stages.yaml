@@ -13,7 +13,8 @@
 #   p2-enter     p2 진입. 기한 "나흘 밤 안에 가야 해."
 #   p3-enter     p3 진입. 엄마가 숨긴 것을 쫓는다
 #   p4-enter     p4 진입. 사태 이후 처음 들어서는 안방
-#   resolve      정적 비트 뒤. 현관으로
+#   resolve      정적 비트 뒤. 챙길 것 셋(가방·앰플·배트)을 부른다
+#   resolve-ready  셋을 다 챙겼다. 알림 대신 결심 한 줄로 현관을 가리킨다
 #
 # 방송부터 현관까지는 전부 하루 안의 일이다. 페이즈가 넘어가도 날은 바뀌지 않는다.
 #
@@ -92,3 +93,9 @@ stages:
       ko: 가방, 앰플. 배트는 현관에 있다.
       en: Bag, ampoule. The bat's by the front door.
       ja: バッグ、アンプル。バットは玄関にある。
+
+  resolve-ready:
+    monologue:
+      ko: 나가자.
+      en: Let's go out.
+      ja: 出よう。

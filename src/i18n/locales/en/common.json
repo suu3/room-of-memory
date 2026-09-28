@@ -23,7 +23,7 @@
       "examine_touch": "Tap a glowing object to examine it",
       "door": "Open the glowing door and step out",
       "revisit": "Examine things again to retrace that day",
-      "bat": "Pick up the bat by the front door",
+      "pack": "Pack before you go: bag · ampoule · bat ({{done}}/{{total}})",
       "exit": "Leave through the front door",
       "lights": "It's dark. Find the light switch on the wall and turn it on",
       "doorway": "Step out through the open door",
@@ -46,7 +46,7 @@
     "locked": "Locked Door",
     "exit": "Leave →",
     "ready": "The bedroom door is glowing",
-    "exitReady": "The bat in the entryway is glowing",
+    "packReady": "The bag, the ampoule and the bat are glowing",
     "nudgeStay": "What's the point of going out.",
     "nudgeBat": "…Is it alright to go out now?"
   },

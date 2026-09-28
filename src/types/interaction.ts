@@ -142,7 +142,7 @@ export const STORY_PHASES = [
 export type StoryPhase = (typeof STORY_PHASES)[number];
 
 /** 조사 설정의 from에 쓸 수 있는 페이즈. */
-export type FromPhase = "turning" | "p2" | "p3" | "p4";
+export type FromPhase = "turning" | "p2" | "p3" | "p4" | "resolve";
 
 /**
  * 페이즈별 핫스팟 설정. 페이즈 규칙이 늘어나면 여기에 필드를 더한다.
