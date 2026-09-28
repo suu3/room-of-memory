@@ -85,7 +85,9 @@ const ARROW_DIRECTIONS: Record<string, CursorDirection> = {
  * 돌려놓는 동작이 2바퀴의 주제와 같다.
  *
  * 조각 하나를 누르면 금빛 테를 두르고 들리고, 다른 조각을 누르면 둘이 자리를 바꾼다.
- * 제자리에 들어간 조각은 틈이 사라지며 사진에 붙는다: 더 집히지 않는다 (puzzle.ts).
+ * 제자리에 들어간 조각은 환해지고 더 집히지 않는다 (puzzle.ts). 틈은 다 맞출 때까지
+ * 모든 조각에 똑같이 남는다: 제자리 조각만 틈을 지우면 칸마다 크기가 달라 보여
+ * 격자가 들쭉날쭉해진다. 다 맞추면 틈이 한꺼번에 사라져 사진 한 장이 된다.
  */
 export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
@@ -183,16 +185,18 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
               aria-label={t("minigame.photoPuzzle.tile", { value: tile + 1 })}
               onClick={() => pickRef.current(index)}
               // 조각에도 바탕을 깔아 둔다. 사진이 붙기 전에 빈 칸으로 비지 않게
-              className={`relative bg-bone transition-[opacity,transform] duration-150 ${
+              className={`relative bg-bone transition-[opacity,transform,filter] duration-150 ${
+                movable && !lifted ? "brightness-75" : ""
+              } ${
                 lifted ? "z-10 -translate-y-1 scale-[1.03]" : ""
               } ${movable ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"} focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory`}
               style={{
                 // 조각도 사진과 같은 비율이어야 한다. 정사각 칸에 넣으면 사진이 눌린다
                 aspectRatio: aspect,
-                // 들린 조각은 금빛 테, 제자리 조각은 틈 없이 사진에 붙는다 (다 맞추면 한 장)
+                // 들린 조각은 금빛 테. 틈은 다 맞춰야 한꺼번에 사라진다 (그때 사진 한 장)
                 boxShadow: lifted
                   ? `inset 0 0 0 ${SEAM_PX}px var(--color-memory), ${TILE_SEAM}`
-                  : placed
+                  : solved
                     ? "none"
                     : TILE_SEAM,
                 backgroundImage: `url(${ASSETS.images.mgPhotoWipePhase2})`,
