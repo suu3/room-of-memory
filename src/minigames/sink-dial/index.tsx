@@ -33,21 +33,22 @@ export function turnDigit(value: number, step: 1 | -1): number {
   return (value + step + 10) % 10;
 }
 
-/** 두 칸이 비밀번호와 맞는가. */
+/** 모든 칸이 비밀번호와 맞는가. */
 export function dialMatches(digits: readonly number[], code: string = SINK_DIAL_CODE): boolean {
   return digits.join("") === code;
 }
 
 /**
- * 세면대 하부장의 2자리 다이얼 자물쇠 (v4 3-5). 답은 도해의 등번호 11.
+ * 세면대 하부장의 3자리 다이얼 자물쇠 (v4 3-5). 답은 SINK_DIAL_CODE.
  *
- * 화면에는 번호가 무엇인지 적지 않는다. 아빠 메일이 "네 번호로 해놨다"까지만
- * 말하고, 숫자는 방의 유니폼·트로피가 들고 있다. 이 판은 아빠 힌트를 본 뒤에만
- * 열린다 (store의 openPuzzle). 그 전에 하부장을 누르면 혼잣말만 흐른다.
+ * 화면에는 번호가 무엇인지 적지 않는다. 숫자는 선반의 거꾸로 꽂힌 책 속 쪽지가 들고
+ * 있다. 세 자리라 찍어서 맞히기 어렵고(천 가지), 방 어디에도 같은 숫자가 없어 쪽지를
+ * 찾아야만 풀린다. 이 판은 아빠 힌트를 본 뒤에만 열린다 (store의 openPuzzle).
+ * 그 전에 하부장을 누르면 혼잣말만 흐른다.
  *
- * 3D 드럼 (v4.1): 숫자 원통 두 개를 세로로 끌어 굴린다. 끄는 동안 드럼이 손을 따라
+ * 3D 드럼 (v4.1): 숫자 원통을 세로로 끌어 굴린다. 끄는 동안 드럼이 손을 따라
  * 덜 넘어간 만큼 기울고, 한 눈금을 넘기면 딸깍 넘어간다. 아래로 끌면 +1.
- * 키보드: 칸을 고르고(←/→) 돌린다(↑/↓), Enter로 연다. 드럼 옆 버튼으로도 된다.
+ * 키보드: 칸을 고르고(←/→) 돌린다(↑/↓), Enter로 연다. 드럼 위아래 버튼으로도 된다.
  */
 export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
@@ -164,30 +165,36 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
       onSkip={() => complete({ cleared: true })}
     >
       <div className="flex flex-col items-center gap-5 rounded-md border border-ink/12 bg-paper px-5 py-6">
-        <div className="flex items-center gap-2">
-          <DialButtons
-            index={0}
-            onTurn={(step) => {
-              setFocus(0);
-              turn(0, step);
+        <div className="flex flex-col items-center gap-1">
+          {/* 드럼 위의 ▲, 아래의 ▼: 칸마다 제 드럼 바로 위아래에 선다 */}
+          <DialButtonRow
+            direction={1}
+            count={digits.length}
+            onTurn={(index) => {
+              setFocus(index);
+              turn(index, 1);
             }}
           />
           <div
             role="img"
-            aria-label={t("minigame.sinkDial.alt", { value: digits.join(" ") })}
+            aria-label={t("minigame.sinkDial.alt", {
+              count: digits.length,
+              value: digits.join(" "),
+            })}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
-            className="h-44 w-60 cursor-grab touch-none rounded-md border border-ink/10 bg-bone/25 active:cursor-grabbing sm:h-52 sm:w-72"
+            className="h-44 w-72 cursor-grab touch-none rounded-md border border-ink/10 bg-bone/25 active:cursor-grabbing sm:h-52 sm:w-80"
           >
             <DialDrums steps={steps} dragRef={dragRef} focus={focus} solved={solved} />
           </div>
-          <DialButtons
-            index={1}
-            onTurn={(step) => {
-              setFocus(1);
-              turn(1, step);
+          <DialButtonRow
+            direction={-1}
+            count={digits.length}
+            onTurn={(index) => {
+              setFocus(index);
+              turn(index, -1);
             }}
           />
         </div>
@@ -205,30 +212,41 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
   );
 }
 
-/** 드럼 옆의 올리기·내리기 버튼 (키보드·스크린리더용 같은 조작). */
-function DialButtons({ index, onTurn }: { index: number; onTurn: (step: 1 | -1) => void }) {
+/**
+ * 드럼 위(▲, +1)나 아래(▼, -1)에 한 줄로 서는 버튼 (키보드·스크린리더용 같은 조작).
+ * 드럼은 아래로 굴리면 +1이라, 위 버튼이 +1이다 (위의 숫자를 끌어내린다).
+ * 줄 폭은 드럼들이 차지한 폭(캔버스의 4/5)에 맞춰 칸마다 제 드럼 위에 온다.
+ */
+function DialButtonRow({
+  direction,
+  count,
+  onTurn,
+}: {
+  direction: 1 | -1;
+  count: number;
+  onTurn: (index: number) => void;
+}) {
   const { t } = useTranslation();
-  const className =
-    "grid size-10 cursor-pointer place-items-center rounded-sm text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink";
+  const Icon = direction === 1 ? CaretUp : CaretDown;
   return (
-    <div className="flex flex-col gap-2">
-      {/* 드럼은 아래로 굴리면 +1이라, 위 버튼이 +1 (위의 숫자를 끌어내린다) */}
-      <button
-        type="button"
-        aria-label={t("minigame.sinkDial.up", { index: index + 1 })}
-        onClick={() => onTurn(1)}
-        className={className}
-      >
-        <CaretUp size={20} weight="bold" />
-      </button>
-      <button
-        type="button"
-        aria-label={t("minigame.sinkDial.down", { index: index + 1 })}
-        onClick={() => onTurn(-1)}
-        className={className}
-      >
-        <CaretDown size={20} weight="bold" />
-      </button>
+    <div
+      className="grid w-56 justify-items-center sm:w-64"
+      style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}
+    >
+      {Array.from({ length: count }, (_, index) => (
+        <button
+          // biome-ignore lint/suspicious/noArrayIndexKey: 고정 자리수 드럼
+          key={index}
+          type="button"
+          aria-label={t(direction === 1 ? "minigame.sinkDial.up" : "minigame.sinkDial.down", {
+            index: index + 1,
+          })}
+          onClick={() => onTurn(index)}
+          className="grid size-10 cursor-pointer place-items-center rounded-sm text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink"
+        >
+          <Icon size={20} weight="bold" />
+        </button>
+      ))}
     </div>
   );
 }

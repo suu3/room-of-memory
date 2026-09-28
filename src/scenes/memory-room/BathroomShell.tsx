@@ -40,7 +40,7 @@ const SINK_X = (sink.minX + sink.maxX) / 2;
 /** 세면대 앞 한 걸음: 하부장과 칫솔컵이 같은 자리에서 켜진다. */
 const SINK_NEAR = [SINK_X, sink.minZ - 0.5] as const;
 const SINK_RADIUS = 1.6;
-/** 대야 밑 하부장 (v4 3-5): 엄마가 잠가 둔 칸. 다이얼(sink-dial)의 답은 등번호 11. */
+/** 대야 밑 하부장 (v4 3-5): 엄마가 잠가 둔 칸. 다이얼(sink-dial)의 답은 선반 책 속 쪽지의 세 자리. */
 const CABINET = {
   position: [SINK_X, 0.31, sink.maxZ - 0.31] as Vec3Tuple,
   size: [0.72, 0.62, 0.42] as Vec3Tuple,

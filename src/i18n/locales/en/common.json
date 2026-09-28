@@ -458,7 +458,7 @@
       "up": "Turn digit {{index}} up",
       "down": "Turn digit {{index}} down",
       "open": "Open",
-      "alt": "Two number drums. Currently {{value}}"
+      "alt": "{{count}} number drums. Currently {{value}}"
     },
     "inspect": {
       "help": "Drag to turn it · wheel or buttons to zoom",

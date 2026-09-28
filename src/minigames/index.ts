@@ -158,7 +158,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
   },
   "sink-dial": {
     id: "sink-dial",
-    // 세면대 하부장의 2자리 다이얼 (v4 3-5). 미궁 문제(PuzzleHost)로 돈다. 답은 등번호 11
+    // 세면대 하부장의 3자리 다이얼 (v4 3-5). 미궁 문제(PuzzleHost)로 돈다. 답은 책 속 쪽지의 번호
     mode: "overlay",
     component: lazy(() => import("./sink-dial").then((m) => ({ default: m.SinkDialMinigame }))),
     titleKey: "minigame.sinkDial.title",

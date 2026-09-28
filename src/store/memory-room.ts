@@ -1695,7 +1695,7 @@ export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.
 
 /**
  * 하부장 번호를 알았는가 (v4.1의 dadHintRead). 아빠 메일("선반 정리 좀 해라.")을 읽고,
- * 거꾸로 꽂힌 책을 뒤집어 뒤표지 안쪽의 "11"을 본 순간 선다 (discoveries의 sink-code).
+ * 거꾸로 꽂힌 책을 넘겨 끼워 둔 쪽지의 번호를 본 순간 선다 (discoveries의 sink-code).
  */
 export const selectSinkHintRead = (state: Pick<MemoryRoomState, "discoveries">) =>
   state.discoveries.includes("sink-code");

@@ -33,15 +33,18 @@ export const COMPUTER_PASSCODE = `${pad(NATIONALS_DATE.month)}${pad(NATIONALS_DA
 
 export const COMPUTER_PASSCODE_LENGTH = COMPUTER_PASSCODE.length;
 
-/**
- * 도해의 등번호. 세면대 하부장 다이얼(sink-dial)의 답이고, 방의 유니폼·트로피에
- * 그려진 숫자다 (v4 설계서 3-5). 아빠 메일은 "네 번호로 해놨다"까지만 말한다.
- * 숫자를 한곳에 두는 이유는 NATIONALS_DATE와 같다: 답과 그림이 갈라지면 안 된다.
- */
+/** 도해의 등번호. 방의 유니폼·트로피에 그려진 숫자다 (v4 설계서 3-5). */
 export const HERO_JERSEY_NUMBER = 11;
 
-/** 세면대 하부장 다이얼의 답: 등번호 두 자리. */
-export const SINK_DIAL_CODE = String(HERO_JERSEY_NUMBER).padStart(2, "0");
+/**
+ * 세면대 하부장 다이얼(sink-dial)의 답: 세 자리. 선반의 거꾸로 꽂힌 책 속 쪽지에
+ * 아빠 손글씨로 적혀 있다 (ClueOverlay의 ShelfBookInspect).
+ *
+ * 예전에는 등번호 11(두 자리)이었다. 유니폼에 늘 보이는 숫자라 책을 찾지 않아도
+ * 열렸다. 방 어디에도 없는 숫자로 두어야 쪽지가 단서가 된다. 숫자를 한곳에 두는
+ * 이유는 NATIONALS_DATE와 같다: 답과 그림이 갈라지면 안 된다.
+ */
+export const SINK_DIAL_CODE = "407";
 
 /**
  * 들여다볼 수 있는 배경 오브젝트. 클릭하면 화면 가운데에 확대되어 뜬다
@@ -103,7 +106,7 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
  * 어느 단서를 뒤집어야 무엇을 알게 되는가. 단서 화면(3D 인스펙트)이 이 짝을 보고 적는다.
  *
  * "뒤집으면 보인다" (v4.1 2장): 1페이즈 문제집 뒤표지의 이름, 3페이즈 거꾸로 꽂힌 책
- * 뒤표지 안쪽의 "11"(sink-code = 하부장 번호, v4.1의 dadHintRead). 같은 조작이 페이즈를
+ * 속 쪽지의 번호(sink-code = 하부장 번호, v4.1의 dadHintRead). 같은 조작이 페이즈를
  * 따라 의미가 커진다.
  */
 export const CLUE_DISCOVERY = {

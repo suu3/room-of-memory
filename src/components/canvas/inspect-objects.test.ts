@@ -32,13 +32,12 @@ describe("손이 하는 일이 물건마다 갈린다 (뒤집기는 문제집 �
   });
 
   it("책은 장을 넘긴다: 앞표지 한 장 + 본문 넉 장, 찾을 쪽은 세 장 넘긴 오른쪽", () => {
-    const book = shelfBookObject("야구 규칙 해설", "11");
+    const book = shelfBookObject("야구 규칙 해설", "407");
     expect(inspectControlOf(book)).toEqual({ kind: "pages", sheets: 5 });
     if (book.shape !== "book") throw new Error("book expected");
     expect(book.pages).toHaveLength(10);
     expect(book.target % 2).toBe(0);
     expect(book.pages[book.target].overlay).toBeDefined();
-    expect(book.pages[book.target].image).toContain("mg-shelf-book-inside");
   });
 
   it("출입증은 기울인다: 찾는 것이 면이 아니라 각도다", () => {

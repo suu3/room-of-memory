@@ -23,7 +23,6 @@ const WEBP_ASSETS = {
   "mg-id-card-front.webp": [1024, 640],
   "mg-id-card-back.webp": [1024, 640],
   "mg-ampoule-label.webp": [1024, 256],
-  "mg-shelf-book-inside.webp": [512, 704],
   "mg-papers-paper.webp": [768, 1024],
 } as const;
 

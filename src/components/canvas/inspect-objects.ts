@@ -345,8 +345,47 @@ const paintDogEar: FacePainter = (ctx, { width }, palette) => {
 };
 
 /**
- * 선반의 책: 앞표지는 야구 규칙 해설서. 장을 넘기면 세 장째 오른쪽, 귀 접힌 쪽 한가운데에
- * 아빠 손글씨 번호가 있다. 거꾸로 꽂아 둔 건 이 쪽을 찾으라는 표시였다.
+ * 책장 사이에 끼워 둔 쪽지. 인쇄된 본문 위에 비스듬히 얹힌 작은 종이에 아빠 손글씨로
+ * 번호 세 자리. 쪽에 바로 적힌 글씨가 아니라 끼워 둔 종이라야 "남기고 간 것"으로 읽힌다.
+ */
+function paintTuckedSlip(
+  ctx: CanvasRenderingContext2D,
+  { width, height }: { width: number; height: number },
+  palette: RoomPalette,
+  font: string,
+  number: string,
+) {
+  const slipWidth = width * 0.64;
+  const slipHeight = height * 0.3;
+  ctx.save();
+  ctx.translate(width * 0.52, height * 0.46);
+  ctx.rotate(-0.06);
+  // 종이 그림자: 본문 위에 떠 있는 한 장
+  ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+  ctx.fillRect(-slipWidth / 2 + 8, -slipHeight / 2 + 10, slipWidth, slipHeight);
+  ctx.fillStyle = palette.daylight;
+  ctx.fillRect(-slipWidth / 2, -slipHeight / 2, slipWidth, slipHeight);
+  ctx.strokeStyle = palette.trim;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(-slipWidth / 2, -slipHeight / 2, slipWidth, slipHeight);
+  // 번호 밑에 한 번 그은 줄: 적고 나서 확인하듯
+  ctx.strokeStyle = ink(palette);
+  ctx.globalAlpha = 0.55;
+  ctx.lineWidth = 6;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-slipWidth * 0.3, slipHeight * 0.3);
+  ctx.quadraticCurveTo(0, slipHeight * 0.36, slipWidth * 0.32, slipHeight * 0.26);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.restore();
+  // 세 자리가 쪽지 폭 안에 넉넉히 들어오는 크기 (면 해상도에 맞춰 비례)
+  handwrite(ctx, number, width * 0.52, height * 0.45, width * 0.2, font, ink(palette), -0.1);
+}
+
+/**
+ * 선반의 책: 앞표지는 야구 규칙 해설서. 장을 넘기면 세 장째 오른쪽, 귀 접힌 쪽에
+ * 쪽지가 끼워져 있고 아빠 손글씨 번호가 적혀 있다. 거꾸로 꽂아 둔 건 이 쪽을 찾으라는 표시였다.
  */
 export function shelfBookObject(title: string, number: string): InspectObject {
   const paintCover: FacePainter = (ctx, { width, height }, palette, font) => {
@@ -368,7 +407,7 @@ export function shelfBookObject(title: string, number: string): InspectObject {
   };
   const paintMarked: FacePainter = (ctx, { width, height }, palette, font) => {
     paintPrintedPage(SHELF_BOOK_TARGET - 1, true)(ctx, { width, height }, palette, font);
-    handwrite(ctx, number, width / 2, height * 0.46, 220, font, ink(palette), -0.08);
+    paintTuckedSlip(ctx, { width, height }, palette, font, number);
   };
   const pages: InspectFace[] = [];
   for (let sheet = 0; sheet < SHELF_BOOK_SHEETS; sheet++) {
@@ -378,7 +417,7 @@ export function shelfBookObject(title: string, number: string): InspectObject {
       sheet === 0
         ? { paint: paintCover }
         : frontIndex === SHELF_BOOK_TARGET
-          ? { paint: paintMarked, image: ASSETS.images.mgShelfBookInside, overlay: paintDogEar }
+          ? { paint: paintMarked, overlay: paintDogEar }
           : { paint: paintPrintedPage(frontIndex - 1, true) },
     );
     pages.push(

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { InspectCapture } from "@/components/canvas/InspectTurntable";
 import { shelfBookObject } from "@/components/canvas/inspect-objects";
-import { CLUE_DISCOVERY, CLUE_IDS, type ClueId, HERO_JERSEY_NUMBER } from "@/data/room-clues";
+import { CLUE_DISCOVERY, CLUE_IDS, type ClueId, SINK_DIAL_CODE } from "@/data/room-clues";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import {
@@ -200,16 +200,13 @@ function FoldedNote() {
 
 /**
  * 선반에서 뽑아 든 거꾸로 꽂힌 책 (3D 인스펙트, v4.1 3장). 아빠 메일 "선반 정리 좀
- * 해라."를 읽은 뒤에만 만질 수 있다. 장을 넘기면 귀 접힌 쪽에 아빠 손글씨 "11": 하부장
- * 번호다. 방의 유니폼 등번호와 겹친다 (room-clues의 HERO_JERSEY_NUMBER).
+ * 해라."를 읽은 뒤에만 만질 수 있다. 장을 넘기면 귀 접힌 쪽에 쪽지가 끼워져 있고,
+ * 아빠 손글씨로 세 자리 번호: 하부장 번호다 (room-clues의 SINK_DIAL_CODE).
  */
 function ShelfBookInspect() {
   const { t } = useTranslation();
   const discover = useMemoryRoomStore((state) => state.discover);
-  const object = useMemo(
-    () => shelfBookObject(t("clue.shelfBook.bookTitle"), String(HERO_JERSEY_NUMBER)),
-    [t],
-  );
+  const object = useMemo(() => shelfBookObject(t("clue.shelfBook.bookTitle"), SINK_DIAL_CODE), [t]);
   const onFound = useCallback(() => {
     const code = CLUE_DISCOVERY["shelf-book"];
     if (useMemoryRoomStore.getState().discoveries.includes(code)) return;

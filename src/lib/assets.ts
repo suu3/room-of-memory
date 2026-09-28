@@ -112,7 +112,6 @@ export const ASSETS = {
     mgIdCardFront: "/assets/images/mg-id-card-front.webp?v=4",
     mgIdCardBack: "/assets/images/mg-id-card-back.webp?v=4",
     mgAmpouleLabel: "/assets/images/mg-ampoule-label.webp",
-    mgShelfBookInside: "/assets/images/mg-shelf-book-inside.webp",
     mgPapersPaper: "/assets/images/mg-papers-paper.webp",
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg?v=2",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
