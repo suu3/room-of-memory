@@ -186,13 +186,14 @@ function OuterDrift({ color, opacity }: { color: string; opacity: number }) {
     [],
   );
 
+  // r3f는 uniforms 프롭의 항목을 얕게 복사해 머티리얼에 넣는다. 숫자 값은 이 객체를
+  // 고쳐도 안 닿으므로 갱신은 머티리얼의 것을 만진다
   useEffect(() => {
-    uniforms.uColor.value.set(color);
-  }, [color, uniforms]);
-
-  useEffect(() => {
-    uniforms.uPixelRatio.value = pixelRatio;
-  }, [pixelRatio, uniforms]);
+    const material = materialRef.current;
+    if (!material) return;
+    (material.uniforms.uColor.value as Color).set(color);
+    material.uniforms.uPixelRatio.value = pixelRatio;
+  }, [color, pixelRatio]);
 
   useFrame((state) => {
     const material = materialRef.current;

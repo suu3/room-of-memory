@@ -149,11 +149,11 @@ export function MemoryBurst({ color }: { color: string }) {
 
   useEffect(() => {
     (uniformsOf().uColor.value as Color).set(color);
-  });
+  }, [color, uniformsOf]);
 
   useEffect(() => {
     uniformsOf().uPixelRatio.value = pixelRatio;
-  });
+  }, [pixelRatio, uniformsOf]);
 
   // 사건은 스토어에서 듣는다. 어느 물건인지 알아야 하므로 event-pulse가 아니라 목록 차이를 본다
   useEffect(
