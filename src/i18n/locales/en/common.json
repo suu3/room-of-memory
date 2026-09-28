@@ -266,7 +266,7 @@
     },
     "ampoulePickup": {
       "title": "The bottom drawer",
-      "help": "Pick up the ampoule: Enter",
+      "help": "Click the ampoule to pick it up",
       "help_touch": "Tap the ampoule to pick it up"
     },
     "phoneChat": {

@@ -266,7 +266,7 @@
     },
     "ampoulePickup": {
       "title": "冷蔵庫の下の段",
-      "help": "アンプルを手に取る: Enter",
+      "help": "アンプルをクリックして手に取る",
       "help_touch": "アンプルをタップして手に取る"
     },
     "phoneChat": {

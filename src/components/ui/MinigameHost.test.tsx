@@ -159,7 +159,7 @@ describe("MinigameHost", () => {
 
     // 씬 쪽 호스트의 몫이다. DOM 호스트가 cleared로 넘겨 버리면 집는 손이 사라진다
     expect(useMemoryRoomStore.getState().activeInteraction?.phase).toBe("minigame");
-    expect(screen.getByRole("status").textContent).toContain("Pick up the ampoule");
+    expect(screen.getByRole("status").textContent).toContain("Click the ampoule");
     expect(screen.queryByRole("button", { name: "Start" })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Step back" }));

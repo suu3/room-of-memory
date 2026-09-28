@@ -89,15 +89,17 @@ describe("AmpoulePickupMinigame", () => {
     await renderer.unmount();
   });
 
-  it("키보드만으로도 집는다: Enter", async () => {
-    const { renderer, results } = await renderPickup();
+  it("키로는 집지 않는다: 클릭·탭으로만", async () => {
+    const { renderer, results, settled } = await renderPickup();
     await waitDrawerOpen();
 
     await act(async () => {
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: " " }));
     });
     await waitLift();
-    expect(results).toEqual([{ cleared: true, celebrated: true }]);
+    expect(settled).not.toHaveBeenCalled();
+    expect(results).toEqual([]);
     await renderer.unmount();
   });
 

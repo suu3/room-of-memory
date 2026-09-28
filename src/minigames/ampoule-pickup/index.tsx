@@ -37,7 +37,8 @@ const HIT_RADIUS = 0.16;
  * 냉장고 아래칸을 열고 앰플을 집어 든다. canvas 모드: 씬의 냉장고 그 자리에서 판이 돈다.
  *
  * 이기고 지는 게임이 아니다. 서랍이 밀려 나오면(소리·0.55초) 식량 사이에 누운
- * 앰플이 금빛으로 뜨고, 누르면(Enter·Space도 된다) 손 높이로 올라와 천천히 돈다.
+ * 앰플이 금빛으로 뜨고, 클릭·탭하면 손 높이로 올라와 천천히 돈다. 키로는 집지 않는다:
+ * 물건을 손으로 집는 판이라 직접 짚어야 "집었다"가 된다.
  * 다 오르면 판이 끝나고, 결과 대사(ampoule-found)가 흐르는 동안에도 앰플은 그
  * 자리에 들려 있다 (stage "result"). 실패도 스킵도 없다: 집는 데 30초가 걸릴 리 없다.
  *
@@ -99,18 +100,6 @@ export function AmpoulePickupMinigame({ onComplete, onSettled, stage = "play" }:
     );
     return () => window.clearTimeout(timer);
   }, [picked, alreadyHeld, complete]);
-
-  // 키보드만으로도 집는다. 대사창이 없는 구간이라 Enter가 다른 데로 새지 않는다
-  useEffect(() => {
-    if (!pickable) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      pick();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [pickable, pick]);
 
   // 서랍·앰플·유리빛: 전부 ref만 민다 (.claude/rules/r3f.md)
   useFrame((state, delta) => {

@@ -266,7 +266,7 @@
     },
     "ampoulePickup": {
       "title": "냉장고 아래칸",
-      "help": "앰플을 집어 든다: Enter",
+      "help": "앰플을 클릭해 집어 든다",
       "help_touch": "앰플을 탭해 집어 든다"
     },
     "phoneChat": {
