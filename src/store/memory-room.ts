@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { DOOR_RULES } from "@/data/doors";
-import { ITEM_IDS, type ItemId } from "@/data/items";
+import { ITEM_IDS, ITEM_PUZZLE, type ItemId } from "@/data/items";
 import {
   CUTSCENE_BAT_GRIP,
   CUTSCENE_P2_CLOSE,
@@ -1554,6 +1554,27 @@ export const selectBatReady = (state: MemoryRoomState) =>
 export const isAtCurtain = (state: MemoryRoomState) => state.curtainGrab?.arrived === true;
 
 export const selectBatTaken = (state: MemoryRoomState) => state.batTaken;
+
+/**
+ * 이 물건은 할 일을 다 했는가: 여는 문이 열렸거나, 쓰는 미궁 문제를 풀었다.
+ *
+ * 인벤토리에서 지우지는 않는다. 가진 적이 있다는 기록은 진행이라 저장본과 다른 판정이
+ * 그대로 본다. 소지품 줄(InventoryStrip)만 다 쓴 물건을 내린다: 안방이 열린 뒤에도
+ * 열쇠가 끝까지 떠 있어 "아직 쓸 데가 있나"로 읽혔다.
+ */
+export function itemSpent(
+  state: Pick<MemoryRoomState, "openedDoorways" | "solvedPuzzles">,
+  id: ItemId,
+): boolean {
+  const opens = Object.entries(DOOR_RULES).find(([, rule]) => rule.item === id)?.[0];
+  if (opens && state.openedDoorways.includes(opens as DoorwayId)) return true;
+  const puzzle = ITEM_PUZZLE[id];
+  return puzzle !== undefined && (state.solvedPuzzles as readonly string[]).includes(puzzle);
+}
+
+/** 아직 쓸 데가 남은 물건을 들고 있는가. 헤더의 소지품 줄이 서는가와 같다. */
+export const selectCarrying = (state: MemoryRoomState) =>
+  state.inventory.some((id) => !itemSpent(state, id));
 
 /** 떠나기 전 챙길 것을 챙기는 중인가: resolve에 들어섰고 아직 다 못 챙겼다. */
 export const selectPacking = (state: MemoryRoomState) =>

@@ -26,3 +26,11 @@ export const ITEM_SPACE = {
  *
  * 열쇠는 집는 물건이 아니라 하부장이 열리는 순간 손에 들어온다 (store의 finishPuzzle).
  */
+
+/**
+ * 미궁 문제에 쓰는 물건과 그 문제. 문제를 풀면 물건은 할 일을 다 했다 (store의 itemSpent).
+ * 문을 여는 물건은 여기 없다: 그건 문 규칙(src/data/doors.ts)이 안다.
+ */
+export const ITEM_PUZZLE: Partial<Record<ItemId, string>> = {
+  "piano-sheet": "piano-melody",
+};

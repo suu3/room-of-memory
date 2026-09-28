@@ -16,6 +16,7 @@ import {
 import {
   selectAct,
   selectActTwoProgress,
+  selectCarrying,
   selectCollected,
   selectDoorReady,
   selectMonologueHidden,
@@ -116,7 +117,7 @@ export function MemoryRoom() {
   const interacting = useMemoryRoomStore((state) => state.activeInteraction !== null);
   const isDoorReady = useMemoryRoomStore(selectDoorReady);
   /** 물건을 들면 왼쪽 위 헤더에 소지품 줄이 생긴다 (InventoryStrip). 혼잣말 기둥이 그만큼 내려앉는다 */
-  const carrying = useMemoryRoomStore((state) => state.inventory.length > 0);
+  const carrying = useMemoryRoomStore(selectCarrying);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   // 타이틀 화면이 떠 있는 동안에는 인게임 HUD를 아예 렌더하지 않는다. 블러 너머로 비친다.
   const started = useMemoryRoomStore((state) => state.started);

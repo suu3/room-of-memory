@@ -23,8 +23,10 @@ import {
   clueUnlocked,
   hotspotStatus,
   isAtCurtain,
+  itemSpent,
   openCutscene,
   selectBatReady,
+  selectCarrying,
   selectDeadline,
   selectDoorReady,
   selectDoorwayReady,
@@ -1547,5 +1549,28 @@ describe("selectMonologueHidden", () => {
   it("다른 잠금(타이틀 등)은 혼잣말을 건드리지 않는다", () => {
     useMemoryRoomStore.getState().setUiLock("title", true);
     expect(selectMonologueHidden(useMemoryRoomStore.getState())).toBe(false);
+  });
+});
+
+describe("다 쓴 물건", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("안방 열쇠는 안방 문이 열리면, 악보는 피아노를 풀면 할 일을 다 한다", () => {
+    const state = {
+      openedDoorways: [] as ("living-parents" | "living-bathroom")[],
+      solvedPuzzles: [] as ("piano-melody" | "sink-dial")[],
+    };
+    expect(itemSpent(state, "parents-key")).toBe(false);
+    expect(itemSpent({ ...state, openedDoorways: ["living-parents"] }, "parents-key")).toBe(true);
+    expect(itemSpent(state, "piano-sheet")).toBe(false);
+    expect(itemSpent({ ...state, solvedPuzzles: ["piano-melody"] }, "piano-sheet")).toBe(true);
+  });
+
+  it("쓴 물건만 들고 있으면 소지품 줄이 서지 않는다. 인벤토리 기록은 남는다", () => {
+    useMemoryRoomStore.setState({ inventory: ["parents-key"], openedDoorways: [] });
+    expect(selectCarrying(useMemoryRoomStore.getState())).toBe(true);
+    useMemoryRoomStore.setState({ openedDoorways: ["living-parents"] });
+    expect(selectCarrying(useMemoryRoomStore.getState())).toBe(false);
+    expect(useMemoryRoomStore.getState().inventory).toEqual(["parents-key"]);
   });
 });

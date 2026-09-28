@@ -1258,6 +1258,13 @@ function CollectedTint({
   return <group ref={groupRef}>{children}</group>;
 }
 
+/**
+ * 조사를 마쳐도 금빛 틴트를 입히지 않는 기억: 가구 위에 테두리(DoorOutline)만 그은 것들.
+ * 덩어리 물건은 옅은 금빛이 "봤다"로 읽히지만, 가는 테두리는 통째로 금빛이 되어 "조사할
+ * 차례"의 빛나는 테두리와 구분이 안 됐다. 다 본 문은 가구 색으로 돌아가 묻힌다.
+ */
+const OUTLINE_ONLY: ReadonlySet<MemoryId> = new Set(["fridge", "shoes"] as MemoryId[]);
+
 /** 조사를 마치면 배경 오브젝트로 다시 열리는 기억 → 그때 펼칠 단서. */
 const BACKGROUND_CLUE = CLUE_AFTER_MEMORY as Partial<Record<MemoryId, ClueId>>;
 
@@ -1369,7 +1376,7 @@ export function InteractiveMemory({
             <group ref={motionRef}>
               <group rotation={placement.rotation} scale={placement.scale} {...handlers}>
                 <CollectedTint
-                  collected={status === "done"}
+                  collected={status === "done" && !OUTLINE_ONLY.has(id)}
                   memoryColor={palette.memory}
                   revision={selectionVersion}
                 >
