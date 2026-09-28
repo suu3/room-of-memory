@@ -60,8 +60,8 @@ const RULES = [
   },
 ];
 
-/** 규칙 표의 예외: assets.md에 명시된 것만. */
-const FORMAT_EXCEPTIONS = new Set(["CREDITS.md"]);
+/** 규칙 표의 예외: assets.md에 명시된 것만 (크레딧, 폰트와 함께 배포해야 하는 OFL 전문). */
+const FORMAT_EXCEPTIONS = new Set(["CREDITS.md", "OFL-Pretendard.txt", "OFL-Galmuri.md"]);
 
 const KEBAB_CASE = /^[a-z0-9]+(-[a-z0-9]+)*\.[a-z0-9.]+$/;
 

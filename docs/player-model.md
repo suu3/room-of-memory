@@ -1,5 +1,7 @@
 # Web player model
 
+`<workspace>` below is the creator's local working folder, outside this repository.
+
 `public/assets/models/player-blocky.glb` contains the user's latest Tripo chibi. The runtime URL is
 `?v=tripo-20260916-surface`; bump it with every replacement because the service worker caches assets.
 Earlier revisions are recorded below. The editable source for this revision is

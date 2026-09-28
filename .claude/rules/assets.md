@@ -30,4 +30,5 @@
 - 기본적으로 사용자에게 에셋 추가를 요청한다. 사용자가 직접 넣는 것: 3D 모델, 미니게임용 이미지.
 - 예외: 웹 UI 아이콘은 아이콘 라이브러리(`@phosphor-icons/react`)를 코드로 사용해도 된다. 아이콘을 이미지 파일로 커밋하지 않는다.
 - 무료 에셋 사용 시 라이선스(CC0/CC-BY 등)와 출처 URL을 `public/assets/CREDITS.md`에 기록. CC-BY는 크레딧 표기 화면에도 반영해야 함.
+- OFL 폰트는 라이선스 전문을 폰트 옆에 같이 커밋한다 (`fonts/OFL-<폰트명>.*`). OFL이 폰트 재배포 조건으로 요구한다. 새 폰트를 넣으면 `.github/scripts/check-assets.mjs`의 `FORMAT_EXCEPTIONS`에도 파일명을 더한다.
 - 추천 소스: Poly Haven(CC0), Quaternius(CC0), Sketchfab(라이선스 필터), Mixamo(애니메이션), Freesound/Pixabay(오디오).

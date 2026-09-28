@@ -21,7 +21,7 @@ import {
 } from "./ui-classes";
 
 /** 성공은 상태로 남기지 않는다. 모달을 닫고 토스트로 알린 뒤 idle로 돌아간다. */
-type SendState = "idle" | "sending" | "failed" | "unconfigured";
+type SendState = "idle" | "sending" | "failed" | "unconfigured" | "rateLimited";
 
 /** 토스트가 떠 있는 시간. 읽는 데 충분하고, 다음 조작을 가리기엔 짧게. */
 const TOAST_MS = 3200;
@@ -99,8 +99,15 @@ export function FeedbackModal() {
         setToastVisible(true);
         return;
       }
-      // 폼이 아직 연결 안 된 배포: 실패가 아니라 "준비 안 됨"으로 말한다
-      setSend(response.status === 503 ? "unconfigured" : "failed");
+      // 폼이 아직 연결 안 된 배포: 실패가 아니라 "준비 안 됨"으로 말한다.
+      // 너무 자주 보냈을 때도 실패와 갈라서, 다시 누르지 말고 잠시 기다리라고 한다
+      setSend(
+        response.status === 503
+          ? "unconfigured"
+          : response.status === 429
+            ? "rateLimited"
+            : "failed",
+      );
     } catch {
       setSend("failed");
     }
@@ -203,13 +210,14 @@ export function FeedbackModal() {
                 <p
                   role="status"
                   className={`min-h-5 break-ko text-pretty text-xs ${
-                    send === "failed" || send === "unconfigured"
+                    send === "failed" || send === "unconfigured" || send === "rateLimited"
                       ? "font-medium text-ember"
                       : "text-fog"
                   }`}
                 >
                   {send === "failed" && t("feedback.failed")}
                   {send === "unconfigured" && t("feedback.unconfigured")}
+                  {send === "rateLimited" && t("feedback.rateLimited")}
                 </p>
                 <button
                   type="submit"

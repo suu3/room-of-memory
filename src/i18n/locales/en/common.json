@@ -689,7 +689,8 @@
     "sending": "Sending…",
     "sent": "Sent. Thank you!",
     "failed": "Sending failed. Your text is still here: try again.",
-    "unconfigured": "The inbox isn't connected yet."
+    "unconfigured": "The inbox isn't connected yet.",
+    "rateLimited": "Please try again in a few minutes. Your message is still here."
   },
   "callout": {
     "frame": "…That photo frame. I should look at it again."

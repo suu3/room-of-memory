@@ -59,6 +59,13 @@ AI를 여러 개 써볼 수 있어서 재밌었고, 배운 블렌더도 요긴�
 
 <br>
 
+## 라이선스
+
+소스 코드는 [MIT](LICENSE)입니다.
+대본·텍스트(`content/`, `src/i18n/locales/`)와 에셋(`public/`의 모델·그림·음악·영상·폰트, `docs/`의 이미지)은 MIT에 포함되지 않습니다. 제작자 저작물은 무단 사용을 금하고, 외부 에셋은 [CREDITS](public/assets/CREDITS.md)에 적힌 각 라이선스를 따릅니다.
+
+<br>
+
 ---
 
 <div align="center">
