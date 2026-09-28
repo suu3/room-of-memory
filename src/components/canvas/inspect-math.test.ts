@@ -41,6 +41,15 @@ describe("hologramVisibility", () => {
     expect(hologramVisibility(spot.pitch, spot.yaw + Math.PI * 2, spot)).toBeCloseTo(1, 5);
     expect(hologramVisibility(spot.pitch, spot.yaw - Math.PI * 4, spot)).toBeCloseTo(1, 5);
   });
+  it("손가락이 조금 어긋나도 읽힌다: 기울기 ±0.18rad(세로 30px), 회전 ±0.4rad", async () => {
+    const { HOLOGRAM_READ } = await import("./inspect-math");
+    for (const pitch of [spot.pitch - 0.18, spot.pitch + 0.18]) {
+      expect(hologramVisibility(pitch, spot.yaw, spot)).toBeGreaterThan(HOLOGRAM_READ);
+    }
+    for (const yaw of [spot.yaw - 0.4, spot.yaw + 0.4]) {
+      expect(hologramVisibility(spot.pitch, yaw, spot)).toBeGreaterThan(HOLOGRAM_READ);
+    }
+  });
   it("각도에서 멀어질수록 단조롭게 어두워진다", () => {
     const near = hologramVisibility(spot.pitch + 0.1, spot.yaw, spot);
     const far = hologramVisibility(spot.pitch + 0.3, spot.yaw, spot);

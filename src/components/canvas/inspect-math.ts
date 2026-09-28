@@ -45,9 +45,18 @@ export interface HologramSpot {
   yaw: number;
 }
 
-/** 각도 차가 이만큼(rad) 벌어지면 밝기가 e^-½로 떨어진다. yaw는 pitch보다 너그럽다. */
-const SPOT_SIGMA_PITCH = 0.13;
-const SPOT_SIGMA_YAW = 0.32;
+/**
+ * 각도 차가 이만큼(rad) 벌어지면 밝기가 e^-½로 떨어진다. yaw는 pitch보다 너그럽다.
+ *
+ * 처음엔 0.13·0.32였는데, 손가락으로는 기울기 ±7°(세로 20px 남짓)와 회전을 동시에 맞춰야
+ * 해서 한참 돌리다 포기하고 나가는 일이 생겼다 (2026-09-28). 정면(처음 쥔 자세)에서는
+ * 여전히 로고가 안 보이게(< 0.05) 두고, 그 사이만 넓혔다.
+ */
+const SPOT_SIGMA_PITCH = 0.18;
+const SPOT_SIGMA_YAW = 0.45;
+
+/** 홀로그램 로고가 이만큼 떠올라야 읽은 것으로 친다. */
+export const HOLOGRAM_READ = 0.5;
 
 /** 두 각의 차이를 -π~π로 접는다. */
 function angleGap(a: number, b: number): number {

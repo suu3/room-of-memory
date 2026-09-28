@@ -21,6 +21,7 @@ import { InspectBook } from "./InspectBook";
 import { InspectFoldedNote } from "./InspectFoldedNote";
 import {
   clampPitchDrag,
+  HOLOGRAM_READ,
   type HologramSpot,
   hologramVisibility,
   INSPECT_CAMERA,
@@ -168,8 +169,6 @@ export function inspectControlOf(object: InspectObject): InspectControl {
 const DRAG_PX_TO_WORLD = 0.003;
 /** 찾을 면을 마주 본 것으로 치는 기준: 목표각과의 차이의 cos가 이보다 크면 (±37° 안). */
 const FACING_COS = 0.8;
-/** 홀로그램 로고가 이만큼 떠올라야 읽은 것으로 친다. */
-const HOLOGRAM_READ = 0.6;
 /** 씰의 결(무지갯빛 띠)이 늘 비치는 정도. 로고가 없을 때도 "여기 뭔가 있다"고 말한다. */
 const SHEEN_OPACITY = 0.3;
 
