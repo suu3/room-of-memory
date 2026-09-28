@@ -5,6 +5,7 @@ import {
   handleLookKeyDown,
   type LookAngles,
   lookFromDrag,
+  touchLookSensitivity,
 } from "@/scenes/memory-room/first-person";
 import { isInteractiveTarget, ORBIT_DRAG_THRESHOLD } from "./room-canvas-runtime";
 
@@ -28,7 +29,22 @@ export function useFirstPersonLook(
     const container = containerRef.current;
     if (!container || !enabled) return;
 
-    let drag: { pointerId: number; x: number; y: number; start: LookAngles } | null = null;
+    /*
+     * 손가락 끌기를 브라우저가 가져가지 못하게 한다. touch-action이 기본값이면 브라우저가
+     * 끌기를 제 몸짓(스크롤·확대)으로 보고 첫 몇 픽셀 만에 pointercancel을 보낸다: 폰에서
+     * 300px을 쓸어도 20px만큼만 돌았다. 1인칭 동안만 막고 끝나면 되돌린다. 아이소메트릭의
+     * 바닥 탭·핀치는 건드리지 않는다.
+     */
+    const previousTouchAction = container.style.touchAction;
+    container.style.touchAction = "none";
+
+    let drag: {
+      pointerId: number;
+      x: number;
+      y: number;
+      start: LookAngles;
+      yawSensitivity: number | undefined;
+    } | null = null;
     let swallowClick = false;
     const handlePointerDown = (event: PointerEvent) => {
       if (drag !== null || event.button !== 0 || isInteractiveTarget(event.target)) {
@@ -40,6 +56,9 @@ export function useFirstPersonLook(
         x: event.clientX,
         y: event.clientY,
         start: { yaw: lookRef.current.yaw, pitch: lookRef.current.pitch },
+        // 손가락은 화면 폭으로 잰다: 폭을 두 번 쓸면 한 바퀴 (touchLookSensitivity)
+        yawSensitivity:
+          event.pointerType === "touch" ? touchLookSensitivity(container.clientWidth) : undefined,
       };
     };
     const handlePointerMove = (event: PointerEvent) => {
@@ -48,7 +67,7 @@ export function useFirstPersonLook(
       const dy = event.clientY - drag.y;
       if (!swallowClick && Math.hypot(dx, dy) < ORBIT_DRAG_THRESHOLD) return;
       swallowClick = true;
-      lookFromDrag(drag.start, dx, dy, lookRef.current);
+      lookFromDrag(drag.start, dx, dy, lookRef.current, drag.yawSensitivity);
     };
     const endDrag = (event: PointerEvent) => {
       if (drag && event.pointerId !== drag.pointerId) return;
@@ -79,6 +98,7 @@ export function useFirstPersonLook(
     container.addEventListener("click", handleClickCapture, { capture: true });
     window.addEventListener("keydown", handleKeyDown);
     return () => {
+      container.style.touchAction = previousTouchAction;
       container.removeEventListener("pointerdown", handlePointerDown);
       container.removeEventListener("pointermove", handlePointerMove);
       container.removeEventListener("pointerup", endDrag);

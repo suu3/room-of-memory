@@ -27,8 +27,21 @@ export const EYE_HEIGHT = 1.38;
 export const FIRST_PERSON_FOV = 68;
 /** 고개를 위아래로 꺾는 한계. 천장·발밑을 끝까지 보게 두면 걷는 방향(카메라 정면)이 사라진다. */
 export const PITCH_LIMIT = 1.05;
-/** 끌기 감도 (rad/px). 방 한 바퀴(2π)가 화면 폭 두 번쯤. */
+/** 끌기 감도 (rad/px). 방 한 바퀴(2π)가 화면 폭 두 번쯤. 마우스 기준이다. */
 export const LOOK_DRAG_SENSITIVITY = 0.0042;
+/**
+ * 손가락으로 끌 때 화면 폭 한 번에 도는 각도. 반 바퀴라 두 번 쓸면 한 바퀴다.
+ *
+ * 마우스 감도를 그대로 쓰면 폭 390px 폰에서 끝에서 끝까지 쓸어도 94°밖에 안 돌아,
+ * 뒤를 보려면 네 번을 쓸어야 했다. 폰마다 폭이 달라 px당 값이 아니라 폭으로 잰다.
+ */
+export const TOUCH_TURN_PER_WIDTH = Math.PI;
+
+/** 이 폭의 화면에서 손가락 끌기의 좌우 감도 (rad/px). 넓은 화면에서도 마우스보다 둔해지지 않는다. */
+export function touchLookSensitivity(width: number): number {
+  if (!Number.isFinite(width) || width <= 0) return LOOK_DRAG_SENSITIVITY;
+  return Math.max(LOOK_DRAG_SENSITIVITY, TOUCH_TURN_PER_WIDTH / width);
+}
 /** 키 한 번에 도는 각도. `,`/`.`로 돈다 (아이소메트릭 회전과 같은 키). */
 export const LOOK_KEY_STEP = 0.16;
 
@@ -40,16 +53,19 @@ export function clampPitch(pitch: number): number {
 /**
  * 끌기 시작점에서 (dx, dy)픽셀 끈 시선. 마우스 조작과 같은 방향이다: 오른쪽으로
  * 끌면 오른쪽을 보고, 아래로 끌면 아래를 본다. 결과는 `target`에 써서 돌려준다.
+ * 좌우(yaw)에는 한계가 없다: 몇 바퀴든 돈다. 위아래만 PITCH_LIMIT에서 멈춘다.
  */
 export function lookFromDrag(
   start: LookAngles,
   dx: number,
   dy: number,
   target: LookAngles,
+  yawSensitivity = LOOK_DRAG_SENSITIVITY,
 ): LookAngles {
   const safeDx = Number.isFinite(dx) ? dx : 0;
   const safeDy = Number.isFinite(dy) ? dy : 0;
-  target.yaw = start.yaw - safeDx * LOOK_DRAG_SENSITIVITY;
+  target.yaw = start.yaw - safeDx * yawSensitivity;
+  // 위아래는 늘 마우스 감도: 옆으로 쓰는 손가락이 조금만 기울어도 천장·바닥으로 튀지 않게
   target.pitch = clampPitch(start.pitch - safeDy * LOOK_DRAG_SENSITIVITY);
   return target;
 }

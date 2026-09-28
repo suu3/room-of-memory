@@ -8,6 +8,7 @@ import {
   lookDirection,
   lookFromDrag,
   PITCH_LIMIT,
+  touchLookSensitivity,
   yawToward,
 } from "./first-person";
 import { ROOM_DOOR_POSITION } from "./layout";
@@ -28,6 +29,25 @@ describe("1인칭 시선", () => {
     expect(target.pitch).toBe(PITCH_LIMIT);
     expect(clampPitch(Number.NaN)).toBe(0);
     expect(clampPitch(-9)).toBe(-PITCH_LIMIT);
+  });
+
+  it("손가락은 화면 폭을 두 번 쓸면 한 바퀴 돌고, 좌우에는 한계가 없다", () => {
+    const width = 390;
+    const target = { yaw: 0, pitch: 0 };
+    // 오른쪽에서 왼쪽으로 폭 두 번: 한 바퀴 (폰에서 뒤를 보려고 네 번 쓸던 것)
+    lookFromDrag({ yaw: 0, pitch: 0 }, -width * 2, 0, target, touchLookSensitivity(width));
+    expect(target.yaw).toBeCloseTo(Math.PI * 2);
+    lookFromDrag(target, -width * 4, 0, target, touchLookSensitivity(width));
+    expect(target.yaw).toBeCloseTo(Math.PI * 6);
+  });
+
+  it("손가락 감도는 좌우에만 붙는다. 위아래는 옆으로 쓰는 손이 조금 기울어도 튀지 않게 그대로다", () => {
+    const target = { yaw: 0, pitch: 0 };
+    lookFromDrag({ yaw: 0, pitch: 0 }, 0, 40, target, touchLookSensitivity(390));
+    expect(target.pitch).toBeCloseTo(-40 * LOOK_DRAG_SENSITIVITY);
+    // 아주 넓은 화면에서도 마우스보다 둔해지지 않는다
+    expect(touchLookSensitivity(4000)).toBe(LOOK_DRAG_SENSITIVITY);
+    expect(touchLookSensitivity(0)).toBe(LOOK_DRAG_SENSITIVITY);
   });
 
   it("끌기 값이 깨져도 시선은 제자리다", () => {
