@@ -8,8 +8,10 @@ import { type Group, Matrix4, type PerspectiveCamera, Quaternion, Vector3 } from
 import { LOCALE_PATHS } from "@/i18n/locale-routes";
 import { ASSETS } from "@/lib/assets";
 import { selectLocale, useSettingsStore } from "@/store/settings";
+import { ArActionPicker } from "./ArActionPicker";
+import { ArHero } from "./ArHero";
+import type { ArAction } from "./ar-motion";
 import { loadMindar, type MindarController } from "./mindar";
-import { TossingHero } from "./TossingHero";
 
 /*
  * 포토카드를 비추면 카드 위에 도해가 튀어나온다 (테스트용 시제품).
@@ -71,7 +73,17 @@ interface Projection {
   inputHeight: number;
 }
 
-function Anchor({ tracking, mount }: { tracking: Tracking; mount: Mount }) {
+function Anchor({
+  tracking,
+  mount,
+  action,
+  active,
+}: {
+  tracking: Tracking;
+  mount: Mount;
+  action: ArAction;
+  active: boolean;
+}) {
   const anchorRef = useRef<Group>(null);
   const popRef = useRef<Group>(null);
   const popTime = useRef(0);
@@ -100,7 +112,7 @@ function Anchor({ tracking, mount }: { tracking: Tracking; mount: Mount }) {
       <group position={position} rotation={rotation}>
         <group ref={popRef} scale={0}>
           <Suspense fallback={null}>
-            <TossingHero />
+            <ArHero action={action} active={active} />
           </Suspense>
           {/* 발밑 그림자. 없으면 카드 위에 떠 있는 것처럼 보인다 */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
@@ -128,6 +140,7 @@ export function ArExperience() {
   // 언어는 QR 주소가 아니라 저장된 선택을 따른다 (루트 / 와 같은 규칙). 카드 한 장에 QR 하나라서.
   const locale = useSettingsStore(selectLocale);
   const [mount, setMount] = useState<Mount>("flat");
+  const [action, setAction] = useState<ArAction>("toss");
   const [projection, setProjection] = useState<Projection | null>(null);
 
   const stop = useCallback(() => {
@@ -236,7 +249,12 @@ export function ArExperience() {
         <ambientLight intensity={1.35} />
         <directionalLight position={[2.5, 3.5, 3]} intensity={1.7} />
         <directionalLight position={[-3, 1.5, -2]} intensity={0.5} />
-        <Anchor tracking={trackingRef.current} mount={mount} />
+        <Anchor
+          tracking={trackingRef.current}
+          mount={mount}
+          action={action}
+          active={phase === "found"}
+        />
       </Canvas>
 
       {phase === "idle" || phase === "error" ? (
@@ -256,19 +274,26 @@ export function ArExperience() {
           </Link>
         </div>
       ) : (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 p-6">
-          <p className="rounded-full bg-night/70 px-4 py-2 text-sm">
-            {t(
-              `status.${phase === "starting" ? "starting" : phase === "scanning" ? "scanning" : "found"}`,
-            )}
-          </p>
-          <button
-            type="button"
-            onClick={() => setMount((current) => (current === "flat" ? "upright" : "flat"))}
-            className="pointer-events-auto rounded-full border border-line bg-night/70 px-4 py-2 text-sm"
-          >
-            {t(mount === "flat" ? "mount.toUpright" : "mount.toFlat")}
-          </button>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
+            <p className="rounded-sm border border-line bg-surface px-3 py-2 text-ivory shadow-panel">
+              {t(
+                `status.${phase === "starting" ? "starting" : phase === "scanning" ? "scanning" : "found"}`,
+              )}
+            </p>
+            <button
+              type="button"
+              onClick={() => setMount((current) => (current === "flat" ? "upright" : "flat"))}
+              className="pointer-events-auto rounded-sm border border-line bg-surface px-3 py-2 text-fog shadow-panel transition-colors duration-150 hover:text-ivory active:bg-surface-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+            >
+              {t(mount === "flat" ? "mount.toUpright" : "mount.toFlat")}
+            </button>
+          </div>
+          {phase === "found" ? (
+            <div className="pointer-events-auto flex w-full justify-center">
+              <ArActionPicker value={action} onChange={setAction} />
+            </div>
+          ) : null}
         </div>
       )}
 

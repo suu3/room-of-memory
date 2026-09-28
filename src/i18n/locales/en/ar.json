@@ -14,6 +14,14 @@
     "toUpright": "Tap if the card is standing up",
     "toFlat": "Tap if the card is lying flat"
   },
+  "actions": {
+    "label": "Character action",
+    "toss": "Toss ball",
+    "stand": "Stand",
+    "walk": "Walk in place",
+    "sit": "Sit",
+    "bat": "Swing bat"
+  },
   "error": {
     "noCamera": "This browser can't open the camera. Please try another browser.",
     "denied": "Camera access is blocked. Allow it in your browser settings and try again.",
