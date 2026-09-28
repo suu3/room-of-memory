@@ -17,7 +17,7 @@
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/room-investigate.webp" alt="불이 켜진 방"></td>
+<td width="50%"><img src="docs/screenshots/room-dialogue.webp" alt="방에서 게임기를 조사하며 대사가 흐르는 장면"></td>
 <td width="50%"><img src="docs/screenshots/living-room.webp" alt="거실"></td>
 </tr>
 <tr>
@@ -25,11 +25,19 @@
 <td align="center"><sub>거실</sub></td>
 </tr>
 <tr>
-<td><img src="docs/screenshots/intro-dark.webp" alt="어두운 방 1인칭 시점"></td>
-<td><img src="docs/screenshots/notebook.webp" alt="수첩 기록 페이지"></td>
+<td><img src="docs/screenshots/cutscene-flashback.webp" alt="교실 책상 위 게임기 회상 컷씬"></td>
+<td><img src="docs/screenshots/cutscene-broadcast.webp" alt="체육관 대피소의 생존자 방송 컷씬"></td>
 </tr>
 <tr>
-<td align="center"><sub>불 끄고 시작</sub></td>
+<td align="center"><sub>회상</sub></td>
+<td align="center"><sub>생존자 방송</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/minigame-duel.webp" alt="격투 게임 미니게임"></td>
+<td><img src="docs/screenshots/notebook.webp" alt="수첩 프로필 페이지"></td>
+</tr>
+<tr>
+<td align="center"><sub>미니게임</sub></td>
 <td align="center"><sub>수첩</sub></td>
 </tr>
 </table>
