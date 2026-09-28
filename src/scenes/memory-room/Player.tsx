@@ -15,6 +15,7 @@ import type { CurtainSide } from "@/types/curtain";
 import type { MovementAxes } from "@/types/movement";
 import { advanceCurtainMotion, type CurtainMotion, createCurtainMotion } from "./curtain-animation";
 import type { CurtainPull } from "./curtain-motion";
+import { funnelIntoDoorway } from "./doorway-funnel";
 import { MIRROR_ONLY_LAYER } from "./first-person";
 import { CURTAIN_STAND } from "./layout";
 import { findPath } from "./pathfind";
@@ -40,7 +41,7 @@ import {
   type SitPhases,
   sitEase,
 } from "./sit-motion";
-import { spaceAt, walkColliders, walkZones } from "./spaces";
+import { DOORWAYS, spaceAt, walkColliders, walkZones } from "./spaces";
 import { moveThroughZones, type Vec2 } from "./spatial";
 import type { Aabb2 } from "./types";
 import { isWalkBlocked, stepToward } from "./walk-to";
@@ -71,13 +72,21 @@ function walkableFor(state: { doorOpened: boolean; openedDoorways: readonly stri
     walkableCache.key = key;
     walkableCache.zones = walkZones(open);
     walkableCache.colliders = walkColliders(open);
+    walkableCache.doorways = open.map((id) => DOORWAYS[id].zone);
   }
   return walkableCache;
 }
-const walkableCache: { key: string | null; zones: Aabb2[]; colliders: Aabb2[] } = {
+const walkableCache: {
+  key: string | null;
+  zones: Aabb2[];
+  colliders: Aabb2[];
+  /** 열린 문간. 문 앞에서 미는 걸음을 통로 가운데로 당긴다 (doorway-funnel.ts). */
+  doorways: Aabb2[];
+} = {
   key: null,
   zones: [],
   colliders: [],
+  doorways: [],
 };
 
 useGLTF.preload(ASSETS.models.playerBlocky, true, true);
@@ -108,6 +117,7 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
   const originRef = useRef<Vec2>({ x: PLAYER_START.x, z: PLAYER_START.z });
   const deltaRef = useRef<Vec2>({ x: 0, z: 0 });
   const resultRef = useRef<Vec2>({ x: PLAYER_START.x, z: PLAYER_START.z });
+  const funnelRef = useRef<Vec2>({ x: 0, z: 0 });
   const resolvedInputRef = useRef<MovementAxes>({ horizontal: 0, vertical: 0 });
   const phaseRef = useRef(0);
   const walkRef = useRef(0);
@@ -420,9 +430,16 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
       origin.z = group.position.z;
       const store = useMemoryRoomStore.getState();
       const walkable = walkableFor(store);
-      const result = moveThroughZones(
+      // 문 앞에서 문 쪽으로 미는 걸음은 통로 가운데로 당긴다. 좁은 문간에서 문틀에 걸려 서지 않게
+      const funneled = funnelIntoDoorway(
         origin,
         movementDelta,
+        walkable.doorways,
+        funnelRef.current,
+      );
+      const result = moveThroughZones(
+        origin,
+        funneled,
         PLAYER_RADIUS,
         walkable.zones,
         walkable.colliders,

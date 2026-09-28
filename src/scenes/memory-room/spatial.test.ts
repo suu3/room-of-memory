@@ -107,10 +107,11 @@ describe("moveThroughZones", () => {
     /*
      * 문 옆(판이 젖혀지는 자리)에 서서 방문을 열면 열린 문짝 콜라이더가 몸과 겹친 채
      * 생긴다. 1인칭 문 넘기는 문을 보고 시작하므로 앞으로 걸으면 문 쪽이다.
+     * 문을 앞벽과 나란히(90°) 열면서 판이 벽 쪽으로 물러나, 겹치는 자리는 앞벽 가까이다.
      */
     const open = walkColliders(["room-living"]);
     const openZones = walkZones(["room-living"]);
-    const start = { x: -4.8, z: 5.55 };
+    const start = { x: -4.8, z: 5.66 };
     expect(isWalkable(start.x, start.z, RADIUS, openZones, open)).toBe(false);
 
     const look = initialLook("doorway", start);
