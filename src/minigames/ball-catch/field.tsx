@@ -50,7 +50,7 @@ export function BallCatchField({
       type="button"
       aria-label={labels.aria}
       onClick={onSwing}
-      className={`relative block h-96 w-full cursor-pointer overflow-hidden rounded-xs border-2 border-night focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
+      className={`@container relative block h-96 w-full cursor-pointer overflow-hidden rounded-xs border-2 border-night focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
         feedback ? "animate-batting-field-shake" : ""
       }`}
     >
@@ -65,9 +65,16 @@ export function BallCatchField({
       {/* 겨자색 노을 띠를 회갈색으로 눌러 앉힌다. 앰버는 링과 피드백의 몫이다 (globals.css) */}
       <div className="ball-catch-sky absolute inset-0" aria-hidden />
 
+      {/*
+       * 투수는 발끝(그림 밑변)을 마운드에 딛게 세운다. 예전에는 그림 가운데를 35%에 두어
+       * 밑의 투명 여백만큼, 폭이 좁을수록 더 떠 보였다. 마운드는 들판 그림 높이의 62%인데,
+       * 들판이 object-cover라 칸이 넓어지면(폭 > 높이×1.78) 위아래가 잘려 아래로 내려간다.
+       * 그 식이 12rem + 6.75cqw다 (그림 높이 0.5628W, 칸 24rem).
+       */}
       {/* biome-ignore lint/performance/noImgElement: Native images are required for the layered field sprites. */}
       <img
-        className="absolute left-1/2 top-[35%] w-36 -translate-x-1/2 -translate-y-1/2 drop-shadow-lg sm:w-44"
+        className="absolute left-1/2 w-36 -translate-x-1/2 -translate-y-full drop-shadow-lg sm:w-44"
+        style={{ top: "max(62%, calc(12rem + 6.75cqw))" }}
         src={ASSETS.images.mgBallCatchPitcher}
         alt=""
       />

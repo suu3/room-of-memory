@@ -115,7 +115,7 @@ export const ASSETS = {
     mgPapersPaper: "/assets/images/mg-papers-paper.webp",
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg?v=2",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
-    mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp?v=3",
+    mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp?v=4",
     mgBallCatchBat: "/assets/images/mg-ball-catch-bat.webp?v=2",
     mgBallCatchImpact: "/assets/images/mg-ball-catch-impact.webp?v=3",
     /**
