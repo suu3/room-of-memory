@@ -38,6 +38,8 @@ function buildMeta(language: string): string {
     `revisited:${selectRevisitedCount(state)}`,
     `door:${state.doorOpened ? "open" : "closed"}`,
     `lang:${language}`,
+    // 엔딩 카드에서 연 글은 다 깬 사람의 소감이다: 시트에서 갈라 볼 수 있게 표시한다
+    state.endingStarted ? "ending:done" : "",
     typeof window === "undefined" ? "" : `viewport:${window.innerWidth}x${window.innerHeight}`,
   ];
   return parts.filter(Boolean).join(" ");
@@ -55,7 +57,14 @@ export function FeedbackModal() {
   const open = useMemoryRoomStore((state) => state.feedbackOpen);
   const setOpen = useMemoryRoomStore((state) => state.setFeedbackOpen);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
+  const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   const [category, setCategory] = useState<FeedbackCategory>("bug");
+
+  // 엔딩 카드에서 열면 버그 신고보다 소감일 공산이 크다: "기타"를 먼저 골라 둔다.
+  // 새 분류를 만들지 않는 이유는 구글 폼의 객관식 보기가 정해져 있어서다 (lib/feedback)
+  useEffect(() => {
+    if (open && endingStarted) setCategory("other");
+  }, [open, endingStarted]);
   const [body, setBody] = useState("");
   const [email, setEmail] = useState("");
   const [send, setSend] = useState<SendState>("idle");
@@ -117,7 +126,7 @@ export function FeedbackModal() {
     <>
       {/* 모달이 닫힌 뒤에 뜨는 확인: 모달과 별개로 렌더해야 닫혀도 남는다 */}
       {toastVisible && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-10 z-50 flex justify-center">
+        <div className="pointer-events-none absolute inset-x-0 bottom-10 z-[60] flex justify-center">
           <p
             role="status"
             className={`animate-fade-rise px-4 py-2.5 text-sm font-medium ${PANEL_DARK}`}
@@ -126,8 +135,12 @@ export function FeedbackModal() {
           </p>
         </div>
       )}
+      {/*
+        z-60: 엔딩 화면(z-50) 위에 선다. 엔딩 카드의 "피드백 남기기"로도 열리므로 그 아래로
+        가면 카드에 가려 안 보인다 (DialogueLog와 같은 자리)
+      */}
       {open && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center overflow-hidden p-4">
+        <div className="absolute inset-0 z-[60] flex items-center justify-center overflow-hidden p-4">
           <button
             type="button"
             aria-label={t("feedback.close")}

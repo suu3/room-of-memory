@@ -1,6 +1,12 @@
 "use client";
 
-import { ArrowCounterClockwise, ArrowRight, DownloadSimple, Play } from "@phosphor-icons/react";
+import {
+  ArrowCounterClockwise,
+  ArrowRight,
+  ChatCircleText,
+  DownloadSimple,
+  Play,
+} from "@phosphor-icons/react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -38,6 +44,7 @@ export function EndingScreen() {
   const reset = useMemoryRoomStore((state) => state.reset);
   const setUiLock = useMemoryRoomStore((state) => state.setUiLock);
   const setSceneCovered = useMemoryRoomStore((state) => state.setSceneCovered);
+  const setFeedbackOpen = useMemoryRoomStore((state) => state.setFeedbackOpen);
   const [stage, setStage] = useState<EndingStage>("door");
   const [blocked, setBlocked] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -180,6 +187,22 @@ export function EndingScreen() {
                 <ArrowRight size={15} weight="bold" />
               </button>
             </div>
+            {/*
+              다 깬 사람에게 묻는 자리. 메뉴의 피드백과 같은 창을 연다 (FeedbackModal: 엔딩에서
+              열면 "기타"가 먼저 골라지고, 진행 정보에 ending:done이 붙는다). 버튼 줄에 넣지 않고
+              아래 한 줄로 둔다: "처음으로"와 나란히 서면 끝내는 버튼들 사이에 묻힌다.
+            */}
+            <button
+              type="button"
+              onClick={() => {
+                playSound("select");
+                setFeedbackOpen(true);
+              }}
+              className={`${BUTTON_QUIET} px-5 py-2.5`}
+            >
+              <ChatCircleText size={15} weight="bold" />
+              {t("ending.feedback")}
+            </button>
           </div>
           <EndingConfetti />
         </div>
