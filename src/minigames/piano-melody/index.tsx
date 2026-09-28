@@ -27,6 +27,7 @@ import {
   PIANO_KEYS,
 } from "./keys";
 import { isComplete, NOTE_HZ, noteForKey, pressNote, SOLFEGE, type Solfege } from "./melody";
+import { pianoProgress } from "./progress";
 
 /** 마지막 음이 울린 뒤 결과를 내주기까지(ms). 소리가 끊기면 푼 느낌도 끊긴다. */
 const SETTLE_MS = 900;
@@ -70,7 +71,7 @@ const CAMERA_TARGET_LIFT = 0.39;
  * 악보에 오선지와 계이름이 있고, 건반에도 같은 글자가 남아 있다. 이 집에서 피아노를
  * 배우던 아이가 붙여 둔 것이지, 플레이어에게 주는 안내가 아니다.
  */
-const LABEL = { size: 0.085, inset: 0.055, texture: 96 };
+const LABEL = { size: 0.11, inset: 0.064, texture: 96 };
 
 function canDrawText(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderingContext2D {
   return typeof ctx?.fillText === "function" && typeof ctx.clearRect === "function";
@@ -91,8 +92,9 @@ function useNoteLabels(ink: string): Partial<Record<Solfege, CanvasTexture>> {
       if (canDrawText(ctx)) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = ink;
-        ctx.globalAlpha = 0.7;
-        ctx.font = "600 52px system-ui, sans-serif";
+        // 폰 화면에서는 건반이 손톱만 하다. 옅고 가는 글자는 안 읽혀서 조금 진하게 찍는다
+        ctx.globalAlpha = 0.85;
+        ctx.font = "700 60px system-ui, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(t(`minigame.pianoMelody.notes.${note}`), canvas.width / 2, canvas.height / 2);
@@ -189,7 +191,9 @@ function KeyboardCamera() {
  * **저쪽 공간에서 이쪽으로 가져오는 일**이다.
  *
  * 무엇을 하라고 적어 주는 화면은 없다. 악보가 서 있고 건반에 같은 글자가 남아 있을
- * 뿐이다 (card-odd와 같은 규칙: 답을 시작 카드에 적으면 문제가 사라진다).
+ * 뿐이다 (card-odd와 같은 규칙: 답을 시작 카드에 적으면 문제가 사라진다). 대신 맞게 친
+ * 음은 악보 위에서 금빛으로 켜진다 (progress.ts): 지시는 없어도 "지금 곡을 따라가고
+ * 있다"는 건 보여야 끝났을 때 놀라지 않는다.
  *
  * 검은 건반도 눌린다. 곡에 안 쓰이니 누르면 틀린 음이지만, 눌리지 않는 건반이 섞여
  * 있으면 악기가 아니라 버튼 일곱 개가 된다.
@@ -230,6 +234,7 @@ export function PianoMelodyMinigame({ onComplete, onSettled, onBlocked, carrying
 
     if (result.wrong) {
       playedRef.current = result.played;
+      pianoProgress.played = result.played.length;
       lockedRef.current = true;
       playSound("fail");
       window.setTimeout(() => {
@@ -239,6 +244,7 @@ export function PianoMelodyMinigame({ onComplete, onSettled, onBlocked, carrying
     }
 
     playedRef.current = result.played;
+    pianoProgress.played = result.played.length;
     if (!isComplete(result.played)) return;
 
     doneRef.current = true;
@@ -247,6 +253,14 @@ export function PianoMelodyMinigame({ onComplete, onSettled, onBlocked, carrying
   };
   const pressRefFn = useRef(pressKey);
   pressRefFn.current = pressKey;
+
+  // 보면대의 악보가 친 음을 칠한다. 판이 서고 내려갈 때 비워 둔다
+  useEffect(() => {
+    pianoProgress.played = 0;
+    return () => {
+      pianoProgress.played = 0;
+    };
+  }, []);
 
   // 숫자 키 1~7. 손가락도 마우스도 없는 손을 위한 길이다 (.claude/rules/minigames.md)
   useEffect(() => {

@@ -7,6 +7,7 @@ import { CanvasTexture, DoubleSide, SRGBColorSpace } from "three";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { KEYBOARD_CENTER_X } from "@/minigames/piano-melody/keys";
 import { barVisible, MELODY_BARS, type Solfege } from "@/minigames/piano-melody/melody";
+import { pianoProgress } from "@/minigames/piano-melody/progress";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { InteriorBox } from "./InteriorPrimitives";
 import type { RoomPalette } from "./palette";
@@ -147,6 +148,8 @@ interface SheetPaint {
   texture: CanvasTexture;
   /** 지금 그림에 굽힌 모임 정도. 같은 값이면 다시 굽지 않는다. */
   gather: number;
+  /** 지금 그림에 칠한 친 음의 수 (pianoProgress). */
+  played: number;
 }
 
 /**
@@ -160,6 +163,9 @@ interface SheetPaint {
  *
  * `gather`(0~1)는 그 마디가 **번진 잉크에서 다시 모이는** 정도다 (sheet-ink.ts). 0이면
  * 얼룩만, 1이면 또렷한 음표. 조각을 들고 피아노 앞에 서는 순간 0에서 1로 간다.
+ *
+ * `played`는 판에서 곡을 맞게 따라간 음의 수다. 그 음들은 뒤에 금빛 띠를 깔아 켠다:
+ * 잉크는 그대로 두고 바탕만 칠해야 회색 종이 위에서도 글자가 또렷하다.
  */
 function paintSheet(
   ctx: CanvasRenderingContext2D,
@@ -168,6 +174,8 @@ function paintSheet(
   ink: string,
   noteName: (note: Solfege) => string,
   gather: number,
+  played: number,
+  lit: string,
 ) {
   ctx.filter = "none";
   ctx.globalAlpha = 1;
@@ -193,6 +201,16 @@ function paintSheet(
   ctx.font = "600 34px system-ui, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+
+  // 친 음: 음표 머리부터 계이름까지 한 줄로 금빛 띠. 음표보다 먼저 깔아야 잉크가 위에 앉는다
+  ctx.fillStyle = lit;
+  ctx.globalAlpha = 0.9;
+  for (let index = 0; index < Math.min(played, notes.length); index += 1) {
+    const x = NOTES_LEFT + step * (index + 0.5);
+    ctx.fillRect(x - step * 0.4, STAFF.top - HEAD.stem / 2, step * 0.8, NAME_Y + 20 - STAFF.top);
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = ink;
 
   notes.forEach(({ note, bar, hidden }, index) => {
     const x = NOTES_LEFT + step * (index + 0.5);
@@ -250,7 +268,7 @@ function useSheetPaint(paper: string, ink: string): SheetPaint {
     const texture = new CanvasTexture(canvas);
     texture.colorSpace = SRGBColorSpace;
     texture.anisotropy = 4;
-    return { canvas, texture, gather: -1 };
+    return { canvas, texture, gather: -1, played: 0 };
   }, []);
   useEffect(() => () => paint.texture.dispose(), [paint]);
   // 색은 팔레트가 정하고 여기서는 다시 굽게만 표시한다. 다음 프레임이 새 색으로 굽는다
@@ -292,7 +310,8 @@ export function PianoSheet({ palette, hasScrap }: { palette: RoomPalette; hasScr
       if (gatherStart.current === null) gatherStart.current = state.clock.elapsedTime;
       gather = gatherProgress(state.clock.elapsedTime - gatherStart.current, GATHER_DURATION_S);
     }
-    if (gather === paint.gather) return;
+    const played = pianoProgress.played;
+    if (gather === paint.gather && played === paint.played) return;
     const ctx = paint.canvas.getContext("2d");
     if (!canDraw(ctx)) return;
     paintSheet(
@@ -302,9 +321,12 @@ export function PianoSheet({ palette, hasScrap }: { palette: RoomPalette; hasScr
       palette.frame,
       (note) => t(`minigame.pianoMelody.notes.${note}`),
       gather,
+      played,
+      palette.memory,
     );
     paint.texture.needsUpdate = true;
     paint.gather = gather;
+    paint.played = played;
   });
 
   const texture = paint.texture;

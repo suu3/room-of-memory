@@ -7,6 +7,7 @@ import type { MinigameResult } from "@/types/minigame";
 import { keyboardFov, PianoMelodyMinigame } from "./index";
 import { PIANO_KEYS } from "./keys";
 import { MELODY, type Solfege } from "./melody";
+import { pianoProgress } from "./progress";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -83,6 +84,32 @@ describe("PianoMelodyMinigame", () => {
       vi.advanceTimersByTime(1000);
     });
     expect(results).toHaveLength(0);
+  });
+
+  it("맞게 친 음의 수를 보면대 악보에 알리고, 틀리면 되감긴다", async () => {
+    const { renderer } = await renderPiano();
+    expect(pianoProgress.played).toBe(0);
+
+    for (const note of MELODY.slice(0, 3)) await press(renderer, whiteKeyIndex(note));
+    // 악보는 이 수만큼 음을 금빛으로 켠다: 곡을 따라가고 있다는 게 화면에 보인다
+    expect(pianoProgress.played).toBe(3);
+
+    const wrong = PIANO_KEYS.findIndex(
+      (key) => !key.black && key.note !== MELODY[3] && key.note !== MELODY[0],
+    );
+    await press(renderer, wrong);
+    expect(pianoProgress.played).toBe(0);
+
+    // 판이 내려가면 악보도 비운다
+    await act(async () => {
+      vi.advanceTimersByTime(600);
+    });
+    await press(renderer, whiteKeyIndex(MELODY[0]));
+    expect(pianoProgress.played).toBe(1);
+    await act(async () => {
+      await renderer.unmount();
+    });
+    expect(pianoProgress.played).toBe(0);
   });
 
   it("악보 조각 없이 누르면 막혔다고 알리고, 곡을 다 쳐도 풀리지 않는다", async () => {
