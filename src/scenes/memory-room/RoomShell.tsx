@@ -14,6 +14,7 @@ import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import type { RoomPalette } from "./palette";
 import { MirrorClue } from "./RoomClues";
 import type { Vec3Tuple } from "./types";
+import { useDoorSwing } from "./use-door-swing";
 import { WindowView } from "./WindowView";
 
 interface ShellBoxProps {
@@ -283,6 +284,7 @@ export function RoomShell({
    */
   const doorReady = useMemoryRoomStore(selectDoorReady);
   const openRoomDoor = useMemoryRoomStore((state) => state.openRoomDoor);
+  const { leafRef, initialRotation } = useDoorSwing(doorOpen);
 
   return (
     <group name="room-shell">
@@ -363,11 +365,8 @@ export function RoomShell({
           nudgeDoor();
         }}
       >
-        {/* 문짝만 경첩(왼쪽 문틀)을 축으로 열린다. 문틀·손잡이는 제자리에 남는다. */}
-        <group
-          position={[-DOOR_HINGE_X, 0, 0]}
-          rotation={[0, doorOpen ? -ROOM_DOOR_LEAF.openAngle : 0, 0]}
-        >
+        {/* 문짝만 경첩(왼쪽 문틀)을 축으로 젖혀진다. 문틀·손잡이는 제자리에 남는다. */}
+        <group ref={leafRef} position={[-DOOR_HINGE_X, 0, 0]} rotation={initialRotation}>
           <MemoryGlowSelection selectionKey="room-door" tier="memory" enabled={doorReady}>
             <group position={[DOOR_HINGE_X, 0, 0]}>
               <ShellBox

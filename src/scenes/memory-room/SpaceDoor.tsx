@@ -1,16 +1,13 @@
 "use client";
 
-import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import type { Group } from "three";
 import { playSound } from "@/lib/audio";
 import { selectDoorwayOpen, selectDoorwayReady, useMemoryRoomStore } from "@/store/memory-room";
 import { ROOM_DOOR_LEAF } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
-import { approach } from "./memory-motion";
 import type { RoomPalette } from "./palette";
 import { DOORWAYS, type DoorwayId } from "./spaces";
 import type { Vec3Tuple } from "./types";
+import { useDoorSwing } from "./use-door-swing";
 import { useGlowHover } from "./use-glow-hover";
 
 /** 문틀: 방문(RoomShell)과 같은 치수. 같은 집의 문이다. */
@@ -37,13 +34,7 @@ export function SpaceDoor({ id, palette }: { id: DoorwayId; palette: RoomPalette
   const ready = useMemoryRoomStore(selectDoorwayReady(id));
   const openDoorway = useMemoryRoomStore((state) => state.openDoorway);
   const { hovered, handlers } = useGlowHover(ready);
-  const leafRef = useRef<Group>(null);
-
-  useFrame((_, delta) => {
-    const leaf = leafRef.current;
-    if (!leaf) return;
-    leaf.rotation.y = approach(leaf.rotation.y, open ? -ROOM_DOOR_LEAF.openAngle : 0, 4, delta);
-  });
+  const { leafRef, initialRotation } = useDoorSwing(open);
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
@@ -63,7 +54,11 @@ export function SpaceDoor({ id, palette }: { id: DoorwayId; palette: RoomPalette
         openDoorway(id);
       }}
     >
-      <group ref={leafRef} position={[-ROOM_DOOR_LEAF.hingeOffset, 0, 0]}>
+      <group
+        ref={leafRef}
+        position={[-ROOM_DOOR_LEAF.hingeOffset, 0, 0]}
+        rotation={initialRotation}
+      >
         <MemoryGlowSelection selectionKey={`door-${id}`} tier="memory" enabled={ready}>
           <group position={[ROOM_DOOR_LEAF.hingeOffset, 0, 0]}>
             <mesh castShadow>

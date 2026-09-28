@@ -2494,7 +2494,7 @@ return { wireframe: false, settle, done: false };
 | **근접 판정** | use-near-player.ts | 커튼·스위치·의자는 다가가야 빛난다 | useFrame setState를 피하려고 100ms 폴링 |
 | **숨은 공간 클릭 차단** | event-visibility.ts, MemoryRoomScene.tsx | 숨은 방의 물건이 클릭을 가로채지 않는다 | `setEvents({ filter })`로 조상까지 visible인 hit만 남긴다(three raycast는 visible을 보지 않는다) |
 | **투명 판정 구** | MemoryObjects.tsx | 얇은 물건도 손가락으로 짚힌다 | opacity 0 구를 글로우 선택 밖(helpers)에 둔다. 눌러서 뭔가 일어날 때(`clickable`)만 세워, 끝난 기억의 구가 옆 물건의 클릭을 삼키지 않게 한다 |
-| **서랍, 문, 배트, 시계** | RoomFurniture.tsx, RoomShell.tsx, LivingRoomShell.tsx, SpaceDoor.tsx, EndingTrigger.tsx | 서랍이 밀려 나오고, 문이 경첩으로 **90°(앞벽과 나란히)** 젖혀지고, 엔딩 배트가 들려 사라지고, 멈췄던 초침이 2막부터 한 칸씩 다시 간다 | 서랍은 damp(λ6). 화장실·안방 문과 현관문은 approach(λ4)로 열리고, 방문은 열리는 순간 90°로 선다. 모든 문짝의 `openAngle`은 `ROOM_DOOR_LEAF` 하나(π/2)다. 배트는 0.45초 동안 들리며 줄어든다. 초침은 `floor(elapsed)` 스텝 회전 |
+| **서랍, 문, 배트, 시계** | RoomFurniture.tsx, RoomShell.tsx, LivingRoomShell.tsx, SpaceDoor.tsx, EndingTrigger.tsx | 서랍이 밀려 나오고, 문이 경첩으로 **90°(앞벽과 나란히)** 젖혀지고, 엔딩 배트가 들려 사라지고, 멈췄던 초침이 2막부터 한 칸씩 다시 간다 | 서랍은 damp(λ6). 방문·화장실·안방 문은 `useDoorSwing`, 현관문은 제 useFrame에서 같은 approach(λ4)로 젖혀진다. 이어하기로 들어오면 열린 문은 처음부터 열린 채 선다. 모든 문짝의 `openAngle`은 `ROOM_DOOR_LEAF` 하나(π/2)다. 배트는 0.45초 동안 들리며 줄어든다. 초침은 `floor(elapsed)` 스텝 회전 |
 | **한 번에 한 공간** | MemoryRoomScene.tsx | 지금 서 있는 공간만 보인다 | `<group visible>` 토글. 방문 넘기(1인칭 `doorway` 시점) 동안만 방과 거실이 함께 선다 |
 
 ### 관련 코드
@@ -2750,28 +2750,27 @@ export const ROOM_DOOR_LEAF = {
 } as const;
 ```
 
-`scenes/memory-room/SpaceDoor.tsx` · `SpaceDoor`: 경첩 오프셋으로 옮긴 그룹을 돌린다.
+`scenes/memory-room/use-door-swing.ts` · `useDoorSwing`: 방문·화장실·안방 문이 같이 쓴다. 경첩 오프셋으로 옮긴 그룹을 돌린다.
 
-```tsx
+```ts
+const target = open ? -ROOM_DOOR_LEAF.openAngle : 0;
+const [initialRotation] = useState<[number, number, number]>(() => [0, target, 0]);
+
 useFrame((_, delta) => {
   const leaf = leafRef.current;
   if (!leaf) return;
-  leaf.rotation.y = approach(leaf.rotation.y, open ? -ROOM_DOOR_LEAF.openAngle : 0, 4, delta);
+  leaf.rotation.y = approach(leaf.rotation.y, target, SWING_LAMBDA, delta);
 });
-// ...
-<group ref={leafRef} position={[-ROOM_DOOR_LEAF.hingeOffset, 0, 0]}>
-  <MemoryGlowSelection selectionKey={`door-${id}`} tier="memory" enabled={ready}>
-    <group position={[ROOM_DOOR_LEAF.hingeOffset, 0, 0]}>
 ```
 
-`scenes/memory-room/RoomShell.tsx` · 방문
+`scenes/memory-room/RoomShell.tsx` · 방문 (SpaceDoor도 같은 모양)
 
 ```tsx
-{/* 문짝만 경첩(왼쪽 문틀)을 축으로 열린다. 문틀·손잡이는 제자리에 남는다. */}
-<group
-  position={[-DOOR_HINGE_X, 0, 0]}
-  rotation={[0, doorOpen ? -ROOM_DOOR_LEAF.openAngle : 0, 0]}
->
+const { leafRef, initialRotation } = useDoorSwing(doorOpen);
+// ...
+<group ref={leafRef} position={[-DOOR_HINGE_X, 0, 0]} rotation={initialRotation}>
+  <MemoryGlowSelection selectionKey="room-door" tier="memory" enabled={doorReady}>
+    <group position={[DOOR_HINGE_X, 0, 0]}>
 ```
 
 **배트** — `scenes/memory-room/EndingTrigger.tsx`
@@ -6664,10 +6663,9 @@ function canDrawText(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderi
 
 ### 남은 것 (동작)
 
-1. 방문만 애니메이션 없이 즉시 열린다. 다른 문은 approach로 젖혀진다.
-2. `ampoule-pickup`은 레지스트리에만 있고 콘텐츠에서는 쓰지 않는다. 지우려면 "기억 조사 중 canvas 미니게임" 경로(MinigameHost·active 테스트가 이걸로 지킨다)와 앰플 굴절(`Ampoule.tsx` `refractive`)을 남길지 먼저 정해야 한다.
-3. photo-wipe에는 키보드 경로가 없다. 키보드 사용자는 스킵이 뜰 때까지 기다려야 끝낼 수 있다.
-4. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
+1. `ampoule-pickup`은 레지스트리에만 있고 콘텐츠에서는 쓰지 않는다. v4.1(2f757c7)에서 앰플 조사가 `ampoule-case`(3D 인스펙트: 보냉 케이스의 빈 슬롯 → 앰플 라벨의 로고 조각)로 바뀌며 밀려났다. 서랍이 열리고 앰플을 집어 드는 연출뿐이라 추리에 필요한 단서(빈 슬롯·로고)를 보여 줄 자리가 없었다. 지우려면 "기억 조사 중 canvas 미니게임" 경로(MinigameHost·active 테스트가 이걸로 지킨다)와 앰플 굴절(`Ampoule.tsx` `refractive`)을 남길지 먼저 정해야 한다.
+2. photo-wipe에는 키보드 경로가 없다. 키보드 사용자는 스킵이 뜰 때까지 기다려야 끝낼 수 있다.
+3. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
 
 ### 고친 것 (주석·문서를 코드에 맞춤)
 
@@ -6683,6 +6681,7 @@ function canDrawText(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderi
 
 ### 고친 것 (코드)
 
+- 방문이 애니메이션 없이 즉시 열리던 것을 다른 문과 같은 approach 젖힘으로 맞췄다 (`use-door-swing.ts`, 방문·화장실·안방 문이 같이 쓴다).
 - `OuterDrift`: color·pixelRatio 갱신을 머티리얼의 uniform에 직접 쓴다. 예전에는 pixelRatio가 DPR이 바뀌어도 반영되지 않았다.
 - `MemoryBurst`: 두 useEffect에 의존성 배열을 달았다 (매 렌더 실행하던 것만 사라지고 결과는 같다).
 - 죽은 CSS: `bat-swing`·`duel-combo`·`duel-alert` 애니메이션과 reduced-motion의 `page-flip-next/-prev`.
