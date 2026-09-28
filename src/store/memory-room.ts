@@ -98,6 +98,9 @@ export type HotspotStatus = "locked" | "available" | "done";
 /** 카메라가 붙들릴 수 있는 대상. 기억이 아닌 물건이라 CameraFocusId와 따로 센다. */
 export type CameraHoldId = "sink-cabinet";
 
+/** 같은 혼잣말을 다시 띄우기까지의 틈(ms). RemarkLine이 한 줄을 세워 두는 최소 시간과 같다. */
+const REMARK_REPEAT_MS = 3200;
+
 export type RemarkId =
   | "door-stay"
   | "door-ready"
@@ -113,7 +116,9 @@ export type RemarkId =
   // 천장 에어컨 (쉼표 비트): 11월이라 틀 일이 없다. 진행에 아무것도 남기지 않는다
   | "aircon"
   // 이미 본 기억을 다시 눌렀을 때: 그 기억의 마지막 기록 문장 (remark.memoryId)
-  | "seen";
+  | "seen"
+  // 필요한 물건 없이 문제 판을 조작했을 때: 떠 있는 판의 needsItem 한 줄 (피아노: 악보)
+  | "needs-item";
 
 export type UiLockId =
   | "hud-menu"
@@ -367,8 +372,6 @@ export interface MemoryRoomState {
    * 저장하지 않는다.
    */
   puzzleCleared: boolean;
-  /** 붙잡은 문제가 손에 없는 물건 때문에 입력을 막았다: 무엇이 필요한지 한 줄이 선다. 저장 안 함. */
-  puzzleBlocked: boolean;
   /** 풀어낸 미궁 문제. 저장된다. */
   solvedPuzzles: PuzzleId[];
   /**
@@ -1023,7 +1026,6 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       nameIntroPending: false,
       activePuzzle: null,
       puzzleCleared: false,
-      puzzleBlocked: false,
       solvedPuzzles: [],
       discoveries: [],
       notebookOpened: false,
@@ -1305,7 +1307,6 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           walkTarget: null,
           activePuzzle: null,
           puzzleCleared: false,
-          puzzleBlocked: false,
           activeInteraction:
             state.activeInteraction?.phase === "minigame" ? null : state.activeInteraction,
         })),
@@ -1340,7 +1341,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           if (state.activePuzzle || state.solvedPuzzles.includes(id)) return state;
           // 하부장 다이얼은 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만 연다 (v4 3-5)
           if (id === "sink-dial" && !selectSinkHintRead(state)) return state;
-          return { activePuzzle: id, puzzleBlocked: false };
+          return { activePuzzle: id };
         }),
       closePuzzle: () =>
         set((state) =>
@@ -1348,9 +1349,18 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           state.activePuzzle && !state.puzzleCleared ? { activePuzzle: null } : state,
         ),
       blockPuzzle: () =>
-        set((state) =>
-          state.activePuzzle && !state.puzzleBlocked ? { puzzleBlocked: true } : state,
-        ),
+        set((state) => {
+          if (!state.activePuzzle) return state;
+          /*
+           * 손에 없는 물건 때문에 판이 입력을 막았다. 막힐 때마다 바닥의 혼잣말(RemarkLine)로
+           * 한 줄을 흘린다. 판에 앉은 채라 sayRemark의 입력 잠금을 거치지 않는다. 건반을
+           * 연달아 두드려도 떠 있는 줄을 매번 새로 띄우지 않는다: 다 읽히고 사라진 뒤에
+           * 누르면 다시 선다.
+           */
+          const showing =
+            state.remark?.id === "needs-item" && Date.now() - state.remark.at < REMARK_REPEAT_MS;
+          return showing ? state : { remark: { id: "needs-item" as const, at: Date.now() } };
+        }),
       settlePuzzle: () =>
         set((state) =>
           state.activePuzzle && !state.puzzleCleared ? { puzzleCleared: true } : state,
@@ -1380,7 +1390,6 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           return {
             activePuzzle: null,
             puzzleCleared: false,
-            puzzleBlocked: false,
             solvedPuzzles: [...state.solvedPuzzles, solved],
             ...reward,
           };
@@ -1443,7 +1452,6 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           dialogueLogOpen: false,
           activePuzzle: null,
           puzzleCleared: false,
-          puzzleBlocked: false,
           solvedPuzzles: [],
           discoveries: [],
           notebookOpened: false,

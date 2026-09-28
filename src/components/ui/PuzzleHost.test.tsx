@@ -6,6 +6,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { i18n } from "@/i18n/config";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { PuzzleHost } from "./PuzzleHost";
+import { RemarkLine } from "./RemarkLine";
 
 vi.mock("./SuccessBurst", () => ({ SuccessBurst: () => null }));
 
@@ -42,22 +43,34 @@ it("피아노를 풀면 결과 카드가 서고, 계속을 눌러야 문제가 �
   expect(state.solvedPuzzles).toContain("piano-melody");
 });
 
-it("악보 조각 없이 건반을 누르면 악보가 필요하다는 한 줄이 선다", () => {
+it("악보 조각 없이 건반을 누르면 악보가 필요하다는 혼잣말이 바닥에 선다", () => {
   act(() => useMemoryRoomStore.getState().openPuzzle("piano-melody"));
-  render(<PuzzleHost />);
+  render(
+    <>
+      <PuzzleHost />
+      <RemarkLine />
+    </>,
+  );
+  const line = i18n.t("minigame.pianoMelody.missing");
   // 앉자마자는 아니다: 살펴볼 틈을 둔다
-  expect(screen.queryByText(i18n.t("minigame.pianoMelody.missing"))).toBeNull();
+  expect(screen.queryByText(line)).toBeNull();
   // 판(CanvasMinigameHost)이 건반 입력을 막았다고 알린다
   act(() => useMemoryRoomStore.getState().blockPuzzle());
-  expect(screen.getByText(i18n.t("minigame.pianoMelody.missing"))).toBeTruthy();
+  // 판의 안내 칩이 아니라 혼잣말 줄이다
+  expect(screen.getByText(line).closest("[role=status]")).toBeNull();
+  expect(screen.getByText(line).className).toContain("font-pixel");
+
+  // 떠 있는 동안 또 두드려도 줄을 새로 띄우지 않는다
+  const first = useMemoryRoomStore.getState().remark;
+  act(() => useMemoryRoomStore.getState().blockPuzzle());
+  expect(useMemoryRoomStore.getState().remark).toBe(first);
   cleanup();
 
   act(() => {
     useMemoryRoomStore.getState().closePuzzle();
     useMemoryRoomStore.getState().takeItem("piano-sheet");
     useMemoryRoomStore.getState().openPuzzle("piano-melody");
-    useMemoryRoomStore.getState().blockPuzzle();
   });
-  render(<PuzzleHost />);
-  expect(screen.queryByText(i18n.t("minigame.pianoMelody.missing"))).toBeNull();
+  render(<RemarkLine />);
+  expect(screen.queryByText(line)).toBeNull();
 });

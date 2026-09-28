@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { lastVisitDone } from "@/data/story-phase";
 import { usePointerKind } from "@/i18n/control-hint";
+import { getMinigame } from "@/minigames";
 import {
   type RemarkId,
   selectBatReady,
@@ -19,7 +20,7 @@ const SHOW_MS = 3200;
 const SHOW_PER_CHAR_MS = 90;
 
 /** 혼잣말 id → 본문 키 (common.json). 방문의 두 줄은 예전 자리(door.*)에 그대로 있다. */
-const REMARK_TEXT: Record<Exclude<RemarkId, "seen">, CommonTextKey> = {
+const REMARK_TEXT: Record<Exclude<RemarkId, "seen" | "needs-item">, CommonTextKey> = {
   "door-stay": "door.nudgeStay",
   "door-ready": "door.nudgeBat",
   "computer-off": "remark.computerOff",
@@ -54,6 +55,11 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen">, CommonTextKey> = {
  */
 const POSITION_CLASS = { keys: "bottom-20", touch: "bottom-56" } as const;
 const ABOVE_CALLOUT_CLASS = { keys: "bottom-20 md:bottom-28", touch: "bottom-56" } as const;
+/**
+ * 씬 안의 문제 판(피아노)이 떠 있을 때. 바닥 위 24px부터 조작 안내 칩과 돌아가기
+ * 버튼(PuzzleHost)이 약 110px까지 쌓여 있어 그 위로 비켜선다.
+ */
+const ABOVE_PUZZLE_CLASS = { keys: "bottom-32", touch: "bottom-56" } as const;
 
 export function RemarkLine() {
   const { t } = useTranslation();
@@ -61,13 +67,19 @@ export function RemarkLine() {
   const { t: tRoom } = useTranslation("memoryRoom");
   const remark = useMemoryRoomStore((state) => state.remark);
   // MemoryRoom의 문·배트 안내 줄과 같은 조건
+  // 문제 판이 떠 있으면 바닥에 판의 안내·돌아가기(PuzzleHost)가 서 있다
+  const puzzleOpen = useMemoryRoomStore((state) => state.activePuzzle !== null);
   const calloutShown = useMemoryRoomStore(
     (state) => (selectDoorReady(state) || selectBatReady(state)) && !state.endingStarted,
   );
-  const position = (calloutShown ? ABOVE_CALLOUT_CLASS : POSITION_CLASS)[pointerKind];
+  const position = (
+    puzzleOpen ? ABOVE_PUZZLE_CLASS : calloutShown ? ABOVE_CALLOUT_CLASS : POSITION_CLASS
+  )[pointerKind];
   const collected = useMemoryRoomStore((state) => state.collected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const rechecked = useMemoryRoomStore((state) => state.rechecked);
+  const activePuzzle = useMemoryRoomStore((state) => state.activePuzzle);
+  const inventory = useMemoryRoomStore((state) => state.inventory);
   const [visible, setVisible] = useState(false);
 
   let text = "";
@@ -78,6 +90,10 @@ export function RemarkLine() {
     if (remark.memoryId && visit) {
       text = tRoom(`lore.${remark.memoryId}.phase${visit}` as ParseKeys<"memoryRoom">);
     }
+  } else if (remark?.id === "needs-item") {
+    // 떠 있는 판이 무엇을 기다리는지. 판을 내려놓으면 줄도 같이 물러난다
+    const needs = activePuzzle ? getMinigame(activePuzzle)?.needsItem : undefined;
+    if (needs && !(inventory as readonly string[]).includes(needs.id)) text = t(needs.hintKey);
   } else if (remark) {
     text = t(REMARK_TEXT[remark.id]);
   }

@@ -89,7 +89,6 @@ export function PuzzleHost() {
   const closePuzzle = useMemoryRoomStore((state) => state.closePuzzle);
   const settlePuzzle = useMemoryRoomStore((state) => state.settlePuzzle);
   const cleared = useMemoryRoomStore((state) => state.puzzleCleared);
-  const blocked = useMemoryRoomStore((state) => state.puzzleBlocked);
   const blockPuzzle = useMemoryRoomStore((state) => state.blockPuzzle);
   // 손에 든 것. 문제 화면이 "저쪽에서 가져온 것"을 보고 달라진다 (MinigameProps의 carrying)
   const carrying = useMemoryRoomStore((state) => state.inventory);
@@ -150,15 +149,11 @@ export function PuzzleHost() {
             role="status"
             className="rounded-sm border border-line bg-surface px-3 py-1.5 text-center text-xs font-medium text-ivory shadow-chip"
           >
+            {/*
+              필요한 물건 없이 조작했을 때의 한 줄("악보가 필요하다")은 여기 없다. 도해의
+              혼잣말이라 바닥의 혼잣말 자리(RemarkLine)에 선다 (스토어의 blockPuzzle)
+            */}
             <MinigameHelp help={hint(canvasHosted.helpKey)} className="break-ko text-pretty" />
-            {/* 필요한 물건 없이 조작했을 때만: 판에 앉자마자 막힌다고 말하면 살펴볼 틈이 없다 */}
-            {blocked &&
-              canvasHosted.needsItem &&
-              !(carrying as readonly string[]).includes(canvasHosted.needsItem.id) && (
-                <p className="mt-1 break-ko text-pretty text-memory">
-                  {t(canvasHosted.needsItem.hintKey)}
-                </p>
-              )}
           </div>
           {/*
             돌아가기. 오른쪽 위 구석에 두면 HUD(z-30, 메뉴·평면도)에 깔려 눌리지 않았다.
