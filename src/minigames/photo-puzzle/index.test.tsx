@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 
-import { cleanup, render } from "@testing-library/react";
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { i18n } from "@/i18n/config";
 import { ASSETS } from "@/lib/assets";
 import { PhotoPuzzleMinigame } from "./index";
@@ -41,8 +41,8 @@ describe("PhotoPuzzleMinigame", () => {
     const { container } = render(<PhotoPuzzleMinigame onComplete={() => {}} />);
     const positions = tiles(container).map((tile) => tile.style.backgroundPosition);
 
-    // 빈칸 하나를 뺀 나머지가 서로 다른 조각이어야 한다 (같은 자리를 두 번 자르면 겹친다)
-    expect(new Set(positions).size).toBe(TILE_COUNT - 1);
+    // 아홉 조각이 서로 다른 조각이어야 한다 (같은 자리를 두 번 자르면 겹친다)
+    expect(new Set(positions).size).toBe(TILE_COUNT);
     for (const position of positions) {
       expect(position).toMatch(/^(0|50|100)% (0|50|100)%$/);
     }
@@ -56,6 +56,30 @@ describe("PhotoPuzzleMinigame", () => {
     for (const tile of container.querySelectorAll("button")) {
       expect(tile.style.aspectRatio).not.toBe("");
     }
+  });
+
+  it("swaps two pieces at a time until the photo is whole", () => {
+    vi.useFakeTimers();
+    const onComplete = vi.fn();
+    const { container } = render(<PhotoPuzzleMinigame onComplete={onComplete} />);
+    const slice = (index: number) =>
+      (tiles(container)[index] as HTMLElement).style.backgroundPosition;
+    const home = (tile: number) => {
+      const x = ((tile % PUZZLE_SIZE) / (PUZZLE_SIZE - 1)) * 100;
+      const y = (Math.floor(tile / PUZZLE_SIZE) / (PUZZLE_SIZE - 1)) * 100;
+      return `${x}% ${y}%`;
+    };
+
+    // 자리마다 제 조각을 찾아 맞바꾼다: 많아야 여덟 번
+    for (let index = 0; index < TILE_COUNT; index += 1) {
+      if (slice(index) === home(index)) continue;
+      const from = tiles(container).findIndex((_, at) => slice(at) === home(index));
+      fireEvent.click(tiles(container)[index]);
+      fireEvent.click(tiles(container)[from]);
+    }
+    act(() => vi.advanceTimersByTime(1000));
+    expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({ cleared: true }));
+    vi.useRealTimers();
   });
 
   it("draws the revealed photo, not the shaded one", () => {

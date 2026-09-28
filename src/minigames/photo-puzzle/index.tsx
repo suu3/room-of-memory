@@ -8,24 +8,18 @@ import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
 import {
-  BLANK_TILE,
   type Board,
-  canMove,
+  type CursorDirection,
+  isPlaced,
   isSolved,
-  moveAt,
+  moveCursor,
   PUZZLE_SIZE,
-  type SlideDirection,
-  scrambledBoard,
-  slide,
+  shuffledBoard,
+  swap,
   tileBackgroundPosition,
 } from "./puzzle";
 
 const SKIP_AFTER_MS = 40_000;
-/**
- * 섞는 수. 2026-09-26에 24에서 12로: 클라이맥스 직전이라 퍼즐에 오래 붙들지 않는다.
- * 이 정도면 한눈에 답이 보이진 않고, 열 번 남짓 밀면 맞는다.
- */
-const SCRAMBLE_MOVES = 12;
 /** 조각 하나가 잘라 쓸 배경의 크기: 가로·세로 **둘 다** 격자 배수여야 한다. */
 const TILE_BACKGROUND_SIZE = `${PUZZLE_SIZE * 100}% ${PUZZLE_SIZE * 100}%`;
 
@@ -76,7 +70,7 @@ function usePhotoAspect(src: string): number {
   return aspect;
 }
 
-const ARROW_DIRECTIONS: Record<string, SlideDirection> = {
+const ARROW_DIRECTIONS: Record<string, CursorDirection> = {
   ArrowUp: "up",
   ArrowDown: "down",
   ArrowLeft: "left",
@@ -89,25 +83,39 @@ const ARROW_DIRECTIONS: Record<string, SlideDirection> = {
  * 1차는 뿌연 유리를 닦는 게임이었다. 같은 액자를 또 닦게 하면 2바퀴가 1바퀴의
  * 재탕이 되므로, 여기서는 조각난 사진을 다시 맞춘다. 흩어진 것을 제자리로
  * 돌려놓는 동작이 2바퀴의 주제와 같다.
+ *
+ * 조각 하나를 누르면 금빛 테를 두르고 들리고, 다른 조각을 누르면 둘이 자리를 바꾼다.
+ * 제자리에 들어간 조각은 틈이 사라지며 사진에 붙는다: 더 집히지 않는다 (puzzle.ts).
  */
 export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
-  const [board, setBoard] = useState<Board>(() => scrambledBoard(SCRAMBLE_MOVES, Math.random));
+  const [board, setBoard] = useState<Board>(() => shuffledBoard(Math.random));
+  /** 들어 올린 조각의 자리. 다음에 누른 조각과 맞바꾼다. */
+  const [held, setHeld] = useState<number | null>(null);
   const [moves, setMoves] = useState(0);
   const [solved, setSolved] = useState(false);
   const skipEligible = useSkipEligible(SKIP_AFTER_MS);
   const aspect = usePhotoAspect(ASSETS.images.mgPhotoWipePhase2);
+  const tileRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  /*
-   * 판을 한 번 민다. 못 미는 자리를 눌렀으면 아무 일도 일어나지 않는다.
-   * 막힌 조각마다 실패음을 울리면 손이 바쁜 구간이 시끄러워진다.
-   */
-  const applyRef = useRef((_next: Board) => {});
-  applyRef.current = (next: Board) => {
-    if (solved || next === board) return;
+  /* 조각 하나를 누른다: 들거나, 내려놓거나, 들고 있던 것과 맞바꾼다. */
+  const pickRef = useRef((_index: number) => {});
+  pickRef.current = (index: number) => {
+    if (solved || isPlaced(board, index)) return;
+    if (held === null) {
+      setHeld(index);
+      playSound("select", { variation: 0.05 });
+      return;
+    }
+    if (held === index) {
+      setHeld(null);
+      return;
+    }
+    const next = swap(board, held, index);
     setBoard(next);
+    setHeld(null);
     setMoves((count) => count + 1);
     if (!isSolved(next)) {
       playSound("flip");
@@ -118,10 +126,6 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
     playSound("collect");
   };
 
-  // 창 전역 키 핸들러는 한 번만 붙으므로, 최신 판은 렌더마다 갱신되는 ref로 건넨다
-  const slideRef = useRef((_direction: SlideDirection) => {});
-  slideRef.current = (direction: SlideDirection) => applyRef.current(slide(board, direction));
-
   // 맞추고 나면 사진 한 장이 남는다. 잠깐 보여준 뒤 결과 대사로 넘긴다.
   useEffect(() => {
     if (!solved) return;
@@ -129,13 +133,18 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
     return () => window.clearTimeout(timer);
   }, [solved, moves, complete]);
 
-  // 방향키만으로 끝까지 플레이할 수 있어야 한다 (.claude/rules/minigames.md)
+  /*
+   * 방향키만으로 끝까지 플레이할 수 있어야 한다 (.claude/rules/minigames.md). 방향키는
+   * 포커스를 옆 조각으로 옮기고, Enter·Space는 버튼 그 자체라 누르기와 같다.
+   */
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const direction = ARROW_DIRECTIONS[event.key];
-      if (!direction || event.repeat) return;
+      if (!direction) return;
       event.preventDefault();
-      slideRef.current(direction);
+      const focused = tileRefs.current.indexOf(document.activeElement as HTMLButtonElement | null);
+      const next = focused < 0 ? 0 : moveCursor(focused, direction);
+      tileRefs.current[next]?.focus();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -156,33 +165,39 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
       >
         {board.map((tile, index) => {
           const position = tileBackgroundPosition(tile);
-          // 다 맞춘 뒤에는 빈칸도 사진으로 메워 한 장으로 남긴다
-          const empty = tile === BLANK_TILE && !solved;
-          const movable = !solved && canMove(board, index);
+          const placed = isPlaced(board, index);
+          const lifted = held === index;
+          const movable = !solved && !placed;
 
           return (
             <button
               // biome-ignore lint/suspicious/noArrayIndexKey: 자리(index)가 곧 격자 칸이라 조각이 바뀌어도 같은 칸이다.
               key={index}
               type="button"
-              disabled={!movable}
+              ref={(node) => {
+                tileRefs.current[index] = node;
+              }}
+              // disabled 대신 aria-disabled: 방향키 포커스가 제자리 조각을 건너뛰지 않게
+              aria-disabled={!movable}
+              aria-pressed={lifted}
               aria-label={t("minigame.photoPuzzle.tile", { value: tile + 1 })}
-              onClick={() => applyRef.current(moveAt(board, index))}
+              onClick={() => pickRef.current(index)}
               // 조각에도 바탕을 깔아 둔다. 사진이 붙기 전에 빈 칸으로 비지 않게
-              className={`transition-[opacity,transform] duration-150 ${
-                empty ? "bg-ivory/10" : "bg-bone"
-              } ${movable ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory`}
+              className={`relative bg-bone transition-[opacity,transform] duration-150 ${
+                lifted ? "z-10 -translate-y-1 scale-[1.03]" : ""
+              } ${movable ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"} focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory`}
               style={{
                 // 조각도 사진과 같은 비율이어야 한다. 정사각 칸에 넣으면 사진이 눌린다
                 aspectRatio: aspect,
-                boxShadow: TILE_SEAM,
-                ...(empty
-                  ? null
-                  : {
-                      backgroundImage: `url(${ASSETS.images.mgPhotoWipePhase2})`,
-                      backgroundSize: TILE_BACKGROUND_SIZE,
-                      backgroundPosition: `${position.x}% ${position.y}%`,
-                    }),
+                // 들린 조각은 금빛 테, 제자리 조각은 틈 없이 사진에 붙는다 (다 맞추면 한 장)
+                boxShadow: lifted
+                  ? `inset 0 0 0 ${SEAM_PX}px var(--color-memory), ${TILE_SEAM}`
+                  : placed
+                    ? "none"
+                    : TILE_SEAM,
+                backgroundImage: `url(${ASSETS.images.mgPhotoWipePhase2})`,
+                backgroundSize: TILE_BACKGROUND_SIZE,
+                backgroundPosition: `${position.x}% ${position.y}%`,
               }}
             />
           );

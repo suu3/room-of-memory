@@ -380,9 +380,9 @@
     },
     "photoPuzzle": {
       "title": "Piece It Together",
-      "help": "Slide the pieces with the arrow keys to rebuild the photo",
-      "help_touch": "Tap a piece to slide it into the gap and rebuild the photo",
-      "moves": "Moves",
+      "help": "Pick pieces with the arrow keys and press Enter on two to swap them and rebuild the photo",
+      "help_touch": "Tap two pieces in turn to swap them and rebuild the photo",
+      "moves": "Swaps",
       "tile": "Piece {{value}}"
     },
     "answer": {

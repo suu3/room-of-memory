@@ -1,22 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
-  BLANK_TILE,
-  type Board,
-  blankIndex,
-  canMove,
+  isPlaced,
   isSolved,
-  moveAt,
+  moveCursor,
   PUZZLE_SIZE,
-  scramble,
-  scrambledBoard,
-  slide,
-  slideSource,
+  shuffledBoard,
   solvedBoard,
+  swap,
   TILE_COUNT,
   tileBackgroundPosition,
 } from "./puzzle";
 
-/** 0,1,2,… 를 차례로 뱉는 결정적 무작위원: 섞기를 재현 가능하게 만든다. */
+/** 정해 둔 값을 차례로 뱉는 결정적 무작위원: 섞기를 재현 가능하게 만든다. */
 function cyclicRandom(values: number[]): () => number {
   let index = 0;
   return () => {
@@ -26,102 +21,70 @@ function cyclicRandom(values: number[]): () => number {
   };
 }
 
-describe("판 뒤집기", () => {
+describe("맞바꾸기", () => {
   it("맞춘 판은 자리와 조각이 같다", () => {
     expect(isSolved(solvedBoard())).toBe(true);
-    expect(blankIndex(solvedBoard())).toBe(TILE_COUNT - 1);
+    expect(isPlaced(solvedBoard(), 4)).toBe(true);
   });
 
-  it("빈칸과 맞닿은 자리만 움직인다", () => {
+  it("두 자리를 바꾸고, 같은 자리나 범위 밖이면 그대로 둔다", () => {
     const board = solvedBoard();
-    const blank = blankIndex(board);
-
-    expect(canMove(board, blank - 1)).toBe(true);
-    expect(canMove(board, blank - PUZZLE_SIZE)).toBe(true);
-    // 대각선은 맞닿은 것이 아니다
-    expect(canMove(board, blank - PUZZLE_SIZE - 1)).toBe(false);
-    // 판 밖
-    expect(canMove(board, TILE_COUNT)).toBe(false);
-    expect(canMove(board, -1)).toBe(false);
-  });
-
-  it("못 움직이는 자리를 누르면 판이 그대로다", () => {
-    const board = solvedBoard();
-
-    expect(moveAt(board, 0)).toBe(board);
-  });
-
-  it("한 번 민 판을 되밀면 원래대로 돌아온다", () => {
-    const board = solvedBoard();
-    const moved = moveAt(board, blankIndex(board) - 1);
-
-    expect(isSolved(moved)).toBe(false);
-    expect(isSolved(moveAt(moved, blankIndex(board)))).toBe(true);
-  });
-});
-
-describe("방향키", () => {
-  it("빈칸 반대편 조각이 그 방향으로 밀려온다", () => {
-    const board = solvedBoard();
-    const blank = blankIndex(board);
-
-    // 오른쪽 아래가 비어 있으니 왼쪽·위로는 밀어올 조각이 없다
-    expect(slideSource(board, "left")).toBe(-1);
-    expect(slideSource(board, "up")).toBe(-1);
-    expect(slideSource(board, "right")).toBe(blank - 1);
-    expect(slideSource(board, "down")).toBe(blank - PUZZLE_SIZE);
-  });
-
-  it("밀 수 없는 방향은 판을 바꾸지 않는다", () => {
-    const board = solvedBoard();
-
-    expect(slide(board, "left")).toBe(board);
-  });
-
-  it("네 방향만으로 맞춘 판을 흐트러뜨렸다 되돌릴 수 있다", () => {
-    let board: Board = solvedBoard();
-    board = slide(board, "right");
-    board = slide(board, "down");
-    expect(isSolved(board)).toBe(false);
-
-    board = slide(board, "up");
-    board = slide(board, "left");
-    expect(isSolved(board)).toBe(true);
+    const swapped = swap(board, 0, 8);
+    expect(swapped[0]).toBe(8);
+    expect(swapped[8]).toBe(0);
+    expect(isSolved(swapped)).toBe(false);
+    expect(swap(swapped, 0, 8)).toEqual(board);
+    expect(swap(board, 3, 3)).toBe(board);
+    expect(swap(board, -1, 3)).toBe(board);
   });
 });
 
 describe("섞기", () => {
-  it("합법 수만 밟으므로 언제나 풀 수 있는 배치가 나온다", () => {
-    // 합법 수의 결과라는 것 자체가 풀이 가능성의 증명이다. 조각 구성이 온전한지 본다
-    for (let seed = 0; seed < 12; seed += 1) {
-      const board = scramble(30, cyclicRandom([seed / 12, 0.5, 0.9, 0.2]));
-      expect([...board].sort((a, b) => a - b)).toEqual(
-        Array.from({ length: TILE_COUNT }, (_, index) => index),
-      );
+  it("조각을 하나씩 다 쓰고, 정답이 아니며, 제자리 조각은 많아야 둘이다", () => {
+    for (const seed of [0.1, 0.37, 0.52, 0.9]) {
+      const board = shuffledBoard(cyclicRandom([seed, 0.73, 0.21, 0.64, 0.05]));
+      expect([...board].sort((a, b) => a - b)).toEqual(solvedBoard());
+      expect(isSolved(board)).toBe(false);
+      expect(board.filter((_, index) => isPlaced(board, index)).length).toBeLessThanOrEqual(2);
     }
   });
 
-  it("첫 화면이 정답인 판은 내놓지 않는다", () => {
-    // 늘 0을 뱉는 무작위원은 되돌이 경로를 타기 쉬워 정답으로 되돌아오기 쉽다
-    expect(isSolved(scrambledBoard(24, () => 0))).toBe(false);
-    expect(isSolved(scrambledBoard(24, () => 0.999))).toBe(false);
-    expect(isSolved(scrambledBoard(24, Math.random))).toBe(false);
+  it("무작위원이 상수만 뱉어도 풀 것이 남는다", () => {
+    const board = shuffledBoard(() => 0.999);
+    expect(isSolved(board)).toBe(false);
   });
 
-  it("빈칸은 하나뿐이다", () => {
-    const board = scrambledBoard(24, cyclicRandom([0.1, 0.7, 0.4, 0.95]));
-
-    expect(board.filter((tile) => tile === BLANK_TILE)).toHaveLength(1);
+  it("어떤 섞음이든 여덟 번 안에 맞춰진다 (제자리에 하나씩 넣으면)", () => {
+    let board = shuffledBoard(cyclicRandom([0.3, 0.8, 0.1, 0.6]));
+    let swaps = 0;
+    for (let index = 0; index < TILE_COUNT; index += 1) {
+      if (isPlaced(board, index)) continue;
+      board = swap(board, index, board.indexOf(index));
+      swaps += 1;
+    }
+    expect(isSolved(board)).toBe(true);
+    expect(swaps).toBeLessThanOrEqual(TILE_COUNT - 1);
   });
 });
 
-describe("조각이 사진의 어느 부분인지", () => {
-  it("첫 조각은 왼쪽 위, 마지막 조각은 오른쪽 아래다", () => {
-    expect(tileBackgroundPosition(0)).toEqual({ x: 0, y: 0 });
-    expect(tileBackgroundPosition(TILE_COUNT - 1)).toEqual({ x: 100, y: 100 });
+describe("칸 고르기", () => {
+  it("방향키로 옆 칸에 가고, 가장자리에서는 머문다", () => {
+    const center = Math.floor(TILE_COUNT / 2);
+    expect(moveCursor(center, "left")).toBe(center - 1);
+    expect(moveCursor(center, "right")).toBe(center + 1);
+    expect(moveCursor(center, "up")).toBe(center - PUZZLE_SIZE);
+    expect(moveCursor(center, "down")).toBe(center + PUZZLE_SIZE);
+    expect(moveCursor(0, "left")).toBe(0);
+    expect(moveCursor(0, "up")).toBe(0);
+    expect(moveCursor(TILE_COUNT - 1, "right")).toBe(TILE_COUNT - 1);
+    expect(moveCursor(TILE_COUNT - 1, "down")).toBe(TILE_COUNT - 1);
   });
+});
 
-  it("같은 행의 조각은 세로 위치가 같다", () => {
-    expect(tileBackgroundPosition(0).y).toBe(tileBackgroundPosition(PUZZLE_SIZE - 1).y);
+describe("사진 자르기", () => {
+  it("조각마다 사진의 삼분의 일을 가리킨다", () => {
+    expect(tileBackgroundPosition(0)).toEqual({ x: 0, y: 0 });
+    expect(tileBackgroundPosition(PUZZLE_SIZE - 1)).toEqual({ x: 100, y: 0 });
+    expect(tileBackgroundPosition(TILE_COUNT - 1)).toEqual({ x: 100, y: 100 });
   });
 });
