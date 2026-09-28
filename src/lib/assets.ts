@@ -189,9 +189,12 @@ export const ASSETS = {
    * 그림을 바꾸면 dev 서버의 /ar/compile에서 다시 굽고 targetImage와 v를 같이 올린다.
    */
   ar: {
-    target: "/assets/ar/ar-target-hero.mind?v=2",
-    /** 타깃으로 구운 원본 그림. /ar/target이 모니터에 띄워 테스트용 카드 대신 쓴다. */
-    targetImage: "/assets/images/character-hero-sheet.webp?v=2",
+    target: "/assets/ar/ar-target-hero.mind?v=3",
+    /**
+     * 주문한 포토카드 앞면 (55×85). 타깃은 재단 오차를 넘기려 가장자리를 조금 덜고 구웠다.
+     * /ar/target이 모니터에 띄워 인쇄한 카드 대신 쓴다.
+     */
+    targetImage: "/assets/images/ar-card-front.webp?v=1",
   },
   video: {
     endingFilm: "/assets/video/ending-film.mp4?v=20260926-sound",
