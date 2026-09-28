@@ -37,7 +37,12 @@ export default function ArCompilePage() {
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(original.naturalWidth * ratio);
     canvas.height = Math.round(original.naturalHeight * ratio);
-    canvas.getContext("2d")?.drawImage(original, 0, 0, canvas.width, canvas.height);
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("캔버스를 열 수 없다");
+    // 투명한 곳은 굽는 쪽이 검정(0)으로 읽는다. 인쇄하면 흰 종이이므로 흰 바탕을 먼저 깐다.
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(original, 0, 0, canvas.width, canvas.height);
     const image = await loadImage(canvas.toDataURL("image/png"));
     const compiler = new Compiler();
     const targets = (await compiler.compileImageTargets([image], (percent) =>

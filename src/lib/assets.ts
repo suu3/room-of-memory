@@ -189,7 +189,7 @@ export const ASSETS = {
    * 그림을 바꾸면 dev 서버의 /ar/compile에서 다시 굽고 targetImage와 v를 같이 올린다.
    */
   ar: {
-    target: "/assets/ar/ar-target-hero.mind?v=1",
+    target: "/assets/ar/ar-target-hero.mind?v=2",
     /** 타깃으로 구운 원본 그림. /ar/target이 모니터에 띄워 테스트용 카드 대신 쓴다. */
     targetImage: "/assets/images/character-hero-sheet.webp?v=2",
   },
