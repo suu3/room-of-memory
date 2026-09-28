@@ -178,7 +178,7 @@ export const ASSETS = {
     characterHeroSurprised: "/assets/images/character-hero-surprised.webp?v=3",
     characterHeroSad: "/assets/images/character-hero-sad.webp?v=1",
     characterHeroPuzzled: "/assets/images/character-hero-puzzled.webp?v=1",
-    characterHeroSheet: "/assets/images/character-hero-sheet.webp?v=2",
+    characterHeroSheet: "/assets/images/character-hero-sheet.webp?v=3",
   },
   /**
    * 엔딩 영상. 현관문을 열면 튼다 (EndingScreen). 1920×1080 H.264 3.5Mbps + AAC,
