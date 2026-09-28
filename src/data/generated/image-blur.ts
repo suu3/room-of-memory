@@ -3,9 +3,9 @@
 /** 그림 경로(`?v=` 없이) → 흐린 미리보기 data URL. */
 export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-day-1.webp":
-    "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAADQAQCdASoQAAkAAsBMJQBOj+ABcN7UwAD++VE7JrzuN0JImQ9RKrxxZDPrMhZT/D/GQJtlaoYlN+MQ7cVssdmSuL7SAeiC8FdRlAHSL9m5QecujmxvWudF2+S1IAAA",
+    "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADwAQCdASoQAAkAAsBMJQBOj+ACAY+hVAAA/vlROya87jdCSJkPUSq8cWQz6zIWU/w/xkB+owBKdig3CA2c+tGX2BLlAqPrmucHnECc5/5vk7ZUMdylv5r9vJgAAA==",
   "/assets/images/cutscene-day-2.webp":
-    "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADQAQCdASoQAAkAAsBMJQBOgBnuhY+fAAD+9Lec/WNXLSo2WDnb3QMx6arrjJT8S1D6N12tvSPQF4zKMAbOFarhwbh/LYn0oyn9q8nYZw6GfZWllJr35AAA",
+    "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAACwAQCdASoQAAkAAsBMJQBOgBm+gXaAAP70t5z9Y3V9CQ3ddHLp+m56LYwbHfenuNXusx1s4gDjNg2N/0S+vS85Tg3D+WxPqa6JGRRmg0h0M+ytLKTXvyAA",
   "/assets/images/cutscene-day-3.webp":
     "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAwAgCdASoQAAkAAsBMJYgCdAYulvMTA3QMIAD+vH39zw7ld/EIA3Y58MJFuNv69H/xPcTG+SR3YL4hn7r/yroNa0HGGxGHsVRMM4omJVU7sFywAAA=",
   "/assets/images/cutscene-day-4.webp":
@@ -15,7 +15,7 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-day-6.webp":
     "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAwAgCdASoQAAkAAsBMJYwC7AELz8weJGLhgAD++xgp5lhvcz4+lF3PBxYBih6a0PEH8TRgT9yS/T6gpJ7fndPYxlLYLNQS730bXkRksPg5dMCbAAA=",
   "/assets/images/cutscene-day-7.webp":
-    "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAwAgCdASoQAAkAAsBMJbACdAYtpt9UohzuIAD+9u3qxxWRrhMgLn0eWjseBzV6gdj2xVw4oy/JKT+QDbAQd8nt5O9n4FJejCOx5PxUgOSLaC+RnsUCldD7W7MpAfUXDdggEAAA",
+    "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAwAgCdASoQAAkAAsBMJbACdAYtpt9UohzuIAD+9u3qxxWRrhMgLn0eWjseBzV6gdj2xVw4oy/JKT+QDbAQd8nt5O9n4FJejCOx5PxUgOSLaC+SS24bSuh9rdmUgPqLhuwQCAAA",
   "/assets/images/cutscene-survivor-1.webp":
     "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAQCdASoQAAkAAsBMJZQCdADJyjqbywAA/upSsZCImpxc5uAkZxTF+3LfBOBtFloNGs75TkwDyfJhk9bN0ERNpJfTMf+HGexk/h5sQWefm0hko9DK+AAA",
   "/assets/images/cutscene-survivor-10.webp":
@@ -64,8 +64,8 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
 
 /** 구울 때 본 원본의 해시 (알파라 건너뛴 것까지). 그림이 바뀌었는데 다시 굽지 않았으면 테스트가 잡는다. */
 export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
-  "/assets/images/cutscene-day-1.webp": "28cb11c6c88e59ed",
-  "/assets/images/cutscene-day-2.webp": "c8997402caa73069",
+  "/assets/images/cutscene-day-1.webp": "9f3ea9a570130637",
+  "/assets/images/cutscene-day-2.webp": "792c5ad8798eb092",
   "/assets/images/cutscene-day-3.webp": "f4f4d183c8afa5c0",
   "/assets/images/cutscene-day-4.webp": "4fa42bbdd6cbd456",
   "/assets/images/cutscene-day-5.webp": "072c54cdd0ee8378",

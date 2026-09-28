@@ -26,16 +26,16 @@ const FREQ_MIN = 88;
 const FREQ_MAX = 108;
 
 /** 라디오 일러스트 원본 크기(px). */
-const FRAME = { width: 1598, height: 1174 };
+const FRAME = { width: 1597, height: 1159 };
 /** 그 안에서 알파로 뚫려 있는 표시창(px): 이미지에서 실측한 값. */
-const GLASS = { x: 66, y: 85, width: 1470, height: 416 };
+const GLASS = { x: 66, y: 84, width: 1470, height: 416 };
 /**
  * 표시창 바탕을 프레임 뒤로 물려 그리는 여유(px, 원본 기준).
  * 창 모서리가 둥글어서 딱 맞게 그리면 라운드 틈으로 뒷배경이 비친다.
  */
 const GLASS_BLEED = 14;
 /** 프레임에 그려진 TUNING 램프의 중심(%). 주파수가 맞을수록 여기가 밝아진다. */
-const LAMP = { left: "8.76%", top: "85.9%" };
+const LAMP = { left: "8.77%", top: "86.95%" };
 
 /** 원본 px 좌표 → 프레임 기준 inset 스타일. */
 function glassInset(bleed = 0): React.CSSProperties {

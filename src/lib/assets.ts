@@ -90,8 +90,8 @@ export const ASSETS = {
     /** 라온생명과학연구소 공통 심볼. 출입증·앰플·컴퓨터 화면에서 같은 도형을 쓴다. */
     raonLogo: "/assets/images/ui-raon-logo.svg?v=2",
     /** 라디오 반전에서 번지는 '그날' 7연작 (분기점 과거편, content/cutscenes.yaml의 radio-blackout). */
-    cutsceneDay1: "/assets/images/cutscene-day-1.webp?v=3",
-    cutsceneDay2: "/assets/images/cutscene-day-2.webp?v=2",
+    cutsceneDay1: "/assets/images/cutscene-day-1.webp?v=4",
+    cutsceneDay2: "/assets/images/cutscene-day-2.webp?v=3",
     cutsceneDay3: "/assets/images/cutscene-day-3.webp?v=2",
     cutsceneDay4: "/assets/images/cutscene-day-4.webp?v=2",
     cutsceneDay5: "/assets/images/cutscene-day-5.webp?v=3",
@@ -115,15 +115,15 @@ export const ASSETS = {
     mgPapersPaper: "/assets/images/mg-papers-paper.webp",
     mgBallCatchBall: "/assets/images/mg-ball-catch-ball.svg?v=2",
     mgBallCatchSunsetField: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
-    mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp?v=2",
+    mgBallCatchPitcher: "/assets/images/mg-ball-catch-pitcher.webp?v=3",
     mgBallCatchBat: "/assets/images/mg-ball-catch-bat.webp?v=2",
-    mgBallCatchImpact: "/assets/images/mg-ball-catch-impact.webp?v=2",
+    mgBallCatchImpact: "/assets/images/mg-ball-catch-impact.webp?v=3",
     /**
-     * 라디오 본체 일러스트 (1598×1174). 바깥 배경과 표시창이 알파로 뚫려 있어
+     * 라디오 본체 일러스트 (1597×1159). 바깥 배경과 표시창이 알파로 뚫려 있어
      * 다이얼을 뒤에 깔고 이 이미지를 위에 얹으면 창 안에 든 것처럼 보인다.
      * 창 좌표는 src/minigames/frequency-tune/index.tsx의 DIAL_WINDOW.
      */
-    mgFrequencyTuneFrame: "/assets/images/mg-frequency-tune-frame.webp?v=cutout-20260928",
+    mgFrequencyTuneFrame: "/assets/images/mg-frequency-tune-frame.webp?v=cutout-20260928b",
     /** 커튼을 걷었을 때 보이는 창밖 (1448×1086). 그날 이후의 도시가 그려져 있다. */
     mgWindowViewOutside: "/assets/images/mg-window-view-outside.webp",
     /**
