@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CAMERA_PRESETS } from "./layout";
-import { WALL_SIDES, wallOpacity } from "./wall-culling";
+import { CAMERA_PRESETS, MEMORY_SPACE, ROOM_SHELL_BOUNDS, ROOM_SHELL_CENTER } from "./layout";
+import { cameraBeyondWall, WALL_SIDES, wallOpacity, wallOpacityAt } from "./wall-culling";
 
 /** 기본 구도에서 카메라가 방 중심 기준 어느 쪽에 있는지 (XZ). */
 const BASE_DIR_X = CAMERA_PRESETS.room.position[0] - CAMERA_PRESETS.room.target[0];
@@ -53,5 +53,44 @@ describe("wallOpacity", () => {
   it("falls back to solid walls for a degenerate direction", () => {
     expect(wallOpacity("front", 0, 0)).toBe(1);
     expect(wallOpacity("front", Number.NaN, 0)).toBe(1);
+  });
+});
+
+describe("wallOpacityAt (CulledWall이 쓰는 판정)", () => {
+  it("방 안으로 들어온 클로즈업은 마주 보는 벽을 걷지 않는다", () => {
+    // 야구공 클로즈업: 방 중심에서 재면 왼벽이 거의 다 걷혔다. 거기 기댄 거울도 같이 사라졌다
+    const { position } = CAMERA_PRESETS.ball;
+    expect(
+      wallOpacityAt("left", position[0], position[2], ROOM_SHELL_CENTER, ROOM_SHELL_BOUNDS),
+    ).toBe(1);
+  });
+
+  it("방에서 조사하는 모든 구도에서 왼벽·뒷벽이 남는다", () => {
+    for (const [id, preset] of Object.entries(CAMERA_PRESETS)) {
+      if (id !== "room" && MEMORY_SPACE[id as keyof typeof MEMORY_SPACE] !== "room") continue;
+      const [x, , z] = preset.position;
+      for (const side of ["left", "back"] as const) {
+        expect(
+          wallOpacityAt(side, x, z, ROOM_SHELL_CENTER, ROOM_SHELL_BOUNDS),
+          `${id} ${side}`,
+        ).toBe(1);
+      }
+    }
+  });
+
+  it("밖에서 내려다보는 기본 구도는 예전 판정 그대로다", () => {
+    const [x, , z] = CAMERA_PRESETS.room.position;
+    for (const side of WALL_SIDES) {
+      expect(wallOpacityAt(side, x, z, ROOM_SHELL_CENTER, ROOM_SHELL_BOUNDS)).toBe(
+        wallOpacity(side, x - ROOM_SHELL_CENTER[0], z - ROOM_SHELL_CENTER[1]),
+      );
+    }
+  });
+
+  it("벽 바깥에 있을 때만 걷을 자격이 있다", () => {
+    expect(cameraBeyondWall("left", ROOM_SHELL_BOUNDS, -6.5, 0)).toBe(true);
+    expect(cameraBeyondWall("left", ROOM_SHELL_BOUNDS, -5, 0)).toBe(false);
+    expect(cameraBeyondWall("front", ROOM_SHELL_BOUNDS, 0, 7)).toBe(true);
+    expect(cameraBeyondWall("front", ROOM_SHELL_BOUNDS, 0, 6)).toBe(false);
   });
 });

@@ -11,6 +11,8 @@
  * 안 가린다(허용 범위).
  */
 
+import type { Aabb2 } from "./types";
+
 export type WallSide = "back" | "front" | "left" | "right";
 
 export const WALL_SIDES = ["back", "front", "left", "right"] as const satisfies readonly WallSide[];
@@ -55,4 +57,40 @@ export function wallOpacity(side: WallSide, dirX: number, dirZ: number): number 
   const [normalX, normalZ] = WALL_NORMALS[side];
   const facing = (normalX * dirX + normalZ * dirZ) / length;
   return 1 - smoothstep(FADE_START, FADE_END, facing);
+}
+
+/**
+ * 카메라가 그 벽의 바깥(공간 밖 쪽)에 있는가.
+ *
+ * 벽이 뭔가를 가리려면 카메라와 공간 사이에 서야 한다. 카메라가 벽 안쪽에 있으면
+ * 그 벽은 가리개가 아니라 배경이다. 조사 클로즈업은 카메라가 방 **안**으로 들어와
+ * 벽을 등지거나 마주 보는데, 방향만 보면 마주 보는 벽까지 "카메라 쪽 벽"으로 잡혀
+ * 거기 걸린 것(왼벽의 거울)이 함께 사라졌다.
+ */
+export function cameraBeyondWall(side: WallSide, bounds: Aabb2, x: number, z: number): boolean {
+  switch (side) {
+    case "left":
+      return x < bounds.minX;
+    case "right":
+      return x > bounds.maxX;
+    case "back":
+      return z < bounds.minZ;
+    case "front":
+      return z > bounds.maxZ;
+  }
+}
+
+/**
+ * 카메라 자리에서 본 벽 윗부분의 불투명도. CulledWall이 프레임마다 부르는 판정이다.
+ * `bounds`를 주면 카메라가 벽 안쪽에 있을 때 걷지 않는다.
+ */
+export function wallOpacityAt(
+  side: WallSide,
+  cameraX: number,
+  cameraZ: number,
+  center: readonly [x: number, z: number],
+  bounds?: Aabb2,
+): number {
+  if (bounds && !cameraBeyondWall(side, bounds, cameraX, cameraZ)) return 1;
+  return wallOpacity(side, cameraX - center[0], cameraZ - center[1]);
 }
