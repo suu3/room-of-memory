@@ -1,11 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { ServiceWorker } from "@/components/ui/ServiceWorker";
 import { I18nProvider } from "@/i18n/I18nProvider";
+import { siteOrigin } from "@/i18n/site-meta";
 import { FONT_VARIABLES } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  // 기준 언어(ko)의 이름. 다른 언어를 고르면 I18nProvider가 탭 제목을 바꿔 단다
+  // 언어 대체 링크(hreflang)와 미리보기 주소를 절대 주소로 푸는 뿌리 (site-meta.ts)
+  metadataBase: siteOrigin(),
+  // 기준 언어(ko)의 이름. 방 페이지(/ · /en · /ja)는 제 언어의 메타데이터로 덮는다
+  // (site-meta.ts). 게임 안에서 언어를 고르면 I18nProvider가 탭 제목을 바꿔 단다
   title: "기억의 방",
   description: "3D 기반 짧은 비주얼 노벨",
   appleWebApp: {
@@ -18,7 +22,8 @@ export const metadata: Metadata = {
   /*
    * 링크 미리보기. 그림은 같은 폴더의 opengraph-image.jpg·twitter-image.jpg(파일 규칙)가
    * 붙는다: 타이틀 화면을 1200×630으로 찍고 메뉴·조작 안내·언어 토글만 걷어낸 한 장이다.
-   * 타이틀 화면이 바뀌면 다시 찍는다.
+   * 타이틀 화면이 바뀌면 다시 찍는다. 언어 주소(/en · /ja)는 제 폴더에 같은 이름으로 그 언어의
+   * 타이틀 화면을 따로 둔다: 페이지가 제 openGraph를 쓰면 루트의 그림을 물려받지 않는다.
    */
   openGraph: {
     type: "website",
