@@ -18,9 +18,13 @@ export const LIFT_DURATION = 0.9;
 
 export type Vec3 = readonly [number, number, number];
 
-/** 서랍 안에 누운 앰플의 자리와 자세 (서랍이 닫혀 있을 때 기준. 열리면 z가 따라온다). */
+/**
+ * 서랍 안에 누운 앰플의 자리와 자세 (서랍이 닫혀 있을 때 기준. 열리면 z가 따라온다).
+ * 앞판 바로 뒤에 두면 비스듬히 내려다보는 카메라에서 앞판에 통째로 가린다. 식량 캔들
+ * 사이, 안쪽 벽 가까이에 눕힌다.
+ */
 export const AMPOULE_REST: { position: Vec3; rotation: Vec3 } = {
-  position: [0.08, -0.13, -0.17],
+  position: [0.04, -0.13, -0.4],
   rotation: [0, 0.35, Math.PI / 2],
 };
 

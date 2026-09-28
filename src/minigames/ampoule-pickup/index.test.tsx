@@ -6,7 +6,7 @@ import type { Group } from "three";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MinigameResult } from "@/types/minigame";
 import { AmpoulePickupMinigame } from "./index";
-import { DRAWER_OPEN_DURATION, DRAWER_TRAVEL, LIFT_DURATION } from "./motion";
+import { AMPOULE_REST, DRAWER_OPEN_DURATION, DRAWER_TRAVEL, LIFT_DURATION } from "./motion";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -112,7 +112,7 @@ describe("AmpoulePickupMinigame", () => {
     const carrier = renderer.scene.find((node) => node.props.name === "mg-ampoule-pickup-ampoule")
       .instance as Group;
     // 서랍 안에 누운 자리: 열린 만큼 앞으로 와 있다
-    expect(carrier.position.z).toBeGreaterThan(0);
+    expect(carrier.position.z).toBeCloseTo(AMPOULE_REST.position[2] + DRAWER_TRAVEL);
     expect(carrier.rotation.z).toBeCloseTo(Math.PI / 2);
     await renderer.unmount();
   });

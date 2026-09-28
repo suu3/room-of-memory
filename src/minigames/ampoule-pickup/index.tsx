@@ -2,7 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Group, MeshStandardMaterial } from "three";
+import type { Group, MeshStandardMaterial, Object3D } from "three";
 import { playSound } from "@/lib/audio";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { Ampoule } from "@/scenes/memory-room/Ampoule";
@@ -32,6 +32,14 @@ const HELD_EMISSIVE = 0.18;
 const GLOW_LAMBDA = 3;
 /** 터치 판정 구의 반지름. 앰플은 가늘어서 손가락으로 짚기 어렵다. */
 const HIT_RADIUS = 0.16;
+
+/** `object`가 `root` 자신이거나 그 아래에 있는가. */
+function isWithin(object: Object3D, root: Object3D): boolean {
+  for (let node: Object3D | null = object; node; node = node.parent) {
+    if (node === root) return true;
+  }
+  return false;
+}
 
 /**
  * 냉장고 아래칸을 열고 앰플을 집어 든다. canvas 모드: 씬의 냉장고 그 자리에서 판이 돈다.
@@ -136,8 +144,16 @@ export function AmpoulePickupMinigame({ onComplete, onSettled, stage = "play" }:
       position={PLACEMENT.position}
       rotation={PLACEMENT.rotation}
       scale={PLACEMENT.scale}
-      // 서랍 어디를 눌러도 바닥 걷기로 새지 않는다
-      onClick={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        // 서랍 어디를 눌러도 바닥 걷기로 새지 않는다
+        event.stopPropagation();
+        /*
+         * 서랍 앞판·옆벽이 앰플보다 카메라에 가까우면 그 면이 클릭을 먼저 받고 여기서
+         * 멎는다. 광선이 앰플(판정 구 포함)을 지났으면 가려져 있어도 집는다.
+         */
+        const ampoule = ampouleRef.current;
+        if (ampoule && event.intersections.some((hit) => isWithin(hit.object, ampoule))) pick();
+      }}
     >
       <FridgeDrawer ref={drawerRef} palette={palette}>
         <DrawerRations palette={palette} />
