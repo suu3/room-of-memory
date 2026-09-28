@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { MEMORIES, SCRIPTS } from "@/data/memory-room";
 import { i18n } from "@/i18n/config";
@@ -35,25 +35,26 @@ describe("재난 방송 (emergency-broadcast)", () => {
     expect(lines.at(-1)?.speaker).toBe("hero");
   });
 
-  it("끄면 라디오는 정말 꺼지지만, 떠올린 방송은 제 속도로 계속 흐른다", () => {
+  it("조작 없이 방송이 흐르고, 도해의 속말이 하나씩 바뀐다", () => {
     vi.useFakeTimers();
     render(<BroadcastBoard onComplete={vi.fn()} />);
-    expect(screen.getByText("…듣고 싶지 않아.")).toBeTruthy();
+    const visible = (text: string) => screen.getByText(text).className.includes("opacity-100");
+    // 끄는 버튼은 없다
+    expect(screen.queryAllByRole("button")).toHaveLength(0);
+    expect(visible("…듣고 싶지 않아.")).toBe(true);
+    expect(visible("그만해…")).toBe(false);
+
     const second = i18n.t(broadcastLines[1].textKey, { ns: "memoryRoom" });
-
-    const power = screen.getByRole("button", { name: "전원 끄기" });
-    fireEvent.click(power);
-    expect(power.getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByText("…안 들려야 하는데.")).toBeTruthy();
-    // 누른다고 방송이 앞당겨지지도, 멈추지도 않는다
     expect(screen.queryByText(second)).toBeNull();
-    act(() => {
-      vi.advanceTimersByTime(4200);
-    });
+    // 방송이 절반을 넘으면 둘째 속말로 넘어간다
+    for (let line = 1; line * 2 <= broadcastLines.length; line += 1) {
+      act(() => {
+        vi.advanceTimersByTime(4200);
+      });
+    }
     expect(screen.getByText(second)).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "소리 줄이기" }));
-    expect(screen.getByText("그만해…")).toBeTruthy();
+    expect(visible("…듣고 싶지 않아.")).toBe(false);
+    expect(visible("그만해…")).toBe(true);
   });
 
   it("안 눌러도 방송은 흘러 끝나고, 보여준 방송 줄 수를 함께 보고한다", () => {

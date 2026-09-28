@@ -151,11 +151,8 @@
       "fail": "…지직. 아직 안 잡히네."
     },
     "emergencyBroadcast": {
-      "power": "전원 끄기",
-      "volume": "소리 줄이기",
       "whisper0": "…듣고 싶지 않아.",
-      "whisper1": "…안 들려야 하는데.",
-      "whisper2": "그만해…"
+      "whisper1": "그만해…"
     },
     "photoWipe": {
       "title": "사진 닦기",

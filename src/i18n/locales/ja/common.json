@@ -151,11 +151,8 @@
       "fail": "…ザザッ。まだ拾えないな。"
     },
     "emergencyBroadcast": {
-      "power": "電源を切る",
-      "volume": "音を下げる",
       "whisper0": "…聞きたくない。",
-      "whisper1": "…聞こえるはずないのに。",
-      "whisper2": "やめてくれ…"
+      "whisper1": "やめてくれ…"
     },
     "photoWipe": {
       "title": "写真を拭く",
