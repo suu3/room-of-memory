@@ -490,13 +490,12 @@ intro → p1 → turning → p2 → p3 → p4 → resolve → ending
 ### 남은 것 (동작)
 
 1. 방문만 애니메이션 없이 즉시 열린다. 다른 문은 approach로 젖혀진다.
-2. `RoomSurroundings`의 `OuterDrift`가 color와 pixelRatio uniform을 useMemo 객체에 쓴다. 규약대로라면 화면에 반영되지 않는다.
+2. `RoomSurroundings`의 `OuterDrift`가 pixelRatio uniform을 useMemo 객체에 쓴다. r3f는 uniforms 프롭의 항목을 얕게 복사하므로 숫자 값은 머티리얼에 닿지 않는다 (창을 DPR이 다른 모니터로 옮길 때만 드러난다). color는 `Color` 객체를 같이 가리켜서 반영된다.
 3. `MemoryBurst`의 useEffect 두 개에 의존성 배열이 없다.
 4. `ampoule-pickup`은 레지스트리에만 있고 콘텐츠에서는 쓰지 않는다 (레지스트리 주석에는 적어 두었다).
 5. photo-wipe에는 키보드 경로가 없다. 키보드 사용자는 스킵이 뜰 때까지 기다려야 끝낼 수 있다.
-6. 죽은 CSS: `.animate-page-flip-next/-prev`, `bat-swing` 키프레임. `redaction.ts`는 lab에서만 쓴다.
-7. DESIGN.md는 "숫자 = 선택지"를 규정하지만, 선택지 UI 컴포넌트는 현재 없다.
-8. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
+6. 죽은 CSS: `.animate-page-flip-next/-prev`, `bat-swing` 키프레임과 `--animate-bat-swing` (`bat-swing-image`는 쓴다). `redaction.ts`는 lab에서만 쓴다.
+7. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
 
 ### 고친 것 (주석·문서를 코드에 맞춤)
 
@@ -508,3 +507,4 @@ intro → p1 → turning → p2 → p3 → p4 → resolve → ending
 - `PuzzleHost` 주석: 없는 퍼즐(식탁 트럼프, 현관 잠금) → 피아노·세면대 하부장 다이얼.
 - DESIGN.md 커서 링: "버튼을 알약으로 감싼다" → 손 자리에서 0.7배로 조여든다.
 - DESIGN.md·`visual-experiments.md` 시점 전환: "노이즈 타일 응결" → backdrop blur 초점 맞춤.
+- DESIGN.md 키보드 규칙의 "숫자 = 선택지": 선택지 UI가 없어서 "선택지 UI를 만들면"으로 조건을 달았다.
