@@ -10,6 +10,13 @@ import { loadMindar } from "../mindar";
  * 특징점 수도 같이 보여 준다: 적으면(수십 개) 인쇄해도 잘 안 잡히니 그림부터 손본다.
  */
 
+/**
+ * 가장자리에서 덜어 내는 비율 (각 변). 인쇄소 재단은 1~2mm씩 밀린다: 55mm 카드에서 2mm면 3.6%.
+ * 잘려 나갈 수 있는 띠를 타깃에서 빼 두면 어느 쪽으로 밀려도 인식할 그림이 다 남는다.
+ * 네 변을 똑같이 덜므로 카드 한가운데는 그대로다.
+ */
+const CUT_MARGIN = 0.036;
+
 /** 원본 그대로 구우면 피라미드가 커져 느리고 .mind도 무거워진다. 인식 품질은 이 정도면 충분하다. */
 const MAX_SIDE = 1000;
 
@@ -33,16 +40,30 @@ export default function ArCompilePage() {
     setStatus("MindAR 불러오는 중…");
     const { Compiler } = await loadMindar();
     const original = await loadImage(URL.createObjectURL(file));
-    const ratio = Math.min(1, MAX_SIDE / Math.max(original.naturalWidth, original.naturalHeight));
+    const cropX = Math.round(original.naturalWidth * CUT_MARGIN);
+    const cropY = Math.round(original.naturalWidth * CUT_MARGIN);
+    const cropWidth = original.naturalWidth - cropX * 2;
+    const cropHeight = original.naturalHeight - cropY * 2;
+    const ratio = Math.min(1, MAX_SIDE / Math.max(cropWidth, cropHeight));
     const canvas = document.createElement("canvas");
-    canvas.width = Math.round(original.naturalWidth * ratio);
-    canvas.height = Math.round(original.naturalHeight * ratio);
+    canvas.width = Math.round(cropWidth * ratio);
+    canvas.height = Math.round(cropHeight * ratio);
     const context = canvas.getContext("2d");
     if (!context) throw new Error("캔버스를 열 수 없다");
     // 투명한 곳은 굽는 쪽이 검정(0)으로 읽는다. 인쇄하면 흰 종이이므로 흰 바탕을 먼저 깐다.
     context.fillStyle = "white";
     context.fillRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(original, 0, 0, canvas.width, canvas.height);
+    context.drawImage(
+      original,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
     const image = await loadImage(canvas.toDataURL("image/png"));
     const compiler = new Compiler();
     const targets = (await compiler.compileImageTargets([image], (percent) =>

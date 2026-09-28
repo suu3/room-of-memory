@@ -181,18 +181,16 @@ export const ASSETS = {
     characterHeroSheet: "/assets/images/character-hero-sheet.webp?v=3",
   },
   /**
+   * 웹 AR(/ar). 포토카드 앞면 그림을 MindAR가 알아보도록 컴파일한 타깃이다.
+   * 카드 그림을 바꾸면 dev 서버의 /ar/compile에서 다시 굽고 v를 올린다.
+   */
+  ar: {
+    target: "/assets/ar/ar-target-hero.mind?v=3",
+  },
+  /**
    * 엔딩 영상. 현관문을 열면 튼다 (EndingScreen). 1920×1080 H.264 3.5Mbps + AAC,
    * faststart라 받는 중에도 재생이 시작된다. 원본(.mov)은 리포에 넣지 않는다.
    */
-  /**
-   * 웹 AR(/ar). 포토카드 앞면 그림을 MindAR가 알아보도록 컴파일한 타깃이다.
-   * 그림을 바꾸면 dev 서버의 /ar/compile에서 다시 굽고 targetImage와 v를 같이 올린다.
-   */
-  ar: {
-    target: "/assets/ar/ar-target-hero.mind?v=2",
-    /** 타깃으로 구운 원본 그림. /ar/target이 모니터에 띄워 테스트용 카드 대신 쓴다. */
-    targetImage: "/assets/images/character-hero-sheet.webp?v=2",
-  },
   video: {
     endingFilm: "/assets/video/ending-film.mp4?v=20260926-sound",
   },
