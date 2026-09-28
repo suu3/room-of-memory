@@ -231,14 +231,23 @@ export function HudSpaceLine() {
   if (!doorOpened || endingStarted) return null;
   const name = t(`space.${space}` as const);
 
+  /*
+   * 글자 흐름 안에 그대로 얹는다. 따로 flex 칸으로 세우면 가운데 정렬이 뒤따르는 라벨의
+   * 기준선과 어긋나고, 칸 사이 간격이 " · " 앞뒤 간격과 달라진다. 크기와 색은 감싼 라벨을 따른다.
+   */
   return (
-    <span className="inline-flex items-center gap-[0.3em] text-[0.75em] font-medium text-fog">
-      <MapPin size="1.15em" weight="fill" className="shrink-0" aria-hidden />
+    <>
+      <MapPin
+        size="1.15em"
+        weight="fill"
+        className="mr-[0.25em] inline-block align-[-0.2em]"
+        aria-hidden
+      />
       <span className="sr-only">{t("hud.here", { value: name })}</span>
-      <span aria-hidden className="break-ko">
+      <span aria-hidden>
         {name}
+        {" · "}
       </span>
-      <span aria-hidden>·</span>
-    </span>
+    </>
   );
 }

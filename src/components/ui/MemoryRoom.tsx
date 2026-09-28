@@ -223,9 +223,9 @@ export function MemoryRoom() {
           </h1>
           <div className="flex flex-col gap-[0.375em]">
             <div className="flex items-baseline gap-[0.5em]">
-              {/* 지금 있는 곳. 방 하나뿐인 1막에는 안 뜬다 */}
-              <HudSpaceLine />
               <span className="text-[0.75em] font-medium text-fog">
+                {/* 지금 있는 곳. 방 하나뿐인 1막에는 안 뜬다 */}
+                <HudSpaceLine />
                 {t("hud.round", { value: round })}
                 <span aria-hidden> · </span>
                 {t("hud.memoryCount")}
