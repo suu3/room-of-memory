@@ -58,11 +58,13 @@ const FRAGMENT = /* glsl */ `
     }
 
     if (uBurn > 0.001) {
-      vec2 d = uv - 0.5;
-      float r = length(d) * 1.35;
-      // 가장자리부터 안쪽으로: uBurn이 1이면 화면 전체
-      float iris = smoothstep(uBurn * 1.25 - 0.3, uBurn * 1.25 + 0.05, 1.0 - r + 0.2) ;
-      iris = 1.0 - iris;
+      // 가장자리에서 잰 깊이: 모서리 ~0.05, 한가운데 1
+      float depth = 1.0 - length(uv - 0.5) * 1.35;
+      // 번지는 앞머리가 가장자리(0)에서 출발해 uBurn이 1이면 한가운데(1)까지 다 넘어선다.
+      // 앞머리 뒤로 SOFT만큼 부드럽게 물든다. 1에서 가운데가 남으면 빛이 화면 일부만 덮는다
+      const float SOFT = 0.3;
+      float front = uBurn * (1.0 + SOFT);
+      float iris = 1.0 - smoothstep(front - SOFT, front, depth);
       vec3 warm = vec3(0.98, 0.82, 0.58);
       color.rgb = mix(color.rgb, color.rgb * 0.25 + warm * 0.85, iris * uBurn);
       color.rgb += warm * uBurn * uBurn * 0.15;
