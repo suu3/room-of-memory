@@ -303,161 +303,167 @@ export function PlaybackScene() {
     stage === "cuts" && cut?.black !== true && ((isCutscene && !bare) || image !== undefined);
 
   return (
-    // z-40: 미니게임과 같은 층. 재생은 인터랙션이 닫힌 뒤에 열려 둘이 겹치지 않는다.
-    // 대사창(z-50)은 이 위에 뜬다. 그림 위에 글이 얹히는 것이 이 연출의 형태다.
-    <div
-      // 한 박자 늦게 떠오른다(animate-playback-enter). 그 사이 뒤의 방이 신호 끊기듯 찢긴다 (ScreenTransition)
-      className={`absolute inset-0 z-40 animate-playback-enter ${
-        // 그림 없는 컷씬은 방을 살짝 눌러만 둔다. 말하는 곳이 이 방이라서다
-        isCutscene && !bare ? "bg-scene-void" : "bg-scene-void/80 backdrop-blur-sm"
-      }`}
-    >
+    <>
       {/*
+      z-40: 미니게임과 같은 층. 재생은 인터랙션이 닫힌 뒤에 열려 둘이 겹치지 않는다.
+      대사창(z-50)은 이 위에 뜬다. 그림 위에 글이 얹히는 것이 이 연출의 형태다.
+    */}
+      <div
+        // 한 박자 늦게 떠오른다(animate-playback-enter). 그 사이 뒤의 방이 신호 끊기듯 찢긴다 (ScreenTransition)
+        className={`absolute inset-0 z-40 animate-playback-enter ${
+          // 그림 없는 컷씬은 방을 살짝 눌러만 둔다. 말하는 곳이 이 방이라서다
+          isCutscene && !bare ? "bg-scene-void" : "bg-scene-void/80 backdrop-blur-sm"
+        }`}
+      >
+        {/*
         컷 그림. 컷씬 일러스트가 아직 없으면 회색 판이 그대로 남는다. 파일이 들어오는
         순간 이 자리에 그대로 들어차므로 구도를 미리 잡아둘 필요가 없다.
         다시보기 스틸은 대사창 자리를 비우고 그 위에 선다.
       */}
-      <div
-        className={`absolute inset-0 grid place-items-center transition-opacity duration-700 ${
-          stage === "cuts" ? "opacity-100" : "opacity-0"
-        } ${
-          // 다시보기 스틸은 위로는 제목 아래, 아래로는 대사창 위 한 뼘(24px 안팎)을 비운다
-          isCutscene ? "" : "pt-16 pb-60"
-        }`}
-      >
-        {showPlate && (
-          <div
-            className={`relative max-h-full w-full ${
-              /*
-               * 컷씬 판은 16:9를 지킨다. 높이까지 꽉 채우면(h-full) 가로세로가 둘 다 정해져
-               * aspect가 무시되고, 세로로 든 폰에서 판이 화면만큼 길어져 그림의 가운데 띠만
-               * 남는다 (object-cover). 폭을 먼저 정하고 높이는 비율로 따라오게 둔다.
-               */
-              isCutscene
-                ? "aspect-video max-w-[min(100%,177.7svh)] bg-scene-storm"
-                : "h-full max-w-[min(88%,92svh)]"
-            }`}
-          >
-            {/*
+        <div
+          className={`absolute inset-0 grid place-items-center transition-opacity duration-700 ${
+            stage === "cuts" ? "opacity-100" : "opacity-0"
+          } ${
+            // 다시보기 스틸은 위로는 제목 아래, 아래로는 대사창 위 한 뼘(24px 안팎)을 비운다
+            isCutscene ? "" : "pt-16 pb-60"
+          }`}
+        >
+          {showPlate && (
+            <div
+              className={`relative max-h-full w-full ${
+                /*
+                 * 컷씬 판은 16:9를 지킨다. 높이까지 꽉 채우면(h-full) 가로세로가 둘 다 정해져
+                 * aspect가 무시되고, 세로로 든 폰에서 판이 화면만큼 길어져 그림의 가운데 띠만
+                 * 남는다 (object-cover). 폭을 먼저 정하고 높이는 비율로 따라오게 둔다.
+                 */
+                isCutscene
+                  ? "aspect-video max-w-[min(100%,177.7svh)] bg-scene-storm"
+                  : "h-full max-w-[min(88%,92svh)]"
+              }`}
+            >
+              {/*
               컷씬은 그림이 없어도 빈 판으로 두지 않는다. 신호의 그림이 판을 채우고,
               일러스트가 있으면 그 위에 얹혀 이 층을 가린다. 다시보기는 스틸이 없으면
               판 자체를 세우지 않으므로(showPlate) 여기 오지 않는다.
             */}
-            {isCutscene && (
-              <SignalVisual
-                tone={
-                  active.cutsceneId === CUTSCENE_RADIO_BLACKOUT && active.cutIndex < 2
-                    ? "dying"
-                    : "alive"
-                }
+              {isCutscene && (
+                <SignalVisual
+                  tone={
+                    active.cutsceneId === CUTSCENE_RADIO_BLACKOUT && active.cutIndex < 2
+                      ? "dying"
+                      : "alive"
+                  }
+                />
+              )}
+              {showImage && (
+                /* biome-ignore lint/performance/noImgElement: 파일이 없을 때 onError로 회색 판에 떨어져야 해서 최적화 파이프라인을 타지 않는다. */
+                <img
+                  src={image}
+                  alt=""
+                  draggable={false}
+                  onError={() => setMissing((ids) => (ids.includes(image) ? ids : [...ids, image]))}
+                  // 받아지기 전엔 흐린 판이 선다. 맞춤은 아래 object-fit과 같아야 받는 순간 튀지 않는다
+                  style={blurBackdrop(
+                    image,
+                    cut?.fit === "contain" || !isCutscene ? "contain" : "cover",
+                  )}
+                  // 다시보기 스틸은 통째로 보인다. 잘라 채우면 사진 윗단이 화면 밖으로 나간다
+                  className={`absolute inset-0 size-full select-none transition-opacity duration-300 ${
+                    cut?.fit === "contain" || !isCutscene ? "object-contain" : "object-cover"
+                  } ${
+                    // 밀림이 도는 동안은 물러나 있다. 비율이 달라 뒤에서 비치면 두 장이 겹쳐 보인다
+                    morphing ? "opacity-0" : "opacity-100"
+                  }`}
+                />
+              )}
+              {/* 앞 사진에서 이 사진으로 밀려 넘어가는 층. 끝나면 물러나며 위의 원본에 자리를 넘긴다 */}
+              {morphing && morphFrom !== undefined && image !== undefined && (
+                <PhotoMorph
+                  key={morphKey}
+                  from={morphFrom}
+                  to={image}
+                  within={cut?.morphWithin}
+                  seed={morphSeed(morphKey)}
+                  onDone={() => setMorphedKey(morphKey)}
+                />
+              )}
+              {/* 컷 전환 장막. 그림 위에 얹혀야 하므로 마지막 자식이다 */}
+              <CutDissolve
+                cutKey={`${playbackKey}:${cutIndex}`}
+                grain={grainForCut(cutIndex)}
+                enabled={dissolveEnabled && cutIndex > 0}
               />
-            )}
-            {showImage && (
-              /* biome-ignore lint/performance/noImgElement: 파일이 없을 때 onError로 회색 판에 떨어져야 해서 최적화 파이프라인을 타지 않는다. */
-              <img
-                src={image}
-                alt=""
-                draggable={false}
-                onError={() => setMissing((ids) => (ids.includes(image) ? ids : [...ids, image]))}
-                // 받아지기 전엔 흐린 판이 선다. 맞춤은 아래 object-fit과 같아야 받는 순간 튀지 않는다
-                style={blurBackdrop(
-                  image,
-                  cut?.fit === "contain" || !isCutscene ? "contain" : "cover",
-                )}
-                // 다시보기 스틸은 통째로 보인다. 잘라 채우면 사진 윗단이 화면 밖으로 나간다
-                className={`absolute inset-0 size-full select-none transition-opacity duration-300 ${
-                  cut?.fit === "contain" || !isCutscene ? "object-contain" : "object-cover"
-                } ${
-                  // 밀림이 도는 동안은 물러나 있다. 비율이 달라 뒤에서 비치면 두 장이 겹쳐 보인다
-                  morphing ? "opacity-0" : "opacity-100"
-                }`}
-              />
-            )}
-            {/* 앞 사진에서 이 사진으로 밀려 넘어가는 층. 끝나면 물러나며 위의 원본에 자리를 넘긴다 */}
-            {morphing && morphFrom !== undefined && image !== undefined && (
-              <PhotoMorph
-                key={morphKey}
-                from={morphFrom}
-                to={image}
-                within={cut?.morphWithin}
-                seed={morphSeed(morphKey)}
-                onDone={() => setMorphedKey(morphKey)}
-              />
-            )}
-            {/* 컷 전환 장막. 그림 위에 얹혀야 하므로 마지막 자식이다 */}
-            <CutDissolve
-              cutKey={`${playbackKey}:${cutIndex}`}
-              grain={grainForCut(cutIndex)}
-              enabled={dissolveEnabled && cutIndex > 0}
-            />
+            </div>
+          )}
+        </div>
+
+        {/* 방금 내려놓은 물건: 대사창(아래) 자리를 비우고 판 크기 그대로 선다 */}
+        {bare && afterimage && (
+          <div className="pointer-events-none absolute inset-0 grid place-items-center p-4 pb-56">
+            <InspectStill src={afterimage} alt="" className="w-full max-w-lg animate-fade-rise" />
           </div>
         )}
-      </div>
 
-      {/* 방금 내려놓은 물건: 대사창(아래) 자리를 비우고 판 크기 그대로 선다 */}
-      {bare && afterimage && (
-        <div className="pointer-events-none absolute inset-0 grid place-items-center p-4 pb-56">
-          <InspectStill src={afterimage} alt="" className="w-full max-w-lg animate-fade-rise" />
-        </div>
-      )}
-
-      {/*
+        {/*
         필름 먼지와 스크래치 (.film-dust, DESIGN.md > Texture). 3D 방의 그레인은 셰이더가
         프레임마다 뿌리는 결이고, 여기는 **기록물**의 결이다: 같은 그레인을 쓰면 화면이
         바뀌었을 뿐 재질이 안 바뀐다. 그림이 선 동안에만 얹힌다.
       */}
-      {screening && (
-        <div aria-hidden className="film-dust pointer-events-none absolute inset-0">
-          <span className="film-scratch" />
-        </div>
-      )}
+        {screening && (
+          <div aria-hidden className="film-dust pointer-events-none absolute inset-0">
+            <span className="film-scratch" />
+          </div>
+        )}
 
-      {/* 방송이 마지막으로 지직거리는 노이즈. 끊기는 순간 같이 사라진다 */}
-      <div
-        aria-hidden
-        className={`film-grain pointer-events-none absolute inset-0 transition-opacity duration-200 ${
-          stage === "static" ? "animate-signal-static opacity-100" : "opacity-0"
-        }`}
-      />
+        {/* 방송이 마지막으로 지직거리는 노이즈. 끊기는 순간 같이 사라진다 */}
+        <div
+          aria-hidden
+          className={`film-grain pointer-events-none absolute inset-0 transition-opacity duration-200 ${
+            stage === "static" ? "animate-signal-static opacity-100" : "opacity-0"
+          }`}
+        />
 
-      {/*
+        {/*
         화면 가장자리를 조여 그림을 가운데로 모은다. 방 비네트와 같은 처방.
         방(75%)보다 옅게 잡는다: 여기서는 비네트가 그림 자체를 먹어치우면 안 된다.
       */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(120% 95% at 50% 45%, transparent 52%, color-mix(in srgb, var(--color-scene-void) 62%, transparent) 100%)",
-        }}
-      />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(120% 95% at 50% 45%, transparent 52%, color-mix(in srgb, var(--color-scene-void) 62%, transparent) 100%)",
+          }}
+        />
 
-      {/* 무엇을 되짚는 중인지: 다시보기는 진행이 아니라 열람이라 제목이 필요하다 */}
-      {!isCutscene && active.memoryId && (
-        /* 폭은 오른쪽 위 닫기 버튼 몫을 양쪽에서 비운다. 긴 이름은 버튼 밑으로 파고들지 않고 줄을 바꾼다 */
-        <p className="pointer-events-none absolute left-1/2 top-8 z-10 w-max max-w-[calc(100%-12rem)] -translate-x-1/2 text-balance text-center font-pixel text-xs tracking-[0.2em] text-memory">
-          {t("playback.replayTitle", {
-            name: tRoom(`memories.${active.memoryId}.name` as ParseKeys<"memoryRoom">),
-          })}
-        </p>
-      )}
-
+        {/* 무엇을 되짚는 중인지: 다시보기는 진행이 아니라 열람이라 제목이 필요하다 */}
+        {!isCutscene && active.memoryId && (
+          /* 폭은 오른쪽 위 닫기 버튼 몫을 양쪽에서 비운다. 긴 이름은 버튼 밑으로 파고들지 않고 줄을 바꾼다 */
+          <p className="pointer-events-none absolute left-1/2 top-8 z-10 w-max max-w-[calc(100%-12rem)] -translate-x-1/2 text-balance text-center font-pixel text-xs tracking-[0.2em] text-memory">
+            {t("playback.replayTitle", {
+              name: tRoom(`memories.${active.memoryId}.name` as ParseKeys<"memoryRoom">),
+            })}
+          </p>
+        )}
+      </div>
       {/*
         나가는 문. 컷씬에서는 접근성 장치인 건너뛰기이고, 다시보기에서는 그냥 닫기다.
         건너뛸 진행이 없으니 같은 말을 쓰면 안 된다. 구석에 서 있되 흐리지는 않다.
         어두운 그림 위에서 안 보이는 건너뛰기는 접근성 장치가 아니라 장식이다.
         자리는 오른쪽 위다. 아래 구석에 두면 대사창(z-50, 폰에서는 폭을 다 쓴다)이 덮는다.
+        층은 재생판(z-40) 밖의 z-60이다. 판 안에 두면 대사창의 화면 전체 "다음" 버튼(z-50)이
+        덮어서, 건너뛰기를 눌러도 대사만 넘어갔다. 지나간 대사(DialogueLog, 같은 z-60)는
+        DOM에서 뒤에 와서 열리면 그대로 이 위를 덮는다.
       */}
       {stage === "cuts" && (
         <button
           type="button"
           onClick={endPlayback}
-          className="absolute right-6 top-6 z-10 cursor-pointer rounded-sm border border-fog/50 bg-night/80 px-3.5 py-2 font-pixel text-xs tracking-[0.2em] text-ivory shadow-chip transition-colors duration-150 hover:border-ivory/70 hover:bg-night focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+          className="absolute right-6 top-6 z-[60] cursor-pointer rounded-sm border border-fog/50 bg-night/80 px-3.5 py-2 font-pixel text-xs tracking-[0.2em] text-ivory shadow-chip transition-colors duration-150 hover:border-ivory/70 hover:bg-night focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
           {t(isCutscene ? "playback.skip" : "playback.close")}
         </button>
       )}
-    </div>
+    </>
   );
 }
