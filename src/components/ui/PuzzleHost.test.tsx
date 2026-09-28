@@ -41,3 +41,18 @@ it("피아노를 풀면 결과 카드가 서고, 계속을 눌러야 문제가 �
   expect(state.activePuzzle).toBeNull();
   expect(state.solvedPuzzles).toContain("piano-melody");
 });
+
+it("악보 조각 없이 피아노 앞에 앉으면 지워진 마디 안내가 선다", () => {
+  act(() => useMemoryRoomStore.getState().openPuzzle("piano-melody"));
+  render(<PuzzleHost />);
+  expect(screen.getByText(i18n.t("minigame.pianoMelody.missing"))).toBeTruthy();
+  cleanup();
+
+  act(() => {
+    useMemoryRoomStore.getState().closePuzzle();
+    useMemoryRoomStore.getState().takeItem("piano-sheet");
+    useMemoryRoomStore.getState().openPuzzle("piano-melody");
+  });
+  render(<PuzzleHost />);
+  expect(screen.queryByText(i18n.t("minigame.pianoMelody.missing"))).toBeNull();
+});

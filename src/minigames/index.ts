@@ -177,6 +177,8 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.pianoMelody.title",
     helpKey: "minigame.pianoMelody.help",
     solvedKey: "minigame.pianoMelody.solved",
+    // 지워진 마디는 안방 책상의 악보 조각을 들고 와야 보이고, 그 전에는 칠 수 없다
+    needsItem: { id: "piano-sheet", hintKey: "minigame.pianoMelody.missing" },
     // 규칙은 악보가 다 말한다. 적힌 대로 누르면 된다는 걸 목록으로 또 적을 이유가 없다.
     // failKey도 없다: 틀리면 처음으로 되감길 뿐, 이 문제에 "실패"라는 끝은 없다
   },

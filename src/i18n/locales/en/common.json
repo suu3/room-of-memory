@@ -402,6 +402,7 @@
       "later": "Maybe later"
     },
     "pianoMelody": {
+      "missing": "One bar of the score is smudged with water. It can't be read.",
       "solved": "The melody played through to the end.",
       "title": "The Piano",
       "help": "Try the keys · 1 2 3 4 5 6 7",

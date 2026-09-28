@@ -149,6 +149,12 @@ export function PuzzleHost() {
             className="rounded-sm border border-line bg-surface px-3 py-1.5 text-center text-xs font-medium text-ivory shadow-chip"
           >
             <MinigameHelp help={hint(canvasHosted.helpKey)} className="break-ko text-pretty" />
+            {canvasHosted.needsItem &&
+              !(carrying as readonly string[]).includes(canvasHosted.needsItem.id) && (
+                <p className="mt-1 break-ko text-pretty text-fog">
+                  {t(canvasHosted.needsItem.hintKey)}
+                </p>
+              )}
           </div>
           {/*
             돌아가기. 오른쪽 위 구석에 두면 HUD(z-30, 메뉴·평면도)에 깔려 눌리지 않았다.

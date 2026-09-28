@@ -26,7 +26,7 @@ import {
   LID_OPEN_ANGLE,
   PIANO_KEYS,
 } from "./keys";
-import { isComplete, isPrefix, NOTE_HZ, noteForKey, SOLFEGE, type Solfege } from "./melody";
+import { isComplete, NOTE_HZ, noteForKey, pressNote, SOLFEGE, type Solfege } from "./melody";
 
 /** 마지막 음이 울린 뒤 결과를 내주기까지(ms). 소리가 끊기면 푼 느낌도 끊긴다. */
 const SETTLE_MS = 900;
@@ -196,7 +196,8 @@ function KeyboardCamera() {
  *
  * 스토어를 만지지 않는다. 결과는 onComplete 한 번뿐이다 (.claude/rules/minigames.md).
  */
-export function PianoMelodyMinigame({ onComplete, onSettled }: MinigameProps) {
+export function PianoMelodyMinigame({ onComplete, onSettled, carrying }: MinigameProps) {
+  const hasScrap = carrying?.includes("piano-sheet") ?? false;
   const palette = useMemo(resolveRoomPalette, []);
   const complete = useOnceCompleter(onComplete);
   const labels = useNoteLabels(palette.frame);
@@ -216,10 +217,12 @@ export function PianoMelodyMinigame({ onComplete, onSettled }: MinigameProps) {
     playTone(NOTE_HZ[key.note]);
 
     // 검은 건반은 곡에 없는 음이다. 눌리기는 하되 언제나 틀린 음이 된다
-    const next: Solfege[] = [...playedRef.current, key.note];
+    const result = key.black
+      ? { played: [], wrong: true }
+      : pressNote(playedRef.current, key.note, hasScrap);
 
-    if (key.black || !isPrefix(next)) {
-      playedRef.current = [];
+    if (result.wrong) {
+      playedRef.current = result.played;
       lockedRef.current = true;
       playSound("fail");
       window.setTimeout(() => {
@@ -228,8 +231,8 @@ export function PianoMelodyMinigame({ onComplete, onSettled }: MinigameProps) {
       return;
     }
 
-    playedRef.current = next;
-    if (!isComplete(next)) return;
+    playedRef.current = result.played;
+    if (!isComplete(result.played)) return;
 
     doneRef.current = true;
     onSettled?.();

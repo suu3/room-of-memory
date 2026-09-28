@@ -134,6 +134,11 @@ export interface MinigameDefinition {
    */
   solvedKey?: CommonTextKey;
   /**
+   * 풀려면 다른 공간에서 가져와야 하는 물건. 손에 없으면 호스트가 안내 밑에 이 한 줄을
+   * 더 띄운다 (피아노: 악보 한 마디가 번져 안 보인다). 판 자신은 carrying을 보고 막는다.
+   */
+  needsItem?: { id: string; hintKey: CommonTextKey };
+  /**
    * 판이 도는 동안 방 곡 대신 틀 루프 (src/lib/assets.ts의 경로).
    *
    * 화면 속 세계(게임기)처럼 방 밖의 소리가 나는 판만 채운다. 방 안에서 하는 일은

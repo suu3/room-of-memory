@@ -42,9 +42,19 @@ export const MELODY: readonly Solfege[] = MELODY_BARS.flat();
 /**
  * 악보에서 지워진 마디. 물에 번져 안 보이고, 안방 책상의 찢어진 악보 조각이 그 마디를
  * 들고 있다 (src/data/items.ts의 piano-sheet). 이쪽 공간의 단서를 저쪽에서 찾게 하는
- * 자리라, 조각 없이도 칠 수는 있지만 세 음을 찍어야 한다.
+ * 자리다.
+ *
+ * 조각이 없으면 그 마디는 **칠 수 없다**. 예전에는 찍어서라도 칠 수 있게 두었는데,
+ * 곡이 누구나 아는 동요라 뒷마디를 그냥 맞혀 버렸고, 조각을 찾으러 갈 이유가 사라졌다.
  */
 export const MISSING_BAR = 1;
+
+/** 지워진 마디가 곡의 몇 번째 음에서 시작하고(포함) 어디서 끝나는가(제외). */
+export const MISSING_FROM = MELODY_BARS.slice(0, MISSING_BAR).reduce(
+  (count, bar) => count + bar.length,
+  0,
+);
+export const MISSING_TO = MISSING_FROM + MELODY_BARS[MISSING_BAR].length;
 
 /** 이 마디가 악보에 보이는가. 지워진 마디는 조각을 들고 있을 때만 드러난다. */
 export function barVisible(bar: number, hasScrap: boolean): boolean {
@@ -55,6 +65,24 @@ export function barVisible(bar: number, hasScrap: boolean): boolean {
 export function isPrefix(played: readonly Solfege[]): boolean {
   if (played.length > MELODY.length) return false;
   return played.every((note, index) => note === MELODY[index]);
+}
+
+/**
+ * 건반 하나를 누른 뒤의 진행. 맞으면 이어 붙이고, 어긋나면 처음부터다.
+ *
+ * 어긋난 음이 곡의 첫 음이면 그 음부터 새로 센다: 틀린 걸 알고 곧장 처음부터 다시
+ * 치는 손이 첫 음을 한 번 더 누르지 않아도 된다. 조각이 없으면 지워진 마디의 음은
+ * 무엇을 눌러도 어긋난다 (`missing`: 어긋난 까닭이 틀린 음이 아니라 안 보이는 마디다).
+ */
+export function pressNote(
+  played: readonly Solfege[],
+  note: Solfege,
+  hasScrap: boolean,
+): { played: Solfege[]; wrong: boolean; missing: boolean } {
+  const next = [...played, note];
+  const missing = !hasScrap && played.length >= MISSING_FROM && played.length < MISSING_TO;
+  if (!missing && isPrefix(next)) return { played: next, wrong: false, missing: false };
+  return { played: note === MELODY[0] ? [note] : [], wrong: true, missing };
 }
 
 /** 곡을 끝까지 쳤는가. */
