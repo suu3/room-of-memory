@@ -12,6 +12,7 @@ import {
   CHAIR_POSITION,
   CHAIR_PULL,
   CHAIR_SEAT,
+  CLUE_PROPS,
   CURTAIN_STAND,
   DESK_ROTATION,
   DOORWAY_ZONE,
@@ -118,6 +119,20 @@ describe("memory-room layout", () => {
         }
       }
     }
+  });
+
+  it("keeps the report card's click box off the workbook pile behind it", () => {
+    /*
+     * 성적표의 클릭 구(0.35)가 비스듬히 내려다보는 화면에서 뒤의 문제집 더미 앞쪽을
+     * 덮어, 문제집을 눌러도 성적표가 눌렸다. 납작한 상자로 바꿨다: 바닥에서 닿는
+     * 거리가 더미의 다가서는 기준점까지 닿지 않아야 한다.
+     */
+    const card = MEMORY_PLACEMENTS["report-card"];
+    expect(card.hitBox).toBeDefined();
+    expect(card.hitBox?.[1] ?? 1).toBeLessThan(0.1);
+    const [wx, wz] = CLUE_PROPS.workbook.near;
+    const distance = Math.hypot(wx - card.position[0], wz - card.position[2]);
+    expect(distance).toBeGreaterThan(hitRadiusOf(card));
   });
 
   it("places every memory exactly once and gives it a camera preset", () => {

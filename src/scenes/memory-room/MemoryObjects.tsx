@@ -47,7 +47,7 @@ import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
 import { radioSignalLevel, radioWakeRamp } from "./radio-signal";
 import { SpaceLight } from "./SpaceLight";
-import type { EulerTuple, Vec3Tuple } from "./types";
+import type { EulerTuple, MemoryPlacement, Vec3Tuple } from "./types";
 import { useCoverTexture } from "./use-cover-texture";
 import { useGlowHover } from "./use-glow-hover";
 import { roomLightLevel, shouldHighlightMemory } from "./visual-state";
@@ -1302,7 +1302,7 @@ export function InteractiveMemory({
    * 잊었을 때 달력을 다시 볼 유일한 길이다 (src/data/room-clues.ts).
    */
   const backgroundClue = status === "done" ? BACKGROUND_CLUE[id] : undefined;
-  const placement = MEMORY_PLACEMENTS[id];
+  const placement: MemoryPlacement = MEMORY_PLACEMENTS[id];
   /*
    * 잠긴 기억도 불투명하게 그린다. 예전에는 "이 바퀴에 곧 열릴 물건"을 0.45로 흐렸는데,
    * 반투명한 라디오·달력은 멀리서 정체 모를 판때기로만 읽혔다. 물건은 그냥 방의
@@ -1402,10 +1402,22 @@ export function InteractiveMemory({
              * 끝난 기억의 혼잣말·잠긴 컴퓨터의 한 줄은 실물을 눌렀을 때만 나온다.
              */
             clickable ? (
-              <mesh name={`memory-hit-${id}`}>
-                <sphereGeometry args={[hitRadiusOf(placement), 12, 8]} />
-                <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-              </mesh>
+              placement.hitBox ? (
+                // 납작한 물건: 물건과 같이 돌린 상자. 밑면을 원점(물건이 앉은 면)에 맞춘다
+                <mesh
+                  name={`memory-hit-${id}`}
+                  position={[0, placement.hitBox[1] / 2, 0]}
+                  rotation={placement.rotation}
+                >
+                  <boxGeometry args={[...placement.hitBox]} />
+                  <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+                </mesh>
+              ) : (
+                <mesh name={`memory-hit-${id}`}>
+                  <sphereGeometry args={[hitRadiusOf(placement), 12, 8]} />
+                  <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+                </mesh>
+              )
             ) : null
           }
         />

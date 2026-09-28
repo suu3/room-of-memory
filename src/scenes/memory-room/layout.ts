@@ -520,7 +520,9 @@ export const MEMORY_PLACEMENTS = {
     rotation: [0, 0.35, 0],
     scale: 1,
     interactionRadius: 1.4,
-    hitRadius: 0.35,
+    // 종이(0.30×0.42) 모양의 납작한 상자. 사방으로 조금 넉넉히 잡아 누르기 쉽게 하되,
+    // 구처럼 솟아 뒤의 문제집 더미를 덮지 않는다 (types.ts의 hitBox)
+    hitBox: [0.38, 0.05, 0.5],
   },
   console: {
     id: "console",
@@ -716,8 +718,12 @@ export const MEMORY_PLACEMENTS = {
  * 이 표를 보고 갈라 그린다. 거실 물건이 방 안에 같이 렌더되면 벽 너머에 떠 있는
  * 유령이 된다.
  */
-/** 클릭을 받는 구의 반지름: 따로 정하지 않은 물건은 상호작용 반경 그대로다. */
+/**
+ * 클릭을 받는 자리가 바닥에서 닿는 가장 먼 거리. 따로 정하지 않은 물건은 상호작용
+ * 반경 그대로다. 상자(hitBox)면 바닥 평면 대각선의 절반: 어느 쪽으로 돌려 놓아도 그 안이다.
+ */
 export function hitRadiusOf(placement: MemoryPlacement): number {
+  if (placement.hitBox) return Math.hypot(placement.hitBox[0], placement.hitBox[2]) / 2;
   return placement.hitRadius ?? placement.interactionRadius;
 }
 
