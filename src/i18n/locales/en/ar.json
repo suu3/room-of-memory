@@ -1,9 +1,8 @@
 {
   "intro": {
     "title": "Point your camera at the photocard",
-    "body": "Turn on the camera and frame the front of the card. Do-hae will pop out.",
-    "start": "Turn on camera",
-    "noCard": "No card? Show the test image"
+    "body": "Turn on the camera and frame the front of the card. The one inside will pop out.",
+    "start": "Turn on camera"
   },
   "status": {
     "starting": "Starting camera…",
@@ -26,5 +25,9 @@
     "denied": "Camera access is blocked. Allow it in your browser settings and try again.",
     "unknown": "Couldn't start AR. Please try again in a moment."
   },
-  "toGame": "Play the game"
+  "toGame": "Play the game",
+  "summon": {
+    "back": "Send back to the card",
+    "hint": "Drag to turn, pinch to resize"
+  }
 }
