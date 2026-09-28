@@ -3,8 +3,11 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { type Group, Matrix4, type PerspectiveCamera, Quaternion, Vector3 } from "three";
+import { LOCALE_PATHS } from "@/i18n/locale-routes";
 import { ASSETS } from "@/lib/assets";
+import { selectLocale, useSettingsStore } from "@/store/settings";
 import { loadMindar, type MindarController } from "./mindar";
 import { TossingHero } from "./TossingHero";
 
@@ -17,6 +20,7 @@ import { TossingHero } from "./TossingHero";
  */
 
 type Phase = "idle" | "starting" | "scanning" | "found" | "error";
+type ArError = "noCamera" | "denied" | "unknown";
 /** 카드를 책상에 눕혔는지(도해가 카드 면에 선다), 세워 들었는지(카드 면에서 앞으로 나온다). */
 type Mount = "flat" | "upright";
 
@@ -119,7 +123,10 @@ export function ArExperience() {
     post: new Matrix4(),
   });
   const [phase, setPhase] = useState<Phase>("idle");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ArError | null>(null);
+  const { t } = useTranslation("ar");
+  // 언어는 QR 주소가 아니라 저장된 선택을 따른다 (루트 / 와 같은 규칙). 카드 한 장에 QR 하나라서.
+  const locale = useSettingsStore(selectLocale);
   const [mount, setMount] = useState<Mount>("flat");
   const [projection, setProjection] = useState<Projection | null>(null);
 
@@ -140,7 +147,9 @@ export function ArExperience() {
     setError(null);
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error("이 브라우저는 카메라를 열 수 없어요. https 주소인지 확인해 주세요.");
+        setPhase("error");
+        setError("noCamera");
+        return;
       }
       const [stream, { Controller }] = await Promise.all([
         navigator.mediaDevices.getUserMedia({
@@ -195,14 +204,15 @@ export function ArExperience() {
       controller.processVideo(video);
       setPhase("scanning");
     } catch (cause) {
+      console.error(cause);
       stop();
       setPhase("error");
       setError(
         cause instanceof DOMException && cause.name === "NotAllowedError"
-          ? "카메라 권한이 막혀 있어요. 브라우저 설정에서 허용한 뒤 다시 시도해 주세요."
-          : cause instanceof Error
-            ? cause.message
-            : String(cause),
+          ? "denied"
+          : cause instanceof DOMException && cause.name === "NotFoundError"
+            ? "noCamera"
+            : "unknown",
       );
     }
   }
@@ -231,40 +241,47 @@ export function ArExperience() {
 
       {phase === "idle" || phase === "error" ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-night/90 p-6 text-center">
-          <p className="text-lg font-semibold">포토카드를 비춰 보세요</p>
-          <p className="max-w-xs text-sm text-fog">
-            카메라를 켜고 카드 앞면을 화면에 담으면 도해가 튀어나와요.
-          </p>
-          {error && <p className="max-w-xs text-sm text-ember">{error}</p>}
+          <p className="text-lg font-semibold">{t("intro.title")}</p>
+          <p className="max-w-xs text-sm text-fog">{t("intro.body")}</p>
+          {error && <p className="max-w-xs text-sm text-ember">{t(`error.${error}`)}</p>}
           <button
             type="button"
             onClick={start}
             className="rounded-full bg-memory px-6 py-3 font-semibold text-night"
           >
-            카메라 켜기
+            {t("intro.start")}
           </button>
           <Link href="/ar/target" className="text-sm text-fog underline">
-            카드가 없다면: 테스트용 그림 띄우기
+            {t("intro.noCard")}
           </Link>
         </div>
       ) : (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 p-6">
           <p className="rounded-full bg-night/70 px-4 py-2 text-sm">
-            {phase === "starting"
-              ? "카메라 준비 중…"
-              : phase === "scanning"
-                ? "카드 앞면을 화면에 담아 주세요"
-                : "찾았다!"}
+            {t(
+              `status.${phase === "starting" ? "starting" : phase === "scanning" ? "scanning" : "found"}`,
+            )}
           </p>
           <button
             type="button"
             onClick={() => setMount((current) => (current === "flat" ? "upright" : "flat"))}
             className="pointer-events-auto rounded-full border border-line bg-night/70 px-4 py-2 text-sm"
           >
-            {mount === "flat" ? "카드를 세워서 볼 때 누르기" : "카드를 눕혀서 볼 때 누르기"}
+            {t(mount === "flat" ? "mount.toUpright" : "mount.toFlat")}
           </button>
         </div>
       )}
+
+      {/*
+       * 본편으로는 문서 이동이다 (<Link>가 아니다). 클라이언트 이동이면 MindAR의 tfjs WebGL
+       * 컨텍스트와 워커가 같은 탭에 남은 채 방이 뜬다. 새로 열어야 AR이 본편에 아무것도 안 남긴다.
+       */}
+      <a
+        href={LOCALE_PATHS[locale]}
+        className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 rounded-full border border-line bg-night/70 px-4 py-2 text-sm"
+      >
+        {t("toRoom")}
+      </a>
     </main>
   );
 }
