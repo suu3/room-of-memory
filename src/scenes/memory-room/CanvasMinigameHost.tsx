@@ -33,7 +33,6 @@ export function CanvasMinigameHost() {
 function CanvasInteraction() {
   const active = useMemoryRoomStore(selectActiveInteraction);
   const finishMinigame = useMemoryRoomStore((state) => state.finishMinigame);
-  const difficulty = useMemoryRoomStore((state) => state.difficulty);
   const live = liveMinigameOf(active);
   if (live?.definition.mode !== "canvas") return null;
 
@@ -44,7 +43,6 @@ function CanvasInteraction() {
         // 같은 물건을 다시 조사하면 새 판. 결과 대사 단계에서는 같은 인스턴스가 남는다
         key={`${live.memoryId}:${live.gamePhase}`}
         gamePhase={live.gamePhase}
-        difficulty={difficulty}
         stage={live.stage}
         onComplete={finishMinigame}
       />

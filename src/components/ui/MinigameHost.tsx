@@ -155,7 +155,6 @@ export function MinigameHost() {
   const finishMinigame = useMemoryRoomStore((state) => state.finishMinigame);
   const cancelMinigame = useMemoryRoomStore((state) => state.cancelMinigame);
   // 난이도는 판 안의 수치(대역·속도·피해량)로만 들어간다. 스킵 게이트는 shell이 따로 본다
-  const difficulty = useMemoryRoomStore((state) => state.difficulty);
   /** 결과 대사 동안 판 대신 세울 그 순간의 한 장 (3D 인스펙트만 찍는다). */
   const still = useStillStore((state) =>
     active ? state.stills[stillKeyOf(active.memoryId, active.gamePhase)] : undefined,
@@ -372,7 +371,6 @@ export function MinigameHost() {
                 <Minigame
                   key={retry}
                   gamePhase={active.gamePhase}
-                  difficulty={difficulty}
                   stage={resultStage ? "result" : "play"}
                   still={resultStage ? still : undefined}
                   onSettled={() => setSettledKey(activeKey)}

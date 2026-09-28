@@ -11,7 +11,7 @@ function SkipProbe() {
   return <output>{eligible ? "skip-open" : "skip-hidden"}</output>;
 }
 
-describe("useSkipEligible의 난이도 게이트", () => {
+describe("useSkipEligible", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     useMemoryRoomStore.getState().reset();
@@ -23,33 +23,12 @@ describe("useSkipEligible의 난이도 게이트", () => {
     useMemoryRoomStore.getState().reset();
   });
 
-  it("이지 모드에서는 시간이 지나면 스킵이 열린다", () => {
-    useMemoryRoomStore.setState({ difficulty: "easy" });
+  it.each(["guided", "normal"] as const)("%s 모드에서도 시간이 지나면 스킵이 열린다", (mode) => {
+    useMemoryRoomStore.setState({ difficulty: mode });
     render(<SkipProbe />);
     expect(screen.getByText("skip-hidden")).toBeTruthy();
 
     act(() => vi.advanceTimersByTime(1100));
-
-    expect(screen.getByText("skip-open")).toBeTruthy();
-  });
-
-  it("보통 모드에서는 시간이 아무리 지나도 스킵이 없다", () => {
-    useMemoryRoomStore.setState({ difficulty: "normal" });
-    render(<SkipProbe />);
-
-    act(() => vi.advanceTimersByTime(600_000));
-
-    expect(screen.getByText("skip-hidden")).toBeTruthy();
-  });
-
-  it("게임 중에 난이도를 바꾸면 그 자리에서 반영된다", () => {
-    // 메뉴는 플레이 중에도 열린다. 막힌 사람이 이지로 내리는 것이 이 설정의 존재 이유다
-    useMemoryRoomStore.setState({ difficulty: "normal" });
-    render(<SkipProbe />);
-    act(() => vi.advanceTimersByTime(1100));
-    expect(screen.getByText("skip-hidden")).toBeTruthy();
-
-    act(() => useMemoryRoomStore.getState().setDifficulty("easy"));
 
     expect(screen.getByText("skip-open")).toBeTruthy();
   });

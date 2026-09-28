@@ -10,9 +10,12 @@ import type { ParseKeys } from "i18next";
 export type CommonTextKey = ParseKeys<"common">;
 
 /**
- * 난이도. 스토어의 Difficulty와 같은 값이지만 미니게임이 스토어에 기대지 않도록
- * 호스트가 props로 내려준다. 스킵 게이트는 여전히 useSkipEligible 한 곳이 맡고,
- * 이 값은 판 자체의 수치(대역 폭·바늘 속도·안타 수·피해량)에만 쓴다.
+ * 판 자체의 수치(대역 폭·바늘 속도·안타 수·피해량) 등급. 스킵 게이트는 useSkipEligible
+ * 한 곳이 맡는다.
+ *
+ * 2026-09-28부터 호스트는 이 값을 내려주지 않는다: 게임의 두 난이도(스토어의 Difficulty:
+ * 이지·보통)가 모두 예전 "이지" 수치로 돈다. "normal" 수치는 어려움 모드를 다시 들일
+ * 때를 위해 판마다 남겨 둔다.
  */
 export type MinigameDifficulty = "easy" | "normal";
 

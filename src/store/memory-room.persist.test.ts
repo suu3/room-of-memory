@@ -148,11 +148,13 @@ describe("sanitizeProgress", () => {
     expect(sanitizeProgress({}).discoveries).toEqual([]);
   });
 
-  it("falls back to easy when the saved difficulty is unknown", () => {
-    // 스킵을 숨기는 쪽(normal)이 잘못 살아나면 접근성 장치가 말없이 사라진다.
-    // 모르는 값은 스킵이 보이는 쪽으로 넘어진다
-    expect(sanitizeProgress({ difficulty: "hardcore" }).difficulty).toBe("easy");
-    expect(sanitizeProgress({}).difficulty).toBe("easy");
+  it("keeps guided only when it was chosen; old and unknown values become normal", () => {
+    expect(sanitizeProgress({ difficulty: "guided" }).difficulty).toBe("guided");
+    // 옛 기본값 easy는 지금의 보통이다. 고른 적 없는 안내를 켜지 않는다
+    expect(sanitizeProgress({ difficulty: "easy" }).difficulty).toBe("normal");
+    expect(sanitizeProgress({ difficulty: "normal" }).difficulty).toBe("normal");
+    expect(sanitizeProgress({ difficulty: "hardcore" }).difficulty).toBe("normal");
+    expect(sanitizeProgress({}).difficulty).toBe("normal");
   });
 
   it("drops ids that no longer exist", () => {

@@ -150,7 +150,7 @@ export function HudMenu({ inline = false }: { inline?: boolean }) {
               <InlineDivider />
               <fieldset className="flex gap-[0.25em]">
                 <legend className="sr-only">{t("difficulty.label")}</legend>
-                {(["easy", "normal"] as const).map((mode) => (
+                {(["guided", "normal"] as const).map((mode) => (
                   <button
                     key={mode}
                     type="button"
@@ -159,7 +159,7 @@ export function HudMenu({ inline = false }: { inline?: boolean }) {
                       setDifficulty(mode);
                     }}
                     aria-pressed={difficulty === mode}
-                    title={t(mode === "easy" ? "difficulty.easyHint" : "difficulty.normalHint")}
+                    title={t(mode === "guided" ? "difficulty.guidedHint" : "difficulty.normalHint")}
                     className={`${HUD_CHOICE_BASE} ${difficulty === mode ? HUD_CHOICE_SELECTED : HUD_CHOICE_IDLE}`}
                   >
                     {t(`difficulty.${mode}`)}
@@ -263,10 +263,10 @@ export function HudMenu({ inline = false }: { inline?: boolean }) {
           <p aria-hidden className={`mt-4 px-1 ${SECTION_LABEL}`}>
             {t("difficulty.label")}
           </p>
-          {/* 이지=스킵 열림, 보통=스킵 숨김. 게이트는 useSkipEligible 한 곳 (minigames/shell) */}
+          {/* 이지=다음 할 일 안내 + 스킵, 보통=스킵만. 안내는 next-step, 스킵은 useSkipEligible */}
           <fieldset className="mt-2 flex gap-1.5">
             <legend className="sr-only">{t("difficulty.label")}</legend>
-            {(["easy", "normal"] as const).map((mode) => (
+            {(["guided", "normal"] as const).map((mode) => (
               <button
                 key={mode}
                 type="button"
@@ -283,7 +283,7 @@ export function HudMenu({ inline = false }: { inline?: boolean }) {
           </fieldset>
           {/* 어느 쪽이 켜져 있는지 말로도 남긴다. 칩 두 개만으로는 뜻이 안 읽힌다 */}
           <p className="mt-1.5 break-ko px-1 text-xs leading-normal text-ash">
-            {t(difficulty === "easy" ? "difficulty.easyHint" : "difficulty.normalHint")}
+            {t(difficulty === "guided" ? "difficulty.guidedHint" : "difficulty.normalHint")}
           </p>
           {/*
             오토: 대사가 저절로 넘어간다. 난이도와 같은 성격의 설정이라 같은 칩 두 개로 둔다.

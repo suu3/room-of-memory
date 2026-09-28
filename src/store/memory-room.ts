@@ -74,10 +74,17 @@ export type { StoryPhase, Visit };
  */
 export type Act = 1 | 2 | 3;
 /**
- * 난이도: 이지(기본)는 미니게임 스킵이 열리고, 보통은 숨는다.
- * 게이트는 useSkipEligible(src/minigames/shell.tsx) 한 곳이 담당한다.
+ * 난이도 (2026-09-28 개편).
+ *
+ * - normal(보통, 기본): 막히면 미니게임 스킵이 열린다. 예전의 "이지"가 이것이다.
+ * - guided(이지): 보통에 더해, HUD 목표 줄이 "어디에 가서 무엇을" 할지까지 짚는다
+ *   (src/store/next-step.ts).
+ *
+ * 스킵을 숨기던 예전 "보통"은 없앴다. 값 이름을 easy에서 guided로 바꾼 것은 저장본
+ * 때문이다: 옛 저장본의 "easy"(그때의 기본)가 새 이지로 읽히면 고른 적 없는 안내가
+ * 켜진다. 옛 값은 전부 새 보통으로 이어진다 (sanitizeProgress).
  */
-export type Difficulty = "easy" | "normal";
+export type Difficulty = "guided" | "normal";
 /** 수첩(캐릭터 시트)의 페이지: 프로필과 기록(기억 스크랩북). */
 export type CharacterSheetTab = NotebookTabId;
 export type InteractionPhase = "dialogue" | "minigame";
@@ -932,8 +939,8 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     // 이 값을 모르는 옛 저장본은 기억을 하나라도 봤으면 수첩도 안다고 본다
     notebookOpened: saved.notebookOpened === true || collected.length > 0,
     soundMuted: saved.soundMuted === true,
-    // 모르는 값은 스킵이 보이는 쪽(easy)으로: normal이 잘못 살아나면 접근성 장치가 사라진다
-    difficulty: saved.difficulty === "normal" ? "normal" : "easy",
+    // 이지(guided)를 고른 저장본만 이지다. 옛 값(easy·normal)과 모르는 값은 보통으로
+    difficulty: saved.difficulty === "guided" ? "guided" : "normal",
     // 불은 켜진 상태가 기본: 저장본에 명시적으로 false일 때만 꺼진 채로 돌아온다
     lightsOn: saved.lightsOn !== false,
     // 인트로 도입 전의 저장본(기억을 하나라도 모았다)은 인트로를 이미 지난 것으로 본다
@@ -997,7 +1004,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       bootRising: false,
       resetRevision: 0,
       soundMuted: false,
-      difficulty: "easy",
+      difficulty: "normal",
       lightsOn: true,
       introDone: false,
       doorwayDone: false,

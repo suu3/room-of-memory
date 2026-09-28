@@ -29,7 +29,15 @@
       "doorway": "Step out through the open door",
       "workbook": "Click the glowing workbook on the desk and turn it around",
       "workbook_touch": "Tap the glowing workbook on the desk and turn it around",
-      "notebook": "Open the notebook on the right edge"
+      "notebook": "Open the notebook on the right edge",
+      "next": {
+        "memory": "{{space}}: examine the {{name}}",
+        "doorway": "{{space}}: open the door",
+        "shelf-book": "Look at the upside-down book on the shelf in your room",
+        "sink-dial": "Open the dial on the cabinet under the bathroom sink",
+        "piano-sheet": "Pick up the torn sheet music on the desk in the Parents' Room",
+        "piano": "Take the torn sheet music to the living room piano and play it"
+      }
     },
     "here": "You are here: {{value}}",
     "travel": "Travel"
@@ -658,10 +666,10 @@
   },
   "difficulty": {
     "label": "Difficulty",
-    "easy": "Easy",
+    "guided": "Easy",
     "normal": "Normal",
-    "easyHint": "Skip unlocks after a while if you get stuck.",
-    "normalHint": "No skips: solve everything yourself."
+    "guidedHint": "The objective line tells you where to go and what to do next. Skip also unlocks if you get stuck.",
+    "normalHint": "Find your own way. Skip unlocks after a while if you get stuck."
   },
   "feedback": {
     "title": "Feedback",

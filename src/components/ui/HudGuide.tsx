@@ -1,6 +1,7 @@
 "use client";
 
 import { CursorClick, HandTap, MapPin } from "@phosphor-icons/react";
+import type { ParseKeys } from "i18next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
@@ -13,6 +14,7 @@ import {
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
+import { type NextStep, nextStep } from "@/store/next-step";
 import { KeyHint } from "./Keycap";
 
 /**
@@ -20,6 +22,37 @@ import { KeyHint } from "./Keycap";
  * 밑으로 물러난다.
  */
 const BANNER_MS = 4000;
+
+/**
+ * 이지 모드의 다음 할 일을 문자열 하나로 (zustand 셀렉터는 원시값을 돌려줘야 렌더가 안 돈다).
+ * 보통 모드거나 짚을 것이 없으면 null.
+ */
+function nextStepId(state: Parameters<typeof nextStep>[0] & { difficulty: string }): string | null {
+  if (state.difficulty !== "guided") return null;
+  const step = nextStep(state);
+  if (!step) return null;
+  if (step.kind === "memory") return `memory:${step.memory}:${step.space}`;
+  if (step.kind === "doorway") return `doorway:${step.to}`;
+  return step.kind;
+}
+
+/** nextStepId를 한 줄로. 공간·물건 이름은 수첩·평면도와 같은 i18n 자리에서 온다. */
+function useNextStepText(id: string | null): string | null {
+  const { t } = useTranslation();
+  const { t: tRoom } = useTranslation("memoryRoom");
+  if (id === null) return null;
+  const [kind, target, space] = id.split(":") as [NextStep["kind"], string?, string?];
+  if (kind === "memory") {
+    return t("hud.guide.next.memory", {
+      space: t(`space.${space}` as ParseKeys<"common">),
+      name: tRoom(`memories.${target}.name` as ParseKeys<"memoryRoom">),
+    });
+  }
+  if (kind === "doorway") {
+    return t("hud.guide.next.doorway", { space: t(`space.${target}` as ParseKeys<"common">) });
+  }
+  return t(`hud.guide.next.${kind}` as ParseKeys<"common">);
+}
 
 type GuideKey =
   | "hud.guide.lights"
@@ -64,6 +97,9 @@ function useHudGuide() {
   const viewpoint = useMemoryRoomStore(selectViewpoint);
   // 불을 켠 직후의 두 걸음: 문제집을 돌려 보고, 수첩을 펼친다 (store의 onboardingStep)
   const onboarding = useMemoryRoomStore(selectOnboardingStep);
+  // 이지 모드: 뭉뚱그린 "빛나는 물건을 조사하세요" 대신 어디의 무엇인지 (store/next-step)
+  const stepId = useMemoryRoomStore(nextStepId);
+  const stepText = useNextStepText(stepId);
 
   const key: GuideKey =
     viewpoint === "intro"
@@ -84,20 +120,29 @@ function useHudGuide() {
                     ? "hud.guide.notebook"
                     : "hud.guide.examine";
 
-  /** 가운데 배너에 떠 있는 목표. key와 다르면 새 목표가 막 들어온 것이다. */
-  const [bannerKey, setBannerKey] = useState<GuideKey | null>(key);
+  /*
+   * 짚어 줄 다음 할 일이 있으면 뭉뚱그린 목표만 그것으로 갈아 끼운다. 스위치·문간·배트·
+   * 현관·방문·첫 두 걸음은 이미 한 가지를 짚고 있어 그대로 둔다.
+   */
+  const generic = key === "hud.guide.examine" || key === "hud.guide.revisit";
+  const specific = generic && stepText !== null;
+  /** 배너를 다시 띄우는 기준. 이지 모드에서는 짚는 물건이 바뀔 때마다 새 목표다. */
+  const goal = specific ? `${key}|${stepId}` : key;
+
+  /** 가운데 배너에 떠 있는 목표. goal과 다르면 새 목표가 막 들어온 것이다. */
+  const [bannerKey, setBannerKey] = useState<string | null>(goal);
   useEffect(() => {
-    setBannerKey(key);
+    setBannerKey(goal);
     const timer = window.setTimeout(() => setBannerKey(null), BANNER_MS);
     return () => window.clearTimeout(timer);
-  }, [key]);
+  }, [goal]);
 
   return {
-    text: hint(key),
+    text: specific ? stepText : hint(key),
     /** 1인칭에서만 붙는 조작 한 줄. 둘러보는 법은 이 구간에서 처음 필요해진다. */
     control: viewpoint !== null ? hint("scene.lookHint") : null,
     Icon: pointer === "touch" ? HandTap : CursorClick,
-    banner: bannerKey === key,
+    banner: bannerKey === goal,
     gone: endingStarted,
   };
 }

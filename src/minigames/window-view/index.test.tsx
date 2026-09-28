@@ -29,7 +29,7 @@ describe("WindowViewMinigame", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    useMemoryRoomStore.getState().setDifficulty("easy");
+    useMemoryRoomStore.getState().setDifficulty("normal");
   });
 
   afterEach(() => {
