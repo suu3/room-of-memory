@@ -62,9 +62,9 @@ memories:
         en: September Mock Exam
         ja: 9月の模試
       phase1:
-        ko: 성적은 좋지 않았다. 엄마는 과외 얘기를 꺼냈고, 아빠는 공부가 인생의 답은 아니라고 했다. 야구 대회가 끝나고 남은 건 수능이었다.
-        en: My scores weren't good. Mom brought up getting a tutor, and Dad said studying isn't the answer to everything. With the baseball tournament over, all that was left was the entrance exam.
-        ja: 成績は良くなかった。母さんは家庭教師の話を持ち出して、父さんは勉強だけが人生の答えじゃないと言った。野球の大会が終わって、残ったのは受験だけだった。
+        ko: 성적은 좋지 않았다. 엄마는 과외 얘기를 꺼냈고, 아빠는 공부가 인생의 답은 아니라고 했다.
+        en: My scores weren't good. Mom brought up getting a tutor, and Dad said studying isn't the answer to everything.
+        ja: 成績は良くなかった。母さんは家庭教師の話を持ち出して、父さんは勉強だけが人生の答えじゃないと言った。
     # 미니게임 없이 책상 위 성적표를 둘러보고 대사만 흐른다
     phase1:
       script: report-card-intro
