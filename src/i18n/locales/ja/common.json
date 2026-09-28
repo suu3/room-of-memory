@@ -150,10 +150,6 @@
       "help_touch": "針が明るい帯を通る瞬間に画面をタップ",
       "fail": "…ザザッ。まだ拾えないな。"
     },
-    "emergencyBroadcast": {
-      "whisper0": "…聞きたくない。",
-      "whisper1": "やめてくれ…"
-    },
     "photoWipe": {
       "title": "写真を拭く",
       "help": "マウスでドラッグしてほこりを拭き取ってください",

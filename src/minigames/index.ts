@@ -18,18 +18,6 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     helpKey: "minigame.frequencyTune.help",
     failKey: "minigame.frequencyTune.fail",
   },
-  "emergency-broadcast": {
-    id: "emergency-broadcast",
-    mode: "overlay",
-    // 1바퀴 라디오 전용: 주파수 잡기(frequency-tune 재사용) 뒤에 재난 방송이 흐른다.
-    // 끄려 해도 꺼지지 않는 방송이다. 시작 카드는 첫 단계(주파수) 기준으로 안내한다.
-    component: lazy(() =>
-      import("./emergency-broadcast").then((m) => ({ default: m.EmergencyBroadcastMinigame })),
-    ),
-    titleKey: "minigame.frequencyTune.title",
-    helpKey: "minigame.frequencyTune.help",
-    failKey: "minigame.frequencyTune.fail",
-  },
   "photo-wipe": {
     id: "photo-wipe",
     mode: "overlay",

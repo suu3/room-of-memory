@@ -236,25 +236,6 @@ describe("minigame result dialogue", () => {
     expect(useMemoryRoomStore.getState().collected).toEqual(["console", "ball", "frame"]);
   });
 
-  it("판이 이미 보여준 결과 대사 앞 줄은 건너뛰되, 지난 대사 기록에는 남긴다", () => {
-    openFrame();
-    useMemoryRoomStore.getState().beginInteraction("frame");
-    const lines = SCRIPTS["frame-photo"].lines;
-    useMemoryRoomStore.getState().finishMinigame({ cleared: true, shownResultLines: 1 });
-
-    const state = useMemoryRoomStore.getState();
-    expect(state.activeInteraction?.lineIndex).toBe(1);
-    expect(state.dialogueLog.at(-1)?.textKey).toBe(lines[0].textKey);
-  });
-
-  it("다 보여줬다고 해도 마지막 한 줄은 대사창이 맡는다", () => {
-    openFrame();
-    useMemoryRoomStore.getState().beginInteraction("frame");
-    const lines = SCRIPTS["frame-photo"].lines;
-    useMemoryRoomStore.getState().finishMinigame({ cleared: true, shownResultLines: 99 });
-    expect(useMemoryRoomStore.getState().activeInteraction?.lineIndex).toBe(lines.length - 1);
-  });
-
   it("closes without collecting when the minigame is failed, and stays retryable", () => {
     openFrame();
     useMemoryRoomStore.getState().beginInteraction("frame");
@@ -682,7 +663,7 @@ describe("분기점: 라디오", () => {
     });
   }
 
-  it("진입 대사 → 튜닝 → 재난방송 순으로 흐른다", () => {
+  it("진입 대사 → 튜닝 → 라디오가 꺼지고 재난방송 컷씬 순으로 흐른다", () => {
     collectAllButRadio();
     useMemoryRoomStore.getState().beginInteraction("radio");
 
@@ -693,9 +674,18 @@ describe("분기점: 라디오", () => {
 
     useMemoryRoomStore.getState().finishMinigame({ cleared: true });
 
-    const active = useMemoryRoomStore.getState().activeInteraction;
-    expect(active?.scriptId).toBe("radio-broadcast");
-    expect(active?.keepMinigame).toBe(true);
+    // 결과 대사 없이 판이 닫히고, 라디오가 꺼지는 도입부터 컷씬이 흐른다
+    const state = useMemoryRoomStore.getState();
+    expect(state.activeInteraction).toBeNull();
+    expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_RADIO_BLACKOUT);
+    expect(state.activePlayback?.intro).toBe(true);
+    // 꺼진 라디오 앞의 한 줄 → 정적 → 방송(속말과 함께)
+    const [noise, silence, broadcast] = state.activePlayback?.cuts ?? [];
+    expect(noise?.black).toBe(true);
+    expect(silence?.lines).toHaveLength(0);
+    expect(silence?.holdMs).toBeGreaterThan(0);
+    expect(broadcast?.lines[0]?.speaker).toBe("broadcast");
+    expect(broadcast?.whisperKeys?.length).toBe(2);
   });
 
   it("라디오 2차는 곧장 생존자 방송이다. 끝나면 방문이 금빛이다", () => {

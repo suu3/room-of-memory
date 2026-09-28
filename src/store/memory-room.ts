@@ -1122,27 +1122,14 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
           // 클리어했으면 결과 대사로: 미니게임 화면을 뒤에 남긴 채 대사창이 뜬다
           if (result.cleared && interaction?.resultScriptId) {
-            // 판이 이미 보여준 앞 줄은 건너뛰되 기록에는 남긴다 (MinigameResult.shownResultLines)
-            const lines = SCRIPTS[interaction.resultScriptId]?.lines ?? [];
-            const shown = Math.max(0, Math.min(result.shownResultLines ?? 0, lines.length - 1));
             return {
               activeInteraction: {
                 ...active,
                 phase: "dialogue" as const,
                 scriptId: interaction.resultScriptId,
                 keepMinigame: true,
-                lineIndex: shown,
+                lineIndex: 0,
               },
-              ...(shown > 0
-                ? {
-                    dialogueLog: appendDialogueLog(
-                      state.dialogueLog,
-                      lines
-                        .slice(0, shown)
-                        .map((line) => ({ speaker: line.speaker, textKey: line.textKey })),
-                    ),
-                  }
-                : {}),
             };
           }
           /*

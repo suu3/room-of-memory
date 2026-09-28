@@ -253,12 +253,11 @@ memories:
         en: They said there are survivors at the Eungang High gym. Four nights, huh... …I've heard that voice somewhere.
         ja: 銀江高の体育館に生存者がいると言っていた。四晩まで、か... …あの声、どこかで聞いたことがある。
     # 1차 (관문): 나머지 일곱을 다 봐야 열린다. 반전은 한 번뿐이라 순서를 강제한다.
-    # 진입 대사 → 튜닝 → 글자 맞추기("내가 이 방에 고립된 이유" 답: 좀비, 오답 세 번마다
-    # 글자 힌트) → 재난방송(결과 대사) → 이미지 나열 컷씬(store가 radio-blackout을 연다).
+    # 진입 대사 → 튜닝 → 라디오가 꺼지고 재난방송이 떠오르는 컷씬(store가 radio-blackout을
+    # 연다). 방송과 그날의 이미지 나열은 전부 그 컷씬 안에 있다.
     phase1:
       script: radio-intro
-      minigame: emergency-broadcast
-      resultScript: radio-broadcast
+      minigame: frequency-tune
       unlockAfter: [report-card, console, ball, frame, phone, calendar, window]
     # 2차 (분기점): 빨갛게 깜빡이는 라디오를 누르면 곧장 생존자 방송(3페이지 웹툰)이 흐른다.
     # 튜닝을 두 번 시키지 않는다. 끝나면 방에서 도해의 한마디, 방문에 금빛이 돈다.

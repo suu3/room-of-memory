@@ -150,10 +150,6 @@
       "help_touch": "Tap the moment the needle crosses the lit band",
       "fail": "…Kssht. Still can't catch it."
     },
-    "emergencyBroadcast": {
-      "whisper0": "…I don't want to hear this.",
-      "whisper1": "Stop…"
-    },
     "photoWipe": {
       "title": "Wipe the Photo",
       "help": "Drag with the mouse to wipe the dust away",

@@ -7,6 +7,7 @@ import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
 import { progressAt } from "@/data/story-phase";
 import { i18n } from "@/i18n/config";
 import { openCutscene, useMemoryRoomStore } from "@/store/memory-room";
+import { WHISPER_SHOW_MS } from "./CutWhispers";
 import { DialogueBox } from "./DialogueBox";
 import { PlaybackScene } from "./PlaybackScene";
 
@@ -69,9 +70,11 @@ describe("배트를 쥐는 두 줄의 화면", () => {
      * 회색 판 하나로 지나가면 안 된다. 파형·램프·주사선이 판을 채우고, 건너뛰기는
      * 어두운 그림 위에서도 보이는 대비로 선다.
      */
-    useMemoryRoomStore.setState({
-      activePlayback: openCutscene(CUTSCENE_RADIO_BLACKOUT),
-    });
+    const opened = openCutscene(CUTSCENE_RADIO_BLACKOUT);
+    if (!opened) throw new Error("radio-blackout 컷씬이 없다");
+    // 그림 앞의 검정 컷(꺼진 라디오 · 정적 · 방송)을 지나 첫 그림 컷
+    const firstPicture = opened.cuts.findIndex((cut) => cut.image !== undefined);
+    useMemoryRoomStore.setState({ activePlayback: { ...opened, cutIndex: firstPicture } });
     const { container } = render(<PlaybackScene />);
 
     expect(container.querySelectorAll(".animate-signal-wave").length).toBeGreaterThan(20);
@@ -95,6 +98,46 @@ describe("배트를 쥐는 두 줄의 화면", () => {
 
     expect(container.querySelector(".animate-signal-wave")).toBeNull();
     expect(container.querySelector("img")).toBeNull();
+  });
+
+  it("라디오 방송 컷에서는 도해의 속말이 한 줄씩 떴다 지기를 되풀이한다", () => {
+    vi.useFakeTimers();
+    try {
+      const opened = openCutscene(CUTSCENE_RADIO_BLACKOUT);
+      if (!opened) throw new Error("radio-blackout 컷씬이 없다");
+      const broadcast = opened.cuts.findIndex((cut) => cut.whisperKeys !== undefined);
+      expect(opened.cuts[broadcast]?.lines[0]?.speaker).toBe("broadcast");
+      useMemoryRoomStore.setState({ activePlayback: { ...opened, cutIndex: broadcast } });
+      render(<PlaybackScene />);
+      const shown = (text: string) => screen.getByText(text).className.includes("opacity-100");
+      const first = "…I don't want to hear this.";
+      const second = "Stop…";
+
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+      expect(shown(first)).toBe(true);
+      expect(shown(second)).toBe(false);
+      // 가라앉았다가
+      act(() => {
+        vi.advanceTimersByTime(WHISPER_SHOW_MS);
+      });
+      expect(shown(first)).toBe(false);
+      // 다음 줄이 뜨고, 다시 첫 줄로 돈다. 줄이 바뀐 뒤의 시계는 렌더가 끝나야 걸리므로 두 번에 나눠 흘린다
+      const step = (ms: number) => {
+        act(() => {
+          vi.advanceTimersByTime(ms);
+        });
+      };
+      step(1500);
+      step(100);
+      expect(shown(second)).toBe(true);
+      step(WHISPER_SHOW_MS + 1500);
+      step(100);
+      expect(shown(first)).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("대사 없는 컷이 같은 정적으로 이어져도 컷마다 저절로 넘어간다", () => {
@@ -131,8 +174,11 @@ describe("배트를 쥐는 두 줄의 화면", () => {
      */
     vi.useFakeTimers();
     try {
+      const opened = openCutscene(CUTSCENE_RADIO_BLACKOUT);
+      if (!opened) throw new Error("radio-blackout 컷씬이 없다");
+      const firstPicture = opened.cuts.findIndex((cut) => cut.image !== undefined);
       useMemoryRoomStore.setState({
-        activePlayback: openCutscene(CUTSCENE_RADIO_BLACKOUT),
+        activePlayback: { ...opened, cutIndex: firstPicture },
         autoPlay: false,
       });
       render(
@@ -142,7 +188,7 @@ describe("배트를 쥐는 두 줄의 화면", () => {
         </>,
       );
       const playback = () => useMemoryRoomStore.getState().activePlayback;
-      const first = playback()?.cuts[0];
+      const first = playback()?.cuts[firstPicture];
       expect(first?.narration).toBe(true);
       const count = first?.lines.length ?? 0;
       expect(count).toBeGreaterThan(1);
@@ -161,7 +207,7 @@ describe("배트를 쥐는 두 줄의 화면", () => {
       act(() => {
         vi.advanceTimersByTime(6000);
       });
-      expect(playback()?.cutIndex).toBe(1);
+      expect(playback()?.cutIndex).toBe(firstPicture + 1);
     } finally {
       vi.useRealTimers();
     }

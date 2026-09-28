@@ -204,6 +204,16 @@ export function validateContent(content, { minigameIds = [] } = {}) {
       if (cut.narration === true && Array.isArray(cut.lines) && cut.lines.length === 0) {
         issues.push(`${where}.narration: 내레이션 컷은 대사가 있어야 한다.`);
       }
+      // 속말: 컷이 서 있는 동안 화면 위 혼잣말 자리에 번갈아 떴다 지는 줄들 (ko/en/ja)
+      if (cut.whispers !== undefined) {
+        if (!Array.isArray(cut.whispers) || cut.whispers.length === 0) {
+          issues.push(`${where}.whispers: 한 줄 이상의 목록이어야 한다.`);
+        } else {
+          for (const [index, whisper] of cut.whispers.entries()) {
+            validateText(whisper, `${where}.whisper${index + 1}`, issues);
+          }
+        }
+      }
       if (cut.holdMs !== undefined && !(Number.isFinite(cut.holdMs) && cut.holdMs > 0)) {
         issues.push(`${where}: holdMs는 0보다 큰 숫자여야 한다.`);
       }
@@ -511,6 +521,9 @@ export function countTranslationTodos(content) {
     for (const [cutIndex, cut] of (cuts ?? []).entries()) {
       for (const [index, line] of (cut?.lines ?? []).entries()) {
         visit(line, `cutscenes.${id}.cut${cutIndex + 1}.line${index + 1}`);
+      }
+      for (const [index, whisper] of (cut?.whispers ?? []).entries()) {
+        visit(whisper, `cutscenes.${id}.cut${cutIndex + 1}.whisper${index + 1}`);
       }
     }
   }

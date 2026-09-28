@@ -5241,7 +5241,7 @@ export function damp(from: number, to: number, lambda: number, deltaSeconds: num
 
 공통 구조
 - 계약은 `types/minigame.ts`, 레지스트리는 `minigames/index.ts`(전부 `React.lazy`). 등록된 id는 19개다.
-- 모드는 canvas 2개(piano-melody, ampoule-pickup)와 overlay 17개다. frequency-tune은 emergency-broadcast가 첫 단계로 품어 쓰고, sink-dial은 overlay 판 안에 작은 r3f 드럼을 띄운다.
+- 모드는 canvas 2개(piano-melody, ampoule-pickup)와 overlay 17개다. sink-dial은 overlay 판 안에 작은 r3f 드럼을 띄운다.
 - 기억 조사에 붙은 판은 `MinigameHost`가, 미궁 문제(piano-melody, sink-dial)는 `PuzzleHost`가 세운다. 둘 다 판이 풀리면 결과 카드를 띄운다.
 - `useSkipEligible`이 스킵이 열리는 시각을 한 곳에서 맡는다. **스킵은 두 난이도 모두에서 열린다.** 기본 난이도 "보통"(`normal`)이 예전의 이지이고, 새 "이지"(`guided`)는 거기에 HUD 목표 줄의 다음 할 일 안내만 더한다. 호스트는 판에 `difficulty`를 내려주지 않으므로 판 수치(대역 폭, 바늘 속도, 목표 안타 수)는 늘 예전 이지 값으로 돈다.
 - 도움말의 키 이름은 `<kbd>` 키캡으로 분리해 보여 준다.
@@ -5258,7 +5258,7 @@ export function damp(from: number, to: number, lambda: number, deltaSeconds: num
 | **computer-browse** | 컴퓨터 2차 | 부팅 로그 → 4자리 비밀번호 → 메일과 뉴스 | 숫자 슬롯 위에 **투명한 진짜 `<input>`**을 겹쳐 키보드·스크린리더·포커스를 모두 지원한다(`AnswerSlots`). 화면 숫자 키패드가 나란히 있고, 네 자리가 차면 바로 검사한다. 오답은 `page-nudge`로 흔들린 뒤 지워진다 |
 | **computer-logo** | 컴퓨터 3차 | 반쯤 지워진 앰플 라벨 로고와 같은 로고를 후보 넷 중에서 **둘 다** 고른다(메일 첨부의 출입증 사진, 캐시 뉴스의 연구시설 정문). 다 맞추면 아빠 메일이 열린다 | SVG `clipPath`로 반만 보여 준다. 로고는 `currentColor` 선화. 맞춘 칸은 금빛으로 남는다. 3회 틀리거나 45초가 지나면 스킵 |
 | **window-view** | 창 | 돋보기로 창밖에서 세 자리를 찾는다 | 렌즈는 같은 이미지를 `background-size:240%`로 깐 원형 요소다. 바깥은 `.window-night` 그라디언트로 밤 톤을 입히고 렌즈 안은 원화 그대로. 방향키로 렌즈를 옮기고 Enter/Space로 들여다본다. 20초가 지나면 다 못 찾아도 닫을 수 있다 |
-| **emergency-broadcast** (+frequency-tune) | 라디오 1차 | 흔들리는 바늘을 금색 대역에서 멈추면 재난 방송이 흐른다. 전원 다이얼·볼륨으로 라디오를 꺼도 떠올린 방송은 멈추지 않는다 | 바늘은 **위상을 누적**해 주기가 바뀌어도 순간이동하지 않는다. **목표와의 거리에 비례한 잡음 게인**(노이즈 베드)으로 귀로도 조준할 수 있고, 같은 값이 TUNING 램프 밝기로도 간다. 라디오 PNG의 알파로 뚫린 창 아래에 눈금을 겹치고 `cqw`로 크기를 잡는다. 방송 판에서 전원을 누르면 라디오 그림이 어둡게 꺼진 채 남고, 볼륨 막대는 바닥에 머문다. 그래도 자막은 흐르고, 자막 상자의 틀이 걷혀 글자만 남는다(머릿속의 소리). 안 눌러도 4.2초마다 다음 줄로 흐르고, 보여준 줄 수(`shownResultLines`)를 보고해 대사창은 도해의 한 줄부터 시작한다 |
+| **frequency-tune** | 라디오 1차 | 흔들리는 바늘을 금색 대역에서 멈춘다. 잡으면 판이 닫히고 radio-blackout 컷씬이 라디오가 꺼지는 도입부터 흐른다 | 바늘은 **위상을 누적**해 주기가 바뀌어도 순간이동하지 않는다. **목표와의 거리에 비례한 잡음 게인**(노이즈 베드)으로 귀로도 조준할 수 있고, 같은 값이 TUNING 램프 밝기로도 간다. 라디오 PNG의 알파로 뚫린 창 아래에 눈금을 겹치고 `cqw`로 크기를 잡는다 |
 | **card-flip / id-card-flip / ampoule-case** | 쪽지, 출입증, 앰플 | 3D 물건을 돌려 숨은 면을 찾는다 | 인스펙트 턴테이블(11장). `cos(yaw-found)>0.8`이 0.35초 유지되면 발견. 출입증은 면 대신 각도를 찾는 홀로그램이다. 끝나는 순간을 JPEG 정지 그림으로 찍어 결과 대사와 수첩에 쓴다 |
 | **papers-order** | 안방 서류 | 날짜 조각 4장을 순서대로 놓는다 | 집기·교환 방식이고 키보드로 들고(Space/Enter) ↑↓로 옮길 수 있다. 종이 조각은 ±0.5~0.6° 기울인다 |
 | **sink-dial** | 세면대 하부장 (미궁) | 3자리 드럼을 **407**에 맞춘다. 번호는 선반의 거꾸로 꽂힌 책 속 쪽지에 있다 | 컴퓨터 3차에서 아빠 메일 힌트를 본 뒤에만 열린다. r3f 드럼. 드래그 도중 덜 넘어간 비율을 넘겨 드럼이 손을 따라 기운다. ←→로 칸, ↑↓로 숫자, Enter로 연다. 4회 틀리거나 60초가 지나면 스킵. 풀면 결과 카드 뒤 안방 열쇠가 손에 들어온다 |
@@ -5651,19 +5651,11 @@ export function staticLevel(position: number, bandLeft: number, bandWidth: numbe
 }
 ```
 
-**꺼도 멈추지 않는 방송** — `minigames/emergency-broadcast/index.tsx` · `BroadcastBoard`
+**방송 위의 속말** — `components/ui/CutWhispers.tsx` · `CutWhispers`
 ```tsx
-// 라디오가 입을 닫았는데도 들린다: 이제 방송은 머릿속에서 흐른다
-const inHead = powerOff || muted;
-// ...
-/** 끄려는 손: 라디오는 정말 꺼진다. 방송만 멈추지 않는다. */
-const resist = (kind: "power" | "volume") => {
-  if (frozen || done) return;
-  setTries((value) => value + 1);
-  playSound("radioCut");
-  if (kind === "power") setPowerOff(true);
-  else setMuted(true);
-};
+// 줄들을 한 칸에 겹쳐 두고 불투명도만 넘긴다: 떠오르고(50ms 뒤) 2.6초 뒤 가라앉고, 틈을 두고 다음 줄
+const show = window.setTimeout(() => setVisible(true), 50);
+const hide = window.setTimeout(() => setVisible(false), WHISPER_SHOW_MS);
 ```
 
 **인스펙트 발견 판정** — `components/canvas/InspectTurntable.tsx` · `useFrame`, `components/canvas/inspect-math.ts` · `ReadTimer`

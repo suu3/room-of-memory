@@ -107,7 +107,17 @@ export const CUT_SFX = ["mittTap", "radioCut", "radioWake", "radioStatic", "radi
 export const CUT_RATIOS = ["16:9", "3:4"];
 
 /** 컷에서 허용하는 키. */
-export const CUT_KEYS = ["image", "black", "holdMs", "page", "ratio", "sfx", "narration", "lines"];
+export const CUT_KEYS = [
+  "image",
+  "black",
+  "holdMs",
+  "page",
+  "ratio",
+  "sfx",
+  "narration",
+  "whispers",
+  "lines",
+];
 
 /** 저작 파일과 그 안의 최상위 키. */
 export const SOURCES = {

@@ -170,11 +170,7 @@ export const MEMORIES: MemoryItem[] = [
     id: "radio",
     icon: Radio,
     phase1: {
-      interaction: {
-        scriptId: "radio-intro",
-        minigameId: "emergency-broadcast",
-        resultScriptId: "radio-broadcast",
-      },
+      interaction: { scriptId: "radio-intro", minigameId: "frequency-tune" },
       unlockAfter: [
         { id: "report-card", visit: 1 },
         { id: "console", visit: 1 },
@@ -367,15 +363,6 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.radio-intro.line1" },
       { speaker: "hero", textKey: "scripts.radio-intro.line2", expression: "sad" },
-    ],
-  },
-  "radio-broadcast": {
-    id: "radio-broadcast",
-    lines: [
-      { speaker: "broadcast", textKey: "scripts.radio-broadcast.line1" },
-      { speaker: "broadcast", textKey: "scripts.radio-broadcast.line2" },
-      { speaker: "broadcast", textKey: "scripts.radio-broadcast.line3" },
-      { speaker: "hero", textKey: "scripts.radio-broadcast.line4", expression: "sad" },
     ],
   },
   "duffel-pack": {
@@ -583,30 +570,54 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "radio-blackout",
     cuts: [
       {
+        black: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut1.line1", expression: "sad" },
+        ],
+      },
+      {
+        black: true,
+        holdMs: 2000,
+        lines: [],
+      },
+      {
+        black: true,
+        whisperKeys: [
+          "cutscenes.radio-blackout.cut3.whisper1",
+          "cutscenes.radio-blackout.cut3.whisper2",
+        ],
+        lines: [
+          { speaker: "broadcast", textKey: "cutscenes.radio-blackout.cut3.line1" },
+          { speaker: "broadcast", textKey: "cutscenes.radio-blackout.cut3.line2" },
+          { speaker: "broadcast", textKey: "cutscenes.radio-blackout.cut3.line3" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut3.line4", expression: "sad" },
+        ],
+      },
+      {
         image: "/assets/images/cutscene-day-1.webp?v=3",
         narration: true,
         lines: [
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut1.line1" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut1.line2" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut1.line3" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut4.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut4.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut4.line3" },
         ],
       },
       {
         image: "/assets/images/cutscene-day-2.webp?v=2",
         narration: true,
         lines: [
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut2.line1" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut2.line2" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut2.line3" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line3" },
         ],
       },
       {
         image: "/assets/images/cutscene-day-3.webp?v=2",
         narration: true,
         lines: [
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut3.line1" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut3.line2" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut3.line3" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line3" },
         ],
       },
       {
@@ -618,34 +629,34 @@ export const CUTSCENES: Record<string, Cutscene> = {
         image: "/assets/images/cutscene-day-5.webp?v=3",
         narration: true,
         lines: [
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line1" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut8.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut8.line2" },
         ],
       },
       {
         image: "/assets/images/cutscene-day-6.webp?v=3",
         narration: true,
         lines: [
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line1" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line2" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line3" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut9.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut9.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut9.line3" },
         ],
       },
       {
         image: "/assets/images/cutscene-day-7.webp?v=2",
         narration: true,
         lines: [
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut7.line1" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut7.line2" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut7.line3" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut10.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut10.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut10.line3" },
         ],
       },
       {
         black: true,
         narration: true,
         lines: [
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut8.line1" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut8.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut11.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut11.line2" },
         ],
       },
     ],

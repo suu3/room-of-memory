@@ -102,6 +102,10 @@ function emitModule(content) {
       if (cut.ratio !== undefined) lines.push(`        ratio: ${JSON.stringify(cut.ratio)},`);
       if (cut.sfx !== undefined) lines.push(`        sfx: ${JSON.stringify(cut.sfx)},`);
       if (cut.narration === true) lines.push("        narration: true,");
+      if (cut.whispers !== undefined) {
+        const keys = cut.whispers.map((_whisper, at) => `${cutKey}.whisper${at + 1}`);
+        lines.push(`        whisperKeys: ${JSON.stringify(keys)},`);
+      }
       lines.push("        lines: [");
       for (const line of lineLiterals(cut.lines, cutKey)) lines.push(`          ${line},`);
       lines.push("        ],");
@@ -206,7 +210,15 @@ function emitLocale(content, base, locale) {
       Object.entries(cutscenes).map(([id, cuts]) => [
         id,
         Object.fromEntries(
-          cuts.map((cut, index) => [`cut${index + 1}`, numberedLines(cut.lines, pick)]),
+          cuts.map((cut, index) => [
+            `cut${index + 1}`,
+            {
+              ...numberedLines(cut.lines, pick),
+              ...Object.fromEntries(
+                (cut.whispers ?? []).map((whisper, at) => [`whisper${at + 1}`, pick(whisper)]),
+              ),
+            },
+          ]),
         ),
       ]),
     ),

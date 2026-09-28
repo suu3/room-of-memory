@@ -10,6 +10,7 @@ import { blurBackdrop } from "@/lib/image-blur";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 import { useStillStore, WORKBOOK_STILL_KEY } from "@/store/stills";
 import { CutDissolve } from "./CutDissolve";
+import { CutWhispers } from "./CutWhispers";
 import { grainForCut } from "./cut-dissolve";
 import { InspectStill } from "./InspectStill";
 import { PhotoMorph } from "./PhotoMorph";
@@ -349,7 +350,9 @@ export function PlaybackScene() {
               {isCutscene && (
                 <SignalVisual
                   tone={
-                    active.cutsceneId === CUTSCENE_RADIO_BLACKOUT && active.cutIndex < 2
+                    // 과거편의 앞 두 그림까지는 신호가 죽어 간다 (그림 앞의 검정 컷은 세지 않는다)
+                    active.cutsceneId === CUTSCENE_RADIO_BLACKOUT &&
+                    active.cuts.slice(0, active.cutIndex).filter((each) => each.image).length < 2
                       ? "dying"
                       : "alive"
                   }
@@ -444,6 +447,11 @@ export function PlaybackScene() {
               name: tRoom(`memories.${active.memoryId}.name` as ParseKeys<"memoryRoom">),
             })}
           </p>
+        )}
+
+        {/* 컷 위의 속말: 방의 혼잣말 자리에 떴다 진다 (라디오 재난 방송) */}
+        {stage === "cuts" && cut?.whisperKeys && (
+          <CutWhispers key={`${playbackKey}:${cutIndex}`} keys={cut.whisperKeys} />
         )}
       </div>
       {/*

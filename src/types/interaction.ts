@@ -105,6 +105,11 @@ export interface CutsceneCut {
    * 회상은 사람이 넘기는 대화가 아니라 저절로 떠오르는 것이라서다. 눌러서 당길 수는 있다.
    */
   narration?: boolean;
+  /**
+   * 속말의 i18n 키들. 컷이 서 있는 동안 화면 위 혼잣말 자리에 한 줄씩 떠올랐다
+   * 가라앉기를 되풀이한다 (라디오 방송 위의 "…듣고 싶지 않아.").
+   */
+  whisperKeys?: string[];
 }
 
 /** 컷에 붙는 효과음. scripts/content/schema.mjs의 CUT_SFX와 같아야 한다. */

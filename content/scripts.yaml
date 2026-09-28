@@ -222,27 +222,6 @@ scripts:
       en: …Not that it'll pick up anything but noise.
       ja: …どうせノイズしか入らないだろうけど。
 
-  # 재난방송 (자동 반복 송출 톤). 글자 맞추기(답: 좀비)에 대답한 직후라 방송이
-  # 그 답을 확인한다. 끝의 한 줄 뒤로 이미지 나열 컷씬(radio-blackout)이 이어진다.
-  radio-broadcast:
-    - speaker: broadcast
-      ko: …긴급 재난 방송입니다. 좀비 사태가 발생하고 있습니다. 전 국민은 즉시 실내로 대피하십시오.
-      en: …This is an emergency broadcast. A zombie outbreak is underway. All citizens must take shelter indoors immediately.
-      ja: …緊急災害放送です。ゾンビ災害が発生しています。国民の皆さんは直ちに屋内へ避難してください。
-    - speaker: broadcast
-      ko: 감염 사태는 수도권을 넘어 남부 전역으로 확산되고 있습니다.
-      en: The infection has spread past the capital region into the entire south.
-      ja: 感染は首都圏を越え、南部全域へ拡大しています。
-    - speaker: broadcast
-      ko: 부산까지 감염 사태가 번졌습니다. …반복합니다. 긴급 재난 방송입니다.
-      en: The infection has now reached Busan. …Repeat. This is an emergency broadcast.
-      ja: 感染は釜山まで広がりました。…繰り返します。緊急災害放送です。
-    - speaker: hero
-      expression: sad
-      ko: …맞아. 그날이었다.
-      en: …Right. It was that day.
-      ja: …そうだ。あの日だった。
-
   # ─────────────────────────────────────────────── 2페이즈 · 거실
 
   # 짐 싸기. 글러브를 두고 가려다 다시 챙긴다

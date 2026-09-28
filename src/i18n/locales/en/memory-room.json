@@ -183,12 +183,6 @@
       "line1": "Maybe I'll try the radio.",
       "line2": "…Not that it'll pick up anything but noise."
     },
-    "radio-broadcast": {
-      "line1": "…This is an emergency broadcast. A zombie outbreak is underway. All citizens must take shelter indoors immediately.",
-      "line2": "The infection has spread past the capital region into the entire south.",
-      "line3": "The infection has now reached Busan. …Repeat. This is an emergency broadcast.",
-      "line4": "…Right. It was that day."
-    },
     "duffel-pack": {
       "line1": "Let's empty out my baseball bag.",
       "line2": "Water, cans, a flashlight. That should do it.",
@@ -386,36 +380,48 @@
     },
     "radio-blackout": {
       "cut1": {
+        "line1": "Listening to the radio, nothing but noise, the memory of that day comes back."
+      },
+      "cut2": {},
+      "cut3": {
+        "line1": "…This is an emergency broadcast. A zombie outbreak is underway. All citizens must take shelter indoors immediately.",
+        "line2": "The infection has spread past the capital region into the entire south.",
+        "line3": "The infection has now reached Busan. …Repeat. This is an emergency broadcast.",
+        "line4": "…Right. It was that day.",
+        "whisper1": "…I don't want to hear this.",
+        "whisper2": "Stop…"
+      },
+      "cut4": {
         "line1": "It was an ordinary day.",
         "line2": "After practice, I checked my phone and there was a text from Mom.",
         "line3": "\"Skip practice today and come straight home.\" …That was a strange thing to say."
       },
-      "cut2": {
+      "cut5": {
         "line1": "The apartment complex was quiet.",
         "line2": "A car sitting there with its door open. No one around.",
         "line3": "…Sirens wailed in the distance."
       },
-      "cut3": {
+      "cut6": {
         "line1": "All the way to my door, everything was the same as always.",
         "line2": "Someone was standing in the hallway.",
         "line3": "Something felt off."
       },
-      "cut4": {},
-      "cut5": {
+      "cut7": {},
+      "cut8": {
         "line1": "I ran without thinking.",
         "line2": "The sounds behind me weren't human."
       },
-      "cut6": {
+      "cut9": {
         "line1": "I locked the door.",
         "line2": "Mom and Dad were away on their trip, so there was no one home.",
         "line3": "Silence settled in, as if none of the panic had been real."
       },
-      "cut7": {
+      "cut10": {
         "line1": "The news was still on.",
         "line2": "Infection, spread, evacuation. The anchor was shouting unfamiliar words in a panic.",
         "line3": "Screams came from every direction. I covered my ears."
       },
-      "cut8": {
+      "cut11": {
         "line1": "Ever since that day, I've been shut in at home.",
         "line2": "Because I was afraid of what I'd have to face out there."
       }

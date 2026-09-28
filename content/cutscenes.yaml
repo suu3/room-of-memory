@@ -123,13 +123,55 @@ cutscenes:
 
   #
   # 분기점 과거편 (docs/story.md 3장 분기점): 그날이 한 컷씩 지나간다.
+  # 주파수를 잡은 라디오가 지직거리다 꺼지면(도입) 검정 화면 세 컷이 먼저 온다:
+  # 노이즈뿐인 라디오 앞의 한 줄 → 정적 → 그날의 재난 방송. 방송이 흐르는 동안 화면 위
+  # 혼잣말 자리에는 도해의 속말(whispers)이 번갈아 떴다 진다.
   # 내레이션 컷(narration)은 누르지 않아도 줄마다 창을 비우고 타자기로 새로 찍히며, 다 찍히면
-  # 다음 컷으로 넘어간다. 4컷(얼어붙은 얼굴)만 말 없이 1.5초 정적이다.
-  # 8컷은 검정 화면(black): 그날의 회상이 끝나고 "그날 이후"를 대사창으로 말한다.
+  # 다음 컷으로 넘어간다. 얼어붙은 얼굴 컷만 말 없이 1.5초 정적이다.
+  # 마지막 컷은 검정 화면(black): 그날의 회상이 끝나고 "그날 이후"를 대사창으로 말한다.
   # 끝나면 3D 방으로 돌아온다. 방은 가장 어둡고, BGM은 없고, 라디오는 빨갛게 깜빡인다.
   # 돌아와서 드는 혼잣말은 stages.yaml의 turn-bottom (라디오에 다른 신호가 잡힌다).
   radio-blackout:
-    # 1컷: 교문 앞, 엄마 문자 미리보기
+    # 꺼진 라디오 앞. 노이즈만 남았다
+    - black: true
+      lines:
+        - speaker: hero
+          expression: sad
+          ko: 노이즈뿐인 라디오를 들으니 그날의 기억이 떠오른다.
+          en: Listening to the radio, nothing but noise, the memory of that day comes back.
+          ja: ノイズしか流れないラジオを聞いていると、あの日の記憶がよみがえる。
+    # 정적
+    - black: true
+      holdMs: 2000
+      lines: []
+    # 그날의 재난 방송 (자동 반복 송출 톤). 위로는 도해의 속말이 떴다 진다
+    - black: true
+      whispers:
+        - ko: …듣고 싶지 않아.
+          en: …I don't want to hear this.
+          ja: …聞きたくない。
+        - ko: 그만해…
+          en: Stop…
+          ja: やめてくれ…
+      lines:
+        - speaker: broadcast
+          ko: …긴급 재난 방송입니다. 좀비 사태가 발생하고 있습니다. 전 국민은 즉시 실내로 대피하십시오.
+          en: …This is an emergency broadcast. A zombie outbreak is underway. All citizens must take shelter indoors immediately.
+          ja: …緊急災害放送です。ゾンビ災害が発生しています。国民の皆さんは直ちに屋内へ避難してください。
+        - speaker: broadcast
+          ko: 감염 사태는 수도권을 넘어 남부 전역으로 확산되고 있습니다.
+          en: The infection has spread past the capital region into the entire south.
+          ja: 感染は首都圏を越え、南部全域へ拡大しています。
+        - speaker: broadcast
+          ko: 부산까지 감염 사태가 번졌습니다. …반복합니다. 긴급 재난 방송입니다.
+          en: The infection has now reached Busan. …Repeat. This is an emergency broadcast.
+          ja: 感染は釜山まで広がりました。…繰り返します。緊急災害放送です。
+        - speaker: hero
+          expression: sad
+          ko: …맞아. 그날이었다.
+          en: …Right. It was that day.
+          ja: …そうだ。あの日だった。
+    # 교문 앞, 엄마 문자 미리보기
     - image: /assets/images/cutscene-day-1.webp?v=3
       narration: true
       lines:
