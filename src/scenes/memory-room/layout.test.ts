@@ -121,18 +121,25 @@ describe("memory-room layout", () => {
     }
   });
 
-  it("keeps the report card's click box off the workbook pile behind it", () => {
+  it("keeps the report card clear of the workbook pile and the radio", () => {
     /*
-     * 성적표의 클릭 구(0.35)가 비스듬히 내려다보는 화면에서 뒤의 문제집 더미 앞쪽을
-     * 덮어, 문제집을 눌러도 성적표가 눌렸다. 납작한 상자로 바꿨다: 바닥에서 닿는
-     * 거리가 더미의 다가서는 기준점까지 닿지 않아야 한다.
+     * 성적표가 문제집 더미 바로 앞(0.5)에 있어 화면에서 종이 뭉치와 포갰다. 클릭 상자만
+     * 줄였더니 눌리는 건 갈렸지만 그림은 그대로 겹쳤다. 라디오 뒤로 옮겼다: 성적표의 바닥
+     * 반경과 더미의 종이 뭉치(기준점에서 0.65 안팎) 사이가 벌어져야 하고, 라디오도 피해야 한다.
      */
     const card = MEMORY_PLACEMENTS["report-card"];
     expect(card.hitBox).toBeDefined();
     expect(card.hitBox?.[1] ?? 1).toBeLessThan(0.1);
+    const reach = hitRadiusOf(card);
     const [wx, wz] = CLUE_PROPS.workbook.near;
-    const distance = Math.hypot(wx - card.position[0], wz - card.position[2]);
-    expect(distance).toBeGreaterThan(hitRadiusOf(card));
+    const workbookGap = Math.hypot(wx - card.position[0], wz - card.position[2]);
+    expect(workbookGap).toBeGreaterThan(reach + 0.65);
+    const radio = MEMORY_PLACEMENTS.radio;
+    const radioGap = Math.hypot(
+      radio.position[0] - card.position[0],
+      radio.position[2] - card.position[2],
+    );
+    expect(radioGap).toBeGreaterThan(reach + 0.2);
   });
 
   it("places every memory exactly once and gives it a camera preset", () => {
