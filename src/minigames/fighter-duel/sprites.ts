@@ -46,9 +46,6 @@ export const POSE_ORDER = [
   "win",
 ] as const satisfies Pose[];
 
-/** 시트 한 프레임의 원본 크기(px). 화면 표시 크기는 Fighter가 정한다. */
-export const FRAME_SIZE = { width: 224, height: 320 } as const;
-
 /**
  * 배경 이미지로 프레임을 잘라 쓸 때의 background-position.
  * 시트를 프레임 개수만큼 확대해 놓았으므로(background-size: 500% 100%),
@@ -66,18 +63,6 @@ type SheetState = "loading" | "ready" | "missing";
 
 /** 한 번 확인한 시트는 다시 묻지 않는다. 라운드마다 Image를 새로 만들 이유가 없다. */
 const sheetCache = new Map<string, "ready" | "missing">();
-
-/**
- * 시트가 있는지 미리 알아본다. 게임이 뜨기 전에 결론이 나 있어야
- * 블록 캐릭터가 한 프레임 비쳤다 바뀌는 걸 안 본다.
- */
-export function preloadSpriteSheet(src: string): void {
-  if (typeof window === "undefined" || sheetCache.has(src)) return;
-  const image = new Image();
-  image.onload = () => sheetCache.set(src, image.naturalWidth > 0 ? "ready" : "missing");
-  image.onerror = () => sheetCache.set(src, "missing");
-  image.src = src;
-}
 
 /**
  * 스프라이트 시트가 실제로 있는지 확인한다.

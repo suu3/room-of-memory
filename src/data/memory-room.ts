@@ -46,51 +46,6 @@ export function memoriesForPhase(gamePhase: 1 | 2) {
 export const STAGE_IDS = ["dark", "dim", "gold"] as const;
 export type StageId = (typeof STAGE_IDS)[number];
 
-export interface RoomStage {
-  id: StageId;
-  /** 방 배경 라디얼 그라디언트 (씬 라이팅 램프 토큰만 사용) */
-  background: string;
-  /** 창가에서 스며드는 금빛 산광 강도 */
-  glowOpacity: number;
-  /** 방 곳곳에 흩뿌려진 금빛 산란 강도 */
-  scatterOpacity: number;
-  vignetteOpacity: number;
-}
-
-/**
- * 배경 그라디언트 3단계. 어느 단계를 쓸지는 밝기(0~1)와 바퀴 수가 정하며,
- * 그 판단은 `roomStageIndex`(src/scenes/memory-room/visual-state.ts)가 한다.
- *
- * 대본이 아니라 디자인 토큰이라 YAML로 내리지 않았다. 상단 독백은 이 단계가 아니라
- * 조사 개수를 따른다 (content/stages.yaml, src/data/monologue.ts).
- */
-export const ROOM_STAGES: RoomStage[] = [
-  {
-    id: "dark",
-    background:
-      "radial-gradient(120% 90% at 50% 34%, var(--color-scene-storm) 0%, var(--color-scene-slate) 48%, var(--color-scene-abyss) 100%)",
-    glowOpacity: 0.5,
-    scatterOpacity: 0.3,
-    vignetteOpacity: 0.55,
-  },
-  {
-    id: "dim",
-    background:
-      "radial-gradient(120% 90% at 55% 32%, var(--color-scene-storm) 0%, var(--color-scene-dusk) 48%, var(--color-scene-slate) 100%)",
-    glowOpacity: 0.68,
-    scatterOpacity: 0.6,
-    vignetteOpacity: 0.42,
-  },
-  {
-    id: "gold",
-    background:
-      "radial-gradient(120% 95% at 58% 30%, var(--color-scene-olive) 0%, var(--color-scene-dusk) 46%, var(--color-scene-coal) 100%)",
-    glowOpacity: 0.9,
-    scatterOpacity: 1,
-    vignetteOpacity: 0.3,
-  },
-];
-
 export const MEMORY_BY_ID = Object.fromEntries(
   MEMORIES.map((memory) => [memory.id, memory]),
 ) as Record<MemoryId, (typeof MEMORIES)[number]>;

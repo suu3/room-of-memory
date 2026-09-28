@@ -179,7 +179,6 @@
    * 못 받았을 때의 기본값일 뿐이다. 전부 같은 박자로 뜨면 먼지가 아니라 격자로 읽힌다.
    */
   --animate-boot-dust: boot-dust 12s linear infinite;
-  --animate-bat-swing: bat-swing 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both;
   --animate-bat-swing-image: bat-swing-image 0.42s cubic-bezier(0.2, 0.9, 0.3, 1) both;
   --animate-batting-impact: batting-impact 0.35s ease-out both;
   --animate-batting-field-shake: batting-field-shake 0.28s ease-out both;
@@ -210,12 +209,8 @@
   --animate-duel-flash: duel-flash 0.22s steps(2, end) 1;
   /* 대미지 숫자가 떠올랐다 사라진다 */
   --animate-duel-damage: duel-damage 0.7s ease-out both;
-  /* 콤보 표시: 쌓일 때마다 한 번 튄다 */
-  --animate-duel-combo: duel-combo 0.4s cubic-bezier(0.2, 1.4, 0.5, 1) both;
   /* FIGHT!·K.O. 배너. 멀리서 날아와 꽂히듯 */
   --animate-duel-banner: duel-banner 0.42s cubic-bezier(0.15, 0.9, 0.3, 1) both;
-  /* 페인트 경고: 두 번 깜빡이고 만다. 계속 깜빡이면 예고를 읽을 수가 없다 */
-  --animate-duel-alert: duel-alert 0.5s steps(2, end) 2;
   /* 각성한 상대: 느리게 달아오른다 */
   --animate-duel-rage: duel-rage 1.1s ease-in-out infinite;
   /*
@@ -261,21 +256,6 @@
     }
     50% {
       transform: translateY(4px);
-    }
-  }
-
-  @keyframes bat-swing {
-    0% {
-      transform: rotate(34deg);
-    }
-    35% {
-      transform: rotate(-128deg);
-    }
-    55% {
-      transform: rotate(-112deg);
-    }
-    100% {
-      transform: rotate(34deg);
     }
   }
 
@@ -683,17 +663,6 @@
     }
   }
 
-  @keyframes duel-combo {
-    0% {
-      opacity: 0;
-      transform: translate(-50%, 0) scale(1.6);
-    }
-    100% {
-      opacity: 1;
-      transform: translate(-50%, 0) scale(1);
-    }
-  }
-
   @keyframes duel-banner {
     0% {
       opacity: 0;
@@ -706,16 +675,6 @@
     100% {
       opacity: 1;
       transform: scale(1);
-    }
-  }
-
-  @keyframes duel-alert {
-    0%,
-    50% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0.25;
     }
   }
 
@@ -1519,12 +1478,6 @@ body {
     opacity: 0;
   }
 
-  /* 종이를 돌리는 대신 밝기만 바꿔 장이 바뀐 걸 알린다 */
-  .animate-page-flip-next,
-  .animate-page-flip-prev {
-    animation: fade-rise 0.16s ease-out both;
-  }
-
   .animate-page-nudge {
     animation: none;
   }
@@ -1586,16 +1539,8 @@ body {
     animation: batting-feedback 0.9s ease-out both;
   }
 
-  .animate-duel-combo {
-    animation: none;
-  }
-
   /* 배너는 뜬 채로 있어야 하는 글자다. 등장 연출만 없애고 그대로 세운다 */
   .animate-duel-banner {
-    animation: none;
-  }
-
-  .animate-duel-alert {
     animation: none;
   }
 

@@ -61,7 +61,6 @@ export function jumpHeight(airMs: number): number {
 /* ------------------------------------------------------------------- 기술 */
 
 export type Attack = "jab" | "heavy" | "throw";
-export const ATTACKS_ORDER: readonly Attack[] = ["jab", "heavy", "throw"];
 
 export interface AttackFrames {
   /** 내지르고 맞기까지(ms). 이 구간에 맞으면 카운터다. */

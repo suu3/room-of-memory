@@ -13,7 +13,7 @@ This version has breaking changes: APIs, conventions, and file structure may all
 - **Next.js (App Router) + TypeScript**: Vercel 배포 전제
 - **three.js + @react-three/fiber + @react-three/drei + @react-three/postprocessing**: 3D 렌더링
 - **zustand**: 게임 상태 (현재 챕터/노드, 플래그, 설정)
-- **howler**: BGM/SFX
+- **Web Audio**: BGM/SFX (`src/lib/audio/`. 효과음은 오실레이터로 합성하고, 파일이 있는 보이스만 파일을 쓴다)
 - **Tailwind CSS v4**: DOM 오버레이 UI (대사창, 선택지, 메뉴)
 - **Biome**: lint + format (ESLint/Prettier 사용 금지)
 
@@ -45,7 +45,7 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 - `src/scenes/`: 챕터별 3D 씬. 시나리오의 `scene` 키로 등록
 - `src/minigames/`: 미니게임. `src/types/minigame.ts` 계약을 만족, `index.ts` 레지스트리에 등록
 - `src/data/generated/`: **생성물. 직접 고치지 말 것** (`content/`에서 나온다)
-- `src/data/memory-room.ts`: 대본이 아닌 데이터 (방 단계 시각값 등) + 생성물 재수출
+- `src/data/memory-room.ts`: 대본이 아닌 데이터 (조사 목록·방 단계 id 등) + 생성물 재수출
 - `src/store/`: zustand 스토어
 - `public/assets/`: 모든 에셋 (models/textures/audio/images/fonts). S3 등 외부 스토리지 없음, 전부 리포에 커밋
 

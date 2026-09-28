@@ -17,8 +17,8 @@
 #
 # 방송부터 현관까지는 전부 하루 안의 일이다. 페이즈가 넘어가도 날은 바뀌지 않는다.
 #
-# 배경 그라디언트·글로우 세기 같은 시각값은 대본이 아니라 디자인 토큰이라
-# src/data/memory-room.ts의 ROOM_STAGES에 그대로 있다.
+# 방의 밝기 같은 시각값은 대본이 아니라 씬이 정한다
+# (src/scenes/memory-room/visual-state.ts).
 
 stages:
   p0-dark:

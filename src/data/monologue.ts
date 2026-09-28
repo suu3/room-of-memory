@@ -1,5 +1,3 @@
-import type { MemoryId } from "./generated/content";
-import { PHASE2_MEMORIES } from "./memory-room";
 import { SIGNAL_MEMORY, type StoryProgress, signalSilence, storyPhaseOf } from "./story-phase";
 
 /**
@@ -29,11 +27,6 @@ export type MonologueId = (typeof MONOLOGUE_IDS)[number];
 const P1_MID_AT = 3;
 /** 강도 3에 들어섰다고 보는 수: 강도 2까지 다섯을 봤다. */
 const P1_LATE_AT = 5;
-
-/** 2바퀴에서 다시 조사한 개수: 진행 표시(HUD)와 같은 목록을 센다. */
-export function phaseTwoCount(revisited: readonly MemoryId[]): number {
-  return PHASE2_MEMORIES.filter((memory) => revisited.includes(memory.id)).length;
-}
 
 /** 지금 화면 상단에 걸릴 독백. */
 export function monologueIdFor(state: StoryProgress): MonologueId {

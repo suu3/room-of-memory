@@ -490,12 +490,9 @@ intro → p1 → turning → p2 → p3 → p4 → resolve → ending
 ### 남은 것 (동작)
 
 1. 방문만 애니메이션 없이 즉시 열린다. 다른 문은 approach로 젖혀진다.
-2. `RoomSurroundings`의 `OuterDrift`가 pixelRatio uniform을 useMemo 객체에 쓴다. r3f는 uniforms 프롭의 항목을 얕게 복사하므로 숫자 값은 머티리얼에 닿지 않는다 (창을 DPR이 다른 모니터로 옮길 때만 드러난다). color는 `Color` 객체를 같이 가리켜서 반영된다.
-3. `MemoryBurst`의 useEffect 두 개에 의존성 배열이 없다.
-4. `ampoule-pickup`은 레지스트리에만 있고 콘텐츠에서는 쓰지 않는다 (레지스트리 주석에는 적어 두었다).
-5. photo-wipe에는 키보드 경로가 없다. 키보드 사용자는 스킵이 뜰 때까지 기다려야 끝낼 수 있다.
-6. 죽은 CSS: `.animate-page-flip-next/-prev`, `bat-swing` 키프레임과 `--animate-bat-swing` (`bat-swing-image`는 쓴다). `redaction.ts`는 lab에서만 쓴다.
-7. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
+2. `ampoule-pickup`은 레지스트리에만 있고 콘텐츠에서는 쓰지 않는다. 지우려면 "기억 조사 중 canvas 미니게임" 경로(MinigameHost·active 테스트가 이걸로 지킨다)와 앰플 굴절(`Ampoule.tsx` `refractive`)을 남길지 먼저 정해야 한다.
+3. photo-wipe에는 키보드 경로가 없다. 키보드 사용자는 스킵이 뜰 때까지 기다려야 끝낼 수 있다.
+4. `visual-experiments.md` 13장에 따르면 등불 세기, 틸트 띠 폭, 물때 대비, PerformanceMonitor 문턱은 아직 실기기에서 확인하지 않았다.
 
 ### 고친 것 (주석·문서를 코드에 맞춤)
 
@@ -508,3 +505,11 @@ intro → p1 → turning → p2 → p3 → p4 → resolve → ending
 - DESIGN.md 커서 링: "버튼을 알약으로 감싼다" → 손 자리에서 0.7배로 조여든다.
 - DESIGN.md·`visual-experiments.md` 시점 전환: "노이즈 타일 응결" → backdrop blur 초점 맞춤.
 - DESIGN.md 키보드 규칙의 "숫자 = 선택지": 선택지 UI가 없어서 "선택지 UI를 만들면"으로 조건을 달았다.
+
+### 고친 것 (코드)
+
+- `OuterDrift`: color·pixelRatio 갱신을 머티리얼의 uniform에 직접 쓴다. 예전에는 pixelRatio가 DPR이 바뀌어도 반영되지 않았다.
+- `MemoryBurst`: 두 useEffect에 의존성 배열을 달았다 (매 렌더 실행하던 것만 사라지고 결과는 같다).
+- 죽은 CSS: `bat-swing`·`duel-combo`·`duel-alert` 애니메이션과 reduced-motion의 `page-flip-next/-prev`.
+- 죽은 코드: `LoadingOverlay.tsx`, `ROOM_STAGES`, 안 쓰는 셀렉터 다섯(`selectStoryPhase`·`selectGamePhase`·`selectShelfHintRead`·`selectTimeGapNoticed`·`selectMomCardRead`), `PHASE1_GOAL`, `phaseTwoCount`, `ATTACKS_ORDER`, `BatIcon`, fighter-duel의 `FRAME_SIZE`·`preloadSpriteSheet`, 안 쓰는 `howler` 패키지.
+- `redaction.ts`는 lab 페이지가 쓰므로 남긴다.

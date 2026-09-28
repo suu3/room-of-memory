@@ -92,9 +92,6 @@ export const ALL_VISITS: readonly VisitRef[] = MEMORIES.flatMap((memory) =>
   visitsOf(memory.id).map((visit) => ({ id: memory.id, visit })),
 );
 
-/** 1차 조사 목표: 1페이즈를 넘기는 데 필요한 수. */
-export const PHASE1_GOAL = ALL_VISITS.filter((ref) => ref.visit === 1).length;
-
 /**
  * 그 페이즈를 넘기는 데 필요한 조사: from이 그 페이즈이고 곁가지가 아닌 것.
  * 1차 조사(p1)는 from이 없으니 p1은 1차 전부다.

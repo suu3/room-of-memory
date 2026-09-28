@@ -601,7 +601,6 @@ export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus
 
 /** 남은 밤 (3·2·1). 생존자 방송 전에는 null. */
 export const selectDeadline = (state: MemoryRoomState) => deadlineOf(storyPhaseOf(state));
-export const selectStoryPhase = (state: MemoryRoomState) => storyPhaseOf(state);
 
 /**
  * 이 단서를 지금 펼칠 수 있는가.
@@ -1490,7 +1489,6 @@ export const selectHeroNameKnown = (state: MemoryRoomState) =>
   state.discoveries.includes("hero-name");
 export const selectActiveInteraction = (state: MemoryRoomState) => state.activeInteraction;
 export const selectActivePlayback = (state: MemoryRoomState) => state.activePlayback;
-export const selectGamePhase = (state: MemoryRoomState) => gamePhaseOf(state);
 export const selectAct = (state: MemoryRoomState) => actOf(state);
 export const selectActTwoProgress = (state: MemoryRoomState) => actTwoProgress(state);
 export const selectEndingReady = (state: MemoryRoomState) => endingReady(state);
@@ -1719,10 +1717,6 @@ export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.
 export const selectSinkHintRead = (state: Pick<MemoryRoomState, "discoveries">) =>
   state.discoveries.includes("sink-code");
 
-/** 아빠 메일("선반 정리 좀 해라.")을 읽었는가: 컴퓨터 3차. 선반의 책이 금빛으로 돈다. */
-export const selectShelfHintRead = (state: Pick<MemoryRoomState, "rechecked">) =>
-  state.rechecked.includes("computer" as MemoryId);
-
 /** 엄마 대화방의 "1"을 열었는가 (v4 1-3의 momChatRead): 폰 2차 조사. */
 export const selectMomChatRead = (state: Pick<MemoryRoomState, "revisited">) =>
   state.revisited.includes("phone" as MemoryId);
@@ -1732,12 +1726,7 @@ export const selectMomChatRead = (state: Pick<MemoryRoomState, "revisited">) =>
  * 조사를 마친 순간이 곧 그 추리를 마친 순간이라 따로 적으면 두 기록이 어긋날 수만 있다.
  */
 
-/** 시각 대조 (timeGapNoticed): 엄마 문자 7:12가 뉴스 첫 보도보다 먼저였다. 폰 2차의 결과 대사. */
-export const selectTimeGapNoticed = selectMomChatRead;
-
-/** 카드 뒷면의 엄마 메모를 봤는가 (momCardRead): 카드 2차. 냉장고 아래칸으로 이끈다. */
-export const selectMomCardRead = (state: Pick<MemoryRoomState, "revisited">) =>
-  state.revisited.includes("cards" as MemoryId);
+/* 시각 대조(timeGapNoticed)는 폰 2차 그 자체라 selectMomChatRead를 그대로 쓴다. */
 
 /** 서류 조각을 날짜순으로 놓았는가 (papersOrdered): 연구 일지 2차. */
 export const selectPapersOrdered = (state: Pick<MemoryRoomState, "revisited">) =>
