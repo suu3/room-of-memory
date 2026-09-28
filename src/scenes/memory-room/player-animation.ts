@@ -27,7 +27,7 @@ const rootQuaternion = new Quaternion();
 const parentQuaternion = new Quaternion();
 
 /** 뼈 하나를 몸 기준 앞뒤 축으로 돌린다 (양수면 뒤로, 음수면 앞으로). */
-function reachBone(root: Object3D, bone: Object3D, angle: number) {
+export function reachBone(root: Object3D, bone: Object3D, angle: number) {
   const parent = bone.parent;
   if (!parent) return;
   root.getWorldQuaternion(rootQuaternion);
