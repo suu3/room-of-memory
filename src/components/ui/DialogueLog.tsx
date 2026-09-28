@@ -1,8 +1,10 @@
 "use client";
 
+import { X } from "@phosphor-icons/react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { selectHeroNameKnown, useMemoryRoomStore } from "@/store/memory-room";
+import { FOCUS_RING } from "./ui-classes";
 
 /**
  * 지나간 대사를 모아 보는 화면 (비주얼 노벨의 백로그).
@@ -15,10 +17,11 @@ import { selectHeroNameKnown, useMemoryRoomStore } from "@/store/memory-room";
  * 같은 무게로 읽혀서 대사 흐름이 끊긴다. 비주얼 노벨의 백로그는 방 위에 어둠을 한 겹
  * 덮고 글자만 얹는다. 여기도 그렇게 한다: 전면을 덮되 틀은 없다.
  *
- * **닫는 버튼도 안내 문구도 없다.** 어디를 눌러도 닫힌다. 대사 한 줄을 확인하려고 잠깐 여는 겹이라
- * 닫기 X 하나를 조준하게 만들 이유가 없다. 굴리기는 살아 있다: 휠과 손가락 쓸기는
- * click을 만들지 않으므로 목록 위에서 굴려도 닫히지 않는다 (그래서 pointerdown이
- * 아니라 click으로 받는다). 키보드는 Escape다.
+ * **어디를 눌러도 닫힌다.** 대사 한 줄을 확인하려고 잠깐 여는 겹이라 닫기 X 하나를
+ * 조준하게 만들 이유가 없다. 그래도 닫는 법이 안 보여 헤맨다는 피드백이 있어, 제목줄
+ * 오른쪽에 X를 하나 둔다. 누르는 자리가 늘 뿐 닫는 방식은 같다. 굴리기는 살아 있다:
+ * 휠과 손가락 쓸기는 click을 만들지 않으므로 목록 위에서 굴려도 닫히지 않는다 (그래서
+ * pointerdown이 아니라 click으로 받는다). 키보드는 Escape다.
  *
  * 최근 것만 보여준다. 로그를 여는 이유는 대개 "방금 뭐라고 했지"라서, 스무 줄 위의
  * 대사는 찾는 물건이 아니다. 오래된 줄일수록 옅어져 어디가 최신인지 눈으로 읽힌다.
@@ -79,10 +82,18 @@ export function DialogueLog() {
       // 어디를 눌러도 닫힌다. 굴리기(휠·손가락 쓸기)는 click이 아니라 그대로 살아 있다
       onClick={() => setOpen(false)}
     >
-      <div className="pointer-events-none flex-none px-5 pt-4 sm:px-8 sm:pt-6">
+      <div className="flex flex-none items-center justify-between gap-4 px-5 pt-4 sm:px-8 sm:pt-6">
         <h2 className="font-pixel text-[0.7rem] tracking-[0.3em] text-bone/60">
           {t("dialogue.log")}
         </h2>
+        {/* 닫기는 겹을 누른 것과 같다. click이 겹까지 올라가 닫으므로 따로 할 일이 없다 */}
+        <button
+          type="button"
+          aria-label={t("dialogue.logClose")}
+          className={`cursor-pointer text-fog transition-colors hover:text-ivory active:text-ivory/80 ${FOCUS_RING}`}
+        >
+          <X size={18} weight="bold" />
+        </button>
       </div>
 
       {/* overscroll-contain: 끝까지 굴린 스크롤이 뒤의 방으로 새어 나가지 않게 */}

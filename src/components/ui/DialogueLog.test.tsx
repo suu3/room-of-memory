@@ -34,12 +34,12 @@ describe("지나간 대사 화면", () => {
     useMemoryRoomStore.getState().reset();
   });
 
-  it("닫기 버튼도 닫는 법 안내 문구도 두지 않는다", () => {
+  it("제목줄의 닫기 버튼으로 닫힌다", () => {
     render(<DialogueLog />);
     openLog();
 
-    expect(screen.queryByRole("button")).toBeNull();
-    expect(screen.queryByText(/닫힘/)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "지나간 대사 닫기" }));
+    expect(useMemoryRoomStore.getState().dialogueLogOpen).toBe(false);
   });
 
   it("글자 위를 눌러도 닫힌다", () => {
