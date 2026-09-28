@@ -236,6 +236,25 @@ describe("minigame result dialogue", () => {
     expect(useMemoryRoomStore.getState().collected).toEqual(["console", "ball", "frame"]);
   });
 
+  it("판이 이미 보여준 결과 대사 앞 줄은 건너뛰되, 지난 대사 기록에는 남긴다", () => {
+    openFrame();
+    useMemoryRoomStore.getState().beginInteraction("frame");
+    const lines = SCRIPTS["frame-photo"].lines;
+    useMemoryRoomStore.getState().finishMinigame({ cleared: true, shownResultLines: 1 });
+
+    const state = useMemoryRoomStore.getState();
+    expect(state.activeInteraction?.lineIndex).toBe(1);
+    expect(state.dialogueLog.at(-1)?.textKey).toBe(lines[0].textKey);
+  });
+
+  it("다 보여줬다고 해도 마지막 한 줄은 대사창이 맡는다", () => {
+    openFrame();
+    useMemoryRoomStore.getState().beginInteraction("frame");
+    const lines = SCRIPTS["frame-photo"].lines;
+    useMemoryRoomStore.getState().finishMinigame({ cleared: true, shownResultLines: 99 });
+    expect(useMemoryRoomStore.getState().activeInteraction?.lineIndex).toBe(lines.length - 1);
+  });
+
   it("closes without collecting when the minigame is failed, and stays retryable", () => {
     openFrame();
     useMemoryRoomStore.getState().beginInteraction("frame");

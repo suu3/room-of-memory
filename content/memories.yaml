@@ -257,7 +257,7 @@ memories:
     # 글자 힌트) → 재난방송(결과 대사) → 이미지 나열 컷씬(store가 radio-blackout을 연다).
     phase1:
       script: radio-intro
-      minigame: radio-quiz
+      minigame: emergency-broadcast
       resultScript: radio-broadcast
       unlockAfter: [report-card, console, ball, frame, phone, calendar, window]
     # 2차 (분기점): 빨갛게 깜빡이는 라디오를 누르면 곧장 생존자 방송(3페이지 웹툰)이 흐른다.

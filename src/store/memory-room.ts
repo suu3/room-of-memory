@@ -1120,14 +1120,27 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           const interaction = phaseConfigOf(active.memoryId, active.gamePhase)?.interaction;
           // 클리어했으면 결과 대사로: 미니게임 화면을 뒤에 남긴 채 대사창이 뜬다
           if (result.cleared && interaction?.resultScriptId) {
+            // 판이 이미 보여준 앞 줄은 건너뛰되 기록에는 남긴다 (MinigameResult.shownResultLines)
+            const lines = SCRIPTS[interaction.resultScriptId]?.lines ?? [];
+            const shown = Math.max(0, Math.min(result.shownResultLines ?? 0, lines.length - 1));
             return {
               activeInteraction: {
                 ...active,
                 phase: "dialogue" as const,
                 scriptId: interaction.resultScriptId,
                 keepMinigame: true,
-                lineIndex: 0,
+                lineIndex: shown,
               },
+              ...(shown > 0
+                ? {
+                    dialogueLog: appendDialogueLog(
+                      state.dialogueLog,
+                      lines
+                        .slice(0, shown)
+                        .map((line) => ({ speaker: line.speaker, textKey: line.textKey })),
+                    ),
+                  }
+                : {}),
             };
           }
           /*
@@ -1247,15 +1260,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       setAutoPlay: (next) => set({ autoPlay: next }),
       logDialogue: (entry) =>
         set((state) => {
-          const last = state.dialogueLog.at(-1);
-          // 같은 줄이 다시 들어오는 건 리마운트지 새 대사가 아니다
-          if (last && last.speaker === entry.speaker && last.textKey === entry.textKey)
-            return state;
-          const next = [...state.dialogueLog, entry];
-          // 오래된 줄부터 버린다. 한 판에 수백 줄이 흐르는데 다 들고 있을 이유가 없다
-          return {
-            dialogueLog: next.length > DIALOGUE_LOG_MAX ? next.slice(-DIALOGUE_LOG_MAX) : next,
-          };
+          const next = appendDialogueLog(state.dialogueLog, [entry]);
+          return next === state.dialogueLog ? state : { dialogueLog: next };
         }),
       setDialogueLogOpen: (next) => set({ dialogueLogOpen: next }),
       takeBat: () =>
@@ -1731,6 +1737,24 @@ export type DialogueLogEntry = Pick<DialogueScriptLine, "speaker" | "textKey">;
 
 /** 로그에 남기는 최대 줄 수. 넘치면 오래된 줄부터 버린다. */
 const DIALOGUE_LOG_MAX = 200;
+
+/**
+ * 지난 대사 기록에 줄을 잇는다. 바로 앞 줄과 같은 줄은 리마운트지 새 대사가 아니라 건너뛴다.
+ * 오래된 줄부터 버린다: 한 판에 수백 줄이 흐르는데 다 들고 있을 이유가 없다.
+ * 아무것도 안 붙었으면 받은 배열을 그대로 돌려준다 (구독자가 헛돌지 않게).
+ */
+function appendDialogueLog(
+  log: readonly DialogueLogEntry[],
+  entries: readonly DialogueLogEntry[],
+): DialogueLogEntry[] {
+  let next = log as DialogueLogEntry[];
+  for (const entry of entries) {
+    const last = next.at(-1);
+    if (last && last.speaker === entry.speaker && last.textKey === entry.textKey) continue;
+    next = [...next, entry];
+  }
+  return next.length > DIALOGUE_LOG_MAX ? next.slice(-DIALOGUE_LOG_MAX) : next;
+}
 
 /** 되살아나는 길의 필수 조사 수. 밝기 상승 구간의 분모다 (actTwoProgress). */
 export const ACT2_TOTAL = RECOVERY_VISITS.length;

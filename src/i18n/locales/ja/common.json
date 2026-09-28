@@ -150,13 +150,12 @@
       "help_touch": "針が明るい帯を通る瞬間に画面をタップ",
       "fail": "…ザザッ。まだ拾えないな。"
     },
-    "radioQuiz": {
-      "question": "俺がこの部屋に孤立した理由",
-      "answer": "ゾンビ",
-      "pool": "ゾ キ ン オ ビ ク ヤ ミ ラ ジ",
-      "wrong": "…違う。そうじゃない。",
-      "slotLabel": "{{index}}番目の欄",
-      "hint": "ヒント: 先頭の{{value}}文字が現れた。"
+    "emergencyBroadcast": {
+      "power": "電源を切る",
+      "volume": "音を下げる",
+      "whisper0": "…聞きたくない。",
+      "whisper1": "…なんで消えないんだ。",
+      "whisper2": "やめてくれ…"
     },
     "photoWipe": {
       "title": "写真を拭く",

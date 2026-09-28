@@ -172,7 +172,7 @@ export const MEMORIES: MemoryItem[] = [
     phase1: {
       interaction: {
         scriptId: "radio-intro",
-        minigameId: "radio-quiz",
+        minigameId: "emergency-broadcast",
         resultScriptId: "radio-broadcast",
       },
       unlockAfter: [

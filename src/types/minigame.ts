@@ -35,6 +35,13 @@ export interface MinigameResult {
    * 한 장을 쓴다 (src/store/stills.ts). 미리 그린 replayStill이 있으면 그쪽이 앞선다.
    */
   still?: string;
+  /**
+   * 결과 대사의 앞 몇 줄을 판이 자기 화면에서 이미 보여줬는가. 엔진은 대사창을 그다음
+   * 줄부터 띄우고, 건너뛴 줄은 지난 대사 기록에 남긴다. 대본(content/)은 그대로라
+   * 다시보기에는 모든 줄이 나온다. 마지막 한 줄은 늘 대사창이 맡는다.
+   * (재난 방송: 라디오 화면에 방송이 흐르고, 대사창에는 도해의 한 줄만 남는다.)
+   */
+  shownResultLines?: number;
 }
 
 export interface MinigameProps {

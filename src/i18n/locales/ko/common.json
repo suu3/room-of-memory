@@ -150,13 +150,12 @@
       "help_touch": "바늘이 밝은 구간을 지날 때 화면 터치",
       "fail": "…지직. 아직 안 잡히네."
     },
-    "radioQuiz": {
-      "question": "내가 이 방에 고립된 이유",
-      "answer": "좀비",
-      "pool": "좀 꿈 비 밤 재 억 빛 문 방 밖",
-      "wrong": "…아니다. 그게 아니야.",
-      "slotLabel": "{{index}}번째 칸",
-      "hint": "힌트: 앞 {{value}}글자가 드러났다."
+    "emergencyBroadcast": {
+      "power": "전원 끄기",
+      "volume": "소리 줄이기",
+      "whisper0": "…듣고 싶지 않아.",
+      "whisper1": "…왜 안 꺼져.",
+      "whisper2": "그만해…"
     },
     "photoWipe": {
       "title": "사진 닦기",
