@@ -35,18 +35,22 @@ describe("재난 방송 (emergency-broadcast)", () => {
     expect(lines.at(-1)?.speaker).toBe("hero");
   });
 
-  it("끄려 하면 라디오가 꺼졌다가 스스로 다시 켜지고, 방송은 다음 줄로 이어진다", () => {
+  it("끄면 라디오는 정말 꺼지지만, 떠올린 방송은 제 속도로 계속 흐른다", () => {
     vi.useFakeTimers();
     render(<BroadcastBoard onComplete={vi.fn()} />);
     expect(screen.getByText("…듣고 싶지 않아.")).toBeTruthy();
-    expect(screen.queryByText(i18n.t(broadcastLines[1].textKey, { ns: "memoryRoom" }))).toBeNull();
+    const second = i18n.t(broadcastLines[1].textKey, { ns: "memoryRoom" });
 
-    fireEvent.click(screen.getByRole("button", { name: "전원 끄기" }));
-    expect(screen.getByText("…왜 안 꺼져.")).toBeTruthy();
+    const power = screen.getByRole("button", { name: "전원 끄기" });
+    fireEvent.click(power);
+    expect(power.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByText("…안 들려야 하는데.")).toBeTruthy();
+    // 누른다고 방송이 앞당겨지지도, 멈추지도 않는다
+    expect(screen.queryByText(second)).toBeNull();
     act(() => {
-      vi.advanceTimersByTime(800);
+      vi.advanceTimersByTime(4200);
     });
-    expect(screen.getByText(i18n.t(broadcastLines[1].textKey, { ns: "memoryRoom" }))).toBeTruthy();
+    expect(screen.getByText(second)).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "소리 줄이기" }));
     expect(screen.getByText("그만해…")).toBeTruthy();
