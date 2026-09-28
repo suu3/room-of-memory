@@ -181,6 +181,13 @@ describe("memory outline glow", () => {
     expect(settings).toHaveProperty("composer.stencilBuffer", true);
   });
 
+  it("drops MSAA on touch devices, where the outline flickered frame to frame", () => {
+    // 아이폰 Safari에서 MSAA 깊이 경로를 거친 윤곽선이 프레임마다 깜빡였다 (createMemoryOutlineSettings 주석)
+    const touch = createMemoryOutlineSettings("#b89a5e", { touch: true });
+    expect(touch).toHaveProperty("composer.multisampling", 0);
+    expect(touch.inner).toEqual(createMemoryOutlineSettings("#b89a5e").inner);
+  });
+
   it("keeps prop meshes off the halo layer so xRay edges cannot cut across the room", async () => {
     const renderer = await ReactThreeTestRenderer.create(<MixedTierScene />, {
       gl: createTestWebGlRenderer,

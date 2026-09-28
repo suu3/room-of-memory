@@ -153,7 +153,20 @@ const KERNEL_SIZE_VERY_LARGE = 4;
 const INNER_SELECTION_LAYER = 11;
 const OUTER_SELECTION_LAYER = 12;
 
-export function createMemoryOutlineSettings(color: string) {
+/**
+ * 손가락으로 노는 기기인가 (usePointerKind와 같은 질의). 이 컴포넌트는 캔버스 안에서만
+ * 도니 첫 렌더부터 브라우저다: 마운트 뒤에 판정이 바뀌어 컴포저를 한 번 더 세우지 않도록
+ * 여기서 바로 묻는다.
+ */
+function isTouchDevice() {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(hover: none) and (pointer: coarse)").matches
+  );
+}
+
+export function createMemoryOutlineSettings(color: string, { touch = false } = {}) {
   // 앰버가 밝아진 만큼(#D5AE78) 들어 올리는 폭을 줄인다. 더 올리면 윤곽이 흰 줄로 뜬다
   const edgeColor = new Color(color).offsetHSL(0, -0.05, 0.06).getHex();
   // 가려진 쪽 테두리는 한 단계 어둡게: 벽 너머까지 같은 밝기로 타오르지 않게 한다.
@@ -168,7 +181,14 @@ export function createMemoryOutlineSettings(color: string) {
      * 블릿이 "Depth/stencil buffer format combination not allowed"로 거부됐다 (프레임마다 경고).
      * 스텐실이 있으면 깊이 텍스처도 빈 상태의 렌더버퍼도 DEPTH24_STENCIL8로 같아져 블릿이 맞는다.
      */
-    composer: { autoClear: false, multisampling: 2, stencilBuffer: true },
+    /*
+     * MSAA는 터치 기기에서 끈다. 아이폰 Safari에서 윤곽선과 헤일로가 프레임마다 켜졌다
+     * 꺼졌다 했다 (2026-09-28, 문제집·의자·에어컨이 서로 따로 깜빡였다). 데스크톱 크로미움에서는
+     * 재현되지 않는다. 윤곽선의 가림 판정은 컴포저의 깊이 텍스처를 읽는데, MSAA가 켜져
+     * 있으면 그 깊이가 프레임마다 해상(resolve) 블릿 → 안정 깊이 블릿 두 번을 거쳐 온다.
+     * 그 경로를 통째로 뺀다. 폰 화면은 배율이 높아 MSAA 없이도 모서리가 거칠지 않다.
+     */
+    composer: { autoClear: false, multisampling: touch ? 0 : 2, stencilBuffer: true },
     edgeColor,
     hiddenEdgeColor,
     // inner는 윤곽선, outer는 그 바깥으로 번지는 숨쉬는 광량: 둘 다 약하면 화면에서 안 보인다.
@@ -373,7 +393,10 @@ export function MemoryGlowRoot({
     () => (ambientOcclusion ? new Color(ambientOcclusion.color) : null),
     [ambientOcclusion],
   );
-  const settings = useMemo(() => createMemoryOutlineSettings(color), [color]);
+  const settings = useMemo(
+    () => createMemoryOutlineSettings(color, { touch: isTouchDevice() }),
+    [color],
+  );
   const reducedMotion = useMemo(prefersReducedMotion, []);
   const film = useFilmLookEffects(reducedMotion);
   const transition = useScreenTransitionEffect();
