@@ -40,26 +40,48 @@ describe("AR character actions", () => {
     expect(nextReady).toMatchObject({ stage: "rest", ballLift: 0, armOffset: 0 });
   });
 
-  it("gives the bat one decisive swing followed by recovery and rest", () => {
+  it("swings the bat from over the right shoulder, through the front, to over the left shoulder", () => {
     const ready = batMotionAt(0.2);
-    const loaded = batMotionAt(0.78);
-    const contact = batMotionAt(1.08);
-    const recovered = batMotionAt(1.62);
-    const resting = batMotionAt(2.65);
+    expect(ready.stage).toBe("ready");
+    // 준비: 캐릭터의 오른쪽(-X) 뒤로 세워 든다
+    expect(Math.sin(ready.yaw)).toBeLessThan(0);
+    expect(ready.pitch).toBeGreaterThan(0.6);
 
-    expect(ready).toMatchObject({ stage: "rest", swing: 0 });
-    expect(loaded.stage).toBe("windup");
-    expect(loaded.swing).toBeLessThan(0);
-    expect(contact.stage).toBe("swing");
-    expect(contact.swing).toBeGreaterThan(0.8);
-    expect(recovered.stage).toBe("recover");
-    expect(Math.abs(recovered.swing)).toBeLessThan(0.25);
-    expect(resting).toMatchObject({ stage: "rest", swing: 0 });
+    const contact = batMotionAt(1.15);
+    expect(contact.stage).toBe("follow");
+    // 임팩트: 몸 앞에서 거의 수평
+    expect(Math.cos(contact.yaw)).toBeGreaterThan(0.5);
+    expect(Math.abs(contact.pitch)).toBeLessThan(0.2);
+
+    const follow = batMotionAt(1.5);
+    // 팔로스루: 캐릭터의 왼쪽(+X) 뒤로 넘긴다
+    expect(Math.sin(follow.yaw)).toBeGreaterThan(0);
+    expect(follow.turn).toBeGreaterThan(ready.turn);
+
+    expect(batMotionAt(2.9)).toMatchObject({ stage: "ready", yaw: ready.yaw, pitch: ready.pitch });
+  });
+
+  it("sweeps the swing one way round instead of flipping the bat through the body", () => {
+    let previous = batMotionAt(0.95).yaw;
+    for (let time = 0.96; time <= 1.32; time += 0.01) {
+      const yaw = batMotionAt(time).yaw;
+      expect(yaw).toBeGreaterThanOrEqual(previous - 1e-9);
+      previous = yaw;
+    }
+  });
+
+  it("brings the bat back in front of the body instead of through the head", () => {
+    for (let time = 1.85; time <= 2.6; time += 0.02) {
+      const { yaw, pitch } = batMotionAt(time);
+      // 머리 바로 뒤(수평각 ±180° 근처)를 높이 든 채 지나가지 않는다
+      const behindHead = Math.cos(yaw) < -0.5 && Math.abs(Math.sin(yaw)) < 0.5;
+      expect(behindHead && pitch > 0).toBe(false);
+    }
   });
 
   it("keeps reduced motion readable with restrained travel", () => {
     expect(tossMotionAt(1.48, true).ballLift).toBeLessThan(0.3);
-    expect(Math.abs(batMotionAt(1.08, true).swing)).toBeLessThan(0.5);
+    expect(Math.abs(batMotionAt(1.5, true).turn)).toBeLessThan(Math.abs(batMotionAt(1.5).turn));
   });
 
   it("waits for tracking and restarts the rhythm whenever the marker is reacquired", () => {
