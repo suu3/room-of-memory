@@ -35,6 +35,7 @@ import {
   type TossMotion,
   tossMotionAt,
 } from "./ar-motion";
+import { batDirection, HAND_GAP, palmPoint, placeHeldBat, reachHandTo } from "./held-bat";
 
 /** The AR figure shares the authored game clips and adds only the two missing sports gestures. */
 
@@ -45,11 +46,6 @@ const HOLD_UPPER = -0.55;
 const HOLD_FORE = -1.25;
 const PALM_LIFT = 0.07;
 const BALL_SIZE = 0.16;
-
-const BAT_UPPER = -0.72;
-const BAT_FORE = -1.08;
-const BAT_READY_TURN = -0.22;
-const BAT_SWING_TURN = 0.82;
 
 const STOOL_HEIGHT = 0.28;
 const STOOL_DEPTH = 0.5;
@@ -93,6 +89,11 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
   const previousTossStageRef = useRef<TossMotion["stage"]>("rest");
   const releasePositionRef = useRef(new Vector3());
   const handPositionRef = useRef(new Vector3());
+  const leftHandPositionRef = useRef(new Vector3());
+  const batDirectionRef = useRef(new Vector3());
+  const gripRef = useRef(new Vector3());
+  const rightTargetRef = useRef(new Vector3());
+  const leftTargetRef = useRef(new Vector3());
   const ballPositionRef = useRef(new Vector3());
   const tossMotionRef = useRef<TossMotion>({
     stage: "rest",
@@ -100,7 +101,7 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
     ballLift: 0,
     flight: 0,
   });
-  const batMotionRef = useRef<BatMotion>({ stage: "rest", swing: 0 });
+  const batMotionRef = useRef<BatMotion>(batMotionAt(0));
   const reducedMotion = useMemo(prefersReducedMotion, []);
   const palette = useMemo(resolveRoomPalette, []);
 
@@ -117,6 +118,7 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
       handR: created.root.getObjectByName("handR"),
       upperL: created.root.getObjectByName("upper_armL"),
       foreL: created.root.getObjectByName("forearmL"),
+      handL: created.root.getObjectByName("handL"),
     };
     const manual = [bones.upperR, bones.foreR, bones.upperL, bones.foreL].filter(
       (bone): bone is Object3D => bone !== undefined,
@@ -182,7 +184,7 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
       tossMotionRef.current,
     );
     const tossWeight = tossWeightRef.current;
-    const { upperR, foreR, handR, upperL, foreL } = rig.arBones;
+    const { upperR, foreR, handR, upperL, foreL, handL } = rig.arBones;
     if (upperR && foreR && tossWeight > 0.001) {
       reachBone(rig.root, upperR, (HOLD_UPPER + toss.armOffset) * tossWeight);
       reachBone(rig.root, foreR, HOLD_FORE * tossWeight);
@@ -194,20 +196,31 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
       batMotionRef.current,
     );
     const batWeight = batWeightRef.current;
-    if (batWeight > 0.001) {
-      if (upperR) reachBone(rig.root, upperR, (BAT_UPPER - batting.swing * 0.08) * batWeight);
-      if (foreR) reachBone(rig.root, foreR, BAT_FORE * batWeight);
-      if (upperL) reachBone(rig.root, upperL, (BAT_UPPER + batting.swing * 0.06) * batWeight);
-      if (foreL) reachBone(rig.root, foreL, BAT_FORE * batWeight);
-    }
-    rig.manualApplied = tossWeight > 0.001 || batWeight > 0.001;
 
+    // 몸통을 먼저 튼다: 팔은 틀어진 몸에서 손잡이를 향해 뻗어야 한다
     const model = modelRef.current;
     if (model) {
-      const targetTurn = batWeight * (BAT_READY_TURN + batting.swing * BAT_SWING_TURN);
-      model.rotation.y = MathUtils.damp(model.rotation.y, targetTurn, 13, step);
+      model.rotation.y = MathUtils.damp(model.rotation.y, batWeight * batting.turn, 13, step);
       model.updateMatrixWorld(true);
     }
+
+    const batDirection3 = batDirectionRef.current;
+    batDirection(batting.yaw, batting.pitch, batDirection3);
+    if (model && batWeight > 0.001 && upperR && foreR && handR && upperL && foreL && handL) {
+      // 오른손 타자: 오른손이 배럴 쪽, 왼손이 노브 쪽
+      const grip = gripRef.current.set(batting.gripX, batting.gripY, batting.gripZ);
+      const rightTarget = rightTargetRef.current
+        .copy(grip)
+        .addScaledVector(batDirection3, HAND_GAP / 2);
+      const leftTarget = leftTargetRef.current
+        .copy(grip)
+        .addScaledVector(batDirection3, -HAND_GAP / 2);
+      model.localToWorld(rightTarget);
+      model.localToWorld(leftTarget);
+      reachHandTo(upperR, foreR, handR, rightTarget, batWeight);
+      reachHandTo(upperL, foreL, handL, leftTarget, batWeight);
+    }
+    rig.manualApplied = tossWeight > 0.001 || batWeight > 0.001;
 
     const stool = stoolRef.current;
     if (stool) {
@@ -241,7 +254,13 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
     }
 
     const batGroup = batRef.current;
-    if (batGroup && action === "bat") batGroup.position.copy(handPositionRef.current);
+    if (batGroup && action === "bat" && handL) {
+      // 배트는 목표가 아니라 실제로 모인 두 손바닥 사이에 끼운다
+      const palms = palmPoint(handL, leftHandPositionRef.current);
+      palms.add(palmPoint(handR, gripRef.current)).multiplyScalar(0.5);
+      model.worldToLocal(palms);
+      placeHeldBat(palms, batDirection3, batGroup.position, batGroup.quaternion);
+    }
   });
 
   return (
@@ -250,7 +269,7 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
       <group ref={ballRef} visible={action === "toss"}>
         <primitive object={ball} dispose={null} />
       </group>
-      <group ref={batRef} visible={action === "bat"} rotation={[0.08, 0, -Math.PI / 2]}>
+      <group ref={batRef} visible={action === "bat"}>
         <primitive object={bat} dispose={null} />
       </group>
       <mesh ref={stoolRef} position={STOOL_POSITION} visible={false} castShadow>
