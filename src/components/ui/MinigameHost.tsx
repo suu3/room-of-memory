@@ -14,6 +14,7 @@ import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room
 import { stillKeyOf, useStillStore } from "@/store/stills";
 import type { MinigameResult } from "@/types/minigame";
 import { ExitFade } from "./ExitFade";
+import { KeyHint } from "./Keycap";
 import { SuccessBurst } from "./SuccessBurst";
 import { BUTTON_PRIMARY, BUTTON_QUIET, HUD_ICON_BUTTON_SOLID, PANEL_FRAME } from "./ui-classes";
 
@@ -413,7 +414,9 @@ export function MinigameHost() {
                       <span className="shrink-0 font-medium text-memory" aria-hidden>
                         ·
                       </span>
-                      <span>{hint(key)}</span>
+                      <span>
+                        <KeyHint text={hint(key)} />
+                      </span>
                     </li>
                   ))}
                 </ul>

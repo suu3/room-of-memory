@@ -3,6 +3,7 @@
 import { Check } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { KeyHint } from "@/components/ui/Keycap";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
@@ -113,7 +114,7 @@ export function MomChatMinigame({ onComplete, stage = "play" }: MinigameProps) {
           </button>
         ) : !frozen ? (
           <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
-            {hint("minigame.momChat.help")}
+            <KeyHint text={hint("minigame.momChat.help")} />
           </p>
         ) : null}
       </div>

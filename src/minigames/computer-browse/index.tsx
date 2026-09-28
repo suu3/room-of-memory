@@ -426,7 +426,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
             </button>
           ) : (
             <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
-              {hint("minigame.computerBrowse.help")}
+              <KeyHint text={hint("minigame.computerBrowse.help")} />
             </p>
           )}
         </div>

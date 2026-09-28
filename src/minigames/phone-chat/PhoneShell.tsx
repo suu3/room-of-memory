@@ -35,6 +35,7 @@ export function PhoneShell<Id extends string>({
   clock,
   onBack,
   backLabel,
+  backCue = false,
   children,
 }: {
   tab?: Id;
@@ -47,6 +48,8 @@ export function PhoneShell<Id extends string>({
   /** 있으면 헤더의 왼쪽 화살표가 눌리는 뒤로 가기 버튼이 된다 (대화방 → 목록). */
   onBack?: () => void;
   backLabel?: string;
+  /** 뒤로가기가 다음 할 일일 때 켠다. 수첩 손잡이의 새 기록 점과 같은 금빛 점에서 고리가 번진다. */
+  backCue?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -75,9 +78,18 @@ export function PhoneShell<Id extends string>({
                 type="button"
                 onClick={onBack}
                 aria-label={backLabel}
-                className="-m-1 shrink-0 cursor-pointer rounded-full p-1 text-bone/70 transition-colors hover:text-paper"
+                className={`relative -m-1 shrink-0 cursor-pointer rounded-full p-1 transition-colors hover:text-paper ${
+                  backCue ? "text-memory" : "text-bone/70"
+                }`}
               >
                 <CaretLeft size={18} weight="bold" />
+                {backCue && (
+                  // 수첩 손잡이의 새 기록 점과 같은 말: 점에서 고리가 번진다. 움직임 줄이기면 점만 남는다
+                  <span aria-hidden className="absolute -left-0.5 -top-0.5 size-2">
+                    <span className="absolute inset-0 rounded-full border-2 border-memory motion-safe:animate-notice-ripple" />
+                    <span className="absolute inset-0 rounded-full bg-memory" />
+                  </span>
+                )}
               </button>
             ) : (
               <CaretLeft size={18} weight="bold" className="shrink-0 text-bone/45" aria-hidden />

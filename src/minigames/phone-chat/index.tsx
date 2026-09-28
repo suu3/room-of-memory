@@ -3,6 +3,7 @@
 import { ChatCircleDots, Check, PhoneDisconnect, UsersThree } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { KeyHint } from "@/components/ui/Keycap";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
@@ -130,6 +131,13 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
   const done = isThreadComplete(revealed, seenCalls, seenFamily);
   const helpKey = phoneHelpKey(tab, room, chatDone, seenCalls, seenFamily);
   const readingFriends = tab === "chat" && room === "friends";
+  /**
+   * 다음에 볼 것이 다른 방에 있으면 뒤로가기가 부른다. 방 목록을 거쳐야 한다는 걸
+   * 모르고 헤맸다 (엄마 대화방은 방 하나라 뒤로가기가 없어서 더 그렇다).
+   */
+  const backCue =
+    tab === "chat" &&
+    ((room === "friends" && chatDone && !seenFamily) || (room === "family" && !chatDone));
 
   /** 아래로 한 줄 더 읽어 내려간다. */
   const readNext = useCallback(() => {
@@ -206,6 +214,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
         subtitle={header.subtitle}
         clock="20:47"
         onBack={tab === "chat" && room !== null ? () => openRoom(null) : undefined}
+        backCue={backCue}
         backLabel={t("minigame.phoneChat.list.back")}
         tabs={[
           { id: "chat", label: t("minigame.phoneChat.tab.chat"), Icon: ChatCircleDots },
@@ -353,7 +362,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
         ) : (
           helpKey && (
             <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
-              {hint(helpKey)}
+              <KeyHint text={hint(helpKey)} />
             </p>
           )
         )}

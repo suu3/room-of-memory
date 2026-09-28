@@ -32,4 +32,26 @@ describe("splitKeyTokens", () => {
     expect(keys("Click where to go · WASD")).toEqual(["WASD"]);
     expect(keys("クリックした場所へ移動 · WASD")).toEqual(["WASD"]);
   });
+
+  it("caps gestures standing alone in a control list", () => {
+    expect(keys("그날의 대화를 따라 내려가세요: 아래로 스크롤 · 터치")).toEqual([
+      "아래로 스크롤",
+      "터치",
+    ]);
+    expect(keys("Read the thread from the top: swipe down · tap")).toEqual(["swipe down", "tap"]);
+    expect(keys("あの日のやりとりを読み進める: 下にスクロール・タップ")).toEqual([
+      "下にスクロール",
+      "タップ",
+    ]);
+    expect(keys("공 조사 · 터치")).toEqual(["터치"]);
+    expect(splitKeyTokens("공 조사 · 터치").at(-1)?.kind).toBe("gesture");
+  });
+
+  it("leaves gesture verbs inside a sentence alone", () => {
+    expect(keys("빛나는 물건을 탭해 조사하세요")).toEqual([]);
+    expect(keys("통화 기록 탭도 열어보세요")).toEqual([]);
+    expect(keys("끌어서 돌려 보세요 · 휠이나 버튼으로 확대")).toEqual([]);
+    expect(keys("Drag to turn it · wheel or buttons to zoom")).toEqual([]);
+    expect(keys("光る物をタップして調べましょう")).toEqual([]);
+  });
 });
