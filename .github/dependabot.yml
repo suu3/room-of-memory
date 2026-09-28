@@ -8,6 +8,11 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - "type: deps"
+    ignore:
+      # @types/node의 메이저는 런타임(CI·Vercel의 Node 22)을 따라 손으로 올린다. 더 높은
+      # 메이저는 그 Node에 없는 API를 타입으로 허락한다
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     groups:
       # 3D 스택은 버전이 서로 엮여 있어서 따로 올리면 깨진다. 한 PR로 묶는다.
       three:
