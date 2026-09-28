@@ -180,6 +180,8 @@ export function createMemoryOutlineSettings(color: string, { touch = false } = {
      * 포맷(32F)으로 둔다. 텍스처가 떼어진 차례에 해상 쪽이 24비트 렌더버퍼가 되어 MSAA 해상
      * 블릿이 "Depth/stencil buffer format combination not allowed"로 거부됐다 (프레임마다 경고).
      * 스텐실이 있으면 깊이 텍스처도 빈 상태의 렌더버퍼도 DEPTH24_STENCIL8로 같아져 블릿이 맞는다.
+     * (6.39.2 기준. 6.39.5부터는 두 버퍼가 각자 깊이 텍스처를 늘 들고 있어 붙였다 떼는 교대가
+     * 없다. 스텐실은 그대로 둔다: 깊이 포맷이 한 가지로 맞아 있으면 해가 없다.)
      */
     /*
      * MSAA는 터치 기기에서 끈다. 아이폰 Safari에서 윤곽선과 헤일로가 프레임마다 켜졌다

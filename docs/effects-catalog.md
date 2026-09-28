@@ -305,7 +305,7 @@ export function resolveRoomPalette(): RoomPalette {
 
 ## 3. three.js: 포스트프로세싱 체인
 
-`MemoryOutlineGlow.tsx`의 `MemoryGlowRoot`가 EffectComposer 하나에 모든 패스를 쌓는다(`multisampling: 2`, 터치 기기는 0, `stencilBuffer: true`). 스텐실은 쓰려는 게 아니라 postprocessing 6.39와 three r185 사이에서 MSAA 깊이 블릿 포맷을 `DEPTH24_STENCIL8`로 맞추려는 것이다. MSAA를 터치 기기에서 끄는 이유: 아이폰 Safari에서 윤곽선·헤일로가 프레임마다 깜빡였다(MSAA 깊이 해상 경로를 뺀다). 패스 순서가 곧 그림의 층이다.
+`MemoryOutlineGlow.tsx`의 `MemoryGlowRoot`가 EffectComposer 하나에 모든 패스를 쌓는다(`multisampling: 2`, 터치 기기는 0, `stencilBuffer: true`). 스텐실은 쓰려는 게 아니라 postprocessing 6.39.2와 three r185 사이에서(6.39.5부터는 교대가 없어졌지만 그대로 둔다) MSAA 깊이 블릿 포맷을 `DEPTH24_STENCIL8`로 맞추려는 것이다. MSAA를 터치 기기에서 끄는 이유: 아이폰 Safari에서 윤곽선·헤일로가 프레임마다 깜빡였다(MSAA 깊이 해상 경로를 뺀다). 패스 순서가 곧 그림의 층이다.
 
 > **N8AO → Afterimage → GodRays → TiltShift → ChromaticAberration → Outline(inner) → Outline(outer) → Noise → ScreenTransition**
 
