@@ -210,8 +210,9 @@ export function DialogueBox() {
             얼굴 없는 화자(라디오 너머의 목소리)는 초상 없이 이름만 남는다.
             컷씬·다시보기도 마찬가지다. 그림이 이미 인물을 보여주는 자리라,
             초상까지 세우면 같은 화면에 도해가 둘이 된다.
+            회상 속의 말(recall)도 초상이 없다: 그때의 도해지 지금의 도해가 아니다.
           */}
-          {!playbackLine && hasPortrait(scriptLine.speaker) && (
+          {!playbackLine && !scriptLine.recall && hasPortrait(scriptLine.speaker) && (
             <CharacterPortrait expression={scriptLine.expression ?? "neutral"} />
           )}
           {/*

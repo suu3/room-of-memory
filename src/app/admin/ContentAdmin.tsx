@@ -951,6 +951,22 @@ function LinesEditor({
                 />
               </Field>
             </div>
+            <div>
+              <Field label="회상">
+                {/* 회상 속 그때의 말: 초상을 세우지 않는다 (DialogueScriptLine.recall) */}
+                <label className="flex h-9 items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={line.recall === true}
+                    onChange={(event) => {
+                      const { recall: _dropped, ...rest } = line;
+                      setLine(index, event.target.checked ? { ...rest, recall: true } : rest);
+                    }}
+                  />
+                  초상 없음
+                </label>
+              </Field>
+            </div>
             <div className="ml-auto flex gap-2">
               <Button onClick={() => move(index, -1)} disabled={index === 0}>
                 ↑

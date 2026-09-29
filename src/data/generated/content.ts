@@ -288,7 +288,12 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.report-card-intro.line3" },
       { speaker: "mom", textKey: "scripts.report-card-intro.line4" },
       { speaker: "dad", textKey: "scripts.report-card-intro.line5" },
-      { speaker: "hero", textKey: "scripts.report-card-intro.line6", expression: "puzzled" },
+      {
+        speaker: "hero",
+        textKey: "scripts.report-card-intro.line6",
+        expression: "puzzled",
+        recall: true,
+      },
       { speaker: "hero", textKey: "scripts.report-card-intro.line7" },
       { speaker: "hero", textKey: "scripts.report-card-intro.line8" },
     ],

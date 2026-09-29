@@ -13,6 +13,12 @@ export interface DialogueScriptLine {
   textKey: MemoryRoomTextKey;
   /** 생략하면 "neutral". */
   expression?: CharacterExpression;
+  /**
+   * 회상 속에서 그때의 도해가 한 말. 지금의 도해가 하는 말이 아니라 초상을 세우지 않는다
+   * (성적표를 내밀던 날 저녁의 "…위로 맞죠?"). 컷씬·다시보기는 그림이 인물을 보여 주므로
+   * 이 플래그 없이도 초상이 없다.
+   */
+  recall?: boolean;
 }
 
 /** 재사용 가능한 대사 스크립트. SCRIPTS 레지스트리(src/data)에 id로 등록. */

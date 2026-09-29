@@ -46,8 +46,10 @@ scripts:
       ko: 공부가 꼭 인생의 답은 아냐.
       en: Studying isn't the only answer in life, you know.
       ja: 勉強だけが人生の答えじゃないぞ。
+    # 회상 속 그때의 말: 초상 없이 (recall)
     - speaker: hero
       expression: puzzled
+      recall: true
       ko: …위로 맞죠?
       en: …That's supposed to be comforting, right?
       ja: …それ、慰めてるんだよね?

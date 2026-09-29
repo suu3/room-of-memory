@@ -466,6 +466,9 @@ function validateLines(lines, where, issues) {
     if (line.expression !== undefined && !EXPRESSIONS.includes(line.expression)) {
       issues.push(`${at}: 표정 "${line.expression}"은 ${EXPRESSIONS.join("/")} 중 하나여야 한다.`);
     }
+    if (line.recall !== undefined && typeof line.recall !== "boolean") {
+      issues.push(`${at}: recall은 true/false여야 한다.`);
+    }
     validateText(line, at, issues);
   }
 }

@@ -20,6 +20,8 @@ export type LocalizedText = Record<ContentLocale, string>;
 export interface ContentLine extends LocalizedText {
   speaker: string;
   expression?: CharacterExpression;
+  /** 회상 속의 말인가 (DialogueScriptLine.recall). */
+  recall?: boolean;
 }
 
 export interface ContentPhase {

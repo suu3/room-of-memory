@@ -160,6 +160,7 @@ function lineLiterals(lines, keyPrefix) {
     if (line.expression !== undefined && line.expression !== "neutral") {
       fields.push(`expression: ${JSON.stringify(line.expression)}`);
     }
+    if (line.recall === true) fields.push("recall: true");
     return `{ ${fields.join(", ")} }`;
   });
 }
