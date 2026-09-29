@@ -1271,8 +1271,11 @@ const BACKGROUND_CLUE = CLUE_AFTER_MEMORY as Partial<Record<MemoryId, ClueId>>;
 /**
  * 아직 한 번도 안 본 채 잠긴 기억을 눌렀을 때 흘리는 혼잣말 (v4 3-2).
  * 1페이즈의 컴퓨터는 꺼진 배경이다: 조사가 아니라 한 줄로 밀어낸다.
+ * 여기 없는 물건은 공통의 "…지금은 아니다."(locked)다. 아무 반응도 없으면 잠긴 게 아니라
+ * 고장 난 것으로 읽힌다: 엄마 쪽지가 가리킨 냉장고 아래칸이 2페이즈가 끝나기 전에 그랬다.
  */
 const LOCKED_REMARK: Partial<Record<MemoryId, RemarkId>> = { computer: "computer-off" };
+const DEFAULT_LOCKED_REMARK: RemarkId = "locked";
 
 export function InteractiveMemory({
   id,
@@ -1289,7 +1292,8 @@ export function InteractiveMemory({
   const openClue = useMemoryRoomStore((state) => state.openClue);
   const sayRemark = useMemoryRoomStore((state) => state.sayRemark);
   const unseen = useMemoryRoomStore((state) => !isSeen(state, id));
-  const lockedRemark = status === "locked" && unseen ? LOCKED_REMARK[id] : undefined;
+  const lockedRemark =
+    status === "locked" && unseen ? (LOCKED_REMARK[id] ?? DEFAULT_LOCKED_REMARK) : undefined;
   /*
    * canvas 모드 미니게임이 이 자리에서 도는 동안(앰플 집기) 평소 모습·표식·판정 구는
    * 숨는다. 미니게임이 같은 자리에 같은 물건을 움직이는 모습으로 그리는데, 둘이

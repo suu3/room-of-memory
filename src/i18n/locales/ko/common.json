@@ -689,6 +689,7 @@
   },
   "remark": {
     "computerOff": "켜 봐야 인터넷도 안 되는데.",
+    "locked": "…지금은 아니다.",
     "toothbrush": "칫솔 세 개. …하나만 젖어 있네.",
     "sinkLocked": "잠겨 있네. 엄마가 잠갔나.",
     "sinkOpen": "…안방 열쇠.",

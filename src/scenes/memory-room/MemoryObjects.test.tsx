@@ -92,6 +92,15 @@ describe("interactive memory helpers", () => {
     await renderer.unmount();
   });
 
+  it("아직 안 본 채 잠긴 기억을 누르면 '지금은 아니다' 한 줄이 선다", async () => {
+    // 성적표 전의 게임기: 잠겨 있고 전용 줄도 없다. 아무 반응도 없으면 고장으로 읽힌다
+    const renderer = await renderConsole();
+    const group = renderer.scene.find((node) => node.props.name === "memory-console");
+    await renderer.fireEvent(group, "click", { stopPropagation: () => undefined });
+    expect(useMemoryRoomStore.getState().remark?.id).toBe("locked");
+    await renderer.unmount();
+  });
+
   it("수집을 마친 기억은 히트 구를 내려 옆 물건의 클릭을 삼키지 않는다", async () => {
     useMemoryRoomStore.setState({ collected: ["report-card", "console"] });
     const renderer = await renderConsole();

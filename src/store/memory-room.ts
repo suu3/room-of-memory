@@ -118,7 +118,10 @@ export type RemarkId =
   // 이미 본 기억을 다시 눌렀을 때: 그 기억의 마지막 기록 문장 (remark.memoryId)
   | "seen"
   // 필요한 물건 없이 문제 판을 조작했을 때: 떠 있는 판의 needsItem 한 줄 (피아노: 악보)
-  | "needs-item";
+  | "needs-item"
+  // 아직 안 본 채 잠긴 기억을 눌렀을 때의 기본 한 줄. 아무 반응도 없으면 "클릭이 안 된다"로
+  // 읽힌다 (엄마 쪽지 뒤의 냉장고 아래칸). 전용 줄이 있는 물건(컴퓨터)은 그걸 쓴다
+  | "locked";
 
 export type UiLockId =
   | "hud-menu"
