@@ -1,5 +1,7 @@
+import { useThree } from "@react-three/fiber";
 import ReactThreeTestRenderer, { waitFor } from "@react-three/test-renderer";
-import { Color, type Mesh, type Object3D, WebGLRenderer } from "three";
+import { useLayoutEffect } from "react";
+import { Color, type Mesh, type Object3D, PerspectiveCamera, WebGLRenderer } from "three";
 import { describe, expect, it } from "vitest";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { InteractiveMemory } from "./MemoryObjects";
@@ -49,15 +51,28 @@ function createTestWebGlRenderer(defaultProps: ConstructorParameters<typeof WebG
   return renderer;
 }
 
+/** 1인칭 리그(FirstPersonRig)처럼 기본 카메라를 바꿔 끼운다. */
+function SwapCamera({ camera }: { camera: PerspectiveCamera }) {
+  const set = useThree((state) => state.set);
+  useLayoutEffect(() => {
+    set({ camera });
+  }, [camera, set]);
+  return null;
+}
+
 function MultiSelectionScene({
   active,
   tier = "memory",
+  camera,
 }: {
   active: readonly MemoryId[];
   tier?: MemoryGlowTier;
+  /** 주면 이 카메라로 바꿔 끼운다 (1인칭 진입의 카메라 교체). */
+  camera?: PerspectiveCamera;
 }) {
   return (
     <MemoryGlowRoot color="#b89a5e">
+      {camera && <SwapCamera camera={camera} />}
       {(["bat", "ball"] as const).map((id) => (
         <MemoryGlowSelection key={id} selectionKey={id} tier={tier} enabled={active.includes(id)}>
           <mesh name={`${id}-visual`}>
@@ -207,6 +222,37 @@ describe("memory outline glow", () => {
      */
     expect(drawer?.layers.isEnabled(contour.selection.layer)).toBe(true);
     expect(drawer?.layers.isEnabled(halo.selection.layer)).toBe(false);
+
+    await renderer.unmount();
+  });
+
+  it("clears a dropped glow's layer bits even when the camera is swapped in the same commit", async () => {
+    /*
+     * 방문을 여는 순간: 문짝의 금빛이 꺼지는 것과 문 넘기 1인칭(카메라 교체)이 한 커밋에 온다.
+     * <Outline>은 카메라마다 이펙트를 새로 만들고, 옛 이펙트의 Selection은 아무도 비우지 않아
+     * 문짝 메쉬에 선택 레이어 비트가 남았다. 마스크 패스는 비트만 보니 문짝 윤곽이 벽 너머로
+     * 영원히 그려졌다 (거실에서 문짝 모양 금빛 줄, 1인칭에서 화면을 가로지르는 세로줄).
+     */
+    const renderer = await ReactThreeTestRenderer.create(
+      <MultiSelectionScene active={["bat", "ball"]} />,
+      { gl: createTestWebGlRenderer },
+    );
+    const [contour, halo] = outlineEffects(renderer);
+    const bat = renderer.scene.find((node) => node.instance.name === "bat-visual").instance as Mesh;
+    expect(bat.layers.isEnabled(contour.selection.layer)).toBe(true);
+    expect(bat.layers.isEnabled(halo.selection.layer)).toBe(true);
+
+    await renderer.update(
+      <MultiSelectionScene active={["ball"]} camera={new PerspectiveCamera(68, 1, 0.05, 60)} />,
+    );
+
+    const swapped = outlineEffects(renderer);
+    // 카메라가 바뀌었으니 이펙트도 새것이다
+    expect(swapped[0]).not.toBe(contour);
+    expect(bat.layers.isEnabled(swapped[0].selection.layer)).toBe(false);
+    expect(bat.layers.isEnabled(swapped[1].selection.layer)).toBe(false);
+    // 살아 있는 선택은 새 이펙트에 실려 있다
+    expect(selectedNames(swapped)).toEqual([["ball-visual"], ["ball-visual"]]);
 
     await renderer.unmount();
   });

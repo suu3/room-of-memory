@@ -419,6 +419,18 @@ export function MemoryGlowRoot({
   const [selection, setSelection] = useState<TierSelection>(() => ({ memory: [], prop: [] }));
   const updateSelection = useCallback<SelectionUpdater>((tier, key, next) => {
     const groups = groupsRef.current[tier];
+    /*
+     * 빠지는 메쉬의 선택 레이어를 여기서 직접 끈다. 이펙트의 Selection.clear()는 **제** 멤버만
+     * 끄는데, 카메라가 바뀌면(1인칭 진입·이탈) <Outline>이 이펙트를 새로 만들어 옛 이펙트가
+     * 켜 둔 비트는 아무도 모르는 채 남는다. 마스크 패스는 레이어 비트만 보므로 그 메쉬는
+     * 영원히 윤곽이 그려진다: 방문을 여는 순간(금빛이 꺼지는 순간 = 문 넘기 1인칭이 시작되는
+     * 순간) 문짝이 그렇게 남아 벽 너머로 금빛 줄이 따라다녔다.
+     */
+    for (const object of groups.get(key) ?? []) {
+      if (next?.includes(object)) continue;
+      object.layers.disable(INNER_SELECTION_LAYER);
+      object.layers.disable(OUTER_SELECTION_LAYER);
+    }
     if (next === null || next.length === 0) {
       if (!groups.delete(key)) return;
     } else {
@@ -477,15 +489,33 @@ export function MemoryGlowRoot({
     ],
     [aoColor, afterimage, godRays, tiltEnabled, tilt, film, settings, transition],
   );
-  // 패스가 다시 만들어지면 Outline이 선택을 비우고 시작하므로 그때도 다시 넣는다
+  /*
+   * 패스가 다시 만들어지거나 카메라가 바뀌면(1인칭 진입·이탈: <Outline>이 카메라마다 이펙트를
+   * 새로 만든다) Outline이 빈 선택으로 시작하므로 그때도 다시 넣는다. 정리 함수는 **그때의**
+   * 이펙트에서 선택을 비운다: 이펙트가 바뀐 뒤에 새 이펙트만 비우면 옛 이펙트가 켜 둔 레이어
+   * 비트가 메쉬에 남는다 (updateSelection 주석).
+   */
+  const camera = useThree((state) => state.camera);
   useEffect(() => {
     void passes;
-    innerRef.current?.selection.set(touchable);
-  }, [touchable, passes]);
+    void camera;
+    const effect = innerRef.current;
+    if (!effect) return;
+    effect.selection.set(touchable);
+    return () => {
+      effect.selection.clear();
+    };
+  }, [touchable, passes, camera]);
   useEffect(() => {
     void passes;
-    outerRef.current?.selection.set(selection.memory);
-  }, [selection.memory, passes]);
+    void camera;
+    const effect = outerRef.current;
+    if (!effect) return;
+    effect.selection.set(selection.memory);
+    return () => {
+      effect.selection.clear();
+    };
+  }, [selection.memory, passes, camera]);
 
   return (
     <MemoryGlowSelectionContext.Provider value={updateSelection}>
