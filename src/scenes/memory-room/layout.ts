@@ -812,10 +812,19 @@ export const BATHROOM_BOUNDS: Aabb2 = {
 /** 화장실 문: 거실 앞벽(z = 6.5) 위, 문틀은 벽 안쪽(거실 쪽)에 붙는다. */
 export const BATHROOM_DOOR_POSITION = [-12.25, 1.7, BATHROOM_SHELL_BOUNDS.minZ - 0.14] as const;
 export const BATHROOM_DOOR_ROTATION = [0, 0, 0] as const;
-/** 화장실 가구 발자국: 안쪽 벽(+z)에 세면대·변기, 오른쪽(+x) 벽에 욕조. 문 앞은 비운다. */
+/**
+ * 화장실 가구 발자국: 왼쪽(-x) 벽에 세면대, 안쪽(+z) 벽 구석에 변기, 오른쪽(+x) 벽에 욕조.
+ * 문 앞은 비운다.
+ *
+ * 세면대는 처음에 안쪽 벽(+z) 가운데 있었다. 그 벽은 카메라 쪽 벽이라(CAMERA_PRESETS는 늘
+ * +x·+z 사분면) 거기 붙은 물건은 등만 보인다: 하부장 문과 다이얼, 칫솔컵, 거울이 전부
+ * 카메라 반대쪽을 봐서 회전 범위(MAX_ROOM_ORBIT) 어디에서도 안 보였다. 왼쪽 벽은 늘 서
+ * 있는 벽이라 거기 붙은 물건은 카메라를 마주 본다. 자리는 문(z ≤ 7.9)과 변기(z ≥ 9.2)
+ * 사이: 열린 문짝(x ≈ -13, z ≤ 7.94)이 카메라와 세면대 사이에 서지 않는다.
+ */
 export const BATHROOM_COLLIDERS = [
   { minX: -14.6, maxX: -13.7, minZ: 9.2, maxZ: 10 }, // toilet (-x, +z 구석)
-  { minX: -12.75, maxX: -11.75, minZ: 9.4, maxZ: 10 }, // sink (+z 벽 가운데)
+  { minX: -14.6, maxX: -14.0, minZ: 7.75, maxZ: 8.75 }, // sink (-x 벽, 문과 변기 사이)
   { minX: -10.9, maxX: -10.2, minZ: 7.3, maxZ: 10 }, // bathtub (+x 벽)
 ] as const satisfies readonly Aabb2[];
 

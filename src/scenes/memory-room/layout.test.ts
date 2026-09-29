@@ -4,6 +4,10 @@ import { BED_BLANKET_FOLDED_Z, BED_BLANKET_TOP_Y, BED_FOOTPRINT, BED_MATTRESS } 
 import { CURTAIN_NEAR_RADIUS, CURTAIN_X } from "./curtain-motion";
 import {
   BAT_PLACEMENT,
+  BATHROOM_COLLIDERS,
+  BATHROOM_DOOR_POSITION,
+  BATHROOM_DOORWAY_ZONE,
+  BATHROOM_SHELL_BOUNDS,
   CABINET_BODY,
   CABINET_TOP_BOUNDS,
   CABINET_TOP_PROPS,
@@ -534,5 +538,30 @@ describe("living room layout", () => {
     expect(FRONT_DOOR_POSITION[0]).toBeLessThan(LIVING_BOUNDS.minX);
     expect(FRONT_DOOR_POSITION[2]).toBeGreaterThan(LIVING_BOUNDS.minZ);
     expect(FRONT_DOOR_POSITION[2]).toBeLessThan(LIVING_BOUNDS.maxZ);
+  });
+});
+
+describe("bathroom layout", () => {
+  it("세면대는 카메라를 마주 보는 왼쪽(-x) 벽에 붙는다", () => {
+    // 카메라는 늘 +x·+z 사분면에 있다 (CAMERA_PRESETS). 안쪽 벽(+z)에 붙이면 하부장
+    // 문·다이얼·거울이 전부 등을 보여서 회전 범위 어디에서도 안 보인다
+    const [toilet, sink] = BATHROOM_COLLIDERS;
+    expect(sink.minX).toBe(BATHROOM_SHELL_BOUNDS.minX);
+    expect(sink.maxZ).toBeLessThan(BATHROOM_SHELL_BOUNDS.maxZ);
+    // 문간과 변기 사이에 선다: 문 앞은 비우고, 변기와도 겹치지 않는다
+    expect(sink.maxX).toBeLessThan(BATHROOM_DOORWAY_ZONE.minX);
+    expect(sink.maxZ).toBeLessThan(toilet.minZ);
+  });
+
+  it("열린 문짝이 카메라와 세면대 사이에 서지 않는다", () => {
+    // 문짝은 -x 기둥 경첩에서 화장실 쪽(+z)으로 젖혀진다 (SpaceDoor). 카메라는 +x·+z에서
+    // 보므로, 문짝 끝이 세면대의 +x 쪽이면서 z가 더 크면 세면대를 가린다
+    const [, sink] = BATHROOM_COLLIDERS;
+    const hingeX = BATHROOM_DOOR_POSITION[0] - ROOM_DOOR_LEAF.hingeOffset;
+    const tipX = hingeX + ROOM_DOOR_LEAF.width * Math.cos(ROOM_DOOR_LEAF.openAngle);
+    const tipZ =
+      BATHROOM_DOOR_POSITION[2] + ROOM_DOOR_LEAF.width * Math.sin(ROOM_DOOR_LEAF.openAngle);
+    expect(tipX).toBeGreaterThan(sink.maxX);
+    expect(tipZ).toBeLessThan((sink.minZ + sink.maxZ) / 2);
   });
 });

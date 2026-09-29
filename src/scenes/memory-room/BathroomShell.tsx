@@ -2,7 +2,7 @@
 
 import { playSound } from "@/lib/audio";
 import { selectSinkHintRead, useMemoryRoomStore } from "@/store/memory-room";
-import { BathroomFixtures, BathroomMirror, BathroomShower } from "./BathroomFixtures";
+import { BathroomFixtures, BathroomMirror, BathroomShower, SINK_MOUNT } from "./BathroomFixtures";
 import { BathroomStain } from "./BathroomStains";
 import { CulledWall } from "./CulledWall";
 import { InteriorSurface } from "./InteriorPrimitives";
@@ -36,17 +36,19 @@ const PLINTH = plinthParts(SHELL);
 
 const [, sink] = BATHROOM_COLLIDERS;
 
-const SINK_X = (sink.minX + sink.maxX) / 2;
-/** 세면대 앞 한 걸음: 하부장과 칫솔컵이 같은 자리에서 켜진다. */
-const SINK_NEAR = [SINK_X, sink.minZ - 0.5] as const;
+/** 세면대 앞 한 걸음(왼쪽 벽에서 방 안쪽으로): 하부장과 칫솔컵이 같은 자리에서 켜진다. */
+const SINK_NEAR = [sink.maxX + 0.5, (sink.minZ + sink.maxZ) / 2] as const;
 const SINK_RADIUS = 1.6;
-/** 대야 밑 하부장 (v4 3-5): 엄마가 잠가 둔 칸. 다이얼(sink-dial)의 답은 선반 책 속 쪽지의 세 자리. */
+/**
+ * 대야 밑 하부장 (v4 3-5): 엄마가 잠가 둔 칸. 다이얼(sink-dial)의 답은 선반 책 속 쪽지의 세 자리.
+ * 세면대 틀(SINK_MOUNT)의 로컬 좌표: 문짝과 다이얼은 로컬 -z 면, 곧 카메라 쪽이다.
+ */
 const CABINET = {
-  position: [SINK_X, 0.31, sink.maxZ - 0.31] as Vec3Tuple,
+  position: [0, 0.31, 0.02] as Vec3Tuple,
   size: [0.72, 0.62, 0.42] as Vec3Tuple,
 } as const;
-/** 대야 왼쪽 가장자리의 칫솔컵: 칫솔 셋, 하나만 젖어 있다. */
-const CUP_POSITION: Vec3Tuple = [SINK_X - 0.32, 0.87, sink.maxZ - 0.3];
+/** 대야 한쪽 테두리의 칫솔컵 (세면대 로컬, 비누 접시 반대편): 칫솔 셋, 하나만 젖어 있다. */
+const CUP_POSITION: Vec3Tuple = [0.32, 0.87, 0.03];
 
 function Box({
   part,
@@ -110,6 +112,7 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
       {FAR_WALL.slice(0, 1).map((part) => (
         <Box key={part.position.join(":")} part={part} color={palette.linen} roughness={0.5} />
       ))}
+      {/* 왼쪽 벽은 카메라 반대쪽이라 늘 서 있다. 세면대와 거울이 여기 붙는다 (SINK_MOUNT) */}
       <CulledWall side="left" center={CENTER}>
         <Box part={LEFT_WALL.upper} color={palette.linen} roughness={0.5} />
         <InteriorSurface
@@ -120,6 +123,7 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
           color={palette.trim}
           shade={palette.linen}
         />
+        <BathroomMirror palette={palette} />
       </CulledWall>
       <CulledWall side="right" center={CENTER}>
         <Box part={RIGHT_WALL.upper} color={palette.linen} roughness={0.5} />
@@ -152,7 +156,6 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
           color={palette.trim}
           shade={palette.linen}
         />
-        <BathroomMirror palette={palette} />
       </CulledWall>
 
       <BathroomFixtures palette={palette} />
@@ -167,6 +170,9 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
  * 세면대 하부장. 아빠 메일 힌트(컴퓨터 3차)를 보기 전에는 누르면 혼잣말만 흐르고,
  * 본 뒤에는 다이얼이 열린다. 열리면 안방 열쇠가 손에 들어오고(store의 finishPuzzle)
  * 문짝이 살짝 벌어진 채로 남는다.
+ *
+ * 세면대 틀(SINK_MOUNT) 안에 선다. 문짝·다이얼이 달린 앞면이 카메라를 봐야 "잠긴 칸"으로
+ * 읽힌다: 안쪽 벽에 붙어 있던 때는 앞면이 카메라 반대쪽이라 밋밋한 상자로만 보였다.
  */
 function SinkCabinet({ palette }: { palette: RoomPalette }) {
   const hintRead = useMemoryRoomStore(selectSinkHintRead);
@@ -193,7 +199,7 @@ function SinkCabinet({ palette }: { palette: RoomPalette }) {
         }
       }}
     >
-      <group name="sink-cabinet">
+      <group name="sink-cabinet" position={SINK_MOUNT.position} rotation={SINK_MOUNT.rotation}>
         <mesh position={[x, y, z]} castShadow receiveShadow>
           <boxGeometry args={[width, height, depth]} />
           <meshStandardMaterial color={palette.linen} roughness={0.6} />
@@ -223,7 +229,6 @@ function SinkCabinet({ palette }: { palette: RoomPalette }) {
 /** 칫솔컵 (v4 3-5 쉼표 비트): 누르면 한 줄. 진행에는 아무것도 남기지 않는다. */
 function ToothbrushCup({ palette }: { palette: RoomPalette }) {
   const sayRemark = useMemoryRoomStore((state) => state.sayRemark);
-  const [x, y, z] = CUP_POSITION;
   return (
     <TouchProp
       name="toothbrush-cup"
@@ -234,24 +239,26 @@ function ToothbrushCup({ palette }: { palette: RoomPalette }) {
         sayRemark("toothbrush");
       }}
     >
-      <group name="toothbrush-cup" position={[x, y, z]}>
-        <mesh position={[0, 0.05, 0]} castShadow>
-          <cylinderGeometry args={[0.04, 0.034, 0.1, 12]} />
-          <meshStandardMaterial color={palette.sage} roughness={0.5} />
-        </mesh>
-        {/* 칫솔 셋: 하나만 젖어서 색이 짙다 */}
-        {(
-          [
-            [-0.015, -0.12, palette.clay],
-            [0.012, 0.1, palette.daylight],
-            [0.0, 0.0, palette.frame],
-          ] as const
-        ).map(([dx, tilt, color]) => (
-          <mesh key={`${dx}:${tilt}`} position={[dx, 0.14, 0]} rotation={[0, 0, tilt]} castShadow>
-            <boxGeometry args={[0.012, 0.18, 0.012]} />
-            <meshStandardMaterial color={color} roughness={0.4} />
+      <group name="toothbrush-cup" position={SINK_MOUNT.position} rotation={SINK_MOUNT.rotation}>
+        <group position={CUP_POSITION}>
+          <mesh position={[0, 0.05, 0]} castShadow>
+            <cylinderGeometry args={[0.04, 0.034, 0.1, 12]} />
+            <meshStandardMaterial color={palette.sage} roughness={0.5} />
           </mesh>
-        ))}
+          {/* 칫솔 셋: 하나만 젖어서 색이 짙다 */}
+          {(
+            [
+              [-0.015, -0.12, palette.clay],
+              [0.012, 0.1, palette.daylight],
+              [0.0, 0.0, palette.frame],
+            ] as const
+          ).map(([dx, tilt, color]) => (
+            <mesh key={`${dx}:${tilt}`} position={[dx, 0.14, 0]} rotation={[0, 0, tilt]} castShadow>
+              <boxGeometry args={[0.012, 0.18, 0.012]} />
+              <meshStandardMaterial color={color} roughness={0.4} />
+            </mesh>
+          ))}
+        </group>
       </group>
     </TouchProp>
   );

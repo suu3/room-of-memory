@@ -13,10 +13,24 @@ import { BATHROOM_COLLIDERS, BATHROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
 import { SinkWater } from "./SinkWater";
 import { SlitScanMirror } from "./SlitScanMirror";
+import type { EulerTuple, Vec3Tuple } from "./types";
 import { roomLightMix } from "./visual-state";
 
 const [toilet, sink, tub] = BATHROOM_COLLIDERS;
-const sinkX = (sink.minX + sink.maxX) / 2;
+const sinkZ = (sink.minZ + sink.maxZ) / 2;
+
+/**
+ * 세면대가 선 자리: 왼쪽(-x) 벽, 문과 변기 사이 (layout의 BATHROOM_COLLIDERS 주석).
+ *
+ * 세면대에 달린 것(대야·하부장·칫솔컵·거울)은 전부 이 틀 안의 로컬 좌표로 놓는다:
+ * 로컬 +z가 벽(-x)을 보고 로컬 +x가 +z를 본다. 카메라는 늘 +x 쪽에 있으므로 로컬 -z
+ * (하부장 문·다이얼이 달린 앞면)가 카메라를 마주 본다. 벽에서 물러난 거리(0.33)는
+ * 안쪽 벽에 붙어 있던 때와 같다.
+ */
+export const SINK_MOUNT = {
+  position: [sink.minX + 0.33, 0, sinkZ] as Vec3Tuple,
+  rotation: [0, -Math.PI / 2, 0] as EulerTuple,
+} as const;
 // Outer ceramic wall turns over the rim and descends into the bowl.
 const BOWL_PROFILE = [
   [0.13, 0.12],
@@ -114,7 +128,7 @@ function Toilet({ palette }: { palette: RoomPalette }) {
 
 function Sink({ palette }: { palette: RoomPalette }) {
   return (
-    <group name="pedestal-basin" position={[sinkX, 0, sink.maxZ - 0.33]}>
+    <group name="pedestal-basin" position={SINK_MOUNT.position} rotation={SINK_MOUNT.rotation}>
       <Cylinder
         position={[0, 0.08, 0.09]}
         radius={0.19}
@@ -129,7 +143,7 @@ function Sink({ palette }: { palette: RoomPalette }) {
         height={0.64}
         color={palette.linen}
       />
-      {/* A recessed basin with four rounded rims; the key rests on the right rim at y=.87. */}
+      {/* A recessed basin with four rounded rims. The toothbrush cup (BathroomShell) sits on the +x rim. */}
       <Box
         position={[0, 0.7, 0]}
         size={[0.8, 0.12, 0.46]}
@@ -257,6 +271,10 @@ function Bathtub({ palette }: { palette: RoomPalette }) {
 /**
  * Wall-mounted fittings belong to the wall's culling group.
  *
+ * 세면대 위, 왼쪽(-x) 벽에 걸린다 (SINK_MOUNT와 같은 방향: 로컬 -z가 방 안쪽 +x를 본다).
+ * 그 벽은 카메라 반대쪽이라 걷히지 않으므로 거울은 늘 보인다. 안쪽 벽에 걸려 있던 때는
+ * 그 벽이 카메라 쪽이라 회전 한쪽 끝에서만 잠깐 섰다.
+ *
  * 유리는 진짜 거울이되 반사가 세로줄마다 시간이 어긋난다 (SlitScanMirror, docs/visual-experiments.md
  * 11장). 시간차의 폭은 2막의 볕(warm)이 오를수록 줄어 보통 거울로 맞아 든다. 렌더 타깃이
  * 12장 드는 효과라 heavy 게이트를 따르고, 게이트가 닫히면 예전의 금속판 그대로다.
@@ -269,7 +287,8 @@ export function BathroomMirror({ palette }: { palette: RoomPalette }) {
   return (
     <group
       name="bathroom-mirror-cabinet"
-      position={[sinkX, 1.72, BATHROOM_SHELL_BOUNDS.maxZ - 0.15]}
+      position={[sink.minX + 0.15, 1.72, sinkZ]}
+      rotation={SINK_MOUNT.rotation}
     >
       <Box size={[1.02, 0.99, 0.1]} position={[0, 0, 0]} color={palette.frame} radius={0.04} />
       <SlitScanMirror
