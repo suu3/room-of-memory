@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { ServiceWorker } from "@/components/ui/ServiceWorker";
 import { I18nProvider } from "@/i18n/I18nProvider";
@@ -60,6 +61,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans">
         <I18nProvider>{children}</I18nProvider>
         <ServiceWorker />
+        {/* 접속자 수·유입 경로만 본다 (쿠키 없음, Hobby라 커스텀 이벤트는 안 찍힌다) */}
+        <Analytics />
       </body>
     </html>
   );
