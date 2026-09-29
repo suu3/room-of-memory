@@ -13,6 +13,18 @@
 
 <br>
 
+## 플레이 영상
+
+<div align="center">
+
+<a href="docs/demo.mp4"><img src="docs/screenshots/demo.webp" alt="플레이 영상 미리보기: 불 켜기, 의자와 침대, 공 받기, 라디오, 회상 컷씬" width="840"></a>
+
+<sub>누르면 소리 있는 영상(40초)이 열립니다</sub>
+
+</div>
+
+<br>
+
 ## 화면
 
 <table>
@@ -39,6 +51,25 @@
 <tr>
 <td align="center"><sub>미니게임</sub></td>
 <td align="center"><sub>수첩</sub></td>
+</tr>
+</table>
+
+<br>
+
+## 포토카드 AR
+
+포토카드 앞면을 폰 카메라로 비추면 카드 속 도해가 튀어나옵니다 (`/ar`).
+
+<table>
+<tr>
+<td width="33%"><img src="docs/screenshots/ar-scan.webp" alt="책상 위 포토카드를 카메라로 비춘 화면"></td>
+<td width="33%"><img src="docs/screenshots/ar-summon.webp" alt="카드에서 도해가 뛰어나오는 순간"></td>
+<td width="33%"><img src="docs/screenshots/ar-bat.webp" alt="화면에 선 도해가 배트를 쥔 모습"></td>
+</tr>
+<tr>
+<td align="center"><sub>카드 비추기</sub></td>
+<td align="center"><sub>튀어나오기</sub></td>
+<td align="center"><sub>동작 고르기</sub></td>
 </tr>
 </table>
 
