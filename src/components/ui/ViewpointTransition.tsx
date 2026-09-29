@@ -14,6 +14,8 @@ import { selectViewpoint, useMemoryRoomStore, type Viewpoint } from "@/store/mem
  *   방이라 어둠에서 어둠으로 이어지고, 2막 도입은 문을 여는 순간 눈을 감았다 뜬다.
  * - 1인칭에서 **나올 때**는 빛이 걷힌다. 인트로는 막 켜진 전등의 누런빛(.viewpoint-lamp),
  *   문 넘기는 문 쪽의 금빛(memory). 그 빛이 곧 그 구간의 목적지였으니까.
+ * - 엔딩의 문턱(exit)은 짧게 한 번 깜빡이고 흐림이 걷힌다. 문이 열리기 시작하는 박자를
+ *   덮개가 먹으면 안 된다. 거기서 나오는 일은 없다: 영상이 방을 덮고, 끝나면 타이틀이다.
  *
  * 불 켜기의 덮개는 순백이 아니다. 캄캄한 방에서 한 프레임에 흰 화면으로 튀면 밝기 차가
  * 가장 큰 전환이라 광과민성에 위험하다. 어둠으로 덮어 두었다가 누런빛으로 물들며 천천히
@@ -46,6 +48,7 @@ const TONES = {
   },
   doorway: { className: "bg-memory", lift: "animate-viewpoint-fade", durationMs: 1000, blurPx: 0 },
   warp: { className: "bg-transparent", lift: "animate-viewpoint-fade", durationMs: 360, blurPx: 8 },
+  exit: { className: "bg-scene-void", lift: "animate-viewpoint-fade", durationMs: 600, blurPx: 8 },
 } as const;
 
 type Tone = keyof typeof TONES;
@@ -66,6 +69,9 @@ const HOLD_MS = 160;
 /** 이전 시점에서 다음 시점으로 넘어갈 때 어느 색이 덮는가. 바뀌지 않았으면 없음. */
 export function transitionTone(previous: Viewpoint, next: Viewpoint): Tone | null {
   if (previous === next) return null;
+  // 엔딩을 마치고 타이틀로 돌아가는 길이다. 영상·카드가 이미 방을 덮고 있었다
+  if (previous === "exit") return null;
+  if (next === "exit") return "exit";
   if (next !== null) return "enter";
   return previous === "intro" ? "lightsOn" : "doorway";
 }

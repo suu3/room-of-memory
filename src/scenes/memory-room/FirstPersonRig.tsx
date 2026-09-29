@@ -3,14 +3,24 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, useLayoutEffect, useMemo, useRef } from "react";
 import { MathUtils, PerspectiveCamera, type Vector3 } from "three";
+import { prefersReducedMotion } from "@/lib/reduced-motion";
 import type { Viewpoint } from "@/store/memory-room";
-import { EYE_HEIGHT, FIRST_PERSON_FOV, initialLook, type LookAngles } from "./first-person";
+import {
+  EYE_HEIGHT,
+  exitWalkAt,
+  FIRST_PERSON_FOV,
+  initialLook,
+  type LookAngles,
+} from "./first-person";
 
 /** 시선이 입력을 따라붙는 속도. 끌기가 곧바로 붙되 한 프레임씩 튀지는 않게. */
 const LOOK_LAMBDA = 16;
 
 /**
- * 1인칭 카메라. 인트로(스위치 찾기)와 2막 도입(문 넘기)이 같은 리그를 쓴다.
+ * 1인칭 카메라. 인트로(스위치 찾기)와 2막 도입(문 넘기), 엔딩의 문턱이 같은 리그를 쓴다.
+ *
+ * 엔딩(exit)만 다르다: 플레이어를 따라가지도, 시선 입력을 읽지도 않는다. 정해 둔 길
+ * (exitWalkAt)을 제 시계로 걸어 문 밖 빛 속으로 들어간다.
  *
  * 위치는 플레이어의 머리다 (positionRef + 눈높이). 몸은 Player가 메인 카메라가 안 보는
  * 층으로 옮긴다(거울에는 비친다). "일부만 보인다"는 인상은 조명이 아니라 화면 가운데만
@@ -43,6 +53,9 @@ export function FirstPersonRig({
   }, []);
   /** damp로 굴리는 현재 시선. 목표는 lookRef다. */
   const smoothRef = useRef<LookAngles>({ yaw: 0, pitch: 0 });
+  /** 엔딩 문턱 넘기가 시작된 뒤 흐른 시간(초). 걷는 길은 이 시계 하나로 정해진다. */
+  const exitElapsedRef = useRef(0);
+  const exitMovingRef = useRef(true);
 
   // 구간에 들어서는 순간 시선을 놓는다. damp 없이 곧장: 첫 프레임에 휙 도는 건 연출이 아니라 멀미다
   useLayoutEffect(() => {
@@ -52,7 +65,14 @@ export function FirstPersonRig({
     lookRef.current.pitch = look.pitch;
     smoothRef.current.yaw = look.yaw;
     smoothRef.current.pitch = look.pitch;
-    camera.position.set(player.x, player.y + EYE_HEIGHT, player.z);
+    if (viewpoint === "exit") {
+      exitElapsedRef.current = 0;
+      // 모션을 줄인 판에서는 걸어 나가지 않는다. 화면이 앞으로 밀려드는 건 멀미의 대표 꼴이다
+      exitMovingRef.current = !prefersReducedMotion();
+      exitWalkAt(0, exitMovingRef.current, camera.position);
+    } else {
+      camera.position.set(player.x, player.y + EYE_HEIGHT, player.z);
+    }
     camera.rotation.set(look.pitch, look.yaw, 0);
     camera.updateMatrixWorld();
   }, [viewpoint, camera, lookRef, playerPositionRef]);
@@ -75,6 +95,12 @@ export function FirstPersonRig({
   }, [camera, set]);
 
   useFrame((_, delta) => {
+    if (viewpoint === "exit") {
+      exitElapsedRef.current += delta;
+      exitWalkAt(exitElapsedRef.current, exitMovingRef.current, camera.position);
+      // 시선은 들어설 때 정한 그대로다. 걸어 나가는 동안 고개를 돌릴 일은 없다
+      return;
+    }
     const player = playerPositionRef.current;
     camera.position.set(player.x, player.y + EYE_HEIGHT, player.z);
     const smooth = smoothRef.current;

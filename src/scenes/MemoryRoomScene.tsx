@@ -466,8 +466,9 @@ export function MemoryRoomScene({
         color={palette.memory}
         dim={dim}
         ambientOcclusion={ambientOcclusion}
-        // 1인칭으로 어둠 속을 걷는 동안만 잔상이 붙는다 (docs/visual-experiments.md 11장)
-        firstPersonTrail={viewpoint !== null ? movementInputRef : null}
+        // 1인칭으로 어둠 속을 걷는 동안만 잔상이 붙는다 (docs/visual-experiments.md 11장).
+        // 엔딩의 문턱(exit)은 뺀다: 제 발로 걷지 않고, 무거운 효과 자리는 빛기둥이 쥔다
+        firstPersonTrail={viewpoint !== null && viewpoint !== "exit" ? movementInputRef : null}
       >
         {/*
           한 번에 한 방만 보인다 (v2). 두 방을 나란히 세워두면 디오라마가 아니라

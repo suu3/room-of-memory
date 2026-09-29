@@ -69,18 +69,39 @@ export function endWallWithDoor(z: number, x: Range, doorX?: number): ShellPart[
 
 /** x축 벽을 문 자리에서 끊은 조각들 (endWallWithDoor의 x축 판). */
 export function sideWallWithDoor(x: number, z: Range, doorZ: number): ShellPart[] {
+  const { stubs, uppers } = sideWallWithDoors(x, z, [doorZ]);
+  return [...stubs, ...uppers];
+}
+
+/**
+ * x축 벽을 문 여럿의 자리에서 끊은 조각들. 굽도리(stubs)와 윗벽(uppers: 문 사이 조각 +
+ * 문마다 상인방 위)을 따로 돌려준다. 거실 -x 벽처럼 한 벽에 문이 둘인 자리를 위한 것이다
+ * (안방문과 현관문). 문 자리가 겹치지 않는다고 본다.
+ */
+export function sideWallWithDoors(
+  x: number,
+  z: Range,
+  doorZs: readonly number[],
+): { stubs: ShellPart[]; uppers: ShellPart[] } {
   const stub = { min: WALL_Y.min, max: WALL_STUB_TOP_Y };
   const upper = { min: WALL_STUB_TOP_Y, max: WALL_Y.max };
-  const hole = { min: doorZ - DOOR_HOLE_HALF_WIDTH, max: doorZ + DOOR_HOLE_HALF_WIDTH };
-  const near = { min: z.min, max: hole.min };
-  const far = { min: hole.max, max: z.max };
-  return [
-    sideWallSegment(x, near, stub),
-    sideWallSegment(x, far, stub),
-    sideWallSegment(x, near, upper),
-    sideWallSegment(x, far, upper),
-    sideWallSegment(x, hole, { min: DOOR_HOLE_TOP_Y, max: WALL_Y.max }),
-  ];
+  const holes = [...doorZs]
+    .sort((a, b) => a - b)
+    .map((doorZ) => ({ min: doorZ - DOOR_HOLE_HALF_WIDTH, max: doorZ + DOOR_HOLE_HALF_WIDTH }));
+  const solids: Range[] = [];
+  let cursor = z.min;
+  for (const hole of holes) {
+    solids.push({ min: cursor, max: hole.min });
+    cursor = hole.max;
+  }
+  solids.push({ min: cursor, max: z.max });
+  return {
+    stubs: solids.map((solid) => sideWallSegment(x, solid, stub)),
+    uppers: [
+      ...solids.map((solid) => sideWallSegment(x, solid, upper)),
+      ...holes.map((hole) => sideWallSegment(x, hole, { min: DOOR_HOLE_TOP_Y, max: WALL_Y.max })),
+    ],
+  };
 }
 
 /** x축 벽의 굽도리와 윗벽 (문 없음). */

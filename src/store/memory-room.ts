@@ -1622,16 +1622,18 @@ export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;
 /**
  * 지금 카메라가 도해의 1인칭에 있는가, 있다면 어느 구간인가.
  *
- * 두 번뿐이다. 둘 다 "어둠 속에서 빛 하나를 찾아 걸어간다"는 같은 그림이고,
- * 빛의 정체만 다르다: 인트로는 전등 스위치, 2막 도입은 열린 문. 세 번째는 없다.
- * 엔딩은 영상이 받는다 (docs/content-design.md 3-3).
+ * 셋 다 "빛 하나를 향해 걸어간다"는 같은 그림이고, 빛의 정체만 다르다: 인트로는
+ * 전등 스위치, 2막 도입은 열린 방문, 엔딩은 열린 현관문 밖의 햇빛. 앞의 둘은 도해가
+ * 직접 걷고, 엔딩은 문턱을 넘는 몇 초를 카메라가 대신 걷는다. 그 뒤는 영상이 받는다
+ * (docs/content-design.md 3-3).
  *
  * - intro:   새 게임 시작 직후, 불을 켜기 전까지
  * - doorway: 방문이 열린 뒤, 거실에 처음 들어서기 전까지
+ * - exit:    현관문을 연 뒤 (엔딩 영상이 방을 덮을 때까지. 덮인 뒤에는 그리지 않는다)
  *
  * 값이 아닌 문자열을 돌려준다. 객체를 새로 만들면 zustand가 매 렌더 새 스냅샷으로 본다.
  */
-export type Viewpoint = "intro" | "doorway" | null;
+export type Viewpoint = "intro" | "doorway" | "exit" | null;
 
 export function viewpointOf(
   state: Pick<
@@ -1639,7 +1641,8 @@ export function viewpointOf(
     "started" | "endingStarted" | "introDone" | "doorOpened" | "doorwayDone"
   >,
 ): Viewpoint {
-  if (!state.started || state.endingStarted) return null;
+  if (!state.started) return null;
+  if (state.endingStarted) return "exit";
   if (!state.introDone) return "intro";
   if (state.doorOpened && !state.doorwayDone) return "doorway";
   return null;

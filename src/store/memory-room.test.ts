@@ -1439,6 +1439,17 @@ describe("1인칭 구간: 인트로와 2막 도입", () => {
     expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
   });
 
+  it("현관문을 열면(엔딩) 문턱을 넘는 1인칭이다. 리셋하면 타이틀로 돌아와 풀린다", () => {
+    useMemoryRoomStore.setState({ started: true, introDone: true, doorwayDone: true });
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
+
+    useMemoryRoomStore.setState({ endingStarted: true });
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBe("exit");
+
+    useMemoryRoomStore.getState().reset();
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
+  });
+
   it("문이 열리기 전에 거실 판정이 켜져도(개발 도구) 문 넘기를 마친 것으로 적지 않는다", () => {
     useMemoryRoomStore.setState({ started: true, introDone: true });
     useMemoryRoomStore.getState().setSpace("living");
@@ -1446,9 +1457,9 @@ describe("1인칭 구간: 인트로와 2막 도입", () => {
     expect(useMemoryRoomStore.getState().doorwayDone).toBe(false);
   });
 
-  it("엔딩이 시작되면 1인칭에서 나온다. 새 게임은 두 구간을 다시 연다", () => {
+  it("엔딩이 시작되면 다른 구간이 남았어도 문턱 넘기다. 새 게임은 두 구간을 다시 연다", () => {
     useMemoryRoomStore.setState({ started: true, introDone: false, endingStarted: true });
-    expect(selectViewpoint(useMemoryRoomStore.getState())).toBeNull();
+    expect(selectViewpoint(useMemoryRoomStore.getState())).toBe("exit");
 
     useMemoryRoomStore.setState({ introDone: true, doorwayDone: true, lightsOn: false });
     useMemoryRoomStore.getState().reset();

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Uniform } from "three";
 import { screenTransitionInput } from "@/lib/effects/screen-transition-input";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { EXIT_BEAT_MS } from "./first-person";
 
 /**
  * 화면 전체가 넘어가는 순간의 전환 (컴포저 이펙트).
@@ -112,8 +113,13 @@ export class ScreenTransitionEffect extends Effect {
 /** 찢김의 꼭대기까지, 그리고 잦아들기까지 (초). */
 const TEAR_ATTACK_S = 0.15;
 const TEAR_RELEASE_S = 0.5;
-/** 타들어감이 다 차는 시간(초). EndingScreen의 DOOR_BEAT(1.8초)보다 짧아야 덮이기 전에 다 찬다 */
+/** 타들어감이 다 차는 시간(초). 문턱 넘기(EXIT_BEAT_MS)보다 짧아야 덮이기 전에 다 찬다 */
 const BURN_RISE_S = 1.5;
+/**
+ * 타들어감이 늦게 켜지는 시간(초). 문턱을 넘는 끝자락에 차오르게 한다. 문을 여는
+ * 순간부터 타면 걸어 나가는 몇 초가 가장자리부터 하얗게 먹힌다.
+ */
+const BURN_DELAY_S = Math.max(0, EXIT_BEAT_MS / 1000 - BURN_RISE_S);
 
 /** 찢김의 세기 (0~1). 시작 뒤 흐른 시간의 함수. */
 export function tearAmount(elapsed: number): number {
@@ -158,7 +164,9 @@ export function ScreenTransitionDriver({
         if (!reducedMotion && state.activePlayback !== null && previous.activePlayback === null) {
           timing.tearStart = timing.now;
         }
-        if (state.endingStarted && !previous.endingStarted) timing.burnStart = timing.now;
+        if (state.endingStarted && !previous.endingStarted) {
+          timing.burnStart = timing.now + BURN_DELAY_S;
+        }
         if (!state.endingStarted && previous.endingStarted) {
           timing.burnStart = Number.NEGATIVE_INFINITY;
         }

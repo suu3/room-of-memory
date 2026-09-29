@@ -156,6 +156,8 @@ export function RoomCanvas() {
   /** 1인칭 구간(인트로·2막 도입). 그동안 회전·배율 입력은 잠기고 시선 입력이 대신 선다. */
   const viewpoint = useMemoryRoomStore(selectViewpoint);
   const firstPerson = viewpoint !== null;
+  /** 둘러볼 수 있는 1인칭인가. 엔딩의 문턱(exit)은 카메라가 정해진 길을 걸어 시선을 쥐지 않는다. */
+  const lookEnabled = firstPerson && viewpoint !== "exit";
   /*
    * 성능 안전장치. 프레임이 목표(주사율) 아래로 떨어지면 배율 상한을 내리고, 다시
    * 오르면 돌려준다. 배열을 새로 만들면 r3f가 렌더마다 배율을 다시 잡으므로 묶어 둔다.
@@ -433,7 +435,7 @@ export function RoomCanvas() {
   // 포커스 연출·대사·미니게임 중에는 구도가 깨지지 않게 뷰를 되돌리고 입력을 잠근다.
   // 1인칭 동안도 같다: 회전·배율은 직교 카메라의 것이고, 그 카메라는 잠들어 있다.
   const viewLocked = inputLocked || focusMemoryId !== null || firstPerson;
-  useFirstPersonLook(containerRef, firstPerson, lookRef);
+  useFirstPersonLook(containerRef, lookEnabled, lookRef);
 
   const applyZoomScale = useCallback((next: number) => {
     if (zoomScaleRef.current === next) return;
@@ -647,7 +649,7 @@ export function RoomCanvas() {
         />
       )}
       {/* 1인칭에서만: 조이스틱의 짝. 끌기가 어려운 손에도 돌아볼 길을 준다 */}
-      {pointerKind === "touch" && firstPerson && (
+      {pointerKind === "touch" && lookEnabled && (
         <LookButtons
           lookRef={lookRef}
           disabled={inputLocked}

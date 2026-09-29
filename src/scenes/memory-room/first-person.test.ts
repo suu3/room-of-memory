@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   clampPitch,
+  EXIT_WALK,
+  exitWalkAt,
   handleLookKeyDown,
   initialLook,
   LOOK_DRAG_SENSITIVITY,
@@ -11,7 +13,7 @@ import {
   touchLookSensitivity,
   yawToward,
 } from "./first-person";
-import { ROOM_DOOR_POSITION } from "./layout";
+import { FRONT_DOOR_POSITION, ROOM_DOOR_POSITION } from "./layout";
 
 const never = () => false;
 
@@ -111,5 +113,30 @@ describe("1인칭 시선", () => {
     expect(doorway.yaw).toBeCloseTo(
       yawToward(player, { x: ROOM_DOOR_POSITION[0], z: ROOM_DOOR_POSITION[2] }),
     );
+  });
+});
+
+describe("엔딩의 문턱 넘기", () => {
+  const at = (elapsed: number, moving = true) => exitWalkAt(elapsed, moving, { x: 0, y: 0, z: 0 });
+
+  it("현관문 정면 안쪽에서 문을 보고 서서, 문이 열리는 동안은 움직이지 않는다", () => {
+    const start = at(0);
+    expect(start.z).toBe(FRONT_DOOR_POSITION[2]);
+    expect(start.x).toBeCloseTo(FRONT_DOOR_POSITION[0] + EXIT_WALK.startDistance);
+    expect(at(EXIT_WALK.holdS * 0.9).x).toBeCloseTo(start.x);
+
+    // 정면이 문 쪽(-x)이다
+    const forward = lookDirection(initialLook("exit", start), { x: 0, y: 0, z: 0 });
+    expect(forward.x).toBeLessThan(-0.99);
+  });
+
+  it("문턱을 넘어 빛 판 앞에서 멈춘다. 판을 뚫지 않는다", () => {
+    const end = at(EXIT_WALK.holdS + EXIT_WALK.walkS + 5);
+    expect(end.x).toBeLessThan(FRONT_DOOR_POSITION[0]);
+    expect(end.x).toBeGreaterThan(FRONT_DOOR_POSITION[0] - 0.32);
+  });
+
+  it("모션 줄이기에서는 출발점에 선 채로 본다", () => {
+    expect(at(99, false).x).toBeCloseTo(at(0).x);
   });
 });

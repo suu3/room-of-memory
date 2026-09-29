@@ -33,6 +33,8 @@ describe("시점 전환 덮개", () => {
     expect(transitionTone(null, "doorway")).toBe("enter");
     expect(transitionTone("intro", null)).toBe("lightsOn");
     expect(transitionTone("doorway", null)).toBe("doorway");
+    expect(transitionTone(null, "exit")).toBe("exit");
+    expect(transitionTone("exit", null)).toBeNull();
     expect(transitionTone(null, null)).toBeNull();
     expect(transitionTone("intro", "intro")).toBeNull();
   });

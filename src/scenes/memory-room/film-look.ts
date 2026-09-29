@@ -64,8 +64,8 @@ export function aberrationAmount(resting: number, pulse: number, clean = 0): num
 }
 
 /**
- * 엔딩에서 화면이 깨끗해지는 속도. 문이 열리는 1.8초(EndingScreen의 DOOR_BEAT)와
- * 타들어감(ScreenTransition의 BURN_RISE_S, 1.5초) 사이에서 다 지워져야 한다.
+ * 엔딩에서 화면이 깨끗해지는 속도. 문턱을 넘는 몇 초(first-person의 EXIT_BEAT_MS) 중
+ * 걸어 나가기 전, 문이 열리는 박자 안에 거의 다 지워진다.
  */
 export const CLEAN_LAMBDA = 2.6;
 

@@ -13,15 +13,13 @@ import { useTranslation } from "react-i18next";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import { blurDataUrlOf } from "@/lib/image-blur";
+import { EXIT_BEAT_MS } from "@/scenes/memory-room/first-person";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { EndingConfetti } from "./EndingConfetti";
 import { BUTTON_PRIMARY, BUTTON_QUIET } from "./ui-classes";
 
-/** 문이 열리는 걸 보여주고 나서 화면을 덮는다. 배트를 쥔 손과 문이 이어져 보이도록. */
-const DOOR_BEAT_MS = 1800;
-
 /**
- * door: 문이 열리는 한 박자 (투명, 3D가 보인다)
+ * door: 문이 열리고 1인칭으로 문턱을 넘는 몇 초 (투명, 3D가 보인다. 길이는 EXIT_BEAT_MS)
  * film: 엔딩 영상
  * card: 영상이 끝난 뒤의 마무리 카드
  */
@@ -30,7 +28,8 @@ type EndingStage = "door" | "film" | "card";
 /**
  * 현관문을 연 뒤의 엔딩.
  *
- * 문이 열리는 박자를 보여준 뒤 엔딩 영상을 튼다. 영상의 마지막 컷(배트를 쥐고 문을
+ * 문이 열리고 도해의 눈으로 문턱을 넘어 빛 속으로 걸어 나간 뒤(FirstPersonRig의 exit)
+ * 엔딩 영상을 튼다. 영상의 마지막 컷(배트를 쥐고 문을
  * 열고 나가는 장면)이 방금 한 동작과 이어진다. 끝나거나 건너뛰면 색종이와 함께
  * 카드가 서고, "처음으로"가 타이틀로 돌려보낸다 (store.reset).
  *
@@ -47,6 +46,8 @@ export function EndingScreen() {
   const setFeedbackOpen = useMemoryRoomStore((state) => state.setFeedbackOpen);
   const [stage, setStage] = useState<EndingStage>("door");
   const [blocked, setBlocked] = useState(false);
+  /** 영상을 못 받았는가. 문턱을 넘는 중에 실패해도 걷기를 끊지 않고, 영상 박자에 카드로 간다. */
+  const [filmFailed, setFilmFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -61,14 +62,15 @@ export function EndingScreen() {
     return () => setSceneCovered(false);
   }, [endingStarted, stage, setSceneCovered]);
 
-  // 문이 열리는 한 박자를 보여준 뒤에 영상으로 넘어간다.
+  // 문턱을 다 넘은 뒤에 영상으로 넘어간다.
   useEffect(() => {
     if (!endingStarted) {
       setStage("door");
       setBlocked(false);
+      setFilmFailed(false);
       return;
     }
-    const timer = window.setTimeout(() => setStage("film"), DOOR_BEAT_MS);
+    const timer = window.setTimeout(() => setStage("film"), EXIT_BEAT_MS);
     return () => window.clearTimeout(timer);
   }, [endingStarted]);
 
@@ -83,8 +85,10 @@ export function EndingScreen() {
   }, []);
 
   useEffect(() => {
-    if (stage === "film") play();
-  }, [stage, play]);
+    if (stage !== "film") return;
+    if (filmFailed) setStage("card");
+    else play();
+  }, [stage, play, filmFailed]);
 
   // 카드가 서는 순간 색종이와 함께 축하음. 움직임 줄이기로 색종이를 안 그려도 소리는 난다
   useEffect(() => {
@@ -118,7 +122,7 @@ export function EndingScreen() {
         playsInline
         muted={soundMuted}
         onEnded={() => setStage("card")}
-        onError={() => setStage("card")}
+        onError={() => setFilmFailed(true)}
         className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-1000 ${
           filmVisible ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
