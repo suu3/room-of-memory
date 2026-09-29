@@ -263,6 +263,12 @@ export interface MemoryRoomState {
    * 쥐어야 현관문이 열린다 (docs/content-design.md 3-2).
    */
   batTaken: boolean;
+  /**
+   * 피아노 악보의 지워진 마디를 봤는가: 악보 조각 없이 피아노 판을 연 순간. 곁가지
+   * 피아노의 표식은 이걸 기준으로 켜진다. 무엇을 찾는지 안 뒤에야 안방의 조각이 부른다
+   * (선반 책이 아빠 메일 뒤에 부르는 것과 같은 문법). 저장한다.
+   */
+  pianoGapSeen: boolean;
   /** 엔딩이 시작됐는가: 거실 끝 현관문을 연 순간. */
   endingStarted: boolean;
   /**
@@ -856,6 +862,7 @@ type PersistedProgress = Pick<
   | "inventory"
   | "cluesSeen"
   | "autoPlay"
+  | "pianoGapSeen"
 >;
 
 const PERSIST_KEY = "rom-progress";
@@ -954,6 +961,8 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     inventory,
     // 오토는 껐다 켰다 하는 설정이라, 모르는 값이면 꺼진 쪽이 기본이다
     autoPlay: saved.autoPlay === true,
+    // 피아노는 거실에 있다. 방문이 안 열린 저장본이 빈 마디를 봤을 리 없다
+    pianoGapSeen: saved.pianoGapSeen === true && doorOpened,
     // 본 적 있는 단서. 목록에서 사라진 id는 조용히 버린다 (기억 id와 같은 규칙)
     cluesSeen: Array.isArray(saved.cluesSeen)
       ? CLUE_IDS.filter((id) => (saved.cluesSeen as unknown[]).includes(id))
@@ -1014,6 +1023,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       doorwayDone: false,
       doorOpened: false,
       batTaken: false,
+      pianoGapSeen: false,
       endingStarted: false,
       space: "room",
       openedDoorways: [],
@@ -1328,6 +1338,19 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           if (state.activePuzzle || state.solvedPuzzles.includes(id)) return state;
           // 하부장 다이얼은 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만 연다 (v4 3-5)
           if (id === "sink-dial" && !selectSinkHintRead(state)) return state;
+          /*
+           * 악보 조각 없이 피아노를 열면 판은 서되(지워진 마디를 보는 화면이다) 여는
+           * 순간 "한 마디가 안 보인다"는 줄을 먼저 띄운다. 건반을 눌러야 나오면 판이
+           * "치는 화면"으로 읽혀서 못 치는 걸 제 탓으로 돌린다. 이 순간부터 안방의 조각이
+           * 부른다 (pianoGapSeen).
+           */
+          if (id === "piano-melody" && !state.inventory.includes("piano-sheet")) {
+            return {
+              activePuzzle: id,
+              pianoGapSeen: true,
+              remark: { id: "needs-item" as const, at: Date.now() },
+            };
+          }
           return { activePuzzle: id };
         }),
       closePuzzle: () =>
@@ -1424,6 +1447,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           doorwayDone: false,
           doorOpened: false,
           batTaken: false,
+          pianoGapSeen: false,
           endingStarted: false,
           space: "room",
           openedDoorways: [],
@@ -1460,6 +1484,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         rechecked: state.rechecked,
         doorOpened: state.doorOpened,
         batTaken: state.batTaken,
+        pianoGapSeen: state.pianoGapSeen,
         solvedPuzzles: state.solvedPuzzles,
         discoveries: state.discoveries,
         notebookOpened: state.notebookOpened,
@@ -1768,6 +1793,9 @@ export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.
  * 하부장 번호를 알았는가 (v4.1의 dadHintRead). 아빠 메일("선반 정리 좀 해라.")을 읽고,
  * 거꾸로 꽂힌 책을 넘겨 끼워 둔 쪽지의 번호를 본 순간 선다 (discoveries의 sink-code).
  */
+/** 피아노의 지워진 마디를 봤는가: 안방 악보 조각의 표식이 이걸로 켜진다. */
+export const selectPianoGapSeen = (state: Pick<MemoryRoomState, "pianoGapSeen">) =>
+  state.pianoGapSeen;
 export const selectSinkHintRead = (state: Pick<MemoryRoomState, "discoveries">) =>
   state.discoveries.includes("sink-code");
 

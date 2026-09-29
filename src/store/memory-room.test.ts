@@ -829,6 +829,24 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
     expect(state.activePlayback).toBeNull();
   });
 
+  it("악보 조각 없이 피아노를 열면 판은 서되 빈 마디의 한 줄이 먼저 뜨고, 그때부터 조각이 부른다", () => {
+    enterPhase("p3");
+    expect(useMemoryRoomStore.getState().pianoGapSeen).toBe(false);
+    useMemoryRoomStore.getState().openPuzzle("piano-melody");
+    let state = useMemoryRoomStore.getState();
+    expect(state.activePuzzle).toBe("piano-melody");
+    expect(state.pianoGapSeen).toBe(true);
+    expect(state.remark?.id).toBe("needs-item");
+
+    // 조각을 들고 열면 줄 없이 곧장 판이다
+    useMemoryRoomStore.getState().closePuzzle();
+    useMemoryRoomStore.setState({ remark: null, inventory: ["piano-sheet"] });
+    useMemoryRoomStore.getState().openPuzzle("piano-melody");
+    state = useMemoryRoomStore.getState();
+    expect(state.activePuzzle).toBe("piano-melody");
+    expect(state.remark).toBeNull();
+  });
+
   it("아빠 힌트 전에는 하부장을 못 연다. 힌트 뒤에 열면 안방 열쇠가 손에 들어온다", () => {
     enterPhase("p3");
     useMemoryRoomStore.getState().openPuzzle("sink-dial");

@@ -21,6 +21,7 @@ import {
   PIANO_STAND,
   scaleLivingPoint,
 } from "./layout";
+import { MemoryBeacon } from "./MemoryBeacon";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
 import { PianoCabinet } from "./PianoCabinet";
 import { PianoSheet } from "./PianoSheet";
@@ -296,9 +297,16 @@ function SofaCushion({
  * 모르는 사람이 문제 앞에 못 선다.
  *
  * 다 친 뒤에는 더 안 켜진다. 푼 문제를 계속 부르면 방이 아직 할 일이 남았다고 말한다.
+ *
+ * 악보 조각을 손에 넣은 뒤부터 풀 때까지 금빛 표식이 선다 (MemoryBeacon의 BeaconId 주석).
+ * 안방에서 돌아오는 길에 어디로 가야 하는지가 보여야 한다.
  */
+/** 피아노 표식 자리 (피아노 부품과 같은 좌표계): 윗판(PIANO_CABINET_PARTS의 top) 위. */
+const PIANO_BEACON: Vec3Tuple = [-14.95, 1.4, 6.0];
+
 function PianoBody({ palette }: { palette: RoomPalette }) {
   const solved = useMemoryRoomStore((state) => state.solvedPuzzles.includes("piano-melody"));
+  const hasScrap = useMemoryRoomStore((state) => state.inventory.includes("piano-sheet"));
   const openPuzzle = useMemoryRoomStore((state) => state.openPuzzle);
   /*
    * 판이 도는 동안 닫힌 뚜껑은 내린다. 그 자리에 열린 뚜껑과 건반을 세우는 건
@@ -320,6 +328,16 @@ function PianoBody({ palette }: { palette: RoomPalette }) {
       }}
       {...handlers}
     >
+      {/* 표식은 윗판 위에 선다. 바닥 고리는 groundOffset만큼 내려가 바닥에 눕는다 */}
+      <group position={PIANO_BEACON}>
+        <MemoryBeacon
+          id="piano"
+          color={palette.memory}
+          active={hasScrap && !solved && !playing}
+          near={near}
+          groundOffset={PIANO_BEACON[1]}
+        />
+      </group>
       <MemoryGlowSelection
         selectionKey="piano-body"
         tier="prop"

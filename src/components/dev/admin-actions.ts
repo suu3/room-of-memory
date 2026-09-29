@@ -56,6 +56,7 @@ export function applyAdminPatch(patch: AdminPatch): void {
     doorwayDone: state.doorwayDone,
     openedDoorways: state.openedDoorways,
     inventory: state.inventory,
+    pianoGapSeen: state.pianoGapSeen,
     ...progress,
   };
 

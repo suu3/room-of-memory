@@ -3,7 +3,16 @@
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { AdditiveBlending, DoubleSide, type Group, type Mesh, type MeshBasicMaterial } from "three";
+import type { ItemId } from "@/data/items";
 import type { MemoryId } from "@/data/memory-room";
+
+/**
+ * 표식이 붙는 것: 기억 오브젝트와, 곁가지 피아노 축의 두 물건(안방의 악보 조각, 거실
+ * 피아노). 곁가지는 표식 없이 찾는 게 원칙이지만 피아노는 예외다: 조각의 존재를 알 길이
+ * 없어 테스터 대부분이 막다른 길에서 포기했다. 대신 "플레이어가 방금 안 것"만 가리킨다:
+ * 조각은 피아노의 빈 마디를 본 뒤에, 피아노는 조각을 집은 뒤에 부른다.
+ */
+export type BeaconId = MemoryId | ItemId | "piano";
 
 /**
  * "이건 만질 수 있다"를 멀리서도 알리는 표식.
@@ -38,7 +47,7 @@ const DIAMOND_SIZE = 0.1;
  * 물건마다 마름모를 얼마나 더 띄울지. 기본값(0.52)은 책상 위 소품 기준이라,
  * 덩치가 크거나 벽에 붙은 것들은 따로 올려 준다. 안 그러면 물건 속에 파묻힌다.
  */
-const EXTRA_LIFT: Partial<Record<MemoryId, number>> = {
+const EXTRA_LIFT: Partial<Record<BeaconId, number>> = {
   window: 0.95,
   calendar: 0.62,
   console: 0.18,
@@ -55,7 +64,7 @@ export function MemoryBeacon({
   /** 물건이 놓인 높이: 바닥 고리를 월드 바닥으로 되돌리는 데 쓴다. */
   groundOffset,
 }: {
-  id: MemoryId;
+  id: BeaconId;
   color: string;
   active: boolean;
   near: boolean;

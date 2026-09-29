@@ -30,6 +30,7 @@ describe("sanitizeProgress", () => {
         rechecked: [],
         doorOpened: false,
         batTaken: false,
+        pianoGapSeen: false,
         solvedPuzzles: ["piano-melody"],
         discoveries: ["hero-name"],
         notebookOpened: true,
@@ -51,6 +52,7 @@ describe("sanitizeProgress", () => {
       rechecked: [],
       doorOpened: false,
       batTaken: false,
+      pianoGapSeen: false,
       solvedPuzzles: ["piano-melody"],
       discoveries: ["hero-name"],
       notebookOpened: true,
@@ -66,6 +68,12 @@ describe("sanitizeProgress", () => {
       autoPlay: true,
       notebookRead: ["profile:0"],
     });
+  });
+
+  it("피아노의 빈 마디는 방문이 열린 저장본에서만 본 것으로 친다", () => {
+    expect(sanitizeProgress({ pianoGapSeen: true }).pianoGapSeen).toBe(false);
+    expect(sanitizeProgress({ ...resolveSave(), pianoGapSeen: true }).pianoGapSeen).toBe(true);
+    expect(sanitizeProgress({ ...resolveSave() }).pianoGapSeen).toBe(false);
   });
 
   it("알림이 생기기 전의 저장본은 이미 적힌 것을 읽은 것으로 본다", () => {
