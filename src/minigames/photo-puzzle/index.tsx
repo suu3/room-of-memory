@@ -78,6 +78,12 @@ const ARROW_DIRECTIONS: Record<string, CursorDirection> = {
 };
 
 /**
+ * 완성된 사진이 카드 앞에 머무는 시간(ms). 얼굴이 돌아오는 순간이 이 판의 감정선인데
+ * 0.9초로는 완성을 확인하기도 전에 카드가 덮었다.
+ */
+const SOLVED_HOLD_MS = 2000;
+
+/**
  * 2차 조사에서 액자 사진을 맞춘다.
  *
  * 1차는 뿌연 유리를 닦는 게임이었다. 같은 액자를 또 닦게 하면 2바퀴가 1바퀴의
@@ -128,10 +134,13 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
     playSound("collect");
   };
 
-  // 맞추고 나면 사진 한 장이 남는다. 잠깐 보여준 뒤 결과 대사로 넘긴다.
+  // 맞추고 나면 사진 한 장이 남는다. 잠깐 보여준 뒤 결과 카드로 넘긴다.
   useEffect(() => {
     if (!solved) return;
-    const timer = window.setTimeout(() => complete({ cleared: true, score: moves }), 900);
+    const timer = window.setTimeout(
+      () => complete({ cleared: true, score: moves }),
+      SOLVED_HOLD_MS,
+    );
     return () => window.clearTimeout(timer);
   }, [solved, moves, complete]);
 

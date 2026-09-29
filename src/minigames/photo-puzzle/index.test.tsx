@@ -77,7 +77,10 @@ describe("PhotoPuzzleMinigame", () => {
       fireEvent.click(tiles(container)[index]);
       fireEvent.click(tiles(container)[from]);
     }
+    // 완성된 사진이 잠깐 머문다: 그 안에는 아직 보고하지 않는다
     act(() => vi.advanceTimersByTime(1000));
+    expect(onComplete).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(1500));
     expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({ cleared: true }));
     vi.useRealTimers();
   });
