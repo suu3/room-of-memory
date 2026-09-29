@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MEMORY_IDS } from "@/data/memory-room";
+import { MIRROR_NEAR_RADIUS, SINK_NEAR, SINK_RADIUS } from "./BathroomFixtures";
 import { BED_BLANKET_FOLDED_Z, BED_BLANKET_TOP_Y, BED_FOOTPRINT, BED_MATTRESS } from "./bed";
 import { CURTAIN_NEAR_RADIUS, CURTAIN_X } from "./curtain-motion";
 import {
@@ -43,6 +44,7 @@ import {
   ROOM_SHELL_CENTER,
 } from "./layout";
 import { SEATS } from "./seats";
+import { SPACES } from "./spaces";
 import { isWalkable as standsClear } from "./spatial";
 
 const PLAYER_RADIUS = 0.38;
@@ -551,6 +553,14 @@ describe("bathroom layout", () => {
     // 문간과 변기 사이에 선다: 문 앞은 비우고, 변기와도 겹치지 않는다
     expect(sink.maxX).toBeLessThan(BATHROOM_DOORWAY_ZONE.minX);
     expect(sink.maxZ).toBeLessThan(toilet.minZ);
+  });
+
+  it("문간에 막 들어선 자리에서는 거울이 아직 어긋나지 않는다", () => {
+    const { landing } = SPACES.bathroom;
+    const distance = Math.hypot(landing.x - SINK_NEAR[0], landing.z - SINK_NEAR[1]);
+    expect(distance).toBeGreaterThan(MIRROR_NEAR_RADIUS);
+    // 글로우는 거기서도 켜진다: 하부장이 "여기 뭔가 있다"고 부르는 건 그대로다
+    expect(distance).toBeLessThan(SINK_RADIUS);
   });
 
   it("열린 문짝이 카메라와 세면대 사이에 서지 않는다", () => {

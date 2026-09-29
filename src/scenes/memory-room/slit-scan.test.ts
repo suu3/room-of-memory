@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SLIT_SCAN, slitFrameIndex, smearFromWarm } from "./slit-scan";
+import { SLIT_SCAN, slitFrameIndex, smearFor, smearFromWarm } from "./slit-scan";
 
 const { ringSize, columns } = SLIT_SCAN;
 
@@ -73,5 +73,12 @@ describe("slit-scan", () => {
       expect(smear).toBeLessThanOrEqual(previous);
       previous = smear;
     }
+  });
+
+  it("세면대 앞에 섰을 때만 어긋난다. 떨어져 있으면 볕과 무관하게 보통 거울이다", () => {
+    expect(smearFor(0, true)).toBe(1);
+    expect(smearFor(0.25, true)).toBeCloseTo(0.75);
+    expect(smearFor(0, false)).toBe(0);
+    expect(smearFor(0.5, false)).toBe(0);
   });
 });

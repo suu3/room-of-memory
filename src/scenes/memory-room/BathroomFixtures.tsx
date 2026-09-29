@@ -14,6 +14,7 @@ import type { RoomPalette } from "./palette";
 import { SinkWater } from "./SinkWater";
 import { SlitScanMirror } from "./SlitScanMirror";
 import type { EulerTuple, Vec3Tuple } from "./types";
+import { useNearPlayer } from "./use-near-player";
 import { roomLightMix } from "./visual-state";
 
 const [toilet, sink, tub] = BATHROOM_COLLIDERS;
@@ -31,6 +32,15 @@ export const SINK_MOUNT = {
   position: [sink.minX + 0.33, 0, sinkZ] as Vec3Tuple,
   rotation: [0, -Math.PI / 2, 0] as EulerTuple,
 } as const;
+/** 세면대 앞 한 걸음(왼쪽 벽에서 방 안쪽으로): 하부장·칫솔컵이 켜지고 거울이 어긋나는 자리. */
+export const SINK_NEAR = [sink.maxX + 0.5, sinkZ] as const;
+export const SINK_RADIUS = 1.6;
+/**
+ * 거울이 어긋나기 시작하는 거리. 글로우 반경(1.6)은 문간에 막 들어선 자리(landing, 1.3
+ * 떨어짐)까지 품어서, 그대로 쓰면 들어서자마자 어긋난다. 얼굴이 비칠 만큼, 세면대에 붙어
+ * 섰을 때만이어야 한다.
+ */
+export const MIRROR_NEAR_RADIUS = 0.9;
 // Outer ceramic wall turns over the rim and descends into the bowl.
 const BOWL_PROFILE = [
   [0.13, 0.12],
@@ -284,6 +294,7 @@ export function BathroomMirror({ palette }: { palette: RoomPalette }) {
   const recovery = useMemoryRoomStore(selectActTwoProgress);
   const { warm } = roomLightMix({ collected, memoryTotal: MEMORY_TOTAL, recovery });
   const enabled = useEffectEnabled("heavy");
+  const nearSink = useNearPlayer(SINK_NEAR[0], SINK_NEAR[1], MIRROR_NEAR_RADIUS);
   return (
     <group
       name="bathroom-mirror-cabinet"
@@ -297,6 +308,7 @@ export function BathroomMirror({ palette }: { palette: RoomPalette }) {
         offset={-0.06}
         palette={palette}
         warm={warm}
+        nearSink={nearSink}
         enabled={enabled}
       />
       <Box

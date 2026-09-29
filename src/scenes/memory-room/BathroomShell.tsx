@@ -2,11 +2,18 @@
 
 import { playSound } from "@/lib/audio";
 import { selectSinkHintRead, useMemoryRoomStore } from "@/store/memory-room";
-import { BathroomFixtures, BathroomMirror, BathroomShower, SINK_MOUNT } from "./BathroomFixtures";
+import {
+  BathroomFixtures,
+  BathroomMirror,
+  BathroomShower,
+  SINK_MOUNT,
+  SINK_NEAR,
+  SINK_RADIUS,
+} from "./BathroomFixtures";
 import { BathroomStain } from "./BathroomStains";
 import { CulledWall } from "./CulledWall";
 import { InteriorSurface } from "./InteriorPrimitives";
-import { BATHROOM_COLLIDERS, BATHROOM_DOOR_POSITION, BATHROOM_SHELL_BOUNDS } from "./layout";
+import { BATHROOM_DOOR_POSITION, BATHROOM_SHELL_BOUNDS } from "./layout";
 import type { RoomPalette } from "./palette";
 import { TouchProp } from "./RoomClues";
 import {
@@ -34,11 +41,6 @@ const RIGHT_WALL = sideWallPlain(SHELL.maxX, Z);
 const FLOOR = floorPart(SHELL);
 const PLINTH = plinthParts(SHELL);
 
-const [, sink] = BATHROOM_COLLIDERS;
-
-/** 세면대 앞 한 걸음(왼쪽 벽에서 방 안쪽으로): 하부장과 칫솔컵이 같은 자리에서 켜진다. */
-const SINK_NEAR = [sink.maxX + 0.5, (sink.minZ + sink.maxZ) / 2] as const;
-const SINK_RADIUS = 1.6;
 /**
  * 대야 밑 하부장 (v4 3-5): 엄마가 잠가 둔 칸. 다이얼(sink-dial)의 답은 선반 책 속 쪽지의 세 자리.
  * 세면대 틀(SINK_MOUNT)의 로컬 좌표: 문짝과 다이얼은 로컬 -z 면, 곧 카메라 쪽이다.

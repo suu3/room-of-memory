@@ -20,7 +20,7 @@ import { useMemoryRoomStore } from "@/store/memory-room";
 import { MIRROR_ONLY_LAYER } from "./first-person";
 import { InteriorBox } from "./InteriorPrimitives";
 import type { RoomPalette } from "./palette";
-import { SLIT_SCAN, smearFromWarm } from "./slit-scan";
+import { SLIT_SCAN, smearFor } from "./slit-scan";
 
 /**
  * 반사 텍스처의 한 변. 방의 전신거울(512)보다 작다: 유리가 작고, 같은 크기의 판이 링에
@@ -120,6 +120,8 @@ interface MirrorState {
   inBathroom: boolean;
   /** 볕의 양. useFrame이 여기서 폭의 목표값을 만든다 */
   warm: number;
+  /** 플레이어가 세면대 앞에 서 있는가. 아니면 폭의 목표는 0이다 */
+  nearSink: boolean;
 }
 
 /**
@@ -190,7 +192,8 @@ function buildRing(
  * 찍은 반사를 12칸 링버퍼에 쌓고, 유리의 세로줄마다 다른 칸을 읽는다: 왼쪽 줄은 지금,
  * 오른쪽으로 갈수록 오래된 프레임. 앞에 선 사람이 움직이면 얼굴이 시간 방향으로 찢어진다.
  * 서 있으면 모든 칸이 같아 보통 거울이다: 정지한 것의 slit-scan은 원본과 같다.
- * 2막이 진행될수록(볕 warm이 오를수록) 폭이 줄어 줄이 맞아 든다.
+ * 2막이 진행될수록(볕 warm이 오를수록) 폭이 줄어 줄이 맞아 든다. 어긋남은 세면대 앞에
+ * 섰을 때만이다 (slit-scan.ts의 smearFor): 방 저편에서 보는 거울은 보통 거울이다.
  *
  * Reflector 메쉬 자체가 유리다. Reflector는 제 재질을 건드리지 않으므로 만든 직후 재질을
  * slit-scan 재질로 바꿔 끼운다. 원래 재질(현재 반사를 투영해 그리는)은 링에 프레임을 펴
@@ -208,6 +211,7 @@ export function SlitScanMirror({
   offset,
   palette,
   warm,
+  nearSink,
   enabled,
 }: {
   width: number;
@@ -217,6 +221,8 @@ export function SlitScanMirror({
   palette: RoomPalette;
   /** 창으로 드는 볕의 양 (roomLightMix().warm). 폭은 1 - warm이다. */
   warm: number;
+  /** 플레이어가 세면대 앞에 서 있는가. 아니면 폭이 0(보통 거울)이다. */
+  nearSink: boolean;
   /** 효과 예산 게이트 (useEffectEnabled("heavy")). 호출부가 정한다. */
   enabled: boolean;
 }) {
@@ -232,7 +238,14 @@ export function SlitScanMirror({
     );
   }
   return (
-    <SlitScanGlass width={width} height={height} offset={offset} palette={palette} warm={warm} />
+    <SlitScanGlass
+      width={width}
+      height={height}
+      offset={offset}
+      palette={palette}
+      warm={warm}
+      nearSink={nearSink}
+    />
   );
 }
 
@@ -242,12 +255,14 @@ function SlitScanGlass({
   offset,
   palette,
   warm,
+  nearSink,
 }: {
   width: number;
   height: number;
   offset: number;
   palette: RoomPalette;
   warm: number;
+  nearSink: boolean;
 }) {
   const get = useThree((state) => state.get);
   const inBathroom = useMemoryRoomStore((state) => state.space === "bathroom");
@@ -263,9 +278,11 @@ function SlitScanGlass({
     primed: false,
     inBathroom,
     warm,
+    nearSink,
   });
   stateRef.current.inBathroom = inBathroom;
   stateRef.current.warm = warm;
+  stateRef.current.nearSink = nearSink;
 
   const mirror = useMemo(() => {
     const geometry = new PlaneGeometry(width, height);
@@ -286,7 +303,7 @@ function SlitScanGlass({
       uniforms: {
         uFrames: { value: ring.textures },
         uWrite: { value: 0 },
-        uSmear: { value: smearFromWarm(stateRef.current.warm) },
+        uSmear: { value: smearFor(stateRef.current.warm, stateRef.current.nearSink) },
       },
       vertexShader: VERTEX_SHADER,
       fragmentShader: FRAGMENT_SHADER,
@@ -340,10 +357,15 @@ function SlitScanGlass({
     const state = stateRef.current;
     state.frame += 1;
     const smear = mirror.material.uniforms.uSmear;
-    smear.value = MathUtils.damp(smear.value, smearFromWarm(state.warm), SMEAR_LAMBDA, delta);
+    smear.value = MathUtils.damp(
+      smear.value,
+      smearFor(state.warm, state.nearSink),
+      SMEAR_LAMBDA,
+      delta,
+    );
   });
 
-  /* 판은 +z를 보게 만들어진다. 캐비닛은 뒷벽(maxZ)에 붙어 방(-z)을 보므로 돌려 세운다 */
+  /* 판은 +z를 보게 만들어진다. 캐비닛 그룹은 로컬 -z가 방 안쪽이므로(SINK_MOUNT) 돌려 세운다 */
   return (
     <primitive object={mirror.reflector} position={[0, 0, offset]} rotation={[0, Math.PI, 0]} />
   );

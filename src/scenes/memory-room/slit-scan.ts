@@ -32,6 +32,17 @@ export function smearFromWarm(warm: number): number {
 }
 
 /**
+ * 지금 프레임의 시간차 폭 목표. 세면대 앞에 서 있을 때만 어긋나고, 떨어져 있으면 보통 거울(0)이다.
+ *
+ * 이 거울은 늘 서 있는 왼쪽 벽에 걸려 있어 화장실에 있는 내내 화면에 든다. 방 저편에서
+ * 보는 어긋난 반사는 "30일 만에 보는 제 얼굴"이 아니라 그냥 깨진 텍스처로 읽혔다.
+ * 얼굴이 비칠 만큼 다가섰을 때만 어긋나야 그 그림이 된다. 전환은 SlitScanMirror의 damp가 맡는다.
+ */
+export function smearFor(warm: number, nearSink: boolean): number {
+  return nearSink ? smearFromWarm(warm) : 0;
+}
+
+/**
  * 한 세로줄이 읽을 링의 칸 번호.
  *
  * - `column`: 왼쪽부터 0 .. columns-1
