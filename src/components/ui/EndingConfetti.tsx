@@ -62,10 +62,10 @@ export function EndingConfetti() {
       canvas.height = canvas.clientHeight * dpr;
     };
     resize();
-    window.addEventListener("resize", resize);
-
     const colors = COLOR_TOKENS.map(tokenColor).filter(Boolean);
     if (colors.length === 0) return;
+    // 리스너는 그릴 게 확실해진 뒤에 건다. 위에서 돌아가면 정리 함수가 없어 남는다
+    window.addEventListener("resize", resize);
     const width = canvas.clientWidth;
     const pieces: Piece[] = Array.from({ length: PIECE_COUNT }, () => ({
       x: Math.random() * width,

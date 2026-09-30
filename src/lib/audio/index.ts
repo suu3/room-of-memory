@@ -54,7 +54,9 @@ export function disposeAudio() {
  * AudioContext를 깨운다. 앱에 한 번만 마운트한다.
  *
  * 자동재생 정책 때문에 제스처 전에는 컨텍스트를 만들 수 없다. 만들어도 suspended로
- * 시작해 아무 소리도 안 난다. 그래서 pointerdown/keydown을 한 번만 듣는다.
+ * 시작해 아무 소리도 안 난다. 그래서 첫 입력을 듣는다. pointerdown만으로는 부족하다:
+ * 손가락의 pointerdown은 브라우저가 "사용자 활성화"로 치지 않아 resume이 거부된다.
+ * pointerup·click까지 들어야 폰에서 첫 탭에 깨어난다.
  */
 export function useAudioRuntime() {
   const muted = useMemoryRoomStore((state) => state.soundMuted);
@@ -91,11 +93,10 @@ export function useAudioRuntime() {
       unlockAudio();
       preloadSamples(["select", "open", "mittTap", "doorOpen", "lightSwitch", "computerBoot"]);
     };
-    window.addEventListener("pointerdown", wake, { once: true });
-    window.addEventListener("keydown", wake, { once: true });
+    const events = ["pointerdown", "pointerup", "click", "keydown"] as const;
+    for (const type of events) window.addEventListener(type, wake, { once: true });
     return () => {
-      window.removeEventListener("pointerdown", wake);
-      window.removeEventListener("keydown", wake);
+      for (const type of events) window.removeEventListener(type, wake);
     };
   }, []);
 }

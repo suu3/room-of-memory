@@ -69,6 +69,16 @@ export function HudMenu({ inline = false }: { inline?: boolean }) {
     return () => setUiLock("hud-menu", false);
   }, [dropdownOpen, confirming, setUiLock]);
 
+  // 리셋 확인창도 Esc로 닫힌다 (타이틀의 확인창과 같다)
+  useEffect(() => {
+    if (!confirming) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setConfirming(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [confirming]);
+
   // 창을 넓혀 줄로 펼쳐지면 열려 있던 패널은 닫아 둔다. 다시 좁히면 닫힌 햄버거로 돌아온다
   useEffect(() => {
     if (inline) setOpen(false);

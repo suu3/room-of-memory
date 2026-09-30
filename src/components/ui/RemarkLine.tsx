@@ -1,7 +1,7 @@
 "use client";
 
 import type { ParseKeys } from "i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { lastVisitDone } from "@/data/story-phase";
 import { usePointerKind } from "@/i18n/control-hint";
@@ -99,13 +99,17 @@ export function RemarkLine() {
     text = t(REMARK_TEXT[remark.id]);
   }
   const showMs = Math.max(SHOW_MS, Array.from(text).length * SHOW_PER_CHAR_MS);
+  // 길이는 ref로 읽는다. 의존성에 넣으면 언어를 바꾸거나 진행이 바뀌어 글이 달라질 때
+  // 이미 사라진 줄이 다시 떠올랐다
+  const showMsRef = useRef(showMs);
+  showMsRef.current = showMs;
 
   useEffect(() => {
     if (remark === null) return;
     setVisible(true);
-    const timer = window.setTimeout(() => setVisible(false), showMs);
+    const timer = window.setTimeout(() => setVisible(false), showMsRef.current);
     return () => window.clearTimeout(timer);
-  }, [remark, showMs]);
+  }, [remark]);
 
   if (!visible || remark === null || text === "") return null;
 

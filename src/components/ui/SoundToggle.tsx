@@ -3,7 +3,7 @@
 import { SpeakerSimpleHigh, SpeakerSimpleSlash } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { playSound } from "@/lib/audio";
+import { playSound, setAudioMuted } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { playHoverSound } from "./hover-sfx";
 import { KEYCAP_CLASS } from "./Keycap";
@@ -40,8 +40,10 @@ export function SoundToggle({ tone = "hud" }: { tone?: SoundToggleTone }) {
   const [pulseKey, setPulseKey] = useState(0);
 
   const toggle = () => {
-    // 켤 때만 소리를 낸다. 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다
+    // 켤 때만 소리를 낸다. 끄는 순간 소리가 나면 안 꺼진 것처럼 들린다.
+    // 엔진의 음소거는 스토어 값을 effect가 뒤늦게 옮기므로 여기서 먼저 풀어야 이 소리가 난다
     if (soundMuted) {
+      setAudioMuted(false);
       playSound("select");
       setPulseKey((key) => key + 1);
     }

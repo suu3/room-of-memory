@@ -254,6 +254,8 @@ export function MinigameHost() {
   useEffect(() => {
     if ((!hosted && !canvasHosted) || sealed) return;
     const onKey = (event: KeyboardEvent) => {
+      // 위에 뜬 모달(수첩·메뉴)이 제 Esc를 받는 중이면 판은 건드리지 않는다
+      if (useMemoryRoomStore.getState().uiLocks.length > 0) return;
       if (event.code === "Escape") cancelMinigame();
     };
     window.addEventListener("keydown", onKey);

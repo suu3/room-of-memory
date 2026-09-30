@@ -1,7 +1,7 @@
 "use client";
 
 import type { ParseKeys } from "i18next";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CUTSCENE_RADIO_BLACKOUT, CUTSCENE_WORKBOOK_NAME } from "@/data/memory-room";
 import { playSound, startNoiseBed } from "@/lib/audio";
@@ -141,7 +141,6 @@ export function PlaybackScene() {
   const active = useMemoryRoomStore(selectActivePlayback);
   const advancePlayback = useMemoryRoomStore((state) => state.advancePlayback);
   const endPlayback = useMemoryRoomStore((state) => state.endPlayback);
-  const [stage, setStage] = useState<Stage>("cuts");
   /** 아직 리포에 없는 일러스트. 회색 판이 그대로 남는다. */
   const [missing, setMissing] = useState<string[]>([]);
 
@@ -153,6 +152,26 @@ export function PlaybackScene() {
   const bare = isCutscene && active.cuts.every((each) => each.image === undefined);
   /** 재생이 바뀔 때마다 도입을 다시 돌리기 위한 열쇠. */
   const playbackKey = active ? `${active.kind}:${active.cutsceneId ?? active.memoryId}` : null;
+  /*
+   * 도입 단계는 재생마다 새로 센다 (열쇠가 playbackKey). 이 컴포넌트는 재생 사이에도
+   * 마운트된 채라, 지난 재생이 남긴 "cuts"를 새 컷씬의 첫 커밋이 물려받으면 영사기
+   * 소리가 정적 위에 한 번 잘못 울리고 건너뛰기가 한 프레임 비쳤다. 열쇠가 다르면
+   * 열릴 때의 intro로 판단한다: 도입을 달고 열렸으면 첫 커밋부터 정적이다.
+   */
+  const [staged, setStaged] = useState<{ key: string | null; stage: Stage }>({
+    key: null,
+    stage: "cuts",
+  });
+  const stage: Stage =
+    staged.key === playbackKey
+      ? staged.stage
+      : isCutscene && active?.intro === true
+        ? "static"
+        : "cuts";
+  const setStage = useCallback(
+    (next: Stage) => setStaged({ key: playbackKey, stage: next }),
+    [playbackKey],
+  );
   const cut = active?.cuts[active.cutIndex];
   const afterimageKey =
     active?.kind === "cutscene" && active.cutsceneId
@@ -195,7 +214,7 @@ export function PlaybackScene() {
       window.clearTimeout(toCuts);
       bed?.stop();
     };
-  }, [playbackKey, isCutscene, advancePlayback]);
+  }, [playbackKey, isCutscene, advancePlayback, setStage]);
 
   /*
    * 그림이 서 있는 동안의 소리: 서는 순간 영사기가 걸리고(reelStart), 바닥에 히스가
