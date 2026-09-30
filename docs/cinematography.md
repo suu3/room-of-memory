@@ -105,7 +105,7 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 | 초침이 다시 간다 | 탁상시계 초침이 한 초에 한 칸 | `act >= 2` | `RoomFurniture.tsx` `SecondHand` |
 | 혼잣말의 퇴장이 바뀐다 | 1막은 뒤 글자부터 떨어지고, 2막부터는 위로 모인다 | cheap | `ui/Monologue.tsx`, `monologue-exit.ts` |
 | 새 공간 첫 진입의 재구성 | 화장실 · 안방에 처음 들어서면 선에서 면으로 | cheap | `WireframeReveal.tsx` |
-| 거울 slit-scan | 화장실 거울이 세로줄마다 다른 과거 프레임을 보여 얼굴이 시간 방향으로 번진다. 볕이 오를수록 보통 거울이 된다 | `1 - warm`. heavy, 화장실에서만 | `SlitScanMirror.tsx`, `slit-scan.ts` |
+| 화장실 거울 | 방의 전신거울과 같은 진짜 거울. 세로줄마다 시간이 어긋나던 slit-scan은 2026-09-30에 걷었다: 멀리서는 깨진 텍스처, 가까이서는 고장 난 거울로 읽혔다 | 3인칭 간격 | `MirrorReflection.tsx` (`BathroomFixtures.tsx`) |
 | 화장실 물때 | 타일·샤워 벽의 반응확산 무늬 | 정적 | `BathroomStains.tsx` |
 | 평면도 순간이동 | 목적지로 뛸 때 8px 흐림 0.36초 | cheap | `ViewpointTransition.tsx` `warp` |
 | 그림 없는 컷씬 | `trip-doubt` · `p2-close`는 방이 비친 채 대사창만 뜬다 | | `content/cutscenes.yaml` |
@@ -225,7 +225,7 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 - **되돌아가지 않는 것**은 되돌아가지 않는다: 창밖 붕괴도, 로그 오염.
 - **문턱은 컷이 아니라 이동.** 공간 전환에 카메라 컷이 없다. 컷은 재생(컷씬)과 1인칭 전환에만 있다.
 - **모션을 끈 사람**에게는 같은 정보를 정지 그림이나 즉시 전환으로 준다. 정보를 빼지 않는다.
-- **효과 예산.** heavy(잔상 · 빛기둥 · 틸트 시프트 · slit-scan · 도트 반사)는 프레임이 떨어지면 자동으로 빠진다.
+- **효과 예산.** heavy(잔상 · 빛기둥 · 틸트 시프트 · 도트 반사)는 프레임이 떨어지면 자동으로 빠진다.
 
 ---
 

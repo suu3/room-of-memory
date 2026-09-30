@@ -1,21 +1,12 @@
 "use client";
 
 import { Vector2 } from "three";
-import { useEffectEnabled } from "@/lib/effects/effect-budget";
-import {
-  MEMORY_TOTAL,
-  selectActTwoProgress,
-  selectCollectedCount,
-  useMemoryRoomStore,
-} from "@/store/memory-room";
 import { InteriorBox as Box, InteriorCylinder as Cylinder } from "./InteriorPrimitives";
 import { BATHROOM_COLLIDERS, BATHROOM_SHELL_BOUNDS } from "./layout";
+import { MirrorReflection } from "./MirrorReflection";
 import type { RoomPalette } from "./palette";
 import { SinkWater } from "./SinkWater";
-import { SlitScanMirror } from "./SlitScanMirror";
 import type { EulerTuple, Vec3Tuple } from "./types";
-import { useNearPlayer } from "./use-near-player";
-import { roomLightMix } from "./visual-state";
 
 const [toilet, sink, tub] = BATHROOM_COLLIDERS;
 const sinkZ = (sink.minZ + sink.maxZ) / 2;
@@ -32,13 +23,13 @@ export const SINK_MOUNT = {
   position: [sink.minX + 0.33, 0, sinkZ] as Vec3Tuple,
   rotation: [0, -Math.PI / 2, 0] as EulerTuple,
 } as const;
-/** 세면대 앞 한 걸음(왼쪽 벽에서 방 안쪽으로): 하부장·칫솔컵이 켜지고 거울이 어긋나는 자리. */
+/** 세면대 앞 한 걸음(왼쪽 벽에서 방 안쪽으로): 하부장·칫솔컵이 켜지는 자리. */
 export const SINK_NEAR = [sink.maxX + 0.5, sinkZ] as const;
 export const SINK_RADIUS = 1.6;
 /**
- * 거울이 어긋나기 시작하는 거리. 글로우 반경(1.6)은 문간에 막 들어선 자리(landing, 1.3
- * 떨어짐)까지 품어서, 그대로 쓰면 들어서자마자 어긋난다. 얼굴이 비칠 만큼, 세면대에 붙어
- * 섰을 때만이어야 한다.
+ * 세면대에 붙어 선 거리. 글로우 반경(1.6)은 문간에 막 들어선 자리(landing, 1.3 떨어짐)까지
+ * 품는다. 문간에 들어선 자리가 이 안에 들지 않는 것을 layout.test가 지킨다.
+ * (예전에는 이 안에서 거울이 어긋났다. 지금 거울은 방의 전신거울과 같은 보통 거울이다.)
  */
 export const MIRROR_NEAR_RADIUS = 0.9;
 // Outer ceramic wall turns over the rim and descends into the bowl.
@@ -285,16 +276,12 @@ function Bathtub({ palette }: { palette: RoomPalette }) {
  * 그 벽은 카메라 반대쪽이라 걷히지 않으므로 거울은 늘 보인다. 안쪽 벽에 걸려 있던 때는
  * 그 벽이 카메라 쪽이라 회전 한쪽 끝에서만 잠깐 섰다.
  *
- * 유리는 진짜 거울이되 반사가 세로줄마다 시간이 어긋난다 (SlitScanMirror, docs/visual-experiments.md
- * 11장). 시간차의 폭은 2막의 볕(warm)이 오를수록 줄어 보통 거울로 맞아 든다. 렌더 타깃이
- * 12장 드는 효과라 heavy 게이트를 따르고, 게이트가 닫히면 예전의 금속판 그대로다.
+ * 유리는 방의 전신거울과 같은 진짜 거울이다 (MirrorReflection). 전에는 세로줄마다 시간이
+ * 어긋나는 slit-scan이었는데(2026-09-30까지), 방 저편에서는 깨진 텍스처로 읽히고 가까이서도
+ * "30일 만의 얼굴"보다 고장 난 거울로 읽혀 걷었다. 화장실은 1인칭으로 들어오지 않아
+ * 늘 3인칭 간격으로 그린다.
  */
 export function BathroomMirror({ palette }: { palette: RoomPalette }) {
-  const collected = useMemoryRoomStore(selectCollectedCount);
-  const recovery = useMemoryRoomStore(selectActTwoProgress);
-  const { warm } = roomLightMix({ collected, memoryTotal: MEMORY_TOTAL, recovery });
-  const enabled = useEffectEnabled("heavy");
-  const nearSink = useNearPlayer(SINK_NEAR[0], SINK_NEAR[1], MIRROR_NEAR_RADIUS);
   return (
     <group
       name="bathroom-mirror-cabinet"
@@ -302,15 +289,16 @@ export function BathroomMirror({ palette }: { palette: RoomPalette }) {
       rotation={SINK_MOUNT.rotation}
     >
       <Box size={[1.02, 0.99, 0.1]} position={[0, 0, 0]} color={palette.frame} radius={0.04} />
-      <SlitScanMirror
-        width={0.91}
-        height={0.88}
-        offset={-0.06}
-        palette={palette}
-        warm={warm}
-        nearSink={nearSink}
-        enabled={enabled}
-      />
+      {/* 거울판은 +z를 보게 만들어진다. 캐비닛 로컬 -z가 방 안쪽이라 돌려 세우고, 유리면(-0.06)에 맞춘다 */}
+      <group rotation={[0, Math.PI, 0]}>
+        <MirrorReflection
+          width={0.91}
+          height={0.88}
+          offset={0.06}
+          palette={palette}
+          firstPerson={false}
+        />
+      </group>
       <Box
         size={[0.035, 0.76, 0.008]}
         position={[-0.37, 0.01, -0.074]}
