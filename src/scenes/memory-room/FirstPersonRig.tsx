@@ -6,8 +6,10 @@ import { MathUtils, PerspectiveCamera, type Vector3 } from "three";
 import { prefersReducedMotion } from "@/lib/reduced-motion";
 import type { Viewpoint } from "@/store/memory-room";
 import {
+  EXIT_LOOK_AT,
   EYE_HEIGHT,
-  exitWalkAt,
+  exitBodyAt,
+  exitCameraAt,
   FIRST_PERSON_FOV,
   initialLook,
   type LookAngles,
@@ -19,8 +21,9 @@ const LOOK_LAMBDA = 16;
 /**
  * 1인칭 카메라. 인트로(스위치 찾기)와 2막 도입(문 넘기), 엔딩의 문턱이 같은 리그를 쓴다.
  *
- * 엔딩(exit)만 다르다: 플레이어를 따라가지도, 시선 입력을 읽지도 않는다. 정해 둔 길
- * (exitWalkAt)을 제 시계로 걸어 문 밖 빛 속으로 들어간다.
+ * 엔딩(exit)만 다르다: 머리가 아니라 등 뒤에 선다. 시선 입력은 읽지 않고, 문 너머
+ * 빛(EXIT_LOOK_AT)을 본 채 걸어 나가는 몸을 따라가다 문턱 앞에서 멈춘다 (exitCameraAt).
+ * 몸을 걷게 하는 건 Player다. 여기서는 positionRef만 읽는다.
  *
  * 위치는 플레이어의 머리다 (positionRef + 눈높이). 몸은 Player가 메인 카메라가 안 보는
  * 층으로 옮긴다(거울에는 비친다). "일부만 보인다"는 인상은 조명이 아니라 화면 가운데만
@@ -53,9 +56,8 @@ export function FirstPersonRig({
   }, []);
   /** damp로 굴리는 현재 시선. 목표는 lookRef다. */
   const smoothRef = useRef<LookAngles>({ yaw: 0, pitch: 0 });
-  /** 엔딩 문턱 넘기가 시작된 뒤 흐른 시간(초). 걷는 길은 이 시계 하나로 정해진다. */
-  const exitElapsedRef = useRef(0);
-  const exitMovingRef = useRef(true);
+  /** 엔딩에서 카메라가 몸을 따라가는가. 모션을 줄인 판에서는 선 채로 뒷모습을 보낸다. */
+  const exitFollowRef = useRef(true);
 
   // 구간에 들어서는 순간 시선을 놓는다. damp 없이 곧장: 첫 프레임에 휙 도는 건 연출이 아니라 멀미다
   useLayoutEffect(() => {
@@ -66,13 +68,15 @@ export function FirstPersonRig({
     smoothRef.current.yaw = look.yaw;
     smoothRef.current.pitch = look.pitch;
     if (viewpoint === "exit") {
-      exitElapsedRef.current = 0;
-      // 모션을 줄인 판에서는 걸어 나가지 않는다. 화면이 앞으로 밀려드는 건 멀미의 대표 꼴이다
-      exitMovingRef.current = !prefersReducedMotion();
-      exitWalkAt(0, exitMovingRef.current, camera.position);
-    } else {
-      camera.position.set(player.x, player.y + EYE_HEIGHT, player.z);
+      // 모션을 줄인 판에서는 따라가지 않는다. 화면이 앞으로 밀려드는 건 멀미의 대표 꼴이다
+      exitFollowRef.current = !prefersReducedMotion();
+      // 몸은 다음 프레임에야 출발점에 선다 (Player). 카메라는 그 출발점 기준으로 먼저 선다
+      exitCameraAt(exitBodyAt(0, { x: 0, z: 0 }), exitFollowRef.current, camera.position);
+      camera.lookAt(EXIT_LOOK_AT.x, EXIT_LOOK_AT.y, EXIT_LOOK_AT.z);
+      camera.updateMatrixWorld();
+      return;
     }
+    camera.position.set(player.x, player.y + EYE_HEIGHT, player.z);
     camera.rotation.set(look.pitch, look.yaw, 0);
     camera.updateMatrixWorld();
   }, [viewpoint, camera, lookRef, playerPositionRef]);
@@ -96,9 +100,8 @@ export function FirstPersonRig({
 
   useFrame((_, delta) => {
     if (viewpoint === "exit") {
-      exitElapsedRef.current += delta;
-      exitWalkAt(exitElapsedRef.current, exitMovingRef.current, camera.position);
-      // 시선은 들어설 때 정한 그대로다. 걸어 나가는 동안 고개를 돌릴 일은 없다
+      exitCameraAt(playerPositionRef.current, exitFollowRef.current, camera.position);
+      camera.lookAt(EXIT_LOOK_AT.x, EXIT_LOOK_AT.y, EXIT_LOOK_AT.z);
       return;
     }
     const player = playerPositionRef.current;

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   clampPitch,
+  EXIT_LOOK_AT,
   EXIT_WALK,
-  exitWalkAt,
+  exitBodyAt,
+  exitCameraAt,
   handleLookKeyDown,
   initialLook,
   LOOK_DRAG_SENSITIVITY,
@@ -117,26 +119,40 @@ describe("1인칭 시선", () => {
 });
 
 describe("엔딩의 문턱 넘기", () => {
-  const at = (elapsed: number, moving = true) => exitWalkAt(elapsed, moving, { x: 0, y: 0, z: 0 });
+  const doorX = FRONT_DOOR_POSITION[0];
+  const body = (elapsed: number) => exitBodyAt(elapsed, { x: 0, z: 0 });
+  const cameraFor = (elapsed: number, following = true) =>
+    exitCameraAt(body(elapsed), following, { x: 0, y: 0, z: 0 });
+  const end = EXIT_WALK.holdS + EXIT_WALK.walkS;
 
-  it("현관문 정면 안쪽에서 문을 보고 서서, 문이 열리는 동안은 움직이지 않는다", () => {
-    const start = at(0);
-    expect(start.z).toBe(FRONT_DOOR_POSITION[2]);
-    expect(start.x).toBeCloseTo(FRONT_DOOR_POSITION[0] + EXIT_WALK.startDistance);
-    expect(at(EXIT_WALK.holdS * 0.9).x).toBeCloseTo(start.x);
-
-    // 정면이 문 쪽(-x)이다
-    const forward = lookDirection(initialLook("exit", start), { x: 0, y: 0, z: 0 });
-    expect(forward.x).toBeLessThan(-0.99);
+  it("몸은 현관문 정면 안쪽에 서서, 문이 열리는 동안은 움직이지 않는다", () => {
+    expect(body(0).z).toBe(FRONT_DOOR_POSITION[2]);
+    expect(body(0).x).toBeCloseTo(doorX + EXIT_WALK.bodyStart);
+    expect(body(EXIT_WALK.holdS * 0.9).x).toBeCloseTo(body(0).x);
   });
 
-  it("문턱을 넘어 빛 판 앞에서 멈춘다. 판을 뚫지 않는다", () => {
-    const end = at(EXIT_WALK.holdS + EXIT_WALK.walkS + 5);
-    expect(end.x).toBeLessThan(FRONT_DOOR_POSITION[0]);
-    expect(end.x).toBeGreaterThan(FRONT_DOOR_POSITION[0] - 0.32);
+  it("몸은 문을 지나 빛 판(문 밖 0.32) 너머로 사라지고, 걸음은 뒤로 물러서지 않는다", () => {
+    expect(body(end).x).toBeCloseTo(doorX + EXIT_WALK.bodyEnd);
+    expect(body(end).x).toBeLessThan(doorX - 0.32);
+    let previous = body(0).x;
+    for (let t = 0; t <= end; t += 0.05) {
+      const x = body(t).x;
+      expect(x).toBeLessThanOrEqual(previous + 1e-9);
+      previous = x;
+    }
   });
 
-  it("모션 줄이기에서는 출발점에 선 채로 본다", () => {
-    expect(at(99, false).x).toBeCloseTo(at(0).x);
+  it("카메라는 몸 뒤에서 문 쪽을 보고, 문턱 앞에서 멈춰 뒷모습을 보낸다", () => {
+    const start = cameraFor(0);
+    expect(start.x).toBeGreaterThan(body(0).x);
+    expect(EXIT_LOOK_AT.x).toBeLessThan(doorX);
+    const stopped = cameraFor(end);
+    expect(stopped.x).toBeCloseTo(doorX + EXIT_WALK.cameraStop);
+    // 문틀(개구부 반폭 0.82) 안쪽 폭에 선다
+    expect(Math.abs(stopped.z - FRONT_DOOR_POSITION[2])).toBeLessThan(0.82);
+  });
+
+  it("모션 줄이기에서는 카메라가 출발 자리에 선 채로 본다", () => {
+    expect(cameraFor(end, false).x).toBeCloseTo(cameraFor(0).x);
   });
 });

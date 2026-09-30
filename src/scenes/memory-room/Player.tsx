@@ -16,7 +16,7 @@ import type { MovementAxes } from "@/types/movement";
 import { advanceCurtainMotion, type CurtainMotion, createCurtainMotion } from "./curtain-animation";
 import type { CurtainPull } from "./curtain-motion";
 import { funnelIntoDoorway } from "./doorway-funnel";
-import { MIRROR_ONLY_LAYER } from "./first-person";
+import { EXIT_FACING, exitBodyAt, MIRROR_ONLY_LAYER } from "./first-person";
 import { CURTAIN_STAND } from "./layout";
 import { findPath } from "./pathfind";
 import {
@@ -122,6 +122,9 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
   const phaseRef = useRef(0);
   const walkRef = useRef(0);
   const curtainPoseRef = useRef<CurtainPose>({ side: "right", time: 0, weight: 0 });
+  /** 엔딩의 문턱 넘기가 시작된 뒤 흐른 시간(초). 넘기 중이 아니면 null. */
+  const exitClockRef = useRef<number | null>(null);
+  const exitBodyRef = useRef<Vec2>({ x: 0, z: 0 });
   const inputLocked = useMemoryRoomStore(selectSceneInputLocked);
   /*
    * 앉기.
@@ -212,8 +215,15 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
    * 보이면 제 몸통 속이다. 지우지 않고 층만 옮기는 이유는 거울이다: 거울의 반사
    * 카메라만 그 층을 켜서(MirrorReflection) 어둠 속 제 모습이 거울에 비친다.
    * 위치·걸음은 그대로 돈다: 카메라(FirstPersonRig)가 positionRef를 따라간다.
+   *
+   * 엔딩의 문턱(exit)은 예외다. 카메라가 등 뒤에 서서 걸어 나가는 뒷모습을 본다.
    */
-  const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
+  const viewpoint = useMemoryRoomStore(selectViewpoint);
+  const firstPerson = viewpoint !== null && viewpoint !== "exit";
+  const exiting = viewpoint === "exit";
+  useEffect(() => {
+    exitClockRef.current = exiting ? 0 : null;
+  }, [exiting]);
   useEffect(() => {
     rig.root.traverse((object) => object.layers.set(firstPerson ? MIRROR_ONLY_LAYER : 0));
   }, [rig, firstPerson]);
@@ -376,6 +386,37 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
     if (!group || !facing) return;
 
     const step = Math.min(delta, MAX_FRAME_DELTA);
+
+    /*
+     * 엔딩의 문턱 넘기: 몸이 제 발로 문을 지나 빛 속으로 걸어 나간다 (first-person의
+     * exitBodyAt). 입력·앉기·커튼은 다 내려놓는다. 길은 벽·가구 판정을 타지 않는다:
+     * 문 밖은 걷기 영역이 아니고, 이 길은 비어 있는 문 앞이다. 공간(setSpace)도 안
+     * 바꾼다. 문 밖은 어느 공간도 아니라서 바꾸면 거실이 통째로 숨는다.
+     */
+    if (exitClockRef.current !== null) {
+      // 시계는 실제 시간이다(step 아님). 영상으로 넘어가는 EndingScreen의 타이머와 맞아야 한다
+      exitClockRef.current += delta;
+      const body = exitBodyAt(exitClockRef.current, exitBodyRef.current);
+      const traveled = Math.hypot(body.x - group.position.x, body.z - group.position.z);
+      // 첫 프레임은 선 자리에서 문 앞으로 옮겨 서는 것이다. 걸음이 아니다 (전환 덮개가 가린다)
+      const teleport = traveled > 0.5;
+      group.position.set(body.x, PLAYER_START.y, body.z);
+      positionRef.current.copy(group.position);
+      facing.rotation.y = teleport
+        ? EXIT_FACING
+        : dampAngle(facing.rotation.y, EXIT_FACING, TURN_LAMBDA, delta);
+      if (lieRef.current) lieRef.current.rotation.x = 0;
+      seatRef.current = null;
+      grabRef.current = null;
+      walkTargetRef.current = null;
+      const walking = !teleport && traveled > 1e-5;
+      if (walking) phaseRef.current += STEP_RATE * traveled;
+      walkRef.current = MathUtils.damp(walkRef.current, walking ? 1 : 0, WALK_BLEND_LAMBDA, delta);
+      const pose = curtainPoseRef.current;
+      pose.weight = 0;
+      updatePlayerRig(rig, phaseRef.current, walkRef.current, step, 0, 0, pose);
+      return;
+    }
     // 입력이 잠겨도 포즈는 계속 돈다. 대사 중에 다리가 걷다 만 자세로 굳지 않게.
     const locked = selectSceneInputLocked(useMemoryRoomStore.getState());
     const input = locked

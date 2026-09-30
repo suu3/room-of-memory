@@ -19,7 +19,7 @@ import { EndingConfetti } from "./EndingConfetti";
 import { BUTTON_PRIMARY, BUTTON_QUIET } from "./ui-classes";
 
 /**
- * door: 문이 열리고 1인칭으로 문턱을 넘는 몇 초 (투명, 3D가 보인다. 길이는 EXIT_BEAT_MS)
+ * door: 문이 열리고 도해가 문턱을 넘어 나가는 몇 초 (투명, 3D가 보인다. 길이는 EXIT_BEAT_MS)
  * film: 엔딩 영상
  * card: 영상이 끝난 뒤의 마무리 카드
  */
@@ -28,7 +28,7 @@ type EndingStage = "door" | "film" | "card";
 /**
  * 현관문을 연 뒤의 엔딩.
  *
- * 문이 열리고 도해의 눈으로 문턱을 넘어 빛 속으로 걸어 나간 뒤(FirstPersonRig의 exit)
+ * 문이 열리고 도해가 빛 속으로 걸어 나가는 뒷모습을 본 뒤(Player·FirstPersonRig의 exit)
  * 엔딩 영상을 튼다. 영상의 마지막 컷(배트를 쥐고 문을
  * 열고 나가는 장면)이 방금 한 동작과 이어진다. 끝나거나 건너뛰면 색종이와 함께
  * 카드가 서고, "처음으로"가 타이틀로 돌려보낸다 (store.reset).

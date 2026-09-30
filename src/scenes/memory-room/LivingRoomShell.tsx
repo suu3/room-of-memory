@@ -79,7 +79,7 @@ const LIVING_Z = { min: LIVING_SHELL_BOUNDS.minZ, max: LIVING_SHELL_BOUNDS.maxZ 
 const BACK_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.minZ, LIVING_X);
 const FRONT_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.maxZ, LIVING_X, BATHROOM_DOOR_POSITION[0]);
 /*
- * -x 벽에는 문이 둘이다: 안방문, 그리고 현관문. 현관문 자리도 뚫어 둔다. 엔딩에 1인칭으로
+ * -x 벽에는 문이 둘이다: 안방문, 그리고 현관문. 현관문 자리도 뚫어 둔다. 엔딩에 도해가 걸어서
  * 문턱을 넘을 때(FirstPersonRig의 exit) 열린 문 너머가 벽이면 나갈 데가 없다. 닫혀 있는
  * 동안은 문짝과 문틀이 구멍을 가린다.
  */
@@ -263,7 +263,7 @@ function EndingLightPlane({ color, visible }: { color: string; visible: boolean 
     return () => setEndingLightMesh(null);
   }, []);
   return (
-    // 아래로 바닥 두께만큼 더 내린다. 1인칭으로 문턱을 넘을 때 판 밑에 어두운 띠가 비친다
+    // 아래로 바닥 두께만큼 더 내린다. 엔딩에 가까이서 문을 볼 때 판 밑에 어두운 띠가 비친다
     <mesh ref={meshRef} position={[0, -0.05, -0.32]} visible={visible} frustumCulled={false}>
       <planeGeometry args={[1.5, 3.6]} />
       <meshBasicMaterial color={color} transparent depthWrite={false} toneMapped={false} />
