@@ -38,16 +38,20 @@ const FOLLOW_INSET = 1.6;
  * 전환 연출이 따로 없는 이유다. 문을 넘는 순간은 컷이 아니라 이동이다
  * (docs/content-design.md 3-3). 열린 문간이 바뀔 때만 다시 계산한다.
  */
-const limitsCache: { key: string | null; limits: Aabb2 } = {
-  key: null,
-  limits: followLimits([], FOLLOW_INSET),
-};
+const limitsCache: {
+  doorOpened: boolean | null;
+  openedDoorways: readonly string[] | null;
+  limits: Aabb2;
+} = { doorOpened: null, openedDoorways: null, limits: followLimits([], FOLLOW_INSET) };
+// 열쇠는 값이 아니라 참조다 (Player의 walkableFor와 같은 이유): 문자열로 엮으면 그게 쓰레기다
 function followLimitsFor(state: Parameters<typeof openDoorwayIds>[0]): Aabb2 {
-  const open = openDoorwayIds(state);
-  const key = open.join(",");
-  if (limitsCache.key !== key) {
-    limitsCache.key = key;
-    limitsCache.limits = followLimits(open, FOLLOW_INSET);
+  if (
+    limitsCache.doorOpened !== state.doorOpened ||
+    limitsCache.openedDoorways !== state.openedDoorways
+  ) {
+    limitsCache.doorOpened = state.doorOpened;
+    limitsCache.openedDoorways = state.openedDoorways;
+    limitsCache.limits = followLimits(openDoorwayIds(state), FOLLOW_INSET);
   }
   return limitsCache.limits;
 }

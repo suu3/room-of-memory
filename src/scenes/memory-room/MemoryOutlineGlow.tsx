@@ -284,9 +284,10 @@ function TiltShiftDriver({ effect }: { effect: TiltShiftEffect }) {
   const seated = useMemoryRoomStore((state) => state.seatedAt !== null);
   /** damp로 굴리는 본값. 이펙트의 getter를 매 프레임 읽지 않으려고 따로 든다. */
   const current = useRef(tiltFocus(1, false));
+  // 목표는 막·앉음이 바뀔 때만 새로 센다. 프레임마다 만들면 그만큼 쓰레기다
+  const goal = useMemo(() => tiltFocus(act, seated), [act, seated]);
 
   useFrame((_, delta) => {
-    const goal = tiltFocus(act, seated);
     const value = current.current;
     const offset = MathUtils.damp(value.offset, goal.offset, TILT_LAMBDA, delta);
     const focusArea = MathUtils.damp(value.focusArea, goal.focusArea, TILT_LAMBDA, delta);
@@ -296,7 +297,10 @@ function TiltShiftDriver({ effect }: { effect: TiltShiftEffect }) {
     if (Math.abs(focusArea - value.focusArea) > TILT_EPSILON) effect.focusArea = focusArea;
     if (Math.abs(feather - value.feather) > TILT_EPSILON) effect.feather = feather;
     if (Math.abs(blurScale - value.blurScale) > TILT_EPSILON) effect.blurPass.scale = blurScale;
-    current.current = { offset, focusArea, feather, blurScale };
+    value.offset = offset;
+    value.focusArea = focusArea;
+    value.feather = feather;
+    value.blurScale = blurScale;
   });
   return null;
 }

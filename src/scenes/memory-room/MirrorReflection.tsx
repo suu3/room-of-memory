@@ -145,7 +145,14 @@ export function MirrorReflection({
     return mirror;
   }, [width, height, palette, get]);
 
-  useEffect(() => () => reflector.dispose(), [reflector]);
+  useEffect(
+    () => () => {
+      // Reflector.dispose는 렌더 타깃과 재질만 놓는다. 넘겨준 지오메트리는 우리 몫이다
+      reflector.geometry.dispose();
+      reflector.dispose();
+    },
+    [reflector],
+  );
 
   const shine = useGlassShine(palette.daylight);
 

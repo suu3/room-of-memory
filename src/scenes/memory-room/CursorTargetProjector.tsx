@@ -6,6 +6,8 @@ import { cursorTarget } from "./cursor-target";
 
 const bounds = new Box3();
 const center = new Vector3();
+/** 화면 좌표의 스크래치. 프레임마다 새 객체를 만들지 않고 이 하나를 고쳐 쓴다. */
+const screen = { x: 0, y: 0 };
 
 /**
  * 커서가 얹힌 3D 오브젝트의 가운데를 프레임마다 화면 좌표로 옮겨 적는다 (cursor-target).
@@ -28,10 +30,9 @@ export function CursorTargetProjector() {
     }
     bounds.getCenter(center).project(camera);
     const rect = gl.domElement.getBoundingClientRect();
-    cursorTarget.screen = {
-      x: rect.left + ((center.x + 1) / 2) * rect.width,
-      y: rect.top + ((1 - center.y) / 2) * rect.height,
-    };
+    screen.x = rect.left + ((center.x + 1) / 2) * rect.width;
+    screen.y = rect.top + ((1 - center.y) / 2) * rect.height;
+    cursorTarget.screen = screen;
   });
   return null;
 }

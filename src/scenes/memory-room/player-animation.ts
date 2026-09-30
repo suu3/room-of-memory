@@ -19,6 +19,8 @@ import type { CurtainSide } from "@/types/curtain";
  * 축은 **몸의 앞뒤**(리그 루트의 X)다. 월드 X를 그대로 쓰면 캐릭터가 어느 쪽을 보든
  * 팔이 항상 월드 +Z로 뻗어, 창을 등지고 서면 뒤로 젖힌다.
  */
+/** 커튼 클립의 두 쪽. 프레임마다 도는 함수 안에서 배열을 새로 만들지 않게 밖에 둔다. */
+const CURTAIN_SIDES = ["left", "right"] as const;
 const REACH_UPPER_ARM = -1.5;
 const REACH_FOREARM = -0.3;
 const bodyAxis = new Vector3();
@@ -141,7 +143,7 @@ export function updatePlayerRig(
   const curtainWeight =
     rig.curtain && curtainPose ? Math.max(0, Math.min(1, curtainPose.weight)) : 0;
   if (rig.curtain) {
-    for (const side of ["left", "right"] as const) {
+    for (const side of CURTAIN_SIDES) {
       const action = rig.curtain[side];
       action.setEffectiveWeight(curtainPose?.side === side ? curtainWeight : 0);
       if (curtainPose?.side === side)

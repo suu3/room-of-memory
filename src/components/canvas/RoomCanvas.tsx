@@ -61,6 +61,7 @@ import {
   roomZoomScaleFromWheel,
 } from "./room-canvas-runtime";
 import { useFirstPersonLook } from "./use-first-person-look";
+import { VisibleHitsOnly } from "./VisibleHitsOnly";
 
 const PROXIMITY_POLL_MS = 100;
 const DIRECT_FOCUS_MS = 900;
@@ -610,6 +611,8 @@ export function RoomCanvas() {
             <PerformanceMonitor onDecline={degrade} />
             {/* 크기·배율이 바뀐 직후 한 장을 바로 그린다. 빈 버퍼가 합성돼 검게 깜빡이지 않게 */}
             <ResizeRepaint />
+            {/* 숨은 방의 물건은 클릭·호버를 받지 않는다 */}
+            <VisibleHitsOnly />
             <MemoryRoomScene
               playerPositionRef={playerPositionRef}
               movementInputRef={movementInputRef}

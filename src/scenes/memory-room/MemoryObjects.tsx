@@ -42,7 +42,17 @@ import { DRAWER_TRAVEL } from "./fridge-drawer";
 import { hitRadiusOf, MEMORY_PLACEMENTS, MEMORY_SPACE, type MemorySpace } from "./layout";
 import { MemoryBeacon } from "./MemoryBeacon";
 import { MemoryGlowLayers, MemoryGlowVisualBoundary } from "./MemoryOutlineGlow";
-import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-motion";
+import {
+  approach,
+  HOVER_LAMBDA,
+  type MemoryMotion,
+  memoryMotion,
+  PUNCH_DURATION,
+} from "./memory-motion";
+
+/** 호버·펀치 변형의 스크래치. 오브젝트마다 프레임마다 새 객체를 만들지 않는다 (r3f.md). */
+const motionScratch: MemoryMotion = { scale: 1, lift: 0 };
+
 import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
 import { radioSignalLevel, radioWakeRamp } from "./radio-signal";
@@ -1332,7 +1342,7 @@ export function InteractiveMemory({
     if (!group) return;
     hoverRef.current = approach(hoverRef.current, hovered ? 1 : 0, HOVER_LAMBDA, delta);
     punchRef.current = Math.min(PUNCH_DURATION, punchRef.current + delta);
-    const motion = memoryMotion(hoverRef.current, punchRef.current);
+    const motion = memoryMotion(hoverRef.current, punchRef.current, motionScratch);
     group.scale.setScalar(motion.scale);
     group.position.y = motion.lift;
   });

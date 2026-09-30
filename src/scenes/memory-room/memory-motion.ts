@@ -45,11 +45,15 @@ export interface MemoryMotion {
  * 잠긴(available이 아닌) 오브젝트는 아예 반응하지 않는다. 반응하면 "누를 수 있다"는
  * 잘못된 신호가 된다.
  */
-export function memoryMotion(hover: number, punchElapsed: number): MemoryMotion {
-  return {
-    scale: (1 + HOVER_SCALE * hover) * punchScale(punchElapsed),
-    lift: HOVER_LIFT * hover,
-  };
+export function memoryMotion(
+  hover: number,
+  punchElapsed: number,
+  // 프레임마다 부르는 쪽은 제 스크래치를 넘겨 새 객체를 만들지 않는다
+  out: MemoryMotion = { scale: 1, lift: 0 },
+): MemoryMotion {
+  out.scale = (1 + HOVER_SCALE * hover) * punchScale(punchElapsed);
+  out.lift = HOVER_LIFT * hover;
+  return out;
 }
 
 /** damp 한 스텝. three의 MathUtils.damp와 같은 식이라 프레임레이트에 안 흔들린다. */

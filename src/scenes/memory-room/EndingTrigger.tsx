@@ -2,14 +2,20 @@
 
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { Suspense, useCallback, useMemo, useRef } from "react";
-import type { Group, Mesh } from "three";
+import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
+import type { Group, Material, Mesh } from "three";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import { selectBatReady, useMemoryRoomStore } from "@/store/memory-room";
 import { BAT_PLACEMENT } from "./layout";
 import { MemoryGlowSelection } from "./MemoryOutlineGlow";
-import { approach, HOVER_LAMBDA, memoryMotion, PUNCH_DURATION } from "./memory-motion";
+import {
+  approach,
+  HOVER_LAMBDA,
+  type MemoryMotion,
+  memoryMotion,
+  PUNCH_DURATION,
+} from "./memory-motion";
 import { centerModelXZ } from "./model-utils";
 import type { RoomPalette } from "./palette";
 import { useGlowHover } from "./use-glow-hover";
@@ -23,6 +29,27 @@ const READY_EMISSIVE = 0.55;
 const TAKEN_DURATION = 0.45;
 /** 들려 올라가는 높이. */
 const TAKEN_LIFT = 0.9;
+const motionScratch: MemoryMotion = { scale: 1, lift: 0 };
+
+/** 금빛을 받는 재질: emissive가 있는 것만. 목록은 모델을 복제할 때 한 번 모은다. */
+type LitMaterial = Material & {
+  emissive: { set: (value: string) => void };
+  emissiveIntensity: number;
+};
+
+function litMaterialsOf(root: {
+  traverse: (fn: (object: unknown) => void) => void;
+}): LitMaterial[] {
+  const found: LitMaterial[] = [];
+  root.traverse((object) => {
+    const mesh = object as Mesh;
+    if (!mesh.isMesh) return;
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const material of materials)
+      if ("emissive" in material) found.push(material as LitMaterial);
+  });
+  return found;
+}
 
 /**
  * 현관문 옆에 세워둔 배트: 3막의 물건이다 (docs/content-design.md 3-2).
@@ -44,7 +71,9 @@ function LoadedEndingTrigger({ palette }: { palette: RoomPalette }) {
   const takenRef = useRef(0);
 
   const { scene } = useGLTF(ASSETS.models.baseballBat, true, true);
-  const bat = useMemo(() => {
+  // 재질은 복제해 이 배트만의 것으로 둔다 (금빛은 여기서만 오른다). 목록은 한 번 모아
+  // 프레임마다 모델을 훑지 않고, 색도 한 번만 놓는다: 문자열 파싱은 프레임의 일이 아니다
+  const { bat, materials } = useMemo(() => {
     const copy = scene.clone(true);
     copy.traverse((object) => {
       const mesh = object as Mesh;
@@ -54,26 +83,24 @@ function LoadedEndingTrigger({ palette }: { palette: RoomPalette }) {
         ? mesh.material.map((material) => material.clone())
         : mesh.material.clone();
     });
-    return centerModelXZ(copy);
-  }, [scene]);
+    const lit = litMaterialsOf(copy);
+    for (const material of lit) material.emissive.set(palette.memory);
+    return { bat: centerModelXZ(copy), materials: lit };
+  }, [scene, palette.memory]);
+  // 복제한 재질은 우리 것이라 우리가 놓는다 (FurnitureModel과 같다)
+  useEffect(
+    () => () => {
+      for (const material of materials) material.dispose();
+    },
+    [materials],
+  );
 
   // 준비되면 금빛이 서서히 올라온다. 재질을 매 프레임 새로 만들지 않고 값만 민다.
   useFrame((_, delta) => {
     const target = ready && !started ? READY_EMISSIVE : DORMANT_EMISSIVE;
-    bat.traverse((object) => {
-      const mesh = object as Mesh;
-      if (!mesh.isMesh) return;
-      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-      for (const material of materials) {
-        const lit = material as {
-          emissive?: { set: (value: string) => void };
-          emissiveIntensity?: number;
-        };
-        if (!lit.emissive) continue;
-        lit.emissive.set(palette.memory);
-        lit.emissiveIntensity = approach(lit.emissiveIntensity ?? 0, target, 3, delta);
-      }
-    });
+    for (const material of materials) {
+      material.emissiveIntensity = approach(material.emissiveIntensity, target, 3, delta);
+    }
 
     const group = motionRef.current;
     if (!group) return;
@@ -90,7 +117,7 @@ function LoadedEndingTrigger({ palette }: { palette: RoomPalette }) {
 
     hoverRef.current = approach(hoverRef.current, hovered ? 1 : 0, HOVER_LAMBDA, delta);
     punchRef.current = Math.min(PUNCH_DURATION, punchRef.current + delta);
-    const motion = memoryMotion(hoverRef.current, punchRef.current);
+    const motion = memoryMotion(hoverRef.current, punchRef.current, motionScratch);
     group.scale.setScalar(motion.scale);
     group.position.y = motion.lift;
   });

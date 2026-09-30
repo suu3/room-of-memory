@@ -67,10 +67,15 @@ const cameraRight = new Vector3();
  * 다시 만든다: 프레임마다 배열을 새로 엮으면 걷는 내내 쓰레기가 쌓인다.
  */
 function walkableFor(state: { doorOpened: boolean; openedDoorways: readonly string[] }) {
-  const open = openDoorwayIds(state as Parameters<typeof openDoorwayIds>[0]);
-  const key = open.join(",");
-  if (walkableCache.key !== key) {
-    walkableCache.key = key;
+  // 열쇠는 값이 아니라 참조다. 목록을 엮어 문자열로 만드는 것 자체가 프레임마다 쓰레기였다.
+  // 스토어는 문이 열릴 때만 새 배열을 놓는다
+  if (
+    walkableCache.doorOpened !== state.doorOpened ||
+    walkableCache.openedDoorways !== state.openedDoorways
+  ) {
+    const open = openDoorwayIds(state as Parameters<typeof openDoorwayIds>[0]);
+    walkableCache.doorOpened = state.doorOpened;
+    walkableCache.openedDoorways = state.openedDoorways;
     walkableCache.zones = walkZones(open);
     walkableCache.colliders = walkColliders(open);
     walkableCache.doorways = open.map((id) => DOORWAYS[id].zone);
@@ -78,13 +83,15 @@ function walkableFor(state: { doorOpened: boolean; openedDoorways: readonly stri
   return walkableCache;
 }
 const walkableCache: {
-  key: string | null;
+  doorOpened: boolean | null;
+  openedDoorways: readonly string[] | null;
   zones: Aabb2[];
   colliders: Aabb2[];
   /** 열린 문간. 문 앞에서 미는 걸음을 통로 가운데로 당긴다 (doorway-funnel.ts). */
   doorways: Aabb2[];
 } = {
-  key: null,
+  doorOpened: null,
+  openedDoorways: null,
   zones: [],
   colliders: [],
   doorways: [],
