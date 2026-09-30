@@ -15,6 +15,13 @@ import {
 } from "three";
 import { ASSETS } from "@/lib/assets";
 import { prefersReducedMotion } from "@/lib/reduced-motion";
+import {
+  batDirection,
+  HAND_GAP,
+  palmPoint,
+  placeHeldBat,
+  reachHandTo,
+} from "@/scenes/memory-room/held-bat";
 import { resolveRoomPalette } from "@/scenes/memory-room/palette";
 import {
   createPlayerRig,
@@ -35,7 +42,6 @@ import {
   type TossMotion,
   tossMotionAt,
 } from "./ar-motion";
-import { batDirection, HAND_GAP, palmPoint, placeHeldBat, reachHandTo } from "./held-bat";
 
 /** The AR figure shares the authored game clips and adds only the two missing sports gestures. */
 

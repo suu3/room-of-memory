@@ -3,7 +3,7 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { type MutableRefObject, Suspense, useEffect, useMemo, useRef } from "react";
-import { type Group, MathUtils, Vector3 } from "three";
+import { type Group, MathUtils, type Mesh, Quaternion, Vector3 } from "three";
 import { ASSETS } from "@/lib/assets";
 import {
   openDoorwayIds,
@@ -13,6 +13,7 @@ import {
 } from "@/store/memory-room";
 import type { CurtainSide } from "@/types/curtain";
 import type { MovementAxes } from "@/types/movement";
+import { carryBat, findCarryBones } from "./carried-bat";
 import { advanceCurtainMotion, type CurtainMotion, createCurtainMotion } from "./curtain-animation";
 import type { CurtainPull } from "./curtain-motion";
 import { funnelIntoDoorway } from "./doorway-funnel";
@@ -92,6 +93,7 @@ const walkableCache: {
 useGLTF.preload(ASSETS.models.playerBlocky, true, true);
 useGLTF.preload(ASSETS.models.curtainPullTest, true, true);
 useGLTF.preload(ASSETS.models.curtainPullLeft, true, true);
+useGLTF.preload(ASSETS.models.baseballBat, true, true);
 
 /** 최단 회전 방향으로 각도를 damp: -π/π 경계에서 한 바퀴 도는 걸 막는다. */
 function dampAngle(current: number, target: number, lambda: number, delta: number): number {
@@ -209,6 +211,24 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
     startPlayerRig(rig);
     return () => disposePlayerRig(rig);
   }, [rig]);
+
+  /*
+   * 엔딩에 어깨에 메고 나가는 배트 (carried-bat). 현관 옆에 세워 둔 배트(EndingTrigger)는
+   * 쥐는 순간 사라지고, 문턱을 넘을 때 여기서 손에 들린다. 그 전에는 숨어 있다.
+   * 팔은 걸음 애니메이션 위에 IK로 덮어쓴다. 다음 프레임에는 덮어쓰기 전 값으로 되돌려야
+   * 믹서가 섞는 기준이 흔들리지 않는다 (ArHero의 beforeManual과 같은 까닭).
+   */
+  const { scene: batScene } = useGLTF(ASSETS.models.baseballBat, true, true);
+  const carriedBat = useMemo(() => {
+    const copy = batScene.clone(true);
+    copy.traverse((object) => {
+      if ((object as Mesh).isMesh) object.castShadow = true;
+    });
+    return copy;
+  }, [batScene]);
+  const carryBones = useMemo(() => findCarryBones(rig.root), [rig]);
+  const batRef = useRef<Group>(null);
+  const carryRestRef = useRef({ upper: new Quaternion(), fore: new Quaternion(), applied: false });
 
   /*
    * 1인칭 구간에는 몸을 메인 카메라가 안 보는 층으로 옮긴다. 카메라가 머리 안에 있어서
@@ -387,6 +407,14 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
 
     const step = Math.min(delta, MAX_FRAME_DELTA);
 
+    // 지난 프레임에 배트를 멘 팔은 걸음 애니메이션이 내놓은 자세로 되돌려 둔다
+    const carryRest = carryRestRef.current;
+    if (carryRest.applied && carryBones) {
+      carryBones.upper.quaternion.copy(carryRest.upper);
+      carryBones.fore.quaternion.copy(carryRest.fore);
+      carryRest.applied = false;
+    }
+
     /*
      * 엔딩의 문턱 넘기: 몸이 제 발로 문을 지나 빛 속으로 걸어 나간다 (first-person의
      * exitBodyAt). 입력·앉기·커튼은 다 내려놓는다. 길은 벽·가구 판정을 타지 않는다:
@@ -415,6 +443,14 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
       const pose = curtainPoseRef.current;
       pose.weight = 0;
       updatePlayerRig(rig, phaseRef.current, walkRef.current, step, 0, 0, pose);
+      const bat = batRef.current;
+      const torso = lieRef.current;
+      if (carryBones && bat && torso) {
+        carryRest.upper.copy(carryBones.upper.quaternion);
+        carryRest.fore.copy(carryBones.fore.quaternion);
+        carryBat(carryBones, torso, bat);
+        carryRest.applied = true;
+      }
       return;
     }
     // 입력이 잠겨도 포즈는 계속 돈다. 대사 중에 다리가 걷다 만 자세로 굳지 않게.
@@ -668,6 +704,9 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
       <group ref={facingRef}>
         <group ref={lieRef}>
           <primitive object={rig.root} dispose={null} />
+          <group ref={batRef} visible={exiting && carryBones !== null}>
+            <primitive object={carriedBat} dispose={null} />
+          </group>
         </group>
       </group>
     </group>

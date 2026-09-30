@@ -1,7 +1,9 @@
 import { type Object3D, Quaternion, Vector3 } from "three";
 
 /*
- * 두 손으로 쥔 배트.
+ * 손에 쥔 배트. AR(ArHero)의 두 손 타격과 엔딩(Player)의 한 손으로 어깨에 멘 배트가 같이 쓴다.
+ *
+ * 아래는 두 손으로 쥔 경우의 설명이다.
  *
  * 배트의 방향은 동작(ar-motion의 batMotionAt)이 정하고, 두 팔은 그 손잡이를 향해 뻗는다(IK).
  * 배트는 실제로 모인 두 손 사이에 끼운다: 팔이 목표에 다 못 닿아도 배트가 손을 떠나지 않는다.
