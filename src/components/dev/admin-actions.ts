@@ -57,6 +57,12 @@ export function applyAdminPatch(patch: AdminPatch): void {
     openedDoorways: state.openedDoorways,
     inventory: state.inventory,
     pianoGapSeen: state.pianoGapSeen,
+    // 이 넷도 저장 항목이다. 빠뜨리면 sanitizeProgress가 기본값으로 되돌려 오토가 꺼지고
+    // 수첩의 안 읽음 표시·평면도의 "봤다" 표시가 지워진다
+    autoPlay: state.autoPlay,
+    cluesSeen: state.cluesSeen,
+    notebookOpened: state.notebookOpened,
+    notebookRead: state.notebookRead,
     ...progress,
   };
 

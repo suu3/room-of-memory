@@ -870,7 +870,9 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
     expect(state.inventory).toContain("parents-key");
     expect(state.remark?.id).toBe("sink-open");
     expect(selectDoorwayReady("living-parents")(state)).toBe(true);
-    state.openDoorway("living-parents");
+    // 하부장의 크레인 샷이 도는 동안은 씬 입력이 잠긴다. 샷이 끝나야 문을 만진다
+    state.endCameraHold();
+    useMemoryRoomStore.getState().openDoorway("living-parents");
     expect(storyPhase(useMemoryRoomStore.getState())).toBe("p4");
   });
 
@@ -1123,7 +1125,12 @@ describe("전환 컷씬", () => {
 
   it("한 번 연 문은 다시 열 대상이 아니다", () => {
     finishFirstRound();
-    useMemoryRoomStore.setState({ revisited: ["radio"] });
+    // 전환 컷씬이 흐르는 동안은 씬 입력이 잠긴다. 컷씬이 끝난 뒤의 클릭이다
+    useMemoryRoomStore.setState({
+      revisited: ["radio"],
+      activePlayback: null,
+      queuedPlaybacks: [],
+    });
     useMemoryRoomStore.getState().openRoomDoor();
 
     expect(useMemoryRoomStore.getState().doorOpened).toBe(true);

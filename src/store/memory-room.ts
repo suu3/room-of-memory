@@ -1105,8 +1105,9 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           return {
             activePlayback: next,
             ...(stepped === null ? { queuedPlaybacks: rest } : {}),
-            // 두 줄이 다 흘렀으면 그때 배트가 손에 들어온다. 재생의 끝이 곧 손잡이다
-            ...(next === null && batGripEnding(state) ? { batTaken: true } : {}),
+            // 두 줄이 다 흘렀으면 그때 배트가 손에 들어온다. 재생의 끝이 곧 손잡이다.
+            // 뒤에 줄 선 컷씬이 있어도 같다 (건너뛰기 endPlayback와 같은 조건)
+            ...(stepped === null && batGripEnding(state) ? { batTaken: true } : {}),
           };
         }),
       endPlayback: () =>
@@ -1254,10 +1255,17 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
                 ...(id === CLUE_DISCOVERY.workbook ? { nameIntroPending: true } : {}),
               },
         ),
-      openRoomDoor: () => set((state) => (selectDoorReady(state) ? { doorOpened: true } : state)),
+      // 문·물건·현관·판은 씬의 클릭이다. 판·대사·크레인 샷이 떠 있는 동안은 캔버스가 여전히
+      // 클릭을 받으므로(뒤가 비치는 판) 여기서 막아야 판 뒤의 문이 열리지 않는다
+      openRoomDoor: () =>
+        set((state) =>
+          selectDoorReady(state) && !selectSceneInputLocked(state) ? { doorOpened: true } : state,
+        ),
       takeItem: (id) =>
         set((state) =>
-          state.inventory.includes(id) ? state : { inventory: [...state.inventory, id] },
+          state.inventory.includes(id) || selectSceneInputLocked(state)
+            ? state
+            : { inventory: [...state.inventory, id] },
         ),
       setAutoPlay: (next) => set({ autoPlay: next }),
       logDialogue: (entry) =>
@@ -1284,7 +1292,10 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         }),
       openDoorway: (id) =>
         set((state) =>
-          id === "room-living" || !doorwayReady(state, id) || state.openedDoorways.includes(id)
+          id === "room-living" ||
+          !doorwayReady(state, id) ||
+          state.openedDoorways.includes(id) ||
+          selectSceneInputLocked(state)
             ? state
             : { openedDoorways: [...state.openedDoorways, id] },
         ),
@@ -1336,8 +1347,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       endCurtainGrab: () => set((state) => (state.curtainGrab ? { curtainGrab: null } : state)),
       openPuzzle: (id) =>
         set((state) => {
-          // 다른 화면(대사·미니게임·재생·단서)이 떠 있으면 위에 얹지 않는다
-          if (state.activeInteraction || state.activePlayback || state.activeClue) return state;
+          // 다른 화면(대사·미니게임·재생·단서·크레인 샷·모달)이 떠 있으면 위에 얹지 않는다
+          if (selectSceneInputLocked(state) || state.activeClue) return state;
           if (state.activePuzzle || state.solvedPuzzles.includes(id)) return state;
           // 하부장 다이얼은 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만 연다 (v4 3-5)
           if (id === "sink-dial" && !selectSinkHintRead(state)) return state;
@@ -1427,7 +1438,10 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       catchSignal: () => set((state) => (signalSilence(state) ? { signalCaught: true } : state)),
       endCameraHold: () => set((state) => (state.cameraHold ? { cameraHold: null } : state)),
       // 챙길 것(가방·앰플·배트)을 다 챙겨야 현관문이 열린다
-      startEnding: () => set((state) => (packedForExit(state) ? { endingStarted: true } : state)),
+      startEnding: () =>
+        set((state) =>
+          packedForExit(state) && !selectSceneInputLocked(state) ? { endingStarted: true } : state,
+        ),
       reset: () => {
         // 찍어 둔 그림도 지난 판의 것이다
         useStillStore.getState().clearStills();
@@ -1504,6 +1518,12 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         autoPlay: state.autoPlay,
       }),
       merge: (persisted, current) => ({ ...current, ...sanitizeProgress(persisted) }),
+      /*
+       * 버전이 다른 저장본도 버리지 않고 merge(sanitizeProgress)로 넘긴다. migrate가 없으면
+       * zustand가 그 저장본을 통째로 버려서, 버전을 올리는 순간 모든 진행이 새 게임이 됐다
+       * (2→3에서 실제로 그랬다). 걸러내는 것은 어차피 sanitizeProgress의 몫이다.
+       */
+      migrate: (persisted) => persisted as Partial<PersistedProgress>,
     },
   ),
 );

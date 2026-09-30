@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MEMORIES } from "@/data/memory-room";
 import { requiredVisits } from "@/data/story-phase";
-import { sanitizeProgress } from "./memory-room";
+import { sanitizeProgress, useMemoryRoomStore } from "./memory-room";
 
 /** 2차가 있는 기억 둘: 1차만 있는 기억(성적표)은 revisited에 남을 수 없다. */
 const [first, second] = MEMORIES.filter((memory) => memory.phase2).map((memory) => memory.id);
@@ -229,5 +229,25 @@ describe("sanitizeProgress", () => {
     expect(sanitizeProgress("nope")).toEqual({});
     expect(sanitizeProgress({ collected: "not-an-array" }).collected).toEqual([]);
     expect(sanitizeProgress({}).collected).toEqual([]);
+  });
+});
+
+describe("저장본 불러오기", () => {
+  it("버전이 다른 저장본도 버리지 않고 걸러서 잇는다", async () => {
+    // 2→3으로 올렸을 때 migrate가 없어 모든 저장본이 새 게임이 됐다. 걸러내는 건 sanitizeProgress의 몫이다
+    localStorage.setItem(
+      "rom-progress",
+      JSON.stringify({ version: 2, state: { collected: [first], soundMuted: true, junk: 1 } }),
+    );
+    try {
+      await useMemoryRoomStore.persist.rehydrate();
+      const state = useMemoryRoomStore.getState();
+      expect(state.collected).toEqual([first]);
+      expect(state.soundMuted).toBe(true);
+    } finally {
+      localStorage.removeItem("rom-progress");
+      useMemoryRoomStore.getState().reset();
+      useMemoryRoomStore.setState({ soundMuted: false });
+    }
   });
 });
