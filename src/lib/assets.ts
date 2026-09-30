@@ -140,8 +140,6 @@ export const ASSETS = {
      */
     mgFighterDuelHero: "/assets/images/mg-fighter-duel-hero.webp?v=cutout-20260928",
     mgFighterDuelRival: "/assets/images/mg-fighter-duel-rival.webp",
-    /** 격투 미니게임 무대 배경 (960×256). 없으면 CSS 그라디언트가 그대로 보인다. */
-    mgFighterDuelStage: "/assets/images/mg-fighter-duel-stage.webp",
     /*
      * 달력 장 그림 (7~11월, 1080×1600). 빈 달력 그림이고 11월만 正자 낙서가 그려져 있다.
      * 전국대회 금빛 동그라미와 메모 점은 코드가 그림 위에 얹는다 (calendar-flip/PageImage).
@@ -164,14 +162,6 @@ export const ASSETS = {
     mgPhotoWipePhase1: "/assets/images/mg-photo-wipe-phase-1.webp?v=20260912",
     /** 액자 사진 2차: 가족 얼굴이 드러난 버전. Phase 2에서 닦아내면 나온다. */
     mgPhotoWipePhase2: "/assets/images/mg-photo-wipe-phase-2.webp?v=20260912",
-    /*
-     * 전환 컷씬 일러스트 3컷. 게임을 통틀어 그림이 화면을 통째로 차지하는 유일한
-     * 자리라, 파일이 아직 없어도 컷씬은 돌아간다. 없으면 회색 판이 대신 서고
-     * 대사만 흐른다 (src/components/ui/Cutscene.tsx).
-     */
-    cutsceneRadioRoom: "/assets/images/cutscene-radio-room.webp",
-    cutsceneRadioHands: "/assets/images/cutscene-radio-hands.webp",
-    cutsceneRadioSignal: "/assets/images/cutscene-radio-signal.webp",
     /** 대사창 초상. 전부 같은 크롭이라 겹쳐서 opacity만 토글하면 정렬이 맞는다. */
     characterHeroNeutral: "/assets/images/character-hero-neutral.webp?v=3",
     characterHeroSmile: "/assets/images/character-hero-smile.webp?v=3",
@@ -250,12 +240,6 @@ export const ASSETS = {
     open: "/assets/audio/sfx/sfx-ui-pop.ogg",
     /** 컴퓨터 조사의 부팅 화면(약 2.8초)에 맞춰 원본 12초 중 앞 3.6초만, 끝은 페이드. */
     computerBoot: "/assets/audio/sfx/mg-computer-browse-boot.ogg",
-    /**
-     * 배트가 공을 맞히는 순간. 나무가 쪼개지는 크랙은 오실레이터로 끝까지 못 간다.
-     * 이 목록에 파일이 필요한 소리가 하나뿐인 이유이자, 그 하나인 이유.
-     * 넣을 때 규격: mp3/ogg, 500KB 이하 (.claude/rules/assets.md).
-     */
-    batHit: "/assets/audio/sfx/mg-ball-catch-bat-hit.mp3",
     /**
      * 생존자 방송 첫 컷의 미트 소리. 포수 복선이라 가죽을 치는 실물 소리여야 한다.
      * 체육관 미트 영상(힉스필드)에서 두 번 치는 1.26초만 잘라 Opus로 담았다.

@@ -62,7 +62,16 @@ async function cacheFirst(request) {
   // 부분 응답(206)이나 실패는 캐시에 넣지 않는다. 넣으면 다음 로드가 깨진 걸 먹는다
   if (response.ok && response.status === 200) {
     const cache = await caches.open(ASSET_CACHE);
-    cache.put(request, response.clone());
+    await cache.put(request, response.clone());
+    // 같은 파일의 옛 판(?v=가 다른 것)은 버린다. 안 버리면 판을 올릴 때마다 한 부씩 쌓인다
+    const url = new URL(request.url);
+    if (url.search) {
+      const stale = (await cache.keys()).filter((key) => {
+        const other = new URL(key.url);
+        return other.pathname === url.pathname && other.search !== url.search;
+      });
+      await Promise.all(stale.map((key) => cache.delete(key)));
+    }
   }
   return response;
 }
@@ -76,7 +85,8 @@ async function networkFirst(request) {
     }
     return response;
   } catch (error) {
-    const cached = await caches.match(request);
+    // 쿼리(?utm_… 등)가 달라도 같은 페이지다. 정확히 같은 주소만 찾으면 오프라인 화면이 뜬다
+    const cached = await caches.match(request, { ignoreSearch: true });
     if (cached) return cached;
     const offline = await caches.match(OFFLINE_PAGE);
     if (offline) return offline;

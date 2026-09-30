@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
-import { playSound, preloadSamples } from "@/lib/audio";
+import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, useOnceCompleter, useSkipEligible } from "../shell";
 import { BallCatchField } from "./field";
@@ -88,12 +88,6 @@ export function BallCatchMinigame({ onComplete, onSettled, difficulty = "easy" }
   const roundRef = useRef<Round>(newRound(roundDuration(0, TUTORIAL_SCALE), -1, true));
   const pendingTimeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
-
-  // 타격음만 파일이 있으면 파일로 간다. 없으면 합성 batHit이 그대로 울린다.
-  // 첫 타석 전에 받아 둬야 첫 스윙에서 늦지 않는다.
-  useEffect(() => {
-    preloadSamples(["batHit"]);
-  }, []);
 
   const schedulePendingTimeout = (callback: () => void, delay: number) => {
     const timeout = setTimeout(() => {

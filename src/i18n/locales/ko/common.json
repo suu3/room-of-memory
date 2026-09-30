@@ -39,12 +39,9 @@
         "piano": "찢어진 악보를 들고 거실 피아노를 쳐 보세요"
       }
     },
-    "here": "지금 있는 곳: {{value}}",
-    "travel": "공간 이동"
+    "here": "지금 있는 곳: {{value}}"
   },
   "door": {
-    "locked": "잠긴 문",
-    "exit": "나가기 →",
     "ready": "방문이 빛난다",
     "packReady": "가방 · 앰플 · 배트가 빛난다",
     "nudgeStay": "나가 봐야 뭐 해.",
@@ -59,12 +56,6 @@
     "nextPage": "다음 장",
     "pages": "기록 장 넘기기",
     "newEntry": "새 기록"
-  },
-  "hotspot": {
-    "collectedLabel": "{{name}}: 수집한 기억",
-    "collectLabel": "{{name}}: 기억 수집하기",
-    "lockedLabel": "{{name}}: 아직 열 수 없는 기억",
-    "revisitLabel": "{{name}}: 기억 다시 살펴보기"
   },
   "dialogue": {
     "advance": "다음 대사",
@@ -85,9 +76,7 @@
     "open": "메뉴 열기",
     "close": "메뉴 닫기"
   },
-  "canvas": {
-    "placeholder": "어두운 3D 방 씬 (placeholder)"
-  },
+  "canvas": {},
   "scene": {
     "loading": "방을 준비하고 있어요…",
     "webglFallback": "이 기기에서는 3D 방을 표시할 수 없습니다.",
@@ -136,10 +125,6 @@
     "skip": "건너뛰기",
     "back": "돌아가기",
     "close": "그만두고 방으로 돌아가기",
-    "successCount": "성공 {{value}} / {{goal}}",
-    "missCount": "실패 {{value}} / {{max}}",
-    "timeLeft": "남은 시간 {{seconds}}초",
-    "clarity": "선명도 {{percent}}%",
     "feedback": {
       "hit": "성공!",
       "miss": "놓쳤다…"
@@ -269,8 +254,6 @@
       "helpCalls": "통화 기록 탭도 열어보세요",
       "date": "10월 19일",
       "close": "화면을 끈다",
-      "next": "다음",
-      "openCalls": "통화 기록 보기",
       "tab": {
         "chat": "채팅",
         "calls": "통화"
@@ -327,7 +310,6 @@
       "passwordLabel": "비밀번호",
       "passHint": "힌트: 전국대회 날. 월일 네 자리.",
       "wrong": "비밀번호가 올바르지 않습니다",
-      "submit": "로그인",
       "lockHelp": "비밀번호를 입력하고 Enter",
       "lockHelp_touch": "비밀번호를 입력하고 화살표 버튼을 누르세요",
       "boot": {
@@ -643,8 +625,7 @@
       "alt": "거울 속 3D 캐릭터: 끌어서 돌려볼 수 있다",
       "hint": "끌거나 버튼으로 돌려보기",
       "caption": "…얼굴이 좀 상했나."
-    },
-    "take": "{{name}} 집기"
+    }
   },
   "items": {
     "parents-key": {

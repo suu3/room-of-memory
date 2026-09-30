@@ -24,7 +24,8 @@ if (built.issues.length > 0) {
 
 // 빈 번역은 막지 않는다. 기준 언어로 채워지고, 여기서 몇 자리가 남았는지만 알린다
 const todos = countTranslationTodos(built.content);
-if (todos.length > 0 && !check) {
+if (todos.length > 0) {
+  // 검사 모드에서도 알린다. 막지는 않되, 조용히 지나가면 남은 자리를 아무도 모른다
   console.log(`번역 TODO ${todos.length}자리 (ko 문장으로 대신 나간다)`);
 }
 

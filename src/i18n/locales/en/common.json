@@ -39,12 +39,9 @@
         "piano": "Take the torn sheet music to the living room piano and play it"
       }
     },
-    "here": "You are here: {{value}}",
-    "travel": "Travel"
+    "here": "You are here: {{value}}"
   },
   "door": {
-    "locked": "Locked Door",
-    "exit": "Leave →",
     "ready": "The bedroom door is glowing",
     "packReady": "The bag, the ampoule and the bat are glowing",
     "nudgeStay": "What's the point of going out.",
@@ -59,12 +56,6 @@
     "nextPage": "Next page",
     "pages": "Turn record pages",
     "newEntry": "New entry"
-  },
-  "hotspot": {
-    "collectedLabel": "{{name}}: collected memory",
-    "collectLabel": "{{name}}: collect this memory",
-    "lockedLabel": "{{name}}: memory not yet reachable",
-    "revisitLabel": "{{name}}: revisit this memory"
   },
   "dialogue": {
     "advance": "Next line",
@@ -85,9 +76,7 @@
     "open": "Open menu",
     "close": "Close menu"
   },
-  "canvas": {
-    "placeholder": "Dark 3D room scene (placeholder)"
-  },
+  "canvas": {},
   "scene": {
     "loading": "Getting the room ready…",
     "webglFallback": "The 3D room cannot be displayed on this device.",
@@ -136,10 +125,6 @@
     "skip": "Skip",
     "back": "Step back",
     "close": "Close and return to the room",
-    "successCount": "Success {{value}} / {{goal}}",
-    "missCount": "Misses {{value}} / {{max}}",
-    "timeLeft": "{{seconds}}s left",
-    "clarity": "Clarity {{percent}}%",
     "feedback": {
       "hit": "Nice!",
       "miss": "Missed…"
@@ -269,8 +254,6 @@
       "helpCalls": "Open the call log tab too",
       "date": "October 19",
       "close": "Turn the screen off",
-      "next": "Next",
-      "openCalls": "See the call log",
       "tab": {
         "chat": "Chats",
         "calls": "Calls"
@@ -327,7 +310,6 @@
       "passwordLabel": "Password",
       "passHint": "Hint: the day of the national tournament. Month and day, four digits.",
       "wrong": "Incorrect password",
-      "submit": "Log in",
       "lockHelp": "Type the password and press Enter",
       "lockHelp_touch": "Type the password and tap the arrow",
       "boot": {
@@ -643,8 +625,7 @@
       "alt": "3D character in the mirror: drag to turn",
       "hint": "Drag or use the buttons to turn",
       "caption": "…I look rough."
-    },
-    "take": "Take {{name}}"
+    }
   },
   "items": {
     "parents-key": {

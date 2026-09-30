@@ -51,6 +51,13 @@ const RULES = [
     label: "이미지",
   },
   {
+    // 엔딩 영상 하나. assets.md: H.264+AAC mp4, 15MB
+    prefix: "video/",
+    limit: 15 * MB,
+    formats: [".mp4"],
+    label: "영상",
+  },
+  {
     // 웹 AR 이미지 타깃(MindAR 컴파일 결과). /ar/compile이 굽는다.
     prefix: "ar/",
     limit: 1 * MB,
@@ -68,7 +75,13 @@ const RULES = [
 ];
 
 /** 규칙 표의 예외: assets.md에 명시된 것만 (크레딧, 폰트와 함께 배포해야 하는 OFL 전문). */
-const FORMAT_EXCEPTIONS = new Set(["CREDITS.md", "OFL-Pretendard.txt", "OFL-Galmuri.md"]);
+const FORMAT_EXCEPTIONS = new Set([
+  "CREDITS.md",
+  "OFL-Pretendard.txt",
+  "OFL-Galmuri.md",
+  // 로딩 애니메이션. webp로 바꾸기 전까지의 예외
+  "ui-loading.gif",
+]);
 
 const KEBAB_CASE = /^[a-z0-9]+(-[a-z0-9]+)*\.[a-z0-9.]+$/;
 

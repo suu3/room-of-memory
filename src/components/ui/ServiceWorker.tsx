@@ -13,8 +13,15 @@ import { useEffect } from "react";
  */
 export function ServiceWorker() {
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production") return;
     if (!("serviceWorker" in navigator)) return;
+    if (process.env.NODE_ENV !== "production") {
+      // 같은 주소에서 프로덕션(pnpm start)을 돌린 뒤라면 그 워커가 남아 dev 파일을
+      // 캐시 우선으로 내준다. dev에서는 남은 워커를 걷어 낸다
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) void registration.unregister();
+      });
+      return;
+    }
 
     const register = () => {
       navigator.serviceWorker.register("/sw.js").catch((error) => {

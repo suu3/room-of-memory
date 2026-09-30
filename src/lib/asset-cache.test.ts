@@ -49,6 +49,8 @@ it("loads the animated player even when the service worker cached the old placeh
         put: async (request: Request, response: Response) => {
           cached.set(request.url, response);
         },
+        keys: async () => [...cached.keys()].map((url) => new Request(url)),
+        delete: async (request: Request) => cached.delete(request.url),
       }),
     },
     fetch: async (request: Request) => {
@@ -79,5 +81,7 @@ it("loads the animated player even when the service worker cached the old placeh
     (await loadPlayer()).equals(bytes),
     "must retain the current GLB for offline reloads",
   ).toBe(true);
-  expect(await cached.get(legacyUrl)?.text()).toBe("legacy placeholder");
+  // 같은 파일의 옛 판은 새 판을 받는 순간 버린다. 안 버리면 판을 올릴 때마다 한 부씩 쌓였다
+  const playerEntries = [...cached.keys()].filter((url) => url.startsWith(legacyUrl));
+  expect(playerEntries).toEqual([new URL(ASSETS.models.playerBlocky, origin).href]);
 });

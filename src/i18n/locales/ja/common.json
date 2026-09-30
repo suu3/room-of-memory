@@ -39,12 +39,9 @@
         "piano": "破れた楽譜を持ってリビングのピアノを弾いてみよう"
       }
     },
-    "here": "現在地: {{value}}",
-    "travel": "移動"
+    "here": "現在地: {{value}}"
   },
   "door": {
-    "locked": "鍵のかかった扉",
-    "exit": "外へ →",
     "ready": "部屋のドアが光っている",
     "packReady": "バッグ・アンプル・バットが光っている",
     "nudgeStay": "出たって、何になる。",
@@ -59,12 +56,6 @@
     "nextPage": "次のページ",
     "pages": "記録のページ送り",
     "newEntry": "新しい記録"
-  },
-  "hotspot": {
-    "collectedLabel": "{{name}}: 収集した記憶",
-    "collectLabel": "{{name}}: 記憶を収集する",
-    "lockedLabel": "{{name}}: まだ開けない記憶",
-    "revisitLabel": "{{name}}: 記憶をもう一度調べる"
   },
   "dialogue": {
     "advance": "次のセリフ",
@@ -85,9 +76,7 @@
     "open": "メニューを開く",
     "close": "メニューを閉じる"
   },
-  "canvas": {
-    "placeholder": "暗い3D部屋シーン (placeholder)"
-  },
+  "canvas": {},
   "scene": {
     "loading": "部屋を準備しています…",
     "webglFallback": "この端末では3Dの部屋を表示できません。",
@@ -136,10 +125,6 @@
     "skip": "スキップ",
     "back": "離れる",
     "close": "やめて部屋に戻る",
-    "successCount": "成功 {{value}} / {{goal}}",
-    "missCount": "ミス {{value}} / {{max}}",
-    "timeLeft": "残り {{seconds}}秒",
-    "clarity": "鮮明度 {{percent}}%",
     "feedback": {
       "hit": "ナイス！",
       "miss": "逃した…"
@@ -269,8 +254,6 @@
       "helpCalls": "発信履歴のタブも開いてみてください",
       "date": "10月19日",
       "close": "画面を消す",
-      "next": "次へ",
-      "openCalls": "発信履歴を見る",
       "tab": {
         "chat": "トーク",
         "calls": "発信"
@@ -327,7 +310,6 @@
       "passwordLabel": "パスワード",
       "passHint": "ヒント: 全国大会の日。月日の4桁。",
       "wrong": "パスワードが正しくありません",
-      "submit": "ログイン",
       "lockHelp": "パスワードを入力して Enter",
       "lockHelp_touch": "パスワードを入力して矢印を押してください",
       "boot": {
@@ -643,8 +625,7 @@
       "alt": "鏡の中の3Dキャラクター: ドラッグで回せる",
       "hint": "ドラッグかボタンで回す",
       "caption": "…顔色、悪いな。"
-    },
-    "take": "{{name}}を拾う"
+    }
   },
   "items": {
     "parents-key": {

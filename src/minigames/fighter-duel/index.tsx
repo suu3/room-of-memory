@@ -351,8 +351,8 @@ export function FighterDuelMinigame({ onComplete, onSettled, difficulty = "easy"
             heroHit || rivalHit ? "animate-batting-field-shake" : ""
           }`}
           style={{
-            // 무대 그림이 리포에 없으면 그 레이어만 못 그리고 아래 그라디언트가 남는다
-            backgroundImage: `url(${ASSETS.images.mgFighterDuelStage}), linear-gradient(var(--color-scene-storm), var(--color-scene-abyss) 78%)`,
+            backgroundImage:
+              "linear-gradient(var(--color-scene-storm), var(--color-scene-abyss) 78%)",
           }}
         >
           <span className="absolute inset-x-0 bottom-0 h-6 bg-night/50" aria-hidden />
