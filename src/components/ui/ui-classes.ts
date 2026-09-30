@@ -27,7 +27,8 @@ export const BUTTON_PRIMARY = `${BUTTON_BASE} border-memory bg-memory px-4 py-2.
 /** 조용한 행동: 취소·닫기·건너뛰기. */
 export const BUTTON_QUIET = `${BUTTON_BASE} border-line bg-transparent px-4 py-2.5 text-fog hover:border-fog/40 hover:text-ivory active:bg-ivory/10`;
 /** 되돌릴 수 없는 행동: 리셋·새 게임. */
-export const BUTTON_DESTRUCTIVE = `${BUTTON_BASE} border-ember bg-ember px-4 py-2.5 text-ivory hover:border-ember/85 hover:bg-ember/85 active:bg-ember/75`;
+// 글자는 void: ivory(3.3:1)도 night(4.5 미만)도 ember 위에서 AA에 못 미친다 (DESIGN.md Accessibility)
+export const BUTTON_DESTRUCTIVE = `${BUTTON_BASE} border-ember bg-ember px-4 py-2.5 text-scene-void hover:border-ember/85 hover:bg-ember/85 active:bg-ember/75`;
 /** 종이 위의 조용한 버튼 (수첩·종이 단서). */
 export const BUTTON_QUIET_PAPER = `${BUTTON_BASE} border-ink/15 bg-transparent px-3 py-1.5 text-graphite hover:border-ink/40 hover:text-ink active:bg-ink/5`;
 /** 어두운 패널 위의 돌리기 아이콘 버튼 (거울 속 캐릭터). */

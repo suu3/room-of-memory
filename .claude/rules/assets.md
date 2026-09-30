@@ -7,7 +7,7 @@
 | 종류 | 위치 | 포맷 | 한도(파일당) |
 |---|---|---|---|
 | 3D 모델 | `public/assets/models/` | `.glb` (Draco 또는 Meshopt 압축 필수) | 5MB, 예외적으로 10MB |
-| 텍스처 | `public/assets/textures/` | `.webp` 또는 `.ktx2`, 2의 제곱 크기, 최대 2048px | 2MB |
+| 텍스처 | `public/assets/textures/` | `.webp` 또는 `.ktx2`, 2의 제곱 크기, 최대 2048px. 예외: `room-poster-baseball.webp`(512×768)는 2:3 인쇄물 한 장이라 원본 비율을 둔다. 반복(Repeat) 없이 판 하나에 붙는 텍스처는 WebGL2에서 2의 제곱이 아니어도 밉맵이 생긴다 | 2MB |
 | BGM | `public/assets/audio/bgm/` | `.mp3` 128kbps 또는 `.ogg` | 3MB |
 | SFX | `public/assets/audio/sfx/` | `.mp3`/`.ogg` | 500KB |
 | 영상 | `public/assets/video/` | `.mp4` (H.264 + AAC, faststart), 1080p 이하 | 15MB (엔딩 영상 1개 기준) |

@@ -15,6 +15,7 @@ colors:
   bone: "#D3CFC6"
   ink: "#303946"
   graphite: "#626975"
+  void: "#060A10"
 typography:
   display:
     fontFamily: Galmuri14
@@ -106,7 +107,7 @@ components:
     padding: "{spacing.sm}"
   button-destructive:
     backgroundColor: "{colors.ember}"
-    textColor: "{colors.ivory}"
+    textColor: "{colors.void}"
     typography: "{typography.ui}"
     rounded: "{rounded.sm}"
     padding: "{spacing.sm}"
@@ -127,6 +128,13 @@ components:
   paper-muted:
     textColor: "{colors.graphite}"
     typography: "{typography.caption}"
+  section-label:
+    textColor: "{colors.ash}"
+    typography: "{typography.caption}"
+  paper-placeholder:
+    backgroundColor: "{colors.bone}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.sm}"
 ---
 
 ## Overview
@@ -285,7 +293,7 @@ UI는 두 재질뿐이다. **어두운 패널**(night의 반투명 표면 + ivor
 
 ## Accessibility
 
-- 텍스트 대비는 WCAG AA 이상 (ivory on night 14.6:1, fog on night 10:1, ink on paper 9:1). ivory on ember는 3.3:1이라 굵은 버튼 라벨(button-destructive)과 큰 글리프에만 쓴다.
+- 텍스트 대비는 WCAG AA 이상 (ivory on night 14.6:1, fog on night 10:1, ink on paper 9:1). ember 위의 글자는 void(4.7:1)다: ivory는 3.3:1, night도 4.5에 못 미친다. 되돌릴 수 없는 버튼(button-destructive)이 primary(memory 위 night)와 같은 "색면 위 어두운 글자" 꼴로 서는 이유다. ivory on ember는 큰 글리프에만 쓴다.
 - **번쩍임을 만들지 않는다.** 전면을 덮는 밝은 판은 두지 않는다: 1인칭 인트로에서 불을 켜는 덮개는 순백이 아니라 밤에 볕을 섞은 중간 밝기(`.viewpoint-lamp`)이고 1.3초에 걸쳐 걷힌다. `prefers-reduced-motion`에서는 어둠(void)으로 잇는다. 사건 반응(색수차·그레인 스파이크)은 한 번뿐이고 1초 안에 잦아들며, 초당 3회를 넘는 밝기 변화는 어디에도 없다. 노이즈는 낮은 세기의 그레인 한 겹까지만: TV 정지 화면식 정적(static)·RGB 노이즈·픽셀 블록 노이즈처럼 프레임마다 크게 바뀌는 질감은 쓰지 않는다.
 - 모든 인터랙션은 키보드로도 가능해야 한다 (Tab으로 핫스팟 이동, Space/Enter = 진행. 선택지 UI를 만들면 숫자 = 선택지). hover만으로 기능을 제공하지 않는다.
 - 상태는 색만으로 구분하지 않는다 (선택 표식 ▶, aria-pressed, 라벨 텍스트 병기).
