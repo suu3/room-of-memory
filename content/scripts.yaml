@@ -249,8 +249,12 @@ scripts:
   duffel-take:
     - speaker: hero
       ko: 물, 통조림, 손전등. 다 들었다.
+      en: Water, canned food, a flashlight. It's all in.
+      ja: 水、缶詰、懐中電灯。全部入ってる。
     - speaker: hero
       ko: …글러브도.
+      en: …And the glove.
+      ja: …グローブも。
 
   # 위칸. 숫자만 이상해한다. 결론은 말하지 않는다
   fridge-open:
@@ -430,11 +434,15 @@ scripts:
   ampoule-take:
     - speaker: hero
       ko: 이건 두고 갈 수 없어.
+      en: I can't leave this behind.
+      ja: これは置いていけない。
 
   # ampoule-pickup 뒤
   ampoule-taken:
     - speaker: hero
       ko: 엄마 아빠가 남겨 둔 거야. 내가 가져간다.
+      en: Mom and Dad left this behind. I'm taking it with me.
+      ja: 父さんと母さんが残したものだ。俺が持っていく。
 
   # 컴퓨터 3차 진입: 로고를 쫓아 다시 켠다
   computer-logo-intro:

@@ -280,6 +280,8 @@ memories:
         ja: バッグを空にして詰め直した。水、缶詰、懐中電灯。グローブは置いていこうとして、やっぱり入れた。
       phase3:
         ko: 싸 둔 가방을 멨다. 물, 통조림, 손전등. 그리고 글러브.
+        en: I shouldered the bag I had packed. Water, canned food, a flashlight. And the glove.
+        ja: 詰めておいたバッグを背負った。水、缶詰、懐中電灯。それから、グローブ。
     phase2:
       script: duffel-pack
       from: p2
@@ -389,6 +391,8 @@ memories:
         ja: 保冷ケースにアンプルが一本、隣の枠は空だった。ラベルには消えかけたロゴが半分残っている。
       phase3:
         ko: 앰플을 챙겼다. 엄마 아빠가 남겨 둔 하나. 치료제일지도 모르는 그것.
+        en: I took the ampoule. The one Mom and Dad left behind. The thing that might be a cure.
+        ja: アンプルを持った。父さんと母さんが残した一本。治療薬かもしれない、それを。
     phase2:
       script: ampoule-note
       minigame: ampoule-case

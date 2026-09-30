@@ -79,7 +79,7 @@ const FORMAT_EXCEPTIONS = new Set([
   "CREDITS.md",
   "OFL-Pretendard.txt",
   "OFL-Galmuri.md",
-  // 로딩 애니메이션. webp로 바꾸기 전까지의 예외
+  // 로딩 애니메이션. 애니메이션 webp는 쓰는 자리에서 재생이 안 돼 gif로 둔다 (assets.md)
   "ui-loading.gif",
 ]);
 

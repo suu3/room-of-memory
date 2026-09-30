@@ -11,7 +11,7 @@
 | BGM | `public/assets/audio/bgm/` | `.mp3` 128kbps 또는 `.ogg` | 3MB |
 | SFX | `public/assets/audio/sfx/` | `.mp3`/`.ogg` | 500KB |
 | 영상 | `public/assets/video/` | `.mp4` (H.264 + AAC, faststart), 1080p 이하 | 15MB (엔딩 영상 1개 기준) |
-| 이미지 | `public/assets/images/` | `.webp` (UI), `.svg` (아이콘) | 1MB |
+| 이미지 | `public/assets/images/` | `.webp` (UI), `.svg` (아이콘). 예외: 로딩 애니메이션 `ui-loading.gif` 하나 (webp는 `<img>` 밖에서 재생이 안 돼 gif로 둔다) | 1MB |
 | 폰트 | `public/assets/fonts/` | `.woff2`. 신규 폰트는 한글 서브셋 필수 (예외: PretendardVariable.woff2는 전 웨이트 가변폰트라 2.0MB 통짜 허용, next/font/local이 셀프호스팅) | 2MB |
 
 - 절대 한도: **단일 파일 25MB** (초과 시 커밋 금지: 압축하거나 분할). GitHub 100MB 하드리밋에 근접하는 파일은 애초에 만들지 않는다.
