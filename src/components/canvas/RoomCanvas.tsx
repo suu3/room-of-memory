@@ -43,6 +43,7 @@ import {
   viewpointOf,
 } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
+import { ResizeRepaint } from "./ResizeRepaint";
 import { RoomLoadReporter } from "./RoomLoadReporter";
 import {
   canInitializeWebGL,
@@ -607,6 +608,8 @@ export function RoomCanvas() {
           >
             {/* 내리기만 한다 (degrade 주석). 같은 값을 다시 놓는 건 React가 걸러 재렌더가 없다 */}
             <PerformanceMonitor onDecline={degrade} />
+            {/* 크기·배율이 바뀐 직후 한 장을 바로 그린다. 빈 버퍼가 합성돼 검게 깜빡이지 않게 */}
+            <ResizeRepaint />
             <MemoryRoomScene
               playerPositionRef={playerPositionRef}
               movementInputRef={movementInputRef}
