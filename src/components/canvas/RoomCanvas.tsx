@@ -159,8 +159,12 @@ export function RoomCanvas() {
   /** 둘러볼 수 있는 1인칭인가. 엔딩의 문턱(exit)은 카메라가 정해진 길을 걸어 시선을 쥐지 않는다. */
   const lookEnabled = firstPerson && viewpoint !== "exit";
   /*
-   * 성능 안전장치. 프레임이 목표(주사율) 아래로 떨어지면 배율 상한을 내리고, 다시
-   * 오르면 돌려준다. 배열을 새로 만들면 r3f가 렌더마다 배율을 다시 잡으므로 묶어 둔다.
+   * 성능 안전장치. 프레임이 목표(주사율) 아래로 떨어지면 배율 상한을 내린다. **한 번 내리면
+   * 돌려놓지 않는다.** 배율이 바뀌면 r3f가 캔버스 버퍼를 다시 잡아 한 프레임이 비는데(캔버스
+   * 뒤의 어둠이 비쳐 검게 깜빡인다), 예전처럼 회복되면 올리고 떨어지면 내리기를 반복하면
+   * 경계에 걸린 폰에서 그 깜빡임이 몇 초마다 났다. 게다가 drei의 flipflops는 오르는 쪽도
+   * 세어서, 60fps로 멀쩡히 도는 폰이 10초 만에 폴백으로 떨어져 배율을 잃었다.
+   * 배열을 새로 만들면 r3f가 렌더마다 배율을 다시 잡으므로 묶어 둔다.
    */
   const [dprCap, setDprCap] = useState<number>(DPR_CAP.high);
   const dpr = useMemo<[number, number]>(() => [1, dprCap], [dprCap]);
@@ -169,10 +173,6 @@ export function RoomCanvas() {
   const degrade = useCallback(() => {
     setDprCap(DPR_CAP.low);
     setDegraded(true);
-  }, [setDegraded]);
-  const restore = useCallback(() => {
-    setDprCap(DPR_CAP.high);
-    setDegraded(false);
   }, [setDegraded]);
 
   /*
@@ -605,12 +605,8 @@ export function RoomCanvas() {
             // three가 투명 오브젝트를 항상 불투명 뒤에 그려서 벽을 뚫고 덧칠된다)
             gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
           >
-            <PerformanceMonitor
-              onDecline={degrade}
-              onIncline={restore}
-              onFallback={degrade}
-              flipflops={3}
-            />
+            {/* 내리기만 한다 (degrade 주석). 같은 값을 다시 놓는 건 React가 걸러 재렌더가 없다 */}
+            <PerformanceMonitor onDecline={degrade} />
             <MemoryRoomScene
               playerPositionRef={playerPositionRef}
               movementInputRef={movementInputRef}

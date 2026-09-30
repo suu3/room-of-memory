@@ -58,7 +58,7 @@
 ### 2-1. 효과 예산 게이트 (`lib/effects/effect-budget.ts`)
 - 등급은 `off`(reduced motion) / `low`(프레임 저하 또는 터치 기기) / `full` 세 가지다. 첫 렌더는 항상 full이다(미디어 쿼리는 브라우저에만 있다).
 - `useEffectEnabled("cheap")`은 low부터, `"heavy"`는 full에서만 켜진다. 실험성 효과는 전부 이 한 곳을 거쳐 켜지고 꺼진다. 효과 컴포넌트는 스토어를 직접 읽지 않는다.
-- drei `<PerformanceMonitor>`(`flipflops={3}`)가 프레임 저하를 감지하면 DPR 상한을 1.5에서 1로 내리고, 같은 신호로 `useEffectsStore`의 `degraded`를 올린다. 프레임이 회복되면 둘 다 되돌린다.
+- drei `<PerformanceMonitor>`가 프레임 저하를 감지하면 DPR 상한을 1.5에서 1로 내리고, 같은 신호로 `useEffectsStore`의 `degraded`를 올린다. **한 번 내리면 되돌리지 않는다.** 배율이 바뀔 때마다 캔버스 버퍼가 다시 잡혀 한 프레임 검게 깜빡이므로, 오르내림을 반복하면 경계에 걸린 폰에서 몇 초마다 깜빡였다.
 - 개발 모드에서는 localStorage `rom-effect-tier`로 등급을 강제할 수 있다. 프로덕션 번들에서는 `NODE_ENV` 치환으로 통째로 빠진다.
 
 ### 2-2. r3f 코딩 규약 (거의 모든 3D 파일에 공통)
@@ -109,7 +109,7 @@ export function useEffectTier(): EffectTier {
 }
 ```
 
-**PerformanceMonitor와 DPR 상한** — `components/canvas/RoomCanvas.tsx` · `DPR_CAP`, `degrade` / `restore`
+**PerformanceMonitor와 DPR 상한** — `components/canvas/RoomCanvas.tsx` · `DPR_CAP`, `degrade`
 
 ```tsx
 const DPR_CAP = { high: 1.5, low: 1 } as const;
@@ -122,17 +122,9 @@ const DPR_CAP = { high: 1.5, low: 1 } as const;
     setDprCap(DPR_CAP.low);
     setDegraded(true);
   }, [setDegraded]);
-  const restore = useCallback(() => {
-    setDprCap(DPR_CAP.high);
-    setDegraded(false);
-  }, [setDegraded]);
 // ...
-            <PerformanceMonitor
-              onDecline={degrade}
-              onIncline={restore}
-              onFallback={degrade}
-              flipflops={3}
-            />
+            {/* 내리기만 한다. 같은 값을 다시 놓는 건 React가 걸러 재렌더가 없다 */}
+            <PerformanceMonitor onDecline={degrade} />
 ```
 
 **개발용 등급 강제** — `lib/effects/effect-budget.ts` · `tierOverride`
