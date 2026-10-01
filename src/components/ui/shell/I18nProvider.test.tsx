@@ -2,8 +2,8 @@
 
 import { act, cleanup, render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+import { i18n } from "@/i18n/config";
 import { useSettingsStore } from "@/store/settings";
-import { i18n } from "./config";
 import { I18nProvider } from "./I18nProvider";
 
 describe("I18nProvider", () => {

@@ -1,7 +1,7 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
+import { I18nProvider } from "@/components/ui/shell/I18nProvider";
 import { ServiceWorker } from "@/components/ui/shell/ServiceWorker";
-import { I18nProvider } from "@/i18n/I18nProvider";
 import { siteOrigin } from "@/i18n/site-meta";
 import { FONT_VARIABLES } from "./fonts";
 import "./globals.css";

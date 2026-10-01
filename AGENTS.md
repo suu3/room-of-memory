@@ -51,6 +51,7 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 - `src/scenes/`: 챕터별 3D 씬. 시나리오의 `scene` 키로 등록
 - `src/minigames/`: 미니게임. `src/types/minigame.ts` 계약을 만족, `index.ts` 레지스트리에 등록
 - `src/data/generated/`: **생성물. 직접 고치지 말 것** (`content/`에서 나온다)
+- `src/data/spaces.ts`: 집의 얼개 (공간·문간 id, 기억이 놓인 공간). 좌표는 씬에 있다
 - `src/data/memory-room.ts`: 대본이 아닌 데이터 (조사 목록 등) + 생성물 재수출
 - `src/store/`: zustand 스토어
 - `public/assets/`: 모든 에셋 (models/textures/audio/images/fonts). S3 등 외부 스토리지 없음, 전부 리포에 커밋
@@ -69,4 +70,5 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 - `visual-novel.md`: 시나리오 데이터 작성 규칙
 - `minigames.md`: 미니게임 구조/디자인/성능 규칙
 - `code-style.md`: TypeScript/Biome 컨벤션
+- `architecture.md`: 계층 방향 (아래 계층은 위를 모른다)과 폴더 규칙. `src/architecture.test.ts`가 지킨다
 - `paradigm.md`: 함수형이 기본, 객체지향은 경계에서만 (순수 함수 · 파생 상태 · 클래스를 쓰는 자리)

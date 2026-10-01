@@ -1,4 +1,11 @@
 import {
+  DOORWAY_BETWEEN,
+  DOORWAY_IDS,
+  type DoorwayId,
+  SPACE_IDS,
+  type SpaceId,
+} from "@/data/spaces";
+import {
   BATHROOM_BOUNDS,
   BATHROOM_COLLIDERS,
   BATHROOM_DOOR_POSITION,
@@ -38,8 +45,9 @@ import type { Aabb2, EulerTuple, Vec3Tuple } from "./types";
  * 함수다 (three 객체 없음: 테스트가 가볍다).
  */
 
-export const SPACE_IDS = ["room", "living", "bathroom", "parents"] as const;
-export type SpaceId = (typeof SPACE_IDS)[number];
+// 공간·문간의 id와 얼개는 data/spaces.ts가 원본이다 (스토어·데이터가 씬을 안 보게). 여기는
+// 그 위에 좌표를 얹는다. 씬 쪽 코드는 예전처럼 이 파일에서 가져가도록 다시 내보낸다
+export { DOORWAY_IDS, type DoorwayId, SPACE_IDS, type SpaceId };
 
 export interface SpaceDef {
   id: SpaceId;
@@ -116,9 +124,6 @@ export const SPACES = {
   },
 } as const satisfies Record<SpaceId, SpaceDef>;
 
-export const DOORWAY_IDS = ["room-living", "living-bathroom", "living-parents"] as const;
-export type DoorwayId = (typeof DOORWAY_IDS)[number];
-
 export interface DoorwayDef {
   id: DoorwayId;
   /** 잇는 두 공간. 순서는 [안쪽, 바깥쪽]: 열리면 두 번째 공간이 새로 열린다. */
@@ -135,7 +140,7 @@ export interface DoorwayDef {
 export const DOORWAYS = {
   "room-living": {
     id: "room-living",
-    between: ["room", "living"],
+    between: DOORWAY_BETWEEN["room-living"],
     zone: DOORWAY_ZONE,
     position: ROOM_DOOR_POSITION,
     rotation: ROOM_DOOR_ROTATION,
@@ -143,7 +148,7 @@ export const DOORWAYS = {
   },
   "living-bathroom": {
     id: "living-bathroom",
-    between: ["living", "bathroom"],
+    between: DOORWAY_BETWEEN["living-bathroom"],
     zone: BATHROOM_DOORWAY_ZONE,
     position: BATHROOM_DOOR_POSITION,
     rotation: BATHROOM_DOOR_ROTATION,
@@ -151,7 +156,7 @@ export const DOORWAYS = {
   },
   "living-parents": {
     id: "living-parents",
-    between: ["living", "parents"],
+    between: DOORWAY_BETWEEN["living-parents"],
     zone: PARENTS_DOORWAY_ZONE,
     position: PARENTS_DOOR_POSITION,
     rotation: PARENTS_DOOR_ROTATION,

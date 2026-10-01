@@ -1,8 +1,8 @@
 import type { ItemId } from "@/data/items";
 import { MEMORY_IDS } from "@/data/memory-room";
 import type { DiscoveryId } from "@/data/room-clues";
+import type { DoorwayId } from "@/data/spaces";
 import { type VisitProgress, visitDone, visitsOf } from "@/data/story-phase";
-import type { DoorwayId } from "@/scenes/memory-room/spaces";
 
 /** 수첩의 페이지(위쪽 종이 인덱스 탭). 순서가 곧 탭 순서다. */
 export const NOTEBOOK_TABS = ["profile", "lore", "map", "items"] as const;

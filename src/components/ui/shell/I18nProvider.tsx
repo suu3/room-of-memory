@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { I18nextProvider } from "react-i18next";
+import { i18n, type Locale } from "@/i18n/config";
 import { useSettingsStore } from "@/store/settings";
-import { i18n, type Locale } from "./config";
 
 /**
  * 고른 언어를 문서에 반영한다: i18n 자원, `<html lang>`, 그리고 **탭 제목**.

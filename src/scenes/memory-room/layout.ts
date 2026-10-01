@@ -847,26 +847,8 @@ export function hitRadiusOf(placement: MemoryPlacement): number {
   return placement.hitRadius ?? placement.interactionRadius;
 }
 
-export const MEMORY_SPACE = {
-  "report-card": "room",
-  console: "room",
-  window: "room",
-  frame: "room",
-  fridge: "living",
-  duffel: "living",
-  computer: "room",
-  radio: "room",
-  phone: "room",
-  calendar: "room",
-  ball: "room",
-  shoes: "living",
-  cards: "living",
-  ampoule: "living",
-  "research-note": "parents",
-  "id-card": "parents",
-} as const satisfies Record<MemoryId, "room" | "living" | "parents">;
-
-export type MemorySpace = (typeof MEMORY_SPACE)[MemoryId];
+// 기억이 놓인 공간은 data/spaces.ts가 원본이다. 씬 쪽은 예전처럼 여기서 가져간다
+export { MEMORY_SPACE, type MemorySpace } from "@/data/spaces";
 
 export const CAMERA_PRESETS = {
   // room.target.y를 올리면 시선 중심이 위로 가면서 방이 화면 아래쪽으로 내려온다

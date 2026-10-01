@@ -31,6 +31,7 @@ import {
   type PuzzleId,
   VISIT_AFTER_DISCOVERY,
 } from "@/data/room-clues";
+import { DOORWAY_IDS, type DoorwayId, type SpaceId } from "@/data/spaces";
 import {
   anyVisitDone,
   deadlineOf,
@@ -50,7 +51,6 @@ import {
   visitOpen,
   visitsOf,
 } from "@/data/story-phase";
-import { DOORWAY_IDS, type DoorwayId, type SpaceId } from "@/scenes/memory-room/spaces";
 import { stillKeyOf, useStillStore } from "@/store/stills";
 import type { CurtainSide } from "@/types/curtain";
 import type { CutsceneCut, DialogueScriptLine, ResultMusic } from "@/types/interaction";

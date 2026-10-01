@@ -1,7 +1,12 @@
 import { MEMORY_IDS, type MemoryId, phaseConfigOf } from "@/data/memory-room";
+import {
+  DOORWAY_BETWEEN,
+  DOORWAY_IDS,
+  type DoorwayId,
+  MEMORY_SPACE,
+  type SpaceId,
+} from "@/data/spaces";
 import { nextVisit } from "@/data/story-phase";
-import { MEMORY_SPACE } from "@/scenes/memory-room/layout";
-import { DOORWAY_IDS, DOORWAYS, type DoorwayId, type SpaceId } from "@/scenes/memory-room/spaces";
 import {
   clueUnlocked,
   doorwayReady,
@@ -73,7 +78,7 @@ export function nextStep(state: NextStepState): NextStep | null {
   const doorway = DOORWAY_IDS.find(
     (id) => !state.openedDoorways.includes(id) && doorwayReady(state, id),
   );
-  if (doorway !== undefined) return { kind: "doorway", doorway, to: DOORWAYS[doorway].between[1] };
+  if (doorway !== undefined) return { kind: "doorway", doorway, to: DOORWAY_BETWEEN[doorway][1] };
 
   // 안방 열쇠: 세면대의 물 → 배지 → 컴퓨터 3차(아빠 메일 "선반 정리 좀 해라.") →
   // 거꾸로 꽂힌 책의 쪽지 → 세면대 하부장

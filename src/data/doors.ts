@@ -1,4 +1,4 @@
-import type { DoorwayId } from "@/scenes/memory-room/spaces";
+import type { DoorwayId } from "@/data/spaces";
 import type { ItemId } from "./items";
 
 /**
