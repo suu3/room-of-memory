@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePointerKind } from "@/i18n/control-hint";
-import { cursorTarget } from "@/scenes/memory-room/cursor-target";
+import { cursorTarget } from "@/scenes/memory-room/camera/cursor-target";
 import { damp, RING_SIZE, ringGoal } from "./cursor-ring";
 
 /**

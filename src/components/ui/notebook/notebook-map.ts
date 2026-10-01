@@ -1,4 +1,4 @@
-import { DOOR_HOLE_HALF_WIDTH } from "@/scenes/memory-room/space-shell";
+import { DOOR_HOLE_HALF_WIDTH } from "@/scenes/memory-room/world/space-shell";
 import {
   DOORWAY_IDS,
   DOORWAYS,
@@ -8,8 +8,8 @@ import {
   type SpaceDef,
   type SpaceId,
   spaceCenter,
-} from "@/scenes/memory-room/spaces";
-import type { Aabb2 } from "@/scenes/memory-room/types";
+} from "@/scenes/memory-room/world/spaces";
+import type { Aabb2 } from "@/scenes/memory-room/world/types";
 
 /**
  * 수첩 평면도의 도형. 씬의 월드 좌표를 그대로 쓴다: 평면도의 x는 월드 x, y는 월드 z다.

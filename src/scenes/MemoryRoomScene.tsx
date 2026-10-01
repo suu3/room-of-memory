@@ -25,35 +25,38 @@ import {
   type Viewpoint,
 } from "@/store/memory-room";
 import type { MovementAxes } from "@/types/movement";
-import { BathroomShell } from "./memory-room/BathroomShell";
-import { CameraRig } from "./memory-room/CameraRig";
-import { CanvasMinigameHost } from "./memory-room/CanvasMinigameHost";
-import { CursorTargetProjector } from "./memory-room/CursorTargetProjector";
-import { CRANE_SHOT } from "./memory-room/crane-shot";
-import type { CurtainPull, CurtainSide } from "./memory-room/curtain-motion";
-import { DustMotes } from "./memory-room/DustMotes";
-import { EndingTrigger } from "./memory-room/EndingTrigger";
-import { visibleHitsOnly } from "./memory-room/event-visibility";
-import { FirstPersonRig } from "./memory-room/FirstPersonRig";
-import type { LookAngles } from "./memory-room/first-person";
-import { Lantern } from "./memory-room/Lantern";
-import { LivingRoomFurniture } from "./memory-room/LivingRoomFurniture";
-import { LivingRoomShell } from "./memory-room/LivingRoomShell";
-import { MemoryBurst } from "./memory-room/MemoryBurst";
-import { MemoryObjects } from "./memory-room/MemoryObjects";
-import { MemoryGlowRoot } from "./memory-room/MemoryOutlineGlow";
-import { ParentsRoomShell } from "./memory-room/ParentsRoomShell";
-import { Player } from "./memory-room/Player";
-import { type RoomPalette, resolveRoomPalette } from "./memory-room/palette";
-import { RoomDecor } from "./memory-room/RoomDecor";
-import { RoomFurniture } from "./memory-room/RoomFurniture";
-import { RoomShell } from "./memory-room/RoomShell";
-import { RoomSurroundings } from "./memory-room/RoomSurroundings";
-import { SpaceDoor } from "./memory-room/SpaceDoor";
-import { SpaceLightGate } from "./memory-room/SpaceLight";
-import { SPACES } from "./memory-room/spaces";
-import { sunShadowAutoUpdate } from "./memory-room/sun-shadow";
-import { PlayerPositionProvider } from "./memory-room/use-near-player";
+import { CameraRig } from "./memory-room/camera/CameraRig";
+import { CursorTargetProjector } from "./memory-room/camera/CursorTargetProjector";
+import { CRANE_SHOT } from "./memory-room/camera/crane-shot";
+import { FirstPersonRig } from "./memory-room/camera/FirstPersonRig";
+import type { LookAngles } from "./memory-room/camera/first-person";
+import { DustMotes } from "./memory-room/effects/DustMotes";
+import { Lantern } from "./memory-room/effects/Lantern";
+import { MemoryGlowRoot } from "./memory-room/effects/MemoryOutlineGlow";
+import { WireframeReveal } from "./memory-room/effects/WireframeReveal";
+import { CanvasMinigameHost } from "./memory-room/memory/CanvasMinigameHost";
+import { MemoryBurst } from "./memory-room/memory/MemoryBurst";
+import { MemoryObjects } from "./memory-room/memory/MemoryObjects";
+import { Player } from "./memory-room/player/Player";
+import { PlayerPositionProvider } from "./memory-room/player/use-near-player";
+import { WalkMarker } from "./memory-room/player/WalkMarker";
+import { BathroomShell } from "./memory-room/rooms/bathroom/BathroomShell";
+import { EndingTrigger } from "./memory-room/rooms/living/EndingTrigger";
+import { LivingRoomFurniture } from "./memory-room/rooms/living/LivingRoomFurniture";
+import { LivingRoomShell } from "./memory-room/rooms/living/LivingRoomShell";
+import { ParentsRoomShell } from "./memory-room/rooms/parents/ParentsRoomShell";
+import type { CurtainPull, CurtainSide } from "./memory-room/rooms/room/curtain-motion";
+import { RoomDecor } from "./memory-room/rooms/room/RoomDecor";
+import { RoomFurniture } from "./memory-room/rooms/room/RoomFurniture";
+import { RoomShell } from "./memory-room/rooms/room/RoomShell";
+import { RoomSurroundings } from "./memory-room/rooms/room/RoomSurroundings";
+import { WindowLight } from "./memory-room/rooms/room/WindowLight";
+import { SpaceDoor } from "./memory-room/shared/SpaceDoor";
+import { SpaceLightGate } from "./memory-room/shared/SpaceLight";
+import { visibleHitsOnly } from "./memory-room/world/event-visibility";
+import { type RoomPalette, resolveRoomPalette } from "./memory-room/world/palette";
+import { SPACES } from "./memory-room/world/spaces";
+import { sunShadowAutoUpdate } from "./memory-room/world/sun-shadow";
 import {
   lampScaled,
   outsideDecay,
@@ -61,10 +64,7 @@ import {
   roomLightLevel,
   roomLightMix,
   roomLightValue,
-} from "./memory-room/visual-state";
-import { WalkMarker } from "./memory-room/WalkMarker";
-import { WindowLight } from "./memory-room/WindowLight";
-import { WireframeReveal } from "./memory-room/WireframeReveal";
+} from "./memory-room/world/visual-state";
 
 /** 바닥 평면(y=0). 클릭한 곳이 상판이든 벽이든, 광선이 이 평면과 만나는 자리로 걸어간다. */
 const FLOOR_PLANE = new Plane(new Vector3(0, 1, 0), 0);

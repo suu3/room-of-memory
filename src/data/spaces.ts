@@ -3,7 +3,7 @@ import type { MemoryId } from "@/data/memory-room";
 /*
  * 집의 얼개: 어떤 공간이 있고, 어느 문간이 어디를 잇고, 기억이 어느 공간에 있는가.
  *
- * 좌표는 없다. 걷기 범위·발자국·문틀 자리는 씬의 몫이고(`scenes/memory-room/spaces.ts`,
+ * 좌표는 없다. 걷기 범위·발자국·문틀 자리는 씬의 몫이고(`scenes/memory-room/world/spaces.ts`,
  * `layout.ts`) 그쪽이 이 표 위에 좌표를 얹는다. 스토어와 데이터는 얼개만 알면 되므로 씬을
  * 들여다보지 않고 여기를 본다 (계층 방향: `.claude/rules/architecture.md`).
  */

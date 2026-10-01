@@ -12,7 +12,7 @@ import { AMPOULE_REST, DRAWER_OPEN_DURATION, DRAWER_TRAVEL, LIFT_DURATION } from
 
 // 이 스위트는 집기 입력·모션 계약을 검사한다. GLB 디코딩 계약은 ampoule-model.test.ts가
 // 실제 파일로 따로 검사하므로, 상대 URL을 읽지 못하는 jsdom에서는 시각 모델만 경계에서 뺀다.
-vi.mock("@/scenes/memory-room/Ampoule", () => ({
+vi.mock("@/scenes/memory-room/memory/Ampoule", () => ({
   Ampoule: () => <group name="ampoule" />,
 }));
 

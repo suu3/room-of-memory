@@ -4,7 +4,7 @@ import { ContactShadows } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { type Group, MeshStandardMaterial, PlaneGeometry } from "three";
-import type { RoomPalette } from "@/scenes/memory-room/palette";
+import type { RoomPalette } from "@/scenes/memory-room/world/palette";
 import type { BookInspectObject } from "./InspectTurntable";
 import { pageShowing, ReadTimer, SHADOW_GAP, ZOOM_DAMP } from "./inspect-math";
 import { canvasSize, useFaceTextures } from "./inspect-textures";

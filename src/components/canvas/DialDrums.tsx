@@ -9,7 +9,7 @@ import {
   RepeatWrapping,
   SRGBColorSpace,
 } from "three";
-import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/palette";
+import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/world/palette";
 
 /**
  * 세면대 하부장의 숫자 드럼 (v4.1 6장: 하부장 다이얼 [3D]).

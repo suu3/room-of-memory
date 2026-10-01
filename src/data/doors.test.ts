@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DOORWAY_IDS } from "@/scenes/memory-room/spaces";
+import { DOORWAY_IDS } from "@/scenes/memory-room/world/spaces";
 import { DOOR_RULES } from "./doors";
 import { ITEM_IDS, ITEM_SPACE } from "./items";
 

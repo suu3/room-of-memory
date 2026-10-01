@@ -414,7 +414,7 @@ export interface MemoryRoomState {
   remark: { id: RemarkId; at: number; memoryId?: MemoryId } | null;
   /**
    * 카메라가 붙들려 있는 대상 (없으면 null). 조사도 재생도 아닌 연출 한 컷: 하부장이 열리는
-   * 순간 열쇠가 있던 칸으로 밀고 들어가는 크레인 샷 (scenes/memory-room/crane-shot.ts).
+   * 순간 열쇠가 있던 칸으로 밀고 들어가는 크레인 샷 (scenes/memory-room/camera/crane-shot.ts).
    * 붙들린 동안 씬 입력은 잠기고(selectSceneInputLocked), 씬이 시간을 재서 놓는다(endCameraHold).
    * 화면 상태라 저장하지 않는다.
    */

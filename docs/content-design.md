@@ -125,7 +125,7 @@
 본다 · 1~7")뿐이고, 무엇을 칠지는 **보면대에 펼쳐진 악보**가 말한다: 오선지에 음표가
 찍혀 있고 그 아래 계이름이 적혀 있다. 건반에는 같은 글자가 낡은 스티커처럼 남아 있다
 (이 집에서 피아노를 배우던 아이의 것이지 플레이어에게 주는 안내가 아니다). 악보는 판이
-설 때 생기는 것이 아니라 **늘 거기 서 있다**(`src/scenes/memory-room/PianoSheet.tsx`):
+설 때 생기는 것이 아니라 **늘 거기 서 있다**(`src/scenes/memory-room/rooms/living/PianoSheet.tsx`):
 거실을 걷다 피아노 앞에 서면 보이고, 물에 번진 한 마디도 그때 이미 보인다.
 
 **판은 DOM이 아니라 씬에서 돈다** (2026-09-16). 처음엔 화면 가운데 뜨는 건반 그림이었는데,
@@ -137,7 +137,7 @@
 한 줄과 닫기뿐이고(`PuzzleHost`), 판을 세우는 것은 씬 쪽 호스트다(`CanvasMinigameHost`).
 키보드 1~7로도 친다.
 
-> 코드에서는 공간이 데이터다 (`src/scenes/memory-room/spaces.ts`의 `SPACES`·`DOORWAYS`).
+> 코드에서는 공간이 데이터다 (`src/scenes/memory-room/world/spaces.ts`의 `SPACES`·`DOORWAYS`).
 > 방탈출 축은 세 표로 선다: 가지고 다니는 물건(`src/data/items.ts`), 문이 요구하는 것
 > (`src/data/doors.ts`), 방에 놓인 단서(`src/data/room-clues.ts`). 지금 체인은 전부
 > **자리 표시자**다: 거실 → 화장실(그냥 열림) → 세면대의 열쇠 → 안방(열쇠) → 책상의 악보
@@ -424,7 +424,7 @@
 **앉기**는 진행에 아무것도 남기지 않는 곁가지 인터랙션이다 (전등 스위치와 같은 성격).
 다가가서 누르면 **걸어가서** 앉고, 다시 누르거나 걸으면 일어서서 왔던 자리로 돌아간다.
 걸어 나가려는 손이 갇히지 않게. 자리·좌면 높이·의자가 빠지는 양은
-`src/scenes/memory-room/seats.ts` 한곳에 모여 있다.
+`src/scenes/memory-room/player/seats.ts` 한곳에 모여 있다.
 
 **커튼을 잡으면 양팔을 든다** (창가에 서 있을 때만). 몸으로 하는 인터랙션에 몸이
 반응하지 않으면 커튼만 저 혼자 움직이는 화면이 된다. 손을 놓아도 0.6초는 남는다.
@@ -546,7 +546,7 @@ pnpm audio:bgm ~/Downloads/받아온-곡.mp3 second-light   # 2·3막
 | 방문 개방 | `doorOpened` (라디오 목소리 뒤 방문 클릭) |
 | 배트 | `batTaken`: 현관, 3막 트리거 |
 | 엔딩 | `endingStarted`: 배트 + 앰플을 쥔 뒤 현관문 |
-| 밝기 | `roomLightLevel()`: `src/scenes/memory-room/visual-state.ts` |
+| 밝기 | `roomLightLevel()`: `src/scenes/memory-room/world/visual-state.ts` |
 | 미궁 문제 | `activePuzzle` / `solvedPuzzles`: 기억과 별개 축 |
 
 대본과 흐름의 단일 소스는 `content/*.yaml`이다. 고친 뒤 `pnpm content:build`
@@ -566,7 +566,7 @@ pnpm audio:bgm ~/Downloads/받아온-곡.mp3 second-light   # 2·3막
   트럼프(card-odd)·현관(angle-turn)·앰플(ampoule-pickup) 넷에서 다섯으로 는다.
 - **앰플을 든 손.** 앰플은 이제 서랍에서 집는 물건이다 (4-2). 다만 집은 뒤에는
   플레이어 모델의 손에 붙지 않고 사라진다: 배트와 같다. 엔딩에서 둘을 들고 나가는
-  그림은 플레이어 손에 물건을 붙이는 작업이 먼저다 (src/scenes/memory-room/Ampoule.tsx가
+  그림은 플레이어 손에 물건을 붙이는 작업이 먼저다 (src/scenes/memory-room/memory/Ampoule.tsx가
   그 메시다).
 - **컵라면 재해석의 자리.** 거실 냉장고에서 깨닫게 할지, 방의 빈 용기에서 깨닫게 할지.
   지금은 냉장고 쪽에 두었다.

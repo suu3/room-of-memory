@@ -6,7 +6,7 @@ import {
   type LookAngles,
   lookFromDrag,
   touchLookSensitivity,
-} from "@/scenes/memory-room/first-person";
+} from "@/scenes/memory-room/camera/first-person";
 import { isInteractiveTarget, ORBIT_DRAG_THRESHOLD } from "./room-canvas-runtime";
 
 /**

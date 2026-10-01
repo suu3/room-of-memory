@@ -153,7 +153,7 @@ function MinigameResultCard({
 
 /**
  * overlay 모드 미니게임 호스트. canvas 모드는 씬 쪽 호스트가 판을 세우고
- * (src/scenes/memory-room/CanvasMinigameHost.tsx), 여기는 DOM이어야 하는 두 가지
+ * (src/scenes/memory-room/memory/CanvasMinigameHost.tsx), 여기는 DOM이어야 하는 두 가지
  * (조작 안내 한 줄·닫기)만 그 위에 얹는다.
  * 미등록 id는 스킵(cleared: true) 처리해 진행이 막히지 않게 한다.
  * 게임은 시작 카드에서 시작 버튼을 눌러야 마운트된다. 타이머·라운드가

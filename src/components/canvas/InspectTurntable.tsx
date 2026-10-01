@@ -15,8 +15,8 @@ import {
   SRGBColorSpace,
 } from "three";
 import { composeStill } from "@/lib/still-capture";
-import { AMPOULE_MODEL_HEIGHT, Ampoule } from "@/scenes/memory-room/Ampoule";
-import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/palette";
+import { AMPOULE_MODEL_HEIGHT, Ampoule } from "@/scenes/memory-room/memory/Ampoule";
+import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/world/palette";
 import { InspectBook } from "./InspectBook";
 import { InspectFoldedNote } from "./InspectFoldedNote";
 import {

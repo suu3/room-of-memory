@@ -300,7 +300,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | 안방 서류 깨진 글자 | `redaction.ts` (v4에서 ClueOverlay의 서류 화면은 빠졌다) | (정적) | 고정 | `/lab/redaction` |
 | 컷씬 컷 간 노이즈 dissolve | `components/ui/playback/PlaybackScene.tsx`, `CutDissolve.tsx`, `cut-dissolve.ts` | cheap | 컷 번호 → 결 | `/lab/cut-dissolve` |
 | 액자 다시보기의 사진 밀림 | `components/ui/playback/PhotoMorph.tsx`, `photo-morph.ts`, `data`의 `REPLAY_MORPH_WITHIN` | cheap | 2막 액자 다시보기 | `/lab/photo-morph` |
-| 등 (커서 또는 몸) | `scenes/memory-room/Lantern.tsx`, `lantern-light.ts` | cheap, 1인칭 제외 | `level < 0.35` | (게임 안) |
+| 등 (커서 또는 몸) | `scenes/memory-room/effects/Lantern.tsx`, `lantern-light.ts` | cheap, 1인칭 제외 | `level < 0.35` | (게임 안) |
 | 틸트 시프트 · 앉기 초점 | `MemoryOutlineGlow.tsx` (`TiltShiftDriver`), `tilt-focus.ts` | heavy | `act`, `seatedAt` | (게임 안) |
 | 먼지 재적층 | `DustMotes.tsx` `settle` | (기존) | `level` | (게임 안) |
 | 엔딩의 깨끗한 화면 | `FilmLook.tsx`, `film-look.ts` `clean` | (기존) | `endingStarted` | (게임 안) |

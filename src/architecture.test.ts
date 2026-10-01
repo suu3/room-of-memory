@@ -58,9 +58,12 @@ describe("architecture", () => {
     expect([...new Set(violations)]).toEqual([]);
   });
 
-  it("components/ui 바로 아래에는 파일을 두지 않는다 (기능별 폴더에 넣는다)", () => {
-    const ui = path.join(SRC, "components/ui");
-    const loose = readdirSync(ui).filter((name) => statSync(path.join(ui, name)).isFile());
-    expect(loose).toEqual([]);
-  });
+  it.each(["components/ui", "scenes/memory-room", "scenes/memory-room/rooms"])(
+    "%s 바로 아래에는 파일을 두지 않는다 (기능별 폴더에 넣는다)",
+    (folder) => {
+      const dir = path.join(SRC, folder);
+      const loose = readdirSync(dir).filter((name) => statSync(path.join(dir, name)).isFile());
+      expect(loose).toEqual([]);
+    },
+  );
 });

@@ -20,12 +20,20 @@ types → i18n → data → store → lib → scenes · minigames · components 
 
 - 같은 계층끼리는 가져올 수 있다.
 - 테스트 파일은 검사하지 않는다.
-- 방향을 거슬러야 하면 가져오려는 것을 **아래로 내린다**. 대개 타입이나 상수 표다. 예: 공간·문간 id와 "기억이 어느 공간에 있는가"는 씬(`scenes/memory-room/spaces.ts`)에 있었는데, 스토어와 데이터가 그걸 보느라 씬을 가져왔다. 좌표 없는 얼개만 `data/spaces.ts`로 내리고 씬은 그 위에 좌표를 얹는다.
+- 방향을 거슬러야 하면 가져오려는 것을 **아래로 내린다**. 대개 타입이나 상수 표다. 예: 공간·문간 id와 "기억이 어느 공간에 있는가"는 씬(`scenes/memory-room/world/spaces.ts`)에 있었는데, 스토어와 데이터가 그걸 보느라 씬을 가져왔다. 좌표 없는 얼개만 `data/spaces.ts`로 내리고 씬은 그 위에 좌표를 얹는다.
 - 정말 내릴 수 없으면 테스트의 `ALLOWED`에 이유와 함께 적는다. 지금은 타입 파일 둘뿐이다.
 
 ## 폴더 안의 규칙
 
 - `components/ui/`는 기능별 폴더다 (`shell` · `boot` · `dialogue` · `playback` · `notebook` · `hud` · `inspect` · `minigame` · `ending` · `shared`). 바로 아래에 파일을 두지 않는다. 컴포넌트(PascalCase)와 그 컴포넌트만 쓰는 순수 로직(kebab-case)은 같은 폴더에 둔다. 두 폴더 넘게 쓰이면 `shared`로 간다.
+- `scenes/memory-room/`도 기능별 폴더다. 바로 아래에 파일을 두지 않는다.
+  - `world`: 좌표와 얼개 (`layout` · `spaces` · `palette` · 벽 걷기). 다른 폴더가 전부 여기를 본다
+  - `player` · `camera`: 몸과 시점
+  - `rooms/room` · `living` · `bathroom` · `parents`: 그 공간의 껍데기·가구와 그 공간에만 있는 것
+  - `memory`: 기억 물건·표식·수집 연출·단서
+  - `effects`: 후처리와 분위기 (윤곽선 · 필름 룩 · 화면 전환 · 반사 · 물때)
+  - `shared`: 두 공간 넘게 쓰는 부품 (`FurnitureModel` · `SpaceDoor`)
+  - 짝이 되는 컴포넌트와 순수 로직(`SinkWater.tsx` · `water-ripple.ts`)은 같은 폴더에 둔다
 - 미니게임은 폴더 하나가 기능 하나다 (`minigames.md`).
 - 스토어를 읽는 React 프로바이더는 화면이다: `components/ui/shell`에 둔다 (`I18nProvider`).
 

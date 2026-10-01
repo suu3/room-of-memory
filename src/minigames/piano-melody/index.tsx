@@ -6,16 +6,16 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { CanvasTexture, type Group, PerspectiveCamera, SRGBColorSpace, Vector3 } from "three";
 import { playSound, playTone } from "@/lib/audio";
-import { LivingPiece } from "@/scenes/memory-room/LivingRoomFurniture";
+import { LivingPiece } from "@/scenes/memory-room/rooms/living/LivingRoomFurniture";
+import { PIANO_FALLBOARD, PianoFallboard } from "@/scenes/memory-room/rooms/living/PianoCabinet";
 import {
   LIVING_ANCHORS,
   LIVING_PIANO_CENTER,
   LIVING_PIANO_ROTATION,
   scaleLivingHeight,
   scaleLivingPoint,
-} from "@/scenes/memory-room/layout";
-import { PIANO_FALLBOARD, PianoFallboard } from "@/scenes/memory-room/PianoCabinet";
-import { resolveRoomPalette } from "@/scenes/memory-room/palette";
+} from "@/scenes/memory-room/world/layout";
+import { resolveRoomPalette } from "@/scenes/memory-room/world/palette";
 import type { MinigameProps } from "@/types/minigame";
 import { useOnceCompleter } from "../shell";
 import {

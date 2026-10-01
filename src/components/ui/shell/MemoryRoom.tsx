@@ -12,7 +12,7 @@ import {
   ROOM_LIGHT_RAMP,
   roomLightLevel,
   roomLightValue,
-} from "@/scenes/memory-room/visual-state";
+} from "@/scenes/memory-room/world/visual-state";
 import {
   selectAct,
   selectActTwoProgress,

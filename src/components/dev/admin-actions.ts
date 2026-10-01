@@ -2,7 +2,7 @@ import type { ItemId } from "@/data/items";
 import type { MemoryId } from "@/data/memory-room";
 import type { DiscoveryId, PuzzleId } from "@/data/room-clues";
 import { type EnterablePhase, progressAt } from "@/data/story-phase";
-import { type DoorwayId, SPACE_IDS, SPACES, type SpaceId } from "@/scenes/memory-room/spaces";
+import { type DoorwayId, SPACE_IDS, SPACES, type SpaceId } from "@/scenes/memory-room/world/spaces";
 import { sanitizeProgress, useMemoryRoomStore } from "@/store/memory-room";
 import { cycleMemory } from "./admin-progress";
 

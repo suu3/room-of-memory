@@ -158,7 +158,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
   "piano-melody": {
     id: "piano-melody",
     // 씬의 피아노 그 자리에서 돈다: 뚜껑이 젖혀지고 카메라가 건반 앞에 붙박이로 선다.
-    // 판을 세우는 것은 씬 쪽 호스트(src/scenes/memory-room/CanvasMinigameHost.tsx)다
+    // 판을 세우는 것은 씬 쪽 호스트(src/scenes/memory-room/memory/CanvasMinigameHost.tsx)다
     mode: "canvas",
     presentation: "bare",
     component: lazy(() =>
@@ -175,7 +175,7 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
   "ampoule-pickup": {
     id: "ampoule-pickup",
     // canvas 모드(piano-melody와 둘): 씬의 냉장고 그 자리에서 서랍이 열리고 앰플이 손에 들린다.
-    // 호스트는 씬 쪽(src/scenes/memory-room/CanvasMinigameHost.tsx). 카드 없이 물건만.
+    // 호스트는 씬 쪽(src/scenes/memory-room/memory/CanvasMinigameHost.tsx). 카드 없이 물건만.
     // 떠나기 전 앰플 3차(from: resolve)가 쓴다. 3페이즈에 들여다보고 내려놓았던 앰플을 집어 든다
     mode: "canvas",
     presentation: "bare",

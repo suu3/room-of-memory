@@ -193,11 +193,11 @@
 
 | 영역 | 주요 파일 | 변경 이유 |
 |---|---|---|
-| 평면/충돌 | `src/scenes/memory-room/layout.ts` | 거실 경계 확장, 새 주방/가구 발자국, 냉장고 기준점 |
-| 거실 껍데기 | `src/scenes/memory-room/LivingRoomShell.tsx` | 바닥/뒷벽 확장과 새 `+x` 측벽 |
-| 가구 | `src/scenes/memory-room/LivingRoomFurniture.tsx` | 소파·식탁 재배치, 냉장고 이전 |
-| 부엌 가구 | `src/scenes/memory-room/KitchenFurniture.tsx` | 거실 내부의 부엌 구성 분리 |
-| 조사/카메라 | `src/scenes/memory-room/layout.ts`, `FridgeDrawer.tsx` | 냉장고와 연결된 좌표 동기화 |
+| 평면/충돌 | `src/scenes/memory-room/world/layout.ts` | 거실 경계 확장, 새 주방/가구 발자국, 냉장고 기준점 |
+| 거실 껍데기 | `src/scenes/memory-room/rooms/living/LivingRoomShell.tsx` | 바닥/뒷벽 확장과 새 `+x` 측벽 |
+| 가구 | `src/scenes/memory-room/rooms/living/LivingRoomFurniture.tsx` | 소파·식탁 재배치, 냉장고 이전 |
+| 부엌 가구 | `src/scenes/memory-room/rooms/living/KitchenFurniture.tsx` | 거실 내부의 부엌 구성 분리 |
+| 조사/카메라 | `src/scenes/memory-room/world/layout.ts`, `FridgeDrawer.tsx` | 냉장고와 연결된 좌표 동기화 |
 | 지도 | `src/components/ui/notebook/notebook-map.ts` | 확장된 거실 도형 표시 확인 |
 | 검증 | `layout.test.ts`, `spaces.test.ts`, `notebook-map.test.ts` 등 | 동선, 충돌, 평면도 회귀 방지 |
 

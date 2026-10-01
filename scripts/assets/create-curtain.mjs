@@ -31,7 +31,7 @@ import {
   Vector3,
 } from "three";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
-import { CURTAIN_X } from "../../src/scenes/memory-room/curtain-motion.ts";
+import { CURTAIN_X } from "../../src/scenes/memory-room/rooms/room/curtain-motion.ts";
 
 // GLTFExporter는 브라우저 FileReader로 바이너리를 읽는다. 지오메트리만 내보내니 이 둘로 충분하다.
 globalThis.FileReader = class {

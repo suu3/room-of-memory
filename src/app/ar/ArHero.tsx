@@ -21,18 +21,18 @@ import {
   palmPoint,
   placeHeldBat,
   reachHandTo,
-} from "@/scenes/memory-room/held-bat";
-import { resolveRoomPalette } from "@/scenes/memory-room/palette";
+} from "@/scenes/memory-room/player/held-bat";
 import {
   createPlayerRig,
   disposePlayerRig,
   reachBone,
   startPlayerRig,
   updatePlayerRig,
-} from "@/scenes/memory-room/player-animation";
-import { SIT_CONTACT_Y, STEP_RATE } from "@/scenes/memory-room/player-rig";
-import { seatOffsetFromCenter } from "@/scenes/memory-room/seats";
-import { advanceSitProgress, sitEase } from "@/scenes/memory-room/sit-motion";
+} from "@/scenes/memory-room/player/player-animation";
+import { SIT_CONTACT_Y, STEP_RATE } from "@/scenes/memory-room/player/player-rig";
+import { seatOffsetFromCenter } from "@/scenes/memory-room/player/seats";
+import { advanceSitProgress, sitEase } from "@/scenes/memory-room/player/sit-motion";
+import { resolveRoomPalette } from "@/scenes/memory-room/world/palette";
 import {
   type ArAction,
   advanceActionClock,

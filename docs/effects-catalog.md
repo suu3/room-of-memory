@@ -143,7 +143,7 @@ function tierOverride(): EffectTier | null {
 }
 ```
 
-**모듈 스코프 싱글턴** — `scenes/memory-room/cursor-target.ts` · `cursorTarget`, `lib/effects/screen-transition-input.ts` · `screenTransitionInput`
+**모듈 스코프 싱글턴** — `scenes/memory-room/camera/cursor-target.ts` · `cursorTarget`, `lib/effects/screen-transition-input.ts` · `screenTransitionInput`
 
 ```ts
 export const cursorTarget: CursorTargetState = { object: null, screen: null, hoverAt: 0 };
@@ -163,7 +163,7 @@ export function setScreenTransitionSettle(value: number): void {
 }
 ```
 
-**glb 로더 안쪽의 Suspense** — `scenes/memory-room/FurnitureModel.tsx` · `FurnitureModel`
+**glb 로더 안쪽의 Suspense** — `scenes/memory-room/shared/FurnitureModel.tsx` · `FurnitureModel`
 
 ```tsx
 /**
@@ -261,7 +261,7 @@ const BUTTON_BASE = `inline-flex cursor-pointer items-center justify-center gap-
 export const BUTTON_PRIMARY = `${BUTTON_BASE} border-memory bg-memory px-4 py-2.5 text-night hover:border-memory/85 hover:bg-memory/85 active:bg-memory/75`;
 ```
 
-**3D 팔레트를 CSS 토큰에서 읽기** — `scenes/memory-room/palette.ts` · `resolveRoomPalette`
+**3D 팔레트를 CSS 토큰에서 읽기** — `scenes/memory-room/world/palette.ts` · `resolveRoomPalette`
 
 ```ts
 export function resolveRoomPalette(): RoomPalette {
@@ -318,7 +318,7 @@ export function resolveRoomPalette(): RoomPalette {
 
 ### 관련 코드
 
-**앰비언트 오클루전** — `scenes/memory-room/MemoryOutlineGlow.tsx` · `AO_SETTINGS`, `MemoryGlowRoot`의 `passes`
+**앰비언트 오클루전** — `scenes/memory-room/effects/MemoryOutlineGlow.tsx` · `AO_SETTINGS`, `MemoryGlowRoot`의 `passes`
 
 ```tsx
 const AO_SETTINGS = {
@@ -350,7 +350,7 @@ const AO_SETTINGS = {
   );
 ```
 
-**아웃라인 글로우 2등급** — `scenes/memory-room/MemoryOutlineGlow.tsx` · `createMemoryOutlineSettings`, 선택 주입 effect
+**아웃라인 글로우 2등급** — `scenes/memory-room/effects/MemoryOutlineGlow.tsx` · `createMemoryOutlineSettings`, 선택 주입 effect
 
 ```tsx
 const INNER_SELECTION_LAYER = 11;
@@ -403,7 +403,7 @@ export function createMemoryOutlineSettings(color: string) {
   }, [selection.memory, passes]);
 ```
 
-**호버 순간 윤곽 펄스** — `scenes/memory-room/cursor-target.ts` · `hoverGlowPulse`, `MemoryOutlineGlow.tsx` · `GlowHoverPulse`
+**호버 순간 윤곽 펄스** — `scenes/memory-room/camera/cursor-target.ts` · `hoverGlowPulse`, `MemoryOutlineGlow.tsx` · `GlowHoverPulse`
 
 ```ts
 export function hoverGlowPulse(now: number, hoverAt: number): number {
@@ -422,7 +422,7 @@ export function hoverGlowPulse(now: number, hoverAt: number): number {
   });
 ```
 
-**틸트 시프트 DOF** — `scenes/memory-room/tilt-focus.ts` · `tiltFocus`, `MemoryOutlineGlow.tsx` · `TiltShiftDriver`
+**틸트 시프트 DOF** — `scenes/memory-room/effects/tilt-focus.ts` · `tiltFocus`, `MemoryOutlineGlow.tsx` · `TiltShiftDriver`
 
 ```ts
 const BY_ACT: Record<Act, { blur: number; taper: number }> = {
@@ -467,7 +467,7 @@ export function tiltFocus(act: Act, seated: boolean): TiltFocus {
   });
 ```
 
-**색수차** — `scenes/memory-room/film-look.ts` · `restingAberration` / `aberrationAmount`, `FilmLook.tsx` · `FilmLookDriver`
+**색수차** — `scenes/memory-room/effects/film-look.ts` · `restingAberration` / `aberrationAmount`, `FilmLook.tsx` · `FilmLookDriver`
 
 ```ts
 export function restingAberration(dim: number): number {
@@ -499,7 +499,7 @@ export function aberrationAmount(resting: number, pulse: number, clean = 0): num
   });
 ```
 
-**필름 그레인** — `scenes/memory-room/FilmLook.tsx` · `useFilmLookEffects`, `film-look.ts` · `grainOpacity`
+**필름 그레인** — `scenes/memory-room/effects/FilmLook.tsx` · `useFilmLookEffects`, `film-look.ts` · `grainOpacity`
 
 ```tsx
   const effects = useMemo(() => {
@@ -524,7 +524,7 @@ export function grainOpacity(pulse: number, clean = 0): number {
 }
 ```
 
-**사건 펄스 버스** — `scenes/memory-room/event-pulse.ts` · `subscribeEventPulse`
+**사건 펄스 버스** — `scenes/memory-room/effects/event-pulse.ts` · `subscribeEventPulse`
 
 ```ts
 export const EVENT_PULSE = {
@@ -543,7 +543,7 @@ export function subscribeEventPulse(onPulse: (strength: number) => void): () => 
 }
 ```
 
-**화면 전환 셰이더** — `scenes/memory-room/ScreenTransition.tsx` · `FRAGMENT`, `ScreenTransitionEffect`
+**화면 전환 셰이더** — `scenes/memory-room/effects/ScreenTransition.tsx` · `FRAGMENT`, `ScreenTransitionEffect`
 
 ```glsl
     if (uTear > 0.001) {
@@ -604,7 +604,7 @@ const TEAR_RELEASE_S = 0.5;
 const BURN_RISE_S = 1.5;
 ```
 
-**1인칭 잔상** — `scenes/memory-room/AfterimagePass.ts` · `BLEND_FRAGMENT`, `AfterimagePass.render`, `afterimage.ts` · `afterimageDamp`
+**1인칭 잔상** — `scenes/memory-room/effects/AfterimagePass.ts` · `BLEND_FRAGMENT`, `AfterimagePass.render`, `afterimage.ts` · `afterimageDamp`
 
 ```glsl
   void main() {
@@ -649,7 +649,7 @@ export function afterimageDamp(speed: number): number {
 }
 ```
 
-**GodRays** — `scenes/memory-room/MemoryOutlineGlow.tsx` · `useGodRaysEffect`, `LivingRoomShell.tsx` · `EndingLightPlane`
+**GodRays** — `scenes/memory-room/effects/MemoryOutlineGlow.tsx` · `useGodRaysEffect`, `LivingRoomShell.tsx` · `EndingLightPlane`
 
 ```tsx
 function useGodRaysEffect(active: boolean) {
@@ -717,7 +717,7 @@ function EndingLightPlane({ color, visible }: { color: string; visible: boolean 
 
 ### 관련 코드
 
-**밝기 V곡선과 두 축** — `scenes/memory-room/visual-state.ts` · `roomLightLevel`, `roomLightMix`
+**밝기 V곡선과 두 축** — `scenes/memory-room/world/visual-state.ts` · `roomLightLevel`, `roomLightMix`
 
 ```ts
 export function roomLightLevel({ collected, memoryTotal, recovery }: RoomLightInput): number {
@@ -741,7 +741,7 @@ export function roomLightMix(input: RoomLightInput): RoomLightMix {
 }
 ```
 
-**StageLighting** — `scenes/MemoryRoomScene.tsx` · `StageLighting`, `scenes/memory-room/sun-shadow.ts` · `sunShadowAutoUpdate`
+**StageLighting** — `scenes/MemoryRoomScene.tsx` · `StageLighting`, `scenes/memory-room/world/sun-shadow.ts` · `sunShadowAutoUpdate`
 
 ```tsx
   useFrame((_, delta) => {
@@ -798,7 +798,7 @@ const CURTAIN_SUN_FACTOR = 0.6;
       />
 ```
 
-**전등 스위치와 인트로 블랙아웃** — `scenes/memory-room/visual-state.ts` · `lampScaled`, `scenes/MemoryRoomScene.tsx` · `dim`
+**전등 스위치와 인트로 블랙아웃** — `scenes/memory-room/world/visual-state.ts` · `lampScaled`, `scenes/MemoryRoomScene.tsx` · `dim`
 
 ```ts
 export const LIGHTS_OFF_FACTOR = 0.26;
@@ -817,7 +817,7 @@ export function lampScaled(value: number, lightsOn: boolean, blackout = false): 
   const dim = 1 - lampScaled(level, lightsOn, blackout);
 ```
 
-**공간별 밝기 오프셋** — `scenes/memory-room/spaces.ts` · `AWAY_LIGHT_OFFSET`, `scenes/MemoryRoomScene.tsx` · `cool`
+**공간별 밝기 오프셋** — `scenes/memory-room/world/spaces.ts` · `AWAY_LIGHT_OFFSET`, `scenes/MemoryRoomScene.tsx` · `cool`
 
 ```ts
 const AWAY_LIGHT_OFFSET = 0.12;
@@ -831,7 +831,7 @@ const AWAY_LIGHT_OFFSET = 0.12;
   const warm = mix.warm;
 ```
 
-**등불** — `scenes/memory-room/lantern-light.ts` · `lanternAmount`, `Lantern.tsx` · `Lantern`
+**등불** — `scenes/memory-room/effects/lantern-light.ts` · `lanternAmount`, `Lantern.tsx` · `Lantern`
 
 ```ts
 export const LANTERN_THRESHOLD = 0.35;
@@ -875,7 +875,7 @@ export function lanternAmount(level: number): number {
     light.position.z = MathUtils.damp(light.position.z, place.z, FOLLOW_LAMBDA, delta);
 ```
 
-**스위치 표시등** — `scenes/memory-room/LightSwitch.tsx` · `PILOT`, `LightSwitch`
+**스위치 표시등** — `scenes/memory-room/rooms/room/LightSwitch.tsx` · `PILOT`, `LightSwitch`
 
 ```tsx
 const PILOT = { base: 1.6, introBase: 1.3, introSwing: 0.5, periodS: 1.6 } as const;
@@ -902,7 +902,7 @@ const PILOT_LIGHT = { intensity: 0.45, distance: 2.6, decay: 2 } as const;
       >
 ```
 
-**책상 스탠드** — `scenes/memory-room/RoomFurniture.tsx` · `DeskLamp`
+**책상 스탠드** — `scenes/memory-room/rooms/room/RoomFurniture.tsx` · `DeskLamp`
 
 ```tsx
   useFrame((_, delta) => {
@@ -914,7 +914,7 @@ const PILOT_LIGHT = { intensity: 0.45, distance: 2.6, decay: 2 } as const;
   });
 ```
 
-**라디오 붉은 신호** — `scenes/memory-room/radio-signal.ts` · `radioSignalLevel` / `radioWakeRamp`, `MemoryObjects.tsx` · `RadioSignal`
+**라디오 붉은 신호** — `scenes/memory-room/memory/radio-signal.ts` · `radioSignalLevel` / `radioWakeRamp`, `MemoryObjects.tsx` · `RadioSignal`
 
 ```ts
 export function radioSignalLevel(time: number): number {
@@ -946,7 +946,7 @@ export function radioWakeRamp(elapsed: number): number {
   });
 ```
 
-**수집 완료 금빛 틴트** — `scenes/memory-room/MemoryObjects.tsx` · `setMaterialCollected`
+**수집 완료 금빛 틴트** — `scenes/memory-room/memory/MemoryObjects.tsx` · `setMaterialCollected`
 
 ```tsx
 const emissiveBaselines = new WeakMap<Material, EmissiveBaseline>();
@@ -977,7 +977,7 @@ function setMaterialCollected(material: Material, collected: boolean, memoryColo
 }
 ```
 
-**문틈 빛, 문 금빛** — `scenes/memory-room/RoomShell.tsx` · 문틈 `ShellBox`, `SpaceDoor.tsx` · `SpaceDoor`, `LivingRoomShell.tsx` · `FrontDoor`, `memory-motion.ts` · `approach`
+**문틈 빛, 문 금빛** — `scenes/memory-room/rooms/room/RoomShell.tsx` · 문틈 `ShellBox`, `SpaceDoor.tsx` · `SpaceDoor`, `LivingRoomShell.tsx` · `FrontDoor`, `memory-motion.ts` · `approach`
 
 ```tsx
         {/* 문틈으로 새는 빛: 거실에서 오는 빛이다 (v2). 문이 열리면 틈 자체가
@@ -1023,7 +1023,7 @@ export function approach(current: number, target: number, lambda: number, delta:
 }
 ```
 
-**창밖 하늘** — `scenes/memory-room/WindowView.tsx` · `skyColors`, `useSkyTexture`
+**창밖 하늘** — `scenes/memory-room/rooms/room/WindowView.tsx` · `skyColors`, `useSkyTexture`
 
 ```tsx
 export function skyColors(palette: RoomPalette, decay: number): string[] {
@@ -1078,7 +1078,7 @@ function useSkyTexture(palette: RoomPalette, decay: number): CanvasTexture {
 
 ### 관련 코드
 
-**아이소메트릭 추적 리그** — `scenes/memory-room/CameraRig.tsx` · `CameraRig` useFrame, `spaces.ts` · `followLimits`
+**아이소메트릭 추적 리그** — `scenes/memory-room/camera/CameraRig.tsx` · `CameraRig` useFrame, `spaces.ts` · `followLimits`
 
 ```tsx
     if (follows) {
@@ -1122,7 +1122,7 @@ export function followLimits(openDoorways: readonly DoorwayId[], inset: number):
 }
 ```
 
-**타이틀 드리프트와 패럴랙스** — `scenes/memory-room/CameraRig.tsx` · `TITLE_DRIFT_*`, `PARALLAX_*`
+**타이틀 드리프트와 패럴랙스** — `scenes/memory-room/camera/CameraRig.tsx` · `TITLE_DRIFT_*`, `PARALLAX_*`
 
 ```tsx
 const TITLE_DRIFT_AMPLITUDE = 0.16;
@@ -1147,7 +1147,7 @@ const PARALLAX_LAMBDA = 3;
       .applyAxisAngle(ORBIT_AXIS, orbitAzimuth + drift + parallax.x * PARALLAX_AZIMUTH);
 ```
 
-**방 안으로 내려앉기** — `scenes/memory-room/CameraRig.tsx` · `ENTER_LAMBDA`, λ 선택
+**방 안으로 내려앉기** — `scenes/memory-room/camera/CameraRig.tsx` · `ENTER_LAMBDA`, λ 선택
 
 ```tsx
 const ENTER_LAMBDA = 1.25;
@@ -1166,7 +1166,7 @@ const ENTER_DURATION_S = 2.2;
             : 7;
 ```
 
-**포커스 프리셋** — `scenes/memory-room/layout.ts` · `CAMERA_PRESETS`, `components/canvas/room-canvas-runtime.ts` · `focusZoomFor`
+**포커스 프리셋** — `scenes/memory-room/world/layout.ts` · `CAMERA_PRESETS`, `components/canvas/room-canvas-runtime.ts` · `focusZoomFor`
 
 ```ts
 export const CAMERA_PRESETS = {
@@ -1187,7 +1187,7 @@ export function focusZoomFor(baseZoom: number, focused: boolean): number {
 }
 ```
 
-**크레인 샷** — `scenes/memory-room/crane-shot.ts` · `CRANE_SHOT`, `craneZoomFor`
+**크레인 샷** — `scenes/memory-room/camera/crane-shot.ts` · `CRANE_SHOT`, `craneZoomFor`
 
 ```ts
 export const CRANE_SHOT = {
@@ -1236,7 +1236,7 @@ export const ORBIT_DRAG_THRESHOLD = 6;
     container.addEventListener("click", handleClickCapture, { capture: true });
 ```
 
-**줌아웃할수록 공간 중앙으로** — `scenes/memory-room/CameraRig.tsx` · `zoomOutAmount`, `spaces.ts` · `spaceCenter`
+**줌아웃할수록 공간 중앙으로** — `scenes/memory-room/camera/CameraRig.tsx` · `zoomOutAmount`, `spaces.ts` · `spaceCenter`
 
 ```ts
 export function zoomOutAmount(zoomScale: number): number {
@@ -1253,7 +1253,7 @@ export function spaceCenter(id: SpaceId): { x: number; z: number } {
 }
 ```
 
-**사건 킥과 흔들림** — `scenes/memory-room/CameraRig.tsx` · `KICK_ZOOM`, `SHAKE`
+**사건 킥과 흔들림** — `scenes/memory-room/camera/CameraRig.tsx` · `KICK_ZOOM`, `SHAKE`
 
 ```tsx
 const KICK_ZOOM = 0.012;
@@ -1292,7 +1292,7 @@ const SHAKE = { roll: 0.011, yaw: 0.007, lambda: 2.4, rollHz: 37, yawHz: 29 } as
     }
 ```
 
-**1인칭 리그** — `scenes/memory-room/FirstPersonRig.tsx` · `FirstPersonRig`, `first-person.ts` · `EYE_HEIGHT` / `FIRST_PERSON_FOV`
+**1인칭 리그** — `scenes/memory-room/camera/FirstPersonRig.tsx` · `FirstPersonRig`, `first-person.ts` · `EYE_HEIGHT` / `FIRST_PERSON_FOV`
 
 ```ts
 export const EYE_HEIGHT = 1.38;
@@ -1350,7 +1350,7 @@ export function keyboardFov(aspect: number): number {
 }
 ```
 
-**카메라 쪽 벽 걷어내기** — `scenes/memory-room/wall-culling.ts` · `wallOpacity`, `CulledWall.tsx` · `CulledWall`
+**카메라 쪽 벽 걷어내기** — `scenes/memory-room/world/wall-culling.ts` · `wallOpacity`, `CulledWall.tsx` · `CulledWall`
 
 ```ts
 const FADE_START = 0.28;
@@ -1415,7 +1415,7 @@ export function wallOpacity(side: WallSide, dirX: number, dirZ: number): number 
 
 ### 관련 코드
 
-**카메라 기준 이동과 충돌 슬라이드** — `scenes/memory-room/Player.tsx` · `LoadedPlayer` useFrame
+**카메라 기준 이동과 충돌 슬라이드** — `scenes/memory-room/player/Player.tsx` · `LoadedPlayer` useFrame
 
 ```tsx
 if (moving && !seated && !sitting) {
@@ -1467,7 +1467,7 @@ function dampAngle(current: number, target: number, lambda: number, delta: numbe
 }
 ```
 
-**축 분리 슬라이드** — `scenes/memory-room/spatial.ts` · `moveThroughZones`, `blocksStep`
+**축 분리 슬라이드** — `scenes/memory-room/world/spatial.ts` · `moveThroughZones`, `blocksStep`
 
 ```ts
 export function moveThroughZones(
@@ -1498,7 +1498,7 @@ for (let index = 0; index < obstacles.length; index += 1) {
 return false;
 ```
 
-**문간 빨려 들어가기** — `scenes/memory-room/doorway-funnel.ts` · `funnelIntoDoorway`
+**문간 빨려 들어가기** — `scenes/memory-room/player/doorway-funnel.ts` · `funnelIntoDoorway`
 
 ```ts
 if (pos < min - APPROACH || pos > max + APPROACH) continue;
@@ -1514,7 +1514,7 @@ const kept = Math.sign(across) === -Math.sign(offset) ? across * AWAY_KEEP : acr
 const nextAcross = Math.max(-length, Math.min(length, kept + pull));
 ```
 
-**클릭 이동 (A\*)** — `scenes/memory-room/pathfind.ts` · `search`
+**클릭 이동 (A\*)** — `scenes/memory-room/player/pathfind.ts` · `search`
 
 ```ts
 const heuristic = (column: number, row: number) => {
@@ -1545,7 +1545,7 @@ for (const [dc, dr, cost] of NEIGHBORS) {
 }
 ```
 
-**string pulling** — `scenes/memory-room/pathfind.ts` · `findPath`
+**string pulling** — `scenes/memory-room/player/pathfind.ts` · `findPath`
 
 ```ts
 // 곧장 보이면 격자를 돌 이유가 없다
@@ -1571,7 +1571,7 @@ while (at < points.length - 1) {
 }
 ```
 
-**목적지 링** — `scenes/memory-room/WalkMarker.tsx` · `WalkMarker`
+**목적지 링** — `scenes/memory-room/player/WalkMarker.tsx` · `WalkMarker`
 
 ```tsx
 useFrame((state, delta) => {
@@ -1586,7 +1586,7 @@ useFrame((state, delta) => {
 });
 ```
 
-**스켈레탈 믹싱** — `scenes/memory-room/player-animation.ts` · `createPlayerRig`, `startPlayerRig`, `updatePlayerRig`
+**스켈레탈 믹싱** — `scenes/memory-room/player/player-animation.ts` · `createPlayerRig`, `startPlayerRig`, `updatePlayerRig`
 
 ```ts
 // Object3D.clone leaves skinned meshes bound to the cached source skeleton.
@@ -1623,7 +1623,7 @@ rig.mixer.update(delta);
 
 `phase`는 Player가 실제로 간 거리로 올린다(`phaseRef.current += STEP_RATE * traveled`).
 
-**눈 깜빡임** — `scenes/memory-room/player-animation.ts` · `updatePlayerRig`
+**눈 깜빡임** — `scenes/memory-room/player/player-animation.ts` · `updatePlayerRig`
 
 ```ts
 // Apply after the mixer so locomotion cannot overwrite eye scale.
@@ -1644,7 +1644,7 @@ if (blink.eyelids.length === 0) {
 }
 ```
 
-**커튼 당기기** — `scenes/memory-room/curtain-animation.ts` · `advanceCurtainMotion`
+**커튼 당기기** — `scenes/memory-room/player/curtain-animation.ts` · `advanceCurtainMotion`
 
 ```ts
 motion.ready = motion.elapsed >= REACH_END + GRIP_SECONDS;
@@ -1662,7 +1662,7 @@ motion.shown = held
 motion.time = PULL_START + (PULL_END - PULL_START) * motion.shown;
 ```
 
-`scenes/memory-room/player-animation.ts` · `updatePlayerRig`: paused 클립에 시간을 직접 쓴다.
+`scenes/memory-room/player/player-animation.ts` · `updatePlayerRig`: paused 클립에 시간을 직접 쓴다.
 
 ```ts
 for (const side of ["left", "right"] as const) {
@@ -1673,7 +1673,7 @@ for (const side of ["left", "right"] as const) {
 }
 ```
 
-**앉기와 눕기** — `scenes/memory-room/sit-motion.ts` · `advanceSitPhases`, `liePhasesOf`
+**앉기와 눕기** — `scenes/memory-room/player/sit-motion.ts` · `advanceSitPhases`, `liePhasesOf`
 
 ```ts
 if (seated) {
@@ -1694,7 +1694,7 @@ export function liePhasesOf(sit: number, out: LiePhases): LiePhases {
 }
 ```
 
-`scenes/memory-room/seat-route.ts` · `planSeatRoute`: 다가서는 자리 후보마다 A\*를 돌려 가장 짧은 길을 고른다.
+`scenes/memory-room/player/seat-route.ts` · `planSeatRoute`: 다가서는 자리 후보마다 A\*를 돌려 가장 짧은 길을 고른다.
 
 ```ts
 const blocked = withPulledSeat(seat, obstacles);
@@ -1708,7 +1708,7 @@ for (const spot of approachesOf(seat)) {
 }
 ```
 
-`scenes/memory-room/Player.tsx` · `LoadedPlayer` useFrame: 걷는 구간은 길을 따라가고, 앉는 구간에서 걸터앉는 자리와 눕는 자리로 옮긴다.
+`scenes/memory-room/player/Player.tsx` · `LoadedPlayer` useFrame: 걷는 구간은 길을 따라가고, 앉는 구간에서 걸터앉는 자리와 눕는 자리로 옮긴다.
 
 ```tsx
 const walked = pointAlong(parked.route, eased, routePointRef.current);
@@ -1725,7 +1725,7 @@ if (lieRef.current) {
 sitWeight = settle01 * (1 - recline01);
 ```
 
-**의자 빼기** — `scenes/memory-room/use-seat.ts` · `useSeatPull`
+**의자 빼기** — `scenes/memory-room/player/use-seat.ts` · `useSeatPull`
 
 ```ts
 useFrame((_, delta) => {
@@ -1740,7 +1740,7 @@ useFrame((_, delta) => {
 });
 ```
 
-**1인칭인데 거울에는 비친다** — `scenes/memory-room/Player.tsx` · `LoadedPlayer`
+**1인칭인데 거울에는 비친다** — `scenes/memory-room/player/Player.tsx` · `LoadedPlayer`
 
 ```tsx
 const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
@@ -1749,7 +1749,7 @@ useEffect(() => {
 }, [rig, firstPerson]);
 ```
 
-`scenes/memory-room/MirrorReflection.tsx` · `MirrorReflection`
+`scenes/memory-room/effects/MirrorReflection.tsx` · `MirrorReflection`
 
 ```tsx
 mirror.getReflectionCamera(camera).layers.enable(MIRROR_ONLY_LAYER);
@@ -1771,7 +1771,7 @@ render.call(mirror, renderer, scene, camera, ...rest);
 
 ### 관련 코드
 
-**창빛 먼지** — `scenes/memory-room/DustMotes.tsx` · `VERTEX_SHADER`
+**창빛 먼지** — `scenes/memory-room/effects/DustMotes.tsx` · `VERTEX_SHADER`
 
 ```glsl
 // 제 구간 안에서만 오르내린다. mod로 감아 돌리면 위로 빠져나간 먼지가
@@ -1814,7 +1814,7 @@ pointer.x = MathUtils.damp(pointer.x, state.pointer.x, lambda, delta);
 pointer.y = MathUtils.damp(pointer.y, state.pointer.y, lambda, delta);
 ```
 
-**창빛 광선판** — `scenes/memory-room/WindowLight.tsx` · `FRAGMENT_SHADER`, `WindowLight`
+**창빛 광선판** — `scenes/memory-room/rooms/room/WindowLight.tsx` · `FRAGMENT_SHADER`, `WindowLight`
 
 ```glsl
 float fbm(vec2 p) {
@@ -1846,7 +1846,7 @@ uniforms.uOpacity.value = MathUtils.damp(uniforms.uOpacity.value, goal, 3, delta
 material.visible = uniforms.uOpacity.value > 0.002;
 ```
 
-**기억 수집 버스트** — `scenes/memory-room/MemoryBurst.tsx` · `VERTEX_SHADER`, `MemoryBurst`
+**기억 수집 버스트** — `scenes/memory-room/memory/MemoryBurst.tsx` · `VERTEX_SHADER`, `MemoryBurst`
 
 ```glsl
 float u = clamp(uTime / uDuration, 0.0, 1.0);
@@ -1880,7 +1880,7 @@ dirs[index * 3 + 1] = lift;
 dirs[index * 3 + 2] = Math.sin(theta) * ring;
 ```
 
-**방 둘레 티끌** — `scenes/memory-room/RoomSurroundings.tsx` · `OuterDrift`
+**방 둘레 티끌** — `scenes/memory-room/rooms/room/RoomSurroundings.tsx` · `OuterDrift`
 
 ```glsl
 // 제 구간 안에서만 오른다. mod로 감으면 위로 빠져나간 티끌이 저절로 아래에서 돌아온다.
@@ -1912,7 +1912,7 @@ useFrame((state) => {
 
 ### 관련 코드
 
-**전신거울** — `scenes/memory-room/MirrorReflection.tsx` · `MirrorReflection`
+**전신거울** — `scenes/memory-room/effects/MirrorReflection.tsx` · `MirrorReflection`
 
 ```tsx
 const mirror = new Reflector(new PlaneGeometry(width, height), {
@@ -2030,7 +2030,7 @@ const delay = Math.round(spread * width * (ringSize - 1));
 return (((writeIndex - 1 - delay) % ringSize) + ringSize) % ringSize;
 ```
 
-**모니터 도트 반사** — `scenes/memory-room/DotReflection.tsx` · `patchDotScreen`
+**모니터 도트 반사** — `scenes/memory-room/effects/DotReflection.tsx` · `patchDotScreen`
 
 ```ts
 const vertexAnchor = "varying vec4 vUv;";
@@ -2072,7 +2072,7 @@ dots.x = MathUtils.damp(dots.x, dotsForLevel(level), LEVEL_LAMBDA, delta);
 dots.y = dotsAcrossHeight(dots.x);
 ```
 
-`scenes/memory-room/dot-screen.ts` · `dotsForLevel`
+`scenes/memory-room/effects/dot-screen.ts` · `dotsForLevel`
 
 ```ts
 export function dotsForLevel(level: number): number {
@@ -2081,7 +2081,7 @@ export function dotsForLevel(level: number): number {
 }
 ```
 
-**앰플 유리 굴절** — `scenes/memory-room/Ampoule.tsx` · `LoadedAmpoule`
+**앰플 유리 굴절** — `scenes/memory-room/memory/Ampoule.tsx` · `LoadedAmpoule`
 
 ```tsx
 if (material.name === GLASS_MATERIAL && material instanceof MeshStandardMaterial) {
@@ -2125,7 +2125,7 @@ const refractive = useEffectEnabled("heavy");
 
 ### 관련 코드
 
-**세면대 물 파문** — `scenes/memory-room/SinkWater.tsx` · `FRAGMENT_SHADER`
+**세면대 물 파문** — `scenes/memory-room/rooms/bathroom/SinkWater.tsx` · `FRAGMENT_SHADER`
 
 ```glsl
 float bottomShade(vec2 p) {
@@ -2162,7 +2162,7 @@ void main() {
 }
 ```
 
-`scenes/memory-room/SinkWater.tsx` · `SinkWater` useFrame
+`scenes/memory-room/rooms/bathroom/SinkWater.tsx` · `SinkWater` useFrame
 
 ```tsx
 const age = now - uniforms.uImpactAt.value;
@@ -2176,7 +2176,7 @@ if (rippleAlive(age)) {
 }
 ```
 
-`scenes/memory-room/water-ripple.ts` · `rippleAmplitude`, `rippleWavefront`
+`scenes/memory-room/rooms/bathroom/water-ripple.ts` · `rippleAmplitude`, `rippleWavefront`
 
 ```ts
 export function rippleAmplitude(ageS: number): number {
@@ -2193,7 +2193,7 @@ export function rippleWavefront(ageS: number): number {
 }
 ```
 
-**이불 호흡** — `scenes/memory-room/BedModel.tsx` · `BREATH_VERTEX`, `LoadedBed`
+**이불 호흡** — `scenes/memory-room/rooms/room/BedModel.tsx` · `BREATH_VERTEX`, `LoadedBed`
 
 ```tsx
 const BREATH_VERTEX = /* glsl */ `
@@ -2229,7 +2229,7 @@ breath.amount.value = MathUtils.damp(
 );
 ```
 
-**이불 접힘** — `scenes/memory-room/BedModel.tsx` · `LoadedBed`
+**이불 접힘** — `scenes/memory-room/rooms/room/BedModel.tsx` · `LoadedBed`
 
 ```tsx
 let blanketMesh: Mesh | null = null;
@@ -2250,7 +2250,7 @@ const lambda = reducedMotion ? REDUCED_LAMBDA : FOLD_LAMBDA;
 influences[index] = MathUtils.damp(influences[index], folded, lambda, delta);
 ```
 
-**컵라면 물때** — `scenes/memory-room/FurnitureModel.tsx` · `STAIN_FRAGMENT`, `applyStain`
+**컵라면 물때** — `scenes/memory-room/shared/FurnitureModel.tsx` · `STAIN_FRAGMENT`, `applyStain`
 
 ```tsx
 const STAIN_FRAGMENT = /* glsl */ `
@@ -2275,14 +2275,14 @@ function applyStain(material: Material, stain: Texture) {
 }
 ```
 
-`scenes/memory-room/StudentProps.tsx` · 컵라면 용기
+`scenes/memory-room/rooms/room/StudentProps.tsx` · 컵라면 용기
 
 ```tsx
 const level = roomLightLevel({ collected, memoryTotal: MEMORY_TOTAL, recovery });
 const cupStain = useStainTexture(5, stainStepsForLevel(level), 0.45);
 ```
 
-`scenes/memory-room/BathroomStains.tsx` · `stainStepsForLevel`
+`scenes/memory-room/effects/BathroomStains.tsx` · `stainStepsForLevel`
 
 ```ts
 export function stainStepsForLevel(level: number): number {
@@ -2315,7 +2315,7 @@ nextB[i] = Math.min(
 );
 ```
 
-`scenes/memory-room/BathroomStains.tsx` · `BathroomStain`
+`scenes/memory-room/effects/BathroomStains.tsx` · `BathroomStain`
 
 ```tsx
 {/* three의 곱셈 블렌딩은 premultipliedAlpha를 요구한다. 없으면 블렌딩이 풀려 흰 판으로 선다 */}
@@ -2328,7 +2328,7 @@ nextB[i] = Math.min(
 />
 ```
 
-**악보 잉크가 모인다** — `scenes/memory-room/PianoSheet.tsx` · `paintSheet`, `PianoSheet`
+**악보 잉크가 모인다** — `scenes/memory-room/rooms/living/PianoSheet.tsx` · `paintSheet`, `PianoSheet`
 
 ```tsx
 if (hidden) {
@@ -2358,7 +2358,7 @@ useFrame((state) => {
 });
 ```
 
-`scenes/memory-room/sheet-ink.ts` · `gatherProgress`, `noteBlurPx`
+`scenes/memory-room/rooms/living/sheet-ink.ts` · `gatherProgress`, `noteBlurPx`
 
 ```ts
 export function gatherProgress(elapsedS: number, durationS = GATHER_DURATION_S): number {
@@ -2428,7 +2428,7 @@ faces.map((face) => {
 }),
 ```
 
-**재구성 연출** — `scenes/memory-room/WireframeReveal.tsx` · `WireframeReveal`
+**재구성 연출** — `scenes/memory-room/effects/WireframeReveal.tsx` · `WireframeReveal`
 
 ```tsx
 return useMemoryRoomStore.subscribe((state, previous) => {
@@ -2462,7 +2462,7 @@ if (!frame.wireframe && touched.current.length > 0) {
 setScreenTransitionSettle(frame.settle);
 ```
 
-`scenes/memory-room/reconstruction.ts` · `reconstructionAt`
+`scenes/memory-room/effects/reconstruction.ts` · `reconstructionAt`
 
 ```ts
 if (elapsedS < WIREFRAME_S) return { wireframe: true, settle: 1, done: false };
@@ -2491,7 +2491,7 @@ return { wireframe: false, settle, done: false };
 
 ### 관련 코드
 
-**커튼 젖히기** — `scenes/memory-room/RoomFurniture.tsx` · `CURTAIN_PLANE`, `Curtain`
+**커튼 젖히기** — `scenes/memory-room/rooms/room/RoomFurniture.tsx` · `CURTAIN_PLANE`, `Curtain`
 
 ```tsx
 const CURTAIN_PLANE = new Plane(new Vector3(0, 0, 1), -CURTAIN_Z);
@@ -2546,7 +2546,7 @@ if (cloth?.morphTargetInfluences && index !== undefined) {
 }
 ```
 
-`scenes/memory-room/curtain-motion.ts` · `releaseProgress`, `pullVelocity`
+`scenes/memory-room/rooms/room/curtain-motion.ts` · `releaseProgress`, `pullVelocity`
 
 ```ts
 export function releaseProgress(progress: number, tapped: boolean, velocity = 0): number {
@@ -2562,7 +2562,7 @@ const instant = (to - from) / deltaSeconds;
 return previousVelocity + (instant - previousVelocity) * 0.5;
 ```
 
-**호버 → 커서 흡착** — `scenes/memory-room/use-glow-hover.ts` · `useGlowHover`
+**호버 → 커서 흡착** — `scenes/memory-room/effects/use-glow-hover.ts` · `useGlowHover`
 
 ```ts
 useEffect(() => {
@@ -2579,7 +2579,7 @@ useEffect(() => {
 }, [hovered]);
 ```
 
-`scenes/memory-room/CursorTargetProjector.tsx` · `CursorTargetProjector`
+`scenes/memory-room/camera/CursorTargetProjector.tsx` · `CursorTargetProjector`
 
 ```tsx
 useFrame(({ camera, gl }) => {
@@ -2602,7 +2602,7 @@ useFrame(({ camera, gl }) => {
 });
 ```
 
-**호버 들림, 클릭 펀치** — `scenes/memory-room/memory-motion.ts` · `punchScale`, `memoryMotion`
+**호버 들림, 클릭 펀치** — `scenes/memory-room/memory/memory-motion.ts` · `punchScale`, `memoryMotion`
 
 ```ts
 export function punchScale(elapsed: number): number {
@@ -2622,7 +2622,7 @@ export function memoryMotion(hover: number, punchElapsed: number): MemoryMotion 
 }
 ```
 
-`scenes/memory-room/MemoryObjects.tsx` · 기억 오브젝트 useFrame
+`scenes/memory-room/memory/MemoryObjects.tsx` · 기억 오브젝트 useFrame
 
 ```tsx
 useFrame((_, delta) => {
@@ -2636,7 +2636,7 @@ useFrame((_, delta) => {
 });
 ```
 
-**기억 표식** — `scenes/memory-room/MemoryBeacon.tsx` · `MemoryBeacon`
+**기억 표식** — `scenes/memory-room/memory/MemoryBeacon.tsx` · `MemoryBeacon`
 
 ```tsx
 const nearness = nearRef.current;
@@ -2662,7 +2662,7 @@ diamond.rotation.y = spinRef.current * 1.1;
 >
 ```
 
-**근접 판정** — `scenes/memory-room/use-near-player.ts` · `useNearPlayer`
+**근접 판정** — `scenes/memory-room/player/use-near-player.ts` · `useNearPlayer`
 
 ```ts
 useEffect(() => {
@@ -2677,7 +2677,7 @@ useEffect(() => {
 }, [positionRef, x, z, radius]);
 ```
 
-**숨은 공간 클릭 차단** — `scenes/memory-room/event-visibility.ts` · `isVisibleInTree`, `visibleHitsOnly`
+**숨은 공간 클릭 차단** — `scenes/memory-room/world/event-visibility.ts` · `isVisibleInTree`, `visibleHitsOnly`
 
 ```ts
 export function isVisibleInTree(object: Object3D): boolean {
@@ -2703,7 +2703,7 @@ useEffect(() => {
 }, [setEvents]);
 ```
 
-**투명 판정 구** — `scenes/memory-room/MemoryObjects.tsx` · `MemoryGlowLayers`의 `helpers`
+**투명 판정 구** — `scenes/memory-room/memory/MemoryObjects.tsx` · `MemoryGlowLayers`의 `helpers`
 
 ```tsx
 clickable ? (
@@ -2714,7 +2714,7 @@ clickable ? (
 ) : null
 ```
 
-**서랍** — `scenes/memory-room/RoomFurniture.tsx` · `Drawer`
+**서랍** — `scenes/memory-room/rooms/room/RoomFurniture.tsx` · `Drawer`
 
 ```tsx
 useFrame((_, delta) => {
@@ -2730,7 +2730,7 @@ useFrame((_, delta) => {
 });
 ```
 
-**문** — `scenes/memory-room/layout.ts` · `ROOM_DOOR_LEAF`
+**문** — `scenes/memory-room/world/layout.ts` · `ROOM_DOOR_LEAF`
 
 ```ts
 export const ROOM_DOOR_LEAF = {
@@ -2742,7 +2742,7 @@ export const ROOM_DOOR_LEAF = {
 } as const;
 ```
 
-`scenes/memory-room/use-door-swing.ts` · `useDoorSwing`: 방문·화장실·안방 문이 같이 쓴다. 경첩 오프셋으로 옮긴 그룹을 돌린다.
+`scenes/memory-room/shared/use-door-swing.ts` · `useDoorSwing`: 방문·화장실·안방 문이 같이 쓴다. 경첩 오프셋으로 옮긴 그룹을 돌린다.
 
 ```ts
 const target = open ? -ROOM_DOOR_LEAF.openAngle : 0;
@@ -2755,7 +2755,7 @@ useFrame((_, delta) => {
 });
 ```
 
-`scenes/memory-room/RoomShell.tsx` · 방문 (SpaceDoor도 같은 모양)
+`scenes/memory-room/rooms/room/RoomShell.tsx` · 방문 (SpaceDoor도 같은 모양)
 
 ```tsx
 const { leafRef, initialRotation } = useDoorSwing(doorOpen);
@@ -2765,7 +2765,7 @@ const { leafRef, initialRotation } = useDoorSwing(doorOpen);
     <group position={[DOOR_HINGE_X, 0, 0]}>
 ```
 
-**배트** — `scenes/memory-room/EndingTrigger.tsx`
+**배트** — `scenes/memory-room/rooms/living/EndingTrigger.tsx`
 
 ```tsx
 if (started) {
@@ -2777,7 +2777,7 @@ if (started) {
 }
 ```
 
-**시계** — `scenes/memory-room/RoomFurniture.tsx` · `SecondHand`
+**시계** — `scenes/memory-room/rooms/room/RoomFurniture.tsx` · `SecondHand`
 
 ```tsx
 useFrame((state) => {
@@ -5283,7 +5283,7 @@ export function useSkipEligible(ms: number): boolean {
   "piano-melody": {
     id: "piano-melody",
     // 씬의 피아노 그 자리에서 돈다: 뚜껑이 젖혀지고 카메라가 건반 앞에 붙박이로 선다.
-    // 판을 세우는 것은 씬 쪽 호스트(src/scenes/memory-room/CanvasMinigameHost.tsx)다
+    // 판을 세우는 것은 씬 쪽 호스트(src/scenes/memory-room/memory/CanvasMinigameHost.tsx)다
     mode: "canvas",
     presentation: "bare",
     component: lazy(() =>
@@ -5840,7 +5840,7 @@ export function requiredVisits(phase: FromPhase | "p1"): VisitRef[] {
 }
 ```
 
-**3D 오브젝트 클릭** — `scenes/memory-room/MemoryObjects.tsx` · `InteractiveMemory`의 `onClick`
+**3D 오브젝트 클릭** — `scenes/memory-room/memory/MemoryObjects.tsx` · `InteractiveMemory`의 `onClick`
 ```tsx
       onClick={(event) => {
         event.stopPropagation();
@@ -6469,7 +6469,7 @@ export function typeTick(speaker: CharacterId, char: string, count: number): Typ
 
 ### 관련 코드
 
-**반사 한 프레임 한 번, 간격 두기** — `scenes/memory-room/MirrorReflection.tsx` · `useMemo(Reflector)`
+**반사 한 프레임 한 번, 간격 두기** — `scenes/memory-room/effects/MirrorReflection.tsx` · `useMemo(Reflector)`
 ```tsx
     const render = mirror.onBeforeRender;
     let renderedFrame = Number.NEGATIVE_INFINITY;
@@ -6518,14 +6518,14 @@ export function effectEnabled(tier: EffectTier, cost: EffectCost): boolean {
 }
 ```
 
-**세기가 0이면 끄기** — `scenes/memory-room/WindowLight.tsx` · `useFrame`
+**세기가 0이면 끄기** — `scenes/memory-room/rooms/room/WindowLight.tsx` · `useFrame`
 ```tsx
     const goal = open > 0.02 ? MAX_SHAFT_OPACITY * intensity * (0.35 + 0.65 * open) : 0;
     uniforms.uOpacity.value = MathUtils.damp(uniforms.uOpacity.value, goal, 3, delta);
     material.visible = uniforms.uOpacity.value > 0.002;
 ```
 
-**벽 재질 미리 투명화** — `scenes/memory-room/wall-materials.ts` · `markTransparent`, `prepareWallMaterials`
+**벽 재질 미리 투명화** — `scenes/memory-room/world/wall-materials.ts` · `markTransparent`, `prepareWallMaterials`
 ```ts
 function markTransparent(material: Material): void {
   if (material.transparent) return;
@@ -6542,7 +6542,7 @@ export function prepareWallMaterials(root: Object3D): void {
 }
 ```
 
-**emissive 틴트는 uniform으로만** — `scenes/memory-room/MemoryObjects.tsx` · `setMaterialCollected`
+**emissive 틴트는 uniform으로만** — `scenes/memory-room/memory/MemoryObjects.tsx` · `setMaterialCollected`
 ```tsx
   if (collected) {
     target.emissive.set(memoryColor);
@@ -6559,7 +6559,7 @@ export function prepareWallMaterials(root: Object3D): void {
    */
 ```
 
-**GPU 시간 함수 파티클** — `scenes/memory-room/DustMotes.tsx` · `VERTEX_SHADER`, `useFrame`
+**GPU 시간 함수 파티클** — `scenes/memory-room/effects/DustMotes.tsx` · `VERTEX_SHADER`, `useFrame`
 ```ts
     float travel = mod(pos.y - aBand.x + uTime * aRise, aBand.y);
     pos.y = aBand.x + travel;
@@ -6575,7 +6575,7 @@ export function prepareWallMaterials(root: Object3D): void {
     material.uniforms.uTime.value = state.clock.elapsedTime;
 ```
 
-**StrictMode 안전한 useMemo 반환과 dispose** — `scenes/memory-room/BedModel.tsx`
+**StrictMode 안전한 useMemo 반환과 dispose** — `scenes/memory-room/rooms/room/BedModel.tsx`
 ```tsx
     let blanketMesh: Mesh | null = null;
     copy.traverse((object) => {
@@ -6628,7 +6628,7 @@ function css(value: number, digits: number): string {
 }
 ```
 
-**jsdom 방어** — `minigames/piano-melody/index.tsx` · `canDrawText`, `scenes/memory-room/palette.ts` · `resolveRoomPalette`
+**jsdom 방어** — `minigames/piano-melody/index.tsx` · `canDrawText`, `scenes/memory-room/world/palette.ts` · `resolveRoomPalette`
 ```tsx
 function canDrawText(ctx: CanvasRenderingContext2D | null): ctx is CanvasRenderingContext2D {
   return typeof ctx?.fillText === "function" && typeof ctx.clearRect === "function";

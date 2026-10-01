@@ -7,7 +7,7 @@ import {
   useEffect,
   useRef,
 } from "react";
-import type { LookAngles } from "@/scenes/memory-room/first-person";
+import type { LookAngles } from "@/scenes/memory-room/camera/first-person";
 import { FOCUS_RING } from "../shared/ui-classes";
 
 /** 누르고 있는 동안 도는 속도 (rad/s). 한 바퀴에 4초쯤: 찾는 구간이라 빠르면 놓친다. */

@@ -21,17 +21,17 @@ import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
+import type { LookAngles } from "@/scenes/memory-room/camera/first-person";
+import { PLAYER_START } from "@/scenes/memory-room/player/Player";
 import {
   CURTAIN_CLOSED,
   type CurtainPull,
   type CurtainSide,
   isCurtainOpen,
   releaseProgress,
-} from "@/scenes/memory-room/curtain-motion";
-import type { LookAngles } from "@/scenes/memory-room/first-person";
-import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/layout";
-import { PLAYER_START } from "@/scenes/memory-room/Player";
-import { findNearestMemory } from "@/scenes/memory-room/spatial";
+} from "@/scenes/memory-room/rooms/room/curtain-motion";
+import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/world/layout";
+import { findNearestMemory } from "@/scenes/memory-room/world/spatial";
 import { useEffectsStore } from "@/store/effects";
 import {
   type HotspotStatus,

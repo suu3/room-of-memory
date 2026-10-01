@@ -5,16 +5,16 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
 import { ASSETS } from "@/lib/assets";
-import { resolveRoomPalette } from "@/scenes/memory-room/palette";
 import {
   createPlayerRig,
   disposePlayerRig,
   startPlayerRig,
   updatePlayerRig,
-} from "@/scenes/memory-room/player-animation";
-import { SIT_CONTACT_Y, STEP_RATE } from "@/scenes/memory-room/player-rig";
-import { seatOffsetFromCenter } from "@/scenes/memory-room/seats";
-import { advanceSitProgress, sitEase } from "@/scenes/memory-room/sit-motion";
+} from "@/scenes/memory-room/player/player-animation";
+import { SIT_CONTACT_Y, STEP_RATE } from "@/scenes/memory-room/player/player-rig";
+import { seatOffsetFromCenter } from "@/scenes/memory-room/player/seats";
+import { advanceSitProgress, sitEase } from "@/scenes/memory-room/player/sit-motion";
+import { resolveRoomPalette } from "@/scenes/memory-room/world/palette";
 
 /**
  * 수첩에서 돌려보는 캐릭터 모델 (CharacterModelViewer 안에서만 쓴다).

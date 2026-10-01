@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it } from "vitest";
 import type { MemoryId } from "@/data/memory-room";
-import { wallOpacity } from "@/scenes/memory-room/wall-culling";
+import { wallOpacity } from "@/scenes/memory-room/world/wall-culling";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import {
   canInitializeWebGL,

@@ -4,7 +4,7 @@
 
 ```powershell
 node scripts/assets/create-student-props.mjs
-pnpm exec vitest run src/scenes/memory-room/student-models.test.ts src/scenes/memory-room/student-props.test.ts src/scenes/memory-room/layout.test.ts
+pnpm exec vitest run src/scenes/memory-room/rooms/room/student-models.test.ts src/scenes/memory-room/rooms/room/student-props.test.ts src/scenes/memory-room/world/layout.test.ts
 ```
 
 - `room-snack-bag.glb`: 뜯어서 바닥에 눕혀 둔 감자칩 봉지. 책상 앞과 침대 옆 바닥.

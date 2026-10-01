@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { CanvasTexture, SRGBColorSpace } from "three";
-import type { RoomPalette } from "@/scenes/memory-room/palette";
+import type { RoomPalette } from "@/scenes/memory-room/world/palette";
 
 /**
  * 3D 인스펙트의 면 그림 (InspectTurntable · InspectFoldedNote · InspectBook이 나눠 쓴다).

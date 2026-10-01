@@ -4,9 +4,9 @@ import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useMemo, useState } from "react";
 import { LabFrame } from "@/app/lab/LabFrame";
-import { resolveRoomPalette } from "@/scenes/memory-room/palette";
-import { SinkWater } from "@/scenes/memory-room/SinkWater";
-import { RIPPLE } from "@/scenes/memory-room/water-ripple";
+import { SinkWater } from "@/scenes/memory-room/rooms/bathroom/SinkWater";
+import { RIPPLE } from "@/scenes/memory-room/rooms/bathroom/water-ripple";
+import { resolveRoomPalette } from "@/scenes/memory-room/world/palette";
 
 /**
  * 세면대 고인 물의 단독 데모 (docs/visual-experiments.md 11장 "굴절 · 파문 → 세면대의 물").

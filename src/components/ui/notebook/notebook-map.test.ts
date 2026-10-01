@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CLUE_IDS, CLUE_SPACE } from "@/data/room-clues";
-import { DOORWAY_IDS, DOORWAYS, SPACE_IDS } from "@/scenes/memory-room/spaces";
+import { DOORWAY_IDS, DOORWAYS, SPACE_IDS } from "@/scenes/memory-room/world/spaces";
 import { floorPlan, type PlanRect } from "./notebook-map";
 
 /** 두 사각형이 면으로 겹치는가 (변만 맞닿는 건 안 겹친 것). */

@@ -11,7 +11,7 @@
  */
 
 import { ASSETS } from "@/lib/assets";
-import type { RoomPalette } from "@/scenes/memory-room/palette";
+import type { RoomPalette } from "@/scenes/memory-room/world/palette";
 import type { FacePainter, InspectFace, InspectObject } from "./InspectTurntable";
 
 /** 방의 기억 색 대신 쓰는 손글씨 잉크. 팔레트의 가장 짙은 색. */

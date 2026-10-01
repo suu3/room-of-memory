@@ -8,7 +8,7 @@
  * 그 그룹이 통째로 입힌다.
  */
 
-import { DRAWER_TRAVEL } from "@/scenes/memory-room/fridge-drawer";
+import { DRAWER_TRAVEL } from "@/scenes/memory-room/memory/fridge-drawer";
 
 export { DRAWER_TRAVEL };
 /** 서랍이 다 열리는 데 걸리는 시간(초). 서랍 소리(voices.drawer)의 멎는 박자와 맞춘다. */

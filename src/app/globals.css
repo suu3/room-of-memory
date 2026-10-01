@@ -46,7 +46,7 @@
   /*
    * 3D 재질 팔레트: DESIGN.md > Colors > 3D 재질. UI 토큰과 갈라 둔다:
    * 재질색은 조명·톤매핑을 거쳐 화면에 닿으므로 UI 색과 같은 값을 공유하면 어느 한쪽이
-   * 틀어진다. `resolveRoomPalette`(scenes/memory-room/palette.ts)만 읽는다.
+   * 틀어진다. `resolveRoomPalette`(scenes/memory-room/world/palette.ts)만 읽는다.
    */
   --color-scene-wall: #34465e;
   --color-scene-floor: #626c7d;

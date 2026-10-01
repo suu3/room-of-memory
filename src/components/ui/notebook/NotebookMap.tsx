@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { CLUE_SPACE } from "@/data/room-clues";
 import { playSound } from "@/lib/audio";
-import { SPACES } from "@/scenes/memory-room/spaces";
+import { SPACES } from "@/scenes/memory-room/world/spaces";
 import { openDoorwayIds, selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
 import { playHoverSound } from "../shared/hover-sfx";
 import { FOCUS_RING } from "../shared/ui-classes";

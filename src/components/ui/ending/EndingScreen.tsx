@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import { blurDataUrlOf } from "@/lib/image-blur";
-import { EXIT_BEAT_MS } from "@/scenes/memory-room/first-person";
+import { EXIT_BEAT_MS } from "@/scenes/memory-room/camera/first-person";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BUTTON_PRIMARY, BUTTON_QUIET } from "../shared/ui-classes";
 import { EndingConfetti } from "./EndingConfetti";
