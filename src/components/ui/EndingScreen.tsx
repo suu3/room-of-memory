@@ -108,8 +108,11 @@ export function EndingScreen() {
 
   return (
     <div
-      className={`absolute inset-0 z-50 transition-colors duration-1000 ${
-        stage === "door" ? "pointer-events-none bg-transparent" : "bg-scene-void"
+      // 빛으로 물든 화면에서 어두운 영상으로 넘어가는 겹은 이 상자 하나다. 예전에는 배경색과
+      // 영상이 따로 떠올라 두 겹이 곱해졌고, 밝은 화면이 처음 0.2초에 뚝 꺼졌다. 상자째로
+      // 1.5초에 걸쳐 일정한 속도로 덮는다 (밝은 화면이 한순간에 꺼지지 않게, 광과민 배려)
+      className={`absolute inset-0 z-50 bg-scene-void transition-opacity duration-1500 ease-linear ${
+        stage === "door" ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
       {/*
@@ -123,8 +126,9 @@ export function EndingScreen() {
         muted={soundMuted}
         onEnded={() => setStage("card")}
         onError={() => setFilmFailed(true)}
+        // 문턱 동안에는 상자가 투명이라 영상은 처음부터 불투명하게 둔다 (위 주석)
         className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-1000 ${
-          filmVisible ? "opacity-100" : "pointer-events-none opacity-0"
+          stage === "card" ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
       />
 

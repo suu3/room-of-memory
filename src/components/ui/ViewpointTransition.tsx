@@ -48,7 +48,9 @@ const TONES = {
   },
   doorway: { className: "bg-memory", lift: "animate-viewpoint-fade", durationMs: 1000, blurPx: 0 },
   warp: { className: "bg-transparent", lift: "animate-viewpoint-fade", durationMs: 360, blurPx: 8 },
-  exit: { className: "bg-scene-void", lift: "animate-viewpoint-fade", durationMs: 600, blurPx: 8 },
+  // 엔딩의 문턱: 어둠이 걷히면 문밖의 빛이 화면 절반을 채운다. 짧게 걷으면 0.5초에 화면이
+  // 어둠에서 밝음으로 뛰므로, 길게 그리고 처음과 끝을 느리게 걷는다 (광과민 배려)
+  exit: { className: "bg-scene-void", lift: "animate-viewpoint-rise", durationMs: 1600, blurPx: 8 },
 } as const;
 
 type Tone = keyof typeof TONES;

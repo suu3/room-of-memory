@@ -219,6 +219,9 @@
    * 컴포넌트가 인라인으로 정한다: 눈을 뜨는 어둠은 길게, 불이 켜지는 흰빛은 짧게.
    */
   --animate-viewpoint-fade: viewpoint-fade 1s ease-out both;
+  /* 어둠에서 밝은 화면으로 걷힐 때: 처음과 끝이 느리다. 어둠에 익은 눈이 빛에 적응할 틈을
+     주고, 끝에서 몰아 밝아지지도 않는다 */
+  --animate-viewpoint-rise: viewpoint-fade 1s ease-in-out both;
 
   @keyframes hotspot-glow {
     0%,

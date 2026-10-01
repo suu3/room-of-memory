@@ -16,6 +16,9 @@ import { EXIT_BEAT_MS } from "./first-person";
  *   컷씬 층(PlaybackScene)은 그 뒤에 떠오르므로 찢김이 먼저 보인다.
  * - 필름 타들어감(burn): 엔딩이 시작되는 순간. 가장자리부터 따뜻하게 밝아지며
  *   안쪽으로 번진다. 문이 열리는 1.8초 동안 천천히 차오르고, 엔딩 화면이 덮는다.
+ *   다 차도 흰빛이 아니라 누르스름한 중간 밝기에서 멈춘다 (불 켜기의 .viewpoint-lamp와 같은
+ *   이유, 광과민 배려). 화면 전체가 순백 가까이 올랐다가 어두운 영상으로 떨어지면 한 번의
+ *   큰 번쩍임이 된다: 실측으로 화면 평균 밝기가 93%까지 올랐다가 0.4초에 25%로 떨어졌다.
  *
  * - 재구성(settle): 공간이 선에서 면으로 돌아온 직후. 노이즈 결이 화면을 덮었다가
  *   0.55초 안에 잦아든다 (WireframeReveal이 screen-transition-input으로 흘린다).
@@ -67,8 +70,10 @@ const FRAGMENT = /* glsl */ `
       float front = uBurn * (1.0 + SOFT);
       float iris = 1.0 - smoothstep(front - SOFT, front, depth);
       vec3 warm = vec3(0.98, 0.82, 0.58);
-      color.rgb = mix(color.rgb, color.rgb * 0.25 + warm * 0.85, iris * uBurn);
-      color.rgb += warm * uBurn * uBurn * 0.15;
+      // 물드는 끝값을 낮게 잡는다. 장면을 조금 남기고(0.2) 빛은 삼분의 일만 얹어, 빛기둥으로
+      // 이미 밝은 문턱 화면이 더 밝아지지 않고 같은 밝기의 따뜻한 한 장으로 고르게 물든다.
+      // 선형 공간의 값이라 화면에서는 더 밝다: 이 값이 화면 평균 밝기 65% 언저리다
+      color.rgb = mix(color.rgb, color.rgb * 0.2 + warm * 0.34, iris * uBurn);
     }
 
     outputColor = color;
