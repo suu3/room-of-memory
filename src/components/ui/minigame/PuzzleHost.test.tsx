@@ -5,8 +5,8 @@ import { act } from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { i18n } from "@/i18n/config";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { RemarkLine } from "../dialogue/RemarkLine";
 import { PuzzleHost } from "./PuzzleHost";
-import { RemarkLine } from "./RemarkLine";
 
 vi.mock("./SuccessBurst", () => ({ SuccessBurst: () => null }));
 

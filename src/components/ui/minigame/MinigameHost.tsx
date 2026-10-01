@@ -13,10 +13,15 @@ import { MinigameHelp } from "@/minigames/shell";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
 import { stillKeyOf, useStillStore } from "@/store/stills";
 import type { MinigameResult } from "@/types/minigame";
+import { KeyHint } from "../shared/Keycap";
+import {
+  BUTTON_PRIMARY,
+  BUTTON_QUIET,
+  HUD_ICON_BUTTON_SOLID,
+  PANEL_FRAME,
+} from "../shared/ui-classes";
 import { ExitFade } from "./ExitFade";
-import { KeyHint } from "./Keycap";
 import { SuccessBurst } from "./SuccessBurst";
-import { BUTTON_PRIMARY, BUTTON_QUIET, HUD_ICON_BUTTON_SOLID, PANEL_FRAME } from "./ui-classes";
 
 /**
  * 결과 카드의 버튼이 서기까지 기다리는 시간(ms).

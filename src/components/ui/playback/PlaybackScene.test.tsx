@@ -7,8 +7,8 @@ import { CUTSCENE_RADIO_BLACKOUT } from "@/data/memory-room";
 import { progressAt } from "@/data/story-phase";
 import { i18n } from "@/i18n/config";
 import { openCutscene, useMemoryRoomStore } from "@/store/memory-room";
+import { DialogueBox } from "../dialogue/DialogueBox";
 import { WHISPER_SHOW_MS } from "./CutWhispers";
-import { DialogueBox } from "./DialogueBox";
 import { PlaybackScene } from "./PlaybackScene";
 
 describe("배트를 쥐는 두 줄의 화면", () => {

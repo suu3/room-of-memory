@@ -17,7 +17,7 @@ import {
   useMemoryRoomStore,
 } from "@/store/memory-room";
 import { type NextStep, nextStep } from "@/store/next-step";
-import { KeyHint } from "./Keycap";
+import { KeyHint } from "../shared/Keycap";
 
 /**
  * 새 목표가 화면 가운데에 머무는 시간(ms). 읽고 넘길 만큼만. 그 뒤 왼쪽 위 진행 바

@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Euler, type Group, Matrix4, type PerspectiveCamera, Quaternion, Vector3 } from "three";
-import { LanguageToggle } from "@/components/ui/LanguageToggle";
+import { LanguageToggle } from "@/components/ui/hud/LanguageToggle";
 import { LOCALE_PATHS } from "@/i18n/locale-routes";
 import { ASSETS } from "@/lib/assets";
 import { selectLocale, useSettingsStore } from "@/store/settings";

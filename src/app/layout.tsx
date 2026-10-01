@@ -1,6 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
-import { ServiceWorker } from "@/components/ui/ServiceWorker";
+import { ServiceWorker } from "@/components/ui/shell/ServiceWorker";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { siteOrigin } from "@/i18n/site-meta";
 import { FONT_VARIABLES } from "./fonts";

@@ -4,9 +4,9 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { i18n } from "@/i18n/config";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { CharacterSheetModal } from "./CharacterSheetModal";
-import { HudMenu } from "./HudMenu";
-import { NotebookTab } from "./NotebookTab";
+import { HudMenu } from "../hud/HudMenu";
+import { CharacterSheetModal } from "../notebook/CharacterSheetModal";
+import { NotebookTab } from "../notebook/NotebookTab";
 
 const NOTEBOOK_TAB_NAME = "Open the notebook: collected memories";
 

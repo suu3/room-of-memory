@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SuccessBurst } from "@/components/ui/SuccessBurst";
+import { SuccessBurst } from "@/components/ui/minigame/SuccessBurst";
 import { useControlHint } from "@/i18n/control-hint";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";

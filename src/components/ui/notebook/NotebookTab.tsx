@@ -10,8 +10,8 @@ import {
   selectUnreadNotebookTabs,
   useMemoryRoomStore,
 } from "@/store/memory-room";
-import { playHoverSound } from "./hover-sfx";
-import { FOCUS_RING } from "./ui-classes";
+import { playHoverSound } from "../shared/hover-sfx";
+import { FOCUS_RING } from "../shared/ui-classes";
 
 /**
  * 화면 오른쪽 가장자리의 "기억 수집" 손잡이. 예전에는 자체 드로어(목록 + 다시보기)를

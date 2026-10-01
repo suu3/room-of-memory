@@ -8,7 +8,7 @@ import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room
 /**
  * canvas 모드 미니게임 호스트: 씬의 Canvas 안에서 판을 세운다.
  *
- * overlay 호스트(src/components/ui/MinigameHost.tsx)의 짝이다. 그쪽은 DOM 층에 판을
+ * overlay 호스트(src/components/ui/minigame/MinigameHost.tsx)의 짝이다. 그쪽은 DOM 층에 판을
  * 띄우고 시작 카드·결과 카드·닫기를 맡는다. 여기는 3D 물건 자체가 판이라 카드가
  * 없다: 결과는 곧장 스토어로 간다 (물건을 집는 데 "계속" 버튼은 없다). 조작 안내와
  * 닫기 버튼은 DOM이어야 해서 overlay 호스트가 canvas 판에도 그 둘만 얹는다.

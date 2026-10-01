@@ -8,9 +8,14 @@ import { playSound } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
 import { MinigameHelp } from "@/minigames/shell";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import {
+  BUTTON_PRIMARY,
+  BUTTON_QUIET,
+  HUD_ICON_BUTTON_SOLID,
+  PANEL_FRAME,
+} from "../shared/ui-classes";
 import { ExitFade } from "./ExitFade";
 import { SuccessBurst } from "./SuccessBurst";
-import { BUTTON_PRIMARY, BUTTON_QUIET, HUD_ICON_BUTTON_SOLID, PANEL_FRAME } from "./ui-classes";
 
 /** 결과를 읽기 전에 "계속"이 눌리지 않게 버튼을 늦게 세운다 (MinigameHost의 RESULT_HOLD_MS). */
 const RESULT_HOLD_MS = 600;

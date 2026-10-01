@@ -20,8 +20,8 @@
 
 | 화면 | 코드 | 어떻게 보이나 |
 |---|---|---|
-| 수첩 스크랩북 카드 | `components/ui/LoreEntries.tsx`의 `LoreStill` | **4:3으로 잘라 채운다** (`object-cover`) |
-| 다시보기 재생 | `components/ui/PlaybackScene.tsx` | 대사 뒤에 **통째로** 선다 (`object-contain`) |
+| 수첩 스크랩북 카드 | `components/ui/notebook/LoreEntries.tsx`의 `LoreStill` | **4:3으로 잘라 채운다** (`object-cover`) |
+| 다시보기 재생 | `components/ui/playback/PlaybackScene.tsx` | 대사 뒤에 **통째로** 선다 (`object-contain`) |
 
 없으면 카드는 아이콘 판으로 때우고, 다시보기는 그림 없이 대사만 흐르며 방이 뒤에
 비친다. 지금 미니게임이 붙은 12칸 중 **8칸이 그 상태**다.

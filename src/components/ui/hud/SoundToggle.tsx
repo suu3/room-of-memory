@@ -5,9 +5,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound, setAudioMuted } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { playHoverSound } from "./hover-sfx";
-import { KEYCAP_CLASS } from "./Keycap";
-import { FOCUS_RING, HUD_ICON_BUTTON } from "./ui-classes";
+import { playHoverSound } from "../shared/hover-sfx";
+import { KEYCAP_CLASS } from "../shared/Keycap";
+import { FOCUS_RING, HUD_ICON_BUTTON } from "../shared/ui-classes";
 
 /**
  * hud: 방 위에 떠 있는 아이콘 버튼.

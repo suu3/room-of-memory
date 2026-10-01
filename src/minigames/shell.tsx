@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Keycap, KeyHint } from "@/components/ui/Keycap";
-import { BUTTON_QUIET, PANEL_FRAME } from "@/components/ui/ui-classes";
+import { Keycap, KeyHint } from "@/components/ui/shared/Keycap";
+import { BUTTON_QUIET, PANEL_FRAME } from "@/components/ui/shared/ui-classes";
 import type { MinigameResult } from "@/types/minigame";
 
 /** onComplete를 정확히 한 번만 호출하도록 감싼다 (미니게임 계약). */

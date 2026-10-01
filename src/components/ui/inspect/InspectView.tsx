@@ -27,7 +27,7 @@ import type { InspectCapture, InspectObject } from "@/components/canvas/InspectT
 import { inspectControlOf } from "@/components/canvas/InspectTurntable";
 import { clampPage, swipeStep, UNFOLD_PX } from "@/components/canvas/inspect-math";
 import { playSound } from "@/lib/audio";
-import { STAGE_ICON_BUTTON } from "./ui-classes";
+import { STAGE_ICON_BUTTON } from "../shared/ui-classes";
 import { TURN_STEP, useTurntableDrag } from "./use-turntable-drag";
 
 /** Canvas는 클라이언트에서만 뜬다 (.claude/rules/r3f.md): 물건을 집어 들 때 비로소 받는다. */

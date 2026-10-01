@@ -77,7 +77,7 @@
 - 타이포: Pretendard(본문)와 Galmuri14 픽셀(포인트). 둘 다 `next/font/local`로 셀프호스팅한다(`app/fonts.ts`).
   - 크기 토큰 `--text-hud/-monologue/-dialogue`는 브레이크포인트 없이 `clamp()` 하나로 자란다.
   - `--hud-zoom`은 rem 기반 패널을 CSS `zoom`으로 통째로 키운다.
-- 공통 UI 클래스는 `components/ui/ui-classes.ts`에 있다(PANEL_*, BUTTON_*, CHIP_*, HUD_CHOICE_*, FOCUS_RING). 테두리는 늘 있고 hover 때 색만 바뀌므로 레이아웃이 흔들리지 않는다.
+- 공통 UI 클래스는 `components/ui/shared/ui-classes.ts`에 있다(PANEL_*, BUTTON_*, CHIP_*, HUD_CHOICE_*, FOCUS_RING). 테두리는 늘 있고 hover 때 색만 바뀌므로 레이아웃이 흔들리지 않는다.
 - 3D 재질 색도 CSS 토큰에서 읽는다(`resolveRoomPalette`). 캔버스 2D 효과도 `getComputedStyle`로 토큰 색을 읽는다.
 - 유틸리티: `break-ko`(`keep-all` + `overflow-wrap:anywhere`), 종이용 잉크 스크롤바 `.scroll-paper`.
 
@@ -244,7 +244,7 @@ export const galmuri = localFont({
   --hud-zoom: clamp(1, 0.5 + 100vw / 1882px, 1.625);
 ```
 
-**공통 UI 클래스** — `components/ui/ui-classes.ts` · `FOCUS_RING`, `PANEL_*`, `BUTTON_PRIMARY`
+**공통 UI 클래스** — `components/ui/shared/ui-classes.ts` · `FOCUS_RING`, `PANEL_*`, `BUTTON_PRIMARY`
 
 ```ts
 export const FOCUS_RING =
@@ -2989,7 +2989,7 @@ dragRef.current[drag.index] = drag.carry / DRAG_PX_PER_STEP;
   }
 ```
 
-**부팅 커튼의 타이밍** — `components/ui/BootCurtain.tsx` · `BootCurtain`
+**부팅 커튼의 타이밍** — `components/ui/boot/BootCurtain.tsx` · `BootCurtain`
 
 ```tsx
 const MIN_SHOW_MS = 900;
@@ -3011,7 +3011,7 @@ const RISE_MS = 1100;
   }, [rising, beginBootRise, finishBoot]);
 ```
 
-**떠오르는 먼지** — `components/ui/RisingDust.tsx` · `hashUnit`, `DUST`
+**떠오르는 먼지** — `components/ui/boot/RisingDust.tsx` · `hashUnit`, `DUST`
 
 ```tsx
 function hashUnit(seed: number): number {
@@ -3064,7 +3064,7 @@ const DUST = Array.from({ length: 34 }, (_, index) => {
 }
 ```
 
-**로딩 막대의 평활화** — `components/ui/loading-progress.ts` · `advanceLoadProgress`
+**로딩 막대의 평활화** — `components/ui/boot/loading-progress.ts` · `advanceLoadProgress`
 
 ```ts
   // 다 받았으면 기어오를 것이 없다. 남은 거리를 그대로 100까지 달린다.
@@ -3084,7 +3084,7 @@ const DUST = Array.from({ length: 34 }, (_, index) => {
   return goal - next < SNAP ? goal : next;
 ```
 
-**로딩 막대의 칸** — `components/ui/LoadingIndicator.tsx` · `LoadingIndicator`
+**로딩 막대의 칸** — `components/ui/boot/LoadingIndicator.tsx` · `LoadingIndicator`
 
 ```tsx
   const filled = percent === undefined ? 0 : Math.round((percent / 100) * SEGMENTS);
@@ -3144,7 +3144,7 @@ self.addEventListener("fetch", (event) => {
 });
 ```
 
-**오류·오프라인 화면** — `components/ui/LoadError.tsx` · `LoadError`
+**오류·오프라인 화면** — `components/ui/boot/LoadError.tsx` · `LoadError`
 
 ```tsx
 const onlineNow = () => navigator.onLine;
@@ -3190,7 +3190,7 @@ const onlineOnServer = () => true;
 }
 ```
 
-**계단식 등장** — `components/ui/stagger.ts` · `staggerStyle`, `app/globals.css` · `.stagger-item`
+**계단식 등장** — `components/ui/shared/stagger.ts` · `staggerStyle`, `app/globals.css` · `.stagger-item`
 
 ```ts
 export const STAGGER_CLASS = "animate-stagger-rise stagger-item";
@@ -3207,7 +3207,7 @@ export function staggerStyle(index: number): CSSProperties {
 }
 ```
 
-**계단식 등장과 시작 퇴장의 분기** — `components/ui/TitleScreen.tsx` · `reveal`
+**계단식 등장과 시작 퇴장의 분기** — `components/ui/boot/TitleScreen.tsx` · `reveal`
 
 ```tsx
   const reveal = (index: number) =>
@@ -3218,7 +3218,7 @@ export function staggerStyle(index: number): CSSProperties {
         : { className: "opacity-0", style: undefined };
 ```
 
-**모서리 선 그리기와 금빛 훑기** — `components/ui/TitleScreen.tsx` · `FRAME_CORNERS`, 아래 띠
+**모서리 선 그리기와 금빛 훑기** — `components/ui/boot/TitleScreen.tsx` · `FRAME_CORNERS`, 아래 띠
 
 ```tsx
 const FRAME_CORNERS = [
@@ -3257,7 +3257,7 @@ const FRAME_CORNERS = [
   }
 ```
 
-**메뉴 항목** — `components/ui/TitleScreen.tsx` · `MenuMarker`, `MenuHairline`
+**메뉴 항목** — `components/ui/boot/TitleScreen.tsx` · `MenuMarker`, `MenuHairline`
 
 ```tsx
       className={`pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-sm text-memory transition-[opacity,translate] duration-150 ease-out ${
@@ -3280,7 +3280,7 @@ const FRAME_CORNERS = [
 }
 ```
 
-**시작 퇴장** — `components/ui/TitleScreen.tsx` · `enterGame`
+**시작 퇴장** — `components/ui/boot/TitleScreen.tsx` · `enterGame`
 
 ```tsx
 const ENTER_DELAY_MS = 260;
@@ -3292,7 +3292,7 @@ const ENTER_DELAY_MS = 260;
   };
 ```
 
-**키캡 안내** — `components/ui/Keycap.tsx` · `KEY_SOURCE`, `KeyHint`
+**키캡 안내** — `components/ui/shared/Keycap.tsx` · `KEY_SOURCE`, `KeyHint`
 
 ```tsx
 const KEY_SOURCE = String.raw`(?<![A-Za-z])(?:WASD|Space|SPACE|Enter|Esc|Shift|Tab|[EZXC]|↑\/↓|←\/→|[←→↑↓])(?![A-Za-z])`;
@@ -3314,7 +3314,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
         );
 ```
 
-**언어 밑줄** — `components/ui/LanguageToggle.tsx` · `LanguageToggle`
+**언어 밑줄** — `components/ui/hud/LanguageToggle.tsx` · `LanguageToggle`
 
 ```tsx
   useLayoutEffect(() => {
@@ -3368,7 +3368,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
 
 ### 관련 코드
 
-**레이어 순서** — `components/ui/MemoryRoom.tsx` · `MemoryRoom` (렌더 순서)
+**레이어 순서** — `components/ui/shell/MemoryRoom.tsx` · `MemoryRoom` (렌더 순서)
 
 ```tsx
       {/* 시점이 바뀌는 순간의 한 겹: 카메라 컷을 덮는다. 타이틀(z-40)보다 앞에 그려 그 아래에 선다 */}
@@ -3386,7 +3386,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
       <CustomCursor />
 ```
 
-**방 비네트와 1인칭 비네트** — `components/ui/MemoryRoom.tsx` · `MemoryRoom`
+**방 비네트와 1인칭 비네트** — `components/ui/shell/MemoryRoom.tsx` · `MemoryRoom`
 
 ```tsx
       <div
@@ -3406,7 +3406,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
         }}
 ```
 
-**필름 그레인 타일** — `app/globals.css` · `.film-grain`, `components/ui/MemoryRoom.tsx`
+**필름 그레인 타일** — `app/globals.css` · `.film-grain`, `components/ui/shell/MemoryRoom.tsx`
 
 ```css
 .film-grain {
@@ -3443,7 +3443,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
 }
 ```
 
-**진행 카운터** — `components/ui/MemoryRoom.tsx` · 헤더 진행 줄
+**진행 카운터** — `components/ui/shell/MemoryRoom.tsx` · 헤더 진행 줄
 
 ```tsx
                 <span
@@ -3517,7 +3517,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
 }
 ```
 
-**소리 토글** — `components/ui/SoundToggle.tsx` · `SoundToggle`
+**소리 토글** — `components/ui/hud/SoundToggle.tsx` · `SoundToggle`
 
 ```tsx
   const toggle = () => {
@@ -3538,7 +3538,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
       )}
 ```
 
-**목표 배너 → 도크** — `components/ui/HudGuide.tsx` · `HudGuideBanner`, `HudGuideDock`
+**목표 배너 → 도크** — `components/ui/hud/HudGuide.tsx` · `HudGuideBanner`, `HudGuideDock`
 
 ```tsx
     <div
@@ -3556,7 +3556,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
     >
 ```
 
-**기록 라벨** — `components/ui/HudLogLine.tsx` · `HudLogLine`, `app/globals.css` · `.hud-log-tainted`
+**기록 라벨** — `components/ui/hud/HudLogLine.tsx` · `HudLogLine`, `app/globals.css` · `.hud-log-tainted`
 
 ```tsx
   const act = useMemoryRoomStore(selectAct);
@@ -3577,7 +3577,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
 }
 ```
 
-**수첩 손잡이** — `components/ui/NotebookTab.tsx` · `NotebookTab`
+**수첩 손잡이** — `components/ui/notebook/NotebookTab.tsx` · `NotebookTab`
 
 ```tsx
       className={`absolute right-0 top-1/2 z-30 flex min-h-30 w-11 -translate-y-1/2 py-3 cursor-pointer [zoom:var(--hud-zoom)] flex-col items-center justify-center gap-2 rounded-l-md border border-r-0 border-line bg-surface text-fog transition-[color,background-color,width,opacity] duration-150 ease-out hover:w-12 hover:bg-surface-strong hover:text-ivory focus-visible:w-12 active:w-11 active:bg-surface-strong ${FOCUS_RING} ${menuOpen ? "pointer-events-none opacity-0" : ""} ${calling ? "animate-hotspot-glow text-ivory" : ""} ${firstUnread && !calling ? "border-memory/60 text-ivory" : ""}`}
@@ -3614,7 +3614,7 @@ const CLICK_SOURCE = String.raw`(?<=^|[:：·・]\s*)(?:클릭|[Cc]lick|クリ�
   }
 ```
 
-**스치는 한 줄** — `components/ui/RemarkLine.tsx` · `RemarkLine`
+**스치는 한 줄** — `components/ui/dialogue/RemarkLine.tsx` · `RemarkLine`
 
 ```tsx
 const SHOW_MS = 3200;
@@ -3649,7 +3649,7 @@ const SHOW_PER_CHAR_MS = 90;
 }
 ```
 
-**글자 단위 퇴장의 지연 계획** — `components/ui/monologue-exit.ts` · `exitPlan`
+**글자 단위 퇴장의 지연 계획** — `components/ui/dialogue/monologue-exit.ts` · `exitPlan`
 
 ```ts
 export function exitPlan(text: string, act: Act, totalMs: number): ExitChar[] {
@@ -3673,7 +3673,7 @@ export function exitPlan(text: string, act: Act, totalMs: number): ExitChar[] {
 }
 ```
 
-**어절·글자 span** — `components/ui/Monologue.tsx` · `MonologueExitText`
+**어절·글자 span** — `components/ui/dialogue/Monologue.tsx` · `MonologueExitText`
 
 ```tsx
       {words.map((word, wordIndex) =>
@@ -3712,7 +3712,7 @@ export function exitPlan(text: string, act: Act, totalMs: number): ExitChar[] {
 }
 ```
 
-**숨길 때 opacity만** — `components/ui/Monologue.tsx` · `Monologue`
+**숨길 때 opacity만** — `components/ui/dialogue/Monologue.tsx` · `Monologue`
 
 ```tsx
     <div
@@ -3723,7 +3723,7 @@ export function exitPlan(text: string, act: Act, totalMs: number): ExitChar[] {
     >
 ```
 
-**터치 조작** — `components/ui/MovementJoystick.tsx` · `onPointerDown`, 노브
+**터치 조작** — `components/ui/hud/MovementJoystick.tsx` · `onPointerDown`, 노브
 
 ```tsx
       onPointerDown={(event) => {
@@ -3740,7 +3740,7 @@ export function exitPlan(text: string, act: Act, totalMs: number): ExitChar[] {
         />
 ```
 
-`components/ui/LookButtons.tsx` · `LookButtons`
+`components/ui/hud/LookButtons.tsx` · `LookButtons`
 
 ```tsx
     const tick = (now: number) => {
@@ -3788,7 +3788,7 @@ export function exitPlan(text: string, act: Act, totalMs: number): ExitChar[] {
 }
 ```
 
-**전체 화면이 "다음" 버튼** — `components/ui/DialogueBox.tsx` · `DialogueBox`
+**전체 화면이 "다음" 버튼** — `components/ui/dialogue/DialogueBox.tsx` · `DialogueBox`
 
 ```tsx
       <button
@@ -3831,7 +3831,7 @@ export function useTypewriterState(text: string, charMs = 70): TypewriterState {
   }, [chars, charMs]);
 ```
 
-`components/ui/DialogueBox.tsx` · `advanceRef`
+`components/ui/dialogue/DialogueBox.tsx` · `advanceRef`
 
 ```tsx
   advanceRef.current = () => {
@@ -3845,7 +3845,7 @@ export function useTypewriterState(text: string, charMs = 70): TypewriterState {
   };
 ```
 
-**화자 전환과 두 줄 높이** — `components/ui/DialogueBox.tsx` · `DialogueBox`
+**화자 전환과 두 줄 높이** — `components/ui/dialogue/DialogueBox.tsx` · `DialogueBox`
 
 ```tsx
             <span
@@ -3870,7 +3870,7 @@ export function useTypewriterState(text: string, charMs = 70): TypewriterState {
               >
 ```
 
-**초상** — `app/globals.css` · `.portrait-fade`, `components/ui/CharacterPortrait.tsx` · `CharacterPortrait`
+**초상** — `app/globals.css` · `.portrait-fade`, `components/ui/dialogue/CharacterPortrait.tsx` · `CharacterPortrait`
 
 ```css
 .portrait-fade {
@@ -3900,7 +3900,7 @@ export function useTypewriterState(text: string, charMs = 70): TypewriterState {
       ))}
 ```
 
-**오토 모드** — `components/ui/DialogueBox.tsx` · 오토 effect
+**오토 모드** — `components/ui/dialogue/DialogueBox.tsx` · 오토 effect
 
 ```tsx
 const AUTO_BASE_MS = 900;
@@ -3917,7 +3917,7 @@ const AUTO_MAX_MS = 5200;
   }, [flowing, done, open, logOpen, text]);
 ```
 
-**키보드 캡처** — `components/ui/DialogueBox.tsx` · 키 effect
+**키보드 캡처** — `components/ui/dialogue/DialogueBox.tsx` · 키 effect
 
 ```tsx
     const onKey = (event: KeyboardEvent) => {
@@ -3934,7 +3934,7 @@ const AUTO_MAX_MS = 5200;
     window.addEventListener("keydown", onKey, true);
 ```
 
-**글자 틱 사운드** — `components/ui/dialogue-sfx.ts` · `typeTick`
+**글자 틱 사운드** — `components/ui/dialogue/dialogue-sfx.ts` · `typeTick`
 
 ```ts
 const SPEAKER_PITCH: Partial<Record<CharacterId, number>> = {
@@ -3954,7 +3954,7 @@ export function typeTick(speaker: CharacterId, char: string, count: number): Typ
 }
 ```
 
-`components/ui/DialogueBox.tsx` · 틱 effect
+`components/ui/dialogue/DialogueBox.tsx` · 틱 effect
 
 ```tsx
   useEffect(() => {
@@ -3968,7 +3968,7 @@ export function typeTick(speaker: CharacterId, char: string, count: number): Typ
   }, [count, typed, speaker]);
 ```
 
-**대사 로그** — `components/ui/DialogueLog.tsx` · `DialogueLog`
+**대사 로그** — `components/ui/dialogue/DialogueLog.tsx` · `DialogueLog`
 
 ```tsx
 const VISIBLE_LINES = 14;
@@ -4063,7 +4063,7 @@ const FADE_FLOOR = 0.42;
   }
 ```
 
-**라디오 도입 3단계** — `components/ui/PlaybackScene.tsx` · 도입 effect
+**라디오 도입 3단계** — `components/ui/playback/PlaybackScene.tsx` · 도입 effect
 
 ```tsx
     setStage("static");
@@ -4089,7 +4089,7 @@ const FADE_FLOOR = 0.42;
       />
 ```
 
-**SignalVisual** — `components/ui/PlaybackScene.tsx` · `WAVE_SHAPE`, `SignalVisual`
+**SignalVisual** — `components/ui/playback/PlaybackScene.tsx` · `WAVE_SHAPE`, `SignalVisual`
 
 ```tsx
 const WAVE_SHAPE = Array.from({ length: WAVE_BARS }, (_, index) => {
@@ -4133,7 +4133,7 @@ export function blurBackdrop(
 }
 ```
 
-`components/ui/PlaybackScene.tsx` · 컷 그림
+`components/ui/playback/PlaybackScene.tsx` · 컷 그림
 
 ```tsx
                 // 받아지기 전엔 흐린 판이 선다. 맞춤은 아래 object-fit과 같아야 받는 순간 튀지 않는다
@@ -4185,7 +4185,7 @@ export function blurBackdrop(
 }
 ```
 
-**사운드** — `components/ui/PlaybackScene.tsx` · 상영 effect
+**사운드** — `components/ui/playback/PlaybackScene.tsx` · 상영 effect
 
 ```tsx
   const webtoon = isCutscene && active?.cuts.some((each) => each.page !== undefined) === true;
@@ -4205,7 +4205,7 @@ export function blurBackdrop(
   }, [screening, cutIndex]);
 ```
 
-**컷 전환 노이즈 디졸브** — `components/ui/CutDissolve.tsx` · `draw`, `loop`
+**컷 전환 노이즈 디졸브** — `components/ui/playback/CutDissolve.tsx` · `draw`, `loop`
 
 ```tsx
     const draw = (threshold: number) => {
@@ -4248,7 +4248,7 @@ export function blurBackdrop(
     };
 ```
 
-**장막 색을 토큰에서** — `components/ui/CutDissolve.tsx` · `CutDissolve`
+**장막 색을 토큰에서** — `components/ui/playback/CutDissolve.tsx` · `CutDissolve`
 
 ```tsx
     // 장막 색은 토큰에서. 캔버스에 text-scene-void를 입혀 두고 계산된 color를 읽는다
@@ -4256,7 +4256,7 @@ export function blurBackdrop(
     if (!rgb) return;
 ```
 
-**결의 순환과 문턱값 곡선** — `components/ui/cut-dissolve.ts` · `grainForCut`, `dissolveThreshold`
+**결의 순환과 문턱값 곡선** — `components/ui/playback/cut-dissolve.ts` · `grainForCut`, `dissolveThreshold`
 
 ```ts
 const GRAIN_CYCLE: readonly NoiseGrain[] = ["paper", "film", "water"];
@@ -4275,7 +4275,7 @@ export function dissolveThreshold(elapsedMs: number, durationMs: number): number
 }
 ```
 
-**종이결 노이즈** — `components/ui/cut-dissolve.ts` · `bakePaper`
+**종이결 노이즈** — `components/ui/playback/cut-dissolve.ts` · `bakePaper`
 
 ```ts
 function bakePaper(out: Uint8Array, width: number, height: number, seed: number): void {
@@ -4294,7 +4294,7 @@ function bakePaper(out: Uint8Array, width: number, height: number, seed: number)
 }
 ```
 
-**사진 모프: 틀이 물러남** — `components/ui/photo-morph.ts` · `cameraRect`
+**사진 모프: 틀이 물러남** — `components/ui/playback/photo-morph.ts` · `cameraRect`
 
 ```ts
 export function cameraRect(within: Rect, progress: number): Rect {
@@ -4302,7 +4302,7 @@ export function cameraRect(within: Rect, progress: number): Rect {
 }
 ```
 
-**사진 모프: 변위장** — `components/ui/photo-morph.ts` · `bakeDisplacement`
+**사진 모프: 변위장** — `components/ui/playback/photo-morph.ts` · `bakeDisplacement`
 
 ```ts
 export function bakeDisplacement(width: number, height: number, seed: number): Displacement {
@@ -4320,7 +4320,7 @@ export function bakeDisplacement(width: number, height: number, seed: number): D
 }
 ```
 
-**사진 모프: 프리멀티플라이 섞기** — `components/ui/PhotoMorph.tsx` · `paintLayer`, `draw`
+**사진 모프: 프리멀티플라이 섞기** — `components/ui/playback/PhotoMorph.tsx` · `paintLayer`, `draw`
 
 ```tsx
       const fade = feather > 0 ? edgeFalloff(x + 0.5, y + 0.5, dest, feather) : 1;
@@ -4347,7 +4347,7 @@ export function bakeDisplacement(width: number, height: number, seed: number): D
             out[oi] = (ahead[ai] * back + behind[bi] * progress) * scale;
 ```
 
-**웹툰: 칸 등장과 페이지 넘김** — `components/ui/WebtoonViewer.tsx` · `WebtoonViewer`, `Panel`
+**웹툰: 칸 등장과 페이지 넘김** — `components/ui/playback/WebtoonViewer.tsx` · `WebtoonViewer`, `Panel`
 
 ```tsx
   useEffect(() => {
@@ -4384,7 +4384,7 @@ export function bakeDisplacement(width: number, height: number, seed: number): D
   }
 ```
 
-**웹툰: 현재 줄을 가운데로** — `components/ui/WebtoonViewer.tsx` · `renderPage`
+**웹툰: 현재 줄을 가운데로** — `components/ui/playback/WebtoonViewer.tsx` · `renderPage`
 
 ```tsx
         <div
@@ -4393,7 +4393,7 @@ export function bakeDisplacement(width: number, height: number, seed: number): D
         >
 ```
 
-**웹툰: 말풍선** — `components/ui/WebtoonViewer.tsx` · `PageRow`, `RadioBubble`
+**웹툰: 말풍선** — `components/ui/playback/WebtoonViewer.tsx` · `PageRow`, `RadioBubble`
 
 ```tsx
             // 앞 칸이 위에 선다: 칸 아래로 걸친 말풍선이 다음 칸 그림에 덮이지 않게
@@ -4430,7 +4430,7 @@ export function bakeDisplacement(width: number, height: number, seed: number): D
 }
 ```
 
-**시점 전환: 덮개 톤** — `components/ui/ViewpointTransition.tsx` · `TONES`, `transitionTone`
+**시점 전환: 덮개 톤** — `components/ui/shell/ViewpointTransition.tsx` · `TONES`, `transitionTone`
 
 ```tsx
 const TONES = {
@@ -4478,7 +4478,7 @@ export function transitionTone(previous: Viewpoint, next: Viewpoint): Tone | nul
 }
 ```
 
-**시점 전환: rAF 두 번 + 160ms** — `components/ui/ViewpointTransition.tsx` · `ViewpointTransition`
+**시점 전환: rAF 두 번 + 160ms** — `components/ui/shell/ViewpointTransition.tsx` · `ViewpointTransition`
 
 ```tsx
 const HOLD_MS = 160;
@@ -4495,7 +4495,7 @@ const HOLD_MS = 160;
     });
 ```
 
-**시점 전환: 초점 맞춤** — `app/globals.css` · `.viewpoint-focus`, `components/ui/ViewpointTransition.tsx`
+**시점 전환: 초점 맞춤** — `app/globals.css` · `.viewpoint-focus`, `components/ui/shell/ViewpointTransition.tsx`
 
 ```css
 .viewpoint-focus {
@@ -4559,7 +4559,7 @@ const HOLD_MS = 160;
 
 ### 관련 코드
 
-**단서 오버레이** — `components/ui/ClueOverlay.tsx` · `ClueOverlay`
+**단서 오버레이** — `components/ui/inspect/ClueOverlay.tsx` · `ClueOverlay`
 
 ```tsx
         {/* 닫기는 종이 밖에 둔다. 종이 위에 UI 버튼이 얹히면 종이가 아니라 창이 된다 */}
@@ -4571,7 +4571,7 @@ const HOLD_MS = 160;
         >
 ```
 
-**접힌 쪽지** — `components/ui/ClueOverlay.tsx` · `FoldedNote`
+**접힌 쪽지** — `components/ui/inspect/ClueOverlay.tsx` · `FoldedNote`
 
 ```tsx
     <div
@@ -4648,7 +4648,7 @@ const HOLD_MS = 160;
 }
 ```
 
-`components/ui/CharacterSheetModal.tsx` · `CharacterSheetModal`
+`components/ui/notebook/CharacterSheetModal.tsx` · `CharacterSheetModal`
 
 ```tsx
         <div
@@ -4662,7 +4662,7 @@ const HOLD_MS = 160;
         />
 ```
 
-**인덱스 탭** — `components/ui/CharacterSheetModal.tsx` · 탭 줄
+**인덱스 탭** — `components/ui/notebook/CharacterSheetModal.tsx` · 탭 줄
 
 ```tsx
               <div
@@ -4684,7 +4684,7 @@ const HOLD_MS = 160;
                     {id !== tab && unread.includes(id) && (
 ```
 
-**잠긴 값** — `components/ui/BlurredValue.tsx` · `BlurredValue`
+**잠긴 값** — `components/ui/notebook/BlurredValue.tsx` · `BlurredValue`
 
 ```tsx
   const lines = Math.min(BAR_WIDTHS.length, Math.max(1, Math.round(text.length / 28)));
@@ -4699,7 +4699,7 @@ const HOLD_MS = 160;
       </span>
 ```
 
-**스크랩북 카드** — `components/ui/LoreEntries.tsx` · `LoreEntries`, `LoreStill`
+**스크랩북 카드** — `components/ui/notebook/LoreEntries.tsx` · `LoreEntries`, `LoreStill`
 
 ```tsx
             <li key={id} className={STAGGER_CLASS} style={staggerStyle(index)}>
@@ -4726,7 +4726,7 @@ const HOLD_MS = 160;
         blurDataURL={blur}
 ```
 
-**평면도** — `components/ui/NotebookMap.tsx` · `NotebookMap`
+**평면도** — `components/ui/notebook/NotebookMap.tsx` · `NotebookMap`
 
 ```tsx
           {plan.doors.map((door) => (
@@ -4757,7 +4757,7 @@ const HOLD_MS = 160;
               }}
 ```
 
-**피드백 모달** — `components/ui/FeedbackModal.tsx` · `buildMeta`, `submit`
+**피드백 모달** — `components/ui/hud/FeedbackModal.tsx` · `buildMeta`, `submit`
 
 ```tsx
   const parts = [
@@ -4788,7 +4788,7 @@ const HOLD_MS = 160;
       );
 ```
 
-**공통: 입력 잠금과 Escape** — `components/ui/CharacterSheetModal.tsx` · `CharacterSheetModal`
+**공통: 입력 잠금과 Escape** — `components/ui/notebook/CharacterSheetModal.tsx` · `CharacterSheetModal`
 
 ```tsx
   useEffect(() => {
@@ -4837,7 +4837,7 @@ const HOLD_MS = 160;
   --animate-backdrop-in: backdrop-in 0.2s ease-out both;
 ```
 
-**시작 버튼으로 마운트** — `components/ui/MinigameHost.tsx` · `MinigameHost`
+**시작 버튼으로 마운트** — `components/ui/minigame/MinigameHost.tsx` · `MinigameHost`
 
 ```tsx
   const direct = bare || framed;
@@ -4858,7 +4858,7 @@ const HOLD_MS = 160;
               </button>
 ```
 
-**inert와 백드롭 잠금** — `components/ui/MinigameHost.tsx` · 판 층
+**inert와 백드롭 잠금** — `components/ui/minigame/MinigameHost.tsx` · 판 층
 
 ```tsx
         <ExitFade
@@ -4876,7 +4876,7 @@ const HOLD_MS = 160;
         >
 ```
 
-**결과 카드** — `components/ui/MinigameHost.tsx` · `MinigameResultCard`
+**결과 카드** — `components/ui/minigame/MinigameHost.tsx` · `MinigameResultCard`
 
 ```tsx
 const RESULT_HOLD_MS = 600;
@@ -4902,7 +4902,7 @@ const RESULT_AUTO_MS = 2600;
         >
 ```
 
-**퍼즐 결과 카드** — `components/ui/PuzzleHost.tsx` · `PuzzleResultCard`, `onComplete`
+**퍼즐 결과 카드** — `components/ui/minigame/PuzzleHost.tsx` · `PuzzleResultCard`, `onComplete`
 
 ```tsx
 function PuzzleResultCard({ line, onContinue }: { line: string; onContinue: () => void }) {
@@ -4923,7 +4923,7 @@ function PuzzleResultCard({ line, onContinue }: { line: string; onContinue: () =
                 }}
 ```
 
-**ExitFade** — `components/ui/ExitFade.tsx` · `ExitFade`
+**ExitFade** — `components/ui/minigame/ExitFade.tsx` · `ExitFade`
 
 ```tsx
   useLayoutEffect(() => {
@@ -4958,7 +4958,7 @@ function PuzzleResultCard({ line, onContinue }: { line: string; onContinue: () =
 }
 ```
 
-**SuccessBurst: 글로우 스프라이트** — `components/ui/SuccessBurst.tsx` · `withAlpha`, `createGlowSprite`
+**SuccessBurst: 글로우 스프라이트** — `components/ui/minigame/SuccessBurst.tsx` · `withAlpha`, `createGlowSprite`
 
 ```tsx
 function withAlpha(color: string, alpha: number): string {
@@ -4976,7 +4976,7 @@ function withAlpha(color: string, alpha: number): string {
     gradient.addColorStop(1, withAlpha(color, 0));
 ```
 
-**SuccessBurst: 떠오름과 가산 혼합** — `components/ui/SuccessBurst.tsx` · `loop`
+**SuccessBurst: 떠오름과 가산 혼합** — `components/ui/minigame/SuccessBurst.tsx` · `loop`
 
 ```tsx
       context.globalCompositeOperation = "lighter";
@@ -5001,13 +5001,13 @@ function withAlpha(color: string, alpha: number): string {
       }
 ```
 
-**SuccessBurst를 띄우는 자리** — `components/ui/MinigameHost.tsx` · `onComplete`
+**SuccessBurst를 띄우는 자리** — `components/ui/minigame/MinigameHost.tsx` · `onComplete`
 
 ```tsx
                     if (result.cleared && !result.celebrated) setBurstId((id) => id + 1);
 ```
 
-**엔딩 단계** — `components/ui/EndingScreen.tsx` · `EndingScreen`
+**엔딩 단계** — `components/ui/ending/EndingScreen.tsx` · `EndingScreen`
 
 ```tsx
 const DOOR_BEAT_MS = 1800;
@@ -5034,7 +5034,7 @@ const DOOR_BEAT_MS = 1800;
     >
 ```
 
-**EndingConfetti** — `components/ui/EndingConfetti.tsx` · `tick`
+**EndingConfetti** — `components/ui/ending/EndingConfetti.tsx` · `tick`
 
 ```tsx
         piece.vy += GRAVITY * delta;
@@ -5073,7 +5073,7 @@ const DOOR_BEAT_MS = 1800;
 
 ### 관련 코드
 
-**켜는 조건** — `components/ui/CustomCursor.tsx` · `CustomCursor`
+**켜는 조건** — `components/ui/shell/CustomCursor.tsx` · `CustomCursor`
 
 ```tsx
   useEffect(() => {
@@ -5095,7 +5095,7 @@ const DOOR_BEAT_MS = 1800;
   }, [pointerKind]);
 ```
 
-**점과 링의 층** — `components/ui/CustomCursor.tsx` · 반환 JSX
+**점과 링의 층** — `components/ui/shell/CustomCursor.tsx` · 반환 JSX
 
 ```tsx
   return (
@@ -5139,7 +5139,7 @@ const DOOR_BEAT_MS = 1800;
 }
 ```
 
-**링의 목표와 감쇠** — `components/ui/cursor-ring.ts` · `ringGoal`, `damp`
+**링의 목표와 감쇠** — `components/ui/shell/cursor-ring.ts` · `ringGoal`, `damp`
 
 ```ts
 export const RING_SIZE = 28;
@@ -5157,7 +5157,7 @@ export function damp(from: number, to: number, lambda: number, deltaSeconds: num
 }
 ```
 
-**프레임 루프** — `components/ui/CustomCursor.tsx` · `tick`
+**프레임 루프** — `components/ui/shell/CustomCursor.tsx` · `tick`
 
 ```tsx
       const delta = last === null ? 0 : Math.min(0.1, Math.max(0, (now - last) / 1000));
@@ -5180,7 +5180,7 @@ export function damp(from: number, to: number, lambda: number, deltaSeconds: num
       ringEl.dataset.down = String(pointer.down);
 ```
 
-**누르기와 클릭 파문** — `components/ui/CustomCursor.tsx` · `onDown`, `app/globals.css` · `.cursor-ring::after`
+**누르기와 클릭 파문** — `components/ui/shell/CustomCursor.tsx` · `onDown`, `app/globals.css` · `.cursor-ring::after`
 
 ```tsx
     const onDown = (event: PointerEvent) => {
@@ -5643,7 +5643,7 @@ export function staticLevel(position: number, bandLeft: number, bandWidth: numbe
 }
 ```
 
-**방송 위의 속말** — `components/ui/CutWhispers.tsx` · `CutWhispers`
+**방송 위의 속말** — `components/ui/playback/CutWhispers.tsx` · `CutWhispers`
 ```tsx
 // 줄들을 한 칸에 겹쳐 두고 불투명도만 넘긴다: 떠오르고(50ms 뒤) 2.6초 뒤 가라앉고, 틈을 두고 다음 줄
 const show = window.setTimeout(() => setVisible(true), 50);
@@ -5889,7 +5889,7 @@ export function requiredVisits(phase: FromPhase | "p1"): VisitRef[] {
         }),
 ```
 
-**결과 카드** — `components/ui/MinigameHost.tsx` · `MinigameResultCard`
+**결과 카드** — `components/ui/minigame/MinigameHost.tsx` · `MinigameResultCard`
 ```tsx
 const RESULT_HOLD_MS = 600;
 /** 성공 카드가 저절로 넘어가는 시각(ms). 읽을 시간은 주되 붙잡아 두지는 않는다. */
@@ -6008,7 +6008,7 @@ function complete(state: MemoryRoomState, id: MemoryId, visit: Visit) {
                 : {};
 ```
 
-**미궁 문제의 결과 카드** — `components/ui/PuzzleHost.tsx` · `PuzzleHost`
+**미궁 문제의 결과 카드** — `components/ui/minigame/PuzzleHost.tsx` · `PuzzleHost`
 ```tsx
       {active && cleared && (
         <PuzzleResultCard
@@ -6032,7 +6032,7 @@ export const selectSceneInputLocked = (state: MemoryRoomState) =>
   state.uiLocks.length > 0;
 ```
 
-**이지 모드의 다음 할 일** — `components/ui/HudGuide.tsx` · `nextStepId`
+**이지 모드의 다음 할 일** — `components/ui/hud/HudGuide.tsx` · `nextStepId`
 ```tsx
 function nextStepId(state: Parameters<typeof nextStep>[0] & { difficulty: string }): string | null {
   if (state.difficulty !== "guided") return null;
@@ -6264,7 +6264,7 @@ function targetVolume(): number {
 }
 ```
 
-**판 전용 곡** — `components/ui/MinigameHost.tsx` · `overlayMusic`
+**판 전용 곡** — `components/ui/minigame/MinigameHost.tsx` · `overlayMusic`
 ```tsx
   const overlayMusic = active?.phase === "minigame" && started ? hosted?.music : undefined;
   useEffect(() => {
@@ -6296,7 +6296,7 @@ const MINIGAME_DUCK = 0.42;
   }, [resultMusic]);
 ```
 
-**화자별 대사 틱** — `components/ui/dialogue-sfx.ts` · `typeTick`
+**화자별 대사 틱** — `components/ui/dialogue/dialogue-sfx.ts` · `typeTick`
 ```ts
 export function typeTick(speaker: CharacterId, char: string, count: number): TypeTick | null {
   // 첫 글자에서 울려야 말이 시작되는 순간과 소리가 붙는다 (count 1, 3, 5, ...)
@@ -6402,7 +6402,7 @@ export function typeTick(speaker: CharacterId, char: string, count: number): Typ
     opacity: 0.85;
 ```
 
-**3D 물건의 sr-only 버튼 목록** — `components/ui/RoomInteractionPrompt.tsx`
+**3D 물건의 sr-only 버튼 목록** — `components/ui/hud/RoomInteractionPrompt.tsx`
 ```tsx
       <div className="sr-only">
         <fieldset>
@@ -6426,7 +6426,7 @@ export function typeTick(speaker: CharacterId, char: string, count: number): Typ
       </div>
 ```
 
-**턴테이블 대체 버튼** — `components/ui/InspectView.tsx`
+**턴테이블 대체 버튼** — `components/ui/inspect/InspectView.tsx`
 ```tsx
               <button
                 type="button"
@@ -6446,7 +6446,7 @@ export function typeTick(speaker: CharacterId, char: string, count: number): Typ
               </button>
 ```
 
-**결과 대사 뒤의 판을 입력에서 빼기** — `components/ui/MinigameHost.tsx` · `ExitFade inert`
+**결과 대사 뒤의 판을 입력에서 빼기** — `components/ui/minigame/MinigameHost.tsx` · `ExitFade inert`
 ```tsx
           inert={resultStage || shownOutcome !== null}
 ```
@@ -6597,7 +6597,7 @@ export function prepareWallMaterials(root: Object3D): void {
   );
 ```
 
-**Canvas 2D 30fps 제한** — `components/ui/CutDissolve.tsx` · `loop`
+**Canvas 2D 30fps 제한** — `components/ui/playback/CutDissolve.tsx` · `loop`
 ```tsx
 /** 노이즈 판 한 변. 캔버스에 늘리거나 깔아 쓰므로 이 이상은 낭비다. */
 const NOISE_SIZE = 128;
@@ -6611,7 +6611,7 @@ const MIN_FRAME_MS = 30;
       frame = requestAnimationFrame(loop);
 ```
 
-**결정적 해시 난수와 자릿수 끊기** — `components/ui/RisingDust.tsx` · `hashUnit`, `css`
+**결정적 해시 난수와 자릿수 끊기** — `components/ui/boot/RisingDust.tsx` · `hashUnit`, `css`
 ```tsx
 function hashUnit(seed: number): number {
   const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453;

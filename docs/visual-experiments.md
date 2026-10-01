@@ -296,10 +296,10 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 
 | 효과 | 자리 | 게이트 | 바인딩 | 데모 |
 |---|---|---|---|---|
-| 혼잣말 글자 단위 퇴장 | `components/ui/Monologue.tsx`, `monologue-exit.ts` | cheap | `act` | `/lab/monologue-exit` |
+| 혼잣말 글자 단위 퇴장 | `components/ui/dialogue/Monologue.tsx`, `monologue-exit.ts` | cheap | `act` | `/lab/monologue-exit` |
 | 안방 서류 깨진 글자 | `redaction.ts` (v4에서 ClueOverlay의 서류 화면은 빠졌다) | (정적) | 고정 | `/lab/redaction` |
-| 컷씬 컷 간 노이즈 dissolve | `components/ui/PlaybackScene.tsx`, `CutDissolve.tsx`, `cut-dissolve.ts` | cheap | 컷 번호 → 결 | `/lab/cut-dissolve` |
-| 액자 다시보기의 사진 밀림 | `components/ui/PhotoMorph.tsx`, `photo-morph.ts`, `data`의 `REPLAY_MORPH_WITHIN` | cheap | 2막 액자 다시보기 | `/lab/photo-morph` |
+| 컷씬 컷 간 노이즈 dissolve | `components/ui/playback/PlaybackScene.tsx`, `CutDissolve.tsx`, `cut-dissolve.ts` | cheap | 컷 번호 → 결 | `/lab/cut-dissolve` |
+| 액자 다시보기의 사진 밀림 | `components/ui/playback/PhotoMorph.tsx`, `photo-morph.ts`, `data`의 `REPLAY_MORPH_WITHIN` | cheap | 2막 액자 다시보기 | `/lab/photo-morph` |
 | 등 (커서 또는 몸) | `scenes/memory-room/Lantern.tsx`, `lantern-light.ts` | cheap, 1인칭 제외 | `level < 0.35` | (게임 안) |
 | 틸트 시프트 · 앉기 초점 | `MemoryOutlineGlow.tsx` (`TiltShiftDriver`), `tilt-focus.ts` | heavy | `act`, `seatedAt` | (게임 안) |
 | 먼지 재적층 | `DustMotes.tsx` `settle` | (기존) | `level` | (게임 안) |
@@ -316,7 +316,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | 재구성 (와이어프레임 → 면) | `WireframeReveal.tsx`, `reconstruction.ts`, `ScreenTransition` `settle` | cheap | 라디오 재점화, 화장실·안방 첫 진입 | (게임 안) |
 | 1인칭 잔상 | `AfterimagePass.ts`, `afterimage.ts`, `MemoryOutlineGlow.tsx` | heavy, 1인칭에서만 | 걷는 속도 | (게임 안) |
 | 현관문 빛기둥 | `LivingRoomShell.tsx` `EndingLightPlane`, `ending-light.ts`, `MemoryOutlineGlow.tsx` (GodRays) | heavy, 엔딩에서만 | `endingStarted` | (게임 안) |
-| 스위치 켤 때 · 평면도 이동의 초점 맞춤 (노이즈 응결에서 교체) | `components/ui/ViewpointTransition.tsx`, `globals.css` `.viewpoint-focus` | cheap | 시점 전환, `warpTarget` | (게임 안) |
+| 스위치 켤 때 · 평면도 이동의 초점 맞춤 (노이즈 응결에서 교체) | `components/ui/shell/ViewpointTransition.tsx`, `globals.css` `.viewpoint-focus` | cheap | 시점 전환, `warpTarget` | (게임 안) |
 
 **아직 안 본 것.** 전부 브라우저 없이(테스트·타입·빌드) 검증했다. 실제 화면에서 봐야 정할
 값: 등의 세기(`lantern-light.ts`), 틸트 시프트의 띠 폭(`tilt-focus.ts`), 컵라면 무늬의 가시성,

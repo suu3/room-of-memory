@@ -14,10 +14,10 @@ import {
   selectHeroNameKnown,
   useMemoryRoomStore,
 } from "@/store/memory-room";
+import { FOCUS_RING, PANEL_DIALOGUE } from "../shared/ui-classes";
 import { CharacterPortrait } from "./CharacterPortrait";
 import { hasPortrait } from "./character-portrait";
 import { typeTick } from "./dialogue-sfx";
-import { FOCUS_RING, PANEL_DIALOGUE } from "./ui-classes";
 
 /**
  * 오토가 한 줄을 붙들고 있는 시간(ms) = 기본 + 글자당.

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { LabFrame } from "@/app/lab/LabFrame";
-import { PhotoMorph } from "@/components/ui/PhotoMorph";
-import { morphSeed } from "@/components/ui/photo-morph";
+import { PhotoMorph } from "@/components/ui/playback/PhotoMorph";
+import { morphSeed } from "@/components/ui/playback/photo-morph";
 import { REPLAY_MORPH_WITHIN } from "@/data/memory-room";
 import { ASSETS } from "@/lib/assets";
 

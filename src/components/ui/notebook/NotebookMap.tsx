@@ -6,9 +6,9 @@ import { CLUE_SPACE } from "@/data/room-clues";
 import { playSound } from "@/lib/audio";
 import { SPACES } from "@/scenes/memory-room/spaces";
 import { openDoorwayIds, selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
-import { playHoverSound } from "./hover-sfx";
+import { playHoverSound } from "../shared/hover-sfx";
+import { FOCUS_RING } from "../shared/ui-classes";
 import { floorPlan } from "./notebook-map";
-import { FOCUS_RING } from "./ui-classes";
 
 /** 벽선 두께 (월드 단위). 문구멍이 이걸 덮는다 (notebook-map의 DOOR_GAP_DEPTH). */
 const WALL_STROKE = 0.16;

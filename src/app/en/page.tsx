@@ -1,4 +1,4 @@
-import { RoomEntry } from "@/components/ui/RoomEntry";
+import { RoomEntry } from "@/components/ui/shell/RoomEntry";
 import { localeMetadata } from "@/i18n/site-meta";
 
 /** 처음부터 영어로 여는 주소 (i18n/locale-routes.ts). */

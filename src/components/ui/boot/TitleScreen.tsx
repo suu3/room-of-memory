@@ -13,14 +13,14 @@ import { useControlHint } from "@/i18n/control-hint";
 import { ASSETS } from "@/lib/assets";
 import { playSound, startCueMusic, stopCueMusic } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { HudLogLine, HudSignalLight } from "./HudLogLine";
-import { playHoverSound } from "./hover-sfx";
-import { KeyHint } from "./Keycap";
-import { LanguageToggle } from "./LanguageToggle";
+import { HudLogLine, HudSignalLight } from "../hud/HudLogLine";
+import { LanguageToggle } from "../hud/LanguageToggle";
+import { SoundToggle } from "../hud/SoundToggle";
+import { playHoverSound } from "../shared/hover-sfx";
+import { KeyHint } from "../shared/Keycap";
+import { STAGGER_CLASS, staggerStyle } from "../shared/stagger";
+import { BACKDROP, BUTTON_DESTRUCTIVE, BUTTON_QUIET, PANEL_DARK } from "../shared/ui-classes";
 import { RisingDust } from "./RisingDust";
-import { SoundToggle } from "./SoundToggle";
-import { STAGGER_CLASS, staggerStyle } from "./stagger";
-import { BACKDROP, BUTTON_DESTRUCTIVE, BUTTON_QUIET, PANEL_DARK } from "./ui-classes";
 
 /**
  * 시작 버튼을 누르고 방이 드러나기까지 로딩 화면을 보여주는 시간.

@@ -11,8 +11,8 @@ import {
   idCardObject,
   tableNoteObject,
 } from "@/components/canvas/inspect-objects";
-import { InspectStill } from "@/components/ui/InspectStill";
-import { InspectView } from "@/components/ui/InspectView";
+import { InspectView } from "@/components/ui/inspect/InspectView";
+import { InspectStill } from "@/components/ui/playback/InspectStill";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { CommonTextKey, MinigameProps } from "@/types/minigame";

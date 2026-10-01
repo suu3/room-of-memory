@@ -9,7 +9,7 @@ import { blurBackdrop } from "@/lib/image-blur";
 import { useTypewriterState } from "@/lib/use-typewriter";
 import { type ActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 import type { CutsceneCut } from "@/types/interaction";
-import { typeTick } from "./dialogue-sfx";
+import { typeTick } from "../dialogue/dialogue-sfx";
 import {
   buildWebtoonPages,
   pageGap,

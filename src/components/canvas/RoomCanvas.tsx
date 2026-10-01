@@ -13,10 +13,10 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { LookButtons } from "@/components/ui/LookButtons";
-import { CanvasMinigameSkip } from "@/components/ui/MinigameHost";
-import { MovementJoystick } from "@/components/ui/MovementJoystick";
-import { RoomInteractionPrompt } from "@/components/ui/RoomInteractionPrompt";
+import { LookButtons } from "@/components/ui/hud/LookButtons";
+import { MovementJoystick } from "@/components/ui/hud/MovementJoystick";
+import { RoomInteractionPrompt } from "@/components/ui/hud/RoomInteractionPrompt";
+import { CanvasMinigameSkip } from "@/components/ui/minigame/MinigameHost";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";

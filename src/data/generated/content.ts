@@ -23,7 +23,7 @@ import {
   Sneaker,
   Syringe,
 } from "@phosphor-icons/react";
-import type { MemoryIcon } from "@/components/ui/icons";
+import type { MemoryIcon } from "@/components/ui/shared/icons";
 import type { Cutscene, DialogueScript, MemoryPhaseConfig } from "@/types/interaction";
 
 /** 기억 id: content/memories.yaml에 적힌 순서 그대로. 패널에도 이 순서로 뜬다. */

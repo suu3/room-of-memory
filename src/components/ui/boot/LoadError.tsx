@@ -2,8 +2,8 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import { RisingDust } from "@/components/ui/RisingDust";
-import { BUTTON_PRIMARY, BUTTON_QUIET } from "@/components/ui/ui-classes";
+import { RisingDust } from "@/components/ui/boot/RisingDust";
+import { BUTTON_PRIMARY, BUTTON_QUIET } from "@/components/ui/shared/ui-classes";
 
 function subscribeOnline(onChange: () => void) {
   window.addEventListener("online", onChange);

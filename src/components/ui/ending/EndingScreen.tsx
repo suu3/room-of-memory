@@ -15,8 +15,8 @@ import { playSound } from "@/lib/audio";
 import { blurDataUrlOf } from "@/lib/image-blur";
 import { EXIT_BEAT_MS } from "@/scenes/memory-room/first-person";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { BUTTON_PRIMARY, BUTTON_QUIET } from "../shared/ui-classes";
 import { EndingConfetti } from "./EndingConfetti";
-import { BUTTON_PRIMARY, BUTTON_QUIET } from "./ui-classes";
 
 /**
  * door: 문이 열리고 도해가 문턱을 넘어 나가는 몇 초 (투명, 3D가 보인다. 길이는 EXIT_BEAT_MS)

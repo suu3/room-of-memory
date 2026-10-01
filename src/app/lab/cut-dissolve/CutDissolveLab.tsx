@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { LabFrame } from "@/app/lab/LabFrame";
-import { CutDissolve } from "@/components/ui/CutDissolve";
-import { grainForCut } from "@/components/ui/cut-dissolve";
+import { CutDissolve } from "@/components/ui/playback/CutDissolve";
+import { grainForCut } from "@/components/ui/playback/cut-dissolve";
 
 /** 컷 셋. 그림 대신 씬 토큰의 단색 판이라 장막이 걷히는 결이 그대로 보인다. */
 const PANELS = [

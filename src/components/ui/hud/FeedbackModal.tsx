@@ -18,7 +18,7 @@ import {
   CHIP_SELECTED,
   FOCUS_RING,
   PANEL_DARK,
-} from "./ui-classes";
+} from "../shared/ui-classes";
 
 /** 성공은 상태로 남기지 않는다. 모달을 닫고 토스트로 알린 뒤 idle로 돌아간다. */
 type SendState = "idle" | "sending" | "failed" | "unconfigured" | "rateLimited";

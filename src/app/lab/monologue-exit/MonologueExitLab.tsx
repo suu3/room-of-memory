@@ -3,8 +3,12 @@
 import { ArrowCounterClockwise } from "@phosphor-icons/react";
 import { useState } from "react";
 import { LabFrame } from "@/app/lab/LabFrame";
-import { MonologueExitText } from "@/components/ui/Monologue";
-import { EXIT_CHAR_MS, EXIT_SPREAD_MS, exitDirection } from "@/components/ui/monologue-exit";
+import { MonologueExitText } from "@/components/ui/dialogue/Monologue";
+import {
+  EXIT_CHAR_MS,
+  EXIT_SPREAD_MS,
+  exitDirection,
+} from "@/components/ui/dialogue/monologue-exit";
 import type { Act } from "@/store/memory-room";
 
 /** 게임 1막 첫 줄과 같은 결의 문장. 어절이 여럿이라 줄바꿈이 공백에서만 꺾이는지도 본다. */

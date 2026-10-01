@@ -40,7 +40,7 @@ function emitModule(content) {
     // import 순서는 Biome의 organizeImports가 정렬한 결과와 같아야 한다. 포맷터는
     // 줄바꿈만 손보지 순서는 안 고쳐서, 어긋나면 lint가 생성물을 걸고넘어진다
     `import { ${icons.join(", ")} } from "@phosphor-icons/react";`,
-    'import type { MemoryIcon } from "@/components/ui/icons";',
+    'import type { MemoryIcon } from "@/components/ui/shared/icons";',
     'import type { Cutscene, DialogueScript, MemoryPhaseConfig } from "@/types/interaction";',
     "",
     "/** 기억 id: content/memories.yaml에 적힌 순서 그대로. 패널에도 이 순서로 뜬다. */",

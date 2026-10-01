@@ -48,7 +48,7 @@ export const SINK_DIAL_CODE = "407";
 
 /**
  * 들여다볼 수 있는 배경 오브젝트. 클릭하면 화면 가운데에 확대되어 뜬다
- * (src/components/ui/ClueOverlay.tsx).
+ * (src/components/ui/inspect/ClueOverlay.tsx).
  *
  * wall-calendar는 성격이 다르다. 원래 조사 오브젝트(기억)였다가 1바퀴 조사를
  * 마치면 배경 오브젝트로 내려앉는 물건이다. 그래서 수집 전에는 열리지 않는다

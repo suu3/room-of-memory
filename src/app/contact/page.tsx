@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { ContactLinks } from "@/components/ui/ContactModal";
-import { BUTTON_QUIET, PANEL_DARK } from "@/components/ui/ui-classes";
+import { ContactLinks } from "@/components/ui/hud/ContactModal";
+import { BUTTON_QUIET, PANEL_DARK } from "@/components/ui/shared/ui-classes";
 
 /**
  * 직접 URL로 들어왔을 때를 위한 페이지. 게임 안에서는 같은 내용이 모달로 뜬다

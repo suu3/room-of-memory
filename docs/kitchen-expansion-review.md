@@ -198,7 +198,7 @@
 | 가구 | `src/scenes/memory-room/LivingRoomFurniture.tsx` | 소파·식탁 재배치, 냉장고 이전 |
 | 부엌 가구 | `src/scenes/memory-room/KitchenFurniture.tsx` | 거실 내부의 부엌 구성 분리 |
 | 조사/카메라 | `src/scenes/memory-room/layout.ts`, `FridgeDrawer.tsx` | 냉장고와 연결된 좌표 동기화 |
-| 지도 | `src/components/ui/notebook-map.ts` | 확장된 거실 도형 표시 확인 |
+| 지도 | `src/components/ui/notebook/notebook-map.ts` | 확장된 거실 도형 표시 확인 |
 | 검증 | `layout.test.ts`, `spaces.test.ts`, `notebook-map.test.ts` 등 | 동선, 충돌, 평면도 회귀 방지 |
 
 `spaces.ts`의 공간/문 목록, 문 규칙, 이야기 콘텐츠 YAML은 원칙적으로 변경하지 않는다.

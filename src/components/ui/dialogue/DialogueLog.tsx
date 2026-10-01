@@ -4,7 +4,7 @@ import { X } from "@phosphor-icons/react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { selectHeroNameKnown, useMemoryRoomStore } from "@/store/memory-room";
-import { FOCUS_RING } from "./ui-classes";
+import { FOCUS_RING } from "../shared/ui-classes";
 
 /**
  * 지나간 대사를 모아 보는 화면 (비주얼 노벨의 백로그).

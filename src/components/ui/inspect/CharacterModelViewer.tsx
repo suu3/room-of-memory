@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { ViewerPose } from "@/components/canvas/CharacterTurntable";
-import { CHIP_BASE, CHIP_IDLE, CHIP_SELECTED, TURN_BUTTON_DARK } from "./ui-classes";
+import { CHIP_BASE, CHIP_IDLE, CHIP_SELECTED, TURN_BUTTON_DARK } from "../shared/ui-classes";
 import { TURN_STEP, useTurntableDrag } from "./use-turntable-drag";
 
 /** Canvas는 클라이언트에서만 뜬다 (.claude/rules/r3f.md): 거울을 볼 때 비로소 받는다. */

@@ -2,8 +2,8 @@
 
 import { Fragment } from "react";
 import { LabFrame } from "@/app/lab/LabFrame";
-import { RESEARCH_REDACTION_RATIO, redactLine } from "@/components/ui/redaction";
-import { PANEL_PAPER } from "@/components/ui/ui-classes";
+import { RESEARCH_REDACTION_RATIO, redactLine } from "@/components/ui/shared/redaction";
+import { PANEL_PAPER } from "@/components/ui/shared/ui-classes";
 
 /**
  * 세 언어의 견본 문단. 같은 줄 번호를 먹으므로 글자 수가 달라도 같은 상대 위치가

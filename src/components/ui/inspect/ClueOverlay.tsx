@@ -20,9 +20,9 @@ import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
 import { CalendarPageImage, useCalendarPage } from "@/minigames/calendar-flip/PageImage";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { useStillStore, WORKBOOK_STILL_KEY } from "@/store/stills";
+import { BUTTON_QUIET, PANEL_PAPER } from "../shared/ui-classes";
 import { CharacterModelViewer } from "./CharacterModelViewer";
 import { InspectView } from "./InspectView";
-import { BUTTON_QUIET, PANEL_PAPER } from "./ui-classes";
 import { WorkbookClue } from "./WorkbookClue";
 
 /** 서랍 속 쪽지에 적힌 줄. 도해가 예전에 적어 둔 메모라 두 줄이 전부다. */

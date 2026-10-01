@@ -28,29 +28,29 @@ import {
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
-import { BootCurtain } from "./BootCurtain";
-import { CharacterSheetModal } from "./CharacterSheetModal";
-import { ClueOverlay } from "./ClueOverlay";
-import { ContactModal } from "./ContactModal";
+import { BootCurtain } from "../boot/BootCurtain";
+import { TitleScreen } from "../boot/TitleScreen";
+import { DialogueBox } from "../dialogue/DialogueBox";
+import { DialogueLog } from "../dialogue/DialogueLog";
+import { Monologue } from "../dialogue/Monologue";
+import { RemarkLine } from "../dialogue/RemarkLine";
+import { EndingScreen } from "../ending/EndingScreen";
+import { ContactModal } from "../hud/ContactModal";
+import { FeedbackModal } from "../hud/FeedbackModal";
+import { HudGuideBanner, HudGuideDock, HudSpaceLine } from "../hud/HudGuide";
+import { HudLogLine } from "../hud/HudLogLine";
+import { HudMenu } from "../hud/HudMenu";
+import { RoomCallout } from "../hud/RoomCallout";
+import { SignalCatch } from "../hud/SignalCatch";
+import { SoundToggle } from "../hud/SoundToggle";
+import { ClueOverlay } from "../inspect/ClueOverlay";
+import { MinigameHost } from "../minigame/MinigameHost";
+import { PuzzleHost } from "../minigame/PuzzleHost";
+import { CharacterSheetModal } from "../notebook/CharacterSheetModal";
+import { InventoryStrip } from "../notebook/InventoryStrip";
+import { NotebookTab } from "../notebook/NotebookTab";
+import { PlaybackScene } from "../playback/PlaybackScene";
 import { CustomCursor } from "./CustomCursor";
-import { DialogueBox } from "./DialogueBox";
-import { DialogueLog } from "./DialogueLog";
-import { EndingScreen } from "./EndingScreen";
-import { FeedbackModal } from "./FeedbackModal";
-import { HudGuideBanner, HudGuideDock, HudSpaceLine } from "./HudGuide";
-import { HudLogLine } from "./HudLogLine";
-import { HudMenu } from "./HudMenu";
-import { InventoryStrip } from "./InventoryStrip";
-import { MinigameHost } from "./MinigameHost";
-import { Monologue } from "./Monologue";
-import { NotebookTab } from "./NotebookTab";
-import { PlaybackScene } from "./PlaybackScene";
-import { PuzzleHost } from "./PuzzleHost";
-import { RemarkLine } from "./RemarkLine";
-import { RoomCallout } from "./RoomCallout";
-import { SignalCatch } from "./SignalCatch";
-import { SoundToggle } from "./SoundToggle";
-import { TitleScreen } from "./TitleScreen";
 import { ViewpointTransition } from "./ViewpointTransition";
 
 /*

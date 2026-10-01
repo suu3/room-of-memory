@@ -155,7 +155,7 @@
 
 - **수첩의 평면도 페이지**: 지나간 문까지만 그려진 집. 못 가본 칸은 아예 비어 있고, 문이
   열릴 때마다 한 칸씩 늘어난다. 지금 있는 칸은 금빛으로 물들고, 단서를 본 칸에는 연필 체크가
-  남는다 (`src/components/ui/NotebookMap.tsx`, 도형은 `notebook-map.ts`가 `SPACES`에서 낸다).
+  남는다 (`src/components/ui/notebook/NotebookMap.tsx`, 도형은 `notebook-map.ts`가 `SPACES`에서 낸다).
   방문이 열리기 전(1막)에는 페이지 자체가 없다: 칸 하나짜리 평면도는 집의 생김새만 미리
   흘린다.
 - **HUD의 공간 이름**: 진행 줄 앞에 붙는 한 조각("내 방 · 2바퀴 · 기억 1/11"). 줄을 새로

@@ -5,9 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { playHoverSound } from "./hover-sfx";
-import { LanguageToggle } from "./LanguageToggle";
-import { MenuGlyph } from "./MenuGlyph";
+import { playHoverSound } from "../shared/hover-sfx";
 import {
   BACKDROP,
   BUTTON_DESTRUCTIVE,
@@ -24,7 +22,9 @@ import {
   ON_SCENE_TEXT,
   PANEL_DARK,
   SECTION_LABEL,
-} from "./ui-classes";
+} from "../shared/ui-classes";
+import { LanguageToggle } from "./LanguageToggle";
+import { MenuGlyph } from "./MenuGlyph";
 
 /** 한 줄에 둘이 나눠 앉는 항목: 폭만 반씩, 나머지는 MENU_ITEM과 같다. */
 const PAIR_ITEM_CLASS = `${MENU_ITEM} flex-1 justify-center text-center`;

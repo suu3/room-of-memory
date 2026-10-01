@@ -10,9 +10,9 @@ import { anyVisitDone, lastVisitDone, visitConfig, visitsOf } from "@/data/story
 import { blurDataUrlOf } from "@/lib/image-blur";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { stillKeyOf, useStillStore } from "@/store/stills";
+import { STAGGER_CLASS, staggerStyle } from "../shared/stagger";
+import { BUTTON_QUIET_PAPER } from "../shared/ui-classes";
 import { BlurredValue } from "./BlurredValue";
-import { STAGGER_CLASS, staggerStyle } from "./stagger";
-import { BUTTON_QUIET_PAPER } from "./ui-classes";
 
 /**
  * 도해가 남긴 기록. 조사 오브젝트 하나가 항목 하나를 연다 (1:1).

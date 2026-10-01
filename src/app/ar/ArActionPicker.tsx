@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { FOCUS_RING } from "@/components/ui/ui-classes";
+import { FOCUS_RING } from "@/components/ui/shared/ui-classes";
 import { AR_ACTIONS, type ArAction } from "./ar-motion";
 
 export function ArActionPicker({

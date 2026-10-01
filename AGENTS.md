@@ -45,7 +45,7 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 - `src/app/`: 라우트. 3D Canvas는 클라이언트 컴포넌트로 dynamic import
 - `src/app/admin/`: 로컬 전용 대본 편집기. `*.dev.tsx`라 프로덕션 빌드에는 라우트가 안 생긴다
 - `src/components/canvas/`: Canvas 내부에서만 쓰는 3D 컴포넌트
-- `src/components/ui/`: Canvas 밖 DOM 오버레이 (대사창, 선택지, HUD)
+- `src/components/ui/`: Canvas 밖 DOM 오버레이. 기능별 폴더로 나뉜다 (`shell` 앱 뼈대 · `boot` 로딩·타이틀 · `dialogue` 대사 · `playback` 컷씬 · `notebook` 수첩 · `hud` HUD·메뉴 · `inspect` 단서 보기 · `minigame` 호스트 · `ending` · `shared` 공용). 컴포넌트(PascalCase)와 그 컴포넌트만 쓰는 순수 로직(kebab-case)은 같은 폴더에 둔다. 폴더 바로 아래에 파일을 두지 않는다
 - `src/scenes/`: 챕터별 3D 씬. 시나리오의 `scene` 키로 등록
 - `src/minigames/`: 미니게임. `src/types/minigame.ts` 계약을 만족, `index.ts` 레지스트리에 등록
 - `src/data/generated/`: **생성물. 직접 고치지 말 것** (`content/`에서 나온다)

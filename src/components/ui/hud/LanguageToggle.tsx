@@ -14,7 +14,7 @@ import {
   HUD_CHOICE_BASE,
   HUD_CHOICE_IDLE,
   HUD_CHOICE_SELECTED,
-} from "./ui-classes";
+} from "../shared/ui-classes";
 
 const LOCALE_LABELS: Record<Locale, string> = { ko: "한", en: "EN", ja: "日" };
 
