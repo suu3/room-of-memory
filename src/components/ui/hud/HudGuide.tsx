@@ -18,6 +18,7 @@ import {
 } from "@/store/memory-room";
 import { type NextStep, nextStep } from "@/store/next-step";
 import { KeyHint } from "../shared/Keycap";
+import { guideKeyOf, isGenericGuide } from "./guide-key";
 
 /**
  * 새 목표가 화면 가운데에 머무는 시간(ms). 읽고 넘길 만큼만. 그 뒤 왼쪽 위 진행 바
@@ -56,17 +57,6 @@ function useNextStepText(id: string | null): string | null {
   return t(`hud.guide.next.${kind}` as ParseKeys<"common">);
 }
 
-type GuideKey =
-  | "hud.guide.lights"
-  | "hud.guide.doorway"
-  | "hud.guide.examine"
-  | "hud.guide.workbook"
-  | "hud.guide.notebook"
-  | "hud.guide.door"
-  | "hud.guide.revisit"
-  | "hud.guide.pack"
-  | "hud.guide.exit";
-
 /**
  * 지금 뭘 하면 되는지 한 줄. 게임의 퀘스트 트래커처럼 군다.
  *
@@ -104,31 +94,9 @@ function useHudGuide() {
   const stepId = useMemoryRoomStore(nextStepId);
   const stepText = useNextStepText(stepId);
 
-  const key: GuideKey =
-    viewpoint === "intro"
-      ? "hud.guide.lights"
-      : viewpoint === "doorway"
-        ? "hud.guide.doorway"
-        : exitReady
-          ? "hud.guide.exit"
-          : packing
-            ? "hud.guide.pack"
-            : doorOpened
-              ? "hud.guide.revisit"
-              : doorReady
-                ? "hud.guide.door"
-                : onboarding === "workbook"
-                  ? "hud.guide.workbook"
-                  : onboarding === "notebook"
-                    ? "hud.guide.notebook"
-                    : "hud.guide.examine";
-
-  /*
-   * 짚어 줄 다음 할 일이 있으면 뭉뚱그린 목표만 그것으로 갈아 끼운다. 스위치·문간·배트·
-   * 현관·방문·첫 두 걸음은 이미 한 가지를 짚고 있어 그대로 둔다.
-   */
-  const generic = key === "hud.guide.examine" || key === "hud.guide.revisit";
-  const specific = generic && stepText !== null;
+  const key = guideKeyOf({ viewpoint, exitReady, packing, doorOpened, doorReady, onboarding });
+  // 짚어 줄 다음 할 일이 있으면 뭉뚱그린 목표만 그것으로 갈아 끼운다 (guide-key의 isGenericGuide)
+  const specific = isGenericGuide(key) && stepText !== null;
   /** 배너를 다시 띄우는 기준. 이지 모드에서는 짚는 물건이 바뀔 때마다 새 목표다. */
   const goal = specific ? `${key}|${stepId}` : key === "hud.guide.pack" ? `${key}|${packed}` : key;
 
