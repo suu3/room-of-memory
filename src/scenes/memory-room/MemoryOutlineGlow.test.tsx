@@ -1,9 +1,10 @@
 import { useThree } from "@react-three/fiber";
 import ReactThreeTestRenderer, { waitFor } from "@react-three/test-renderer";
 import { useLayoutEffect } from "react";
-import { Color, type Mesh, type Object3D, PerspectiveCamera, WebGLRenderer } from "three";
+import { Color, Mesh, type Object3D, PerspectiveCamera, WebGLRenderer } from "three";
 import { describe, expect, it } from "vitest";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { setEndingLightMesh } from "./ending-light";
 import { InteractiveMemory } from "./MemoryObjects";
 import {
   createMemoryOutlineSettings,
@@ -406,5 +407,34 @@ describe("memory outline glow", () => {
     expect(renderedMeshes.find((mesh) => mesh.name === "memory-hit-window")).toBeDefined();
 
     await renderer.unmount();
+  });
+
+  it("gives the ending god rays a pass of their own so the tilt blur includes them", async () => {
+    // 빛기둥과 틸트 시프트는 둘 다 합쳐도 되는 이펙트라 컴포저가 한 EffectPass로 묶는다.
+    // 한 패스 안에서 틸트 시프트의 블러는 빛기둥이 얹히기 전의 화면을 읽으므로, 흐려지는
+    // 위아래에는 빛기둥이 없고 또렷한 가운데 띠에만 남는다 (엔딩 문턱 화면을 가로지르던 밝은 띠).
+    setEndingLightMesh(new Mesh());
+    useMemoryRoomStore.setState({ endingStarted: true });
+
+    const renderer = await ReactThreeTestRenderer.create(<MemoryGlowRoot color="#b89a5e" />, {
+      gl: createTestWebGlRenderer,
+    });
+
+    try {
+      await waitFor(() =>
+        expect(
+          renderer.scene.findAll((node) => node.instance.name === "GodRaysEffect"),
+        ).toHaveLength(1),
+      );
+      const ownPasses = renderer.scene
+        .findAll((node) => node.instance.name === "EffectPass")
+        .map((node) => (node.instance as unknown as { effects: { name: string }[] }).effects)
+        .map((effects) => effects.map((effect) => effect.name));
+      expect(ownPasses).toContainEqual(["GodRaysEffect"]);
+    } finally {
+      await renderer.unmount();
+      setEndingLightMesh(null);
+      useMemoryRoomStore.setState({ endingStarted: false });
+    }
   });
 });

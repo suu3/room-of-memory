@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { EffectComposer, N8AO, Outline } from "@react-three/postprocessing";
+import { EffectComposer, EffectGroup, N8AO, Outline } from "@react-three/postprocessing";
 import { GodRaysEffect, KernelSize, type OutlineEffect, TiltShiftEffect } from "postprocessing";
 import {
   Component,
@@ -468,8 +468,16 @@ export function MemoryGlowRoot({
         : []),
       // 잔상은 장면 바로 다음: 뒤의 패스들이 끌린 화면 위에 얹힌다
       ...(afterimage ? [<primitive key="afterimage" object={afterimage} />] : []),
-      // 빛기둥은 광원 판을 따로 그려 합치는 이펙트라 제 패스를 혼자 쓴다
-      ...(godRays ? [<primitive key="godrays" object={godRays} />] : []),
+      // 빛기둥은 제 패스에 따로 묶는다. 그냥 두면 컴포저가 틸트 시프트와 한 EffectPass로
+      // 합치는데, 그 안에서 틸트의 블러는 빛기둥이 얹히기 전 화면을 읽는다. 흐려지는 위아래에는
+      // 빛기둥이 없고 또렷한 가운데 띠에만 남아, 문턱 화면에 밝은 가로 띠가 섰다
+      ...(godRays
+        ? [
+            <EffectGroup key="godrays">
+              <primitive object={godRays} />
+            </EffectGroup>,
+          ]
+        : []),
       // 초점 띠는 색수차보다 앞: 윤곽선·그레인은 흐려진 화면 위에 또렷하게 얹혀야 한다
       ...(tiltEnabled ? [<primitive key="tilt" object={tilt} />] : []),
       <primitive key="aberration" object={film.aberration} />,
