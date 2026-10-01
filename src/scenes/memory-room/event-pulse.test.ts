@@ -18,6 +18,14 @@ describe("subscribeEventPulse", () => {
     expect(pulses).toHaveLength(1);
   });
 
+  it("2차 수집도 같은 세기로 울린다", () => {
+    const pulses: number[] = [];
+    const unsubscribe = subscribeEventPulse((strength) => pulses.push(strength));
+    useMemoryRoomStore.setState({ revisited: [MEMORIES[0].id] });
+    expect(pulses).toEqual([EVENT_PULSE.collect]);
+    unsubscribe();
+  });
+
   it("라디오가 깨어나는 순간에만 radioWake 세기로 울린다", () => {
     const pulses: number[] = [];
     const unsubscribe = subscribeEventPulse((strength) => pulses.push(strength));

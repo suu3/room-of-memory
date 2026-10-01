@@ -70,7 +70,13 @@ export function useAudioRuntime() {
   useEffect(
     () =>
       useMemoryRoomStore.subscribe((state, previous) => {
-        if (state.collected.length > previous.collected.length) playSound("collect");
+        // 1차와 2차 수집이 같은 소리를 낸다 (화면의 튐·금빛 티끌과 같은 범위)
+        if (
+          state.collected.length > previous.collected.length ||
+          state.revisited.length > previous.revisited.length
+        ) {
+          playSound("collect");
+        }
         /*
          * 컷씬이 끝나고 방으로 돌아온 순간, 꺼져 있던 라디오가 저 혼자 깨어난다.
          * 도해가 무언가를 한 결과가 아니라 방에서 일어난 일이라, 소리도 클릭이
