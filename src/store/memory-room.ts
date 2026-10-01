@@ -901,6 +901,13 @@ const PERSIST_KEY = "rom-progress";
 const PERSIST_VERSION = 3;
 
 /**
+ * 이름이 바뀐 기억 id (옛 → 지금). 옛 저장본의 id를 그대로 두면 sanitizeProgress가
+ * 모르는 id로 버려서, 이미 조사한 기억의 진행이 사라진다.
+ */
+const RENAMED_MEMORY_IDS: Record<string, string> = { nintendo: "console" };
+const renamedMemoryId = (id: string) => RENAMED_MEMORY_IDS[id] ?? id;
+
+/**
  * 저장본을 지금 스키마에 맞춰 걸러낸다.
  *
  * 저장된 뒤에 기억 목록이 바뀌면(이름 변경·삭제) 없는 id가 남는다. 그대로 두면
@@ -916,7 +923,9 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     Array.isArray(value)
       ? Array.from(
           new Set(
-            value.filter((id): id is MemoryId => typeof id === "string" && id in MEMORY_BY_ID),
+            value
+              .map((id) => (typeof id === "string" ? renamedMemoryId(id) : id))
+              .filter((id): id is MemoryId => typeof id === "string" && id in MEMORY_BY_ID),
           ),
         )
       : [];
@@ -1004,9 +1013,12 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     notebookRead: Array.isArray(saved.notebookRead)
       ? Array.from(
           new Set(
-            (saved.notebookRead as unknown[]).filter(
-              (entry): entry is string => typeof entry === "string",
-            ),
+            (saved.notebookRead as unknown[])
+              .filter((entry): entry is string => typeof entry === "string")
+              // 수첩 기록의 키(lore:<id>@<차수>)에도 기억 id가 들어 있다
+              .map((entry) =>
+                entry.replace(/^lore:([^@]+)@/, (_, id: string) => `lore:${renamedMemoryId(id)}@`),
+              ),
           ),
         )
       : // 알림이 생기기 전의 저장본: 이미 적혀 있던 것은 읽은 것으로 본다. 이어하기 하자마자

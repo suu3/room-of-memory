@@ -245,6 +245,21 @@ describe("sanitizeProgress", () => {
   });
 });
 
+describe("이름이 바뀐 기억 id", () => {
+  it("옛 id로 저장된 진행과 수첩 기록을 지금 id로 옮긴다", () => {
+    const saved = sanitizeProgress({
+      collected: ["nintendo"],
+      notebookRead: ["lore:nintendo@1", "profile:0"],
+    });
+    expect(saved.collected).toEqual(["console"]);
+    expect(saved.notebookRead).toEqual(["lore:console@1", "profile:0"]);
+  });
+
+  it("옛 id와 지금 id가 같이 있어도 한 번만 센다", () => {
+    expect(sanitizeProgress({ collected: ["nintendo", "console"] }).collected).toEqual(["console"]);
+  });
+});
+
 describe("저장본 불러오기", () => {
   it("버전이 다른 저장본도 버리지 않고 걸러서 잇는다", async () => {
     // 2→3으로 올렸을 때 migrate가 없어 모든 저장본이 새 게임이 됐다. 걸러내는 건 sanitizeProgress의 몫이다
