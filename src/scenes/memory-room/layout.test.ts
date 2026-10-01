@@ -29,6 +29,8 @@ import {
   hitRadiusOf,
   LIVING_BOUNDS,
   LIVING_COLLIDERS,
+  LIVING_ENTRY_BOUNDS,
+  LIVING_ENTRY_SHELL,
   LIVING_KITCHEN,
   LIVING_SHELL_BOUNDS,
   MEMORY_PLACEMENTS,
@@ -48,6 +50,7 @@ import {
 import { SEATS } from "./seats";
 import { SPACES } from "./spaces";
 import { isWalkable as standsClear } from "./spatial";
+import type { Aabb2 } from "./types";
 
 const PLAYER_RADIUS = 0.38;
 const REACHABILITY_STEP = 0.05;
@@ -74,30 +77,37 @@ const isWalkableInParents = clearOf(PARENTS_COLLIDERS);
 function hasReachableInteractionPoint(id: (typeof MEMORY_IDS)[number]) {
   const placement = MEMORY_PLACEMENTS[id];
   const space = MEMORY_SPACE[id];
-  const bounds =
-    space === "living" ? LIVING_BOUNDS : space === "parents" ? PARENTS_BOUNDS : ROOM_BOUNDS;
+  // 거실은 현관 홈(LIVING_ENTRY_BOUNDS)까지 걷는다
+  const areas =
+    space === "living"
+      ? [LIVING_BOUNDS, LIVING_ENTRY_BOUNDS]
+      : space === "parents"
+        ? [PARENTS_BOUNDS]
+        : [ROOM_BOUNDS];
   const walkable =
     space === "living"
       ? isWalkableInLiving
       : space === "parents"
         ? isWalkableInParents
         : isWalkable;
-  for (
-    let x = bounds.minX + PLAYER_RADIUS;
-    x <= bounds.maxX - PLAYER_RADIUS;
-    x += REACHABILITY_STEP
-  ) {
+  for (const bounds of areas) {
     for (
-      let z = bounds.minZ + PLAYER_RADIUS;
-      z <= bounds.maxZ - PLAYER_RADIUS;
-      z += REACHABILITY_STEP
+      let x = bounds.minX + PLAYER_RADIUS;
+      x <= bounds.maxX - PLAYER_RADIUS;
+      x += REACHABILITY_STEP
     ) {
-      if (!walkable(x, z)) continue;
-      if (
-        Math.hypot(x - placement.position[0], z - placement.position[2]) <=
-        placement.interactionRadius
+      for (
+        let z = bounds.minZ + PLAYER_RADIUS;
+        z <= bounds.maxZ - PLAYER_RADIUS;
+        z += REACHABILITY_STEP
       ) {
-        return true;
+        if (!walkable(x, z)) continue;
+        if (
+          Math.hypot(x - placement.position[0], z - placement.position[2]) <=
+          placement.interactionRadius
+        ) {
+          return true;
+        }
       }
     }
   }
@@ -203,7 +213,7 @@ describe("memory-room layout", () => {
     const barrelY = bat.position[1] + Math.cos(bat.rotation[2]) * modelLength;
     // 문이 난 벽을 따라 잰 문과의 거리, 그 벽에서 떨어진 거리 (현관문은 뒷벽 -z에 있다)
     const doorGap = Math.abs(bat.position[0] - FRONT_DOOR_POSITION[0]);
-    const wallGap = bat.position[2] - LIVING_SHELL_BOUNDS.minZ;
+    const wallGap = bat.position[2] - LIVING_ENTRY_SHELL.minZ;
 
     expect(barrelY).toBeGreaterThan(0.05);
     expect(barrelY).toBeLessThan(0.25);
@@ -504,12 +514,34 @@ describe("living room layout", () => {
   const PLAYER_DIAMETER = 0.76;
 
   it("keeps every collider inside the living room shell", () => {
+    // 현관 홈까지가 거실이다. 신발장은 홈 안에서 거실 쪽으로 걸쳐 선다
+    const inside = (box: Aabb2, shell: Aabb2) =>
+      box.minX >= shell.minX &&
+      box.maxX <= shell.maxX &&
+      box.minZ >= shell.minZ &&
+      box.maxZ <= shell.maxZ;
+    const envelope = {
+      ...LIVING_SHELL_BOUNDS,
+      minZ: LIVING_ENTRY_SHELL.minZ,
+    };
     for (const box of LIVING_COLLIDERS) {
-      expect(box.minX).toBeGreaterThanOrEqual(LIVING_SHELL_BOUNDS.minX);
-      expect(box.maxX).toBeLessThanOrEqual(LIVING_SHELL_BOUNDS.maxX);
-      expect(box.minZ).toBeGreaterThanOrEqual(LIVING_SHELL_BOUNDS.minZ);
-      expect(box.maxZ).toBeLessThanOrEqual(LIVING_SHELL_BOUNDS.maxZ);
+      expect(inside(box, envelope)).toBe(true);
+      // 홈 밖의 뒷벽 너머(z < 거실 뒷벽)로는 홈 폭 안에서만 나간다
+      if (box.minZ < LIVING_SHELL_BOUNDS.minZ) {
+        expect(box.minX).toBeGreaterThanOrEqual(LIVING_ENTRY_SHELL.minX);
+        expect(box.maxX).toBeLessThanOrEqual(LIVING_ENTRY_SHELL.maxX);
+      }
     }
+  });
+
+  it("opens the entry nook into the living room wide enough to walk through", () => {
+    // 홈의 걷기 범위가 거실 걷기 범위와 플레이어 지름 이상 겹쳐야 입구에서 안 낀다
+    expect(LIVING_ENTRY_BOUNDS.maxZ - LIVING_BOUNDS.minZ).toBeGreaterThan(PLAYER_DIAMETER);
+    expect(LIVING_ENTRY_BOUNDS.maxX - LIVING_ENTRY_BOUNDS.minX).toBeGreaterThan(PLAYER_DIAMETER);
+    // 현관문은 홈 뒷벽에 난다
+    expect(FRONT_DOOR_POSITION[2]).toBeLessThan(LIVING_ENTRY_BOUNDS.minZ);
+    expect(FRONT_DOOR_POSITION[0] - 0.91).toBeGreaterThan(LIVING_ENTRY_SHELL.minX);
+    expect(FRONT_DOOR_POSITION[0] + 0.91).toBeLessThan(LIVING_ENTRY_SHELL.maxX);
   });
 
   it("leaves the doorway exit clear", () => {

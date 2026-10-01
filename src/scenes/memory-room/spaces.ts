@@ -8,6 +8,8 @@ import {
   DOORWAY_ZONE,
   LIVING_BOUNDS,
   LIVING_COLLIDERS,
+  LIVING_ENTRY_BOUNDS,
+  LIVING_ENTRY_SHELL,
   LIVING_SHELL_BOUNDS,
   OPEN_DOOR_LEAF_COLLIDERS,
   PARENTS_BOUNDS,
@@ -47,6 +49,11 @@ export interface SpaceDef {
   bounds: Aabb2;
   colliders: readonly Aabb2[];
   /**
+   * 껍데기 밖으로 파인 홈 (거실의 현관). 사각형 하나로는 꺾인 윤곽을 못 그리므로 덧붙인다.
+   * 홈의 껍데기도 이 공간이고(spaceAt), 걷기 범위는 본 범위와 겹쳐 이어진다(walkZones).
+   */
+  nooks?: readonly { shell: Aabb2; bounds: Aabb2 }[];
+  /**
    * 밝기 오프셋. 밝기는 진행도가 정하고 공간이 정하지 않는다는 원칙 위에서, 방이 아닌
    * 공간은 한 단계 어둡게 출발한다 (visual-state의 LIVING_ROOM_LIGHT_OFFSET).
    */
@@ -83,6 +90,7 @@ export const SPACES = {
     shell: LIVING_SHELL_BOUNDS,
     bounds: LIVING_BOUNDS,
     colliders: LIVING_COLLIDERS,
+    nooks: [{ shell: LIVING_ENTRY_SHELL, bounds: LIVING_ENTRY_BOUNDS }],
     lightOffset: AWAY_LIGHT_OFFSET,
     hasWindow: false,
     landing: { x: -7, z: 5.2 },
@@ -158,15 +166,27 @@ function contains(box: Aabb2, x: number, z: number): boolean {
   return x >= box.minX && x <= box.maxX && z >= box.minZ && z <= box.maxZ;
 }
 
+/** 공간의 껍데기와 홈의 껍데기. */
+function shellsOf(id: SpaceId): readonly Aabb2[] {
+  const space: SpaceDef = SPACES[id];
+  return [space.shell, ...(space.nooks ?? []).map((nook) => nook.shell)];
+}
+
+/** 공간의 걷기 범위와 홈의 걷기 범위. */
+function boundsOf(id: SpaceId): readonly Aabb2[] {
+  const space: SpaceDef = SPACES[id];
+  return [space.bounds, ...(space.nooks ?? []).map((nook) => nook.bounds)];
+}
+
 /**
  * (x, z)가 어느 공간의 껍데기 안인가. 껍데기끼리는 변만 맞닿으므로 변 위의 점은 먼저
  * 적힌 공간이 갖는다. 어느 껍데기에도 안 들면(문간을 지나는 중의 벽 두께 안) 지금
  * 공간을 유지한다: 문턱을 넘는 순간은 한 번만 바뀌어야 한다.
  */
 export function spaceAt(x: number, z: number, current: SpaceId): SpaceId {
-  if (contains(SPACES[current].shell, x, z)) return current;
+  if (shellsOf(current).some((shell) => contains(shell, x, z))) return current;
   for (const id of SPACE_IDS) {
-    if (contains(SPACES[id].shell, x, z)) return id;
+    if (shellsOf(id).some((shell) => contains(shell, x, z))) return id;
   }
   return current;
 }
@@ -203,7 +223,7 @@ export function reachableSpaces(openDoorways: readonly DoorwayId[]): SpaceId[] {
  */
 export function walkZones(openDoorways: readonly DoorwayId[]): Aabb2[] {
   const spaces = reachableSpaces(openDoorways);
-  return [...spaces.map((id) => SPACES[id].bounds), ...openDoorways.map((id) => DOORWAYS[id].zone)];
+  return [...spaces.flatMap(boundsOf), ...openDoorways.map((id) => DOORWAYS[id].zone)];
 }
 
 /** 지금 막는 것: 모든 가구와 열린 문짝. */
@@ -220,8 +240,7 @@ export function walkColliders(openDoorways: readonly DoorwayId[]): Aabb2[] {
 export function followLimits(openDoorways: readonly DoorwayId[], inset: number): Aabb2 {
   const spaces = reachableSpaces(openDoorways);
   const union = { ...SPACES[spaces[0]].bounds };
-  for (const id of spaces) {
-    const box = SPACES[id].bounds;
+  for (const box of spaces.flatMap(boundsOf)) {
     union.minX = Math.min(union.minX, box.minX);
     union.maxX = Math.max(union.maxX, box.maxX);
     union.minZ = Math.min(union.minZ, box.minZ);

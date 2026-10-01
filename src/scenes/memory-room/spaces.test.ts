@@ -7,6 +7,7 @@ import {
   reachableSpaces,
   SPACE_IDS,
   SPACES,
+  type SpaceDef,
   spaceAt,
   spaceCenter,
   walkColliders,
@@ -57,15 +58,33 @@ describe("공간 표", () => {
   });
 
   it("가구 발자국은 제 공간의 껍데기 안에 있다", () => {
+    // 홈(nooks)이 있는 공간은 껍데기와 홈을 감싼 상자 안이다
     for (const id of SPACE_IDS) {
-      const { shell, colliders } = SPACES[id];
-      for (const box of colliders) {
-        expect(box.minX, id).toBeGreaterThanOrEqual(shell.minX);
-        expect(box.maxX, id).toBeLessThanOrEqual(shell.maxX);
-        expect(box.minZ, id).toBeGreaterThanOrEqual(shell.minZ);
-        expect(box.maxZ, id).toBeLessThanOrEqual(shell.maxZ);
+      const space: SpaceDef = SPACES[id];
+      const shells = [space.shell, ...(space.nooks ?? []).map((nook) => nook.shell)];
+      const envelope = {
+        minX: Math.min(...shells.map((shell) => shell.minX)),
+        maxX: Math.max(...shells.map((shell) => shell.maxX)),
+        minZ: Math.min(...shells.map((shell) => shell.minZ)),
+        maxZ: Math.max(...shells.map((shell) => shell.maxZ)),
+      };
+      for (const box of space.colliders) {
+        expect(box.minX, id).toBeGreaterThanOrEqual(envelope.minX);
+        expect(box.maxX, id).toBeLessThanOrEqual(envelope.maxX);
+        expect(box.minZ, id).toBeGreaterThanOrEqual(envelope.minZ);
+        expect(box.maxZ, id).toBeLessThanOrEqual(envelope.maxZ);
       }
     }
+  });
+
+  it("현관 홈은 거실이고, 홈 안쪽까지 걸어 들어간다", () => {
+    const nook = SPACES.living.nooks[0];
+    const inside = { x: (nook.shell.minX + nook.shell.maxX) / 2, z: nook.shell.minZ + 1 };
+    expect(spaceAt(inside.x, inside.z, "room")).toBe("living");
+    expect(walkZones(["room-living"])).toContain(nook.bounds);
+    expect(isWalkable(-7.9, -8.4, PLAYER_RADIUS, walkZones(["room-living"]), ALL_COLLIDERS)).toBe(
+      true,
+    );
   });
 
   it("spaceAt은 껍데기로 공간을 정하고, 벽 두께 안에서는 지금 공간을 지킨다", () => {
@@ -147,6 +166,7 @@ describe("열린 문간에서 나오는 것들", () => {
     expect(walkZones(["room-living"])).toEqual([
       SPACES.room.bounds,
       SPACES.living.bounds,
+      ...SPACES.living.nooks.map((nook) => nook.bounds),
       DOORWAYS["room-living"].zone,
     ]);
   });

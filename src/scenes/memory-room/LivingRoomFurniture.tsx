@@ -366,7 +366,7 @@ function PianoBench({ palette }: { palette: RoomPalette }) {
 }
 
 /**
- * 신발장: 현관문 옆 -x 벽 (LIVING_SHOE_CABINET_AT). 문이 닫힌 낮은 장이고, 앞에 신발이 **한 켤레만** 남아 있다.
+ * 신발장: 현관 홈의 -x 벽 (LIVING_SHOE_CABINET_AT). 문이 닫힌 낮은 장이고, 앞에 신발이 **한 켤레만** 남아 있다.
  * 부모님 신발이 없다는 게 "여행 갔다"의 물증이다 (v2 기획 7장). 물증이 되려면
  * 빈 자리가 보여야 해서, 남은 한 켤레를 한쪽에 몰아 둔다.
  */
@@ -379,7 +379,7 @@ const SHOE_CABINET_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 /**
- * 냉장고: 뒷벽(-z)의 +x 구석, ㄱ자 부엌(KitchenFurniture)의 오른쪽 끝. 원래 식탁 옆 +z
+ * 냉장고: 뒷벽(-z)의 -x 구석, ㄱ자 부엌(KitchenFurniture)의 왼쪽 끝. 원래 식탁 옆 +z
  * 벽에 있었는데, 그 자리는 피아노에게 내주고 반대편 벽으로 건너왔다. 문에 자석으로 눌러 둔 메모
  * 한 장: 내용은 없다. 셋이 살던 집에 남은 살림의 흔적이면 된다.
  *
@@ -419,10 +419,10 @@ const PIANO_BENCH_PARTS = [
  * 배율은 인형 키(모델 3.17)를 1.5로 맞춘 0.474에 거실 배율을 곱한 값이다. 캐릭터(1.55)보다
  * 커야 다른 가구와 같은 비율로 "커다란 인형"으로 읽힌다. 그 크기에서 발자국은 1.22×1.04이고,
  * 살짝 튼 각(0.35)까지 치면 1.5×1.4이라 LIVING_COLLIDERS의 plush 칸이 그걸 덮는다. 튼 것은
- * 진열이 아니라 놓아둔 것으로 보이게 하는 몫이다. 자리는 키운 소파의 왼팔(x -12.29) 옆.
+ * 진열이 아니라 놓아둔 것으로 보이게 하는 몫이다. 자리는 키운 소파의 왼팔(x -12.49) 옆.
  */
 const PLUSH_PLACEMENT = {
-  position: [-13.05, 0, -0.35] as Vec3Tuple,
+  position: [-13.25, 0, -0.35] as Vec3Tuple,
   rotationY: 0.35,
   scale: 0.474 * LIVING_FURNITURE_SCALE,
 };

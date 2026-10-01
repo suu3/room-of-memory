@@ -43,17 +43,10 @@ const surfaces = {
 const source = new Group();
 source.name = "living-open-kitchen";
 
-/*
- * 부품은 냉장고가 왼쪽에 있는 판으로 적고, 놓을 때 x를 뒤집는다. 부엌은 뒷벽의 +x 구석에
- * 서서 냉장고가 오른쪽 끝, 반도가 왼쪽 끝(거실·현관 쪽)이다. 지오메트리를 음수 배율로 뒤집으면
- * 면의 감김이 뒤집혀 뒷면만 그려지므로, 자리와 각도를 뒤집어 세운다.
- */
-const MIRROR_WIDTH = 3.94;
-
 function add(geometry, surface, position, rotation = [0, 0, 0]) {
   const mesh = new Mesh(geometry, surfaces[surface]);
-  mesh.position.set(MIRROR_WIDTH - position[0], position[1], position[2]);
-  mesh.rotation.set(rotation[0], -rotation[1], -rotation[2]);
+  mesh.position.set(...position);
+  mesh.rotation.set(...rotation);
   source.add(mesh);
 }
 function box(size, position, surface, radius = 0) {
@@ -65,10 +58,10 @@ function box(size, position, surface, radius = 0) {
 }
 
 /*
- * 적는 좌표: x 0이 뒷벽 조리대의 냉장고 쪽 끝, z 0이 뒷벽 안쪽 면이다. 뒷벽을 따라 x로 3.9
- * 달리고, 반대쪽 끝에서 거실 쪽(+z)으로 꺾어 나오는 반도형 조리대가 ㄱ자를 닫는다. 놓을 때
- * x가 뒤집힌다(add). 내보낼 때 바운딩 박스 중심으로 옮기므로 배치는 layout의 LIVING_KITCHEN이
- * 그 중심을 놓는다.
+ * 로컬 좌표: x 0이 뒷벽 조리대의 왼쪽(냉장고 쪽) 끝, z 0이 뒷벽 안쪽 면이다. 뒷벽을 따라
+ * x로 3.9 달리고, 오른쪽 끝(현관 쪽)에서 거실 쪽(+z)으로 꺾어 나오는 반도형 조리대가 ㄱ자를
+ * 닫는다. 내보낼 때 바운딩 박스 중심으로 옮기므로 배치는 layout의 LIVING_KITCHEN이 그 중심을
+ * 놓는다.
  */
 const RUN = 3.9;
 const RETURN = { minX: 3.1, maxX: 3.94, maxZ: 2.6 };

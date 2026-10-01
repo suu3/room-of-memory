@@ -7,12 +7,14 @@ import { playSound } from "@/lib/audio";
 import { selectExitReady, useMemoryRoomStore } from "@/store/memory-room";
 import { CulledWall } from "./CulledWall";
 import { setEndingLightMesh } from "./ending-light";
+import { InteriorSurface } from "./InteriorPrimitives";
 import {
   BATHROOM_DOOR_POSITION,
   FRONT_DOOR_INTERACTION,
   FRONT_DOOR_INWARD,
   FRONT_DOOR_POSITION,
   FRONT_DOOR_ROTATION,
+  LIVING_ENTRY_SHELL,
   LIVING_SHARED_WALL_MIN_Z,
   LIVING_SHELL_BOUNDS,
   LIVING_SHELL_CENTER,
@@ -72,38 +74,91 @@ const PLINTH = [
 ] as const satisfies readonly ShellPart[];
 
 /*
- * 세 벽이 문 자리를 비운 조각들이다 (v3): 앞벽(+z) 너머가 화장실, -x 벽 너머가 안방,
- * 뒷벽(-z)의 +x 끝이 현관. 조각의 앞 둘이 굽도리, 나머지가 윗벽이다 (space-shell의
+ * 벽들은 문 자리를 비운 조각들이다 (v3): 앞벽(+z) 너머가 화장실, -x 벽 너머가 안방,
+ * 현관 홈의 뒷벽이 현관문. 조각의 앞 둘이 굽도리, 나머지가 윗벽이다 (space-shell의
  * endWallWithDoor·sideWallWithDoor). 안방·화장실의 문틀·문짝은 SpaceDoor가 씬 층위에서
  * 그린다: 어느 쪽에 서 있든 문은 보여야 한다.
+ *
+ * 뒷벽은 현관 홈(LIVING_ENTRY_SHELL) 폭만큼 비어 있다. 그 자리는 홈의 뒷벽이 2만큼 물러나
+ * 막고, +x 벽은 홈의 끝까지 이어진다. 거실 윤곽이 거기서 한 번 꺾인다.
  */
 const LIVING_X = { min: LIVING_SHELL_BOUNDS.minX, max: LIVING_SHELL_BOUNDS.maxX };
-const LIVING_Z = { min: LIVING_SHELL_BOUNDS.minZ, max: LIVING_SHELL_BOUNDS.maxZ };
-/*
- * 현관문 자리도 뚫어 둔다. 엔딩에 도해가 걸어서 문턱을 넘을 때(FirstPersonRig의 exit) 열린
- * 문 너머가 벽이면 나갈 데가 없다. 닫혀 있는 동안은 문짝과 문틀이 구멍을 가린다.
- */
-const BACK_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.minZ, LIVING_X, FRONT_DOOR_POSITION[0]);
+const BACK_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.minZ, {
+  min: LIVING_SHELL_BOUNDS.minX,
+  max: LIVING_ENTRY_SHELL.minX,
+});
 const FRONT_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.maxZ, LIVING_X, BATHROOM_DOOR_POSITION[0]);
-const LEFT_WALL = sideWallWithDoors(LIVING_SHELL_BOUNDS.minX, LIVING_Z, [PARENTS_DOOR_POSITION[2]]);
+const LEFT_WALL = sideWallWithDoors(
+  LIVING_SHELL_BOUNDS.minX,
+  { min: LIVING_SHELL_BOUNDS.minZ, max: LIVING_SHELL_BOUNDS.maxZ },
+  [PARENTS_DOOR_POSITION[2]],
+);
 
 /*
- * 침실과 공유하던 +x 벽은 예전 거실 깊이(z=-4)까지만 존재한다. 오픈 키친으로 늘어난
- * 뒤쪽 구간은 맞은편 방이 없으므로 거실이 직접 벽을 소유해야 허공이 드러나지 않는다.
+ * 현관 홈. 현관문 자리도 뚫어 둔다. 엔딩에 도해가 걸어서 문턱을 넘을 때(FirstPersonRig의
+ * exit) 열린 문 너머가 벽이면 나갈 데가 없다. 닫혀 있는 동안은 문짝과 문틀이 구멍을 가린다.
+ * 홈의 -x 벽은 카메라를 마주 보고 서 있고, +x 쪽은 거실의 +x 벽이 이어져 막는다.
+ */
+const ENTRY_CENTER = [
+  (LIVING_ENTRY_SHELL.minX + LIVING_ENTRY_SHELL.maxX) / 2,
+  (LIVING_ENTRY_SHELL.minZ + LIVING_ENTRY_SHELL.maxZ) / 2,
+] as const;
+const ENTRY_WIDTH = LIVING_ENTRY_SHELL.maxX - LIVING_ENTRY_SHELL.minX;
+const ENTRY_DEPTH = LIVING_ENTRY_SHELL.maxZ - LIVING_ENTRY_SHELL.minZ;
+const ENTRY_BACK_WALL = endWallWithDoor(
+  LIVING_ENTRY_SHELL.minZ,
+  { min: LIVING_ENTRY_SHELL.minX, max: LIVING_ENTRY_SHELL.maxX },
+  FRONT_DOOR_POSITION[0],
+);
+const ENTRY_LEFT_WALL = sideWallPlain(LIVING_ENTRY_SHELL.minX, {
+  min: LIVING_ENTRY_SHELL.minZ,
+  max: LIVING_ENTRY_SHELL.maxZ,
+});
+const ENTRY_FLOOR: ShellPart = {
+  size: [ENTRY_WIDTH, 0.22, ENTRY_DEPTH],
+  position: [ENTRY_CENTER[0], -0.12, ENTRY_CENTER[1]],
+};
+/*
+ * 현관 받침: 거실 받침과 같은 두 단을 홈 쪽(-x·-z·+x)으로만 내민다. 거실 받침과 겹치는 띠가
+ * 같은 높이면 윗면이 깜빡이므로 한 치 낮춘다.
+ */
+const ENTRY_PLINTH = [
+  {
+    size: [ENTRY_WIDTH + 0.5, 0.14, ENTRY_DEPTH + 0.25],
+    position: [ENTRY_CENTER[0], -0.284, ENTRY_CENTER[1] - 0.125],
+  },
+  {
+    size: [ENTRY_WIDTH + 0.14, 0.55, ENTRY_DEPTH + 0.07],
+    position: [ENTRY_CENTER[0], -0.604, ENTRY_CENTER[1] - 0.035],
+  },
+] as const satisfies readonly ShellPart[];
+/** 거실 마루와 현관 타일이 만나는 선에 놓인 낮은 문턱 (현관 턱). */
+const ENTRY_THRESHOLD: ShellPart = {
+  size: [ENTRY_WIDTH - 0.18, 0.03, 0.1],
+  position: [ENTRY_CENTER[0], 0.015, LIVING_ENTRY_SHELL.maxZ],
+};
+
+/*
+ * 침실과 공유하던 +x 벽은 예전 거실 깊이(z=-4)까지만 존재한다. 뒤로 늘어난 구간과 현관
+ * 홈은 맞은편 방이 없으므로 거실이 직접 벽을 소유해야 허공이 드러나지 않는다.
  */
 const KITCHEN_RIGHT_WALL = sideWallPlain(LIVING_SHELL_BOUNDS.maxX, {
-  min: LIVING_SHELL_BOUNDS.minZ,
+  min: LIVING_ENTRY_SHELL.minZ,
   max: LIVING_SHARED_WALL_MIN_Z,
 });
 
 const BASE_WALLS = [
-  ...BACK_WALL.slice(0, 2),
+  ...BACK_WALL.slice(0, 1),
+  ...ENTRY_BACK_WALL.slice(0, 2),
+  ENTRY_LEFT_WALL.stub,
   ...FRONT_WALL.slice(0, 2),
   ...LEFT_WALL.stubs,
   KITCHEN_RIGHT_WALL.stub,
 ] as const satisfies readonly ShellPart[];
 
-const BACK_WALL_UPPER = BACK_WALL.slice(2);
+const BACK_WALL_UPPER = BACK_WALL.slice(1);
+const ENTRY_BACK_WALL_UPPER = ENTRY_BACK_WALL.slice(2);
+const ENTRY_LEFT_WALL_UPPER = [ENTRY_LEFT_WALL.upper] as const;
 const FRONT_WALL_UPPER = FRONT_WALL.slice(2);
 const LEFT_WALL_UPPER = LEFT_WALL.uppers;
 const KITCHEN_RIGHT_WALL_UPPER = [KITCHEN_RIGHT_WALL.upper] as const;
@@ -340,6 +395,24 @@ export function LivingRoomShell({
         />
       ))}
       <ShellBox part={FLOOR} color={palette.wood} />
+      {ENTRY_PLINTH.map((part, index) => (
+        <ShellBox
+          key={part.position.join(":")}
+          part={part}
+          color={index === 0 ? palette.frame : palette.void}
+        />
+      ))}
+      <ShellBox part={ENTRY_FLOOR} color={palette.floor} />
+      {/* 현관 바닥은 마루가 아니라 타일이다: 신발을 신고 서는 자리라는 걸 바닥이 말한다 */}
+      <InteriorSurface
+        size={[ENTRY_WIDTH - 0.18, ENTRY_DEPTH - 0.09]}
+        cell={[0.42, 0.42]}
+        position={[ENTRY_CENTER[0], 0.004, ENTRY_CENTER[1] - 0.045]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        color={palette.trim}
+        shade={palette.floor}
+      />
+      <ShellBox part={ENTRY_THRESHOLD} color={palette.frame} />
 
       {BASE_WALLS.map((part) => (
         <ShellBox key={part.position.join(":")} part={part} color={palette.trim} />
@@ -365,6 +438,17 @@ export function LivingRoomShell({
       </CulledWall>
       <CulledWall side="right" center={LIVING_SHELL_CENTER} bounds={LIVING_SHELL_BOUNDS}>
         {KITCHEN_RIGHT_WALL_UPPER.map((part) => (
+          <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
+        ))}
+      </CulledWall>
+      {/* 현관 홈의 벽은 홈을 중심으로 걷는다: 거실 중심으로 재면 홈의 -x 벽이 "오른쪽"으로 잡힌다 */}
+      <CulledWall side="back" center={ENTRY_CENTER} bounds={LIVING_ENTRY_SHELL}>
+        {ENTRY_BACK_WALL_UPPER.map((part) => (
+          <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
+        ))}
+      </CulledWall>
+      <CulledWall side="left" center={ENTRY_CENTER} bounds={LIVING_ENTRY_SHELL}>
+        {ENTRY_LEFT_WALL_UPPER.map((part) => (
           <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
         ))}
       </CulledWall>

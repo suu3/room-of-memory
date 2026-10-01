@@ -95,24 +95,36 @@ export function NotebookMap() {
           className="block h-auto w-full"
         >
           <title>{t("characterSheet.mapAlt")}</title>
-          {plan.rooms.map((room) => (
-            <rect
-              key={room.id}
-              x={room.x}
-              y={room.y}
-              width={room.width}
-              height={room.height}
-              rx={0.14}
-              strokeWidth={WALL_STROKE}
-              className={
-                room.id === space ? "fill-memory/25 stroke-memory" : "fill-bone/40 stroke-ink/30"
-              }
-            />
-          ))}
+          {plan.rooms.flatMap((room) =>
+            [room, ...room.nooks].map((shape) => (
+              <rect
+                key={`${room.id}:${shape.x}:${shape.y}`}
+                x={shape.x}
+                y={shape.y}
+                width={shape.width}
+                height={shape.height}
+                rx={0.14}
+                strokeWidth={WALL_STROKE}
+                className={
+                  room.id === space ? "fill-memory/25 stroke-memory" : "fill-bone/40 stroke-ink/30"
+                }
+              />
+            )),
+          )}
           {/*
             열린 문간. 벽선을 종이색으로 지워 구멍을 낸다. 반드시 칸보다 뒤에 그려야
             위에 얹힌다 (SVG는 나중에 그린 것이 위로 온다).
           */}
+          {plan.openings.map((opening) => (
+            <rect
+              key={`${opening.x}:${opening.y}`}
+              x={opening.x}
+              y={opening.y}
+              width={opening.width}
+              height={opening.height}
+              className="fill-paper"
+            />
+          ))}
           {plan.doors.map((door) => (
             <rect
               key={door.id}

@@ -5,6 +5,7 @@ import {
   type DoorwayId,
   reachableSpaces,
   SPACES,
+  type SpaceDef,
   type SpaceId,
   spaceCenter,
 } from "@/scenes/memory-room/spaces";
@@ -31,6 +32,8 @@ export interface PlanRoom extends PlanRect {
   id: SpaceId;
   /** 이름표와 표식이 앉는 자리 (걷기 범위의 한가운데). */
   center: { x: number; y: number };
+  /** 껍데기 밖으로 파인 홈 (거실의 현관). 같은 칸이라 같은 색으로 칠한다. */
+  nooks: PlanRect[];
 }
 
 /** 열린 문간: 벽 선을 지우는 구멍이다. 벽선 양쪽을 다 덮을 만큼만 두껍다. */
@@ -43,6 +46,8 @@ export interface FloorPlan {
   viewBox: string;
   rooms: PlanRoom[];
   doors: PlanDoor[];
+  /** 칸과 홈 사이의 트인 변: 문 없이 이어지므로 문간처럼 벽선을 지운다. */
+  openings: PlanRect[];
 }
 
 /** 도형 바깥 여백 (월드 단위). 벽선이 종이 끝에 붙지 않을 만큼. */
@@ -87,8 +92,36 @@ export function floorPlan(openDoorways: readonly DoorwayId[]): FloorPlan {
 
   const rooms: PlanRoom[] = drawn.map((id) => {
     const { x, z } = spaceCenter(id);
-    return { id, ...rectOf(SPACES[id].shell), center: { x, y: z } };
+    const space: SpaceDef = SPACES[id];
+    const nooks = (space.nooks ?? []).map((nook) => rectOf(nook.shell));
+    return { id, ...rectOf(space.shell), center: { x, y: z }, nooks };
   });
+
+  const openings: PlanRect[] = [];
+  for (const id of drawn) {
+    const space: SpaceDef = SPACES[id];
+    for (const nook of space.nooks ?? []) {
+      const wall = sharedWall(space.shell, nook.shell);
+      if (!wall) continue;
+      // 트인 변의 양 끝은 벽선 반폭만큼 남긴다: 모서리까지 지우면 꺾인 윤곽이 끊긴다
+      const inset = DOOR_GAP_DEPTH / 2;
+      openings.push(
+        wall.axis === "z"
+          ? {
+              x: nook.shell.minX + inset,
+              y: wall.at - DOOR_GAP_DEPTH / 2,
+              width: nook.shell.maxX - nook.shell.minX - inset * 2,
+              height: DOOR_GAP_DEPTH,
+            }
+          : {
+              x: wall.at - DOOR_GAP_DEPTH / 2,
+              y: nook.shell.minZ + inset,
+              width: DOOR_GAP_DEPTH,
+              height: nook.shell.maxZ - nook.shell.minZ - inset * 2,
+            },
+      );
+    }
+  }
 
   const doors: PlanDoor[] = [];
   for (const id of open) {
@@ -117,10 +150,11 @@ export function floorPlan(openDoorways: readonly DoorwayId[]): FloorPlan {
     );
   }
 
-  const minX = Math.min(...rooms.map((room) => room.x)) - PLAN_PADDING;
-  const minY = Math.min(...rooms.map((room) => room.y)) - PLAN_PADDING;
-  const maxX = Math.max(...rooms.map((room) => room.x + room.width)) + PLAN_PADDING;
-  const maxY = Math.max(...rooms.map((room) => room.y + room.height)) + PLAN_PADDING;
+  const shapes = rooms.flatMap((room) => [room, ...room.nooks]);
+  const minX = Math.min(...shapes.map((shape) => shape.x)) - PLAN_PADDING;
+  const minY = Math.min(...shapes.map((shape) => shape.y)) - PLAN_PADDING;
+  const maxX = Math.max(...shapes.map((shape) => shape.x + shape.width)) + PLAN_PADDING;
+  const maxY = Math.max(...shapes.map((shape) => shape.y + shape.height)) + PLAN_PADDING;
 
-  return { viewBox: `${minX} ${minY} ${maxX - minX} ${maxY - minY}`, rooms, doors };
+  return { viewBox: `${minX} ${minY} ${maxX - minX} ${maxY - minY}`, rooms, doors, openings };
 }

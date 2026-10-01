@@ -73,7 +73,7 @@ export const ASSETS = {
      */
     rabbitDoll: "/assets/models/rabbit-doll.glb?v=light-palette-20260927",
     /** 거실 확장부의 오픈 키친. 재생성: scripts/create-living-kitchen.mjs */
-    livingKitchen: "/assets/models/living-kitchen.glb?v=l-shape-20261001",
+    livingKitchen: "/assets/models/living-kitchen.glb?v=l-shape-left-20261001",
     /** 라온생명과학연구소 RX-11 유리 바이알. 재생성: scripts/create-ampoule.mjs */
     ampoule: "/assets/models/room-laon-ampoule.glb?v=2",
   },
