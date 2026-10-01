@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowCounterClockwise } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { LabFrame } from "@/app/lab/LabFrame";
 import { MonologueExitText } from "@/components/ui/dialogue/Monologue";
@@ -68,7 +68,7 @@ export function MonologueExitLab() {
                     setLeaving(false);
                   }}
                 >
-                  <ArrowCounterClockwise size={14} weight="bold" />
+                  <ArrowCounterClockwiseIcon size={14} weight="bold" />
                   다시 세우기
                 </button>
               ) : (

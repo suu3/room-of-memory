@@ -1,6 +1,6 @@
 "use client";
 
-import { SpeakerSimpleHigh, SpeakerSimpleSlash } from "@phosphor-icons/react";
+import { SpeakerSimpleHighIcon, SpeakerSimpleSlashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound, setAudioMuted } from "@/lib/audio";
@@ -67,9 +67,9 @@ export function SoundToggle({ tone = "hud" }: { tone?: SoundToggleTone }) {
           }`}
         >
           {soundMuted ? (
-            <SpeakerSimpleSlash size="1.1em" weight="bold" aria-hidden />
+            <SpeakerSimpleSlashIcon size="1.1em" weight="bold" aria-hidden />
           ) : (
-            <SpeakerSimpleHigh size="1.1em" weight="bold" aria-hidden />
+            <SpeakerSimpleHighIcon size="1.1em" weight="bold" aria-hidden />
           )}
           {t(soundMuted ? "titleScreen.soundStateOff" : "titleScreen.soundStateOn")}
         </span>
@@ -98,9 +98,9 @@ export function SoundToggle({ tone = "hud" }: { tone?: SoundToggleTone }) {
         />
       )}
       {soundMuted ? (
-        <SpeakerSimpleSlash size="1.25em" weight="bold" />
+        <SpeakerSimpleSlashIcon size="1.25em" weight="bold" />
       ) : (
-        <SpeakerSimpleHigh size="1.25em" weight="bold" />
+        <SpeakerSimpleHighIcon size="1.25em" weight="bold" />
       )}
     </button>
   );

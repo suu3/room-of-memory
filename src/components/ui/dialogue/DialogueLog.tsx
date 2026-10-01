@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { selectHeroNameKnown, useMemoryRoomStore } from "@/store/memory-room";
@@ -92,7 +92,7 @@ export function DialogueLog() {
           aria-label={t("dialogue.logClose")}
           className={`cursor-pointer text-fog transition-colors hover:text-ivory active:text-ivory/80 ${FOCUS_RING}`}
         >
-          <X size={18} weight="bold" />
+          <XIcon size={18} weight="bold" />
         </button>
       </div>
 

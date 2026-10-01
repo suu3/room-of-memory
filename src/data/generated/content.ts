@@ -6,22 +6,22 @@
  */
 
 import {
-  Bag,
-  Baseball,
-  CalendarHeart,
-  Desktop,
-  DeviceMobile,
-  Exam,
-  FileText,
-  GameController,
-  GridFour,
-  IdentificationCard,
-  ImageSquare,
-  Note,
-  Package,
-  Radio,
-  Sneaker,
-  Syringe,
+  BagIcon,
+  BaseballIcon,
+  CalendarHeartIcon,
+  DesktopIcon,
+  DeviceMobileIcon,
+  ExamIcon,
+  FileTextIcon,
+  GameControllerIcon,
+  GridFourIcon,
+  IdentificationCardIcon,
+  ImageSquareIcon,
+  NoteIcon,
+  PackageIcon,
+  RadioIcon,
+  SneakerIcon,
+  SyringeIcon,
 } from "@phosphor-icons/react";
 import type { MemoryIcon } from "@/types/icon";
 import type { Cutscene, DialogueScript, MemoryPhaseConfig } from "@/types/interaction";
@@ -63,12 +63,12 @@ export interface MemoryItem {
 export const MEMORIES: MemoryItem[] = [
   {
     id: "report-card",
-    icon: Exam,
+    icon: ExamIcon,
     phase1: { interaction: { scriptId: "report-card-intro" } },
   },
   {
     id: "console",
-    icon: GameController,
+    icon: GameControllerIcon,
     phase1: {
       interaction: {
         scriptId: "console-intro",
@@ -82,7 +82,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "ball",
-    icon: Baseball,
+    icon: BaseballIcon,
     phase1: {
       interaction: {
         scriptId: "ball-intro",
@@ -97,7 +97,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "frame",
-    icon: ImageSquare,
+    icon: ImageSquareIcon,
     phase1: {
       interaction: {
         minigameId: "photo-wipe",
@@ -123,7 +123,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "phone",
-    icon: DeviceMobile,
+    icon: DeviceMobileIcon,
     phase1: {
       interaction: { minigameId: "phone-chat", resultScriptId: "phone-stopped" },
       unlockAfter: [
@@ -144,7 +144,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "calendar",
-    icon: CalendarHeart,
+    icon: CalendarHeartIcon,
     phase1: {
       interaction: {
         scriptId: "calendar-intro",
@@ -156,7 +156,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "window",
-    icon: GridFour,
+    icon: GridFourIcon,
     phase1: {
       interaction: { minigameId: "window-view", resultScriptId: "window-silence" },
       unlockAfter: [
@@ -168,7 +168,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "radio",
-    icon: Radio,
+    icon: RadioIcon,
     phase1: {
       interaction: { scriptId: "radio-intro", minigameId: "frequency-tune" },
       unlockAfter: [
@@ -185,23 +185,23 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "duffel",
-    icon: Bag,
+    icon: BagIcon,
     phase2: { interaction: { scriptId: "duffel-pack" }, from: "p2" },
     phase3: { interaction: { scriptId: "duffel-take" }, from: "resolve" },
   },
   {
     id: "fridge",
-    icon: Package,
+    icon: PackageIcon,
     phase2: { interaction: { scriptId: "fridge-open" }, from: "p2" },
   },
   {
     id: "shoes",
-    icon: Sneaker,
+    icon: SneakerIcon,
     phase2: { interaction: { scriptId: "shoes-open" }, from: "p2" },
   },
   {
     id: "cards",
-    icon: Note,
+    icon: NoteIcon,
     phase2: {
       interaction: {
         scriptId: "cards-intro",
@@ -213,7 +213,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "computer",
-    icon: Desktop,
+    icon: DesktopIcon,
     phase2: {
       interaction: {
         scriptId: "computer-power-on",
@@ -234,7 +234,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "ampoule",
-    icon: Syringe,
+    icon: SyringeIcon,
     phase2: {
       interaction: {
         scriptId: "ampoule-note",
@@ -254,7 +254,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "research-note",
-    icon: FileText,
+    icon: FileTextIcon,
     phase2: {
       interaction: {
         scriptId: "research-note-intro",
@@ -266,7 +266,7 @@ export const MEMORIES: MemoryItem[] = [
   },
   {
     id: "id-card",
-    icon: IdentificationCard,
+    icon: IdentificationCardIcon,
     phase2: {
       interaction: {
         scriptId: "id-card-look",

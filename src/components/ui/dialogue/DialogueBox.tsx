@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretDown, ClockCounterClockwise } from "@phosphor-icons/react";
+import { CaretDownIcon, ClockCounterClockwiseIcon } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -258,7 +258,7 @@ export function DialogueBox() {
                 aria-label={t("dialogue.logOpen")}
                 className={`pointer-events-auto -ml-1 inline-flex cursor-pointer items-center gap-[0.4em] rounded-sm px-[0.4em] py-[0.25em] text-[0.6875em] text-fog transition-colors hover:text-ivory active:text-ivory/80 ${FOCUS_RING}`}
               >
-                <ClockCounterClockwise size="1.3em" weight="bold" aria-hidden />
+                <ClockCounterClockwiseIcon size="1.3em" weight="bold" aria-hidden />
                 <span className="break-ko">{t("dialogue.log")}</span>
               </button>
               <div
@@ -267,7 +267,7 @@ export function DialogueBox() {
                   done ? "opacity-100" : "opacity-0"
                 }`}
               >
-                <CaretDown size={16} weight="fill" />
+                <CaretDownIcon size={16} weight="fill" />
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Key, MusicNote } from "@phosphor-icons/react";
+import { KeyIcon, MusicNoteIcon } from "@phosphor-icons/react";
 import type { ComponentType } from "react";
 import type { ItemId } from "@/data/items";
 
@@ -11,6 +11,6 @@ export const ITEM_ICON: Record<
   ItemId,
   ComponentType<{ size?: string | number; weight?: "bold" | "fill" }>
 > = {
-  "parents-key": Key,
-  "piano-sheet": MusicNote,
+  "parents-key": KeyIcon,
+  "piano-sheet": MusicNoteIcon,
 };

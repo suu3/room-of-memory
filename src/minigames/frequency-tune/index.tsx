@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "@phosphor-icons/react";
+import { StarIcon } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
@@ -276,7 +276,7 @@ export function FrequencyTuneMinigame({
                   key={i}
                   className={`block w-[4cqw] ${i < hits ? "text-memory" : "text-ink/20"}`}
                 >
-                  <Star size="100%" weight={i < hits ? "fill" : "regular"} />
+                  <StarIcon size="100%" weight={i < hits ? "fill" : "regular"} />
                 </span>
               ))}
             </span>

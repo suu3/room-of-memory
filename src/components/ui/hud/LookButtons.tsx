@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowClockwise, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import {
   type MutableRefObject,
   type PointerEvent as ReactPointerEvent,
@@ -97,7 +97,7 @@ export function LookButtons({
           onPointerCancel={release}
           onLostPointerCapture={release}
         >
-          <ArrowCounterClockwise size={22} weight="bold" />
+          <ArrowCounterClockwiseIcon size={22} weight="bold" />
         </button>
         <button
           type="button"
@@ -109,7 +109,7 @@ export function LookButtons({
           onPointerCancel={release}
           onLostPointerCapture={release}
         >
-          <ArrowClockwise size={22} weight="bold" />
+          <ArrowClockwiseIcon size={22} weight="bold" />
         </button>
       </div>
       {/* 무엇을 하는 버튼인지 화면 안에서 알려준다 (조이스틱의 캡션과 같은 자리) */}

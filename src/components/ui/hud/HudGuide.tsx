@@ -1,6 +1,6 @@
 "use client";
 
-import { CursorClick, HandTap, MapPin } from "@phosphor-icons/react";
+import { CursorClickIcon, HandTapIcon, MapPinIcon } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -116,7 +116,7 @@ function useHudGuide() {
         : hint(key),
     /** 1인칭에서만 붙는 조작 한 줄. 둘러보는 법은 이 구간에서 처음 필요해진다. */
     control: viewpoint !== null ? hint("scene.lookHint") : null,
-    Icon: pointer === "touch" ? HandTap : CursorClick,
+    Icon: pointer === "touch" ? HandTapIcon : CursorClickIcon,
     banner: bannerKey === goal,
     gone: endingStarted,
   };
@@ -205,7 +205,7 @@ export function HudSpaceLine() {
    */
   return (
     <>
-      <MapPin
+      <MapPinIcon
         size="1.15em"
         weight="fill"
         className="mr-[0.25em] inline-block align-[-0.2em]"

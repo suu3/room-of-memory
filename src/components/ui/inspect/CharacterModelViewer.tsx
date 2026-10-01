@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowClockwise, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -53,7 +53,7 @@ export function CharacterModelViewer() {
             aria-label={t("characterSheet.turnLeft")}
             className={TURN_BUTTON_DARK}
           >
-            <ArrowCounterClockwise size={13} weight="bold" />
+            <ArrowCounterClockwiseIcon size={13} weight="bold" />
           </button>
           <button
             type="button"
@@ -61,7 +61,7 @@ export function CharacterModelViewer() {
             aria-label={t("characterSheet.turnRight")}
             className={TURN_BUTTON_DARK}
           >
-            <ArrowClockwise size={13} weight="bold" />
+            <ArrowClockwiseIcon size={13} weight="bold" />
           </button>
         </div>
         <div className="flex flex-none gap-1">

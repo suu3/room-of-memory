@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
@@ -165,7 +165,7 @@ export function PapersOrderMinigame({ onComplete, onSettled, stage = "play" }: M
               onClick={() => complete({ cleared: true, celebrated: true })}
               className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-6 py-2 text-sm font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
             >
-              <Check size={16} weight="bold" />
+              <CheckIcon size={16} weight="bold" />
               {t("minigame.inspect.putDown")}
             </button>
           </div>

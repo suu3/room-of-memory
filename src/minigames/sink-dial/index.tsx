@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretDown, CaretUp, LockSimpleOpen } from "@phosphor-icons/react";
+import { CaretDownIcon, CaretUpIcon, LockSimpleOpenIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import {
   type PointerEvent as ReactPointerEvent,
@@ -204,7 +204,7 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
           disabled={solved}
           className="flex cursor-pointer items-center gap-1.5 rounded-full bg-ink px-6 py-2 text-sm font-bold tracking-widest text-paper transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-default disabled:opacity-60"
         >
-          <LockSimpleOpen size={16} weight="bold" />
+          <LockSimpleOpenIcon size={16} weight="bold" />
           {t("minigame.sinkDial.open")}
         </button>
       </div>
@@ -227,7 +227,7 @@ function DialButtonRow({
   onTurn: (index: number) => void;
 }) {
   const { t } = useTranslation();
-  const Icon = direction === 1 ? CaretUp : CaretDown;
+  const Icon = direction === 1 ? CaretUpIcon : CaretDownIcon;
   return (
     <div
       className="grid w-56 justify-items-center sm:w-64"

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUUpLeft, X } from "@phosphor-icons/react";
+import { ArrowUUpLeftIcon, XIcon } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -279,7 +279,7 @@ export function MinigameHost() {
       }}
       className={`absolute ${bare ? "right-4 top-4" : "right-3 top-3"} z-10 ${HUD_ICON_BUTTON_SOLID}`}
     >
-      <X size={20} weight="bold" />
+      <XIcon size={20} weight="bold" />
     </button>
   );
   return (
@@ -308,7 +308,7 @@ export function MinigameHost() {
               }}
               className={`${BUTTON_QUIET} pointer-events-auto px-4 py-2`}
             >
-              <ArrowUUpLeft size={16} weight="bold" />
+              <ArrowUUpLeftIcon size={16} weight="bold" />
               {t("minigame.back")}
             </button>
           )}

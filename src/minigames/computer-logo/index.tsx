@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, EnvelopeSimple, Paperclip, WifiSlash } from "@phosphor-icons/react";
+import { CheckIcon, EnvelopeSimpleIcon, PaperclipIcon, WifiSlashIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
@@ -188,9 +188,9 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
       <div className="w-full overflow-hidden rounded-xl border border-bone/15 bg-scene-navy shadow-panel">
         <div className="flex items-center gap-2 border-b border-bone/10 bg-scene-coal px-4 py-2 text-[0.75rem] text-bone/55">
           {screen === "mail" ? (
-            <EnvelopeSimple size={14} weight="bold" aria-hidden />
+            <EnvelopeSimpleIcon size={14} weight="bold" aria-hidden />
           ) : (
-            <WifiSlash size={14} weight="bold" aria-hidden />
+            <WifiSlashIcon size={14} weight="bold" aria-hidden />
           )}
           <span className="min-w-0 flex-1 truncate">
             {t(screen === "mail" ? "minigame.computerBrowse.mailApp" : "minigame.computerLogo.app")}
@@ -247,7 +247,7 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
             {/* 첨부: 방금 맞춘 출입증 사진. 발견을 메일 본문에 끼우지 않고 첨부 썸네일로 둔다 */}
             <footer className="flex flex-col gap-2 border-t border-bone/10 pt-3">
               <p className="flex items-center gap-1.5 text-[0.75rem] text-bone/50">
-                <Paperclip size={12} weight="bold" aria-hidden />
+                <PaperclipIcon size={12} weight="bold" aria-hidden />
                 {t("minigame.computerLogo.mail.attachment")}
               </p>
               <figure className="flex w-28 flex-col items-center gap-1.5 rounded-lg border border-memory/40 bg-scene-void/40 p-2">
@@ -275,7 +275,7 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
               onClick={() => complete({ cleared: true })}
               className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-6 py-2 text-sm font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
             >
-              <Check size={16} weight="bold" />
+              <CheckIcon size={16} weight="bold" />
               {t("minigame.computerBrowse.close")}
             </button>
           </div>

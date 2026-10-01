@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { KeyHint } from "@/components/ui/shared/Keycap";
@@ -109,7 +109,7 @@ export function MomChatMinigame({ onComplete, stage = "play" }: MinigameProps) {
             onClick={() => complete({ cleared: true })}
             className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-6 py-2 text-sm font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
-            <Check size={16} weight="bold" />
+            <CheckIcon size={16} weight="bold" />
             {t("minigame.phoneChat.close")}
           </button>
         ) : !frozen ? (

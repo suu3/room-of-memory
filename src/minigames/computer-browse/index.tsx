@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  CaretRight,
-  Check,
-  EnvelopeSimple,
-  Globe,
-  Image as ImageIcon,
-  UserCircle,
-  WifiSlash,
+  CaretRightIcon,
+  CheckIcon,
+  EnvelopeSimpleIcon,
+  GlobeIcon,
+  ImageIcon,
+  UserCircleIcon,
+  WifiSlashIcon,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -191,7 +191,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
     return () => window.removeEventListener("keydown", onKey);
   }, [screen, frozen, skipBoot, nextPage]);
 
-  const AppIcon = page.app === "mail" ? EnvelopeSimple : Globe;
+  const AppIcon = page.app === "mail" ? EnvelopeSimpleIcon : GlobeIcon;
   const bootProgress = Math.min(1, bootLine / BOOT_LINES.length);
 
   return (
@@ -250,7 +250,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                     "radial-gradient(120% 90% at 50% 18%, #ffffff 0%, var(--color-screen-glass) 40%, var(--color-screen-chrome) 72%, var(--color-screen-shade) 100%)",
                 }}
               >
-                <UserCircle size={64} weight="fill" className="text-ink/25" aria-hidden />
+                <UserCircleIcon size={64} weight="fill" className="text-ink/25" aria-hidden />
                 <p className="text-base font-bold text-ink">
                   {t("minigame.computerBrowse.account")}
                 </p>
@@ -317,7 +317,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                     </span>
                   </span>
                   <span className="flex shrink-0 items-center gap-1.5 text-[0.6875rem] font-bold text-ember">
-                    <WifiSlash size={13} weight="bold" aria-hidden />
+                    <WifiSlashIcon size={13} weight="bold" aria-hidden />
                     {t("minigame.computerBrowse.offline")}
                   </span>
                 </div>
@@ -381,7 +381,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                       className="flex cursor-pointer items-center gap-1 rounded-full px-3 py-1 text-[0.8125rem] font-bold text-ink/70 transition-colors hover:bg-ink/8 hover:text-ink"
                     >
                       {t("minigame.computerBrowse.next")}
-                      <CaretRight size={14} weight="bold" aria-hidden />
+                      <CaretRightIcon size={14} weight="bold" aria-hidden />
                     </button>
                   ) : null}
                 </div>
@@ -421,7 +421,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
               onClick={() => complete({ cleared: true })}
               className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-6 py-2 text-sm font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
             >
-              <Check size={16} weight="bold" />
+              <CheckIcon size={16} weight="bold" />
               {t("minigame.computerBrowse.close")}
             </button>
           ) : (

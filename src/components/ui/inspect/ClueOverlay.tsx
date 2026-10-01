@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretLeft, CaretRight, X } from "@phosphor-icons/react";
+import { CaretLeftIcon, CaretRightIcon, XIcon } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -144,7 +144,7 @@ export function ClueOverlay() {
           aria-label={t("clue.close")}
           className={`${BUTTON_QUIET} absolute -top-12 right-0 px-3 py-1.5`}
         >
-          <X size={14} weight="bold" />
+          <XIcon size={14} weight="bold" />
           {t("clue.close")}
         </button>
 
@@ -297,7 +297,7 @@ function WallCalendar() {
           disabled={month === FIRST_MONTH}
           className="cursor-pointer rounded-full p-1.5 text-graphite transition-colors hover:bg-ink/5 hover:text-ink disabled:cursor-default disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
-          <CaretLeft size={20} weight="bold" />
+          <CaretLeftIcon size={20} weight="bold" />
         </button>
         <p className="flex items-baseline gap-2">
           <span className="text-sm font-medium text-graphite">{CALENDAR_YEAR}</span>
@@ -312,7 +312,7 @@ function WallCalendar() {
           disabled={month === LAST_DATED_MONTH}
           className="cursor-pointer rounded-full p-1.5 text-graphite transition-colors hover:bg-ink/5 hover:text-ink disabled:cursor-default disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
         >
-          <CaretRight size={20} weight="bold" />
+          <CaretRightIcon size={20} weight="bold" />
         </button>
       </div>
       {/* 넘기는 미니게임과 같은 장 그림. 판이 넓어도 세로로 너무 길어지지 않게 폭을 묶는다 */}

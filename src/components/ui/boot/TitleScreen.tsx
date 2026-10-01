@@ -1,6 +1,6 @@
 "use client";
 
-import { Warning } from "@phosphor-icons/react";
+import { WarningIcon } from "@phosphor-icons/react";
 import {
   Fragment,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -563,7 +563,7 @@ export function TitleScreen() {
                 aria-hidden
                 className="grid size-9 flex-none place-items-center rounded-full bg-ember/20 text-ember"
               >
-                <Warning size={19} weight="fill" />
+                <WarningIcon size={19} weight="fill" />
               </span>
               <div className="min-w-0">
                 <h2

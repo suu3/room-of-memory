@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretLeft, CaretRight, Check } from "@phosphor-icons/react";
+import { CaretLeftIcon, CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
@@ -188,7 +188,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
           disabled={month === FIRST_MONTH}
           className="cursor-pointer rounded-full border border-bone/25 p-2 text-bone/70 transition-all hover:border-bone/60 hover:text-paper disabled:cursor-default disabled:opacity-20"
         >
-          <CaretLeft size={22} weight="bold" />
+          <CaretLeftIcon size={22} weight="bold" />
         </button>
 
         {/*
@@ -215,7 +215,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
           disabled={month === LAST_MONTH}
           className="cursor-pointer rounded-full border border-bone/25 p-2 text-bone/70 transition-all hover:border-bone/60 hover:text-paper disabled:cursor-default disabled:opacity-20"
         >
-          <CaretRight size={22} weight="bold" />
+          <CaretRightIcon size={22} weight="bold" />
         </button>
       </div>
 
@@ -236,7 +236,7 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
             }}
             className="flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-5 py-1.5 text-xs font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
-            <Check size={14} weight="bold" />
+            <CheckIcon size={14} weight="bold" />
             {t("minigame.calendarFlip.close")}
           </button>
         ) : null}

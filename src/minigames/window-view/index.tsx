@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { KeyHint } from "@/components/ui/shared/Keycap";
@@ -197,7 +197,7 @@ export function WindowViewMinigame({ onComplete }: MinigameProps) {
                 seen ? "border-memory/60 bg-memory/15 text-memory" : "border-bone/20 text-bone/45"
               }`}
             >
-              {seen && <Check size={12} weight="bold" aria-hidden />}
+              {seen && <CheckIcon size={12} weight="bold" aria-hidden />}
               {t(`minigame.windowView.spot.${spot.id}`)}
             </li>
           );
@@ -229,7 +229,7 @@ export function WindowViewMinigame({ onComplete }: MinigameProps) {
           onClick={close}
           className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-5 py-1.5 text-xs font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
         >
-          <Check size={14} weight="bold" />
+          <CheckIcon size={14} weight="bold" />
           {t("minigame.windowView.close")}
         </button>
       )}

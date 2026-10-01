@@ -1,15 +1,15 @@
 "use client";
 
 import {
-  ArrowClockwise,
-  ArrowCounterClockwise,
-  ArrowsOutLineVertical,
-  CaretDown,
-  CaretLeft,
-  CaretRight,
-  CaretUp,
-  MagnifyingGlassMinus,
-  MagnifyingGlassPlus,
+  ArrowClockwiseIcon,
+  ArrowCounterClockwiseIcon,
+  ArrowsOutLineVerticalIcon,
+  CaretDownIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  CaretUpIcon,
+  MagnifyingGlassMinusIcon,
+  MagnifyingGlassPlusIcon,
 } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import {
@@ -178,7 +178,7 @@ export function InspectView({
                 aria-label={t("minigame.inspect.prevPage")}
                 className={`${STAGE_ICON_BUTTON} disabled:cursor-default disabled:opacity-30`}
               >
-                <CaretLeft size={15} weight="bold" />
+                <CaretLeftIcon size={15} weight="bold" />
               </button>
               <span
                 className="min-w-10 text-center text-xs tabular-nums text-fog"
@@ -193,7 +193,7 @@ export function InspectView({
                 aria-label={t("minigame.inspect.nextPage")}
                 className={`${STAGE_ICON_BUTTON} disabled:cursor-default disabled:opacity-30`}
               >
-                <CaretRight size={15} weight="bold" />
+                <CaretRightIcon size={15} weight="bold" />
               </button>
             </>
           ) : (
@@ -204,7 +204,7 @@ export function InspectView({
                 aria-label={t("characterSheet.turnLeft")}
                 className={STAGE_ICON_BUTTON}
               >
-                <ArrowCounterClockwise size={15} weight="bold" />
+                <ArrowCounterClockwiseIcon size={15} weight="bold" />
               </button>
               <button
                 type="button"
@@ -212,7 +212,7 @@ export function InspectView({
                 aria-label={t("characterSheet.turnRight")}
                 className={STAGE_ICON_BUTTON}
               >
-                <ArrowClockwise size={15} weight="bold" />
+                <ArrowClockwiseIcon size={15} weight="bold" />
               </button>
               <span aria-hidden className="mx-1 h-4 w-px bg-line" />
               {control.kind === "tilt" ? (
@@ -226,7 +226,7 @@ export function InspectView({
                     aria-label={t("minigame.inspect.tiltBack")}
                     className={STAGE_ICON_BUTTON}
                   >
-                    <CaretUp size={15} weight="bold" />
+                    <CaretUpIcon size={15} weight="bold" />
                   </button>
                   <button
                     type="button"
@@ -236,7 +236,7 @@ export function InspectView({
                     aria-label={t("minigame.inspect.tiltForward")}
                     className={STAGE_ICON_BUTTON}
                   >
-                    <CaretDown size={15} weight="bold" />
+                    <CaretDownIcon size={15} weight="bold" />
                   </button>
                 </>
               ) : control.kind === "unfold" ? (
@@ -248,7 +248,7 @@ export function InspectView({
                   aria-label={t("minigame.inspect.unfold")}
                   className={STAGE_ICON_BUTTON}
                 >
-                  <ArrowsOutLineVertical size={15} weight="bold" />
+                  <ArrowsOutLineVerticalIcon size={15} weight="bold" />
                 </button>
               ) : (
                 <>
@@ -258,7 +258,7 @@ export function InspectView({
                     aria-label={t("clue.workbook.zoomOut")}
                     className={STAGE_ICON_BUTTON}
                   >
-                    <MagnifyingGlassMinus size={15} weight="bold" />
+                    <MagnifyingGlassMinusIcon size={15} weight="bold" />
                   </button>
                   <button
                     type="button"
@@ -266,7 +266,7 @@ export function InspectView({
                     aria-label={t("clue.workbook.zoomIn")}
                     className={STAGE_ICON_BUTTON}
                   >
-                    <MagnifyingGlassPlus size={15} weight="bold" />
+                    <MagnifyingGlassPlusIcon size={15} weight="bold" />
                   </button>
                 </>
               )}

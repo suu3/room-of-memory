@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, X } from "@phosphor-icons/react";
+import { ArrowUpRightIcon, XIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -53,7 +53,7 @@ export function ContactLinks() {
               {/* 메일 주소는 어절이 없다. 좁아지면 어디서든 접히게 두는 편이 잘린 것보다 낫다 */}
               <span className="flex min-w-0 items-center gap-2 break-ko text-right text-sm text-fog transition-colors group-hover:text-ivory">
                 {link.value}
-                <ArrowUpRight
+                <ArrowUpRightIcon
                   size={14}
                   weight="bold"
                   className="text-ash transition-colors group-hover:text-memory"
@@ -131,7 +131,7 @@ export function ContactModal() {
             aria-label={t("contact.close")}
             className={`cursor-pointer text-fog transition-colors hover:text-ivory active:text-ivory/80 ${FOCUS_RING}`}
           >
-            <X size={18} weight="bold" />
+            <XIcon size={18} weight="bold" />
           </button>
         </div>
         <div className="mt-6">

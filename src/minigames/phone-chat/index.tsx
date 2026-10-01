@@ -1,15 +1,15 @@
 "use client";
 
 import {
-  Baseball,
-  ChatCircleDots,
-  Check,
-  Flower,
-  GameController,
+  BaseballIcon,
+  ChatCircleDotsIcon,
+  CheckIcon,
+  FlowerIcon,
+  GameControllerIcon,
   type Icon,
-  Mountains,
-  PhoneDisconnect,
-  UsersThree,
+  MountainsIcon,
+  PhoneDisconnectIcon,
+  UsersThreeIcon,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -79,10 +79,10 @@ const INITIAL_REVEALED = 2;
 
 /** 프사 그림: 아이콘과 바탕색. 색은 씬 팔레트 토큰이다 (DESIGN.md). */
 const AVATAR_LOOK: Record<AvatarKind, { icon: Icon; tone: string }> = {
-  baseball: { icon: Baseball, tone: "bg-scene-sage" },
-  gamepad: { icon: GameController, tone: "bg-scene-clay" },
-  flower: { icon: Flower, tone: "bg-scene-amber" },
-  mountains: { icon: Mountains, tone: "bg-scene-leaf" },
+  baseball: { icon: BaseballIcon, tone: "bg-scene-sage" },
+  gamepad: { icon: GameControllerIcon, tone: "bg-scene-clay" },
+  flower: { icon: FlowerIcon, tone: "bg-scene-amber" },
+  mountains: { icon: MountainsIcon, tone: "bg-scene-leaf" },
 };
 
 /** 메신저 프사 한 칸. 그림이 없는 상대는 이름 첫 글자를 둔다. */
@@ -276,11 +276,11 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
         backCue={backCue}
         backLabel={t("minigame.phoneChat.list.back")}
         tabs={[
-          { id: "chat", label: t("minigame.phoneChat.tab.chat"), Icon: ChatCircleDots },
+          { id: "chat", label: t("minigame.phoneChat.tab.chat"), Icon: ChatCircleDotsIcon },
           {
             id: "calls",
             label: t("minigame.phoneChat.tab.calls"),
-            Icon: PhoneDisconnect,
+            Icon: PhoneDisconnectIcon,
             badge: seenCalls ? 0 : callTotal,
           },
         ]}
@@ -297,7 +297,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
                     className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-3 text-left transition-colors hover:bg-scene-dusk/60"
                   >
                     <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-scene-dusk text-bone/70">
-                      <UsersThree size={20} weight="fill" />
+                      <UsersThreeIcon size={20} weight="fill" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[0.875rem] font-bold text-paper">
@@ -381,7 +381,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
                   key={call.id}
                   className="flex animate-fade-rise items-center gap-3 border-b border-bone/8 px-1.5 py-3 last:border-b-0"
                 >
-                  <PhoneDisconnect
+                  <PhoneDisconnectIcon
                     size={18}
                     weight="fill"
                     className={`shrink-0 ${call.urgent ? "text-ember" : "text-scene-leaf"}`}
@@ -417,7 +417,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
             onClick={() => complete({ cleared: true })}
             className="flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-6 py-2 text-sm font-bold tracking-widest text-ink transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
-            <Check size={16} weight="bold" />
+            <CheckIcon size={16} weight="bold" />
             {t("minigame.phoneChat.close")}
           </button>
         ) : (

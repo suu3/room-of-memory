@@ -1,6 +1,6 @@
 "use client";
 
-import { Warning } from "@phosphor-icons/react";
+import { WarningIcon } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound } from "@/lib/audio";
@@ -115,7 +115,7 @@ export function HudMenu({ inline = false }: { inline?: boolean }) {
             aria-hidden
             className="grid size-9 flex-none place-items-center rounded-full bg-ember/20 text-ember"
           >
-            <Warning size={19} weight="fill" />
+            <WarningIcon size={19} weight="fill" />
           </span>
           <div className="min-w-0">
             <h2

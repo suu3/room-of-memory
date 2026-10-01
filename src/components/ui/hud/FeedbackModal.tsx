@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FEEDBACK_BODY_MAX, FEEDBACK_CATEGORIES, type FeedbackCategory } from "@/lib/feedback";
@@ -168,7 +168,7 @@ export function FeedbackModal() {
                 aria-label={t("feedback.close")}
                 className={`cursor-pointer text-fog transition-colors hover:text-ivory active:text-ivory/80 ${FOCUS_RING}`}
               >
-                <X size={18} weight="bold" />
+                <XIcon size={18} weight="bold" />
               </button>
             </div>
 

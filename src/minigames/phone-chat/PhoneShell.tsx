@@ -1,4 +1,10 @@
-import { BatteryHigh, CaretLeft, CellSignalFull, type Icon, WifiHigh } from "@phosphor-icons/react";
+import {
+  BatteryHighIcon,
+  CaretLeftIcon,
+  CellSignalFullIcon,
+  type Icon,
+  WifiHighIcon,
+} from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 
 /** 하단 탭바의 한 칸. 탭이 없는 화면(엄마 대화방 하나만 여는 폰 2차)은 탭바를 안 그린다. */
@@ -65,9 +71,9 @@ export function PhoneShell<Id extends string>({
             <span className="w-16 text-[0.75rem] font-bold tabular-nums">{clock}</span>
             <span className="w-[6.5rem]" aria-hidden />
             <span className="flex w-16 items-center justify-end gap-1" aria-hidden>
-              <CellSignalFull size={13} weight="fill" />
-              <WifiHigh size={13} weight="fill" />
-              <BatteryHigh size={15} weight="fill" />
+              <CellSignalFullIcon size={13} weight="fill" />
+              <WifiHighIcon size={13} weight="fill" />
+              <BatteryHighIcon size={15} weight="fill" />
             </span>
           </div>
 
@@ -82,7 +88,7 @@ export function PhoneShell<Id extends string>({
                   backCue ? "text-memory" : "text-bone/70"
                 }`}
               >
-                <CaretLeft size={18} weight="bold" />
+                <CaretLeftIcon size={18} weight="bold" />
                 {backCue && (
                   // 수첩 손잡이의 새 기록 점과 같은 말: 점에서 고리가 번진다. 움직임 줄이기면 점만 남는다
                   <span aria-hidden className="absolute -left-0.5 -top-0.5 size-2">
@@ -92,7 +98,12 @@ export function PhoneShell<Id extends string>({
                 )}
               </button>
             ) : (
-              <CaretLeft size={18} weight="bold" className="shrink-0 text-bone/45" aria-hidden />
+              <CaretLeftIcon
+                size={18}
+                weight="bold"
+                className="shrink-0 text-bone/45"
+                aria-hidden
+              />
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-[0.9375rem] font-bold text-paper">{title}</p>

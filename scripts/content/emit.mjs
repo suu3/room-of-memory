@@ -39,7 +39,7 @@ function emitModule(content) {
     HEADER,
     // import 순서는 Biome의 organizeImports가 정렬한 결과와 같아야 한다. 포맷터는
     // 줄바꿈만 손보지 순서는 안 고쳐서, 어긋나면 lint가 생성물을 걸고넘어진다
-    `import { ${icons.join(", ")} } from "@phosphor-icons/react";`,
+    `import { ${icons.map((icon) => `${icon}Icon`).join(", ")} } from "@phosphor-icons/react";`,
     'import type { MemoryIcon } from "@/types/icon";',
     'import type { Cutscene, DialogueScript, MemoryPhaseConfig } from "@/types/interaction";',
     "",
@@ -66,7 +66,7 @@ function emitModule(content) {
   for (const memory of memories) {
     lines.push("  {");
     lines.push(`    id: ${JSON.stringify(memory.id)},`);
-    lines.push(`    icon: ${memory.icon},`);
+    lines.push(`    icon: ${memory.icon}Icon,`);
     for (const [index, phase] of VISIT_KEYS.entries()) {
       if (!memory[phase]) continue;
       lines.push(`    ${phase}: ${phaseLiteral(memory[phase], index + 1, memories)},`);

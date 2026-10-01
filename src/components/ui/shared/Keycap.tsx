@@ -1,10 +1,10 @@
 import {
-  ArrowsVertical,
-  CursorClick,
-  HandGrabbing,
-  HandTap,
+  ArrowsVerticalIcon,
+  CursorClickIcon,
+  HandGrabbingIcon,
+  HandTapIcon,
   type Icon,
-  MouseScroll,
+  MouseScrollIcon,
 } from "@phosphor-icons/react";
 
 /**
@@ -49,10 +49,10 @@ export type KeyHintPart = { kind: "text" | "key" | "click" | "gesture"; value: s
 
 /** 제스처 캡 앞에 붙는 그림. 무엇으로 하는 조작인지가 글보다 먼저 읽힌다. */
 function gestureIcon(value: string): Icon {
-  if (/스크롤|휠|scroll|wheel|スクロール|ホイール/i.test(value)) return MouseScroll;
-  if (/swipe|スワイプ/i.test(value)) return ArrowsVertical;
-  if (/드래그|drag|ドラッグ/i.test(value)) return HandGrabbing;
-  return HandTap;
+  if (/스크롤|휠|scroll|wheel|スクロール|ホイール/i.test(value)) return MouseScrollIcon;
+  if (/swipe|スワイプ/i.test(value)) return ArrowsVerticalIcon;
+  if (/드래그|drag|ドラッグ/i.test(value)) return HandGrabbingIcon;
+  return HandTapIcon;
 }
 
 /** 안내 문구를 글과 키로 가른다. 순서를 지키고, 이어 붙이면 원문이 그대로 나온다. */
@@ -86,7 +86,7 @@ export function KeyHint({ text }: { text: string }) {
         }
         const PartIcon =
           part.kind === "click"
-            ? CursorClick
+            ? CursorClickIcon
             : part.kind === "gesture"
               ? gestureIcon(part.value)
               : null;

@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import Image from "next/image";
 import { useEffect } from "react";
@@ -184,7 +184,7 @@ export function CharacterSheetModal() {
               aria-label={t("characterSheet.close")}
               className="flex-none cursor-pointer pb-1.5 text-graphite transition-colors hover:text-ink active:text-ink/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
             >
-              <X size={18} weight="bold" />
+              <XIcon size={18} weight="bold" />
             </button>
           </div>
           <div className="h-px flex-none bg-ink/10" />

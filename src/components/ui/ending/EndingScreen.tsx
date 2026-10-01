@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  ArrowCounterClockwise,
-  ArrowRight,
-  ChatCircleText,
-  DownloadSimple,
-  Play,
+  ArrowCounterClockwiseIcon,
+  ArrowRightIcon,
+  ChatCircleTextIcon,
+  DownloadSimpleIcon,
+  PlayIcon,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -135,7 +135,7 @@ export function EndingScreen() {
       {filmVisible && blocked ? (
         <div className="absolute inset-0 flex items-center justify-center">
           <button type="button" onClick={play} className={`${BUTTON_PRIMARY} px-8 py-3`}>
-            <Play size={15} weight="fill" />
+            <PlayIcon size={15} weight="fill" />
             {t("ending.play")}
           </button>
         </div>
@@ -151,7 +151,7 @@ export function EndingScreen() {
           className={`${BUTTON_QUIET} absolute right-6 bottom-6 animate-fade-rise`}
         >
           {t("playback.skip")}
-          <ArrowRight size={15} weight="bold" />
+          <ArrowRightIcon size={15} weight="bold" />
         </button>
       ) : null}
 
@@ -179,7 +179,7 @@ export function EndingScreen() {
             <p className="break-ko text-pretty text-base text-fog">{t("ending.congrats")}</p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
               <button type="button" onClick={replay} className={`${BUTTON_QUIET} px-6 py-3`}>
-                <ArrowCounterClockwise size={15} weight="bold" />
+                <ArrowCounterClockwiseIcon size={15} weight="bold" />
                 {t("ending.replay")}
               </button>
               <a
@@ -187,12 +187,12 @@ export function EndingScreen() {
                 download="room-of-memory-thank-you.webp"
                 className={`${BUTTON_QUIET} px-6 py-3`}
               >
-                <DownloadSimple size={15} weight="bold" />
+                <DownloadSimpleIcon size={15} weight="bold" />
                 {t("ending.saveImage")}
               </a>
               <button type="button" onClick={reset} className={`${BUTTON_PRIMARY} px-8 py-3`}>
                 {t("ending.again")}
-                <ArrowRight size={15} weight="bold" />
+                <ArrowRightIcon size={15} weight="bold" />
               </button>
             </div>
             {/*
@@ -208,7 +208,7 @@ export function EndingScreen() {
               }}
               className={`${BUTTON_QUIET} px-5 py-2.5`}
             >
-              <ChatCircleText size={15} weight="bold" />
+              <ChatCircleTextIcon size={15} weight="bold" />
               {t("ending.feedback")}
             </button>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowCounterClockwise, CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import Image from "next/image";
 import { useState } from "react";
@@ -141,7 +141,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
                     aria-label={t("panel.replay", { name })}
                     className={`${BUTTON_QUIET_PAPER} mt-3 self-end px-2 py-1 text-xs`}
                   >
-                    <ArrowCounterClockwise size={11} weight="bold" />
+                    <ArrowCounterClockwiseIcon size={11} weight="bold" />
                     {t("panel.replayAction")}
                   </button>
                 )}
@@ -162,7 +162,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
           aria-label={t("panel.prevPage")}
           className={`${BUTTON_QUIET_PAPER} px-2 py-1.5`}
         >
-          <CaretLeft size={14} weight="bold" />
+          <CaretLeftIcon size={14} weight="bold" />
         </button>
         <span className="text-xs font-medium tabular-nums text-graphite" aria-live="polite">
           {page + 1} / {PAGE_COUNT}
@@ -174,7 +174,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
           aria-label={t("panel.nextPage")}
           className={`${BUTTON_QUIET_PAPER} px-2 py-1.5`}
         >
-          <CaretRight size={14} weight="bold" />
+          <CaretRightIcon size={14} weight="bold" />
         </button>
       </nav>
     </div>

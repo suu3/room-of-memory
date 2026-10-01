@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUUpLeft, X } from "@phosphor-icons/react";
+import { ArrowUUpLeftIcon, XIcon } from "@phosphor-icons/react";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
@@ -175,7 +175,7 @@ export function PuzzleHost() {
               }}
               className={`${BUTTON_QUIET} pointer-events-auto px-4 py-2`}
             >
-              <ArrowUUpLeft size={16} weight="bold" />
+              <ArrowUUpLeftIcon size={16} weight="bold" />
               {t("minigame.back")}
             </button>
           )}
@@ -203,7 +203,7 @@ export function PuzzleHost() {
                 }}
                 className={`absolute right-3 top-3 z-10 ${HUD_ICON_BUTTON_SOLID}`}
               >
-                <X size={20} weight="bold" />
+                <XIcon size={20} weight="bold" />
               </button>
             )}
             <Suspense fallback={null}>

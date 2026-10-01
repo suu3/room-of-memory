@@ -29,7 +29,8 @@ export const SPEAKERS = ["hero", "dad", "mom", "broadcast", "signal", "narrator"
 /**
  * 기억 패널 아이콘으로 쓸 수 있는 @phosphor-icons/react 이름.
  *
- * 생성기가 이 이름을 그대로 import 문으로 뽑기 때문에, 목록에 없는 이름은
+ * 생성기가 이 이름에 `Icon`을 붙여 import 문으로 뽑기 때문에 (접미사 없는 이름은
+ * deprecated다), 목록에 없는 이름은
  * 타입 에러가 아니라 친절한 검증 에러로 먼저 걸린다.
  */
 export const ICONS = [
