@@ -7,7 +7,7 @@
 
 <br>
 
-<img src="docs/screenshots/title.webp" alt="타이틀 화면" width="840">
+<img src="docs/readme/title.webp" alt="타이틀 화면" width="840">
 
 </div>
 
@@ -17,7 +17,7 @@
 
 <div align="center">
 
-<a href="docs/demo.mp4"><img src="docs/screenshots/demo.webp" alt="플레이 영상 미리보기: 불 켜기, 의자와 침대, 공 받기, 라디오, 회상 컷씬, 현관" width="840"></a>
+<a href="docs/readme/demo.mp4"><img src="docs/readme/demo.webp" alt="플레이 영상 미리보기: 불 켜기, 의자와 침대, 공 받기, 라디오, 회상 컷씬, 현관" width="840"></a>
 
 <sub>누르면 소리 있는 영상(51초)이 열립니다</sub>
 
@@ -29,24 +29,24 @@
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/room-dialogue.webp" alt="방에서 게임기를 조사하며 대사가 흐르는 장면"></td>
-<td width="50%"><img src="docs/screenshots/living-room.webp" alt="거실"></td>
+<td width="50%"><img src="docs/readme/room-dialogue.webp" alt="방에서 게임기를 조사하며 대사가 흐르는 장면"></td>
+<td width="50%"><img src="docs/readme/living-room.webp" alt="거실"></td>
 </tr>
 <tr>
 <td align="center"><sub>방</sub></td>
 <td align="center"><sub>거실</sub></td>
 </tr>
 <tr>
-<td><img src="docs/screenshots/cutscene-flashback.webp" alt="교실 책상 위 게임기 회상 컷씬"></td>
-<td><img src="docs/screenshots/cutscene-broadcast.webp" alt="체육관 대피소의 생존자 방송 컷씬"></td>
+<td><img src="docs/readme/cutscene-flashback.webp" alt="교실 책상 위 게임기 회상 컷씬"></td>
+<td><img src="docs/readme/cutscene-broadcast.webp" alt="체육관 대피소의 생존자 방송 컷씬"></td>
 </tr>
 <tr>
 <td align="center"><sub>회상</sub></td>
 <td align="center"><sub>생존자 방송</sub></td>
 </tr>
 <tr>
-<td><img src="docs/screenshots/minigame-duel.webp" alt="격투 게임 미니게임"></td>
-<td><img src="docs/screenshots/notebook.webp" alt="수첩 프로필 페이지"></td>
+<td><img src="docs/readme/minigame-duel.webp" alt="격투 게임 미니게임"></td>
+<td><img src="docs/readme/notebook.webp" alt="수첩 프로필 페이지"></td>
 </tr>
 <tr>
 <td align="center"><sub>미니게임</sub></td>
@@ -62,9 +62,9 @@
 
 <table>
 <tr>
-<td width="33%"><img src="docs/screenshots/ar-scan.webp" alt="책상 위 포토카드를 카메라로 비춘 화면"></td>
-<td width="33%"><img src="docs/screenshots/ar-summon.webp" alt="카드에서 도해가 뛰어나오는 순간"></td>
-<td width="33%"><img src="docs/screenshots/ar-bat.webp" alt="화면에 선 도해가 배트를 쥔 모습"></td>
+<td width="33%"><img src="docs/readme/ar-scan.webp" alt="책상 위 포토카드를 카메라로 비춘 화면"></td>
+<td width="33%"><img src="docs/readme/ar-summon.webp" alt="카드에서 도해가 뛰어나오는 순간"></td>
+<td width="33%"><img src="docs/readme/ar-bat.webp" alt="화면에 선 도해가 배트를 쥔 모습"></td>
 </tr>
 <tr>
 <td align="center"><sub>카드 비추기</sub></td>
@@ -149,6 +149,6 @@ YAML을 직접 여는 대신 dev 서버의 `/admin`에서 폼으로 고칩니다
 ---
 
 <div align="center">
-<img src="docs/gapyear-logo.webp" alt="경기청년 갭이어" width="200"><br>
+<img src="docs/readme/gapyear-logo.webp" alt="경기청년 갭이어" width="200"><br>
 <sub>본 게임은 경기도와 경기도미래세대재단의 <b>&lt;2026년 경기청년 갭이어 프로그램&gt;</b>의 지원을 받아 제작되었습니다.</sub>
 </div>
