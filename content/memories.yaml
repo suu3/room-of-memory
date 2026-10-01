@@ -11,7 +11,7 @@
 #   p1       방 조사. 강도 1 → 2 → 3 → 라디오(관문). 1차 조사(phase1)가 여기 산다
 #   turning  라디오 1차를 마친 뒤. 빨간 라디오 → 생존자 방송 → 방문 금빛
 #   p2       방문을 연 뒤. 거실 넷 + 컴퓨터 로그인 → 엄마 대화방
-#   p3       p2 필수 조사를 다 마치면. 앰플 → 컴퓨터 로고 매칭 → 하부장(11) → 안방 열쇠
+#   p3       p2 필수 조사를 다 마치면. 앰플 → 세면대 물 빼기(배지) → 컴퓨터 로고 고르기 → 하부장(407) → 안방 열쇠
 #   p4       안방 문을 연 뒤. 서류 셋 → 액자 2차 → 정적 비트
 #   resolve  정적 비트 뒤. 현관 배트 → 문
 #   ending   현관문을 연 순간
@@ -343,7 +343,8 @@ memories:
 
   # 컴퓨터: 1페이즈에는 꺼진 배경이다 (누르면 혼잣말 한 줄: RemarkId computer-off).
   # 2차 (2페이즈): 로그인 0812(협탁 쪽지 + 달력 동그라미) → 아빠 메일 + 캐시 뉴스(첫 보도 시각).
-  # 3차 (3페이즈): 앰플 라벨의 로고를 쫓아 다시 켠다 → 로고 매칭 → 아빠 메일 속 하부장 힌트.
+  # 3차 (3페이즈): 세면대 바닥의 출입증 배지(단서 raon-badge)에서 이름을 읽은 뒤 다시 켠다 → 라온 로고 고르기
+  #   → 아빠 메일 속 하부장 힌트. 배지를 보기 전에는 열리지 않는다 (src/data/room-clues.ts의 VISIT_AFTER_DISCOVERY).
   - id: computer
     icon: Desktop
     lore:
@@ -356,9 +357,9 @@ memories:
         en: Dad's emails and the news. It all started near a research facility, and the first report came out at 3 p.m. that day.
         ja: 父さんのメールとニュース。騒ぎは研究施設の近くで始まって、最初の報道はあの日の午後3時だった。
       phase3:
-        ko: 앰플 라벨의 로고가 아빠 메일 첨부에 있었다. 본문은 선반 정리하라는 잔소리 한 줄뿐이었다.
-        en: The logo on the ampoule label was in an attachment to Dad's email. The email itself was one line of nagging about tidying the shelf.
-        ja: アンプルのラベルのロゴが、父さんのメールの添付にあった。本文は棚を片付けろという小言が一行だけだった。
+        ko: 출입증의 라온 로고가 아빠 메일 첨부에 있었다. 본문은 선반 정리하라는 잔소리 한 줄뿐이었다.
+        en: The Raon logo from the badge was in an attachment to Dad's email. The email itself was one line of nagging about tidying the shelf.
+        ja: 入館証のラオンのロゴが、父さんのメールの添付にあった。本文は棚を片付けろという小言が一行だけだった。
     phase2:
       script: computer-power-on
       minigame: computer-browse
@@ -377,7 +378,7 @@ memories:
   #
   # 냉장고 아래칸("아래칸. RX ||" 쪽지: 두 줄은 앰플 두 개, 하나는 빈 슬롯). 보냉 케이스를 3D로 돌려 옆면의
   # 빈 슬롯을 보고, 앰플을 꺼내 돌려 라벨의 로고 조각을 본다 (ampoule-case, v4.1 6장).
-  # 로고 조각이 방 컴퓨터로 이끈다 (컴퓨터 3차).
+  # 로고 조각은 화장실 세면대의 물을 빼면 나오는 출입증 배지(이름이 적혀 있다)와 이어지고, 그 이름이 방 컴퓨터로 이끈다 (컴퓨터 3차).
   - id: ampoule
     icon: Syringe
     lore:

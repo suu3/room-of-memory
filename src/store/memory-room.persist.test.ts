@@ -22,6 +22,17 @@ function resolveSave() {
 }
 
 describe("sanitizeProgress", () => {
+  it("세면대의 물은 화장실 문이 열린 저장본에서만 빠져 있고, 배지는 물이 빠진 뒤에만 봤다", () => {
+    const base = { ...resolveSave(), sinkDrained: true, discoveries: ["raon-badge"] };
+    const bathroom = sanitizeProgress({ ...base, openedDoorways: ["living-bathroom"] });
+    expect(bathroom.sinkDrained).toBe(true);
+    expect(bathroom.discoveries).toEqual(["raon-badge"]);
+
+    const living = sanitizeProgress({ ...base, openedDoorways: [] });
+    expect(living.sinkDrained).toBe(false);
+    expect(living.discoveries).toEqual([]);
+  });
+
   it("keeps a well-formed save as-is", () => {
     expect(
       sanitizeProgress({
@@ -31,6 +42,7 @@ describe("sanitizeProgress", () => {
         doorOpened: false,
         batTaken: false,
         pianoGapSeen: false,
+        sinkDrained: false,
         solvedPuzzles: ["piano-melody"],
         discoveries: ["hero-name"],
         notebookOpened: true,
@@ -53,6 +65,7 @@ describe("sanitizeProgress", () => {
       doorOpened: false,
       batTaken: false,
       pianoGapSeen: false,
+      sinkDrained: false,
       solvedPuzzles: ["piano-melody"],
       discoveries: ["hero-name"],
       notebookOpened: true,

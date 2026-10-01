@@ -2,12 +2,15 @@
 
 import { useEffect } from "react";
 import { Vector2 } from "three";
+import { playSound } from "@/lib/audio";
+import { clueUnlocked, selectBadgeSeen, useMemoryRoomStore } from "@/store/memory-room";
 import { FaceMirror } from "./FaceMirror";
 import { InteriorBox as Box, InteriorCylinder as Cylinder } from "./InteriorPrimitives";
 import { idleFacing } from "./idle-facing";
 import { BATHROOM_COLLIDERS, BATHROOM_SHELL_BOUNDS } from "./layout";
 import { MirrorReflection } from "./MirrorReflection";
 import type { RoomPalette } from "./palette";
+import { ClueProp, TouchProp } from "./RoomClues";
 import { SinkWater } from "./SinkWater";
 import type { EulerTuple, Vec3Tuple } from "./types";
 import { useNearPlayer } from "./use-near-player";
@@ -133,6 +136,93 @@ function Toilet({ palette }: { palette: RoomPalette }) {
   );
 }
 
+/**
+ * 세면대 마개. 배수구에 꽂혀 있고 쇠줄이 수도꼭지 쪽으로 늘어져 있다. 가까이 가면 글로우가
+ * 붙고, 누르면 물이 빠진다 (store의 drainSink → SinkWater). 뽑힌 마개는 대야 가장자리에
+ * 놓인다. 다시 꽂는 일은 없다: 30일 고인 물은 한 번 빠지면 끝이다.
+ */
+function SinkPlug({ palette }: { palette: RoomPalette }) {
+  const drained = useMemoryRoomStore((state) => state.sinkDrained);
+  const drainSink = useMemoryRoomStore((state) => state.drainSink);
+  return (
+    <TouchProp
+      name="sink-plug"
+      near={SINK_NEAR}
+      radius={SINK_RADIUS}
+      enabled={!drained}
+      onPress={() => {
+        playSound("drawer");
+        drainSink();
+      }}
+    >
+      <group
+        name="sink-plug"
+        position={drained ? [0.3, 0.86, -0.12] : [0, 0.791, 0]}
+        rotation={drained ? [0, 0.6, Math.PI / 2] : [0, 0, 0]}
+      >
+        <Cylinder
+          position={[0, 0, 0]}
+          radius={0.032}
+          topRadius={0.028}
+          height={0.014}
+          color={palette.deep}
+        />
+        <Cylinder
+          position={[0, 0.014, 0]}
+          radius={0.009}
+          height={0.016}
+          color={palette.frame}
+          metalness={0.8}
+        />
+        <Box
+          position={[0, 0.02, 0.09]}
+          rotation={[0.35, 0, 0]}
+          size={[0.006, 0.006, 0.18]}
+          color={palette.frame}
+          metalness={0.8}
+          roughness={0.3}
+        />
+      </group>
+    </TouchProp>
+  );
+}
+
+/**
+ * 물 밑에 깔려 있던 아빠의 출입증 배지: 둥근 판에 끈이 달린 채 대야 바닥에 엎어져 있다.
+ * 물을 빼기 전에는 물 판이 덮어 보이지 않고 만져지지도 않는다 (store의 clueUnlocked).
+ * 빠지면 금빛으로 부르고(beckon), 누르면 확대 화면이 펼쳐진다 (ClueOverlay의 RaonBadgeZoom).
+ */
+function SinkBadge({ palette }: { palette: RoomPalette }) {
+  const unlocked = useMemoryRoomStore((state) => clueUnlocked(state, "raon-badge"));
+  const seen = useMemoryRoomStore(selectBadgeSeen);
+  return (
+    <ClueProp
+      clue="raon-badge"
+      near={SINK_NEAR}
+      radius={SINK_RADIUS}
+      enabled={unlocked}
+      beckon={unlocked && !seen}
+    >
+      <group name="raon-badge" position={[0.12, 0.774, -0.05]} rotation={[0, -0.5, 0]}>
+        <Cylinder position={[0, 0, 0]} radius={0.058} height={0.006} color={palette.linen} />
+        <mesh position={[0, 0.0035, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.036, 0.05, 24]} />
+          <meshStandardMaterial color={palette.frame} metalness={0.6} roughness={0.3} />
+        </mesh>
+        <Cylinder position={[0, 0.004, 0]} radius={0.014} height={0.002} color={palette.frame} />
+        {/* 목걸이 끈: 배지에서 대야 벽 쪽으로 늘어진다 */}
+        <Box
+          position={[-0.06, 0.004, 0.07]}
+          rotation={[0, 0.9, 0]}
+          size={[0.014, 0.004, 0.16]}
+          color={palette.deep}
+          roughness={0.7}
+        />
+      </group>
+    </ClueProp>
+  );
+}
+
 function Sink({ palette }: { palette: RoomPalette }) {
   return (
     <group name="pedestal-basin" position={SINK_MOUNT.position} rotation={SINK_MOUNT.rotation}>
@@ -191,8 +281,11 @@ function Sink({ palette }: { palette: RoomPalette }) {
         color={palette.frame}
         metalness={0.8}
       />
-      {/* 30일 고인 물. 열쇠를 집는 순간 파문 하나가 번진다 (SinkWater) */}
+      {/* 물 밑의 배지는 물보다 먼저 그린다: 물 판이 투명해지며 걷힐 때 그 아래가 보여야 한다 */}
+      <SinkBadge palette={palette} />
+      {/* 30일 고인 물. 열쇠를 집는 순간 파문 하나가 번진다. 마개를 뽑으면 빠진다 (SinkWater) */}
       <SinkWater palette={palette} />
+      <SinkPlug palette={palette} />
       <group position={[0, 0.85, 0.2]}>
         <Faucet palette={palette} />
       </group>

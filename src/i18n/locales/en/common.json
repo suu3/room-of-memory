@@ -33,6 +33,7 @@
       "next": {
         "memory": "{{space}}: examine the {{name}}",
         "doorway": "{{space}}: open the door",
+        "sink-drain": "Pull the plug in the bathroom sink and drain the water",
         "shelf-book": "Look at the upside-down book on the shelf in your room",
         "sink-dial": "Open the dial on the cabinet under the bathroom sink",
         "piano-sheet": "Pick up the torn sheet music on the desk in the Parents' Room",
@@ -409,13 +410,12 @@
     },
     "computerLogo": {
       "title": "Saved Images",
-      "help": "Pick the two logos that match the label scrap: click",
-      "help_touch": "Tap the two logos that match the label scrap",
+      "help": "Pick the logo of Raon Life Science Institute: click",
+      "help_touch": "Tap the logo of Raon Life Science Institute",
       "app": "Photos · Saved pages",
       "label": "What's left of the ampoule label",
       "wrong": "…Not this one.",
-      "more": "…I saw this one somewhere else too.",
-      "found": "The same logo in two places: the badge in Dad's photo, and the research facility gate in the news.",
+      "found": "Raon Life Science Institute. Same as the one on Dad's badge.",
       "source": {
         "hotel": "Mail attachment IMG_2183.jpg",
         "badge": "Mail attachment IMG_2190.jpg",
@@ -625,6 +625,12 @@
       "alt": "3D character in the mirror: drag to turn",
       "hint": "Drag or use the buttons to turn",
       "caption": "…I look rough."
+    },
+    "raonBadge": {
+      "title": "ID Badge",
+      "name": "Raon Life Science Institute",
+      "alt": "A round badge fished from the drained sink. A logo of a rising sun",
+      "caption": "Dad always had this around his neck. …Why is it here?"
     }
   },
   "items": {
@@ -678,6 +684,7 @@
     "parentsLocked": "Their room is locked.",
     "clockStopped": "4:20. …When did it stop?",
     "clockRunning": "…It's ticking again. Whether it's right, I can't tell.",
-    "aircon": "It's gotten cold. No reason to turn the AC on."
+    "aircon": "It's gotten cold. No reason to turn the AC on.",
+    "badgeFound": "…It was on the ampoule."
   }
 }

@@ -7,6 +7,7 @@ import {
   doorwayReady,
   hotspotStatus,
   type MemoryRoomState,
+  selectBadgeSeen,
   selectSinkHintRead,
 } from "./memory-room";
 
@@ -21,13 +22,15 @@ import {
  *   1. 지금 조사할 수 있는 기억 (페이즈를 넘기는 필수 조사가 곁가지보다 먼저, 지금 서 있는
  *      공간이 먼저, 그다음 대본 순서)
  *   2. 열 수 있는데 아직 안 연 문
- *   3. 방탈출 축의 매듭 (조사할 기억이 없을 때 막히는 자리): 선반의 거꾸로 꽂힌 책 →
- *      세면대 하부장 → (열쇠로 안방 문 = 2) → 안방 책상의 악보 조각 → 거실 피아노
+ *   3. 방탈출 축의 매듭 (조사할 기억이 없을 때 막히는 자리): 세면대의 물 빼기 → (배지 →
+ *      컴퓨터 3차 = 1) → 선반의 거꾸로 꽂힌 책 → 세면대 하부장 → (열쇠로 안방 문 = 2) →
+ *      안방 책상의 악보 조각 → 거실 피아노
  *   4. 없음: 보통 모드의 목표 줄을 그대로 쓴다
  */
 export type NextStep =
   | { kind: "memory"; memory: MemoryId; space: SpaceId }
   | { kind: "doorway"; doorway: DoorwayId; to: SpaceId }
+  | { kind: "sink-drain" }
   | { kind: "shelf-book" }
   | { kind: "sink-dial" }
   | { kind: "piano-sheet" }
@@ -48,6 +51,7 @@ type NextStepState = Pick<
   | "inventory"
   | "solvedPuzzles"
   | "space"
+  | "sinkDrained"
 >;
 
 /** 그 기억의 다음 조사가 곁가지인가. 곁가지는 페이즈를 넘기는 데 필요 없다. */
@@ -71,8 +75,18 @@ export function nextStep(state: NextStepState): NextStep | null {
   );
   if (doorway !== undefined) return { kind: "doorway", doorway, to: DOORWAYS[doorway].between[1] };
 
-  // 안방 열쇠: 아빠 메일("선반 정리 좀 해라.") → 거꾸로 꽂힌 책의 쪽지 → 세면대 하부장
+  // 안방 열쇠: 세면대의 물 → 배지 → 컴퓨터 3차(아빠 메일 "선반 정리 좀 해라.") →
+  // 거꾸로 꽂힌 책의 쪽지 → 세면대 하부장
   if (state.doorOpened && !state.inventory.includes("parents-key")) {
+    // 화장실에 들어선 뒤, 배지를 보기 전: 마개를 뽑는 것이 다음 할 일이다. 뽑은 뒤의 배지는
+    // 물건 자체가 금빛으로 부르니 따로 짚지 않는다
+    if (
+      state.openedDoorways.includes("living-bathroom") &&
+      !selectBadgeSeen(state) &&
+      !state.sinkDrained
+    ) {
+      return { kind: "sink-drain" };
+    }
     if (!selectSinkHintRead(state) && clueUnlocked(state, "shelf-book")) {
       return { kind: "shelf-book" };
     }

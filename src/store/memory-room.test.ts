@@ -809,7 +809,7 @@ describe("v4.1 추리: 캐리어 개수와 컷씬 줄", () => {
 describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  it("앰플이 먼저, 컴퓨터 3차는 앰플 뒤에 열린다", () => {
+  it("앰플이 먼저, 컴퓨터 3차는 앰플과 세면대 바닥의 배지 뒤에 열린다", () => {
     enterPhase("p3");
     expect(status("ampoule")).toBe("available");
     // 컴퓨터는 2차를 봤고 3차가 앰플을 기다린다
@@ -817,7 +817,42 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
     useMemoryRoomStore.setState({
       revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
     });
+    // 앰플 라벨의 조각만으로는 넷 중 무엇이 라온인지 모른다: 배지의 이름을 봐야 한다
+    expect(status("computer")).toBe("locked");
+    useMemoryRoomStore.getState().discover("raon-badge");
     expect(status("computer")).toBe("available");
+  });
+
+  it("세면대: 마개를 뽑으면 물이 빠지고, 그 뒤에야 바닥의 배지가 집힌다", () => {
+    enterPhase("p3");
+    useMemoryRoomStore.setState({ openedDoorways: ["living-bathroom"] });
+    expect(clueUnlocked(useMemoryRoomStore.getState(), "raon-badge")).toBe(false);
+    useMemoryRoomStore.getState().openClue("raon-badge");
+    expect(useMemoryRoomStore.getState().activeClue).toBeNull();
+
+    useMemoryRoomStore.getState().drainSink();
+    expect(useMemoryRoomStore.getState().sinkDrained).toBe(true);
+    expect(clueUnlocked(useMemoryRoomStore.getState(), "raon-badge")).toBe(true);
+
+    // 펼치는 순간이 발견이고, 내려놓으면 한 줄이 흐른다
+    useMemoryRoomStore.getState().openClue("raon-badge");
+    expect(useMemoryRoomStore.getState().activeClue).toBe("raon-badge");
+    expect(useMemoryRoomStore.getState().discoveries).toContain("raon-badge");
+    useMemoryRoomStore.getState().closeClue();
+    expect(useMemoryRoomStore.getState().activeClue).toBeNull();
+    expect(useMemoryRoomStore.getState().remark?.id).toBe("badge-found");
+  });
+
+  it("마개는 다른 화면이 떠 있는 동안에는 뽑히지 않고, 새 게임이면 물이 다시 고인다", () => {
+    enterPhase("p3");
+    useMemoryRoomStore.getState().beginInteraction("ampoule");
+    useMemoryRoomStore.getState().drainSink();
+    expect(useMemoryRoomStore.getState().sinkDrained).toBe(false);
+    useMemoryRoomStore.setState({ activeInteraction: null });
+    useMemoryRoomStore.getState().drainSink();
+    expect(useMemoryRoomStore.getState().sinkDrained).toBe(true);
+    useMemoryRoomStore.getState().reset();
+    expect(useMemoryRoomStore.getState().sinkDrained).toBe(false);
   });
 
   it("앰플은 대사 → 집기 → 결과 대사 순이고, 작별의 회상은 없다", () => {

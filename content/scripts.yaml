@@ -448,16 +448,16 @@ scripts:
   computer-logo-intro:
     - speaker: hero
       expression: puzzled
-      ko: 그 로고. 아빠 메일에서 본 것 같은데.
-      en: That logo. I think I saw it in Dad's email.
-      ja: あのロゴ。父さんのメールで見た気がする。
+      ko: 라온생명과학연구소. 아빠 메일에 그 로고가 있었던 것 같은데.
+      en: Raon Life Science Institute. I think that logo was in one of Dad's emails.
+      ja: ラオン生命科学研究所。父さんのメールにあのロゴがあった気がする。
 
-  # 로고를 맞춘 뒤: 아빠 메일 속 하부장 힌트
+  # 로고를 고른 뒤: 아빠 메일 속 하부장 힌트
   computer-logo-found:
     - speaker: hero
-      ko: 라온생명과학연구소. …첨부에 있던 거랑 같아.
-      en: Raon Life Science Institute. …Same as the one in the attachment.
-      ja: ラオン生命科学研究所。…添付にあったのと同じだ。
+      ko: 라온생명과학연구소. 아빠 출입증에 있던 거랑 같아.
+      en: Raon Life Science Institute. Same as the one on Dad's badge.
+      ja: ラオン生命科学研究所。父さんの入館証にあったのと同じだ。
     - speaker: dad
       ko: 선반 정리 좀 해라.
       en: Tidy up the shelves a bit, will you?

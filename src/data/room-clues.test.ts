@@ -11,6 +11,7 @@ import {
   COMPUTER_PASSCODE_LENGTH,
   DISCOVERY_IDS,
   NATIONALS_DATE,
+  VISIT_AFTER_DISCOVERY,
 } from "./room-clues";
 
 const LOCALES = { ko, en, ja };
@@ -62,6 +63,10 @@ describe("컴퓨터 비밀번호 단서", () => {
       "workbook.zoomIn",
       "workbook.zoomOut",
       "workbook.caption",
+      "raonBadge.title",
+      "raonBadge.name",
+      "raonBadge.alt",
+      "raonBadge.caption",
     ];
 
     for (const [locale, resource] of Object.entries(LOCALES)) {
@@ -103,6 +108,24 @@ describe("컴퓨터 비밀번호 단서", () => {
       expect(DISCOVERY_IDS).toContain(discovery);
     }
     expect(CLUE_DISCOVERY.workbook).toBe("hero-name");
+  });
+
+  it("세면대 바닥의 배지: 물을 빼면 나오는 단서이고, 컴퓨터 3차가 그 뒤에 열린다", () => {
+    expect(CLUE_IDS).toContain("raon-badge");
+    expect(CLUE_DISCOVERY["raon-badge"]).toBe("raon-badge");
+    expect(VISIT_AFTER_DISCOVERY.computer).toEqual({ visit: 3, discovery: "raon-badge" });
+    for (const { discovery } of Object.values(VISIT_AFTER_DISCOVERY)) {
+      expect(DISCOVERY_IDS).toContain(discovery);
+    }
+    // 배지에 적힌 이름이 로고 고르기의 답이다: 셋 다 같은 이름을 쓴다
+    for (const [locale, resource] of Object.entries(LOCALES)) {
+      expect(resource.clue.raonBadge.name, locale).toContain(
+        locale === "ko" ? "라온" : locale === "en" ? "Raon" : "ラオン",
+      );
+      expect(resource.minigame.computerLogo.help, locale).toContain(
+        locale === "ko" ? "라온" : locale === "en" ? "Raon" : "ラオン",
+      );
+    }
   });
 
   it("이름을 알기 전의 화자 이름표가 ko/en/ja 셋 다 있다", () => {

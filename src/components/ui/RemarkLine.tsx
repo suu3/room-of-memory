@@ -33,6 +33,7 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen" | "needs-item">, CommonTextKe
   "clock-running": "remark.clockRunning",
   aircon: "remark.aircon",
   locked: "remark.locked",
+  "badge-found": "remark.badgeFound",
 };
 
 /**

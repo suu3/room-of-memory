@@ -2,6 +2,7 @@
 
 import { CaretLeft, CaretRight, X } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { InspectCapture } from "@/components/canvas/InspectTurntable";
@@ -34,6 +35,7 @@ const CLUE_TEXT = {
   "shelf-book": { title: "clue.shelfBook.title", caption: "clue.shelfBook.caption" },
   workbook: { title: "clue.workbook.title", caption: "clue.workbook.caption" },
   mirror: { title: "clue.mirror.title", caption: "clue.mirror.caption" },
+  "raon-badge": { title: "clue.raonBadge.title", caption: "clue.raonBadge.caption" },
 } as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
 
 /** 놀이책의 펼쳐진 쪽에 적힌 줄: 트럼프 항목의 앞부분만 보인다. */
@@ -114,7 +116,12 @@ export function ClueOverlay() {
   const { title: titleKey, caption: captionKey } = CLUE_TEXT[clue];
   const isNote = clue === "drawer-note";
   // 종이(쪽지·책)와 들고 돌리는 물건(문제집)·거울은 좁게, 격자를 그리는 것(달력)은 넓게 편다
-  const narrow = isNote || clue === "shelf-book" || clue === "workbook" || clue === "mirror";
+  const narrow =
+    isNote ||
+    clue === "shelf-book" ||
+    clue === "workbook" ||
+    clue === "mirror" ||
+    clue === "raon-badge";
 
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center overflow-hidden p-4">
@@ -150,6 +157,8 @@ export function ClueOverlay() {
         ) : clue === "mirror" ? (
           /* 거울 속의 자기: 종이가 아니라 어두운 유리라 종이 판(PANEL_PAPER)을 두르지 않는다 */
           <CharacterModelViewer />
+        ) : clue === "raon-badge" ? (
+          <RaonBadgeZoom />
         ) : (
           <WallCalendar />
         )}
@@ -220,6 +229,38 @@ function ShelfBookInspect() {
       hint={t("clue.shelfBook.hint")}
       onFound={onFound}
     />
+  );
+}
+
+/**
+ * 세면대 바닥에서 건진 출입증 배지의 확대 화면.
+ *
+ * 뒤집을 면도 넘길 장도 없다. 물을 빼는 손이 이미 뒤집기였고, 여기서 보여줄 것은 로고와
+ * 그 아래 적힌 이름 하나다. 로고는 앰플 라벨·컴퓨터의 저장된 그림과 같은 그림 파일
+ * (ui-raon-logo.svg)이라, 컴퓨터 3차에서 넷 중 이것을 고를 수 있게 된다. 발견(discoveries)은
+ * 펼치는 순간 스토어가 적고, 내려놓으면 한 줄이 흐른다 (store의 openClue · closeClue).
+ */
+function RaonBadgeZoom() {
+  const { t } = useTranslation();
+  return (
+    <div className={`flex flex-col items-center gap-5 px-6 py-8 sm:py-10 ${PANEL_PAPER}`}>
+      {/* 목걸이 끈: 배지가 줄에 달려 있던 물건이라는 것만 말한다 */}
+      <div aria-hidden className="h-10 w-3 rounded-b-sm bg-ink/70" />
+      <div className="flex size-44 items-center justify-center rounded-full border-4 border-ink/15 bg-paper shadow-panel sm:size-52">
+        {/* SVG는 최적화 파이프라인을 안 탄다 (next/image의 svg 금지): 그대로 내려 그린다 */}
+        <Image
+          src={ASSETS.images.raonLogo}
+          alt={t("clue.raonBadge.alt")}
+          width={256}
+          height={256}
+          unoptimized
+          className="size-3/4"
+        />
+      </div>
+      <p className="break-ko text-center text-lg font-bold tracking-[0.12em] text-ink">
+        {t("clue.raonBadge.name")}
+      </p>
+    </div>
   );
 }
 

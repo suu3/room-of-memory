@@ -19,17 +19,17 @@ describe("ComputerLogoMinigame", () => {
     vi.useRealTimers();
   });
 
-  it("같은 로고 하나로는 안 넘어가고, 둘 다 골라야 메일이 열린다", () => {
+  it("틀린 그림은 붉게 떴다 돌아오고, 라온 로고를 고르면 메일이 열린다", () => {
     render(<ComputerLogoMinigame onComplete={() => {}} />);
 
-    fireEvent.click(tile(/IMG_2190/));
+    fireEvent.click(tile(/gate/i));
     act(() => {
       vi.advanceTimersByTime(2000);
     });
     expect(screen.queryByText("Tidy up your shelf.")).toBeNull();
-    expect(tile(/IMG_2190/)).toHaveProperty("disabled", true);
+    expect(tile(/gate/i)).toHaveProperty("disabled", false);
 
-    fireEvent.click(tile(/gate/i));
+    fireEvent.click(tile(/IMG_2190/));
     act(() => {
       vi.advanceTimersByTime(2000);
     });

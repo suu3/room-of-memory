@@ -2,7 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
-import { Color, type ShaderMaterial, Vector2 } from "three";
+import { Color, MathUtils, type Mesh, type ShaderMaterial, Vector2 } from "three";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import type { RoomPalette } from "./palette";
@@ -21,6 +21,9 @@ import { RIPPLE, rippleAlive, rippleAmplitude, rippleWavefront } from "./water-r
  *
  * 값은 water-ripple.ts의 순수 함수가 정하고, useFrame은 그 값을 uniform에 옮기기만 한다.
  * setState는 없다 (.claude/rules/r3f.md).
+ *
+ * 마개를 뽑으면(store의 sinkDrained) 물이 몇 초에 걸쳐 배수구 쪽으로 쪼그라들며 빠지고,
+ * 그 밑에 깔려 있던 출입증 배지가 드러난다 (BathroomFixtures의 Sink). 빠진 물은 다시 차지 않는다.
  */
 
 /** 물 판의 크기(m). 대야 바닥판(0.45×0.29)보다 한 치수 작게, 테두리 밑으로 들어간다. */
@@ -35,6 +38,13 @@ const WATER_Y = 0.786;
 const WATER_SHADE = 0.78;
 /** 파문이 바닥 그림을 미는 최대 거리(uv). 진폭 1에서 배수구 테가 한 폭쯤 흔들린다. */
 const REFRACT_SCALE = 0.028;
+/**
+ * 물이 빠지는 속도(damp lambda). 1에서 0까지 3초 남짓: 마개를 뽑고 지켜볼 만큼은 걸리고,
+ * 기다리다 지칠 만큼은 아니다.
+ */
+const DRAIN_LAMBDA = 1.3;
+/** 이 밑으로 내려가면 물은 없는 셈이다: 판을 숨기고 셰이더도 쉰다. */
+const DRY_LEVEL = 0.004;
 
 const VERTEX_SHADER = /* glsl */ `
   varying vec2 vUv;
@@ -52,6 +62,7 @@ const FRAGMENT_SHADER = /* glsl */ `
   uniform vec2 uAspect;       // 판의 가로세로 비: uv를 둥글게 재기 위해 (1, 짧은변/긴변)
   uniform vec3 uColor;        // 물 아래 바닥색
   uniform vec3 uHighlight;    // 하이라이트 빛깔
+  uniform float uLevel;       // 남은 물 (1 가득, 0 없음). 가장자리부터 배수구 쪽으로 걷힌다
   varying vec2 vUv;
 
   // 대야 바닥의 그림: 가운데 배수구. 어두운 원판 위에 얇은 밝은 테. 테두리로 갈수록
@@ -94,7 +105,13 @@ const FRAGMENT_SHADER = /* glsl */ `
     float streak = exp(-sq((p.x * 0.55 + p.y - 0.1) * 5.5));
     float sheen = streak * (0.06 + 0.22 * spec) + 0.05 * spec * abs(slope) * 6.0;
 
-    gl_FragColor = vec4(base + uHighlight * sheen, 1.0);
+    // 빠지는 물: 가장자리부터 물러나 배수구 둘레만 남다가 사라진다. 물가는 조금 흐리게
+    float shore = mix(0.02, 0.55, uLevel);
+    float alpha = 1.0 - smoothstep(shore - 0.03, shore + 0.01, dist);
+    alpha *= smoothstep(0.0, 0.08, uLevel);
+    if (alpha < 0.003) discard;
+
+    gl_FragColor = vec4(base + uHighlight * sheen, alpha);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
@@ -132,6 +149,10 @@ export function SinkWater({
   const budget = useEffectEnabled("cheap");
   const animate = enabled ?? budget;
   const materialRef = useRef<ShaderMaterial>(null);
+  const meshRef = useRef<Mesh>(null);
+  /** 남은 물(0~1). 스토어의 sinkDrained를 향해 프레임마다 damp한다. 저장본에서 돌아오면 바로 0 */
+  const levelRef = useRef(useMemoryRoomStore.getState().sinkDrained ? 0 : 1);
+  const drainedRef = useRef(useMemoryRoomStore.getState().sinkDrained);
   /** 다음 useFrame에서 uImpactAt을 찍어야 하는가. 스토어와 impactKey 둘 다 여기로 모인다. */
   const pendingRef = useRef(false);
   const intensityRef = useRef(intensity);
@@ -150,6 +171,7 @@ export function SinkWater({
       uAspect: { value: new Vector2(1, WATER_SIZE[1] / WATER_SIZE[0]) },
       uColor: { value: shadedTrim(palette) },
       uHighlight: { value: new Color(palette.linen) },
+      uLevel: { value: levelRef.current },
     }),
     [],
   );
@@ -162,7 +184,8 @@ export function SinkWater({
   }, [stillColor, palette.linen]);
 
   // 열쇠가 인벤토리에 드는 순간이 손이 물을 스치는 순간이다. 시각은 다음 프레임의
-  // clock에서 찍는다: 여기서는 언제가 "지금"인지 모른다
+  // clock에서 찍는다: 여기서는 언제가 "지금"인지 모른다.
+  // 마개를 뽑는 순간도 같은 길로 듣는다: 리렌더 없이 ref만 바꾸고 useFrame이 따라간다
   useEffect(
     () =>
       useMemoryRoomStore.subscribe((state, previous) => {
@@ -172,6 +195,9 @@ export function SinkWater({
         ) {
           pendingRef.current = true;
         }
+        drainedRef.current = state.sinkDrained;
+        // 새 게임(reset)이면 물이 다시 고인다
+        if (!state.sinkDrained && previous.sinkDrained) levelRef.current = 1;
       }),
     [],
   );
@@ -184,10 +210,20 @@ export function SinkWater({
     pendingRef.current = true;
   }, [impactKey]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
+    // 물의 양: 마개를 뽑으면 0으로 잦아든다. 폴백 판은 배수구 쪽으로 쪼그라드는 것으로 대신한다
+    const level = MathUtils.damp(levelRef.current, drainedRef.current ? 0 : 1, DRAIN_LAMBDA, delta);
+    levelRef.current = level;
+    const mesh = meshRef.current;
+    if (mesh) {
+      mesh.visible = level > DRY_LEVEL;
+      if (!animate) mesh.scale.setScalar(Math.max(level, DRY_LEVEL));
+    }
     const material = materialRef.current;
     if (!material) return;
     const uniforms = material.uniforms;
+    uniforms.uLevel.value = level;
+    if (level <= DRY_LEVEL) return;
     const now = state.clock.elapsedTime;
     uniforms.uTime.value = now;
     if (pendingRef.current) {
@@ -208,7 +244,12 @@ export function SinkWater({
   if (!animate) {
     // 폴백: 같은 자리에 같은 어둡기의 잔잔한 물. 파문만 없다
     return (
-      <mesh position={[0, WATER_Y, 0]} rotation={[-Math.PI / 2, 0, 0]} name="basin-water">
+      <mesh
+        ref={meshRef}
+        position={[0, WATER_Y, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        name="basin-water"
+      >
         <planeGeometry args={[WATER_SIZE[0], WATER_SIZE[1]]} />
         <meshStandardMaterial color={stillColor} roughness={0.15} />
       </mesh>
@@ -216,13 +257,21 @@ export function SinkWater({
   }
 
   return (
-    <mesh position={[0, WATER_Y, 0]} rotation={[-Math.PI / 2, 0, 0]} name="basin-water">
+    <mesh
+      ref={meshRef}
+      position={[0, WATER_Y, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
+      name="basin-water"
+    >
       <planeGeometry args={[WATER_SIZE[0], WATER_SIZE[1]]} />
+      {/* 물가가 걷히는 동안만 투명이 필요하다. 깊이는 쓰지 않는다: 밑의 배지와 z-fight하지 않게 */}
       <shaderMaterial
         ref={materialRef}
         uniforms={initialUniforms}
         vertexShader={VERTEX_SHADER}
         fragmentShader={FRAGMENT_SHADER}
+        transparent
+        depthWrite={false}
       />
     </mesh>
   );

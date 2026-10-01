@@ -39,6 +39,7 @@ export function AdminPanel() {
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
   const currentPhase = useMemoryRoomStore(storyPhaseOf);
   const batTaken = useMemoryRoomStore((state) => state.batTaken);
+  const sinkDrained = useMemoryRoomStore((state) => state.sinkDrained);
   const solvedPuzzles = useMemoryRoomStore((state) => state.solvedPuzzles);
   const discoveries = useMemoryRoomStore((state) => state.discoveries);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
@@ -176,6 +177,16 @@ export function AdminPanel() {
               onChange={(event) => applyAdminPatch({ batTaken: event.target.checked })}
             />
             bat
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              aria-label="sinkDrained"
+              checked={sinkDrained}
+              onChange={(event) => applyAdminPatch({ sinkDrained: event.target.checked })}
+            />
+            sink drained
           </label>
 
           {PUZZLE_IDS.map((id) => (

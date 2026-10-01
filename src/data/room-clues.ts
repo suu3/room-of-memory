@@ -60,6 +60,10 @@ export const SINK_DIAL_CODE = "407";
  *
  * 안방 책상 위 서류는 v4에서 단서가 아니라 기억(research-note · id-card)이
  * 됐다. 4페이즈의 필수 조사라 대사와 기록이 남는다 (content/memories.yaml).
+ *
+ * raon-badge는 화장실 세면대의 고인 물을 빼면 대야 바닥에 드러나는 아빠의 출입증 배지다.
+ * 누르면 확대 화면에 로고와 "라온생명과학연구소"가 뜨고, 내려놓는 순간 한 줄이 흐른다.
+ * 컴퓨터 3차(로고 고르기)가 이것을 본 뒤에 열린다 (VISIT_AFTER_DISCOVERY).
  */
 export const CLUE_IDS = [
   "drawer-note",
@@ -67,6 +71,7 @@ export const CLUE_IDS = [
   "shelf-book",
   "workbook",
   "mirror",
+  "raon-badge",
 ] as const;
 export type ClueId = (typeof CLUE_IDS)[number];
 
@@ -81,7 +86,7 @@ export type ClueId = (typeof CLUE_IDS)[number];
  * 이름을 알기 전까지 수첩의 이름 칸과 나이 칸은 흐리고, 대사창의 화자는 "나"다.
  * 저장된다 (store의 discoveries).
  */
-export const DISCOVERY_IDS = ["hero-name", "sink-code"] as const;
+export const DISCOVERY_IDS = ["hero-name", "sink-code", "raon-badge"] as const;
 export type DiscoveryId = (typeof DISCOVERY_IDS)[number];
 
 /**
@@ -100,6 +105,7 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
   "wall-calendar": "room",
   "shelf-book": "room",
   workbook: "room",
+  "raon-badge": "bathroom",
 };
 
 /**
@@ -108,11 +114,24 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
  * "뒤집으면 보인다" (v4.1 2장): 1페이즈 문제집 뒤표지의 이름, 3페이즈 거꾸로 꽂힌 책
  * 속 쪽지의 번호(sink-code = 하부장 번호, v4.1의 dadHintRead). 같은 조작이 페이즈를
  * 따라 의미가 커진다.
+ *
+ * 배지는 뒤집을 것이 없다. 물을 빼는 손이 이미 "뒤집기"라, 확대 화면을 펼치는 순간이 발견이다
+ * (store의 openClue).
  */
 export const CLUE_DISCOVERY = {
   workbook: "hero-name",
   "shelf-book": "sink-code",
+  "raon-badge": "raon-badge",
 } as const satisfies Partial<Record<ClueId, DiscoveryId>>;
+
+/**
+ * 방에서 알게 된 것이 있어야 열리는 조사 차수. 컴퓨터 3차(라온 로고 고르기)는 세면대 바닥의
+ * 출입증 배지를 본 뒤에 연다: 그 전에는 로고를 "골라야 할 이유"가 없다. 앰플 라벨의 조각만
+ * 보고 컴퓨터를 켜면 넷 중 무엇이 라온인지 알 길이 없다 (store의 hotspotStatus).
+ */
+export const VISIT_AFTER_DISCOVERY = {
+  computer: { visit: 3, discovery: "raon-badge" },
+} as const satisfies Record<string, { visit: 1 | 2 | 3; discovery: DiscoveryId }>;
 
 /**
  * 조사를 마쳐야 비로소 만질 수 있게 되는 단서. 거꾸로 꽂힌 책은 아빠 메일("선반 정리

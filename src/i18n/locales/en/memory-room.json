@@ -253,10 +253,10 @@
       "line1": "Mom and Dad left this behind. I'm taking it with me."
     },
     "computer-logo-intro": {
-      "line1": "That logo. I think I saw it in Dad's email."
+      "line1": "Raon Life Science Institute. I think that logo was in one of Dad's emails."
     },
     "computer-logo-found": {
-      "line1": "Raon Life Science Institute. …Same as the one in the attachment.",
+      "line1": "Raon Life Science Institute. Same as the one on Dad's badge.",
       "line2": "Tidy up the shelves a bit, will you?",
       "line3": "…The shelves?"
     },
@@ -336,7 +336,7 @@
     "computer": {
       "title": "What Was Saved",
       "phase2": "Dad's emails and the news. It all started near a research facility, and the first report came out at 3 p.m. that day.",
-      "phase3": "The logo on the ampoule label was in an attachment to Dad's email. The email itself was one line of nagging about tidying the shelf."
+      "phase3": "The Raon logo from the badge was in an attachment to Dad's email. The email itself was one line of nagging about tidying the shelf."
     },
     "ampoule": {
       "title": "An Unmarked Ampoule",
