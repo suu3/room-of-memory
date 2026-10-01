@@ -18,7 +18,7 @@
 | `cool` / `warm` | 차가운 간접광(1막에 깎인다) / 창으로 드는 볕(2막 회복도를 그대로 따른다) | `visual-state.ts` `roomLightMix` |
 | `dim` | 어둠의 양. 비네트와 색수차가 같은 값을 본다 | `MemoryRoomScene.tsx` |
 | `heardLevel` | 전등 스위치까지 반영한 밝기. BGM 곡선과 DOM 비네트가 같이 쓴다 | `MemoryRoom.tsx` |
-| event pulse | 사건의 세기. 기억 수집 0.6, 라디오 각성 1.0. 색수차·그레인·카메라가 같이 반응 | `event-pulse.ts` |
+| event pulse | 사건의 세기. 기억 수집(1차·2차) 0.6, 라디오 각성 1.0. 색수차·그레인·카메라가 같이 반응 | `event-pulse.ts` |
 | `outsideDecay` | 창밖 붕괴도. 1막 수집 비율, 2막부터 1. **되돌아가지 않는다** | `visual-state.ts` |
 | 페이즈 | intro → p1 → turning → p2 → p3 → p4 → resolve → ending. 저장하지 않고 진행에서 파생 | `story-phase.ts` |
 | 효과 예산 | `off`(모션 끔) / `low`(프레임 저하·터치) / `full`. **cheap**은 low부터, **heavy**는 full에서만 | `lib/effects/effect-budget.ts` |
@@ -63,9 +63,9 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 | 창밖이 식는다 | 지평선의 볕이 회색으로 식는다 (도시가 꺼지는 것을 색으로) | `outsideDecay`, 단조 증가 | `WindowView.tsx` `skyColors` |
 | 곡의 열화 | 컷오프 16k → 460Hz, 리버브 0.08 → 0.46. 바닥 근처에서는 급히 재워진다 | 밝기의 순수 함수 | `audio/music-curve.ts` |
 | 조사 확대 | 물건을 조사하면 배율 ×1.45로 컷처럼 붙는다 (λ7) | | `CameraRig.tsx`, `room-canvas-runtime.ts` |
-| 기억 수집의 튐 | 색수차가 가장자리에서 한 번 갈라지고 그레인이 잠깐 거칠어진다. 1초 안에 잦아든다 | pulse 0.6. 한 번뿐 (번쩍임 규칙) | `FilmLook.tsx`, `film-look.ts` |
-| 카메라 눌림 | 배율이 1.2% 물러났다 돌아온다. 흔들지는 않는다 | | `CameraRig.tsx` `KICK_ZOOM` |
-| 금빛 티끌 | 물건에서 티끌 140알이 솟아 수첩 쪽(오른쪽 위)으로 쓸려 간다 | 1차·2차 수집 모두 | `MemoryBurst.tsx` |
+| 기억 수집의 튐 | 색수차가 가장자리에서 한 번 갈라지고 그레인이 잠깐 거칠어진다. 1초 안에 잦아든다 | pulse 0.6. 1차·2차 수집 모두 (수집 소리도 같다). 한 번뿐 (번쩍임 규칙) | `FilmLook.tsx`, `film-look.ts`, `event-pulse.ts` |
+| 카메라 눌림 | 배율이 1.2% 물러났다 돌아온다. 흔들지는 않는다 | 같은 pulse (1차·2차 수집) | `CameraRig.tsx` `KICK_ZOOM` |
+| 금빛 티끌 | 물건에서 티끌 140알이 솟아 수첩 쪽(오른쪽 위)으로 쓸려 간다 | 1차·2차 수집 모두 (3차 되짚기에는 없다) | `MemoryBurst.tsx` |
 | 커튼 틈 광선 | 커튼을 젖힌 만큼 광선 판이 열린다. 1막에는 바닥값 | `warm` × 커튼 | `WindowLight.tsx` |
 | 광선 속 먼지 | 커서가 밀어내면 흩어지고, 어두울수록 천천히 다시 쌓인다 | `settle = level` | `DustMotes.tsx` |
 | 등 (랜턴) | 방이 0.35 아래로 어두워지면 손(커서) 가까이만 비추는 점광원이 켜진다 | cheap. 터치는 몸을 따라간다 | `Lantern.tsx`, `lantern-light.ts` |
@@ -116,7 +116,7 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 |---|---|---|---|
 | **[신규] 크레인 샷** | 하부장이 열리는 순간 화장실 전체를 잡고 있던 카메라가 열쇠가 있던 칸까지 3초 남짓 밀고 들어가, "…안방 열쇠." 한 줄과 함께 4.2초 머문 뒤 돌아온다 | 히치콕 *오명*. 배율은 조사 확대의 1.6배, λ1.15. 그동안 씬 입력 잠김 | `crane-shot.ts`, `CameraRig.tsx`, 스토어 `cameraHold` |
 | 세면대 파문 | 열쇠가 손에 들어온 순간 고인 물에 파문 한 번 (2.5초) | cheap | `SinkWater.tsx`, `water-ripple.ts` |
-| 앰플 유리 굴절 | 보냉 케이스를 돌려 보는 인스펙트에서 유리가 뒤를 굴절시킨다 | | `Ampoule.tsx`, `canvas/InspectTurntable.tsx` |
+| 앰플 유리 굴절 | 보냉 케이스를 돌려 보는 인스펙트(`ampoule-case`)에서 유리가 뒤를 굴절시킨다 | 게이트 없음 (효과 예산과 무관하게 켜진다) | `Ampoule.tsx`, `canvas/InspectTurntable.tsx` |
 | 로그 03 오염 | HUD 기록 번호에 오염 표식. 깜빡이지 않는다 | | `ui/HudLogLine.tsx` |
 
 ## 7. p4: 안방, 곡이 없다
@@ -138,17 +138,18 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 | 배트의 금빛 | 현관 옆 배트의 발광이 0.06 → 0.55로 오른다 | `selectBatReady` | `EndingTrigger.tsx` |
 | 현관 안내문 | 한 줄이 떠오른다 | | `MemoryRoom.tsx` |
 | `bat-grip` | 배트를 쥐는 대사. 그림 없음, 도입 없음 | | `cutscenes.yaml` |
+| 앰플 집기 | 냉장고 아래칸 서랍이 밀려 나오고, 누른 앰플이 손 높이로 들린다. 들린 유리가 뒤를 굴절시킨다 | 앰플 3차. 굴절은 heavy | `minigames/ampoule-pickup`, `Ampoule.tsx` |
 
 ## 9. ending
 
 | 연출 | 무엇이 보이나 | 수치 | 구현 |
 |---|---|---|---|
 | 곡이 멎는다 | 가라앉으며 정지 | `!endingStarted` | `selectMusicPlaying` |
-| 카메라가 현관에 붙는다 | 거실 끝 현관문 구도 | 엔딩 영상 첫 컷과 이어진다 | `layout.ts` `CAMERA_PRESETS.ending` |
+| 카메라가 현관에 붙는다 | 거실 끝 현관문 구도 | 현관문을 누른 순간 (`endingStarted`). 배트를 쥘 때가 아니다. 엔딩 영상 첫 컷과 이어진다 | `layout.ts` `CAMERA_PRESETS.ending` |
 | 문이 열리고 배트가 딸려 나간다 | 문 λ4, 배트 0.45초 | | `LivingRoomShell.tsx`, `EndingTrigger.tsx` |
 | 문밖 빛기둥 | 현관 개구부 밖 빛 판에서 GodRays | heavy | `ending-light.ts`, `MemoryOutlineGlow.tsx` |
 | 처음으로 깨끗한 화면 | 그레인과 색수차가 0으로 | 게임에서 화면이 처음 깨끗해지는 순간 | `film-look.ts` `clean` |
-| 필름이 타들어간다 | 가장자리부터 1.5초 | | `ScreenTransition.tsx` burn |
+| 필름이 타들어간다 | 가장자리부터 1.5초 | 문턱 넘기의 마지막 1.5초에 켜진다. 모션 끔에서도 돈다 (게이트 없음) | `ScreenTransition.tsx` burn |
 | 엔딩 영상 → 카드 → 색종이 | 영상 뒤 카드가 떠오르고 색종이 160조각 | 모션 끔이면 색종이 없음 | `ui/EndingScreen.tsx`, `EndingConfetti.tsx` |
 
 ---
@@ -166,7 +167,7 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 | 플레이어 추적 | λ3.2. 축소할수록 공간 가운데로. 문턱은 컷이 아니라 이동 | `CameraRig.tsx` |
 | 벽 걷힘 | 카메라 쪽 두 벽의 윗부분이 스러지고 굽도리만 남는다 | `CulledWall.tsx`, `wall-culling.ts` |
 | 전신거울 반사 | 3인칭 2프레임에 1번 | `MirrorReflection.tsx` |
-| 이불 호흡 | 침대에 누웠을 때만 이불이 숨을 쉰다. cheap | `BedModel.tsx` |
+| 이불 호흡 | 침대에 누웠을 때만(`seatedAt === "bed"`) 이불이 숨을 쉰다. cheap, 모션 끔이면 0 | `BedModel.tsx` |
 
 **금빛 · 표식**
 
@@ -193,7 +194,7 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 
 | 연출 | 수치 · 게이트 | 구현 |
 |---|---|---|
-| 신호 끊김 찢기 | 재생이 시작되는 순간 0.15초에 꼭대기, 0.5초에 잦아든다 | `ScreenTransition.tsx` tear |
+| 신호 끊김 찢기 | 재생이 시작되는 순간 0.15초에 꼭대기, 0.5초에 잦아든다. 컷씬과 다시보기 모두. 모션 끔이면 없음 | `ScreenTransition.tsx` tear |
 | 영사기 소리 + 테이프 히스 | 그림이 있는 재생만 | `PlaybackScene.tsx` |
 | 컷 전환: 셔터 + 노이즈 장막 | 0.6초. 결은 종이 / 필름 / 물 얼룩을 컷마다 순환. cheap | `ui/CutDissolve.tsx`, `cut-dissolve.ts` |
 | 필름 먼지 · 스크래치 · 재생 비네트 | 모션 끔이면 숨김 | `globals.css`, `PlaybackScene.tsx` |
@@ -229,14 +230,23 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 
 ---
 
-## 13. 코드와 설명이 어긋나는 곳 (손볼 후보)
+## 13. 영화에서 온 것 (오마주)
 
-조사하면서 걸린 것. 고치지는 않았다.
+영화에서 가져온 연출의 전체 목록이다. 지금 게임에 들어 있는 것은 위 장들의 표에도 있고
+[`visual-experiments.md`](visual-experiments.md) 14장에 구현과 함께 적혀 있다. 넣었다가 뺀 것과
+참고만 한 것은 여기에만 남긴다. 가져오는 것은 문법(무엇을 언제 보여 주고 감추는가)이지 그림이
+아니다: 영화의 스틸·음악·대사는 쓰지 않는다.
 
-1. **이불 호흡**: `visual-experiments.md` 13장 표는 "고정 진폭"이지만 코드는 침대에 누웠을 때(`seatedAt === "bed"`)만 숨을 쉰다.
-2. **찢김(tear)**: 주석은 "컷씬이 시작되는 순간"이지만 조건은 재생 시작 전부라 다시보기에도 돈다.
-3. **타들어감(burn)**: 모션 끔 게이트가 없다. tear · settle만 막혀 있다.
-4. **배트를 쥐면 카메라가 문 쪽으로**: `MemoryRoomScene.tsx` 주석과 달리 조건은 현관문을 누른 순간(`endingStarted`)이다.
-5. **수집 반응의 범위**: 금빛 티끌은 2차 수집에도 터지지만 event pulse와 수집 소리는 1차에만 반응한다. 의도인지 확인.
-6. **앰플 굴절의 자리**: 13장 표는 `ampoule-pickup`을 적었지만 v4.1부터 그 미니게임은 안 쓰인다. 실제 자리는 인스펙트 턴테이블이고 거기는 게이트가 없다.
-7. `content-design.md` 4-3의 **DoorNudge**는 코드에 없다.
+| 영화 | 그 영화에서 | 이 게임에서 | 상태 |
+|---|---|---|---|
+| 히치콕 *오명* (1946) | 무도회장 전체를 내려다보던 카메라가 손 안의 열쇠까지 한 번에 밀고 들어간다 | 하부장이 열리는 순간 화장실 전체에서 열쇠가 있던 칸까지 미는 크레인 샷 | 들어 있다 (6장) |
+| 히치콕 *새* (1963) | 영화 전체에 곡이 없다. 소리만으로 조인다 | 안방(4페이즈) 내내 곡이 없고 방의 소리만 남는다 | 들어 있다 (7장) |
+| 히치콕 *이창* (1954) | 맞은편 창 하나가 세상의 전부다 | 생존자 방송 뒤 창밖 어둠 속에 창 하나가 8초에 걸쳐 켜진다 | 2026-09-26에 넣고 다음 날 뺐다 |
+
+**뺀 것의 기록: 맞은편 창 하나.** 도시 실루엣을 뺐던 이유(창이 그림이 된다)를 따라 색면 하나와
+후광 하나까지만 두고, 스위치가 아니라 저녁이 오는 속도로 8초에 걸쳐 켰다. 그래도 화면에서는
+먼 창이 아니라 유리에 붙은 네모로 읽혀 통째로 뺐다 (`NeighborWindow`, `neighbor-light.ts`).
+다시 넣는다면 창밖 그림 자체에 깊이가 먼저 있어야 한다.
+
+새로 가져올 때는 이 표에 먼저 한 줄을 더하고, 구현되면 해당 장의 표와 `visual-experiments.md`
+14장에 옮겨 적는다.

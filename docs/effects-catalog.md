@@ -312,7 +312,7 @@ export function resolveRoomPalette(): RoomPalette {
 | **색수차** | FilmLook.tsx, film-look.ts | 방이 어두울수록 가장자리 색이 더 어긋나고, 기억을 줍는 순간 한 번 튄다. **엔딩에서는 0으로 수렴해 처음으로 화면이 깨끗해진다** | `radialModulation`(반지름 0.3 안쪽 보호)으로 가운데는 보호. 쉬는 값은 damp(λ2.2), 펄스는 `exp(-4Δ)` 감쇠, 엔딩 `clean` 축은 따로 damp(λ2.6) |
 | **필름 그레인** | FilmLook.tsx | 프레임마다 다시 뿌려지는 필름 결(overlay 0.09). 사건 때 두 배가 되고 엔딩에서 사라진다 | `NoiseEffect`. reduced motion이면 `BlendFunction.SKIP`으로 셰이더에서 빼고, DOM 정지 타일 `.film-grain`이 대신한다 |
 | **사건 펄스 버스** | event-pulse.ts | 색수차, 그레인, 카메라 킥이 같은 사건에 함께 반응한다 | 스토어 `subscribe`로 수집 증가(0.6)와 라디오 신호 상승 엣지(1.0)를 듣는다 |
-| **화면 전환 셰이더** | ScreenTransition.tsx | ① **tear**: 컷씬 시작 순간 가로 띠가 밀리고 주사선과 잡음이 지나간다(0.15초 꼭대기, 0.5초에 잦아듦). ② **settle**: 굵은 셀이 덮였다가 같은 자리부터 차오른다. ③ **burn**: 엔딩에서 가장자리부터 따뜻한 빛이 1.5초에 걸쳐 번진다 | 커스텀 `postprocessing.Effect`(`CONVOLUTION` 속성, inputBuffer를 다른 uv로 읽는다). tear는 `floor(uv.y*28+t*9)` 띠 해시로 x를 밀고 `sin(y*900)` 주사선을 더한다. settle은 96×54 셀 해시에 `step`을 걸어 시간과 무관하게 깜빡이지 않는다(값은 `WireframeReveal`이 `screenTransitionInput`으로 흘린다). burn은 iris smoothstep에 warm 색을 섞는다 |
+| **화면 전환 셰이더** | ScreenTransition.tsx | ① **tear**: 재생(컷씬·다시보기) 시작 순간 가로 띠가 밀리고 주사선과 잡음이 지나간다(0.15초 꼭대기, 0.5초에 잦아듦). ② **settle**: 굵은 셀이 덮였다가 같은 자리부터 차오른다. ③ **burn**: 엔딩에서 가장자리부터 따뜻한 빛이 1.5초에 걸쳐 번진다 | 커스텀 `postprocessing.Effect`(`CONVOLUTION` 속성, inputBuffer를 다른 uv로 읽는다). tear는 `floor(uv.y*28+t*9)` 띠 해시로 x를 밀고 `sin(y*900)` 주사선을 더한다. settle은 96×54 셀 해시에 `step`을 걸어 시간과 무관하게 깜빡이지 않는다(값은 `WireframeReveal`이 `screenTransitionInput`으로 흘린다). burn은 iris smoothstep에 warm 색을 섞는다 |
 | **1인칭 잔상** | AfterimagePass.ts, afterimage.ts | 1인칭으로 어둠 속을 걸을 때 빛이 끌린다. 멈추면 걷힌다 | Effect로는 되먹임이 안 되어 **커스텀 `Pass`**로 만들었다. HalfFloat RT 두 장을 ping-pong하며 `max(prev*uDamp, cur)`를 누적한다(밝은 쪽만 남음). 절반 해상도. `uDamp`는 이동 입력량(damp λ4)을 따라 0.55~0.94 |
 | **GodRays** | MemoryOutlineGlow.tsx, ending-light.ts, LivingRoomShell.tsx | 엔딩에 열린 현관 틈으로 빛기둥이 거실을 가로지른다. 게임에서 광원이 화면에 서는 유일한 자리다 | `GodRaysEffect`(samples 40, 절반 해상도). 광원은 문 뒤의 `toneMapped=false` 판이고 모듈 싱글턴으로 컴포저에 건넨다. heavy이면서 엔딩일 때만 생성한다 |
 
@@ -5255,7 +5255,7 @@ export function damp(from: number, to: number, lambda: number, deltaSeconds: num
 | **papers-order** | 안방 서류 | 날짜 조각 4장을 순서대로 놓는다 | 집기·교환 방식이고 키보드로 들고(Space/Enter) ↑↓로 옮길 수 있다. 종이 조각은 ±0.5~0.6° 기울인다 |
 | **sink-dial** | 세면대 하부장 (미궁) | 3자리 드럼을 **407**에 맞춘다. 번호는 선반의 거꾸로 꽂힌 책 속 쪽지에 있다 | 컴퓨터 3차에서 아빠 메일 힌트를 본 뒤에만 열린다. r3f 드럼. 드래그 도중 덜 넘어간 비율을 넘겨 드럼이 손을 따라 기운다. ←→로 칸, ↑↓로 숫자, Enter로 연다. 4회 틀리거나 60초가 지나면 스킵. 풀면 결과 카드 뒤 안방 열쇠가 손에 들어온다 |
 | **piano-melody** | 거실 피아노 (미궁) | 씬 안 피아노로 6음(솔미미 파레레)을 친다. 번진 둘째 마디는 안방 책상의 악보 조각(`piano-sheet`)을 들고 와야 보이고, **조각 없이는 건반이 울리지 않는다** | 카메라 교체, 뚜껑과 건반 damp, 계이름 CanvasTexture, `playTone` 평균율(사인파 배음 합성). 조각이 없으면 호스트가 "악보가 필요하다"를 띄운다(`needsItem`). 맞게 친 음은 보면대 악보 위에 금빛 띠로 켜지고(`progress.ts` 모듈 채널 → `PianoSheet`가 다시 굽는다) 틀리면 같이 걷힌다. 틀리면 처음으로 되감길 뿐 실패는 없다 |
-| **ampoule-pickup** | (현재 미연결) | 서랍에서 앰플을 집어 든다 | easeOutCubic 서랍, 1.8배 들기(직교 카메라라 배율로 "눈앞"을 연출), 굴절 유리는 heavy 효과 예산에서만 |
+| **ampoule-pickup** | 앰플 3차 (resolve, 떠나기 전) | 서랍에서 앰플을 집어 든다 | easeOutCubic 서랍, 1.8배 들기(직교 카메라라 배율로 "눈앞"을 연출), 굴절 유리는 heavy 효과 예산에서만 |
 
 ### 관련 코드
 

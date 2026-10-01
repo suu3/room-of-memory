@@ -62,7 +62,7 @@
 | 거울의 실시간 반사 (Reflector, 2프레임에 1번) | `MirrorReflection.tsx` | RTT의 선례와 비용 기준 |
 | 창밖 붕괴도 (단조 증가, 되돌아가지 않음) | `outsideDecay()` | 창문 항목의 바인딩 |
 | 1인칭 두 구간의 어둠·비네트·전환 덮개 | `viewpointOf`, `ViewpointTransition`, `.viewpoint-lamp` | 6장 인트로 전환의 자리 |
-| 컷씬 시작의 신호 끊김 찢기 | `ScreenTransition` tear | 6장 1→2 전환의 짝 |
+| 재생(컷씬 · 다시보기) 시작의 신호 끊김 찢기 | `ScreenTransition` tear | 6장 1→2 전환의 짝 |
 | 라디오가 저 혼자 깜빡이는 세기 | `radioSignalLevel(t)` | 라디오 2차의 바탕 |
 | 성능 안전장치 (프레임 떨어지면 DPR 상한 1로) | `PerformanceMonitor` in `RoomCanvas` | `enabled` 게이트의 재료 |
 | 모션 끈 사람 대응 | `prefersReducedMotion()` 한 곳, FilmLook이 그레인 패스를 아예 안 만든다 | `enabled=false` 폴백의 선례 |
@@ -123,7 +123,7 @@
 | **컵라면 용기** | `StudentProps`의 `cupNoodleTrash` glb 둘 (텍스처 있음) | Gray-Scott reaction-diffusion ping-pong RT → map | 🔶 + ↪ | 기법은 싸다: 128² RT 둘, **밝기가 바뀔 때만 N스텝 돌리고 멈춘다**(매 프레임 시뮬레이션 불필요). 문제는 크기다: 아이소메트릭에서 용기는 수십 px다. 먼저 **가시성 테스트**(데모 페이지에서 실제 카메라 배율로). 재질의 본진은 **화장실 타일·욕조로 옮긴다**(11장, 큰 면). 용기는 같은 패턴의 작은 메아리. 텍스처 glb에 색을 곱지 않으므로 map 자체를 교체한 클론 머티리얼을 쓴다 | 용기: 성장량 ← `1 - level` |
 | **시계** | `DeskClock`: 코드로 그린 탁상시계, 20:47에 멈춤 (당시 `angle-turn`의 규칙 단서였으나 그 퍼즐은 뺐다. 지금은 누르면 혼잣말 한 줄) | slit-scan (프레임 히스토리 링버퍼) | ↪ + 🔶 | 각도를 읽는 단서 위에 시간차 왜곡을 얹으면 단서가 죽는다. slit-scan은 **화장실 거울로 옮긴다**(11장). 시계에는 기획이 이미 띄워 둔 안을 쓴다: **2막부터 초침이 다시 간다**. 멈춘 시계가 유일하게 시간이 흐르는 물건이 된다 | 초침 ← `act >= 2` |
 | **컴퓨터** | 1막 내내 꺼진 채(배경), 2막 `computer-browse` 오버레이에서 부팅 | 모니터에 방을 ASCII로 실시간 RTT | ↪ | 1막의 컴퓨터는 **꺼져 있는 것**이 이야기라 켜진 화면은 어긋난다. 도트 격자에 비친 방은 **꺼진 모니터 유리의 반사**로 붙인다(11장): 켜진 화면이 아니라 반사라 이야기에 어긋나지 않는다. 2막 조사 뒤 모니터에 정지 ASCII 한 장(CanvasTexture)을 남기는 안만 남겨 둔다 | (없음) |
-| **침대** | `BedModel`, 이불 shape key, 앉기·눕기 없음 | 이불 vertex 노이즈 호흡 + 조사 순간 DOF | 🔶 + ↪ | 호흡은 `onBeforeCompile`로 이불 머티리얼의 정점 셰이더에 노이즈 한 줄(진폭 작게, 0.3Hz 이하). DOF는 침대가 조사 오브젝트가 아니라(혼잣말만) **앉기로 옮긴다**(11장). 직교 카메라라 `DepthOfField` 대신 6장의 틸트 시프트 초점 띠를 움직인다 | 진폭 고정, `reducedMotion`이면 0 |
+| **침대** | `BedModel`, 이불 shape key, 앉기·눕기 없음 | 이불 vertex 노이즈 호흡 + 조사 순간 DOF | 🔶 + ↪ | 호흡은 `onBeforeCompile`로 이불 머티리얼의 정점 셰이더에 노이즈 한 줄(진폭 작게, 0.3Hz 이하). DOF는 침대가 조사 오브젝트가 아니라(혼잣말만) **앉기로 옮긴다**(11장). 직교 카메라라 `DepthOfField` 대신 6장의 틸트 시프트 초점 띠를 움직인다 | 침대에 누웠을 때만(`seatedAt === "bed"`), `reducedMotion`이면 0 |
 
 ---
 
@@ -235,7 +235,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 |---|---|---|---|---|---|
 | **잉크가 모인다** (사인볼) | **피아노 악보의 물에 번진 마디** | `PianoSheet`: CanvasTexture, 지워진 마디에 번진 얼룩(타원 알파 0.14)만 남는다. 안방의 찢어진 조각(`piano-sheet`)을 들고 오면 마디가 보인다 | 조각 없이 볼 때는 잉크가 번진 얼룩. 조각을 들고 피아노 앞에 서면 **번짐이 거꾸로 모여** 음표와 계이름이 된다. "흩어진 것이 모인다"를 가장 글자 그대로 하는 자리 | Canvas 2D: 매 프레임 음표 층을 `ctx.filter = blur(11px × (1 - g))`로 다시 칠해 텍스처를 갱신한다(1.5초 ease-out, `sheet-ink.ts`). 처음엔 번짐 프레임을 미리 구워 역재생할 생각이었지만 버퍼 하나를 다시 칠하는 쪽이 더 단순했다. 사인볼 필드의 파문과 같은 잉크 재질, 방향만 반대 | 모임 ← `inventory.includes("piano-sheet")` (한 번). 조각이 없으면 얼룩 고정 |
 | **굴절 · 파문** (창문) | **화장실 세면대의 물** | `Sink`: 오목한 대야, 열쇠(`parents-key`)가 오른쪽 테두리에 얹혀 있다 (`ItemPickup`) | 30일 고인 물이 대야에 있다. 열쇠를 집는 순간 손이 물을 스친 듯 **파문 하나**가 번지고 대야 바닥이 굴절로 흔들리다 잔다 | 물 판 하나(ShaderMaterial): 파문은 uv 기반 감쇠 sin, 굴절은 바닥색을 노멀로 밀어 읽는다(RTT 없음). 스펙의 "창문 ripple 셰이더" 그대로 | 파문 ← 열쇠 집는 순간(one-shot). 평소 물은 정지: 멈춘 집이다 |
-| **굴절** (창문) | **앰플 유리** | `Ampoule`: `MeshStandardMaterial` 유리(`glassRef`), `ampoule-pickup`(canvas 미니게임)에서 손 높이로 들리고 엔딩에 들고 나간다 | 들어 올린 앰플의 유리가 뒤의 냉장고 안을 **굴절**시켜 보인다. 정체불명의 액체를 빛이 통과한다 | 집는 구간에만 `MeshPhysicalMaterial`(transmission)로 바꾼다. transmission은 씬을 RT에 한 번 더 그리므로 카메라가 붙박이인 미니게임 구간에만 켠다 | 켜짐 ← `activeInteraction.memoryId === "ampoule"` 미니게임 단계 |
+| **굴절** (창문) | **앰플 유리** | `Ampoule`: `MeshStandardMaterial` 유리(`glassRef`), `ampoule-pickup`(canvas 미니게임)에서 손 높이로 들리고 엔딩에 들고 나간다 | 들어 올린 앰플의 유리가 뒤의 냉장고 안을 **굴절**시켜 보인다. 정체불명의 액체를 빛이 통과한다 | 집는 구간에만 `MeshPhysicalMaterial`(transmission)로 바꾼다. transmission은 씬을 RT에 한 번 더 그리므로 카메라가 붙박이인 미니게임 구간에만 켠다 | 켜짐 ← 앰플 3차의 `ampoule-pickup`(heavy 예산) · 앰플 2차 `ampoule-case`의 인스펙트 턴테이블(늘 켜짐) |
 | **slit-scan** (시계) | **화장실 거울** (2026-09-30 걷음: 보통 거울로 되돌렸다. 멀리서는 깨진 텍스처, 가까이서는 고장 난 거울로 읽혔다) | `BathroomMirror`: 금속 상자(반사 없음). 방의 전신거울은 `Reflector`로 2프레임에 1번 그린다 (선례) | 30일 만에 보는 자기 얼굴이 **세로줄마다 시간이 어긋나** 비친다. 2막이 진행될수록 줄이 맞아 든다 | 거울만 Reflector로 바꾸고, 그 RT(작다, 256² 내외)를 12장 링버퍼에 쌓아 x축 index로 샘플링. 화면 전체가 아니라 **거울 크기**라 비용이 든다 해도 방의 거울과 같은 급 | 시간차 폭 ← `1 - warm`. 화장실에 있을 때만 그린다 |
 | **도트 · 문자 격자 RTT** (컴퓨터) | **책상 모니터의 꺼진 유리** (TV에 세웠다가 옮겼다) | `ComputerMemory`의 모니터 glb, 1막 내내 꺼져 있다. 거실 TV는 화면이 소파를 보고 카메라는 그 뒤에 있어 플레이 중 **뒷면만** 보인다 (헤드리스 캡처로 확인) | 꺼진 모니터 유리에 방이 **도트 격자(인광체)**로 비친다. 어두울수록 도트가 굵어 형체가 안 잡히고, 되찾을수록 촘촘해진다. 켜진 화면이 아니라 유리의 반사라 "꺼져 있는 컴퓨터"에 어긋나지 않는다 | 거울과 같은 Reflector(3프레임에 1번, 256²) + 도트 스크린을 Reflector 셰이더에 패치. ASCII 문자 격자는 글자가 언어를 타서 도트로 간다 | 도트 굵기 ← `1 - level`. 방에 있을 때만 |
 | **DOF** (침대) | **앉기** (소파 셋 · 식탁 의자 셋 · 피아노 걸상 · 책상 의자) | `useSeat`, `seatedAt`: 진행에 아무것도 남기지 않는 곁가지, 시각 보상이 없다 | 앉으면 **초점 띠가 앉은 눈높이로 내려오고 좁아진다**. 앉아서 보는 방. 일어나면 돌아온다 | 6장 `TiltShiftEffect`의 offset·focusArea·feather를 damp로 민다. 새 패스 없음 | 초점 ← `seatedAt !== null` |
@@ -265,22 +265,22 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 
 ---
 
-## 12. 사용자가 정해야 하는 것
+## 12. 정해진 것 (계획 때 사용자에게 물었던 항목)
 
-- **액자 얼굴 영역**: 사진 위 정규화 사각형을 코드에 둘지(에셋 없음), 알파 마스크 이미지를
-  넣을지. 코드 사각형을 기본으로 잡았다.
-- **컵라면 자리**: 용기 자체(작다) vs 옆 벽의 얼룩(크다). 가시성 테스트 결과로.
-- **등의 켜지는 문턱**: `level < 0.35`(라디오 직전 두 개쯤 남았을 때)로 잡았다. 더 이르게 켜면
-  1막 중반부터 방이 등 하나에 의존한다.
-- **틸트 시프트 채택**: 모바일 프레임 측정 뒤.
-- **폰 미전송 초안의 문장** (ko/en/ja): 누구에게, 무슨 말을 쓰다 멈췄는가. 대본이라 YAML이 아니라
-  `phone-chat/thread.ts`의 i18n 키에 들어간다.
-- **TV**: 카메라가 TV의 뒷면만 보는 구도라 화면 효과를 둘 자리가 아니다. 게임기 2차의 캐릭터 선택
-  화면(4장, 자리 없음)도 같은 이유로 TV에는 못 간다. TV를 돌려 세우는 것은 거실 배치의 결정이다.
-- **세면대의 물**: 지금 열쇠는 테두리에 얹혀 있다. 물을 채우기만 할지(파문만), 열쇠를 물 속으로
-  옮길지(굴절 너머로 집는다: 배치 변경).
-- **화장실 무늬의 결**: 물때(타일 줄눈, 낮은 대비)인지 곰팡이(욕조 가장자리, 얼룩)인지. 공포가
-  아니라 쓸쓸함이어야 한다(DESIGN.md 무드).
+계획을 세울 때(2026-09-22)는 "사용자가 정해야 하는 것"으로 적어 둔 목록이다. 그 뒤 구현하고
+화면을 보면서 전부 정해졌다. 무엇으로 정해졌는지만 남긴다. 아직 눈으로 봐야 하는 값은 13장
+끝의 "아직 안 본 것"에 있다.
+
+| 물었던 것 | 정해진 것 |
+|---|---|
+| **액자 얼굴 영역**: 코드 사각형 vs 알파 마스크 이미지 | 해당 없음. 액자 입자는 "미니게임 안의 효과는 전부 뺀다"(13장)로 빠졌다. 남은 액자 다시보기의 사진 밀림은 코드 사각형(`REPLAY_MORPH_WITHIN`)을 쓴다 |
+| **컵라면 자리**: 용기 vs 옆 벽의 얼룩 | 용기 (`StudentProps.tsx`의 `stainMap`). 조사마다 무늬가 자란다 |
+| **등의 켜지는 문턱** | `level < 0.35` 그대로 (`lantern-light.ts`의 `LANTERN_THRESHOLD`) |
+| **틸트 시프트 채택** | 채택. heavy 등급이라 프레임이 떨어진 기기·폰에서는 빠진다. 2026-09-27에 띠를 화면의 6할로 넓히고 흐림을 절반으로 낮췄다 (`tilt-focus.ts`) |
+| **폰 미전송 초안의 문장** | 해당 없음. 미전송 초안도 미니게임 안의 효과라 빠졌다 |
+| **TV** | 화면 효과를 두지 않는다. 카메라가 TV의 뒷면을 보는 구도는 그대로다. 도트 반사는 책상 모니터로 갔다 (`MonitorReflection`) |
+| **세면대의 물**: 파문만 vs 열쇠를 물 속으로 | 둘 다 아니다. 마개를 뽑으면 고인 물이 빠지고 대야 바닥에서 출입증 배지가 드러난다 (`SinkWater`의 `uLevel`, 스토어의 `sinkDrained`). 파문은 열쇠를 집는 순간에 그대로 인다 |
+| **화장실 무늬의 결**: 물때 vs 곰팡이 | 물때 (`BathroomStains.tsx`: 타일·샤워 벽) |
 
 ---
 
@@ -305,13 +305,12 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | 먼지 재적층 | `DustMotes.tsx` `settle` | (기존) | `level` | (게임 안) |
 | 엔딩의 깨끗한 화면 | `FilmLook.tsx`, `film-look.ts` `clean` | (기존) | `endingStarted` | (게임 안) |
 | 초침 재가동 | `RoomFurniture.tsx` `SecondHand` | cheap | `act >= 2` | (게임 안) |
-| 이불 호흡 | `BedModel.tsx` (onBeforeCompile) | cheap | 고정 진폭 | (게임 안) |
+| 이불 호흡 | `BedModel.tsx` (onBeforeCompile) | cheap | 침대에 누웠을 때만 (`seatedAt === "bed"`) | (게임 안) |
 | 악보 잉크 모임 | `PianoSheet.tsx`, `sheet-ink.ts` | cheap | `piano-sheet` 소지 + 거실 진입 | (게임 안) |
-| 세면대 고인 물 파문 | `SinkWater.tsx`, `water-ripple.ts` | cheap | 열쇠 집는 순간 | `/lab/sink-water` |
-| 앰플 유리 굴절 | `Ampoule.tsx` `refractive`, `minigames/ampoule-pickup` | heavy | 집는 구간 | (게임 안) |
+| 세면대 고인 물 (파문 · 마개를 뽑으면 빠진다) | `SinkWater.tsx`, `water-ripple.ts` | cheap | 파문은 열쇠 집는 순간, 물 빠짐은 `sinkDrained` | `/lab/sink-water` |
+| 앰플 유리 굴절 | `Ampoule.tsx` `refractive`. 두 자리: `minigames/ampoule-pickup`, `components/canvas/InspectTurntable.tsx` | 집기는 heavy, 인스펙트는 게이트 없음 | 앰플 3차(resolve)의 집는 구간 · 앰플 2차(`ampoule-case`)의 돌려 보기 | (게임 안) |
 | 화장실 물때 (타일·샤워 벽) | `BathroomStains.tsx`, `lib/effects/reaction-diffusion.ts` | (정적) | 고정(다 자람) | (게임 안) |
 | 컵라면 용기 물때 | `StudentProps.tsx`, `FurnitureModel.tsx` `stainMap` | (정적) | `1 - level` (조사마다 다시 굽는다) | (게임 안) |
-| 화장실 거울 slit-scan | `SlitScanMirror.tsx`, `slit-scan.ts` | heavy, 화장실에서만 | `1 - warm` | (게임 안) |
 | 책상 모니터 도트 반사 (TV는 화면이 카메라를 등져 옮겼다) | `DotReflection.tsx`, `dot-screen.ts`, `MemoryObjects.tsx` `MonitorReflection` | heavy, 방에서만 | `1 - level` | (게임 안) |
 | 재구성 (와이어프레임 → 면) | `WireframeReveal.tsx`, `reconstruction.ts`, `ScreenTransition` `settle` | cheap | 라디오 재점화, 화장실·안방 첫 진입 | (게임 안) |
 | 1인칭 잔상 | `AfterimagePass.ts`, `afterimage.ts`, `MemoryOutlineGlow.tsx` | heavy, 1인칭에서만 | 걷는 속도 | (게임 안) |
@@ -327,17 +326,15 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 
 ## 14. 영화 연출 (2026-09-26)
 
-히치콕을 비롯한 영화 문법 중 이 게임의 전환점에 붙는 것만 골랐다. 셋 다 새 라이브러리·에셋
-없이 붙었고, 3장의 제약(번쩍임 금지, 모션 끔 대응)을 지킨다. 전체 연출 지도는
-[`cinematography.md`](cinematography.md).
+히치콕을 비롯한 영화 문법 중 이 게임의 전환점에 붙는 것만 골랐다. 여기에는 **지금 게임에
+들어 있는 것만** 적는다. 둘 다 새 라이브러리·에셋 없이 붙었고, 3장의 제약(번쩍임 금지, 모션 끔
+대응)을 지킨다. 넣었다가 뺀 것과 참고한 영화 전체는 [`cinematography.md`](cinematography.md)
+13장에, 전체 연출 지도는 그 문서 전체에 있다.
 
 | 연출 | 출처 | 자리 | 구현 | 바인딩 |
 |---|---|---|---|---|
 | 안방은 곡이 없다 | 히치콕 *새*: 음악 없는 영화 | 4페이즈 전체 | `selectMusicPlaying`이 `p4`에서 false | `storyPhaseOf === "p4"` |
 | 열쇠로 밀고 들어가는 크레인 | 히치콕 *오명*: 무도회장에서 손 안의 열쇠까지 | 하부장이 열리는 순간 | `cameraHold` (스토어) → `CameraRig` 크레인 lambda·배율, `crane-shot.ts` | `finishPuzzle("sink-dial")` → 4.2초 뒤 `endCameraHold` |
-
-**창 하나로 그친 이유.** 5장에서 도시 실루엣을 뺐던 이유(창이 그림이 된다)가 그대로다.
-색면 하나와 후광 하나까지만 두고, 켜지는 데 8초를 준다. 스위치가 아니라 저녁이 오는 속도다.
 
 **곡을 빼는 쪽을 고른 이유.** 4장(v4.md)의 "페이즈별 BGM"은 곡이 와야 채워지는데, 4페이즈는
 곡이 없는 게 더 세다. 안방 문이 열리는 순간 곡이 멎고, 정적 비트를 지나 결심(resolve)에

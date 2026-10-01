@@ -539,11 +539,11 @@ export function MemoryRoomScene({
         movementInputRef={movementInputRef}
         curtainPull={curtainPull}
       />
-      {/* 배트를 쥐면 카메라도 문 쪽으로 붙는다. 엔딩 영상의 첫 컷과 이어지는 구도 */}
       {/* 커서가 얹힌 오브젝트의 화면 자리. 캔버스 밖 커서가 그리로 빨려든다 */}
       <CursorTargetProjector />
       {/* 재구성 전환: 라디오 재점화와 새 공간 첫 진입에 방이 선으로 풀렸다 채워진다 */}
       <WireframeReveal enabled={cheapEffects} />
+      {/* 현관문을 누르면(endingStarted) 카메라가 현관에 붙는다. 엔딩 영상의 첫 컷과 이어지는 구도 */}
       <CameraRig
         focusId={endingStarted ? "ending" : (cameraHold ?? focusMemoryId)}
         roomZoom={roomZoom}
