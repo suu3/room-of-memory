@@ -1,6 +1,16 @@
 "use client";
 
-import { ChatCircleDots, Check, PhoneDisconnect, UsersThree } from "@phosphor-icons/react";
+import {
+  Baseball,
+  ChatCircleDots,
+  Check,
+  Flower,
+  GameController,
+  type Icon,
+  Mountains,
+  PhoneDisconnect,
+  UsersThree,
+} from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { KeyHint } from "@/components/ui/Keycap";
@@ -10,6 +20,7 @@ import type { MinigameProps } from "@/types/minigame";
 import { useOnceCompleter } from "../shell";
 import { PhoneShell } from "./PhoneShell";
 import {
+  type AvatarKind,
   CHAT_ROOMS,
   type ChatMessage,
   type ChatRoomId,
@@ -19,7 +30,9 @@ import {
   isThreadComplete,
   OUTGOING_CALLS,
   type PhoneTab,
+  PROFILE_AVATARS,
   revealNext,
+  startsRun,
   totalOutgoingCalls,
   visibleMessages,
 } from "./thread";
@@ -64,43 +77,89 @@ const ROOM_META = {
 /** 폰을 열었을 때 이미 펼쳐져 있는 만큼. 대화의 첫 몇 줄만 보인다. */
 const INITIAL_REVEALED = 2;
 
+/** 프사 그림: 아이콘과 바탕색. 색은 씬 팔레트 토큰이다 (DESIGN.md). */
+const AVATAR_LOOK: Record<AvatarKind, { icon: Icon; tone: string }> = {
+  baseball: { icon: Baseball, tone: "bg-scene-sage" },
+  gamepad: { icon: GameController, tone: "bg-scene-clay" },
+  flower: { icon: Flower, tone: "bg-scene-amber" },
+  mountains: { icon: Mountains, tone: "bg-scene-leaf" },
+};
+
+/** 메신저 프사 한 칸. 그림이 없는 상대는 이름 첫 글자를 둔다. */
+function Avatar({ kind, label }: { kind?: AvatarKind; label: string }) {
+  const look = kind ? AVATAR_LOOK[kind] : null;
+  const Glyph = look?.icon;
+  return (
+    <span
+      aria-hidden
+      className={`flex size-8 shrink-0 items-center justify-center rounded-xl text-scene-navy ${
+        look?.tone ?? "bg-scene-dusk"
+      }`}
+    >
+      {Glyph ? (
+        <Glyph size={18} weight="fill" />
+      ) : (
+        <span className="text-[0.75rem] font-bold text-bone/70">{label.slice(0, 1)}</span>
+      )}
+    </span>
+  );
+}
+
 function Bubble({
   message,
   text,
   label,
+  first,
 }: {
   message: ChatMessage;
   /** 이미 번역된 본문: 키가 아니라 화면에 찍을 문자열이다. */
   text: string;
   label: string;
+  /** 한 사람이 연달아 보낸 묶음의 첫 줄: 프사와 이름이 여기만 붙는다 (startsRun). */
+  first: boolean;
 }) {
   const mine = message.side === "me";
+  const body = (
+    <div className={`flex max-w-[82%] items-end gap-1.5 ${mine ? "flex-row-reverse" : ""}`}>
+      <p
+        className={`break-ko text-pretty rounded-2xl px-3 py-2 text-[0.875rem] leading-relaxed ${
+          mine
+            ? "rounded-br-sm bg-memory text-scene-navy"
+            : "rounded-bl-sm bg-scene-dusk text-paper"
+        }`}
+      >
+        {text}
+      </p>
+      {/* 안읽음 수가 시각 위에 선다. 줄어들지 않는 이 숫자가 이 화면의 화자다 */}
+      <span
+        className={`flex shrink-0 flex-col pb-1 text-[0.625rem] tabular-nums ${
+          mine ? "items-end" : "items-start"
+        }`}
+      >
+        {message.unread ? <span className="font-bold text-memory">{message.unread}</span> : null}
+        <span className="text-bone/35">{message.time}</span>
+      </span>
+    </div>
+  );
+  if (mine) return <li className="flex animate-fade-rise flex-col items-end">{body}</li>;
   return (
-    <li className={`flex animate-fade-rise flex-col ${mine ? "items-end" : "items-start"}`}>
-      {!mine && label ? (
-        <span className="mb-1 px-1 text-[0.6875rem] font-bold tracking-wider text-bone/45">
-          {label}
-        </span>
-      ) : null}
-      <div className={`flex max-w-[82%] items-end gap-1.5 ${mine ? "flex-row-reverse" : ""}`}>
-        <p
-          className={`break-ko text-pretty rounded-2xl px-3 py-2 text-[0.875rem] leading-relaxed ${
-            mine
-              ? "rounded-br-sm bg-memory text-scene-navy"
-              : "rounded-bl-sm bg-scene-dusk text-paper"
-          }`}
-        >
-          {text}
-        </p>
-        {/* 안읽음 수가 시각 위에 선다. 줄어들지 않는 이 숫자가 이 화면의 화자다 */}
-        <span
-          className={`flex shrink-0 flex-col pb-1 text-[0.625rem] tabular-nums ${
-            mine ? "items-end" : "items-start"
-          }`}
-        >
-          {message.unread ? <span className="font-bold text-memory">{message.unread}</span> : null}
-          <span className="text-bone/35">{message.time}</span>
-        </span>
+    <li className="flex animate-fade-rise items-start gap-2">
+      {/* 묶음의 이어지는 줄은 프사 자리를 비워 둔다: 말풍선 줄이 첫 줄과 나란히 선다 */}
+      {first ? (
+        <Avatar
+          kind={message.fromKey ? PROFILE_AVATARS[message.fromKey] : undefined}
+          label={label}
+        />
+      ) : (
+        <span aria-hidden className="w-8 shrink-0" />
+      )}
+      <div className="flex min-w-0 flex-1 flex-col items-start">
+        {first && label ? (
+          <span className="mb-1 px-1 text-[0.6875rem] font-bold tracking-wider text-bone/45">
+            {label}
+          </span>
+        ) : null}
+        {body}
       </div>
     </li>
   );
@@ -280,12 +339,13 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
               {t("minigame.phoneChat.date")}
             </p>
             <ul className="flex flex-col gap-2.5">
-              {visibleMessages(revealed).map((message) => (
+              {visibleMessages(revealed).map((message, index, shown) => (
                 <Bubble
                   key={message.id}
                   message={message}
                   text={t(message.textKey)}
                   label={message.fromKey ? t(message.fromKey) : ""}
+                  first={startsRun(shown, index)}
                 />
               ))}
             </ul>
@@ -302,12 +362,13 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
               {t("minigame.phoneChat.family.date")}
             </p>
             <ul className="flex flex-col gap-2.5">
-              {FAMILY_CHAT.map((message) => (
+              {FAMILY_CHAT.map((message, index) => (
                 <Bubble
                   key={message.id}
                   message={message}
                   text={t(message.textKey)}
                   label={message.fromKey ? t(message.fromKey) : ""}
+                  first={startsRun(FAMILY_CHAT, index)}
                 />
               ))}
             </ul>

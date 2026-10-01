@@ -43,6 +43,33 @@ export const FRIEND = {
   juwan: "minigame.phoneChat.contact.juwan",
 } as const satisfies Record<string, CommonTextKey>;
 
+/** 프사 그림의 종류. 그림은 UI(index.tsx)가 아이콘으로 그리고, 여기는 누가 무엇인지만 갖는다. */
+export type AvatarKind = "baseball" | "gamepad" | "flower" | "mountains";
+
+/**
+ * 대화 상대마다의 프사. 그 사람이 평소 자기를 어떻게 보여 주던 사람인지 말없이 알려 준다.
+ * 평범할수록 좋다: 1페이즈 폰은 "그 전날 밤까지 평범했다"를 보여 주는 화면이다.
+ *
+ * 윤호는 공을 받던 포수라 야구공, 주완은 매점 내기 격투 게임이라 게임패드, 엄마는 꽃,
+ * 아빠는 아빠들 프사의 단골인 산 풍경이다 (docs/story.md 인물 설정).
+ */
+export const PROFILE_AVATARS: Readonly<Partial<Record<CommonTextKey, AvatarKind>>> = {
+  [FRIEND.yunho]: "baseball",
+  [FRIEND.juwan]: "gamepad",
+  "minigame.phoneChat.contact.mom": "flower",
+  "minigame.phoneChat.contact.dad": "mountains",
+};
+
+/**
+ * 이 줄이 한 사람이 연달아 보낸 말풍선 묶음의 첫 줄인가. 메신저처럼 프사와 이름은 묶음의
+ * 첫 줄에만 붙고, 이어지는 줄은 프사 자리만큼 들여 쓴다.
+ */
+export function startsRun(messages: readonly ChatMessage[], index: number): boolean {
+  const previous = messages[index - 1];
+  const message = messages[index];
+  return !previous || previous.side !== message.side || previous.fromKey !== message.fromKey;
+}
+
 /**
  * 친구들 단톡방: 셋이 쓰는 방(윤호·주완·나). 방 이름은 "대학 포기한 고삼들의 모임".
  *

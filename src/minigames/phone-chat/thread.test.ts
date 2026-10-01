@@ -8,7 +8,9 @@ import {
   isThreadComplete,
   OUTGOING_CALLS,
   PHONE_TABS,
+  PROFILE_AVATARS,
   revealNext,
+  startsRun,
   totalOutgoingCalls,
   visibleMessages,
 } from "./thread";
@@ -106,5 +108,24 @@ describe("phone-chat thread", () => {
     const mine = FAMILY_CHAT.filter((message) => message.side === "me");
     expect(mine).toHaveLength(1);
     expect(FAMILY_CHAT.length).toBeGreaterThan(3);
+  });
+});
+
+describe("phone-chat profiles", () => {
+  it("단톡방에서 말하는 상대는 모두 프사가 있다", () => {
+    for (const message of [...GROUP_CHAT, ...FAMILY_CHAT]) {
+      if (message.side === "me") continue;
+      expect(message.fromKey && PROFILE_AVATARS[message.fromKey], message.id).toBeTruthy();
+    }
+  });
+
+  it("프사와 이름은 한 사람이 연달아 보낸 묶음의 첫 줄에만 붙는다", () => {
+    const firsts = GROUP_CHAT.filter((_, index) => startsRun(GROUP_CHAT, index)).map(
+      (message) => message.id,
+    );
+    // 주완 j1·j2, 윤호 y1, 주완 j3, 윤호 y2, 나 m1·m2, 윤호 y3·y4, 주완 j4
+    expect(firsts).toEqual(["j1", "y1", "j3", "y2", "m1", "y3", "j4"]);
+    // 가족방은 엄마·아빠가 번갈아 말해서 매 줄이 새 묶음이다
+    expect(FAMILY_CHAT.every((_, index) => startsRun(FAMILY_CHAT, index))).toBe(true);
   });
 });
