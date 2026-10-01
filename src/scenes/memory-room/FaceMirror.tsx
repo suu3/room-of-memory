@@ -20,7 +20,7 @@ const FACE_SIZE = 256;
 /** 다시 찍는 간격(프레임). 거울 앞에 서 있는 동안만 돈다. */
 const RENDER_INTERVAL = 2;
 /** 세로 화각. 세면대 앞(1m 남짓)에서 머리와 어깨가 든다. */
-const FACE_FOV = 34;
+const FACE_FOV = 30;
 /**
  * 얼굴의 높이: 1인칭 눈높이(EYE_HEIGHT)보다 아래다. 머리가 큰 캐릭터라 눈이 머리의 아래쪽에
  * 있다. 유리 한가운데(1.72m)에서 내려다보면 머리카락만 찍힌다. 거울 앞에 선 사람이 보는 건
@@ -34,6 +34,7 @@ const FACE_LIFT = 0.006;
 
 const cameraPosition = new Vector3();
 const head = new Vector3();
+const back = new Vector3();
 
 /**
  * 세면대 앞에 서면 거울에 얼굴이 맺힌다.
@@ -108,16 +109,18 @@ export function FaceMirror({
     frameRef.current += 1;
     if (frameRef.current % RENDER_INTERVAL !== 0) return;
 
-    // 유리면에서, 눈높이로 얼굴을 본다
+    /*
+     * 거울의 상은 유리 너머 같은 거리에 맺힌다. 카메라를 유리면에 붙이면 얼굴까지 거리가
+     * 절반이라 두 배로 크게 찍힌다. 유리에서 얼굴까지의 거리만큼 유리 뒤로 물러선 자리에서
+     * 눈높이로 본다: 실제 거울에 비치는 크기다.
+     */
     mesh.getWorldPosition(cameraPosition);
     head.set(player.current.x, player.current.y + FACE_HEIGHT, player.current.z);
-    const glassHalf = height / 2 - 0.03;
-    camera.position.copy(cameraPosition);
-    camera.position.y = MathUtils.clamp(
-      head.y,
-      cameraPosition.y - glassHalf,
-      cameraPosition.y + glassHalf,
-    );
+    back.set(cameraPosition.x - head.x, 0, cameraPosition.z - head.z);
+    camera.position.set(cameraPosition.x + back.x, head.y, cameraPosition.z + back.z);
+    // 유리 뒤는 벽이다. 가까운 면을 유리면 바로 너머에 두어 벽을 잘라 내고 방만 찍는다
+    camera.near = back.length() + 0.02;
+    camera.updateProjectionMatrix();
     camera.lookAt(head);
     camera.updateMatrixWorld();
 
