@@ -17,9 +17,9 @@
 
 <div align="center">
 
-<a href="docs/demo.mp4"><img src="docs/screenshots/demo.webp" alt="플레이 영상 미리보기: 불 켜기, 의자와 침대, 공 받기, 라디오, 회상 컷씬" width="840"></a>
+<a href="docs/demo.mp4"><img src="docs/screenshots/demo.webp" alt="플레이 영상 미리보기: 불 켜기, 의자와 침대, 공 받기, 라디오, 회상 컷씬, 현관" width="840"></a>
 
-<sub>누르면 소리 있는 영상(40초)이 열립니다</sub>
+<sub>누르면 소리 있는 영상(51초)이 열립니다</sub>
 
 </div>
 
