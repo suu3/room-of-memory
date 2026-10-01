@@ -335,7 +335,7 @@ export function MemoryRoomScene({
   });
   /*
    * 밝기는 진행도가 정하고 공간이 정하지 않는다. 다만 방이 아닌 공간은 한 단계 낮게
-   * 출발한다 (docs/content-design.md 5장, SPACES의 lightOffset). 여기서 한 번만 깎아
+   * 출발한다 (docs/story/content-design.md 5장, SPACES의 lightOffset). 여기서 한 번만 깎아
    * 두면 조명·창빛·먼지가 전부 같은 값을 본다. 볕(warm)은 방의 창에서 오므로 창이
    * 없는 공간에서는 꺼진다.
    */
@@ -352,7 +352,7 @@ export function MemoryRoomScene({
   const level = roomLightLevel({ collected: collectedCount, memoryTotal: MEMORY_TOTAL, recovery });
   const dim = 1 - lampScaled(level, lightsOn, blackout);
   /*
-   * 등 (docs/visual-experiments.md 6장): 1막 후반 손 가까이만 비추는 점광원. 싼 효과라
+   * 등 (docs/direction/visual-experiments.md 6장): 1막 후반 손 가까이만 비추는 점광원. 싼 효과라
    * 폰에서도 켜지되, 커서가 없는 기기에서는 몸을 따라간다. 1인칭 구간에서는 빼는데,
    * 그 구간은 빛 하나(스위치·문)만 보여야 하기 때문이다.
    */
@@ -466,7 +466,7 @@ export function MemoryRoomScene({
         color={palette.memory}
         dim={dim}
         ambientOcclusion={ambientOcclusion}
-        // 1인칭으로 어둠 속을 걷는 동안만 잔상이 붙는다 (docs/visual-experiments.md 11장).
+        // 1인칭으로 어둠 속을 걷는 동안만 잔상이 붙는다 (docs/direction/visual-experiments.md 11장).
         // 엔딩의 문턱(exit)은 뺀다: 제 발로 걷지 않고, 무거운 효과 자리는 빛기둥이 쥔다
         firstPersonTrail={viewpoint !== null && viewpoint !== "exit" ? movementInputRef : null}
       >

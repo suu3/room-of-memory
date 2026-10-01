@@ -9,7 +9,7 @@ import { RIPPLE } from "@/scenes/memory-room/rooms/bathroom/water-ripple";
 import { resolveRoomPalette } from "@/scenes/memory-room/world/palette";
 
 /**
- * 세면대 고인 물의 단독 데모 (docs/visual-experiments.md 11장 "굴절 · 파문 → 세면대의 물").
+ * 세면대 고인 물의 단독 데모 (docs/direction/visual-experiments.md 11장 "굴절 · 파문 → 세면대의 물").
  *
  * 대야 하나(바닥판 + 테두리 넷)를 세우고 그 위에 게임과 같은 SinkWater를 얹는다. 버튼이
  * 열쇠를 집는 순간이다: `impactKey`를 하나 올리면 파문 하나가 번지고 배수구가 굴절로

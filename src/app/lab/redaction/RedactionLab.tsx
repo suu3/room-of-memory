@@ -37,7 +37,7 @@ const SAMPLES: readonly { lang: string; lines: readonly string[] }[] = [
 ];
 
 /**
- * 깨진 글리프 데모 (docs/visual-experiments.md 11장 "깨진 글리프").
+ * 깨진 글리프 데모 (docs/direction/visual-experiments.md 11장 "깨진 글리프").
  *
  * 안방 책상의 연구 서류(ClueOverlay의 ResearchNote)가 하는 일을 종이 판 세 장에 세운다.
  * intensity가 곧 깨지는 비율이다: 게임은 RESEARCH_REDACTION_RATIO에 고정돼 있고, 여기서는

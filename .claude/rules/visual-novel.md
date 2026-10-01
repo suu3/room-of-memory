@@ -18,7 +18,7 @@ src/i18n/locales/<lng>/memory-room.json  본문. base.json(손으로 쓰는 부�
 
 ## 페이즈와 조사 차수 (v4)
 
-- 이야기의 페이즈(intro · p1 · turning · p2 · p3 · p4 · resolve · ending)는 **저장하지 않는다**. 진행에서 파생된다 (`src/data/story-phase.ts`의 `storyPhaseOf`). 전이 조건과 표는 `docs/v4.md`.
+- 이야기의 페이즈(intro · p1 · turning · p2 · p3 · p4 · resolve · ending)는 **저장하지 않는다**. 진행에서 파생된다 (`src/data/story-phase.ts`의 `storyPhaseOf`). 전이 조건과 표는 `docs/story/implementation-status.md`.
 - 기억 하나는 조사 차수를 셋까지 가진다: `phase1`(1차, p1), `phase2`(2차), `phase3`(3차: 2차 뒤의 되짚기). 2차 이후에는 `from`(열리는 페이즈)이 필수다.
 - `unlockAfter: [radio]`는 같은 차수, `[computer@3]`은 그 기억의 3차다. 그 차수가 없으면 아래로 가장 가까운 차수를 본다.
 - `side: true`는 곁가지다. 페이즈를 넘기는 데 필요 없고 밝기 곡선에도 안 낀다. 그 밖의 `from: pN` 조사는 전부 그 페이즈의 필수 조사다.

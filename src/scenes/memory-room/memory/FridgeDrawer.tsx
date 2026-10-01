@@ -11,7 +11,7 @@ const TRAY_DEPTH = 0.5;
 const WALL = 0.02;
 
 /**
- * 냉장고 아래칸: "손대지 마"라던 서랍 (docs/content-design.md 4-2).
+ * 냉장고 아래칸: "손대지 마"라던 서랍 (docs/story/content-design.md 4-2).
  *
  * 앞면·손잡이·통이 한 그룹이라 그룹의 z를 밀면 통째로 열린다. 닫혀 있을 때 통은
  * 냉장고 몸통 속에 잠겨 보이지 않는다. 몸통을 복제하지 않고 앞면만 5mm 앞에 세워

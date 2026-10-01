@@ -10,7 +10,7 @@ import {
 } from "three";
 
 /**
- * 잔상 패스 (docs/visual-experiments.md 11장 "afterimage → 1인칭 두 구간").
+ * 잔상 패스 (docs/direction/visual-experiments.md 11장 "afterimage → 1인칭 두 구간").
  *
  * 지난 프레임을 조금 남기며 새 프레임을 겹친다. 1인칭으로 어둠 속을 걷는 두 구간(인트로의
  * 스위치 찾기, 2막 도입의 문 넘기)에만 붙는다. 30일 만에 움직이는 몸의 잔상이고, 빛에

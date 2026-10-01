@@ -1555,7 +1555,7 @@ body {
 }
 
 /*
- * 혼잣말이 물러나는 글자 (Monologue / monologue-exit.ts, docs/visual-experiments.md 8장).
+ * 혼잣말이 물러나는 글자 (Monologue / monologue-exit.ts, docs/direction/visual-experiments.md 8장).
  * 등장(타자기)은 그대로고 물러나는 쪽만 글자 하나하나가 제 지연으로 사라진다. 지연은
  * 컴포넌트가 인라인 animation-delay로 준다 (글자 수와 막에서 계산되므로 여기 고정할 수 없다).
  *

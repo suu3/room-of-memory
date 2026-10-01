@@ -291,7 +291,7 @@ export function PianoSheet({ palette, hasScrap }: { palette: RoomPalette; hasScr
   const paint = useSheetPaint(palette.linen, palette.frame);
   const animate = useEffectEnabled("cheap");
   /*
-   * 잉크가 모이는 순간 (docs/visual-experiments.md 11장): 조각을 들고 이 악보가 서 있는
+   * 잉크가 모이는 순간 (docs/direction/visual-experiments.md 11장): 조각을 들고 이 악보가 서 있는
    * 거실에 들어서면 번진 마디가 1.5초에 걸쳐 음표로 돌아온다. 조각이 없거나 모션을 끈
    * 판에서는 곧장 끝 상태다. 시작 시각은 ref에 두고 useFrame이 굴린다.
    */

@@ -280,7 +280,7 @@ export function RoomShell({
   /*
    * 라디오 목소리를 잡으면 문이 켜진다. 그리고 여는 것은 플레이어다.
    * 30일 만에 처음 문을 여는 순간을 자동으로 넘겨 버리면, 2막이 시작되는 이유가
-   * 도해의 결심이 아니라 진행도가 된다 (docs/content-design.md 2장).
+   * 도해의 결심이 아니라 진행도가 된다 (docs/story/content-design.md 2장).
    */
   const doorReady = useMemoryRoomStore(selectDoorReady);
   const openRoomDoor = useMemoryRoomStore((state) => state.openRoomDoor);

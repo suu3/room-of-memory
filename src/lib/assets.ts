@@ -202,7 +202,7 @@ export const ASSETS = {
   /**
    * 바퀴마다 한 곡. 값은 **후보 목록**이고 앞에서부터 받아 처음 성공한 것을 튼다
    * (music.ts의 startMusic): 아직 리포에 없는 곡을 앞에 세워 둬도 방이 조용해지지
-   * 않는다. 규격과 고르는 기준은 docs/content-design.md 8-1.
+   * 않는다. 규격과 고르는 기준은 docs/story/content-design.md 8-1.
    */
   bgm: {
     /**

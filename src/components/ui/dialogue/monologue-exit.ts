@@ -1,7 +1,7 @@
 import type { Act } from "@/store/memory-room";
 
 /**
- * 혼잣말이 물러날 때 글자가 움직이는 계획 (docs/visual-experiments.md 8장).
+ * 혼잣말이 물러날 때 글자가 움직이는 계획 (docs/direction/visual-experiments.md 8장).
  *
  * 등장(타자기)은 손대지 않는다. 물러나는 쪽만 글자 단위다:
  *

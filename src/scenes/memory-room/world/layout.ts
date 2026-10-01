@@ -74,7 +74,7 @@ export const OPEN_DOOR_LEAF_COLLIDERS = openDoorLeafColliders();
 /*
  * ---------------------------------------------------------------- 거실 (v2)
  *
- * 방문(-x 벽) 너머의 두 번째 공간 (docs/content-design.md 3-1). 방과 벽 하나
+ * 방문(-x 벽) 너머의 두 번째 공간 (docs/story/content-design.md 3-1). 방과 벽 하나
  * (x = ROOM_SHELL_BOUNDS.minX)를 공유하고, 그 벽의 문이 둘을 잇는다.
  *
  * 깊이(z)로 두 구역이다. 앞쪽(+z)은 소파가 TV를 보는 거실, 뒤쪽(-z)은 ㄱ자 부엌과
@@ -381,7 +381,7 @@ export const LIVING_COLLIDERS = [
 
 /**
  * 현관문: 현관 홈(LIVING_ENTRY_SHELL)의 뒷벽. 배트가 방문을 열게 되면서 엔딩 트리거가
- * 여기로 왔다 (docs/content-design.md 3-2). 문이 벽 안쪽(+z)을 보고, 밖은 -z다.
+ * 여기로 왔다 (docs/story/content-design.md 3-2). 문이 벽 안쪽(+z)을 보고, 밖은 -z다.
  *
  * 원래는 -x 벽의 냉장고 옆이었다. 그 벽은 안방문과 나란히 서서 현관이 옆방 문처럼
  * 읽혔고, 뒤로 늘어난 거실에서는 방 한가운데 옆구리로 열렸다. 뒷벽 쪽은 카메라를 마주
@@ -492,7 +492,7 @@ export const ROOM_COLLIDERS = [
 
 /**
  * 현관문 옆에 세워둔 배트. 수집 대상이 아니라 2막을 다 돌면(앰플) 켜지는 3막
- * 트리거라 MEMORY_PLACEMENTS와 따로 둔다 (docs/content-design.md 3-2).
+ * 트리거라 MEMORY_PLACEMENTS와 따로 둔다 (docs/story/content-design.md 3-2).
  *
  * 방문 옆이 아니라 여기 서 있는 이유: 3막이 현관에서 나기 때문이다. 방에 두면
  * 마지막 장면을 위해 방까지 되돌아가야 하고, "현관에서 배트와 앰플을 쥐고 문을
@@ -510,7 +510,7 @@ export const BAT_PLACEMENT = {
 
 /**
  * 문 쪽 왼벽에 붙은 조명 스위치. 기억도 트리거도 아닌 배경 오브젝트다.
- * 진행에는 아무 영향이 없고 방의 불만 끄고 켠다 (docs/content-design.md 6-3).
+ * 진행에는 아무 영향이 없고 방의 불만 끄고 켠다 (docs/story/content-design.md 6-3).
  *
  * 좌표는 RoomDecor가 장식으로 그리던 자리를 그대로 물려받았다 (왼벽 안쪽 면
  * x=-5.91 + 판 두께의 절반). 장식과 실물을 둘 다 두면 스위치가 두 개로 보인다.
@@ -897,7 +897,7 @@ export const CAMERA_PRESETS = {
 /*
  * ---------------------------------------------------------------- 화장실 · 안방 (v3)
  *
- * 2막부터 집이 한 공간씩 열린다 (docs/content-design.md 3-1). 둘 다 거실에서 문으로
+ * 2막부터 집이 한 공간씩 열린다 (docs/story/content-design.md 3-1). 둘 다 거실에서 문으로
  * 이어진다: 화장실은 거실 앞벽(+z) 너머, 안방은 거실 -x 벽(현관 쪽) 너머.
  *
  * 문 자리는 거실 가구 발자국 사이의 빈 벽이다. 앞벽은 TV장(x ≥ -10.75)과 피아노

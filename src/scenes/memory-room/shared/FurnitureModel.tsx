@@ -17,7 +17,7 @@ interface FurnitureModelProps {
    */
   materialColors?: Readonly<Record<string, string>>;
   /**
-   * 표면에 곱하는 얼룩 텍스처 (docs/visual-experiments.md 5장 "컵라면 용기"). 재질의 기본색
+   * 표면에 곱하는 얼룩 텍스처 (docs/direction/visual-experiments.md 5장 "컵라면 용기"). 재질의 기본색
    * 위에 곱해져 어두운 무늬가 앉는다. uv가 있는 메쉬에만 먹는다.
    */
   stainMap?: Texture | null;

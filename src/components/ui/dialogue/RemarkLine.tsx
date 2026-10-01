@@ -37,7 +37,7 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen" | "needs-item">, CommonTextKe
 };
 
 /**
- * 물건을 눌렀을 때 흐르는 한 줄 (docs/content-design.md 3-1).
+ * 물건을 눌렀을 때 흐르는 한 줄 (docs/story/content-design.md 3-1).
  *
  * 조사도 기록도 아닌 자리의 혼잣말이다: 1페이즈의 닫힌 방문("나가 봐야 뭐 해."),
  * 꺼진 컴퓨터, 화장실 칫솔컵(쉼표 비트), 아빠 힌트를 보기 전의 하부장 (v4 설계서 3-2 · 3-5).

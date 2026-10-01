@@ -6,7 +6,7 @@ import { prefersReducedMotion } from "@/lib/reduced-motion";
 import { useEffectsStore } from "@/store/effects";
 
 /**
- * 시각 실험 효과의 예산 등급 (docs/visual-experiments.md 9장).
+ * 시각 실험 효과의 예산 등급 (docs/direction/visual-experiments.md 9장).
  *
  * 미니게임 스킵이 useSkipEligible 한 곳에서 갈리는 것과 같은 이유로, 효과를 켤지 끌지는
  * 여기 한 곳이 정한다. 효과 컴포넌트는 `enabled`·`intensity`를 prop으로 받고 스토어를

@@ -36,7 +36,7 @@ const FOLLOW_INSET = 1.6;
  * 합집합 상자다. 공간별로 한계를 갈라 문턱에서 스위치하면 목표점이 한 번에 수 유닛을
  * 건너뛰어 카메라가 출렁인다. 합집합이면 목표점이 플레이어를 따라 연속으로 미끄러진다.
  * 전환 연출이 따로 없는 이유다. 문을 넘는 순간은 컷이 아니라 이동이다
- * (docs/content-design.md 3-3). 열린 문간이 바뀔 때만 다시 계산한다.
+ * (docs/story/content-design.md 3-3). 열린 문간이 바뀔 때만 다시 계산한다.
  */
 const limitsCache: {
   doorOpened: boolean | null;

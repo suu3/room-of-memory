@@ -71,7 +71,7 @@ export function MemoryRoom() {
   useAudioRuntime();
   const collected = useMemoryRoomStore(selectCollected);
   const revisited = useMemoryRoomStore((state) => state.revisited);
-  // 밝기는 V자: 1막은 어두워지고 2막 추리로 되밝아진다 (docs/content-design.md 5장)
+  // 밝기는 V자: 1막은 어두워지고 2막 추리로 되밝아진다 (docs/story/content-design.md 5장)
   const recovery = useMemoryRoomStore(selectActTwoProgress);
   const lightLevel = roomLightLevel({
     collected: collected.length,

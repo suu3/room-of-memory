@@ -8,7 +8,7 @@ export default function LabIndexPage() {
         <p className="text-sm text-memory">기억의 방 · 시각 실험실</p>
         <h1 className="text-2xl font-semibold">실험 목록</h1>
         <p className="text-sm text-fog">
-          docs/visual-experiments.md의 효과들을 하나씩 돌려 본다. 개발 서버에서만 열린다.
+          docs/direction/visual-experiments.md의 효과들을 하나씩 돌려 본다. 개발 서버에서만 열린다.
         </p>
       </header>
       <ul className="flex flex-col divide-y divide-line">

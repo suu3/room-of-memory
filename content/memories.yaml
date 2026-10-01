@@ -44,7 +44,7 @@
 #   side          곁가지: true면 페이즈를 넘기는 데 필요 없다
 #   cutscene      이 조사를 마치는 순간 트는 컷씬 (cutscenes.yaml의 id)
 #   replayStill   다시보기에서 대사 뒤에 세우는 정지 그림 (public 기준 경로).
-#                 아직 비어 있는 칸과 거기에 무엇을 그릴지는 docs/replay-stills.md
+#                 아직 비어 있는 칸과 거기에 무엇을 그릴지는 docs/story/replay-stills.md
 #
 # 대사·미니게임·컷씬이 다 없으면 클릭 즉시 완료된다.
 
@@ -322,7 +322,7 @@ memories:
       from: p2
 
   # 식탁 위 엄마 쪽지. id가 cards인 것은 트럼프 판이던 시절의 이름이다: 저장된 진행에
-  # 이 id가 남아 있어 바꾸지 않는다 (docs/story.md 2장, 엄마의 흔적)
+  # 이 id가 남아 있어 바꾸지 않는다 (docs/story/story.md 2장, 엄마의 흔적)
   - id: cards
     icon: Note
     lore:

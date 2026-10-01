@@ -336,7 +336,7 @@ useFrame은 그 함수를 부르고 uniform 하나를 만진다.
 | 안방은 곡이 없다 | 히치콕 *새*: 음악 없는 영화 | 4페이즈 전체 | `selectMusicPlaying`이 `p4`에서 false | `storyPhaseOf === "p4"` |
 | 열쇠로 밀고 들어가는 크레인 | 히치콕 *오명*: 무도회장에서 손 안의 열쇠까지 | 하부장이 열리는 순간 | `cameraHold` (스토어) → `CameraRig` 크레인 lambda·배율, `crane-shot.ts` | `finishPuzzle("sink-dial")` → 4.2초 뒤 `endCameraHold` |
 
-**곡을 빼는 쪽을 고른 이유.** 4장(v4.md)의 "페이즈별 BGM"은 곡이 와야 채워지는데, 4페이즈는
+**곡을 빼는 쪽을 고른 이유.** 4장(implementation-status.md)의 "페이즈별 BGM"은 곡이 와야 채워지는데, 4페이즈는
 곡이 없는 게 더 세다. 안방 문이 열리는 순간 곡이 멎고, 정적 비트를 지나 결심(resolve)에
 들어서면 2막 곡이 그 정적 위에 다시 든다. 곡이 다시 드는 자리가 "…갔다 올게."다.
 

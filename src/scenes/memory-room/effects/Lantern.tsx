@@ -22,7 +22,7 @@ const FOLLOW_LAMBDA = 7;
 const LEVEL_LAMBDA = 2.2;
 
 /**
- * 손 가까이만 비추는 등 (docs/visual-experiments.md 6장). 수치는 lantern-light.ts.
+ * 손 가까이만 비추는 등 (docs/direction/visual-experiments.md 6장). 수치는 lantern-light.ts.
  *
  * 마우스 기기에서는 커서가 바닥에 닿는 자리, 손가락 기기에서는 몸 앞(카메라 쪽)이다. 커서가 캔버스
  * 밖에 있으면(r3f의 pointer는 마지막 자리에 멈춘다) 광선이 바닥을 못 만날 때만 몸으로

@@ -143,7 +143,7 @@ export const CLUE_AFTER_VISIT = {
 
 /**
  * 미궁 문제: 기억이 아니라 **잠금**이다. 수집에도 재조사에도 안 세어지고, 푼 기록만
- * solvedPuzzles에 남는다 (docs/content-design.md 3-2).
+ * solvedPuzzles에 남는다 (docs/story/content-design.md 3-2).
  *
  * sink-dial은 세면대 하부장의 다이얼이다 (v4 3-5). 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만
  * 열리고, 풀면 안방 열쇠(parents-key)가 손에 들어온다 (store의 finishPuzzle).

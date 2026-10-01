@@ -770,7 +770,7 @@ const MONITOR_GLASS = {
 } as const;
 
 /**
- * 꺼진 모니터 유리에 비치는 방 (docs/visual-experiments.md 11장, DotReflection). 도트 굵기는
+ * 꺼진 모니터 유리에 비치는 방 (docs/direction/visual-experiments.md 11장, DotReflection). 도트 굵기는
  * 방 밝기를 따른다: 어두울수록 굵어 형체가 안 잡히고, 되찾을수록 촘촘해진다. 켜고 끄는 건
  * 효과 예산 한 곳이 정한다 (effect-budget, 렌더 타깃이 드는 heavy).
  */

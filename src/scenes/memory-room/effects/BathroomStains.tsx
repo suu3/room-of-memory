@@ -51,7 +51,7 @@ export function stainStepsForLevel(level: number): number {
 }
 
 /**
- * 화장실의 물때 (docs/visual-experiments.md 11장 "reaction-diffusion → 화장실 타일 · 욕조").
+ * 화장실의 물때 (docs/direction/visual-experiments.md 11장 "reaction-diffusion → 화장실 타일 · 욕조").
  *
  * 타일 면 위에 곱셈 블렌딩으로 얹는 얇은 판이다. 무늬가 있는 자리만 어두워지고 나머지는
  * 그대로다. 매 프레임 도는 것은 없다: 굽는 것은 마운트에 한 번이고, 그 뒤로는 텍스처 한 장.

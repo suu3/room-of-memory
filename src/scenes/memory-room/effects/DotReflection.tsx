@@ -97,7 +97,7 @@ function patchDotScreen(vertexShader: string, fragmentShader: string) {
 }
 
 /**
- * 꺼진 화면 유리에 비치는 방 (docs/visual-experiments.md 11장). 거울(MirrorReflection)과
+ * 꺼진 화면 유리에 비치는 방 (docs/direction/visual-experiments.md 11장). 거울(MirrorReflection)과
  * 같은 Reflector에 도트 스크린을 끼웠다. 굵기 곡선은 dot-screen.ts.
  *
  * 자리는 책상 위 모니터다 (MemoryObjects의 ComputerMemory). 처음엔 거실 TV에 세웠는데,

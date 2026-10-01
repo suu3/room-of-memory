@@ -37,7 +37,7 @@ import type { Aabb2, EulerTuple, Vec3Tuple } from "./types";
  * 집의 공간 목록과 그 사이의 문간 (v3).
  *
  * 예전에는 방과 거실 둘뿐이라 "거실에 있는가"라는 boolean 하나와 문간 하나로 충분했다.
- * 2막부터 집이 한 공간씩 열리면서(docs/content-design.md 3-1) 공간이 곧 데이터가 된다:
+ * 2막부터 집이 한 공간씩 열리면서(docs/story/content-design.md 3-1) 공간이 곧 데이터가 된다:
  * 걷기 범위·가구 발자국·카메라 중심·밝기 오프셋을 공간마다 갖고, 문간은 두 공간을
  * 잇는 판정 구간이다. Player·CameraRig·씬은 이 표만 보고 공간 수를 모른다.
  *
@@ -80,7 +80,7 @@ export interface SpaceDef {
   landing: { x: number; z: number };
 }
 
-/** 방이 아닌 공간이 방보다 어두운 몫 (docs/content-design.md 5장). */
+/** 방이 아닌 공간이 방보다 어두운 몫 (docs/story/content-design.md 5장). */
 const AWAY_LIGHT_OFFSET = 0.12;
 
 export const SPACES = {

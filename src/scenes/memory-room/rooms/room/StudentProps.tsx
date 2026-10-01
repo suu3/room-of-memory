@@ -49,7 +49,7 @@ export function StudentDeskProps() {
 
 export function StudentRoomProps() {
   /*
-   * 컵라면 용기의 물때 (docs/visual-experiments.md 5장). 화장실 타일과 같은 반응확산
+   * 컵라면 용기의 물때 (docs/direction/visual-experiments.md 5장). 화장실 타일과 같은 반응확산
    * 무늬의 작은 메아리다. 조사할수록(방이 어두워질수록) 무늬가 더 자라 있다: 조사 한 번에
    * 한 번 다시 굽는다. 용기가 화면에서 작아 잘 안 읽힐 수 있다: 가시성은 실제 화면에서 본다.
    */

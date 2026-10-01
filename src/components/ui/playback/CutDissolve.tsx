@@ -7,7 +7,7 @@ import { bakeNoise, dissolveThreshold, type NoiseGrain } from "./cut-dissolve";
 const NOISE_SIZE = 128;
 /**
  * 그리는 간격의 하한. rAF는 60fps로 오지만 문턱값 장막은 30fps로 충분하다
- * (docs/visual-experiments.md 7장). 16.7ms 프레임 둘에 한 번씩 걸리도록 30ms로 잡는다.
+ * (docs/direction/visual-experiments.md 7장). 16.7ms 프레임 둘에 한 번씩 걸리도록 30ms로 잡는다.
  */
 const MIN_FRAME_MS = 30;
 /** 필름 그레인은 판을 늘리지 않고 깐다. 노이즈 픽셀 하나가 화면에서 이 배수로 보인다. */
@@ -46,7 +46,7 @@ function parseRgb(color: string): [number, number, number] | null {
 }
 
 /**
- * 컷이 바뀔 때 그림 위에 얹히는 장막 (docs/visual-experiments.md 7장 "회상 컷 간").
+ * 컷이 바뀔 때 그림 위에 얹히는 장막 (docs/direction/visual-experiments.md 7장 "회상 컷 간").
  *
  * 앞 컷의 그림을 붙잡아 둘 수는 없다(DOM 이미지를 읽지 못한다). 대신 scene-void 색 장막을
  * 새 컷 위에 통째로 덮고, 노이즈 판을 문턱값으로 잘라 결을 따라 걷어낸다. 노이즈 값이

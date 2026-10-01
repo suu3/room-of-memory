@@ -8,7 +8,7 @@ import type { CurtainSide } from "./curtain-motion";
  * 파일에는 닫힌 자세(Basis)와 젖힌 자세(shape key `open`)가 들어 있고, 코드는 젖힘
  * 진행도(curtain-motion의 0~1)를 그 influence에 그대로 쓴다. 천을 옮기는 코드는 없다.
  * 그래서 블렌더에서 만든 커튼으로 바꿔 끼워도 이름 규약만 지키면 코드는 그대로다
- * (docs/model-export.md > Shape key로 여닫는 부품).
+ * (docs/models/model-export.md > Shape key로 여닫는 부품).
  *
  * 파일 규약:
  *  - 노드 `left` · `right`: 창 왼쪽·오른쪽 커튼 한 장씩. 재질이 없어 CurtainCloth가

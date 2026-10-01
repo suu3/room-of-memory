@@ -1,6 +1,6 @@
 /**
  * 등: 1막 후반, 방이 바닥 가까이 어두워졌을 때 손(커서)이나 몸 가까이만 비추는 점광원의
- * 수치 (docs/visual-experiments.md 6장 "커서 손전등").
+ * 수치 (docs/direction/visual-experiments.md 6장 "커서 손전등").
  *
  * 화면 위에 마스크를 씌워 어둡게 만드는 방식은 쓰지 않는다. 어둠은 씬 조명이 만든다
  * (DESIGN.md > Texture). 대신 진짜 광원 하나를 커서 자리에 세운다. 마우스가 없는

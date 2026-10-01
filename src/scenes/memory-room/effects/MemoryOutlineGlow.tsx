@@ -246,7 +246,7 @@ function GlowHoverPulse({
 }
 
 /**
- * 틸트 시프트 (docs/visual-experiments.md 6장). 화면 가운데 가로 띠만 초점이고 위아래가
+ * 틸트 시프트 (docs/direction/visual-experiments.md 6장). 화면 가운데 가로 띠만 초점이고 위아래가
  * 흐려져 방이 디오라마로 읽힌다. 수치는 tilt-focus.ts. 인스턴스를 직접 들고 값만 미는
  * 이유는 FilmLook과 같다: 래퍼는 프롭이 바뀌면 이펙트를 새로 만든다.
  *
@@ -306,7 +306,7 @@ function TiltShiftDriver({ effect }: { effect: TiltShiftEffect }) {
 }
 
 /**
- * 1인칭 구간의 잔상 (docs/visual-experiments.md 11장). 패스는 AfterimagePass, 양은 afterimage.ts.
+ * 1인칭 구간의 잔상 (docs/direction/visual-experiments.md 11장). 패스는 AfterimagePass, 양은 afterimage.ts.
  * 걷는 입력의 크기가 damp를 정한다. 몸이 서면 잔상도 몇 프레임 안에 걷힌다.
  */
 function useAfterimagePass(active: boolean) {
@@ -337,7 +337,7 @@ function AfterimageDriver({
 }
 
 /**
- * 엔딩의 빛기둥 (docs/visual-experiments.md 11장 "GodRays → 열리는 현관문"). 광원은 현관문
+ * 엔딩의 빛기둥 (docs/direction/visual-experiments.md 11장 "GodRays → 열리는 현관문"). 광원은 현관문
  * 밖의 판(LivingRoomShell의 EndingLightPlane, ending-light 채널)이다. 엔딩이 시작되는 순간
  * 만들어지고 화면이 타들어가는 1.5초 동안만 산다. 광원이 아직 없으면(거실 껍데기가
  * 안 서 있으면) 그냥 없는 것으로 친다.

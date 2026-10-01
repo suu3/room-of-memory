@@ -66,7 +66,7 @@ export function AmpoulePickupMinigame({ onComplete, onSettled, stage = "play" }:
   const pickable = open && !picked && stage === "play";
   const { handlers } = useGlowHover(pickable);
   /*
-   * 굴절 유리 (docs/visual-experiments.md 11장): 들어 올린 앰플 너머로 냉장고 안이 굴절돼
+   * 굴절 유리 (docs/direction/visual-experiments.md 11장): 들어 올린 앰플 너머로 냉장고 안이 굴절돼
    * 보인다. transmission은 씬을 렌더 타깃에 한 번 더 그리는 heavy 효과라, 카메라가
    * 붙박이인 이 판에서만, 예산이 full인 기기에서만 켠다.
    */

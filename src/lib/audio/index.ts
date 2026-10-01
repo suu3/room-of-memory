@@ -128,7 +128,7 @@ const RESULT_MUSIC_VOLUME = 0.3;
  *
  * 바퀴마다 곡이 다르고(1바퀴 발랄 → 2바퀴 따뜻), 그 안에서 밝기가 컷오프·음량·
  * 리버브를 움직인다. V자 감정선이 곡선 하나로 두 곡에 걸린다
- * (docs/content-design.md 8장).
+ * (docs/story/content-design.md 8장).
  *
  * 곡이 갈리는 지점은 전환 컷씬이다. 컷씬 동안은 `playing`이 false라 곡이 멎어
  * 있고, 방으로 돌아올 때 새 곡이 정적 위에 처음 든다.

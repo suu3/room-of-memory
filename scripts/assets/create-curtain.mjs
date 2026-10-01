@@ -4,7 +4,7 @@
  * 침대 이불(room-bed.glb의 shape key `folded`)과 같은 방식으로, 커튼도 **shape key로
  * 여닫는다**. 파일에는 닫힌 자세(Basis)와 젖힌 자세(shape key `open`)가 들어 있고,
  * 게임은 젖힘 진행도를 morph influence에 그대로 쓴다. 코드가 천을 옮기지 않으므로
- * 블렌더에서 만든 커튼으로 바꿔 끼울 때도 코드는 그대로다 (docs/model-export.md).
+ * 블렌더에서 만든 커튼으로 바꿔 끼울 때도 코드는 그대로다 (docs/models/model-export.md).
  *
  * 파일 규약 (게임이 기대하는 것):
  *  - 노드 이름 `left` · `right`: 창문 왼쪽·오른쪽 커튼 한 장씩. 재질은 없어도 된다

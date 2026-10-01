@@ -1,5 +1,5 @@
 /**
- * 컷 dissolve의 수치 (docs/visual-experiments.md 7장 "회상 컷 간").
+ * 컷 dissolve의 수치 (docs/direction/visual-experiments.md 7장 "회상 컷 간").
  *
  * 컷씬·다시보기에서 컷이 바뀔 때 그림이 opacity로 겹쳐 지나가는 대신, 노이즈 판을
  * 문턱값으로 잘라 "결을 따라" 드러난다. 여기는 브라우저 없이 도는 부분만: 컷마다 어떤

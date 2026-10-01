@@ -180,7 +180,7 @@ export interface MemoryPhaseConfig {
    * 재현하는 것이 목적이 아니라, "그때 본 것"이 한 장으로 남는 기억만 해당한다.
    * 없으면 대사만 흐르고 방이 뒤에 비친다.
    *
-   * 규격·결·아직 비어 있는 칸은 docs/replay-stills.md.
+   * 규격·결·아직 비어 있는 칸은 docs/story/replay-stills.md.
    */
   replayStill?: string;
 }

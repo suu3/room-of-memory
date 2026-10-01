@@ -33,7 +33,7 @@ const SWAP_FADE_MS = EXIT_TOTAL_MS;
  * 사라졌다 다시 찍히면 대사창이 닫히는 것과 겹쳐서 화면이 깜빡인 것처럼 보인다.
  * 옛 줄을 한 박자 물러나게 한 뒤에 새 줄을 들인다.
  *
- * 물러나는 쪽은 글자 단위다 (docs/visual-experiments.md 8장). 1막에서는 말끝이 흐려지며
+ * 물러나는 쪽은 글자 단위다 (docs/direction/visual-experiments.md 8장). 1막에서는 말끝이 흐려지며
  * 떨어지고, 2막부터는 글자가 아래에서 위로 모이며 사라진다. 등장(타자기)은 그대로.
  * 효과 예산(useEffectEnabled)이 막으면 예전처럼 문단 전체가 opacity로 물러난다.
  *

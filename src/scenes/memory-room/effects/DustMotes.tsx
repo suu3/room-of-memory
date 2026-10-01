@@ -50,7 +50,7 @@ const PUSH_AMOUNT = 0.05;
 /**
  * 커서를 따라붙는 속도. 손보다 조금 늦어야 먼지가 "밀려난다"로 읽힌다.
  *
- * 밝기를 탄다 (docs/visual-experiments.md 6장 "먼지 + 잔상"): 어두울수록 느려서 손이
+ * 밝기를 탄다 (docs/direction/visual-experiments.md 6장 "먼지 + 잔상"): 어두울수록 느려서 손이
  * 지나간 자리가 한동안 비어 있다가 천천히 다시 쌓인다. 밝으면 곧바로 돌아온다.
  */
 const POINTER_LAMBDA: readonly [number, number] = [3, 9];

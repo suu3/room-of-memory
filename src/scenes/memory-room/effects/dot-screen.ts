@@ -1,5 +1,5 @@
 /**
- * 꺼진 모니터 유리에 비치는 방의 도트 굵기 (docs/visual-experiments.md 11장, DotReflection.tsx).
+ * 꺼진 모니터 유리에 비치는 방의 도트 굵기 (docs/direction/visual-experiments.md 11장, DotReflection.tsx).
  *
  * 반사는 그대로 두고 인광체 격자만 굵기를 바꾼다. 어두울수록 도트가 굵어 형체가 안
  * 잡히고, 되찾을수록 촘촘해져 방이 유리에 서서히 맺힌다. 도트 하나가 화소라면 이

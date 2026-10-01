@@ -185,7 +185,7 @@ export function HudGuideDock({ hidden = false }: { hidden?: boolean }) {
  *
  * 방문이 열리기 전에는 안 뜬다. 갈 수 있는 데가 방 하나뿐인 동안 "내 방"이라고 적어 봐야
  * 아무것도 말해주지 않는다. 2막부터 공간이 하나씩 열리면서 비로소 "여기가 어디인가"가
- * 정보가 된다 (docs/content-design.md 3-1).
+ * 정보가 된다 (docs/story/content-design.md 3-1).
  *
  * 평면도(수첩의 세 번째 페이지)와 같은 이름을 쓴다. 한쪽이 "안방", 다른 쪽이 "부모님 방"이면
  * 둘이 다른 곳으로 읽힌다: 이름은 i18n의 `space.*` 한 군데에 있다.

@@ -36,7 +36,7 @@ import { PianoCabinet } from "./PianoCabinet";
 import { PianoSheet } from "./PianoSheet";
 
 /**
- * 거실 가구 (docs/content-design.md 3-1). 전부 박스 조합: 방(RoomFurniture)과
+ * 거실 가구 (docs/story/content-design.md 3-1). 전부 박스 조합: 방(RoomFurniture)과
  * 같은 문법이라야 문 하나 건넌 같은 집으로 읽힌다.
  *
  * 부품 좌표는 전부 **1배** 기준이다. 그리는 쪽이 가구마다 바닥 기준점(layout의
@@ -50,7 +50,7 @@ import { PianoSheet } from "./PianoSheet";
  * 조사할 수 있는 것은 여기 없다. 2막에 조사하는 거실 물건(냉장고 문·아래칸,
  * 신발장 문, 식탁 트럼프)은 기억이라 MemoryObjects가 이 위에 얹는다. 가구는
  * 가구만 그리고, 여는 면의 테두리는 기억 쪽이 긋는다
- * (docs/content-design.md 4장).
+ * (docs/story/content-design.md 4장).
  *
  * 예외는 **앉는 자리**다 (소파 쿠션 셋 · 식탁 의자 셋 · 피아노 걸상). 앉는 건 조사가
  * 아니라 그냥 몸을 두는 일이라 기억으로 올릴 게 없고, 앉는 자리는 가구 그 자체다.

@@ -25,7 +25,7 @@ function isWireframeMaterial(material: Material): material is WireframeMaterial 
 const REVEAL_SPACES: readonly SpaceId[] = ["bathroom", "parents"];
 
 /**
- * 재구성 전환 (docs/visual-experiments.md 7장·11장). 방의 모든 면이 잠깐 선으로 풀렸다가
+ * 재구성 전환 (docs/direction/visual-experiments.md 7장·11장). 방의 모든 면이 잠깐 선으로 풀렸다가
  * 다시 채워진다. 시간표는 reconstruction.ts.
  *
  * 두 사건을 듣는다: 라디오가 저 혼자 깨어나는 순간(전환 컷씬에서 3D로 돌아온 자리)과,

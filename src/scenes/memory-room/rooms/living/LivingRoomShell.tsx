@@ -39,7 +39,7 @@ import type { Vec3Tuple } from "../../world/types";
 import { DOOR_HOLE_Z } from "../room/RoomShell";
 
 /**
- * 방문 너머의 거실 (docs/content-design.md 3-1).
+ * 방문 너머의 거실 (docs/story/content-design.md 3-1).
  *
  * 아직 골격뿐이다. 바닥·벽·현관문. 가구(소파·TV·식탁·신발장)와 미궁 문제는
  * 다음 단계에서 선다. 벽 치수는 RoomShell과 같은 값을 쓴다: 같은 집이라 벽
@@ -250,7 +250,7 @@ function ShellBox({
 }
 
 /**
- * 현관문: 3막의 마지막 물건 (docs/content-design.md 3-2).
+ * 현관문: 3막의 마지막 물건 (docs/story/content-design.md 3-2).
  *
  * 잠금 퍼즐은 없다. 30일 만에 나가는 문이라, 여기서 문제를 풀게 하면 결심의 순간이
  * 퍼즐에 묻힌다. 떠날 준비는 챙기는 것으로 끝난다.

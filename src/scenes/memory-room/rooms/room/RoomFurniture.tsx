@@ -507,7 +507,7 @@ const HOUR_ANGLE = -(((CLOCK_HOUR % 12) + CLOCK_MINUTE / 60) / 12) * Math.PI * 2
 const SECOND_STOPPED = 23;
 
 /**
- * 초침 (docs/visual-experiments.md 11장 "시계"). 1막 내내 멈춰 있다가 **2막부터 다시 간다**.
+ * 초침 (docs/direction/visual-experiments.md 11장 "시계"). 1막 내내 멈춰 있다가 **2막부터 다시 간다**.
  * 방의 다른 것은 전부 그날에 멈춰 있는데, 목소리를 잡고 문이 열린 뒤 이 시계만 다시
  * 시간이 흐른다. 시·분은 그대로다: 맞는 시각이 아니라 흐른다는 사실이 내용이다.
  *

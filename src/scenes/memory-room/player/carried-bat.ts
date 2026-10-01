@@ -2,7 +2,7 @@ import { type Object3D, Vector3 } from "three";
 import { batDirection, palmPoint, placeHeldBat, reachHandTo } from "./held-bat";
 
 /*
- * 엔딩에 어깨에 메고 나가는 배트 (docs/content-design.md 3-3).
+ * 엔딩에 어깨에 메고 나가는 배트 (docs/story/content-design.md 3-3).
  *
  * 문턱을 넘는 뒷모습이 엔딩 영상의 첫 컷, 배트를 쥐고 문을 나서는 뒷모습과 이어져야 한다.
  * 오른손 한 손으로 손잡이를 쥐고, 배럴은 오른어깨에 걸쳐 뒤로 넘긴다. 뒤에서 봤을 때

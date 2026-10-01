@@ -97,7 +97,7 @@ export interface RoomLightInput {
 
 /**
  * 공간의 밝기(0=바닥, 1=완성). 1막은 깎고 2막은 채운다.
- * 기획의 V자 감정선 (docs/content-design.md 5장).
+ * 기획의 V자 감정선 (docs/story/content-design.md 5장).
  *
  * 진입 0.62(평범) → 1막 완주 0(가장 어두움) → 2막 완주 1(금빛).
  * 두 구간이 0에서 이어지므로 라디오 전환점에서 끊기지 않는다.
@@ -147,7 +147,7 @@ export function roomLightValue(ramp: readonly [number, number], level: number): 
  *
  * 2막은 dim을 건너뛴다. 평범한 낮의 방은 1막의 것이고, 추리 중에 그게 다시 뜨면
  * 2막의 톤(직면)이 무너진다. 바닥에서 곧장 온기로 넘어가는 편이 기획의
- * "정적 위에 새로 드는 다른 온기"와도 맞는다 (docs/content-design.md 8장).
+ * "정적 위에 새로 드는 다른 온기"와도 맞는다 (docs/story/content-design.md 8장).
  * 상단 독백은 이 단계와 무관하게 조사 개수를 따른다 (src/data/monologue.ts).
  */
 export function roomStageIndex(level: number, phase: 1 | 2): number {

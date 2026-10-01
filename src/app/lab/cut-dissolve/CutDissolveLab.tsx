@@ -24,7 +24,7 @@ const button =
   "rounded-sm border border-fog/30 px-3 py-1.5 text-sm hover:border-memory focus-visible:outline-memory";
 
 /**
- * 컷 dissolve의 단독 데모 (docs/visual-experiments.md 7장 "회상 컷 간" · 10장 11번).
+ * 컷 dissolve의 단독 데모 (docs/direction/visual-experiments.md 7장 "회상 컷 간" · 10장 11번).
  *
  * 16:9 판 위에 단색 컷 셋이 돌아가며 선다. "다음 컷"을 누르면 PlaybackScene에서 컷이
  * 바뀔 때와 같은 열쇠로 CutDissolve가 새 판을 덮고 결을 따라 걷어낸다. 결은 컷 번호가

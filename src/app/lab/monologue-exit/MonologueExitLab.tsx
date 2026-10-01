@@ -15,7 +15,7 @@ import type { Act } from "@/store/memory-room";
 const SAMPLE = "불을 켜지 않아도 어디에 뭐가 있는지 안다. 그게 좋은 건지는 모르겠다.";
 
 /**
- * 혼잣말 물러남 데모 (docs/visual-experiments.md 8장 "혼잣말 1막·2막").
+ * 혼잣말 물러남 데모 (docs/direction/visual-experiments.md 8장 "혼잣말 1막·2막").
  *
  * Monologue가 구간을 넘길 때 하는 일을 버튼 하나로 돌려 본다. 1차 = 1막(말끝부터 떨어짐),
  * 2차 = 2막(아래에서 위로 모임). intensity는 계단의 폭이다: 1이 게임의 220ms, 0으로 갈수록

@@ -52,7 +52,7 @@ function litMaterialsOf(root: {
 }
 
 /**
- * 현관문 옆에 세워둔 배트: 3막의 물건이다 (docs/content-design.md 3-2).
+ * 현관문 옆에 세워둔 배트: 3막의 물건이다 (docs/story/content-design.md 3-2).
  *
  * 앰플을 손에 넣어야(2막 완료) 켜지고, 쥐면 현관문이 열린다. 야구부였다는
  * 사실이 처음으로 쓸모를 갖는 자리이자, 도해가 밖을 어떻게 생각하고 있는지를

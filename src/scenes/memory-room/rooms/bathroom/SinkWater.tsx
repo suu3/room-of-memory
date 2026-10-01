@@ -9,7 +9,7 @@ import type { RoomPalette } from "../../world/palette";
 import { RIPPLE, rippleAlive, rippleAmplitude, rippleWavefront } from "./water-ripple";
 
 /**
- * 세면대에 고인 물 (docs/visual-experiments.md 11장 "굴절 · 파문 → 세면대의 물").
+ * 세면대에 고인 물 (docs/direction/visual-experiments.md 11장 "굴절 · 파문 → 세면대의 물").
  *
  * 30일 멈춘 집이라 물은 평소 정지다. 열쇠(parents-key)를 집는 순간 손이 물을 스친 듯
  * 파문 하나가 번지고, 대야 바닥의 배수구가 굴절로 흔들리다 잔다. 그 한 번이 전부다.

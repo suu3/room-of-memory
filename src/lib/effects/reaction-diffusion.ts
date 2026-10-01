@@ -1,5 +1,5 @@
 /**
- * Gray-Scott 반응확산을 CPU에서 한 번 굽는다 (docs/visual-experiments.md 11장 "화장실 타일").
+ * Gray-Scott 반응확산을 CPU에서 한 번 굽는다 (docs/direction/visual-experiments.md 11장 "화장실 타일").
  *
  * 매 프레임 돌리는 시뮬레이션이 아니다. 화장실은 2막에 처음 열리는 공간이고 30일 동안
  * 아무도 쓰지 않았으니 무늬는 이미 다 자란 상태로 서 있으면 된다. 첫 마운트에 N스텝을

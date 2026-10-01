@@ -68,7 +68,7 @@ export type GamePhase = 1 | 2;
 export type { StoryPhase, Visit };
 
 /**
- * 막: 이야기의 단계이자 공간의 단계 (docs/content-design.md 2장).
+ * 막: 이야기의 단계이자 공간의 단계 (docs/story/content-design.md 2장).
  *
  *   1막 방(외면) · 2막 방↔거실(직면의 추리) · 3막 현관(세상)
  *
@@ -255,17 +255,17 @@ export interface MemoryRoomState {
   /**
    * 2막의 첫 문 넘기(방문이 열린 뒤 거실에 처음 들어서기까지의 1인칭 구간)를
    * 마쳤는가. 문턱을 넘는 순간 끝난다. 그 뒤의 왕복은 평소처럼 이동이다
-   * (docs/content-design.md 3-3의 예외). 저장된다.
+   * (docs/story/content-design.md 3-3의 예외). 저장된다.
    */
   doorwayDone: boolean;
   /**
    * 방문이 열렸는가: 한 번 열리면 계속 열려 있다. 라디오 목소리를 들은 뒤에만
-   * 열 수 있고, **문이 열리는 것이 2막의 시작**이다 (docs/content-design.md 2장).
+   * 열 수 있고, **문이 열리는 것이 2막의 시작**이다 (docs/story/content-design.md 2장).
    */
   doorOpened: boolean;
   /**
    * 현관의 배트를 쥐었는가: 3막의 물건이다. 앰플을 손에 넣어야(2막 완료) 켜지고,
-   * 쥐어야 현관문이 열린다 (docs/content-design.md 3-2).
+   * 쥐어야 현관문이 열린다 (docs/story/content-design.md 3-2).
    */
   batTaken: boolean;
   /**
@@ -378,7 +378,7 @@ export interface MemoryRoomState {
    *
    * 기억 인터랙션(activeInteraction)과 다른 자리인 이유: 미궁 문제는 기억이
    * 아니다. 수집·재조사에 안 세어지고, 대사도 안 딸리고, 완료는 solvedPuzzles에만
-   * 남는다 (docs/content-design.md 3-2).
+   * 남는다 (docs/story/content-design.md 3-2).
    */
   activePuzzle: PuzzleId | null;
   /**
@@ -408,7 +408,7 @@ export interface MemoryRoomState {
   /**
    * 지금 흐르는 혼잣말 한 줄과 그 시각 (없으면 null). 닫힌 방문·꺼진 컴퓨터·칫솔컵·
    * 잠긴 하부장처럼 눌러도 조사가 아닌 물건이 한 줄을 흘리는 신호다 (RemarkLine).
-   * 방문의 줄은 잠긴 게 아니라 **안 여는** 것이라는 걸 말한다 (docs/content-design.md 3-1).
+   * 방문의 줄은 잠긴 게 아니라 **안 여는** 것이라는 걸 말한다 (docs/story/content-design.md 3-1).
    */
   remark: { id: RemarkId; at: number; memoryId?: MemoryId } | null;
   /**
@@ -1704,7 +1704,7 @@ export const selectDoorOpened = (state: MemoryRoomState) => state.doorOpened;
  * 셋 다 "빛 하나를 향해 걸어간다"는 같은 그림이고, 빛의 정체만 다르다: 인트로는
  * 전등 스위치, 2막 도입은 열린 방문, 엔딩은 열린 현관문 밖의 햇빛. 앞의 둘은 도해의
  * 눈이고 플레이어가 걷는다. 엔딩만 도해의 등 뒤에서, 제 발로 빛 속으로 걸어 나가는
- * 뒷모습을 본다. 그 뒤는 영상이 받는다 (docs/content-design.md 3-3).
+ * 뒷모습을 본다. 그 뒤는 영상이 받는다 (docs/story/content-design.md 3-3).
  *
  * - intro:   새 게임 시작 직후, 불을 켜기 전까지
  * - doorway: 방문이 열린 뒤, 거실에 처음 들어서기 전까지
@@ -1786,7 +1786,7 @@ export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogu
  * 컷씬만이 아니라 그 앞뒤까지 곡이 없다. 컷씬 동안만 멎게 했더니 컷씬이 끝나는 자리에서
  * 1막 곡이 처음부터 다시 들었다: 재난방송이 끊긴 정적 위에서 라디오가 말을 거는
  * 구간인데 곡이 돌아와 버리면 그 정적이 사라진다. 2막 곡은 문이 열리는 순간,
- * 이 정적 위에 처음 든다 (selectMusicPhase, docs/content-design.md 8장).
+ * 이 정적 위에 처음 든다 (selectMusicPhase, docs/story/content-design.md 8장).
  */
 /**
  * 상단 독백(혼잣말·목표 배너)이 물러나야 하는가. 말은 한 번에 하나만: 대사창·컷씬·미니게임·
@@ -1808,7 +1808,7 @@ export const selectMusicPlaying = (state: MemoryRoomState) =>
   state.activePlayback?.kind !== "cutscene" &&
   !(gamePhaseOf(state) === 2 && !state.doorOpened) &&
   /*
-   * 안방(p4)은 곡이 없다 (docs/visual-experiments.md 14장 "새"). 부모님의 서류를 읽는
+   * 안방(p4)은 곡이 없다 (docs/direction/visual-experiments.md 14장 "새"). 부모님의 서류를 읽는
    * 동안은 방의 소리만 남고, 정적 비트를 지나 결심(resolve)에 들어서는 순간 곡이 그
    * 정적 위에 다시 든다. 안방 문이 열리는 순간이 곡이 멎는 순간이다.
    */
@@ -1816,7 +1816,7 @@ export const selectMusicPlaying = (state: MemoryRoomState) =>
 
 /**
  * BGM이 몇 번째 곡을 틀어야 하는가. 곡은 막이 아니라 **전환 컷씬**을 기준으로
- * 둘로 갈린다 (docs/content-design.md 8장).
+ * 둘로 갈린다 (docs/story/content-design.md 8장).
  *
  * gamePhaseOf(수집 완주 즉시 2)가 아니라 doorOpened를 본다. 문이 열리는 것이
  * 2막의 시작이다(selectDoorReady 주석). 수집 완료부터 문이 열리기까지의 구간

@@ -80,7 +80,7 @@ export function FilmLookDriver({
   const motion = useRef({ resting: restingAberration(dim), pulse: 0, clean: 0 });
   /*
    * 엔딩: 문이 열리는 동안 색수차와 그레인이 0으로 수렴한다. 게임 내내 얹혀 있던
-   * 필름의 결이 처음으로 걷히는 순간이다 (docs/visual-experiments.md 4장 배트).
+   * 필름의 결이 처음으로 걷히는 순간이다 (docs/direction/visual-experiments.md 4장 배트).
    */
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
 

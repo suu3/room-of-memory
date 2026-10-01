@@ -35,7 +35,7 @@ export interface OutgoingCall {
   urgent?: boolean;
 }
 
-/** 친구 둘. 이름은 i18n이 갖고, 코드는 이 키로만 가리킨다 (docs/story.md 친구 설정). */
+/** 친구 둘. 이름은 i18n이 갖고, 코드는 이 키로만 가리킨다 (docs/story/story.md 친구 설정). */
 export const FRIEND = {
   /** 나윤호: 야구부 포수. 도해 공을 늘 받아주던 친구. */
   yunho: "minigame.phoneChat.contact.yunho",
@@ -51,7 +51,7 @@ export type AvatarKind = "baseball" | "gamepad" | "flower" | "mountains";
  * 평범할수록 좋다: 1페이즈 폰은 "그 전날 밤까지 평범했다"를 보여 주는 화면이다.
  *
  * 윤호는 공을 받던 포수라 야구공, 주완은 매점 내기 격투 게임이라 게임패드, 엄마는 꽃,
- * 아빠는 아빠들 프사의 단골인 산 풍경이다 (docs/story.md 인물 설정).
+ * 아빠는 아빠들 프사의 단골인 산 풍경이다 (docs/story/story.md 인물 설정).
  */
 export const PROFILE_AVATARS: Readonly<Partial<Record<CommonTextKey, AvatarKind>>> = {
   [FRIEND.yunho]: "baseball",
@@ -78,7 +78,7 @@ export function startsRun(messages: readonly ChatMessage[], index: number): bool
  * 무슨 일이 있었는지, 둘이 어디 있는지는 한 줄도 적지 않는다.
  *
  * 재난을 입에 올리는 줄은 한 줄도 넣지 않는다. 세계관을 여는 반전은
- * 라디오 한 곳이 갖는다 (docs/content-design.md 6-1).
+ * 라디오 한 곳이 갖는다 (docs/story/content-design.md 6-1).
  */
 export const GROUP_CHAT: ChatMessage[] = [
   {

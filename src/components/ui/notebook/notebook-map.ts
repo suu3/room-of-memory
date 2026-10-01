@@ -84,7 +84,7 @@ function sharedWall(a: Aabb2, b: Aabb2): { axis: "x" | "z"; at: number } | null 
  *
  * 못 가본 공간은 아예 안 그린다. 흐릿하게라도 그려 두면 집의 생김새를 먼저 알려주는
  * 셈이라, 문을 하나씩 여는 일이 "이미 아는 칸을 채우는 일"로 내려앉는다
- * (docs/content-design.md 3-1의 공간 하나씩 열기).
+ * (docs/story/content-design.md 3-1의 공간 하나씩 열기).
  */
 export function floorPlan(openDoorways: readonly DoorwayId[]): FloorPlan {
   const open = DOORWAY_IDS.filter((id) => openDoorways.includes(id));

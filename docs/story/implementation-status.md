@@ -1,4 +1,4 @@
-# v4 구현 현황: 거꾸로 밝혀지는 방
+# 구현 현황: 페이즈 · 조사 차수 · 남은 에셋 (설계서 v4 기준)
 
 개발 설계서 v4(2026-09-25)를 코드에 옮긴 결과와 남은 일. 설계서의 장 번호를 그대로 쓴다.
 대본·흐름의 단일 소스는 여전히 `content/*.yaml`이다 (`.claude/rules/visual-novel.md`).
@@ -58,7 +58,7 @@
 | 미트 탁탁 SFX | 완료. 실제 미트 소리 파일 `sfx-mitt-tap.ogg` (`ASSETS.sfx.mittTap`), 없으면 합성음 `mittTap` (`voices.ts`) |
 | 생존자 방송 웹툰 | 완료. 3페이지 10칸, 칸 안 라디오 말풍선, 페이지 슬라이드 (컷의 `page`·`ratio`, `WebtoonViewer`) |
 | 정적 비트 | 완료. 대사 없는 정적 컷(2.6초) → "…갔다 올게." 컷씬 동안 BGM이 멎는다 |
-| 페이즈별 BGM (긴장 앰비언트 · 고조 · 따뜻하게) | **일부.** 지금은 두 곡(1막/2막)이고, **4페이즈(안방)는 곡을 아예 빼서** 정적 비트로 가는 낙차를 키웠다 (`selectMusicPlaying`, docs/visual-experiments.md 14장). 곡이 들어오면 `selectMusicPhase`를 페이즈로 가른다 |
+| 페이즈별 BGM (긴장 앰비언트 · 고조 · 따뜻하게) | **일부.** 지금은 두 곡(1막/2막)이고, **4페이즈(안방)는 곡을 아예 빼서** 정적 비트로 가는 낙차를 키웠다 (`selectMusicPlaying`, docs/direction/visual-experiments.md 14장). 곡이 들어오면 `selectMusicPhase`를 페이즈로 가른다 |
 | 1페이즈 강도 3 이후 채도 감소 | 남음. 밝기는 기존대로 조사 수를 따라 내려간다 |
 | 다이얼 클릭 · 피아노 곡 SFX | 다이얼은 기존 `select`를 쓴다. 전용 소리는 남음 |
 

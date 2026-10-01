@@ -40,7 +40,7 @@ const FOLD_LAMBDA = 3.5;
 const REDUCED_LAMBDA = 18;
 
 /**
- * 이불의 호흡 (docs/visual-experiments.md 5장 "침대"). 정점 셰이더에 노이즈 한 줄: 이불이
+ * 이불의 호흡 (docs/direction/visual-experiments.md 5장 "침대"). 정점 셰이더에 노이즈 한 줄: 이불이
  * 숨 쉬듯 아주 조금 일렁인다. 진폭은 모델 단위(BED_SCALE 0.7이라 화면에서는 더 작다)이고
  * 주기는 4초 남짓(0.25Hz). 초당 3회 밝기 변화 금지와는 한참 멀다.
  * 누가 누워 있을 때만 숨 쉰다. 빈 침대의 이불이 혼자 꿀렁이면 숨이 아니라 이상 현상으로

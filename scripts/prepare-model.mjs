@@ -11,7 +11,7 @@
  *     데이터가 걸러진다**. 실제로 안 쓰는 스킨이 하나 더 붙어 나온 적이 있고, 그게
  *     붙어 있으면 SkeletonUtils.clone이 그쪽에 물려 애니메이션이 통째로 어긋난다.
  *  2. **검사.** 게임 쪽 규약(밑면이 y=0, 텍스처는 파일 안에, 5MB 이하)을 실제 로더로
- *     확인한다. 어긋나면 블렌더에서 무엇을 고쳐야 하는지 적어 준다 (docs/model-export.md).
+ *     확인한다. 어긋나면 블렌더에서 무엇을 고쳐야 하는지 적어 준다 (docs/models/model-export.md).
  *  3. **배치.** 통과하면 public/assets/models/에 넣고, 그다음에 사람이 해야 할 일
  *     (참조 URL의 ?v= 갱신, CREDITS 기록)을 알려 준다.
  *
@@ -37,7 +37,7 @@ const CENTER_TOLERANCE = 0.15;
 function fail(message, hints = []) {
   console.error(`\n✖ ${message}`);
   for (const hint of hints) console.error(`  - ${hint}`);
-  console.error("\n  자세한 내보내기 설정: docs/model-export.md");
+  console.error("\n  자세한 내보내기 설정: docs/models/model-export.md");
   process.exit(1);
 }
 

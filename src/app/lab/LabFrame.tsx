@@ -4,7 +4,7 @@ import Link from "next/link";
 import { type ReactNode, useState } from "react";
 
 /**
- * 시각 실험의 단독 데모 틀 (docs/visual-experiments.md 9장).
+ * 시각 실험의 단독 데모 틀 (docs/direction/visual-experiments.md 9장).
  *
  * 효과 하나를 `intensity`(0~1) 슬라이더, `gamePhase`(1차/2차) 토글, `enabled` 토글로
  * 돌려 본다. 실험이 완료로 인정되는 기준이 이 세 조작이다: 1차와 2차가 다르게 보이고,

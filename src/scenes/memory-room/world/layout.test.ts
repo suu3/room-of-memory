@@ -207,7 +207,7 @@ describe("memory-room layout", () => {
   });
 
   it("rests the bat barrel-down beside the front door", () => {
-    // 배트는 3막의 물건이라 현관 옆에 선다 (docs/content-design.md 3-2)
+    // 배트는 3막의 물건이라 현관 옆에 선다 (docs/story/content-design.md 3-2)
     const bat = BAT_PLACEMENT;
     const modelLength = 0.864 * bat.scale;
     const barrelY = bat.position[1] + Math.cos(bat.rotation[2]) * modelLength;

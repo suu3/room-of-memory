@@ -1,7 +1,7 @@
 import { FOCUS_ZOOM_SCALE } from "@/components/canvas/room-canvas-runtime";
 
 /**
- * 크레인 샷: 하부장이 열리고 안방 열쇠가 손에 들어오는 순간 (docs/visual-experiments.md 14장
+ * 크레인 샷: 하부장이 열리고 안방 열쇠가 손에 들어오는 순간 (docs/direction/visual-experiments.md 14장
  * "노토리어스"). 화장실 전체를 잡고 있던 카메라가 열쇠가 있던 칸 하나까지 천천히 밀고
  * 들어갔다가, 혼잣말("…안방 열쇠.")이 스러진 뒤 제자리로 돌아온다.
  *

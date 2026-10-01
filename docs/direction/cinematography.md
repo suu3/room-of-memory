@@ -3,7 +3,7 @@
 > 2026-09-26. 게임 전반의 연출(카메라 · 조명 · 포스트프로세싱 · 전환 · 사운드 · UI 모션)을
 > **이야기 순서**로 정리한 지도다. 각 항목은 코드의 주석과 상수에서 옮겨 적었다.
 > 효과 하나하나의 실험 기록은 [`visual-experiments.md`](visual-experiments.md), 페이즈 표는
-> [`v4.md`](v4.md), 서사는 [`story.md`](story.md). 이 문서는 "지금 게임에서 어느 순간에
+> [`implementation-status.md`](../story/implementation-status.md), 서사는 [`story.md`](../story/story.md). 이 문서는 "지금 게임에서 어느 순간에
 > 무엇이 보이고 들리는가"만 답한다. 새로 넣은 영화 연출 셋은 **[신규]**로 표시했다.
 
 ---
