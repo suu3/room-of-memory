@@ -2,8 +2,6 @@
 
 외부 에셋을 추가할 때마다 여기에 기록한다. CC-BY 이상은 게임 내 크레딧 화면에도 반영할 것.
 
-야구배트는 GPT 제작, 야구공은 프로젝트 제작자의 직접 제작 모델임을 2026-09-12 사용자 확인으로 기록했다.
-
 | 파일 | 출처 (URL) | 제작자 | 라이선스 |
 |---|---|---|---|
 | models/ch1-baseball-bat.glb | GPT로 제작한 야구배트 모델 (2026-09-12 사용자 출처 확인) | GPT | 프로젝트 생성 에셋 |
@@ -44,7 +42,7 @@
 | ../icons/*.png | 사용자가 넣은 방 일러스트 원본(1254px, 2026-08-04)에서 생성: 바깥 검정을 알파로 도려내고 그림 경계로 크롭한 뒤 면적 평균으로 축소. maskable은 중앙 400px, apple-touch는 night 바탕에 불투명 | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 편집 에셋 |
 | ../icons/apple-touch-icon.png (2026-09-10 수정) | OpenAI built-in ImageGen으로 바깥 테두리 제거. 원본 내부 픽셀을 보존해 합성하고 프로젝트의 Galmuri14 폰트로 `기 억 / 의 방` 두 줄 제목 추가. 글자색은 DESIGN.md의 ivory, 그림자는 night | 원화 OpenAI GPT (생성) · suu3 (리터칭) · 편집 Codex | 프로젝트 편집 에셋 · 폰트 SIL OFL 1.1 |
 | ../icons/icon-{192,512}.png, ../icons/icon-maskable-512.png, ../../src/app/favicon.ico (2026-09-11 수정) | 위 apple-touch 디자인을 기존 512px 원화와 같은 ImageGen 배경, Galmuri14로 합성해 각 크기로 출력. maskable은 제목 잘림을 피하도록 중앙 344px에 배치하고 DESIGN.md의 night 배경 사용. ICO는 16/32/48/64/128/256px PNG 프레임 포함 | 원화 OpenAI GPT (생성) · suu3 (리터칭) · 편집 Codex | 프로젝트 편집 에셋 · 폰트 SIL OFL 1.1 |
-| models/curtain-pull-test.glb, models/curtain-pull-left.glb | 기존 사용자 캐릭터의 본 구조에 새 커튼 동작을 맞춰 직접 제작 (2026-09-13). 모션 전용 GLB, Meshopt 압축. 본 게임의 좌우 커튼 조작에 쓴다. 왼손 동작은 본 rest 행렬을 기준으로 대칭 제작. 2026-09-15 Tripo 리그로 교체하며 scripts/assets/retarget-curtain-clips.mjs로 같은 본 계층의 새 rest 포즈에 옮겼다 (rest 기준 회전 보존) | suu3 (원본 캐릭터) · Codex (동작 제작) · Claude Code (리그 이전) | 프로젝트 저작물 |
+| models/curtain-pull-test.glb, models/curtain-pull-left.glb | 플레이어 리그에 맞춰 직접 제작한 커튼 당기기 동작(2026-09-13). 모션 전용 GLB, Meshopt 압축. 본 게임의 좌우 커튼 조작에 쓴다. 왼손 동작은 본 rest 행렬을 기준으로 대칭 제작. 2026-09-15 플레이어 리그를 바꾸며 scripts/assets/retarget-curtain-clips.mjs로 같은 본 계층의 새 rest 포즈에 옮겼다 (rest 기준 회전 보존) | suu3 (원본 캐릭터) · Codex (동작 제작) · Claude Code (리그 이전) | 프로젝트 저작물 |
 | models/room-tissue-box.glb, models/room-ceiling-ac.glb | 이 프로젝트를 위해 Blender 5.2에서 직접 제작(2026-09-13). 원본 생성: scripts/assets/create-room-detail-props.py. 각티슈의 타원형 입구·얇은 종이 주름, 천장형 에어컨의 그릴·송풍 날개·센서. DESIGN.md 씬 토큰 재질, 외부 모델·텍스처 없음. model:prep으로 Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
 | models/room-baseball-jersey.glb, models/room-baseball-cap.glb, models/room-training-kit.glb, models/room-study-tools.glb, models/room-team-pennant.glb | 이 프로젝트를 위해 Blender 5.2에서 직접 제작(2026-09-14). 원본 생성: scripts/assets/create-baseball-room-props.py. 주름진 야구 유니폼·6패널 모자·수건과 물통·테이핑 롤·필통과 필기구·삼각 페넌트. 모자 옆의 가죽 글러브는 2026-09-15에 뺐다(room-baseball-glove-cap.glb → room-baseball-cap.glb). DESIGN.md 씬 토큰 재질, 자체 도형 문양, 외부 모델·텍스처 없음. model:prep으로 Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
 | textures/room-poster-baseball.webp | 사용자가 직접 넣은 고교야구대회 포스터 일러스트(2026-09-16). 방 왼쪽 벽 책상 위에 건다. 원본 1024×1536(webp)을 512×768로 축소해 재인코딩 | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 편집 에셋 |

@@ -50,7 +50,7 @@ next-env.d.ts
 # playwright-cli session logs (Codex)
 /.playwright-cli/
 
-# Tripo 원본 FBX(59MB)와 텍스처 폴더: 커밋 한도(25MB) 초과. 굽는 법은 scripts/create-tripo-player.py
+# Tripo 원본 FBX(59MB)와 텍스처 폴더: 커밋 한도(25MB) 초과. 굽는 법은 scripts/assets/create-tripo-player.py
 /public/assets/models/tripo_convert_*
 
 # Claude Code 개인 설정 (팀 공용은 .claude/settings.json)
