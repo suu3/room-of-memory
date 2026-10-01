@@ -69,3 +69,4 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 - `visual-novel.md`: 시나리오 데이터 작성 규칙
 - `minigames.md`: 미니게임 구조/디자인/성능 규칙
 - `code-style.md`: TypeScript/Biome 컨벤션
+- `paradigm.md`: 함수형이 기본, 객체지향은 경계에서만 (순수 함수 · 파생 상태 · 클래스를 쓰는 자리)
