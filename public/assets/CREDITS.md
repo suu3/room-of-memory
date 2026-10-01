@@ -23,6 +23,7 @@
 | images/mg-window-view-outside.webp | 사용자가 직접 넣은 창밖 일러스트(2026-08-04). webp로 변환 | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 편집 에셋 |
 | images/mg-photo-wipe-phase-1.webp, images/mg-photo-wipe-phase-2.webp | 사용자가 직접 넣은 액자 가족사진 일러스트 두 장(2026-09-12 교체). 1차는 부모 얼굴이 그늘에 묻힌 버전, 2차는 드러난 버전. webp | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 편집 에셋 |
 | models/ch1-radio.glb, models/room-books.glb, models/room-computer-*.glb, models/room-desk-lamp.glb, models/room-rug.glb, models/room-potted-plant.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-12). 원본: scripts/create-original-furniture.mjs. 외부 모델·텍스처 사용 없음. DESIGN.md 씬 팔레트, Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
+| models/living-kitchen.glb | 확장된 거실의 오픈 키친(조리대·싱크·레인지·상하부장)을 이 프로젝트를 위해 코드로 직접 제작(2026-10-01). 원본: scripts/create-living-kitchen.mjs. 외부 모델·텍스처 사용 없음. DESIGN.md 씬 팔레트, Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
 | 거실 운동화·쿠션·담요·머그컵·접시·리모컨·TV장 (런타임 지오메트리) | 이 프로젝트를 위해 코드로 직접 제작(2026-09-12). src/scenes/memory-room/LivingRoomDetails.tsx 및 LivingRoomFurniture.tsx. 외부 모델·텍스처 사용 없음 | Codex | 프로젝트 생성 에셋 |
 | models/room-potted-cactus.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-11). 원본: scripts/create-cactus.mjs. 외부 모델·텍스처 사용 없음. DESIGN.md 씬 팔레트, Meshopt 압축 | Codex | 프로젝트 생성 에셋 |
 | models/room-snack-bag.glb, models/room-study-papers.glb, models/room-cup-noodle-trash.glb, models/room-student-bookshelf.glb | 이 프로젝트를 위해 코드로 직접 제작(2026-09-10). 원본: scripts/create-student-props.mjs. DESIGN.md 씬 팔레트, 자체 작성한 가상 문제집·모의고사·컵라면·과자봉지 인쇄, Meshopt 압축 및 내장 WebP | Codex | 프로젝트 생성 에셋 |

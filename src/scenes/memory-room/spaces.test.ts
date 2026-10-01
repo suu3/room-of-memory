@@ -18,6 +18,17 @@ const PLAYER_RADIUS = 0.38;
 const DIAMETER = PLAYER_RADIUS * 2;
 
 describe("공간 표", () => {
+  it("거실의 확장부가 냉장고 쪽 오픈 키친을 품는다", () => {
+    expect(SPACES.living.shell.minZ).toBeLessThan(-4);
+    expect(
+      SPACES.living.colliders.some(
+        (box) => box.minZ === SPACES.living.shell.minZ && box.maxX > -14.5 && box.minX < -10,
+      ),
+    ).toBe(true);
+    // 조리대 앞은 부엌을 따라 걸을 수 있어야 한다.
+    expect(isWalkable(-12.25, -6, PLAYER_RADIUS, [SPACES.living.bounds], ALL_COLLIDERS)).toBe(true);
+  });
+
   it("껍데기끼리 겹치지 않는다. 겹치면 한 자리가 두 공간이 된다", () => {
     for (const a of SPACE_IDS) {
       for (const b of SPACE_IDS) {

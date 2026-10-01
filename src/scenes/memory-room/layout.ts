@@ -81,9 +81,12 @@ export const OPEN_DOOR_LEAF_COLLIDERS = openDoorLeafColliders();
 export const LIVING_SHELL_BOUNDS: Aabb2 = {
   minX: -16.5,
   maxX: ROOM_SHELL_BOUNDS.minX,
-  minZ: ROOM_SHELL_BOUNDS.minZ,
+  // 냉장고 쪽으로 거실을 세 유닛 반 넓혀 문 없는 오픈 키친을 품는다.
+  minZ: -7.5,
   maxZ: ROOM_SHELL_BOUNDS.maxZ,
 };
+/** 침실과 거실이 실제로 벽을 공유하는 구간의 뒷끝. 이보다 뒤는 확장된 부엌의 외벽이다. */
+export const LIVING_SHARED_WALL_MIN_Z = ROOM_SHELL_BOUNDS.minZ;
 export const LIVING_SHELL_CENTER = [
   (LIVING_SHELL_BOUNDS.minX + LIVING_SHELL_BOUNDS.maxX) / 2,
   (LIVING_SHELL_BOUNDS.minZ + LIVING_SHELL_BOUNDS.maxZ) / 2,
@@ -136,6 +139,9 @@ export const LIVING_ANCHORS = {
   fridge: [-15.32, -4],
   piano: [-14.95, 6.5],
 } as const satisfies Record<string, readonly [number, number]>;
+
+/** 냉장고가 확장된 새 뒷벽에 붙는 자리. 1배 부품 좌표는 기존 anchor를 유지한다. */
+export const LIVING_FRIDGE_AT = [LIVING_ANCHORS.fridge[0], LIVING_SHELL_BOUNDS.minZ] as const;
 
 /**
  * 신발장이 키운 뒤 서는 자리: 현관문과 안방문 **사이**의 -x 벽.
@@ -258,7 +264,13 @@ export const LIVING_COLLIDERS = [
     { minX: -16.5, maxX: -15.85, minZ: -1.7, maxZ: 0.35 },
     LIVING_SHOE_CABINET_AT,
   ), // shoe cabinet
-  scaleLivingAabb(LIVING_ANCHORS.fridge, { minX: -15.85, maxX: -14.8, minZ: -4, maxZ: -3.2 }), // fridge (-z 구석)
+  scaleLivingAabb(
+    LIVING_ANCHORS.fridge,
+    { minX: -15.85, maxX: -14.8, minZ: -4, maxZ: -3.2 },
+    LIVING_FRIDGE_AT,
+  ), // fridge (확장된 -z 구석)
+  // 새 뒷벽의 오픈 키친. GLB의 조리대·싱크·레인지가 한 발자국을 공유한다.
+  { minX: -14.2, maxX: -10.3, minZ: -7.5, maxZ: -6.55 },
   scaleLivingAabb(
     LIVING_ANCHORS.piano,
     { minX: -15.75, maxX: -14.15, minZ: 5.15, maxZ: 6.5 },
@@ -641,7 +653,7 @@ export const MEMORY_PLACEMENTS = {
   fridge: {
     id: "fridge",
     // 냉장고 문 앞면(z -3.24)에서 5mm 앞. 냉동칸 경계(y 1.45) 아래 = 냉장실 문
-    position: livingSpot(LIVING_ANCHORS.fridge, -15.32, 1.07, -3.235),
+    position: livingSpot(LIVING_ANCHORS.fridge, -15.32, 1.07, -3.235, LIVING_FRIDGE_AT),
     rotation: [0, 0, 0],
     scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.5,
@@ -680,7 +692,7 @@ export const MEMORY_PLACEMENTS = {
   ampoule: {
     id: "ampoule",
     // 냉장고 아래칸. "손대지 마"라던 그 칸이다. 냉장실 문 테두리(y 0.72~1.42) 아래
-    position: livingSpot(LIVING_ANCHORS.fridge, -15.32, 0.43, -3.235),
+    position: livingSpot(LIVING_ANCHORS.fridge, -15.32, 0.43, -3.235, LIVING_FRIDGE_AT),
     rotation: [0, 0, 0],
     scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.5,
@@ -772,13 +784,13 @@ export const CAMERA_PRESETS = {
    * 돌아가면 "옆 방으로 걸어갔다"가 아니라 "다른 씬으로 잘렸다"로 읽힌다.
    */
   // 거실 기억의 시선은 키운 가구의 자리(MEMORY_PLACEMENTS)를 본다
-  fridge: { position: [-12.7, 3.2, -0.5], target: [-15.32, 1.5, -3.0] },
+  fridge: { position: [-12.7, 3.2, -3.8], target: [-15.32, 1.5, -6.5] },
   duffel: { position: [-6.9, 2.2, 1.4], target: [-9.5, 0.35, -1.15] },
   shoes: { position: [-13.2, 2.6, 4.0], target: [-15.73, 0.75, 1.52] },
   cards: { position: [-7.4, 2.8, 4.6], target: [-10.0, 1.3, 2.0] },
   // 열린 아래칸 안이 보이게 높이 내려다본다. 낮으면 서랍 앞판이 앰플을 가리고, 앞에 선
   // 캐릭터가 앰플과 겹쳐 글로우(xRay)가 얼굴 위로 그려진다
-  ampoule: { position: [-13.0, 3.6, -0.8], target: [-15.32, 0.6, -3.0] },
+  ampoule: { position: [-12.9, 3.6, -3.7], target: [-15.32, 0.6, -6.5] },
   // 안방 기억: 방과 같은 사분면(+x·+z)에서 내려다본다. 책상은 +z 벽에 붙어 있지만
   // 그 벽은 카메라 쪽이라 걷힌다 (CulledWall). 다른 사분면에서 보면 벽이 열렸다 닫힌다
   "research-note": { position: [-16.3, 3.4, 8.6], target: [-18.94, 1.1, 6.0] },

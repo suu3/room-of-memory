@@ -9,11 +9,13 @@ import { playSound } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import type { SeatId } from "@/types/seat";
 import { FurnitureModel } from "./FurnitureModel";
+import { KitchenFurniture } from "./KitchenFurniture";
 import { DiningDetails, LivingRoomDetails, LivingShoes, SofaDetails } from "./LivingRoomDetails";
 import {
   LIVING_ANCHORS,
   LIVING_DINING_CENTER,
   LIVING_DINING_CHAIRS,
+  LIVING_FRIDGE_AT,
   LIVING_FURNITURE_SCALE,
   LIVING_PIANO_CENTER,
   LIVING_PIANO_ROTATION,
@@ -429,6 +431,7 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
   const hasSheetScrap = useMemoryRoomStore((state) => state.inventory.includes("piano-sheet"));
   return (
     <group name="living-room-furniture">
+      <KitchenFurniture palette={palette} />
       <LivingPiece anchor={LIVING_ANCHORS.sofa}>
         <Boxes parts={SOFA_PARTS} palette={palette} soft />
         {SOFA_CUSHIONS.map((cushion) => (
@@ -456,7 +459,7 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
         <Boxes parts={SHOE_CABINET_PARTS} palette={palette} />
         <LivingShoes palette={palette} />
       </LivingPiece>
-      <LivingPiece anchor={LIVING_ANCHORS.fridge}>
+      <LivingPiece anchor={LIVING_ANCHORS.fridge} at={LIVING_FRIDGE_AT}>
         <Boxes parts={FRIDGE_PARTS} palette={palette} />
       </LivingPiece>
       <LivingPiece

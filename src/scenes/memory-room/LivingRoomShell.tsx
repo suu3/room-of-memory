@@ -12,6 +12,7 @@ import {
   FRONT_DOOR_INTERACTION,
   FRONT_DOOR_POSITION,
   FRONT_DOOR_ROTATION,
+  LIVING_SHARED_WALL_MIN_Z,
   LIVING_SHELL_BOUNDS,
   LIVING_SHELL_CENTER,
   PARENTS_DOOR_POSITION,
@@ -26,6 +27,7 @@ import {
   endWallWithDoor,
   WALL_STUB_TOP_Y as SHELL_STUB_TOP_Y,
   WALL_Y as SHELL_WALL_Y,
+  sideWallPlain,
   sideWallWithDoors,
   WALL_THICKNESS,
 } from "./space-shell";
@@ -88,15 +90,26 @@ const LEFT_WALL = sideWallWithDoors(LIVING_SHELL_BOUNDS.minX, LIVING_Z, [
   FRONT_DOOR_POSITION[2],
 ]);
 
+/*
+ * 침실과 공유하던 +x 벽은 예전 거실 깊이(z=-4)까지만 존재한다. 오픈 키친으로 늘어난
+ * 뒤쪽 구간은 맞은편 방이 없으므로 거실이 직접 벽을 소유해야 허공이 드러나지 않는다.
+ */
+const KITCHEN_RIGHT_WALL = sideWallPlain(LIVING_SHELL_BOUNDS.maxX, {
+  min: LIVING_SHELL_BOUNDS.minZ,
+  max: LIVING_SHARED_WALL_MIN_Z,
+});
+
 const BASE_WALLS = [
   ...BACK_WALL.slice(0, 1),
   ...FRONT_WALL.slice(0, 2),
   ...LEFT_WALL.stubs,
+  KITCHEN_RIGHT_WALL.stub,
 ] as const satisfies readonly ShellPart[];
 
 const BACK_WALL_UPPER = BACK_WALL.slice(1);
 const FRONT_WALL_UPPER = FRONT_WALL.slice(2);
 const LEFT_WALL_UPPER = LEFT_WALL.uppers;
+const KITCHEN_RIGHT_WALL_UPPER = [KITCHEN_RIGHT_WALL.upper] as const;
 
 const DOOR_FRAME = [
   { size: [0.18, 3.62, 0.18], position: [-0.82, 0.09, 0] },
@@ -349,6 +362,11 @@ export function LivingRoomShell({
       </CulledWall>
       <CulledWall side="left" center={LIVING_SHELL_CENTER}>
         {LEFT_WALL_UPPER.map((part) => (
+          <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
+        ))}
+      </CulledWall>
+      <CulledWall side="right" center={LIVING_SHELL_CENTER}>
+        {KITCHEN_RIGHT_WALL_UPPER.map((part) => (
           <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
         ))}
       </CulledWall>
