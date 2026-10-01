@@ -218,10 +218,15 @@ export const LIVING_KITCHEN = {
  *
  * x는 공유벽의 피아노(LIVING_PIANO_CENTER, x -7.76부터) 옆을 사람이 지날 수 있게 물린
  * 자리다. 소파 오른팔(-8.72)과 피아노 사이가 플레이어 지름(0.76)을 넘어, 방문에서 현관까지
- * 소파를 돌아가지 않고 오른쪽으로 곧장 걸어간다. z는 키운 소파의 앞턱(+2.34)이 피아노
- * 발자국(z 1.26부터) 앞에서 끝나는 자리다.
+ * 소파를 돌아가지 않고 오른쪽으로 곧장 걸어간다.
+ *
+ * z는 등받이(발자국 뒷면)와 식탁 사이가 두 걸음(1.86) 벌어지는 자리다. 처음에는 앞턱이 피아노
+ * 발자국(z 1.26부터) 앞에서 끝나게 뒤로 물렸는데, 그러면 등받이 바로 뒤에 식탁 의자가 붙어
+ * 두 구역이 한 덩어리로 읽혔다. 앞턱(z 1.94)이 피아노와 z로 반 걸음 겹치지만 사이 통로는
+ * 위의 x 간격 그대로다. 식탁을 부엌 쪽으로 미는 길은 없다: 의자에 앉으러 서는 자리가 반도형
+ * 조리대에 막힌다 (seat-route.test).
  */
-export const LIVING_SOFA_AT = [-10.6, -1.25] as const;
+export const LIVING_SOFA_AT = [-10.6, -0.4] as const;
 
 /**
  * TV 받침장 세트(TV·화분·책·리모컨)를 1배 좌표에서 x로 옮기는 양. 소파가 경계로 옮겨 서며
@@ -371,7 +376,7 @@ export const LIVING_COLLIDERS = [
     LIVING_PIANO_CENTER,
     LIVING_PIANO_ROTATION,
   ), // piano + 반쯤 빼놓은 의자 (공유벽으로 옮겨 90° 섰다)
-  { minX: -14.0, maxX: -12.5, minZ: -1.3, maxZ: 0.35 }, // plush doll (소파 왼팔 옆)
+  { minX: -16.3, maxX: -14.7, minZ: -0.6, maxZ: 1.0 }, // plush doll (-x 벽, 안방문 오른편)
 ] as const satisfies readonly Aabb2[];
 
 /**
@@ -759,11 +764,15 @@ export const MEMORY_PLACEMENTS = {
   duffel: {
     id: "duffel",
     // 소파 앞 바닥에 던져둔 책가방. 사방이 트여 있어 다가가기 쉽다. 키운 소파의
-    // 발자국 앞면(z 1.09)에서 한 걸음 앞: 붙이면 클릭 구가 가운데 쿠션의 앉는 자리를 문다.
+    // 발자국 앞면(소파 자리에서 +2.34)에서 한 걸음 앞: 붙이면 클릭 구가 가운데 쿠션의 앉는 자리를 문다.
     // 가구 배율보다 더 키운다: 바닥에 홀로 놓인 물건이라 같은 배율로는 작아 보인다.
     // 몸통 두께의 절반만큼 띄워 바닥에 얹는다.
     // 클릭 구는 가방(길이 1.0)만 덮는 0.8: 더 크면 소파 쿠션의 앉는 자리까지 덮어 앉지 못한다
-    position: [LIVING_SOFA_AT[0], BACKPACK_HALF_THICKNESS * BACKPACK_SCALE + 0.01, 1.6],
+    position: [
+      LIVING_SOFA_AT[0],
+      BACKPACK_HALF_THICKNESS * BACKPACK_SCALE + 0.01,
+      LIVING_SOFA_AT[1] + 2.85,
+    ],
     rotation: [0, 0.42, 0],
     scale: BACKPACK_SCALE,
     interactionRadius: 1.3,

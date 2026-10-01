@@ -68,7 +68,7 @@ export const ASSETS = {
      */
     curtain: "/assets/models/room-curtain.glb",
     /**
-     * 거실 소파 옆 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있고,
+     * 거실 안방문 옆 벽의 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있고,
      * scripts/recolor-rabbit-doll.mjs가 방의 clay·linen 팔레트를 밝게 섞어 입힌다.
      */
     rabbitDoll: "/assets/models/rabbit-doll.glb?v=light-palette-20260927",
