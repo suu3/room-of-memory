@@ -1,4 +1,4 @@
-/** Original open-kitchen geometry. Rebuild: node scripts/create-living-kitchen.mjs */
+/** Original open-kitchen geometry. Rebuild: node scripts/assets/create-living-kitchen.mjs */
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -16,7 +16,7 @@ import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { mergeGeometries, mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 
-const root = path.resolve(import.meta.dirname, "..");
+const root = path.resolve(import.meta.dirname, "../..");
 process.chdir(root);
 const css = readFileSync("src/app/globals.css", "utf8");
 
@@ -156,7 +156,7 @@ const joined = new Group();
 joined.name = source.name;
 joined.userData = {
   provenance: "Original procedural geometry for room-of-memory",
-  source: "scripts/create-living-kitchen.mjs",
+  source: "scripts/assets/create-living-kitchen.mjs",
 };
 for (const [surface, parts] of batches) {
   const mesh = new Mesh(mergeVertices(mergeGeometries(parts)), surface);

@@ -1,6 +1,6 @@
 """Turn the Tripo-rigged chibi FBX into the game's player rig in a Blender background process.
 
-blender -b --factory-startup --python scripts/create-tripo-player.py -- INPUT.fbx OUTPUT_DIR
+blender -b --factory-startup --python scripts/assets/create-tripo-player.py -- INPUT.fbx OUTPUT_DIR
 
 What it does, in order:
 
@@ -11,10 +11,10 @@ What it does, in order:
    bones merged into their parents, left/right symmetrised) and cleans the auto weights:
    each part may only follow the bones that make sense for it (hands never follow thighs).
 4. Fits blink eyelids and subtle retracting catchlights over the painted eyes.
-5. Authors Idle/Walk/Sit/SitDown/StandUp exactly like scripts/create-chibi-player.py.
+5. Authors Idle/Walk/Sit/SitDown/StandUp exactly like scripts/assets/create-chibi-player.py.
 6. Exports player-chibi.glb (uncompressed; run `pnpm model:prep` on it) and saves the .blend.
 
-The curtain-pull clips are carried over separately: scripts/retarget-curtain-clips.mjs.
+The curtain-pull clips are carried over separately: scripts/assets/retarget-curtain-clips.mjs.
 """
 
 import argparse
@@ -1187,4 +1187,4 @@ bpy.ops.export_scene.gltf(
 print("CHIBI_READY", len(mesh.data.vertices), "vertices", len(mesh.data.polygons), "tris", len(rig.data.bones), "bones")
 
 # Curtain clips (curtain-pull-*.glb) are moved onto this rest pose afterwards by
-# scripts/retarget-curtain-clips.mjs; they have no skin, so Blender would not read them as a rig.
+# scripts/assets/retarget-curtain-clips.mjs; they have no skin, so Blender would not read them as a rig.

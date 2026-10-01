@@ -1,5 +1,5 @@
 /**
- * 커튼 천 glb를 만든다. 재생성: node scripts/create-curtain.mjs
+ * 커튼 천 glb를 만든다. 재생성: node scripts/assets/create-curtain.mjs
  *
  * 침대 이불(room-bed.glb의 shape key `folded`)과 같은 방식으로, 커튼도 **shape key로
  * 여닫는다**. 파일에는 닫힌 자세(Basis)와 젖힌 자세(shape key `open`)가 들어 있고,
@@ -31,7 +31,7 @@ import {
   Vector3,
 } from "three";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
-import { CURTAIN_X } from "../src/scenes/memory-room/curtain-motion.ts";
+import { CURTAIN_X } from "../../src/scenes/memory-room/curtain-motion.ts";
 
 // GLTFExporter는 브라우저 FileReader로 바이너리를 읽는다. 지오메트리만 내보내니 이 둘로 충분하다.
 globalThis.FileReader = class {
@@ -49,7 +49,7 @@ globalThis.FileReader = class {
   }
 };
 
-const root = path.resolve(import.meta.dirname, "..");
+const root = path.resolve(import.meta.dirname, "../..");
 process.chdir(root);
 
 const NAME = "room-curtain";
@@ -133,7 +133,7 @@ const group = new Group();
 group.name = NAME;
 group.userData = {
   provenance: "Original procedural geometry for room-of-memory",
-  source: "scripts/create-curtain.mjs",
+  source: "scripts/assets/create-curtain.mjs",
 };
 const cloths = ["left", "right"].map(buildCloth);
 for (const cloth of cloths) group.add(cloth);

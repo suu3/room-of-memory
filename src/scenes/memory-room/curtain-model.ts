@@ -15,7 +15,7 @@ import type { Vec3Tuple } from "./types";
  *    팔레트 fabric을 입힌다. COLOR_0이 있으면 머리단·밑단 음영으로 곱한다.
  *  - 두 노드 모두 shape key `open`: 0이면 닫혀 창을 덮고, 1이면 바깥쪽 끝에 뭉쳐 창이
  *    드러난다. 바깥쪽 매달린 끝은 두 자세에서 같은 자리다 (커튼봉 끝에 걸려 있다).
- *  - 원점: 창 가운데 x, **밑단 y=0**, 천 두께의 z 중심. 지금 파일은 scripts/create-curtain.mjs가
+ *  - 원점: 창 가운데 x, **밑단 y=0**, 천 두께의 z 중심. 지금 파일은 scripts/assets/create-curtain.mjs가
  *    만들고, 그 스크립트가 아래 실측을 출력한다.
  */
 

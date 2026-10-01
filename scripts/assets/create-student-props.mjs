@@ -1,4 +1,4 @@
-/** Original room props. Rebuild: node scripts/create-student-props.mjs
+/** Original room props. Rebuild: node scripts/assets/create-student-props.mjs
  * Uses the same Meshopt tooling as model:prep, with the WebP atlas embedded first.
  * Geometry stays editable here; all delivered assets are self-contained GLBs.
  */
@@ -24,7 +24,7 @@ import {
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
-const root = path.resolve(import.meta.dirname, "..");
+const root = path.resolve(import.meta.dirname, "../..");
 process.chdir(root);
 const require = createRequire(import.meta.url);
 const sharp = require(require.resolve("sharp", { paths: [require.resolve("next")] }));

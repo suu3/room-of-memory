@@ -1,5 +1,5 @@
 /**
- * 게임기(fighter-duel) 8비트 루프. Rebuild: node scripts/create-fighter-duel-chip.mjs (ffmpeg 필요)
+ * 게임기(fighter-duel) 8비트 루프. Rebuild: node scripts/assets/create-fighter-duel-chip.mjs (ffmpeg 필요)
  *
  * NES식 파트 넷을 코드로 합성한다: 펄스 25% 리드, 삼각파 베이스, 12.5% 펄스 아르페지오(둘째 바퀴),
  * LFSR 노이즈 드럼. 150BPM · Am–F–G–E 8마디 × 2바퀴 = 25.6초, 꼬리를 머리로 감아 이음새가 없다.
@@ -13,7 +13,7 @@ import { rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-const root = path.resolve(import.meta.dirname, "..");
+const root = path.resolve(import.meta.dirname, "../..");
 const OUT = path.join(root, "public/assets/audio/bgm/mg-fighter-duel-chip.ogg");
 
 const SR = 44100;

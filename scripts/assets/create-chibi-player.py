@@ -1,6 +1,6 @@
 """Build the user-supplied chibi in a dedicated Blender background process.
 
-blender --background --factory-startup --python scripts/create-chibi-player.py -- INPUT.fbx OUTPUT_DIR
+blender --background --factory-startup --python scripts/assets/create-chibi-player.py -- INPUT.fbx OUTPUT_DIR
 Keeps the source mesh/UVs, fits a game skeleton, and authors five locomotion clips.
 The output is editable Blender + uncompressed GLB; run model:prep afterwards.
 """

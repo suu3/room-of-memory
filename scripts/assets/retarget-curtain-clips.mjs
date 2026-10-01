@@ -2,12 +2,12 @@
 /**
  * 커튼 동작 클립(curtain-pull-*.glb)을 새 플레이어 리그의 rest 포즈로 옮긴다.
  *
- *   node scripts/retarget-curtain-clips.mjs <새-플레이어.glb> <옛-커튼.glb> <출력.glb>
+ *   node scripts/assets/retarget-curtain-clips.mjs <새-플레이어.glb> <옛-커튼.glb> <출력.glb>
  *
  * 커튼 클립은 본만 있는 GLB라 Blender가 아마추어로 읽지 않는다. 대신 여기서 GLB를 직접
  * 고친다. 두 리그는 본 이름·계층이 같고 rest 방향(roll·관절 위치)만 다르므로, 각 본의
  * 포즈를 "rest 기준 회전(아마추어 공간)"으로 풀어 새 rest에 다시 감는다. 게임 쪽
- * `turn()`(scripts/create-tripo-player.py)과 같은 셈이다. 노드의 rest TRS도 새 리그 것으로
+ * `turn()`(scripts/assets/create-tripo-player.py)과 같은 셈이다. 노드의 rest TRS도 새 리그 것으로
  * 바꿔서, 클립 GLB만 따로 읽어도 새 골격이 나온다.
  *
  * 입력 커튼 GLB는 Meshopt가 풀린 것이어야 한다 (`gltf-transform copy`). 출력도 압축이 없으니

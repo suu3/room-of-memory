@@ -130,7 +130,7 @@ const BARCODE = [3, 1, 2, 1, 1, 3, 1, 2, 2, 1, 3, 1, 1, 2, 1, 3, 2, 1, 1, 2, 3, 
 const paintWorkbookFront: FacePainter = (ctx, { width, height }, palette, font) => {
   ctx.fillStyle = palette.fabric;
   ctx.fillRect(0, 0, width, height);
-  // 방의 모델(scripts/create-student-props.mjs)과 같은 구성: 연도 · 시리즈 · 제목 · 부제
+  // 방의 모델(scripts/assets/create-student-props.mjs)과 같은 구성: 연도 · 시리즈 · 제목 · 부제
   ctx.fillStyle = palette.linen;
   ctx.font = `500 26px ${font}`;
   ctx.fillText("2026", 44, 78);

@@ -1,6 +1,6 @@
 """Original baseball student's room props, built in Blender without external assets.
 
-Run Blender --background --factory-startup --python scripts/create-baseball-room-props.py.
+Run Blender --background --factory-startup --python scripts/assets/create-baseball-room-props.py.
 Raw GLBs, a preview and editable source: Documents/Codex/baseball-room-props.
 Run pnpm model:prep on each exported GLB before using it in the game.
 Blender coordinates: Z up, -Y front. All materials use existing scene tokens.
@@ -12,7 +12,7 @@ from pathlib import Path
 import bpy
 from mathutils import Vector
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 OUT = Path.home() / "Documents/Codex/baseball-room-props"
 OUT.mkdir(parents=True, exist_ok=True)
 if bpy.context.window:

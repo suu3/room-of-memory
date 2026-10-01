@@ -58,7 +58,7 @@
 - 부품은 합치지 않는다. `pnpm model:prep`은 shape key가 보이면 메쉬를 합치지 않고 압축만
   하고, 검사 결과에 `shape key: left.open, right.open`처럼 찍어 준다. 이 줄이 안 나오면
   내보내기에서 빠진 것이다.
-- 지금 커튼(`room-curtain.glb`)은 `scripts/create-curtain.mjs`가 식으로 만든 것이다. 블렌더로
+- 지금 커튼(`room-curtain.glb`)은 `scripts/assets/create-curtain.mjs`가 식으로 만든 것이다. 블렌더로
   다시 만들면 같은 이름 규약으로 내보내 `model:prep`을 돌리고 `src/lib/assets.ts`의 `?v=`를
   올린다. 코드는 그대로고, 놓는 자리(`curtain-model.ts`의 실측)만 새 파일에 맞게 고친다.
 

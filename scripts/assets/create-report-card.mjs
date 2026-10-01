@@ -1,5 +1,5 @@
 /**
- * Original A4 report card prop. Rebuild: node scripts/create-report-card.mjs
+ * Original A4 report card prop. Rebuild: node scripts/assets/create-report-card.mjs
  *
  * The finished sheet lies on the XZ plane: 0.30m wide, 0.42m long, printed face +Y,
  * and bottom-centred at the origin. Geometry and colours are original to this project.
@@ -24,7 +24,7 @@ import {
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
-const root = path.resolve(import.meta.dirname, "..");
+const root = path.resolve(import.meta.dirname, "../..");
 process.chdir(root);
 
 const WIDTH = 0.3;
@@ -144,7 +144,7 @@ const reportCard = new Group();
 reportCard.name = "ch1-report-card";
 reportCard.userData = {
   provenance: "Original procedural geometry for room-of-memory",
-  source: "scripts/create-report-card.mjs",
+  source: "scripts/assets/create-report-card.mjs",
   dimensions: "0.30m x 0.42m A4 proportion",
   front: "+Y",
 };

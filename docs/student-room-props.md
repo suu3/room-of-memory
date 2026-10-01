@@ -1,9 +1,9 @@
 # 고3 생활 소품
 
-`scripts/create-student-props.mjs`가 직접 제작한 도형과 인쇄 아틀라스로 네 GLB를 만든다.
+`scripts/assets/create-student-props.mjs`가 직접 제작한 도형과 인쇄 아틀라스로 네 GLB를 만든다.
 
 ```powershell
-node scripts/create-student-props.mjs
+node scripts/assets/create-student-props.mjs
 pnpm exec vitest run src/scenes/memory-room/student-models.test.ts src/scenes/memory-room/student-props.test.ts src/scenes/memory-room/layout.test.ts
 ```
 

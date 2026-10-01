@@ -1,5 +1,5 @@
 /**
- * Original low-poly barrel cactus. Rebuild: node scripts/create-cactus.mjs
+ * Original low-poly barrel cactus. Rebuild: node scripts/assets/create-cactus.mjs
  * The video is a shape reference; no third-party mesh or texture is included.
  * Colors come from DESIGN.md's scene tokens. model:prep packs the finished GLB.
  */
@@ -23,7 +23,7 @@ import {
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
-const root = path.resolve(import.meta.dirname, "..");
+const root = path.resolve(import.meta.dirname, "../..");
 process.chdir(root);
 const css = readFileSync("src/app/globals.css", "utf8");
 function token(key) {

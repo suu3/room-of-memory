@@ -1,6 +1,6 @@
 /**
  * 라온생명과학연구소 RX-11 앰플(바이알).
- * 재생성: node scripts/create-ampoule.mjs
+ * 재생성: node scripts/assets/create-ampoule.mjs
  *
  * 사용자가 제공한 애니메이션 스틸은 실루엣 참고용이며, 메쉬와 재질은 프로젝트에서
  * 직접 만든다. 라벨은 게임의 기존 단서 이미지(mg-ampoule-label.webp)를 GLB 안에 넣는다.
@@ -21,7 +21,7 @@ import {
 } from "three";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 
-const root = path.resolve(import.meta.dirname, "..");
+const root = path.resolve(import.meta.dirname, "../..");
 process.chdir(root);
 
 const css = readFileSync("src/app/globals.css", "utf8");

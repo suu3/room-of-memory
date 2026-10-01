@@ -42,6 +42,8 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 
 - `content/`: **대본과 게임 흐름의 단일 소스** (YAML). 사람이 고치는 곳은 여기다
 - `scripts/content/`: 콘텐츠 파이프라인 (읽기·검증·생성). 어드민과 `pnpm content:build`가 공유
+- `scripts/`: 빌드·검사가 부르는 스크립트 (`package.json`의 명령이 여기를 가리킨다)
+- `scripts/assets/`: 에셋을 한 번 만들고 끝나는 생성·가공 스크립트 (`create-*` · `recolor-*` · `retarget-*`, node와 블렌더용 python). 다시 만들 때만 손으로 돌린다
 - `src/app/`: 라우트. 3D Canvas는 클라이언트 컴포넌트로 dynamic import
 - `src/app/admin/`: 로컬 전용 대본 편집기. `*.dev.tsx`라 프로덕션 빌드에는 라우트가 안 생긴다
 - `src/components/canvas/`: Canvas 내부에서만 쓰는 3D 컴포넌트

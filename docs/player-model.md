@@ -18,7 +18,7 @@ Earlier revisions are recorded below. The editable source for this revision is
 Current revision: `?v=tripo-20260916-surface`. The user generated a new chibi with Tripo and dropped the FBX
 (`tripo_convert_86212750-….fbx`, 59MB, 1.9M triangles, 41 auto-generated bones, no clips) into
 `public/assets/models/`. That source is far over the 25MB commit limit and stays out of git; only the
-baked GLB ships. `scripts/create-tripo-player.py` (Blender 5.2, background) does the whole conversion:
+baked GLB ships. `scripts/assets/create-tripo-player.py` (Blender 5.2, background) does the whole conversion:
 
 - Decimates each of the 12 Tripo parts to a per-part budget (UVs kept, split vertices welded and custom normals cleared), then relaxes small bumps on the hair and clothes. Base colors are embedded as WebP: 1024px for hair and
   face, 512px for trousers and shirt, 256px for the rest.
@@ -48,7 +48,7 @@ baked GLB ships. `scripts/create-tripo-player.py` (Blender 5.2, background) does
 
 `pnpm model:prep` compresses the export with Meshopt. The prep script strips images
 before its Node-side loader check, so textured models pass. The curtain clips were carried over with
-`scripts/retarget-curtain-clips.mjs`, which re-expresses each bone's pose as a rest-space rotation and
+`scripts/assets/retarget-curtain-clips.mjs`, which re-expresses each bone's pose as a rest-space rotation and
 rewrites the clip GLB's rest transforms; the curtain motion did not have to be re-authored.
 
 Measured constants in `player-rig.ts` changed with the repaired mesh: `SIT_CONTACT_Y` 0.227,

@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 from mathutils import Vector
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 OUT = Path.home() / "Documents/Codex/room-detail-props"
 OUT.mkdir(parents=True, exist_ok=True)
 css = (ROOT / "src/app/globals.css").read_text(encoding="utf-8")

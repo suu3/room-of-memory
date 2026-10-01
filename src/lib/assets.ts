@@ -3,7 +3,7 @@ import type { VoiceId } from "@/lib/audio/voices";
 /** 에셋 경로 상수: 코드 곳곳에 경로 문자열을 산재시키지 않는다 (.claude/rules/assets.md). */
 export const ASSETS = {
   models: {
-    /** Blender로 제작한 야구부 생활 소품. scripts/create-baseball-room-props.py */
+    /** Blender로 제작한 야구부 생활 소품. scripts/assets/create-baseball-room-props.py */
     baseballJersey: "/assets/models/room-baseball-jersey.glb?v=20260914",
     /** 책장 위 야구 모자. 옆에 있던 글러브는 2026-09-15에 뺐다 (방 크기에서 덩어리로만 보였다). */
     baseballCap: "/assets/models/room-baseball-cap.glb?v=20260915",
@@ -16,14 +16,14 @@ export const ASSETS = {
     ceilingAc: "/assets/models/room-ceiling-ac.glb?v=20260913",
     /**
      * 오른손으로 커튼을 당기는 모션. 플레이어 리그를
-     * 바꾸면 scripts/retarget-curtain-clips.mjs로 새 rest에 옮기고 v도 같이 올린다.
+     * 바꾸면 scripts/assets/retarget-curtain-clips.mjs로 새 rest에 옮기고 v도 같이 올린다.
      */
     curtainPullTest: "/assets/models/curtain-pull-test.glb?v=tripo-20260915",
     /** 창을 바라볼 때 왼손으로 당기는 대칭 모션. */
     curtainPullLeft: "/assets/models/curtain-pull-left.glb?v=tripo-20260915",
     baseballBat: "/assets/models/ch1-baseball-bat.glb",
     baseball: "/assets/models/ch1-baseball.glb",
-    /** 책상 위에 눕혀 놓는 A4 성적표. 재생성: scripts/create-report-card.mjs. */
+    /** 책상 위에 눕혀 놓는 A4 성적표. 재생성: scripts/assets/create-report-card.mjs. */
     reportCard: "/assets/models/ch1-report-card.glb?v=20260926",
     radio: "/assets/models/ch1-radio.glb?v=original-20260912",
     /** 러그 위 게임패드 (사용자 제공, Meshopt 압축). 원본은 세워진 자세(앞면 +z, 밑면 y=0)라 씬에서 눕힌다. */
@@ -35,23 +35,23 @@ export const ASSETS = {
     smartphone: "/assets/models/ch1-smartphone.glb",
     /**
      * 플레이어 (Tripo 제작 chibi, 본·애니메이션·눈꺼풀 포함). 원본 FBX에서
-     * scripts/create-tripo-player.py로 굽는다. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다.
+     * scripts/assets/create-tripo-player.py로 굽는다. 모델 교체 시 v도 변경해 기존 SW 캐시와 분리한다.
      */
     playerBlocky: "/assets/models/player-blocky.glb?v=tripo-20260917-cloth",
-    /** 직접 제작한 방 소품. 재생성: scripts/create-original-furniture.mjs. 밑면 y=0. */
+    /** 직접 제작한 방 소품. 재생성: scripts/assets/create-original-furniture.mjs. 밑면 y=0. */
     computerScreen: "/assets/models/room-computer-screen.glb?v=original-20260912",
     computerKeyboard: "/assets/models/room-computer-keyboard.glb?v=original-20260912",
     computerMouse: "/assets/models/room-computer-mouse.glb?v=original-20260912",
     deskLamp: "/assets/models/room-desk-lamp.glb?v=original-20260912",
     books: "/assets/models/room-books.glb?v=original-20260912",
-    /** 직접 제작한 고3 생활 소품. 재생성: scripts/create-student-props.mjs */
+    /** 직접 제작한 고3 생활 소품. 재생성: scripts/assets/create-student-props.mjs */
     snackBag: "/assets/models/room-snack-bag.glb?v=20260910-flat",
     studyPapers: "/assets/models/room-study-papers.glb?v=20260910",
     cupNoodleTrash: "/assets/models/room-cup-noodle-trash.glb?v=20260910-upright2",
     studentBookshelf: "/assets/models/room-student-bookshelf.glb?v=no-labels-20260927",
     rug: "/assets/models/room-rug.glb?v=original-20260912",
     leafyPlant: "/assets/models/room-potted-plant.glb?v=original-20260912",
-    /** 둥근 선인장과 도자기 화분. 재생성: scripts/create-cactus.mjs */
+    /** 둥근 선인장과 도자기 화분. 재생성: scripts/assets/create-cactus.mjs */
     pottedPlant: "/assets/models/room-potted-cactus.glb?v=20260911",
     /**
      * 침대: 프레임·매트리스·베개·이불 한 모델 (사용자 제공, Meshopt 압축). 재질이 없어
@@ -61,7 +61,7 @@ export const ASSETS = {
      */
     bed: "/assets/models/room-bed.glb",
     /**
-     * 창 양쪽 커튼 천 두 장 (노드 left·right). 재생성: scripts/create-curtain.mjs. 재질이 없어
+     * 창 양쪽 커튼 천 두 장 (노드 left·right). 재생성: scripts/assets/create-curtain.mjs. 재질이 없어
      * 코드가 fabric을 입히고, 각 장의 shape key `open`으로 여닫는다 (이불의 folded와 같은
      * 방식). 규약·놓는 자리는 src/scenes/memory-room/curtain-model.ts. 블렌더 제작본으로
      * 바꾸면 같은 이름으로 내보내고 ?v=를 올린다.
@@ -69,12 +69,12 @@ export const ASSETS = {
     curtain: "/assets/models/room-curtain.glb",
     /**
      * 거실 안방문 옆 벽의 토끼 인형 (사용자 제공, Meshopt 압축). 밑면이 y=0에 맞춰져 있고,
-     * scripts/recolor-rabbit-doll.mjs가 방의 clay·linen 팔레트를 밝게 섞어 입힌다.
+     * scripts/assets/recolor-rabbit-doll.mjs가 방의 clay·linen 팔레트를 밝게 섞어 입힌다.
      */
     rabbitDoll: "/assets/models/rabbit-doll.glb?v=light-palette-20260927",
-    /** 거실 확장부의 오픈 키친. 재생성: scripts/create-living-kitchen.mjs */
+    /** 거실 확장부의 오픈 키친. 재생성: scripts/assets/create-living-kitchen.mjs */
     livingKitchen: "/assets/models/living-kitchen.glb?v=l-shape-left-20261001",
-    /** 라온생명과학연구소 RX-11 유리 바이알. 재생성: scripts/create-ampoule.mjs */
+    /** 라온생명과학연구소 RX-11 유리 바이알. 재생성: scripts/assets/create-ampoule.mjs */
     ampoule: "/assets/models/room-laon-ampoule.glb?v=2",
   },
   images: {
@@ -222,7 +222,7 @@ export const ASSETS = {
     roomSecondLight: ["/assets/audio/bgm/bgm-room-second-light.ogg"],
     /**
      * 게임기(fighter-duel)를 켠 동안 방 곡 대신 드는 8비트 루프. 방 TV 스피커 소리로
-     * 깎아 구웠다. 코드 합성이라 곡을 바꾸려면 scripts/create-fighter-duel-chip.mjs를 고친다.
+     * 깎아 구웠다. 코드 합성이라 곡을 바꾸려면 scripts/assets/create-fighter-duel-chip.mjs를 고친다.
      */
     fighterDuel: "/assets/audio/bgm/mg-fighter-duel-chip.ogg",
   },

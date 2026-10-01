@@ -180,7 +180,7 @@ export const LIVING_ANCHORS = {
 export const LIVING_FRIDGE_AT = [-15.67, LIVING_SHELL_BOUNDS.minZ] as const;
 
 /**
- * ㄱ자 부엌 (living-kitchen.glb, scripts/create-living-kitchen.mjs).
+ * ㄱ자 부엌 (living-kitchen.glb, scripts/assets/create-living-kitchen.mjs).
  *
  * 냉장고 오른쪽에서 뒷벽을 따라 조리대가 달리다가, 끝에서 거실 쪽으로 꺾인 반도형 조리대가
  * 부엌을 닫는다. 반도의 끝이 식탁을 보고, 그 너머가 현관이다.

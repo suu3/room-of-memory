@@ -42,7 +42,7 @@
   벡터(`FRONT_DOOR_INWARD`) 기준으로 일반화했다.
 - **벽 걷기**: 거실 벽에도 `bounds`를 넘겨 조사 클로즈업 카메라가 거실 안에 들어오면 등 뒤
   벽을 걷지 않는다. 반대로 +x 벽을 걷어야 하는 조사 시점(신발장)은 카메라를 그 벽 밖에 둔다.
-- **GLB 커밋**: `living-kitchen.glb`는 `scripts/create-living-kitchen.mjs`가 만들어
+- **GLB 커밋**: `living-kitchen.glb`는 `scripts/assets/create-living-kitchen.mjs`가 만들어
   `prepare-model`로 Meshopt 압축(45KB)한 뒤 커밋한다. 1차의 `predev`/`prebuild` 생성은 걷었다.
 
 ## 결론
@@ -234,7 +234,7 @@
 - 외부 에셋을 사용하면 라이선스와 출처를 `public/assets/CREDITS.md`에 기록하고, GLB는 압축 후
   파일당 5MB 이내를 기본 목표로 한다.
 - GLB는 생성 스크립트로 다시 만들 수 있지만 산출물도 커밋한다. 모양을 바꾸면
-  `node scripts/create-living-kitchen.mjs`를 실행하고 `src/lib/assets.ts`의 `?v=`를 올린다.
+  `node scripts/assets/create-living-kitchen.mjs`를 실행하고 `src/lib/assets.ts`의 `?v=`를 올린다.
 
 ## 사용자가 해야 할 일
 
