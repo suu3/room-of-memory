@@ -39,7 +39,6 @@ import {
   useFaceTexture,
 } from "./inspect-textures";
 
-export { ZOOM_MAX, ZOOM_MIN } from "./inspect-math";
 export type { FacePainter, InspectFace } from "./inspect-textures";
 
 /**
@@ -67,7 +66,7 @@ export type InspectControl =
   | { kind: "pages"; sheets: number };
 
 /** 앞면에 붙은 홀로그램 씰. 어느 각도에서나 무지갯빛 결은 비치지만 로고는 `spot`에서만 선다. */
-export interface InspectHologram {
+interface InspectHologram {
   /** 로고 그림. 투명 바탕 위에 그린다: 그 밖은 씰의 결이 비친다. */
   paint: FacePainter;
   /** 앞면에서 차지하는 자리 (면 크기 비율, 왼쪽 위 원점). */

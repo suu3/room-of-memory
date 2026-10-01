@@ -19,7 +19,7 @@ export const WINDOW_SPOTS: readonly WindowSpot[] = [
 ];
 
 /** 돋보기 중심이 이 거리(%) 안에 들어오면 찾은 것으로 친다. 렌즈 반지름과 같은 감각. */
-export const SPOT_RADIUS = 8;
+const SPOT_RADIUS = 8;
 /** 키보드로 렌즈를 옮기는 한 걸음 (%). */
 export const LENS_STEP = 4;
 /** 렌즈 배율. 이보다 낮으면 핏자국이 안 보이고, 높으면 어디를 보는지 모른다. */

@@ -1,6 +1,6 @@
 "use client";
 
-import { transposeVoice, VOICES, type Voice, type VoiceId, voiceDuration } from "./voices";
+import { transposeVoice, VOICES, type Voice, type VoiceId } from "./voices";
 
 /**
  * Web Audio로 효과음을 합성해 재생한다. 기본적으로 오디오 파일이 없다. voices.ts의
@@ -26,7 +26,7 @@ const SFX_LEVEL = 0.7;
  */
 const SAMPLE_GAIN: Partial<Record<VoiceId, number>> = { open: 0.65 };
 let muted = false;
-let volume = 0.7;
+const VOLUME = 0.7;
 /** 같은 소리가 한 프레임에 여러 번 겹쳐 터지는 걸 막는다. */
 const lastPlayedAt = new Map<VoiceId, number>();
 const MIN_REPEAT_S = 0.04;
@@ -40,12 +40,12 @@ function ensureContext(): AudioContext | null {
   if (!Ctor) return null;
   context = new Ctor();
   master = context.createGain();
-  master.gain.value = muted ? 0 : volume;
+  master.gain.value = muted ? 0 : VOLUME;
   master.connect(context.destination);
   sfxBus = context.createGain();
   sfxBus.gain.value = SFX_LEVEL;
   sfxBus.connect(master);
-  // 한 번만 건다. 리스너는 모듈의 context를 보므로 disposeAudio 뒤 새 컨텍스트에도 그대로 듣는다
+  // 한 번만 건다. 리스너는 모듈의 context를 본다
   if (!visibilityBound && typeof document !== "undefined") {
     visibilityBound = true;
     document.addEventListener("visibilitychange", onVisibilityChange);
@@ -278,8 +278,6 @@ export interface NoiseBedOptions {
 /** 루프용 노이즈. 짧은 버퍼를 돌리면 반복 주기가 웅웅거려 들리므로 넉넉히 잡는다. */
 const BED_BUFFER_S = 2;
 let bedBuffer: AudioBuffer | null = null;
-/** disposeAudio에서 한 번에 걷어내기 위한 목록. */
-const activeBeds = new Set<NoiseBed>();
 
 function getBedBuffer(ctx: AudioContext): AudioBuffer {
   if (bedBuffer && bedBuffer.sampleRate === ctx.sampleRate) return bedBuffer;
@@ -322,7 +320,6 @@ export function startNoiseBed({ gain: peak, highpass, lowpass }: NoiseBedOptions
     stop() {
       if (stopped) return;
       stopped = true;
-      activeBeds.delete(bed);
       gain.gain.setTargetAtTime(0, ctx.currentTime, 0.05);
       source.stop(ctx.currentTime + 0.3);
       source.onended = () => {
@@ -333,7 +330,6 @@ export function startNoiseBed({ gain: peak, highpass, lowpass }: NoiseBedOptions
       };
     },
   };
-  activeBeds.add(bed);
   return bed;
 }
 
@@ -357,31 +353,8 @@ export function unlockAudio() {
 export function setAudioMuted(next: boolean) {
   muted = next;
   if (master && context) {
-    master.gain.setTargetAtTime(next ? 0 : volume, context.currentTime, 0.02);
+    master.gain.setTargetAtTime(next ? 0 : VOLUME, context.currentTime, 0.02);
   }
-}
-
-export function setAudioVolume(next: number) {
-  volume = Math.min(1, Math.max(0, next));
-  if (master && context && !muted) {
-    master.gain.setTargetAtTime(volume, context.currentTime, 0.02);
-  }
-}
-
-/** 테스트·핫리로드에서 상태를 되돌리기 위한 탈출구. */
-export function disposeAudio() {
-  // 컨텍스트를 닫기 전에 돌고 있는 소스를 끊는다. 닫힌 컨텍스트에서는 stop이 던진다.
-  for (const bed of [...activeBeds]) bed.stop();
-  activeBeds.clear();
-  void context?.close();
-  context = null;
-  master = null;
-  sfxBus = null;
-  noiseBuffer = null;
-  bedBuffer = null;
-  samples.clear();
-  lastPlayedAt.clear();
 }
 
 export type { VoiceId };
-export { voiceDuration };

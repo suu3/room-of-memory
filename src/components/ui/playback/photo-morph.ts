@@ -23,7 +23,7 @@ export const MORPH_DURATION_MS = 1300;
 /** 미는 거리. 버퍼의 짧은 변에 대한 비율. */
 export const MORPH_AMPLITUDE = 0.08;
 /** 변위를 계산하는 버퍼의 긴 변(px). 넘어가는 동안만 서는 그림이라 이 이상이 필요 없다. */
-export const MORPH_BUFFER_SIDE = 320;
+const MORPH_BUFFER_SIDE = 320;
 
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, Number.isFinite(value) ? value : 0));

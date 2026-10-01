@@ -1,17 +1,17 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { emitAll } from "./emit.mjs";
-import { CONTENT_DIR, loadContent, loadMinigameIds, REPO_ROOT, sourcePath } from "./load.mjs";
+import { loadContent, loadMinigameIds, REPO_ROOT } from "./load.mjs";
 import { LOCALES, SOURCES } from "./schema.mjs";
 import { validateContent } from "./validate.mjs";
 import { writeSource } from "./write.mjs";
 
-export { CONTENT_DIR, loadContent, REPO_ROOT, sourcePath, validateContent };
+export { loadContent };
 
 /** 생성물이 놓이는 자리 (리포 루트 기준 상대 경로). */
-export const GENERATED_MODULE = "src/data/generated/content.ts";
-export const localeResource = (locale) => `src/i18n/locales/${locale}/memory-room.json`;
-export const localeBase = (locale) => `src/i18n/locales/${locale}/memory-room.base.json`;
+const GENERATED_MODULE = "src/data/generated/content.ts";
+const localeResource = (locale) => `src/i18n/locales/${locale}/memory-room.json`;
+const localeBase = (locale) => `src/i18n/locales/${locale}/memory-room.base.json`;
 
 /**
  * YAML을 읽어 검증하고, 통과하면 생성물 내용을 만든다. 파일은 쓰지 않는다.

@@ -30,7 +30,7 @@ export interface PhoneTabItem<Id extends string> {
  * dvh를 섞는 이유: 모바일 세로 화면에서 폰 목업이 화면보다 길어지면
  * 하단 탭바와 닫기 버튼이 잘린다.
  */
-export const PHONE_BODY_CLASS = "h-[min(24rem,48dvh)]";
+const PHONE_BODY_CLASS = "h-[min(24rem,48dvh)]";
 
 export function PhoneShell<Id extends string>({
   tab,

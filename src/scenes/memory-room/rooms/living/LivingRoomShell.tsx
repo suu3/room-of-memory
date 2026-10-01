@@ -194,7 +194,7 @@ function sharedWallStub(minZ: number, maxZ: number): ShellPart {
   };
 }
 
-export const ROOM_DOORWAY_STUBS = [
+const ROOM_DOORWAY_STUBS = [
   sharedWallStub(LIVING_SHELL_BOUNDS.minZ, DOOR_HOLE_Z.min),
   sharedWallStub(DOOR_HOLE_Z.max, LIVING_SHELL_BOUNDS.maxZ),
 ] as const satisfies readonly ShellPart[];

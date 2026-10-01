@@ -13,9 +13,9 @@ import type { Aabb2 } from "../world/types";
  */
 
 /** 격자 한 칸 (월드 유닛). 플레이어 지름(0.76)보다 훨씬 작아야 좁은 통로를 놓치지 않는다. */
-export const PATH_CELL = 0.25;
+const PATH_CELL = 0.25;
 /** 목표가 설 수 없는 자리(가구 위·벽)면 이 거리 안에서 가장 가까운 설 수 있는 칸으로 옮긴다. */
-export const GOAL_SNAP_DISTANCE = 1.6;
+const GOAL_SNAP_DISTANCE = 1.6;
 
 interface Grid {
   minX: number;

@@ -45,12 +45,12 @@ export const RAISED_TILT = 0.18;
 export const RAISED_SPIN = 0.8;
 /** 들고 있는 손이 숨 쉬듯 오르내리는 폭과 속도. */
 export const HOLD_BOB_AMPLITUDE = 0.012;
-export const HOLD_BOB_RATE = 2.2;
+const HOLD_BOB_RATE = 2.2;
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 
 /** 빠르게 나왔다가 끝에서 멎는 곡선. 서랍도 손도 이 박자로 움직인다. */
-export function easeOutCubic(t: number): number {
+function easeOutCubic(t: number): number {
   const u = 1 - clamp01(t);
   return 1 - u * u * u;
 }

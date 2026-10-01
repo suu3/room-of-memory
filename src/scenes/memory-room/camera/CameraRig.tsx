@@ -63,7 +63,7 @@ function followLimitsFor(state: Parameters<typeof openDoorwayIds>[0]): Aabb2 {
  */
 
 /** 배율(1 = 기본)이 얼마나 축소됐는가 (0 = 기본, 1 = 최대 축소). */
-export function zoomOutAmount(zoomScale: number): number {
+function zoomOutAmount(zoomScale: number): number {
   const range = 1 - MIN_ROOM_ZOOM_SCALE;
   if (range <= 0 || !Number.isFinite(zoomScale)) return 0;
   return MathUtils.clamp((1 - zoomScale) / range, 0, 1);

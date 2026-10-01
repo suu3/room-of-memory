@@ -218,7 +218,7 @@ function createBrowserProbeCanvas(): WebGLProbeCanvas {
  * 일상적인 사건이다. 예전에는 한 번이라도 나면 영구 폴백("표시할 수 없습니다")으로 떨어져
  * 새로고침 말고는 돌아올 길이 없었다. 몇 번은 다시 세우고, 거듭 잃을 때만 포기한다.
  */
-export const MAX_CONTEXT_RECOVERIES = 2;
+const MAX_CONTEXT_RECOVERIES = 2;
 
 export type ContextLossResponse = "remount" | "fail";
 

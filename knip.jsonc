@@ -1,0 +1,21 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "entry": [
+    // dev 서버에서만 라우트가 되는 파일 (next.config.ts의 pageExtensions)
+    "src/app/**/*.dev.{ts,tsx}",
+    // package.json 명령이 부르는 스크립트와, 손으로 한 번 돌리는 에셋 스크립트
+    "scripts/*.mjs",
+    "scripts/assets/*.mjs",
+    ".github/scripts/*.mjs"
+  ],
+  // css를 넣어야 `@import "tailwindcss"`가 보인다
+  "project": ["src/**/*.{ts,tsx,css}", "scripts/**/*.mjs", ".github/scripts/*.mjs"],
+  // 아직 쓰이지 않는 다중 챕터용 스키마 (.claude/rules/visual-novel.md)
+  "ignore": ["src/types/scenario.ts"],
+  // pnpm audio:bgm이 쓰는 시스템 도구
+  "ignoreBinaries": ["ffmpeg", "ffprobe"],
+  "rules": {
+    // 같은 값에 뜻이 다른 이름을 붙인 자리가 있다 (calendar의 FIRST_MONTH · START_MONTH)
+    "duplicates": "off"
+  }
+}

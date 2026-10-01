@@ -28,13 +28,3 @@ export function writeGenerated(output: Record<string, string>): Promise<string[]
 
 /** 검증 → 통과하면 YAML과 생성물을 함께 쓴다. 걸리면 아무것도 쓰지 않는다. */
 export function saveContent(content: GameContent): Promise<SaveResult>;
-
-/** 데이터끼리 어긋난 곳을 찾는다. 빈 배열이면 통과. */
-export function validateContent(
-  content: GameContent,
-  options?: { minigameIds?: string[] },
-): string[];
-
-export const REPO_ROOT: string;
-export const CONTENT_DIR: string;
-export const GENERATED_MODULE: string;

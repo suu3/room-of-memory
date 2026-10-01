@@ -49,7 +49,6 @@ import {
   type Visit,
   visitDone,
   visitOpen,
-  visitsOf,
 } from "@/data/story-phase";
 import { stillKeyOf, useStillStore } from "@/store/stills";
 import type { CurtainSide } from "@/types/curtain";
@@ -87,10 +86,10 @@ export type Act = 1 | 2 | 3;
  * 때문이다: 옛 저장본의 "easy"(그때의 기본)가 새 이지로 읽히면 고른 적 없는 안내가
  * 켜진다. 옛 값은 전부 새 보통으로 이어진다 (sanitizeProgress).
  */
-export type Difficulty = "guided" | "normal";
+type Difficulty = "guided" | "normal";
 /** 수첩(캐릭터 시트)의 페이지: 프로필과 기록(기억 스크랩북). */
 export type CharacterSheetTab = NotebookTabId;
-export type InteractionPhase = "dialogue" | "minigame";
+type InteractionPhase = "dialogue" | "minigame";
 export type HotspotStatus = "locked" | "available" | "done";
 /**
  * 스치는 혼잣말 한 줄 (RemarkLine). 조사도 기록도 아닌, 물건을 눌렀을 때 도해가
@@ -126,7 +125,7 @@ export type RemarkId =
   // 읽힌다 (엄마 쪽지 뒤의 냉장고 아래칸). 전용 줄이 있는 물건(컴퓨터)은 그걸 쓴다
   | "locked";
 
-export type UiLockId =
+type UiLockId =
   | "hud-menu"
   | "character-sheet"
   | "title"
@@ -152,7 +151,7 @@ export interface ActiveInteraction {
  * 재생의 성격. 같은 기계를 쓰지만 화면의 태도가 다르다. 컷씬은 방을 덮고
  * 진행을 밀어붙이는 장면이고, 다시보기는 이미 지나간 것을 들춰 보는 것뿐이다.
  */
-export type PlaybackKind = "cutscene" | "replay";
+type PlaybackKind = "cutscene" | "replay";
 
 /**
  * 재생 중인 장면. 인터랙션과 같은 자리를 쓰지 않는다. 여기에는 미니게임이 없고,
@@ -671,7 +670,7 @@ export function isSeen(state: StateSnapshot, id: MemoryId): boolean {
  * 결심(resolve)에 들어섰는가: 4페이즈를 마치고 정적 비트까지 지났다는 뜻이다.
  * 곁가지(게임기·공의 2차, 피아노)는 여기 끼지 않는다.
  */
-export function endingReady(state: StateSnapshot): boolean {
+function endingReady(state: StateSnapshot): boolean {
   return actOf(state) === 3;
 }
 
@@ -761,7 +760,7 @@ export function buildMemoryReplay(
  * "다음"을 누르는 것과 시간이 흐르는 것이 같은 함수로 처리돼서, 화면 쪽은
  * 타이머를 걸어 이 함수를 한 번 더 부르기만 하면 된다.
  */
-export function nextPlaybackStep(active: ActivePlayback): ActivePlayback | null {
+function nextPlaybackStep(active: ActivePlayback): ActivePlayback | null {
   const cut = active.cuts[active.cutIndex];
   if (!cut) return null;
 
@@ -800,7 +799,7 @@ function markVisit(state: MemoryRoomState, id: MemoryId, visit: Visit) {
  * (아빠 메일의 "2박 3일")를 둘 다 본 순간 결론 한 줄이 흐른다. 옷장 옷걸이는 신발장
  * 대사로 합쳤다. 둘 다 2페이즈 필수 조사라 `tripDoubted`는 2페이즈를 마치기 전에 반드시 선다.
  */
-export const TRIP_CLUES: readonly MemoryId[] = ["shoes", "computer"] as MemoryId[];
+const TRIP_CLUES: readonly MemoryId[] = ["shoes", "computer"] as MemoryId[];
 
 /** 캐리어 개수 추리를 마쳤는가 (v4.1 4장의 tripDoubted). */
 export function tripDoubted(state: Pick<MemoryRoomState, "revisited">): boolean {
@@ -1914,6 +1913,3 @@ export const selectHeardSurvivorBroadcast = (state: Pick<MemoryRoomState, "revis
 /** 정적 비트를 지났는가 (v4 1-3의 stillBeatDone): 결심에 들어섰다. */
 export const selectStillBeatDone = (state: MemoryRoomState) =>
   phaseAtLeast(storyPhaseOf(state), "resolve");
-
-/** 이 기억의 차수 목록 (수첩·패널이 쓴다). */
-export { visitsOf };

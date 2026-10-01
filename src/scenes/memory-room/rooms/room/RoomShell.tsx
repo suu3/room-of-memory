@@ -96,8 +96,8 @@ function endWall(z: number, minY: number, maxY: number): WallBox {
 }
 
 /** 창의 중심과 유리 크기. 뒷벽 개구부와 창밖 풍경이 모두 이 값을 기준으로 잡힌다. */
-export const WINDOW_CENTER = [1.15, 2.55, -3.88] as const satisfies Vec3Tuple;
-export const WINDOW_OPENING = { width: 2.84, height: 2.4 } as const;
+const WINDOW_CENTER = [1.15, 2.55, -3.88] as const satisfies Vec3Tuple;
+const WINDOW_OPENING = { width: 2.84, height: 2.4 } as const;
 
 const WALL_X = { min: SHELL_CENTER_X - SHELL_WIDTH / 2, max: SHELL_CENTER_X + SHELL_WIDTH / 2 };
 const WALL_Y = { min: WALL_CENTER_Y - WALL_HEIGHT / 2, max: WALL_CENTER_Y + WALL_HEIGHT / 2 };

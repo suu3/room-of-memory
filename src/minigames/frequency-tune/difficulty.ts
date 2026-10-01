@@ -44,14 +44,14 @@ export const DIAL_TUNINGS: Record<MinigameDifficulty, DialTuning> = {
   normal: { bandMax: 15, bandMin: 10, periodMax: 2700, periodMin: 1800 },
 };
 
-export const DEFAULT_DIFFICULTY: MinigameDifficulty = "easy";
+const DEFAULT_DIFFICULTY: MinigameDifficulty = "easy";
 
 /**
  * 2바퀴에서 같은 다이얼을 다시 돌린다. 판 수를 줄이고 대역을 넓혀 두는 이유는
  * 난이도 조절이 아니라 이야기다. 1바퀴의 라디오는 잡히지 않는 물건이었고,
  * 2바퀴의 라디오는 저쪽에서 이미 부르고 있는 물건이다. 손이 덜 드는 것이 맞다.
  */
-export const SECOND_ROUND_GOAL_HITS = 2;
+const SECOND_ROUND_GOAL_HITS = 2;
 /** 2바퀴의 대역 보정 (%). 첫 판이 넓게 시작해 "이미 거의 잡혀 있다"로 읽힌다. */
 const SECOND_ROUND_BAND_BONUS = 5;
 

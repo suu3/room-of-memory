@@ -14,7 +14,7 @@ const LOCALE_LABEL: Record<string, string> = { ko: "한국어", en: "English", j
 
 // 입력칸은 카드보다 한 단 내려앉힌다. 카드가 거의 흰색이라 같은 톤으로 두면 칸의 경계가 테두리
 // 하나에만 걸린다. 포커스는 테두리 색만으로 알리지 않고 링을 같이 켠다 (키보드로도 보여야 한다).
-export const inputClass =
+const inputClass =
   "w-full rounded-sm border border-[var(--admin-line-strong)] bg-[var(--admin-sunken)] px-3 py-2 " +
   "text-[var(--admin-ink)] outline-none transition-colors " +
   "placeholder:text-[var(--admin-ink-faint)] focus:border-[var(--admin-accent)] " +

@@ -5,7 +5,7 @@ import type { DoorwayId } from "@/data/spaces";
 import { type VisitProgress, visitDone, visitsOf } from "@/data/story-phase";
 
 /** 수첩의 페이지(위쪽 종이 인덱스 탭). 순서가 곧 탭 순서다. */
-export const NOTEBOOK_TABS = ["profile", "lore", "map", "items"] as const;
+const NOTEBOOK_TABS = ["profile", "lore", "map", "items"] as const;
 export type NotebookTabId = (typeof NOTEBOOK_TABS)[number];
 
 /**

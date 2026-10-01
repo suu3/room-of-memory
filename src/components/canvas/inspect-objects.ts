@@ -21,7 +21,7 @@ const ink = (palette: RoomPalette) => palette.frame;
  * 라온생명과학연구소 로고: 둥근 테 안에 떠오르는 해 하나. 앰플 라벨·출입증 뒷면·
  * 컴퓨터 로고 매칭(computer-logo의 Logo)이 같은 모양이다. `half`면 왼쪽 반만 남는다.
  */
-export function paintRaonLogo(
+function paintRaonLogo(
   ctx: CanvasRenderingContext2D,
   cx: number,
   cy: number,
@@ -278,7 +278,7 @@ export function tableNoteObject(memo: string, signature: string): InspectObject 
 /** 책의 낱장 수. 앞표지 한 장 + 본문 넉 장. 찾을 쪽은 세 장 넘긴 오른쪽이다. */
 const SHELF_BOOK_SHEETS = 5;
 /** 찾을 쪽의 `pages` 인덱스: 낱장 3의 앞면. */
-export const SHELF_BOOK_TARGET = 6;
+const SHELF_BOOK_TARGET = 6;
 
 /** 인쇄된 본문 흉내: 글줄을 회색 막대로 놓는다. 읽을 글이 아니라 "글이 있다"는 결이다. */
 function paintPrintedPage(pageNumber: number, onRight: boolean): FacePainter {

@@ -28,7 +28,7 @@ import { CatmullRomCurve3, TubeGeometry, Vector3 } from "three";
 export const SEAM_SURFACE_RADIUS = 1.012;
 /** 반원 네 개가 놓이는 평면의 좌표. 곡선이 구면에 놓이려면 반지름/√2다. */
 export const SEAM_PLANE = SEAM_SURFACE_RADIUS / Math.SQRT2;
-export const SEAM_TUBE_RADIUS = 0.05;
+const SEAM_TUBE_RADIUS = 0.05;
 /** 반원 하나당 표본 수. 네 조각이니 곡선 전체는 이 값의 네 배다. */
 const SEAM_ARC_SAMPLES = 32;
 

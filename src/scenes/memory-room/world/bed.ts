@@ -16,7 +16,7 @@ import type { Aabb2 } from "./types";
  */
 
 /** 모델 실측 (모델 단위, 밑면 y=0). 굽은 파일을 GLTFLoader로 읽어 잰 값. */
-export const BED_MODEL = {
+const BED_MODEL = {
   /** 바깥 발자국: 머리판 뒷면에서 발판 앞면까지, 머리판·발판의 반폭. */
   footprint: { minX: -3.154, maxX: 3.154, halfWidth: 1.647 },
   /** 침대 전체 높이 = 머리판 꼭대기. */

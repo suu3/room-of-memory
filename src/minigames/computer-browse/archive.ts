@@ -13,7 +13,7 @@
 import type { CommonTextKey } from "@/types/minigame";
 
 /** 어느 앱으로 열린 사본인가. 창 제목줄이 이 값을 따라 바뀐다. */
-export type ArchiveApp = "mail" | "news";
+type ArchiveApp = "mail" | "news";
 
 export interface ArchivePage {
   id: string;

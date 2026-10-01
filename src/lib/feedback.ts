@@ -11,8 +11,8 @@ export type FeedbackCategory = (typeof FEEDBACK_CATEGORIES)[number];
 
 /** 본문 상한. 구글 폼 장문 답변 한도보다 훨씬 안쪽: 이걸 넘기면 글이 아니라 덤프다. */
 export const FEEDBACK_BODY_MAX = 2000;
-export const FEEDBACK_EMAIL_MAX = 200;
-export const FEEDBACK_META_MAX = 500;
+const FEEDBACK_EMAIL_MAX = 200;
+const FEEDBACK_META_MAX = 500;
 
 export interface FeedbackPayload {
   category: FeedbackCategory;

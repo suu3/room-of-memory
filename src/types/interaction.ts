@@ -3,7 +3,7 @@ import type { MemoryId } from "@/data/memory-room";
 import type { CharacterId } from "./scenario";
 
 /** memoryRoom 네임스페이스에서 유효한 번역 키만 허용. */
-export type MemoryRoomTextKey = ParseKeys<"memoryRoom">;
+type MemoryRoomTextKey = ParseKeys<"memoryRoom">;
 
 /** 초상 프레임. 대사가 찍히는 동안에도 이 표정을 그대로 든다. */
 export type CharacterExpression = "neutral" | "smile" | "surprised" | "sad" | "puzzled";
@@ -31,7 +31,7 @@ export interface DialogueScript {
  * 핫스팟 클릭 시 실행할 인터랙션.
  * 대사(scriptId) → 미니게임(minigameId) → 결과 대사(resultScriptId) → 완료 순.
  */
-export interface MemoryInteraction {
+interface MemoryInteraction {
   scriptId?: string;
   /** src/minigames/index.ts 레지스트리의 미니게임 id. */
   minigameId?: string;
@@ -119,7 +119,7 @@ export interface CutsceneCut {
 }
 
 /** 컷에 붙는 효과음. scripts/content/schema.mjs의 CUT_SFX와 같아야 한다. */
-export type CutSfx = "mittTap" | "radioCut" | "radioWake" | "radioStatic" | "radioSignOff";
+type CutSfx = "mittTap" | "radioCut" | "radioWake" | "radioStatic" | "radioSignOff";
 
 /** 컷씬 하나. CUTSCENES 레지스트리(src/data)에 id로 등록. */
 export interface Cutscene {

@@ -12,7 +12,7 @@ import type { MemoryPhaseConfig, Visit } from "@/types/interaction";
 import { MEMORIES, type MemoryId } from "./generated/content";
 import { visitConfig } from "./story-phase";
 
-export { CUTSCENES, MEMORIES, MEMORY_IDS, type MemoryItem, SCRIPTS } from "./generated/content";
+export { CUTSCENES, MEMORIES, MEMORY_IDS, SCRIPTS } from "./generated/content";
 export type { MemoryId };
 
 /**
@@ -30,7 +30,7 @@ export const MEMORY_GOAL = PHASE1_MEMORIES.length;
  * 곁가지(게임기·공의 2차)는 뺀다. 진행 표시의 분모가 곁가지를 세면 안 본 사람의
  * 칸이 영영 안 찬다.
  */
-export const PHASE2_MEMORIES = MEMORIES.filter(
+const PHASE2_MEMORIES = MEMORIES.filter(
   (memory) => (memory.phase2 && !memory.phase2.side) || memory.phase3,
 );
 

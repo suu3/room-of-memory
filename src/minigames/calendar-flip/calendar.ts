@@ -54,7 +54,7 @@ export const TALLY_PER_MARK = 5;
  * 컴퓨터 메일("10월 15일 잘 도착했어")과 같은 날짜선 위에 선다.
  * 전국대회(8월 12일)는 여기 없다. 그날은 금빛 동그라미로 따로 그어진다.
  */
-export type NoteKey =
+type NoteKey =
   | "finals"
   | "practiceGame"
   | "vacation"
@@ -104,7 +104,7 @@ export function daysInMonth(year: number, month: number): number {
 }
 
 /** 1일이 무슨 요일인지 (0=일요일). */
-export function firstWeekday(year: number, month: number): number {
+function firstWeekday(year: number, month: number): number {
   return new Date(year, month - 1, 1).getDay();
 }
 

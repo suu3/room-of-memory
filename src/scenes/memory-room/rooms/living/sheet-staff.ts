@@ -20,7 +20,7 @@ export const STAFF = { top: 30, gap: 14, left: 34, right: 478 } as const;
 export const STAFF_BOTTOM_Y = STAFF.top + STAFF.gap * 4;
 
 /** 오선 한가운데 줄의 y. 음표 기둥이 방향을 바꾸는 자리다. */
-export const STAFF_MIDDLE_Y = STAFF.top + STAFF.gap * 2;
+const STAFF_MIDDLE_Y = STAFF.top + STAFF.gap * 2;
 
 /** 높은음자리표가 정하는 단 하나: 맨 아랫줄에 앉는 계이름. */
 const BOTTOM_LINE_NOTE: Solfege = "mi";

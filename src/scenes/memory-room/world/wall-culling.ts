@@ -18,7 +18,7 @@ export type WallSide = "back" | "front" | "left" | "right";
 export const WALL_SIDES = ["back", "front", "left", "right"] as const satisfies readonly WallSide[];
 
 /** 각 벽의 바깥쪽 법선(XZ). 카메라가 이 방향에 있으면 그 벽이 방을 가린다. */
-export const WALL_NORMALS = {
+const WALL_NORMALS = {
   back: [0, -1],
   front: [0, 1],
   left: [-1, 0],

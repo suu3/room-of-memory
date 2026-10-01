@@ -474,23 +474,3 @@ export function stopCueMusic(fadeSeconds = FADE_OUT_S) {
   if (cue) stopCueVoice(cue, fadeSeconds);
   cue = null;
 }
-
-/** 테스트·핫리로드 탈출구. disposeAudio가 컨텍스트를 닫기 전에 불린다. */
-export function disposeMusic() {
-  cueRequest = null;
-  if (cue) stopCueVoice(cue, 0.01);
-  cue = null;
-  currentRequest = null;
-  const playing = voice;
-  voice = null;
-  if (playing) retire(playing, 0.01);
-  overlayRequest = null;
-  if (overlay) stopOverlayVoice(overlay, 0.01);
-  overlay = null;
-  buffers.clear();
-  missing.clear();
-  impulse = null;
-  level = 0;
-  duck = 1;
-  trim = 1;
-}

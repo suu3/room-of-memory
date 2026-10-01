@@ -22,12 +22,12 @@ import type { MinigameDifficulty } from "@/types/minigame";
 export const STAGE_SPAN = 8;
 /** 둘이 더 가까워질 수 없는 거리. 겹쳐 서면 누가 때리는지 안 보인다. */
 export const MIN_GAP = 0.9;
-export const HERO_START = 3;
-export const RIVAL_START = 5;
+const HERO_START = 3;
+const RIVAL_START = 5;
 
 /** 걷는 속도(단위/초). 물러서는 쪽이 느리다: 도망이 공짜면 아무도 안 들어온다. */
-export const WALK_FORWARD = 2.6;
-export const WALK_BACK = 2.1;
+const WALK_FORWARD = 2.6;
+const WALK_BACK = 2.1;
 
 /**
  * 한 판의 길이. 다 못 끝내면 체력이 많은 쪽이 이긴다 (격투 게임의 타임업).
@@ -45,12 +45,12 @@ export const MATCH_MS = 30_000;
  * 되돌릴 수 없는 선택이어야 뛰어들기 전에 한 번 생각한다.
  */
 export const JUMP_MS = 700;
-export const JUMP_PEAK = 1;
+const JUMP_PEAK = 1;
 /** 뜨는 순간의 수평 속도(단위/초). 앞으로 뛰면 걸어 들어가는 것보다 빠르다. */
-export const JUMP_FORWARD_VX = 2.9;
-export const JUMP_BACK_VX = 2.3;
+const JUMP_FORWARD_VX = 2.9;
+const JUMP_BACK_VX = 2.3;
 /** 착지 경직(ms). 헛뛴 점프를 무는 자리다. */
-export const LAND_MS = 170;
+const LAND_MS = 170;
 
 /** 뜬 뒤 흐른 시간으로 높이를 낸다 (0~JUMP_PEAK). 포물선 하나. */
 export function jumpHeight(airMs: number): number {
@@ -131,10 +131,10 @@ export const ATTACKS: Record<Attack, AttackFrames> = {
 };
 
 /** 잡기가 깨졌을 때의 경직(ms). 헛치는 것보다 아프다: 읽히면 그만큼 문다. */
-export const THROW_BREAK_MS = 620;
+const THROW_BREAK_MS = 620;
 
 /** 카운터(상대의 발동 중에 맞히기) 배수. 먼저 읽고 먼저 내민 값이다. */
-export const COUNTER_SCALE = 1.4;
+const COUNTER_SCALE = 1.4;
 
 /**
  * 맞는 순간 판이 통째로 멈추는 시간(ms). 격투 게임의 히트스톱이다.
@@ -142,11 +142,11 @@ export const COUNTER_SCALE = 1.4;
  * 때린 맛은 숫자가 아니라 이 정지에서 난다. 멈춘 동안에는 아무도 못 움직이고 시계도
  * 안 돈다: 맞은 쪽이 밀려나는 것이 그 정지 뒤에 한 번에 보인다.
  */
-export const HIT_STOP_MS = 80;
-export const COUNTER_STOP_MS = 130;
+const HIT_STOP_MS = 80;
+const COUNTER_STOP_MS = 130;
 /** 끊기지 않고 이어 맞힐 때마다 붙는 가산과 그 상한(맞힌 횟수 기준). */
-export const COMBO_STEP = 2;
-export const COMBO_CAP = 5;
+const COMBO_STEP = 2;
+const COMBO_CAP = 5;
 
 export const MAX_HP = 100;
 
@@ -197,8 +197,8 @@ export const DUEL_TUNINGS: Record<MinigameDifficulty, DuelTuning> = {
 };
 
 /** 상대가 몰리면 예고가 짧아진다. 다 이긴 뒤의 마지막 한 방이 제일 어려워야 한다. */
-export const RAGE_HP_RATIO = 0.35;
-export const RAGE_TELL_CUT = 0.7;
+const RAGE_HP_RATIO = 0.35;
+const RAGE_TELL_CUT = 0.7;
 
 export function hpRatio(hp: number): number {
   return Math.min(1, Math.max(0, hp / MAX_HP));
@@ -214,8 +214,8 @@ export function rivalTellMs(tuning: DuelTuning, rivalHp: number): number {
 
 /* ------------------------------------------------------------------ 상태 */
 
-export type ActionPhase = "startup" | "active" | "recovery";
-export type StunKind = "hurt" | "block" | "broken" | "land";
+type ActionPhase = "startup" | "active" | "recovery";
+type StunKind = "hurt" | "block" | "broken" | "land";
 
 export interface FighterState {
   hp: number;
@@ -284,12 +284,12 @@ export function isAirborne(fighter: FighterState): boolean {
 }
 
 /** 걷기·가드·점프는 땅을 딛고 있어야 한다. */
-export function isGrounded(fighter: FighterState): boolean {
+function isGrounded(fighter: FighterState): boolean {
   return canAct(fighter) && !isAirborne(fighter);
 }
 
 /** 이 기술을 지금 낼 수 있는가. 공중에서는 한 번만, 잡기는 땅에서만. */
-export function canStart(fighter: FighterState, attack: Attack): boolean {
+function canStart(fighter: FighterState, attack: Attack): boolean {
   if (!canAct(fighter)) return false;
   if (!isAirborne(fighter)) return true;
   return attack !== "throw" && !fighter.airAttacked;
@@ -333,13 +333,13 @@ export const NO_INTENT: Intent = { walk: 0, attack: null };
  * 지금 막고 있는가. 손이 묶이면(기술 중·경직) 못 막고, **공중에서는 못 막는다**.
  * 뛰어든 몸은 무방비다: 그게 점프가 공짜가 아닌 이유다.
  */
-export function isGuarding(fighter: FighterState, intent: Intent): boolean {
+function isGuarding(fighter: FighterState, intent: Intent): boolean {
   return (intent.guard === true || intent.walk === -1) && isGrounded(fighter);
 }
 
 /* ------------------------------------------------------------------ 사건 */
 
-export type DuelEventKind = "hit" | "counter" | "block" | "whiff" | "break" | "ko";
+type DuelEventKind = "hit" | "counter" | "block" | "whiff" | "break" | "ko";
 
 export interface DuelEvent {
   kind: DuelEventKind;
@@ -359,7 +359,7 @@ export function comboDamage(base: number, combo: number, counter: boolean): numb
 /* ---------------------------------------------------------------- 한 프레임 */
 
 /** 한 번에 흘려보낼 수 있는 최대 시간(ms). 탭이 잠깐 멈췄다 돌아와도 순간이동 없이. */
-export const MAX_STEP_MS = 50;
+const MAX_STEP_MS = 50;
 
 interface Side {
   self: FighterState;
@@ -690,7 +690,7 @@ export const RIVAL_MIND_START: RivalMind = {
 };
 
 /** 한 번 막기로 했을 때 가드를 쥐고 있는 시간(ms). 잡기가 파고들 수 있는 폭이다. */
-export const GUARD_HOLD_MS = 360;
+const GUARD_HOLD_MS = 360;
 
 /** 버릇이 읽히는 횟수. 이만큼 쌓이면 상대가 그 버릇을 노린다. */
 export const HABIT_THRESHOLD = 3;

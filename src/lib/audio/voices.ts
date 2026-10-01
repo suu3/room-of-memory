@@ -54,9 +54,9 @@ export type VoiceId =
   // 엔딩 카드: 색종이가 쏟아지는 순간
   | "confetti";
 
-export type Waveform = "sine" | "triangle" | "square" | "sawtooth";
+type Waveform = "sine" | "triangle" | "square" | "sawtooth";
 
-export interface Tone {
+interface Tone {
   /** 시작 주파수(Hz). */
   from: number;
   /** 끝 주파수(Hz). 같으면 글라이드 없음. */

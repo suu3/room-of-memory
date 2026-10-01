@@ -31,7 +31,7 @@ export type { StoryPhase, Visit, VisitRef };
 
 /** 차수 → 콘텐츠 키. */
 const VISIT_KEY = { 1: "phase1", 2: "phase2", 3: "phase3" } as const;
-export const VISITS: readonly Visit[] = [1, 2, 3];
+const VISITS: readonly Visit[] = [1, 2, 3];
 
 const BY_ID = Object.fromEntries(MEMORIES.map((memory) => [memory.id, memory])) as Record<
   MemoryId,
@@ -88,7 +88,7 @@ export function anyVisitDone(state: VisitProgress, id: MemoryId): boolean {
 }
 
 /** 모든 조사 칸: 기억 × 차수. 콘텐츠 순서 그대로. */
-export const ALL_VISITS: readonly VisitRef[] = MEMORIES.flatMap((memory) =>
+const ALL_VISITS: readonly VisitRef[] = MEMORIES.flatMap((memory) =>
   visitsOf(memory.id).map((visit) => ({ id: memory.id, visit })),
 );
 
@@ -150,7 +150,7 @@ const P1_REQUIRED = requiredVisits("p1");
 const P2_REQUIRED = requiredVisits("p2");
 const P4_REQUIRED = requiredVisits("p4");
 /** 떠나기 전 챙길 것 중 조사로 하는 것 (가방·앰플). 배트는 현관의 물건이라 따로 센다. */
-export const RESOLVE_REQUIRED = requiredVisits("resolve");
+const RESOLVE_REQUIRED = requiredVisits("resolve");
 
 /** 떠나기 전 챙길 것의 수: 조사(가방·앰플) + 배트. */
 export const PACK_TOTAL = RESOLVE_REQUIRED.length + 1;
@@ -168,7 +168,7 @@ export function packedForExit(state: StoryProgress): boolean {
 }
 
 /** 안방 문: 이 문이 열리는 순간이 4페이즈의 시작이다 (v4 1-2). */
-export const PARENTS_DOORWAY = "living-parents";
+const PARENTS_DOORWAY = "living-parents";
 
 /** 지금 이야기의 어느 페이즈인가. */
 export function storyPhaseOf(state: StoryProgress): StoryPhase {

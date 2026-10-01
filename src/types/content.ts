@@ -8,7 +8,7 @@ import type { CharacterExpression, ResultMusic } from "./interaction";
 
 /** 지원 언어. src/i18n/config.ts의 SUPPORTED_LOCALES와 같아야 한다. */
 export const CONTENT_LOCALES = ["ko", "en", "ja"] as const;
-export type ContentLocale = (typeof CONTENT_LOCALES)[number];
+type ContentLocale = (typeof CONTENT_LOCALES)[number];
 
 /**
  * 한 덩어리의 텍스트. ko는 반드시 있고, en/ja는 비어 있으면 "번역 TODO"로 세어져
@@ -46,7 +46,7 @@ export interface ContentPhase {
 }
 
 /** 수첩에 남는 기록. 페이즈와 1:1: 있는 바퀴의 기록만 쓴다. */
-export interface ContentLore {
+interface ContentLore {
   title: LocalizedText;
   phase1?: LocalizedText;
   phase2?: LocalizedText;
@@ -89,7 +89,7 @@ export interface ContentCut {
 }
 
 /** 진행도 독백 한 구간 (content/stages.yaml). 구간 선택은 src/data/monologue.ts. */
-export interface ContentStage {
+interface ContentStage {
   monologue: LocalizedText;
 }
 

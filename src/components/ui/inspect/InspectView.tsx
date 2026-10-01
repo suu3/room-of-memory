@@ -35,7 +35,7 @@ const InspectTurntable = dynamic(() => import("@/components/canvas/InspectTurnta
   ssr: false,
 });
 
-/** 확대 범위. InspectTurntable의 ZOOM_MIN·ZOOM_MAX와 같다 (dynamic import라 값을 못 가져온다). */
+/** 확대 범위. */
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 2.4;
 /** 휠 한 칸(deltaY 100)에 곱해지는 배율. 다섯 칸쯤 굴리면 끝까지 간다. */

@@ -28,7 +28,7 @@ export function curtainTargetX(side: CurtainSide, open: boolean) {
  * "커튼을 젖힌다"는 몸짓을 손으로 하게 만드는 게 목적이라 한 쪽만 당겨서는 밖이
  * 보이지 않는다.
  */
-export const CURTAIN_OPEN_THRESHOLD = 0.98;
+const CURTAIN_OPEN_THRESHOLD = 0.98;
 /** 손을 뗐을 때 끝까지 붙는 기준. 끝까지 끌게 하면 손만 아프다. */
 export const CURTAIN_SNAP_THRESHOLD = 0.55;
 
@@ -79,7 +79,7 @@ export function toggleProgress(progress: number): number {
  * 되돌리는 손짓으로 놓았으면 도로 닫힌다. 어디서 놓았느냐가 아니라 어디로 가고
  * 있었느냐를 본다. 화면의 천은 그 자리로 damp로 따라가므로(Curtain) 관성으로 읽힌다.
  */
-export const CURTAIN_FLICK_PROJECT_S = 0.12;
+const CURTAIN_FLICK_PROJECT_S = 0.12;
 
 /**
  * 손을 뗐을 때 갈 자리. 끌었으면 손이 가던 방향으로 조금 더 간 자리에서 가까운 끝으로

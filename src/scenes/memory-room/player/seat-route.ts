@@ -33,7 +33,7 @@ function arriveOf(points: readonly Vec2[]): number {
 }
 
 /** 다가서는 자리 후보. 없으면 앉는 자리로 곧장 간다. */
-export function approachesOf(seat: Seat): readonly Vec2[] {
+function approachesOf(seat: Seat): readonly Vec2[] {
   return seat.approaches ?? [seat.anchor];
 }
 

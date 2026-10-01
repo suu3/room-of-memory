@@ -29,7 +29,7 @@ export const CURTAIN_MODEL_PARTS: readonly CurtainSide[] = ["left", "right"];
 export const CURTAIN_OPEN_KEY = "open";
 
 /** 모델 실측 (월드 단위, 배율 1). create-curtain.mjs의 "놓는 자리" 출력값. */
-export const CURTAIN_MODEL = {
+const CURTAIN_MODEL = {
   /** 원점 x가 놓이는 창 가운데. */
   windowCenterX: 1.15,
   /** 밑단(y=0)이 오는 높이. 머리단이 커튼봉(3.98) 바로 밑에 온다. */

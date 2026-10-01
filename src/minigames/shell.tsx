@@ -71,7 +71,7 @@ const KEY_TOKEN = /^(?:Space|Enter|Esc|Shift|Tab|[←→↑↓])$/;
  * "…휘두르세요: Space" / "…지나는 순간 Space" / "…넘겨보세요: ← →" 에서 키를 뗀다.
  * 키가 아닌 말이 섞인 꼬리("1 공격 · 2 방어")는 그대로 둔다. 문장이지 키캡이 아니다.
  */
-export function splitHelpKeys(help: string): { text: string; keys: string[] } {
+function splitHelpKeys(help: string): { text: string; keys: string[] } {
   const dashed = help.split(/:\s+/);
   if (dashed.length === 2) {
     const words = dashed[1].split(/\s+/);

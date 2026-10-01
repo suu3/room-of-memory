@@ -99,7 +99,7 @@ export interface MinigameProps {
  * current scene; "overlay" mounts as a DOM layer above it. A minigame is one
  * or the other, never both.
  */
-export type MinigameMode = "canvas" | "overlay";
+type MinigameMode = "canvas" | "overlay";
 
 /**
  * 화면에 어떻게 얹히는가.
@@ -110,7 +110,7 @@ export type MinigameMode = "canvas" | "overlay";
  * "framed"는 bare처럼 시작 카드 없이 곧장 열리되, 뒤에 패널 한 장을 깔고 닫기를
  * 그 모서리에 둔다. 물건 둘레가 비어 화면 구석의 닫기가 어디 것인지 흐려지는 경우다 (달력).
  */
-export type MinigamePresentation = "panel" | "bare" | "framed";
+type MinigamePresentation = "panel" | "bare" | "framed";
 
 export interface MinigameDefinition {
   id: string;

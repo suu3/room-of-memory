@@ -9,7 +9,7 @@
 
 const MINDAR_URL = "/vendor/mindar-1.2.5/mindar-image.prod.js";
 
-export type MindarUpdate =
+type MindarUpdate =
   | { type: "updateMatrix"; targetIndex: number; worldMatrix: number[] | null }
   | { type: "processDone" };
 
@@ -24,7 +24,7 @@ export interface MindarController {
   dispose(): void;
 }
 
-export interface MindarControllerOptions {
+interface MindarControllerOptions {
   inputWidth: number;
   inputHeight: number;
   maxTrack?: number;
@@ -35,7 +35,7 @@ export interface MindarControllerOptions {
   onUpdate: (data: MindarUpdate) => void;
 }
 
-export interface MindarCompiler {
+interface MindarCompiler {
   compileImageTargets(
     images: HTMLImageElement[],
     onProgress: (percent: number) => void,

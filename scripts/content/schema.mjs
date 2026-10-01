@@ -79,14 +79,12 @@ export const STAGE_IDS = [
 ];
 
 /**
- * 이야기의 페이즈 (v4 설계서 1-1). 순서가 곧 진행 순서다.
+ * 조사 설정의 `from`에 쓸 수 있는 페이즈: "이 페이즈부터 열린다". 1차 조사는 늘 p1이라
+ * 여기 없다.
  *
- * 저장하지 않고 진행 상태에서 파생된다 (src/data/story-phase.ts). 조사 설정의
- * `from`이 이 이름을 쓴다: "이 페이즈부터 열린다".
+ * 이야기의 페이즈 전체(v4 설계서 1-1)는 `src/types/interaction.ts`의 `STORY_PHASES`에
+ * 있고, 저장하지 않고 진행 상태에서 파생된다 (src/data/story-phase.ts).
  */
-export const STORY_PHASES = ["intro", "p1", "turning", "p2", "p3", "p4", "resolve", "ending"];
-
-/** 조사 설정의 `from`에 쓸 수 있는 페이즈. 1차 조사는 늘 p1이라 여기 없다. */
 export const FROM_PHASES = ["turning", "p2", "p3", "p4", "resolve"];
 
 /** 조사 차수: phase1(1차) · phase2(2차) · phase3(3차). */

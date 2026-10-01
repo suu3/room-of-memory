@@ -433,7 +433,7 @@ function RadioBubble({
 }
 
 /** 문장 끝(. ? ! …) 뒤 공백에서 가른 문장들과 각 문장이 원문에서 시작하는 자리. */
-export function sentenceSpans(text: string): { start: number; sentence: string }[] {
+function sentenceSpans(text: string): { start: number; sentence: string }[] {
   const spans: { start: number; sentence: string }[] = [];
   for (const match of text.matchAll(/\S.*?(?:[.?!…]+(?=\s|$)|$)/gu)) {
     spans.push({ start: match.index, sentence: match[0] });

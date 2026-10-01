@@ -10,7 +10,7 @@
 
 import type { CommonTextKey } from "@/types/minigame";
 
-export type ChatSide = "them" | "me";
+type ChatSide = "them" | "me";
 
 export interface ChatMessage {
   id: string;

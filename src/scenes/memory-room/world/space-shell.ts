@@ -6,9 +6,9 @@ import type { Aabb2, Vec3Tuple } from "./types";
  * 문 하나 건넜을 뿐인데 다른 건물이 된다.
  */
 
-export const WALL_HEIGHT = 4.8;
+const WALL_HEIGHT = 4.8;
 export const WALL_THICKNESS = 0.18;
-export const WALL_CENTER_Y = 2.3;
+const WALL_CENTER_Y = 2.3;
 /** 굽도리 높이: 걸레받이(0.3)와 같다 (RoomShell의 WALL_STUB_TOP_Y 주석). */
 export const WALL_STUB_TOP_Y = 0.3;
 export const WALL_Y = {
@@ -17,7 +17,7 @@ export const WALL_Y = {
 } as const;
 /** 문 개구부의 절반 폭과 상인방 아랫면. 방문의 구멍(RoomShell의 DOOR_HOLE)과 같다. */
 export const DOOR_HOLE_HALF_WIDTH = 0.82;
-export const DOOR_HOLE_TOP_Y = 3.46;
+const DOOR_HOLE_TOP_Y = 3.46;
 
 export interface ShellPart {
   size: Vec3Tuple;
@@ -30,7 +30,7 @@ interface Range {
 }
 
 /** z축을 보고 선 벽(앞·뒤) 한 조각. x·y 범위를 좁혀 개구부를 비운다. */
-export function endWallSegment(z: number, x: Range, y: Range): ShellPart {
+function endWallSegment(z: number, x: Range, y: Range): ShellPart {
   return {
     size: [x.max - x.min, y.max - y.min, WALL_THICKNESS],
     position: [(x.min + x.max) / 2, (y.min + y.max) / 2, z],
@@ -38,7 +38,7 @@ export function endWallSegment(z: number, x: Range, y: Range): ShellPart {
 }
 
 /** x축을 보고 선 벽(왼·오른) 한 조각. */
-export function sideWallSegment(x: number, z: Range, y: Range): ShellPart {
+function sideWallSegment(x: number, z: Range, y: Range): ShellPart {
   return {
     size: [WALL_THICKNESS, y.max - y.min, z.max - z.min],
     position: [x, (y.min + y.max) / 2, (z.min + z.max) / 2],

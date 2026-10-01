@@ -4,9 +4,8 @@ import { useEffect } from "react";
 import { ASSETS } from "@/lib/assets";
 import { selectRadioSignaling, useMemoryRoomStore } from "@/store/memory-room";
 import type { ResultMusic } from "@/types/interaction";
-import { disposeAudio as disposeEngine, playSound, setAudioMuted, unlockAudio } from "./engine";
+import { playSound, setAudioMuted, unlockAudio } from "./engine";
 import {
-  disposeMusic,
   setMusicDuck,
   setMusicLevel,
   setMusicTrim,
@@ -23,31 +22,10 @@ export {
   playSound,
   playTone,
   setAudioMuted,
-  setAudioVolume,
   startNoiseBed,
-  unlockAudio,
 } from "./engine";
-export {
-  type MusicTrack,
-  setMusicDuck,
-  setMusicLevel,
-  setMusicTrim,
-  startCueMusic,
-  startMusic,
-  startOverlayMusic,
-  stopCueMusic,
-  stopMusic,
-  stopOverlayMusic,
-} from "./music";
-export { musicCutoff, musicReverb, musicVolume } from "./music-curve";
-export { preloadSamples } from "./samples";
+export { startCueMusic, startOverlayMusic, stopCueMusic, stopOverlayMusic } from "./music";
 export type { VoiceId } from "./voices";
-
-/** BGM까지 함께 정리한다. 컨텍스트를 닫기 전에 소스를 끊어야 한다. */
-export function disposeAudio() {
-  disposeMusic();
-  disposeEngine();
-}
 
 /**
  * 스토어의 음소거 설정을 오디오 엔진에 이어 붙이고, 첫 사용자 제스처에서
@@ -203,9 +181,4 @@ export function useRoomMusic({
     });
     return () => stopOverlayMusic();
   }, [resultMusic]);
-}
-
-/** 이벤트 핸들러에서 부르기 좋은 형태: `onClick={playing("select")}`. */
-export function playing(id: Parameters<typeof playSound>[0]) {
-  return () => playSound(id);
 }

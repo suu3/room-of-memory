@@ -38,7 +38,7 @@ export interface InspectFace {
 }
 
 /** 면 그림의 긴 변 해상도. 손글씨가 또렷하려면 512는 있어야 한다. */
-export const FACE_RESOLUTION = 704;
+const FACE_RESOLUTION = 704;
 
 /** 페이지의 글꼴을 그대로 쓴다: 방의 UI와 같은 Pretendard가 next/font로 이미 실려 있다. */
 export function bodyFont(): string {

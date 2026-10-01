@@ -28,7 +28,7 @@ export interface PlanRect {
   height: number;
 }
 
-export interface PlanRoom extends PlanRect {
+interface PlanRoom extends PlanRect {
   id: SpaceId;
   /** 이름표와 표식이 앉는 자리 (걷기 범위의 한가운데). */
   center: { x: number; y: number };
@@ -37,7 +37,7 @@ export interface PlanRoom extends PlanRect {
 }
 
 /** 열린 문간: 벽 선을 지우는 구멍이다. 벽선 양쪽을 다 덮을 만큼만 두껍다. */
-export interface PlanDoor extends PlanRect {
+interface PlanDoor extends PlanRect {
   id: DoorwayId;
 }
 

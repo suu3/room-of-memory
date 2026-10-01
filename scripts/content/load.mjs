@@ -26,7 +26,7 @@ function findRepoRoot() {
 }
 
 export const REPO_ROOT = findRepoRoot();
-export const CONTENT_DIR = path.join(REPO_ROOT, "content");
+const CONTENT_DIR = path.join(REPO_ROOT, "content");
 
 /** 저작 파일 하나의 절대 경로. */
 export function sourcePath(key) {

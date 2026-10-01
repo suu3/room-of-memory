@@ -11,7 +11,7 @@ import type { Vec2 } from "../world/spatial";
 /** 이 안에 들어오면 도착. 한 프레임 이동량(최대 0.12)보다 작게 잡으면 목표를 지나쳐 되돌아오며 떤다. */
 export const WALK_ARRIVE_DISTANCE = 0.13;
 /** 가려던 거리에 비해 이만큼도 못 갔으면 막힌 것이다. 벽·가구에 정면으로 걸렸다. */
-export const WALK_BLOCKED_RATIO = 0.05;
+const WALK_BLOCKED_RATIO = 0.05;
 
 /**
  * 이번 프레임에 목표 쪽으로 갈 이동량을 `out`에 쓴다. 이미 도착했으면 0을 돌려주고

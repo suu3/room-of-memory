@@ -36,7 +36,7 @@ import type { Pose } from "./Fighter";
  *
  * 용량 한도는 이미지 1MB/장. 도트 그림이면 webp로 수십 KB면 충분하다.
  */
-export const POSE_ORDER = [
+const POSE_ORDER = [
   "idle",
   "strike",
   "guard",

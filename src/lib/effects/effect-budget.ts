@@ -58,7 +58,7 @@ function tierOverride(): EffectTier | null {
 }
 
 /** 지금 기기의 등급. 첫 렌더는 항상 full이다 (미디어 쿼리는 브라우저에만 있다). */
-export function useEffectTier(): EffectTier {
+function useEffectTier(): EffectTier {
   const reducedMotion = useMemo(prefersReducedMotion, []);
   const degraded = useEffectsStore((state) => state.degraded);
   const touch = usePointerKind() === "touch";

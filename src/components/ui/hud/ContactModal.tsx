@@ -9,7 +9,7 @@ import { useMemoryRoomStore } from "@/store/memory-room";
 import { BACKDROP, FOCUS_RING, PANEL_DARK } from "../shared/ui-classes";
 
 /** 연락 수단. 새 항목은 여기에만 추가하면 목록이 따라간다. */
-export const CONTACT_LINKS = [
+const CONTACT_LINKS = [
   { label: "Email", value: "dev.suu3@gmail.com", href: "mailto:dev.suu3@gmail.com" },
   { label: "GitHub", value: "github.com/suu3", href: "https://github.com/suu3" },
 ] as const;

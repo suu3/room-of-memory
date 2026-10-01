@@ -12,7 +12,7 @@ useGLTF.preload(ASSETS.models.leafyPlant, true, true);
 useGLTF.preload(ASSETS.models.books, true, true);
 
 /** All tabletop details use their parent's unscaled furniture coordinates. */
-export function Mug({
+function Mug({
   palette,
   position,
   color = "linen",

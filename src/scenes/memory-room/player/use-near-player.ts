@@ -33,7 +33,7 @@ export function usePlayerPosition(): { current: { x: number; y: number; z: numbe
  * (.claude/rules/r3f.md), 켜졌다/꺼졌다만 알면 되는 값이라 100ms면 충분히 촘촘하다.
  * RoomCanvas가 기억 근접을 재는 주기와 같은 값이다.
  */
-export const NEAR_POLL_MS = 100;
+const NEAR_POLL_MS = 100;
 
 export function isWithin(
   player: { x: number; z: number },

@@ -22,7 +22,7 @@ export interface GrayScottOptions {
 }
 
 /** 물때 무늬로 잡은 기본값. 줄눈 따라 번지는 얼룩에 가깝다. */
-export const STAIN_PRESET = { feed: 0.055, kill: 0.062, diffuseA: 1, diffuseB: 0.5 } as const;
+const STAIN_PRESET = { feed: 0.055, kill: 0.062, diffuseA: 1, diffuseB: 0.5 } as const;
 
 function hash01(x: number, y: number, seed: number): number {
   const value = Math.sin(x * 12.9898 + y * 78.233 + seed * 37.719) * 43758.5453;

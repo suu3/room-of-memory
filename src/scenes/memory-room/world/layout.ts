@@ -473,7 +473,7 @@ export const STUDENT_BOOKSHELF = {
   size: [1.6, 2.35, 0.72] as Vec3Tuple,
 } as const;
 const [bookcaseX, , bookcaseZ] = STUDENT_BOOKSHELF.position;
-export const STUDENT_BOOKSHELF_COLLIDER: Aabb2 = {
+const STUDENT_BOOKSHELF_COLLIDER: Aabb2 = {
   minX: bookcaseX - STUDENT_BOOKSHELF.size[0] / 2,
   maxX: bookcaseX + STUDENT_BOOKSHELF.size[0] / 2,
   minZ: bookcaseZ - STUDENT_BOOKSHELF.size[2] / 2,

@@ -35,7 +35,7 @@ export const LOOK_DRAG_SENSITIVITY = 0.0042;
  * 마우스 감도를 그대로 쓰면 폭 390px 폰에서 끝에서 끝까지 쓸어도 94°밖에 안 돌아,
  * 뒤를 보려면 네 번을 쓸어야 했다. 폰마다 폭이 달라 px당 값이 아니라 폭으로 잰다.
  */
-export const TOUCH_TURN_PER_WIDTH = Math.PI;
+const TOUCH_TURN_PER_WIDTH = Math.PI;
 
 /** 이 폭의 화면에서 손가락 끌기의 좌우 감도 (rad/px). 넓은 화면에서도 마우스보다 둔해지지 않는다. */
 export function touchLookSensitivity(width: number): number {

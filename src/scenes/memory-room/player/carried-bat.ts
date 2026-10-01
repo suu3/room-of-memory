@@ -11,7 +11,7 @@ import { batDirection, palmPoint, placeHeldBat, reachHandTo } from "./held-bat";
  * 좌표는 몸(리그 루트의 부모) 공간이다: +Z가 정면, +X가 캐릭터의 왼쪽, 발바닥이 y 0.
  * AR의 타격 준비 자세(ar-motion의 BAT_READY)를 한 손 판으로 옮긴 값이다.
  */
-export const CARRY_POSE = {
+const CARRY_POSE = {
   /** 손잡이를 쥔 오른손 자리: 가슴 오른쪽 앞. */
   gripX: -0.15,
   gripY: 0.8,

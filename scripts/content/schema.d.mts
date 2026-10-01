@@ -7,7 +7,6 @@ export const EXPRESSIONS: readonly CharacterExpression[];
 export const SPEAKERS: readonly string[];
 export const ICONS: readonly string[];
 export const STAGE_IDS: readonly string[];
-export const STORY_PHASES: readonly string[];
 export const FROM_PHASES: readonly string[];
 export const VISIT_KEYS: readonly string[];
 export const RESULT_MUSIC: readonly string[];

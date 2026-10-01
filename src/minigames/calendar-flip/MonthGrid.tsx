@@ -72,7 +72,7 @@ export function MonthGrid({ month }: { month: number }) {
  * 장 그림 위에서도 같은 걸 쓴다. 칸 안에 글씨를 넣으면 판 크기에서 읽히지 않고
  * 언어도 못 바꾸므로, 칸에는 점·동그라미만 두고 무슨 날인지는 여기 적는다.
  */
-export function MonthNotes({ month }: { month: number }) {
+function MonthNotes({ month }: { month: number }) {
   const { t } = useTranslation();
   const marked = markedDayOf(month);
   const notes = notesOf(month);

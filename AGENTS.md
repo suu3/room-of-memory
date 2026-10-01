@@ -28,6 +28,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `pnpm lint` / `pnpm lint:fix`: Biome 검사/자동수정
 - `pnpm lint:wasm`: Biome WASM 판으로 같은 검사. `biome.exe`가 실행되지 않는 환경용 (Windows Smart App Control은 서명 없는 실행 파일을 막는다). pre-commit 훅도 이 경로를 쓴다
 - `pnpm typecheck`: tsc --noEmit
+- `pnpm knip`: 안 쓰는 파일·export·의존성 검사 (설정은 `knip.jsonc`). 한 파일 안에서만 쓰는 것에는 `export`를 붙이지 않는다
 - `pnpm content:build`: `content/*.yaml` → 생성물 (대본/흐름을 고쳤으면 반드시 실행)
 - `pnpm content:check`: 생성물이 YAML과 맞는지 검사만 (쓰지 않음). `pnpm test`가 같은 검사를 포함한다
 - `pnpm design:lint`: DESIGN.md 토큰 검증

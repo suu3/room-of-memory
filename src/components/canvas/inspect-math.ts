@@ -15,8 +15,6 @@ export const VIEW_HEIGHT = 2 * CAMERA_Z * Math.tan((CAMERA_FOV / 2) * (Math.PI /
 export const SHADOW_GAP = 0.03;
 /** 확대 배율이 목표를 따라가는 빠르기. */
 export const ZOOM_DAMP = 14;
-export const ZOOM_MIN = 1;
-export const ZOOM_MAX = 2.4;
 
 /** 세로로 끈 픽셀 → 기울기(rad). 75px쯤 끌면 0.45rad(26°). */
 const PITCH_PX_TO_RAD = 0.006;
@@ -27,7 +25,7 @@ const PITCH_MAX = 0.75;
 export const UNFOLD_PX = 160;
 
 /** 이만큼 가로로 끌어야 한 장이 넘어간다. 손가락이 흔들린 것과 넘긴 것을 가른다. */
-export const PAGE_SWIPE_PX = 40;
+const PAGE_SWIPE_PX = 40;
 
 /** 세로 드래그(px, 아래가 양수)를 기울기로. 위로 끌면 윗변이 뒤로 눕는다(음수). */
 export function pitchFromDrag(dragY: number): number {
