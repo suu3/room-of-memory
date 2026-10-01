@@ -1,12 +1,16 @@
 "use client";
 
+import { useEffect } from "react";
 import { Vector2 } from "three";
+import { FaceMirror } from "./FaceMirror";
 import { InteriorBox as Box, InteriorCylinder as Cylinder } from "./InteriorPrimitives";
+import { idleFacing } from "./idle-facing";
 import { BATHROOM_COLLIDERS, BATHROOM_SHELL_BOUNDS } from "./layout";
 import { MirrorReflection } from "./MirrorReflection";
 import type { RoomPalette } from "./palette";
 import { SinkWater } from "./SinkWater";
 import type { EulerTuple, Vec3Tuple } from "./types";
+import { useNearPlayer } from "./use-near-player";
 
 const [toilet, sink, tub] = BATHROOM_COLLIDERS;
 const sinkZ = (sink.minZ + sink.maxZ) / 2;
@@ -27,11 +31,13 @@ export const SINK_MOUNT = {
 export const SINK_NEAR = [sink.maxX + 0.5, sinkZ] as const;
 export const SINK_RADIUS = 1.6;
 /**
- * 세면대에 붙어 선 거리. 글로우 반경(1.6)은 문간에 막 들어선 자리(landing, 1.3 떨어짐)까지
- * 품는다. 문간에 들어선 자리가 이 안에 들지 않는 것을 layout.test가 지킨다.
- * (예전에는 이 안에서 거울이 어긋났다. 지금 거울은 방의 전신거울과 같은 보통 거울이다.)
+ * 거울에 얼굴이 맺히는 거리 (FaceMirror). 글로우 반경(1.6)은 문간에 막 들어선 자리
+ * (landing, 1.3 떨어짐)까지 품어서, 그대로 쓰면 들어서자마자 맺힌다. 세면대에 붙어 섰을
+ * 때만이어야 한다. 문간 자리가 이 안에 들지 않는 것을 layout.test가 지킨다.
  */
 export const MIRROR_NEAR_RADIUS = 0.9;
+/** 거울을 보는 방향: -x (Player의 facing 축, atan2(dx, dz)). */
+const MIRROR_FACING = Math.atan2(-1, 0);
 // Outer ceramic wall turns over the rim and descends into the bowl.
 const BOWL_PROFILE = [
   [0.13, 0.12],
@@ -280,8 +286,20 @@ function Bathtub({ palette }: { palette: RoomPalette }) {
  * 어긋나는 slit-scan이었는데(2026-09-30까지), 방 저편에서는 깨진 텍스처로 읽히고 가까이서도
  * "30일 만의 얼굴"보다 고장 난 거울로 읽혀 걷었다. 화장실은 1인칭으로 들어오지 않아
  * 늘 3인칭 간격으로 그린다.
+ *
+ * 세면대 앞에 서면 그 위로 얼굴이 맺힌다 (FaceMirror): 내려다보는 반사에는 정수리뿐이라,
+ * 거울이 보는 쪽에서 찍은 얼굴을 얹는다. 창도 대사도 없는, 다가서면 생기는 일이다.
  */
 export function BathroomMirror({ palette }: { palette: RoomPalette }) {
+  const nearSink = useNearPlayer(SINK_NEAR[0], SINK_NEAR[1], MIRROR_NEAR_RADIUS);
+  // 세면대 앞에 가만히 서면 거울(-x 벽)을 본다. 등을 보이면 거울에는 뒤통수뿐이다
+  useEffect(() => {
+    if (!nearSink) return;
+    idleFacing.yaw = MIRROR_FACING;
+    return () => {
+      if (idleFacing.yaw === MIRROR_FACING) idleFacing.yaw = null;
+    };
+  }, [nearSink]);
   return (
     <group
       name="bathroom-mirror-cabinet"
@@ -298,6 +316,7 @@ export function BathroomMirror({ palette }: { palette: RoomPalette }) {
           palette={palette}
           firstPerson={false}
         />
+        <FaceMirror width={0.91} height={0.88} offset={0.06} active={nearSink} />
       </group>
       <Box
         size={[0.035, 0.76, 0.008]}

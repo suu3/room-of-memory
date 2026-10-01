@@ -356,9 +356,9 @@ memories:
         en: Dad's emails and the news. It all started near a research facility, and the first report came out at 3 p.m. that day.
         ja: 父さんのメールとニュース。騒ぎは研究施設の近くで始まって、最初の報道はあの日の午後3時だった。
       phase3:
-        ko: 앰플 라벨의 로고가 아빠 메일 첨부에 있었다. 하부장은 내 번호로 잠가 뒀다고 했다.
-        en: The logo on the ampoule label was in an attachment to Dad's email. He said he'd locked the lower cabinet with my number.
-        ja: アンプルのラベルのロゴが、父さんのメールの添付にあった。下の戸棚は俺の番号で鍵をかけておいたと書いてあった。
+        ko: 앰플 라벨의 로고가 아빠 메일 첨부에 있었다. 본문은 선반 정리하라는 잔소리 한 줄뿐이었다.
+        en: The logo on the ampoule label was in an attachment to Dad's email. The email itself was one line of nagging about tidying the shelf.
+        ja: アンプルのラベルのロゴが、父さんのメールの添付にあった。本文は棚を片付けろという小言が一行だけだった。
     phase2:
       script: computer-power-on
       minigame: computer-browse

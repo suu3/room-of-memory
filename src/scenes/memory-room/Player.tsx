@@ -18,6 +18,7 @@ import { advanceCurtainMotion, type CurtainMotion, createCurtainMotion } from ".
 import type { CurtainPull } from "./curtain-motion";
 import { funnelIntoDoorway } from "./doorway-funnel";
 import { EXIT_FACING, exitBodyAt, MIRROR_ONLY_LAYER } from "./first-person";
+import { idleFacing } from "./idle-facing";
 import { CURTAIN_STAND } from "./layout";
 import { findPath } from "./pathfind";
 import {
@@ -692,6 +693,18 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
       const pose = curtainPoseRef.current;
       pose.weight = MathUtils.damp(pose.weight, 0, 10, step);
       if (pose.weight < 0.001) pose.weight = 0;
+    }
+
+    // 자리가 정해 둔 쪽을 본다 (idle-facing): 세면대 앞에 서면 거울을 본다. 걷거나 앉으면 그쪽이 이긴다
+    if (
+      idleFacing.yaw !== null &&
+      !moving &&
+      !seated &&
+      !sitting &&
+      !grab &&
+      walkTargetRef.current === null
+    ) {
+      facing.rotation.y = dampAngle(facing.rotation.y, idleFacing.yaw, TURN_LAMBDA, delta);
     }
 
     walkRef.current = MathUtils.damp(walkRef.current, speed, WALK_BLEND_LAMBDA, delta);

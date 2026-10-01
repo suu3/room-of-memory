@@ -856,7 +856,7 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
       revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
       rechecked: ["computer"],
     });
-    // 메일만으로는 모른다: 거꾸로 꽂힌 책의 "11"을 봐야 번호를 안다 (v4.1)
+    // 메일만으로는 모른다: 거꾸로 꽂힌 책 속 쪽지의 세 자리를 봐야 번호를 안다 (v4.1)
     expect(selectSinkHintRead(useMemoryRoomStore.getState())).toBe(false);
     useMemoryRoomStore.getState().openPuzzle("sink-dial");
     expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
