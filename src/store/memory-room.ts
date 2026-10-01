@@ -1652,8 +1652,6 @@ export const selectBatReady = (state: MemoryRoomState) =>
 /** 커튼이 손을 따라도 되는가: 몸이 창가에 닿은 뒤다. */
 export const isAtCurtain = (state: MemoryRoomState) => state.curtainGrab?.arrived === true;
 
-export const selectBatTaken = (state: MemoryRoomState) => state.batTaken;
-
 /**
  * 이 물건은 할 일을 다 했는가: 여는 문이 열렸거나, 쓰는 미궁 문제를 풀었다.
  *

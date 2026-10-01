@@ -111,13 +111,6 @@ export function roomLightLevel({ collected, memoryTotal, recovery }: RoomLightIn
 }
 
 /**
- * 거실이 방보다 어두운 몫. 밝기는 진행도가 정하고 공간이 정하지 않는다는 원칙
- * (5장) 위에서, 거실만 한 단계 낮게 출발시키는 오프셋이다. 아직 아무것도
- * 되찾지 않은 공간이라 방과 같은 밝기로 서면 나가는 것만으로 회복한 것처럼 보인다.
- */
-export const LIVING_ROOM_LIGHT_OFFSET = 0.12;
-
-/**
  * 전등을 껐을 때 남기는 비율. 0으로 두면 아무것도 안 보여 스위치를 다시 누를
  * 수조차 없다. 커튼 틈으로 드는 빛만큼은 남긴다.
  */

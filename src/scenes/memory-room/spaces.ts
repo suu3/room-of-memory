@@ -55,7 +55,7 @@ export interface SpaceDef {
   nooks?: readonly { shell: Aabb2; bounds: Aabb2 }[];
   /**
    * 밝기 오프셋. 밝기는 진행도가 정하고 공간이 정하지 않는다는 원칙 위에서, 방이 아닌
-   * 공간은 한 단계 어둡게 출발한다 (visual-state의 LIVING_ROOM_LIGHT_OFFSET).
+   * 공간은 한 단계 어둡게 출발한다 (AWAY_LIGHT_OFFSET).
    */
   lightOffset: number;
   /** 창이 있는가: 볕(warm)은 창이 있는 공간에서만 든다. */

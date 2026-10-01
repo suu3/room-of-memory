@@ -49,7 +49,7 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 - `src/scenes/`: 챕터별 3D 씬. 시나리오의 `scene` 키로 등록
 - `src/minigames/`: 미니게임. `src/types/minigame.ts` 계약을 만족, `index.ts` 레지스트리에 등록
 - `src/data/generated/`: **생성물. 직접 고치지 말 것** (`content/`에서 나온다)
-- `src/data/memory-room.ts`: 대본이 아닌 데이터 (조사 목록·방 단계 id 등) + 생성물 재수출
+- `src/data/memory-room.ts`: 대본이 아닌 데이터 (조사 목록 등) + 생성물 재수출
 - `src/store/`: zustand 스토어
 - `public/assets/`: 모든 에셋 (models/textures/audio/images/fonts). S3 등 외부 스토리지 없음, 전부 리포에 커밋
 

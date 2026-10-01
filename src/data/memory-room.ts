@@ -43,9 +43,6 @@ export function memoriesForPhase(gamePhase: 1 | 2) {
   return gamePhase === 1 ? PHASE1_MEMORIES : PHASE2_MEMORIES;
 }
 
-export const STAGE_IDS = ["dark", "dim", "gold"] as const;
-export type StageId = (typeof STAGE_IDS)[number];
-
 export const MEMORY_BY_ID = Object.fromEntries(
   MEMORIES.map((memory) => [memory.id, memory]),
 ) as Record<MemoryId, (typeof MEMORIES)[number]>;
