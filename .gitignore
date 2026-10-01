@@ -55,3 +55,12 @@ next-env.d.ts
 
 # Claude Code 개인 설정 (팀 공용은 .claude/settings.json)
 .claude/settings.local.json
+
+# Superpowers가 쓰는 작업 계획·설계 메모 (로컬 전용)
+/docs/superpowers/
+
+# Claude Code가 만드는 로컬 worktree
+/.claude/worktrees/
+
+# Impeccable 디자인 스킬의 로컬 컨텍스트 (전체 기준은 DESIGN.md)
+/.impeccable.md
