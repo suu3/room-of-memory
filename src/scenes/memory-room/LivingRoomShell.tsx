@@ -10,6 +10,7 @@ import { setEndingLightMesh } from "./ending-light";
 import {
   BATHROOM_DOOR_POSITION,
   FRONT_DOOR_INTERACTION,
+  FRONT_DOOR_INWARD,
   FRONT_DOOR_POSITION,
   FRONT_DOOR_ROTATION,
   LIVING_SHARED_WALL_MIN_Z,
@@ -71,24 +72,20 @@ const PLINTH = [
 ] as const satisfies readonly ShellPart[];
 
 /*
- * 앞벽과 -x 벽은 문 자리를 비운 조각들이다 (v3): 앞벽(+z) 너머가 화장실, -x 벽(현관 쪽)의
- * 현관문 옆 너머가 안방. 조각의 앞 둘이 굽도리, 나머지가 윗벽이다 (space-shell의
- * endWallWithDoor·sideWallWithDoor). 문틀·문짝은 SpaceDoor가 씬 층위에서 그린다: 어느
- * 쪽에 서 있든 문은 보여야 한다. 뒷벽은 통짜다: 소파·인형·냉장고로 문 들어갈 틈이 없다.
+ * 세 벽이 문 자리를 비운 조각들이다 (v3): 앞벽(+z) 너머가 화장실, -x 벽 너머가 안방,
+ * 뒷벽(-z)의 +x 끝이 현관. 조각의 앞 둘이 굽도리, 나머지가 윗벽이다 (space-shell의
+ * endWallWithDoor·sideWallWithDoor). 안방·화장실의 문틀·문짝은 SpaceDoor가 씬 층위에서
+ * 그린다: 어느 쪽에 서 있든 문은 보여야 한다.
  */
 const LIVING_X = { min: LIVING_SHELL_BOUNDS.minX, max: LIVING_SHELL_BOUNDS.maxX };
 const LIVING_Z = { min: LIVING_SHELL_BOUNDS.minZ, max: LIVING_SHELL_BOUNDS.maxZ };
-const BACK_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.minZ, LIVING_X);
-const FRONT_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.maxZ, LIVING_X, BATHROOM_DOOR_POSITION[0]);
 /*
- * -x 벽에는 문이 둘이다: 안방문, 그리고 현관문. 현관문 자리도 뚫어 둔다. 엔딩에 도해가 걸어서
- * 문턱을 넘을 때(FirstPersonRig의 exit) 열린 문 너머가 벽이면 나갈 데가 없다. 닫혀 있는
- * 동안은 문짝과 문틀이 구멍을 가린다.
+ * 현관문 자리도 뚫어 둔다. 엔딩에 도해가 걸어서 문턱을 넘을 때(FirstPersonRig의 exit) 열린
+ * 문 너머가 벽이면 나갈 데가 없다. 닫혀 있는 동안은 문짝과 문틀이 구멍을 가린다.
  */
-const LEFT_WALL = sideWallWithDoors(LIVING_SHELL_BOUNDS.minX, LIVING_Z, [
-  PARENTS_DOOR_POSITION[2],
-  FRONT_DOOR_POSITION[2],
-]);
+const BACK_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.minZ, LIVING_X, FRONT_DOOR_POSITION[0]);
+const FRONT_WALL = endWallWithDoor(LIVING_SHELL_BOUNDS.maxZ, LIVING_X, BATHROOM_DOOR_POSITION[0]);
+const LEFT_WALL = sideWallWithDoors(LIVING_SHELL_BOUNDS.minX, LIVING_Z, [PARENTS_DOOR_POSITION[2]]);
 
 /*
  * 침실과 공유하던 +x 벽은 예전 거실 깊이(z=-4)까지만 존재한다. 오픈 키친으로 늘어난
@@ -100,13 +97,13 @@ const KITCHEN_RIGHT_WALL = sideWallPlain(LIVING_SHELL_BOUNDS.maxX, {
 });
 
 const BASE_WALLS = [
-  ...BACK_WALL.slice(0, 1),
+  ...BACK_WALL.slice(0, 2),
   ...FRONT_WALL.slice(0, 2),
   ...LEFT_WALL.stubs,
   KITCHEN_RIGHT_WALL.stub,
 ] as const satisfies readonly ShellPart[];
 
-const BACK_WALL_UPPER = BACK_WALL.slice(1);
+const BACK_WALL_UPPER = BACK_WALL.slice(2);
 const FRONT_WALL_UPPER = FRONT_WALL.slice(2);
 const LEFT_WALL_UPPER = LEFT_WALL.uppers;
 const KITCHEN_RIGHT_WALL_UPPER = [KITCHEN_RIGHT_WALL.upper] as const;
@@ -349,23 +346,24 @@ export function LivingRoomShell({
       ))}
 
       {/* 걷히는 규칙은 방과 같되, 중심이 거실이다. 카메라가 거실의 어느 쪽에
-          있느냐로 계산해야 앞벽만 걷히고 뒷벽·현관벽은 서 있는다 */}
-      <CulledWall side="back" center={LIVING_SHELL_CENTER}>
+          있느냐로 계산해야 앞벽만 걷히고 뒷벽·현관벽은 서 있는다. 조사 클로즈업은
+          카메라가 거실 안으로 들어오므로(신발장·식탁) 벽 안쪽이면 걷지 않는다 (bounds) */}
+      <CulledWall side="back" center={LIVING_SHELL_CENTER} bounds={LIVING_SHELL_BOUNDS}>
         {BACK_WALL_UPPER.map((part) => (
           <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
         ))}
       </CulledWall>
-      <CulledWall side="front" center={LIVING_SHELL_CENTER}>
+      <CulledWall side="front" center={LIVING_SHELL_CENTER} bounds={LIVING_SHELL_BOUNDS}>
         {FRONT_WALL_UPPER.map((part) => (
           <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
         ))}
       </CulledWall>
-      <CulledWall side="left" center={LIVING_SHELL_CENTER}>
+      <CulledWall side="left" center={LIVING_SHELL_CENTER} bounds={LIVING_SHELL_BOUNDS}>
         {LEFT_WALL_UPPER.map((part) => (
           <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
         ))}
       </CulledWall>
-      <CulledWall side="right" center={LIVING_SHELL_CENTER}>
+      <CulledWall side="right" center={LIVING_SHELL_CENTER} bounds={LIVING_SHELL_BOUNDS}>
         {KITCHEN_RIGHT_WALL_UPPER.map((part) => (
           <ShellBox key={part.position.join(":")} part={part} color={palette.linen} />
         ))}
@@ -385,7 +383,11 @@ export function LivingRoomShell({
 
       {/* 현관 쪽에서 새어 드는 빛: 방문 밑 금빛 틈의 출처가 여기다 */}
       <SpaceLight
-        position={[FRONT_DOOR_POSITION[0] + 0.8, 2.4, FRONT_DOOR_POSITION[2]]}
+        position={[
+          FRONT_DOOR_POSITION[0] + FRONT_DOOR_INWARD[0] * 0.8,
+          2.4,
+          FRONT_DOOR_POSITION[2] + FRONT_DOOR_INWARD[1] * 0.8,
+        ]}
         color={palette.memory}
         intensity={0.5}
         distance={7}

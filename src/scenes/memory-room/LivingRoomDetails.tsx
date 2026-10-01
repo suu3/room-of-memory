@@ -4,6 +4,7 @@ import { RoundedBox, useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { ASSETS } from "@/lib/assets";
 import { FurnitureModel } from "./FurnitureModel";
+import { LIVING_SOFA_AT, LIVING_TV_OFFSET_X } from "./layout";
 import type { RoomPalette } from "./palette";
 import type { Vec3Tuple } from "./types";
 
@@ -151,28 +152,31 @@ export function LivingRoomDetails({ palette }: { palette: RoomPalette }) {
       {/* Low woven runner: no new obstacle in the walking area. */}
       <FurnitureModel
         path={ASSETS.models.rug}
-        position={[-9.5, 0.004, -0.6]}
+        position={[LIVING_SOFA_AT[0], 0.004, LIVING_SOFA_AT[1] + 3.4]}
         scale={[2.2, 1, 1.8]}
       />
-      <FurnitureModel
-        path={ASSETS.models.leafyPlant}
-        position={[-10.57, 0.503, 6.2]}
-        scale={0.95}
-      />
-      <FurnitureModel path={ASSETS.models.books} position={[-8.68, 0.503, 6.13]} scale={1.5} />
-      {/* Remote with a power button and a directional pad, resting on the console. */}
-      <group position={[-8.64, 0.664, 6.13]} rotation={[0, -0.2, 0]}>
-        <RoundedBox args={[0.072, 0.025, 0.2]} radius={0.009} smoothness={2} castShadow>
-          <meshStandardMaterial color={palette.frame} roughness={0.8} />
-        </RoundedBox>
-        <mesh position={[0, 0.015, -0.06]}>
-          <cylinderGeometry args={[0.01, 0.01, 0.005, 8]} />
-          <meshStandardMaterial color={palette.clay} />
-        </mesh>
-        <mesh position={[0, 0.015, -0.012]}>
-          <cylinderGeometry args={[0.019, 0.019, 0.005, 12]} />
-          <meshStandardMaterial color={palette.trim} />
-        </mesh>
+      {/* TV 받침장 위 소품: TV와 같이 소파 정면으로 옮긴다 */}
+      <group position={[LIVING_TV_OFFSET_X, 0, 0]}>
+        <FurnitureModel
+          path={ASSETS.models.leafyPlant}
+          position={[-10.57, 0.503, 6.2]}
+          scale={0.95}
+        />
+        <FurnitureModel path={ASSETS.models.books} position={[-8.68, 0.503, 6.13]} scale={1.5} />
+        {/* Remote with a power button and a directional pad, resting on the console. */}
+        <group position={[-8.64, 0.664, 6.13]} rotation={[0, -0.2, 0]}>
+          <RoundedBox args={[0.072, 0.025, 0.2]} radius={0.009} smoothness={2} castShadow>
+            <meshStandardMaterial color={palette.frame} roughness={0.8} />
+          </RoundedBox>
+          <mesh position={[0, 0.015, -0.06]}>
+            <cylinderGeometry args={[0.01, 0.01, 0.005, 8]} />
+            <meshStandardMaterial color={palette.clay} />
+          </mesh>
+          <mesh position={[0, 0.015, -0.012]}>
+            <cylinderGeometry args={[0.019, 0.019, 0.005, 12]} />
+            <meshStandardMaterial color={palette.trim} />
+          </mesh>
+        </group>
       </group>
     </group>
   );

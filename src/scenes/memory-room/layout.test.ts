@@ -24,10 +24,12 @@ import {
   DRAWER_NOTE,
   DRAWER_TRAVEL,
   FRONT_DOOR_INTERACTION,
+  FRONT_DOOR_INWARD,
   FRONT_DOOR_POSITION,
   hitRadiusOf,
   LIVING_BOUNDS,
   LIVING_COLLIDERS,
+  LIVING_KITCHEN,
   LIVING_SHELL_BOUNDS,
   MEMORY_PLACEMENTS,
   MEMORY_SPACE,
@@ -199,8 +201,9 @@ describe("memory-room layout", () => {
     const bat = BAT_PLACEMENT;
     const modelLength = 0.864 * bat.scale;
     const barrelY = bat.position[1] + Math.cos(bat.rotation[2]) * modelLength;
-    const doorGap = Math.abs(bat.position[2] - FRONT_DOOR_POSITION[2]);
-    const wallGap = bat.position[0] - LIVING_SHELL_BOUNDS.minX;
+    // 문이 난 벽을 따라 잰 문과의 거리, 그 벽에서 떨어진 거리 (현관문은 뒷벽 -z에 있다)
+    const doorGap = Math.abs(bat.position[0] - FRONT_DOOR_POSITION[0]);
+    const wallGap = bat.position[2] - LIVING_SHELL_BOUNDS.minZ;
 
     expect(barrelY).toBeGreaterThan(0.05);
     expect(barrelY).toBeLessThan(0.25);
@@ -524,8 +527,8 @@ describe("living room layout", () => {
      * 문 바로 앞(x로 지름만큼 떨어진 지점)이 그 자리다. 여기가 어떤 가구
      * 발자국과도 겹치지 않는지 본다.
      */
-    const standX = FRONT_DOOR_POSITION[0] + PLAYER_DIAMETER;
-    const standZ = FRONT_DOOR_POSITION[2];
+    const standX = FRONT_DOOR_POSITION[0] + FRONT_DOOR_INWARD[0] * PLAYER_DIAMETER;
+    const standZ = FRONT_DOOR_POSITION[2] + FRONT_DOOR_INWARD[1] * PLAYER_DIAMETER;
     expect(
       Math.hypot(standX - FRONT_DOOR_INTERACTION.near[0], standZ - FRONT_DOOR_INTERACTION.near[1]),
     ).toBeLessThan(FRONT_DOOR_INTERACTION.interactionRadius);
@@ -537,9 +540,20 @@ describe("living room layout", () => {
   });
 
   it("keeps the front door on the far wall, inside the walkable range", () => {
-    expect(FRONT_DOOR_POSITION[0]).toBeLessThan(LIVING_BOUNDS.minX);
-    expect(FRONT_DOOR_POSITION[2]).toBeGreaterThan(LIVING_BOUNDS.minZ);
-    expect(FRONT_DOOR_POSITION[2]).toBeLessThan(LIVING_BOUNDS.maxZ);
+    // 뒷벽(-z) 위, 거실 안쪽을 본다. 문틀(±0.91)이 양옆 벽 모서리를 물지 않는다
+    expect(FRONT_DOOR_POSITION[2]).toBeLessThan(LIVING_BOUNDS.minZ);
+    expect(FRONT_DOOR_INWARD).toEqual([0, 1]);
+    expect(FRONT_DOOR_POSITION[0] - 0.91).toBeGreaterThan(LIVING_BOUNDS.minX);
+    expect(FRONT_DOOR_POSITION[0] + 0.91).toBeLessThan(LIVING_BOUNDS.maxX);
+  });
+
+  it("keeps the kitchen and the front door apart", () => {
+    // 현관문이 부엌 한가운데로 열리지 않는다: 문틀과 부엌 발자국 사이에 사람이 지난다
+    const frame = { min: FRONT_DOOR_POSITION[0] - 0.91, max: FRONT_DOOR_POSITION[0] + 0.91 };
+    for (const box of [LIVING_KITCHEN.run, LIVING_KITCHEN.peninsula]) {
+      const gap = Math.max(box.minX - frame.max, frame.min - box.maxX);
+      expect(gap).toBeGreaterThan(PLAYER_DIAMETER);
+    }
   });
 });
 

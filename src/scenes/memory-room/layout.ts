@@ -76,7 +76,11 @@ export const OPEN_DOOR_LEAF_COLLIDERS = openDoorLeafColliders();
  *
  * 방문(-x 벽) 너머의 두 번째 공간 (docs/content-design.md 3-1). 방과 벽 하나
  * (x = ROOM_SHELL_BOUNDS.minX)를 공유하고, 그 벽의 문이 둘을 잇는다.
- * 반대쪽 끝(-x)에 현관문이 있다. 엔딩은 이제 거기서 난다.
+ *
+ * 깊이(z)로 두 구역이다. 앞쪽(+z)은 소파가 TV를 보는 거실, 뒤쪽(-z)은 ㄱ자 부엌과
+ * 그 앞 식탁이다. 소파 등받이가 두 구역을 가른다. 부엌은 뒷벽의 +x 구석(방 쪽), 현관은
+ * 대각선 반대편인 뒷벽의 -x 구석이다: 방문(앞 +x)에서 나와 거실을 가로질러 집의 가장
+ * 먼 구석까지 걸어가는 길이 곧 3막의 동선이다. 엔딩은 거기서 난다.
  */
 export const LIVING_SHELL_BOUNDS: Aabb2 = {
   minX: -16.5,
@@ -140,30 +144,81 @@ export const LIVING_ANCHORS = {
   piano: [-14.95, 6.5],
 } as const satisfies Record<string, readonly [number, number]>;
 
-/** 냉장고가 확장된 새 뒷벽에 붙는 자리. 1배 부품 좌표는 기존 anchor를 유지한다. */
-export const LIVING_FRIDGE_AT = [LIVING_ANCHORS.fridge[0], LIVING_SHELL_BOUNDS.minZ] as const;
+/**
+ * 냉장고가 서는 자리: 뒷벽의 +x 구석, ㄱ자 부엌의 오른쪽 끝. 1배 부품 좌표는 기존 anchor를
+ * 유지한다. x는 키운 몸통(기준점에서 +0.68)이 +x 벽 안쪽 면(-6.09)에서 5cm 떨어지는 자리다.
+ */
+export const LIVING_FRIDGE_AT = [-6.82, LIVING_SHELL_BOUNDS.minZ] as const;
 
 /**
- * 신발장이 키운 뒤 서는 자리: 현관문과 안방문 **사이**의 -x 벽.
+ * ㄱ자 부엌 (living-kitchen.glb, scripts/create-living-kitchen.mjs).
  *
- * 원래 현관문의 -z 쪽(냉장고 옆)에 있었는데, 그러면 현관문이 안방문 쪽으로 밀려 두 문이
- * 3.6m 간격으로 붙어 섰다. 현관문을 냉장고 옆으로 보내고 신발장이 두 문 사이를 채운다.
- * z는 키운 장의 +z 끝(2.85)이 안방문 틀(3.99)에서 1m 넘게 떨어지는 자리다.
+ * 냉장고 왼쪽에서 뒷벽을 따라 조리대가 달리다가, 끝에서 거실 쪽으로 꺾인 반도형 조리대가
+ * 부엌을 닫는다. 반도의 끝이 식탁을 보고, 그 너머가 현관이다.
+ *
+ * `KITCHEN_ORIGIN`은 glb 바운딩 박스의 -x·-z 모서리(반도의 왼쪽 끝, 뒷벽 안쪽 면)가 서는
+ * 월드 자리다. glb는 바운딩 박스 중심이 원점이라(prepare-model 규약) 그리는 쪽은 거기에
+ * 박스 반폭(1.97, 1.3)을 더한 자리에 놓는다. 발자국 둘은 스크립트의 RUN·RETURN 치수다.
+ * 오른쪽 끝(+3.94)이 냉장고(x -7.51부터)에서 14cm 떨어진다.
  */
-export const LIVING_SHOE_CABINET_AT = [LIVING_SHELL_BOUNDS.minX, 2.75] as const;
+const KITCHEN_ORIGIN = [-11.59, LIVING_SHELL_BOUNDS.minZ + 0.09] as const;
+export const LIVING_KITCHEN = {
+  position: [KITCHEN_ORIGIN[0] + 1.97, 0, KITCHEN_ORIGIN[1] + 1.3] as Vec3Tuple,
+  /** 뒷벽 조리대 (RUN 3.9, 상판 깊이 0.76) */
+  run: {
+    minX: KITCHEN_ORIGIN[0],
+    maxX: KITCHEN_ORIGIN[0] + 3.94,
+    minZ: LIVING_SHELL_BOUNDS.minZ,
+    maxZ: KITCHEN_ORIGIN[1] + 0.76,
+  },
+  /** 반도형 조리대 (RETURN 폭 0.84, z ~2.6). 뒤집혀 왼쪽 끝에 선다 */
+  peninsula: {
+    minX: KITCHEN_ORIGIN[0],
+    maxX: KITCHEN_ORIGIN[0] + 0.84,
+    minZ: KITCHEN_ORIGIN[1] + 0.76,
+    maxZ: KITCHEN_ORIGIN[1] + 2.6,
+  },
+} as const satisfies { position: Vec3Tuple; run: Aabb2; peninsula: Aabb2 };
 
 /**
- * 식탁 세트가 키운 뒤 서는 자리: **소파 앞**.
+ * 소파가 키운 뒤 서는 자리: 거실과 부엌의 **경계**. 등받이가 식탁을 등지고 앞벽의 TV를 본다.
  *
- * 원래는 -x 벽 앞(-13.2, 3.4)이었다. 그 자리는 현관문(z 1.25)·안방문(z 3.7)이 나란히
- * 난 벽 바로 앞이라, 문에서 나오면 식탁 모서리부터 마주쳤다. 소파 앞으로 물리면 그
- * 벽이 통째로 비고, 거실은 "소파 → 러그·가방 → 식탁 → TV"로 한 줄에 읽힌다.
+ * 원래는 뒷벽(z -4)에 붙어 있었는데, 오픈 키친으로 거실이 뒤로 늘어나자 방 한가운데에
+ * 뜬 채 등을 부엌에 돌린 꼴이 됐다. 벽에 다시 붙이는 대신 칸막이로 쓴다: 앞은 쉬는 곳,
+ * 뒤는 먹는 곳.
  *
- * x는 소파 중심(-9.5)에서 -0.5 물렸다: 공유벽으로 옮긴 피아노(LIVING_PIANO_CENTER)와
- * 사이에 사람이 지나는 폭(1m)을 남긴다. z는 소파 앞에 이미 놓인 야구 가방(MEMORY_PLACEMENTS
- * 의 duffel, z -1.15 반경 0.8)을 물지 않는 가장 가까운 자리다.
+ * x는 공유벽의 피아노(LIVING_PIANO_CENTER, x -7.76부터) 앞을 사람이 지날 수 있게 물린
+ * 자리다. 소파 오른팔(-8.52)과 피아노 사이가 플레이어 지름(0.76)을 넘는다. z는 키운
+ * 소파의 앞턱(+2.34)이 피아노 발자국(z 1.26부터) 앞에서 끝나는 자리다.
  */
-export const LIVING_DINING_CENTER = [-10.0, 2.0] as const;
+export const LIVING_SOFA_AT = [-10.4, -1.25] as const;
+
+/**
+ * TV 받침장 세트(TV·화분·책·리모컨)를 1배 좌표에서 x로 옮기는 양. 소파가 경계로 옮겨 서며
+ * 왼쪽으로 물린 만큼 따라가 정면을 맞춘다. 화장실 문틀(x -11.34까지)은 물지 않는다.
+ */
+export const LIVING_TV_OFFSET_X = -0.5;
+
+/**
+ * 신발장이 키운 뒤 서는 자리: 현관문 옆, 늘어난 구간의 -x 벽. 문을 열고 들어서면 왼쪽이다.
+ *
+ * 기준점이 장의 +z 끝이고 몸통은 거기서 -z로 2.56 뻗는다. z는 그 -z 끝이 뒷벽 안쪽
+ * 면(-7.41)에서 1cm 떨어지는 자리다.
+ */
+export const LIVING_SHOE_CABINET_AT = [LIVING_SHELL_BOUNDS.minX, -4.84] as const;
+
+/**
+ * 식탁 세트가 키운 뒤 서는 자리: **부엌 앞**.
+ *
+ * 원래는 소파 앞(-10, 2)이었다. 부엌이 생기면서 식탁이 TV 앞에 남아 있으면 밥은 거실
+ * 끝에서 먹고 조리는 반대편 끝에서 하는 집이 된다. 조리대 앞으로 옮겨 부엌·식탁이 한 구역이
+ * 된다.
+ *
+ * 조리대 앞면(z -6.65)과 식탁 발자국(z -5.45부터) 사이가 플레이어 지름(0.76)을 넘고,
+ * 식탁 오른쪽(x -8.07까지)과 +x 벽 사이도 트여 있어 부엌 안쪽으로 걸어 들어간다. 빠진
+ * 의자(도해 자리)는 부엌 쪽을 본다.
+ */
+export const LIVING_DINING_CENTER = [-9.3, -3.5] as const;
 
 /**
  * 피아노가 옮겨 선 자리와 각도: **방문이 난 공유벽(+x)**.
@@ -252,8 +307,17 @@ export const LIVING_DINING_CHAIRS = [
 
 /** 발자국은 1배 값을 적고 가구와 같은 기준점으로 키운다. 인형만 키운 소파 옆으로 손수 옮겼다. */
 export const LIVING_COLLIDERS = [
-  scaleLivingAabb(LIVING_ANCHORS.sofa, { minX: -10.95, maxX: -8.05, minZ: -4, maxZ: -2.2 }), // sofa
-  { minX: -10.75, maxX: -8.25, minZ: 5.9, maxZ: 6.5 }, // tv stand (1배 그대로)
+  scaleLivingAabb(
+    LIVING_ANCHORS.sofa,
+    { minX: -10.95, maxX: -8.05, minZ: -4, maxZ: -2.2 },
+    LIVING_SOFA_AT,
+  ), // sofa (거실·부엌 경계)
+  {
+    minX: -10.75 + LIVING_TV_OFFSET_X,
+    maxX: -8.25 + LIVING_TV_OFFSET_X,
+    minZ: 5.9,
+    maxZ: 6.5,
+  }, // tv stand (1배 그대로, 소파 정면으로 옮김)
   scaleLivingAabb(
     LIVING_ANCHORS.dining,
     { minX: -14.75, maxX: -12.85, minZ: 2.3, maxZ: 4.75 },
@@ -263,33 +327,36 @@ export const LIVING_COLLIDERS = [
     LIVING_ANCHORS.shoeCabinet,
     { minX: -16.5, maxX: -15.85, minZ: -1.7, maxZ: 0.35 },
     LIVING_SHOE_CABINET_AT,
-  ), // shoe cabinet
+  ), // shoe cabinet (현관 옆 -x 벽)
   scaleLivingAabb(
     LIVING_ANCHORS.fridge,
     { minX: -15.85, maxX: -14.8, minZ: -4, maxZ: -3.2 },
     LIVING_FRIDGE_AT,
-  ), // fridge (확장된 -z 구석)
-  // 새 뒷벽의 오픈 키친. GLB의 조리대·싱크·레인지가 한 발자국을 공유한다.
-  { minX: -14.2, maxX: -10.3, minZ: -7.5, maxZ: -6.55 },
+  ), // fridge (뒷벽 +x 구석)
+  LIVING_KITCHEN.run, // 뒷벽 조리대: 싱크·레인지
+  LIVING_KITCHEN.peninsula, // 반도형 조리대
   scaleLivingAabb(
     LIVING_ANCHORS.piano,
     { minX: -15.75, maxX: -14.15, minZ: 5.15, maxZ: 6.5 },
     LIVING_PIANO_CENTER,
     LIVING_PIANO_ROTATION,
   ), // piano + 반쯤 빼놓은 의자 (공유벽으로 옮겨 90° 섰다)
-  { minX: -13.0, maxX: -11.5, minZ: -4, maxZ: -2.35 }, // plush doll (소파 옆)
+  { minX: -13.8, maxX: -12.3, minZ: -1.3, maxZ: 0.35 }, // plush doll (소파 왼팔 옆)
 ] as const satisfies readonly Aabb2[];
 
 /**
- * 현관문: 거실 -x 끝 벽. 배트가 방문을 열게 되면서 엔딩 트리거가 여기로 왔다
- * (docs/content-design.md 3-2). 회전은 방문과 반대: 문이 벽 안쪽을 본다.
+ * 현관문: 거실 뒷벽(-z)의 -x 끝. 배트가 방문을 열게 되면서 엔딩 트리거가 여기로 왔다
+ * (docs/content-design.md 3-2). 문이 벽 안쪽(+z)을 보고, 밖은 -z다.
  *
- * z는 냉장고 옆이다. 같은 벽의 안방문(z 4.9)과 붙어 서지 않게 벽의 -z 쪽 끝으로 보냈다
- * (둘 사이는 신발장이 채운다: LIVING_SHOE_CABINET_AT). 문틀(±0.91)이 냉장고 발자국
- * (z -2.96까지)을 물지 않는 가장 먼 자리다.
+ * 원래는 -x 벽의 냉장고 옆이었다. 그 벽은 안방문과 나란히 서서 현관이 옆방 문처럼
+ * 읽혔고, 뒤로 늘어난 거실에서는 방 한가운데 옆구리로 열렸다. 뒷벽은 카메라를 마주 보는
+ * 벽이라 거실 어디서든 현관이 정면에 보인다. 문 왼쪽은 신발장(LIVING_SHOE_CABINET_AT,
+ * 앞면 x -15.66), 오른쪽은 배트가 기대는 틈과 부엌 반도(x -11.59부터)다.
  */
-export const FRONT_DOOR_POSITION = [LIVING_SHELL_BOUNDS.minX + 0.14, 1.7, -1.6] as const;
-export const FRONT_DOOR_ROTATION = [0, Math.PI / 2, 0] as const;
+export const FRONT_DOOR_POSITION = [-14.3, 1.7, LIVING_SHELL_BOUNDS.minZ + 0.14] as const;
+export const FRONT_DOOR_ROTATION = [0, 0, 0] as const;
+/** 현관문에서 거실 안쪽을 가리키는 단위 벡터 [x, z]. 엔딩의 문턱 넘기가 이 축을 따라 걷는다. */
+export const FRONT_DOOR_INWARD = [0, 1] as const;
 export const FRONT_DOOR_INTERACTION = {
   near: [FRONT_DOOR_POSITION[0], FRONT_DOOR_POSITION[2]] as readonly [number, number],
   interactionRadius: 2.2,
@@ -398,9 +465,10 @@ export const ROOM_COLLIDERS = [
  * 자연스럽다.
  */
 export const BAT_PLACEMENT = {
-  // 현관문 +z 옆, 신발장 앞. 문짝이 열리는 자리(문 중심 ±0.82)는 비운다
-  position: [-15.95, 1.48, -0.55],
-  rotation: [0, 0, Math.PI - 0.22],
+  // 현관문 +x 옆, 문틀과 부엌 반도 사이 뒷벽. 문짝이 열리는 자리(문 중심 ±0.82)는 비운다.
+  // y로 -90° 돌려 기울기가 뒷벽(-z) 쪽을 향한다
+  position: [-12.9, 1.48, -6.95],
+  rotation: [0, -Math.PI / 2, Math.PI - 0.22],
   scale: 1.6,
   interactionRadius: 1.35,
 } as const satisfies Omit<MemoryPlacement, "id">;
@@ -661,11 +729,11 @@ export const MEMORY_PLACEMENTS = {
   duffel: {
     id: "duffel",
     // 소파 앞 바닥에 던져둔 책가방. 사방이 트여 있어 다가가기 쉽다. 키운 소파의
-    // 앞턱(z -2.25)에서 한 걸음 앞: 붙이면 클릭 구가 가운데 쿠션의 앉는 자리를 문다.
+    // 발자국 앞면(z 1.09)에서 한 걸음 앞: 붙이면 클릭 구가 가운데 쿠션의 앉는 자리를 문다.
     // 가구 배율보다 더 키운다: 바닥에 홀로 놓인 물건이라 같은 배율로는 작아 보인다.
     // 몸통 두께의 절반만큼 띄워 바닥에 얹는다.
     // 클릭 구는 가방(길이 1.0)만 덮는 0.8: 더 크면 소파 쿠션의 앉는 자리까지 덮어 앉지 못한다
-    position: [-9.5, BACKPACK_HALF_THICKNESS * BACKPACK_SCALE + 0.01, -1.15],
+    position: [LIVING_SOFA_AT[0], BACKPACK_HALF_THICKNESS * BACKPACK_SCALE + 0.01, 1.6],
     rotation: [0, 0.42, 0],
     scale: BACKPACK_SCALE,
     interactionRadius: 1.3,
@@ -765,7 +833,7 @@ export const CAMERA_PRESETS = {
   // room.target.y를 올리면 시선 중심이 위로 가면서 방이 화면 아래쪽으로 내려온다
   room: { position: [14.2, 10.4, 15.4], target: [0.8, 2.35, 1.2] },
   /** 엔딩: 거실 끝 현관문을 열 때 (v2에서 배트 → 현관문으로 옮겨왔다). */
-  ending: { position: [-12.1, 3.1, 0.95], target: [-15.95, 0.9, -1.6] },
+  ending: { position: [-12.4, 3.1, -3.9], target: [-14.3, 0.9, -7.2] },
   // 라디오와 같은 통로(+x·+z)에서 라디오 너머의 성적표를 비스듬히 내려다본다.
   // 예전 자리(z -1.95)에서 옮긴 만큼 카메라도 같이 밀었다
   "report-card": { position: [-1.63, 2.9, 2.7], target: [-4.75, 1.1, 0.35] },
@@ -784,13 +852,14 @@ export const CAMERA_PRESETS = {
    * 돌아가면 "옆 방으로 걸어갔다"가 아니라 "다른 씬으로 잘렸다"로 읽힌다.
    */
   // 거실 기억의 시선은 키운 가구의 자리(MEMORY_PLACEMENTS)를 본다
-  fridge: { position: [-12.7, 3.2, -3.8], target: [-15.32, 1.5, -6.5] },
-  duffel: { position: [-6.9, 2.2, 1.4], target: [-9.5, 0.35, -1.15] },
-  shoes: { position: [-13.2, 2.6, 4.0], target: [-15.73, 0.75, 1.52] },
-  cards: { position: [-7.4, 2.8, 4.6], target: [-10.0, 1.3, 2.0] },
+  fridge: { position: [-4.2, 3.2, -3.8], target: [-6.82, 1.5, -6.5] },
+  duffel: { position: [-7.8, 2.2, 4.15], target: [-10.4, 0.35, 1.6] },
+  shoes: { position: [-13.2, 2.6, -3.6], target: [-15.73, 0.75, -6.08] },
+  // 카메라가 +x 벽(-6) 밖에 서야 부엌 옆 벽이 걷힌다. 안쪽이면 벽이 식탁 오른쪽을 가린다
+  cards: { position: [-4.6, 3.0, -0.6], target: [-9.3, 1.3, -3.5] },
   // 열린 아래칸 안이 보이게 높이 내려다본다. 낮으면 서랍 앞판이 앰플을 가리고, 앞에 선
   // 캐릭터가 앰플과 겹쳐 글로우(xRay)가 얼굴 위로 그려진다
-  ampoule: { position: [-12.9, 3.6, -3.7], target: [-15.32, 0.6, -6.5] },
+  ampoule: { position: [-4.4, 3.6, -3.7], target: [-6.82, 0.6, -6.5] },
   // 안방 기억: 방과 같은 사분면(+x·+z)에서 내려다본다. 책상은 +z 벽에 붙어 있지만
   // 그 벽은 카메라 쪽이라 걷힌다 (CulledWall). 다른 사분면에서 보면 벽이 열렸다 닫힌다
   "research-note": { position: [-16.3, 3.4, 8.6], target: [-18.94, 1.1, 6.0] },
@@ -841,10 +910,9 @@ export const BATHROOM_COLLIDERS = [
 ] as const satisfies readonly Aabb2[];
 
 /*
- * 안방은 거실 -x 벽(현관 쪽 벽) 너머다. 거실 뒷벽에 두려 했으나 그 벽은 소파·인형·냉장고
- * 발자국으로 문 하나 들어갈 틈이 없다(1.64 < 문틀 1.82). -x 벽은 현관문(z 1.25) 위쪽이
- * 통째로 비어 있고, 두 문 사이에 세워 둔 배트가 그 사이의 소품이 된다. 현관 옆에 안방
- * 문이 있는 것도 복도식 아파트에서는 흔한 평면이다.
+ * 안방은 거실 -x 벽 너머다. 거실 뒷벽은 부엌과 현관이 쓴다. 현관문도 한때 이 -x 벽에
+ * 안방문과 나란히 있었는데, 옆방 문처럼 읽혀 뒷벽으로 옮겼다 (FRONT_DOOR_POSITION).
+ * 이제 이 벽의 문은 안방문 하나다.
  *
  * 처음에는 이 벽 끝을 피아노가, 그 앞을 식탁이 막고 있었다. 둘 다 옮기고 나서야
  * (LIVING_PIANO_CENTER · LIVING_DINING_CENTER) 문 둘이 제 벽을 가졌다.
@@ -856,12 +924,10 @@ export const PARENTS_BOUNDS: Aabb2 = {
   minZ: PARENTS_SHELL_BOUNDS.minZ + 0.45,
   maxZ: PARENTS_SHELL_BOUNDS.maxZ - 0.45,
 };
-/** 안방 문: 거실 -x 벽 위, 현관문(z 1.25)과 피아노 사이. 문틀은 벽 안쪽(거실 쪽)에 붙는다. */
+/** 안방 문: 거실 -x 벽 위. 문틀은 벽 안쪽(거실 쪽)에 붙는다. */
 /*
- * 안방 문. z는 현관문(1.25, 구멍 0.43~2.07)에서 멀찍이 떨어뜨린 자리다. 둘 다 거실의
- * 같은 -x 벽에 달려 있어서, 예전 자리(3.7)에서는 문 두 짝이 0.8 간격으로 붙어 서서
- * 어느 쪽이 밖으로 나가는 문인지 한눈에 안 갈렸다. 위로는 안방 책상(z 5.7~)이 막으므로
- * 문간 판정이 거기 닿지 않는 선까지만 올린다.
+ * 안방 문. 현관문이 같은 -x 벽에 있던 시절, 두 문이 붙어 서지 않게 앞쪽으로 멀찍이 올린
+ * 자리다. 위로는 안방 책상(z 5.7~)이 막으므로 문간 판정이 거기 닿지 않는 선까지만 올린다.
  */
 export const PARENTS_DOOR_POSITION = [PARENTS_SHELL_BOUNDS.maxX + 0.14, 1.7, 4.9] as const;
 /** -π/2: 문의 앞면(로컬 +z)이 안방(-x)을 본다. 문짝은 앞면 쪽으로 열린다 (SpaceDoor). */

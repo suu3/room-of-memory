@@ -9,6 +9,7 @@ import {
   LIVING_FURNITURE_SCALE,
   LIVING_PIANO_CENTER,
   LIVING_PIANO_ROTATION,
+  LIVING_SOFA_AT,
   scaleLivingHeight,
   scaleLivingPoint,
 } from "./layout";
@@ -187,14 +188,15 @@ const BED_PERCH = {
  * 쿠션 셋 (LivingRoomFurniture의 SOFA_PARTS). 가운데는 눌린 자리라 좌면이 낮다.
  * 앞턱은 쿠션(-2.67)이 아니라 **몸통 앞면(-2.65)** 이다. 늘어진 다리가 스치는 건 몸통이다.
  */
-const [, SOFA_CUSHION_Z] = scaleLivingPoint(LIVING_ANCHORS.sofa, -9.5, -3.08);
-const [, SOFA_FRONT_Z] = scaleLivingPoint(LIVING_ANCHORS.sofa, -9.5, -2.65);
+const [, SOFA_CUSHION_Z] = scaleLivingPoint(LIVING_ANCHORS.sofa, -9.5, -3.08, LIVING_SOFA_AT);
+const [, SOFA_FRONT_Z] = scaleLivingPoint(LIVING_ANCHORS.sofa, -9.5, -2.65, LIVING_SOFA_AT);
 const SOFA_HALF_DEPTH = SOFA_FRONT_Z - SOFA_CUSHION_Z;
 const SOFA_SIDE_SEAT_Y = scaleLivingHeight(0.6);
 /** 아빠 자리. 오래 눌린 쿠션이라 6cm 낮다. 앉으면 그만큼 내려앉는다. */
 const SOFA_CENTER_SEAT_Y = scaleLivingHeight(0.54);
 /** 쿠션 셋의 x: 1배 좌표를 소파 기준점으로 키운다. */
-const sofaCushionX = (x: number) => scaleLivingPoint(LIVING_ANCHORS.sofa, x, -3.08)[0];
+const sofaCushionX = (x: number) =>
+  scaleLivingPoint(LIVING_ANCHORS.sofa, x, -3.08, LIVING_SOFA_AT)[0];
 
 /*
  * ── 거실: 식탁 의자 ──────────────────────────────────────────────
@@ -245,7 +247,12 @@ const PIANO_BENCH_BEHIND = 0.75;
 const PIANO_BENCH_SEAT_Y = scaleLivingHeight(0.57);
 
 /** 소파 발자국(LIVING_COLLIDERS의 sofa) 앞면. 다리까지 친 값이라 몸통 앞면보다 앞이다. */
-const [, SOFA_FOOTPRINT_FRONT_Z] = scaleLivingPoint(LIVING_ANCHORS.sofa, -9.5, -2.2);
+const [, SOFA_FOOTPRINT_FRONT_Z] = scaleLivingPoint(
+  LIVING_ANCHORS.sofa,
+  -9.5,
+  -2.2,
+  LIVING_SOFA_AT,
+);
 
 /**
  * 소파는 옆이 아니라 앞에 섰다가 돌아앉는다. 이웃 쿠션이 옆을 막고 있다. 발자국 앞면에서

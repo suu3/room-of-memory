@@ -20,6 +20,8 @@ import {
   LIVING_PIANO_CENTER,
   LIVING_PIANO_ROTATION,
   LIVING_SHOE_CABINET_AT,
+  LIVING_SOFA_AT,
+  LIVING_TV_OFFSET_X,
   PIANO_STAND,
   scaleLivingPoint,
 } from "./layout";
@@ -132,7 +134,7 @@ function Boxes({
  */
 
 /**
- * 3인용 소파: 뒷벽(z=-4)에 붙어 TV를 본다.
+ * 3인용 소파: 거실과 부엌의 경계(LIVING_SOFA_AT)에 서서 TV를 본다. 등 뒤가 식탁이다.
  *
  * 가운데가 아빠 자리다. 쿠션이 낮고 어둡다. 오래 눌린 자리는 색도 바랜다.
  * 지금은 아무도 앉지 않는데 눌림만 남아 있다는 게 이 가구가 하는 말의 전부다.
@@ -364,7 +366,7 @@ function PianoBench({ palette }: { palette: RoomPalette }) {
 }
 
 /**
- * 신발장: 현관문 옆. 문이 닫힌 낮은 장이고, 앞에 신발이 **한 켤레만** 남아 있다.
+ * 신발장: 현관문 옆 -x 벽 (LIVING_SHOE_CABINET_AT). 문이 닫힌 낮은 장이고, 앞에 신발이 **한 켤레만** 남아 있다.
  * 부모님 신발이 없다는 게 "여행 갔다"의 물증이다 (v2 기획 7장). 물증이 되려면
  * 빈 자리가 보여야 해서, 남은 한 켤레를 한쪽에 몰아 둔다.
  */
@@ -377,9 +379,8 @@ const SHOE_CABINET_PARTS = [
 ] as const satisfies readonly BoxPart[];
 
 /**
- * 냉장고: 소파 쪽 뒷벽(-z)의 -x 구석. 원래 식탁 옆 +z 벽에 있었는데, 그 자리는
- * 피아노에게 내주고 반대편 벽으로 건너왔다. 거실에서 유일하게 흰 물건이라
- * 여기가 부엌 몫의 구석이라는 걸 색 하나로 말한다. 문에 자석으로 눌러 둔 메모
+ * 냉장고: 뒷벽(-z)의 +x 구석, ㄱ자 부엌(KitchenFurniture)의 오른쪽 끝. 원래 식탁 옆 +z
+ * 벽에 있었는데, 그 자리는 피아노에게 내주고 반대편 벽으로 건너왔다. 문에 자석으로 눌러 둔 메모
  * 한 장: 내용은 없다. 셋이 살던 집에 남은 살림의 흔적이면 된다.
  *
  * 발자국은 layout의 LIVING_COLLIDERS: 좌표를 옮기면 거기도 같이.
@@ -418,10 +419,10 @@ const PIANO_BENCH_PARTS = [
  * 배율은 인형 키(모델 3.17)를 1.5로 맞춘 0.474에 거실 배율을 곱한 값이다. 캐릭터(1.55)보다
  * 커야 다른 가구와 같은 비율로 "커다란 인형"으로 읽힌다. 그 크기에서 발자국은 1.22×1.04이고,
  * 살짝 튼 각(0.35)까지 치면 1.5×1.4이라 LIVING_COLLIDERS의 plush 칸이 그걸 덮는다. 튼 것은
- * 진열이 아니라 놓아둔 것으로 보이게 하는 몫이다. 자리는 키운 소파의 팔걸이(x -11.32) 옆.
+ * 진열이 아니라 놓아둔 것으로 보이게 하는 몫이다. 자리는 키운 소파의 왼팔(x -12.29) 옆.
  */
 const PLUSH_PLACEMENT = {
-  position: [-12.25, 0, -3.1] as Vec3Tuple,
+  position: [-13.05, 0, -0.35] as Vec3Tuple,
   rotationY: 0.35,
   scale: 0.474 * LIVING_FURNITURE_SCALE,
 };
@@ -432,15 +433,17 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
   return (
     <group name="living-room-furniture">
       <KitchenFurniture palette={palette} />
-      <LivingPiece anchor={LIVING_ANCHORS.sofa}>
+      <LivingPiece anchor={LIVING_ANCHORS.sofa} at={LIVING_SOFA_AT}>
         <Boxes parts={SOFA_PARTS} palette={palette} soft />
         {SOFA_CUSHIONS.map((cushion) => (
           <SofaCushion key={cushion.seat} palette={palette} cushion={cushion} />
         ))}
         <SofaDetails palette={palette} />
       </LivingPiece>
-      {/* TV는 1배 그대로: 키운 소파와 마주 보는 비율이 이쪽이 맞다 */}
-      <Boxes parts={TV_PARTS} palette={palette} />
+      {/* TV는 1배 그대로: 키운 소파와 마주 보는 비율이 이쪽이 맞다. 소파 정면으로 x만 옮긴다 */}
+      <group position={[LIVING_TV_OFFSET_X, 0, 0]}>
+        <Boxes parts={TV_PARTS} palette={palette} />
+      </group>
       <LivingPiece anchor={LIVING_ANCHORS.dining} at={LIVING_DINING_CENTER}>
         <Boxes parts={TABLE_PARTS} palette={palette} />
         <DiningDetails palette={palette} />

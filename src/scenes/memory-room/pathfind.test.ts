@@ -68,7 +68,7 @@ describe("findPath", () => {
 
   it("threads the doorway into the living room", () => {
     const start = { x: 0, z: 2 };
-    const goal = { x: -12, z: 1 };
+    const goal = { x: -12, z: 3 };
     const path = findPath(start, goal, RADIUS, ZONES, COLLIDERS);
     expect(path).not.toBeNull();
     const end = walk(start, path ?? []);

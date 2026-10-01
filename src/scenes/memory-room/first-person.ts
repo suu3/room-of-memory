@@ -1,5 +1,5 @@
 import { MathUtils } from "three";
-import { FRONT_DOOR_POSITION, ROOM_DOOR_POSITION } from "./layout";
+import { FRONT_DOOR_INWARD, FRONT_DOOR_POSITION, ROOM_DOOR_POSITION } from "./layout";
 
 /**
  * 1인칭 구간(인트로·2막 도입·엔딩의 문턱)의 순수 계산: 시선 각도, 끌기·키 입력, 처음 바라보는 방향.
@@ -115,6 +115,22 @@ export function lookDirection(
   return target;
 }
 
+const DOOR_X = FRONT_DOOR_POSITION[0];
+const DOOR_Z = FRONT_DOOR_POSITION[2];
+const [INWARD_X, INWARD_Z] = FRONT_DOOR_INWARD;
+const EXIT_DOOR = { x: DOOR_X, z: DOOR_Z };
+/*
+ * 문 쪽(밖, -INWARD)을 볼 때의 오른쪽. 진행 방향 d의 오른쪽은 (-d.z, d.x)다
+ * (-x를 볼 때 -z, -z를 볼 때 +x).
+ */
+const RIGHT_X = INWARD_Z;
+const RIGHT_Z = -INWARD_X;
+
+/** 문 면에서 안쪽으로 `distance`만큼 들어온 자리의 축 좌표: 문 축 위의 거리. */
+function inwardDistance(point: { x: number; z: number }): number {
+  return (point.x - DOOR_X) * INWARD_X + (point.z - DOOR_Z) * INWARD_Z;
+}
+
 /**
  * 구간에 들어서는 순간 바라보는 방향.
  *
@@ -130,7 +146,7 @@ export function initialLook(
   if (viewpoint === "intro") return { yaw: -Math.PI / 2, pitch: 0 };
   if (viewpoint === "exit") {
     // 엔딩은 시선을 각도로 들지 않는다 (FirstPersonRig가 exitCameraAt에서 lookAt한다). 문 쪽만 준다
-    return { yaw: Math.PI / 2, pitch: 0 };
+    return { yaw: yawToward({ x: DOOR_X + INWARD_X, z: DOOR_Z + INWARD_Z }, EXIT_DOOR), pitch: 0 };
   }
   return {
     yaw: yawToward(player, { x: ROOM_DOOR_POSITION[0], z: ROOM_DOOR_POSITION[2] }),
@@ -148,7 +164,7 @@ export function initialLook(
  * 눌리므로, 선 자리에서 걸으면 소파를 뚫고 간다. 문 앞(FRONT_DOOR_INTERACTION 반경)은
  * 가구가 비워 두는 자리라 이 길은 늘 비어 있다. 전환 덮개가 그 순간이동을 가린다.
  *
- * 거리는 문 면에서 방 안쪽(+x)으로 잰다. 몸은 문 밖의 빛 판(EndingLightPlane, 문 밖
+ * 거리는 문 면에서 방 안쪽(FRONT_DOOR_INWARD)으로 잰다. 몸은 문 밖의 빛 판(EndingLightPlane, 문 밖
  * 0.32)을 지나 더 걸어가므로, 판을 넘는 순간 빛에 먹혀 사라진다.
  */
 export const EXIT_WALK = {
@@ -180,19 +196,19 @@ export const EXIT_BEAT_MS = Math.round(
   (EXIT_WALK.holdS + EXIT_WALK.walkS + EXIT_WALK.lingerS) * 1000,
 );
 
-/** 문턱 넘기에서 몸이 바라보는 방향 (Player의 facing: atan2(dx, dz)). 문은 -x 쪽이다. */
-export const EXIT_FACING = -Math.PI / 2;
+/** 문턱 넘기에서 몸이 바라보는 방향 (Player의 facing: atan2(dx, dz)). 문 밖(-INWARD) 쪽이다. */
+export const EXIT_FACING = Math.atan2(-INWARD_X, -INWARD_Z);
 
 /** 카메라가 바라보는 점: 문 너머 빛 속, 몸의 어깨 높이쯤. */
 export const EXIT_LOOK_AT = {
-  x: FRONT_DOOR_POSITION[0] - 2.2,
+  x: DOOR_X - INWARD_X * 2.2,
   y: 1.3,
-  z: FRONT_DOOR_POSITION[2],
+  z: DOOR_Z - INWARD_Z * 2.2,
 } as const;
 
 /**
  * 문턱 넘기가 시작되고 `elapsed`초 뒤 몸(발)의 자리. 결과는 `target`에 써서 돌려준다.
- * 걷는 동안만 x가 줄어든다. 천천히 떼되 멈추지 않고 빛 속으로 들어간다 (ease-in).
+ * 걷는 동안만 문 축 위의 거리가 줄어든다. 천천히 떼되 멈추지 않고 빛 속으로 들어간다 (ease-in).
  */
 export function exitBodyAt(
   elapsed: number,
@@ -203,9 +219,8 @@ export function exitBodyAt(
   // 떼는 순간만 부드럽게, 그 뒤로는 일정한 걸음 (끝에서 멈추면 문 앞에서 머뭇거리는 그림이다)
   const eased = walked < 0.2 ? (walked * walked) / 0.4 : walked - 0.1;
   const distance = EXIT_WALK.bodyStart + ((EXIT_WALK.bodyEnd - EXIT_WALK.bodyStart) * eased) / 0.9;
-  // 현관문은 방 안쪽이 +x다 (FRONT_DOOR_ROTATION: 문이 벽 안쪽을 본다)
-  target.x = FRONT_DOOR_POSITION[0] + distance;
-  target.z = FRONT_DOOR_POSITION[2];
+  target.x = DOOR_X + INWARD_X * distance;
+  target.z = DOOR_Z + INWARD_Z * distance;
   return target;
 }
 
@@ -214,16 +229,17 @@ export function exitBodyAt(
  * 멈춘다. `following`이 거짓(모션 줄이기)이면 출발 자리에 선 채 몸만 걸어 나간다.
  */
 export function exitCameraAt(
-  body: { x: number },
+  body: { x: number; z: number },
   following: boolean,
   target: { x: number; y: number; z: number },
 ): { x: number; y: number; z: number } {
-  const start = FRONT_DOOR_POSITION[0] + EXIT_WALK.bodyStart + EXIT_WALK.cameraBack;
-  const stop = FRONT_DOOR_POSITION[0] + EXIT_WALK.cameraStop;
-  const trailing = following ? Math.max(stop, body.x + EXIT_WALK.cameraBack) : start;
-  target.x = Math.min(start, trailing);
+  const start = EXIT_WALK.bodyStart + EXIT_WALK.cameraBack;
+  const stop = EXIT_WALK.cameraStop;
+  const trailing = following ? Math.max(stop, inwardDistance(body) + EXIT_WALK.cameraBack) : start;
+  const distance = Math.min(start, trailing);
+  // 문 축에서 오른어깨 쪽으로 비켜 선다
+  target.x = DOOR_X + INWARD_X * distance + RIGHT_X * EXIT_WALK.cameraSide;
   target.y = EXIT_WALK.cameraHeight;
-  // 문 쪽(-x)을 볼 때 오른쪽은 -z다
-  target.z = FRONT_DOOR_POSITION[2] - EXIT_WALK.cameraSide;
+  target.z = DOOR_Z + INWARD_Z * distance + RIGHT_Z * EXIT_WALK.cameraSide;
   return target;
 }
