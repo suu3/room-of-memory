@@ -956,13 +956,15 @@ export const PARENTS_BOUNDS: Aabb2 = {
 };
 /** 안방 문: 거실 -x 벽 위. 문틀은 벽 안쪽(거실 쪽)에 붙는다. */
 /*
- * 안방 문. 현관문이 같은 -x 벽에 있던 시절, 두 문이 붙어 서지 않게 앞쪽으로 멀찍이 올린
- * 자리다. 위로는 안방 책상(z 5.7~)이 막으므로 문간 판정이 거기 닿지 않는 선까지만 올린다.
+ * 안방 문. 공유벽(z -0.5~6.5)의 가운데 언저리다. 현관문이 같은 -x 벽에 있던 시절에는 두
+ * 문이 붙어 서지 않게 앞쪽 끝(z 4.9)까지 밀려 있었는데, 현관이 뒷벽 홈으로 간 뒤로는 그럴
+ * 이유가 없다. 거실에서는 인형과 TV 사이 빈 벽에, 안방에서는 침대 정면에 난다. 옷장
+ * (z 0.2까지)·책상(z 5.7부터) 어느 쪽에도 문간 판정이 닿지 않는다.
  */
-export const PARENTS_DOOR_POSITION = [PARENTS_SHELL_BOUNDS.maxX + 0.14, 1.7, 4.9] as const;
+export const PARENTS_DOOR_POSITION = [PARENTS_SHELL_BOUNDS.maxX + 0.14, 1.7, 2.6] as const;
 /** -π/2: 문의 앞면(로컬 +z)이 안방(-x)을 본다. 문짝은 앞면 쪽으로 열린다 (SpaceDoor). */
 export const PARENTS_DOOR_ROTATION = [0, -Math.PI / 2, 0] as const;
-/** 안방 가구 발자국: -x 벽에 침대, -z 벽에 옷장, +z 벽에 책상(연구 자료). 문 앞(+x 벽, z 3~4.4)은 비운다. */
+/** 안방 가구 발자국: -x 벽에 침대, -z 벽에 옷장, +z 벽에 책상(연구 자료). 문 앞(+x 벽)은 비운다. */
 export const PARENTS_COLLIDERS = [
   { minX: -23, maxX: -20.2, minZ: 1.4, maxZ: 5.4 }, // double bed (-x 벽, 머리맡이 벽)
   { minX: -21.6, maxX: -18.4, minZ: -0.5, maxZ: 0.2 }, // wardrobe (-z 벽)
@@ -975,5 +977,10 @@ export const PARENTS_COLLIDERS = [
  * z로 잇는다 (spaces.test가 지킨다).
  */
 export const BATHROOM_DOORWAY_ZONE: Aabb2 = { minX: -12.9, maxX: -11.6, minZ: 5.1, maxZ: 7.9 };
-/** 안방 문간은 x 방향 문이다: 방문 문간과 같은 꼴로 x로 잇는다. */
-export const PARENTS_DOORWAY_ZONE: Aabb2 = { minX: -17.9, maxX: -15.1, minZ: 4.25, maxZ: 5.55 };
+/** 안방 문간은 x 방향 문이다: 방문 문간과 같은 꼴로 x로 잇는다. z는 문을 따라간다. */
+export const PARENTS_DOORWAY_ZONE: Aabb2 = {
+  minX: -17.9,
+  maxX: -15.1,
+  minZ: PARENTS_DOOR_POSITION[2] - 0.65,
+  maxZ: PARENTS_DOOR_POSITION[2] + 0.65,
+};
