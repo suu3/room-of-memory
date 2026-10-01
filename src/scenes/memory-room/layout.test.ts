@@ -538,6 +538,12 @@ describe("living room layout", () => {
     // 홈의 걷기 범위가 거실 걷기 범위와 플레이어 지름 이상 겹쳐야 입구에서 안 낀다
     expect(LIVING_ENTRY_BOUNDS.maxZ - LIVING_BOUNDS.minZ).toBeGreaterThan(PLAYER_DIAMETER);
     expect(LIVING_ENTRY_BOUNDS.maxX - LIVING_ENTRY_BOUNDS.minX).toBeGreaterThan(PLAYER_DIAMETER);
+    // 신발장은 홈 벽 길이에 맞춰 입구 밖(거실)으로 나오지 않는다
+    const cabinet = LIVING_COLLIDERS.find(
+      (box) => box.minX === LIVING_ENTRY_SHELL.minX && box.minZ < LIVING_SHELL_BOUNDS.minZ,
+    );
+    expect(cabinet).toBeDefined();
+    expect(cabinet?.maxZ).toBeLessThanOrEqual(LIVING_ENTRY_SHELL.maxZ);
     // 현관문은 홈 뒷벽에 난다
     expect(FRONT_DOOR_POSITION[2]).toBeLessThan(LIVING_ENTRY_BOUNDS.minZ);
     expect(FRONT_DOOR_POSITION[0] - 0.91).toBeGreaterThan(LIVING_ENTRY_SHELL.minX);

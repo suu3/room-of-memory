@@ -232,10 +232,10 @@ export const LIVING_TV_OFFSET_X = -0.5;
 /**
  * 신발장이 키운 뒤 서는 자리: 현관(LIVING_ENTRY_SHELL)의 -x 벽. 집에 들어서면 오른쪽이다.
  *
- * 기준점이 장의 +z 끝이고 몸통은 거기서 -z로 2.56 뻗는다. z는 그 -z 끝이 현관 뒷벽 안쪽
- * 면(-9.41)에서 1cm 떨어지는 자리다. 홈(깊이 2)보다 길어서 앞 끝이 거실로 조금 나온다.
+ * 기준점이 장의 +z 끝이고 몸통(상판)은 거기서 -z로 1.81 뻗는다. z는 그 -z 끝이 현관 뒷벽
+ * 안쪽 면(-9.41)에 닿는 자리다. 장 길이를 홈 벽에 맞춰 두어 발자국까지 입구(-7.5) 안에 든다.
  */
-export const LIVING_SHOE_CABINET_AT = [LIVING_ENTRY_SHELL.minX, -6.84] as const;
+export const LIVING_SHOE_CABINET_AT = [LIVING_ENTRY_SHELL.minX, -7.61] as const;
 
 /**
  * 식탁 세트가 키운 뒤 서는 자리: **부엌 앞**.
@@ -355,7 +355,7 @@ export const LIVING_COLLIDERS = [
   ), // dining table + chairs (빠진 의자 포함)
   scaleLivingAabb(
     LIVING_ANCHORS.shoeCabinet,
-    { minX: -16.5, maxX: -15.85, minZ: -1.7, maxZ: 0.35 },
+    { minX: -16.5, maxX: -15.85, minZ: -1.16, maxZ: 0.35 },
     LIVING_SHOE_CABINET_AT,
   ), // shoe cabinet (현관 홈의 -x 벽)
   scaleLivingAabb(
@@ -772,7 +772,7 @@ export const MEMORY_PLACEMENTS = {
   shoes: {
     id: "shoes",
     // 신발장 문 앞면(x -15.91)에서 5mm 앞
-    position: livingSpot(LIVING_ANCHORS.shoeCabinet, -15.905, 0.55, -0.68, LIVING_SHOE_CABINET_AT),
+    position: livingSpot(LIVING_ANCHORS.shoeCabinet, -15.905, 0.55, -0.41, LIVING_SHOE_CABINET_AT),
     rotation: [0, Math.PI / 2, 0],
     scale: LIVING_FURNITURE_SCALE,
     interactionRadius: 1.45,
@@ -885,7 +885,7 @@ export const CAMERA_PRESETS = {
   fridge: { position: [-13.05, 3.2, -3.8], target: [-15.67, 1.5, -6.5] },
   duffel: { position: [-8.0, 2.2, 4.15], target: [-10.6, 0.35, 1.6] },
   // 카메라가 +x 벽(-6) 밖에 서야 그 벽이 걷힌다. 안쪽이면 벽이 현관문을 가린다
-  shoes: { position: [-5.4, 2.6, -5.0], target: [-9.23, 0.75, -8.08] },
+  shoes: { position: [-5.4, 2.6, -5.4], target: [-9.23, 0.75, -8.48] },
   cards: { position: [-10.6, 2.8, -0.9], target: [-13.2, 1.3, -3.5] },
   // 열린 아래칸 안이 보이게 높이 내려다본다. 낮으면 서랍 앞판이 앰플을 가리고, 앞에 선
   // 캐릭터가 앰플과 겹쳐 글로우(xRay)가 얼굴 위로 그려진다

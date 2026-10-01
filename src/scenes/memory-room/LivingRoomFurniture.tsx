@@ -371,10 +371,11 @@ function PianoBench({ palette }: { palette: RoomPalette }) {
  * 빈 자리가 보여야 해서, 남은 한 켤레를 한쪽에 몰아 둔다.
  */
 const SHOE_CABINET_PARTS = [
-  { size: [0.5, 1.06, 1.9], position: [-16.16, 0.53, -0.68], color: "wood" },
-  { size: [0.56, 0.05, 1.96], position: [-16.16, 1.08, -0.68], color: "linen" },
+  // 길이는 현관 홈의 -x 벽(깊이 1.91)에 맞춘다: 키운 상판이 1.85라 입구 밖으로 안 나온다
+  { size: [0.5, 1.06, 1.36], position: [-16.16, 0.53, -0.41], color: "wood" },
+  { size: [0.56, 0.05, 1.42], position: [-16.16, 1.08, -0.41], color: "linen" },
   // 문짝 자국: 통짜 상자로는 장이 아니라 궤짝으로 읽혀서 세로줄 하나를 긋는다
-  { size: [0.03, 0.86, 0.02], position: [-15.9, 0.5, -0.68], color: "frame" },
+  { size: [0.03, 0.86, 0.02], position: [-15.9, 0.5, -0.41], color: "frame" },
   // 남은 운동화 한 켤레는 LivingShoes에서 밑창·발등·끈이 보이게 그린다.
 ] as const satisfies readonly BoxPart[];
 

@@ -47,7 +47,7 @@ export function LivingShoes({ palette }: { palette: RoomPalette }) {
         <group
           key={x}
           // 신발장의 현관문 쪽(-z) 끝. 벗어 둔 자리는 문 앞이다
-          position={[x, 0, index === 0 ? -1.4 : -1.48]}
+          position={[x, 0, index === 0 ? -0.86 : -0.94]}
           rotation={[0, index === 0 ? -0.12 : 0.1, 0]}
         >
           <RoundedBox

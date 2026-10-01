@@ -864,7 +864,7 @@ function FridgeDrawerMemory({ palette, opacity }: VisualProps) {
 
 /** 신발장 문: 두고 간 등산화가 그대로 있다. */
 function ShoeCabinetMemory({ palette, opacity }: VisualProps) {
-  return <DoorOutline width={1.7} height={0.86} color={palette.wood} opacity={opacity} />;
+  return <DoorOutline width={1.2} height={0.86} color={palette.wood} opacity={opacity} />;
 }
 
 /**
