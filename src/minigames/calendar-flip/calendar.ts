@@ -61,6 +61,7 @@ type NoteKey =
   | "camp"
   | "schoolStart"
   | "mockExam"
+  | "birthday"
   | "dday60"
   | "trip";
 
@@ -81,6 +82,7 @@ export const MONTH_NOTES: Record<number, readonly MonthNote[]> = {
   ],
   9: [
     { day: 4, key: "mockExam" },
+    { day: 18, key: "birthday" },
     { day: 20, key: "dday60" },
   ],
   10: [{ day: 17, key: "trip" }],
