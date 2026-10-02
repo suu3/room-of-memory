@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { I18nProvider } from "@/components/ui/shell/I18nProvider";
 import { ServiceWorker } from "@/components/ui/shell/ServiceWorker";
+import { langBootScript } from "@/i18n/locale-routes";
 import { siteOrigin } from "@/i18n/site-meta";
 import { FONT_VARIABLES } from "./fonts";
 import "./globals.css";
@@ -57,8 +58,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${FONT_VARIABLES} h-full antialiased`}>
+    // suppressHydrationWarning: 아래 스크립트가 하이드레이션 전에 lang을 고쳐 서버 값과 달라진다
+    <html lang="ko" className={`${FONT_VARIABLES} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans">
+        {/* 본문보다 먼저: /en · /ja와 저장된 언어의 lang을 첫 화면 전에 맞춘다 (locale-routes.ts) */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: 사용자 입력이 섞이지 않는 고정 문자열이다. React가 뜨기 전에 돌아야 해서 인라인으로 싣는다 */}
+        <script dangerouslySetInnerHTML={{ __html: langBootScript() }} />
         <I18nProvider>{children}</I18nProvider>
         <ServiceWorker />
         {/* 접속자 수·유입 경로만 본다 (쿠키 없음, Hobby라 커스텀 이벤트는 안 찍힌다) */}
