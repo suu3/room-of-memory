@@ -140,14 +140,14 @@
       "line1": "Three years on the baseball team. It was my last summer.",
       "line2": "Nationals round of 16, against Eungang High. Bottom of the ninth, two outs, and I was the last batter.",
       "line3": "Yunho yelled from the on-deck circle. \"Hit it, Han Do-hae!\"",
-      "line4": "Their catcher smacked his mitt twice, thwack thwack, and crouched down.",
+      "line4": "Their catcher slapped his palm against his mitt twice, thwack thwack, and crouched down.",
       "line5": "He looked so sure of himself, like he'd catch anything no matter how I swung.",
       "line6": "Full count. The ball came off my bat and popped up high behind the plate.",
       "line7": "He tossed his mask, ran it down, and caught it. That was it.",
       "line8": "That was my last baseball game."
     },
     "ball-alone": {
-      "line1": "Even when I throw again, I don't feel that rush in my blood like I used to."
+      "line1": "Even when I swing again, I don't feel that rush in my blood like I used to."
     },
     "console-intro": {
       "line1": "Haven't played in a while. One round?",
@@ -233,8 +233,8 @@
       "line2": "…That was the last one."
     },
     "ball-echo": {
-      "line1": "...I'd forgotten what throwing feels like.",
-      "line2": "Once I'm out of here, I'm throwing again."
+      "line1": "...I'd forgotten what swinging feels like.",
+      "line2": "Once I'm out of here, I'm hitting again."
     },
     "ampoule-note": {
       "line1": "There's a note stuck on the fridge's bottom drawer.",
@@ -288,9 +288,9 @@
       "phase2": "Maybe it gets fun again with two."
     },
     "ball": {
-      "title": "Catch, Alone",
-      "phase1": "Throw it at the wall and it comes back. Yunho isn't here to catch it.",
-      "phase2": "If someone can catch it, this ball still has a use."
+      "title": "Swinging Alone",
+      "phase1": "Swinging the bat alone. Yunho isn't behind me, yelling at me to hit it.",
+      "phase2": "I'd forgotten what a swing feels like. Once I'm out, I'll hit again."
     },
     "frame": {
       "title": "My Parents",
@@ -374,7 +374,7 @@
         "line1": "I'd played baseball for years, so I went to Cheongseo High, a school known for baseball.",
         "line2": "In this year's nationals round of 16, we faced Eungang High, a nearby school and our baseball rival.",
         "line3": "I played second base, and I psyched myself up with my best friend Yunho, our catcher.",
-        "line4": "But we lost in the end. I still remember the last pop of Eungang's catcher's mitt, the sound that ended the game.",
+        "line4": "But we lost in the end. I still remember the sound of Eungang's catcher slapping his palm against his mitt.",
         "line5": "I wonder what Yunho's doing now."
       }
     },

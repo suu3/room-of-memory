@@ -107,18 +107,18 @@ memories:
     icon: Baseball
     lore:
       title:
-        ko: 혼자 하는 캐치볼
-        en: Catch, Alone
-        ja: ひとりのキャッチボール
+        ko: 혼자 하는 스윙
+        en: Swinging Alone
+        ja: ひとりのバッティング
       phase1:
-        ko: 벽에 던지면 돌아온다. 받아 줄 윤호는 없다.
-        en: Throw it at the wall and it comes back. Yunho isn't here to catch it.
-        ja: 壁に投げれば返ってくる。受けてくれるユノはいない。
+        ko: 혼자 휘두르는 배트. 뒤에서 소리쳐 줄 윤호는 없다.
+        en: Swinging the bat alone. Yunho isn't behind me, yelling at me to hit it.
+        ja: 一人で振るバット。後ろで叫んでくれるユノはいない。
       phase2:
-        ko: 받아줄 사람이 있다면, 이 공은 아직 쓸 데가 있다.
-        en: If someone can catch it, this ball still has a use.
-        ja: 受けてくれる人がいるなら、このボールにはまだ使い道がある。
-    # 1차: 전국대회 16강 회상(재하 복선, 우리 포수 윤호) → 캐치볼 → "받아줄 사람(윤호)이 없다"
+        ko: 휘두르는 감각을 잊고 있었다. 나가면 다시 친다.
+        en: I'd forgotten what a swing feels like. Once I'm out, I'll hit again.
+        ja: 振る感覚を忘れていた。外に出たら、また打つ。
+    # 1차: 전국대회 16강 회상(재하 복선, 대기 타석의 윤호) → 스윙 → "혼자 휘둘러도 그때 같지 않다"
     # → 역광 속 은강고 포수의 미트, 윤호를 떠올림(ball-flashback)
     phase1:
       script: ball-intro

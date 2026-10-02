@@ -85,9 +85,9 @@ scripts:
       en: 'Yunho yelled from the on-deck circle. "Hit it, Han Do-hae!"'
       ja: ネクストバッターズサークルからユノが叫んだ。「打て、ハン・ドヘ!」
     - speaker: hero
-      ko: 상대 포수가 미트를 탁탁, 두 번 치고 앉았다.
-      en: Their catcher smacked his mitt twice, thwack thwack, and crouched down.
-      ja: 相手のキャッチャーがミットをパンパンと二度叩いて、座った。
+      ko: 상대 포수가 손바닥으로 미트를 탁탁, 두 번 두드리고 앉았다.
+      en: Their catcher slapped his palm against his mitt twice, thwack thwack, and crouched down.
+      ja: 相手のキャッチャーが手のひらでミットをパンパンと二度叩いて、座った。
     - speaker: hero
       ko: 어떻게 휘두르든 다 잡아낼 것 같은 자신감 넘치는 모습이었다.
       en: He looked so sure of himself, like he'd catch anything no matter how I swung.
@@ -107,12 +107,12 @@ scripts:
       en: That was my last baseball game.
       ja: それが俺の最後の野球の試合だった。
 
-  # 캐치볼을 마친 뒤: 벽은 공을 돌려주기만 한다. 받아줄 사람은 윤호였다 (생사·행방은 말하지 않는다)
+  # 스윙(ball-catch)을 마친 뒤: 혼자 휘둘러도 그때 같지 않다. 미니게임이 타격이라 말도 휘두르는 쪽이다
   ball-alone:
     - speaker: hero
-      ko: 다시 던져도 그때의 피가 도는 감각은 느껴지지 않는다.
-      en: Even when I throw again, I don't feel that rush in my blood like I used to.
-      ja: もう一度投げても、あの頃の血が騒ぐ感覚は戻ってこない。
+      ko: 다시 휘둘러도 그때의 피가 도는 감각은 느껴지지 않는다.
+      en: Even when I swing again, I don't feel that rush in my blood like I used to.
+      ja: もう一度振っても、あの頃の血が騒ぐ感覚は戻ってこない。
 
   console-intro:
     - speaker: hero
@@ -387,14 +387,14 @@ scripts:
   ball-echo:
     - speaker: hero
       expression: sad
-      ko: ...던지는 감각을 잊고 있었어.
-      en: "...I'd forgotten what throwing feels like."
-      ja: "...投げる感覚を忘れてた。"
+      ko: ...휘두르는 감각을 잊고 있었어.
+      en: "...I'd forgotten what swinging feels like."
+      ja: "...振る感覚を忘れてた。"
     - speaker: hero
       expression: smile
-      ko: 나가면 다시 던지는거야
-      en: "Once I'm out of here, I'm throwing again."
-      ja: "外に出たら、また投げるんだ。"
+      ko: 나가면 다시 치는거야
+      en: "Once I'm out of here, I'm hitting again."
+      ja: "外に出たら、また打つんだ。"
 
   # ─────────────────────────────────────────────── 3페이즈 · 앰플
 

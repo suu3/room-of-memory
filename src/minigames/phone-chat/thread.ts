@@ -37,7 +37,7 @@ export interface OutgoingCall {
 
 /** 친구 둘. 이름은 i18n이 갖고, 코드는 이 키로만 가리킨다 (docs/story/story.md 친구 설정). */
 export const FRIEND = {
-  /** 나윤호: 야구부 포수. 도해 공을 늘 받아주던 친구. */
+  /** 나윤호: 야구부 포수. 유소년 때부터 도해와 같이 야구를 해 온 친구. */
   yunho: "minigame.phoneChat.contact.yunho",
   /** 서주완: 같은 반, 야구부 아님. 격투 게임 매점 내기에서 늘 지던, 단톡에서 제일 시끄러운 친구. */
   juwan: "minigame.phoneChat.contact.juwan",
