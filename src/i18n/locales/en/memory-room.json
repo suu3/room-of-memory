@@ -138,7 +138,7 @@
     },
     "ball-intro": {
       "line1": "Three years on the baseball team. It was my last summer.",
-      "line2": "Nationals quarterfinal, against Eungang High. Bottom of the ninth, two outs, and I was the last batter.",
+      "line2": "Nationals round of 16, against Eungang High. Bottom of the ninth, two outs, and I was the last batter.",
       "line3": "Yunho yelled from the on-deck circle. \"Hit it, Han Do-hae!\"",
       "line4": "Their catcher smacked his mitt twice, thwack thwack, and crouched down.",
       "line5": "He looked so sure of himself, like he'd catch anything no matter how I swung.",
@@ -372,7 +372,7 @@
     "ball-flashback": {
       "cut1": {
         "line1": "I'd played baseball for years, so I went to Cheongseo High, a school known for baseball.",
-        "line2": "In this year's nationals quarterfinal, we faced Eungang High, a nearby school and our baseball rival.",
+        "line2": "In this year's nationals round of 16, we faced Eungang High, a nearby school and our baseball rival.",
         "line3": "I played second base, and I psyched myself up with my best friend Yunho, our catcher.",
         "line4": "But we lost in the end. I still remember the last pop of Eungang's catcher's mitt, the sound that ended the game.",
         "line5": "I wonder what Yunho's doing now."
@@ -393,8 +393,8 @@
       },
       "cut4": {
         "line1": "It was an ordinary day.",
-        "line2": "After practice, I checked my phone and there was a text from Mom.",
-        "line3": "\"Skip practice today and come straight home.\" …That was a strange thing to say."
+        "line2": "After extra classes, I checked my phone and there was a text from Mom.",
+        "line3": "\"Skip the study room today and come straight home.\" …That was a strange thing to say."
       },
       "cut5": {
         "line1": "The apartment complex was quiet.",
