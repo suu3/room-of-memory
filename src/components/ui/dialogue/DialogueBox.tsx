@@ -152,6 +152,19 @@ export function DialogueBox() {
    * 예외는 대사창 자신의 넘기기 버튼이다. 클릭으로 한 번 넘기면 거기 포커스가 남는
    * 탓에, 비켜 주면 "클릭한 뒤부터 Enter가 안 먹는" 꼴이 된다.
    */
+  /*
+   * 로그가 닫히면 포커스를 넘기기 버튼으로 돌려놓는다. 로그 입구를 누르면 포커스가 그
+   * 버튼에 남는데, X로 닫으면 X가 포커스를 가져갔다 사라져 풀리지만 Esc로 닫으면 그대로
+   * 남는다. 그러면 아래 키 핸들러가 "포커스가 잡힌 컨트롤"에 비켜 줘서 Space가 대사를
+   * 넘기지 못한다.
+   */
+  const advanceButtonRef = useRef<HTMLButtonElement>(null);
+  const logWasOpen = useRef(false);
+  useEffect(() => {
+    if (logWasOpen.current && !logOpen) advanceButtonRef.current?.focus({ preventScroll: true });
+    logWasOpen.current = logOpen;
+  }, [logOpen]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
@@ -188,6 +201,7 @@ export function DialogueBox() {
       */}
       <button
         type="button"
+        ref={advanceButtonRef}
         {...{ [ADVANCE_ATTR]: "" }}
         // 타자 연출 중 클릭은 대사를 건너뛰지 않고 먼저 다 채운다 (VN 관례)
         onClick={() => advanceRef.current()}

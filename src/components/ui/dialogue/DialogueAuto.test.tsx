@@ -110,4 +110,26 @@ describe("대사창의 오토와 로그", () => {
     });
     expect(useMemoryRoomStore.getState().activeInteraction?.lineIndex).toBe(1);
   });
+
+  it("로그를 Esc로 닫으면 포커스가 넘기기 버튼으로 돌아와 Space가 다시 대사를 넘긴다", () => {
+    useMemoryRoomStore.setState({ autoPlay: false });
+    render(
+      <>
+        <DialogueBox />
+        <DialogueLog />
+      </>,
+    );
+    openBallDialogue();
+    typeOut();
+
+    // 실제 클릭은 버튼에 포커스를 남긴다. Esc는 그 포커스를 옮기지 않는다
+    const logButton = screen.getByRole("button", { name: "지나간 대사 보기" });
+    logButton.focus();
+    fireEvent.click(logButton);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
+    expect(useMemoryRoomStore.getState().dialogueLogOpen).toBe(false);
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: " ", code: "Space" });
+    expect(useMemoryRoomStore.getState().activeInteraction?.lineIndex).toBe(1);
+  });
 });
