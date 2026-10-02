@@ -25,6 +25,7 @@ export {
   startNoiseBed,
 } from "./engine";
 export { startCueMusic, startOverlayMusic, stopCueMusic, stopOverlayMusic } from "./music";
+export { preloadSpeech, type Speech, startSpeech } from "./speech";
 export type { VoiceId } from "./voices";
 
 /**

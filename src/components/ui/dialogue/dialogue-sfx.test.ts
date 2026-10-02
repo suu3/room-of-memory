@@ -22,8 +22,11 @@ describe("typeTick", () => {
   });
 
   it("types radio speakers with noise instead of a pitched voice", () => {
-    expect(typeTick("broadcast", "a", 1)?.id).toBe("typeRadio");
     expect(typeTick("signal", "a", 1)?.id).toBe("typeRadio");
     expect(typeTick("hero", "a", 1)?.id).toBe("type");
+  });
+
+  it("stays silent for the speaker with a recorded voice", () => {
+    expect(typeTick("broadcast", "a", 1)).toBeNull();
   });
 });

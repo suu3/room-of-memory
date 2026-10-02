@@ -1,14 +1,17 @@
 "use client";
 
 import type { ParseKeys } from "i18next";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CUTSCENE_RADIO_BLACKOUT, CUTSCENE_WORKBOOK_NAME } from "@/data/memory-room";
-import { playSound, startNoiseBed } from "@/lib/audio";
+import { ASSETS } from "@/lib/assets";
+import { playSound, preloadSpeech, type Speech, startNoiseBed, startSpeech } from "@/lib/audio";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { blurBackdrop } from "@/lib/image-blur";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
+import { selectLocale, useSettingsStore } from "@/store/settings";
 import { useStillStore, WORKBOOK_STILL_KEY } from "@/store/stills";
+import { broadcastAiring, carriesBroadcast } from "./broadcast-voice";
 import { CutDissolve } from "./CutDissolve";
 import { CutWhispers } from "./CutWhispers";
 import { grainForCut } from "./cut-dissolve";
@@ -34,6 +37,15 @@ const SIGN_OFF_MS = 800;
  * 의식하면 들리고 대사를 읽는 동안은 잊히는 크기.
  */
 const TAPE_HISS = { gain: 0.035, highpass: 2400, lowpass: 9000 } as const;
+
+/**
+ * 재난 방송의 목소리. 녹음은 깨끗한 전대역이라, 작은 라디오 스피커의 대역(전화 대역
+ * 안팎)만 남겨 "방 안의 라디오에서 나던 소리"로 만든다. 그대로 틀면 화면 밖의 성우가
+ * 읽어 주는 내레이션으로 들린다.
+ */
+const BROADCAST_VOICE = { gain: 0.9, highpass: 380, lowpass: 3400 } as const;
+/** 도해가 말하는 동안 방송이 물러나는 크기. 꺼지지 않고 뒤에서 계속 돈다 (자동 반복 송출). */
+const BROADCAST_BEHIND = 0.3;
 
 /**
  * 컷씬이 도는 세 국면. 그림이 뜨기 전에 라디오가 확실히 죽어야 한다.
@@ -261,6 +273,38 @@ export function PlaybackScene() {
       bed?.stop();
     };
   }, [cutSfx, cutIndex, playbackKey]);
+
+  /*
+   * 재난 방송의 목소리 (broadcast-voice). 방송 줄이 처음 뜰 때 한 번 걸려 그 컷이 서 있는
+   * 동안 제 박자로 흐른다. 줄을 넘겨도 다시 걸리지 않고, 컷이 넘어가거나 건너뛰면 끊긴다.
+   * 녹음은 대사 언어를 따라간다. 컷씬이 열릴 때 미리 받아 둔다: 방송 컷은 도입과 정적
+   * 뒤에 오므로 그 사이에 다 받아진다.
+   */
+  const locale = useSettingsStore(selectLocale);
+  const broadcastSrc = ASSETS.voice.broadcast[locale];
+  const hasBroadcast = active?.cuts.some(carriesBroadcast) === true;
+  useEffect(() => {
+    if (hasBroadcast) preloadSpeech(broadcastSrc);
+  }, [hasBroadcast, broadcastSrc]);
+
+  const airing = stage === "cuts" ? broadcastAiring(cut, active?.lineIndex ?? 0) : "off";
+  const onAir = airing !== "off";
+  const broadcast = useRef<Speech | null>(null);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cutIndex·playbackKey는 "컷이 바뀌었다"는 신호다. 방송 컷이 이어져도 목소리는 컷마다 머리부터 다시 걸린다.
+  useEffect(() => {
+    if (!onAir) return;
+    const speech = startSpeech(broadcastSrc, BROADCAST_VOICE);
+    broadcast.current = speech;
+    return () => {
+      speech?.stop();
+      broadcast.current = null;
+    };
+  }, [onAir, broadcastSrc, cutIndex, playbackKey]);
+  // 위 effect보다 뒤에 있어야 한다: 방금 건 목소리에 지금의 자리를 알려 준다
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 목소리가 새로 걸리면(언어·컷) 자리를 다시 알려야 한다.
+  useEffect(() => {
+    broadcast.current?.setLevel(airing === "behind" ? BROADCAST_BEHIND : 1);
+  }, [airing, broadcastSrc, cutIndex, playbackKey]);
 
   /*
    * 컷이 바뀌는 그림의 전환 (CutDissolve). 셔터 소리와 같은 박자에 노이즈 장막이 결을

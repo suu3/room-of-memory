@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/config";
 import type { VoiceId } from "@/lib/audio/voices";
 
 /** 에셋 경로 상수: 코드 곳곳에 경로 문자열을 산재시키지 않는다 (.claude/rules/assets.md). */
@@ -256,4 +257,19 @@ export const ASSETS = {
     /** 벽 스위치 딸깍. 게임의 첫 조작이라 실물 소리로. 딸-깍 두 번 닿는 0.29초만 잘랐다. */
     lightSwitch: "/assets/audio/sfx/sfx-light-switch.ogg",
   } as Partial<Record<VoiceId, string>>,
+  /**
+   * 녹음된 말소리 (src/lib/audio/speech.ts). 게임에서 사람 목소리가 나는 자리는 여기뿐이다:
+   * 다른 화자는 전부 타자 틱이 목소리를 대신한다.
+   */
+  voice: {
+    /**
+     * 그날의 재난 방송 (radio-blackout의 방송 세 줄을 이어 읽은 한 편, 18~20초).
+     * 대사 언어를 따라간다. 대본의 방송 문장을 고치면 세 파일을 다시 녹음하고 `?v=`를 붙인다.
+     */
+    broadcast: {
+      ko: "/assets/audio/sfx/sfx-radio-broadcast-ko.mp3?v=2",
+      en: "/assets/audio/sfx/sfx-radio-broadcast-en.mp3?v=2",
+      ja: "/assets/audio/sfx/sfx-radio-broadcast-ja.mp3?v=2",
+    } satisfies Record<Locale, string>,
+  },
 } as const;

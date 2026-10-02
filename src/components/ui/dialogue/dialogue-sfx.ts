@@ -20,7 +20,13 @@ const SPEAKER_PITCH: Partial<Record<CharacterId, number>> = {
 };
 
 /** 전파 너머의 화자. 사람의 음정 대신 잡음 틱(typeRadio)으로 찍힌다. */
-const RADIO_SPEAKERS: readonly CharacterId[] = ["broadcast", "signal"];
+const RADIO_SPEAKERS: readonly CharacterId[] = ["signal"];
+
+/**
+ * 녹음된 목소리가 있는 화자 (ASSETS.voice). 틱은 목소리의 대역이라, 진짜 목소리가
+ * 흐르는 줄에서는 울리지 않는다. 겹치면 말 위에 초당 일곱 번 잡음이 튄다.
+ */
+const VOICED_SPEAKERS: readonly CharacterId[] = ["broadcast"];
 
 /**
  * 몇 글자마다 한 번 울리는가. 글자당 70ms라 매 글자면 초당 14번이다. 그 속도의 틱은
@@ -46,6 +52,7 @@ export function typeTick(speaker: CharacterId, char: string, count: number): Typ
   // 첫 글자에서 울려야 말이 시작되는 순간과 소리가 붙는다 (count 1, 3, 5, ...)
   if (count % TICK_EVERY !== 1) return null;
   if (!SOUNDING.test(char)) return null;
+  if (VOICED_SPEAKERS.includes(speaker)) return null;
   if (RADIO_SPEAKERS.includes(speaker)) return { id: "typeRadio", options: { variation: 0.12 } };
   // 흔든다. 완전히 같은 음의 연타는 말이 아니라 알람이다. 반음(6%) 안쪽이라 화자는 안 섞인다
   return { id: "type", options: { pitch: SPEAKER_PITCH[speaker] ?? 1, variation: 0.05 } };
