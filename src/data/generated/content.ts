@@ -631,6 +631,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         whisperKeys: [
           "cutscenes.radio-blackout.cut3.whisper1",
           "cutscenes.radio-blackout.cut3.whisper2",
+          "cutscenes.radio-blackout.cut3.whisper3",
         ],
         lines: [
           { speaker: "broadcast", textKey: "cutscenes.radio-blackout.cut3.line1" },

@@ -8,7 +8,7 @@ import { progressAt } from "@/data/story-phase";
 import { i18n } from "@/i18n/config";
 import { openCutscene, useMemoryRoomStore } from "@/store/memory-room";
 import { DialogueBox } from "../dialogue/DialogueBox";
-import { WHISPER_SHOW_MS } from "./CutWhispers";
+import { WHISPER_CYCLE_MS, WHISPER_SHOW_MS } from "./CutWhispers";
 import { PlaybackScene } from "./PlaybackScene";
 
 describe("배트를 쥐는 두 줄의 화면", () => {
@@ -110,8 +110,9 @@ describe("배트를 쥐는 두 줄의 화면", () => {
       useMemoryRoomStore.setState({ activePlayback: { ...opened, cutIndex: broadcast } });
       render(<PlaybackScene />);
       const shown = (text: string) => screen.getByText(text).className.includes("opacity-100");
-      const first = "…I don't want to hear this.";
+      const first = "…I don't want to remember.";
       const second = "Stop…";
+      const third = "I'd finally buried it…";
 
       act(() => {
         vi.advanceTimersByTime(100);
@@ -123,16 +124,19 @@ describe("배트를 쥐는 두 줄의 화면", () => {
         vi.advanceTimersByTime(WHISPER_SHOW_MS);
       });
       expect(shown(first)).toBe(false);
-      // 다음 줄이 뜨고, 다시 첫 줄로 돈다. 줄이 바뀐 뒤의 시계는 렌더가 끝나야 걸리므로 두 번에 나눠 흘린다
+      // 다음 줄들이 차례로 뜨고, 다시 첫 줄로 돈다. 줄이 바뀐 뒤의 시계는 렌더가 끝나야 걸리므로 두 번에 나눠 흘린다
       const step = (ms: number) => {
         act(() => {
           vi.advanceTimersByTime(ms);
         });
       };
-      step(1500);
+      step(WHISPER_CYCLE_MS - WHISPER_SHOW_MS);
       step(100);
       expect(shown(second)).toBe(true);
-      step(WHISPER_SHOW_MS + 1500);
+      step(WHISPER_CYCLE_MS);
+      step(100);
+      expect(shown(third)).toBe(true);
+      step(WHISPER_CYCLE_MS);
       step(100);
       expect(shown(first)).toBe(true);
     } finally {

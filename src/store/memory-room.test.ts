@@ -685,7 +685,7 @@ describe("분기점: 라디오", () => {
     expect(silence?.lines).toHaveLength(0);
     expect(silence?.holdMs).toBeGreaterThan(0);
     expect(broadcast?.lines[0]?.speaker).toBe("broadcast");
-    expect(broadcast?.whisperKeys?.length).toBe(2);
+    expect(broadcast?.whisperKeys?.length).toBe(3);
   });
 
   it("라디오 2차는 곧장 생존자 방송이다. 끝나면 방문이 금빛이다", () => {
