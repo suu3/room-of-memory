@@ -27,7 +27,11 @@ const labels = {
 
 afterEach(cleanup);
 
-function renderPrompt(availableIds: readonly MemoryId[], onInteract: (id: MemoryId) => void) {
+function renderPrompt(
+  availableIds: readonly MemoryId[],
+  onInteract: (id: MemoryId) => void,
+  extra: Partial<Parameters<typeof RoomInteractionPrompt>[0]> = {},
+) {
   const statuses = Object.fromEntries(
     (Object.keys(labels) as MemoryId[]).map((id) => [
       id,
@@ -41,7 +45,11 @@ function renderPrompt(availableIds: readonly MemoryId[], onInteract: (id: Memory
       legend="Memories in the room"
       labels={labels}
       statuses={statuses}
+      memoryIds={Object.keys(labels) as MemoryId[]}
       onInteract={onInteract}
+      doors={[]}
+      onDoor={() => {}}
+      {...extra}
     />,
   );
 }
@@ -107,5 +115,27 @@ describe("RoomInteractionPrompt", () => {
     fireEvent.click(screen.getByRole("button", { name: "Window" }));
 
     expect(interacted).toEqual([]);
+  });
+
+  it("lists only the memories it was handed (unreached rooms stay unnamed)", () => {
+    renderPrompt(["console"], () => {}, { memoryIds: ["console", "radio"] });
+
+    expect(screen.getAllByRole("button")).toHaveLength(2);
+    expect(screen.queryByRole("button", { name: "Ampoule" })).toBeNull();
+  });
+
+  it("gives each closed door a button that stays pressable even when it cannot open yet", () => {
+    // 방문은 못 여는 때에도 눌러야 안 여는 이유가 한 줄 흐른다. aria-disabled로 막지 않는다
+    const pressed: string[] = [];
+    renderPrompt(["console"], () => {}, {
+      memoryIds: [],
+      doors: [{ id: "room-living", label: "Door · can't open yet" }],
+      onDoor: (id) => pressed.push(id),
+    });
+
+    const door = screen.getByRole("button", { name: "Door · can't open yet" });
+    expect(door.getAttribute("aria-disabled")).toBeNull();
+    fireEvent.click(door);
+    expect(pressed).toEqual(["room-living"]);
   });
 });

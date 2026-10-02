@@ -16,10 +16,12 @@ import { useTranslation } from "react-i18next";
 import { LookButtons } from "@/components/ui/hud/LookButtons";
 import { MovementJoystick } from "@/components/ui/hud/MovementJoystick";
 import { RoomInteractionPrompt } from "@/components/ui/hud/RoomInteractionPrompt";
+import { listedDoorways, listedMemories } from "@/components/ui/hud/room-prompt-list";
 import { CanvasMinigameSkip } from "@/components/ui/minigame/MinigameHost";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
+import { pressDoor } from "@/lib/door-press";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
 import type { LookAngles } from "@/scenes/memory-room/camera/first-person";
 import { PLAYER_START } from "@/scenes/memory-room/player/Player";
@@ -31,12 +33,16 @@ import {
   releaseProgress,
 } from "@/scenes/memory-room/rooms/room/curtain-motion";
 import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/world/layout";
+import { reachableSpaces } from "@/scenes/memory-room/world/spaces";
 import { findNearestMemory } from "@/scenes/memory-room/world/spatial";
 import { useEffectsStore } from "@/store/effects";
 import {
+  doorwayReady,
   type HotspotStatus,
   hotspotStatus,
+  openDoorwayIds,
   selectActiveInteraction,
+  selectDoorReady,
   selectSceneInputLocked,
   selectViewpoint,
   useMemoryRoomStore,
@@ -198,6 +204,9 @@ export function RoomCanvas() {
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
   // 문제집을 보기 전에는 강도 1도 잠겨 있다 (onboardingStep). 스크린리더 이름도 그걸 따른다
   const discoveries = useMemoryRoomStore((state) => state.discoveries);
+  const openedDoorways = useMemoryRoomStore((state) => state.openedDoorways);
+  const inventory = useMemoryRoomStore((state) => state.inventory);
+  const roomDoorReady = useMemoryRoomStore(selectDoorReady);
   const beginInteraction = useMemoryRoomStore((state) => state.beginInteraction);
   const resetRevision = useMemoryRoomStore((state) => state.resetRevision);
   const curtainPull = curtainState?.revision === resetRevision ? curtainState.pull : CURTAIN_CLOSED;
@@ -321,6 +330,28 @@ export function RoomCanvas() {
       ) as Record<MemoryId, string>,
     [labels, statuses, t],
   );
+
+  /*
+   * 화면 밖 목록에 오르는 것: 지금 닿을 수 있는 공간의 기억과, 거기 붙은 닫힌 문
+   * (room-prompt-list.ts). 문의 이름에는 열 수 있는지까지 담는다 (기억의 이름과 같은 이유).
+   */
+  const { listedMemoryIds, listedDoors } = useMemo(() => {
+    const progress = { collected, revisited, doorOpened, openedDoorways, inventory };
+    const open = openDoorwayIds(progress);
+    const reached = reachableSpaces(open);
+    return {
+      listedMemoryIds: listedMemories(reached),
+      listedDoors: listedDoorways(reached, open).map((id) => {
+        const ready = id === "room-living" ? roomDoorReady : doorwayReady(progress, id);
+        return {
+          id,
+          label: t(`scene.doorState.${ready ? "ready" : "locked"}`, {
+            name: t(`scene.door.${id}`),
+          }),
+        };
+      }),
+    };
+  }, [collected, revisited, doorOpened, openedDoorways, inventory, roomDoorReady, t]);
 
   const clearDirectFocusTimer = useCallback(() => {
     if (directFocusTimer.current === null) return;
@@ -640,7 +671,10 @@ export function RoomCanvas() {
         legend={t("hud.scattered")}
         labels={memoryButtonLabels}
         statuses={statuses}
+        memoryIds={listedMemoryIds}
         onInteract={interact}
+        doors={listedDoors}
+        onDoor={pressDoor}
       />
       {pointerKind === "touch" && (
         <MovementJoystick

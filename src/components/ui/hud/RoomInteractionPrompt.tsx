@@ -1,4 +1,5 @@
-import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
+import type { MemoryId } from "@/data/memory-room";
+import type { DoorwayId } from "@/data/spaces";
 import type { HotspotStatus } from "@/store/memory-room";
 
 interface RoomInteractionPromptProps {
@@ -9,7 +10,12 @@ interface RoomInteractionPromptProps {
   /** 버튼에 읽힐 이름. 조사할 수 없는 물건은 이유까지 담긴 문구가 온다. */
   labels: Record<MemoryId, string>;
   statuses: Record<MemoryId, HotspotStatus>;
+  /** 목록에 올릴 기억: 지금 닿을 수 있는 공간의 것만 (room-prompt-list.ts). */
+  memoryIds: readonly MemoryId[];
   onInteract: (id: MemoryId) => void;
+  /** 닿을 수 있는 닫힌 문. 이름에는 열 수 있는지까지 담겨 온다. */
+  doors: readonly { id: DoorwayId; label: string }[];
+  onDoor: (id: DoorwayId) => void;
 }
 
 /**
@@ -18,6 +24,10 @@ interface RoomInteractionPromptProps {
  *
  * 조사할 수 없는 물건도 목록에서 지우지 않는다. 이름 뒤에 이유(잠김·조사 완료)를
  * 붙여 두는 편이, 물건이 소리 없이 사라져 "여긴 아무것도 없다"로 들리는 것보다 낫다.
+ * 다만 아직 못 가 본 공간의 물건은 올리지 않는다: 이름이 곧 스포일러다.
+ *
+ * 문도 여기 있다. 방문은 열어야 2막이 시작되는데 3D 문짝은 마우스로만 집힌다. 문은
+ * 아직 못 여는 때에도 눌린다 (aria-disabled가 아니다): 방문은 눌러야 안 여는 이유를 말한다.
  */
 export function RoomInteractionPrompt({
   nearbyMemoryId,
@@ -25,7 +35,10 @@ export function RoomInteractionPrompt({
   legend,
   labels,
   statuses,
+  memoryIds,
   onInteract,
+  doors,
+  onDoor,
 }: RoomInteractionPromptProps) {
   return (
     <>
@@ -58,7 +71,7 @@ export function RoomInteractionPrompt({
       <div className="sr-only">
         <fieldset>
           <legend>{legend}</legend>
-          {MEMORY_IDS.map((id) => {
+          {memoryIds.map((id) => {
             const available = statuses[id] === "available";
             return (
               <button
@@ -73,6 +86,11 @@ export function RoomInteractionPrompt({
               </button>
             );
           })}
+          {doors.map((door) => (
+            <button key={door.id} type="button" onClick={() => onDoor(door.id)}>
+              {door.label}
+            </button>
+          ))}
         </fieldset>
       </div>
     </>

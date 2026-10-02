@@ -1,6 +1,6 @@
 "use client";
 
-import { playSound } from "@/lib/audio";
+import { pressDoor } from "@/lib/door-press";
 import { selectDoorwayOpen, selectDoorwayReady, useMemoryRoomStore } from "@/store/memory-room";
 import { MemoryGlowSelection } from "../effects/MemoryOutlineGlow";
 import { useGlowHover } from "../effects/use-glow-hover";
@@ -32,7 +32,6 @@ export function SpaceDoor({ id, palette }: { id: DoorwayId; palette: RoomPalette
   const doorway = DOORWAYS[id];
   const open = useMemoryRoomStore(selectDoorwayOpen(id));
   const ready = useMemoryRoomStore(selectDoorwayReady(id));
-  const openDoorway = useMemoryRoomStore((state) => state.openDoorway);
   const { hovered, handlers } = useGlowHover(ready);
   const { leafRef, initialRotation } = useDoorSwing(open);
 
@@ -46,12 +45,7 @@ export function SpaceDoor({ id, palette }: { id: DoorwayId; palette: RoomPalette
       onClick={(event) => {
         if (open) return;
         event.stopPropagation();
-        if (!ready) {
-          playSound("deny");
-          return;
-        }
-        playSound("doorOpen");
-        openDoorway(id);
+        pressDoor(id);
       }}
     >
       <group

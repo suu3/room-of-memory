@@ -1,5 +1,5 @@
 import type {} from "@react-three/fiber";
-import { playSound } from "@/lib/audio";
+import { pressDoor } from "@/lib/door-press";
 import { selectDoorReady, useMemoryRoomStore } from "@/store/memory-room";
 import { MemoryGlowSelection } from "../../effects/MemoryOutlineGlow";
 import { MirrorClue } from "../../memory/RoomClues";
@@ -276,14 +276,12 @@ export function RoomShell({
    * 자기 사이에 서는 가림막이다.
    */
   const awayFromRoom = useMemoryRoomStore((state) => state.space !== "room");
-  const nudgeDoor = useMemoryRoomStore((state) => state.nudgeDoor);
   /*
    * 라디오 목소리를 잡으면 문이 켜진다. 그리고 여는 것은 플레이어다.
    * 30일 만에 처음 문을 여는 순간을 자동으로 넘겨 버리면, 2막이 시작되는 이유가
    * 도해의 결심이 아니라 진행도가 된다 (docs/story/content-design.md 2장).
    */
   const doorReady = useMemoryRoomStore(selectDoorReady);
-  const openRoomDoor = useMemoryRoomStore((state) => state.openRoomDoor);
   const { leafRef, initialRotation } = useDoorSwing(doorOpen);
 
   return (
@@ -356,13 +354,7 @@ export function RoomShell({
         onClick={(event) => {
           if (doorOpen) return;
           event.stopPropagation();
-          if (doorReady) {
-            playSound("doorOpen");
-            openRoomDoor();
-            return;
-          }
-          playSound("deny");
-          nudgeDoor();
+          pressDoor("room-living");
         }}
       >
         {/* 문짝만 경첩(왼쪽 문틀)을 축으로 젖혀진다. 문틀·손잡이는 제자리에 남는다. */}
