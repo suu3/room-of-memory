@@ -10,6 +10,7 @@
 | [content-design.md](story/content-design.md) | 게임플레이 설계의 단일 소스 (조사 · 미니게임 · 거실 추리 · 혼잣말) |
 | [implementation-status.md](story/implementation-status.md) | 설계서 v4를 코드에 옮긴 결과와 남은 일 (페이즈 전이 표 · 조사 차수 · 비어 있는 에셋) |
 | [replay-stills.md](story/replay-stills.md) | 다시보기 스틸: 아직 없는 그림과 채우는 법 |
+| [side-story-film.md](story/side-story-film.md) | 외전 영상 대본 (16강 은강고전 → 31일째의 라디오)과 목소리 연기 표 |
 
 ## direction: 연출과 시각 효과
 
