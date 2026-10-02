@@ -8,9 +8,10 @@ import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
 import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
-import { CLOTH_CURSOR } from "./cloth";
+import { CLOTH_CURSOR, CLOTH_DATA_URI } from "./cloth";
+import { type ClothDirection, type ClothPoint, clothStart, moveCloth } from "./cloth-move";
 import { PhotoFrame } from "./frame";
-import { createWipeGrid, wipeCircle } from "./wipe-grid";
+import { createWipeGrid, wipeCircle, wipedRatio } from "./wipe-grid";
 
 /**
  * 이만큼 닦아야 끝난다. 2026-09-26에 70%→50%로 낮췄다가, 절반도 안 닦은 느낌에서 끝나
@@ -29,6 +30,21 @@ const BURST_FALLBACK_MS = 2_900;
 const WIPE_RADIUS = 42;
 /** 격자 한 칸의 목표 크기(px). 사진 비율이 달라도 셀 밀도가 비슷하게 유지된다. */
 const CELL_PX = 16;
+/**
+ * 방향키 한 번에 헝겊이 가는 거리(캔버스 px). 반경의 2/3라 닦인 원들이 겹쳐 이어지고,
+ * 키를 누르고 있으면 한 줄이 쓸린다. 두 걸음 내려가 되돌아오면 줄 사이에 틈이 남지 않는다.
+ */
+const CLOTH_STEP = 28;
+
+const ARROW_DIRECTIONS: Record<string, ClothDirection> = {
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+};
+
+/** 포커스가 여기 있으면 Space·Enter는 그 컨트롤의 것이다 (스킵·닫기 버튼). */
+const KEY_OWNERS = "button, a, input, select, textarea";
 
 /**
  * 페이즈별 사진. 표시 크기는 원본 비율 그대로라 캔버스에 꽉 채워 그리면 왜곡이 없다.
@@ -61,6 +77,17 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
     createWipeGrid(Math.round(photo.width / CELL_PX), Math.round(photo.height / CELL_PX)),
   );
   const progressRef = useRef(0);
+  /**
+   * 키보드로 움직이는 헝겊의 자리. 키를 쓰기 전과 마우스·손가락으로 닦는 동안은 없다.
+   * 키를 누르고 있으면 다음 렌더보다 키 반복이 먼저 올 수 있어, 걸음은 ref에서 잇는다
+   * (progressRef와 같은 짝).
+   */
+  const keyClothRef = useRef<ClothPoint | null>(null);
+  const [keyCloth, setKeyCloth] = useState<ClothPoint | null>(null);
+  const placeKeyCloth = (point: ClothPoint | null) => {
+    keyClothRef.current = point;
+    setKeyCloth(point);
+  };
   const skipEligible = useSkipEligible(SKIP_AFTER_MS);
 
   // 프로스트 레이어: 같은 사진을 흐리게 깐 먼지 막. 닦기 전에도 형태만 희미하게 비친다
@@ -123,7 +150,8 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
     context.fill();
     context.globalCompositeOperation = "source-over";
 
-    const wiped = wipeCircle(gridRef.current, photo, x, y, WIPE_RADIUS);
+    gridRef.current = wipeCircle(gridRef.current, photo, x, y, WIPE_RADIUS);
+    const wiped = wipedRatio(gridRef.current);
     if (wiped - progressRef.current >= 0.01 || wiped >= CLEAR_RATIO) {
       // 문지를 때마다 울리면 시끄럽다. 5% 구간을 넘길 때만 한 번씩.
       // 스무 번 울리는 동안 음높이가 고정이면 마찰이 아니라 계측음으로 들린다.
@@ -147,17 +175,45 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
     return () => clearTimeout(fallback);
   }, [burstDone, complete, revealed]);
 
-  /**
-   * 손으로 문지르는 동작이라 마우스·터치 전용이다. 방향키로 헝겊을 옮기는 건
-   * "닦는다"는 감각과 맞지 않아서 뺐다. 키보드 사용자는 스킵 버튼으로 넘어간다.
-   */
   const pointerWipe = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (event.type === "pointermove" && (event.buttons & 1) === 0) return;
+    // 손이 닦는 동안은 커서가 곧 헝겊이다. 키보드 헝겊은 물러난다
+    placeKeyCloth(null);
     const rect = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * photo.width;
     const y = ((event.clientY - rect.top) / rect.height) * photo.height;
     wipeAtRef.current(x, y);
   };
+
+  /*
+   * 키보드로 닦는 길 (DESIGN.md: 모든 인터랙션은 키보드로도 가능해야 한다). 방향키는
+   * 헝겊을 한 걸음 옮기며 닿은 자리를 닦는다: 옮기기와 닦기를 따로 누르게 하면 80%까지
+   * 백 번 넘게 눌러야 해서, 문지르는 손처럼 지나간 자리가 닦이게 했다. Space·Enter는
+   * 헝겊을 그 자리에 한 번 누른다 (처음 놓인 한가운데, 더 못 가는 모서리).
+   * 다 닦인 뒤에는 키를 먹지 않는다. Space는 이제 대사를 넘기는 키다.
+   */
+  const keyRef = useRef<(event: KeyboardEvent) => void>(() => {});
+  keyRef.current = (event) => {
+    if (!ready || revealed) return;
+    // Alt+← 같은 브라우저 단축키는 건드리지 않는다
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    const direction = ARROW_DIRECTIONS[event.code];
+    const from = keyClothRef.current ?? clothStart(photo);
+    let next: ClothPoint;
+    if (direction) next = moveCloth(from, direction, photo, CLOTH_STEP);
+    else if (event.code === "Space" || event.code === "Enter") {
+      if (event.target instanceof Element && event.target.closest(KEY_OWNERS)) return;
+      next = from;
+    } else return;
+    event.preventDefault();
+    placeKeyCloth(next);
+    wipeAtRef.current(next.x, next.y);
+  };
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => keyRef.current(event);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // 성공 뒤: 패널 껍데기를 걷고 사진만 크게 남긴다. 결과 대사는 방의 대사창이 맡는다
   if (revealed) {
@@ -253,6 +309,24 @@ export function PhotoWipeMinigame({ onComplete, onSettled, gamePhase = 1 }: Mini
           className="absolute inset-0 size-full touch-none"
           style={{ cursor: CLOTH_CURSOR }}
         />
+        {/*
+          키보드 헝겊: 커서와 같은 그림, 같은 크기(48px). 자리는 캔버스 좌표의 비율이라
+          사진이 줄어든 화면에서도 닦이는 원의 중심에 선다. 금빛 테는 포커스 표시다
+          (DESIGN.md: memory 2px 아웃라인).
+        */}
+        {keyCloth && (
+          // biome-ignore lint/performance/noImgElement: 커서와 같은 데이터 URI 한 장이라 next/image가 필요 없다.
+          <img
+            src={CLOTH_DATA_URI}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute size-12 -translate-x-1/2 -translate-y-1/2 rounded-full outline-2 outline-offset-2 outline-memory"
+            style={{
+              left: `${(keyCloth.x / photo.width) * 100}%`,
+              top: `${(keyCloth.y / photo.height) * 100}%`,
+            }}
+          />
+        )}
       </PhotoFrame>
     </MinigameShell>
   );

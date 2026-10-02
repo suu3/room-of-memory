@@ -14,7 +14,8 @@ const CLOTH_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48
 </g>
 </svg>`;
 
-const CLOTH_DATA_URI = `data:image/svg+xml,${encodeURIComponent(CLOTH_SVG)}`;
+/** 키보드로 움직이는 헝겊도 같은 그림을 쓴다. */
+export const CLOTH_DATA_URI = `data:image/svg+xml,${encodeURIComponent(CLOTH_SVG)}`;
 
 /** 캔버스 위 커서. 핫스팟은 행주 한가운데: 닦이는 원의 중심과 맞춘다. */
 export const CLOTH_CURSOR = `url("${CLOTH_DATA_URI}") 24 24, crosshair`;
