@@ -197,7 +197,7 @@ export const MEMORIES: MemoryItem[] = [
         { id: "calendar", visit: 1 },
         { id: "window", visit: 1 },
       ],
-      replayStill: "/assets/images/cutscene-day-7.webp?v=2",
+      replayStill: "/assets/images/cutscene-day-8.webp",
     },
     phase2: {
       replayStill: "/assets/images/cutscene-survivor-1.webp?v=2",
@@ -655,41 +655,37 @@ export const CUTSCENES: Record<string, Cutscene> = {
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line2" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line3" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line4" },
         ],
       },
       {
-        image: "/assets/images/cutscene-day-3.webp?v=2",
+        image: "/assets/images/cutscene-day-3.webp?v=3",
         narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line2" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line3" },
         ],
       },
       {
-        image: "/assets/images/cutscene-day-4.webp?v=2",
+        image: "/assets/images/cutscene-day-4.webp?v=3",
+        holdMs: 1200,
+        lines: [],
+      },
+      {
+        image: "/assets/images/cutscene-day-5.webp?v=4",
         holdMs: 1500,
         lines: [],
       },
       {
-        image: "/assets/images/cutscene-day-5.webp?v=3",
-        narration: true,
-        lines: [
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut8.line1" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut8.line2" },
-        ],
-      },
-      {
-        image: "/assets/images/cutscene-day-6.webp?v=3",
+        image: "/assets/images/cutscene-day-6.webp?v=4",
         narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut9.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut9.line2" },
-          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut9.line3" },
         ],
       },
       {
-        image: "/assets/images/cutscene-day-7.webp?v=2",
+        image: "/assets/images/cutscene-day-7.webp?v=3",
         narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut10.line1" },
@@ -698,11 +694,20 @@ export const CUTSCENES: Record<string, Cutscene> = {
         ],
       },
       {
-        black: true,
+        image: "/assets/images/cutscene-day-8.webp",
         narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut11.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut11.line2" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut11.line3" },
+        ],
+      },
+      {
+        black: true,
+        narration: true,
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut12.line1" },
+          { speaker: "hero", textKey: "cutscenes.radio-blackout.cut12.line2" },
         ],
       },
     ],

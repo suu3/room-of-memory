@@ -7,14 +7,16 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-day-2.webp":
     "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAACwAQCdASoQAAkAAsBMJQBOgBm+gXaAAP70t5z9Y3V9CQ3ddHLp+m56LYwbHfenuNXusx1s4gDjNg2N/0S+vS85Tg3D+WxPqa6JGRRmg0h0M+ytLKTXvyAA",
   "/assets/images/cutscene-day-3.webp":
-    "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAwAgCdASoQAAkAAsBMJYgCdAYulvMTA3QMIAD+vH39zw7ld/EIA3Y58MJFuNv69H/xPcTG+SR3YL4hn7r/yroNa0HGGxGHsVRMM4omJVU7sFywAAA=",
+    "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAADwAQCdASoQAAkAAsBMJYgCdAD2B7YM7TAA/rxMAaC2+np4/m5HAXlBdIYK/P5zsM8+p0ix0X2u9jtSUfuJduv1crCxESq5+LsFTixdgQAAAA==",
   "/assets/images/cutscene-day-4.webp":
-    "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAQCdASoQAAkAAsBMJYgCdADdLDjtTAAA/s70z599K3amu63lqncBui/ynBRajfLwclpxmPVx8+/sL7/WGxGshhMR2qOwGEQN4Fy41Ux4qBJvEIAAAA==",
+    "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAAAwAgCdASoQAAkAAsBMJZACdAYrnWNkeawPAAD+Gd6JSSJmlhtojUrFLLjRaZ8M7IhWhqJd74HuZJO2YH399GzVPEYE8zdMxXNnhK1OW4Qaqxz5gVOVwAAAAAA=",
   "/assets/images/cutscene-day-5.webp":
-    "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADwAQCdASoQAAkAAsBMJQBOgB061WNbwPwA/vRxjkcr/pC+BI/7+xEK1zSkiswfPHnic6AdbJu21zuIV4RvsDzJbosfr4ZH77c8pXCNMs5EZXES2ThmNPHNKlRwAA==",
+    "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAQCdASoQAAkAAsBMJYgCdADdLDjtTAAA/s70z599K3amu63lqncBui/ynBRajfLwclpxmPVx8+/sL7/WGxGshhMR2qOwGEQN4Fy41Ux4qBJvEIAAAA==",
   "/assets/images/cutscene-day-6.webp":
-    "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAwAgCdASoQAAkAAsBMJYwC7AELz8weJGLhgAD++xgp5lhvcz4+lF3PBxYBih6a0PEH8TRgT9yS/T6gpJ7fndPYxlLYLNQS730bXkRksPg5dMCbAAA=",
+    "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADwAQCdASoQAAkAAsBMJQBOgB061WNbwPwA/vRxjkcr/pC+BI/7+xEK1zSkiswfPHnic6AdbJu21zuIV4RvsDzJbosfr4ZH77c8pXCNMs5EZXES2ThmNPHNKlRwAA==",
   "/assets/images/cutscene-day-7.webp":
+    "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAwAgCdASoQAAkAAsBMJYwC7AELz8weJGLhgAD++xgp5lhvcz4+lF3PBxYBih6a0PEH8TRgT9yS/T6gpJ7fndPYxlLYLNQS730bXkRksPg5dMCbAAA=",
+  "/assets/images/cutscene-day-8.webp":
     "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAwAgCdASoQAAkAAsBMJbACdAYtpt9UohzuIAD+9u3qxxWRrhMgLn0eWjseBzV6gdj2xVw4oy/JKT+QDbAQd8nt5O9n4FJejCOx5PxUgOSLaC+SS24bSuh9rdmUgPqLhuwQCAAA",
   "/assets/images/cutscene-survivor-1.webp":
     "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAQCdASoQAAkAAsBMJZQCdADJyjqbywAA/upSsZCImpxc5uAkZxTF+3LfBOBtFloNGs75TkwDyfJhk9bN0ERNpJfTMf+HGexk/h5sQWefm0hko9DK+AAA",
@@ -80,11 +82,12 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
 export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-day-1.webp": "9f3ea9a570130637",
   "/assets/images/cutscene-day-2.webp": "792c5ad8798eb092",
-  "/assets/images/cutscene-day-3.webp": "f4f4d183c8afa5c0",
-  "/assets/images/cutscene-day-4.webp": "4fa42bbdd6cbd456",
-  "/assets/images/cutscene-day-5.webp": "072c54cdd0ee8378",
-  "/assets/images/cutscene-day-6.webp": "335b38a5faeee1f0",
-  "/assets/images/cutscene-day-7.webp": "1dcb5617c25624e4",
+  "/assets/images/cutscene-day-3.webp": "27e375660c037eeb",
+  "/assets/images/cutscene-day-4.webp": "2f618406c12d2574",
+  "/assets/images/cutscene-day-5.webp": "4fa42bbdd6cbd456",
+  "/assets/images/cutscene-day-6.webp": "072c54cdd0ee8378",
+  "/assets/images/cutscene-day-7.webp": "335b38a5faeee1f0",
+  "/assets/images/cutscene-day-8.webp": "1dcb5617c25624e4",
   "/assets/images/cutscene-survivor-1.webp": "91fbae0c4d137930",
   "/assets/images/cutscene-survivor-10.webp": "e67043da3bee8d54",
   "/assets/images/cutscene-survivor-2.webp": "e63ac6502eba03ff",

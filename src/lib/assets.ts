@@ -91,14 +91,15 @@ export const ASSETS = {
     gapYearLogo: "/assets/images/ui-gapyear-logo.webp",
     /** 라온생명과학연구소 공통 심볼. 출입증·앰플·컴퓨터 화면에서 같은 도형을 쓴다. */
     raonLogo: "/assets/images/ui-raon-logo.svg?v=2",
-    /** 라디오 반전에서 번지는 '그날' 7연작 (분기점 과거편, content/cutscenes.yaml의 radio-blackout). */
+    /** 라디오 반전에서 번지는 '그날' 8연작 (분기점 과거편, content/cutscenes.yaml의 radio-blackout). */
     cutsceneDay1: "/assets/images/cutscene-day-1.webp?v=4",
     cutsceneDay2: "/assets/images/cutscene-day-2.webp?v=3",
-    cutsceneDay3: "/assets/images/cutscene-day-3.webp?v=2",
-    cutsceneDay4: "/assets/images/cutscene-day-4.webp?v=2",
-    cutsceneDay5: "/assets/images/cutscene-day-5.webp?v=3",
-    cutsceneDay6: "/assets/images/cutscene-day-6.webp?v=3",
-    cutsceneDay7: "/assets/images/cutscene-day-7.webp?v=2",
+    cutsceneDay3: "/assets/images/cutscene-day-3.webp?v=3",
+    cutsceneDay4: "/assets/images/cutscene-day-4.webp?v=3",
+    cutsceneDay5: "/assets/images/cutscene-day-5.webp?v=4",
+    cutsceneDay6: "/assets/images/cutscene-day-6.webp?v=4",
+    cutsceneDay7: "/assets/images/cutscene-day-7.webp?v=3",
+    cutsceneDay8: "/assets/images/cutscene-day-8.webp",
     /** 생존자 방송 웹툰 10칸 (3페이지, content/cutscenes.yaml의 survivor-broadcast). */
     cutsceneSurvivor1: "/assets/images/cutscene-survivor-1.webp?v=2",
     cutsceneSurvivor2: "/assets/images/cutscene-survivor-2.webp?v=2",

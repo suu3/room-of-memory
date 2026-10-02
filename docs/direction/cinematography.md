@@ -73,7 +73,7 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 | 컵라면 물때 | 조사할수록 용기의 얼룩이 자란다 | `1 - level` | `StudentProps.tsx` |
 | 멈춘 탁상시계 | 10월 19일 16:20에 서 있다 | | `RoomFurniture.tsx` |
 | 회상 컷씬 | 게임기 · 공 조사 뒤 짧은 그림 컷 | 재생 공통 연출(10장) | `content/cutscenes.yaml` |
-| 1막 끝 과거편 | 정적 노이즈 1.1초 → 라디오 끊김 소리 → 암전 0.9초 → 7컷 → 검정 화면 컷(`black`, 대사창만) | 1바퀴 완주에 스토어가 연다 | `ui/playback/PlaybackScene.tsx` |
+| 1막 끝 과거편 | 정적 노이즈 1.1초 → 라디오 끊김 소리 → 암전 0.9초 → 8컷 → 검정 화면 컷(`black`, 대사창만) | 1바퀴 완주에 스토어가 연다 | `ui/playback/PlaybackScene.tsx` |
 | 곡이 삼켜진다 | 컷오프 180Hz로 가라앉으며 멎는다. 문이 열릴 때까지 **turning 전체가 무음** | | `audio/music.ts` `stopMusic` |
 
 ## 4. turning: 라디오 각성 → 생존자 방송 → 방문

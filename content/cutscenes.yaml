@@ -203,14 +203,14 @@ cutscenes:
           ko: …사이렌 소리가 멀리서 났다.
           en: …Sirens wailed in the distance.
           ja: …遠くでサイレンが鳴っていた。
-    # 3컷: 엘리베이터 문틈의 감염자
-    - image: /assets/images/cutscene-day-3.webp?v=2
-      narration: true
-      lines:
         - speaker: hero
           ko: 집 앞까지는 평소랑 똑같았다.
           en: All the way to my door, everything was the same as always.
           ja: 家の前までは、いつもと同じだった。
+    # 3컷: 복도 끝에 서 있는 감염자
+    - image: /assets/images/cutscene-day-3.webp?v=3
+      narration: true
+      lines:
         - speaker: hero
           ko: 복도에 누가 서 있었다.
           en: Someone was standing in the hallway.
@@ -219,12 +219,16 @@ cutscenes:
           ko: 이상한 느낌이 들었다.
           en: Something felt off.
           ja: 妙な感じがした。
-    # 4컷: 놀란 얼굴. 말 없이 정적
-    - image: /assets/images/cutscene-day-4.webp?v=2
+    # 4컷: 손을 뻗으며 덮쳐 오는 감염자. 말 없이 정적
+    - image: /assets/images/cutscene-day-4.webp?v=3
+      holdMs: 1200
+      lines: []
+    # 5컷: 놀란 얼굴. 말 없이 정적
+    - image: /assets/images/cutscene-day-5.webp?v=4
       holdMs: 1500
       lines: []
-    # 5컷: 복도를 달림
-    - image: /assets/images/cutscene-day-5.webp?v=3
+    # 6컷: 복도를 달림
+    - image: /assets/images/cutscene-day-6.webp?v=4
       narration: true
       lines:
         - speaker: hero
@@ -235,8 +239,8 @@ cutscenes:
           ko: 뒤에서 나는 소리는 사람 소리가 아니었다.
           en: The sounds behind me weren't human.
           ja: 後ろから聞こえる音は、人の声じゃなかった。
-    # 6컷: 현관에 주저앉음
-    - image: /assets/images/cutscene-day-6.webp?v=3
+    # 7컷: 현관에 주저앉음
+    - image: /assets/images/cutscene-day-7.webp?v=3
       narration: true
       lines:
         - speaker: hero
@@ -251,8 +255,8 @@ cutscenes:
           ko: 급박했던 상황이 거짓이었던 듯 정적이 내려앉았다.
           en: Silence settled in, as if none of the panic had been real.
           ja: さっきまでの騒ぎが嘘のように、静けさが降りてきた。
-    # 7컷: TV 불빛에 무표정
-    - image: /assets/images/cutscene-day-7.webp?v=2
+    # 8컷: TV 불빛에 무표정
+    - image: /assets/images/cutscene-day-8.webp
       narration: true
       lines:
         - speaker: hero
@@ -267,7 +271,7 @@ cutscenes:
           ko: 사방에서 들려오는 비명소리에 귀를 막았다.
           en: Screams came from every direction. I covered my ears.
           ja: 四方から聞こえてくる悲鳴に、耳をふさいだ。
-    # 8컷: 검정 화면. 그날에서 지금으로 건너오는 두 줄
+    # 9컷: 검정 화면. 그날에서 지금으로 건너오는 두 줄
     - black: true
       narration: true
       lines:

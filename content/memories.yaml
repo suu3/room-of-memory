@@ -266,7 +266,7 @@ memories:
       script: radio-intro
       minigame: frequency-tune
       unlockAfter: [report-card, console, ball, frame, phone, calendar, window]
-      replayStill: /assets/images/cutscene-day-7.webp?v=2
+      replayStill: /assets/images/cutscene-day-8.webp
     # 2차 (분기점): 빨갛게 깜빡이는 라디오를 누르면 곧장 생존자 방송(3페이지 웹툰)이 흐른다.
     # 튜닝을 두 번 시키지 않는다. 끝나면 방에서 도해의 한마디, 방문에 금빛이 돈다.
     # 수첩 제목은 이 차수부터 "은강고"다 (phase2Title). 1차만 본 동안은 "그날의 방송".

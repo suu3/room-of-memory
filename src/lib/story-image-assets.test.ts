@@ -10,6 +10,7 @@ const WEBP_ASSETS = {
   "cutscene-day-5.webp": [1456, 816],
   "cutscene-day-6.webp": [1456, 816],
   "cutscene-day-7.webp": [1456, 816],
+  "cutscene-day-8.webp": [1456, 816],
   "cutscene-survivor-1.webp": [1456, 816],
   "cutscene-survivor-2.webp": [928, 1232],
   "cutscene-survivor-3.webp": [928, 1232],
