@@ -3,6 +3,8 @@
 개발 설계서 v4(2026-09-25)를 코드에 옮긴 결과와 남은 일. 설계서의 장 번호를 그대로 쓴다.
 대본·흐름의 단일 소스는 여전히 `content/*.yaml`이다 (`.claude/rules/visual-novel.md`).
 
+2026-10-02에 코드·콘텐츠와 대조해 고쳤다: 3차 조사 목록, 4페이즈 필수 조사, 들어온 에셋, 번역 현황.
+
 ## 1. 진행 상태 모델
 
 페이즈는 **저장하지 않고 진행에서 파생된다** (`src/data/story-phase.ts`의 `storyPhaseOf`).
@@ -17,7 +19,7 @@
 | turning → p2 | `doorOpened` (라디오 2차 = 생존자 방송 뒤에만 열린다) |
 | p2 → p3 | `from: p2`이고 곁가지가 아닌 조사 전부 |
 | p3 → p4 | 안방 문(`living-parents`)이 열림 |
-| p4 → resolve | `from: p4` 필수 조사 전부 (서류 셋 + 액자 2차) |
+| p4 → resolve | `from: p4` 필수 조사 전부 (연구 일지 · 출입증 · 액자 2차) |
 | resolve → ending | `endingStarted` (가방·앰플·배트를 다 챙긴 뒤 현관문. `angle-turn` 잠금은 뺐다) |
 
 설계서 1-3의 플래그는 전부 파생값이다 (`src/store/memory-room.ts`):
@@ -30,7 +32,8 @@
 | `stillBeatDone` | `selectStillBeatDone` | resolve 도달 |
 | `deadline` | `selectDeadline` | p2 이후 = 4. 방송부터 현관까지 하루 안의 일이라 줄지 않는다 |
 
-조사 차수는 셋까지다: `collected`(1차) · `revisited`(2차) · `rechecked`(3차, 컴퓨터 하나).
+조사 차수는 셋까지다: `collected`(1차) · `revisited`(2차) · `rechecked`(3차). 3차가 있는 기억은
+셋이다: 컴퓨터(p3, 라온 로고 고르기), 가방과 앰플(resolve, 떠나기 전에 챙기기).
 저장 버전은 3으로 올렸다. 옛 저장본은 모르는 id만 버리고 그대로 이어진다.
 
 ## 2~3. 공간 · 페이즈별 흐름
@@ -41,13 +44,15 @@
 | turning | 빨간 라디오 → 생존자 방송 컷씬 → 방문 금빛 | 라디오 `phase2.cutscene` |
 | p2 | 가방·냉장고 위칸·신발장·카드·컴퓨터(로그인 0812) → 폰 2차(엄마 대화방) | `from: p2` |
 | p3 | 앰플 → 세면대 마개를 뽑아 물 빼기(`sinkDrained`) → 바닥의 출입증 배지(단서 `raon-badge`: 확대 화면 + 한 줄) → 컴퓨터 3차(라온 로고 고르기 · 아빠 메일 힌트) → 거꾸로 꽂힌 책 → 하부장 다이얼 407 → 안방 열쇠 | `from: p3`, `VISIT_AFTER_DISCOVERY`, 퍼즐 `sink-dial` |
-| p4 | 연구 일지·출입증·소집 공지 → p4-close → 액자 2차 → 정적 비트 | `from: p4`, 액자 `phase2.cutscene` |
+| p4 | 연구 일지(서류 순서 맞추기. 소집 공지는 그 조각 하나다) · 출입증 → p4-close → 액자 2차 → 정적 비트 | `from: p4`, 액자 `phase2.cutscene` |
 | resolve | 챙길 것 셋이 동시에 금빛(순서 자유): 가방 3차(`duffel-take`) · 앰플 3차(`ampoule-pickup`) · 배트(`bat-grip`) → 셋 다 챙기면 혼잣말 "나가자." → 현관문 | `from: resolve`, `packedForExit` |
 
 - 1페이즈의 닫힌 방문과 꺼진 컴퓨터, 화장실 칫솔컵, 힌트 전의 하부장은 누르면 혼잣말
   한 줄이 흐른다 (`RemarkLine`, 스토어의 `remark`).
 - 게임기·공의 2차는 곁가지(`side: true`)로 남겼다. 피아노도 곁가지이고 풀면 한 줄이 흐른다.
 - `farewell` 컷씬, `radio-voice`, 폰 1019 잠금(`phone-lock` 미니게임째)은 삭제했다.
+- 거실은 부엌과 현관 홈까지 한 공간(`living`)이다 (2026-10-01 확장). 왜 그 배치인지는
+  `docs/models/living-room.md`.
 
 ## 4. 연출 · 사운드
 
@@ -73,22 +78,21 @@
 
 ## 6. 에셋: 아직 비어 있는 것
 
-그림이 없으면 컷씬은 신호 그림(회색 판 대신), 웹툰 칸은 빈 칸 + 의성어로 서 있다.
-파일을 이 경로에 넣으면 코드는 건드릴 것이 없다.
+들어온 것: 분기점 과거편 7컷(`cutscene-day-{1..7}.webp`), 생존자 방송 웹툰 10칸
+(`cutscene-survivor-{1..10}.webp`), 앰플 라벨과 출입증 앞뒤 그림, 엔딩 영상(`ending-film.mp4`).
+아래는 아직 코드로 그리거나 임시로 서 있는 것이다. 다시보기 스틸의 빈칸은 `replay-stills.md`.
 
-| 에셋 | 경로 | 비고 |
+| 에셋 | 지금 | 비고 |
 | --- | --- | --- |
-| 분기점 과거편 7컷 | `public/assets/images/cutscene-day-{1..7}.webp` | 엄마 문자 미리보기 → 조용한 단지 → 엘리베이터의 감염자 → 얼어붙은 얼굴 → 복도를 달림 → 잠근 현관 → 뉴스 |
-| 생존자 방송 웹툰 10칸 (3페이지) | `public/assets/images/cutscene-survivor-{1..10}.webp` | 16:9(1·4·7·8)과 3:4 두 칸 줄. 방송 대사는 칸 안의 라디오 말풍선 (WebtoonViewer) |
 | 세면대 하부장 · 칫솔컵 | 지금은 코드 프리미티브 (`BathroomShell`) | 모델이 오면 교체 |
 | 안방 서류 · 출입증 | 지금은 코드 프리미티브 (`MemoryObjects`) | 다시보기 스틸(2D)을 붙이려면 `replayStill` |
 | 라온 로고 | 지금은 SVG (`computer-logo`의 `Logo`) | 정식 로고가 오면 교체. 앰플 라벨에도 같은 로고 |
 | 달력 "vs 은강고" | 달력 메모 한 줄로 들어갔다 | 텍스처로 그리려면 교체 |
-| 엔딩 영상 | 자리 유지 | 아래 7장 |
 
 ## 7. 엔딩 구성 명세 (영상)
 
-30초 안팎. 대사 없음. 얼굴은 끝까지 보이지 않는다.
+30초 안팎. 대사 없음. 얼굴은 끝까지 보이지 않는다. 영상 파일은 들어와 있다
+(`public/assets/video/ending-film.mp4`, `ASSETS`의 `endingFilm`).
 
 1. 현관문을 열고 복도로 나간다.
 2. 배트로 좀비를 헤치며 싸운다.
@@ -98,9 +102,10 @@
 
 ## 8. 번역
 
-설계서 7-1대로 새로 쓰거나 고친 대사는 ko만 있다. en/ja 빈칸은 막지 않고 "번역 TODO"로
-센다 (`pnpm content:build`가 개수를 알린다. 지금 156자리). 게임에는 그 자리에 ko 문장이
-나간다. UI 문구(`common.json`)는 locale 동등성 테스트가 있어 세 언어를 다 채웠다.
+설계서 7-1대로 대사는 ko를 먼저 쓰고 en/ja를 뒤따라 채운다. en/ja 빈칸은 막지 않고
+"번역 TODO"로 세며 (`pnpm content:build`가 개수를 알린다), 게임에는 그 자리에 ko 문장이
+나간다. 지금은 빈칸이 없다 (0자리). UI 문구(`common.json`)는 locale 동등성 테스트가 있어
+세 언어를 다 채웠다.
 
 ## 9. 판단한 것 (설계서 9장)
 

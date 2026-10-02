@@ -24,7 +24,7 @@
 |---|---|
 | [model-export.md](models/model-export.md) | 블렌더에서 glb를 내보내는 규약 (`pnpm model:prep`) |
 | [student-room-props.md](models/student-room-props.md) | 방의 생활 소품 glb 넷을 만드는 스크립트 |
-| [kitchen-expansion-review.md](models/kitchen-expansion-review.md) | 거실–부엌 확장 검토와 지금 배치 |
+| [living-room.md](models/living-room.md) | 거실·부엌·현관 배치의 이유 (배치를 고치기 전에 읽는다) |
 
 ## readme
 

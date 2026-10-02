@@ -52,7 +52,7 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 - `src/scenes/`: 챕터별 3D 씬. 시나리오의 `scene` 키로 등록. `memory-room/`은 기능별 폴더로 나뉜다 (`world` 좌표·얼개 · `player` · `camera` · `rooms/<공간>` 껍데기·가구 · `memory` 기억 물건 · `effects` 후처리·분위기 · `shared` 공용 부품)
 - `src/minigames/`: 미니게임. `src/types/minigame.ts` 계약을 만족, `index.ts` 레지스트리에 등록
 - `src/data/generated/`: **생성물. 직접 고치지 말 것** (`content/`에서 나온다)
-- `src/data/spaces.ts`: 집의 얼개 (공간·문간 id, 기억이 놓인 공간). 좌표는 씬에 있다
+- `src/data/spaces.ts`: 집의 얼개 (공간·문간 id, 기억이 놓인 공간). 좌표는 씬에 있다. 거실·부엌·현관 배치를 고치기 전에 `docs/models/living-room.md`(왜 그 자리인가)를 읽는다
 - `src/data/memory-room.ts`: 대본이 아닌 데이터 (조사 목록 등) + 생성물 재수출
 - `src/store/`: zustand 스토어
 - `public/assets/`: 모든 에셋 (models/textures/audio/images/fonts). S3 등 외부 스토리지 없음, 전부 리포에 커밋
