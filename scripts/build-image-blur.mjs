@@ -31,6 +31,8 @@ export const BLUR_TARGETS = [
   /^mg-photo-wipe-phase-\d+\.webp$/,
   /^mg-window-view-outside\.webp$/,
   /^mg-ball-catch-sunset-field\.webp$/,
+  // 3D 조사 화면을 찍어 둔 다시보기 스틸
+  /^still-.*\.webp$/,
   /^ui-ending-thanks\.webp$/,
 ];
 

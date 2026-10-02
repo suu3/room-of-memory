@@ -1605,11 +1605,12 @@ describe("다시보기의 사진 밀림", () => {
     expect(buildMemoryReplay("frame", 1)?.cuts[0].morphFrom).toBeUndefined();
   });
 
-  it("한쪽 바퀴에만 그림이 있는 기억은 그냥 선다: 갈 곳 없는 밀림을 만들지 않는다", () => {
-    // 사인볼은 1막에만 그림이 있다. 2막에는 밀려 들어올 그림이 없다
+  it("두 바퀴가 같은 그림을 쓰는 기억은 그냥 선다: 제자리 밀림을 만들지 않는다", () => {
+    // 사인볼은 1막과 2막이 같은 한 장이다. 같은 그림끼리는 밀 것이 없다
     const cut = buildMemoryReplay("ball", 2)?.cuts[0];
     expect(MEMORY_BY_ID.ball.phase1?.replayStill).toBeDefined();
-    expect(MEMORY_BY_ID.ball.phase2?.replayStill).toBeUndefined();
+    expect(MEMORY_BY_ID.ball.phase2?.replayStill).toBe(MEMORY_BY_ID.ball.phase1?.replayStill);
+    expect(cut?.image).toBe(MEMORY_BY_ID.ball.phase2?.replayStill);
     expect(cut?.morphFrom).toBeUndefined();
     expect(cut?.morphWithin).toBeUndefined();
   });

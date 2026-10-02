@@ -64,7 +64,10 @@ export const MEMORIES: MemoryItem[] = [
   {
     id: "report-card",
     icon: ExamIcon,
-    phase1: { interaction: { scriptId: "report-card-intro" } },
+    phase1: {
+      interaction: { scriptId: "report-card-intro" },
+      replayStill: "/assets/images/still-report-card.webp",
+    },
   },
   {
     id: "console",
@@ -76,9 +79,15 @@ export const MEMORIES: MemoryItem[] = [
         resultScriptId: "console-alone",
       },
       unlockAfter: [{ id: "report-card", visit: 1 }],
+      replayStill: "/assets/images/mg-cutscene-console-flashback.webp?v=2",
       cutscene: "console-flashback",
     },
-    phase2: { interaction: { scriptId: "console-echo" }, from: "p2", side: true },
+    phase2: {
+      interaction: { scriptId: "console-echo" },
+      replayStill: "/assets/images/mg-cutscene-console-flashback.webp?v=2",
+      from: "p2",
+      side: true,
+    },
   },
   {
     id: "ball",
@@ -93,7 +102,12 @@ export const MEMORIES: MemoryItem[] = [
       replayStill: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
       cutscene: "ball-flashback",
     },
-    phase2: { interaction: { scriptId: "ball-echo" }, from: "p2", side: true },
+    phase2: {
+      interaction: { scriptId: "ball-echo" },
+      replayStill: "/assets/images/mg-ball-catch-sunset-field.webp?v=2",
+      from: "p2",
+      side: true,
+    },
   },
   {
     id: "frame",
@@ -130,6 +144,7 @@ export const MEMORIES: MemoryItem[] = [
         { id: "console", visit: 1 },
         { id: "ball", visit: 1 },
       ],
+      replayStill: "/assets/images/still-phone.webp",
     },
     phase2: {
       interaction: {
@@ -139,6 +154,7 @@ export const MEMORIES: MemoryItem[] = [
         resultMusic: "title",
       },
       unlockAfter: [{ id: "computer", visit: 2 }],
+      replayStill: "/assets/images/still-phone.webp",
       from: "p2",
     },
   },
@@ -152,6 +168,7 @@ export const MEMORIES: MemoryItem[] = [
         resultScriptId: "calendar-tally",
       },
       unlockAfter: [{ id: "phone", visit: 1 }],
+      replayStill: "/assets/images/mg-calendar-flip-10.webp",
     },
   },
   {
@@ -180,24 +197,45 @@ export const MEMORIES: MemoryItem[] = [
         { id: "calendar", visit: 1 },
         { id: "window", visit: 1 },
       ],
+      replayStill: "/assets/images/cutscene-day-7.webp?v=2",
     },
-    phase2: { from: "turning", cutscene: "survivor-broadcast" },
+    phase2: {
+      replayStill: "/assets/images/cutscene-survivor-1.webp?v=2",
+      from: "turning",
+      cutscene: "survivor-broadcast",
+    },
   },
   {
     id: "duffel",
     icon: BagIcon,
-    phase2: { interaction: { scriptId: "duffel-pack" }, from: "p2" },
-    phase3: { interaction: { scriptId: "duffel-take" }, from: "resolve" },
+    phase2: {
+      interaction: { scriptId: "duffel-pack" },
+      replayStill: "/assets/images/still-duffel.webp",
+      from: "p2",
+    },
+    phase3: {
+      interaction: { scriptId: "duffel-take" },
+      replayStill: "/assets/images/still-duffel.webp",
+      from: "resolve",
+    },
   },
   {
     id: "fridge",
     icon: PackageIcon,
-    phase2: { interaction: { scriptId: "fridge-open" }, from: "p2" },
+    phase2: {
+      interaction: { scriptId: "fridge-open" },
+      replayStill: "/assets/images/still-fridge.webp",
+      from: "p2",
+    },
   },
   {
     id: "shoes",
     icon: SneakerIcon,
-    phase2: { interaction: { scriptId: "shoes-open" }, from: "p2" },
+    phase2: {
+      interaction: { scriptId: "shoes-open" },
+      replayStill: "/assets/images/still-shoes.webp",
+      from: "p2",
+    },
   },
   {
     id: "cards",
@@ -220,6 +258,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "computer-browse",
         resultScriptId: "computer-archive",
       },
+      replayStill: "/assets/images/still-computer.webp",
       from: "p2",
     },
     phase3: {
@@ -229,6 +268,7 @@ export const MEMORIES: MemoryItem[] = [
         resultScriptId: "computer-logo-found",
       },
       unlockAfter: [{ id: "ampoule", visit: 2 }],
+      replayStill: "/assets/images/still-computer.webp",
       from: "p3",
     },
   },
@@ -249,6 +289,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "ampoule-pickup",
         resultScriptId: "ampoule-taken",
       },
+      replayStill: "/assets/images/still-ampoule.webp",
       from: "resolve",
     },
   },

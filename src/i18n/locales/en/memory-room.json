@@ -280,7 +280,7 @@
   "lore": {
     "report-card": {
       "title": "September Mock Exam",
-      "phase1": "My scores weren't good. Mom brought up getting a tutor, and Dad said studying isn't the answer to everything."
+      "phase1": "Bad scores. Mom said tutor. Dad said it was fine."
     },
     "console": {
       "title": "Not fun anymore",
@@ -289,18 +289,18 @@
     },
     "ball": {
       "title": "Catch, Alone",
-      "phase1": "Nationals quarterfinal, against Eungang High. It ended when their catcher caught the pop-up from my last at-bat. Throw it at the wall and it comes back. Yunho always used to catch it, and I keep forgetting there's no one here to catch it now.",
-      "phase2": "If someone out there can catch it, this ball still has a use."
+      "phase1": "Throw it at the wall and it comes back. Yunho isn't here to catch it.",
+      "phase2": "If someone can catch it, this ball still has a use."
     },
     "frame": {
       "title": "My Parents",
-      "phase1": "The glass was dusty, so I wiped it for a long time. Even clean, their two faces are the only ones I can't take in.",
-      "phase2": "I tried hard to picture my parents, whom I haven't seen in so long. Then I pulled myself together, stood the frame back up, and left."
+      "phase1": "Wiped clean, and still I can't see their two faces.",
+      "phase2": "I pictured my parents' faces and stood the frame back up."
     },
     "phone": {
       "title": "The Silence",
       "phase1": "The group chat has been quiet since that day.",
-      "phase2": "At 7:12 that morning, Mom had texted me to come straight home when I was done. That was her last text."
+      "phase2": "7:12 a.m. Mom's last text: come straight home."
     },
     "calendar": {
       "title": "October 19",
@@ -308,48 +308,48 @@
     },
     "window": {
       "title": "Outside",
-      "phase1": "I opened the curtain. Broken glass, a crushed car, stains that won't wash off. The view was so quiet and so strange that I closed the window again."
+      "phase1": "Broken glass, a crushed car. I closed the window again."
     },
     "radio": {
       "title": "That Broadcast",
       "phase1": "I'm afraid to face what's really out there.",
-      "phase2": "They said there are survivors at the Eungang High gym. Four nights, huh... …I've heard that voice somewhere.",
+      "phase2": "Survivors at the Eungang High gym. I've heard that voice somewhere.",
       "phase2Title": "Eungang High"
     },
     "duffel": {
       "title": "What to Take",
-      "phase2": "I emptied the bag and packed it again. Water, canned food, a flashlight. I almost left the glove behind, then put it back in.",
-      "phase3": "I shouldered the bag I had packed. Water, canned food, a flashlight. And the glove."
+      "phase2": "I repacked the bag. Almost left the glove, then put it back in.",
+      "phase3": "I shouldered the packed bag. The glove is in it."
     },
     "fridge": {
       "title": "What They Stocked",
-      "phase2": "The fridge and the cupboards are still half full of food. Why did our ordinary home have enough to last a month?"
+      "phase2": "Why did our home have a month's worth of food?"
     },
     "shoes": {
       "title": "The Boots They Left",
-      "phase2": "The hiking boots are still in the shoe cabinet. They said it'd be a light trip, but they took two suitcases."
+      "phase2": "The hiking boots are still here, but they took two suitcases."
     },
     "cards": {
       "title": "The Note on the Table",
-      "phase2": "\"Bottom drawer. RX ||\" Mom's folded note on the table. It doesn't say what she counted two of."
+      "phase2": "\"Bottom drawer. RX ||\" Mom's note on the table."
     },
     "computer": {
       "title": "What Was Saved",
-      "phase2": "Dad's emails and the news. It all started near a research facility, and the first report came out at 3 p.m. that day.",
-      "phase3": "The Raon logo from the badge was in an attachment to Dad's email. The email itself was one line of nagging about tidying the shelf."
+      "phase2": "It started near a research facility. First report: 3 p.m.",
+      "phase3": "Dad's email: the Raon logo, and one line. \"Tidy up the shelves.\""
     },
     "ampoule": {
       "title": "An Unmarked Ampoule",
-      "phase2": "One ampoule in the cold case, the slot next to it empty. Half of a faded logo is left on the label.",
-      "phase3": "I took the ampoule. The one Mom and Dad left behind. The thing that might be a cure."
+      "phase2": "One ampoule in the case, the next slot empty. A faded logo on the label.",
+      "phase3": "I took the ampoule. The one that might be a cure."
     },
     "research-note": {
       "title": "Research Log",
-      "phase2": "Mom's notes, laid out by date. They were both researchers at Raon, and the ampoule was a candidate cure. The trip was a summons to the institute."
+      "phase2": "Both were Raon researchers. The ampoule: a candidate cure. The trip: a summons."
     },
     "id-card": {
       "title": "Access Badges",
-      "phase2": "Raon Life Science Institute access badges. Dad's name, Mom's name. The hologram over the photo suddenly brought back the logo left on the ampoule label."
+      "phase2": "Raon access badges. The hologram bears the logo from the ampoule label."
     }
   },
   "cutscenes": {

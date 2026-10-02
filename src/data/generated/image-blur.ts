@@ -58,6 +58,20 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
     "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAABQAgCdASoQAA0AAsBMJZQCdAYv/v1oVXMyaUAA/vCvTP7Up0QZFSzRPmmGpDkfOpemUKxyvlBtnbMxwgqE5J9bwBoU+zt2ju0UB61YF6Iiv9WFtqFCy5Iq5uqm8mh7dd3JK1g6vdKjQAAA",
   "/assets/images/mg-window-view-outside.webp":
     "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAQCdASoQAAwAAsBMJYwCdAEN3TNJwAAA/cefZT24KgmisaWhLKnDtTbHJb7cJ5tiPITjBBihr5ts1vDc3BG9D11NpOo3BWdp/ud9nHQvNiLn/aTlAAAA",
+  "/assets/images/still-ampoule.webp":
+    "data:image/webp;base64,UklGRjwAAABXRUJQVlA4IDAAAADwAQCdASoQAAwAAsBMJZwAAqH0x0F+pgAA/uv76+p9wdmR1UAtQ6PUphmPChxYEAA=",
+  "/assets/images/still-computer.webp":
+    "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQAgCdASoQAAwAAsBMJQBOgB8oCv9F6rx4AP7c+weYEJpwJzOjJao7kH0R9CFyG8DnjuIt0bmoOZesF+6qfrx+8ShjxTleWWTsotH0esbAAA==",
+  "/assets/images/still-duffel.webp":
+    "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACQAQCdASoQAAwAAsBMJZwAAVQeQAAA/vDfE75Xns2P7K7yxSaGdLo0Yl/OkfHGog4GY6XEoe4n7EONMRXJ/sQQQ3M+pl8AAAA=",
+  "/assets/images/still-fridge.webp":
+    "data:image/webp;base64,UklGRjIAAABXRUJQVlA4ICYAAADQAQCdASoQAAwAAsBMJaQAAudVnl2eAAD+6MVGJ+xJbsrUEbAAAA==",
+  "/assets/images/still-phone.webp":
+    "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAADwAQCdASoQAAwAAsBMJZACdAEKz3x+EAAA/qvZU8z63l5U4a8KvnMTpEG4DLppfG2Dwwc0AAA=",
+  "/assets/images/still-report-card.webp":
+    "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQAgCdASoQAAwAAsBMJYwCdADxLn+yG6AAAP7vYylw1jzbw/JEdqz7SILnbWoJ+G/nK5GBR8/Ni5thIblNo894G9qwzAVuEOYog84AAAA=",
+  "/assets/images/still-shoes.webp":
+    "data:image/webp;base64,UklGRjwAAABXRUJQVlA4IDAAAACQAQCdASoQAAwAAsBMJZwAAp1BVwAA/u9TLIV/fy9Az9cOmPd99m8byRJCz6lgQAA=",
   "/assets/images/ui-ending-thanks.webp":
     "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAADwAQCdASoMABAAAsBMJaQAD5MvsleeYbAA/vqs+W0WGP3EKyBk0RPxHPHDB1Y8cQJub/AXFvIC+1D1L43aEQoeiDkP34K1Y1QjZPjRq1wAAA==",
 };
@@ -92,5 +106,12 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/mg-photo-wipe-phase-1.webp": "a5acd491e3187079",
   "/assets/images/mg-photo-wipe-phase-2.webp": "75f444cc26a7337a",
   "/assets/images/mg-window-view-outside.webp": "bda481270abe7e5e",
+  "/assets/images/still-ampoule.webp": "e2cc1c53bf533d1b",
+  "/assets/images/still-computer.webp": "e2df1d675e7e9446",
+  "/assets/images/still-duffel.webp": "b6d4ff5448e91bbf",
+  "/assets/images/still-fridge.webp": "84bd4db1513559ab",
+  "/assets/images/still-phone.webp": "3470352ece4151b5",
+  "/assets/images/still-report-card.webp": "ecc45e7ad3ebd770",
+  "/assets/images/still-shoes.webp": "4b91396506966f62",
   "/assets/images/ui-ending-thanks.webp": "65314fe34dd80fc7",
 };
