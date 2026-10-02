@@ -155,4 +155,44 @@ describe("FrequencyTuneMinigame", () => {
 
     expect(stats(container)).toEqual([`0 / ${GOAL_HITS}`, `1 / ${MAX_MISSES}`]);
   });
+
+  it("stops counting once the round is cleared", () => {
+    const results: MinigameResult[] = [];
+    const { container } = render(
+      <FrequencyTuneMinigame onComplete={(result) => results.push(result)} />,
+    );
+
+    let timestamp = needlePeriodAt(0) * IN_BAND_PHASE;
+    for (let hits = 0; hits < GOAL_HITS; hits++) {
+      runFrameAt(timestamp);
+      press();
+      timestamp += needlePeriodAt(hits + 1);
+    }
+    // 성공 연출이 도는 동안 판은 아직 "play" 단계다. 그 사이의 Space는 세지 않는다.
+    press();
+    runFrameAt(0);
+    press();
+
+    expect(stats(container)).toEqual([`${GOAL_HITS} / ${GOAL_HITS}`, `0 / ${MAX_MISSES}`]);
+    expect(results).toEqual([{ cleared: true, score: GOAL_HITS }]);
+  });
+
+  it("takes a click without a pointer (keyboard activation, assistive tech) as one attempt", () => {
+    const { container } = render(<FrequencyTuneMinigame onComplete={() => {}} />);
+    const dial = container.querySelector("button[aria-label]");
+    if (!dial) throw new Error("Expected the dial button");
+
+    runFrameAt(0);
+    act(() => {
+      fireEvent.click(dial, { detail: 0 });
+    });
+    expect(stats(container)[1]).toBe(`1 / ${MAX_MISSES}`);
+
+    // 진짜 포인터는 pointerdown에서 이미 셌다. 뒤따르는 click(detail 1)은 또 세지 않는다.
+    act(() => {
+      fireEvent.pointerDown(dial);
+      fireEvent.click(dial, { detail: 1 });
+    });
+    expect(stats(container)[1]).toBe(`2 / ${MAX_MISSES}`);
+  });
 });

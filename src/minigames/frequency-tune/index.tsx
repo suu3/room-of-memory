@@ -188,8 +188,14 @@ export function FrequencyTuneMinigame({
     return () => clearInterval(timer);
   }, [locked]);
 
+  /**
+   * 판이 끝났다 (클리어·실패·스킵). 결과를 보고한 뒤에도 성공 연출이 도는 동안은 단계가
+   * 아직 "play"라 입력이 살아 있다. 그 사이의 Space가 "성공 4 / 3"을 만들었다.
+   */
+  const endedRef = useRef(false);
   const attemptRef = useRef(() => {});
   attemptRef.current = () => {
+    if (endedRef.current) return;
     const position = positionRef.current;
     const hit = position >= bandLeft && position <= bandLeft + bandWidth;
     setFlash(hit ? "hit" : "miss");
@@ -200,6 +206,7 @@ export function FrequencyTuneMinigame({
       if (next >= goalHits) {
         // 마지막 판은 대역을 다시 뽑지 않는다. 멈춘 화면에서 바늘과 대역이 어긋난다.
         lockedAtRef.current = { position, bandLeft, bandWidth };
+        endedRef.current = true;
         complete({ cleared: true, score: next });
         return;
       }
@@ -209,7 +216,10 @@ export function FrequencyTuneMinigame({
     }
     const next = misses + 1;
     setMisses(next);
-    if (next >= MAX_MISSES) complete({ cleared: false, score: hits });
+    if (next >= MAX_MISSES) {
+      endedRef.current = true;
+      complete({ cleared: false, score: hits });
+    }
   };
 
   // 멈춘 화면에서는 Space를 먹지 않는다. 그 키는 이제 대사를 넘기는 키다.
@@ -406,6 +416,7 @@ export function FrequencyTuneMinigame({
       onSkip={() => {
         // 스킵도 "맞춘 것"으로 친다. 멈춘 화면의 바늘은 대역 한가운데 세운다.
         lockedAtRef.current = { position: bandLeft + bandWidth / 2, bandLeft, bandWidth };
+        endedRef.current = true;
         complete({ cleared: true, score: hits });
       }}
     >
@@ -413,9 +424,24 @@ export function FrequencyTuneMinigame({
        * 폭은 화면 높이에서도 잘라준다. 오버레이는 스크롤되지 않아서(MinigameHost),
        * 세로가 짧으면 라디오 아래가 잘린다.
        */}
+      {/*
+       * 손가락·마우스는 pointerdown에서 센다 (click은 손을 뗄 때라 박자가 늦다). click은
+       * 포인터 없이 온 것만 받는다 (detail 0): 포커스한 채 누른 Enter, 스크린리더의 활성화.
+       * Space는 창 전역 핸들러가 keydown에서 이미 셌으므로, 포커스가 여기 있을 때 keyup이
+       * 만드는 click을 막는다. 안 막으면 한 번 눌러 두 번 센다.
+       */}
       <button
         type="button"
         onPointerDown={() => attemptRef.current()}
+        onClick={(event) => {
+          if (event.detail === 0) attemptRef.current();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && event.repeat) event.preventDefault();
+        }}
+        onKeyUp={(event) => {
+          if (event.code === "Space") event.preventDefault();
+        }}
         aria-label={hint("minigame.frequencyTune.help")}
         className="relative mx-auto block w-[min(100%,calc(44svh*1.361))] cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-memory"
       >
