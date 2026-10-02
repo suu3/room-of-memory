@@ -15,6 +15,7 @@ import {
   PANEL_FRAME,
 } from "../shared/ui-classes";
 import { ExitFade } from "./ExitFade";
+import { usePrimaryKey } from "./primary-key";
 import { SuccessBurst } from "./SuccessBurst";
 
 /** 결과를 읽기 전에 "계속"이 눌리지 않게 버튼을 늦게 세운다 (MinigameHost의 RESULT_HOLD_MS). */
@@ -40,6 +41,7 @@ function PuzzleResultCard({ line, onContinue }: { line: string; onContinue: () =
   useEffect(() => {
     if (settled) buttonRef.current?.focus();
   }, [settled]);
+  usePrimaryKey(buttonRef, settled);
 
   return (
     <ExitFade

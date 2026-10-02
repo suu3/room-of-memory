@@ -21,6 +21,7 @@ import {
   PANEL_FRAME,
 } from "../shared/ui-classes";
 import { ExitFade } from "./ExitFade";
+import { usePrimaryKey } from "./primary-key";
 import { SuccessBurst } from "./SuccessBurst";
 
 /**
@@ -84,6 +85,7 @@ function MinigameResultCard({
   useEffect(() => {
     if (settled) primaryRef.current?.focus();
   }, [settled]);
+  usePrimaryKey(primaryRef, settled);
 
   return (
     <ExitFade

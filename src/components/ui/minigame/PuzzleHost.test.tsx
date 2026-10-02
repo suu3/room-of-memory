@@ -43,6 +43,28 @@ it("피아노를 풀면 결과 카드가 서고, 계속을 눌러야 문제가 �
   expect(state.solvedPuzzles).toContain("piano-melody");
 });
 
+it("결과 카드의 계속은 Space로도 눌리고, 아래 판의 Space 리스너까지는 가지 않는다", () => {
+  act(() => useMemoryRoomStore.getState().openPuzzle("piano-melody"));
+  render(<PuzzleHost />);
+  act(() => useMemoryRoomStore.getState().settlePuzzle());
+  // Space를 조작 키로 쓰는 판: 창 전역에서 기본 동작을 막는다
+  const game = vi.fn((event: KeyboardEvent) => event.preventDefault());
+  window.addEventListener("keydown", game);
+
+  // 버튼이 서기 전에는 듣지 않는다 (결과를 읽기 전에 눌리는 걸 막는 창)
+  fireEvent.keyDown(document.body, { code: "Space", key: " " });
+  expect(useMemoryRoomStore.getState().activePuzzle).toBe("piano-melody");
+
+  act(() => vi.advanceTimersByTime(700));
+  game.mockClear();
+  fireEvent.keyDown(document.body, { code: "Space", key: " " });
+  window.removeEventListener("keydown", game);
+
+  expect(game).not.toHaveBeenCalled();
+  expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
+  expect(useMemoryRoomStore.getState().solvedPuzzles).toContain("piano-melody");
+});
+
 it("악보 조각 없이 피아노를 열면 빈 마디의 혼잣말이 바닥에 먼저 서고, 건반을 눌러도 같은 줄이다", () => {
   act(() => useMemoryRoomStore.getState().openPuzzle("piano-melody"));
   render(
