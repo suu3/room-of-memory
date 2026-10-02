@@ -15,13 +15,16 @@ import {
 import { useTranslation } from "react-i18next";
 import { LookButtons } from "@/components/ui/hud/LookButtons";
 import { MovementJoystick } from "@/components/ui/hud/MovementJoystick";
-import { RoomInteractionPrompt } from "@/components/ui/hud/RoomInteractionPrompt";
+import {
+  RoomInteractionPrompt,
+  type RoomPromptAction,
+} from "@/components/ui/hud/RoomInteractionPrompt";
 import { listedDoorways, listedMemories } from "@/components/ui/hud/room-prompt-list";
 import { CanvasMinigameSkip } from "@/components/ui/minigame/MinigameHost";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
-import { pressDoor } from "@/lib/door-press";
+import { pressDoor, pressLightSwitch } from "@/lib/room-press";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
 import type { LookAngles } from "@/scenes/memory-room/camera/first-person";
 import { PLAYER_START } from "@/scenes/memory-room/player/Player";
@@ -33,7 +36,7 @@ import {
   releaseProgress,
 } from "@/scenes/memory-room/rooms/room/curtain-motion";
 import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/world/layout";
-import { reachableSpaces } from "@/scenes/memory-room/world/spaces";
+import { reachableSpaces, SPACES } from "@/scenes/memory-room/world/spaces";
 import { findNearestMemory } from "@/scenes/memory-room/world/spatial";
 import { useEffectsStore } from "@/store/effects";
 import {
@@ -335,23 +338,57 @@ export function RoomCanvas() {
    * 화면 밖 목록에 오르는 것: 지금 닿을 수 있는 공간의 기억과, 거기 붙은 닫힌 문
    * (room-prompt-list.ts). 문의 이름에는 열 수 있는지까지 담는다 (기억의 이름과 같은 이유).
    */
-  const { listedMemoryIds, listedDoors } = useMemo(() => {
+  const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
+  const atDoorway = useMemoryRoomStore(selectViewpoint) === "doorway";
+  const { listedMemoryIds, promptActions } = useMemo(() => {
     const progress = { collected, revisited, doorOpened, openedDoorways, inventory };
     const open = openDoorwayIds(progress);
     const reached = reachableSpaces(open);
+    const doors = listedDoorways(reached, open).map((id): RoomPromptAction => {
+      const ready = id === "room-living" ? roomDoorReady : doorwayReady(progress, id);
+      return {
+        id: `door-${id}`,
+        label: t(`scene.doorState.${ready ? "ready" : "locked"}`, { name: t(`scene.door.${id}`) }),
+        onPress: () => pressDoor(id),
+      };
+    });
+    // 전등 스위치: 인트로에서는 이걸 켜는 것이 유일한 할 일이다
+    const light: RoomPromptAction = {
+      id: "light-switch",
+      label: t(lightsOn ? "scene.light.off" : "scene.light.on"),
+      onPress: pressLightSwitch,
+    };
+    // 방문이 열린 뒤의 1인칭: 걸어서 문턱을 넘어야 거실에 선다. 걷지 못하는 사람은
+    // 수첩의 평면도가 옮겨 주는 자리(landing)로 바로 선다. 평면도는 이 구간에 잠겨 있다
+    const stepOut: RoomPromptAction[] = atDoorway
+      ? [
+          {
+            id: "step-out",
+            label: t("scene.stepOut"),
+            onPress: () => {
+              const state = useMemoryRoomStore.getState();
+              if (viewpointOf(state) !== "doorway" || selectSceneInputLocked(state)) return;
+              playSound("open");
+              state.warpPlayer(SPACES.living.landing.x, SPACES.living.landing.z);
+            },
+          },
+        ]
+      : [];
     return {
       listedMemoryIds: listedMemories(reached),
-      listedDoors: listedDoorways(reached, open).map((id) => {
-        const ready = id === "room-living" ? roomDoorReady : doorwayReady(progress, id);
-        return {
-          id,
-          label: t(`scene.doorState.${ready ? "ready" : "locked"}`, {
-            name: t(`scene.door.${id}`),
-          }),
-        };
-      }),
+      promptActions: [...stepOut, light, ...doors],
     };
-  }, [collected, revisited, doorOpened, openedDoorways, inventory, roomDoorReady, t]);
+  }, [
+    collected,
+    revisited,
+    doorOpened,
+    openedDoorways,
+    inventory,
+    roomDoorReady,
+    lightsOn,
+    atDoorway,
+    t,
+  ]);
 
   const clearDirectFocusTimer = useCallback(() => {
     if (directFocusTimer.current === null) return;
@@ -673,8 +710,7 @@ export function RoomCanvas() {
         statuses={statuses}
         memoryIds={listedMemoryIds}
         onInteract={interact}
-        doors={listedDoors}
-        onDoor={pressDoor}
+        actions={promptActions}
       />
       {pointerKind === "touch" && (
         <MovementJoystick

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { pressDoor } from "./door-press";
+import { pressDoor, pressLightSwitch } from "./room-press";
 
 vi.mock("@/lib/audio", () => ({ playSound: vi.fn() }));
 
@@ -32,5 +32,24 @@ describe("문 누르기", () => {
     pressDoor("living-bathroom");
     pressDoor("living-parents");
     expect(useMemoryRoomStore.getState().openedDoorways).toEqual(["living-bathroom"]);
+  });
+});
+
+describe("전등 스위치 누르기", () => {
+  beforeEach(() => {
+    useMemoryRoomStore.getState().reset();
+    useMemoryRoomStore.getState().startGame();
+  });
+
+  afterEach(() => {
+    useMemoryRoomStore.getState().reset();
+  });
+
+  it("불 꺼진 인트로에서 누르면 불이 켜지고 인트로가 끝난다", () => {
+    expect(useMemoryRoomStore.getState().lightsOn).toBe(false);
+    pressLightSwitch();
+    const state = useMemoryRoomStore.getState();
+    expect(state.lightsOn).toBe(true);
+    expect(state.introDone).toBe(true);
   });
 });

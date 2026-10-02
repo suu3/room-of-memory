@@ -100,6 +100,11 @@
       "living-bathroom": "バスルームのドア",
       "living-parents": "両親の部屋のドア"
     },
+    "light": {
+      "on": "明かりをつける",
+      "off": "明かりを消す"
+    },
+    "stepOut": "開いたドアから出る",
     "doorState": {
       "ready": "{{name}}を開ける",
       "locked": "{{name}} · まだ開けられない"

@@ -1,5 +1,5 @@
 import type {} from "@react-three/fiber";
-import { pressDoor } from "@/lib/door-press";
+import { pressDoor } from "@/lib/room-press";
 import { selectDoorReady, useMemoryRoomStore } from "@/store/memory-room";
 import { MemoryGlowSelection } from "../../effects/MemoryOutlineGlow";
 import { MirrorClue } from "../../memory/RoomClues";

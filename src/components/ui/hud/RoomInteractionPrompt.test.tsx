@@ -47,8 +47,7 @@ function renderPrompt(
       statuses={statuses}
       memoryIds={Object.keys(labels) as MemoryId[]}
       onInteract={onInteract}
-      doors={[]}
-      onDoor={() => {}}
+      actions={[]}
       {...extra}
     />,
   );
@@ -124,13 +123,18 @@ describe("RoomInteractionPrompt", () => {
     expect(screen.queryByRole("button", { name: "Ampoule" })).toBeNull();
   });
 
-  it("gives each closed door a button that stays pressable even when it cannot open yet", () => {
+  it("gives each action a button that stays pressable even when the door cannot open yet", () => {
     // 방문은 못 여는 때에도 눌러야 안 여는 이유가 한 줄 흐른다. aria-disabled로 막지 않는다
     const pressed: string[] = [];
     renderPrompt(["console"], () => {}, {
       memoryIds: [],
-      doors: [{ id: "room-living", label: "Door · can't open yet" }],
-      onDoor: (id) => pressed.push(id),
+      actions: [
+        {
+          id: "door-room-living",
+          label: "Door · can't open yet",
+          onPress: () => pressed.push("room-living"),
+        },
+      ],
     });
 
     const door = screen.getByRole("button", { name: "Door · can't open yet" });

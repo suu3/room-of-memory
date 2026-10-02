@@ -7,7 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { InspectCapture } from "@/components/canvas/InspectTurntable";
 import { shelfBookObject } from "@/components/canvas/inspect-objects";
-import { CLUE_DISCOVERY, CLUE_IDS, type ClueId, SINK_DIAL_CODE } from "@/data/room-clues";
+import { CLUE_DISCOVERY, type ClueId, SINK_DIAL_CODE } from "@/data/room-clues";
+import { reachableSpaces } from "@/data/spaces";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import {
@@ -18,10 +19,11 @@ import {
 } from "@/minigames/calendar-flip/calendar";
 import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
 import { CalendarPageImage, useCalendarPage } from "@/minigames/calendar-flip/PageImage";
-import { useMemoryRoomStore } from "@/store/memory-room";
+import { openDoorwayIds, useMemoryRoomStore } from "@/store/memory-room";
 import { useStillStore, WORKBOOK_STILL_KEY } from "@/store/stills";
 import { BUTTON_QUIET, PANEL_PAPER } from "../shared/ui-classes";
 import { CharacterModelViewer } from "./CharacterModelViewer";
+import { listedClues } from "./clue-list";
 import { InspectView } from "./InspectView";
 import { WorkbookClue } from "./WorkbookClue";
 
@@ -49,17 +51,24 @@ const CLUE_TEXT = {
  *
  * 아직 열리면 안 되는 단서(조사 전의 달력)는 스토어가 막는다. 목록에는 늘 있고,
  * 눌러도 아무 일이 없다. 목록에서 지웠다 나타나면 "여긴 아무것도 없다"로 읽힌다.
+ * 다만 아직 못 가 본 공간의 단서는 올리지 않는다: 이름이 곧 스포일러다 (clue-list.ts).
  */
 function ClueKeyboardList() {
   const { t } = useTranslation();
   const openClue = useMemoryRoomStore((state) => state.openClue);
+  const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
+  const openedDoorways = useMemoryRoomStore((state) => state.openedDoorways);
+  const clues = useMemo(
+    () => listedClues(reachableSpaces(openDoorwayIds({ doorOpened, openedDoorways }))),
+    [doorOpened, openedDoorways],
+  );
 
   // sr-only를 감싼 div에 거는 것도 RoomInteractionPrompt와 같은 이유다: fieldset은
   // 1px로 눌러지지 않아서, 자르는 일은 바깥 div가 해야 한다
   return (
     <div className="sr-only">
       <fieldset>
-        {CLUE_IDS.map((id) => (
+        {clues.map((id) => (
           <button key={id} type="button" onClick={() => openClue(id)}>
             {t("clue.read", { name: t(CLUE_TEXT[id].title) })}
           </button>

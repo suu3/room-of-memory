@@ -1,5 +1,4 @@
 import type { MemoryId } from "@/data/memory-room";
-import type { DoorwayId } from "@/data/spaces";
 import type { HotspotStatus } from "@/store/memory-room";
 
 interface RoomInteractionPromptProps {
@@ -13,9 +12,17 @@ interface RoomInteractionPromptProps {
   /** 목록에 올릴 기억: 지금 닿을 수 있는 공간의 것만 (room-prompt-list.ts). */
   memoryIds: readonly MemoryId[];
   onInteract: (id: MemoryId) => void;
-  /** 닿을 수 있는 닫힌 문. 이름에는 열 수 있는지까지 담겨 온다. */
-  doors: readonly { id: DoorwayId; label: string }[];
-  onDoor: (id: DoorwayId) => void;
+  /**
+   * 기억이 아닌 조작: 닿을 수 있는 닫힌 문, 전등 스위치, 열린 문으로 나가기. 이름에는
+   * 지금 되는지까지 담겨 온다. 무엇이 오를지는 부르는 쪽(RoomCanvas)이 정한다.
+   */
+  actions: readonly RoomPromptAction[];
+}
+
+export interface RoomPromptAction {
+  id: string;
+  label: string;
+  onPress: () => void;
 }
 
 /**
@@ -26,8 +33,10 @@ interface RoomInteractionPromptProps {
  * 붙여 두는 편이, 물건이 소리 없이 사라져 "여긴 아무것도 없다"로 들리는 것보다 낫다.
  * 다만 아직 못 가 본 공간의 물건은 올리지 않는다: 이름이 곧 스포일러다.
  *
- * 문도 여기 있다. 방문은 열어야 2막이 시작되는데 3D 문짝은 마우스로만 집힌다. 문은
- * 아직 못 여는 때에도 눌린다 (aria-disabled가 아니다): 방문은 눌러야 안 여는 이유를 말한다.
+ * 기억이 아닌 조작도 여기 있다 (actions). 문·전등 스위치·문 넘기는 3D 물건을 마우스로
+ * 집거나 걸어서만 닿는데, 셋 다 해야 다음으로 넘어가는 일이다: 스위치를 켜야 인트로가
+ * 끝나고, 방문을 열어야 2막이 시작되고, 문을 넘어야 거실에 선다. 문은 아직 못 여는
+ * 때에도 눌린다 (aria-disabled가 아니다): 방문은 눌러야 안 여는 이유를 말한다.
  */
 export function RoomInteractionPrompt({
   nearbyMemoryId,
@@ -37,8 +46,7 @@ export function RoomInteractionPrompt({
   statuses,
   memoryIds,
   onInteract,
-  doors,
-  onDoor,
+  actions,
 }: RoomInteractionPromptProps) {
   return (
     <>
@@ -86,9 +94,9 @@ export function RoomInteractionPrompt({
               </button>
             );
           })}
-          {doors.map((door) => (
-            <button key={door.id} type="button" onClick={() => onDoor(door.id)}>
-              {door.label}
+          {actions.map((action) => (
+            <button key={action.id} type="button" onClick={action.onPress}>
+              {action.label}
             </button>
           ))}
         </fieldset>

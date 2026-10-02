@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import type { Group, MeshStandardMaterial, PointLight } from "three";
 import { MathUtils } from "three";
-import { playSound } from "@/lib/audio";
+import { pressLightSwitch } from "@/lib/room-press";
 import { selectViewpoint, useMemoryRoomStore } from "@/store/memory-room";
 import { MemoryGlowSelection } from "../../effects/MemoryOutlineGlow";
 import { useGlowHover } from "../../effects/use-glow-hover";
@@ -41,7 +41,6 @@ const PILOT_LIGHT = { intensity: 0.45, distance: 2.6, decay: 2 } as const;
  */
 export function LightSwitch({ palette }: { palette: RoomPalette }) {
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
-  const toggleLights = useMemoryRoomStore((state) => state.toggleLights);
   const intro = useMemoryRoomStore(selectViewpoint) === "intro";
   const { hovered, handlers } = useGlowHover(true);
   // 표식을 달기엔 곁가지 물건이라, 다가간 사람에게만 빛으로 알린다.
@@ -93,9 +92,7 @@ export function LightSwitch({ palette }: { palette: RoomPalette }) {
       {...handlers}
       onClick={(event) => {
         event.stopPropagation();
-        // 딸깍은 조작음이라 방 밝기와 무관하게 늘 같은 크기로 울린다
-        playSound("lightSwitch");
-        toggleLights();
+        pressLightSwitch();
       }}
     >
       {/*

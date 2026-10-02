@@ -1,6 +1,6 @@
 "use client";
 
-import { pressDoor } from "@/lib/door-press";
+import { pressDoor } from "@/lib/room-press";
 import { selectDoorwayOpen, selectDoorwayReady, useMemoryRoomStore } from "@/store/memory-room";
 import { MemoryGlowSelection } from "../effects/MemoryOutlineGlow";
 import { useGlowHover } from "../effects/use-glow-hover";

@@ -100,6 +100,11 @@
       "living-bathroom": "Bathroom door",
       "living-parents": "Door to my parents' room"
     },
+    "light": {
+      "on": "Turn on the light",
+      "off": "Turn off the light"
+    },
+    "stepOut": "Step out through the open door",
     "doorState": {
       "ready": "{{name}} · open",
       "locked": "{{name}} · can't open yet"

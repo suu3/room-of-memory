@@ -21,6 +21,31 @@ export const DOORWAY_BETWEEN = {
   "living-parents": ["living", "parents"],
 } as const satisfies Record<DoorwayId, readonly [SpaceId, SpaceId]>;
 
+/**
+ * 방에서 열린 문간을 따라 닿을 수 있는 공간들. 방은 늘 든다.
+ * 문이 열렸다고 그 너머 공간이 곧장 열리는 게 아니라, 거기까지 문이 이어져야 한다.
+ */
+export function reachableSpaces(openDoorways: readonly DoorwayId[]): SpaceId[] {
+  const reached: SpaceId[] = ["room"];
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const id of openDoorways) {
+      const [from, to] = DOORWAY_BETWEEN[id];
+      const hasFrom = reached.includes(from);
+      const hasTo = reached.includes(to);
+      if (hasFrom && !hasTo) {
+        reached.push(to);
+        grew = true;
+      } else if (hasTo && !hasFrom) {
+        reached.push(from);
+        grew = true;
+      }
+    }
+  }
+  return reached;
+}
+
 /** 기억이 놓인 공간. */
 export const MEMORY_SPACE = {
   "report-card": "room",

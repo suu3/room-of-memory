@@ -100,6 +100,11 @@
       "living-bathroom": "화장실 문",
       "living-parents": "안방 문"
     },
+    "light": {
+      "on": "전등 켜기",
+      "off": "전등 끄기"
+    },
+    "stepOut": "열린 문으로 나가기",
     "doorState": {
       "ready": "{{name}} 열기",
       "locked": "{{name}} · 아직 열 수 없음"

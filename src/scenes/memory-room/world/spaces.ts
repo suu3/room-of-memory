@@ -2,6 +2,7 @@ import {
   DOORWAY_BETWEEN,
   DOORWAY_IDS,
   type DoorwayId,
+  reachableSpaces,
   SPACE_IDS,
   type SpaceId,
 } from "@/data/spaces";
@@ -47,7 +48,8 @@ import type { Aabb2, EulerTuple, Vec3Tuple } from "./types";
 
 // 공간·문간의 id와 얼개는 data/spaces.ts가 원본이다 (스토어·데이터가 씬을 안 보게). 여기는
 // 그 위에 좌표를 얹는다. 씬 쪽 코드는 예전처럼 이 파일에서 가져가도록 다시 내보낸다
-export { DOORWAY_IDS, type DoorwayId, SPACE_IDS, type SpaceId };
+// reachableSpaces는 좌표가 필요 없는 얼개라 data/spaces.ts에 있다. 씬 쪽 이름은 그대로 둔다
+export { DOORWAY_IDS, type DoorwayId, reachableSpaces, SPACE_IDS, type SpaceId };
 
 export interface SpaceDef {
   id: SpaceId;
@@ -194,31 +196,6 @@ export function spaceAt(x: number, z: number, current: SpaceId): SpaceId {
     if (shellsOf(id).some((shell) => contains(shell, x, z))) return id;
   }
   return current;
-}
-
-/**
- * 방에서 열린 문간을 따라 닿을 수 있는 공간들. 방은 늘 든다.
- * 문이 열렸다고 그 너머 공간이 곧장 열리는 게 아니라, 거기까지 문이 이어져야 한다.
- */
-export function reachableSpaces(openDoorways: readonly DoorwayId[]): SpaceId[] {
-  const reached: SpaceId[] = ["room"];
-  let grew = true;
-  while (grew) {
-    grew = false;
-    for (const id of openDoorways) {
-      const [from, to] = DOORWAYS[id].between;
-      const hasFrom = reached.includes(from);
-      const hasTo = reached.includes(to);
-      if (hasFrom && !hasTo) {
-        reached.push(to);
-        grew = true;
-      } else if (hasTo && !hasFrom) {
-        reached.push(from);
-        grew = true;
-      }
-    }
-  }
-  return reached;
 }
 
 /**
