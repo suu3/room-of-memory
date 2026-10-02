@@ -4,8 +4,11 @@ import { type PointerEvent as ReactPointerEvent, useCallback, useMemo, useRef } 
 
 /** 화면 가로폭 대비 회전량: 창 하나를 가로지르면 한 바퀴 조금 넘게 돈다. */
 const DRAG_TO_RADIANS = 0.011;
-/** 버튼 한 번에 도는 각. 15°씩이면 마우스 없이도 뒤통수까지 열두 번이면 닿는다. */
-export const TURN_STEP = Math.PI / 12;
+/**
+ * 버튼 한 번에 도는 각. 30°씩이면 마우스 없이도 뒤쪽까지 여섯 번이면 닿는다. 15°였을 때는
+ * 문제집 뒤표지(±37° 안에 들어와야 읽힌다)까지 열 번을 눌러야 했다 (2026-10-02 QA).
+ */
+export const TURN_STEP = Math.PI / 6;
 
 /**
  * 끌어서 돌려보는 물건(수첩의 캐릭터 모델, 집어 든 문제집)의 손잡이.

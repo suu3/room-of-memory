@@ -27,8 +27,8 @@
       "exit": "Leave through the front door",
       "lights": "It's dark. Find the light switch on the wall and turn it on",
       "doorway": "Step out through the open door",
-      "workbook": "Click the glowing workbook on the desk and turn it around",
-      "workbook_touch": "Tap the glowing workbook on the desk and turn it around",
+      "workbook": "Click the glowing workbook on the desk and turn it over",
+      "workbook_touch": "Tap the glowing workbook on the desk and turn it over",
       "notebook": "Open the notebook on the right edge",
       "next": {
         "memory": "{{space}}: examine the {{name}}",
@@ -94,6 +94,15 @@
     "memoryState": {
       "locked": "{{name}} · not ready to examine",
       "done": "{{name}} · already examined"
+    },
+    "door": {
+      "room-living": "Door of my room",
+      "living-bathroom": "Bathroom door",
+      "living-parents": "Door to my parents' room"
+    },
+    "doorState": {
+      "ready": "{{name}} · open",
+      "locked": "{{name}} · can't open yet"
     }
   },
   "reset": {
@@ -612,7 +621,7 @@
     "workbook": {
       "title": "Workbook on the Desk",
       "alt": "3D workbook: drag to turn it",
-      "hint": "Drag to turn, scroll or use the buttons to zoom",
+      "hint": "Drag or use the buttons to turn it over. Scroll or use the buttons to zoom",
       "tagLabel": "Name",
       "tagGrade": "12th grade",
       "zoomIn": "Zoom in",

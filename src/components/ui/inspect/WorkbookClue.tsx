@@ -25,6 +25,7 @@ export function WorkbookClue({
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
   const discover = useMemoryRoomStore((state) => state.discover);
+  const found = useMemoryRoomStore((state) => state.discoveries.includes(CLUE_DISCOVERY.workbook));
   const name = tRoom("characters.hero.name");
   const object = useMemo(
     () =>
@@ -47,6 +48,8 @@ export function WorkbookClue({
       object={object}
       alt={t("clue.workbook.alt")}
       hint={t("clue.workbook.hint")}
+      // 이름을 찾기 전까지는 안내가 남는다. 찾는 순간 걷힌다: 그게 "찾았다"는 표시다
+      hintPinned={!found}
       onFound={onFound}
       captureRef={captureRef}
     />

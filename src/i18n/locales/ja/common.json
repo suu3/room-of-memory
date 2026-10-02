@@ -27,8 +27,8 @@
       "exit": "玄関のドアから出ましょう",
       "lights": "暗い。壁の電気のスイッチを見つけて明かりをつけましょう",
       "doorway": "開いたドアから出ましょう",
-      "workbook": "机の上の光る問題集をクリックして、くるくる回してみましょう",
-      "workbook_touch": "机の上の光る問題集をタップして、くるくる回してみましょう",
+      "workbook": "机の上の光る問題集をクリックして、裏返してみましょう",
+      "workbook_touch": "机の上の光る問題集をタップして、裏返してみましょう",
       "notebook": "右端の手帳を開いてみましょう",
       "next": {
         "memory": "{{space}}の{{name}}を調べてみよう",
@@ -94,6 +94,15 @@
     "memoryState": {
       "locked": "{{name}} · まだ調べられない",
       "done": "{{name}} · 調べ済み"
+    },
+    "door": {
+      "room-living": "部屋のドア",
+      "living-bathroom": "バスルームのドア",
+      "living-parents": "両親の部屋のドア"
+    },
+    "doorState": {
+      "ready": "{{name}}を開ける",
+      "locked": "{{name}} · まだ開けられない"
     }
   },
   "reset": {
@@ -556,7 +565,7 @@
     "examineLabel": "調べる",
     "howToMove": "クリック · WASD",
     "howToMove_touch": "床をタップ · スティック",
-    "howToExamine": "E・クリック",
+    "howToExamine": "E · クリック",
     "howToExamine_touch": "物をタップ",
     "resume": "続きから",
     "saved": "記憶を{{count}}個集めたところで止まっています。",
@@ -612,7 +621,7 @@
     "workbook": {
       "title": "机の上の問題集",
       "alt": "3D問題集: ドラッグで回せる",
-      "hint": "ドラッグで回し、ホイールかボタンで拡大",
+      "hint": "ドラッグかボタンで回して裏返そう。ホイールかボタンで拡大",
       "tagLabel": "名前",
       "tagGrade": "高3",
       "zoomIn": "拡大",

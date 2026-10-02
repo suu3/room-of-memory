@@ -65,6 +65,7 @@ export function InspectView({
   object,
   alt,
   hint,
+  hintPinned = false,
   onFound,
   captureRef,
   className = "",
@@ -74,6 +75,12 @@ export function InspectView({
   alt: string;
   /** 판 아래 조작 안내 한 줄. */
   hint: string;
+  /**
+   * 안내를 걷지 않고 세워 둔다. 찾아야 다음으로 넘어가는 물건(첫 문제집)은 찾기 전까지
+   * 무엇을 해 보라는 말이 남아 있어야 한다. 몇 번 돌려 보고 내려놓으면 아무 일도 없어서
+   * 같은 안내만 되풀이됐다.
+   */
+  hintPinned?: boolean;
   /** 찾을 것을 읽었을 때 한 번. */
   onFound: () => void;
   /** 판을 한 장으로 찍는 함수가 걸리는 자리 (InspectTurntable). */
@@ -163,7 +170,7 @@ export function InspectView({
         />
       </div>
       <p
-        className={`pointer-events-none absolute inset-x-0 top-3 px-4 text-center text-xs text-fog transition-opacity duration-500 ${hintShown ? "opacity-100" : "opacity-0"}`}
+        className={`pointer-events-none absolute inset-x-0 top-3 px-4 text-center text-xs text-fog transition-opacity duration-500 ${hintShown || hintPinned ? "opacity-100" : "opacity-0"}`}
       >
         {hint}
       </p>

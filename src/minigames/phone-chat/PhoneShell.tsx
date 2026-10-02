@@ -79,7 +79,9 @@ export function PhoneShell<Id extends string>({
 
           {/* 앱 헤더 */}
           <div className="flex items-center gap-2.5 border-b border-bone/10 px-3.5 pb-3 pt-1.5">
-            {onBack ? (
+            {/* 돌아갈 곳이 없는 화면(목록 · 통화 기록)에는 화살표를 안 그린다. 흐리게만 세워 두면
+                눌리는 뒤로 가기로 읽히는데 눌러도 아무 일이 없다 */}
+            {onBack && (
               <button
                 type="button"
                 onClick={onBack}
@@ -97,13 +99,6 @@ export function PhoneShell<Id extends string>({
                   </span>
                 )}
               </button>
-            ) : (
-              <CaretLeftIcon
-                size={18}
-                weight="bold"
-                className="shrink-0 text-bone/45"
-                aria-hidden
-              />
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-[0.9375rem] font-bold text-paper">{title}</p>

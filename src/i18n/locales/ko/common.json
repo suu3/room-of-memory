@@ -27,8 +27,8 @@
       "exit": "현관문으로 나가세요",
       "lights": "어둠 속에서 벽의 전등 스위치를 찾아 불을 켜세요",
       "doorway": "열린 문으로 나가세요",
-      "workbook": "책상 위 빛나는 문제집을 클릭해 이리저리 돌려 보세요",
-      "workbook_touch": "책상 위 빛나는 문제집을 탭해 이리저리 돌려 보세요",
+      "workbook": "책상 위 빛나는 문제집을 클릭해 뒤집어 보세요",
+      "workbook_touch": "책상 위 빛나는 문제집을 탭해 뒤집어 보세요",
       "notebook": "오른쪽 끝의 수첩을 펼쳐 보세요",
       "next": {
         "memory": "{{space}}에 있는 {{name}} 쪽을 조사해 보세요",
@@ -94,6 +94,15 @@
     "memoryState": {
       "locked": "{{name}} · 아직 조사할 수 없음",
       "done": "{{name}} · 조사 완료"
+    },
+    "door": {
+      "room-living": "방문",
+      "living-bathroom": "화장실 문",
+      "living-parents": "안방 문"
+    },
+    "doorState": {
+      "ready": "{{name}} 열기",
+      "locked": "{{name}} · 아직 열 수 없음"
     }
   },
   "reset": {
@@ -612,7 +621,7 @@
     "workbook": {
       "title": "책상 위 문제집",
       "alt": "3D 문제집: 끌어서 돌려볼 수 있다",
-      "hint": "끌어서 돌리고, 휠이나 버튼으로 확대",
+      "hint": "끌거나 버튼으로 돌려 뒤집어 보세요. 휠이나 버튼으로 확대",
       "tagLabel": "이름",
       "tagGrade": "고3",
       "zoomIn": "확대",

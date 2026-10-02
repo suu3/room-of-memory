@@ -58,9 +58,9 @@ scripts:
       en: Once the baseball tournament was over, all that was left was the entrance exam.
       ja: 野球の大会が終わったら、残ってたのは受験だけだった。
     - speaker: hero
-      ko: 원래대로라면 수능까지 한달..이었겠지.
-      en: If things were normal, the exam would be.. a month away.
-      ja: 本当なら、試験まであと一か月..だったんだろうな。
+      ko: 원래대로라면 수능까지 한 달…이었겠지.
+      en: If things were normal, the exam would be… a month away.
+      ja: 本当なら、試験まであと一か月…だったんだろうな。
 
   # ─────────────────────────────────────────────── 1페이즈 · 강도 1
   #
@@ -122,9 +122,9 @@ scripts:
       ja: 久しぶりに一戦やってみるか。
     - speaker: hero
       expression: smile
-      ko: 주완이랑 자주 내기 게임 했었는데. 걔가 맨날 졌지만.
-      en: Juwan and I used to play for bets all the time. He always lost, though.
-      ja: ジュワンとよく賭けて勝負してたな。いつもあいつが負けてたけど。
+      ko: 주완이랑 자주 내기 게임 했었는데. 걔가 지는 날이 더 많았지만.
+      en: Juwan and I used to play for bets all the time. He lost more often than not, though.
+      ja: ジュワンとよく賭けて勝負してたな。あいつが負ける日のほうが多かったけど。
     # 카드 미궁의 규칙은 여기 적지 않는다. 선반 위 놀이책이 들고 있다
     # (src/data/room-clues.ts의 PUZZLE_CLUES). 대사로 흘리면 안 찾아도 풀린다.
 

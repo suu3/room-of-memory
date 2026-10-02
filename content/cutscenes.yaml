@@ -73,7 +73,7 @@ cutscenes:
           en: I used to play games a lot with Juwan, a friend from my class.
           ja: ゲームは、同じクラスの友達のジュワンとよくやっていた。
         - speaker: hero
-          ko: 시험 끝난 주에 자주 집에 놀러와서 2p로 격투 게임을 자주 플레이 했었다.
+          ko: 시험 끝난 주에는 집에 놀러 와서 2p로 격투 게임을 자주 플레이했었다.
           en: The week exams ended, he'd come over and we'd play fighting games in two-player mode.
           ja: テストが終わった週にはよく家に遊びに来て、2Pで格闘ゲームをしていた。
         - speaker: hero
@@ -86,7 +86,7 @@ cutscenes:
           en: We said we'd swap characters next time.
           ja: 次はキャラを交換してやろうって言ってたっけ。
         - speaker: hero
-          ko: …마지막으로 한 게 언젠지 기억이 안나네.
+          ko: …마지막으로 한 게 언젠지 기억이 안 나네.
           en: …I can't remember the last time we played.
           ja: …最後にやったのがいつだったか、思い出せないな。
 
@@ -100,7 +100,7 @@ cutscenes:
       holdMs: 1500
       lines:
         - speaker: hero
-          ko: 야구를 오래해온 나는 야구로 유명한 청서고에 진학했다.
+          ko: 야구를 오래 해 온 나는 야구로 유명한 청서고에 진학했다.
           en: I'd played baseball for years, so I went to Cheongseo High, a school known for baseball.
           ja: ずっと野球をやってきた俺は、野球で有名な青瑞高に進学した。
         - speaker: hero
@@ -117,7 +117,7 @@ cutscenes:
           en: But we lost in the end. I still remember the last pop of Eungang's catcher's mitt, the sound that ended the game.
           ja: でも結局負けた。試合終了を告げた、銀江高のキャッチャーの最後のミットの音が耳に残っている。
         - speaker: hero
-          ko: 윤호는 지금 뭘하고 있을까?
+          ko: 윤호는 지금 뭘 하고 있을까?
           en: I wonder what Yunho's doing now.
           ja: ユノは今、何をしてるんだろう。
 
