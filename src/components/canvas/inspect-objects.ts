@@ -251,7 +251,7 @@ function paintNotePaper(
  * 볼펜으로 적은 메모다. 접힌 자국은 가로(윗반이 아랫반 위로 엎어진다)라 메모는
  * 위아래 반쪽에 나뉘어 붙는다: 글줄은 접힌 선을 피해 윗반과 아랫반에 따로 앉힌다.
  */
-export function tableNoteObject(memo: string, signature: string): InspectObject {
+export function tableNoteObject(memo: string): InspectObject {
   const paintMemo: FacePainter = (ctx, size, palette, font) => {
     paintNotePaper(ctx, size, palette, "across");
     handwriteLines(
@@ -262,7 +262,6 @@ export function tableNoteObject(memo: string, signature: string): InspectObject 
       font,
       ink(palette),
     );
-    handwrite(ctx, signature, size.width * 0.7, size.height * 0.78, 40, font, ink(palette));
   };
   return {
     shape: "folded-note",

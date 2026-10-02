@@ -26,7 +26,7 @@ describe("손이 하는 일이 물건마다 갈린다 (뒤집기는 문제집 �
   });
 
   it("쪽지는 펼친다", () => {
-    const note = tableNoteObject("아래칸 건드리지 마.", "엄마가");
+    const note = tableNoteObject("아래칸 건드리지 마.");
     expect(note.shape).toBe("folded-note");
     expect(inspectControlOf(note)).toEqual({ kind: "unfold" });
   });

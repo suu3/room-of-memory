@@ -149,7 +149,7 @@ export function CardFlipMinigame(props: MinigameProps) {
   const stages = useMemo<InspectStage[]>(
     () => [
       {
-        object: tableNoteObject(t("minigame.cardFlip.memo"), t("minigame.cardFlip.signature")),
+        object: tableNoteObject(t("minigame.cardFlip.memo")),
         alt: t("minigame.cardFlip.alt"),
         found: t("minigame.cardFlip.found"),
       },
