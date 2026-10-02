@@ -17,7 +17,7 @@ import { FOCUS_RING, HUD_ICON_BUTTON } from "../shared/ui-classes";
 export type SoundToggleTone = "hud" | "title";
 
 /** 이어하기 아래 진행 줄과 같은 옷(작은 본문 글자 · ash). 메뉴 항목과 무게가 겹치지 않는다 */
-const TITLE_BUTTON = `group inline-flex cursor-pointer items-center gap-1.5 rounded-sm text-xs leading-normal text-ash transition-colors duration-150 hover:text-ivory ${FOCUS_RING}`;
+const TITLE_BUTTON = `group inline-flex cursor-pointer items-center gap-1.5 rounded-sm text-left text-xs leading-normal text-ash transition-colors duration-150 hover:text-ivory ${FOCUS_RING}`;
 
 /**
  * 소리 on/off. HUD 메뉴 안에 있던 걸 밖으로 꺼냈다.
@@ -60,9 +60,12 @@ export function SoundToggle({ tone = "hud" }: { tone?: SoundToggleTone }) {
         onClick={toggle}
         className={TITLE_BUTTON}
       >
-        {/* 상태는 키캡으로: 조작 줄의 다른 캡(클릭·WASD·E)과 같은 "누르는 것"으로 읽힌다 */}
+        {/*
+          상태는 키캡으로: 조작 줄의 다른 캡(클릭·WASD·E)과 같은 "누르는 것"으로 읽힌다.
+          캡은 줄지 않는다. 옆 문구가 메뉴 폭보다 길면(ja) 캡이 먼저 눌려 "オン"이 세로로 꺾였다
+        */}
         <span
-          className={`${KEYCAP_CLASS} gap-1 transition-colors duration-150 group-hover:border-memory ${
+          className={`${KEYCAP_CLASS} shrink-0 gap-1 whitespace-nowrap transition-colors duration-150 group-hover:border-memory ${
             soundMuted ? "text-ash" : ""
           }`}
         >
