@@ -58,7 +58,7 @@
 | images/ui-ending-thanks.webp | 엔딩 카드의 Thank you! 그림(1160×1533, 2026-09-26). GPT로 생성한 뒤 제작자가 직접 손본 그림. 카드에서 내려받기도 이 파일이다 | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 편집 에셋 |
 | images/ui-loading.gif | 로딩 화면의 달리는 캐릭터 애니메이션(420×400, 2026-08-02 사용자 제공, 2026-09-10 프레임 정리). 애니메이션 webp는 쓰는 자리에서 재생이 안 돼 gif로 둔다 (assets.md 예외) | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
 | models/room-laon-ampoule.glb | 라온 RX-11 유리 바이알 모델(2026-09-26). 사용자가 GPT로 생성한 GLB를 `pnpm model:prep`으로 검사·Meshopt 압축. 서랍과 조사 화면이 같이 쓴다 | OpenAI GPT (생성) · suu3 | 프로젝트 생성 에셋 |
-| video/ending-film.mp4 | 엔딩 영상(1920×1080, 29.6초, H.264+AAC faststart, 2026-09-26). 사용자가 Midjourney로 만든 그림을 Higgsfield로 움직여 편집한 영상 | Midjourney (그림) · Higgsfield (영상 생성) · suu3 (편집) | 각 서비스 이용약관에 따른 사용자 생성물 |
+| video/ending-film.mp4 | 엔딩 영상(1920×1080, 31.2초, H.264+AAC faststart, 2026-09-26, 2026-10-02 도해 클로즈업을 더한 판으로 교체). 사용자가 Midjourney로 만든 그림을 Higgsfield로 움직여 편집한 영상 | Midjourney (그림) · Higgsfield (영상 생성) · suu3 (편집) | 각 서비스 이용약관에 따른 사용자 생성물 |
 | audio/bgm/mg-fighter-duel-chip.ogg | 게임기를 켜면 흐르는 8비트 곡(2026-09-27). Pixabay에서 받아 TV 스피커 대역으로 깎고 Opus 모노로 재인코딩 (원본 URL 미기재) | Pixabay | Pixabay Content License (크레딧 불요, 상업 이용 가능) |
 | audio/sfx/sfx-mitt-tap.ogg | 생존자 방송 첫 컷의 미트 소리(1.26초, Opus 모노, 2026-09-26). 사용자가 Higgsfield로 만든 체육관 미트 영상의 소리에서 두 번 치는 구간만 잘라 담았다 | Higgsfield (영상 생성) · suu3 (편집) | 서비스 이용약관에 따른 사용자 생성물 |
 | ar/ar-target-hero.mind | 웹 AR 이미지 타깃(2026-09-28, 2026-09-29 재생성). 주문한 포토카드 앞면 그림을 /ar/compile(MindAR)로 컴파일한 파생물. 원화는 프로젝트의 캐릭터 그림 | 프로젝트 원화 · MindAR 컴파일 | 프로젝트 파생 에셋 |

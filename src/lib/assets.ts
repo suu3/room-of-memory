@@ -184,7 +184,7 @@ export const ASSETS = {
    * faststart라 받는 중에도 재생이 시작된다. 원본(.mov)은 리포에 넣지 않는다.
    */
   video: {
-    endingFilm: "/assets/video/ending-film.mp4?v=20260926-sound",
+    endingFilm: "/assets/video/ending-film.mp4?v=20261002-closeup",
   },
   /**
    * 3D 씬의 면에 깔리는 그림. UI가 <img>로 읽는 images/와 갈라 둔다: 이쪽은
