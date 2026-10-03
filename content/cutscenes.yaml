@@ -347,7 +347,7 @@ cutscenes:
           en: I hooked a transmitter up to the broadcast room gear, so it won't reach far. You'll hear it around here, though.
           ja: 放送室の機材に送信機をつないで飛ばしてるから、遠くまでは届かない。この辺なら聞こえるはずだ。
     # 3페이지
-    - image: /assets/images/cutscene-survivor-8.webp?v=4
+    - image: /assets/images/cutscene-survivor-8.webp?v=5
       page: 3
       ratio: "16:9"
       sfx: radioStatic

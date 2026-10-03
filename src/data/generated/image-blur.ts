@@ -27,15 +27,15 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-survivor-3.webp":
     "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAAAwAgCdASoMABAAAsBMJYwC7AEVvL52JDpKYAD++KdxHfKyMoSvhcCQs3DF3eYy5XfWKjifInw9lw9Md9C/cJMuuG9PKtIoC+qNlp/e499+AZ6JVn2zxM6NgWC9Se/7OAA=",
   "/assets/images/cutscene-survivor-4.webp":
-    "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAADwAQCdASoQAAkAAsBMJZQCdAEORd7RaYAA/vbegxZvWXZQFTDuJ7U9+BsyLR+36vzot8gnjQ+IgLdjjPtvsBx/2zb6chimR2Y7+SJcGjBQAA==",
+    "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQAgCdASoQAAkAAsBMJZQCdAEO9+pRDROAAP723n+xqRMjV3IsbMjx43OlHgXCVJsBbdgkyXlXPFmCpcpMyWE5O9b7B40K9HDAD6adqUAAAA==",
   "/assets/images/cutscene-survivor-5.webp":
     "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAADQAQCdASoMABAAAsBMJQBdgCHfRJ8yAAD++nKd+4/MmDkjiVI9ZfBZ9yV/H6i594tODsoEBfl2M6gD9Rdbw/8n4nkZ7GTagAA=",
   "/assets/images/cutscene-survivor-6.webp":
-    "data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAAAQAgCdASoMABAAAsBMJQBWACPPXx+mxfIAAP7qXyS8stFGMtmCa38zZwN2t+bflj5+2VNr3LWFa68cp8Uva23xI+Qv+tyV1YhumW9RBe3I9zvaZw7xjMzevcbzgGXENjE6gkxOYXdYKhQAhqZVyriybg1miAAA",
+    "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAADwAQCdASoMABAAAsBMJQBYdh3eAZ/xdSAA/upfJho4z6MZbMNFv+P009z759ue+Dfe7gtO99eHVd95/NBkeywvgaOg/UlqOpjn7pBuQT3P0wzHfRTZeGQzf+d+ozt3rzt7OsfSWEIDKlFBs0QAAA==",
   "/assets/images/cutscene-survivor-7.webp":
     "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAQAgCdASoQAAkAAsBMJaACsAEQN5G1OroAAP74gJjt9MfvfWcIP04tPva7CoV1zKcP8t0EP1vi0QxA4CPl7QFvt70cSVATkdY34JkTrIj7ZE+AAAA=",
   "/assets/images/cutscene-survivor-8.webp":
-    "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAADwAQCdASoQAAkAAsBMJZwAAscBI6T8bZgA/vfICZWsJ+2HbvbKPwn9ln6UxE9uyvZS/OLLSxn5QEHhR3CIRJfO3vYYKIFYAAA=",
+    "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACwAQCdASoQAAkAAsBMJZQAAlHxipXAAP74YRxx9Pv6w36jQ5nbOaL7WIBsN8aMI/U7GWuqdGNvJTM9OL93o/IFUJl33sgYfAA=",
   "/assets/images/cutscene-survivor-9.webp":
     "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADwAQCdASoMABAAAsBMJQBOgCKUl19kMwAA/vfLw2ftj14LjUbGX3+D0+x+bjEzhnAJyqbaTorDrTzbDLE7GiatypEs8F5XP36wAA==",
   "/assets/images/mg-ball-catch-sunset-field.webp":
@@ -51,7 +51,7 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/mg-calendar-flip-11.webp":
     "data:image/webp;base64,UklGRjgAAABXRUJQVlA4ICwAAACwAQCdASoLABAAAsBMJZwAAt0Ig/gAAP75ksVk4M33XyZx5fbu1Db5uZAAAA==",
   "/assets/images/mg-cutscene-ball-flashback.webp":
-    "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAAAQAgCdASoQAAkAAsBMJYgCdEf/gUOTeggAAP6YP9walebpFBKVwJ6kuVwSQmjlcEMyK09u+LkpyWg0E6XuU8+eNxus6YyTWEzQZrvz2bKBQU9KGIAAAA==",
+    "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAAAQAgCdASoQAAkAAsBMJaACdEf/gYzdbLAcAP5bthPgJtK8b4Le2C7rFcbtknZW7Iwam5n6f5ACQwEjwyKhZTYNNwUWQFj4PY8n/g43ViDxLk5ga1quk/VOE4TJCAAA",
   "/assets/images/mg-cutscene-console-flashback.webp":
     "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACQAQCdASoQAAkAAsBMJYwCdABV8gAA8o63HawePszT03wLMPotS4dchJ6Nl0m8Raz3I2ywWmzvjQJAY5Jibm9+iDOdrJ5zAAA=",
   "/assets/images/mg-photo-wipe-phase-1.webp":
@@ -92,11 +92,11 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-survivor-10.webp": "e67043da3bee8d54",
   "/assets/images/cutscene-survivor-2.webp": "e63ac6502eba03ff",
   "/assets/images/cutscene-survivor-3.webp": "06c5377f035c05a3",
-  "/assets/images/cutscene-survivor-4.webp": "85bd4931e6c01bab",
+  "/assets/images/cutscene-survivor-4.webp": "28cde937f9994248",
   "/assets/images/cutscene-survivor-5.webp": "0da865ff809e5652",
-  "/assets/images/cutscene-survivor-6.webp": "eb628d7a847c2c35",
+  "/assets/images/cutscene-survivor-6.webp": "71becc72e8e4fcdd",
   "/assets/images/cutscene-survivor-7.webp": "3cdee308333f6461",
-  "/assets/images/cutscene-survivor-8.webp": "0af69763c273e809",
+  "/assets/images/cutscene-survivor-8.webp": "f0dc679055ff465b",
   "/assets/images/cutscene-survivor-9.webp": "547178e36d01ecb2",
   "/assets/images/mg-ball-catch-sunset-field.webp": "497d229997c49505",
   "/assets/images/mg-calendar-flip-07.webp": "571d51b0d28e7e07",
@@ -104,7 +104,7 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/mg-calendar-flip-09.webp": "7fa83cd5525e66fd",
   "/assets/images/mg-calendar-flip-10.webp": "258ca17364849922",
   "/assets/images/mg-calendar-flip-11.webp": "c404acfe3f0fd04d",
-  "/assets/images/mg-cutscene-ball-flashback.webp": "bb0af05752823bab",
+  "/assets/images/mg-cutscene-ball-flashback.webp": "164413e00059f39f",
   "/assets/images/mg-cutscene-console-flashback.webp": "8582bfafea61d0fd",
   "/assets/images/mg-photo-wipe-phase-1.webp": "a5acd491e3187079",
   "/assets/images/mg-photo-wipe-phase-2.webp": "75f444cc26a7337a",
