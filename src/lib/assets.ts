@@ -189,6 +189,15 @@ export const ASSETS = {
     endingFilm: "/assets/video/ending-film.mp4?v=20261003-jaeha",
     /** 외전 〈그 해 여름〉. 영상 모아보기(/films)에서만 튼다. 1920×1080 H.264 1.7Mbps + AAC, 101초. */
     sideStoryThatSummer: "/assets/video/side-story-that-summer.mp4?v=20261003-bgm",
+    /**
+     * 외전의 자막 (WebVTT). 대사가 음성으로만 나와서 언어 설정에 맞는 것을 <track>으로 얹는다.
+     * 영상에는 굽지 않는다: 한 편으로 세 언어를 낸다.
+     */
+    sideStoryThatSummerSubtitles: {
+      ko: "/assets/video/side-story-that-summer.ko.vtt?v=20261004",
+      en: "/assets/video/side-story-that-summer.en.vtt?v=20261004",
+      ja: "/assets/video/side-story-that-summer.ja.vtt?v=20261004",
+    },
   },
   /**
    * 3D 씬의 면에 깔리는 그림. UI가 <img>로 읽는 images/와 갈라 둔다: 이쪽은

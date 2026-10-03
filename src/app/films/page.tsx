@@ -4,13 +4,36 @@ import Link from "next/link";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { BUTTON_QUIET } from "@/components/ui/shared/ui-classes";
+import { DEFAULT_LOCALE, type Locale, SUPPORTED_LOCALES } from "@/i18n/config";
 import { ASSETS } from "@/lib/assets";
 
-/** 모아 보는 영상. 순서가 곧 화면의 순서다. 글은 `films.<id>.*`에 있다. */
-const FILMS = [
+type Film = { id: "ending" | "thatSummer"; src: string; subtitles?: Record<Locale, string> };
+
+/**
+ * 모아 보는 영상. 순서가 곧 화면의 순서다. 글은 `films.<id>.*`에 있다.
+ * 음성 대사가 있는 영상은 언어별 자막을 단다 (엔딩은 대사가 그림 안에 있어 없다).
+ */
+const FILMS: readonly Film[] = [
   { id: "ending", src: ASSETS.video.endingFilm },
-  { id: "thatSummer", src: ASSETS.video.sideStoryThatSummer },
-] as const;
+  {
+    id: "thatSummer",
+    src: ASSETS.video.sideStoryThatSummer,
+    subtitles: ASSETS.video.sideStoryThatSummerSubtitles,
+  },
+];
+
+const LOCALE_LABEL: Record<Locale, string> = { ko: "한국어", en: "English", ja: "日本語" };
+
+const localeOf = (language: string | undefined): Locale =>
+  SUPPORTED_LOCALES.find((locale) => locale === language) ?? DEFAULT_LOCALE;
+
+/**
+ * 자막 트랙을 켠다. `default` 속성은 영상이 처음 설 때만 읽혀서, 저장된 언어가 뒤늦게 들어와
+ * 트랙이 바뀌면 꺼진 채로 남는다.
+ */
+const showTrack = (node: HTMLTrackElement | null) => {
+  if (node) node.track.mode = "showing";
+};
 
 /**
  * 영상 모아보기. 엔딩 영상과 외전을 한 자리에서 다시 본다. 엔딩 카드의 버튼이 새 탭으로
@@ -20,7 +43,8 @@ const FILMS = [
  * 받기는 메타데이터까지만 해 둔다 (두 편을 합치면 36MB라 누르기 전에 통째로 받지 않는다).
  */
 export default function FilmsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = localeOf(i18n.resolvedLanguage);
   const videos = useRef(new Map<string, HTMLVideoElement>());
 
   /** 한 번에 한 편만 튼다: 다른 영상을 틀면 보던 것은 멈춘다. */
@@ -51,7 +75,7 @@ export default function FilmsPage() {
             <p className="break-ko text-pretty text-sm leading-normal text-fog">
               {t(`films.${film.id}.caption`)}
             </p>
-            {/* biome-ignore lint/a11y/useMediaCaption: 자막 트랙이 없는 영상이다 (대사는 그림 안에 있다) */}
+            {/* biome-ignore lint/a11y/useMediaCaption: 엔딩은 대사가 그림 안에 있어 트랙이 없고, 외전은 아래에서 자막을 단다 */}
             <video
               ref={(node) => {
                 if (node) videos.current.set(film.id, node);
@@ -64,7 +88,19 @@ export default function FilmsPage() {
               aria-label={t(`films.${film.id}.title`)}
               onPlay={() => pauseOthers(film.id)}
               className="aspect-video w-full rounded-md border border-line bg-scene-void shadow-panel"
-            />
+            >
+              {film.subtitles && (
+                <track
+                  key={locale}
+                  ref={showTrack}
+                  kind="subtitles"
+                  src={film.subtitles[locale]}
+                  srcLang={locale}
+                  label={LOCALE_LABEL[locale]}
+                  default
+                />
+              )}
+            </video>
           </section>
         ))}
 

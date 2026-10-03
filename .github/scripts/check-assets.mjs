@@ -51,10 +51,11 @@ const RULES = [
     label: "이미지",
   },
   {
-    // 엔딩 영상과 외전. assets.md: H.264+AAC mp4, 파일당 15MB (외전은 SIZE_EXCEPTIONS)
+    // 엔딩 영상과 외전. assets.md: H.264+AAC mp4, 파일당 15MB (외전은 SIZE_EXCEPTIONS).
+    // .vtt는 영상 옆에 두는 언어별 자막이다
     prefix: "video/",
     limit: 15 * MB,
-    formats: [".mp4"],
+    formats: [".mp4", ".vtt"],
     label: "영상",
   },
   {
