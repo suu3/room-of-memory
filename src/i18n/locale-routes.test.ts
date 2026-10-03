@@ -23,6 +23,12 @@ describe("첫 화면 전에 html lang을 맞추는 스크립트", () => {
     expect(langAfterBoot("/ja", "ko")).toBe("ja");
   });
 
+  it("언어 주소 아래의 페이지도 그 언어다", () => {
+    expect(langAfterBoot("/ja/films", "ko")).toBe("ja");
+    expect(langAfterBoot("/en/films")).toBe("en");
+    expect(langAfterBoot("/films", "ja")).toBe("ja");
+  });
+
   it("루트는 저장된 선택을 따르고, 없으면 한국어다", () => {
     expect(langAfterBoot("/")).toBe("ko");
     expect(langAfterBoot("/", "ja")).toBe("ja");

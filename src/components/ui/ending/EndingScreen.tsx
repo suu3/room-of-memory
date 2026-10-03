@@ -12,11 +12,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { filmsPath } from "@/i18n/locale-routes";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import { blurDataUrlOf } from "@/lib/image-blur";
 import { EXIT_BEAT_MS } from "@/scenes/memory-room/camera/first-person";
 import { useMemoryRoomStore } from "@/store/memory-room";
+import { selectLocale, useSettingsStore } from "@/store/settings";
 import { BUTTON_PRIMARY, BUTTON_QUIET, FOCUS_RING } from "../shared/ui-classes";
 import { EndingConfetti } from "./EndingConfetti";
 
@@ -49,6 +51,7 @@ const LEAVE_FADE_MS = 700;
  */
 export function EndingScreen() {
   const { t } = useTranslation();
+  const locale = useSettingsStore(selectLocale);
   const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   const soundMuted = useMemoryRoomStore((state) => state.soundMuted);
   const reset = useMemoryRoomStore((state) => state.reset);
@@ -264,11 +267,11 @@ export function EndingScreen() {
             */}
               <div className="flex flex-wrap items-center justify-center gap-3">
                 {/*
-                영상 모아보기(/films)는 새 탭으로 연다. 같은 탭에서 떠나면 캔버스가 내려가고,
+                영상 모아보기(/films · /en/films · /ja/films)는 새 탭으로 연다. 같은 탭에서 떠나면 캔버스가 내려가고,
                 돌아왔을 때 저장된 엔딩이 문턱부터 다시 돈다. 카드는 이 탭에 그대로 둔다.
               */}
                 <Link
-                  href="/films"
+                  href={filmsPath(locale)}
                   target="_blank"
                   rel="noopener"
                   onClick={() => playSound("select")}
