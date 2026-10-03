@@ -12,6 +12,7 @@ import {
   CUTSCENES,
   MEMORY_BY_ID,
   MEMORY_GOAL,
+  MEMORY_IDS,
   type MemoryId,
   P4_FINAL_MEMORY,
   phaseConfigOf,
@@ -115,6 +116,8 @@ export type RemarkId =
   | "clock-running"
   // 천장 에어컨 (쉼표 비트): 11월이라 틀 일이 없다. 진행에 아무것도 남기지 않는다
   | "aircon"
+  // 세면대 마개를 뽑아 물이 빠진 순간: 시선을 대야 바닥(배지)으로 끈다
+  | "sink-drained"
   // 세면대 바닥의 출입증 배지를 들여다보고 내려놓은 순간: 앰플 라벨의 조각과 이어진다
   | "badge-found"
   // 이미 본 기억을 다시 눌렀을 때: 그 기억의 마지막 기록 문장 (remark.memoryId)
@@ -412,6 +415,12 @@ export interface MemoryRoomState {
    */
   remark: { id: RemarkId; at: number; memoryId?: MemoryId } | null;
   /**
+   * 끝까지 들은 진입 대사 (`기억@차수`). 미니게임을 닫고 다시 누르면 같은 줄을 처음부터
+   * 다시 넘기게 하지 않고 곧장 미니게임을 세운다 (공 8줄, 컴퓨터 3줄). 저장하지 않는다:
+   * 새로 켠 판에서는 무엇을 하려던 참인지 한 번 더 듣는 편이 낫다.
+   */
+  heardIntros: string[];
+  /**
    * 카메라가 붙들려 있는 대상 (없으면 null). 조사도 재생도 아닌 연출 한 컷: 하부장이 열리는
    * 순간 열쇠가 있던 칸으로 밀고 들어가는 크레인 샷 (scenes/memory-room/camera/crane-shot.ts).
    * 붙들린 동안 씬 입력은 잠기고(selectSceneInputLocked), 씬이 시간을 재서 놓는다(endCameraHold).
@@ -523,6 +532,9 @@ export interface MemoryRoomState {
   startEnding: () => void;
   reset: () => void;
 }
+
+/** 진입 대사를 들은 기록의 열쇠: 기억과 차수. */
+const introKeyOf = (id: MemoryId, visit: number) => `${id}@${visit}`;
 
 type StateSnapshot = Pick<MemoryRoomState, "collected" | "revisited" | "doorOpened"> &
   Partial<
@@ -665,6 +677,10 @@ export function clueUnlocked(state: StateSnapshot, id: ClueId): boolean {
 export function isSeen(state: StateSnapshot, id: MemoryId): boolean {
   return anyVisitDone({ ...state, rechecked: state.rechecked ?? [] }, id);
 }
+
+/** 한 번이라도 본 기억의 수: 수첩 손잡이의 숫자와 타이틀의 "모아 둔 기억"이 같은 값을 쓴다. */
+export const selectSeenCount = (state: StateSnapshot) =>
+  MEMORY_IDS.filter((id) => isSeen(state, id)).length;
 
 /**
  * 결심(resolve)에 들어섰는가: 4페이즈를 마치고 정적 비트까지 지났다는 뜻이다.
@@ -1086,6 +1102,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       notebookOpened: false,
       notebookRead: [],
       remark: null,
+      heardIntros: [],
       cameraHold: null,
       signalCaught: false,
       beginInteraction: (id) =>
@@ -1097,7 +1114,11 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           const gamePhase = nextVisit(state, id);
           if (gamePhase === undefined) return state;
           const interaction = phaseConfigOf(id, gamePhase)?.interaction;
-          if (interaction?.scriptId) {
+          // 이미 끝까지 들은 진입 대사는 건너뛴다: 미니게임을 닫았다 다시 연 것이다
+          const introHeard =
+            interaction?.minigameId !== undefined &&
+            state.heardIntros.includes(introKeyOf(id, gamePhase));
+          if (interaction?.scriptId && !introHeard) {
             return {
               activeInteraction: {
                 memoryId: id,
@@ -1131,8 +1152,12 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           }
           // 결과 대사는 미니게임 뒤에 오므로 다시 미니게임으로 돌아가지 않는다
           if (!active.keepMinigame && interaction?.minigameId) {
+            const heard = introKeyOf(active.memoryId, active.gamePhase);
             return {
               activeInteraction: { ...active, phase: "minigame" as const, scriptId: undefined },
+              heardIntros: state.heardIntros.includes(heard)
+                ? state.heardIntros
+                : [...state.heardIntros, heard],
             };
           }
           return complete(state, active.memoryId, active.gamePhase);
@@ -1324,7 +1349,9 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       // 그 문이 열렸는지는 다시 묻지 않는다
       drainSink: () =>
         set((state) =>
-          state.sinkDrained || selectSceneInputLocked(state) ? state : { sinkDrained: true },
+          state.sinkDrained || selectSceneInputLocked(state)
+            ? state
+            : { sinkDrained: true, remark: { id: "sink-drained", at: Date.now() } },
         ),
       setAutoPlay: (next) => set({ autoPlay: next }),
       logDialogue: (entry) =>
@@ -1545,6 +1572,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           notebookOpened: false,
           notebookRead: [],
           remark: null,
+          heardIntros: [],
           cameraHold: null,
           signalCaught: false,
           resetRevision: state.resetRevision + 1,
@@ -1792,13 +1820,24 @@ export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogu
  * 상단 독백(혼잣말·목표 배너)이 물러나야 하는가. 말은 한 번에 하나만: 대사창·컷씬·미니게임·
  * 단서가 떠 있는 동안, 그리고 메뉴 패널이 내려와 있는 동안. 메뉴는 오른쪽 위에서 내려오는
  * 판이라 좁은 화면에서는 혼잣말 줄을 그대로 덮었다 (수첩 손잡이가 같은 잠금을 보고 숨는 것과 같다).
+ * 엔딩이 시작된 뒤에도 물러난다: 엔딩 화면 위에 방의 줄이 남으면 안 된다.
  */
 export const selectMonologueHidden = (state: MemoryRoomState) =>
+  state.endingStarted ||
   state.activeInteraction !== null ||
   state.activePlayback !== null ||
   state.activePuzzle !== null ||
   state.activeClue !== null ||
   state.uiLocks.includes("hud-menu");
+
+/**
+ * 수첩 손잡이가 물러나야 하는가. 메뉴 패널이 내려와 있는 동안(패널과 겹친다), 그리고
+ * 대사·미니게임·컷씬이 떠 있는 동안: 그때 수첩을 펴면 대사창 위에 수첩이 겹친다.
+ */
+export const selectNotebookTabTucked = (state: MemoryRoomState) =>
+  state.uiLocks.includes("hud-menu") ||
+  state.activeInteraction !== null ||
+  state.activePlayback !== null;
 
 export const selectMusicPlaying = (state: MemoryRoomState) =>
   state.started &&

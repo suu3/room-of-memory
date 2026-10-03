@@ -1,7 +1,8 @@
 "use client";
 
 import { playSound } from "@/lib/audio";
-import { selectSinkHintRead, useMemoryRoomStore } from "@/store/memory-room";
+import { pressSinkCabinet } from "@/lib/room-press";
+import { useMemoryRoomStore } from "@/store/memory-room";
 import { BathroomStain } from "../../effects/BathroomStains";
 import { TouchProp } from "../../memory/RoomClues";
 import { InteriorSurface } from "../../shared/InteriorPrimitives";
@@ -177,10 +178,7 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
  * 읽힌다: 안쪽 벽에 붙어 있던 때는 앞면이 카메라 반대쪽이라 밋밋한 상자로만 보였다.
  */
 function SinkCabinet({ palette }: { palette: RoomPalette }) {
-  const hintRead = useMemoryRoomStore(selectSinkHintRead);
   const opened = useMemoryRoomStore((state) => state.solvedPuzzles.includes("sink-dial"));
-  const openPuzzle = useMemoryRoomStore((state) => state.openPuzzle);
-  const sayRemark = useMemoryRoomStore((state) => state.sayRemark);
   const [x, y, z] = CABINET.position;
   const [width, height, depth] = CABINET.size;
   const front = z - depth / 2;
@@ -191,15 +189,7 @@ function SinkCabinet({ palette }: { palette: RoomPalette }) {
       near={SINK_NEAR}
       radius={SINK_RADIUS}
       enabled={!opened}
-      onPress={() => {
-        if (hintRead) {
-          playSound("open");
-          openPuzzle("sink-dial");
-        } else {
-          playSound("deny");
-          sayRemark("sink-locked");
-        }
-      }}
+      onPress={pressSinkCabinet}
     >
       <group name="sink-cabinet" position={SINK_MOUNT.position} rotation={SINK_MOUNT.rotation}>
         <mesh position={[x, y, z]} castShadow receiveShadow>

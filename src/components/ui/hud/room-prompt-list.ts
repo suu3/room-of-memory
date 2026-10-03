@@ -6,6 +6,13 @@ import {
   MEMORY_SPACE,
   type SpaceId,
 } from "@/data/spaces";
+import { packedForExit, storyPhaseOf } from "@/data/story-phase";
+import {
+  type HotspotStatus,
+  hotspotStatus,
+  type MemoryRoomState,
+  selectSinkHintRead,
+} from "@/store/memory-room";
 
 /*
  * 화면 밖 조사 목록(RoomInteractionPrompt)에 무엇을 올릴 것인가.
@@ -29,4 +36,63 @@ export function listedDoorways(
   open: readonly DoorwayId[],
 ): DoorwayId[] {
   return DOORWAY_IDS.filter((id) => !open.includes(id) && reached.includes(DOORWAY_BETWEEN[id][0]));
+}
+
+/**
+ * 목록이 보는 진행. 3D 물건이 보는 것과 같아야 한다: 한 칸이라도 빠지면 페이즈가 앞 단계로
+ * 계산돼, 눈으로는 열린 물건이 목록에서는 "조사 완료"나 "아직 조사할 수 없음"으로 읽힌다
+ * (rechecked · openedDoorways를 빼먹어 안방과 떠나기 전 구간이 통째로 그랬다).
+ * 그래서 칸을 선택이 아니라 필수로 받는다.
+ */
+export type PromptProgress = Pick<
+  MemoryRoomState,
+  | "collected"
+  | "revisited"
+  | "rechecked"
+  | "doorOpened"
+  | "openedDoorways"
+  | "discoveries"
+  | "introDone"
+  | "sinkDrained"
+  | "batTaken"
+  | "endingStarted"
+  | "solvedPuzzles"
+>;
+
+/** 기억마다의 상태: 버튼이 눌리는지와 이름 뒤에 붙는 이유가 여기서 나온다. */
+export function memoryStatuses(state: PromptProgress): Record<MemoryId, HotspotStatus> {
+  return Object.fromEntries(MEMORY_IDS.map((id) => [id, hotspotStatus(state, id)])) as Record<
+    MemoryId,
+    HotspotStatus
+  >;
+}
+
+/** 기억도 문간도 아니지만 눌러야 이야기가 넘어가는 물건. */
+export type PromptPropId = "sink-plug" | "sink-cabinet" | "bat" | "front-door";
+
+export interface PromptProp {
+  id: PromptPropId;
+  /** 지금 눌러서 되는가. 안 되는 것도 이유를 붙여 목록에 남긴다 (기억과 같은 문법). */
+  ready: boolean;
+}
+
+/**
+ * 목록에 올릴 물건. 마개·하부장은 화장실에 닿은 뒤, 배트·현관문은 떠나기로 한 뒤
+ * (resolve)에만 오른다: 그 전에는 배경이고, 이름을 먼저 읽으면 스포일러다. 할 일을 다 한
+ * 물건(빠진 물, 열린 하부장, 쥔 배트)은 열린 문처럼 빠진다.
+ */
+export function listedProps(state: PromptProgress, reached: readonly SpaceId[]): PromptProp[] {
+  if (state.endingStarted) return [];
+  const props: PromptProp[] = [];
+  if (reached.includes("bathroom")) {
+    if (!state.sinkDrained) props.push({ id: "sink-plug", ready: true });
+    if (!state.solvedPuzzles.includes("sink-dial")) {
+      props.push({ id: "sink-cabinet", ready: selectSinkHintRead(state) });
+    }
+  }
+  if (storyPhaseOf(state) === "resolve") {
+    if (!state.batTaken) props.push({ id: "bat", ready: true });
+    props.push({ id: "front-door", ready: packedForExit(state) });
+  }
+  return props;
 }

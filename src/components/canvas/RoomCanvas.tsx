@@ -19,12 +19,25 @@ import {
   RoomInteractionPrompt,
   type RoomPromptAction,
 } from "@/components/ui/hud/RoomInteractionPrompt";
-import { listedDoorways, listedMemories } from "@/components/ui/hud/room-prompt-list";
+import {
+  listedDoorways,
+  listedMemories,
+  listedProps,
+  memoryStatuses,
+  type PromptPropId,
+} from "@/components/ui/hud/room-prompt-list";
 import { CanvasMinigameSkip } from "@/components/ui/minigame/MinigameHost";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
-import { pressDoor, pressLightSwitch } from "@/lib/room-press";
+import {
+  pressBat,
+  pressDoor,
+  pressFrontDoor,
+  pressLightSwitch,
+  pressSinkCabinet,
+  pressSinkPlug,
+} from "@/lib/room-press";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
 import type { LookAngles } from "@/scenes/memory-room/camera/first-person";
 import { PLAYER_START } from "@/scenes/memory-room/player/Player";
@@ -41,7 +54,6 @@ import { findNearestMemory } from "@/scenes/memory-room/world/spatial";
 import { useEffectsStore } from "@/store/effects";
 import {
   doorwayReady,
-  type HotspotStatus,
   hotspotStatus,
   openDoorwayIds,
   selectActiveInteraction,
@@ -85,6 +97,14 @@ const DPR_CAP = { high: 1.5, low: 1 } as const;
  * (2026-09-16). 부드러운 그림자가 필요하면 three 자체의 VSM 그림자 맵으로 간다.
  */
 const MEMORY_TARGETS = Object.values(MEMORY_PLACEMENTS);
+
+/** 화면 밖 목록의 물건이 누르는 것: 씬의 3D 물건과 같은 길이다 (room-press.ts). */
+const PROP_PRESS = {
+  "sink-plug": pressSinkPlug,
+  "sink-cabinet": pressSinkCabinet,
+  bat: pressBat,
+  "front-door": pressFrontDoor,
+} as const satisfies Record<PromptPropId, () => void>;
 
 interface CanvasErrorBoundaryProps {
   children: ReactNode;
@@ -207,6 +227,12 @@ export function RoomCanvas() {
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
   // 문제집을 보기 전에는 강도 1도 잠겨 있다 (onboardingStep). 스크린리더 이름도 그걸 따른다
   const discoveries = useMemoryRoomStore((state) => state.discoveries);
+  const rechecked = useMemoryRoomStore((state) => state.rechecked);
+  const introDone = useMemoryRoomStore((state) => state.introDone);
+  const sinkDrained = useMemoryRoomStore((state) => state.sinkDrained);
+  const batTaken = useMemoryRoomStore((state) => state.batTaken);
+  const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
+  const solvedPuzzles = useMemoryRoomStore((state) => state.solvedPuzzles);
   const openedDoorways = useMemoryRoomStore((state) => state.openedDoorways);
   const inventory = useMemoryRoomStore((state) => state.inventory);
   const roomDoorReady = useMemoryRoomStore(selectDoorReady);
@@ -306,16 +332,36 @@ export function RoomCanvas() {
     [tRoom],
   );
 
-  const statuses = useMemo(
-    () =>
-      Object.fromEntries(
-        MEMORY_IDS.map((id) => [
-          id,
-          hotspotStatus({ collected, revisited, doorOpened, discoveries }, id),
-        ]),
-      ) as Record<MemoryId, HotspotStatus>,
-    [collected, revisited, doorOpened, discoveries],
+  // 3D 물건이 보는 것과 같은 진행을 본다. 한 칸이라도 빠지면 목록만 앞 페이즈에 머문다 (PromptProgress)
+  const progress = useMemo(
+    () => ({
+      collected,
+      revisited,
+      rechecked,
+      doorOpened,
+      openedDoorways,
+      discoveries,
+      introDone,
+      sinkDrained,
+      batTaken,
+      endingStarted,
+      solvedPuzzles,
+    }),
+    [
+      collected,
+      revisited,
+      rechecked,
+      doorOpened,
+      openedDoorways,
+      discoveries,
+      introDone,
+      sinkDrained,
+      batTaken,
+      endingStarted,
+      solvedPuzzles,
+    ],
   );
+  const statuses = useMemo(() => memoryStatuses(progress), [progress]);
 
   /**
    * 스크린리더가 읽을 이름. 조사할 수 없는 물건은 이유까지 붙인다. 목록에서 이름만
@@ -341,11 +387,11 @@ export function RoomCanvas() {
   const lightsOn = useMemoryRoomStore((state) => state.lightsOn);
   const atDoorway = useMemoryRoomStore(selectViewpoint) === "doorway";
   const { listedMemoryIds, promptActions } = useMemo(() => {
-    const progress = { collected, revisited, doorOpened, openedDoorways, inventory };
-    const open = openDoorwayIds(progress);
+    const doorProgress = { collected, revisited, doorOpened, openedDoorways, inventory };
+    const open = openDoorwayIds(doorProgress);
     const reached = reachableSpaces(open);
     const doors = listedDoorways(reached, open).map((id): RoomPromptAction => {
-      const ready = id === "room-living" ? roomDoorReady : doorwayReady(progress, id);
+      const ready = id === "room-living" ? roomDoorReady : doorwayReady(doorProgress, id);
       return {
         id: `door-${id}`,
         label: t(`scene.doorState.${ready ? "ready" : "locked"}`, { name: t(`scene.door.${id}`) }),
@@ -374,9 +420,17 @@ export function RoomCanvas() {
           },
         ]
       : [];
+    // 기억도 문간도 아닌데 눌러야 넘어가는 물건: 마개 · 하부장 · 배트 · 현관문
+    const props = listedProps(progress, reached).map(
+      ({ id, ready }): RoomPromptAction => ({
+        id: `prop-${id}`,
+        label: t(`scene.propState.${ready ? "ready" : "locked"}`, { name: t(`scene.prop.${id}`) }),
+        onPress: PROP_PRESS[id],
+      }),
+    );
     return {
       listedMemoryIds: listedMemories(reached),
-      promptActions: [...stepOut, light, ...doors],
+      promptActions: [...stepOut, light, ...doors, ...props],
     };
   }, [
     collected,
@@ -384,6 +438,7 @@ export function RoomCanvas() {
     doorOpened,
     openedDoorways,
     inventory,
+    progress,
     roomDoorReady,
     lightsOn,
     atDoorway,

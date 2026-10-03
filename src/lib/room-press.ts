@@ -1,9 +1,12 @@
 import type { DoorwayId } from "@/data/spaces";
 import { playSound } from "@/lib/audio";
 import {
+  selectBatReady,
   selectDoorReady,
   selectDoorwayOpen,
   selectDoorwayReady,
+  selectExitReady,
+  selectSinkHintRead,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 
@@ -44,4 +47,45 @@ export function pressDoor(id: DoorwayId): void {
 export function pressLightSwitch(): void {
   playSound("lightSwitch");
   useMemoryRoomStore.getState().toggleLights();
+}
+
+/** 세면대 마개를 뽑는다. 이미 뽑았으면 아무 일도 없다. */
+export function pressSinkPlug(): void {
+  const state = useMemoryRoomStore.getState();
+  if (state.sinkDrained) return;
+  playSound("drawer");
+  state.drainSink();
+}
+
+/** 세면대 하부장을 누른다. 아빠 메일의 힌트를 읽기 전에는 거절음과 한 줄뿐이다. */
+export function pressSinkCabinet(): void {
+  const state = useMemoryRoomStore.getState();
+  if (state.solvedPuzzles.includes("sink-dial")) return;
+  if (selectSinkHintRead(state)) {
+    playSound("open");
+    state.openPuzzle("sink-dial");
+    return;
+  }
+  playSound("deny");
+  state.sayRemark("sink-locked");
+}
+
+/** 현관의 배트를 쥔다. 떠나기로 하기 전(resolve 전)이거나 이미 쥐었으면 아무 일도 없다. */
+export function pressBat(): void {
+  const state = useMemoryRoomStore.getState();
+  if (!selectBatReady(state)) return;
+  playSound("collect");
+  state.takeBat();
+}
+
+/** 현관문을 연다. 챙길 것을 다 챙기기 전에는 거절음만 난다. */
+export function pressFrontDoor(): void {
+  const state = useMemoryRoomStore.getState();
+  if (state.endingStarted) return;
+  if (!selectExitReady(state)) {
+    playSound("deny");
+    return;
+  }
+  playSound("doorOpen");
+  state.startEnding();
 }

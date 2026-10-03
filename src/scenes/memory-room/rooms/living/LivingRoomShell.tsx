@@ -3,7 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
-import { playSound } from "@/lib/audio";
+import { pressFrontDoor } from "@/lib/room-press";
 import { selectExitReady, useMemoryRoomStore } from "@/store/memory-room";
 import { setEndingLightMesh } from "../../effects/ending-light";
 import { useGlowHover } from "../../effects/use-glow-hover";
@@ -261,7 +261,6 @@ function ShellBox({
 function FrontDoor({ palette }: { palette: RoomPalette }) {
   const ready = useMemoryRoomStore(selectExitReady);
   const started = useMemoryRoomStore((state) => state.endingStarted);
-  const startEnding = useMemoryRoomStore((state) => state.startEnding);
   const clickable = !started && ready;
   const { hovered, handlers } = useGlowHover(clickable);
   const near = useNearPlayer(
@@ -294,8 +293,7 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
       onClick={(event) => {
         if (!clickable) return;
         event.stopPropagation();
-        playSound("doorOpen");
-        startEnding();
+        pressFrontDoor();
       }}
       {...handlers}
     >

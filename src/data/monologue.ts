@@ -58,6 +58,9 @@ export function monologueIdFor(state: StoryProgress): MonologueId {
       return "p3-enter";
     case "p4":
       return "p4-enter";
+    case "ending":
+      // 문을 연 뒤다. 셋을 다 챙겨야 열리는 문이라, 챙기라는 줄로 되돌아가지 않는다
+      return "resolve-ready";
     default:
       // 챙길 것 셋(가방·앰플·배트)을 다 챙기면 "…가자."로 바뀐다
       return packedForExit(state) ? "resolve-ready" : "resolve";

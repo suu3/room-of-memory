@@ -84,6 +84,22 @@ describe("monologueIdFor", () => {
     );
   });
 
+  it("현관문을 연 뒤에도 결심 한 줄이 남는다 (챙기라는 줄로 되돌아가지 않는다)", () => {
+    const resolve = through(["p1", "turning", "p2", "p3", "p4"], {
+      doorOpened: true,
+      openedDoorways: ["living-bathroom", "living-parents"],
+    });
+    const bagAndAmpoule = [...(resolve.rechecked ?? []), "duffel", "ampoule"] as MemoryId[];
+    expect(
+      monologueIdFor({
+        ...resolve,
+        rechecked: bagAndAmpoule,
+        batTaken: true,
+        endingStarted: true,
+      }),
+    ).toBe("resolve-ready");
+  });
+
   it("모든 구간 id가 대본에 있다", () => {
     for (const id of MONOLOGUE_IDS) {
       expect((stages.stages as Record<string, unknown>)[id], id).toBeDefined();

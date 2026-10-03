@@ -1,12 +1,12 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { MEMORIES } from "@/data/memory-room";
 import { playSound } from "@/lib/audio";
 import {
   type CharacterSheetTab,
-  isSeen,
+  selectNotebookTabTucked,
   selectOnboardingStep,
+  selectSeenCount,
   selectUnreadNotebookTabs,
   useMemoryRoomStore,
 } from "@/store/memory-room";
@@ -28,9 +28,10 @@ export function NotebookTab() {
    */
   /*
    * 햄버거 메뉴 패널이 열려 있는 동안은 물러난다. 패널이 화면 오른쪽 가운데까지 내려와
-   * 손잡이와 겹치는데, 손잡이가 DOM에서 뒤에 있어 패널 위로 올라탔다.
+   * 손잡이와 겹치는데, 손잡이가 DOM에서 뒤에 있어 패널 위로 올라탔다. 대사·컷씬이 떠 있는
+   * 동안에도 물러난다 (selectNotebookTabTucked).
    */
-  const menuOpen = useMemoryRoomStore((state) => state.uiLocks.includes("hud-menu"));
+  const menuOpen = useMemoryRoomStore(selectNotebookTabTucked);
   /*
    * 문제집 뒤표지에서 이름을 찾은 직후, 수첩을 한 번도 안 열었으면 손잡이가 금빛으로
    * 숨쉰다 (store의 onboardingStep). 이름을 알았다는 건 수첩이 말하는데, 이 손잡이가
@@ -46,9 +47,7 @@ export function NotebookTab() {
   const firstUnread = useMemoryRoomStore(selectUnreadNotebookTabs).split(",")[0] as
     | CharacterSheetTab
     | "";
-  const count = useMemoryRoomStore(
-    (state) => MEMORIES.filter((memory) => isSeen(state, memory.id)).length,
-  );
+  const count = useMemoryRoomStore(selectSeenCount);
 
   return (
     <button

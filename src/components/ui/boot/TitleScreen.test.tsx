@@ -55,6 +55,18 @@ describe("TitleScreen", () => {
     expect(screen.queryByRole("status")).toBeNull();
   });
 
+  it("counts memories from the second lap in the saved line, not just the first lap", () => {
+    useMemoryRoomStore.setState({
+      collected: ["radio" as MemoryId],
+      revisited: ["radio", "duffel", "fridge"] as MemoryId[],
+      doorOpened: true,
+    });
+    render(<TitleScreen />);
+
+    // radio(1차) + duffel · fridge(2차에 처음 본 것) = 3
+    expect(screen.getByText(/3 memories/)).toBeTruthy();
+  });
+
   it("returns to the menu after a reset instead of hanging on the loading overlay", () => {
     render(<TitleScreen />);
 

@@ -39,6 +39,7 @@ import {
   selectMonologueHidden,
   selectMusicPhase,
   selectMusicPlaying,
+  selectNotebookTabTucked,
   selectOnboardingStep,
   selectPackedCount,
   selectPacking,
@@ -832,6 +833,8 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
 
     useMemoryRoomStore.getState().drainSink();
     expect(useMemoryRoomStore.getState().sinkDrained).toBe(true);
+    // 물이 빠지는 순간 한 줄이 시선을 대야 바닥으로 끈다
+    expect(useMemoryRoomStore.getState().remark?.id).toBe("sink-drained");
     expect(clueUnlocked(useMemoryRoomStore.getState(), "raon-badge")).toBe(true);
 
     // 펼치는 순간이 발견이고, 내려놓으면 한 줄이 흐른다
@@ -1627,6 +1630,11 @@ describe("selectMonologueHidden", () => {
     expect(selectMonologueHidden(useMemoryRoomStore.getState())).toBe(false);
   });
 
+  it("엔딩이 시작되면 혼잣말이 물러난다. 엔딩 화면 위에 방의 줄이 남지 않는다", () => {
+    useMemoryRoomStore.setState({ endingStarted: true });
+    expect(selectMonologueHidden(useMemoryRoomStore.getState())).toBe(true);
+  });
+
   it("다른 잠금(타이틀 등)은 혼잣말을 건드리지 않는다", () => {
     useMemoryRoomStore.getState().setUiLock("title", true);
     expect(selectMonologueHidden(useMemoryRoomStore.getState())).toBe(false);
@@ -1653,5 +1661,80 @@ describe("다 쓴 물건", () => {
     useMemoryRoomStore.setState({ openedDoorways: ["living-parents"] });
     expect(selectCarrying(useMemoryRoomStore.getState())).toBe(false);
     expect(useMemoryRoomStore.getState().inventory).toEqual(["parents-key"]);
+  });
+});
+
+describe("진입 대사는 한 번만 듣는다", () => {
+  beforeEach(() => {
+    useMemoryRoomStore.getState().reset();
+    useMemoryRoomStore.setState({
+      introDone: true,
+      discoveries: ["hero-name"],
+      collected: ["report-card" as MemoryId],
+    });
+  });
+
+  /** 진입 대사를 끝까지 넘겨 미니게임 앞에 선다. */
+  function readIntro() {
+    for (let guard = 0; guard < 20; guard += 1) {
+      if (useMemoryRoomStore.getState().activeInteraction?.phase !== "dialogue") return;
+      useMemoryRoomStore.getState().advanceDialogue();
+    }
+  }
+
+  it("미니게임을 닫고 다시 누르면 진입 대사 없이 곧장 미니게임이 선다", () => {
+    useMemoryRoomStore.getState().beginInteraction("ball");
+    expect(useMemoryRoomStore.getState().activeInteraction?.phase).toBe("dialogue");
+    readIntro();
+    expect(useMemoryRoomStore.getState().activeInteraction?.phase).toBe("minigame");
+
+    useMemoryRoomStore.getState().cancelMinigame();
+    useMemoryRoomStore.getState().beginInteraction("ball");
+    expect(useMemoryRoomStore.getState().activeInteraction).toMatchObject({
+      memoryId: "ball",
+      phase: "minigame",
+    });
+  });
+
+  it("끝까지 듣지 않은 진입 대사는 다시 처음부터 흐른다", () => {
+    useMemoryRoomStore.getState().beginInteraction("ball");
+    useMemoryRoomStore.getState().advanceDialogue();
+    useMemoryRoomStore.setState({ activeInteraction: null });
+
+    useMemoryRoomStore.getState().beginInteraction("ball");
+    expect(useMemoryRoomStore.getState().activeInteraction).toMatchObject({
+      phase: "dialogue",
+      lineIndex: 0,
+    });
+  });
+
+  it("리셋하면 다시 듣는다", () => {
+    useMemoryRoomStore.getState().beginInteraction("ball");
+    readIntro();
+    useMemoryRoomStore.getState().reset();
+    useMemoryRoomStore.setState({
+      introDone: true,
+      discoveries: ["hero-name"],
+      collected: ["report-card" as MemoryId],
+    });
+
+    useMemoryRoomStore.getState().beginInteraction("ball");
+    expect(useMemoryRoomStore.getState().activeInteraction?.phase).toBe("dialogue");
+  });
+});
+
+describe("selectNotebookTabTucked", () => {
+  beforeEach(() => useMemoryRoomStore.getState().reset());
+
+  it("대사·미니게임이 떠 있는 동안 수첩 손잡이가 물러난다. 대사창 위에 수첩이 겹치지 않는다", () => {
+    expect(selectNotebookTabTucked(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().beginInteraction("report-card");
+    expect(useMemoryRoomStore.getState().activeInteraction).not.toBeNull();
+    expect(selectNotebookTabTucked(useMemoryRoomStore.getState())).toBe(true);
+  });
+
+  it("메뉴 패널이 내려와 있는 동안에도 물러난다", () => {
+    useMemoryRoomStore.getState().setUiLock("hud-menu", true);
+    expect(selectNotebookTabTucked(useMemoryRoomStore.getState())).toBe(true);
   });
 });

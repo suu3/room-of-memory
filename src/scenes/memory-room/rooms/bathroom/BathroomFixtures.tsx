@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Vector2 } from "three";
-import { playSound } from "@/lib/audio";
+import { pressSinkPlug } from "@/lib/room-press";
 import { clueUnlocked, selectBadgeSeen, useMemoryRoomStore } from "@/store/memory-room";
 import { MirrorReflection } from "../../effects/MirrorReflection";
 import { ClueProp, TouchProp } from "../../memory/RoomClues";
@@ -143,17 +143,13 @@ function Toilet({ palette }: { palette: RoomPalette }) {
  */
 function SinkPlug({ palette }: { palette: RoomPalette }) {
   const drained = useMemoryRoomStore((state) => state.sinkDrained);
-  const drainSink = useMemoryRoomStore((state) => state.drainSink);
   return (
     <TouchProp
       name="sink-plug"
       near={SINK_NEAR}
       radius={SINK_RADIUS}
       enabled={!drained}
-      onPress={() => {
-        playSound("drawer");
-        drainSink();
-      }}
+      onPress={pressSinkPlug}
     >
       <group
         name="sink-plug"

@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { ASSETS } from "@/lib/assets";
 import { playSound, startCueMusic, stopCueMusic } from "@/lib/audio";
-import { useMemoryRoomStore } from "@/store/memory-room";
+import { selectSeenCount, useMemoryRoomStore } from "@/store/memory-room";
 import { HudLogLine, HudSignalLight } from "../hud/HudLogLine";
 import { LanguageToggle } from "../hud/LanguageToggle";
 import { SoundToggle } from "../hud/SoundToggle";
@@ -150,7 +150,8 @@ export function TitleScreen() {
    * 저장된 진행. localStorage에서 되살아나므로 서버 렌더에는 없고, 첫 클라이언트
    * 렌더에서 채워진다. 그래서 "0개면 아무것도 안 보여준다"가 곧 hydration 안전판이다.
    */
-  const collectedCount = useMemoryRoomStore((state) => state.collected.length);
+  // 한 번이라도 본 기억의 수. 1바퀴 수집(collected)만 세면 2막을 한참 지나서도 여덟에서 멈춘다
+  const collectedCount = useMemoryRoomStore(selectSeenCount);
   const hasSave = collectedCount > 0;
   const itemsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const cancelRef = useRef<HTMLButtonElement>(null);

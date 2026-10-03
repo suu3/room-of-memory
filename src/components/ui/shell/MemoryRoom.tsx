@@ -217,7 +217,7 @@ export function MemoryRoom() {
         크기는 헤더에 걸린 --text-hud(폭 따라 16→22px) 하나를 안쪽이 em으로 따른다.
         제목 1em, 라벨 0.75em, 진행 칸 1.5em: 폭이 넓어지면 전부 같은 비율로 자란다.
       */}
-      {started && (
+      {started && !endingStarted && (
         <header className="monologue-text absolute left-4 top-4 z-10 flex flex-col gap-[0.5em] text-hud md:left-6 md:top-6">
           <h1 className="text-[1em] font-medium leading-snug tracking-tight text-ivory">
             {t("title")}
@@ -358,7 +358,8 @@ export function MemoryRoom() {
           <PlaybackScene />
           <DialogueBox />
           {/* 수첩(기록 페이지)으로 들어가는 오른쪽 가장자리 손잡이 */}
-          <NotebookTab />
+          {/* 엔딩 화면 위에는 서지 않는다: 헤더·아래 띠와 같이 물러난다 */}
+          {!endingStarted && <NotebookTab />}
           {/* 방에서 집어 든 종이 한 장 (기록 노트 · 서랍 쪽지): 진행에 남지 않는다 */}
           <ClueOverlay />
           <CharacterSheetModal />
