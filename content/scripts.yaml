@@ -81,9 +81,9 @@ scripts:
     # 우리 쪽 포수 윤호는 다음 타자였다. 도해가 뜬공으로 끝나 윤호는 치지 못했다
     - speaker: hero
       expression: smile
-      ko: 대기 타석에서 윤호가 소리쳤다. "쳐, 한도해!"
-      en: 'Yunho yelled from the on-deck circle. "Hit it, Han Do-hae!"'
-      ja: ネクストバッターズサークルからユノが叫んだ。「打て、ハン・ドヘ!」
+      ko: 대기 타석에서 윤호가 소리쳤다. "칠 수 있어, 도해야!"
+      en: 'Yunho called out from the on-deck circle. "You can hit it, Do-hae!"'
+      ja: ネクストバッターズサークルからユノが叫んだ。「打てるよ、ドヘ!」
     - speaker: hero
       ko: 상대 포수가 손바닥으로 미트를 탁탁, 두 번 두드리고 앉았다.
       en: Their catcher slapped his palm against his mitt twice, thwack thwack, and crouched down.
@@ -144,6 +144,16 @@ scripts:
   # 2차 (곁가지)
   console-echo:
     - speaker: hero
+      ko: 컨트롤러가 두 개 그대로다.
+      en: Both controllers are still here.
+      ja: コントローラーが二つ、そのままだ。
+    # 1차 회상(console-flashback)의 "다음에는 캐릭터 바꿔서 하자고 했었는데."를 받는다
+    - speaker: hero
+      expression: sad
+      ko: 다음엔 캐릭터 바꿔서 하자고 했었는데.
+      en: We said we'd swap characters next time.
+      ja: 次はキャラを交換しようって言ってたのに。
+    - speaker: hero
       expression: smile
       ko: 모든 일이 끝나면 그때 다시 하자.
       en: When all this is over, let's play again.
@@ -160,7 +170,7 @@ scripts:
       ja: これ、少年野球の大会で入賞したときの写真だ。
     - speaker: hero
       expression: smile
-      ko: 아마 옆에 윤호도 있었을 것이다. 그때부터 야구를 같이 해왔으니까.
+      ko: 아마 옆에 윤호도 있었을 것이다. 그때부터 야구를 같이 해 왔으니까.
       en: Yunho was probably next to me. We've played baseball together since then.
       ja: たぶん隣にはユノもいたはずだ。あの頃から一緒に野球をやってきたから。
     - speaker: hero
@@ -169,13 +179,20 @@ scripts:
       en: …My parents' faces are blurry.
       ja: …両親の顔がぼやけている。
 
-  # 단톡이 멈춘 날짜를 처음으로 못박는다. 엄마 대화방은 1페이즈에서 말하지 않는다 (폰 2차의 몫).
+  # 단톡이 멈춘 날짜를 처음으로 못박는다. 단톡은 그 전날(18일) 밤의 수다에서 멈췄고,
+  # 19일에 남은 것은 도해가 건 전화뿐이다 (phone-chat/thread.ts). 달력 진입 대사가 이
+  # 19일을 이어받는다. 엄마 대화방은 1페이즈에서 말하지 않는다 (폰 2차의 몫).
   # 강도 2는 "이상하다"까지만: "다 끊겼다"는 단정은 라디오 전에 하지 않는다
   phone-stopped:
     - speaker: hero
-      ko: 마지막 메시지가 10월 19일.
-      en: The last message is from October 19.
-      ja: 最後のメッセージは10月19日。
+      ko: 단톡은 10월 18일 밤이 마지막.
+      en: The group chat ends on the night of October 18.
+      ja: グループチャットは10月18日の夜が最後。
+    - speaker: hero
+      expression: puzzled
+      ko: 19일에 건 전화는 아무도 받지 않았다.
+      en: The calls I made on the 19th. No one picked up.
+      ja: 19日にかけた電話は、誰も出なかった。
 
   # ─────────────────────────────────────────────── 1페이즈 · 강도 3
 
@@ -237,13 +254,13 @@ scripts:
       en: Water, cans, a flashlight. That should do it.
       ja: 水、缶詰、懐中電灯。これくらいでいいか。
     - speaker: hero
-      ko: 글러브는 두고 가고.
-      en: Leave the glove behind.
-      ja: グローブは置いていこう。
+      ko: 글러브는 두고 갈까.
+      en: Leave the glove behind?
+      ja: グローブは置いていくか。
     - speaker: hero
-      ko: …혹시 모르니까.
-      en: …Just in case.
-      ja: …念のため。
+      ko: …아니, 혹시 모르니까.
+      en: …No. Just in case.
+      ja: …いや、念のため。
 
   # 떠나기 전 가방을 멘다. 2차에서 두고 가려다 넣은 글러브를 받는다
   duffel-take:
@@ -259,9 +276,9 @@ scripts:
   # 위칸. 숫자만 이상해한다. 결론은 말하지 않는다
   fridge-open:
     - speaker: hero
-      ko: 나갈 거면 뭐라도 챙겨야지. 냉장고부터 보자.
-      en: If I'm going out, I should take something. Start with the fridge.
-      ja: 出るなら何か持っていかないと。まずは冷蔵庫から。
+      ko: 나갈 거면 뭐라도 챙겨야지. 냉장고를 보자.
+      en: If I'm going out, I should take something. Let's check the fridge.
+      ja: 出るなら何か持っていかないと。冷蔵庫を見てみよう。
     - speaker: hero
       expression: puzzled
       ko: 한 달을 먹었는데 아직 반이 남았어.
@@ -269,7 +286,7 @@ scripts:
       ja: ひと月食べてきたのに、まだ半分残ってる。
     - speaker: hero
       expression: puzzled
-      ko: 2박 3일 다녀온다고 하셨는데, 왜 이만큼이나 채워놓으셨을까.
+      ko: 2박 3일 다녀온다고 하셨는데, 왜 이만큼이나 채워 놓으셨을까.
       en: Two nights, they said. So why stock this much?
       ja: 二泊三日って言ってたのに、なんでこんなに詰めていったんだ。
 
@@ -361,9 +378,14 @@ scripts:
   phone-mom-intro:
     - speaker: hero
       expression: sad
-      ko: 엄마 대화방. 마지막 문자는 그날 아침 거다.
-      en: My chat with Mom. The last message is from that morning.
-      ja: 母さんとのトーク。最後のメッセージはあの日の朝のだ。
+      ko: 엄마 대화방. 아까는 일부러 안 봤다.
+      en: My chat with Mom. I skipped past it on purpose earlier.
+      ja: 母さんとのトーク。さっきはわざと見なかった。
+    - speaker: hero
+      expression: sad
+      ko: 마지막 문자는 그날 아침 거다.
+      en: The last message is from that morning.
+      ja: 最後のメッセージはあの日の朝のだ。
     - speaker: hero
       expression: sad
       ko: …
@@ -387,12 +409,12 @@ scripts:
   ball-echo:
     - speaker: hero
       expression: sad
-      ko: ...휘두르는 감각을 잊고 있었어.
-      en: "...I'd forgotten what swinging feels like."
-      ja: "...振る感覚を忘れてた。"
+      ko: …휘두르는 감각을 잊고 있었어.
+      en: "…I'd forgotten what swinging feels like."
+      ja: "…振る感覚を忘れてた。"
     - speaker: hero
       expression: smile
-      ko: 나가면 다시 치는거야
+      ko: 나가면 다시 치는 거야.
       en: "Once I'm out of here, I'm hitting again."
       ja: "外に出たら、また打つんだ。"
 
@@ -409,7 +431,7 @@ scripts:
       en: It's the drawer from Mom's note.
       ja: メモに書いてあった、あの段だ。
     - speaker: hero
-      ko: …열어보자.
+      ko: …열어 보자.
       en: …Let's open it.
       ja: …開けてみよう。
 
@@ -481,12 +503,14 @@ scripts:
       en: Mom's handwriting. Each piece has a date on it.
       ja: 母さんの字だ。一枚ずつ日付が書いてある。
 
-  # 날짜순으로 놓은 뒤: 연구원 신분, 치료제 후보, 여행이 아니었다는 것
+  # 날짜순으로 놓은 뒤: 무슨 연구였는지, 치료제 후보, 여행이 아니었다는 것.
+  # 도해는 부모님이 라온에 다니는 것은 알았다 (배지: "아빠 목에 늘 걸려 있던 거다").
+  # 몰랐던 것은 무슨 연구를 했는가다
   research-note-read:
     - speaker: hero
-      ko: 두 분 다 연구원이었어. 라온생명과학연구소.
-      en: They were both researchers. At Raon Life Science Institute.
-      ja: 二人とも研究員だったんだ。ラオン生命科学研究所の。
+      ko: 두 분이 하던 연구가 이거였어. 라온생명과학연구소.
+      en: So this is what they were working on. Raon Life Science Institute.
+      ja: 二人がやってた研究は、これだったんだ。ラオン生命科学研究所。
     - speaker: hero
       expression: surprised
       ko: 여행이 아니라 연구소에 불려 간 거였어.
@@ -501,9 +525,9 @@ scripts:
   # 출입증을 집어 든다: 3D로 기울여 보는 판(id-card-flip) 앞
   id-card-look:
     - speaker: hero
-      ko: 아빠와 엄마 회사 출입증 같은데..?
-      en: These look like Mom and Dad's work badges..?
-      ja: 父さんと母さんの会社の入館証みたいだけど..?
+      ko: 아빠 출입증, 엄마 출입증. 둘 다 두고 갔네.
+      en: Dad's badge. Mom's badge. They left both behind.
+      ja: 父さんの入館証、母さんの入館証。二人とも置いていったんだ。
 
   # 홀로그램의 로고를 본 뒤
   id-card-found:

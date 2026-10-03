@@ -139,7 +139,7 @@
     "ball-intro": {
       "line1": "Three years on the baseball team. It was my last summer.",
       "line2": "Nationals round of 16, against Eungang High. Bottom of the ninth, two outs, and I was the last batter.",
-      "line3": "Yunho yelled from the on-deck circle. \"Hit it, Han Do-hae!\"",
+      "line3": "Yunho called out from the on-deck circle. \"You can hit it, Do-hae!\"",
       "line4": "Their catcher slapped his palm against his mitt twice, thwack thwack, and crouched down.",
       "line5": "He looked so sure of himself, like he'd catch anything no matter how I swung.",
       "line6": "Full count. The ball came off my bat and popped up high behind the plate.",
@@ -158,7 +158,9 @@
       "line2": "…What's the point of winning by myself?"
     },
     "console-echo": {
-      "line1": "When all this is over, let's play again."
+      "line1": "Both controllers are still here.",
+      "line2": "We said we'd swap characters next time.",
+      "line3": "When all this is over, let's play again."
     },
     "frame-photo": {
       "line1": "This is from the youth baseball tournament, the day we placed.",
@@ -166,7 +168,8 @@
       "line3": "…My parents' faces are blurry."
     },
     "phone-stopped": {
-      "line1": "The last message is from October 19."
+      "line1": "The group chat ends on the night of October 18.",
+      "line2": "The calls I made on the 19th. No one picked up."
     },
     "window-silence": {
       "line1": "The first few days, the sirens went all night.",
@@ -186,15 +189,15 @@
     "duffel-pack": {
       "line1": "Let's empty out my baseball bag.",
       "line2": "Water, cans, a flashlight. That should do it.",
-      "line3": "Leave the glove behind.",
-      "line4": "…Just in case."
+      "line3": "Leave the glove behind?",
+      "line4": "…No. Just in case."
     },
     "duffel-take": {
       "line1": "Water, canned food, a flashlight. It's all in.",
       "line2": "…And the glove."
     },
     "fridge-open": {
-      "line1": "If I'm going out, I should take something. Start with the fridge.",
+      "line1": "If I'm going out, I should take something. Let's check the fridge.",
       "line2": "I've been eating for a month and it's still half full.",
       "line3": "Two nights, they said. So why stock this much?"
     },
@@ -225,15 +228,16 @@
       "line3": "The first report was at 3 p.m."
     },
     "phone-mom-intro": {
-      "line1": "My chat with Mom. The last message is from that morning.",
-      "line2": "…"
+      "line1": "My chat with Mom. I skipped past it on purpose earlier.",
+      "line2": "The last message is from that morning.",
+      "line3": "…"
     },
     "phone-mom-read": {
       "line1": "…7:12? The news didn't come out until the afternoon.",
       "line2": "…That was the last one."
     },
     "ball-echo": {
-      "line1": "...I'd forgotten what swinging feels like.",
+      "line1": "…I'd forgotten what swinging feels like.",
       "line2": "Once I'm out of here, I'm hitting again."
     },
     "ampoule-note": {
@@ -265,12 +269,12 @@
       "line2": "Mom's handwriting. Each piece has a date on it."
     },
     "research-note-read": {
-      "line1": "They were both researchers. At Raon Life Science Institute.",
+      "line1": "So this is what they were working on. Raon Life Science Institute.",
       "line2": "It wasn't a trip. They were called in to the institute.",
       "line3": "RX-11. A candidate cure. …They made two, and one slot was empty."
     },
     "id-card-look": {
-      "line1": "These look like Mom and Dad's work badges..?"
+      "line1": "Dad's badge. Mom's badge. They left both behind."
     },
     "id-card-found": {
       "line1": "Raon Life Science Institute. Dad's name, Mom's name.",
@@ -299,7 +303,7 @@
     },
     "phone": {
       "title": "The Silence",
-      "phase1": "The group chat has been quiet since that day.",
+      "phase1": "The group chat stopped the night before. No one picked up the calls I made that day.",
       "phase2": "7:12 a.m. Mom's last text: come straight home."
     },
     "calendar": {
@@ -308,7 +312,7 @@
     },
     "window": {
       "title": "Outside",
-      "phase1": "Broken glass, a crushed car. I closed the window again."
+      "phase1": "Smoke in the distance, a stain on the road, dark windows. I closed the curtains again."
     },
     "radio": {
       "title": "That Broadcast",
@@ -345,7 +349,7 @@
     },
     "research-note": {
       "title": "Research Log",
-      "phase2": "Both were Raon researchers. The ampoule: a candidate cure. The trip: a summons."
+      "phase2": "This was their research. The ampoule: a candidate cure. The trip: a summons."
     },
     "id-card": {
       "title": "Access Badges",
@@ -456,7 +460,9 @@
     },
     "trip-doubt": {
       "cut1": {
-        "line1": "Two nights, but two suitcases. They packed for a month."
+        "line1": "I've been eating from the fridge for a month, and it's still half full.",
+        "line2": "They took two suitcases, but Dad's hiking boots are still at home.",
+        "line3": "They said two nights, but they packed for a month."
       }
     },
     "p2-close": {

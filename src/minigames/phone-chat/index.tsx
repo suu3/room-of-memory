@@ -65,7 +65,8 @@ const ROOM_META = {
   friends: {
     nameKey: "minigame.phoneChat.chat.room",
     last: GROUP_CHAT[GROUP_CHAT.length - 1],
-    dateKey: "minigame.phoneChat.date",
+    // 단톡은 그 전날 밤에서 멈췄다. 그날(phoneChat.date)은 엄마 대화방과 통화 기록의 날이다
+    dateKey: "minigame.phoneChat.chat.date",
   },
   family: {
     nameKey: "minigame.phoneChat.family.room",
@@ -336,7 +337,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
           >
             {/* 날짜가 대화의 머리에 선다. 첫 줄부터 읽어 내려가는 화면이라 처음부터 보인다 */}
             <p className="pb-3 text-center text-[0.6875rem] tracking-wider text-bone/35">
-              {t("minigame.phoneChat.date")}
+              {t("minigame.phoneChat.chat.date")}
             </p>
             <ul className="flex flex-col gap-2.5">
               {visibleMessages(revealed).map((message, index, shown) => (

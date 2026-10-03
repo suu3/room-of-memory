@@ -175,15 +175,15 @@ memories:
         en: The Silence
         ja: 途切れた連絡
       phase1:
-        ko: 단톡은 그날 이후로 조용하다.
-        en: The group chat has been quiet since that day.
-        ja: グループチャットは、あの日から静かなままだ。
+        ko: 단톡은 그 전날 밤에 멈췄다. 그날 건 전화는 아무도 받지 않았다.
+        en: The group chat stopped the night before. No one picked up the calls I made that day.
+        ja: グループチャットは前の晩で止まった。あの日かけた電話には、誰も出なかった。
       phase2:
         ko: 아침 7시 12분, 바로 집에 오라던 엄마의 마지막 문자.
         en: "7:12 a.m. Mom's last text: come straight home."
         ja: 朝7時12分、すぐ帰ってきなさいという母さんの最後のメッセージ。
     # 1차: 시끄러운 단톡 → 가족 단톡(부모님 메시지 폭탄 + 도해 "응.") → 결과 대사가
-    # "10월 19일"을 못박는다. 엄마 대화방은 여기서 보이지도, 말하지도 않는다
+    # 단톡의 마지막(10월 18일 밤)과 받지 않은 전화(19일)를 못박는다. 엄마 대화방은 여기서 보이지도, 말하지도 않는다
     phase1:
       minigame: phone-chat
       resultScript: phone-stopped
@@ -213,7 +213,7 @@ memories:
         ko: 지나간 날들을 세려고 正자만 그었다.
         en: "To count the days that went by, I just kept making tally marks."
         ja: "過ぎた日を数えようと、正の字だけを書いた。"
-    # phone 뒤에만 열린다. 진입 대사가 단톡의 날짜(10월 19일)를 이어받는다.
+    # phone 뒤에만 열린다. 진입 대사가 폰 결과 대사의 날짜(전화가 닿지 않은 10월 19일)를 이어받는다.
     phase1:
       script: calendar-intro
       minigame: calendar-flip
@@ -229,9 +229,9 @@ memories:
         en: Outside
         ja: 窓の外
       phase1:
-        ko: 깨진 유리, 찌그러진 차. 창문을 다시 닫았다.
-        en: Broken glass, a crushed car. I closed the window again.
-        ja: 割れたガラス、潰れた車。また窓を閉めた。
+        ko: 멀리 연기, 도로의 자국, 불 꺼진 창들. 커튼을 다시 닫았다.
+        en: Smoke in the distance, a stain on the road, dark windows. I closed the curtains again.
+        ja: 遠くの煙、道路の染み、明かりの消えた窓。またカーテンを閉めた。
     # 커튼을 걷으면 그림 한 장. 강도 3이라 강도 2 둘(액자·폰)을 다 본 뒤에 열린다.
     phase1:
       minigame: window-view
@@ -436,9 +436,9 @@ memories:
         en: Research Log
         ja: 研究日誌
       phase2:
-        ko: 둘 다 라온 연구원이었다. 앰플은 치료제 후보, 여행은 소집.
-        en: "Both were Raon researchers. The ampoule: a candidate cure. The trip: a summons."
-        ja: 二人ともラオンの研究員だった。アンプルは治療薬の候補、旅行は招集。
+        ko: 두 분의 연구는 이거였다. 앰플은 치료제 후보, 여행은 소집.
+        en: "This was their research. The ampoule: a candidate cure. The trip: a summons."
+        ja: 二人の研究はこれだった。アンプルは治療薬の候補、旅行は招集。
     phase2:
       script: research-note-intro
       minigame: papers-order

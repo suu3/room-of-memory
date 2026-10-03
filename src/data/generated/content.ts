@@ -372,7 +372,11 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   },
   "console-echo": {
     id: "console-echo",
-    lines: [{ speaker: "hero", textKey: "scripts.console-echo.line1", expression: "smile" }],
+    lines: [
+      { speaker: "hero", textKey: "scripts.console-echo.line1" },
+      { speaker: "hero", textKey: "scripts.console-echo.line2", expression: "sad" },
+      { speaker: "hero", textKey: "scripts.console-echo.line3", expression: "smile" },
+    ],
   },
   "frame-photo": {
     id: "frame-photo",
@@ -384,7 +388,10 @@ export const SCRIPTS: Record<string, DialogueScript> = {
   },
   "phone-stopped": {
     id: "phone-stopped",
-    lines: [{ speaker: "hero", textKey: "scripts.phone-stopped.line1" }],
+    lines: [
+      { speaker: "hero", textKey: "scripts.phone-stopped.line1" },
+      { speaker: "hero", textKey: "scripts.phone-stopped.line2", expression: "puzzled" },
+    ],
   },
   "window-silence": {
     id: "window-silence",
@@ -481,6 +488,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.phone-mom-intro.line1", expression: "sad" },
       { speaker: "hero", textKey: "scripts.phone-mom-intro.line2", expression: "sad" },
+      { speaker: "hero", textKey: "scripts.phone-mom-intro.line3", expression: "sad" },
     ],
   },
   "phone-mom-read": {
@@ -600,7 +608,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "ball-flashback",
     cuts: [
       {
-        image: "/assets/images/mg-cutscene-ball-flashback.webp?v=2",
+        image: "/assets/images/mg-cutscene-ball-flashback.webp?v=3",
         holdMs: 1500,
         lines: [
           { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line1" },
@@ -739,7 +747,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [],
       },
       {
-        image: "/assets/images/cutscene-survivor-4.webp?v=2",
+        image: "/assets/images/cutscene-survivor-4.webp?v=4",
         page: 1,
         ratio: "16:9",
         sfx: "radioStatic",
@@ -753,7 +761,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [{ speaker: "signal", textKey: "cutscenes.survivor-broadcast.cut5.line1" }],
       },
       {
-        image: "/assets/images/cutscene-survivor-6.webp?v=2",
+        image: "/assets/images/cutscene-survivor-6.webp?v=3",
         holdMs: 1500,
         page: 2,
         ratio: "3:4",
@@ -767,7 +775,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [{ speaker: "signal", textKey: "cutscenes.survivor-broadcast.cut7.line1" }],
       },
       {
-        image: "/assets/images/cutscene-survivor-8.webp?v=2",
+        image: "/assets/images/cutscene-survivor-8.webp?v=4",
         page: 3,
         ratio: "16:9",
         sfx: "radioStatic",
@@ -804,7 +812,11 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "trip-doubt",
     cuts: [
       {
-        lines: [{ speaker: "hero", textKey: "cutscenes.trip-doubt.cut1.line1" }],
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.trip-doubt.cut1.line1", expression: "puzzled" },
+          { speaker: "hero", textKey: "cutscenes.trip-doubt.cut1.line2", expression: "puzzled" },
+          { speaker: "hero", textKey: "cutscenes.trip-doubt.cut1.line3" },
+        ],
       },
     ],
   },

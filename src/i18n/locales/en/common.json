@@ -108,6 +108,16 @@
     "doorState": {
       "ready": "{{name}} · open",
       "locked": "{{name}} · can't open yet"
+    },
+    "prop": {
+      "sink-plug": "Pull the sink plug",
+      "sink-cabinet": "Open the cabinet under the sink",
+      "bat": "Take the bat by the front door",
+      "front-door": "Open the front door and leave"
+    },
+    "propState": {
+      "ready": "{{name}}",
+      "locked": "{{name}} · not yet"
     }
   },
   "reset": {
@@ -243,7 +253,7 @@
       "title": "Outside",
       "help": "Draw the curtain and look outside",
       "close": "Close the curtain",
-      "lookHelp": "Move the lens over the view: arrow keys · Enter",
+      "lookHelp": "Move the lens over the view: mouse · arrow keys · Enter",
       "lookHelp_touch": "Touch the view to look closer",
       "spotsLabel": "What you found outside",
       "spot": {
@@ -275,10 +285,11 @@
         "calls": "Calls"
       },
       "chat": {
+        "date": "October 18",
         "room": "Seniors Who Gave Up on College",
         "j1": "yo Dohae after school tmrw?",
         "j2": "u got nothing to do anyway",
-        "y1": "smh guys suneung is in a month",
+        "y1": "guys suneung is in a month",
         "j3": "u really think a month of studying changes anything for me?",
         "y2": "lol",
         "m1": "lol",
@@ -479,7 +490,7 @@
       "title": "The Note on the Table",
       "alt": "3D folded note: drag upward to unfold it",
       "memo": "Bottom drawer. RX ||\n4°C. Do not take out.",
-      "found": "Unfolded, it's Mom's handwriting."
+      "found": "There's something written inside."
     },
     "idCardFlip": {
       "title": "ID Badge",
@@ -615,7 +626,7 @@
     },
     "wallCalendar": {
       "title": "Wall Calendar",
-      "caption": "Two circles. One is that day; the other is some day before it."
+      "caption": "Only one day is circled."
     },
     "shelfBook": {
       "title": "The Upside-Down Book",
@@ -699,6 +710,7 @@
     "clockStopped": "4:20. …When did it stop?",
     "clockRunning": "…It's ticking again. Whether it's right, I can't tell.",
     "aircon": "It's gotten cold. No reason to turn the AC on.",
+    "sinkDrained": "…Something's sunk to the bottom.",
     "badgeFound": "…It was on the ampoule."
   }
 }

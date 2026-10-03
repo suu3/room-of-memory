@@ -13,7 +13,7 @@ export const CALENDAR_YEAR = 2026;
 /**
  * 모든 게 끊긴 날. 이 달까지는 달력이 달력으로 남아 있다.
  * 방 안의 다른 기록도 전부 이 날짜를 가리켜야 한다. 로어(lore.calendar)의 제목,
- * 폰 단톡방 화면의 날짜(minigame.phoneChat.date).
+ * 폰 엄마 대화방 화면의 날짜(minigame.phoneChat.date). 친구 단톡은 그 전날 밤에서 멈춘다.
  */
 export const INCIDENT_DATE = { month: 10, day: 19 } as const;
 /*

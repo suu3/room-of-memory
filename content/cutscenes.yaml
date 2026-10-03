@@ -96,7 +96,7 @@ cutscenes:
   # 손바닥으로 미트를 두드리던 버릇의 소리가 방송 첫 칸의 탁, 탁(mittTap)과 이어지는 포수 복선이다.
   # 윤호의 생사·행방은 묻기만 하고 답하지 않는다.
   ball-flashback:
-    - image: /assets/images/mg-cutscene-ball-flashback.webp?v=2
+    - image: /assets/images/mg-cutscene-ball-flashback.webp?v=3
       holdMs: 1500
       lines:
         - speaker: hero
@@ -113,7 +113,7 @@ cutscenes:
           en: I played second base, and I psyched myself up with my best friend Yunho, our catcher.
           ja: セカンドの俺は、キャッチャーで親友のユノと気合いを入れ合った。
         - speaker: hero
-          ko: 하지만 결국 졌었지. 은강고 포수가 손바닥으로 미트를 탁탁 두드리던 소리가 기억에 남는다.
+          ko: 하지만 결국 졌지. 은강고 포수가 손바닥으로 미트를 탁탁 두드리던 소리가 기억에 남는다.
           en: But we lost in the end. I still remember the sound of Eungang's catcher slapping his palm against his mitt.
           ja: でも結局負けた。銀江高のキャッチャーが手のひらでミットをパンパンと叩いていた音が、耳に残っている。
         - speaker: hero
@@ -313,7 +313,7 @@ cutscenes:
       ratio: "3:4"
       holdMs: 1500
       lines: []
-    - image: /assets/images/cutscene-survivor-4.webp?v=2
+    - image: /assets/images/cutscene-survivor-4.webp?v=4
       page: 1
       ratio: "16:9"
       sfx: radioStatic
@@ -332,7 +332,7 @@ cutscenes:
           ko: 여기 은강고 체육관에 생존자들 모여 있어.
           en: We've got survivors gathered here at the Eungang High gym.
           ja: ここ、銀江高の体育館に生存者が集まってる。
-    - image: /assets/images/cutscene-survivor-6.webp?v=2
+    - image: /assets/images/cutscene-survivor-6.webp?v=3
       page: 2
       ratio: "3:4"
       holdMs: 1500
@@ -347,7 +347,7 @@ cutscenes:
           en: I hooked a transmitter up to the broadcast room gear, so it won't reach far. You'll hear it around here, though.
           ja: 放送室の機材に送信機をつないで飛ばしてるから、遠くまでは届かない。この辺なら聞こえるはずだ。
     # 3페이지
-    - image: /assets/images/cutscene-survivor-8.webp?v=2
+    - image: /assets/images/cutscene-survivor-8.webp?v=4
       page: 3
       ratio: "16:9"
       sfx: radioStatic
@@ -387,12 +387,23 @@ cutscenes:
 
   #
   # 캐리어 개수 추리의 결론 (v4.1 3장). 신발장과 아빠 메일("2박 3일")을 둘 다 본 순간.
+  # 냉장고(한 달 먹고 반) → 신발장(캐리어 둘, 등산화는 집에) → 아빠 메일(2박 3일)을 한 줄씩 잇는다
   trip-doubt:
     - lines:
         - speaker: hero
-          ko: 2박 3일인데 캐리어가 두 개. 가져간 짐은 한 달치였어.
-          en: Two nights, but two suitcases. They packed for a month.
-          ja: 二泊三日なのにスーツケースが二つ。持っていったのは、ひと月分の荷物だった。
+          expression: puzzled
+          ko: 냉장고 안 음식은 한 달을 먹고도 반이 남았다.
+          en: I've been eating from the fridge for a month, and it's still half full.
+          ja: 冷蔵庫の食べ物は、ひと月食べてもまだ半分残っている。
+        - speaker: hero
+          expression: puzzled
+          ko: 캐리어를 두 개 가져가셨지만, 등산화는 집에 남아있다.
+          en: They took two suitcases, but Dad's hiking boots are still at home.
+          ja: スーツケースは二つ持っていったのに、登山靴は家に残っている。
+        - speaker: hero
+          ko: 2박 3일이라고 했는데 가져간 짐은 한 달 치였어.
+          en: They said two nights, but they packed for a month.
+          ja: 二泊三日って言ってたのに、持っていったのはひと月分の荷物だった。
 
   #
   # 2페이즈를 닫는 한 줄. 그림 없이 방이 비친 채로 흐른다.

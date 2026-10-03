@@ -46,7 +46,8 @@ const MAIL_PAGES: readonly ArchivePage[] = [
     titleKey: "minigame.computerBrowse.mail.m1.subject",
     dateKey: "minigame.computerBrowse.mail.m1.date",
     bodyKeys: ["minigame.computerBrowse.mail.m1.b1", "minigame.computerBrowse.mail.m1.b2"],
-    attachments: ["IMG_2183.jpg", "IMG_2190.jpg"],
+    // IMG_2190은 여기 없다: 그 사진은 16일의 "잔소리" 메일에 붙어 있다 (computer-logo)
+    attachments: ["IMG_2183.jpg", "IMG_2184.jpg"],
   },
   {
     id: "mail-return",
