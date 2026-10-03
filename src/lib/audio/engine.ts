@@ -49,6 +49,9 @@ function ensureContext(): AudioContext | null {
   if (!visibilityBound && typeof document !== "undefined") {
     visibilityBound = true;
     document.addEventListener("visibilitychange", onVisibilityChange);
+    // iOS는 앱을 오갈 때 visibilitychange를 빼먹기도 한다. 돌아온 신호를 둘 더 듣는다
+    window.addEventListener("pageshow", onVisibilityChange);
+    window.addEventListener("focus", onVisibilityChange);
   }
   return context;
 }
@@ -67,11 +70,16 @@ function isBackgrounded(): boolean {
 function onVisibilityChange() {
   if (!context || context.state === "closed") return;
   if (isBackgrounded()) void context.suspend();
-  else void context.resume();
+  else wake(context);
 }
-/** 멈춘 컨텍스트를 깨운다. 뒤로 가 있는 동안에는 깨우지 않는다 (onVisibilityChange). */
+/**
+ * 멈춘 컨텍스트를 깨운다. 뒤로 가 있는 동안에는 깨우지 않는다 (onVisibilityChange).
+ *
+ * iOS 사파리는 다른 앱에 다녀오면 컨텍스트를 interrupted로 두고, 제스처 밖에서 부른
+ * resume()을 거절하기도 한다. 거절은 삼키고, 다음 터치가 다시 깨운다 (useAudio의 wake).
+ */
 function wake(ctx: AudioContext) {
-  if (ctx.state !== "running" && !isBackgrounded()) void ctx.resume();
+  if (ctx.state !== "running" && !isBackgrounded()) ctx.resume().catch(() => {});
 }
 
 /** 짧은 화이트 노이즈 버퍼. 매번 만들지 않고 한 번만 만들어 돌려쓴다. */

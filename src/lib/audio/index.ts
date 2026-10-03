@@ -73,13 +73,19 @@ export function useAudioRuntime() {
      * 깨우는 김에 실물 효과음 파일을 받아 둔다. 미트 소리는 방송 첫 컷이 뜨자마자, 스위치는
      * 인트로 첫 조작에 울려서 그때 받기 시작하면 첫 재생은 합성 대역으로 나간다.
      * 클릭·뽁은 첫 화면부터 운다. 전부 합쳐 수십 KB라 미리 받아도 부담이 없다.
+     *
+     * 리스너는 한 번으로 끝내지 않는다. 아이폰에서 다른 앱에 다녀오면 컨텍스트가 멈춘 채
+     * 남고, 제스처 안에서 다시 깨워야만 소리가 돌아온다. 돌고 있을 때는 상태만 보고 지나간다.
      */
+    let preloaded = false;
     const wake = () => {
       unlockAudio();
+      if (preloaded) return;
+      preloaded = true;
       preloadSamples(["select", "open", "mittTap", "doorOpen", "lightSwitch", "computerBoot"]);
     };
     const events = ["pointerdown", "pointerup", "click", "keydown"] as const;
-    for (const type of events) window.addEventListener(type, wake, { once: true });
+    for (const type of events) window.addEventListener(type, wake);
     return () => {
       for (const type of events) window.removeEventListener(type, wake);
     };
