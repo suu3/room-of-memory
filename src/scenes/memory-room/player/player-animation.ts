@@ -9,6 +9,7 @@ import {
 } from "three";
 import { clone } from "three/addons/utils/SkeletonUtils.js";
 import type { CurtainSide } from "@/types/curtain";
+import { findSleeveRoots, releaseSleeveRoots, settleSleeveRoots } from "./sleeve-root";
 
 /*
  * 손을 뻗는 몸짓 (커튼을 젖힐 때).
@@ -59,6 +60,8 @@ export function createPlayerRig(
       mesh.castShadow = !mesh.name.startsWith("Eyelid") && !mesh.name.startsWith("EyeHighlight");
     }
   });
+  // rest 자세를 읽어야 하므로 믹서가 뼈를 움직이기 전에 찾는다
+  const sleeves = findSleeveRoots(root);
   const mixer = new AnimationMixer(root);
   function action(name: string) {
     const clip = clips.find((candidate) => candidate.name === name);
@@ -105,7 +108,7 @@ export function createPlayerRig(
     upper: arms.slice(0, 2).filter((bone): bone is Object3D => bone !== undefined),
     fore: arms.slice(2).filter((bone): bone is Object3D => bone !== undefined),
   };
-  return { root, mixer, idle, walk, sit, blink, reach, curtain };
+  return { root, mixer, idle, walk, sit, blink, reach, curtain, sleeves };
 }
 
 export type PlayerRig = ReturnType<typeof createPlayerRig>;
@@ -140,6 +143,7 @@ export function updatePlayerRig(
   reaching = 0,
   curtainPose?: CurtainPose,
 ) {
+  releaseSleeveRoots(rig.sleeves);
   const curtainWeight =
     rig.curtain && curtainPose ? Math.max(0, Math.min(1, curtainPose.weight)) : 0;
   if (rig.curtain) {
@@ -180,6 +184,8 @@ export function updatePlayerRig(
     for (const bone of rig.reach.upper) reachBone(rig.root, bone, REACH_UPPER_ARM * reach);
     for (const bone of rig.reach.fore) reachBone(rig.root, bone, REACH_FOREARM * reach);
   }
+  // 이 뒤에 팔 뼈를 더 돌리는 쪽(IK)은 풀고(release) 돌린 뒤 다시 건다 (sleeve-root)
+  settleSleeveRoots(rig.sleeves);
 }
 
 export function disposePlayerRig(rig: PlayerRig) {

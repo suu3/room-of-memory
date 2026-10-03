@@ -32,6 +32,7 @@ import {
 import { SIT_CONTACT_Y, STEP_RATE } from "@/scenes/memory-room/player/player-rig";
 import { seatOffsetFromCenter } from "@/scenes/memory-room/player/seats";
 import { advanceSitProgress, sitEase } from "@/scenes/memory-room/player/sit-motion";
+import { releaseSleeveRoots, settleSleeveRoots } from "@/scenes/memory-room/player/sleeve-root";
 import { resolveRoomPalette } from "@/scenes/memory-room/world/palette";
 import {
   type ArAction,
@@ -151,6 +152,8 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
     }
     if (!active) return;
 
+    // 소매 뿌리를 먼저 푼다: 아래에서 되돌리는 위팔 회전이 그 위에 얹혀 있다
+    releaseSleeveRoots(rig.sleeves);
     if (rig.manualApplied) {
       for (let index = 0; index < rig.manual.length; index += 1) {
         rig.manual[index].quaternion.copy(rig.beforeManual[index]);
@@ -180,6 +183,8 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
     const sitting = sitEase(sitRef.current);
     updatePlayerRig(rig, walkPhaseRef.current, walkWeightRef.current, step, sitting);
 
+    // 여기부터 팔 뼈를 손으로 돌린다: 리그가 걸어 둔 소매 뿌리를 풀고, 다 돌린 뒤 다시 건다
+    releaseSleeveRoots(rig.sleeves);
     for (let index = 0; index < rig.manual.length; index += 1) {
       rig.beforeManual[index].copy(rig.manual[index].quaternion);
     }
@@ -227,6 +232,7 @@ export function ArHero({ action, active }: { action: ArAction; active: boolean }
       reachHandTo(upperL, foreL, handL, leftTarget, batWeight);
     }
     rig.manualApplied = tossWeight > 0.001 || batWeight > 0.001;
+    settleSleeveRoots(rig.sleeves);
 
     const stool = stoolRef.current;
     if (stool) {

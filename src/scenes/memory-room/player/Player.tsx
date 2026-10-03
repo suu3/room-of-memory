@@ -46,6 +46,7 @@ import {
   type SitPhases,
   sitEase,
 } from "./sit-motion";
+import { releaseSleeveRoots, settleSleeveRoots } from "./sleeve-root";
 import { isWalkBlocked, stepToward } from "./walk-to";
 
 /** 발이 바닥에 닿는 높이. 충돌·근접 판정은 x/z만 보므로 y는 순수 시각값이다. */
@@ -417,6 +418,8 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
 
     // 지난 프레임에 배트를 멘 팔은 걸음 애니메이션이 내놓은 자세로 되돌려 둔다
     const carryRest = carryRestRef.current;
+    // 소매 뿌리를 먼저 푼다: 아래에서 되돌리는 위팔 회전이 그 위에 얹혀 있다
+    releaseSleeveRoots(rig.sleeves);
     if (carryRest.applied && carryBones) {
       carryBones.upper.quaternion.copy(carryRest.upper);
       carryBones.fore.quaternion.copy(carryRest.fore);
@@ -454,9 +457,11 @@ function LoadedPlayer({ positionRef, movementInputRef, curtainPull }: PlayerProp
       const bat = batRef.current;
       const torso = lieRef.current;
       if (carryBones && bat && torso) {
+        releaseSleeveRoots(rig.sleeves);
         carryRest.upper.copy(carryBones.upper.quaternion);
         carryRest.fore.copy(carryBones.fore.quaternion);
         carryBat(carryBones, torso, bat);
+        settleSleeveRoots(rig.sleeves);
         carryRest.applied = true;
       }
       return;

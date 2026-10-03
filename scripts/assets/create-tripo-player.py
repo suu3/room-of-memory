@@ -806,6 +806,31 @@ for v in mesh.data.vertices:
         t = max(0, min(1, (v.co.z - elbow + 0.04) / 0.08))
         t = t * t * (3 - 2 * t)
         weights = {f"upper_arm.{side}": t, f"forearm.{side}": 1 - t}
+        # The sleeve root stays in the armhole: toward the shoulder the upper-arm share passes to
+        # the shoulder bone and then to the chest, so a raised arm bends out over the vest
+        # instead of swinging in under its rim. The game turns the shoulder bone half as far as
+        # the upper arm (src/scenes/memory-room/player/sleeve-root.ts), which keeps the sleeve
+        # from collapsing. scripts/assets/reweight-player-sleeves.mjs bakes the same weights
+        # into an exported GLB.
+        shoulder = mirrored("Upperarm")[side]
+        along = mirrored("Forearm")[side] - shoulder
+        down = (v.co - shoulder).dot(along) / along.length_squared
+        ramp = lambda x: (lambda c: c * c * (3 - 2 * c))(max(0, min(1, x)))
+        if down < 0.35:
+            half = ramp(down / 0.35)
+            weights[f"shoulder.{side}"] = t * half
+            weights["chest"] = t * (1 - half)
+            weights[f"upper_arm.{side}"] = 0
+        elif down < 0.9:
+            arm = ramp((down - 0.35) / (0.9 - 0.35))
+            weights[f"upper_arm.{side}"] = t * arm
+            weights[f"shoulder.{side}"] = t * (1 - arm)
+    elif part == 6:
+        # The shoulder bones now turn with the arms; the collar must not ride along.
+        for side in ("L", "R"):
+            moved = weights.pop(f"shoulder.{side}", 0)
+            if moved:
+                weights["chest"] = weights.get("chest", 0) + moved
     if not weights:
         weights = {FALLBACK[vertex_part[v.index]]: 1.0}
     top = sorted(weights.items(), key=lambda pair: -pair[1])[:4]
