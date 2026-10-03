@@ -341,6 +341,9 @@ function AfterimageDriver({
  * 밖의 판(LivingRoomShell의 EndingLightPlane, ending-light 채널)이다. 엔딩이 시작되는 순간
  * 만들어지고 화면이 타들어가는 1.5초 동안만 산다. 광원이 아직 없으면(거실 껍데기가
  * 안 서 있으면) 그냥 없는 것으로 친다.
+ *
+ * 빛줄기는 광원 판 위에 더해지므로(문 개구부가 가장 밝다) 노출을 낮게 둔다. 판의 밝기는
+ * EndingLightPlane이 따로 누른다.
  */
 function useGodRaysEffect(active: boolean) {
   const camera = useThree((state) => state.camera);
@@ -350,8 +353,8 @@ function useGodRaysEffect(active: boolean) {
     return new GodRaysEffect(camera, light, {
       density: 0.92,
       decay: 0.94,
-      weight: 0.5,
-      exposure: 0.45,
+      weight: 0.42,
+      exposure: 0.36,
       clampMax: 1,
       samples: 40,
       kernelSize: KernelSize.SMALL,

@@ -1,8 +1,8 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
-import type { Group, Mesh, MeshStandardMaterial } from "three";
+import { useEffect, useMemo, useRef } from "react";
+import { Color, type Group, type Mesh, type MeshStandardMaterial } from "three";
 import { pressFrontDoor } from "@/lib/room-press";
 import { selectExitReady, useMemoryRoomStore } from "@/store/memory-room";
 import { setEndingLightMesh } from "../../effects/ending-light";
@@ -318,9 +318,17 @@ function FrontDoor({ palette }: { palette: RoomPalette }) {
  * 그 자체로는 판이지만 컴포저의 GodRays(MemoryGlowRoot)가 이 판을 광원으로 삼아 문틈으로
  * 새는 빛기둥을 만든다. 광원 메시는 깊이를 쓰지 않고 투명 플래그가 서 있어야 한다는 것이
  * postprocessing의 계약이다. 문 로컬 좌표: 문틀 뒤(-z)로 조금 물러선 자리.
+ *
+ * 볕 색을 그대로 켜지 않는다. 톤 매핑을 안 거치는 판이라 볕 색 그대로면 어두운 거실에서
+ * 문 개구부만 화면 밝기 80%를 넘겨 눈이 아프다. 불 켜기(.viewpoint-lamp)와 타들어감이
+ * 멈추는 밝기(65% 언저리)에 맞춰 낮춘다. 빛기둥도 이 판의 색을 퍼뜨리므로 같이 순해진다.
  */
+const ENDING_LIGHT_LEVEL = 0.6;
+
 function EndingLightPlane({ color, visible }: { color: string; visible: boolean }) {
   const meshRef = useRef<Mesh>(null);
+  // 선형 공간에서 곱한다: 0.6이 화면에서는 65% 언저리다
+  const dimmed = useMemo(() => new Color(color).multiplyScalar(ENDING_LIGHT_LEVEL), [color]);
   useEffect(() => {
     setEndingLightMesh(meshRef.current);
     return () => setEndingLightMesh(null);
@@ -329,7 +337,7 @@ function EndingLightPlane({ color, visible }: { color: string; visible: boolean 
     // 아래로 바닥 두께만큼 더 내린다. 엔딩에 가까이서 문을 볼 때 판 밑에 어두운 띠가 비친다
     <mesh ref={meshRef} position={[0, -0.05, -0.32]} visible={visible} frustumCulled={false}>
       <planeGeometry args={[1.5, 3.6]} />
-      <meshBasicMaterial color={color} transparent depthWrite={false} toneMapped={false} />
+      <meshBasicMaterial color={dimmed} transparent depthWrite={false} toneMapped={false} />
     </mesh>
   );
 }
