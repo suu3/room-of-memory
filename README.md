@@ -72,13 +72,13 @@
 
 ## 포토카드 AR
 
-포토카드 앞면을 폰 카메라로 비추면 카드 속 도해가 튀어나옵니다 (`/ar`).
+포토카드 앞면을 폰 카메라로 비추면 카드 속 캐릭터가 튀어나옵니다 (`/ar`).
 
 <table>
 <tr>
 <td width="33%"><img src="docs/readme/ar-scan.webp" alt="책상 위 포토카드를 카메라로 비춘 화면"></td>
-<td width="33%"><img src="docs/readme/ar-summon.webp" alt="카드에서 도해가 뛰어나오는 순간"></td>
-<td width="33%"><img src="docs/readme/ar-bat.webp" alt="화면에 선 도해가 배트를 쥔 모습"></td>
+<td width="33%"><img src="docs/readme/ar-summon.webp" alt="카드에서 캐릭터가 뛰어나오는 순간"></td>
+<td width="33%"><img src="docs/readme/ar-bat.webp" alt="화면에 선 캐릭터가 배트를 쥔 모습"></td>
 </tr>
 <tr>
 <td align="center"><sub>카드 비추기</sub></td>
@@ -86,6 +86,27 @@
 <td align="center"><sub>동작 고르기</sub></td>
 </tr>
 </table>
+
+실제 폰에서 찍은 화면입니다.
+
+<table>
+<tr>
+<td width="33%"><img src="docs/readme/ar-phone-card.webp" alt="손에 든 실물 포토카드 위에 캐릭터가 공을 들고 선 폰 화면"></td>
+<td width="33%"><img src="docs/readme/ar-phone-free.webp" alt="카드 없이 벽 앞에 캐릭터를 세워 둔 폰 화면"></td>
+</tr>
+<tr>
+<td align="center"><sub>실물 카드 위에서</sub></td>
+<td align="center"><sub>카드 없이 세워 두기</sub></td>
+</tr>
+</table>
+
+<br>
+
+## 피규어 · NFC
+
+AR 속 캐릭터를 실물 피규어로도 만들었습니다. 받침에 NFC 태그를 붙여, 폰을 가져다 대면 게임 본편이 바로 열립니다.
+
+<img src="docs/readme/figure.webp" alt="검은 받침 위에 선 캐릭터 피규어: 보라색 조끼와 흰 셔츠, 뺨에 반창고" width="280">
 
 <br>
 
