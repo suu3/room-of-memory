@@ -59,6 +59,7 @@
 | images/ui-loading.gif | 로딩 화면의 달리는 캐릭터 애니메이션(420×400, 2026-08-02 사용자 제공, 2026-09-10 프레임 정리). 애니메이션 webp는 쓰는 자리에서 재생이 안 돼 gif로 둔다 (assets.md 예외) | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
 | models/room-laon-ampoule.glb | 라온 RX-11 유리 바이알 모델(2026-09-26). 사용자가 GPT로 생성한 GLB를 `pnpm model:prep`으로 검사·Meshopt 압축. 서랍과 조사 화면이 같이 쓴다 | OpenAI GPT (생성) · suu3 | 프로젝트 생성 에셋 |
 | video/ending-film.mp4 | 엔딩 영상(1920×1080, 30.8초, H.264+AAC faststart, 2026-09-26, 2026-10-02 도해 클로즈업을 더한 판으로 교체, 2026-10-03 재하 컷을 바꾼 판으로 교체). 사용자가 Midjourney로 만든 그림을 Higgsfield로 움직여 편집한 영상 | Midjourney (그림) · Higgsfield (영상 생성) · suu3 (편집) | 각 서비스 이용약관에 따른 사용자 생성물 |
+| video/side-story-that-summer.mp4 | 외전 영상 〈그 해 여름〉(1920×1080, 101.2초, H.264 1.7Mbps+AAC faststart, 2026-10-03, BGM을 더한 판). 영상 모아보기(/films)에서 튼다. 사용자가 Higgsfield로 만들어 편집한 영상(.mov)을 mp4로 변환했다. 영상 한도 15MB의 예외 (assets.md) | Higgsfield (영상 생성) · suu3 (편집) | 서비스 이용약관에 따른 사용자 생성물 |
 | audio/bgm/mg-fighter-duel-chip.ogg | 게임기를 켜면 흐르는 8비트 곡(2026-09-27). Pixabay에서 받아 TV 스피커 대역으로 깎고 Opus 모노로 재인코딩 (원본 URL 미기재) | Pixabay | Pixabay Content License (크레딧 불요, 상업 이용 가능) |
 | audio/sfx/sfx-mitt-tap.ogg | 생존자 방송 첫 컷의 미트 소리(1.26초, Opus 모노, 2026-09-26). 사용자가 Higgsfield로 만든 체육관 미트 영상의 소리에서 두 번 치는 구간만 잘라 담았다 | Higgsfield (영상 생성) · suu3 (편집) | 서비스 이용약관에 따른 사용자 생성물 |
 | audio/sfx/sfx-radio-broadcast-ko.mp3, sfx-radio-broadcast-en.mp3, sfx-radio-broadcast-ja.mp3 | 그날의 재난 방송 목소리(18~20초, mp3 128kbps 모노, 2026-10-02). 사용자가 ElevenLabs로 대본의 방송 세 줄을 언어마다 이어 읽혀 만든 음성. 받은 그대로 담았다 (라디오 대역 필터는 재생할 때 건다) | ElevenLabs (음성 생성) · suu3 | 서비스 이용약관에 따른 사용자 생성물 |

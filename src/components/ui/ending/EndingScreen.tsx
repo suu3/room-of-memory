@@ -5,9 +5,11 @@ import {
   ArrowRightIcon,
   ChatCircleTextIcon,
   DownloadSimpleIcon,
+  FilmStripIcon,
   PlayIcon,
 } from "@phosphor-icons/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ASSETS } from "@/lib/assets";
@@ -260,17 +262,33 @@ export function EndingScreen() {
               열면 "기타"가 먼저 골라지고, 진행 정보에 ending:done이 붙는다). 버튼 줄에 넣지 않고
               아래 한 줄로 둔다: "처음으로"와 나란히 서면 끝내는 버튼들 사이에 묻힌다.
             */}
-              <button
-                type="button"
-                onClick={() => {
-                  playSound("select");
-                  setFeedbackOpen(true);
-                }}
-                className={`${BUTTON_QUIET} px-5 py-2.5`}
-              >
-                <ChatCircleTextIcon size={15} weight="bold" />
-                {t("ending.feedback")}
-              </button>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {/*
+                영상 모아보기(/films)는 새 탭으로 연다. 같은 탭에서 떠나면 캔버스가 내려가고,
+                돌아왔을 때 저장된 엔딩이 문턱부터 다시 돈다. 카드는 이 탭에 그대로 둔다.
+              */}
+                <Link
+                  href="/films"
+                  target="_blank"
+                  rel="noopener"
+                  onClick={() => playSound("select")}
+                  className={`${BUTTON_QUIET} px-5 py-2.5`}
+                >
+                  <FilmStripIcon size={15} weight="bold" />
+                  {t("ending.films")}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("select");
+                    setFeedbackOpen(true);
+                  }}
+                  className={`${BUTTON_QUIET} px-5 py-2.5`}
+                >
+                  <ChatCircleTextIcon size={15} weight="bold" />
+                  {t("ending.feedback")}
+                </button>
+              </div>
             </div>
             <EndingConfetti />
           </div>

@@ -605,7 +605,21 @@
     "play": "Play",
     "saveImage": "Save the drawing",
     "feedback": "Share your thoughts",
+    "films": "Watch the films",
     "thanksAlt": "Dohae holding a bat, saying Thank you!"
+  },
+  "films": {
+    "eyebrow": "FILMS",
+    "title": "Films",
+    "spoiler": "These show how the story ends. Best watched after reaching the ending.",
+    "ending": {
+      "title": "Ending",
+      "caption": "The film that plays after the front door opens."
+    },
+    "thatSummer": {
+      "title": "Side story: That Summer",
+      "caption": "A summer before it all happened."
+    }
   },
   "playback": {
     "skip": "Skip",

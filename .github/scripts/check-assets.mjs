@@ -51,7 +51,7 @@ const RULES = [
     label: "이미지",
   },
   {
-    // 엔딩 영상 하나. assets.md: H.264+AAC mp4, 15MB
+    // 엔딩 영상과 외전. assets.md: H.264+AAC mp4, 파일당 15MB (외전은 SIZE_EXCEPTIONS)
     prefix: "video/",
     limit: 15 * MB,
     formats: [".mp4"],
@@ -105,6 +105,11 @@ async function walk(dir) {
 const errors = [];
 const warnings = [];
 
+/** 종류별 한도의 예외: assets.md에 명시된 파일만. 절대 한도(25MB)는 넘지 못한다. */
+const SIZE_EXCEPTIONS = new Map([
+  // 외전 영상. 101초라 15MB로는 1080p를 담을 수 없다 (assets.md)
+  ["side-story-that-summer.mp4", 24 * MB],
+]);
 let files = [];
 try {
   files = await walk(ASSETS);
@@ -133,8 +138,9 @@ for (const file of files) {
     continue;
   }
 
-  if (size > rule.limit) {
-    errors.push(`${rel}: ${human(size)} (${rule.label} 한도 ${human(rule.limit)} 초과)`);
+  const limit = SIZE_EXCEPTIONS.get(name) ?? rule.limit;
+  if (size > limit) {
+    errors.push(`${rel}: ${human(size)} (${rule.label} 한도 ${human(limit)} 초과)`);
   } else if (rule.warnOver && size > rule.warnOver) {
     warnings.push(
       `${rel}: ${human(size)} (${rule.label} 권장 ${human(rule.warnOver)} 초과, 예외 범위)`,

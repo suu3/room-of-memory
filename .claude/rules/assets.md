@@ -10,7 +10,7 @@
 | 텍스처 | `public/assets/textures/` | `.webp` 또는 `.ktx2`, 2의 제곱 크기, 최대 2048px. 예외: `room-poster-baseball.webp`(512×768)는 2:3 인쇄물 한 장이라 원본 비율을 둔다. 반복(Repeat) 없이 판 하나에 붙는 텍스처는 WebGL2에서 2의 제곱이 아니어도 밉맵이 생긴다 | 2MB |
 | BGM | `public/assets/audio/bgm/` | `.mp3` 128kbps 또는 `.ogg` | 3MB |
 | SFX | `public/assets/audio/sfx/` | `.mp3`/`.ogg` | 500KB |
-| 영상 | `public/assets/video/` | `.mp4` (H.264 + AAC, faststart), 1080p 이하 | 15MB (엔딩 영상 1개 기준) |
+| 영상 | `public/assets/video/` | `.mp4` (H.264 + AAC, faststart), 1080p 이하 | 15MB. 예외: 외전 `side-story-that-summer.mp4`는 101초라 1080p를 지키려고 24MB까지 둔다 (`check-assets.mjs`의 `SIZE_EXCEPTIONS`) |
 | 이미지 | `public/assets/images/` | `.webp` (UI), `.svg` (아이콘). 예외: 로딩 애니메이션 `ui-loading.gif` 하나 (webp는 `<img>` 밖에서 재생이 안 돼 gif로 둔다) | 1MB |
 | 폰트 | `public/assets/fonts/` | `.woff2`. 신규 폰트는 한글 서브셋 필수 (예외: PretendardVariable.woff2는 전 웨이트 가변폰트라 2.0MB 통짜 허용, next/font/local이 셀프호스팅) | 2MB |
 

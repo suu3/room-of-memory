@@ -605,7 +605,21 @@
     "play": "재생",
     "saveImage": "그림 저장",
     "feedback": "플레이 소감 남기기",
+    "films": "영상 모아보기",
     "thanksAlt": "배트를 든 도해가 Thank you!라고 인사하는 그림"
+  },
+  "films": {
+    "eyebrow": "FILMS",
+    "title": "영상 모아보기",
+    "spoiler": "이야기의 끝이 담겨 있습니다. 엔딩을 본 뒤에 보시길 권합니다.",
+    "ending": {
+      "title": "엔딩",
+      "caption": "현관문을 열고 나간 뒤의 영상."
+    },
+    "thatSummer": {
+      "title": "외전 〈그 해 여름〉",
+      "caption": "그 일이 있기 전, 어느 여름의 이야기."
+    }
   },
   "playback": {
     "skip": "건너뛰기",

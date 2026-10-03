@@ -605,7 +605,21 @@
     "play": "再生",
     "saveImage": "イラストを保存",
     "feedback": "感想を送る",
+    "films": "映像を見る",
     "thanksAlt": "バットを持ったドヘが Thank you! とあいさつするイラスト"
+  },
+  "films": {
+    "eyebrow": "FILMS",
+    "title": "映像ギャラリー",
+    "spoiler": "物語の結末が含まれています。エンディングを見たあとでご覧ください。",
+    "ending": {
+      "title": "エンディング",
+      "caption": "玄関の扉を開けて出たあとの映像。"
+    },
+    "thatSummer": {
+      "title": "外伝『あの年の夏』",
+      "caption": "あの出来事の前、ある夏の話。"
+    }
   },
   "playback": {
     "skip": "スキップ",
