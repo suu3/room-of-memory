@@ -42,17 +42,17 @@ cutscenes:
   workbook-name:
     - lines:
         - speaker: hero
-          ko: 수능 기출문제집. 한도해. 내 글씨다.
-          en: Past entrance-exam questions. Han Do-hae. That's my handwriting.
-          ja: 入試の過去問題集。ハン・ドヘ。俺の字だ。
+          ko: 수능 기출문제집. …한도해. 내 글씨다.
+          en: Past entrance-exam questions. …Han Do-hae. That's my handwriting.
+          ja: 入試の過去問題集。…ハン・ドヘ。俺の字だ。
         - speaker: hero
-          ko: 여름에 마지막 야구부 활동을 끝내고 그때부터 고삼 생활로 돌아갔다.
-          en: I played my last season with the baseball team in the summer, and after that it was back to senior-year life.
-          ja: 夏に野球部の最後の活動を終えて、そこから受験生の生活に戻った。
+          ko: 여름 대회를 끝으로 야구부를 은퇴했다. 그 뒤로는 그냥 고3으로 돌아갔다.
+          en: I retired from the baseball team after the summer tournament. After that, I went back to being just another senior.
+          ja: 夏の大会を最後に野球部を引退した。それからは、ただの高三に戻った。
         - speaker: hero
-          ko: 이것도 그때 샀다. 수험생 노릇 해 보겠다고.
-          en: I bought this back then, too. Trying to play the part of a test-taker.
-          ja: これもそのときに買った。受験生らしくしてみようって。
+          ko: 이것도 그때 샀다. 수험생 흉내라도 내 보려고.
+          en: I bought this back then, too. Figured I'd at least act like a test-taker.
+          ja: これもそのときに買った。受験生のふりくらいはしてみようって。
 
   #
   # 1페이즈 회상: 강도 1의 두 기억만. 결과 대사(혼자 이기고, 혼자 휘두른다) 바로 뒤에
@@ -69,18 +69,18 @@ cutscenes:
       holdMs: 1200
       lines:
         - speaker: hero
-          ko: 게임은 같은 반 친구인 주완이와 자주 했었다.
-          en: I used to play games a lot with Juwan, a friend from my class.
-          ja: ゲームは、同じクラスの友達のジュワンとよくやっていた。
+          ko: 주완이는 같은 반이었다. 야구부도 아닌데 제일 자주 붙어 다녔다.
+          en: Juwan was in my class. He wasn't even on the baseball team, but he's the one I hung out with most.
+          ja: ジュワンは同じクラスだった。野球部でもないのに、一番よくつるんでいた。
         - speaker: hero
-          ko: 시험 끝난 주에는 집에 놀러 와서 2p로 격투 게임을 플레이하곤 했다.
-          en: The week exams ended, he'd come over and we'd play fighting games in two-player mode.
-          ja: テストが終わった週にはよく家に遊びに来て、2Pで格闘ゲームをしていた。
+          ko: 시험이 끝난 주엔 우리 집에 와서 2P로 격투 게임을 했다.
+          en: The week exams ended, he'd come over to my place and we'd play fighting games in two-player mode.
+          ja: テストが終わった週には、うちに来て2Pで格闘ゲームをした。
         - speaker: hero
           expression: smile
-          ko: 내가 좀 더 많이 이겼었던 것 같다.
-          en: I think I won a little more often.
-          ja: 俺のほうが少し多く勝ってた気がする。
+          ko: 지고 나면 걔는 꼭 한 판만 더 하자고 했다.
+          en: Whenever he lost, he'd always ask for just one more round.
+          ja: 負けると、あいつは決まってもう一戦だけやろうと言った。
         - speaker: hero
           ko: 다음에는 캐릭터 바꿔서 하자고 했었는데.
           en: We said we'd swap characters next time.
@@ -100,24 +100,24 @@ cutscenes:
       holdMs: 1500
       lines:
         - speaker: hero
-          ko: 야구를 오래 해 온 나는 야구로 유명한 청서고에 진학했다.
-          en: I'd played baseball for years, so I went to Cheongseo High, a school known for baseball.
-          ja: ずっと野球をやってきた俺は、野球で有名な青瑞高に進学した。
+          ko: 어릴 때부터 야구만 해 온 나는, 야구 명문 청서고에 진학했다.
+          en: I'd done nothing but baseball since I was a kid, so I went to Cheongseo High, a baseball powerhouse.
+          ja: 子どもの頃から野球ばかりやってきた俺は、野球の名門・青瑞高に進学した。
         - speaker: hero
-          ko: 올해 있었던 전국 대회 16강에서는 근처 학교이자 야구 라이벌인 은강고와 맞붙게 되었다.
-          en: In this year's nationals round of 16, we faced Eungang High, a nearby school and our baseball rival.
-          ja: 今年の全国大会ベスト16では、近所の学校で野球のライバルでもある銀江高と当たった。
+          ko: 은강고는 바로 옆 동네 학교다. 만날 때마다 껄끄러운 상대였다.
+          en: Eungang High is just one neighborhood over. They were a tough matchup every time we met.
+          ja: 銀江高はすぐ隣の町の学校だ。当たるたびに、やりにくい相手だった。
         - speaker: hero
           expression: smile
-          ko: 2루수인 나는, 포수인 절친 윤호와 기합을 다졌었다.
-          en: I played second base, and I psyched myself up with my best friend Yunho, our catcher.
-          ja: セカンドの俺は、キャッチャーで親友のユノと気合いを入れ合った。
+          ko: 나는 2루수, 윤호는 포수. 유소년 때부터 같이 뛴 단짝이다.
+          en: I play second base, Yunho catches. We've been a pair since youth league.
+          ja: 俺はセカンド、ユノはキャッチャー。少年野球の頃から一緒にやってきた相棒だ。
         - speaker: hero
-          ko: 경기는 졌다. 은강고 포수가 손바닥으로 미트를 탁탁 두드리던 소리가 기억에 남는다.
-          en: We lost the game. I still remember the sound of Eungang's catcher slapping his palm against his mitt.
-          ja: 試合は負けた。銀江高のキャッチャーが手のひらでミットをパンパンと叩いていた音が、耳に残っている。
+          ko: 진 건 분했는데, 이상하게 그 포수가 미트를 탁탁 두드리던 소리만 귀에 남았다.
+          en: Losing stung, but strangely, the only thing that stuck with me was the sound of that catcher slapping his mitt.
+          ja: 負けたのは悔しかったのに、なぜかあのキャッチャーがミットをパンパンと叩く音だけが耳に残った。
         - speaker: hero
-          ko: 윤호는 지금 뭘 하고 있을까?
+          ko: 윤호는 지금 뭐 하고 있을까.
           en: I wonder what Yunho's doing now.
           ja: ユノは今、何をしてるんだろう。
 
@@ -137,9 +137,9 @@ cutscenes:
       lines:
         - speaker: hero
           expression: sad
-          ko: 노이즈뿐인 라디오를 들으니 그날의 기억이 떠오른다.
-          en: Listening to the radio, nothing but noise, the memory of that day comes back.
-          ja: ノイズしか流れないラジオを聞いていると、あの日の記憶がよみがえる。
+          ko: 역시 노이즈뿐이다. …그날은 여기서 방송이 나왔었는데.
+          en: Nothing but noise, as expected. …That day, there was a broadcast coming out of this thing.
+          ja: やっぱりノイズだけだ。…あの日は、ここから放送が流れていたのに。
     # 정적
     - black: true
       holdMs: 2000
@@ -187,9 +187,9 @@ cutscenes:
           en: After extra classes, I checked my phone and there was a text from Mom.
           ja: 補習が終わってスマホを見ると、母さんからメッセージが来ていた。
         - speaker: hero
-          ko: '"오늘은 독서실 가지 말고 바로 집에 와." …이상한 말이었다.'
-          en: '"Skip the study room today and come straight home." …That was a strange thing to say.'
-          ja: 「今日は自習室に行かないで、まっすぐ帰ってきて。」…おかしなことを言うなと思った。
+          ko: '"오늘은 독서실 가지 말고 바로 집에 와." …평소엔 안 하던 말이었다.'
+          en: '"Skip the study room today and come straight home." …Not something she usually said.'
+          ja: 「今日は自習室に行かないで、まっすぐ帰ってきて。」…普段は言わないことだった。
     # 2컷: 단지 안, 문 열린 채 버려진 차
     - image: /assets/images/cutscene-day-2.webp?v=2
       narration: true
@@ -203,13 +203,13 @@ cutscenes:
           en: A car sitting there with its door open. No one around.
           ja: ドアが開いたまま止まっている車。人はいなかった。
         - speaker: hero
-          ko: …사이렌 소리가 멀리서 났다.
+          ko: …멀리서 사이렌 소리가 들렸다.
           en: …Sirens wailed in the distance.
           ja: …遠くでサイレンが鳴っていた。
         - speaker: hero
-          ko: 집 앞까지는 평소랑 똑같았다.
-          en: All the way to my door, everything was the same as always.
-          ja: 家の前までは、いつもと同じだった。
+          ko: 그래도 집 앞까지는 아무 일 없었다.
+          en: Still, nothing happened all the way to my door.
+          ja: それでも、家の前までは何事もなかった。
     # 3컷: 복도 끝에 서 있는 감염자
     - image: /assets/images/cutscene-day-3.webp?v=3
       narration: true
@@ -219,9 +219,9 @@ cutscenes:
           en: Someone was standing in the hallway.
           ja: 廊下に誰かが立っていた。
         - speaker: hero
-          ko: 이상한 느낌이 들었다.
-          en: Something felt off.
-          ja: 妙な感じがした。
+          ko: …서 있는 모양이 이상했다.
+          en: …Something about the way they stood was off.
+          ja: …立ち方が、どこかおかしかった。
     # 4컷: 손을 뻗으며 덮쳐 오는 감염자. 말 없이 정적
     - image: /assets/images/cutscene-day-4.webp?v=3
       holdMs: 1200
@@ -251,37 +251,37 @@ cutscenes:
           en: I locked the door.
           ja: ドアに鍵をかけた。
         - speaker: hero
-          ko: 부모님은 여행 중이셨기에 집안엔 아무도 없었다.
-          en: Mom and Dad were away on their trip, so there was no one home.
-          ja: 両親は旅行中で、家には誰もいなかった。
+          ko: 부모님은 여행 중이었다. 집에는 아무도 없었다.
+          en: Mom and Dad were away on their trip. There was no one home.
+          ja: 両親は旅行中だった。家には誰もいなかった。
         - speaker: hero
-          ko: 급박했던 상황이 거짓이었던 듯 정적이 내려앉았다.
-          en: Silence settled in, as if none of the panic had been real.
-          ja: さっきまでの騒ぎが嘘のように、静けさが降りてきた。
+          ko: 방금 일이 거짓말 같을 만큼 조용했다.
+          en: It was so quiet that what had just happened felt like a lie.
+          ja: さっきのことが嘘みたいに、静かだった。
     # 8컷: TV 불빛에 무표정
     - image: /assets/images/cutscene-day-8.webp
       narration: true
       lines:
         - speaker: hero
-          ko: 뉴스는 아직 나오고 있었다.
-          en: The news was still on.
-          ja: ニュースはまだ流れていた。
+          ko: TV를 켜니 뉴스가 나오고 있었다.
+          en: I turned on the TV, and the news was on.
+          ja: テレビをつけると、ニュースが流れていた。
         - speaker: hero
-          ko: 감염, 확산, 대피. 아나운서가 낯선 말들을 다급하게 외치고 있었다.
-          en: Infection, spread, evacuation. The anchor was shouting unfamiliar words in a panic.
-          ja: 感染、拡大、避難。アナウンサーが聞き慣れない言葉を慌ただしく叫んでいた。
+          ko: 감염, 확산, 대피. 아나운서가 낯선 말들을 다급하게 쏟아 내고 있었다.
+          en: Infection, spread, evacuation. The anchor was rattling off unfamiliar words in a panic.
+          ja: 感染、拡大、避難。アナウンサーが聞き慣れない言葉を慌ただしくまくし立てていた。
         - speaker: hero
-          ko: 사방에서 들려오는 비명소리에 귀를 막았다.
+          ko: 사방에서 비명이 들렸다. 귀를 막았다.
           en: Screams came from every direction. I covered my ears.
-          ja: 四方から聞こえてくる悲鳴に、耳をふさいだ。
+          ja: 四方から悲鳴が聞こえた。耳をふさいだ。
     # 9컷: 검정 화면. 그날에서 지금으로 건너오는 두 줄
     - black: true
       narration: true
       lines:
         - speaker: hero
-          ko: 그날 이후로 난 집에 고립되어 있었다.
-          en: Ever since that day, I've been shut in at home.
-          ja: あの日から、俺は家に閉じこもっていた。
+          ko: 그날 이후로 나는 집 밖에 나가지 않았다.
+          en: Ever since that day, I haven't set foot outside.
+          ja: あの日から、俺は家の外に出ていない。
         - speaker: hero
           ko: 나가서 마주할 현실이 두려워서.
           en: Because I was afraid of what I'd have to face out there.
@@ -319,9 +319,9 @@ cutscenes:
       sfx: radioStatic
       lines:
         - speaker: signal
-          ko: 어이, 거기 누구 없어? …이거 나가긴 하는 거야?
-          en: Hey, anyone out there? …Is this even going out?
-          ja: おい、誰かいないか? …これ、ちゃんと届いてんのか?
+          ko: 아, 아. 거기 누구 없어? …이거 나가긴 하는 건가.
+          en: Ah, ah. Anyone out there? …Is this thing even going out.
+          ja: あー、あー。誰かいないか? …これ、ちゃんと届いてんのかな。
     # 2페이지
     - image: /assets/images/cutscene-survivor-5.webp?v=2
       page: 2
@@ -353,18 +353,18 @@ cutscenes:
       sfx: radioStatic
       lines:
         - speaker: signal
-          ko: 나흘 밤 지나면 여기서 이동한다. 헬기가 뜬다는 정보를 입수했어.
-          en: After four nights, we're moving out. We got word a helicopter's coming.
-          ja: 四晩たったら、ここから移動する。ヘリが飛ぶって情報が入った。
+          ko: 나흘 밤 지나면 우린 여기 떠나. 헬기가 뜬다는 얘기가 있어.
+          en: After four nights, we're leaving here. Word is a helicopter's coming.
+          ja: 四晩たったら、俺たちはここを出る。ヘリが飛ぶって話がある。
     - image: /assets/images/cutscene-survivor-9.webp?v=2
       page: 3
       ratio: "3:4"
       sfx: radioStatic
       lines:
         - speaker: signal
-          ko: 그러니까 듣고 있는 사람이 있다면 은강고 체육관으로 모여. …늦지 말고 와.
-          en: So if anyone's listening, get to the Eungang High gym. …Don't be late.
-          ja: だから、聞いてるやつがいたら銀江高の体育館に集まれ。…遅れるなよ。
+          ko: 그러니까 듣고 있는 사람 있으면 은강고 체육관으로 와. …늦지 마.
+          en: So if anyone's listening, come to the Eungang High gym. …Don't be late.
+          ja: だから、聞いてるやつがいたら銀江高の体育館に来い。…遅れるな。
     # 치지직: 방송이 끊긴다. 0.8초 끊김 뒤 웹툰이 걷힌다
     - image: /assets/images/cutscene-survivor-10.webp?v=3
       page: 3
@@ -381,9 +381,9 @@ cutscenes:
           en: Eungang High…? That guy from back then…?
           ja: 銀江高…? あのときの…?
         - speaker: hero
-          ko: …목소리가 좀 익숙한데.
-          en: …That voice sounds kind of familiar.
-          ja: …なんか、聞き覚えのある声だな。
+          ko: …어디서 들어 본 목소리인데.
+          en: …I've heard that voice somewhere.
+          ja: …どこかで聞いたことのある声だな。
 
   #
   # 캐리어 개수 추리의 결론 (v4.1 3장). 신발장과 아빠 메일("2박 3일")을 둘 다 본 순간.
@@ -397,22 +397,22 @@ cutscenes:
           ja: 冷蔵庫の食べ物は、ひと月食べてもまだ半分残っている。
         - speaker: hero
           expression: puzzled
-          ko: 캐리어를 두 개 가져가셨지만, 등산화는 집에 남아있다.
-          en: They took two suitcases, but Dad's hiking boots are still at home.
-          ja: スーツケースは二つ持っていったのに、登山靴は家に残っている。
+          ko: 캐리어는 두 개나 가져가셨는데, 등산화는 두고 가셨다.
+          en: They took two whole suitcases, but left Dad's hiking boots behind.
+          ja: スーツケースは二つも持っていったのに、登山靴は置いていった。
         - speaker: hero
-          ko: 2박 3일이라고 했는데 가져간 짐은 한 달 치였어.
-          en: They said two nights, but they packed for a month.
-          ja: 二泊三日って言ってたのに、持っていったのはひと月分の荷物だった。
+          ko: 2박 3일이라고 했는데. …2박 3일 치 짐이 아니었어.
+          en: They said two nights. …That wasn't two nights' worth of luggage.
+          ja: 二泊三日って言ってたのに。…二泊三日分の荷物じゃなかった。
 
   #
   # 2페이즈를 닫는 한 줄. 그림 없이 방이 비친 채로 흐른다.
   p2-close:
     - lines:
         - speaker: hero
-          ko: 여행이 아니었어. 둘 다 뭔가 알고 있었어.
-          en: It wasn't a trip. They both knew something.
-          ja: 旅行じゃなかった。二人とも何か知ってたんだ。
+          ko: …여행이 아니었던 걸까. 둘 다 뭔가 알고 있었어.
+          en: …Was it not a trip at all? They both knew something.
+          ja: …旅行じゃなかったのか。二人とも何か知ってたんだ。
 
   #
   # 4페이즈 서류와 출입증을 마친 뒤: 라디오의 "치료할 방법"과 앰플이 이어진다.
@@ -421,17 +421,17 @@ cutscenes:
   p4-close:
     - lines:
         - speaker: hero
-          ko: …이게 답일지도 몰라.
-          en: …This might be the answer.
-          ja: …これが答えかもしれない。
+          ko: …그 앰플이 답일지도 몰라.
+          en: …That ampoule might be the answer.
+          ja: …あのアンプルが答えかもしれない。
         - speaker: hero
-          ko: 엄마 아빠는 이걸 지키려고 간 거였어. 여행이 아니었던 거야.
-          en: Mom and Dad left to protect this. It was never a trip.
-          ja: 父さんと母さんは、これを守るために行ったんだ。旅行じゃなかったんだ。
+          ko: 엄마 아빠는 그걸 지키려고 여행이라고 한 거였어.
+          en: Mom and Dad called it a trip to protect it.
+          ja: 父さんと母さんは、それを守るために旅行だと言ったんだ。
         - speaker: hero
-          ko: 앰플을 들고, 나흘 안에 은강고 체육관으로 가자.
-          en: Take the ampoule and get to the Eungang High gym within four days.
-          ja: アンプルを持って、四日以内に銀江高の体育館へ行こう。
+          ko: 앰플을 들고, 나흘 밤 안에 은강고 체육관으로 간다.
+          en: I'm taking the ampoule and getting to the Eungang High gym within four nights.
+          ja: アンプルを持って、四晩のうちに銀江高の体育館へ行く。
 
   #
   # 정적 비트: 액자 2차(얼굴이 돌아온 사진) 직후. BGM이 멎고 카메라가 머문 채
