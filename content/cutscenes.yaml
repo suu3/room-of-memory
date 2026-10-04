@@ -415,7 +415,7 @@ cutscenes:
           ja: …旅行じゃなかったのか。二人とも何か知ってたんだ。
 
   #
-  # 4페이즈 서류와 출입증을 마친 뒤: 라디오의 "치료할 방법"과 앰플이 이어진다.
+  # 4페이즈 서류와 출입증을 마친 뒤: 서류의 "치료제 후보"와 냉장고의 앰플이 이어진다.
   # 이어서 각오를 한 번 더 다진다: 부모님의 진실 → 앰플 → 기한 안에 체육관. 목적을 잊지 않게.
   # 이 줄이 끝나면 방의 액자에 금빛이 돈다.
   p4-close:
@@ -425,9 +425,9 @@ cutscenes:
           en: …That ampoule might be the answer.
           ja: …あのアンプルが答えかもしれない。
         - speaker: hero
-          ko: 엄마 아빠는 그걸 지키려고 여행이라고 한 거였어.
-          en: Mom and Dad called it a trip to protect it.
-          ja: 父さんと母さんは、それを守るために旅行だと言ったんだ。
+          ko: 엄마 아빠는 나를 지키려고 여행이라고 한 거였어. …그리고 그걸 남기고 갔어.
+          en: Mom and Dad called it a trip to protect me. …And they left that behind.
+          ja: 父さんと母さんは、俺を守るために旅行だと言ったんだ。…そして、あれを残していった。
         - speaker: hero
           ko: 앰플을 들고, 나흘 밤 안에 은강고 체육관으로 간다.
           en: I'm taking the ampoule and getting to the Eungang High gym within four nights.
