@@ -252,7 +252,10 @@ export const VOICES: Record<VoiceId, Voice> = {
     tones: [{ from: 180, to: 90, waveform: "triangle", delay: 0, duration: 0.11, gain: 0.26 }],
     noise: { delay: 0, duration: 0.09, gain: 0.34, highpass: 2400 },
   },
-  /** 헛스윙: 맞은 소리가 아니라 지나간 소리. 부풀었다 사그라드는 바람만 남긴다. */
+  /**
+   * 헛스윙: 맞은 소리가 아니라 지나간 소리. 부풀었다 사그라드는 바람만 남긴다.
+   * 실제로 울리는 건 파일이다 (ASSETS.sfx.swingMiss). 이 합성은 파일을 못 받았을 때의 대역.
+   */
   swingMiss: {
     tones: [{ from: 140, to: 110, waveform: "sine", delay: 0, duration: 0.18, gain: 0.07 }],
     noise: { delay: 0, duration: 0.22, gain: 0.2, highpass: 900, lowpass: 5200, attack: 0.08 },

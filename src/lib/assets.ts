@@ -267,6 +267,11 @@ export const ASSETS = {
     doorOpen: "/assets/audio/sfx/sfx-door-open.ogg",
     /** 벽 스위치 딸깍. 게임의 첫 조작이라 실물 소리로. 딸-깍 두 번 닿는 0.29초만 잘랐다. */
     lightSwitch: "/assets/audio/sfx/sfx-light-switch.ogg",
+    /**
+     * 야구 미니게임의 헛스윙. 합성 바람은 "쉭"이 아니라 "솨"로 퍼져서 배트가 가르는
+     * 실물 소리로 바꿨다. 앞뒤 무음을 자르고 휙 한 번인 0.15초만 남겼다.
+     */
+    swingMiss: "/assets/audio/sfx/sfx-swing-whoosh.ogg",
   } as Partial<Record<VoiceId, string>>,
   /**
    * 녹음된 말소리 (src/lib/audio/speech.ts). 게임에서 사람 목소리가 나는 자리는 여기뿐이다:

@@ -82,7 +82,15 @@ export function useAudioRuntime() {
       unlockAudio();
       if (preloaded) return;
       preloaded = true;
-      preloadSamples(["select", "open", "mittTap", "doorOpen", "lightSwitch", "computerBoot"]);
+      preloadSamples([
+        "select",
+        "open",
+        "mittTap",
+        "doorOpen",
+        "lightSwitch",
+        "computerBoot",
+        "swingMiss",
+      ]);
     };
     const events = ["pointerdown", "pointerup", "click", "keydown"] as const;
     for (const type of events) window.addEventListener(type, wake);

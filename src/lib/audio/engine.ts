@@ -23,8 +23,9 @@ const SFX_LEVEL = 0.7;
 /**
  * 파일 효과음의 개별 크기. 합성 보이스는 악보에 게인이 있지만 파일은 원본 크기 그대로라
  * 여기서 맞춘다. 뽁(open)은 창이 뜰 때마다 울리는데 원본이 유독 커서 한 번 더 깎는다.
+ * 헛스윙(swingMiss)은 합성 타격음(batHit)보다 크게 들리면 안 돼서 같이 깎는다.
  */
-const SAMPLE_GAIN: Partial<Record<VoiceId, number>> = { open: 0.65 };
+const SAMPLE_GAIN: Partial<Record<VoiceId, number>> = { open: 0.65, swingMiss: 0.6 };
 let muted = false;
 const VOLUME = 0.7;
 /** 같은 소리가 한 프레임에 여러 번 겹쳐 터지는 걸 막는다. */
