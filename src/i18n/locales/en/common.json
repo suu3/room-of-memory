@@ -723,7 +723,7 @@
     "parentsLocked": "Their room is locked.",
     "clockStopped": "4:20. …When did it stop?",
     "clockRunning": "…It's ticking again. Whether it's right, I can't tell.",
-    "aircon": "It's gotten cold. No reason to turn the AC on.",
+    "aircon": "It's cold now. No reason to turn the AC on anymore.",
     "sinkDrained": "…Something's sunk to the bottom.",
     "badgeFound": "…It was on the ampoule."
   }
