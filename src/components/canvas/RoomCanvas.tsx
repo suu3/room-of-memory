@@ -757,8 +757,10 @@ export function RoomCanvas() {
         </CanvasErrorBoundary>
       )}
 
+      {/* 걸음이 잠긴 동안(단서·대사·미니게임·메뉴)은 "E로 조사" 칩을 내린다. 위를 덮은
+          판의 흐린 배경 아래로 뭉개진 칩만 비쳐 보였다 */}
       <RoomInteractionPrompt
-        nearbyMemoryId={nearbyMemoryId}
+        nearbyMemoryId={inputLocked ? null : nearbyMemoryId}
         nearbyLabel={nearbyLabel}
         legend={t("hud.scattered")}
         labels={memoryButtonLabels}
