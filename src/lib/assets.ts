@@ -205,12 +205,12 @@ export const ASSETS = {
    */
   textures: {
     /**
-     * 책상 위 벽에 붙은 고교야구대회 포스터 (512×768, 사용자 제공). 방에서
+     * 책상 위 벽에 붙은 고교야구대회 포스터 (512×768, 사용자 제공 원화의 저채도 편집본). 방에서
      * 유일하게 그림이 실린 벽면이다. 2:3이라 가로만 2의 제곱이다: WebGL2는
      * 밉맵이 붙는 NPOT 텍스처를 그대로 받고, 비율을 맞추려 늘리면 포스터가
      * 찌그러진다 (.claude/rules/assets.md의 2048px·2MB 한도는 지킨다).
      */
-    roomPosterBaseball: "/assets/textures/room-poster-baseball.webp",
+    roomPosterBaseball: "/assets/textures/room-poster-baseball-muted.webp?v=20260927",
   },
   /**
    * 바퀴마다 한 곡. 값은 **후보 목록**이고 앞에서부터 받아 처음 성공한 것을 튼다
