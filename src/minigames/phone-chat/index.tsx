@@ -32,7 +32,9 @@ import {
   type PhoneTab,
   PROFILE_AVATARS,
   revealNext,
+  scrollReads,
   startsRun,
+  swipeReads,
   totalOutgoingCalls,
   visibleMessages,
 } from "./thread";
@@ -242,6 +244,37 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [readNext, readingFriends]);
 
+  // 스크롤도 클릭처럼 다음 줄을 연다. 폰 화면(대화창) 위에서만 듣는다:
+  // 휠은 아래로 굴릴 때, 터치는 위로 쓸어 올릴 때 (둘 다 읽어 내려가는 방향).
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node || !readingFriends) return;
+    let lastReadAt = Number.NEGATIVE_INFINITY;
+    let touchY: number | null = null;
+    const onWheel = (event: WheelEvent) => {
+      if (!scrollReads(event.deltaY, event.timeStamp, lastReadAt)) return;
+      lastReadAt = event.timeStamp;
+      readNext();
+    };
+    const onTouchStart = (event: TouchEvent) => {
+      touchY = event.touches[0]?.clientY ?? null;
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      const y = event.touches[0]?.clientY;
+      if (touchY === null || y === undefined || !swipeReads(touchY, y)) return;
+      touchY = y;
+      readNext();
+    };
+    node.addEventListener("wheel", onWheel, { passive: true });
+    node.addEventListener("touchstart", onTouchStart, { passive: true });
+    node.addEventListener("touchmove", onTouchMove, { passive: true });
+    return () => {
+      node.removeEventListener("wheel", onWheel);
+      node.removeEventListener("touchstart", onTouchStart);
+      node.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [readNext, readingFriends]);
+
   const callTotal = totalOutgoingCalls();
 
   const header =
@@ -318,7 +351,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
           </ul>
         ) : readingFriends ? (
           // 한 줄씩 붙는 대화창이라 role="log"가 맞는다. 새 줄이 스크린리더에 읽힌다.
-          // 클릭은 다음 줄 넘기기. 키보드 경로는 창 전역 핸들러가 맡는다.
+          // 클릭은 다음 줄 넘기기. 키보드는 창 전역 핸들러가, 스크롤은 이 대화창에 건 리스너가 맡는다.
           <div
             ref={scrollRef}
             role="log"
@@ -328,10 +361,6 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
               if (event.code !== "Space" && event.code !== "Enter") return;
               event.preventDefault();
               readNext();
-            }}
-            // 휠을 아래로 굴려도 다음 줄이 열린다. 읽어 내려가는 방향 그대로
-            onWheel={(event) => {
-              if (event.deltaY > 0) readNext();
             }}
             className="size-full overflow-y-auto bg-scene-navy px-3 py-3.5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-memory"
           >
@@ -377,33 +406,31 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
         ) : (
           <div className="size-full overflow-y-auto bg-scene-navy px-3 py-2">
             <ul className="flex flex-col">
-              {OUTGOING_CALLS.map((call) => (
-                <li
-                  key={call.id}
-                  className="flex animate-fade-rise items-center gap-3 border-b border-bone/8 px-1.5 py-3 last:border-b-0"
-                >
-                  <PhoneDisconnectIcon
-                    size={18}
-                    weight="fill"
-                    className={`shrink-0 ${call.urgent ? "text-ember" : "text-scene-leaf"}`}
-                  />
-                  <span
-                    className={`min-w-0 flex-1 truncate text-[0.9375rem] font-bold ${call.urgent ? "text-ember" : "text-scene-leaf"}`}
+              {OUTGOING_CALLS.map((call) => {
+                // 걸려 온 스팸은 회색으로 물러선다: 초록(친구) → 빨강(부모님)의 흐름에 끼지 않는다
+                const tone = call.incoming
+                  ? "text-bone/45"
+                  : call.urgent
+                    ? "text-ember"
+                    : "text-scene-leaf";
+                return (
+                  <li
+                    key={call.id}
+                    className="flex animate-fade-rise items-center gap-3 border-b border-bone/8 px-1.5 py-3 last:border-b-0"
                   >
-                    {t(call.toKey)}
-                    {call.count > 1 ? (
-                      <span
-                        className={`ml-1 font-normal ${call.urgent ? "text-ember/65" : "text-scene-leaf/65"}`}
-                      >
-                        ({call.count})
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="shrink-0 text-[0.75rem] tabular-nums text-bone/40">
-                    {call.time}
-                  </span>
-                </li>
-              ))}
+                    <PhoneDisconnectIcon size={18} weight="fill" className={`shrink-0 ${tone}`} />
+                    <span className={`min-w-0 flex-1 truncate text-[0.9375rem] font-bold ${tone}`}>
+                      {t(call.toKey)}
+                      {call.count > 1 ? (
+                        <span className="ml-1 font-normal opacity-65">({call.count})</span>
+                      ) : null}
+                    </span>
+                    <span className="shrink-0 text-[0.75rem] tabular-nums text-bone/40">
+                      {call.time}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}

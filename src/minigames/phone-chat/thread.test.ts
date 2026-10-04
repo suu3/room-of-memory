@@ -10,7 +10,9 @@ import {
   PHONE_TABS,
   PROFILE_AVATARS,
   revealNext,
+  scrollReads,
   startsRun,
+  swipeReads,
   totalOutgoingCalls,
   visibleMessages,
 } from "./thread";
@@ -44,6 +46,23 @@ describe("phone-chat thread", () => {
     expect(visibleMessages(GROUP_CHAT.length + 9)).toEqual(GROUP_CHAT);
   });
 
+  it("reads one line per downward scroll, not one per wheel event", () => {
+    // 아래로 굴리면 열린다. 위로 굴리면 앞 대화를 되짚는 것이라 열지 않는다
+    expect(scrollReads(100, 1000, Number.NEGATIVE_INFINITY)).toBe(true);
+    expect(scrollReads(-100, 1000, Number.NEGATIVE_INFINITY)).toBe(false);
+    expect(scrollReads(0, 1000, Number.NEGATIVE_INFINITY)).toBe(false);
+    // 트랙패드의 관성: 방금 한 줄 열었으면 잠깐은 더 열지 않는다
+    expect(scrollReads(4, 1016, 1000)).toBe(false);
+    expect(scrollReads(4, 1400, 1000)).toBe(true);
+  });
+
+  it("reads a line once the finger has swiped far enough up", () => {
+    expect(swipeReads(400, 395)).toBe(false);
+    expect(swipeReads(400, 340)).toBe(true);
+    // 아래로 쓸어 내리는 것은 읽어 내려가는 방향이 아니다
+    expect(swipeReads(400, 480)).toBe(false);
+  });
+
   it("knows when there is nothing newer left", () => {
     expect(hasLater(0)).toBe(true);
     expect(hasLater(GROUP_CHAT.length - 1)).toBe(true);
@@ -70,24 +89,32 @@ describe("phone-chat thread", () => {
     const senders = new Set(GROUP_CHAT.map((message) => message.fromKey).filter(Boolean));
     expect(senders).toEqual(new Set([FRIEND.yunho, FRIEND.juwan]));
     expect(GROUP_CHAT.at(-1)?.fromKey).toBe(FRIEND.juwan);
-    // 도해가 그 뒤로 보낸 줄은 없다: 방은 주완의 "ㄱㄱ"에서 멈춘다
+    // 도해가 그 뒤로 보낸 줄은 없다: 방은 주완의 "ㅋ"에서 멈춘다
     expect(GROUP_CHAT.at(-1)?.side).toBe("them");
   });
 
   it("starts with calls to friends, then turns urgent with calls to the parents", () => {
-    // 초록(평범한 발신)이 먼저, 빨강(그 시점 이후)이 뒤: 섞이지 않는다
-    const firstUrgent = OUTGOING_CALLS.findIndex((call) => call.urgent);
+    // 도해가 건 전화만 본다. 초록(평범한 발신)이 먼저, 빨강(그 시점 이후)이 뒤: 섞이지 않는다
+    const placed = OUTGOING_CALLS.filter((call) => !call.incoming);
+    const firstUrgent = placed.findIndex((call) => call.urgent);
     expect(firstUrgent).toBeGreaterThan(0);
-    expect(OUTGOING_CALLS.slice(firstUrgent).every((call) => call.urgent)).toBe(true);
+    expect(placed.slice(firstUrgent).every((call) => call.urgent)).toBe(true);
     const friends = new Set<string>(Object.values(FRIEND));
-    expect(OUTGOING_CALLS.slice(0, firstUrgent).every((call) => friends.has(call.toKey))).toBe(
-      true,
-    );
-    expect(OUTGOING_CALLS.slice(firstUrgent).some((call) => friends.has(call.toKey))).toBe(false);
+    expect(placed.slice(0, firstUrgent).every((call) => friends.has(call.toKey))).toBe(true);
+    expect(placed.slice(firstUrgent).some((call) => friends.has(call.toKey))).toBe(false);
+  });
+
+  it("opens the call log with a spam number's missed calls, from before that afternoon", () => {
+    // 걸려 온 전화는 맨 위 한 줄뿐이고, 도해가 건 첫 전화보다 이르다
+    expect(OUTGOING_CALLS.filter((call) => call.incoming)).toEqual([OUTGOING_CALLS[0]]);
+    expect(OUTGOING_CALLS[0].time < OUTGOING_CALLS[1].time).toBe(true);
   });
 
   it("counts every call the player placed for the tab badge", () => {
-    expect(totalOutgoingCalls()).toBe(OUTGOING_CALLS.reduce((sum, call) => sum + call.count, 0));
+    // 걸려 온 스팸 전화는 "건 전화"가 아니라 세지 않는다
+    expect(totalOutgoingCalls()).toBe(
+      OUTGOING_CALLS.filter((call) => !call.incoming).reduce((sum, call) => sum + call.count, 0),
+    );
     expect(totalOutgoingCalls([])).toBe(0);
     // 다시 건 횟수가 쌓여 있어야 "몇 번이나 걸었다"가 화면에서 읽힌다
     expect(totalOutgoingCalls()).toBeGreaterThan(OUTGOING_CALLS.length);
@@ -123,7 +150,7 @@ describe("phone-chat profiles", () => {
     const firsts = GROUP_CHAT.filter((_, index) => startsRun(GROUP_CHAT, index)).map(
       (message) => message.id,
     );
-    // 주완 j1·j2, 윤호 y1, 주완 j3, 윤호 y2, 나 m1·m2, 윤호 y3·y4, 주완 j4
+    // 주완 j1·j2, 윤호 y1, 주완 j3, 윤호 y2, 나 m1·m2, 윤호 y3, 주완 j4
     expect(firsts).toEqual(["j1", "y1", "j3", "y2", "m1", "y3", "j4"]);
     // 가족방은 엄마·아빠가 번갈아 말해서 매 줄이 새 묶음이다
     expect(FAMILY_CHAT.every((_, index) => startsRun(FAMILY_CHAT, index))).toBe(true);
