@@ -444,23 +444,25 @@
       "message": "Do-hae, come straight home after school today. Skip the study room. Don't go anywhere else"
     },
     "computerLogo": {
-      "title": "Saved Images",
+      "title": "Browsing History",
       "help": "Pick the logo you saw on the sanitizer bottle: click",
       "help_touch": "Tap the logo you saw on the sanitizer bottle",
-      "app": "Browser: saved pages",
+      "app": "Browser: history",
       "wrong": "…Not this one.",
-      "found": "Laon Life Science Institute. …So that's what was on the sanitizer bottle.",
       "source": {
         "hotel": "Accommodation guide",
         "portal": "Staff portal",
         "health": "News: health authority briefing",
         "gate": "News: research facility gate"
       },
+      "visited": {
+        "gate": "Oct 16, 23:52",
+        "portal": "Oct 16, 23:40",
+        "health": "Oct 16, 23:31",
+        "hotel": "Oct 14, 20:15"
+      },
       "portal": {
-        "org": "Laon Life Science Institute",
-        "title": "Staff Portal",
-        "lastLogin": "Last sign-in: October 16, 23:40",
-        "device": "Device: this computer"
+        "org": "Laon Life Science Institute"
       }
     },
     "drawerDial": {

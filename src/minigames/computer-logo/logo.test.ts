@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { LOGO_CANDIDATES, matchesLabel } from ".";
 
 describe("computer-logo", () => {
-  it("라온 로고는 하나뿐이다: 아빠가 접속했던 임직원 포털의 저장된 페이지", () => {
+  it("라온 로고는 하나뿐이다: 아빠가 임직원 포털에 들어간 기록", () => {
     const matching = LOGO_CANDIDATES.filter(matchesLabel);
     expect(matching.map((candidate) => candidate.id)).toEqual(["portal"]);
     expect(matching[0]?.sourceKey).toBe("minigame.computerLogo.source.portal");

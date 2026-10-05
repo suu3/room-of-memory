@@ -111,7 +111,7 @@ describe("컴퓨터 비밀번호 단서", () => {
     for (const { discovery } of Object.values(VISIT_AFTER_DISCOVERY)) {
       expect(DISCOVERY_IDS).toContain(discovery);
     }
-    // 소독제 병에는 이름이 없다. 안내도 이름을 대지 않고, 맞힌 뒤의 포털이 처음 댄다
+    // 소독제 병에는 이름이 없다. 안내도 이름을 대지 않고, 접속 기록의 맞힌 줄이 처음 댄다
     for (const [locale, resource] of Object.entries(LOCALES)) {
       const name = locale === "ko" ? "라온" : locale === "en" ? "Laon" : "ラオン";
       expect(resource.clue.laonSanitizer, locale).not.toHaveProperty("name");
