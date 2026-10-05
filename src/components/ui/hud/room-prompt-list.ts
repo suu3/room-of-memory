@@ -78,6 +78,16 @@ export type PromptPropId =
   | "bat"
   | "front-door";
 
+/** 그 물건이 놓인 공간. 목록에서 누르면 몸이 먼저 거기로 간다 (RoomCanvas의 standIn). */
+export const PROP_SPACE = {
+  "sink-plug": "bathroom",
+  "nightstand-drawer": "room",
+  "piano-sheet": "parents",
+  piano: "living",
+  bat: "living",
+  "front-door": "living",
+} as const satisfies Record<PromptPropId, SpaceId>;
+
 export interface PromptProp {
   id: PromptPropId;
   /** 지금 눌러서 되는가. 안 되는 것도 이유를 붙여 목록에 남긴다 (기억과 같은 문법). */

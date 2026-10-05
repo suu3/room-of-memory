@@ -24,10 +24,12 @@ import {
   listedMemories,
   listedProps,
   memoryStatuses,
+  PROP_SPACE,
   type PromptPropId,
 } from "@/components/ui/hud/room-prompt-list";
 import { CanvasMinigameSkip } from "@/components/ui/minigame/MinigameHost";
 import { MEMORY_IDS, type MemoryId } from "@/data/memory-room";
+import { MEMORY_SPACE } from "@/data/spaces";
 import { useControlHint, usePointerKind } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import {
@@ -51,7 +53,7 @@ import {
   releaseProgress,
 } from "@/scenes/memory-room/rooms/room/curtain-motion";
 import { CAMERA_PRESETS, MEMORY_PLACEMENTS } from "@/scenes/memory-room/world/layout";
-import { reachableSpaces, SPACES } from "@/scenes/memory-room/world/spaces";
+import { reachableSpaces, SPACES, type SpaceId } from "@/scenes/memory-room/world/spaces";
 import { findNearestMemory } from "@/scenes/memory-room/world/spatial";
 import { useEffectsStore } from "@/store/effects";
 import {
@@ -109,6 +111,21 @@ const PROP_PRESS = {
   bat: pressBat,
   "front-door": pressFrontDoor,
 } as const satisfies Record<PromptPropId, () => void>;
+
+/**
+ * 화면 밖 목록에서 누른 물건이 다른 공간에 있으면 몸을 먼저 그 공간에 세운다 (수첩 평면도와
+ * 같은 자리: landing).
+ *
+ * 씬은 한 번에 한 공간만 그린다. 몸을 두고 물건만 열면 숨은 공간의 물건이 열려서, 안방에 선
+ * 채로 거실 피아노를 열었을 때 건반만 허공에 뜨고 보면대의 악보는 안 보였다. HUD의 위치도
+ * "안방"인 채였다 (2026-10-06 플레이 테스트). 걷지 않고 닿게 하되, 닿은 자리는 맞아야 한다.
+ */
+function standIn(space: SpaceId): void {
+  const state = useMemoryRoomStore.getState();
+  if (state.space === space || !state.started) return;
+  if (viewpointOf(state) !== null || selectSceneInputLocked(state)) return;
+  state.warpPlayer(SPACES[space].landing.x, SPACES[space].landing.z);
+}
 
 interface CanvasErrorBoundaryProps {
   children: ReactNode;
@@ -431,7 +448,10 @@ export function RoomCanvas() {
       ({ id, ready }): RoomPromptAction => ({
         id: `prop-${id}`,
         label: t(`scene.propState.${ready ? "ready" : "locked"}`, { name: t(`scene.prop.${id}`) }),
-        onPress: PROP_PRESS[id],
+        onPress: () => {
+          standIn(PROP_SPACE[id]);
+          PROP_PRESS[id]();
+        },
       }),
     );
     return {
@@ -490,6 +510,17 @@ export function RoomCanvas() {
       return accepted;
     },
     [beginInteraction, clearDirectFocusTimer, curtainsOpen, openBothCurtains],
+  );
+
+  /** 목록에서 누른 기억: 몸을 그 공간에 세운 뒤 조사한다 (standIn). */
+  const interactFromList = useCallback(
+    (id: MemoryId) => {
+      if (hotspotStatus(useMemoryRoomStore.getState(), id) === "available") {
+        standIn(MEMORY_SPACE[id]);
+      }
+      return interact(id);
+    },
+    [interact],
   );
 
   useEffect(() => {
@@ -777,7 +808,7 @@ export function RoomCanvas() {
           labels={memoryButtonLabels}
           statuses={statuses}
           memoryIds={listedMemoryIds}
-          onInteract={interact}
+          onInteract={interactFromList}
           actions={promptActions}
         />
       )}
