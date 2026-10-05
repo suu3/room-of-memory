@@ -161,7 +161,7 @@
       "title": "Tune the Frequency",
       "help": "The moment the needle crosses the lit band: Space",
       "help_touch": "Tap the moment the needle crosses the lit band",
-      "fail": "Still can't catch it."
+      "fail": "…Figures. Still can't catch it."
     },
     "photoWipe": {
       "title": "Wipe the Photo",
