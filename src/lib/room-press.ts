@@ -1,3 +1,4 @@
+import { DOOR_RULES } from "@/data/doors";
 import type { DoorwayId } from "@/data/spaces";
 import { playSound } from "@/lib/audio";
 import {
@@ -19,7 +20,7 @@ import {
 /**
  * 문을 누른다.
  *
- * 열 수 있으면 연다. 아직이면 거절음이 나고, 방문은 안 여는 이유를 한 줄 흘린다
+ * 열 수 있으면 연다. 아직이면 거절음이 나고, 방문과 잠긴 안방 문은 안 여는 이유를 한 줄 흘린다
  * (RemarkLine). 이미 열린 문은 아무 일도 없다.
  */
 export function pressDoor(id: DoorwayId): void {
@@ -37,6 +38,8 @@ export function pressDoor(id: DoorwayId): void {
   }
   if (!selectDoorwayReady(id)(state)) {
     playSound("deny");
+    // 열쇠가 있어야 하는 문(안방)은 왜 안 열리는지 한 줄 흘린다. 소리만 나면 고장으로 읽힌다
+    if (DOOR_RULES[id].item) state.sayRemark("parents-locked");
     return;
   }
   playSound("doorOpen");
