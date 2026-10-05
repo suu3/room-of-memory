@@ -103,7 +103,7 @@ const D5 = 587.33;
  * 삼각파는 배음이 많아 밝고 장난감처럼 들린다. 사인파로 바꾸고 꼬리를 늘려
  * 튕기는 소리가 아니라 울리다 잦아드는 소리로 만든다.
  */
-function pluck(frequency: number, delay: number, gain = 0.34): Tone {
+function pluck(frequency: number, delay: number, gain = 0.44): Tone {
   return { from: frequency, waveform: "sine", delay, duration: 0.26, gain };
 }
 
@@ -227,7 +227,7 @@ export const VOICES: Record<VoiceId, Voice> = {
    */
   reelStart: {
     tones: [{ from: 70, to: 110, waveform: "sine", delay: 0, duration: 0.22, gain: 0.16 }],
-    noise: { delay: 0.04, duration: 0.5, gain: 0.12, highpass: 2200, lowpass: 9000, attack: 0.2 },
+    noise: { delay: 0.04, duration: 0.5, gain: 0.1, highpass: 2200, lowpass: 9000, attack: 0.2 },
   },
   /**
    * 컷이 바뀐다. 슬라이드 영사기의 셔터처럼 짧고 마른 "찰칵" 한 번. flip(종이)보다
@@ -301,8 +301,8 @@ export const VOICES: Record<VoiceId, Voice> = {
   /** 주파수가 잡히는 순간. 잡음 속에서 신호가 떠오르듯 올라갔다 그 음에 머문다. */
   radioLock: {
     tones: [
-      { from: D4, to: A4, waveform: "sine", delay: 0, duration: 0.14, gain: 0.24 },
-      { from: A4, waveform: "sine", delay: 0.12, duration: 0.22, gain: 0.18 },
+      { from: D4, to: A4, waveform: "sine", delay: 0, duration: 0.14, gain: 0.4 },
+      { from: A4, waveform: "sine", delay: 0.12, duration: 0.22, gain: 0.3 },
     ],
   },
   /**
@@ -345,7 +345,7 @@ export const VOICES: Record<VoiceId, Voice> = {
    */
   radioStatic: {
     tones: [],
-    noise: { delay: 0, duration: 0.28, gain: 0.12, highpass: 1200, lowpass: 6800, attack: 0.02 },
+    noise: { delay: 0, duration: 0.28, gain: 0.105, highpass: 1200, lowpass: 6800, attack: 0.02 },
   },
   /**
    * 옛날 폰 문자 알림. 그 시절 알림음은 대개 사각파 두 방이었고, 지금 귀에 거슬리는

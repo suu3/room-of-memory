@@ -33,10 +33,13 @@ const SIGN_OFF_MS = 800;
 /**
  * 그림이 서 있는 동안 바닥에 까는 테이프 히스. 곡이 아니라 "재생 중"이라는 기척이다.
  * 방의 BGM이 삼켜진 자리(music.ts의 SINK_CUTOFF_HZ)에 곧바로 완전한 무음이 오면
- * 컷씬이 아니라 소리가 고장난 것으로 들린다. 방송 잡음(gain 0.09)의 절반도 안 되게:
+ * 컷씬이 아니라 소리가 고장난 것으로 들린다. 방송 잡음(BROADCAST_STATIC)의 절반도 안 되게:
  * 의식하면 들리고 대사를 읽는 동안은 잊히는 크기.
  */
-const TAPE_HISS = { gain: 0.035, highpass: 2400, lowpass: 9000 } as const;
+const TAPE_HISS = { gain: 0.03, highpass: 2400, lowpass: 9000 } as const;
+
+/** 방송 잡음: 도입의 치지직과 방송이 끊기기 직전의 치지직이 같은 크기로 운다. */
+const BROADCAST_STATIC = { gain: 0.078, highpass: 900, lowpass: 7000 } as const;
 
 /**
  * 재난 방송의 목소리. 녹음은 깨끗한 전대역이라, 작은 라디오 스피커의 대역(전화 대역
@@ -210,7 +213,7 @@ export function PlaybackScene() {
       return;
     }
     setStage("static");
-    const bed = startNoiseBed({ gain: 0.09, highpass: 900, lowpass: 7000 });
+    const bed = startNoiseBed(BROADCAST_STATIC);
     bed?.setLevel(1);
     const toBlackout = window.setTimeout(() => {
       bed?.stop();
@@ -262,7 +265,7 @@ export function PlaybackScene() {
       playSound(cutSfx);
       return;
     }
-    const bed = startNoiseBed({ gain: 0.09, highpass: 900, lowpass: 7000 });
+    const bed = startNoiseBed(BROADCAST_STATIC);
     bed?.setLevel(1);
     const timer = window.setTimeout(() => {
       bed?.stop();
