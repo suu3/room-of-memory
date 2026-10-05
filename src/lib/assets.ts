@@ -136,7 +136,7 @@ export const ASSETS = {
      * src/minigames/fighter-duel/sprites.ts 주석 참고
      * (7프레임 가로 시트, 1568×320: idle·strike·guard·throw·hurt·ko·win).
      */
-    mgFighterDuelHero: "/assets/images/mg-fighter-duel-hero.webp?v=cutout-20260928",
+    mgFighterDuelHero: "/assets/images/mg-fighter-duel-hero.webp?v=redraw-20261005",
     mgFighterDuelRival: "/assets/images/mg-fighter-duel-rival.webp",
     /*
      * 달력 장 그림 (7~11월, 1080×1600). 빈 달력 그림이고 11월만 正자 낙서가 그려져 있다.

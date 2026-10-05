@@ -54,7 +54,7 @@
 | images/cutscene-day-1.webp ~ images/cutscene-day-8.webp | 분기점 과거편 8컷. 사용자가 Midjourney로 생성한 뒤 직접 리터칭한 PNG(2026-09-26)를 1456×816 webp q82로 변환. 3·4(복도의 감염자 두 컷)는 2026-10-02에 사용자가 준 1456×816 webp를 그대로 담았고, 뒤 컷은 번호를 하나씩 밀었다 | Midjourney (생성) · suu3 (리터칭) | Midjourney 이용약관에 따른 사용자 생성물 |
 | images/character-hero-sad.webp, images/character-hero-puzzled.webp | 사용자가 넣은 주인공 초상 2장 추가(2026-09-27, 가라앉음·의아함 표정). 앞의 세 초상과 같은 4:5 크롭·투명 배경 webp | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 편집 에셋 |
 | images/mg-calendar-flip-07.webp ~ images/mg-calendar-flip-11.webp | 달력 미니게임의 장 그림 5장(7~11월, 1080×1600, 2026-09-27). 사용자가 GPT로 생성한 빈 달력 그림, 11월만 正자 낙서 | OpenAI GPT (생성) · suu3 | 프로젝트 생성 에셋 |
-| images/mg-fighter-duel-hero.webp, images/mg-fighter-duel-rival.webp | 격투 미니게임 스프라이트 시트 2장(2026-08-06). 사용자가 GPT로 생성. 히어로 시트는 2026-09-28에 반투명 가장자리를 걷어냈다 | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 생성 에셋 |
+| images/mg-fighter-duel-hero.webp, images/mg-fighter-duel-rival.webp | 격투 미니게임 스프라이트 시트 2장(2026-08-06). 사용자가 GPT로 생성. 히어로 시트는 2026-10-05에 새 그림으로 바꾸고 반투명 가장자리를 걷어냈다 | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 생성 에셋 |
 | images/mg-ball-catch-ball.svg | 이 프로젝트를 위해 코드로 직접 그린 SVG(공). 외부 그림 없음 | Codex · Claude Code | 프로젝트 생성 에셋 |
 | images/ui-ending-thanks.webp | 엔딩 카드의 Thank you! 그림(1160×1533, 2026-09-26). GPT로 생성한 뒤 제작자가 직접 손본 그림. 카드에서 내려받기도 이 파일이다 | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 편집 에셋 |
 | images/ui-loading.gif | 로딩 화면의 달리는 캐릭터 애니메이션(420×400, 2026-08-02 사용자 제공, 2026-09-10 프레임 정리). 애니메이션 webp는 쓰는 자리에서 재생이 안 돼 gif로 둔다 (assets.md 예외) | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
