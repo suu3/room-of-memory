@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { AdminPanel } from "@/components/dev/AdminPanel";
 import { MEMORY_GOAL, memoriesForPhase } from "@/data/memory-room";
 import { monologueIdFor } from "@/data/monologue";
+import { PACK_TOTAL } from "@/data/story-phase";
 import { useAudioRuntime, useRoomMusic } from "@/lib/audio";
 import { useMediaQuery } from "@/lib/use-media-query";
 import {
@@ -23,6 +24,7 @@ import {
   selectMusicForeground,
   selectMusicPhase,
   selectMusicPlaying,
+  selectPackedCount,
   selectPacking,
   selectResultMusic,
   selectViewpoint,
@@ -93,7 +95,15 @@ export function MemoryRoom() {
   const round: 1 | 2 = act === 1 ? 1 : 2;
   const roundMemories = memoriesForPhase(round);
   const roundDone = round === 1 ? collected : revisited;
-  const count = roundMemories.filter((memory) => roundDone.includes(memory.id)).length;
+  const memoryCount = roundMemories.filter((memory) => roundDone.includes(memory.id)).length;
+  /*
+   * 3막(짐 챙기기)에는 기억 목록이 이미 꽉 차 있다. "2바퀴 · 기억 11/11"을 그대로 두면
+   * 단계가 넘어간 줄을 위쪽에서는 알 수 없어서, 같은 자리가 챙긴 짐을 센다.
+   */
+  const packingRound = act === 3;
+  const packed = useMemoryRoomStore(selectPackedCount);
+  const count = packingRound ? packed : memoryCount;
+  const total = packingRound ? PACK_TOTAL : roundMemories.length;
   // 대사창·컷씬·미니게임·단서·메뉴가 떠 있는 동안 상단 독백은 물러난다. 말은 한 번에 하나만.
   const monologueHidden = useMemoryRoomStore(selectMonologueHidden);
   const monologueId = useMemoryRoomStore(monologueIdFor);
@@ -227,9 +237,15 @@ export function MemoryRoom() {
               <span className="text-[0.75em] font-medium text-fog">
                 {/* 지금 있는 곳. 방 하나뿐인 1막에는 안 뜬다 */}
                 <HudSpaceLine />
-                {t("hud.round", { value: round })}
-                <span aria-hidden> · </span>
-                {t("hud.memoryCount")}
+                {packingRound ? (
+                  t("hud.packCount")
+                ) : (
+                  <>
+                    {t("hud.round", { value: round })}
+                    <span aria-hidden> · </span>
+                    {t("hud.memoryCount")}
+                  </>
+                )}
               </span>
               {/* 모은 개수가 이 화면의 유일한 진행 지표다. 라벨보다 확실히 앞으로 나와야 한다 */}
               <span className="text-[0.75em] tabular-nums text-fog">
@@ -240,7 +256,7 @@ export function MemoryRoom() {
                 >
                   {count}
                 </span>
-                <span> / {roundMemories.length}</span>
+                <span> / {total}</span>
               </span>
             </div>
             {/*
@@ -249,9 +265,10 @@ export function MemoryRoom() {
               차서 "순서대로 안 찬다"로 읽힌다.
             */}
             <div className="flex gap-[0.25em]">
-              {roundMemories.map((memory, index) => (
+              {Array.from({ length: total }, (_, index) => (
                 <span
-                  key={memory.id}
+                  // biome-ignore lint/suspicious/noArrayIndexKey: 칸은 개수만 세므로 자리가 곧 정체다.
+                  key={index}
                   aria-hidden
                   className={`h-0.5 w-[1.5em] rounded-full transition-colors duration-700 ${
                     // 새로 찬 칸은 왼쪽에서 차오른다. 이미 찬 칸은 클래스가 그대로라 다시 안 돈다
