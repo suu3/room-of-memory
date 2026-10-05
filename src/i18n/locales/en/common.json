@@ -434,8 +434,8 @@
     },
     "momChat": {
       "title": "Mom",
-      "help": "Open Mom's chat: click · Enter",
-      "help_touch": "Tap Mom's chat to open it",
+      "help": "Open the text message",
+      "help_touch": "Tap the text message to open it",
       "listTitle": "Chats",
       "listSubtitle": "1 chat",
       "roomSubtitle": "Direct message",
@@ -655,7 +655,6 @@
       "alt": "3D workbook: drag to turn it",
       "hint": "Drag or use the buttons to turn it over. Scroll or use the buttons to zoom",
       "tagLabel": "Name",
-      "tagGrade": "12th grade",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
       "caption": "Bought it with a month left until the CSAT. …How many pages did I actually get through?"
@@ -717,6 +716,7 @@
     "computerOff": "No internet anyway, even if I turn it on.",
     "locked": "…Not yet.",
     "toothbrush": "Three toothbrushes. …Only one is wet.",
+    "rabbitDoll": "A stuffed rabbit that has been in this house for a long time.",
     "drawerLocked": "Locked. I'll need the number to open it.",
     "drawerOpen": "…The house keys. These will open their room, too.",
     "pianoDone": "…I used to play this as a kid. My hands still remember.",

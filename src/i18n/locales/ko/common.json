@@ -434,8 +434,8 @@
     },
     "momChat": {
       "title": "엄마",
-      "help": "엄마 대화방을 연다: 클릭 · Enter",
-      "help_touch": "엄마 대화방을 눌러 연다",
+      "help": "문자 메시지를 열어 보세요",
+      "help_touch": "문자 메시지를 눌러 열어 보세요",
       "listTitle": "채팅",
       "listSubtitle": "대화 1",
       "roomSubtitle": "1:1 대화",
@@ -578,7 +578,7 @@
     "tabItems": "소지품",
     "itemsEmpty": "아직 아무것도 들고 있지 않다.",
     "itemsHint": "주운 것은 여기 남는다. 쓰는 자리에 가면 저절로 쓰인다.",
-    "mapTravelHint": "칸을 누르면 그리로 간다."
+    "mapTravelHint": "칸을 누르면 그곳으로 간다."
   },
   "titleScreen": {
     "tagline": "닫힌 방에 흩어진 기억을 하나씩 되찾는 이야기.",
@@ -655,7 +655,6 @@
       "alt": "3D 문제집: 끌어서 돌려볼 수 있다",
       "hint": "끌거나 버튼으로 돌려 뒤집어 보세요.",
       "tagLabel": "이름",
-      "tagGrade": "고3",
       "zoomIn": "확대",
       "zoomOut": "축소",
       "caption": "수능 한 달 남았다고 산 건데. …몇 장이나 풀었더라."
@@ -717,6 +716,7 @@
     "computerOff": "켜 봐야 인터넷도 안 되는데.",
     "locked": "…지금은 아니다.",
     "toothbrush": "칫솔 세 개. …하나만 젖어 있네.",
+    "rabbitDoll": "집에 오랫동안 있었던 토끼 인형.",
     "drawerLocked": "잠겨 있다. 번호를 알아야 열 수 있겠어.",
     "drawerOpen": "…집 열쇠 꾸러미다. 이거면 안방도 열려.",
     "pianoDone": "…어릴 때 치던 거다. 손이 아직 기억하네.",

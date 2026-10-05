@@ -253,7 +253,8 @@ function WallCalendar() {
         >
           <CaretLeftIcon size={20} weight="bold" />
         </button>
-        <p className="flex items-baseline gap-2">
+        {/* 장 그림에 해·월이 이미 적혀 있다: 그림이 서면 머리글은 스크린리더에게만 읽힌다 */}
+        <p className={page ? "sr-only" : "flex items-baseline gap-2"}>
           <span className="text-sm font-medium text-graphite">{CALENDAR_YEAR}</span>
           <span className="font-pixel text-2xl text-ink">
             {t("minigame.calendarFlip.month", { value: month })}

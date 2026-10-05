@@ -25,6 +25,7 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen" | "needs-item">, CommonTextKe
   "door-ready": "door.nudgeBat",
   "computer-off": "remark.computerOff",
   toothbrush: "remark.toothbrush",
+  "rabbit-doll": "remark.rabbitDoll",
   "drawer-locked": "remark.drawerLocked",
   "drawer-open": "remark.drawerOpen",
   "piano-done": "remark.pianoDone",

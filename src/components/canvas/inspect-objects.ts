@@ -120,8 +120,6 @@ export interface WorkbookLabels {
   name: string;
   /** 이름표의 작은 제목 ("이름"). */
   tagLabel: string;
-  /** 이름 옆의 학년 ("고3"). */
-  tagGrade: string;
 }
 
 /** 뒤표지 바코드의 막대 폭 패턴. 읽히는 코드가 아니라 인쇄물로 보이게 하는 무늬다. */
@@ -170,8 +168,6 @@ function paintWorkbookBack(labels: WorkbookLabels): FacePainter {
     ctx.font = `500 22px ${font}`;
     ctx.fillText(labels.tagLabel, -158, -18);
     ctx.fillStyle = palette.frame;
-    ctx.font = `500 24px ${font}`;
-    ctx.fillText(labels.tagGrade, -158, 30);
     ctx.font = `italic 700 54px ${font}`;
     ctx.fillText(labels.name, -40, 34);
     ctx.restore();

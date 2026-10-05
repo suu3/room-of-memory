@@ -20,7 +20,7 @@ describe("손이 하는 일이 물건마다 갈린다 (뒤집기는 문제집 �
   );
 
   it("문제집은 돌려서 뒤표지를 본다", () => {
-    const workbook = workbookObject({ name: "한도해", tagLabel: "이름", tagGrade: "고3" });
+    const workbook = workbookObject({ name: "한도해", tagLabel: "이름" });
     expect(inspectControlOf(workbook)).toEqual({ kind: "turn" });
     expect(workbook.shape === "box" && workbook.foundYaw).toBe(Math.PI);
   });

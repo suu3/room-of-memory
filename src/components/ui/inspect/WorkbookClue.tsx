@@ -26,7 +26,6 @@ export function WorkbookClue() {
       workbookObject({
         name,
         tagLabel: t("clue.workbook.tagLabel"),
-        tagGrade: t("clue.workbook.tagGrade"),
       }),
     [name, t],
   );

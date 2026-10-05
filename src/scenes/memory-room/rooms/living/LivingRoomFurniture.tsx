@@ -11,6 +11,7 @@ import type { SeatId } from "@/types/seat";
 import { MemoryGlowSelection } from "../../effects/MemoryOutlineGlow";
 import { useGlowHover } from "../../effects/use-glow-hover";
 import { MemoryBeacon } from "../../memory/MemoryBeacon";
+import { TouchProp } from "../../memory/RoomClues";
 import { useNearPlayer } from "../../player/use-near-player";
 import { useSeat, useSeatPull } from "../../player/use-seat";
 import { FurnitureModel } from "../../shared/FurnitureModel";
@@ -432,7 +433,11 @@ const PLUSH_PLACEMENT = {
   scale: 0.474 * LIVING_FURNITURE_SCALE,
 };
 
+/** 이만큼 다가가면 인형에 곁가지 글로우가 붙는다 (칫솔컵과 같은 감각). */
+const PLUSH_NEAR_RADIUS = 1.6;
+
 export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
+  const sayRemark = useMemoryRoomStore((state) => state.sayRemark);
   /** 찢어진 악보 조각을 손에 들었는가. 들었으면 보면대의 지워진 마디가 드러난다 */
   const hasSheetScrap = useMemoryRoomStore((state) => state.inventory.includes("piano-sheet"));
   return (
@@ -480,12 +485,23 @@ export function LivingRoomFurniture({ palette }: { palette: RoomPalette }) {
         {/* 보면대의 악보: 문제를 말하는 것은 화면의 지시가 아니라 이 종이다 */}
         <PianoSheet palette={palette} hasScrap={hasSheetScrap} />
       </LivingPiece>
-      <FurnitureModel
-        path={ASSETS.models.rabbitDoll}
-        position={PLUSH_PLACEMENT.position}
-        rotation={[0, PLUSH_PLACEMENT.rotationY, 0]}
-        scale={PLUSH_PLACEMENT.scale}
-      />
+      {/* 토끼 인형: 누르면 한 줄. 진행에는 아무것도 남기지 않는다 (칫솔컵과 같은 곁가지) */}
+      <TouchProp
+        name="rabbit-doll"
+        near={[PLUSH_PLACEMENT.position[0], PLUSH_PLACEMENT.position[2]]}
+        radius={PLUSH_NEAR_RADIUS}
+        onPress={() => {
+          playSound("select");
+          sayRemark("rabbit-doll");
+        }}
+      >
+        <FurnitureModel
+          path={ASSETS.models.rabbitDoll}
+          position={PLUSH_PLACEMENT.position}
+          rotation={[0, PLUSH_PLACEMENT.rotationY, 0]}
+          scale={PLUSH_PLACEMENT.scale}
+        />
+      </TouchProp>
       <LivingRoomDetails palette={palette} />
     </group>
   );

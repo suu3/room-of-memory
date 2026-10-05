@@ -91,7 +91,7 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/still-workbook-en.webp":
     "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAD2PJ9S/AAA/veWh/Hibmf6zQjrIUx4Jc5yyC+Z1tIxf8+XqdwAAA==",
   "/assets/images/still-workbook-ja.webp":
-    "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAD0igpvgAAA/veWh/Hibmf6zmjR259GUDTNky/saGf16LV+jdRAAA==",
+    "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAQAgCdASoQAAkAAsBMJZQCdAEWaW1nFVQAAP73l2L+zrosx5DS+RnmtFUTHjSvnZQIpGyLEJ+0kgAA",
   "/assets/images/still-workbook-ko.webp":
     "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAD2PJ9S/AAA/veWh/Hibmf6zQjrJiHYGAV/0v8oqssFJ/O+hPgAAA==",
   "/assets/images/ui-ending-thanks.webp":
@@ -143,8 +143,8 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/still-phone.webp": "ba201f52b2b55413",
   "/assets/images/still-report-card.webp": "ecc45e7ad3ebd770",
   "/assets/images/still-shoes.webp": "4b91396506966f62",
-  "/assets/images/still-workbook-en.webp": "c9474551e95d414a",
-  "/assets/images/still-workbook-ja.webp": "ad78391d83fb479a",
-  "/assets/images/still-workbook-ko.webp": "63e187a15d6619d7",
+  "/assets/images/still-workbook-en.webp": "2764e4b426c5cd76",
+  "/assets/images/still-workbook-ja.webp": "23ecc8af3c8f04df",
+  "/assets/images/still-workbook-ko.webp": "a5d3d39e29a48ad9",
   "/assets/images/ui-ending-thanks.webp": "65314fe34dd80fc7",
 };

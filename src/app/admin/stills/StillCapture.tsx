@@ -55,7 +55,6 @@ function shotsFor(locale: Locale): Shot[] {
   const workbook = workbookObject({
     name: tRoom("characters.hero.name"),
     tagLabel: t("clue.workbook.tagLabel"),
-    tagGrade: t("clue.workbook.tagGrade"),
   });
   return [
     { name: `still-cards-${locale}.webp`, object: note, yaw: 0, dragY: -UNFOLD_PX },

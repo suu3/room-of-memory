@@ -107,6 +107,8 @@ export type RemarkId =
   | "door-ready"
   | "computer-off"
   | "toothbrush"
+  // 거실의 토끼 인형: 누르면 한 줄. 진행에는 아무것도 남기지 않는다
+  | "rabbit-doll"
   | "drawer-locked"
   | "drawer-open"
   | "piano-done"
