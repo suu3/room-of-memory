@@ -4,7 +4,15 @@ import { RoundedBox } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { CanvasTexture, type Group, PerspectiveCamera, SRGBColorSpace, Vector3 } from "three";
+import {
+  CanvasTexture,
+  Color,
+  type Group,
+  type MeshStandardMaterial,
+  PerspectiveCamera,
+  SRGBColorSpace,
+  Vector3,
+} from "three";
 import { playSound, playTone } from "@/lib/audio";
 import { LivingPiece } from "@/scenes/memory-room/rooms/living/LivingRoomFurniture";
 import { PIANO_FALLBOARD, PianoFallboard } from "@/scenes/memory-room/rooms/living/PianoCabinet";
@@ -35,6 +43,12 @@ const SETTLE_MS = 900;
 const REJECT_MS = 420;
 /** 눌린 건반이 오르내리는 속도. */
 const KEY_LAMBDA = 18;
+/**
+ * 건반이 스스로 내는 빛. 거실은 방보다 어둡게 출발해서(SPACES의 lightOffset) 흰 건반이 회색으로
+ * 가라앉고, 그 위의 계이름이 거의 안 읽혔다. 쉴 때는 흰 건반만 제 색으로 옅게 밝히고, 눌린
+ * 건반은 금빛으로 번쩍였다 식는다: 1.6cm 내려가는 것만으로는 폰에서 눌린 줄 모른다.
+ */
+const KEY_GLOW = { rest: 0.32, pressed: 0.95 } as const;
 /** 뚜껑이 젖혀지는 속도. */
 const LID_LAMBDA = 5;
 
@@ -208,6 +222,11 @@ export function PianoMelodyMinigame({ onComplete, onSettled, onBlocked, carrying
 
   const lidRef = useRef<Group>(null);
   const keyRefs = useRef<(Group | null)[]>([]);
+  const keyMaterialRefs = useRef<(MeshStandardMaterial | null)[]>([]);
+  const glow = useMemo(
+    () => ({ rest: new Color(palette.linen), pressed: new Color(palette.memory) }),
+    [palette],
+  );
   /** 건반마다 눌린 정도(0~1). 프레임마다 여기로 damp한다 (useFrame에서 setState 금지). */
   const pressRef = useRef<number[]>(PIANO_KEYS.map(() => 0));
   const playedRef = useRef<Solfege[]>([]);
@@ -288,6 +307,13 @@ export function PianoMelodyMinigame({ onComplete, onSettled, onBlocked, carrying
       if (!pressed) continue;
       pressRef.current[index] += (0 - pressRef.current[index]) * step;
       pressed.position.y = key.position[1] - pressRef.current[index] * KEY_PRESS_DEPTH;
+      const material = keyMaterialRefs.current[index];
+      if (!material) continue;
+      const press = pressRef.current[index];
+      material.emissive.copy(glow.rest).lerp(glow.pressed, press);
+      // 검은 건반은 쉴 때 빛나지 않는다. 밝히면 흰 건반과의 층이 사라진다
+      material.emissiveIntensity =
+        (key.black ? 0 : KEY_GLOW.rest) * (1 - press) + KEY_GLOW.pressed * press;
     }
   });
 
@@ -330,6 +356,9 @@ export function PianoMelodyMinigame({ onComplete, onSettled, onBlocked, carrying
               }}
             >
               <meshStandardMaterial
+                ref={(node) => {
+                  keyMaterialRefs.current[index] = node;
+                }}
                 color={key.black ? palette.void : palette.linen}
                 roughness={key.black ? 0.3 : 0.38}
               />
