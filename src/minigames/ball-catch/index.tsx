@@ -286,7 +286,7 @@ export function BallCatchMinigame({ onComplete, onSettled, difficulty = "easy" }
           chances: t("minigame.ballCatch.chances"),
           prompt: hint("minigame.ballCatch.prompt"),
           now: t("minigame.ballCatch.now"),
-          hit: t("minigame.feedback.hit"),
+          hit: t("minigame.ballCatch.hit"),
           early: t("minigame.ballCatch.early"),
           late: t("minigame.ballCatch.late"),
         }}
