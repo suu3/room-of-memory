@@ -27,7 +27,8 @@
 #   workbook-name       문제집 뒤표지의 이름을 보고 내려놓은 순간 (store의 closeClue)
 #   radio-blackout      라디오 1차(재난방송)를 마친 순간 (store가 1바퀴 완주에 연다)
 #   survivor-broadcast  라디오 2차 (memories.yaml의 cutscene)
-#   trip-doubt          신발장 + 아빠 메일을 둘 다 본 순간 (store: tripDoubted)
+#   trip-doubt          냉장고 + 신발장 + 아빠 메일을 다 본 뒤, 추리 판에서 두 기록을 이은 순간
+#                       (store: tripDoubted → finishDeduction, src/data/deductions.ts)
 #   p2-close            2페이즈 필수 조사를 다 마친 순간 (store: STORY_CUTSCENES)
 #   p4-close            4페이즈 서류 순서 + 출입증을 마친 순간 (store: STORY_CUTSCENES)
 #   piano-flashback     거실 피아노를 끝까지 친 순간 (store의 finishPuzzle)
@@ -383,7 +384,8 @@ cutscenes:
           ja: …どこかで聞いたことのある声だな。
 
   #
-  # 캐리어 개수 추리의 결론 (v4.1 3장). 신발장과 아빠 메일("2박 3일")을 둘 다 본 순간.
+  # 캐리어 개수 추리의 결론 (v4.1 3장). 냉장고·신발장·아빠 메일("2박 3일")을 다 보면 추리 판이
+  # 서고, 플레이어가 냉장고와 신발장 기록을 이으면 이 줄들이 흐른다 (src/data/deductions.ts).
   # 냉장고(한 달 먹고도 며칠 치) → 신발장(캐리어 둘, 등산화는 집에) → 아빠 메일(2박 3일)을 한 줄씩 잇는다
   trip-doubt:
     - lines:

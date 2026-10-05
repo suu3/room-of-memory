@@ -14,6 +14,7 @@ import { selectLocale, useSettingsStore } from "@/store/settings";
 import { STAGGER_CLASS, staggerStyle } from "../shared/stagger";
 import { BUTTON_QUIET_PAPER } from "../shared/ui-classes";
 import { BlurredValue } from "./BlurredValue";
+import { loreBodyKey, loreTitleKey } from "./lore-text";
 
 /**
  * 도해가 남긴 기록. 조사 오브젝트 하나가 항목 하나를 연다 (1:1).
@@ -65,13 +66,10 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
            */
           const visit = lastVisitDone(progress, id) ?? visitsOf(id)[0] ?? 1;
           const phase = visitConfig(id, visit);
-          const bodyKey = `lore.${id}.phase${visit}` as ParseKeys<"memoryRoom">;
+          const bodyKey = loreBodyKey(id, visit) as ParseKeys<"memoryRoom">;
           // 제목은 그 차수부터 바뀔 수 있다 (lore.phaseNTitle). 가장 가까운 앞 차수의 것을 쓴다
-          const titleKey = ([3, 2, 1] as const)
-            .filter((each) => each <= visit)
-            .map((each) => `lore.${id}.phase${each}Title`)
-            .find((key) => i18n.exists(key, { ns: "memoryRoom" }));
-          const title = tRoom((titleKey ?? `lore.${id}.title`) as ParseKeys<"memoryRoom">);
+          const titleKey = loreTitleKey(id, visit, (key) => i18n.exists(key, { ns: "memoryRoom" }));
+          const title = tRoom(titleKey as ParseKeys<"memoryRoom">);
           const name = tRoom(`memories.${id}.name` as ParseKeys<"memoryRoom">);
 
           return (
@@ -195,25 +193,29 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
  * 그림이 없는 칸은 아이콘 판으로 대신한다. 지금은 연구 노트 2차 하나다.
  * 칸별 그림은 docs/story/replay-stills.md.
  */
-function LoreStill({
+export function LoreStill({
   id,
   name,
   unlocked,
   still,
+  wide = false,
 }: {
   id: MemoryId;
   name: string;
   unlocked: boolean;
   still?: string;
+  /** 낮은 칸(16:9). 추리 판처럼 카드 여러 장을 한 화면에 세울 때 쓴다 */
+  wide?: boolean;
 }) {
   const { t } = useTranslation();
   const Icon = MEMORY_BY_ID[id].icon;
+  const ratio = wide ? "aspect-[16/9]" : "aspect-[4/3]";
 
   if (!unlocked) {
     return (
       <div
         aria-hidden
-        className="relative aspect-[4/3] w-full rounded-[2px] border border-ink/10 bg-bone/40"
+        className={`relative ${ratio} w-full rounded-[2px] border border-ink/10 bg-bone/40`}
       >
         {/* 네 귀퉁이의 사진 홀더: 사진만 빠져 있다는 신호 */}
         {[
@@ -232,7 +234,7 @@ function LoreStill({
     return (
       <div
         aria-hidden
-        className="grid aspect-[4/3] w-full place-items-center rounded-[2px] border border-ink/10 bg-bone/40 text-graphite"
+        className={`grid ${ratio} w-full place-items-center rounded-[2px] border border-ink/10 bg-bone/40 text-graphite`}
       >
         <Icon size={40} weight="duotone" />
       </div>
@@ -241,7 +243,7 @@ function LoreStill({
 
   const blur = blurDataUrlOf(still);
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2px] bg-bone/40">
+    <div className={`relative ${ratio} w-full overflow-hidden rounded-[2px] bg-bone/40`}>
       <Image
         src={still}
         alt={t("characterSheet.loreStill", { name })}

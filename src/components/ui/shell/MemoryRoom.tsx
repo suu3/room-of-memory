@@ -49,6 +49,7 @@ import { ClueOverlay } from "../inspect/ClueOverlay";
 import { MinigameHost } from "../minigame/MinigameHost";
 import { PuzzleHost } from "../minigame/PuzzleHost";
 import { CharacterSheetModal } from "../notebook/CharacterSheetModal";
+import { DeductionBoard } from "../notebook/DeductionBoard";
 import { InventoryStrip } from "../notebook/InventoryStrip";
 import { NotebookTab } from "../notebook/NotebookTab";
 import { PlaybackScene } from "../playback/PlaybackScene";
@@ -380,6 +381,8 @@ export function MemoryRoom() {
           {/* 방에서 집어 든 종이 한 장 (기록 노트 · 서랍 쪽지): 진행에 남지 않는다 */}
           <ClueOverlay />
           <CharacterSheetModal />
+          {/* 결론 컷씬 앞에 서는 추리 판: 수첩 기록 두 장을 잇는다 */}
+          <DeductionBoard />
           <MinigameHost />
           <PuzzleHost />
           {/* 지나간 대사: 대사창 위에 얹힌다. 입구는 대사창 안의 작은 버튼 하나 */}

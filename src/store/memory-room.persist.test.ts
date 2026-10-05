@@ -22,6 +22,17 @@ function resolveSave() {
 }
 
 describe("sanitizeProgress", () => {
+  it("추리를 모르는 옛 저장본은 단서를 다 본 추리를 이은 것으로 본다. 아는 저장본은 적힌 대로다", () => {
+    // 옛 저장본: 그때는 결론이 저절로 흘렀다. 다시 묻지 않는다
+    expect(sanitizeProgress(resolveSave()).deduced).toEqual(["trip-doubt"]);
+    // 판이 뜬 채로 끈 저장본: 아직 잇지 않았다
+    expect(sanitizeProgress({ ...resolveSave(), deduced: [] }).deduced).toEqual([]);
+    // 단서를 다 보지 않았으면 이었을 수 없다
+    expect(
+      sanitizeProgress({ ...resolveSave(), revisited: [], deduced: ["trip-doubt"] }).deduced,
+    ).toEqual([]);
+  });
+
   it("세면대의 물은 화장실 문이 열린 저장본에서만 빠져 있고, 소독제 병은 물이 빠진 뒤에만 봤다", () => {
     const base = { ...resolveSave(), sinkDrained: true, discoveries: ["laon-sanitizer"] };
     const bathroom = sanitizeProgress({ ...base, openedDoorways: ["living-bathroom"] });
@@ -44,6 +55,7 @@ describe("sanitizeProgress", () => {
         pianoGapSeen: false,
         sinkDrained: false,
         solvedPuzzles: ["piano-melody"],
+        deduced: [],
         discoveries: ["hero-name"],
         notebookOpened: true,
         endingStarted: false,
@@ -67,6 +79,7 @@ describe("sanitizeProgress", () => {
       pianoGapSeen: false,
       sinkDrained: false,
       solvedPuzzles: ["piano-melody"],
+      deduced: [],
       discoveries: ["hero-name"],
       notebookOpened: true,
       endingStarted: false,

@@ -1,5 +1,13 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import {
+  DEDUCTION_IDS,
+  DEDUCTIONS,
+  type DeductionId,
+  deductionOfCutscene,
+  deductionReady,
+  pendingDeduction,
+} from "@/data/deductions";
 import { DOOR_RULES } from "@/data/doors";
 import { ITEM_IDS, ITEM_PUZZLE, type ItemId } from "@/data/items";
 import {
@@ -205,6 +213,13 @@ export interface MemoryRoomState {
   activePlayback: ActivePlayback | null;
   /** 지금 재생이 끝나면 이어서 흐를 컷씬들 (한 조사에 여러 비트가 걸릴 때). 저장하지 않는다. */
   queuedPlaybacks: ActivePlayback[];
+  /**
+   * 지금 떠 있는 추리 판 (src/data/deductions.ts). 줄 맨 앞의 결론 컷씬이 이걸 기다린다.
+   * 저장하지 않는다: 다시 켜면 resumeDeduction이 같은 물음을 다시 세운다.
+   */
+  activeDeduction: DeductionId | null;
+  /** 이어 낸 추리. 저장된다. */
+  deduced: DeductionId[];
   /** DOM overlay sources currently blocking scene controls. */
   uiLocks: UiLockId[];
   /**
@@ -535,6 +550,10 @@ export interface MemoryRoomState {
   blockPuzzle: () => void;
   /** 문제가 끝났다 (클리어 또는 스킵: 미니게임 계약상 스킵도 cleared다). */
   finishPuzzle: (result: MinigameResult) => void;
+  /** 추리 판에서 두 장을 맞게 이었다: 기다리던 결론 컷씬이 흐른다. */
+  finishDeduction: () => void;
+  /** 단서는 다 봤는데 잇지 못한 추리가 있으면 판을 다시 세운다 (다시 켠 뒤). */
+  resumeDeduction: () => void;
   /** 닫힌 방문을 두드렸다. 문이 열려 있으면 아무 일도 없다. */
   nudgeDoor: () => void;
   /** 혼잣말 한 줄을 흘린다. 다른 화면이 떠 있으면 아무 일도 없다. */
@@ -838,15 +857,26 @@ function markVisit(state: MemoryRoomState, id: MemoryId, visit: Visit) {
 }
 
 /**
- * 캐리어 개수 추리 (v4.1 3장): 신발장(등산화 · 비어 있는 캐리어 두 자리)과 컴퓨터 2차
- * (아빠 메일의 "2박 3일")를 둘 다 본 순간 결론 한 줄이 흐른다. 옷장 옷걸이는 신발장
- * 대사로 합쳤다. 둘 다 2페이즈 필수 조사라 `tripDoubted`는 2페이즈를 마치기 전에 반드시 선다.
+ * 캐리어 개수 추리의 단서를 다 봤는가 (v4.1 4장의 tripDoubted): 냉장고 · 신발장(등산화 ·
+ * 비어 있는 캐리어 두 자리) · 컴퓨터 2차(아빠 메일의 "2박 3일"). 셋 다 2페이즈 필수 조사라
+ * 2페이즈를 마치기 전에 반드시 선다. 서는 순간 결론이 곧장 흐르지 않고 추리 판이 먼저 선다
+ * (src/data/deductions.ts).
  */
-const TRIP_CLUES: readonly MemoryId[] = ["shoes", "computer"] as MemoryId[];
-
-/** 캐리어 개수 추리를 마쳤는가 (v4.1 4장의 tripDoubted). */
 export function tripDoubted(state: Pick<MemoryRoomState, "revisited">): boolean {
-  return TRIP_CLUES.every((id) => state.revisited.includes(id));
+  return deductionReady("trip-doubt", state.revisited);
+}
+
+/**
+ * 줄의 맨 앞을 튼다. 맨 앞이 추리의 결론 컷씬인데 아직 잇지 않았으면 컷씬 대신 추리 판이
+ * 서고, 컷씬은 줄에 남아 기다린다 (finishDeduction이 이 함수를 다시 부른다).
+ */
+function startQueue(queue: readonly ActivePlayback[], deduced: readonly DeductionId[]) {
+  const [first, ...rest] = queue;
+  if (!first) return { activePlayback: null, queuedPlaybacks: [], activeDeduction: null };
+  const gate = deductionOfCutscene(first.cutsceneId);
+  if (gate && !deduced.includes(gate))
+    return { activePlayback: null, queuedPlaybacks: [...queue], activeDeduction: gate };
+  return { activePlayback: first, queuedPlaybacks: rest, activeDeduction: null };
 }
 
 /** 4페이즈의 마지막 칸(액자 2차)에 닿았는가: 앞선 조사를 다 마쳤다. */
@@ -861,7 +891,7 @@ function p4FinalReached(state: MemoryRoomState): boolean {
  *
  *   1. 1차를 다 모았다 = 라디오 재난방송이 막 끝났다 → 이미지 나열 (radio-blackout)
  *   2. 조사 자체에 붙은 컷씬 (생존자 방송 · 정적 비트: memories.yaml의 cutscene)
- *   3. 캐리어 개수 추리가 방금 맞물렸다 → trip-doubt
+ *   3. 캐리어 개수 추리가 방금 맞물렸다 → trip-doubt (추리 판을 먼저 거친다: startQueue)
  *   4. 2페이즈를 방금 마쳤다 → p2-close
  *   5. 4페이즈의 마지막 칸(액자 2차) 앞의 조사를 방금 다 마쳤다 → p4-close
  */
@@ -890,12 +920,12 @@ function cutscenesAfter(
 function complete(state: MemoryRoomState, id: MemoryId, visit: Visit) {
   const marked = markVisit(state, id, visit);
   const after = { ...state, ...marked };
-  const [first, ...rest] = cutscenesAfter(state, after, id, visit);
+  const queue = [...state.queuedPlaybacks, ...cutscenesAfter(state, after, id, visit)];
   return {
     ...marked,
     activeInteraction: null,
-    activePlayback: first ?? state.activePlayback,
-    queuedPlaybacks: first ? [...state.queuedPlaybacks, ...rest] : state.queuedPlaybacks,
+    // 무언가 재생 중이면 그 뒤에 줄만 세운다. 아니면 줄의 맨 앞이 곧장 선다
+    ...(state.activePlayback ? { queuedPlaybacks: queue } : startQueue(queue, state.deduced)),
   };
 }
 
@@ -933,6 +963,7 @@ type PersistedProgress = Pick<
   | "autoPlay"
   | "pianoGapSeen"
   | "sinkDrained"
+  | "deduced"
 >;
 
 const PERSIST_KEY = "rom-progress";
@@ -1043,6 +1074,13 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     doorOpened,
     batTaken,
     solvedPuzzles: PUZZLE_IDS.filter((id) => savedHas(saved.solvedPuzzles, id)),
+    // 단서를 다 본 추리만 이었을 수 있다. 이 값을 모르는 옛 저장본은 단서를 다 봤으면 이은
+    // 것으로 본다: 그때는 결론이 저절로 흘렀다
+    deduced: DEDUCTION_IDS.filter(
+      (id) =>
+        deductionReady(id, revisited) &&
+        (!Array.isArray(saved.deduced) || (saved.deduced as unknown[]).includes(id)),
+    ),
     discoveries,
     endingStarted: saved.endingStarted === true && batTaken,
     // 이 값을 모르는 옛 저장본은 기억을 하나라도 봤으면 수첩도 안다고 본다
@@ -1104,6 +1142,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       activeInteraction: null,
       activePlayback: null,
       queuedPlaybacks: [],
+      activeDeduction: null,
+      deduced: [],
       uiLocks: [],
       sceneCovered: false,
       characterSheetOpen: false,
@@ -1210,15 +1250,13 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) => {
           if (!state.activePlayback) return state;
           const stepped = nextPlaybackStep(state.activePlayback);
-          // 한 컷씬이 끝나면 줄 서 있던 다음 컷씬이 이어서 흐른다
-          const [queued, ...rest] = stepped === null ? state.queuedPlaybacks : [];
-          const next = stepped ?? queued ?? null;
+          if (stepped !== null) return { activePlayback: stepped };
           return {
-            activePlayback: next,
-            ...(stepped === null ? { queuedPlaybacks: rest } : {}),
+            // 한 컷씬이 끝나면 줄 서 있던 다음 컷씬이 이어서 흐른다
+            ...startQueue(state.queuedPlaybacks, state.deduced),
             // 두 줄이 다 흘렀으면 그때 배트가 손에 들어온다. 재생의 끝이 곧 손잡이다.
             // 뒤에 줄 선 컷씬이 있어도 같다 (건너뛰기 endPlayback와 같은 조건)
-            ...(stepped === null && batGripEnding(state) ? { batTaken: true } : {}),
+            ...(batGripEnding(state) ? { batTaken: true } : {}),
           };
         }),
       endPlayback: () =>
@@ -1226,8 +1264,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           state.activePlayback
             ? {
                 // 건너뛰면 지금 컷씬만 닫힌다. 줄 서 있던 다음 컷씬은 그대로 흐른다
-                activePlayback: state.queuedPlaybacks[0] ?? null,
-                queuedPlaybacks: state.queuedPlaybacks.slice(1),
+                ...startQueue(state.queuedPlaybacks, state.deduced),
                 // 건너뛰어도 배트는 손에 들어온다. 스킵은 유효한 결말이다
                 ...(batGripEnding(state) ? { batTaken: true } : {}),
               }
@@ -1564,6 +1601,23 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
             ...reward,
           };
         }),
+      finishDeduction: () =>
+        set((state) => {
+          const id = state.activeDeduction;
+          if (!id) return state;
+          const deduced = [...state.deduced, id];
+          // 다시 켠 뒤에 이은 것이면 줄에 결론 컷씬이 없다: 여기서 맨 앞에 세운다
+          const waiting = deductionOfCutscene(state.queuedPlaybacks[0]?.cutsceneId) === id;
+          const conclusion = waiting ? null : openCutscene(DEDUCTIONS[id].cutscene);
+          const queue = conclusion ? [conclusion, ...state.queuedPlaybacks] : state.queuedPlaybacks;
+          return { deduced, ...startQueue(queue, deduced) };
+        }),
+      resumeDeduction: () =>
+        set((state) => {
+          if (!state.started || selectSceneInputLocked(state) || state.activeClue) return state;
+          const id = pendingDeduction(state.revisited, state.deduced);
+          return id ? { activeDeduction: id } : state;
+        }),
       nudgeDoor: () =>
         set((state) =>
           state.doorOpened || selectSceneInputLocked(state)
@@ -1596,6 +1650,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           activeInteraction: null,
           activePlayback: null,
           queuedPlaybacks: [],
+          activeDeduction: null,
+          deduced: [],
           uiLocks: [],
           sceneCovered: false,
           characterSheetOpen: false,
@@ -1651,6 +1707,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         pianoGapSeen: state.pianoGapSeen,
         sinkDrained: state.sinkDrained,
         solvedPuzzles: state.solvedPuzzles,
+        deduced: state.deduced,
         discoveries: state.discoveries,
         notebookOpened: state.notebookOpened,
         notebookRead: state.notebookRead,
@@ -1841,6 +1898,7 @@ export const selectSceneInputLocked = (state: MemoryRoomState) =>
   state.activeInteraction !== null ||
   state.activePlayback !== null ||
   state.activePuzzle !== null ||
+  state.activeDeduction !== null ||
   // 크레인 샷이 도는 동안 걸어 나가면 카메라가 빈자리를 본다
   state.cameraHold !== null ||
   state.uiLocks.length > 0;
@@ -1882,7 +1940,12 @@ export const selectSignalSilenceRunning = (state: MemoryRoomState) =>
 export const selectMusicForeground = (state: MemoryRoomState): "room" | "dialogue" | "minigame" => {
   if (state.activeInteraction?.phase === "minigame" || state.activePuzzle !== null)
     return "minigame";
-  if (state.activeInteraction !== null || state.uiLocks.length > 0) return "dialogue";
+  if (
+    state.activeInteraction !== null ||
+    state.activeDeduction !== null ||
+    state.uiLocks.length > 0
+  )
+    return "dialogue";
   return "room";
 };
 
@@ -1907,6 +1970,7 @@ export const selectMonologueHidden = (state: MemoryRoomState) =>
   state.activeInteraction !== null ||
   state.activePlayback !== null ||
   state.activePuzzle !== null ||
+  state.activeDeduction !== null ||
   state.activeClue !== null ||
   state.uiLocks.includes("hud-menu");
 
@@ -1917,7 +1981,20 @@ export const selectMonologueHidden = (state: MemoryRoomState) =>
 export const selectNotebookTabTucked = (state: MemoryRoomState) =>
   state.uiLocks.includes("hud-menu") ||
   state.activeInteraction !== null ||
+  state.activeDeduction !== null ||
   state.activePlayback !== null;
+
+/**
+ * 잇지 못한 추리를 다시 세울 때인가: 단서는 다 봤는데 판이 안 떠 있고, 방이 비어 있다.
+ * 추리 판은 저장되지 않아서, 판이 뜬 채로 껐다 켜면 이 값이 같은 물음을 다시 부른다
+ * (DeductionBoard가 보고 resumeDeduction을 부른다).
+ */
+export const selectDeductionResumable = (state: MemoryRoomState) =>
+  state.started &&
+  state.activeDeduction === null &&
+  state.activeClue === null &&
+  !selectSceneInputLocked(state) &&
+  pendingDeduction(state.revisited, state.deduced) !== null;
 
 export const selectMusicPlaying = (state: MemoryRoomState) =>
   state.started &&

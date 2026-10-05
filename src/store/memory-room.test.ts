@@ -29,6 +29,7 @@ import {
   selectBatReady,
   selectCarrying,
   selectDeadline,
+  selectDeductionResumable,
   selectDoorReady,
   selectDoorwayReady,
   selectDrawerCodeRead,
@@ -764,18 +765,51 @@ describe("2페이즈: 거실과 컴퓨터 → 엄마 대화방", () => {
 describe("v4.1 추리: 캐리어 개수와 컷씬 줄", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  it("신발장과 아빠 메일을 둘 다 보면 trip-doubt가 흐른다. 한쪽만으로는 안 흐른다", () => {
+  it("냉장고·신발장·아빠 메일을 다 보면 결론 대신 추리 판이 먼저 선다. 이어야 trip-doubt가 흐른다", () => {
     enterPhase("p2");
-    useMemoryRoomStore.getState().beginInteraction("shoes");
-    finishInteraction("shoes");
+    for (const id of ["fridge", "shoes"] as const) {
+      useMemoryRoomStore.getState().beginInteraction(id);
+      finishInteraction(id);
+    }
     expect(tripDoubted(useMemoryRoomStore.getState())).toBe(false);
+    expect(useMemoryRoomStore.getState().activeDeduction).toBeNull();
     expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
 
     useMemoryRoomStore.getState().beginInteraction("computer");
     finishInteraction("computer");
-    const state = useMemoryRoomStore.getState();
+    let state = useMemoryRoomStore.getState();
     expect(tripDoubted(state)).toBe(true);
+    // 결론은 아직 흐르지 않는다: 판이 서 있고 방은 잠긴다
+    expect(state.activeDeduction).toBe("trip-doubt");
+    expect(state.activePlayback).toBeNull();
+    expect(selectSceneInputLocked(state)).toBe(true);
+
+    state.finishDeduction();
+    state = useMemoryRoomStore.getState();
+    expect(state.deduced).toEqual(["trip-doubt"]);
+    expect(state.activeDeduction).toBeNull();
     expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_TRIP_DOUBT);
+  });
+
+  it("추리 판이 뜬 채로 껐다 켜면 방이 비는 순간 같은 물음이 다시 선다", () => {
+    enterPhase("p2");
+    useMemoryRoomStore.setState({
+      started: true,
+      revisited: [...useMemoryRoomStore.getState().revisited, "fridge", "shoes", "computer"],
+    });
+    // 판과 줄은 저장되지 않는다: 다시 켠 직후에는 둘 다 비어 있다
+    expect(useMemoryRoomStore.getState().activeDeduction).toBeNull();
+    expect(selectDeductionResumable(useMemoryRoomStore.getState())).toBe(true);
+
+    useMemoryRoomStore.getState().resumeDeduction();
+    expect(useMemoryRoomStore.getState().activeDeduction).toBe("trip-doubt");
+    expect(selectDeductionResumable(useMemoryRoomStore.getState())).toBe(false);
+
+    // 줄에 결론이 없어도 이으면 결론이 흐른다
+    useMemoryRoomStore.getState().finishDeduction();
+    const state = useMemoryRoomStore.getState();
+    expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_TRIP_DOUBT);
+    expect(selectDeductionResumable(state)).toBe(false);
   });
 
   it("한 조사가 컷씬 둘을 부르면 줄을 서서 차례로 흐른다 (trip-doubt → p2-close)", () => {
@@ -790,6 +824,13 @@ describe("v4.1 추리: 캐리어 개수와 컷씬 줄", () => {
     useMemoryRoomStore.getState().beginInteraction("computer");
     finishInteraction("computer");
 
+    // 추리 판이 먼저 서고, 두 컷씬은 줄에서 기다린다
+    expect(useMemoryRoomStore.getState().activeDeduction).toBe("trip-doubt");
+    expect(useMemoryRoomStore.getState().queuedPlaybacks.map((p) => p.cutsceneId)).toEqual([
+      CUTSCENE_TRIP_DOUBT,
+      CUTSCENE_P2_CLOSE,
+    ]);
+    useMemoryRoomStore.getState().finishDeduction();
     expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_TRIP_DOUBT);
     expect(useMemoryRoomStore.getState().queuedPlaybacks.map((p) => p.cutsceneId)).toEqual([
       CUTSCENE_P2_CLOSE,

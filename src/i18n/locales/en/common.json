@@ -580,6 +580,25 @@
     "itemsHint": "Things you pick up are kept here. They get used on their own where they're needed.",
     "mapTravelHint": "Tap a room to go there."
   },
+  "deduction": {
+    "title": "Find the Contradiction",
+    "prompt": "Something doesn't fit with this.",
+    "help": "Pick the two records that contradict this",
+    "one": "There's one more.",
+    "miss1": "That doesn't contradict it.",
+    "miss2": "No. Let me look again.",
+    "miss3": "These two don't make a contradiction.",
+    "hint": "The record ringed in gold is bothering me.",
+    "hinted": "Hint",
+    "joined": "Both records contradict it.",
+    "continue": "Continue",
+    "verdict": "CONTRADICTION",
+    "slotEmpty": "Empty photo slot",
+    "putBack": "Put back {{title}}",
+    "claims": {
+      "trip-doubt": "Two nights, keeping it light. Just a little loop around nearby."
+    }
+  },
   "titleScreen": {
     "tagline": "Gather the memories scattered across a room that never opened.",
     "start": "New Game",

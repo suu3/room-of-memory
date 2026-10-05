@@ -167,13 +167,19 @@ v4.1이 v4보다 우선한다. 바뀐 것만 적는다.
 
 | 플래그 | 조건 | 셀렉터 |
 | --- | --- | --- |
-| tripDoubted | 신발장 2차 + 컴퓨터 2차 ("2박 3일"). 빈 옷걸이는 신발장 대사로 합쳤다 | `tripDoubted` → 컷씬 `trip-doubt` |
+| tripDoubted | 냉장고 2차 + 신발장 2차 + 컴퓨터 2차 ("2박 3일"). 빈 옷걸이는 신발장 대사로 합쳤다 | `tripDoubted` → 추리 판 → 컷씬 `trip-doubt` |
 | timeGapNoticed | 폰 2차 (엄마 문자 7:12 vs 첫 보도) | `selectMomChatRead` (폰 2차와 같은 조건이라 따로 두지 않는다) |
 | momCardRead | 카드 2차 | 셀렉터 없음: 읽는 곳이 없다 (`revisited`에 `cards`) |
 | dadHintRead | 책 속 쪽지의 번호를 봤다 (`drawer-code`) | `selectDrawerCodeRead`. 협탁 서랍이 이것 뒤에 열린다 |
 | sanitizerSeen (2026-10-01 추가) | 세면대 바닥의 손 소독제 병을 들여다봤다 (`laon-sanitizer`). 물을 빼야(`sinkDrained`, 저장) 나온다 | `selectSanitizerSeen`. 컴퓨터 3차가 이것 뒤에 열린다 |
 | papersOrdered | 연구 일지 2차 (서류 순서 맞추기) | `selectPapersOrdered` |
 | idCardFlipped | 출입증 2차 | `selectIdCardFlipped` |
+
+**추리 판** (2026-10-06, 프로토타입): 결론 컷씬이 저절로 흐르지 않고, 수첩 기록 카드 두 장을
+플레이어가 직접 이어야 흐른다 (`src/data/deductions.ts`의 표, `DeductionBoard`). 지금은
+`trip-doubt` 하나다: 물음 "2박 3일 여행이라고 했다. 뭐가 안 맞지?"에 냉장고와 신발장 기록을
+잇는다. 닫기는 없고, 몇 번 어긋나면 답이 되는 기록에 금빛 테가 둘린다 (보통 3·5번, 이지 1·3번).
+이은 추리는 `deduced`에 저장된다. 판이 뜬 채로 껐다 켜면 같은 물음이 다시 선다.
 
 한 조사가 컷씬 여럿을 부르면(예: 마지막 조사가 컴퓨터면 trip-doubt → p2-close) 스토어의
 `queuedPlaybacks`에 줄을 서서 차례로 흐른다. 건너뛰어도 다음 것이 선다.
