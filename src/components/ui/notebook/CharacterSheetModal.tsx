@@ -175,19 +175,23 @@ export function CharacterSheetModal() {
                     role="tab"
                     aria-selected={tab === id}
                     onClick={() => setTab(id)}
-                    className={`flex-none cursor-pointer rounded-t-md border px-2.5 py-1.5 text-sm sm:px-3 font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
+                    className={`relative flex-none cursor-pointer rounded-t-md border px-2 py-1.5 text-sm sm:px-3 font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
                       tab === id
                         ? "border-ink/15 border-b-transparent bg-paper text-ink"
                         : "border-transparent bg-bone/50 text-graphite hover:text-ink active:bg-bone/70"
                     }`}
                   >
                     {t(TAB_LABEL[id])}
-                    {/* 아직 안 펼쳐 본 것이 적힌 페이지: 탭 글자 옆 금빛 점 하나 */}
+                    {/*
+                      아직 안 펼쳐 본 것이 적힌 페이지: 탭 글자 옆 금빛 점 하나. 좁은 화면에서는
+                      탭 모서리에 얹어 폭을 안 쓴다: 탭이 다섯(추리·평면도·소지품)이 되면 점 몫의
+                      폭만으로 마지막 탭이 수첩 밖으로 잘렸다
+                    */}
                     {id !== tab && unread.includes(id) && (
                       <>
                         <span
                           aria-hidden
-                          className="ml-1.5 inline-block size-1.5 -translate-y-0.5 rounded-full bg-memory align-middle"
+                          className="absolute right-1 top-1 size-1.5 rounded-full bg-memory sm:static sm:ml-1.5 sm:inline-block sm:-translate-y-0.5 sm:align-middle"
                         />
                         <span className="sr-only">{t("panel.newEntry")}</span>
                       </>
