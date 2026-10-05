@@ -447,20 +447,20 @@
       "title": "Saved Images",
       "help": "Pick the logo you saw on the sanitizer bottle: click",
       "help_touch": "Tap the logo you saw on the sanitizer bottle",
-      "app": "Photos · Saved pages",
+      "app": "Browser: saved pages",
       "wrong": "…Not this one.",
       "found": "Laon Life Science Institute. …So that's what was on the sanitizer bottle.",
       "source": {
-        "hotel": "Saved accommodation guide",
-        "portal": "Saved page: staff portal",
-        "health": "Cached news: health authority briefing",
-        "gate": "Cached news: research facility gate"
+        "hotel": "Accommodation guide",
+        "portal": "Staff portal",
+        "health": "News: health authority briefing",
+        "gate": "News: research facility gate"
       },
       "portal": {
         "org": "Laon Life Science Institute",
         "title": "Staff Portal",
         "lastLogin": "Last sign-in: October 16",
-        "memoLabel": "Memo",
+        "memoLabel": "Note left when saving this page",
         "memo": "Dohae's room, the shelf. Vol. 1."
       }
     },
@@ -641,8 +641,7 @@
     "read": "Look at the {{name}}",
     "close": "Put it back",
     "wallCalendar": {
-      "title": "Wall Calendar",
-      "caption": "Only one day is circled."
+      "title": "Wall Calendar"
     },
     "shelfBook": {
       "title": "The Upside-Down Book",

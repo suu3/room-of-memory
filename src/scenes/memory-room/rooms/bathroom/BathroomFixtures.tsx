@@ -274,7 +274,7 @@ function BasinTop({ palette }: { palette: RoomPalette }) {
 }
 
 /**
- * 물 밑에 깔려 있던 손 소독제 병: 아빠가 회사에서 가져오던 카드 모양의 납작한 분사 병이 대야
+ * 물 밑에 깔려 있던 손 소독제 병: 아빠가 회사에서 가져오던 납작한 펌프 병이 대야
  * 바닥에 누워 있다. 라벨에는 로고만 있고 연구소 이름은 없다.
  * 물을 빼기 전에는 물 판이 덮어 보이지 않고 만져지지도 않는다 (store의 clueUnlocked).
  * 빠지면 금빛으로 부르고(beckon), 누르면 확대 화면이 펼쳐진다 (ClueOverlay의 LaonSanitizerZoom).
@@ -299,22 +299,34 @@ function SinkSanitizer({ palette }: { palette: RoomPalette }) {
       <group name="laon-sanitizer" position={[0.12, 0.774, -0.05]} rotation={[0, -0.5, 0]}>
         {/* 납작한 몸통: 물(WATER_Y) 밑에 다 잠기는 두께라야 빼기 전에 안 보인다 */}
         <Box
-          position={[0, 0.004, 0]}
-          size={[0.13, 0.008, 0.08]}
+          position={[0.01, 0.0045, 0]}
+          size={[0.1, 0.009, 0.056]}
           color={palette.sage}
-          radius={0.003}
+          radius={0.004}
           roughness={0.25}
         />
-        {/* 라벨: 흰 종이에 둥근 로고 테 하나 */}
-        <Box position={[0.012, 0.0085, 0]} size={[0.08, 0.001, 0.062]} color={palette.linen} />
-        <mesh position={[0.012, 0.0095, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.016, 0.022, 24]} />
+        {/* 라벨: 몸통 가운데의 흰 종이에 작은 로고 테 하나 */}
+        <Box position={[0.016, 0.0095, 0]} size={[0.05, 0.001, 0.04]} color={palette.linen} />
+        <mesh position={[0.016, 0.0105, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.007, 0.01, 24]} />
           <meshStandardMaterial color={palette.frame} metalness={0.6} roughness={0.3} />
         </mesh>
-        {/* 분사 뚜껑: 한쪽 끝에 붙은 어두운 마개 */}
+        {/* 병목과 펌프: 짧은 변 한가운데서 목이 나오고, 그 끝에 누름대와 옆으로 뻗은 주둥이가 달린다 */}
         <Box
-          position={[-0.074, 0.004, 0.022]}
-          size={[0.018, 0.008, 0.03]}
+          position={[-0.046, 0.0045, 0]}
+          size={[0.012, 0.008, 0.022]}
+          color={palette.deep}
+          roughness={0.5}
+        />
+        <Box
+          position={[-0.06, 0.0045, 0]}
+          size={[0.016, 0.006, 0.01]}
+          color={palette.deep}
+          roughness={0.5}
+        />
+        <Box
+          position={[-0.071, 0.0045, 0.008]}
+          size={[0.008, 0.006, 0.028]}
           color={palette.deep}
           roughness={0.5}
         />

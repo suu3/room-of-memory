@@ -21,7 +21,7 @@ export type LogoKind = "laon" | "hotel" | "health" | "harbor";
 export interface LogoCandidate {
   id: string;
   logo: LogoKind;
-  /** 어디서 찾은 그림인가: 저장된 페이지 또는 캐시 뉴스. */
+  /** 어느 페이지의 그림인가: 저장된 페이지 목록에 뜨는 제목. */
   sourceKey: CommonTextKey;
 }
 
@@ -100,11 +100,12 @@ type Screen = "match" | "portal";
 /**
  * 컴퓨터 3차 (v4 3-5): 세면대 바닥의 소독제 병에서 본 로고를 떠올리며 다시 켠 컴퓨터.
  *
- * 로그인은 2차에서 이미 했으니 곧장 저장된 그림들이 뜬다. 저장된 페이지와 캐시 뉴스에서
- * 건진 그림 넷. 견본은 옆에 세우지 않는다: 답을 옆에 두면 같은 그림 찾기라 너무 쉽다. 세면대
+ * 로그인은 2차에서 이미 했으니 곧장 브라우저의 저장된 페이지 목록이 뜬다. 줄마다 그 사이트의
+ * 그림이 붙은 넷. 견본은 옆에 세우지 않는다: 답을 옆에 두면 같은 그림 찾기라 너무 쉽다. 세면대
  * 바닥의 소독제 병에서 본 것을 떠올려 고른다. 라온생명과학연구소의 로고를 고르면 그 그림이 나온
- * 저장된 페이지가 열린다: 아빠가 이 컴퓨터로 들어갔던 임직원 포털이다. 아빠가 도해에게 보낸
- * 글이 아니라 아빠의 계정에 남은 기록이고, 거기 적어 둔 메모 한 줄이 선반의 책을 가리킨다.
+ * 저장된 페이지가 열린다: 아빠가 이 컴퓨터로 들어갔던 임직원 포털이다. 메모는 포털 안에
+ * 있지 않다: 회사 포털에 아들 방 선반을 적어 둘 리 없다. 아빠가 이 컴퓨터의 브라우저에 페이지를
+ * 저장하며 붙여 둔 한 줄이고, 그것이 선반의 책을 가리킨다.
  * 이름과 직함은 싣지 않는다: 안방의 출입증에서 처음 나오는 정보다.
  *
  * 틀려도 끝나지 않는다. 세 번 틀리거나 시간이 지나면 스킵이 선다 (접근성 계약).
@@ -188,19 +189,20 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
 
         {screen === "match" ? (
           <div className="p-5">
-            <ul className="grid grid-cols-2 gap-3">
+            {/* 브라우저의 저장된 페이지 목록: 한 줄에 그 사이트의 그림(파비콘)과 제목 */}
+            <ul className="flex flex-col gap-2">
               {LOGO_CANDIDATES.map((candidate) => (
                 <li key={candidate.id}>
                   <button
                     type="button"
                     onClick={() => pick(candidate)}
                     disabled={verdict !== null}
-                    className={`flex w-full cursor-pointer flex-col items-center gap-2 rounded-lg border p-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory disabled:cursor-default ${tone(candidate)}`}
+                    className={`flex w-full cursor-pointer items-center gap-4 rounded-lg border px-4 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory disabled:cursor-default ${tone(candidate)}`}
                   >
-                    <span className="size-16">
+                    <span className="size-12 flex-none">
                       <Logo kind={candidate.logo} />
                     </span>
-                    <span className="break-ko text-center text-[0.75rem] leading-snug text-bone/60">
+                    <span className="min-w-0 flex-1 break-ko text-sm leading-snug text-bone/70">
                       {t(candidate.sourceKey)}
                     </span>
                   </button>
@@ -209,23 +211,25 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
             </ul>
           </div>
         ) : (
-          <article className="flex flex-col gap-4 p-5 text-paper">
-            {/* 포털 머리: 방금 맞춘 로고와 연구소 이름 (소독제 병에는 없던 이름이 여기서 처음 나온다) */}
-            <header className="flex items-center gap-3 border-b border-bone/10 pb-4">
-              <span className="size-12 flex-none text-memory">
-                <Logo kind="laon" />
-              </span>
-              <div className="flex min-w-0 flex-col gap-0.5">
-                <h3 className="break-ko text-lg font-bold">
-                  {t("minigame.computerLogo.portal.org")}
-                </h3>
-                <p className="text-[0.75rem] text-bone/50">
-                  {t("minigame.computerLogo.portal.title")}
-                </p>
-              </div>
-            </header>
-            <p className="text-sm text-bone/60">{t("minigame.computerLogo.portal.lastLogin")}</p>
-            {/* 아빠가 자기 계정에 적어 둔 메모: 선반의 책으로 이끄는 한 줄 */}
+          <div className="flex flex-col gap-4 p-5 text-paper">
+            <article className="flex flex-col gap-4 rounded-lg border border-bone/10 p-4">
+              {/* 포털 머리: 방금 맞춘 로고와 연구소 이름 (소독제 병에는 없던 이름이 여기서 처음 나온다) */}
+              <header className="flex items-center gap-3 border-b border-bone/10 pb-4">
+                <span className="size-12 flex-none text-memory">
+                  <Logo kind="laon" />
+                </span>
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <h3 className="break-ko text-lg font-bold">
+                    {t("minigame.computerLogo.portal.org")}
+                  </h3>
+                  <p className="text-[0.75rem] text-bone/50">
+                    {t("minigame.computerLogo.portal.title")}
+                  </p>
+                </div>
+              </header>
+              <p className="text-sm text-bone/60">{t("minigame.computerLogo.portal.lastLogin")}</p>
+            </article>
+            {/* 메모는 포털 안이 아니라 브라우저 쪽에 있다: 아빠가 이 페이지를 저장하며 붙여 둔 한 줄 */}
             <section className="flex flex-col gap-2 rounded-lg border border-bone/15 bg-scene-void/40 p-3">
               <p className="flex items-center gap-1.5 text-[0.75rem] text-bone/50">
                 <NotePencilIcon size={12} weight="bold" aria-hidden />
@@ -235,7 +239,7 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
                 {t("minigame.computerLogo.portal.memo")}
               </p>
             </section>
-          </article>
+          </div>
         )}
       </div>
 

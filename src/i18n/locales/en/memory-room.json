@@ -156,7 +156,7 @@
       "line2": "…What's the point of winning alone?"
     },
     "console-echo": {
-      "line1": "Both controllers are still here.",
+      "line1": "The controller's right where we left it that day.",
       "line2": "We said we'd swap characters next time.",
       "line3": "When it's all over, let's play again."
     },
@@ -196,7 +196,7 @@
     },
     "fridge-open": {
       "line1": "If I'm going out, I should take something. Let's start with the fridge.",
-      "line2": "I've been eating for a month and it's still half full.",
+      "line2": "I've been eating for a month and there's still a few days' worth left.",
       "line3": "Two nights, they said. So why stock this much?"
     },
     "shoes-open": {
@@ -325,7 +325,7 @@
     },
     "fridge": {
       "title": "What They Stocked",
-      "phase2": "A month of eating, and half is still left. Why this much for two nights?"
+      "phase2": "A month of eating, and a few days' worth is still left. Why this much for two nights?"
     },
     "shoes": {
       "title": "The Boots They Left",
@@ -458,7 +458,7 @@
     },
     "trip-doubt": {
       "cut1": {
-        "line1": "I've been eating from the fridge for a month, and it's still half full.",
+        "line1": "I've been eating from the fridge for a month, and there's still a few days' worth left.",
         "line2": "They took two whole suitcases, but left Dad's hiking boots behind.",
         "line3": "They said two nights. …That wasn't two nights' worth of luggage."
       }

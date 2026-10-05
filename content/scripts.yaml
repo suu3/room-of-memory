@@ -136,9 +136,9 @@ scripts:
   # 2차 (곁가지)
   console-echo:
     - speaker: hero
-      ko: 컨트롤러가 두 개 그대로다.
-      en: Both controllers are still here.
-      ja: コントローラーが二つ、そのままだ。
+      ko: 컨트롤러가 그날 놓아 둔 그대로다.
+      en: The controller's right where we left it that day.
+      ja: コントローラーが、あの日置いたままだ。
     # 1차 회상(console-flashback)의 "다음에는 캐릭터 바꿔서 하자고 했었는데."를 받는다
     - speaker: hero
       expression: sad
@@ -273,9 +273,9 @@ scripts:
       ja: 出るなら何か持っていかないと。まずは冷蔵庫だ。
     - speaker: hero
       expression: puzzled
-      ko: 한 달을 먹었는데 아직 반이 남았어.
-      en: I've been eating for a month and it's still half full.
-      ja: ひと月食べてきたのに、まだ半分残ってる。
+      ko: 한 달을 먹었는데 아직도 며칠 치가 남았어.
+      en: I've been eating for a month and there's still a few days' worth left.
+      ja: ひと月食べてきたのに、まだ数日分残ってる。
     - speaker: hero
       expression: puzzled
       ko: 2박 3일 다녀온다고 하셨는데, 왜 이만큼이나 채워 놓으셨을까.

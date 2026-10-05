@@ -25,14 +25,20 @@ import { listedClues } from "./clue-list";
 import { InspectView } from "./InspectView";
 import { WorkbookClue } from "./WorkbookClue";
 
+/** 단서 하나의 번역 키. 밑에 흐르는 한 줄(caption)은 없어도 된다: 달력은 그림이 다 말한다. */
+interface ClueText {
+  title: ParseKeys<"common">;
+  caption?: ParseKeys<"common">;
+}
+
 /** 단서마다의 제목·본문 번역 키. 화면에도 쓰이고 키보드 목록의 이름도 여기서 온다. */
 const CLUE_TEXT = {
-  "wall-calendar": { title: "clue.wallCalendar.title", caption: "clue.wallCalendar.caption" },
+  "wall-calendar": { title: "clue.wallCalendar.title" },
   "shelf-book": { title: "clue.shelfBook.title", caption: "clue.shelfBook.caption" },
   workbook: { title: "clue.workbook.title", caption: "clue.workbook.caption" },
   mirror: { title: "clue.mirror.title", caption: "clue.mirror.caption" },
   "laon-sanitizer": { title: "clue.laonSanitizer.title", caption: "clue.laonSanitizer.caption" },
-} as const satisfies Record<ClueId, { title: ParseKeys<"common">; caption: ParseKeys<"common"> }>;
+} as const satisfies Record<ClueId, ClueText>;
 
 /** 놀이책의 펼쳐진 쪽에 적힌 줄: 트럼프 항목의 앞부분만 보인다. */
 
@@ -107,7 +113,7 @@ export function ClueOverlay() {
 
   if (clue === null) return <ClueKeyboardList />;
 
-  const { title: titleKey, caption: captionKey } = CLUE_TEXT[clue];
+  const { title: titleKey, caption: captionKey }: ClueText = CLUE_TEXT[clue];
   // 종이(쪽지·책)와 들고 돌리는 물건(문제집)·거울은 좁게, 격자를 그리는 것(달력)은 넓게 편다
   const narrow =
     clue === "shelf-book" || clue === "workbook" || clue === "mirror" || clue === "laon-sanitizer";
@@ -150,9 +156,11 @@ export function ClueOverlay() {
           <WallCalendar />
         )}
 
-        <p className="monologue-text mt-4 break-ko text-pretty text-center text-sm leading-normal text-fog">
-          {t(captionKey)}
-        </p>
+        {captionKey ? (
+          <p className="monologue-text mt-4 break-ko text-pretty text-center text-sm leading-normal text-fog">
+            {t(captionKey)}
+          </p>
+        ) : null}
       </div>
     </div>
   );
@@ -199,22 +207,30 @@ function LaonSanitizerZoom() {
   const { t } = useTranslation();
   return (
     <div className={`flex flex-col items-center px-6 py-8 sm:py-10 ${PANEL_PAPER}`}>
-      {/* 분사 뚜껑: 카드 모양 병의 한쪽 어깨에 붙어 있다 */}
-      <div aria-hidden className="mr-24 h-6 w-12 rounded-t-sm bg-ink/70" />
-      <div className="flex w-48 flex-col items-center gap-4 rounded-lg border-4 border-ink/15 bg-paper px-5 py-7 shadow-panel sm:w-56">
-        {/* SVG는 최적화 파이프라인을 안 탄다 (next/image의 svg 금지): 그대로 내려 그린다 */}
-        <Image
-          src={ASSETS.images.laonLogo}
-          alt={t("clue.laonSanitizer.alt")}
-          width={256}
-          height={256}
-          unoptimized
-          className="size-32 sm:size-36"
-        />
-        {/* 라벨의 글은 쓰임새뿐이다. 연구소 이름은 여기 없다 */}
-        <p className="break-ko text-center text-xs font-medium tracking-[0.12em] text-graphite">
-          {t("clue.laonSanitizer.label")}
-        </p>
+      {/* 펌프: 옆으로 뻗은 주둥이 → 누름대 → 병목의 마개. 위에서 아래로 넓어진다 */}
+      <div aria-hidden className="flex flex-col items-center">
+        <div className="mr-8 h-2.5 w-14 rounded-l-full rounded-r-sm bg-ink/70" />
+        <div className="h-5 w-2.5 bg-ink/55" />
+        <div className="h-4 w-12 rounded-t-sm bg-ink/70" />
+      </div>
+      {/* 몸통: 어깨가 둥근 반투명 병. 안에 든 것이 비쳐 보이는 색이다 */}
+      <div className="flex h-56 w-36 flex-col items-center justify-center rounded-t-4xl rounded-b-xl border-2 border-ink/15 bg-scene-sage/25 px-3 shadow-panel sm:h-64 sm:w-40">
+        {/* 라벨: 병 가운데 붙은 흰 종이. 로고는 작게, 그 밑에 쓰임새 한 줄 */}
+        <div className="flex w-full flex-col items-center gap-2 rounded-sm bg-card px-2 py-4">
+          {/* SVG는 최적화 파이프라인을 안 탄다 (next/image의 svg 금지): 그대로 내려 그린다 */}
+          <Image
+            src={ASSETS.images.laonLogo}
+            alt={t("clue.laonSanitizer.alt")}
+            width={256}
+            height={256}
+            unoptimized
+            className="size-14 sm:size-16"
+          />
+          {/* 라벨의 글은 쓰임새뿐이다. 연구소 이름은 여기 없다 */}
+          <p className="break-ko text-center text-xs font-medium tracking-widest text-graphite">
+            {t("clue.laonSanitizer.label")}
+          </p>
+        </div>
       </div>
     </div>
   );

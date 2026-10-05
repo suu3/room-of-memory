@@ -838,7 +838,7 @@ function DoorOutline({
   ));
 }
 
-/** 냉장실 문: 열면 아직 반이나 남은 식량이 나온다. */
+/** 냉장실 문: 열면 한 달을 먹고도 며칠 치가 남은 식량이 나온다. */
 function FridgeDoorMemory({ palette, opacity }: VisualProps) {
   return <DoorOutline width={0.86} height={0.7} color={palette.linen} opacity={opacity} />;
 }

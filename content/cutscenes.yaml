@@ -383,14 +383,14 @@ cutscenes:
 
   #
   # 캐리어 개수 추리의 결론 (v4.1 3장). 신발장과 아빠 메일("2박 3일")을 둘 다 본 순간.
-  # 냉장고(한 달 먹고 반) → 신발장(캐리어 둘, 등산화는 집에) → 아빠 메일(2박 3일)을 한 줄씩 잇는다
+  # 냉장고(한 달 먹고도 며칠 치) → 신발장(캐리어 둘, 등산화는 집에) → 아빠 메일(2박 3일)을 한 줄씩 잇는다
   trip-doubt:
     - lines:
         - speaker: hero
           expression: puzzled
-          ko: 냉장고 안 음식은 한 달을 먹고도 반이 남았다.
-          en: I've been eating from the fridge for a month, and it's still half full.
-          ja: 冷蔵庫の食べ物は、ひと月食べてもまだ半分残っている。
+          ko: 냉장고 안 음식은 한 달을 먹고도 며칠 치가 남았다.
+          en: I've been eating from the fridge for a month, and there's still a few days' worth left.
+          ja: 冷蔵庫の食べ物は、ひと月食べてもまだ数日分残っている。
         - speaker: hero
           expression: puzzled
           ko: 캐리어는 두 개나 가져가셨는데, 등산화는 두고 가셨다.

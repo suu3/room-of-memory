@@ -50,7 +50,6 @@ describe("컴퓨터 비밀번호 단서", () => {
       "read",
       "close",
       "wallCalendar.title",
-      "wallCalendar.caption",
       "workbook.title",
       "workbook.alt",
       "workbook.hint",
