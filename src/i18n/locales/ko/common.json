@@ -557,7 +557,7 @@
     "tabProfile": "프로필",
     "tabLore": "기록",
     "loreLocked": "아직 조사하지 않은 기록",
-    "lockedHint": "수집 시 열립니다",
+    "lockedHint": "기억을 모으면 열린다",
     "loreStill": "{{name}}: 그때 본 장면",
     "pose": {
       "stand": "서다",
@@ -568,7 +568,7 @@
     "turnRight": "오른쪽으로 돌리기",
     "nameUnknown": "아직 모르는 이름",
     "lockedClue": "아직 열리지 않은 항목: 방을 살펴보면 드러난다",
-    "lockedHintClue": "방을 살펴보면 열립니다",
+    "lockedHintClue": "방을 살펴보면 열린다",
     "tabMap": "평면도",
     "mapHere": "지금 있는 곳",
     "mapClue": "단서를 본 곳",
