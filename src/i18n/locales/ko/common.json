@@ -255,7 +255,7 @@
     },
     "windowView": {
       "title": "창밖",
-      "help": "커튼을 걷고 밖을 내다본다",
+      "help": "커튼을 걷고 밖을 내다보세요",
       "close": "커튼을 닫는다",
       "lookHelp": "돋보기를 옮겨 창밖을 살펴보세요\n마우스 · 방향키 · Enter",
       "lookHelp_touch": "창밖을 터치해 살펴보세요",
@@ -274,8 +274,8 @@
     },
     "ampoulePickup": {
       "title": "냉장고 아래칸",
-      "help": "앰플을 클릭해 집어 든다",
-      "help_touch": "앰플을 탭해 집어 든다"
+      "help": "앰플을 클릭해 집어 드세요",
+      "help_touch": "앰플을 탭해 집어 드세요"
     },
     "phoneChat": {
       "title": "스마트폰",
@@ -577,7 +577,7 @@
     "mapHint": "문이 열릴 때마다 한 칸씩 늘어난다.",
     "mapAlt": "집 평면도. 열린 공간과 지금 있는 곳이 표시된다",
     "tabItems": "소지품",
-    "itemsHint": "주운 것은 여기 남는다. 쓰는 자리에 가면 저절로 쓰인다.",
+    "itemsHint": "주운 물건은 여기에 모인다. 필요한 곳에 가면 저절로 쓰인다.",
     "mapTravelHint": "칸을 누르면 그곳으로 간다."
   },
   "titleScreen": {

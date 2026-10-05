@@ -65,7 +65,7 @@
     "auto": "オート",
     "autoOn": "オン",
     "autoOff": "オフ",
-    "autoHint": "台詞が出きると自動で次の行へ進みます。",
+    "autoHint": "台詞を表示し終えると、自動で次の行へ進みます。",
     "log": "これまでの台詞",
     "logOpen": "これまでの台詞を見る",
     "logClose": "これまでの台詞を閉じる",
@@ -83,7 +83,7 @@
     "loading": "部屋を準備しています…",
     "webglFallback": "この端末では3Dの部屋を表示できません。",
     "moveHint": "クリックした場所へ移動 · WASD",
-    "moveHint_touch": "床をタップかスティックで移動",
+    "moveHint_touch": "床をタップかジョイスティックで移動",
     "interactHint": "{{name}}を調べる · E",
     "interactHint_touch": "{{name}}を調べる · タップ",
     "moveCaption": "移動",
@@ -184,7 +184,7 @@
     },
     "fighterDuel": {
       "title": "格闘ゲーム",
-      "help": "方向キーで移動・Z X Cで攻撃",
+      "help": "矢印キーで移動 · Z X Cで攻撃",
       "help_touch": "下のボタンで移動と攻撃をしてください",
       "rules": {
         "triangle": "投げはガードに、ガードは攻撃に、攻撃は投げに勝つ"
@@ -255,7 +255,7 @@
     },
     "windowView": {
       "title": "窓の外",
-      "help": "カーテンを開けて外を見る",
+      "help": "カーテンを開けて外を見てください",
       "close": "カーテンを閉じる",
       "lookHelp": "レンズを動かして外を調べてください\nマウス · 矢印キー · Enter",
       "lookHelp_touch": "外の景色をタッチして調べてください",
@@ -274,13 +274,13 @@
     },
     "ampoulePickup": {
       "title": "冷蔵庫の下の段",
-      "help": "アンプルをクリックして手に取る",
-      "help_touch": "アンプルをタップして手に取る"
+      "help": "アンプルをクリックして手に取ってください",
+      "help_touch": "アンプルをタップして手に取ってください"
     },
     "phoneChat": {
       "title": "スマートフォン",
-      "help": "あの日のやりとりを読み進めてください\n下にスクロール・Space",
-      "help_touch": "あの日のやりとりを読み進めてください\n下にスワイプ・タップ",
+      "help": "あの日のやりとりを読み進めてください\n下にスクロール · Space",
+      "help_touch": "あの日のやりとりを読み進めてください\n下にスクロール · タップ",
       "helpCalls": "通話履歴のタブも開いてみてください",
       "date": "10月19日",
       "close": "画面を消す",
@@ -469,7 +469,7 @@
       "solved": "引き出しが開いた。",
       "title": "引き出しの鍵",
       "help": "ドラムを上下にドラッグして回してください\n↑/↓で回し、←/→で桁を移り、Enterで開けてください",
-      "help_touch": "指でドラムを上下に回して、開けるを押してください",
+      "help_touch": "指でドラムを上下に回して、「開ける」を押してください",
       "rejected": "開かない。",
       "up": "{{index}}桁目を上げる",
       "down": "{{index}}桁目を下げる",
@@ -577,7 +577,7 @@
     "mapHint": "ドアが開くたびに一部屋ずつ増える。",
     "mapAlt": "家の間取り図。開いた部屋と現在地が示される",
     "tabItems": "持ち物",
-    "itemsHint": "拾ったものはここに残る。使う場所へ行けば勝手に使われる。",
+    "itemsHint": "拾った物はここに集まる。必要な場所へ行けば自動で使われる。",
     "mapTravelHint": "部屋を押すとそこへ行く。"
   },
   "titleScreen": {
@@ -588,7 +588,7 @@
     "moveLabel": "移動",
     "examineLabel": "調べる",
     "howToMove": "クリック · WASD",
-    "howToMove_touch": "床をタップ · スティック",
+    "howToMove_touch": "床をタップ · ジョイスティック",
     "howToExamine": "E · クリック",
     "howToExamine_touch": "物をタップ",
     "resume": "続きから",

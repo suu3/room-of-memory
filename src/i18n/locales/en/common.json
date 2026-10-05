@@ -280,7 +280,7 @@
     "phoneChat": {
       "title": "The phone",
       "help": "Read the thread from the top\nScroll down · Space",
-      "help_touch": "Read the thread from the top\nSwipe down · tap",
+      "help_touch": "Read the thread from the top\nScroll down · tap",
       "helpCalls": "Open the call log tab too",
       "date": "October 19",
       "close": "Turn the screen off",
@@ -526,7 +526,7 @@
     },
     "papersOrder": {
       "title": "Scattered Papers",
-      "help": "Pick up a page and tap another spot to swap\nSpace to pick up, ↑/↓ to move",
+      "help": "Pick up a page and click another spot to swap\nSpace to pick up, ↑/↓ to move",
       "help_touch": "Tap a page, then tap where it goes",
       "inPlace": "In place",
       "pieceLabel": "Position {{index}}: {{date}}, {{text}}",
@@ -577,7 +577,7 @@
     "mapHint": "One more room is drawn in each time a door opens.",
     "mapAlt": "Floor plan of the home, showing the rooms opened so far and where you are",
     "tabItems": "Items",
-    "itemsHint": "What you pick up stays here. It gets used automatically in the right place.",
+    "itemsHint": "Things you pick up are kept here. They get used on their own where they're needed.",
     "mapTravelHint": "Tap a room to go there."
   },
   "titleScreen": {
