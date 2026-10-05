@@ -84,13 +84,19 @@ export function WebtoonViewer({ active }: { active: ActivePlayback }) {
     return () => window.clearTimeout(timer);
   }, [cutKey, turning]);
   const ready = readyKey === cutKey;
+  /** 눌러서 한꺼번에 채운 칸. 칸이 뜨는 중에 눌러도 찍기를 건너뛰고 다 찬 말풍선이 선다. */
+  const [filledKey, setFilledKey] = useState<string | null>(null);
+  const filled = filledKey === cutKey;
 
   const line = !ended && !active.holding ? cut?.lines[active.lineIndex] : undefined;
   const { t: tRoom } = useTranslation("memoryRoom");
   const lineText = line ? tRoom(line.textKey) : "";
-  const { typed, count, done, skip } = useTypewriterState(ready ? lineText : "");
+  const typewriter = useTypewriterState(ready && !filled ? lineText : "");
+  const typed = filled ? lineText : typewriter.typed;
+  const { count } = typewriter;
   const typing = line !== undefined && ready;
-  const lineDone = typing && done && typed.length === lineText.length;
+  const done = filled || (typewriter.done && typed.length === lineText.length);
+  const lineDone = typing && done;
 
   // 글자마다의 틱: 대사창과 같은 라디오 음색 (dialogue-sfx)
   const tickedCount = useRef(0);
@@ -118,21 +124,22 @@ export function WebtoonViewer({ active }: { active: ActivePlayback }) {
     return () => window.clearTimeout(timer);
   }, [lineDone, advancePlayback]);
 
-  /** 누르면: 찍는 중이면 다 채우고, 다 찼거나 말 없는 칸이면 다음 칸. 페이지째 건너뛰지는 않는다. */
+  /**
+   * 누르면: 말풍선이 덜 찼으면 (찍는 중이든, 칸이 아직 뜨는 중이든) 한 번에 다 채우고,
+   * 다 찼거나 말 없는 칸이면 다음 칸. 페이지째 건너뛰지는 않는다.
+   */
   const press = useCallback(() => {
-    if (ended || turning) return;
-    if (typing && !done) {
+    if (ended) return;
+    if (line && !done) {
       playSound("typeSkip");
-      skip();
-      return;
-    }
-    if (line && !ready) {
       setReadyKey(cutKey);
+      setFilledKey(cutKey);
       return;
     }
+    if (turning) return;
     playSound("advance");
     advancePlayback();
-  }, [ended, turning, typing, done, skip, line, ready, cutKey, advancePlayback]);
+  }, [ended, turning, done, line, cutKey, advancePlayback]);
   const pressRef = useRef(press);
   pressRef.current = press;
 
