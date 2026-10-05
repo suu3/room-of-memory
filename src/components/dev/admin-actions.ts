@@ -150,7 +150,7 @@ export const ADMIN_PHASES = [
 
 /**
  * 그 페이즈의 첫 순간으로 건너뛴다 (v4 설계서의 페이즈 표). 곁가지는 안 채운다.
- * 문·열쇠·하부장처럼 페이즈를 가르는 것도 같이 맞춘다 (src/data/story-phase.ts의 progressAt).
+ * 문·열쇠·협탁 서랍처럼 페이즈를 가르는 것도 같이 맞춘다 (src/data/story-phase.ts의 progressAt).
  */
 export function jumpToPhase(phase: EnterablePhase): void {
   const { introDone, ...progress } = progressAt(phase);

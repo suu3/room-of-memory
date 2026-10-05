@@ -1,9 +1,9 @@
 import { FOCUS_ZOOM_SCALE } from "@/components/canvas/room-canvas-runtime";
 
 /**
- * 크레인 샷: 하부장이 열리고 안방 열쇠가 손에 들어오는 순간 (docs/direction/visual-experiments.md 14장
- * "노토리어스"). 화장실 전체를 잡고 있던 카메라가 열쇠가 있던 칸 하나까지 천천히 밀고
- * 들어갔다가, 혼잣말("…안방 열쇠.")이 스러진 뒤 제자리로 돌아온다.
+ * 크레인 샷: 협탁 서랍이 열리고 안방 열쇠가 손에 들어오는 순간 (docs/direction/visual-experiments.md 14장
+ * "노토리어스"). 방 전체를 잡고 있던 카메라가 열쇠가 있던 서랍 하나까지 천천히 밀고
+ * 들어갔다가, 혼잣말이 스러진 뒤 제자리로 돌아온다. 처음에는 화장실 세면대 하부장이었다.
  *
  * 직교 카메라라 "밀고 들어간다"는 배율이 오르는 것이다 (room-canvas-runtime의 focusZoomFor
  * 주석). 조사 확대(1.45)보다 깊고, 프리셋 전환(lambda 7)보다 훨씬 느리다. 컷이 아니라

@@ -12,7 +12,7 @@ import {
 import { type RoomPalette, resolveRoomPalette } from "@/scenes/memory-room/world/palette";
 
 /**
- * 세면대 하부장의 숫자 드럼 (v4.1 6장: 하부장 다이얼 [3D]).
+ * 협탁 서랍의 숫자 드럼 (v4.1 6장: 협탁 서랍 다이얼 [3D]).
  *
  * 가로로 누운 원통이 자리수만큼 나란히 선다. 옆면 띠에 0~9가 한 바퀴 적혀 있고, 원통을
  * x축으로 굴리면 앞을 향한 숫자가 바뀐다. 숫자 i는 띠의 u = i/10에 있어 rotation.x가
@@ -151,7 +151,7 @@ function Drums({
           </mesh>
         </group>
       ))}
-      {/* 하부장 문의 판: 드럼이 박혀 있는 자리 */}
+      {/* 협탁 서랍 문의 판: 드럼이 박혀 있는 자리 */}
       <mesh position={[0, 0, -0.12]}>
         <boxGeometry args={[steps.length * (LENGTH + GAP) + 0.2, RADIUS * 2 + 0.34, 0.1]} />
         <meshStandardMaterial color={palette.wood} roughness={0.8} />

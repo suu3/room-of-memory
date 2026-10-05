@@ -35,7 +35,7 @@ import {
   pressDoor,
   pressFrontDoor,
   pressLightSwitch,
-  pressSinkCabinet,
+  pressNightstandDrawer,
   pressSinkPlug,
 } from "@/lib/room-press";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
@@ -101,7 +101,7 @@ const MEMORY_TARGETS = Object.values(MEMORY_PLACEMENTS);
 /** 화면 밖 목록의 물건이 누르는 것: 씬의 3D 물건과 같은 길이다 (room-press.ts). */
 const PROP_PRESS = {
   "sink-plug": pressSinkPlug,
-  "sink-cabinet": pressSinkCabinet,
+  "nightstand-drawer": pressNightstandDrawer,
   bat: pressBat,
   "front-door": pressFrontDoor,
 } as const satisfies Record<PromptPropId, () => void>;
@@ -420,7 +420,7 @@ export function RoomCanvas() {
           },
         ]
       : [];
-    // 기억도 문간도 아닌데 눌러야 넘어가는 물건: 마개 · 하부장 · 배트 · 현관문
+    // 기억도 문간도 아닌데 눌러야 넘어가는 물건: 마개 · 협탁 서랍 · 배트 · 현관문
     const props = listedProps(progress, reached).map(
       ({ id, ready }): RoomPromptAction => ({
         id: `prop-${id}`,

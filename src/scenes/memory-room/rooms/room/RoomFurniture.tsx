@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import type {} from "@react-three/fiber";
 import { useFrame } from "@react-three/fiber";
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type Group,
   MathUtils,
@@ -14,10 +14,16 @@ import {
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
-import { isAtCurtain, selectAct, useMemoryRoomStore } from "@/store/memory-room";
+import { pressNightstandDrawer } from "@/lib/room-press";
+import {
+  isAtCurtain,
+  selectAct,
+  selectDrawerCodeRead,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { MemoryGlowSelection } from "../../effects/MemoryOutlineGlow";
 import { useGlowHover } from "../../effects/use-glow-hover";
-import { DrawerNoteClue, TouchProp } from "../../memory/RoomClues";
+import { TouchProp } from "../../memory/RoomClues";
 import { useSideCue } from "../../memory/side-cue";
 import { useNearPlayer } from "../../player/use-near-player";
 import { usePrefersReducedMotion, useSeat, useSeatPull } from "../../player/use-seat";
@@ -240,7 +246,6 @@ function Drawer({
   parts,
   travel,
   near,
-  children,
 }: FurnitureProps & {
   name: string;
   parts: readonly BoxPart[];
@@ -248,11 +253,6 @@ function Drawer({
   travel: number;
   /** 다가왔는지 재는 기준점 (월드 x·z). */
   near: readonly [number, number];
-  /**
-   * 서랍 안에 든 것. 서랍과 함께 밀려 나와야 하므로 같은 그룹에 들어간다.
-   * 열림 여부를 알아야 만질 수 있는지 정할 수 있어 함수로 받는다.
-   */
-  children?: (open: boolean) => ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const groupRef = useRef<Group>(null);
@@ -290,7 +290,6 @@ function Drawer({
       <MemoryGlowSelection selectionKey={name} tier="prop" enabled={cue || hovered || nearPlayer}>
         <BoxParts parts={parts} palette={palette} />
       </MemoryGlowSelection>
-      {children?.(open)}
     </group>
   );
 }
@@ -344,20 +343,79 @@ function Cabinet({ palette }: FurnitureProps) {
   );
 }
 
+/** 협탁 서랍에 다가왔는지 재는 기준점 (월드 x·z). */
+const NIGHTSTAND_NEAR: readonly [number, number] = [
+  NIGHTSTAND_DRAWER[0].position[0],
+  NIGHTSTAND_DRAWER[0].position[2],
+];
+/** 서랍판 앞에 달린 세 자리 자물쇠: 손잡이 위의 작은 놋쇠 상자와 숫자 바퀴 셋. */
+const NIGHTSTAND_LOCK = {
+  size: [0.2, 0.07, 0.03] as Vec3Tuple,
+  position: [
+    NIGHTSTAND_DRAWER[0].position[0],
+    NIGHTSTAND_DRAWER[0].position[1] + 0.085,
+    NIGHTSTAND_DRAWER[0].position[2] + NIGHTSTAND_DRAWER[0].size[2] / 2 + 0.015,
+  ] as Vec3Tuple,
+  wheels: [-0.055, 0, 0.055] as readonly number[],
+} as const;
+
+/**
+ * 협탁. 서랍은 세 자리 자물쇠로 잠겨 있고 그 안에 안방 열쇠가 있다 (퍼즐 drawer-dial).
+ *
+ * 번호는 선반의 거꾸로 꽂힌 책 속 쪽지에 있다. 번호를 보기 전에는 눌러도 혼잣말만 흐르고,
+ * 본 뒤에는 금빛으로 부르며 자물쇠 판이 열린다 (room-press의 pressNightstandDrawer). 풀리면
+ * 서랍이 밀려 나온 채로 남는다: 열쇠는 그 순간 손에 들어온다 (store의 finishPuzzle).
+ */
 function Nightstand({ palette }: FurnitureProps) {
+  const drawerRef = useRef<Group>(null);
+  const solved = useMemoryRoomStore((state) => state.solvedPuzzles.includes("drawer-dial"));
+  const codeRead = useMemoryRoomStore(selectDrawerCodeRead);
+  const reducedMotion = usePrefersReducedMotion();
+
+  useFrame((_, delta) => {
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+    drawer.position.z = MathUtils.damp(
+      drawer.position.z,
+      solved ? DRAWER_TRAVEL.nightstand : 0,
+      reducedMotion ? REDUCED_LAMBDA : DRAWER_LAMBDA,
+      delta,
+    );
+  });
+
   return (
     <group name="nightstand">
       <BoxParts parts={NIGHTSTAND_BODY_PARTS} palette={palette} />
-      <Drawer
+      <TouchProp
         name="nightstand-drawer"
-        parts={NIGHTSTAND_DRAWER}
-        travel={DRAWER_TRAVEL.nightstand}
-        near={[NIGHTSTAND_DRAWER[0].position[0], NIGHTSTAND_DRAWER[0].position[2]]}
-        palette={palette}
+        near={NIGHTSTAND_NEAR}
+        radius={FURNITURE_NEAR_RADIUS}
+        enabled={!solved}
+        beckon={codeRead && !solved}
+        onPress={pressNightstandDrawer}
       >
-        {/* 도해가 예전에 적어 둔 쪽지: 컴퓨터 비밀번호 단서의 절반이다 */}
-        {(open) => <DrawerNoteClue palette={palette} open={open} />}
-      </Drawer>
+        <group ref={drawerRef} name="nightstand-drawer">
+          <BoxParts parts={NIGHTSTAND_DRAWER} palette={palette} />
+          <mesh position={NIGHTSTAND_LOCK.position} castShadow>
+            <boxGeometry args={NIGHTSTAND_LOCK.size} />
+            <meshStandardMaterial color={palette.amber} metalness={0.6} roughness={0.35} />
+          </mesh>
+          {NIGHTSTAND_LOCK.wheels.map((offset) => (
+            <mesh
+              key={offset}
+              position={[
+                NIGHTSTAND_LOCK.position[0] + offset,
+                NIGHTSTAND_LOCK.position[1],
+                NIGHTSTAND_LOCK.position[2] + NIGHTSTAND_LOCK.size[2] / 2,
+              ]}
+              rotation={[0, 0, Math.PI / 2]}
+            >
+              <cylinderGeometry args={[0.024, 0.024, 0.04, 12]} />
+              <meshStandardMaterial color={palette.linen} roughness={0.6} />
+            </mesh>
+          ))}
+        </group>
+      </TouchProp>
     </group>
   );
 }

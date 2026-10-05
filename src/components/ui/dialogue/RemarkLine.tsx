@@ -25,8 +25,8 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen" | "needs-item">, CommonTextKe
   "door-ready": "door.nudgeBat",
   "computer-off": "remark.computerOff",
   toothbrush: "remark.toothbrush",
-  "sink-locked": "remark.sinkLocked",
-  "sink-open": "remark.sinkOpen",
+  "drawer-locked": "remark.drawerLocked",
+  "drawer-open": "remark.drawerOpen",
   "piano-done": "remark.pianoDone",
   "sheet-taken": "remark.sheetTaken",
   "parents-locked": "remark.parentsLocked",
@@ -42,7 +42,7 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen" | "needs-item">, CommonTextKe
  * 물건을 눌렀을 때 흐르는 한 줄 (docs/story/content-design.md 3-1).
  *
  * 조사도 기록도 아닌 자리의 혼잣말이다: 1페이즈의 닫힌 방문("나가 봐야 뭐 해."),
- * 꺼진 컴퓨터, 화장실 칫솔컵(쉼표 비트), 아빠 힌트를 보기 전의 하부장 (v4 설계서 3-2 · 3-5).
+ * 꺼진 컴퓨터, 화장실 칫솔컵(쉼표 비트), 아빠 힌트를 보기 전의 협탁 서랍 (v4 설계서 3-2 · 3-5).
  * 방문의 줄은 잠긴 게 아니라 **안 여는** 것이라는 걸 말한다.
  *
  * 이미 본 기억을 다시 누르면(`seen`) 수첩에 남은 그 기억의 마지막 기록 문장이 흐른다.

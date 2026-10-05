@@ -54,7 +54,7 @@
 | images/character-hero-sad.webp, images/character-hero-puzzled.webp | 사용자가 넣은 주인공 초상 2장 추가(2026-09-27, 가라앉음·의아함 표정). 앞의 세 초상과 같은 4:5 크롭·투명 배경 webp | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 편집 에셋 |
 | images/mg-calendar-flip-07.webp ~ images/mg-calendar-flip-11.webp | 달력 미니게임의 장 그림 5장(7~11월, 1080×1600, 2026-09-27). 사용자가 GPT로 생성한 빈 달력 그림, 11월만 正자 낙서 | OpenAI GPT (생성) · suu3 | 프로젝트 생성 에셋 |
 | images/mg-fighter-duel-hero.webp, images/mg-fighter-duel-rival.webp | 격투 미니게임 스프라이트 시트 2장(2026-08-06). 사용자가 GPT로 생성. 히어로 시트는 2026-09-28에 반투명 가장자리를 걷어냈다 | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 생성 에셋 |
-| images/mg-ball-catch-ball.svg, images/clue-note-paper.svg | 이 프로젝트를 위해 코드로 직접 그린 SVG(공·쪽지 종이). 외부 그림 없음 | Codex · Claude Code | 프로젝트 생성 에셋 |
+| images/mg-ball-catch-ball.svg | 이 프로젝트를 위해 코드로 직접 그린 SVG(공). 외부 그림 없음 | Codex · Claude Code | 프로젝트 생성 에셋 |
 | images/ui-ending-thanks.webp | 엔딩 카드의 Thank you! 그림(1160×1533, 2026-09-26). GPT로 생성한 뒤 제작자가 직접 손본 그림. 카드에서 내려받기도 이 파일이다 | OpenAI GPT (생성) · suu3 (리터칭) | 프로젝트 편집 에셋 |
 | images/ui-loading.gif | 로딩 화면의 달리는 캐릭터 애니메이션(420×400, 2026-08-02 사용자 제공, 2026-09-10 프레임 정리). 애니메이션 webp는 쓰는 자리에서 재생이 안 돼 gif로 둔다 (assets.md 예외) | suu3 (프로젝트 제작자) | 프로젝트 저작물 |
 | models/room-laon-ampoule.glb | 라온 RX-11 유리 바이알 모델(2026-09-26). 사용자가 GPT로 생성한 GLB를 `pnpm model:prep`으로 검사·Meshopt 압축. 서랍과 조사 화면이 같이 쓴다 | OpenAI GPT (생성) · suu3 | 프로젝트 생성 에셋 |

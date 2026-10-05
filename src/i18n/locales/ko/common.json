@@ -35,7 +35,7 @@
         "doorway": "{{space}} 쪽 문을 열어 보세요",
         "sink-drain": "화장실 세면대의 마개를 뽑아 물을 빼 보세요",
         "shelf-book": "내 방 선반에 거꾸로 꽂힌 책을 살펴보세요",
-        "sink-dial": "화장실 세면대 하부장의 다이얼을 열어 보세요",
+        "drawer-dial": "내 방 침대 옆 서랍의 자물쇠를 열어 보세요",
         "piano-sheet": "안방 책상 위의 찢어진 악보를 집으세요",
         "piano": "찢어진 악보를 들고 거실 피아노를 쳐 보세요"
       }
@@ -111,7 +111,7 @@
     },
     "prop": {
       "sink-plug": "세면대 마개 뽑기",
-      "sink-cabinet": "세면대 하부장 열기",
+      "nightstand-drawer": "침대 옆 서랍 열기",
       "bat": "현관의 배트 챙기기",
       "front-door": "현관문 열고 나가기"
     },
@@ -457,9 +457,9 @@
         "file": "IMG_2190.jpg"
       }
     },
-    "sinkDial": {
-      "solved": "하부장이 열렸다.",
-      "title": "하부장 다이얼",
+    "drawerDial": {
+      "solved": "서랍이 열렸다.",
+      "title": "서랍 자물쇠",
       "help": "드럼을 위아래로 끌어 굴리세요\n↑/↓로 돌리고 ←/→로 칸을 옮긴 뒤 Enter로 여세요",
       "help_touch": "드럼을 손가락으로 위아래로 굴리고, 열기를 누르세요",
       "fails": "틀린 횟수",
@@ -632,12 +632,6 @@
   "clue": {
     "read": "{{name}} 보기",
     "close": "내려놓는다",
-    "drawerNote": {
-      "title": "접힌 쪽지",
-      "caption": "예전에 적어놨던 쪽지다.",
-      "l1": "7/15 컴퓨터 비번 바꿈",
-      "l2": "힌트: 전국대회 날짜"
-    },
     "wallCalendar": {
       "title": "벽에 걸린 달력",
       "caption": "동그라미 친 날은 하나뿐이다."
@@ -675,7 +669,7 @@
   "items": {
     "parents-key": {
       "name": "안방 열쇠",
-      "note": "화장실 세면대 위에 놓여 있었다."
+      "note": "침대 옆 서랍 안에 있었다."
     },
     "piano-sheet": {
       "name": "찢어진 악보",
@@ -717,8 +711,8 @@
     "computerOff": "켜 봐야 인터넷도 안 되는데.",
     "locked": "…지금은 아니다.",
     "toothbrush": "칫솔 세 개. …하나만 젖어 있네.",
-    "sinkLocked": "잠겨 있네. 엄마가 잠갔나.",
-    "sinkOpen": "…안방 열쇠.",
+    "drawerLocked": "잠겨 있다. 번호를 알아야 열 수 있겠어.",
+    "drawerOpen": "…집 열쇠 꾸러미다. 이거면 안방도 열려.",
     "pianoDone": "…어릴 때 치던 거다. 손이 아직 기억하네.",
     "sheetTaken": "…악보 조각이네. 거실 피아노에서 떨어진 건가.",
     "parentsLocked": "안방은 잠겨 있다.",

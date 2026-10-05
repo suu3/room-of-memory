@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { HERO_JERSEY_NUMBER, SINK_DIAL_CODE } from "@/data/room-clues";
+import { DRAWER_DIAL_CODE, HERO_JERSEY_NUMBER } from "@/data/room-clues";
 import { dialMatches, turnDigit } from ".";
 
-describe("sink-dial", () => {
+describe("drawer-dial", () => {
   it("답은 세 자리 숫자이고, 방에 늘 보이는 등번호와 겹치지 않는다", () => {
-    expect(SINK_DIAL_CODE).toMatch(/^\d{3}$/);
-    expect(SINK_DIAL_CODE).not.toContain(String(HERO_JERSEY_NUMBER));
+    expect(DRAWER_DIAL_CODE).toMatch(/^\d{3}$/);
+    expect(DRAWER_DIAL_CODE).not.toContain(String(HERO_JERSEY_NUMBER));
   });
 
   it("눈금은 0~9를 돌아 순환한다", () => {
@@ -17,6 +17,6 @@ describe("sink-dial", () => {
   it("세 칸이 답과 같을 때만 열린다", () => {
     expect(dialMatches([4, 0, 7], "407")).toBe(true);
     expect(dialMatches([4, 0, 8], "407")).toBe(false);
-    expect(dialMatches(SINK_DIAL_CODE.split("").map(Number))).toBe(true);
+    expect(dialMatches(DRAWER_DIAL_CODE.split("").map(Number))).toBe(true);
   });
 });

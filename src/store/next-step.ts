@@ -13,7 +13,7 @@ import {
   hotspotStatus,
   type MemoryRoomState,
   selectBadgeSeen,
-  selectSinkHintRead,
+  selectDrawerCodeRead,
 } from "./memory-room";
 
 /**
@@ -28,7 +28,7 @@ import {
  *      공간이 먼저, 그다음 대본 순서)
  *   2. 열 수 있는데 아직 안 연 문
  *   3. 방탈출 축의 매듭 (조사할 기억이 없을 때 막히는 자리): 세면대의 물 빼기 → (배지 →
- *      컴퓨터 3차 = 1) → 선반의 거꾸로 꽂힌 책 → 세면대 하부장 → (열쇠로 안방 문 = 2) →
+ *      컴퓨터 3차 = 1) → 선반의 거꾸로 꽂힌 책 → 협탁 서랍 → (열쇠로 안방 문 = 2) →
  *      안방 책상의 악보 조각 → 거실 피아노
  *   4. 없음: 보통 모드의 목표 줄을 그대로 쓴다
  */
@@ -37,7 +37,7 @@ export type NextStep =
   | { kind: "doorway"; doorway: DoorwayId; to: SpaceId }
   | { kind: "sink-drain" }
   | { kind: "shelf-book" }
-  | { kind: "sink-dial" }
+  | { kind: "drawer-dial" }
   | { kind: "piano-sheet" }
   | { kind: "piano" };
 
@@ -81,7 +81,7 @@ export function nextStep(state: NextStepState): NextStep | null {
   if (doorway !== undefined) return { kind: "doorway", doorway, to: DOORWAY_BETWEEN[doorway][1] };
 
   // 안방 열쇠: 세면대의 물 → 배지 → 컴퓨터 3차(아빠 메일 "선반 정리 좀 해라.") →
-  // 거꾸로 꽂힌 책의 쪽지 → 세면대 하부장
+  // 거꾸로 꽂힌 책의 쪽지 → 협탁 서랍
   if (state.doorOpened && !state.inventory.includes("parents-key")) {
     // 화장실에 들어선 뒤, 배지를 보기 전: 마개를 뽑는 것이 다음 할 일이다. 뽑은 뒤의 배지는
     // 물건 자체가 금빛으로 부르니 따로 짚지 않는다
@@ -92,11 +92,11 @@ export function nextStep(state: NextStepState): NextStep | null {
     ) {
       return { kind: "sink-drain" };
     }
-    if (!selectSinkHintRead(state) && clueUnlocked(state, "shelf-book")) {
+    if (!selectDrawerCodeRead(state) && clueUnlocked(state, "shelf-book")) {
       return { kind: "shelf-book" };
     }
-    if (selectSinkHintRead(state) && !state.solvedPuzzles.includes("sink-dial")) {
-      return { kind: "sink-dial" };
+    if (selectDrawerCodeRead(state) && !state.solvedPuzzles.includes("drawer-dial")) {
+      return { kind: "drawer-dial" };
     }
   }
 

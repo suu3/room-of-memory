@@ -130,12 +130,6 @@ export const ASSETS = {
     mgFrequencyTuneFrame: "/assets/images/mg-frequency-tune-frame.webp?v=cutout-20260928b",
     /** 커튼을 걷었을 때 보이는 창밖 (1448×1086). 그날 이후의 도시가 그려져 있다. */
     mgWindowViewOutside: "/assets/images/mg-window-view-outside.webp",
-    /**
-     * 서랍에서 꺼낸 쪽지의 종이 판 (640×400 SVG). 글씨는 없다. 본문은 i18n을
-     * 타야 해서 DOM이 위에 얹는다 (ClueOverlay). 늘려 쓰므로 비율이 크게
-     * 어긋나지 않는 판에만 깐다.
-     */
-    clueNotePaper: "/assets/images/clue-note-paper.svg",
     /*
      * 격투 미니게임 스프라이트. 아직 리포에 없어도 된다. 파일이 없으면
      * 블록 캐릭터/그라디언트 배경으로 떨어진다. 시트 규격은

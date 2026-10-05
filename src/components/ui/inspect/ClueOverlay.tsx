@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { InspectCapture } from "@/components/canvas/InspectTurntable";
 import { shelfBookObject } from "@/components/canvas/inspect-objects";
-import { CLUE_DISCOVERY, type ClueId, SINK_DIAL_CODE } from "@/data/room-clues";
+import { CLUE_DISCOVERY, type ClueId, DRAWER_DIAL_CODE } from "@/data/room-clues";
 import { reachableSpaces } from "@/data/spaces";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
@@ -27,12 +27,8 @@ import { listedClues } from "./clue-list";
 import { InspectView } from "./InspectView";
 import { WorkbookClue } from "./WorkbookClue";
 
-/** 서랍 속 쪽지에 적힌 줄. 도해가 예전에 적어 둔 메모라 두 줄이 전부다. */
-const NOTE_LINES = ["clue.drawerNote.l1", "clue.drawerNote.l2"] as const;
-
 /** 단서마다의 제목·본문 번역 키. 화면에도 쓰이고 키보드 목록의 이름도 여기서 온다. */
 const CLUE_TEXT = {
-  "drawer-note": { title: "clue.drawerNote.title", caption: "clue.drawerNote.caption" },
   "wall-calendar": { title: "clue.wallCalendar.title", caption: "clue.wallCalendar.caption" },
   "shelf-book": { title: "clue.shelfBook.title", caption: "clue.shelfBook.caption" },
   workbook: { title: "clue.workbook.title", caption: "clue.workbook.caption" },
@@ -123,14 +119,9 @@ export function ClueOverlay() {
   if (clue === null) return <ClueKeyboardList />;
 
   const { title: titleKey, caption: captionKey } = CLUE_TEXT[clue];
-  const isNote = clue === "drawer-note";
   // 종이(쪽지·책)와 들고 돌리는 물건(문제집)·거울은 좁게, 격자를 그리는 것(달력)은 넓게 편다
   const narrow =
-    isNote ||
-    clue === "shelf-book" ||
-    clue === "workbook" ||
-    clue === "mirror" ||
-    clue === "raon-badge";
+    clue === "shelf-book" || clue === "workbook" || clue === "mirror" || clue === "raon-badge";
 
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center overflow-hidden p-4">
@@ -157,9 +148,7 @@ export function ClueOverlay() {
           {t("clue.close")}
         </button>
 
-        {isNote ? (
-          <FoldedNote />
-        ) : clue === "shelf-book" ? (
+        {clue === "shelf-book" ? (
           <ShelfBookInspect />
         ) : clue === "workbook" ? (
           <WorkbookClue captureRef={captureRef} />
@@ -181,50 +170,17 @@ export function ClueOverlay() {
 }
 
 /**
- * 서랍 속 접힌 쪽지.
- *
- * 종이는 그림(clue-note-paper.svg)이 그린다. 찢긴 윗변과 접힌 자국까지 CSS로
- * 흉내 내면 값싼 사각형이 된다. 글씨만 그 위에 얹으므로 ko/en/ja가 그대로 산다.
- * 왼쪽 여백선이 그림에 인쇄돼 있어(x=66/640) 글은 그 오른쪽에서 시작한다.
- */
-function FoldedNote() {
-  const { t } = useTranslation();
-
-  return (
-    <div
-      className="relative aspect-[640/400] w-full bg-contain bg-center bg-no-repeat"
-      style={{ backgroundImage: `url(${ASSETS.images.clueNotePaper})` }}
-    >
-      {/*
-        글은 찢긴 윗변 바로 아래에서 시작한다. 가운데 정렬하면 접힌 자국(그림의
-        y=253/400)이 글줄 한가운데를 가른다. 아래는 비워 둔다: 급히 적고 만 메모라
-        종이가 남는 게 자연스럽다.
-      */}
-      <div className="absolute left-[13%] right-[8%] top-[17%] flex flex-col gap-3.5">
-        {NOTE_LINES.map((key, index) => (
-          <p
-            key={key}
-            className={`break-ko text-pretty leading-relaxed text-ink ${
-              index === 0 ? "text-lg font-medium" : "text-base"
-            }`}
-          >
-            {t(key)}
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
  * 선반에서 뽑아 든 거꾸로 꽂힌 책 (3D 인스펙트, v4.1 3장). 아빠 메일 "선반 정리 좀
  * 해라."를 읽은 뒤에만 만질 수 있다. 장을 넘기면 귀 접힌 쪽에 쪽지가 끼워져 있고,
- * 아빠 손글씨로 세 자리 번호: 하부장 번호다 (room-clues의 SINK_DIAL_CODE).
+ * 손으로 적은 세 자리 번호: 협탁 서랍의 자물쇠 번호다 (room-clues의 DRAWER_DIAL_CODE).
  */
 function ShelfBookInspect() {
   const { t } = useTranslation();
   const discover = useMemoryRoomStore((state) => state.discover);
-  const object = useMemo(() => shelfBookObject(t("clue.shelfBook.bookTitle"), SINK_DIAL_CODE), [t]);
+  const object = useMemo(
+    () => shelfBookObject(t("clue.shelfBook.bookTitle"), DRAWER_DIAL_CODE),
+    [t],
+  );
   const onFound = useCallback(() => {
     const code = CLUE_DISCOVERY["shelf-book"];
     if (useMemoryRoomStore.getState().discoveries.includes(code)) return;

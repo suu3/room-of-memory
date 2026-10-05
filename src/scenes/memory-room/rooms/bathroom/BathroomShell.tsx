@@ -1,7 +1,6 @@
 "use client";
 
 import { playSound } from "@/lib/audio";
-import { pressSinkCabinet } from "@/lib/room-press";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { BathroomStain } from "../../effects/BathroomStains";
 import { TouchProp } from "../../memory/RoomClues";
@@ -43,7 +42,7 @@ const FLOOR = floorPart(SHELL);
 const PLINTH = plinthParts(SHELL);
 
 /**
- * 대야 밑 하부장 (v4 3-5): 엄마가 잠가 둔 칸. 다이얼(sink-dial)의 답은 선반 책 속 쪽지의 세 자리.
+ * 대야 밑 하부장: 문짝 둘 달린 배경 상자.
  * 세면대 틀(SINK_MOUNT)의 로컬 좌표: 문짝과 다이얼은 로컬 -z 면, 곧 카메라 쪽이다.
  */
 const CABINET = {
@@ -170,51 +169,28 @@ export function BathroomShell({ palette }: { palette: RoomPalette }) {
 }
 
 /**
- * 세면대 하부장. 아빠 메일 힌트(컴퓨터 3차)를 보기 전에는 누르면 혼잣말만 흐르고,
- * 본 뒤에는 다이얼이 열린다. 열리면 안방 열쇠가 손에 들어오고(store의 finishPuzzle)
- * 문짝이 살짝 벌어진 채로 남는다.
- *
- * 세면대 틀(SINK_MOUNT) 안에 선다. 문짝·다이얼이 달린 앞면이 카메라를 봐야 "잠긴 칸"으로
- * 읽힌다: 안쪽 벽에 붙어 있던 때는 앞면이 카메라 반대쪽이라 밋밋한 상자로만 보였다.
+ * 세면대 하부장. 배경이다: 예전에는 여기에 세 자리 다이얼이 달려 있었고 그 안에 안방 열쇠가
+ * 있었다. 번호를 내 방에서 찾고 화장실로 되돌아오는 왕복이 심부름이라, 자물쇠를 내 방
+ * 협탁 서랍으로 옮겼다 (2026-10-05, room-clues의 PUZZLE_IDS 주석).
  */
 function SinkCabinet({ palette }: { palette: RoomPalette }) {
-  const opened = useMemoryRoomStore((state) => state.solvedPuzzles.includes("sink-dial"));
   const [x, y, z] = CABINET.position;
   const [width, height, depth] = CABINET.size;
   const front = z - depth / 2;
 
   return (
-    <TouchProp
-      name="sink-cabinet"
-      near={SINK_NEAR}
-      radius={SINK_RADIUS}
-      enabled={!opened}
-      onPress={pressSinkCabinet}
-    >
-      <group name="sink-cabinet" position={SINK_MOUNT.position} rotation={SINK_MOUNT.rotation}>
-        <mesh position={[x, y, z]} castShadow receiveShadow>
-          <boxGeometry args={[width, height, depth]} />
-          <meshStandardMaterial color={palette.linen} roughness={0.6} />
+    <group name="sink-cabinet" position={SINK_MOUNT.position} rotation={SINK_MOUNT.rotation}>
+      <mesh position={[x, y, z]} castShadow receiveShadow>
+        <boxGeometry args={[width, height, depth]} />
+        <meshStandardMaterial color={palette.linen} roughness={0.6} />
+      </mesh>
+      {[-1, 1].map((side) => (
+        <mesh key={side} position={[x + side * (width / 4), y, front - 0.012]} castShadow>
+          <boxGeometry args={[width / 2 - 0.02, height - 0.06, 0.02]} />
+          <meshStandardMaterial color={palette.trim} roughness={0.55} />
         </mesh>
-        {/* 문짝 둘. 열리면 오른쪽 문이 살짝 벌어진다 */}
-        {[-1, 1].map((side) => (
-          <mesh
-            key={side}
-            position={[x + side * (width / 4), y, front - 0.012]}
-            rotation={[0, opened && side === 1 ? -0.5 : 0, 0]}
-            castShadow
-          >
-            <boxGeometry args={[width / 2 - 0.02, height - 0.06, 0.02]} />
-            <meshStandardMaterial color={palette.trim} roughness={0.55} />
-          </mesh>
-        ))}
-        {/* 다이얼 자물쇠: 두 문 사이의 작은 원판 */}
-        <mesh position={[x, y + 0.1, front - 0.03]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.045, 0.045, 0.02, 16]} />
-          <meshStandardMaterial color={palette.amber} metalness={0.6} roughness={0.35} />
-        </mesh>
-      </group>
-    </TouchProp>
+      ))}
+    </group>
   );
 }
 

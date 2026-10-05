@@ -30,6 +30,7 @@ import {
   selectDeadline,
   selectDoorReady,
   selectDoorwayReady,
+  selectDrawerCodeRead,
   selectEndingReady,
   selectExitReady,
   selectHeardSurvivorBroadcast,
@@ -49,7 +50,6 @@ import {
   selectSceneInputLocked,
   selectSheetBeckons,
   selectSignalSilenceRunning,
-  selectSinkHintRead,
   selectStillBeatDone,
   selectViewpoint,
   storyPhase,
@@ -481,7 +481,7 @@ function enterPhase(phase: PhaseStart) {
     openedDoorways:
       at >= 3 ? ["living-bathroom", "living-parents"] : at >= 1 ? ["living-bathroom"] : [],
     inventory: at >= 3 ? ["parents-key"] : [],
-    solvedPuzzles: at >= 3 ? ["sink-dial"] : [],
+    solvedPuzzles: at >= 3 ? ["drawer-dial"] : [],
   });
   expect(storyPhase(useMemoryRoomStore.getState())).toBe(phase);
 }
@@ -808,7 +808,7 @@ describe("v4.1 추리: 캐리어 개수와 컷씬 줄", () => {
   });
 });
 
-describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => {
+describe("3페이즈: 앰플 → 로고 → 협탁 서랍 → 안방 열쇠", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
   it("앰플이 먼저, 컴퓨터 3차는 앰플과 세면대 바닥의 배지 뒤에 열린다", () => {
@@ -886,9 +886,9 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
     expect(state.remark).toBeNull();
   });
 
-  it("아빠 힌트 전에는 하부장을 못 연다. 힌트 뒤에 열면 안방 열쇠가 손에 들어온다", () => {
+  it("아빠 힌트 전에는 협탁 서랍을 못 연다. 힌트 뒤에 열면 안방 열쇠가 손에 들어온다", () => {
     enterPhase("p3");
-    useMemoryRoomStore.getState().openPuzzle("sink-dial");
+    useMemoryRoomStore.getState().openPuzzle("drawer-dial");
     expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
 
     useMemoryRoomStore.setState({
@@ -896,43 +896,43 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
       rechecked: ["computer"],
     });
     // 메일만으로는 모른다: 거꾸로 꽂힌 책 속 쪽지의 세 자리를 봐야 번호를 안다 (v4.1)
-    expect(selectSinkHintRead(useMemoryRoomStore.getState())).toBe(false);
-    useMemoryRoomStore.getState().openPuzzle("sink-dial");
+    expect(selectDrawerCodeRead(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().openPuzzle("drawer-dial");
     expect(useMemoryRoomStore.getState().activePuzzle).toBeNull();
-    useMemoryRoomStore.getState().discover("sink-code");
-    expect(selectSinkHintRead(useMemoryRoomStore.getState())).toBe(true);
-    useMemoryRoomStore.getState().openPuzzle("sink-dial");
-    expect(useMemoryRoomStore.getState().activePuzzle).toBe("sink-dial");
+    useMemoryRoomStore.getState().discover("drawer-code");
+    expect(selectDrawerCodeRead(useMemoryRoomStore.getState())).toBe(true);
+    useMemoryRoomStore.getState().openPuzzle("drawer-dial");
+    expect(useMemoryRoomStore.getState().activePuzzle).toBe("drawer-dial");
     useMemoryRoomStore.getState().finishPuzzle({ cleared: true });
 
     const state = useMemoryRoomStore.getState();
     expect(state.inventory).toContain("parents-key");
-    expect(state.remark?.id).toBe("sink-open");
+    expect(state.remark?.id).toBe("drawer-open");
     expect(selectDoorwayReady("living-parents")(state)).toBe(true);
-    // 하부장의 크레인 샷이 도는 동안은 씬 입력이 잠긴다. 샷이 끝나야 문을 만진다
+    // 협탁 서랍의 크레인 샷이 도는 동안은 씬 입력이 잠긴다. 샷이 끝나야 문을 만진다
     state.endCameraHold();
     useMemoryRoomStore.getState().openDoorway("living-parents");
     expect(storyPhase(useMemoryRoomStore.getState())).toBe("p4");
   });
 
-  it("하부장이 열리면 카메라가 열쇠로 밀고 들어간다. 그동안 입력은 잠기고, 놓으면 풀린다", () => {
+  it("협탁 서랍이 열리면 카메라가 열쇠로 밀고 들어간다. 그동안 입력은 잠기고, 놓으면 풀린다", () => {
     enterPhase("p3");
     useMemoryRoomStore.setState({
       revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
       rechecked: ["computer"],
     });
-    useMemoryRoomStore.getState().discover("sink-code");
-    useMemoryRoomStore.getState().openPuzzle("sink-dial");
+    useMemoryRoomStore.getState().discover("drawer-code");
+    useMemoryRoomStore.getState().openPuzzle("drawer-dial");
     expect(useMemoryRoomStore.getState().cameraHold).toBeNull();
 
     // 못 풀고 내려놓으면 카메라는 그대로다
     useMemoryRoomStore.getState().finishPuzzle({ cleared: false });
     expect(useMemoryRoomStore.getState().cameraHold).toBeNull();
 
-    useMemoryRoomStore.getState().openPuzzle("sink-dial");
+    useMemoryRoomStore.getState().openPuzzle("drawer-dial");
     useMemoryRoomStore.getState().finishPuzzle({ cleared: true });
     const held = useMemoryRoomStore.getState();
-    expect(held.cameraHold).toBe("sink-cabinet");
+    expect(held.cameraHold).toBe("nightstand-drawer");
     expect(selectSceneInputLocked(held)).toBe(true);
 
     held.endCameraHold();
@@ -945,7 +945,7 @@ describe("3페이즈: 앰플 → 로고 → 하부장 → 안방 열쇠", () => 
   });
 
   it("리셋하면 붙들린 카메라도 놓는다", () => {
-    useMemoryRoomStore.setState({ cameraHold: "sink-cabinet" });
+    useMemoryRoomStore.setState({ cameraHold: "nightstand-drawer" });
     useMemoryRoomStore.getState().reset();
     expect(useMemoryRoomStore.getState().cameraHold).toBeNull();
   });
@@ -984,7 +984,7 @@ describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
     // 액자는 거실 피아노 뒤에 선다 (room-clues의 VISIT_AFTER_PUZZLE). 그때부터 조각이 부른다
     expect(status("frame")).toBe("locked");
     expect(selectSheetBeckons(state)).toBe(true);
-    useMemoryRoomStore.setState({ solvedPuzzles: ["sink-dial", "piano-melody"] });
+    useMemoryRoomStore.setState({ solvedPuzzles: ["drawer-dial", "piano-melody"] });
     expect(status("frame")).toBe("available");
   });
 
@@ -992,7 +992,7 @@ describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
     enterPhase("p4");
     useMemoryRoomStore.setState({
       revisited: [...useMemoryRoomStore.getState().revisited, "research-note", "id-card"],
-      solvedPuzzles: ["sink-dial", "piano-melody"],
+      solvedPuzzles: ["drawer-dial", "piano-melody"],
     });
     useMemoryRoomStore.getState().beginInteraction("frame");
     finishInteraction("frame");
@@ -1361,7 +1361,7 @@ describe("미궁 문제: 피아노 멜로디 자물쇠", () => {
   });
 
   it("다른 화면이 떠 있으면 문제가 열리지 않는다", () => {
-    useMemoryRoomStore.getState().openClue("drawer-note");
+    useMemoryRoomStore.getState().openClue("mirror");
 
     useMemoryRoomStore.getState().openPuzzle("piano-melody");
 
@@ -1562,7 +1562,7 @@ describe("방탈출 축 (임시): 물건과 문", () => {
     useMemoryRoomStore.getState().openDoorway("living-parents");
     expect(useMemoryRoomStore.getState().openedDoorways).toEqual(["living-bathroom"]);
 
-    // 세면대의 열쇠를 집으면 안방 문이 켜진다
+    // 협탁 서랍의 열쇠를 얻으면 안방 문이 켜진다
     useMemoryRoomStore.getState().takeItem("parents-key");
     expect(selectDoorwayReady("living-parents")(useMemoryRoomStore.getState())).toBe(true);
     useMemoryRoomStore.getState().openDoorway("living-parents");
@@ -1661,7 +1661,7 @@ describe("다 쓴 물건", () => {
   it("안방 열쇠는 안방 문이 열리면, 악보는 피아노를 풀면 할 일을 다 한다", () => {
     const state = {
       openedDoorways: [] as ("living-parents" | "living-bathroom")[],
-      solvedPuzzles: [] as ("piano-melody" | "sink-dial")[],
+      solvedPuzzles: [] as ("piano-melody" | "drawer-dial")[],
     };
     expect(itemSpent(state, "parents-key")).toBe(false);
     expect(itemSpent({ ...state, openedDoorways: ["living-parents"] }, "parents-key")).toBe(true);

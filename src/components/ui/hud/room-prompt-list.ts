@@ -11,7 +11,7 @@ import {
   type HotspotStatus,
   hotspotStatus,
   type MemoryRoomState,
-  selectSinkHintRead,
+  selectDrawerCodeRead,
 } from "@/store/memory-room";
 
 /*
@@ -68,7 +68,7 @@ export function memoryStatuses(state: PromptProgress): Record<MemoryId, HotspotS
 }
 
 /** 기억도 문간도 아니지만 눌러야 이야기가 넘어가는 물건. */
-export type PromptPropId = "sink-plug" | "sink-cabinet" | "bat" | "front-door";
+export type PromptPropId = "sink-plug" | "nightstand-drawer" | "bat" | "front-door";
 
 export interface PromptProp {
   id: PromptPropId;
@@ -77,18 +77,19 @@ export interface PromptProp {
 }
 
 /**
- * 목록에 올릴 물건. 마개·하부장은 화장실에 닿은 뒤, 배트·현관문은 떠나기로 한 뒤
+ * 목록에 올릴 물건. 마개는 화장실에 닿은 뒤, 협탁 서랍은 처음부터, 배트·현관문은 떠나기로 한 뒤
  * (resolve)에만 오른다: 그 전에는 배경이고, 이름을 먼저 읽으면 스포일러다. 할 일을 다 한
- * 물건(빠진 물, 열린 하부장, 쥔 배트)은 열린 문처럼 빠진다.
+ * 물건(빠진 물, 열린 서랍, 쥔 배트)은 열린 문처럼 빠진다.
  */
 export function listedProps(state: PromptProgress, reached: readonly SpaceId[]): PromptProp[] {
   if (state.endingStarted) return [];
   const props: PromptProp[] = [];
-  if (reached.includes("bathroom")) {
-    if (!state.sinkDrained) props.push({ id: "sink-plug", ready: true });
-    if (!state.solvedPuzzles.includes("sink-dial")) {
-      props.push({ id: "sink-cabinet", ready: selectSinkHintRead(state) });
-    }
+  if (reached.includes("bathroom") && !state.sinkDrained) {
+    props.push({ id: "sink-plug", ready: true });
+  }
+  // 협탁 서랍은 내 방에 처음부터 있다. 번호를 알기 전에는 "아직 할 수 없음"으로 읽힌다
+  if (!state.solvedPuzzles.includes("drawer-dial")) {
+    props.push({ id: "nightstand-drawer", ready: selectDrawerCodeRead(state) });
   }
   if (storyPhaseOf(state) === "resolve") {
     if (!state.batTaken) props.push({ id: "bat", ready: true });

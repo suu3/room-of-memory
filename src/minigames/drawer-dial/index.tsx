@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { SINK_DIAL_CODE } from "@/data/room-clues";
+import { DRAWER_DIAL_CODE } from "@/data/room-clues";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
@@ -34,28 +34,28 @@ export function turnDigit(value: number, step: 1 | -1): number {
 }
 
 /** 모든 칸이 비밀번호와 맞는가. */
-export function dialMatches(digits: readonly number[], code: string = SINK_DIAL_CODE): boolean {
+export function dialMatches(digits: readonly number[], code: string = DRAWER_DIAL_CODE): boolean {
   return digits.join("") === code;
 }
 
 /**
- * 세면대 하부장의 3자리 다이얼 자물쇠 (v4 3-5). 답은 SINK_DIAL_CODE.
+ * 협탁 서랍의 3자리 다이얼 자물쇠 (v4 3-5). 답은 DRAWER_DIAL_CODE.
  *
  * 화면에는 번호가 무엇인지 적지 않는다. 숫자는 선반의 거꾸로 꽂힌 책 속 쪽지가 들고
  * 있다. 세 자리라 찍어서 맞히기 어렵고(천 가지), 방 어디에도 같은 숫자가 없어 쪽지를
  * 찾아야만 풀린다. 이 판은 아빠 힌트를 본 뒤에만 열린다 (store의 openPuzzle).
- * 그 전에 하부장을 누르면 혼잣말만 흐른다.
+ * 그 전에 협탁 서랍을 누르면 혼잣말만 흐른다.
  *
  * 3D 드럼 (v4.1): 숫자 원통을 세로로 끌어 굴린다. 끄는 동안 드럼이 손을 따라
  * 덜 넘어간 만큼 기울고, 한 눈금을 넘기면 딸깍 넘어간다. 아래로 끌면 +1.
  * 키보드: 칸을 고르고(←/→) 돌린다(↑/↓), Enter로 연다. 드럼 위아래 버튼으로도 된다.
  */
-export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
+export function DrawerDialMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
   const hint = useControlHint();
   const complete = useOnceCompleter(onComplete);
   // 누적 눈금: 9→0에서 드럼이 거꾸로 한 바퀴 돌지 않게. 숫자는 mod 10
-  const [steps, setSteps] = useState<number[]>(() => SINK_DIAL_CODE.split("").map(() => 0));
+  const [steps, setSteps] = useState<number[]>(() => DRAWER_DIAL_CODE.split("").map(() => 0));
   const digits = steps.map((value) => ((value % 10) + 10) % 10);
   const dragRef = useRef<number[]>(steps.map(() => 0));
   const dragging = useRef<{
@@ -154,11 +154,11 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
 
   return (
     <MinigameShell
-      title={t("minigame.sinkDial.title")}
-      help={hint("minigame.sinkDial.help")}
+      title={t("minigame.drawerDial.title")}
+      help={hint("minigame.drawerDial.help")}
       stats={
         fails > 0 ? (
-          <MinigameStat label={t("minigame.sinkDial.fails")} value={fails} tone="warning" />
+          <MinigameStat label={t("minigame.drawerDial.fails")} value={fails} tone="warning" />
         ) : undefined
       }
       skipVisible={!solved && (fails >= FAILS_BEFORE_SKIP || skipByTime)}
@@ -177,7 +177,7 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
           />
           <div
             role="img"
-            aria-label={t("minigame.sinkDial.alt", {
+            aria-label={t("minigame.drawerDial.alt", {
               count: digits.length,
               value: digits.join(" "),
             })}
@@ -205,7 +205,7 @@ export function SinkDialMinigame({ onComplete, onSettled }: MinigameProps) {
           className="flex cursor-pointer items-center gap-1.5 rounded-full bg-ink px-6 py-2 text-sm font-bold tracking-widest text-paper transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-default disabled:opacity-60"
         >
           <LockSimpleOpenIcon size={16} weight="bold" />
-          {t("minigame.sinkDial.open")}
+          {t("minigame.drawerDial.open")}
         </button>
       </div>
     </MinigameShell>
@@ -238,7 +238,7 @@ function DialButtonRow({
           // biome-ignore lint/suspicious/noArrayIndexKey: 고정 자리수 드럼
           key={index}
           type="button"
-          aria-label={t(direction === 1 ? "minigame.sinkDial.up" : "minigame.sinkDial.down", {
+          aria-label={t(direction === 1 ? "minigame.drawerDial.up" : "minigame.drawerDial.down", {
             index: index + 1,
           })}
           onClick={() => onTurn(index)}

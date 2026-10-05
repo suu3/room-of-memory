@@ -115,7 +115,7 @@ const KICK_LAMBDA = 5;
  */
 const SHAKE = { roll: 0.011, yaw: 0.007, lambda: 2.4, rollHz: 37, yawHz: 29 } as const;
 
-/** 카메라가 붙을 수 있는 대상: 기억 오브젝트, 엔딩(문 옆 배트), 붙들리는 물건(하부장). */
+/** 카메라가 붙을 수 있는 대상: 기억 오브젝트, 엔딩(문 옆 배트), 붙들리는 물건(협탁 서랍). */
 export type CameraFocusId = MemoryId | "ending" | CameraHoldId;
 
 export function CameraRig({
@@ -155,7 +155,7 @@ export function CameraRig({
   const preset = CAMERA_PRESETS[focusId ?? "room"];
   const follows = following && focusId === null;
   /** 크레인 샷: 조사 확대보다 깊고 프리셋 전환보다 느리다 (crane-shot.ts). */
-  const crane = focusId === "sink-cabinet";
+  const crane = focusId === "nightstand-drawer";
   const zoomGoal = crane ? craneZoomFor(roomZoom) : focusZoomFor(roomZoom, focusId !== null);
   /** 방 안으로 내려앉기 시작한 뒤 흐른 시간. following이 켜질 때 0으로 되감는다. */
   const enterElapsed = useRef(0);

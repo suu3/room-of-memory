@@ -78,21 +78,24 @@ describe("화면 밖 목록의 상태는 3D 물건과 같은 진행을 본다", 
   });
 });
 
-describe("기억이 아닌 물건 (마개 · 하부장 · 배트 · 현관문)", () => {
-  it("화장실에 닿기 전에는 세면대의 것이 오르지 않는다", () => {
-    expect(listedProps(at("p1"), ["room"])).toEqual([]);
-    expect(listedProps(at("p2"), ["room", "living"])).toEqual([]);
+describe("기억이 아닌 물건 (마개 · 협탁 서랍 · 배트 · 현관문)", () => {
+  it("협탁 서랍은 처음부터 오르지만 번호를 알기 전에는 못 연다. 마개는 화장실에 닿아야 오른다", () => {
+    const locked = [{ id: "nightstand-drawer", ready: false }];
+    expect(listedProps(at("p1"), ["room"])).toEqual(locked);
+    expect(listedProps(at("p2"), ["room", "living"])).toEqual(locked);
   });
 
-  it("화장실에 닿으면 마개와 하부장이 오르고, 하부장은 힌트를 읽기 전에는 못 연다", () => {
-    const props = listedProps(at("p3", { solvedPuzzles: [] }), ["room", "living", "bathroom"]);
-    expect(props).toEqual([
+  it("화장실에 닿으면 마개가 오르고, 책 속 번호를 보면 서랍을 열 수 있다", () => {
+    const reached = ["room", "living", "bathroom"] as const;
+    expect(listedProps(at("p3", { solvedPuzzles: [] }), reached)).toEqual([
       { id: "sink-plug", ready: true },
-      { id: "sink-cabinet", ready: false },
+      { id: "nightstand-drawer", ready: false },
     ]);
+    const read = at("p3", { solvedPuzzles: [], discoveries: ["hero-name", "drawer-code"] });
+    expect(listedProps(read, reached)).toContainEqual({ id: "nightstand-drawer", ready: true });
   });
 
-  it("물을 빼고 하부장을 열면 둘 다 빠진다", () => {
+  it("물을 빼고 서랍을 열면 둘 다 빠진다", () => {
     const props = listedProps(at("p4", { sinkDrained: true }), [
       "room",
       "living",

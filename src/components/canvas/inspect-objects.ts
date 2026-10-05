@@ -344,7 +344,7 @@ const paintDogEar: FacePainter = (ctx, { width }, palette) => {
 };
 
 /**
- * 책장 사이에 끼워 둔 쪽지. 인쇄된 본문 위에 비스듬히 얹힌 작은 종이에 아빠 손글씨로
+ * 책장 사이에 끼워 둔 쪽지. 인쇄된 본문 위에 비스듬히 얹힌 작은 종이에 손글씨로
  * 번호 세 자리. 쪽에 바로 적힌 글씨가 아니라 끼워 둔 종이라야 "남기고 간 것"으로 읽힌다.
  */
 function paintTuckedSlip(
@@ -384,7 +384,7 @@ function paintTuckedSlip(
 
 /**
  * 선반의 책: 앞표지는 야구 규칙 해설서. 장을 넘기면 세 장째 오른쪽, 귀 접힌 쪽에
- * 쪽지가 끼워져 있고 아빠 손글씨 번호가 적혀 있다. 거꾸로 꽂아 둔 건 이 쪽을 찾으라는 표시였다.
+ * 쪽지가 끼워져 있고 손으로 쓴 번호가 적혀 있다. 거꾸로 꽂아 둔 건 이 쪽을 찾으라는 표시였다.
  */
 export function shelfBookObject(title: string, number: string): InspectObject {
   const paintCover: FacePainter = (ctx, { width, height }, palette, font) => {

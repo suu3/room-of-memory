@@ -2,13 +2,15 @@
  * 방에 흩어진 단서: 기억도 트리거도 아닌 배경 오브젝트가 들고 있는 것들.
  *
  * 지금은 하나뿐이다: 컴퓨터 로그인 비밀번호. 답은 어디에도 통째로 적혀 있지 않고
- * 세 조각으로 갈라져 있다.
+ * 두 조각으로 갈라져 있다.
  *
- *   협탁 서랍 속 쪽지: "힌트: 전국대회 날짜" (도해가 예전에 적어 둔 메모)
- *   잠금 화면의 힌트 : "전국대회 날" (쪽지를 못 봤을 때의 안전망)
+ *   잠금 화면의 힌트 : "전국대회 날" (무슨 날인가)
  *   벽에 걸린 달력   : 그 날에 그어둔 표시 (며칠인가)
  *
- * 쪽지든 잠금 화면이든 "무슨 날"까지만 말한다. "달력을 봐라"처럼 다음 행동을
+ * 예전에는 협탁 서랍 속 쪽지가 같은 힌트를 한 번 더 들고 있었다. 잠금 화면과 겹쳐서 뺐고,
+ * 그 서랍은 안방 열쇠가 든 자물쇠가 됐다 (2026-10-05, PUZZLE_IDS 주석).
+ *
+ * 잠금 화면은 "무슨 날"까지만 말한다. "달력을 봐라"처럼 다음 행동을
  * 지시하면 단서가 심부름표가 된다. 숫자는 달력만 갖고 있다.
  *
  * 어느 쪽도 진행을 막지 않는다. 못 찾아도 잠금 화면이 일정 시간 뒤 스킵을
@@ -37,14 +39,14 @@ export const COMPUTER_PASSCODE_LENGTH = COMPUTER_PASSCODE.length;
 export const HERO_JERSEY_NUMBER = 11;
 
 /**
- * 세면대 하부장 다이얼(sink-dial)의 답: 세 자리. 선반의 거꾸로 꽂힌 책 속 쪽지에
- * 아빠 손글씨로 적혀 있다 (ClueOverlay의 ShelfBookInspect).
+ * 협탁 서랍 자물쇠(drawer-dial)의 답: 세 자리. 선반의 거꾸로 꽂힌 책 속 쪽지에
+ * 손글씨로 적혀 있다 (ClueOverlay의 ShelfBookInspect). 누가 적었는지는 말하지 않는다.
  *
  * 예전에는 등번호 11(두 자리)이었다. 유니폼에 늘 보이는 숫자라 책을 찾지 않아도
  * 열렸다. 방 어디에도 없는 숫자로 두어야 쪽지가 단서가 된다. 숫자를 한곳에 두는
  * 이유는 NATIONALS_DATE와 같다: 답과 그림이 갈라지면 안 된다.
  */
-export const SINK_DIAL_CODE = "407";
+export const DRAWER_DIAL_CODE = "407";
 
 /**
  * 들여다볼 수 있는 배경 오브젝트. 클릭하면 화면 가운데에 확대되어 뜬다
@@ -66,7 +68,6 @@ export const SINK_DIAL_CODE = "407";
  * 컴퓨터 3차(로고 고르기)가 이것을 본 뒤에 열린다 (VISIT_AFTER_DISCOVERY).
  */
 export const CLUE_IDS = [
-  "drawer-note",
   "wall-calendar",
   "shelf-book",
   "workbook",
@@ -86,7 +87,7 @@ export type ClueId = (typeof CLUE_IDS)[number];
  * 이름을 알기 전까지 수첩의 이름 칸과 나이 칸은 흐리고, 대사창의 화자는 "나"다.
  * 저장된다 (store의 discoveries).
  */
-export const DISCOVERY_IDS = ["hero-name", "sink-code", "raon-badge"] as const;
+export const DISCOVERY_IDS = ["hero-name", "drawer-code", "raon-badge"] as const;
 export type DiscoveryId = (typeof DISCOVERY_IDS)[number];
 
 /**
@@ -101,7 +102,6 @@ export type DiscoveryId = (typeof DISCOVERY_IDS)[number];
  * 씬 모듈을 향해 올려다보지 않는다. 짝이 맞는지는 테스트가 지킨다.
  */
 export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
-  "drawer-note": "room",
   "wall-calendar": "room",
   "shelf-book": "room",
   workbook: "room",
@@ -112,7 +112,7 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
  * 어느 단서를 뒤집어야 무엇을 알게 되는가. 단서 화면(3D 인스펙트)이 이 짝을 보고 적는다.
  *
  * "뒤집으면 보인다" (v4.1 2장): 1페이즈 문제집 뒤표지의 이름, 3페이즈 거꾸로 꽂힌 책
- * 속 쪽지의 번호(sink-code = 하부장 번호, v4.1의 dadHintRead). 같은 조작이 페이즈를
+ * 속 쪽지의 번호(drawer-code = 협탁 서랍 번호, v4.1의 dadHintRead). 같은 조작이 페이즈를
  * 따라 의미가 커진다.
  *
  * 배지는 뒤집을 것이 없다. 물을 빼는 손이 이미 "뒤집기"라, 확대 화면을 펼치는 순간이 발견이다
@@ -120,7 +120,7 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
  */
 export const CLUE_DISCOVERY = {
   workbook: "hero-name",
-  "shelf-book": "sink-code",
+  "shelf-book": "drawer-code",
   "raon-badge": "raon-badge",
 } as const satisfies Partial<Record<ClueId, DiscoveryId>>;
 
@@ -145,8 +145,11 @@ export const CLUE_AFTER_VISIT = {
  * 미궁 문제: 기억이 아니라 **잠금**이다. 수집에도 재조사에도 안 세어지고, 푼 기록만
  * solvedPuzzles에 남는다 (docs/story/content-design.md 3-2).
  *
- * sink-dial은 세면대 하부장의 다이얼이다 (v4 3-5). 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만
- * 열리고, 풀면 안방 열쇠(parents-key)가 손에 들어온다 (store의 finishPuzzle).
+ * drawer-dial은 내 방 협탁 서랍의 세 자리 자물쇠다. 책 속 쪽지의 번호(거꾸로 꽂힌 책)를 본
+ * 뒤에만 열리고, 풀면 서랍 안의 안방 열쇠가 손에 들어온다 (store의 finishPuzzle).
+ * 처음(v4 3-5)에는 화장실 세면대 하부장에 있었다. 번호는 내 방 책에서 찾고 자물쇠는 화장실에
+ * 있어서, 다이얼 하나 돌리러 화장실에 다시 가는 왕복이 심부름이 됐다 (2026-10-05에 옮겼다).
+ * 그 서랍에 있던 접힌 쪽지(컴퓨터 비밀번호 힌트)는 로그인 화면의 힌트·달력과 겹쳐서 뺐다.
  *
  * piano-melody는 거실 피아노의 멜로디 자물쇠다. 악보의 한 마디가 지워져 있고 그 마디는
  * 안방 책상의 찢어진 조각이 들고 있다: 이쪽 공간의 단서를 저쪽에서 찾는 축의 첫 매듭이다.
@@ -155,7 +158,7 @@ export const CLUE_AFTER_VISIT = {
  * 현관 잠금(angle-turn, 시계 각도 미궁)은 뺐다. 30일 만에 나가는 문 앞에서 산수를
  * 시키면 결심의 순간이 퍼즐에 묻힌다. 현관은 배트를 쥐면 바로 열린다.
  */
-export const PUZZLE_IDS = ["piano-melody", "sink-dial"] as const;
+export const PUZZLE_IDS = ["piano-melody", "drawer-dial"] as const;
 export type PuzzleId = (typeof PUZZLE_IDS)[number];
 
 /**

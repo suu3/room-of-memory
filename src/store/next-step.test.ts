@@ -57,18 +57,18 @@ describe("이지 모드의 다음 할 일", () => {
     });
   });
 
-  it("안방 열쇠 매듭: 선반의 책 → 하부장 → 안방 문", () => {
+  it("안방 열쇠 매듭: 선반의 책 → 협탁 서랍 → 안방 문", () => {
     expect(stepAt("p4", P3_DONE)).toEqual({ kind: "shelf-book" });
     expect(
-      stepAt("p4", { ...P3_DONE, discoveries: ["hero-name", "raon-badge", "sink-code"] }),
+      stepAt("p4", { ...P3_DONE, discoveries: ["hero-name", "raon-badge", "drawer-code"] }),
     ).toEqual({
-      kind: "sink-dial",
+      kind: "drawer-dial",
     });
     expect(
       stepAt("p4", {
         ...P3_DONE,
-        discoveries: ["hero-name", "raon-badge", "sink-code"],
-        solvedPuzzles: ["sink-dial"],
+        discoveries: ["hero-name", "raon-badge", "drawer-code"],
+        solvedPuzzles: ["drawer-dial"],
         inventory: ["parents-key"],
       }),
     ).toEqual({ kind: "doorway", doorway: "living-parents", to: "parents" });

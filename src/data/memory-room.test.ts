@@ -17,7 +17,7 @@ import {
 import { requiredVisits, visitConfig } from "./story-phase";
 
 /**
- * 기억이 나르면 안 되는 미궁 문제들: 물건에 붙은 잠금(하부장·피아노)이다
+ * 기억이 나르면 안 되는 미궁 문제들: 물건에 붙은 잠금(협탁 서랍·피아노)이다
  * (src/data/room-clues.ts의 PUZZLE_IDS).
  */
 const MAZE_MINIGAMES: readonly string[] = [...PUZZLE_IDS];
@@ -190,14 +190,14 @@ describe("v4 진행 형태", () => {
     }
   });
 
-  it("3페이즈: 앰플 → 컴퓨터 3차(로고). 하부장·안방 문은 퍼즐과 문이 잇는다", () => {
+  it("3페이즈: 앰플 → 컴퓨터 3차(로고). 협탁 서랍·안방 문은 퍼즐과 문이 잇는다", () => {
     expect(
       requiredVisits("p3")
         .map((ref) => `${ref.id}@${ref.visit}`)
         .sort(),
     ).toEqual(["ampoule@2", "computer@3"]);
     expect(deps(MEMORY_BY_ID.computer.phase3)).toEqual(["ampoule@2"]);
-    expect(PUZZLE_IDS).toContain("sink-dial");
+    expect(PUZZLE_IDS).toContain("drawer-dial");
   });
 
   it("4페이즈: 서류 순서 + 출입증 → 액자 2차, 액자가 끝나면 정적 비트", () => {
@@ -227,7 +227,7 @@ describe("v4 진행 형태", () => {
     expect(round1).toEqual(MEMORIES.filter((memory) => memory.phase1).map((memory) => memory.id));
   });
 
-  it("현관 잠금·하부장·피아노는 기억이 나르지 않는다. 물건에 붙은 문제다", () => {
+  it("현관 잠금·협탁 서랍·피아노는 기억이 나르지 않는다. 물건에 붙은 문제다", () => {
     const carried = MEMORIES.flatMap((memory) =>
       [memory.phase1, memory.phase2, memory.phase3].flatMap((config) =>
         config?.interaction?.minigameId ? [config.interaction.minigameId] : [],

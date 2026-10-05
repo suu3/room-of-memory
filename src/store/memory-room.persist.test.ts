@@ -54,7 +54,7 @@ describe("sanitizeProgress", () => {
         doorwayDone: false,
         openedDoorways: [],
         inventory: ["parents-key"],
-        cluesSeen: ["drawer-note"],
+        cluesSeen: ["wall-calendar"],
         autoPlay: true,
         notebookRead: ["profile:0"],
       }),
@@ -77,7 +77,7 @@ describe("sanitizeProgress", () => {
       doorwayDone: false,
       openedDoorways: [],
       inventory: ["parents-key"],
-      cluesSeen: ["drawer-note"],
+      cluesSeen: ["wall-calendar"],
       autoPlay: true,
       notebookRead: ["profile:0"],
     });
@@ -305,5 +305,17 @@ describe("저장본 불러오기", () => {
       useMemoryRoomStore.getState().reset();
       useMemoryRoomStore.setState({ soundMuted: false });
     }
+  });
+
+  it("옛 이름으로 저장된 자물쇠와 번호를 지금 이름으로 읽는다 (하부장 → 협탁 서랍)", () => {
+    const loaded = sanitizeProgress({
+      collected: [],
+      revisited: [],
+      doorOpened: true,
+      solvedPuzzles: ["sink-dial"],
+      discoveries: ["sink-code"],
+    });
+    expect(loaded.solvedPuzzles).toEqual(["drawer-dial"]);
+    expect(loaded.discoveries).toEqual(["drawer-code"]);
   });
 });

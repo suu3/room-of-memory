@@ -241,7 +241,7 @@ const ENTER_ORDER: readonly EnterablePhase[] = ["p1", "turning", "p2", "p3", "p4
 
 /**
  * 그 페이즈에 막 들어선 순간의 진행: 앞 페이즈들의 필수 조사 전부와, 페이즈를 가르는
- * 문·열쇠·하부장까지. 곁가지는 안 채운다. 개발 도구(어드민의 페이즈 건너뛰기)와
+ * 문·열쇠·협탁 서랍까지. 곁가지는 안 채운다. 개발 도구(어드민의 페이즈 건너뛰기)와
  * 테스트가 같은 상태를 쓰도록 한곳에 둔다.
  */
 export function progressAt(phase: EnterablePhase) {
@@ -268,6 +268,10 @@ export function progressAt(phase: EnterablePhase) {
         : [],
     inventory: passed("p3") ? ["parents-key"] : [],
     // 피아노는 액자 2차(4페이즈의 마지막 필수 조사) 앞의 자물쇠다 (room-clues의 VISIT_AFTER_PUZZLE)
-    solvedPuzzles: passed("p4") ? ["sink-dial", "piano-melody"] : passed("p3") ? ["sink-dial"] : [],
+    solvedPuzzles: passed("p4")
+      ? ["drawer-dial", "piano-melody"]
+      : passed("p3")
+        ? ["drawer-dial"]
+        : [],
   };
 }

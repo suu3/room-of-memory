@@ -35,7 +35,7 @@
         "doorway": "{{space}}: open the door",
         "sink-drain": "Pull the plug in the bathroom sink and drain the water",
         "shelf-book": "Look at the upside-down book on the shelf in your room",
-        "sink-dial": "Open the dial on the cabinet under the bathroom sink",
+        "drawer-dial": "Open the lock on the drawer beside my bed",
         "piano-sheet": "Pick up the torn sheet music on the desk in the Parents' Room",
         "piano": "Take the torn sheet music to the living room piano and play it"
       }
@@ -111,7 +111,7 @@
     },
     "prop": {
       "sink-plug": "Pull the sink plug",
-      "sink-cabinet": "Open the cabinet under the sink",
+      "nightstand-drawer": "Open the bedside drawer",
       "bat": "Take the bat by the front door",
       "front-door": "Open the front door and leave"
     },
@@ -457,9 +457,9 @@
         "file": "IMG_2190.jpg"
       }
     },
-    "sinkDial": {
-      "solved": "The cabinet opened.",
-      "title": "Cabinet Dial",
+    "drawerDial": {
+      "solved": "The drawer opened.",
+      "title": "Drawer Lock",
       "help": "Drag the drums up or down to roll them\n↑/↓ to turn, ←/→ to switch, Enter to open",
       "help_touch": "Roll the drums up or down with your finger, then tap Open",
       "fails": "Wrong tries",
@@ -632,12 +632,6 @@
   "clue": {
     "read": "Look at the {{name}}",
     "close": "Put it back",
-    "drawerNote": {
-      "title": "Folded Note",
-      "caption": "A note I jotted down a while back.",
-      "l1": "7/15 Changed computer password",
-      "l2": "Hint: nationals date"
-    },
     "wallCalendar": {
       "title": "Wall Calendar",
       "caption": "Only one day is circled."
@@ -675,7 +669,7 @@
   "items": {
     "parents-key": {
       "name": "Parents' Room Key",
-      "note": "It was sitting on the bathroom sink."
+      "note": "It was in the drawer beside my bed."
     },
     "piano-sheet": {
       "name": "Torn Sheet Music",
@@ -717,8 +711,8 @@
     "computerOff": "No internet anyway, even if I turn it on.",
     "locked": "…Not yet.",
     "toothbrush": "Three toothbrushes. …Only one is wet.",
-    "sinkLocked": "Locked. Did Mom lock it?",
-    "sinkOpen": "…The key to their room.",
+    "drawerLocked": "Locked. I'll need the number to open it.",
+    "drawerOpen": "…The house keys. These will open their room, too.",
     "pianoDone": "…I used to play this as a kid. My hands still remember.",
     "sheetTaken": "…A scrap of sheet music. From the piano in the living room?",
     "parentsLocked": "Their room is locked.",

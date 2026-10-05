@@ -28,7 +28,7 @@
 | --- | --- | --- |
 | `heardSurvivorBroadcast` | `selectHeardSurvivorBroadcast` | 라디오 2차 |
 | `momChatRead` | `selectMomChatRead` | 폰 2차 |
-| `logoMatched`, `dadHintRead` | `selectSinkHintRead` | 컴퓨터 3차 (라온 로고 고르기 → 메일이 한 화면). 컴퓨터 3차 자체는 세면대 바닥의 배지(`selectBadgeSeen`) 뒤에 열린다 |
+| `logoMatched`, `dadHintRead` | `selectDrawerCodeRead` | 컴퓨터 3차 (라온 로고 고르기 → 메일이 한 화면). 컴퓨터 3차 자체는 세면대 바닥의 배지(`selectBadgeSeen`) 뒤에 열린다 |
 | `stillBeatDone` | `selectStillBeatDone` | resolve 도달 |
 | `deadline` | `selectDeadline` | p2 이후 = 4. 방송부터 현관까지 하루 안의 일이라 줄지 않는다 |
 
@@ -43,13 +43,18 @@
 | p1 | 문제집(이름 · 자기소개) → 강도 0(성적표) → 강도 1(게임기·공) → 강도 2(액자·폰) → 달력(폰 뒤)·창문(강도 2 뒤) → 라디오 | `memories.yaml`의 `unlockAfter` |
 | turning | 빨간 라디오 → 생존자 방송 컷씬 → 방문 금빛 | 라디오 `phase2.cutscene` |
 | p2 | 가방·냉장고 위칸·신발장·카드·컴퓨터(로그인 0812) → 폰 2차(엄마 대화방) | `from: p2` |
-| p3 | 앰플 → 세면대 마개를 뽑아 물 빼기(`sinkDrained`) → 바닥의 출입증 배지(단서 `raon-badge`: 확대 화면 + 한 줄) → 컴퓨터 3차(라온 로고 고르기 · 아빠 메일 힌트) → 거꾸로 꽂힌 책 → 하부장 다이얼 407 → 안방 열쇠 | `from: p3`, `VISIT_AFTER_DISCOVERY`, 퍼즐 `sink-dial` |
+| p3 | 앰플 → 세면대 마개를 뽑아 물 빼기(`sinkDrained`) → 바닥의 출입증 배지(단서 `raon-badge`: 확대 화면 + 한 줄) → 컴퓨터 3차(라온 로고 고르기 · 아빠 메일 힌트) → 거꾸로 꽂힌 책 → 내 방 협탁 서랍의 자물쇠 407 → 안방 열쇠 | `from: p3`, `VISIT_AFTER_DISCOVERY`, 퍼즐 `drawer-dial` |
 | p4 | 연구 일지(서류 순서 맞추기. 소집 공지는 그 조각 하나다) · 출입증 → p4-close → 책상의 악보 조각 → 거실 피아노 → 액자 2차 → 정적 비트 | `from: p4`, 퍼즐 `piano-melody`(`VISIT_AFTER_PUZZLE`), 액자 `phase2.cutscene` |
 | resolve | 챙길 것 셋이 동시에 금빛(순서 자유): 가방 3차(`duffel-take`) · 앰플 3차(`ampoule-pickup`) · 배트(`bat-grip`) → 셋 다 챙기면 혼잣말 "나가자." → 현관문 | `from: resolve`, `packedForExit` |
 
-- 1페이즈의 닫힌 방문과 꺼진 컴퓨터, 화장실 칫솔컵, 힌트 전의 하부장은 누르면 혼잣말
+- 1페이즈의 닫힌 방문과 꺼진 컴퓨터, 화장실 칫솔컵, 번호를 알기 전의 협탁 서랍은 누르면 혼잣말
   한 줄이 흐른다 (`RemarkLine`, 스토어의 `remark`).
 - 게임기·공의 2차는 곁가지(`side: true`)로 남겼다.
+- 세 자리 자물쇠는 화장실 세면대 하부장에서 **내 방 협탁 서랍**으로 옮겼다 (2026-10-05).
+  번호를 내 방 책에서 찾고 화장실로 되돌아가는 왕복이 심부름이었다. 지금은 화장실(마개·배지)
+  → 내 방(컴퓨터 3차 → 책 → 서랍 → 열쇠) → 거실의 안방 문으로 한 번에 간다. 그 서랍에 있던
+  접힌 쪽지(컴퓨터 비밀번호 힌트)는 로그인 화면의 힌트와 겹쳐서 뺐다. 하부장은 배경이다.
+  옛 저장본의 `sink-dial` · `sink-code`는 읽을 때 새 이름으로 옮긴다 (`sanitizeProgress`).
 - 피아노는 필수다 (2026-10-05, 곁가지에서). 풀어야 액자 2차가 열린다
   (`src/data/room-clues.ts`의 `VISIT_AFTER_PUZZLE`). 물건을 가져와 푸는 자물쇠 꼴인데 풀어도
   아무것도 안 열려서, 해 본 사람마다 왜 있는지 물었다. p4-close는 액자가 열릴 때가 아니라
@@ -77,7 +82,7 @@
 | --- | --- | --- |
 | 라디오 | 튜닝 → 재난 방송 | 퀴즈가 아니다. 주파수를 잡으면(`frequency-tune`) 라디오가 꺼지고, 노이즈 앞의 한 줄 → 정적 → 그날의 방송이 radio-blackout 컷씬 앞머리에 흐른다. 방송 동안 화면 위 혼잣말 자리에 도해의 속말이 떴다 진다 (컷의 `whispers`) |
 | 컴퓨터 로그인 | 0812 | 기존 (`COMPUTER_PASSCODE`) |
-| 세면대 하부장 | 407 | `sink-dial` 퍼즐 (v4.1부터 3D 숫자 드럼, `DialDrums`). 답은 `SINK_DIAL_CODE` 한 곳에서 오고 거꾸로 꽂힌 책 속 쪽지에만 적혀 있다 (예전의 등번호 11은 유니폼에 늘 보여 단서가 아니었다) |
+| 협탁 서랍 | 407 | `drawer-dial` 퍼즐 (v4.1부터 3D 숫자 드럼, `DialDrums`). 답은 `DRAWER_DIAL_CODE` 한 곳에서 오고 거꾸로 꽂힌 책 속 쪽지에만 적혀 있다 (예전의 등번호 11은 유니폼에 늘 보여 단서가 아니었다) |
 | 세면대 마개 → 출입증 배지 | 퍼즐 아님 | 마개를 누르면 물이 빠지고(`SinkWater`의 `uLevel`) 바닥의 배지가 금빛으로 부른다. 누르면 확대 화면(로고 + 이름)과 내려놓을 때의 한 줄(`badge-found`). 이 이름이 컴퓨터 3차 "라온생명과학연구소의 로고를 고르세요"의 답이다 |
 
 ## 6. 에셋: 아직 비어 있는 것
@@ -125,7 +130,7 @@
 ## 10. 개발 도구
 
 dev 서버에서 `` ` `` 키로 여는 어드민 패널에 **phase** 버튼 줄이 있다. 누르면 그 페이즈에
-막 들어선 순간으로 건너뛴다 (`progressAt`: 앞 페이즈의 필수 조사와 문·열쇠·하부장까지).
+막 들어선 순간으로 건너뛴다 (`progressAt`: 앞 페이즈의 필수 조사와 문·열쇠·서랍 자물쇠까지).
 
 ## 11. v4.1 추가분 (개발설계_추가분_v4.1)
 
@@ -135,7 +140,7 @@ v4.1이 v4보다 우선한다. 바뀐 것만 적는다.
 
 부모님 대사·문자·메일에서 물결과 이모지를 뺐다. 웃음은 "하하하!"로 쓴다. 엄마 7:12 문자는
 "도해야 오늘 학교 끝나면 독서실 가지 말고 바로 집에 와. 딴 데 가지 말고", 아빠 메일(컴퓨터
-3차)은 "선반 정리 좀 해라."다. 하부장 번호를 메일이 직접 말하지 않는다.
+3차)은 "선반 정리 좀 해라."다. 서랍 자물쇠 번호를 메일이 직접 말하지 않는다.
 
 ### 3D 인스펙트
 
@@ -150,7 +155,7 @@ v4.1이 v4보다 우선한다. 바뀐 것만 적는다.
 | 문제집 | 단서 `workbook` (1페이즈) | 돌리기 | 뒤표지의 이름 | 기존 |
 | 카드 밑의 쪽지 | `card-flip` (카드 2차) | 위로 끌어 펼치기 | 안쪽의 엄마 메모 | 없음 (코드 그림: 글씨가 언어를 따른다) |
 | 보냉 케이스 → 앰플 | `ampoule-case` (앰플 2차) | 돌리기 | 옆면의 빈 슬롯 → 라벨의 로고 | `mg-ampoule-label.webp` |
-| 거꾸로 꽂힌 책 | 단서 `shelf-book` (컴퓨터 3차 뒤) | 장 넘기기 | 세 장째 귀 접힌 쪽에 끼워 둔 쪽지의 세 자리(`SINK_DIAL_CODE`) → `sink-code` 발견 | 없음 (쪽지는 코드로 그린다) |
+| 거꾸로 꽂힌 책 | 단서 `shelf-book` (컴퓨터 3차 뒤) | 장 넘기기 | 세 장째 귀 접힌 쪽에 끼워 둔 쪽지의 세 자리(`DRAWER_DIAL_CODE`) → `drawer-code` 발견 | 없음 (쪽지는 코드로 그린다) |
 | 출입증 | `id-card-flip` (출입증 2차) | 돌리고 기울이기 | 사진 위 홀로그램 씰의 라온 로고 (한 각도에서만) | `mg-id-card-{front,back}.webp` |
 
 `ampoule-pickup`(씬 안 canvas 판)은 떠나기 전 앰플 3차가 쓴다. 3페이즈의 `ampoule-case`는 앰플을 들여다보고 내려놓고(서랍은 닫힌 채), 마지막에 서랍에서 집어 든다.
@@ -164,7 +169,7 @@ v4.1이 v4보다 우선한다. 바뀐 것만 적는다.
 | tripDoubted | 신발장 2차 + 컴퓨터 2차 ("2박 3일"). 빈 옷걸이는 신발장 대사로 합쳤다 | `tripDoubted` → 컷씬 `trip-doubt` |
 | timeGapNoticed | 폰 2차 (엄마 문자 7:12 vs 첫 보도) | `selectMomChatRead` (폰 2차와 같은 조건이라 따로 두지 않는다) |
 | momCardRead | 카드 2차 | 셀렉터 없음: 읽는 곳이 없다 (`revisited`에 `cards`) |
-| dadHintRead | 책 속 쪽지의 번호를 봤다 (`sink-code`) | `selectSinkHintRead`. 하부장이 이것 뒤에 열린다 |
+| dadHintRead | 책 속 쪽지의 번호를 봤다 (`drawer-code`) | `selectDrawerCodeRead`. 협탁 서랍이 이것 뒤에 열린다 |
 | badgeSeen (2026-10-01 추가) | 세면대 바닥의 출입증 배지를 들여다봤다 (`raon-badge`). 물을 빼야(`sinkDrained`, 저장) 나온다 | `selectBadgeSeen`. 컴퓨터 3차가 이것 뒤에 열린다 |
 | papersOrdered | 연구 일지 2차 (서류 순서 맞추기) | `selectPapersOrdered` |
 | idCardFlipped | 출입증 2차 | `selectIdCardFlipped` |

@@ -22,7 +22,6 @@ import {
   CURTAIN_STAND,
   DESK_ROTATION,
   DOORWAY_ZONE,
-  DRAWER_NOTE,
   DRAWER_TRAVEL,
   FRONT_DOOR_INTERACTION,
   FRONT_DOOR_INWARD,
@@ -478,31 +477,6 @@ describe("pulled furniture", () => {
     // 책상 쪽으로는 자리가 남아야 물러나는 게 보인다
     expect(CHAIR_PULL.distance).toBeGreaterThan(0.2);
     expect(CHAIR_PULL.turn).toBeGreaterThan(0);
-  });
-});
-
-/**
- * 비밀번호 단서를 든 배경 오브젝트. 기억이 아니라 소품이라 표식이 없으므로,
- * "만져지는 자리에 있는가"를 좌표로만 지켜야 한다.
- */
-describe("clue props", () => {
-  it("hides the drawer note until the drawer opens", () => {
-    const body = { topY: 0.955, frontZ: 1.16 };
-    const [, noteY, noteZ] = DRAWER_NOTE.position;
-    const [width, thickness, depth] = DRAWER_NOTE.size;
-    const turn = DRAWER_NOTE.rotation[1];
-    // 돌아간 종이는 z로 두꺼워진다. 축에 나란한 반깊이로 재면 여유를 잘못 센다
-    const halfDepth =
-      (depth / 2) * Math.abs(Math.cos(turn)) + (width / 2) * Math.abs(Math.sin(turn));
-    const drawerFaceTopY = 0.72 + 0.28 / 2;
-
-    // 닫혀 있으면 협탁 몸통 안에 완전히 잠긴다
-    expect(noteY + thickness / 2).toBeLessThan(body.topY);
-    expect(noteZ + halfDepth).toBeLessThan(body.frontZ);
-
-    // 열리면 몸통 밖으로 나오고, 서랍판 윗변보다 높아 위에서 내려다보인다
-    expect(noteZ + DRAWER_TRAVEL.nightstand - halfDepth).toBeGreaterThan(body.frontZ);
-    expect(noteY).toBeGreaterThan(drawerFaceTopY);
   });
 });
 

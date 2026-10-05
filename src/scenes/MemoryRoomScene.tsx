@@ -297,7 +297,7 @@ export function MemoryRoomScene({
   const canvasPuzzle = useMemoryRoomStore(selectCanvasPuzzle);
   const walkTo = useMemoryRoomStore((state) => state.walkTo);
   /*
-   * 붙들린 카메라 (크레인 샷): 하부장이 열리면 열쇠가 있던 칸으로 밀고 들어갔다가, 머무는
+   * 붙들린 카메라 (크레인 샷): 협탁 서랍이 열리면 열쇠가 있던 칸으로 밀고 들어갔다가, 머무는
    * 시간이 끝나면 놓는다. 시계는 여기서 잰다. 스토어는 시간을 모르는 게 낫다 (remark와 같다).
    */
   const cameraHold = useMemoryRoomStore((state) => state.cameraHold);

@@ -98,7 +98,7 @@ export type HotspotStatus = "locked" | "available" | "done";
  * 흘리는 말이다. 본문은 common.json의 remark.* (문은 door.*).
  */
 /** 카메라가 붙들릴 수 있는 대상. 기억이 아닌 물건이라 CameraFocusId와 따로 센다. */
-export type CameraHoldId = "sink-cabinet";
+export type CameraHoldId = "nightstand-drawer";
 
 /** 같은 혼잣말을 다시 띄우기까지의 틈(ms). RemarkLine이 한 줄을 세워 두는 최소 시간과 같다. */
 const REMARK_REPEAT_MS = 3200;
@@ -108,8 +108,8 @@ export type RemarkId =
   | "door-ready"
   | "computer-off"
   | "toothbrush"
-  | "sink-locked"
-  | "sink-open"
+  | "drawer-locked"
+  | "drawer-open"
   | "piano-done"
   // 안방 책상의 악보 조각을 집은 순간: 거실 피아노의 것임을 짚는다
   | "sheet-taken"
@@ -345,7 +345,7 @@ export interface MemoryRoomState {
    */
   curtainGrab: { side: CurtainSide; held: boolean; arrived: boolean } | null;
   /**
-   * 지금 들여다보고 있는 단서 (책상 위 기록 노트 · 서랍 속 쪽지).
+   * 지금 들여다보고 있는 단서 (벽의 달력 · 선반의 책).
    *
    * 전등 스위치와 같은 배경 오브젝트라 진행에는 아무것도 남기지 않는다. 저장도
    * 안 하고 수집·엔딩 조건에도 끼지 않는다. 스토어가 드는 이유는 하나: 만지는
@@ -419,7 +419,7 @@ export interface MemoryRoomState {
   notebookRead: string[];
   /**
    * 지금 흐르는 혼잣말 한 줄과 그 시각 (없으면 null). 닫힌 방문·꺼진 컴퓨터·칫솔컵·
-   * 잠긴 하부장처럼 눌러도 조사가 아닌 물건이 한 줄을 흘리는 신호다 (RemarkLine).
+   * 잠긴 협탁 서랍처럼 눌러도 조사가 아닌 물건이 한 줄을 흘리는 신호다 (RemarkLine).
    * 방문의 줄은 잠긴 게 아니라 **안 여는** 것이라는 걸 말한다 (docs/story/content-design.md 3-1).
    */
   remark: { id: RemarkId; at: number; memoryId?: MemoryId } | null;
@@ -430,7 +430,7 @@ export interface MemoryRoomState {
    */
   heardIntros: string[];
   /**
-   * 카메라가 붙들려 있는 대상 (없으면 null). 조사도 재생도 아닌 연출 한 컷: 하부장이 열리는
+   * 카메라가 붙들려 있는 대상 (없으면 null). 조사도 재생도 아닌 연출 한 컷: 협탁 서랍이 열리는
    * 순간 열쇠가 있던 칸으로 밀고 들어가는 크레인 샷 (scenes/memory-room/camera/crane-shot.ts).
    * 붙들린 동안 씬 입력은 잠기고(selectSceneInputLocked), 씬이 시간을 재서 놓는다(endCameraHold).
    * 화면 상태라 저장하지 않는다.
@@ -667,7 +667,7 @@ export const selectDeadline = (state: MemoryRoomState) => deadlineOf(storyPhaseO
 /**
  * 이 단서를 지금 펼칠 수 있는가.
  *
- * 대부분은 늘 열려 있다 (서랍 속 쪽지 = 방에 처음부터 놓인 물건). 예외는 조사를
+ * 대부분은 늘 열려 있다 (거울 = 방에 처음부터 놓인 물건). 예외는 조사를
  * 마친 뒤에야 배경 오브젝트가 되는 달력이다. 조사 전에 열면 미니게임이 보여줄
  * 것을 먼저 보여주는 셈이고, 그 안의 표시가 컴퓨터 비밀번호라 순서가 무너진다.
  */
@@ -944,6 +944,23 @@ const RENAMED_MEMORY_IDS: Record<string, string> = { nintendo: "console" };
 const renamedMemoryId = (id: string) => RENAMED_MEMORY_IDS[id] ?? id;
 
 /**
+ * 이름이 바뀐 퍼즐·발견 id (옛 → 지금). 세 자리 자물쇠가 세면대 하부장에서 협탁 서랍으로
+ * 옮겨가며 이름도 바뀌었다 (2026-10-05). 옛 저장본이 이미 푼 자물쇠를 다시 풀게 하지 않는다.
+ */
+const RENAMED_SAVE_IDS: Record<string, string> = {
+  "sink-dial": "drawer-dial",
+  "sink-code": "drawer-code",
+};
+
+/** 저장본의 목록에 이 id가 들어 있는가 (옛 이름으로 적힌 것도 센다). */
+function savedHas(list: unknown, id: string): boolean {
+  return (
+    Array.isArray(list) &&
+    list.some((item) => typeof item === "string" && (RENAMED_SAVE_IDS[item] ?? item) === id)
+  );
+}
+
+/**
  * 저장본을 지금 스키마에 맞춰 걸러낸다.
  *
  * 저장된 뒤에 기억 목록이 바뀌면(이름 변경·삭제) 없는 id가 남는다. 그대로 두면
@@ -1000,14 +1017,12 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     saved.batTaken === true &&
     endingReady({ collected, revisited, rechecked, doorOpened, openedDoorways });
   const sinkDrained = saved.sinkDrained === true && openedDoorways.includes("living-bathroom");
-  const discoveries = Array.isArray(saved.discoveries)
-    ? DISCOVERY_IDS.filter(
-        (id) =>
-          (saved.discoveries as unknown[]).includes(id) &&
-          // 배지는 물 밑에 있었다. 물을 안 뺀 저장본이 봤을 리 없다
-          (id !== "raon-badge" || sinkDrained),
-      )
-    : [];
+  const discoveries = DISCOVERY_IDS.filter(
+    (id) =>
+      savedHas(saved.discoveries, id) &&
+      // 배지는 물 밑에 있었다. 물을 안 뺀 저장본이 봤을 리 없다
+      (id !== "raon-badge" || sinkDrained),
+  );
   const inventory = Array.isArray(saved.inventory)
     ? ITEM_IDS.filter((id) => (saved.inventory as unknown[]).includes(id))
     : [];
@@ -1018,9 +1033,7 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     rechecked,
     doorOpened,
     batTaken,
-    solvedPuzzles: Array.isArray(saved.solvedPuzzles)
-      ? PUZZLE_IDS.filter((id) => (saved.solvedPuzzles as unknown[]).includes(id))
-      : [],
+    solvedPuzzles: PUZZLE_IDS.filter((id) => savedHas(saved.solvedPuzzles, id)),
     discoveries,
     endingStarted: saved.endingStarted === true && batTaken,
     // 이 값을 모르는 옛 저장본은 기억을 하나라도 봤으면 수첩도 안다고 본다
@@ -1469,8 +1482,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           // 다른 화면(대사·미니게임·재생·단서·크레인 샷·모달)이 떠 있으면 위에 얹지 않는다
           if (selectSceneInputLocked(state) || state.activeClue) return state;
           if (state.activePuzzle || state.solvedPuzzles.includes(id)) return state;
-          // 하부장 다이얼은 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만 연다 (v4 3-5)
-          if (id === "sink-dial" && !selectSinkHintRead(state)) return state;
+          // 협탁 서랍 다이얼은 아빠 메일 힌트(컴퓨터 3차)를 본 뒤에만 연다 (v4 3-5)
+          if (id === "drawer-dial" && !selectDrawerCodeRead(state)) return state;
           /*
            * 악보 조각 없이 피아노를 열면 판은 서되(지워진 마디를 보는 화면이다) 여는
            * 순간 "한 마디가 안 보인다"는 줄을 먼저 띄운다. 건반을 눌러야 나오면 판이
@@ -1514,18 +1527,18 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           if (!result.cleared) return { activePuzzle: null, puzzleCleared: false };
           const solved = state.activePuzzle;
           /*
-           * 하부장이 열리면 그 안의 안방 열쇠가 손에 들어온다 (v4 3-5). 집는 동작을 따로
-           * 두지 않는다: 열린 칸 안에 열쇠 하나뿐이라 한 번 더 누르게 하면 심부름이다.
+           * 협탁 서랍이 열리면 그 안의 안방 열쇠가 손에 들어온다. 집는 동작을 따로
+           * 두지 않는다: 열린 서랍 안에 열쇠 하나뿐이라 한 번 더 누르게 하면 심부름이다.
            */
           const reward: Partial<MemoryRoomState> =
-            solved === "sink-dial"
+            solved === "drawer-dial"
               ? {
                   inventory: state.inventory.includes("parents-key")
                     ? state.inventory
                     : [...state.inventory, "parents-key"],
-                  remark: { id: "sink-open", at: Date.now() },
-                  // 열쇠가 있던 칸으로 카메라가 밀고 들어간다 (crane-shot.ts)
-                  cameraHold: "sink-cabinet" as const,
+                  remark: { id: "drawer-open", at: Date.now() },
+                  // 열쇠가 있던 서랍으로 카메라가 밀고 들어간다 (crane-shot.ts)
+                  cameraHold: "nightstand-drawer" as const,
                 }
               : solved === "piano-melody"
                 ? { remark: { id: "piano-done", at: Date.now() } }
@@ -1958,8 +1971,8 @@ export const selectCollectedCount = (state: MemoryRoomState) => state.collected.
 export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.length;
 
 /**
- * 하부장 번호를 알았는가 (v4.1의 dadHintRead). 아빠 메일("선반 정리 좀 해라.")을 읽고,
- * 거꾸로 꽂힌 책을 넘겨 끼워 둔 쪽지의 번호를 본 순간 선다 (discoveries의 sink-code).
+ * 협탁 서랍 번호를 알았는가 (v4.1의 dadHintRead). 아빠 메일("선반 정리 좀 해라.")을 읽고,
+ * 거꾸로 꽂힌 책을 넘겨 끼워 둔 쪽지의 번호를 본 순간 선다 (discoveries의 drawer-code).
  */
 /** 피아노의 지워진 마디를 봤는가: 안방 악보 조각의 표식이 이걸로 켜진다. */
 /**
@@ -1969,8 +1982,8 @@ export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.
  */
 export const selectSheetBeckons = (state: MemoryRoomState) =>
   !state.solvedPuzzles.includes("piano-melody") && (state.pianoGapSeen || p4FinalReached(state));
-export const selectSinkHintRead = (state: Pick<MemoryRoomState, "discoveries">) =>
-  state.discoveries.includes("sink-code");
+export const selectDrawerCodeRead = (state: Pick<MemoryRoomState, "discoveries">) =>
+  state.discoveries.includes("drawer-code");
 /** 세면대 바닥의 출입증 배지를 봤는가: 컴퓨터 3차(로고 고르기)가 이것 뒤에 열린다. */
 export const selectBadgeSeen = (state: Pick<MemoryRoomState, "discoveries">) =>
   state.discoveries.includes("raon-badge");

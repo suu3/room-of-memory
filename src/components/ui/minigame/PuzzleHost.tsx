@@ -79,7 +79,7 @@ function PuzzleResultCard({ line, onContinue }: { line: string; onContinue: () =
 
 /**
  * 미궁 문제 호스트: 기억 인터랙션 밖에서 도는 미니게임 (거실 피아노,
- * 세면대 하부장 다이얼. 목록은 room-clues.ts의 PUZZLE_IDS).
+ * 협탁 서랍 다이얼. 목록은 room-clues.ts의 PUZZLE_IDS).
  *
  * MinigameHost와 닮았지만 더 단순하다: 시작 카드가 없고(미궁은 규칙 설명이
  * 없는 게 규칙이라 카드에 적을 것도 없다. 그림을 바로 들이민다), 결과 대사

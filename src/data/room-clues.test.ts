@@ -49,10 +49,6 @@ describe("컴퓨터 비밀번호 단서", () => {
     const keys = [
       "read",
       "close",
-      "drawerNote.title",
-      "drawerNote.caption",
-      "drawerNote.l1",
-      "drawerNote.l2",
       "wallCalendar.title",
       "wallCalendar.caption",
       "workbook.title",

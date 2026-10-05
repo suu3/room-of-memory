@@ -345,8 +345,8 @@ function Trophy({ palette, position }: { palette: RoomPalette; position: Vec3Tup
 const NUMBER_CANVAS = { width: 128, height: 96 } as const;
 
 /**
- * 유니폼 등판의 등번호 (v4 설계서 3-5). 하부장 다이얼의 답은 아니다: 답은 선반 책 속
- * 쪽지의 세 자리다 (room-clues의 SINK_DIAL_CODE). 숫자는 room-clues의
+ * 유니폼 등판의 등번호 (v4 설계서 3-5). 협탁 서랍 다이얼의 답은 아니다: 답은 선반 책 속
+ * 쪽지의 세 자리다 (room-clues의 DRAWER_DIAL_CODE). 숫자는 room-clues의
  * HERO_JERSEY_NUMBER 한 곳에서 온다.
  *
  * 글자는 캔버스에 한 번 구워 판에 붙인다. 폰트를 3D로 불러오면 번호 하나 때문에

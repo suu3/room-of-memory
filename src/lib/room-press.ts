@@ -5,8 +5,8 @@ import {
   selectDoorReady,
   selectDoorwayOpen,
   selectDoorwayReady,
+  selectDrawerCodeRead,
   selectExitReady,
-  selectSinkHintRead,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 
@@ -57,17 +57,20 @@ export function pressSinkPlug(): void {
   state.drainSink();
 }
 
-/** 세면대 하부장을 누른다. 아빠 메일의 힌트를 읽기 전에는 거절음과 한 줄뿐이다. */
-export function pressSinkCabinet(): void {
+/**
+ * 협탁 서랍을 누른다. 책 속 쪽지의 번호를 보기 전에는 거절음과 한 줄뿐이다: 번호를 모르는
+ * 채로 자물쇠 판을 열어 주면 세 자리를 전부 돌려 보는 일이 된다.
+ */
+export function pressNightstandDrawer(): void {
   const state = useMemoryRoomStore.getState();
-  if (state.solvedPuzzles.includes("sink-dial")) return;
-  if (selectSinkHintRead(state)) {
+  if (state.solvedPuzzles.includes("drawer-dial")) return;
+  if (selectDrawerCodeRead(state)) {
     playSound("open");
-    state.openPuzzle("sink-dial");
+    state.openPuzzle("drawer-dial");
     return;
   }
   playSound("deny");
-  state.sayRemark("sink-locked");
+  state.sayRemark("drawer-locked");
 }
 
 /** 현관의 배트를 쥔다. 떠나기로 하기 전(resolve 전)이거나 이미 쥐었으면 아무 일도 없다. */

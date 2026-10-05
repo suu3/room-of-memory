@@ -146,14 +146,14 @@ export const MINIGAMES: Record<string, MinigameDefinition> = {
     titleKey: "minigame.papersOrder.title",
     helpKey: "minigame.papersOrder.help",
   },
-  "sink-dial": {
-    id: "sink-dial",
-    // 세면대 하부장의 3자리 다이얼 (v4 3-5). 미궁 문제(PuzzleHost)로 돈다. 답은 책 속 쪽지의 번호
+  "drawer-dial": {
+    id: "drawer-dial",
+    // 협탁 서랍의 3자리 다이얼 (v4 3-5). 미궁 문제(PuzzleHost)로 돈다. 답은 책 속 쪽지의 번호
     mode: "overlay",
-    component: lazy(() => import("./sink-dial").then((m) => ({ default: m.SinkDialMinigame }))),
-    titleKey: "minigame.sinkDial.title",
-    helpKey: "minigame.sinkDial.help",
-    solvedKey: "minigame.sinkDial.solved",
+    component: lazy(() => import("./drawer-dial").then((m) => ({ default: m.DrawerDialMinigame }))),
+    titleKey: "minigame.drawerDial.title",
+    helpKey: "minigame.drawerDial.help",
+    solvedKey: "minigame.drawerDial.solved",
   },
   "piano-melody": {
     id: "piano-melody",

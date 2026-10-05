@@ -1,7 +1,7 @@
 import type { MemoryId } from "@/data/memory-room";
 import type { SeatId } from "@/types/seat";
 import { BED_COLLIDER } from "./bed";
-import type { Aabb2, CameraPreset, EulerTuple, MemoryPlacement, Vec3Tuple } from "./types";
+import type { Aabb2, CameraPreset, MemoryPlacement, Vec3Tuple } from "./types";
 
 export const ROOM_SHELL_BOUNDS: Aabb2 = { minX: -6, maxX: 8, minZ: -4, maxZ: 6.5 };
 export const ROOM_SHELL_CENTER = [
@@ -557,38 +557,10 @@ export const MIRROR_PLACEMENT = {
   interactionRadius: 1.6,
 } as const;
 
-/*
- * 컴퓨터 비밀번호 단서를 든 배경 오브젝트.
- *
- * 기억이 아니라 방의 소품이라 MEMORY_PLACEMENTS와 따로 둔다. 수집 카운터에도
- * 해금 규칙에도 끼지 않고, 만져도 진행에는 아무 일이 없다 (전등 스위치와 같은
- * 성격). 무엇이 적혀 있는지는 src/data/room-clues.ts에 있다.
- */
-
-/**
- * 협탁 서랍 속 접힌 쪽지. 서랍 부품과 같은 월드 프레임(닫힌 상태)이고, 서랍
- * 그룹이 통째로 +z로 밀려 나갈 때 같이 나온다.
- *
- * y는 서랍판 윗변(0.86)보다 높고 협탁 몸통 윗면(0.955)보다 낮다. 닫혀 있으면
- * 몸통 안에 잠겨 안 보이고, 열리면 서랍판 너머로 위에서 내려다보인다.
- */
-export const DRAWER_NOTE = {
-  position: [6.8, 0.89, 1.05] as Vec3Tuple,
-  /**
-   * 아무렇게나 던져둔 각도. 크게 틀면 돌아간 만큼 z로 두꺼워져서, 서랍이 다 나와도
-   * (0.24) 몸통 앞을 못 벗어난다. layout.test가 그 여유를 지킨다.
-   */
-  rotation: [0, 0.12, 0] as EulerTuple,
-  /** [가로, 두께, 세로]. 서랍 안쪽 폭(0.72)에 한참 못 미쳐야 쪽지로 읽힌다. */
-  size: [0.26, 0.012, 0.14] as Vec3Tuple,
-  near: [6.8, 1.16] as readonly [number, number],
-  interactionRadius: 2.1,
-} as const;
-
 /**
  * 들여다볼 수 있는 곁가지 물건들의 다가감 판정. 3D는 각자 제 자리(RoomDecor·
- * RoomFurniture)에서 그리고, 여기엔 기준점과 반경만 모은다. 서랍 속 쪽지와 달리
- * 이 둘은 원래 있던 장식을 그대로 쓰므로 좌표를 새로 잡을 게 없다.
+ * RoomFurniture)에서 그리고, 여기엔 기준점과 반경만 모은다. 원래 있던 장식을 그대로
+ * 쓰므로 좌표를 새로 잡을 게 없다.
  */
 export const CLUE_PROPS = {
   /** 뒷벽 선반에 꽂힌 책들 중 한 권 (RoomDecor의 SHELF_BOOKS). */
@@ -886,13 +858,12 @@ export const CAMERA_PRESETS = {
   "research-note": { position: [-16.3, 3.4, 8.6], target: [-18.94, 1.1, 6.0] },
   "id-card": { position: [-15.4, 3.3, 8.4], target: [-17.8, 1.1, 6.05] },
   /*
-   * 화장실 세면대 하부장: 열쇠가 나오는 순간의 크레인 샷 (crane-shot.ts). 타깃은 하부장
-   * 상자의 중심(BathroomShell의 CABINET)이고, 방향은 거실 물건들과 같은 +x·+z다. 하부장은
-   * 안쪽 벽(+z)에 붙어 있어 이 방향에서는 윗면과 벌어진 문짝이 보인다. 문 안을 들여다보는
-   * 각도가 아니라 "저 작은 칸"으로 밀고 들어가는 각도다.
+   * 내 방 협탁 서랍: 자물쇠가 풀리고 열쇠가 나오는 순간의 크레인 샷 (crane-shot.ts). 타깃은
+   * 서랍판(RoomFurniture의 NIGHTSTAND_DRAWER)이고, 방향은 방의 다른 물건들과 같은 +x·+z다.
+   * 서랍이 +z로 밀려 나오므로 이 방향에서는 열린 서랍 안이 위에서 내려다보인다.
    */
-  "sink-cabinet": { position: [-9.63, 2.1, 12.19], target: [-12.25, 0.4, 9.69] },
-} as const satisfies Record<"room" | "ending" | "sink-cabinet" | MemoryId, CameraPreset>;
+  "nightstand-drawer": { position: [9.3, 2.6, 3.7], target: [6.8, 0.8, 1.2] },
+} as const satisfies Record<"room" | "ending" | "nightstand-drawer" | MemoryId, CameraPreset>;
 
 /*
  * ---------------------------------------------------------------- 화장실 · 안방 (v3)

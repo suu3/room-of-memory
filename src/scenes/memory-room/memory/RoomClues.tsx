@@ -5,8 +5,8 @@ import type { ClueId } from "@/data/room-clues";
 import { playSound } from "@/lib/audio";
 import {
   clueUnlocked,
+  selectDrawerCodeRead,
   selectOnboardingStep,
-  selectSinkHintRead,
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
@@ -14,12 +14,9 @@ import { MemoryGlowSelection } from "../effects/MemoryOutlineGlow";
 import { MirrorReflection } from "../effects/MirrorReflection";
 import { useGlowHover } from "../effects/use-glow-hover";
 import { useNearPlayer } from "../player/use-near-player";
-import { CLUE_PROPS, DRAWER_NOTE, MIRROR_PLACEMENT } from "../world/layout";
+import { CLUE_PROPS, MIRROR_PLACEMENT } from "../world/layout";
 import type { RoomPalette } from "../world/palette";
 import { useSideCue } from "./side-cue";
-
-/** 쪽지에 그려 넣는 잉크 줄의 z 오프셋. 종이 한가운데를 비켜 위아래로 하나씩. */
-const NOTE_INK_LINES: readonly number[] = [-0.035, 0.02];
 
 /**
  * 들여다볼 수 있는 종이 한 장. 기억도 트리거도 아닌 배경 오브젝트라 표식(마름모·
@@ -40,7 +37,7 @@ export function ClueProp({
   clue: ClueId;
   near: readonly [number, number];
   radius: number;
-  /** false면 만질 수도 빛날 수도 없다 (닫힌 서랍 속 쪽지). */
+  /** false면 만질 수도 빛날 수도 없다 (아빠 메일을 읽기 전의 선반 책). */
   enabled?: boolean;
   /**
    * 가까이 가지 않아도 기억처럼 금빛으로 부른다. 조사가 가리키는 다음 자리(아빠 메일 뒤의
@@ -83,14 +80,15 @@ export function ClueProp({
 
 /**
  * 눌러 볼 수 있는 물건: 단서처럼 화면을 펼치지 않고 누르는 쪽(onPress)이 할 일을 정한다.
- * 칫솔컵(혼잣말 한 줄)·세면대 하부장(혼잣말 또는 다이얼)이 쓴다. 곁가지 등급 글로우,
- * 다가가면 켜진다는 문법은 ClueProp과 같다.
+ * 칫솔컵(혼잣말 한 줄)·협탁 서랍(혼잣말 또는 자물쇠)이 쓴다. 곁가지 등급 글로우,
+ * 다가가면 켜진다는 문법은 ClueProp과 같다. `beckon`이면 기억처럼 금빛으로 부른다.
  */
 export function TouchProp({
   name,
   near,
   radius,
   enabled = true,
+  beckon = false,
   onPress,
   children,
 }: {
@@ -98,6 +96,8 @@ export function TouchProp({
   near: readonly [number, number];
   radius: number;
   enabled?: boolean;
+  /** 가까이 가지 않아도 금빛으로 부른다 (번호를 안 뒤의 협탁 서랍). */
+  beckon?: boolean;
   onPress: () => void;
   children: ReactNode;
 }) {
@@ -120,8 +120,8 @@ export function TouchProp({
     >
       <MemoryGlowSelection
         selectionKey={`prop-${name}`}
-        tier="prop"
-        enabled={active && (cue || hovered || nearPlayer)}
+        tier={beckon ? "memory" : "prop"}
+        enabled={active && (beckon || cue || hovered || nearPlayer)}
       >
         {children}
       </MemoryGlowSelection>
@@ -130,7 +130,7 @@ export function TouchProp({
 }
 
 /**
- * 원래 있던 장식을 그대로 단서로 쓰는 자리: 선반의 책 한 권. 3페이즈 하부장 번호(쪽지의 세 자리)를
+ * 원래 있던 장식을 그대로 단서로 쓰는 자리: 선반의 책 한 권. 3페이즈 서랍 자물쇠 번호(쪽지의 세 자리)를
  * 든다 (src/data/room-clues.ts).
  *
  * 새 도형을 만들지 않고 children으로 받는다. 이 책은 이미 방에 놓여 있고,
@@ -140,7 +140,7 @@ export function ShelfBookClue({ children }: { children: ReactNode }) {
   // 아빠 메일("선반 정리 좀 해라.")을 읽기 전에는 그냥 선반의 책이다. 읽은 뒤에는 "11"을
   // 찾을 때까지 금빛으로 부른다 (v4.1 3장: 메일 → 선반 금빛 → 책)
   const unlocked = useMemoryRoomStore((state) => clueUnlocked(state, "shelf-book"));
-  const found = useMemoryRoomStore(selectSinkHintRead);
+  const found = useMemoryRoomStore(selectDrawerCodeRead);
   return (
     <ClueProp
       clue="shelf-book"
@@ -212,40 +212,6 @@ export function MirrorClue({ palette }: { palette: RoomPalette }) {
             />
           </group>
         </group>
-      </group>
-    </ClueProp>
-  );
-}
-
-/**
- * 협탁 서랍 속 접힌 쪽지. 서랍 부품과 같은 그룹에 있어 서랍과 함께 밀려 나온다.
- *
- * 닫혀 있는 동안에는 협탁 몸통 안에 완전히 잠겨 보이지 않는다. 그래도 광선은
- * 몸통을 뚫고 들어오므로(r3f는 가려진 대상에도 클릭을 흘린다) `open`으로 한 번 더
- * 막는다. 안 막으면 닫힌 서랍을 눌렀을 때 쪽지가 먼저 열린다.
- *
- * 좌표는 서랍 부품과 같은 월드 프레임(닫힌 상태 기준)이다.
- */
-export function DrawerNoteClue({ palette, open }: { palette: RoomPalette; open: boolean }) {
-  return (
-    <ClueProp
-      clue="drawer-note"
-      near={DRAWER_NOTE.near}
-      radius={DRAWER_NOTE.interactionRadius}
-      enabled={open}
-    >
-      <group position={DRAWER_NOTE.position} rotation={DRAWER_NOTE.rotation}>
-        <mesh castShadow>
-          <boxGeometry args={DRAWER_NOTE.size} />
-          <meshStandardMaterial color={palette.linen} roughness={0.9} />
-        </mesh>
-        {/* 적힌 글씨 대신 잉크 두 줄: 이게 없으면 흰 조각으로만 읽힌다 */}
-        {NOTE_INK_LINES.map((offsetZ) => (
-          <mesh key={offsetZ} position={[0, DRAWER_NOTE.size[1] / 2 + 0.002, offsetZ]}>
-            <boxGeometry args={[DRAWER_NOTE.size[0] * 0.62, 0.002, 0.012]} />
-            <meshStandardMaterial color={palette.frame} roughness={0.9} />
-          </mesh>
-        ))}
       </group>
     </ClueProp>
   );
