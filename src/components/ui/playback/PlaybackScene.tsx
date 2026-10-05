@@ -149,6 +149,10 @@ const CUTSCENE_AFTERIMAGE: Partial<Record<string, string>> = {
   [CUTSCENE_WORKBOOK_NAME]: ASSETS.stills.workbook,
 };
 
+/** 가장자리를 조이는 비네트. 화면에도 컷씬 판에도 같은 처방을 쓴다. */
+const VIGNETTE =
+  "radial-gradient(120% 95% at 50% 45%, transparent 52%, color-mix(in srgb, var(--color-scene-void) 62%, transparent) 100%)";
+
 export function PlaybackScene() {
   const { t } = useTranslation();
   const { t: tRoom } = useTranslation("memoryRoom");
@@ -160,10 +164,21 @@ export function PlaybackScene() {
 
   const isCutscene = active?.kind === "cutscene";
   /**
-   * 그림 없는 컷씬 (배트의 작별 대사). 화면을 덮는 대신 방이 비친 채 대사창만
+   * 그림 없는 컷 (배트의 작별 대사). 화면을 덮는 대신 방이 비친 채 대사창만
    * 뜬다. 떠나는 말은 회상이 아니라 지금 이 방에서 하는 말이라서다.
+   *
+   * 컷씬 통째가 아니라 **지금 컷**을 본다. 그림 컷 뒤에 그림 없는 컷이 붙으면(피아노 회상의
+   * "…끝까지 쳤어요.") 그 줄은 회상이 걷힌 뒤 방에서 하는 말이다. 통째로만 보면 그 컷에
+   * "올 그림"의 자리인 신호 판이 대신 섰다. 검정 컷과 웹툰은 제 화면이 따로 있어 여기 안 든다.
    */
-  const bare = isCutscene && active.cuts.every((each) => each.image === undefined);
+  const bareCut = active?.cuts[active.cutIndex];
+  const bare =
+    isCutscene &&
+    (active.cuts.every((each) => each.image === undefined) ||
+      (bareCut !== undefined &&
+        bareCut.image === undefined &&
+        bareCut.black !== true &&
+        !active.cuts.some((each) => each.page !== undefined)));
   /** 재생이 바뀔 때마다 도입을 다시 돌리기 위한 열쇠. */
   const playbackKey = active ? `${active.kind}:${active.cutsceneId ?? active.memoryId}` : null;
   /*
@@ -457,6 +472,18 @@ export function PlaybackScene() {
                   onDone={() => setMorphedKey(morphKey)}
                 />
               )}
+              {/*
+                컷씬의 비네트는 판에 건다. 화면에 걸면 판이 화면보다 좁은 비율(세로로 든 폰,
+                4:3 창)에서는 어두운 가장자리가 그림 밖 여백에만 떨어져, 구석까지 밝은 그림
+                (피아노 회상)은 비네트 없이 선 것처럼 보였다.
+              */}
+              {isCutscene && (
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0"
+                  style={{ background: VIGNETTE }}
+                />
+              )}
               {/* 컷 전환 장막. 그림 위에 얹혀야 하므로 마지막 자식이다 */}
               <CutDissolve
                 cutKey={`${playbackKey}:${cutIndex}`}
@@ -497,14 +524,14 @@ export function PlaybackScene() {
         화면 가장자리를 조여 그림을 가운데로 모은다. 방 비네트와 같은 처방.
         방(75%)보다 옅게 잡는다: 여기서는 비네트가 그림 자체를 먹어치우면 안 된다.
       */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(120% 95% at 50% 45%, transparent 52%, color-mix(in srgb, var(--color-scene-void) 62%, transparent) 100%)",
-          }}
-        />
+        {/* 컷씬의 판이 서 있는 동안은 판이 제 비네트를 건다 (위). 두 겹이 되지 않게 여기는 물러난다 */}
+        {!(isCutscene && showPlate) && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{ background: VIGNETTE }}
+          />
+        )}
 
         {/* 무엇을 되짚는 중인지: 다시보기는 진행이 아니라 열람이라 제목이 필요하다 */}
         {!isCutscene && active.memoryId && (

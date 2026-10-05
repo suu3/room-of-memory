@@ -489,6 +489,9 @@ cutscenes:
           ko: 야구가 바빠지고는 치지 않았다. 엄마는 악보를 치우지 않았다.
           en: Once baseball took over, I stopped playing. Mom never put the sheet music away.
           ja: 野球が忙しくなってからは弾かなかった。母さんは楽譜を片づけなかった。
+    # 그림이 걷힌 뒤, 피아노 앞에 선 지금의 도해가 말한다. 회상 그림 위에 얹으면 그림 속
+    # 아이가 하는 말로 읽힌다: 이 줄은 그때가 아니라 지금 부모님에게 건네는 말이다
+    - lines:
         - speaker: hero
           ko: …끝까지 쳤어요.
           en: …I played it to the end.
