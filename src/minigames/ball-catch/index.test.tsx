@@ -240,14 +240,14 @@ describe("BallCatchMinigame", () => {
 
     advanceTime(1700);
     fireEvent.click(getFieldButton());
-    const feedback = screen.getByText("Nice!");
+    const feedback = screen.getByText("HIT!");
     const impact = document.querySelector<HTMLImageElement>(
       `img[src="${ASSETS.images.mgBallCatchImpact}"]`,
     );
 
     fireEvent.click(getFieldButton());
 
-    expect(screen.getByText("Nice!")).toBe(feedback);
+    expect(screen.getByText("HIT!")).toBe(feedback);
     expect(
       document.querySelector<HTMLImageElement>(`img[src="${ASSETS.images.mgBallCatchImpact}"]`),
     ).toBe(impact);

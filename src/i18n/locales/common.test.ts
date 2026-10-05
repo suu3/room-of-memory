@@ -41,7 +41,7 @@ describe("memoryRoom locale parity", () => {
 
 describe("ball-catching timing feedback locales", () => {
   it.each([
-    ["Korean", ko, "빨랐어", "늦었어"],
+    ["Korean", ko, "빨랐다", "늦었다"],
     ["English", en, "EARLY", "LATE"],
     ["Japanese", ja, "早い", "遅い"],
   ])("keeps the exact approved %s early and late copy", (_language, locale, early, late) => {
