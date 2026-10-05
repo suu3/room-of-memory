@@ -1,21 +1,16 @@
 "use client";
 
-import { CaretLeftIcon, CaretRightIcon, XIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { shelfBookObject } from "@/components/canvas/inspect-objects";
 import { CLUE_DISCOVERY, type ClueId, DRAWER_DIAL_CODE } from "@/data/room-clues";
 import { reachableSpaces } from "@/data/spaces";
 import { ASSETS } from "@/lib/assets";
 import { playSound } from "@/lib/audio";
-import {
-  CALENDAR_YEAR,
-  FIRST_MONTH,
-  LAST_DATED_MONTH,
-  NATIONALS_MONTH,
-} from "@/minigames/calendar-flip/calendar";
+import { CALENDAR_YEAR, NATIONALS_MONTH } from "@/minigames/calendar-flip/calendar";
 import { MonthGrid } from "@/minigames/calendar-flip/MonthGrid";
 import { CalendarPageImage, useCalendarPage } from "@/minigames/calendar-flip/PageImage";
 import { openDoorwayIds, useMemoryRoomStore } from "@/store/memory-room";
@@ -239,57 +234,27 @@ function LaonSanitizerZoom() {
 /**
  * 조사를 마친 뒤의 달력: 이제는 벽에 걸린 배경 오브젝트다.
  *
- * 넘기는 미니게임과 달리 아무것도 완료하지 않고 애니메이션도 없다. 그냥 달을
- * 오가며 표시된 날을 확인하는 자리라, 비밀번호를 잊었을 때 다시 와서 볼 수 있다.
- * 처음 펼치는 달은 전국대회가 있던 달이다. 여기 오는 이유가 그것뿐이라서.
+ * 넘기는 미니게임과 달리 아무것도 완료하지 않고 애니메이션도 없다. 전국대회가 있던 달
+ * 한 장만 건다: 여기 오는 이유는 비밀번호를 잊었을 때 표시된 날을 다시 보는 것뿐이다.
+ * 달을 넘기는 버튼은 뺐다. 넘길 수 있으면 다른 달에도 볼 것이 있다고 읽히고, 넘기는 일은
+ * 조사 미니게임이 이미 한 번 했다.
  */
 function WallCalendar() {
   const { t } = useTranslation();
-  const [month, setMonth] = useState<number>(NATIONALS_MONTH);
+  const month = NATIONALS_MONTH;
   const page = useCalendarPage(month);
-
-  /*
-   * 正자 장(11월)까지는 안 간다. 거기엔 날짜 격자가 없어서 이 화면이 그릴 게
-   * 없다. 그 장은 조사 미니게임이 보여주는 몫이다.
-   */
-  const turn = (step: -1 | 1) => {
-    const next = Math.min(LAST_DATED_MONTH, Math.max(FIRST_MONTH, month + step));
-    if (next === month) return;
-    playSound("flip", { variation: 0.05 });
-    setMonth(next);
-  };
 
   return (
     <div className={`p-5 sm:p-6 ${PANEL_PAPER}`}>
-      <div className="flex items-center justify-between gap-3 border-b border-ink/10 pb-3">
-        <button
-          type="button"
-          aria-label={t("minigame.calendarFlip.prev")}
-          onClick={() => turn(-1)}
-          disabled={month === FIRST_MONTH}
-          className="cursor-pointer rounded-full p-1.5 text-graphite transition-colors hover:bg-ink/5 hover:text-ink disabled:cursor-default disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
-        >
-          <CaretLeftIcon size={20} weight="bold" />
-        </button>
-        {/* 장 그림에 해·월이 이미 적혀 있다: 그림이 서면 머리글은 스크린리더에게만 읽힌다 */}
-        <p className={page ? "sr-only" : "flex items-baseline gap-2"}>
-          <span className="text-sm font-medium text-graphite">{CALENDAR_YEAR}</span>
-          <span className="font-pixel text-2xl text-ink">
-            {t("minigame.calendarFlip.month", { value: month })}
-          </span>
-        </p>
-        <button
-          type="button"
-          aria-label={t("minigame.calendarFlip.next")}
-          onClick={() => turn(1)}
-          disabled={month === LAST_DATED_MONTH}
-          className="cursor-pointer rounded-full p-1.5 text-graphite transition-colors hover:bg-ink/5 hover:text-ink disabled:cursor-default disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
-        >
-          <CaretRightIcon size={20} weight="bold" />
-        </button>
-      </div>
+      {/* 장 그림에 해·월이 이미 적혀 있다: 그림이 서면 머리글은 스크린리더에게만 읽힌다 */}
+      <p className={page ? "sr-only" : "flex items-baseline gap-2 border-b border-ink/10 pb-3"}>
+        <span className="text-sm font-medium text-graphite">{CALENDAR_YEAR}</span>
+        <span className="font-pixel text-2xl text-ink">
+          {t("minigame.calendarFlip.month", { value: month })}
+        </span>
+      </p>
       {/* 넘기는 미니게임과 같은 장 그림. 판이 넓어도 세로로 너무 길어지지 않게 폭을 묶는다 */}
-      <div className="mx-auto w-full max-w-[22rem] pt-4">
+      <div className={`mx-auto w-full max-w-[22rem] ${page ? "" : "pt-4"}`}>
         {page ? <CalendarPageImage month={month} source={page} /> : <MonthGrid month={month} />}
       </div>
     </div>

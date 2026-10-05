@@ -30,14 +30,8 @@ export const FIRST_MONTH = 7;
 export const LAST_MONTH = 11;
 export const START_MONTH = FIRST_MONTH;
 
-/** 전국대회가 있던 달. 조사 뒤의 배경 달력이 처음 펼치는 장이다. */
+/** 전국대회가 있던 달. 조사 뒤의 배경 달력이 거는 장이다. */
 export const NATIONALS_MONTH = NATIONALS_DATE.month;
-/**
- * 날짜 격자가 남아 있는 마지막 달. 그 뒤는 正자 장이라 격자를 못 그린다.
- * 배경 달력(ClueOverlay)은 여기까지만 오간다.
- */
-export const LAST_DATED_MONTH = INCIDENT_DATE.month;
-
 /** 걸려 있는 장 전부, 앞에서 뒤로. */
 export const CALENDAR_MONTHS: readonly number[] = Array.from(
   { length: LAST_MONTH - FIRST_MONTH + 1 },
