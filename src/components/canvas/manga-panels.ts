@@ -6,7 +6,7 @@
  */
 
 /** 칸 안에 무엇을 놓는가: 인물 실루엣 · 집중선 · 톤 깔린 배경. */
-export type MangaPanelKind = "figure" | "speed" | "tone";
+type MangaPanelKind = "figure" | "speed" | "tone";
 
 export type MangaPanel = {
   x: number;
