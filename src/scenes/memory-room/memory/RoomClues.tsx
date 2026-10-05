@@ -19,6 +19,24 @@ import type { RoomPalette } from "../world/palette";
 import { useSideCue } from "./side-cue";
 
 /**
+ * 물건보다 넓게 눌리는 안 보이는 상자 (그 물건의 좌표계). 마개·배지처럼 손톱만 한 물건은
+ * 제 모양만으로는 거의 안 눌리고, 사람은 그게 놓인 자리(세면대)를 누른다.
+ */
+export interface HitBox {
+  position: readonly [number, number, number];
+  size: readonly [number, number, number];
+}
+
+function HitBoxMesh({ box }: { box: HitBox }) {
+  return (
+    <mesh position={[...box.position]}>
+      <boxGeometry args={[...box.size]} />
+      <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+    </mesh>
+  );
+}
+
+/**
  * 들여다볼 수 있는 종이 한 장. 기억도 트리거도 아닌 배경 오브젝트라 표식(마름모·
  * 고리)을 달지 않고, 전등 스위치와 같은 곁가지 등급 글로우만 준다. 진행에 끼지
  * 않는 물건이 이야기인 척하면 금빛 비중이 진행과 무관하게 차 버린다 (DESIGN.md).
@@ -32,6 +50,7 @@ export function ClueProp({
   radius,
   enabled = true,
   beckon = false,
+  hitBox,
   children,
 }: {
   clue: ClueId;
@@ -44,6 +63,8 @@ export function ClueProp({
    * 거꾸로 꽂힌 책)에만 준다. 찾고 나면 부르는 쪽이 끈다.
    */
   beckon?: boolean;
+  /** 켜져 있는 동안 물건 대신 눌리는 범위. 글로우에는 끼지 않는다. */
+  hitBox?: HitBox;
   children: ReactNode;
 }) {
   const openClue = useMemoryRoomStore((state) => state.openClue);
@@ -67,6 +88,7 @@ export function ClueProp({
         openClue(clue);
       }}
     >
+      {hitBox && active && <HitBoxMesh box={hitBox} />}
       <MemoryGlowSelection
         selectionKey={`clue-${clue}`}
         tier={beckon ? "memory" : "prop"}
@@ -89,6 +111,7 @@ export function TouchProp({
   radius,
   enabled = true,
   beckon = false,
+  hitBox,
   onPress,
   children,
 }: {
@@ -98,6 +121,8 @@ export function TouchProp({
   enabled?: boolean;
   /** 가까이 가지 않아도 금빛으로 부른다 (번호를 안 뒤의 협탁 서랍). */
   beckon?: boolean;
+  /** 켜져 있는 동안 물건 대신 눌리는 범위. 글로우에는 끼지 않는다. */
+  hitBox?: HitBox;
   onPress: () => void;
   children: ReactNode;
 }) {
@@ -118,6 +143,7 @@ export function TouchProp({
         onPress();
       }}
     >
+      {hitBox && active && <HitBoxMesh box={hitBox} />}
       <MemoryGlowSelection
         selectionKey={`prop-${name}`}
         tier={beckon ? "memory" : "prop"}

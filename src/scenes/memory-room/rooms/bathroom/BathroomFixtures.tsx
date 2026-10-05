@@ -5,7 +5,7 @@ import { Vector2 } from "three";
 import { pressSinkPlug } from "@/lib/room-press";
 import { clueUnlocked, selectBadgeSeen, useMemoryRoomStore } from "@/store/memory-room";
 import { MirrorReflection } from "../../effects/MirrorReflection";
-import { ClueProp, TouchProp } from "../../memory/RoomClues";
+import { ClueProp, type HitBox, TouchProp } from "../../memory/RoomClues";
 import { idleFacing } from "../../player/idle-facing";
 import { useNearPlayer } from "../../player/use-near-player";
 import { InteriorBox as Box, InteriorCylinder as Cylinder } from "../../shared/InteriorPrimitives";
@@ -141,6 +141,12 @@ function Toilet({ palette }: { palette: RoomPalette }) {
  * 붙고, 누르면 물이 빠진다 (store의 drainSink → SinkWater). 뽑힌 마개는 대야 가장자리에
  * 놓인다. 다시 꽂는 일은 없다: 30일 고인 물은 한 번 빠지면 끝이다.
  */
+/**
+ * 마개와 배지가 눌리는 범위: 대야 안쪽 전체. 둘 다 손톱만 해서 제 모양으로는 거의 안 눌리고,
+ * 사람은 세면대를 누른다. 가장자리의 칫솔컵·비누는 덮지 않는다.
+ */
+const BASIN_HIT: HitBox = { position: [0, 0.8, 0], size: [0.44, 0.12, 0.36] };
+
 function SinkPlug({ palette }: { palette: RoomPalette }) {
   const drained = useMemoryRoomStore((state) => state.sinkDrained);
   return (
@@ -149,6 +155,7 @@ function SinkPlug({ palette }: { palette: RoomPalette }) {
       near={SINK_NEAR}
       radius={SINK_RADIUS}
       enabled={!drained}
+      hitBox={BASIN_HIT}
       onPress={pressSinkPlug}
     >
       <group
@@ -198,6 +205,7 @@ function SinkBadge({ palette }: { palette: RoomPalette }) {
       radius={SINK_RADIUS}
       enabled={unlocked}
       beckon={unlocked && !seen}
+      hitBox={BASIN_HIT}
     >
       <group name="raon-badge" position={[0.12, 0.774, -0.05]} rotation={[0, -0.5, 0]}>
         <Cylinder position={[0, 0, 0]} radius={0.058} height={0.006} color={palette.linen} />
@@ -221,7 +229,14 @@ function SinkBadge({ palette }: { palette: RoomPalette }) {
 
 function Sink({ palette }: { palette: RoomPalette }) {
   return (
-    <group name="pedestal-basin" position={SINK_MOUNT.position} rotation={SINK_MOUNT.rotation}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다.
+    <group
+      name="pedestal-basin"
+      position={SINK_MOUNT.position}
+      rotation={SINK_MOUNT.rotation}
+      // 세면대 몸통이 클릭을 받아 삼킨다. 안 그러면 몸통을 누른 클릭이 벽 너머 거실의 물건으로 넘어간다
+      onClick={(event) => event.stopPropagation()}
+    >
       <Cylinder
         position={[0, 0.08, 0.09]}
         radius={0.19}
