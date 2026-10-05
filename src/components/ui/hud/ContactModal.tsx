@@ -63,6 +63,8 @@ export function ContactLinks() {
           </li>
         ))}
       </ul>
+      {/* 제작 방식 표기: 무엇을 직접 만들고 무엇에 AI를 썼는지 (공개 플랫폼의 AI 사용 표기와 같은 내용) */}
+      <p className="break-ko text-xs leading-normal text-ash">{t("contact.made")}</p>
       {/* 지원사업 표기: 요란하지 않게, 크레딧을 열어본 사람에게만 보인다.
           문구는 사업 안내의 지정 문구를 그대로 쓴다 (경기도·재단·연도·꺾쇠 포함). */}
       <div className="flex flex-col gap-3">
