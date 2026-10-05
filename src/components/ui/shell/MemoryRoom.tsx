@@ -46,6 +46,7 @@ import { RoomCallout } from "../hud/RoomCallout";
 import { SignalCatch } from "../hud/SignalCatch";
 import { SoundToggle } from "../hud/SoundToggle";
 import { ClueOverlay } from "../inspect/ClueOverlay";
+import { DiscoveryBurst } from "../inspect/DiscoveryBurst";
 import { MinigameHost } from "../minigame/MinigameHost";
 import { PuzzleHost } from "../minigame/PuzzleHost";
 import { CharacterSheetModal } from "../notebook/CharacterSheetModal";
@@ -380,6 +381,8 @@ export function MemoryRoom() {
           {!endingStarted && <NotebookTab />}
           {/* 방에서 집어 든 종이 한 장 (기록 노트 · 서랍 쪽지): 진행에 남지 않는다 */}
           <ClueOverlay />
+          {/* 단서에서 무언가를 알아낸 순간의 입자: 미니게임을 푼 것과 같은 신호 */}
+          <DiscoveryBurst />
           <CharacterSheetModal />
           {/* 결론 컷씬 앞에 서는 추리 판: 수첩 기록 두 장을 잇는다 */}
           <DeductionBoard />
