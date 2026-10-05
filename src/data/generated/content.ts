@@ -861,6 +861,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "piano-flashback",
     cuts: [
       {
+        image: "/assets/images/cutscene-piano-flashback.webp",
         lines: [
           { speaker: "hero", textKey: "cutscenes.piano-flashback.cut1.line1" },
           { speaker: "hero", textKey: "cutscenes.piano-flashback.cut1.line2" },

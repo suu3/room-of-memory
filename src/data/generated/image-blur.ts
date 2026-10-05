@@ -17,7 +17,9 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-day-7.webp":
     "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAwAgCdASoQAAkAAsBMJYwC7AELz8weJGLhgAD++xgp5lhvcz4+lF3PBxYBih6a0PEH8TRgT9yS/T6gpJ7fndPYxlLYLNQS730bXkRksPg5dMCbAAA=",
   "/assets/images/cutscene-day-8.webp":
-    "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAwAgCdASoQAAkAAsBMJbACdAYtpt9UohzuIAD+9u3qxxWRrhMgLn0eWjseBzV6gdj2xVw4oy/JKT+QDbAQd8nt5O9n4FJejCOx5PxUgOSLaC+SS24bSuh9rdmUgPqLhuwQCAAA",
+    "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAwAgCdASoQAAkAAsBMJbACdAYtpt9UohzuIAD+9u3qxxWRrhMgLn0eWjseBzV6gdj2xVw4oy/JKT+QDbAQd8nt5O9n4FJejCOx5PxUgOSLaC+RnsUCldD7W7MpAfUXDdggEAAA",
+  "/assets/images/cutscene-piano-flashback.webp":
+    "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAQCdASoQAAkAAsBMJQBOgCPv+E4RqmAA/PqV40S4K1x40iRtSVtmb7e1VJbX8RrwX9CGf5sKp0+eTyhpdpmhjDN1CCwoHUmMY9Z2BFjvSXQtg2T+zAAA",
   "/assets/images/cutscene-survivor-1.webp":
     "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAQCdASoQAAkAAsBMJZQCdADJyjqbywAA/upSsZCImpxc5uAkZxTF+3LfBOBtFloNGs75TkwDyfJhk9bN0ERNpJfTMf+HGexk/h5sQWefm0hko9DK+AAA",
   "/assets/images/cutscene-survivor-10.webp":
@@ -108,6 +110,7 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-day-6.webp": "072c54cdd0ee8378",
   "/assets/images/cutscene-day-7.webp": "335b38a5faeee1f0",
   "/assets/images/cutscene-day-8.webp": "1dcb5617c25624e4",
+  "/assets/images/cutscene-piano-flashback.webp": "1dccae048b128e96",
   "/assets/images/cutscene-survivor-1.webp": "91fbae0c4d137930",
   "/assets/images/cutscene-survivor-10.webp": "e67043da3bee8d54",
   "/assets/images/cutscene-survivor-2.webp": "e63ac6502eba03ff",

@@ -428,13 +428,15 @@ cutscenes:
           ja: 父さんと母さんは、俺を守るために旅行だと言ったんだ。…そして、あれを残していった。
 
   #
-  # 거실 피아노(piano-melody)를 끝까지 친 순간. 그림 없이 방이 비친 채로 흐른다.
+  # 거실 피아노(piano-melody)를 끝까지 친 순간. 유소년 야구를 하던 무렵의 한 장 위로 흐른다.
   # 서류(진실)와 액자(얼굴) 사이에서, 연구원이 아닌 엄마 아빠가 한 번 선다. "끝까지만 쳐 봐"를
   # 끝 줄 "…끝까지 쳤어요."가 받는다: 도해가 처음으로 부모님에게 건네는 말이고, 정적 비트의
-  # "…갔다 올게."로 이어진다. 그림을 붙인다면 부모님 얼굴은 넣지 않는다 (얼굴은 이 뒤의
-  # 액자 2차에서 돌아온다).
+  # "…갔다 올게."로 이어진다. 그림에 부모님 얼굴은 없다: 엄마는 뒷모습, 아빠는 턱 아래까지다
+  # (얼굴은 이 뒤의 액자 2차에서 돌아온다). 그림 속 도해가 이미 야구 모자를 쓰고 있어서
+  # 피아노를 그만둔 때는 "야구를 시작하고"가 아니라 "바빠지고"다.
   piano-flashback:
-    - lines:
+    - image: /assets/images/cutscene-piano-flashback.webp
+      lines:
         - speaker: hero
           ko: 어릴 때 치던 거다. 손이 아직 기억하네.
           en: I used to play this as a kid. My hands still remember.
@@ -457,9 +459,9 @@ cutscenes:
           en: I liked that version better, actually.
           ja: 父さんは今のほうが好きだけどな。
         - speaker: hero
-          ko: 야구를 시작하고는 치지 않았다. 엄마는 악보를 치우지 않았다.
-          en: I stopped playing once I started baseball. Mom never put the sheet music away.
-          ja: 野球を始めてからは弾かなかった。母さんは楽譜を片づけなかった。
+          ko: 야구가 바빠지고는 치지 않았다. 엄마는 악보를 치우지 않았다.
+          en: Once baseball took over, I stopped playing. Mom never put the sheet music away.
+          ja: 野球が忙しくなってからは弾かなかった。母さんは楽譜を片づけなかった。
         - speaker: hero
           ko: …끝까지 쳤어요.
           en: …I played it to the end.
