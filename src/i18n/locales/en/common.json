@@ -132,13 +132,13 @@
   "contact": {
     "title": "Credits",
     "bio": "A developer who draws.",
-    "back": "Back to the room",
+    "back": "Back to the game",
     "close": "Close credits",
     "support": "This game was made with support from the <2026 Gyeonggi Youth Gap Year Program> of Gyeonggi Province and the Gyeonggi Future Generation Foundation."
   },
   "notFound": {
     "title": "You took a wrong turn",
-    "body": "There is nothing at this address. Let's head back to the room."
+    "body": "There is nothing at this address."
   },
   "loadError": {
     "offlineTitle": "Connection lost",
@@ -152,7 +152,7 @@
     "start": "Start",
     "skip": "Skip",
     "back": "Step back",
-    "close": "Close and return to the room",
+    "close": "Quit and go back",
     "feedback": {
       "hit": "Nice!",
       "miss": "Missed…"
