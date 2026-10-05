@@ -170,8 +170,8 @@
     },
     "ballCatch": {
       "title": "Swing!",
-      "help": "Swing the bat the moment the ball enters the dashed ring: Space",
-      "help_touch": "Tap to swing the moment the ball enters the dashed ring",
+      "help": "Swing the bat the moment the ball enters the square frame: Space",
+      "help_touch": "Tap to swing the moment the ball enters the square frame",
       "prompt": "SPACE",
       "prompt_touch": "TAP",
       "early": "EARLY",

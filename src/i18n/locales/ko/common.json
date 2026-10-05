@@ -170,8 +170,8 @@
     },
     "ballCatch": {
       "title": "스윙!",
-      "help": "공이 점선 링에 들어오는 순간 배트를 휘두르세요: Space",
-      "help_touch": "공이 점선 링에 들어올 때 화면을 터치해 배트를 휘두르세요",
+      "help": "공이 네모 틀 안에 들어오는 순간 배트를 휘두르세요: Space",
+      "help_touch": "공이 네모 틀 안에 들어올 때 화면을 터치해 배트를 휘두르세요",
       "prompt": "SPACE",
       "prompt_touch": "터치",
       "early": "빨랐어",

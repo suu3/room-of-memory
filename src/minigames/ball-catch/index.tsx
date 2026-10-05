@@ -24,7 +24,7 @@ const SKIP_AFTER_MS = 30_000;
 const SKIP_AFTER_MISSES = 3;
 const ROUND_GAP_MS = 550;
 /**
- * 공이 점선 링과 겹치는 판정 구간 (진행률). 1.0 = 공이 링 중심 도달:
+ * 공이 네모 틀과 겹치는 판정 구간 (진행률). 1.0 = 공이 링 중심 도달:
  * 중심에 얹힌 순간과 그 직후 잠깐까지 성공으로 인정한다.
  */
 const CATCH_WINDOW: [number, number] = [0.78, 1.12];
@@ -62,7 +62,7 @@ function isInteractiveTarget(target: EventTarget | null): boolean {
 }
 
 /**
- * 멀리서 날아와 커지는 공이 점선 링에 겹치는 순간 Space로 배트를 휘두른다.
+ * 멀리서 날아와 커지는 공이 네모 틀에 겹치는 순간 Space로 배트를 휘두른다.
  * 이지는 세 번, 보통은 다섯 번 맞히면 클리어 (./timing.ts의 SWING_TUNINGS).
  */
 export function BallCatchMinigame({ onComplete, onSettled, difficulty = "easy" }: MinigameProps) {

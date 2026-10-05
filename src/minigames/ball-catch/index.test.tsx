@@ -29,7 +29,7 @@ function runNextFrame(timestamp: number) {
 }
 
 function getFieldButton() {
-  return screen.getByRole("button", { name: /dashed ring/ });
+  return screen.getByRole("button", { name: /square frame/ });
 }
 
 /**
