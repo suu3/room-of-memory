@@ -337,8 +337,9 @@
       "booting": "起動中",
       "account": "ハン・ドヘ",
       "passwordLabel": "パスワード",
-      "passHint": "ヒント: 全国大会の日。月日の4桁。",
+      "passHint": "ヒント: 最後の全国大会の試合。月日の4桁。",
       "wrong": "パスワードが正しくありません",
+      "signingIn": "ログイン中…",
       "lockHelp": "パスワードを入力して Enter",
       "lockHelp_touch": "パスワードを入力して矢印を押してください",
       "boot": {

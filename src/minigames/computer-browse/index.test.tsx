@@ -43,6 +43,13 @@ function clearWrong() {
   });
 }
 
+/** 맞은 뒤 로그인이 한 박자 돈다 (SIGNIN_MS보다 넉넉히). */
+function finishSignIn() {
+  act(() => {
+    vi.advanceTimersByTime(1500);
+  });
+}
+
 function nextPage() {
   fireEvent.click(screen.getByRole("button", { name: /Next/ }));
 }
@@ -74,7 +81,7 @@ describe("ComputerBrowseMinigame", () => {
     runBoot();
 
     expect(passwordField()).toBeTruthy();
-    expect(screen.getByText(/the day of the national tournament/)).toBeTruthy();
+    expect(screen.getByText(/the last national tournament game/)).toBeTruthy();
     // 아직 아무것도 못 읽는다
     expect(screen.queryByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeNull();
   });
@@ -103,6 +110,20 @@ describe("ComputerBrowseMinigame", () => {
     clearWrong();
 
     typeCode(COMPUTER_PASSCODE);
+    // 맞으면 로그인이 한 박자 돌고 나서 열린다
+    expect(screen.getByText("Signing in…")).toBeTruthy();
+    expect(screen.queryByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeNull();
+    finishSignIn();
+    expect(screen.getByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeTruthy();
+  });
+
+  it("입력칸에 커서가 없어도 숫자 키와 지우기가 먹는다", () => {
+    render(<ComputerBrowseMinigame onComplete={() => {}} />);
+    runBoot();
+    passwordField().blur();
+
+    for (const key of ["9", "Backspace", ...COMPUTER_PASSCODE]) fireEvent.keyDown(window, { key });
+    finishSignIn();
     expect(screen.getByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeTruthy();
   });
 
@@ -127,6 +148,7 @@ describe("ComputerBrowseMinigame", () => {
     }
 
     fireEvent.click(screen.getByRole("button", { name: /Skip/ }));
+    finishSignIn();
     expect(screen.getByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeTruthy();
   });
 
@@ -135,6 +157,7 @@ describe("ComputerBrowseMinigame", () => {
     render(<ComputerBrowseMinigame onComplete={(result) => results.push(result)} />);
     runBoot();
     typeCode(COMPUTER_PASSCODE);
+    finishSignIn();
 
     // 첫 메일: 제목과 첨부 사진 자리가 선다
     expect(screen.getByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeTruthy();

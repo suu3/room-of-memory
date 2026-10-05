@@ -337,8 +337,9 @@
       "booting": "부팅 중",
       "account": "한도해",
       "passwordLabel": "비밀번호",
-      "passHint": "힌트: 전국대회 날. 월일 네 자리.",
+      "passHint": "힌트: 마지막 전국대회 시합. 월일 네 자리.",
       "wrong": "비밀번호가 올바르지 않습니다",
+      "signingIn": "로그인 중…",
       "lockHelp": "비밀번호를 입력하고 Enter",
       "lockHelp_touch": "비밀번호를 입력하고 화살표 버튼을 누르세요",
       "boot": {

@@ -337,8 +337,9 @@
       "booting": "Booting",
       "account": "Han Do-hae",
       "passwordLabel": "Password",
-      "passHint": "Hint: the day of the national tournament. Month and day, four digits.",
+      "passHint": "Hint: the last national tournament game. Month and day, four digits.",
       "wrong": "Incorrect password",
+      "signingIn": "Signing in…",
       "lockHelp": "Type the password and press Enter",
       "lockHelp_touch": "Type the password and tap the arrow",
       "boot": {

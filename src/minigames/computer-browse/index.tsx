@@ -32,7 +32,10 @@ const WRONG_HOLD_MS = 450;
 /** 비밀번호 없이도 열어주기까지 기다리는 시간 (접근성 계약). */
 const SKIP_AFTER_MS = 60_000;
 
-type Screen = "boot" | "lock" | "browse";
+/** 비밀번호가 맞은 뒤 로그인이 도는 시간. 맞았다는 걸 알아챌 만큼만 머문다. */
+const SIGNIN_MS = 1100;
+
+type Screen = "boot" | "lock" | "signin" | "browse";
 
 /**
  * 창 왼쪽 위의 신호등 세 개. 이 판을 "컴퓨터 화면"으로 읽히게 하는 최소한의 장치다.
@@ -46,6 +49,7 @@ const TRAFFIC_LIGHTS = ["bg-ember", "bg-memory", "bg-scene-olive"] as const;
  * 노트북 한 대가 화면 가운데에 열려 있고, 그 안에서 세 화면이 한 줄로 이어진다.
  *   boot   전원이 들어오고 진행 막대가 찬다. 아무 데나 누르면 건너뛴다
  *   lock   아빠가 걸어둔 로그인. 네 자리를 맞춰야 넘어간다
+ *   signin 맞았다: 초록 고리가 한 바퀴 돌고 바탕이 열린다
  *   browse 저장된 메일 두 통 → 캐시에 남은 뉴스 셋을 끝까지 넘긴다
  *
  * 비밀번호(전국대회 날)는 화면 안에 답이 없다. 잠금 화면이 "무슨 날"인지만
@@ -83,9 +87,16 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
   const lastPage = pageIndex >= ARCHIVE_PAGES.length - 1;
 
   const unlock = useCallback(() => {
-    playSound("select");
-    setScreen("browse");
+    playSound("radioLock");
+    setScreen("signin");
   }, []);
+
+  // 로그인이 한 박자 돈 뒤 화면이 열린다. 맞자마자 넘어가면 맞은 건지 건너뛴 건지 안 읽힌다
+  useEffect(() => {
+    if (screen !== "signin") return;
+    const timer = setTimeout(() => setScreen("browse"), SIGNIN_MS);
+    return () => clearTimeout(timer);
+  }, [screen]);
 
   /* ── 부팅 ─────────────────────────────────────────────────────────── */
 
@@ -148,6 +159,30 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
     [wrong, frozen, entry.length, unlock],
   );
 
+  /*
+   * 입력칸에 커서가 없어도 숫자 키가 먹는다. 화면 키패드를 한 번 누르거나 빈 곳을 누르면
+   * 커서가 입력칸을 떠나는데, 그 뒤로는 키보드가 죽은 것처럼 보였다.
+   */
+  const entryRef = useRef(entry);
+  entryRef.current = entry;
+  useEffect(() => {
+    if (screen !== "lock" || frozen) return;
+    const onKey = (event: KeyboardEvent) => {
+      // 입력칸이 커서를 쥐고 있으면 그쪽이 스스로 받는다
+      if (event.target === inputRef.current) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (/^\d$/.test(event.key)) {
+        event.preventDefault();
+        typeEntry(entryRef.current + event.key);
+      } else if (event.key === "Backspace") {
+        event.preventDefault();
+        typeEntry(entryRef.current.slice(0, -1));
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [screen, frozen, typeEntry]);
+
   // 틀린 입력은 흔들린 뒤에 지워진다. 바로 지우면 뭐가 틀렸는지도 못 본다.
   useEffect(() => {
     if (!wrong) return;
@@ -175,7 +210,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
    * 창을 훑는 키(Space·→)만 읽는 화면의 몫이다.
    */
   useEffect(() => {
-    if (frozen || screen === "lock") return;
+    if (frozen || screen === "lock" || screen === "signin") return;
     const onKey = (event: KeyboardEvent) => {
       if (screen === "boot") {
         event.preventDefault();
@@ -296,6 +331,28 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                     : t("minigame.computerBrowse.passHint")}
                 </p>
               </div>
+            ) : screen === "signin" ? (
+              /* 맞았다: 같은 로그인 바탕 위에서 초록 고리가 돈다 */
+              <div
+                role="status"
+                className="flex size-full flex-col items-center justify-center gap-3 px-6"
+                style={{
+                  background:
+                    "radial-gradient(120% 90% at 50% 18%, #ffffff 0%, var(--color-screen-glass) 40%, var(--color-screen-chrome) 72%, var(--color-screen-shade) 100%)",
+                }}
+              >
+                <UserCircleIcon size={64} weight="fill" className="text-ink/25" aria-hidden />
+                <p className="text-base font-bold text-ink">
+                  {t("minigame.computerBrowse.account")}
+                </p>
+                <span
+                  aria-hidden
+                  className="mt-1 size-7 animate-spin rounded-full border-[3px] border-scene-leaf/25 border-t-scene-leaf motion-reduce:animate-none"
+                />
+                <p className="text-[0.8125rem] text-ink/60">
+                  {t("minigame.computerBrowse.signingIn")}
+                </p>
+              </div>
             ) : (
               /* 창 하나가 통째로 화면을 채운다. 바탕화면까지 그리면 읽을 판이 좁아진다 */
               <div className="flex size-full flex-col bg-screen-glass">
@@ -407,7 +464,7 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
 
       {/* 화면마다 아래에 서는 것이 다르다. 부팅은 아무것도, 잠금은 안내(+스킵),
           읽기는 다 읽었을 때 닫는 버튼 */}
-      {frozen || screen === "boot" ? null : (
+      {frozen || screen === "boot" || screen === "signin" ? null : (
         <div className="flex min-h-9 items-center gap-3">
           {screen === "lock" ? (
             <>
