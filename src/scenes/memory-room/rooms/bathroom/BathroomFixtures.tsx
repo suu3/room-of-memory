@@ -163,7 +163,15 @@ function SinkPlug({ palette }: { palette: RoomPalette }) {
         마개는 안방 열쇠로 가는 길의 첫 고리인데 손톱만 하고 물 밑이라, 글로우만으로는 눌러야
         하는 물건인지 알 수 없었다. 물을 뺄 때까지 기억처럼 표식을 세운다 (MemoryBeacon의 BeaconId)
       */}
-      <group position={PLUG_BEACON}>
+      {/* 표식의 마름모도 눌린다 (MemoryBeacon): 여기서는 마개를 감싼 그룹 밖이라 직접 잇는다 */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
+      <group
+        position={PLUG_BEACON}
+        onClick={(event) => {
+          event.stopPropagation();
+          if (!drained && !firstPerson) pressSinkPlug();
+        }}
+      >
         <MemoryBeacon
           id="sink-plug"
           color={palette.memory}

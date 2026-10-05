@@ -2,7 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
-import { AdditiveBlending, DoubleSide, type Group, type Mesh, type MeshBasicMaterial } from "three";
+import { AdditiveBlending, DoubleSide, type Group, Mesh, type MeshBasicMaterial } from "three";
 import type { ItemId } from "@/data/items";
 import type { MemoryId } from "@/data/memory-room";
 
@@ -62,6 +62,8 @@ const EXTRA_LIFT: Partial<Record<BeaconId, number>> = {
 const FORWARD: Partial<Record<BeaconId, number>> = {
   window: 0.5,
 };
+
+const noRaycast = () => null;
 
 export function MemoryBeacon({
   id,
@@ -154,7 +156,11 @@ export function MemoryBeacon({
 
       {/* 공중의 마름모 */}
       <group ref={diamondRef} position={[0, lift, forward]}>
-        <mesh raycast={() => null}>
+        {/*
+          마름모는 눌린다: 물건을 가리키는 표식이라 테스터들이 물건 대신 이걸 눌렀다. 클릭은
+          감싼 물건의 핸들러로 올라간다. 꺼진 표식은 안 보여도 레이에는 걸리므로 켜졌을 때만.
+        */}
+        <mesh raycast={active ? Mesh.prototype.raycast : noRaycast}>
           <octahedronGeometry args={[DIAMOND_SIZE]} />
           <meshBasicMaterial
             ref={diamondMaterialRef}
