@@ -601,7 +601,9 @@
     "soundLabel": "Sound",
     "soundStateOn": "On",
     "soundStateOff": "Off",
-    "soundHint": "best played with sound on"
+    "soundHint": "best played with sound on",
+    "difficultyHintGuided": "shows what to do next",
+    "difficultyHintNormal": "find your own way"
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",

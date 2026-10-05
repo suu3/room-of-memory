@@ -21,6 +21,7 @@ import { KeyHint } from "../shared/Keycap";
 import { STAGGER_CLASS, staggerStyle } from "../shared/stagger";
 import { BACKDROP, BUTTON_DESTRUCTIVE, BUTTON_QUIET, PANEL_DARK } from "../shared/ui-classes";
 import { RisingDust } from "./RisingDust";
+import { TitleDifficultyToggle } from "./TitleDifficultyToggle";
 
 /**
  * 시작 버튼을 누르고 방이 드러나기까지 로딩 화면을 보여주는 시간.
@@ -469,10 +470,14 @@ export function TitleScreen() {
                   끄는 게임인데 자동재생 정책 때문에 첫 클릭 전에는 아무 소리도 안 나므로,
                   시작하기 직전 눈이 머무는 자리에서 "소리가 있는 게임"임을 말하고 그 자리에서
                   켜고 끈다. 이어하는 판에서는 새 게임 밑이 눈이 안 가는 자리라 조작 띠로 내려간다.
+
+                  난이도도 같은 자리, 같은 무게다. 플레이 중에는 메뉴를 펼쳐야 보여서 헤매는
+                  사람일수록 이지가 있는 줄 모른다. 처음 하는 판에만 선다.
                 */}
                 {item.key === "new-game" && !hasSave ? (
-                  <div className="-mt-1 mb-1 pl-9">
+                  <div className="-mt-1 mb-1 flex flex-col items-start gap-1.5 pl-9">
                     <SoundToggle tone="title" />
+                    <TitleDifficultyToggle />
                   </div>
                 ) : null}
               </Fragment>

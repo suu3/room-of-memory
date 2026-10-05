@@ -601,7 +601,9 @@
     "soundLabel": "サウンド",
     "soundStateOn": "オン",
     "soundStateOff": "オフ",
-    "soundHint": "サウンドオン推奨"
+    "soundHint": "サウンドオン推奨",
+    "difficultyHintGuided": "次にすることを教えます",
+    "difficultyHintNormal": "自分で探します"
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",

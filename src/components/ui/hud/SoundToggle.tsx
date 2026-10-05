@@ -7,7 +7,7 @@ import { playSound, setAudioMuted } from "@/lib/audio";
 import { useMemoryRoomStore } from "@/store/memory-room";
 import { playHoverSound } from "../shared/hover-sfx";
 import { KEYCAP_CLASS } from "../shared/Keycap";
-import { FOCUS_RING, HUD_ICON_BUTTON } from "../shared/ui-classes";
+import { HUD_ICON_BUTTON, TITLE_TOGGLE } from "../shared/ui-classes";
 
 /**
  * hud: 방 위에 떠 있는 아이콘 버튼.
@@ -15,9 +15,6 @@ import { FOCUS_RING, HUD_ICON_BUTTON } from "../shared/ui-classes";
  *        권해요"처럼 상태와 권장을 한 줄로 읽히게 하고, 눌러서 바로 바꾼다.
  */
 export type SoundToggleTone = "hud" | "title";
-
-/** 이어하기 아래 진행 줄과 같은 옷(작은 본문 글자 · ash). 메뉴 항목과 무게가 겹치지 않는다 */
-const TITLE_BUTTON = `group inline-flex cursor-pointer items-center gap-1.5 rounded-sm text-left text-xs leading-normal text-ash transition-colors duration-150 hover:text-ivory ${FOCUS_RING}`;
 
 /**
  * 소리 on/off. HUD 메뉴 안에 있던 걸 밖으로 꺼냈다.
@@ -58,7 +55,7 @@ export function SoundToggle({ tone = "hud" }: { tone?: SoundToggleTone }) {
         aria-label={t("titleScreen.soundLabel")}
         onPointerEnter={playHoverSound}
         onClick={toggle}
-        className={TITLE_BUTTON}
+        className={TITLE_TOGGLE}
       >
         {/*
           상태는 키캡으로: 조작 줄의 다른 캡(클릭·WASD·E)과 같은 "누르는 것"으로 읽힌다.

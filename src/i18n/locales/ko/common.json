@@ -601,7 +601,9 @@
     "soundLabel": "소리",
     "soundStateOn": "켜짐",
     "soundStateOff": "꺼짐",
-    "soundHint": "켜고 플레이하기를 권해요"
+    "soundHint": "켜고 플레이하기를 권해요",
+    "difficultyHintGuided": "다음 할 일을 알려 줘요",
+    "difficultyHintNormal": "할 일을 직접 찾아요"
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",

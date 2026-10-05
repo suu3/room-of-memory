@@ -37,6 +37,12 @@ export const TURN_BUTTON_DARK = `cursor-pointer rounded-sm border border-line bg
 /** 인스펙트 무대 위에 뜨는 조작 버튼 (돌리기·확대). 알약 모양 받침 안에 테 없이 선다. */
 export const STAGE_ICON_BUTTON = `grid size-8 cursor-pointer place-items-center rounded-full text-fog transition-colors duration-150 hover:bg-ivory/10 hover:text-ivory active:bg-ivory/15 ${FOCUS_RING}`;
 
+/**
+ * 타이틀의 새 게임 아래 설정 토글 (소리·난이도). 이어하기 아래 진행 줄과 같은 옷(작은 본문
+ * 글자 · ash)이라 메뉴 항목과 무게가 겹치지 않는다.
+ */
+export const TITLE_TOGGLE = `group inline-flex cursor-pointer items-center gap-1.5 rounded-sm text-left text-xs leading-normal text-ash transition-colors duration-150 hover:text-ivory ${FOCUS_RING}`;
+
 /** 선택 칩 (언어·난이도·분류). 상태는 색만이 아니라 aria-pressed와 채움으로 말한다. */
 export const CHIP_BASE = `cursor-pointer rounded-sm border px-3 py-1.5 text-sm font-medium leading-none transition-colors duration-150 ${FOCUS_RING}`;
 export const CHIP_SELECTED = "border-memory/60 bg-memory/15 text-memory";

@@ -162,6 +162,29 @@ describe("TitleScreen", () => {
     expect(sound.textContent).toContain("best played with sound on");
   });
 
+  it("처음 하는 판에는 소리 토글 아래에 난이도 토글이 서고, 누르면 이지와 보통을 오간다", () => {
+    render(<TitleScreen />);
+
+    const difficulty = screen.getByRole("button", { name: /Difficulty/ });
+    expect(difficulty.previousElementSibling).toBe(screen.getByRole("button", { name: "Sound" }));
+    expect(difficulty.textContent).toContain("Normal");
+
+    fireEvent.click(difficulty);
+    expect(useMemoryRoomStore.getState().difficulty).toBe("guided");
+    expect(difficulty.textContent).toContain("Easy");
+    expect(difficulty.textContent).toContain("shows what to do next");
+
+    fireEvent.click(difficulty);
+    expect(useMemoryRoomStore.getState().difficulty).toBe("normal");
+  });
+
+  it("저장이 있는 판에는 난이도 토글이 서지 않는다", () => {
+    setSaved();
+    render(<TitleScreen />);
+
+    expect(screen.queryByRole("button", { name: /Difficulty/ })).toBeNull();
+  });
+
   it("저장이 있는 판에서는 소리 토글이 새 게임 아래가 아니라 조작 띠에 선다", () => {
     setSaved();
     render(<TitleScreen />);
