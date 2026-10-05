@@ -6,7 +6,7 @@ import { MemoryGlowSelection } from "../effects/MemoryOutlineGlow";
 import { useGlowHover } from "../effects/use-glow-hover";
 import { ROOM_DOOR_LEAF } from "../world/layout";
 import type { RoomPalette } from "../world/palette";
-import { DOORWAYS, type DoorwayId } from "../world/spaces";
+import { DOORWAYS, type DoorwayId, doorwayFarSide } from "../world/spaces";
 import type { Vec3Tuple } from "../world/types";
 import { useDoorSwing } from "./use-door-swing";
 
@@ -19,7 +19,8 @@ const DOOR_FRAME = [
 
 /**
  * 거실에서 새 공간으로 이어지는 문 (화장실·안방). 방문·현관문과 같은 문법이다:
- * 조건이 차면 금빛이 돌고, 누르면 열리고, 한 번 열리면 계속 열려 있다.
+ * 조건이 차면 금빛이 돌고, 누르면 열리고, 한 번 열리면 계속 열려 있다. 열린 문을 누르면
+ * 그 문을 지나 저쪽 공간으로 걸어간다 (doorwayFarSide).
  *
  * 문짝은 경첩(문틀 -x 기둥 안쪽)을 축으로 **저쪽 공간 쪽으로** 젖혀진다. 거실 쪽으로
  * 젖히면 판이 거실 통로를 물어 콜라이더가 하나 더 필요하다. 저쪽 공간의 문 앞은
@@ -43,9 +44,15 @@ export function SpaceDoor({ id, palette }: { id: DoorwayId; palette: RoomPalette
       rotation={doorway.rotation}
       {...handlers}
       onClick={(event) => {
-        if (open) return;
         event.stopPropagation();
-        pressDoor(id);
+        if (!open) {
+          pressDoor(id);
+          return;
+        }
+        // 열린 문은 저쪽으로 건너가는 손잡이다. 바닥 클릭으로 흘리면 문 뒤의 이쪽 바닥으로 걷는다
+        const state = useMemoryRoomStore.getState();
+        const far = doorwayFarSide(id, state.space);
+        state.walkTo(far.x, far.z);
       }}
     >
       <group

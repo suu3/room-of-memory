@@ -35,6 +35,7 @@ import {
   sideWallWithDoors,
   WALL_THICKNESS,
 } from "../../world/space-shell";
+import { doorwayFarSide } from "../../world/spaces";
 import type { Vec3Tuple } from "../../world/types";
 import { DOOR_HOLE_Z } from "../room/RoomShell";
 
@@ -182,7 +183,8 @@ const DOOR_FRAME = [
  * 보이는데(열린 문 너머가 허공이면 안 된다), 그때 이 굽도리까지 서면 방의 왼벽
  * 굽도리와 같은 자리에서 겹쳐 깜빡인다.
  *
- * 누르는 물건은 아니다. 문턱을 넘으면 방이다.
+ * 문턱의 빛은 누르면 방으로 걸어 들어간다 (doorwayFarSide). 숨은 방의 바닥은 누를 수 없어서,
+ * 바닥을 눌러 걷는 손에는 이 빛이 방으로 돌아가는 유일한 손잡이다. 걸어서 넘어도 방이다.
  */
 const SHARED_WALL_X = LIVING_SHELL_BOUNDS.maxX;
 
@@ -211,12 +213,22 @@ function RoomDoorway({ palette }: { palette: RoomPalette }) {
       {ROOM_DOORWAY_STUBS.map((part) => (
         <ShellBox key={part.position.join(":")} part={part} color={palette.trim} />
       ))}
-      <ShellBox
-        part={THRESHOLD_GLOW}
-        color={palette.memory}
-        emissive={palette.memory}
-        emissiveIntensity={0.45}
-      />
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: R3F group은 DOM이 아니라 Canvas 안의 포인터 대상이다. */}
+      <group
+        onClick={(event) => {
+          event.stopPropagation();
+          const state = useMemoryRoomStore.getState();
+          const far = doorwayFarSide("room-living", state.space);
+          state.walkTo(far.x, far.z);
+        }}
+      >
+        <ShellBox
+          part={THRESHOLD_GLOW}
+          color={palette.memory}
+          emissive={palette.memory}
+          emissiveIntensity={0.45}
+        />
+      </group>
     </group>
   );
 }

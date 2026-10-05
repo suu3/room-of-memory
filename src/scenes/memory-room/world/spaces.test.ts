@@ -3,6 +3,7 @@ import {
   ALL_COLLIDERS,
   DOORWAY_IDS,
   DOORWAYS,
+  doorwayFarSide,
   followLimits,
   reachableSpaces,
   SPACE_IDS,
@@ -145,6 +146,33 @@ describe("문간", () => {
         expect(stands, `${id}/${side}`).toBe(true);
       }
     }
+  });
+});
+
+describe("열린 문을 눌러 건너가기", () => {
+  it("문 저쪽 자리는 건너편 공간 안이고, 거기 설 수 있다", () => {
+    const open = [...DOORWAY_IDS];
+    const zones = walkZones(open);
+    const colliders = walkColliders(open);
+    for (const id of DOORWAY_IDS) {
+      const [inner, outer] = DOORWAYS[id].between;
+      for (const [from, to] of [
+        [inner, outer],
+        [outer, inner],
+      ] as const) {
+        const far = doorwayFarSide(id, from);
+        // 건너편 껍데기 안에 서야 공간이 바뀐다. 문턱 위에서 멈추면 안 넘어간 것이다
+        expect(spaceAt(far.x, far.z, from), `${id}: ${from} → ${to}`).toBe(to);
+        expect(isWalkable(far.x, far.z, PLAYER_RADIUS, zones, colliders), `${id}: ${to}`).toBe(
+          true,
+        );
+      }
+    }
+  });
+
+  it("문과 상관없는 공간에 서 있으면 새로 열리는 쪽으로 간다", () => {
+    const far = doorwayFarSide("living-parents", "room");
+    expect(spaceAt(far.x, far.z, "room")).toBe("parents");
   });
 });
 

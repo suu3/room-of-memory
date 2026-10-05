@@ -166,6 +166,32 @@ export const DOORWAYS = {
   },
 } as const satisfies Record<DoorwayId, DoorwayDef>;
 
+/** 문을 눌러 건너갈 때 저쪽 걷기 범위 안으로 들어서는 깊이. 문턱에 걸쳐 서면 공간이 안 바뀐다. */
+const DOOR_STEP_IN = 0.5;
+
+/**
+ * 열린 문을 눌렀을 때 걸어가 설 자리: 지금 선 공간의 반대편, 문간을 막 지난 곳.
+ *
+ * 바닥을 눌러 걷는 손은 문 너머 바닥을 누를 수 없다. 한 번에 한 공간만 그리므로 저쪽
+ * 바닥은 숨어 있고(event-visibility), 문을 눌러도 광선은 문을 지나 **이쪽** 바닥에 닿는다.
+ * 안방은 문이 카메라 쪽 벽에 있어서 마우스만으로는 영영 못 나왔다 (2026-10-06 플레이
+ * 테스트). 그래서 문 자체가 "저쪽으로 간다"는 버튼이 된다.
+ *
+ * 자리는 문간 가운데를 저쪽 걷기 범위 안으로 끌어다 놓은 점이다. 문과 상관없는 공간에
+ * 서 있으면 새로 열리는 쪽(between의 두 번째)으로 간다.
+ */
+export function doorwayFarSide(id: DoorwayId, from: SpaceId): { x: number; z: number } {
+  const { between, zone } = DOORWAYS[id];
+  const to = from === between[1] ? between[0] : between[1];
+  const { bounds } = SPACES[to];
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(max - DOOR_STEP_IN, Math.max(min + DOOR_STEP_IN, value));
+  return {
+    x: clamp((zone.minX + zone.maxX) / 2, bounds.minX, bounds.maxX),
+    z: clamp((zone.minZ + zone.maxZ) / 2, bounds.minZ, bounds.maxZ),
+  };
+}
+
 /** 모든 공간의 가구 발자국. 문이 닫힌 공간 것도 늘 합쳐 본다: 어차피 닿을 수 없다. */
 export const ALL_COLLIDERS: readonly Aabb2[] = SPACE_IDS.flatMap((id) => SPACES[id].colliders);
 

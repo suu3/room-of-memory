@@ -13,6 +13,7 @@ import {
   ROOM_SHELL_CENTER,
 } from "../../world/layout";
 import type { RoomPalette } from "../../world/palette";
+import { doorwayFarSide } from "../../world/spaces";
 import type { Vec3Tuple } from "../../world/types";
 import { LightSwitch } from "./LightSwitch";
 import { WindowView } from "./WindowView";
@@ -352,9 +353,15 @@ export function RoomShell({
         position={ROOM_DOOR_POSITION}
         rotation={ROOM_DOOR_ROTATION}
         onClick={(event) => {
-          if (doorOpen) return;
           event.stopPropagation();
-          pressDoor("room-living");
+          if (!doorOpen) {
+            pressDoor("room-living");
+            return;
+          }
+          // 열린 문은 저쪽으로 건너가는 손잡이다 (SpaceDoor와 같은 문법)
+          const state = useMemoryRoomStore.getState();
+          const far = doorwayFarSide("room-living", state.space);
+          state.walkTo(far.x, far.z);
         }}
       >
         {/* 문짝만 경첩(왼쪽 문틀)을 축으로 젖혀진다. 문틀·손잡이는 제자리에 남는다. */}
