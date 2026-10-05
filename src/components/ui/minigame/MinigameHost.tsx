@@ -203,6 +203,8 @@ export function MinigameHost() {
   const hosted = definition?.mode === "overlay" ? definition : undefined;
   /** 씬 안에서 도는 판: 여기서는 안내와 닫기만 맡는다. */
   const canvasHosted = definition?.mode === "canvas" ? definition : undefined;
+  /** 수첩·메뉴가 위에 떠 있는가. 그동안 canvas 판의 안내는 내린다 (PuzzleHost와 같은 이유). */
+  const covered = useMemoryRoomStore((state) => state.uiLocks.length > 0);
   /** 탐색형 오브젝트: 시작 카드도 패널도 없이 물건만 떠오른다. */
   const bare = hosted?.presentation === "bare";
   /** 시작 카드 없이 열리되 패널 한 장이 뒤에 깔린다. 닫기는 그 패널 모서리에 선다. */
@@ -294,7 +296,7 @@ export function MinigameHost() {
         조작 안내 한 줄과 닫기만 띄운다. 결과 대사가 뜨면 둘 다 물러난다: 그 구간의
         주인은 대사창이다. 안내 자리는 근접 안내(RoomInteractionPrompt)와 같은 자리다.
       */}
-      {active?.phase === "minigame" && canvasHosted && (
+      {active?.phase === "minigame" && canvasHosted && !covered && (
         <div className="pointer-events-none absolute bottom-6 left-1/2 z-40 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center gap-2">
           <div
             role="status"

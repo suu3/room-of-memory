@@ -142,14 +142,18 @@ export function CharacterSheetModal() {
             탭은 페이지 위쪽에 붙은 종이 인덱스다. 고른 탭은 아래 헤어라인을 제 배경으로
             덮어 페이지와 한 장으로 이어지고, 나머지는 뒤에 깔린 종이로 물러난다.
           */}
-          <div className="flex flex-none items-end justify-between gap-3 px-5 pt-4">
+          {/*
+            좁은 화면에서는 닫기를 이름 줄 오른쪽 위로 올리고 탭 줄에 폭을 다 준다. 탭이 넷이
+            되면(소지품) 닫기와 한 줄에 못 서서, 마지막 탭 위에 X가 겹쳐 앉았다.
+          */}
+          <div className="relative flex flex-none items-end justify-between gap-3 px-5 pt-4">
             {/*
               이름만: 나이·소속은 아래에서 가려두는 항목이라 헤더에 적으면 가리는 의미가 없다.
               이름도 문제집 뒤표지를 보기 전까지는 막대다 (BlurredValue와 같은 이유로 본문을 싣지 않는다).
             */}
-            <div className="flex min-w-0 flex-wrap items-end gap-x-5 gap-y-2">
+            <div className="flex min-w-0 flex-1 flex-wrap items-end gap-x-5 gap-y-2">
               {nameKnown ? (
-                <span className="truncate pb-1.5 text-sm font-medium text-ink">
+                <span className="truncate pb-1.5 pr-9 text-sm font-medium text-ink sm:pr-0">
                   {tRoom("characters.hero.name")}
                 </span>
               ) : (
@@ -161,7 +165,8 @@ export function CharacterSheetModal() {
               <div
                 role="tablist"
                 aria-label={t("characterSheet.title")}
-                className="relative z-10 -mb-px flex flex-none gap-1"
+                // 그래도 넘치면(긴 번역 · 더 좁은 폰) 탭 줄만 옆으로 민다
+                className="relative z-10 -mb-px flex max-w-full flex-none gap-1 overflow-x-auto [scrollbar-width:none]"
               >
                 {tabs.map((id) => (
                   <button
@@ -170,7 +175,7 @@ export function CharacterSheetModal() {
                     role="tab"
                     aria-selected={tab === id}
                     onClick={() => setTab(id)}
-                    className={`cursor-pointer rounded-t-md border px-3 py-1.5 text-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
+                    className={`flex-none cursor-pointer rounded-t-md border px-2.5 py-1.5 text-sm sm:px-3 font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory ${
                       tab === id
                         ? "border-ink/15 border-b-transparent bg-paper text-ink"
                         : "border-transparent bg-bone/50 text-graphite hover:text-ink active:bg-bone/70"
@@ -195,7 +200,7 @@ export function CharacterSheetModal() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label={t("characterSheet.close")}
-              className={`-mr-1.5 mb-0.5 flex-none ${ICON_BUTTON_PAPER}`}
+              className={`absolute right-3.5 top-3 flex-none sm:static sm:-mr-1.5 sm:mb-0.5 ${ICON_BUTTON_PAPER}`}
             >
               <XIcon size={18} weight="bold" />
             </button>

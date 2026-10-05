@@ -108,6 +108,11 @@ export function PuzzleHost() {
   /** 씬 안에서 도는 판: 여기서는 안내와 닫기만 맡는다. */
   const canvasHosted = definition?.mode === "canvas" ? definition : undefined;
   const sealed = cleared || (settledId !== null && settledId === active);
+  /*
+   * 수첩·메뉴가 위에 떠 있는가. canvas 판의 안내와 돌아가기는 HUD 위 층(z-40)이라, 그동안
+   * 내리지 않으면 수첩(z-30) 종이 위에 "건반을 눌러 보세요"가 떠 있다.
+   */
+  const covered = useMemoryRoomStore((state) => state.uiLocks.length > 0);
 
   // 미등록 id로는 판을 세울 수 없다. 조용히 닫아서 진행이 막히지 않게 한다
   useEffect(() => {
@@ -152,7 +157,7 @@ export function PuzzleHost() {
         canvas 판(거실 피아노): 판은 씬이 그리고 있다. 백드롭도 틀도 없이 조작 안내
         한 줄과 닫기만 띄운다. 안내 자리는 근접 안내(RoomInteractionPrompt)와 같다.
       */}
-      {canvasHosted && (
+      {canvasHosted && !covered && (
         <div className="pointer-events-none absolute bottom-6 left-1/2 z-40 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center gap-2">
           <div
             role="status"

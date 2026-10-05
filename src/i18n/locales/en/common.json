@@ -15,6 +15,7 @@
     "memoryCount": "Memories",
     "packCount": "Packed",
     "inventory": "Carrying",
+    "inventoryOpen": "{{name}}: open Items in the notebook",
     "contact": "Credits",
     "reset": "Reset",
     "soundOn": "Sound on",

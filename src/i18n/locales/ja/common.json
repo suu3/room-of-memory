@@ -15,6 +15,7 @@
     "memoryCount": "記憶",
     "packCount": "持ち物",
     "inventory": "持ち物",
+    "inventoryOpen": "{{name}}：手帳の持ち物を開く",
     "contact": "制作者",
     "reset": "リセット",
     "soundOn": "サウンド オン",
