@@ -462,16 +462,16 @@ scripts:
   computer-logo-intro:
     - speaker: hero
       expression: puzzled
-      ko: 라온생명과학연구소. 이 컴퓨터 어딘가에서 그 로고를 본 것 같은데.
-      en: Laon Life Science Institute. I think I saw that logo somewhere on this computer.
-      ja: ラオン生命科学研究所。このパソコンのどこかで、あのロゴを見た気がする。
+      ko: 소독제 병에 있던 그 그림. 이 컴퓨터 어딘가에서 본 것 같은데.
+      en: That mark from the sanitizer bottle. I think I saw it somewhere on this computer.
+      ja: 消毒液のボトルにあったあの印。このパソコンのどこかで見た気がする。
 
   # 로고를 고른 뒤: 아빠가 이 컴퓨터로 들어갔던 임직원 포털의 메모가 선반의 책을 가리킨다
   computer-logo-found:
     - speaker: hero
-      ko: 찾았다. 아빠 출입증에 있던 거랑 같은 로고야.
-      en: Found it. Same logo as the one on Dad's badge.
-      ja: あった。父さんの入館証にあったのと同じロゴだ。
+      ko: 찾았다. 소독제 병에 있던 거랑 같은 로고야.
+      en: Found it. Same logo as the one on the sanitizer bottle.
+      ja: あった。消毒液のボトルにあったのと同じロゴだ。
     - speaker: hero
       ko: 아빠가 남긴 메모가 있어. 도해 방 선반, 1권.
       en: There's a memo Dad left. Dohae's room, the shelf, volume one.
@@ -496,7 +496,7 @@ scripts:
       ja: 母さんの字だ。一枚ずつ日付が書いてある。
 
   # 날짜순으로 놓은 뒤: 무슨 연구였는지, 치료제 후보, 여행이 아니었다는 것.
-  # 도해는 부모님이 라온에 다니는 것은 알았다 (배지: "아빠 목에 늘 걸려 있던 거다").
+  # 도해는 부모님이 라온에 다니는 것은 알았다 (소독제 병: "아빠가 회사에서 가져오던 소독제다").
   # 몰랐던 것은 무슨 연구를 했는가다
   research-note-read:
     - speaker: hero

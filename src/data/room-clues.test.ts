@@ -58,10 +58,10 @@ describe("컴퓨터 비밀번호 단서", () => {
       "workbook.zoomIn",
       "workbook.zoomOut",
       "workbook.caption",
-      "laonBadge.title",
-      "laonBadge.name",
-      "laonBadge.alt",
-      "laonBadge.caption",
+      "laonSanitizer.title",
+      "laonSanitizer.label",
+      "laonSanitizer.alt",
+      "laonSanitizer.caption",
     ];
 
     for (const [locale, resource] of Object.entries(LOCALES)) {
@@ -105,21 +105,20 @@ describe("컴퓨터 비밀번호 단서", () => {
     expect(CLUE_DISCOVERY.workbook).toBe("hero-name");
   });
 
-  it("세면대 바닥의 배지: 물을 빼면 나오는 단서이고, 컴퓨터 3차가 그 뒤에 열린다", () => {
-    expect(CLUE_IDS).toContain("laon-badge");
-    expect(CLUE_DISCOVERY["laon-badge"]).toBe("laon-badge");
-    expect(VISIT_AFTER_DISCOVERY.computer).toEqual({ visit: 3, discovery: "laon-badge" });
+  it("세면대 바닥의 소독제 병: 물을 빼면 나오는 단서이고, 컴퓨터 3차가 그 뒤에 열린다", () => {
+    expect(CLUE_IDS).toContain("laon-sanitizer");
+    expect(CLUE_DISCOVERY["laon-sanitizer"]).toBe("laon-sanitizer");
+    expect(VISIT_AFTER_DISCOVERY.computer).toEqual({ visit: 3, discovery: "laon-sanitizer" });
     for (const { discovery } of Object.values(VISIT_AFTER_DISCOVERY)) {
       expect(DISCOVERY_IDS).toContain(discovery);
     }
-    // 배지에 적힌 이름이 로고 고르기의 답이다: 셋 다 같은 이름을 쓴다
+    // 소독제 병에는 이름이 없다. 안내도 이름을 대지 않고, 맞힌 뒤의 포털이 처음 댄다
     for (const [locale, resource] of Object.entries(LOCALES)) {
-      expect(resource.clue.laonBadge.name, locale).toContain(
-        locale === "ko" ? "라온" : locale === "en" ? "Laon" : "ラオン",
-      );
-      expect(resource.minigame.computerLogo.help, locale).toContain(
-        locale === "ko" ? "라온" : locale === "en" ? "Laon" : "ラオン",
-      );
+      const name = locale === "ko" ? "라온" : locale === "en" ? "Laon" : "ラオン";
+      expect(resource.clue.laonSanitizer, locale).not.toHaveProperty("name");
+      expect(resource.minigame.computerLogo.help, locale).not.toContain(name);
+      expect(resource.minigame.computerLogo.help_touch, locale).not.toContain(name);
+      expect(resource.minigame.computerLogo.portal.org, locale).toContain(name);
     }
   });
 

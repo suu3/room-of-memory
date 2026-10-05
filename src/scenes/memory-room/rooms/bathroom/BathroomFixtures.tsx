@@ -5,7 +5,7 @@ import { Vector2 } from "three";
 import { pressSinkPlug } from "@/lib/room-press";
 import {
   clueUnlocked,
-  selectBadgeSeen,
+  selectSanitizerSeen,
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
@@ -148,7 +148,7 @@ function Toilet({ palette }: { palette: RoomPalette }) {
  * 놓인다. 다시 꽂는 일은 없다: 30일 고인 물은 한 번 빠지면 끝이다.
  */
 /**
- * 마개와 배지가 눌리는 범위: 대야 안쪽 전체. 둘 다 손톱만 해서 제 모양으로는 거의 안 눌리고,
+ * 마개와 소독제 병이 눌리는 범위: 대야 안쪽 전체. 둘 다 작아서 제 모양으로는 거의 안 눌리고,
  * 사람은 세면대를 누른다. 가장자리의 칫솔컵·비누는 덮지 않는다.
  */
 const BASIN_HIT: HitBox = { position: [0, 0.8, 0], size: [0.44, 0.12, 0.36] };
@@ -274,16 +274,17 @@ function BasinTop({ palette }: { palette: RoomPalette }) {
 }
 
 /**
- * 물 밑에 깔려 있던 아빠의 출입증 배지: 둥근 판에 끈이 달린 채 대야 바닥에 엎어져 있다.
+ * 물 밑에 깔려 있던 손 소독제 병: 아빠가 회사에서 가져오던 카드 모양의 납작한 분사 병이 대야
+ * 바닥에 누워 있다. 라벨에는 로고만 있고 연구소 이름은 없다.
  * 물을 빼기 전에는 물 판이 덮어 보이지 않고 만져지지도 않는다 (store의 clueUnlocked).
- * 빠지면 금빛으로 부르고(beckon), 누르면 확대 화면이 펼쳐진다 (ClueOverlay의 LaonBadgeZoom).
+ * 빠지면 금빛으로 부르고(beckon), 누르면 확대 화면이 펼쳐진다 (ClueOverlay의 LaonSanitizerZoom).
  */
-function SinkBadge({ palette }: { palette: RoomPalette }) {
-  const unlocked = useMemoryRoomStore((state) => clueUnlocked(state, "laon-badge"));
-  const seen = useMemoryRoomStore(selectBadgeSeen);
+function SinkSanitizer({ palette }: { palette: RoomPalette }) {
+  const unlocked = useMemoryRoomStore((state) => clueUnlocked(state, "laon-sanitizer"));
+  const seen = useMemoryRoomStore(selectSanitizerSeen);
   return (
     <ClueProp
-      clue="laon-badge"
+      clue="laon-sanitizer"
       near={SINK_NEAR}
       radius={SINK_RADIUS}
       enabled={unlocked}
@@ -291,24 +292,31 @@ function SinkBadge({ palette }: { palette: RoomPalette }) {
       hitBox={BASIN_HIT}
     >
       {/*
-        윤곽선은 배지 조각이 아니라 대야 윗부분 전체에 선다: 배지는 손톱만 해서 제 윤곽만으로는
+        윤곽선은 병 하나가 아니라 대야 윗부분 전체에 선다: 병은 손바닥보다 작아서 제 윤곽만으로는
         멀리서 안 보인다. 그래서 대야 윗부분이 이 단서의 글로우 안에 들어와 있다
       */}
       <BasinTop palette={palette} />
-      <group name="laon-badge" position={[0.12, 0.774, -0.05]} rotation={[0, -0.5, 0]}>
-        <Cylinder position={[0, 0, 0]} radius={0.058} height={0.006} color={palette.linen} />
-        <mesh position={[0, 0.0035, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.036, 0.05, 24]} />
+      <group name="laon-sanitizer" position={[0.12, 0.774, -0.05]} rotation={[0, -0.5, 0]}>
+        {/* 납작한 몸통: 물(WATER_Y) 밑에 다 잠기는 두께라야 빼기 전에 안 보인다 */}
+        <Box
+          position={[0, 0.004, 0]}
+          size={[0.13, 0.008, 0.08]}
+          color={palette.sage}
+          radius={0.003}
+          roughness={0.25}
+        />
+        {/* 라벨: 흰 종이에 둥근 로고 테 하나 */}
+        <Box position={[0.012, 0.0085, 0]} size={[0.08, 0.001, 0.062]} color={palette.linen} />
+        <mesh position={[0.012, 0.0095, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.016, 0.022, 24]} />
           <meshStandardMaterial color={palette.frame} metalness={0.6} roughness={0.3} />
         </mesh>
-        <Cylinder position={[0, 0.004, 0]} radius={0.014} height={0.002} color={palette.frame} />
-        {/* 목걸이 끈: 배지에서 대야 벽 쪽으로 늘어진다 */}
+        {/* 분사 뚜껑: 한쪽 끝에 붙은 어두운 마개 */}
         <Box
-          position={[-0.06, 0.004, 0.07]}
-          rotation={[0, 0.9, 0]}
-          size={[0.014, 0.004, 0.16]}
+          position={[-0.074, 0.004, 0.022]}
+          size={[0.018, 0.008, 0.03]}
           color={palette.deep}
-          roughness={0.7}
+          roughness={0.5}
         />
       </group>
     </ClueProp>
@@ -346,8 +354,8 @@ function Sink({ palette }: { palette: RoomPalette }) {
         color={palette.frame}
         metalness={0.8}
       />
-      {/* 대야 윗부분과 물 밑의 배지. 배지는 물보다 먼저 그린다: 물 판이 투명해지며 걷힐 때 그 아래가 보여야 한다 */}
-      <SinkBadge palette={palette} />
+      {/* 대야 윗부분과 물 밑의 소독제 병. 소독제 병은 물보다 먼저 그린다: 물 판이 투명해지며 걷힐 때 그 아래가 보여야 한다 */}
+      <SinkSanitizer palette={palette} />
       {/* 30일 고인 물. 열쇠를 집는 순간 파문 하나가 번진다. 마개를 뽑으면 빠진다 (SinkWater) */}
       <SinkWater palette={palette} />
       <SinkPlug palette={palette} />

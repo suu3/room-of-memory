@@ -445,11 +445,11 @@
     },
     "computerLogo": {
       "title": "Saved Images",
-      "help": "Pick the logo of Laon Life Science Institute: click",
-      "help_touch": "Tap the logo of Laon Life Science Institute",
+      "help": "Pick the logo you saw on the sanitizer bottle: click",
+      "help_touch": "Tap the logo you saw on the sanitizer bottle",
       "app": "Photos · Saved pages",
       "wrong": "…Not this one.",
-      "found": "Laon Life Science Institute. Same as the one on Dad's badge.",
+      "found": "Laon Life Science Institute. …So that's what was on the sanitizer bottle.",
       "source": {
         "hotel": "Saved accommodation guide",
         "portal": "Saved page: staff portal",
@@ -457,6 +457,7 @@
         "gate": "Cached news: research facility gate"
       },
       "portal": {
+        "org": "Laon Life Science Institute",
         "title": "Staff Portal",
         "lastLogin": "Last sign-in: October 16",
         "memoLabel": "Memo",
@@ -664,11 +665,11 @@
       "alt": "3D character in the mirror: drag to turn",
       "caption": "…I look rough."
     },
-    "laonBadge": {
-      "title": "ID Badge",
-      "name": "Laon Life Science Institute",
-      "alt": "A round badge fished from the drained sink. A logo of a rising sun",
-      "caption": "Dad always had this around his neck. …Why is it here?"
+    "laonSanitizer": {
+      "title": "Hand Sanitizer",
+      "label": "Hand sanitizer · Staff use",
+      "alt": "A flat sanitizer bottle fished from the drained sink. A rising-sun logo on its label",
+      "caption": "The sanitizer Dad used to bring home from work."
     }
   },
   "items": {
@@ -727,6 +728,6 @@
     "clockRunning": "…It's ticking again. Whether it's right, I can't tell.",
     "aircon": "It's cold now. No reason to turn the AC on anymore.",
     "sinkDrained": "…Something's sunk to the bottom.",
-    "badgeFound": "…It was on the ampoule."
+    "sanitizerFound": "…It was on the ampoule."
   }
 }

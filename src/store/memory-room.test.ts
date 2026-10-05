@@ -811,7 +811,7 @@ describe("v4.1 추리: 캐리어 개수와 컷씬 줄", () => {
 describe("3페이즈: 앰플 → 로고 → 협탁 서랍 → 안방 열쇠", () => {
   beforeEach(() => useMemoryRoomStore.getState().reset());
 
-  it("앰플이 먼저, 컴퓨터 3차는 앰플과 세면대 바닥의 배지 뒤에 열린다", () => {
+  it("앰플이 먼저, 컴퓨터 3차는 앰플과 세면대 바닥의 소독제 병 뒤에 열린다", () => {
     enterPhase("p3");
     expect(status("ampoule")).toBe("available");
     // 컴퓨터는 2차를 봤고 3차가 앰플을 기다린다
@@ -819,32 +819,32 @@ describe("3페이즈: 앰플 → 로고 → 협탁 서랍 → 안방 열쇠", ()
     useMemoryRoomStore.setState({
       revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
     });
-    // 앰플 라벨의 조각만으로는 넷 중 무엇이 라온인지 모른다: 배지의 이름을 봐야 한다
+    // 앰플 라벨의 조각만으로는 넷 중 무엇이 라온인지 모른다: 소독제 병의 로고를 봐야 한다
     expect(status("computer")).toBe("locked");
-    useMemoryRoomStore.getState().discover("laon-badge");
+    useMemoryRoomStore.getState().discover("laon-sanitizer");
     expect(status("computer")).toBe("available");
   });
 
-  it("세면대: 마개를 뽑으면 물이 빠지고, 그 뒤에야 바닥의 배지가 집힌다", () => {
+  it("세면대: 마개를 뽑으면 물이 빠지고, 그 뒤에야 바닥의 소독제 병이 집힌다", () => {
     enterPhase("p3");
     useMemoryRoomStore.setState({ openedDoorways: ["living-bathroom"] });
-    expect(clueUnlocked(useMemoryRoomStore.getState(), "laon-badge")).toBe(false);
-    useMemoryRoomStore.getState().openClue("laon-badge");
+    expect(clueUnlocked(useMemoryRoomStore.getState(), "laon-sanitizer")).toBe(false);
+    useMemoryRoomStore.getState().openClue("laon-sanitizer");
     expect(useMemoryRoomStore.getState().activeClue).toBeNull();
 
     useMemoryRoomStore.getState().drainSink();
     expect(useMemoryRoomStore.getState().sinkDrained).toBe(true);
     // 물이 빠지는 순간 한 줄이 시선을 대야 바닥으로 끈다
     expect(useMemoryRoomStore.getState().remark?.id).toBe("sink-drained");
-    expect(clueUnlocked(useMemoryRoomStore.getState(), "laon-badge")).toBe(true);
+    expect(clueUnlocked(useMemoryRoomStore.getState(), "laon-sanitizer")).toBe(true);
 
     // 펼치는 순간이 발견이고, 내려놓으면 한 줄이 흐른다
-    useMemoryRoomStore.getState().openClue("laon-badge");
-    expect(useMemoryRoomStore.getState().activeClue).toBe("laon-badge");
-    expect(useMemoryRoomStore.getState().discoveries).toContain("laon-badge");
+    useMemoryRoomStore.getState().openClue("laon-sanitizer");
+    expect(useMemoryRoomStore.getState().activeClue).toBe("laon-sanitizer");
+    expect(useMemoryRoomStore.getState().discoveries).toContain("laon-sanitizer");
     useMemoryRoomStore.getState().closeClue();
     expect(useMemoryRoomStore.getState().activeClue).toBeNull();
-    expect(useMemoryRoomStore.getState().remark?.id).toBe("badge-found");
+    expect(useMemoryRoomStore.getState().remark?.id).toBe("sanitizer-found");
   });
 
   it("마개는 다른 화면이 떠 있는 동안에는 뽑히지 않고, 새 게임이면 물이 다시 고인다", () => {

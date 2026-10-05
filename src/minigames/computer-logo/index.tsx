@@ -27,8 +27,8 @@ export interface LogoCandidate {
 
 /**
  * 고를 수 있는 그림 넷. 라온 로고는 하나뿐이다: 임직원 포털의 저장된 페이지.
- * 화장실 세면대 바닥에서 건진 배지(단서 laon-badge)에 로고와 이름이 같이 있어서,
- * "라온생명과학연구소의 로고"를 고를 수 있다. 전에는 같은 로고 둘(첨부 · 뉴스의 정문)을
+ * 화장실 세면대 바닥에서 건진 소독제 병(단서 laon-sanitizer)에서 로고를 봤으니 "소독제 병에서 본
+ * 로고"를 고를 수 있다. 소독제 병에 이름은 없다: 이름은 맞힌 뒤 열리는 포털에서 처음 나온다. 전에는 같은 로고 둘(첨부 · 뉴스의 정문)을
  * 다 고르는 판이었는데 "같은 그림 찾기"라 시시했다 (2026-10-01). 셋은 비슷한 결의 틀린
  * 그림이다: 둥근 테·수평선·해 같은 요소를 하나씩 나눠 가져 한눈에 고르지는 못하게.
  */
@@ -39,7 +39,7 @@ export const LOGO_CANDIDATES: readonly LogoCandidate[] = [
   { id: "gate", logo: "harbor", sourceKey: "minigame.computerLogo.source.gate" },
 ];
 
-/** 라온생명과학연구소의 로고인가 (세면대 바닥의 배지와 같은 그림). */
+/** 라온생명과학연구소의 로고인가 (세면대 바닥의 소독제 병과 같은 그림). */
 export function matchesLabel(candidate: LogoCandidate): boolean {
   return candidate.logo === "laon";
 }
@@ -98,11 +98,11 @@ function Logo({ kind }: { kind: LogoKind }) {
 type Screen = "match" | "portal";
 
 /**
- * 컴퓨터 3차 (v4 3-5): 세면대 바닥의 배지에서 읽은 이름을 들고 다시 켠 컴퓨터.
+ * 컴퓨터 3차 (v4 3-5): 세면대 바닥의 소독제 병에서 본 로고를 떠올리며 다시 켠 컴퓨터.
  *
  * 로그인은 2차에서 이미 했으니 곧장 저장된 그림들이 뜬다. 저장된 페이지와 캐시 뉴스에서
  * 건진 그림 넷. 견본은 옆에 세우지 않는다: 답을 옆에 두면 같은 그림 찾기라 너무 쉽다. 세면대
- * 바닥의 배지에서 본 것을 떠올려 고른다. 라온생명과학연구소의 로고를 고르면 그 그림이 나온
+ * 바닥의 소독제 병에서 본 것을 떠올려 고른다. 라온생명과학연구소의 로고를 고르면 그 그림이 나온
  * 저장된 페이지가 열린다: 아빠가 이 컴퓨터로 들어갔던 임직원 포털이다. 아빠가 도해에게 보낸
  * 글이 아니라 아빠의 계정에 남은 기록이고, 거기 적어 둔 메모 한 줄이 선반의 책을 가리킨다.
  * 이름과 직함은 싣지 않는다: 안방의 출입증에서 처음 나오는 정보다.
@@ -210,13 +210,15 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
           </div>
         ) : (
           <article className="flex flex-col gap-4 p-5 text-paper">
-            {/* 포털 머리: 방금 맞춘 로고와 연구소 이름 (배지에 적혀 있던 그 이름) */}
+            {/* 포털 머리: 방금 맞춘 로고와 연구소 이름 (소독제 병에는 없던 이름이 여기서 처음 나온다) */}
             <header className="flex items-center gap-3 border-b border-bone/10 pb-4">
               <span className="size-12 flex-none text-memory">
                 <Logo kind="laon" />
               </span>
               <div className="flex min-w-0 flex-col gap-0.5">
-                <h3 className="break-ko text-lg font-bold">{t("clue.laonBadge.name")}</h3>
+                <h3 className="break-ko text-lg font-bold">
+                  {t("minigame.computerLogo.portal.org")}
+                </h3>
                 <p className="text-[0.75rem] text-bone/50">
                   {t("minigame.computerLogo.portal.title")}
                 </p>

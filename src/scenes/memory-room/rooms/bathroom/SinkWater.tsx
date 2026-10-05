@@ -23,7 +23,7 @@ import { RIPPLE, rippleAlive, rippleAmplitude, rippleWavefront } from "./water-r
  * setState는 없다 (.claude/rules/r3f.md).
  *
  * 마개를 뽑으면(store의 sinkDrained) 물이 몇 초에 걸쳐 배수구 쪽으로 쪼그라들며 빠지고,
- * 그 밑에 깔려 있던 출입증 배지가 드러난다 (BathroomFixtures의 Sink). 빠진 물은 다시 차지 않는다.
+ * 그 밑에 깔려 있던 손 소독제 병이 드러난다 (BathroomFixtures의 Sink). 빠진 물은 다시 차지 않는다.
  */
 
 /** 물 판의 크기(m). 대야 바닥판(0.45×0.29)보다 한 치수 작게, 테두리 밑으로 들어간다. */
@@ -264,7 +264,7 @@ export function SinkWater({
       name="basin-water"
     >
       <planeGeometry args={[WATER_SIZE[0], WATER_SIZE[1]]} />
-      {/* 물가가 걷히는 동안만 투명이 필요하다. 깊이는 쓰지 않는다: 밑의 배지와 z-fight하지 않게 */}
+      {/* 물가가 걷히는 동안만 투명이 필요하다. 깊이는 쓰지 않는다: 밑의 소독제 병과 z-fight하지 않게 */}
       <shaderMaterial
         ref={materialRef}
         uniforms={initialUniforms}

@@ -19,7 +19,7 @@ import type { RoomPalette } from "../world/palette";
 import { useSideCue } from "./side-cue";
 
 /**
- * 물건보다 넓게 눌리는 안 보이는 상자 (그 물건의 좌표계). 마개·배지처럼 손톱만 한 물건은
+ * 물건보다 넓게 눌리는 안 보이는 상자 (그 물건의 좌표계). 마개·소독제 병처럼 작은 물건은
  * 제 모양만으로는 거의 안 눌리고, 사람은 그게 놓인 자리(세면대)를 누른다.
  */
 export interface HitBox {

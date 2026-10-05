@@ -14,13 +14,13 @@ function stepAt(phase: Parameters<typeof progressAt>[0], extra: object = {}) {
   return nextStep(useMemoryRoomStore.getState());
 }
 
-/** 3페이즈의 필수 조사를 다 마쳤는데 아직 안방 열쇠가 없는 자리. 세면대의 배지는 봤다. */
+/** 3페이즈의 필수 조사를 다 마쳤는데 아직 안방 열쇠가 없는 자리. 세면대의 소독제 병은 봤다. */
 const P3_DONE = {
   openedDoorways: ["living-bathroom"],
   inventory: [],
   solvedPuzzles: [],
   sinkDrained: true,
-  discoveries: ["hero-name", "laon-badge"],
+  discoveries: ["hero-name", "laon-sanitizer"],
 };
 
 describe("이지 모드의 다음 할 일", () => {
@@ -38,7 +38,7 @@ describe("이지 모드의 다음 할 일", () => {
     expect(inRoom?.kind).toBe("memory");
   });
 
-  it("3페이즈에 화장실에 들어서면 세면대의 물을 빼라고 짚고, 뺀 뒤에는 배지가 스스로 부른다", () => {
+  it("3페이즈에 화장실에 들어서면 세면대의 물을 빼라고 짚고, 뺀 뒤에는 소독제 병이 스스로 부른다", () => {
     const inBathroom = {
       ...progressAt("p3"),
       revisited: [...progressAt("p3").revisited, "ampoule"],
@@ -47,7 +47,7 @@ describe("이지 모드의 다음 할 일", () => {
       discoveries: ["hero-name"],
     };
     expect(stepAt("p3", inBathroom)).toEqual({ kind: "sink-drain" });
-    // 물을 뺐으면 금빛 배지가 다음 자리를 말한다: 목표 줄은 더 짚지 않는다 (곁가지가 있으면 그쪽)
+    // 물을 뺐으면 금빛 소독제 병이 다음 자리를 말한다: 목표 줄은 더 짚지 않는다 (곁가지가 있으면 그쪽)
     expect(stepAt("p3", { ...inBathroom, sinkDrained: true })?.kind).not.toBe("sink-drain");
     // 화장실 문을 열기 전에는 그 문이 먼저다
     expect(stepAt("p3", { ...inBathroom, openedDoorways: [] })).toEqual({
@@ -60,14 +60,14 @@ describe("이지 모드의 다음 할 일", () => {
   it("안방 열쇠 매듭: 선반의 책 → 협탁 서랍 → 안방 문", () => {
     expect(stepAt("p4", P3_DONE)).toEqual({ kind: "shelf-book" });
     expect(
-      stepAt("p4", { ...P3_DONE, discoveries: ["hero-name", "laon-badge", "drawer-code"] }),
+      stepAt("p4", { ...P3_DONE, discoveries: ["hero-name", "laon-sanitizer", "drawer-code"] }),
     ).toEqual({
       kind: "drawer-dial",
     });
     expect(
       stepAt("p4", {
         ...P3_DONE,
-        discoveries: ["hero-name", "laon-badge", "drawer-code"],
+        discoveries: ["hero-name", "laon-sanitizer", "drawer-code"],
         solvedPuzzles: ["drawer-dial"],
         inventory: ["parents-key"],
       }),

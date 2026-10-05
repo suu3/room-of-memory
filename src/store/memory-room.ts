@@ -122,10 +122,10 @@ export type RemarkId =
   | "clock-running"
   // 천장 에어컨 (쉼표 비트): 11월이라 틀 일이 없다. 진행에 아무것도 남기지 않는다
   | "aircon"
-  // 세면대 마개를 뽑아 물이 빠진 순간: 시선을 대야 바닥(배지)으로 끈다
+  // 세면대 마개를 뽑아 물이 빠진 순간: 시선을 대야 바닥(소독제 병)으로 끈다
   | "sink-drained"
-  // 세면대 바닥의 출입증 배지를 들여다보고 내려놓은 순간: 앰플 라벨의 조각과 이어진다
-  | "badge-found"
+  // 세면대 바닥의 손 소독제 병을 들여다보고 내려놓은 순간: 앰플 라벨의 조각과 이어진다
+  | "sanitizer-found"
   // 이미 본 기억을 다시 눌렀을 때: 그 기억의 마지막 기록 문장 (remark.memoryId)
   | "seen"
   // 필요한 물건 없이 문제 판을 조작했을 때: 떠 있는 판의 needsItem 한 줄 (피아노: 악보)
@@ -284,8 +284,8 @@ export interface MemoryRoomState {
    */
   pianoGapSeen: boolean;
   /**
-   * 세면대의 고인 물을 뺐는가: 마개를 뽑은 순간. 물이 빠지면 대야 바닥의 출입증 배지
-   * (단서 laon-badge)가 드러난다. 물은 다시 차지 않는다. 저장한다.
+   * 세면대의 고인 물을 뺐는가: 마개를 뽑은 순간. 물이 빠지면 대야 바닥의 손 소독제 병
+   * (단서 laon-sanitizer)가 드러난다. 물은 다시 차지 않는다. 저장한다.
    */
   sinkDrained: boolean;
   /** 엔딩이 시작됐는가: 거실 끝 현관문을 연 순간. */
@@ -478,7 +478,7 @@ export interface MemoryRoomState {
   setDifficulty: (difficulty: Difficulty) => void;
   toggleLights: () => void;
   openClue: (id: ClueId) => void;
-  /** 세면대 마개를 뽑는다. 물이 빠지고 바닥의 배지가 드러난다 (BathroomFixtures). */
+  /** 세면대 마개를 뽑는다. 물이 빠지고 바닥의 소독제 병이 드러난다 (BathroomFixtures). */
   drainSink: () => void;
   closeClue: () => void;
   /** 방에서 알게 된 사실을 적는다. 이미 아는 것이면 아무 일도 없다. */
@@ -635,7 +635,7 @@ export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus
   };
   const visit = nextVisit(progress, id);
   if (visit === undefined) return "done";
-  // 방에서 알게 된 것이 있어야 열리는 차수 (컴퓨터 3차 = 세면대 바닥의 배지 뒤)
+  // 방에서 알게 된 것이 있어야 열리는 차수 (컴퓨터 3차 = 세면대 바닥의 소독제 병 뒤)
   const after = (
     VISIT_AFTER_DISCOVERY as Partial<Record<string, { visit: Visit; discovery: DiscoveryId }>>
   )[id];
@@ -675,8 +675,8 @@ export const selectDeadline = (state: MemoryRoomState) => deadlineOf(storyPhaseO
  * 것을 먼저 보여주는 셈이고, 그 안의 표시가 컴퓨터 비밀번호라 순서가 무너진다.
  */
 export function clueUnlocked(state: StateSnapshot, id: ClueId): boolean {
-  // 세면대 바닥의 배지는 물 밑에 있다. 물을 빼기 전에는 보이지도 만져지지도 않는다
-  if (id === "laon-badge" && state.sinkDrained !== true) return false;
+  // 세면대 바닥의 소독제 병은 물 밑에 있다. 물을 빼기 전에는 보이지도 만져지지도 않는다
+  if (id === "laon-sanitizer" && state.sinkDrained !== true) return false;
   const owner = Object.entries(CLUE_AFTER_MEMORY).find(([, clue]) => clue === id)?.[0];
   if (owner !== undefined && !state.collected.includes(owner as MemoryId)) return false;
   // 조사를 마쳐야 만질 수 있는 단서 (거꾸로 꽂힌 책 = 아빠 메일 뒤)
@@ -1016,8 +1016,8 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
   const discoveries = DISCOVERY_IDS.filter(
     (id) =>
       savedHas(saved.discoveries, id) &&
-      // 배지는 물 밑에 있었다. 물을 안 뺀 저장본이 봤을 리 없다
-      (id !== "laon-badge" || sinkDrained),
+      // 소독제 병은 물 밑에 있었다. 물을 안 뺀 저장본이 봤을 리 없다
+      (id !== "laon-sanitizer" || sinkDrained),
   );
   const inventory = Array.isArray(saved.inventory)
     ? ITEM_IDS.filter((id) => (saved.inventory as unknown[]).includes(id))
@@ -1327,8 +1327,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
                 cluesSeen: state.cluesSeen.includes(id)
                   ? state.cluesSeen
                   : [...state.cluesSeen, id],
-                // 배지는 펼치는 순간이 발견이다: 뒤집을 면이 없다 (CLUE_DISCOVERY 주석)
-                ...(id === "laon-badge" && !state.discoveries.includes(CLUE_DISCOVERY[id])
+                // 소독제 병은 펼치는 순간이 발견이다: 뒤집을 면이 없다 (CLUE_DISCOVERY 주석)
+                ...(id === "laon-sanitizer" && !state.discoveries.includes(CLUE_DISCOVERY[id])
                   ? { discoveries: [...state.discoveries, CLUE_DISCOVERY[id]] }
                   : {}),
               },
@@ -1336,12 +1336,12 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       closeClue: () =>
         set((state) => {
           if (!state.activeClue) return state;
-          // 배지를 내려놓는 순간 한 줄: 확대 화면 위에 대사창을 겹치지 않는다 (문제집과 같은 문법)
-          if (state.activeClue === "laon-badge")
+          // 소독제 병을 내려놓는 순간 한 줄: 확대 화면 위에 대사창을 겹치지 않는다 (문제집과 같은 문법)
+          if (state.activeClue === "laon-sanitizer")
             return {
               activeClue: null,
               nameIntroPending: false,
-              remark: { id: "badge-found", at: Date.now() },
+              remark: { id: "sanitizer-found", at: Date.now() },
             };
           /*
            * 책 속 번호를 본 뒤 내려놓으면 한 줄. 쪽지를 봐도 화면에 아무 반응이 없어서, 찾았는지
@@ -1994,9 +1994,9 @@ export const selectSheetBeckons = (state: MemoryRoomState) =>
   !state.solvedPuzzles.includes("piano-melody") && (state.pianoGapSeen || p4FinalReached(state));
 export const selectDrawerCodeRead = (state: Pick<MemoryRoomState, "discoveries">) =>
   state.discoveries.includes("drawer-code");
-/** 세면대 바닥의 출입증 배지를 봤는가: 컴퓨터 3차(로고 고르기)가 이것 뒤에 열린다. */
-export const selectBadgeSeen = (state: Pick<MemoryRoomState, "discoveries">) =>
-  state.discoveries.includes("laon-badge");
+/** 세면대 바닥의 손 소독제 병을 봤는가: 컴퓨터 3차(로고 고르기)가 이것 뒤에 열린다. */
+export const selectSanitizerSeen = (state: Pick<MemoryRoomState, "discoveries">) =>
+  state.discoveries.includes("laon-sanitizer");
 
 /** 엄마 대화방의 "1"을 열었는가 (v4 1-3의 momChatRead): 폰 2차 조사. */
 export const selectMomChatRead = (state: Pick<MemoryRoomState, "revisited">) =>
