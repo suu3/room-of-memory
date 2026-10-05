@@ -51,7 +51,7 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/mg-calendar-flip-11.webp":
     "data:image/webp;base64,UklGRjgAAABXRUJQVlA4ICwAAACwAQCdASoLABAAAsBMJZwAAt0Ig/gAAP75ksVk4M33XyZx5fbu1Db5uZAAAA==",
   "/assets/images/mg-cutscene-ball-flashback.webp":
-    "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAAAQAgCdASoQAAkAAsBMJaACdEf/gYzdbLAcAP5bthPgJtK8b4Le2C7rFcbtknZW7Iwam5n6f5ACQwEjwyKhZTYNNwUWQFj4PY8n/g43ViDxLk5ga1quk/VOE4TJCAAA",
+    "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAAAQAgCdASoQAAkAAsBMJbACdAD8tcy/D6iAAP3jFrPxkeVJFeVXDX0UmacPFLTypmUisLnGSx4taALj4PMU9pTcgMb6nk/RDvVYFkRF0pDE2HUyAJ4/UrgQPIMGumjFAAA=",
   "/assets/images/mg-cutscene-console-flashback.webp":
     "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACQAQCdASoQAAkAAsBMJYwCdABV8gAA8o63HawePszT03wLMPotS4dchJ6Nl0m8Raz3I2ywWmzvjQJAY5Jibm9+iDOdrJ5zAAA=",
   "/assets/images/mg-photo-wipe-phase-1.webp":
@@ -124,7 +124,7 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/mg-calendar-flip-09.webp": "7fa83cd5525e66fd",
   "/assets/images/mg-calendar-flip-10.webp": "258ca17364849922",
   "/assets/images/mg-calendar-flip-11.webp": "c404acfe3f0fd04d",
-  "/assets/images/mg-cutscene-ball-flashback.webp": "164413e00059f39f",
+  "/assets/images/mg-cutscene-ball-flashback.webp": "9f3475b7250349af",
   "/assets/images/mg-cutscene-console-flashback.webp": "8582bfafea61d0fd",
   "/assets/images/mg-photo-wipe-phase-1.webp": "a5acd491e3187079",
   "/assets/images/mg-photo-wipe-phase-2.webp": "75f444cc26a7337a",

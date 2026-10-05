@@ -98,7 +98,7 @@ cutscenes:
   # (은강고 포수가 뜬공을 잡아 경기가 끝난다)과 그 포수만 말한다.
   # 같이 뛴 친구들의 생사·행방은 묻기만 하고 답하지 않는다.
   ball-flashback:
-    - image: /assets/images/mg-cutscene-ball-flashback.webp?v=3
+    - image: /assets/images/mg-cutscene-ball-flashback.webp?v=5
       holdMs: 1500
       lines:
         - speaker: hero

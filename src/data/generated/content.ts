@@ -609,7 +609,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
     id: "ball-flashback",
     cuts: [
       {
-        image: "/assets/images/mg-cutscene-ball-flashback.webp?v=3",
+        image: "/assets/images/mg-cutscene-ball-flashback.webp?v=5",
         holdMs: 1500,
         lines: [
           { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line1" },
