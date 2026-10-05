@@ -12,6 +12,7 @@ import type { MinigameProps } from "@/types/minigame";
 import { useSkipEligible } from "../shell";
 import {
   clampLens,
+  LENS_SIZE,
   LENS_ZOOM,
   type LensPosition,
   moveLens,
@@ -22,8 +23,6 @@ import {
 
 /** 그림 원본 크기(px). 렌즈 안의 확대 그림이 같은 비율로 서야 한다. */
 const FRAME = { width: 1448, height: 1086 };
-/** 렌즈 지름: 창 폭에 대한 %. */
-const LENS_SIZE = 26;
 /**
  * 이만큼 지나면 다 못 찾았어도 커튼을 닫을 수 있다. 세 자리를 다 짚는 것이 이 창의
  * 내용이지만, 못 찾는 사람을 창가에 세워 두지는 않는다 (.claude/rules/minigames.md).

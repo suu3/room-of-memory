@@ -59,9 +59,14 @@ export function WebtoonViewer({ active }: { active: ActivePlayback }) {
     if (livePage === shownPage) return;
     setLeavingPage(shownPage);
     setShownPage(livePage);
+  }, [livePage, shownPage]);
+  // 옛 페이지를 놓는 타이머는 따로 건다. 위 효과에 같이 두면 shownPage가 바뀌는 순간 효과가
+  // 다시 돌며 타이머를 지워, 옛 페이지가 영영 남고 누르기가 "넘기는 중"에 막혔다
+  useEffect(() => {
+    if (leavingPage === null) return;
     const timer = window.setTimeout(() => setLeavingPage(null), PAGE_TURN_MS);
     return () => window.clearTimeout(timer);
-  }, [livePage, shownPage]);
+  }, [leavingPage]);
 
   // 걷힌 뒤에는 자리를 비운다. 방 위의 투명한 판이 클릭을 먹지 않게
   const [gone, setGone] = useState(false);

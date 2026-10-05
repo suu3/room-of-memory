@@ -89,6 +89,23 @@ describe("웹툰 컷씬의 누르기", () => {
     expect(advancePlayback).toHaveBeenCalledTimes(1);
   });
 
+  it("페이지가 넘어간 뒤에도 누르면 다음 칸으로 간다", () => {
+    const advancePlayback = vi.fn();
+    useMemoryRoomStore.setState({ autoPlay: false, advancePlayback });
+    const nextPage = CUTS.findIndex((cut) => cut.page === 2 && cut.lines.length > 0);
+    const { container, rerender } = render(<WebtoonViewer active={playbackAt(nextPage - 1)} />);
+    rerender(<WebtoonViewer active={playbackAt(nextPage)} />);
+    // 페이지가 다 넘어가고 칸이 뜬 뒤
+    act(() => {
+      vi.advanceTimersByTime(1_000);
+    });
+    fireEvent.keyDown(window, { key: " ", code: "Space" });
+    expect(unprinted(container)).toBe(0);
+
+    fireEvent.keyDown(window, { key: " ", code: "Space" });
+    expect(advancePlayback).toHaveBeenCalledTimes(1);
+  });
+
   it("오토면 다 찍힌 말풍선이 저절로 넘어간다", () => {
     const advancePlayback = vi.fn();
     useMemoryRoomStore.setState({ autoPlay: true, advancePlayback });

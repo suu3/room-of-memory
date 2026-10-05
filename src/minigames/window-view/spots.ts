@@ -18,8 +18,16 @@ export const WINDOW_SPOTS: readonly WindowSpot[] = [
   { id: "dark", x: 27, y: 37 },
 ];
 
-/** 돋보기 중심이 이 거리(%) 안에 들어오면 찾은 것으로 친다. 렌즈 반지름과 같은 감각. */
-const SPOT_RADIUS = 8;
+/** 렌즈 지름: 그림 폭에 대한 %. */
+export const LENS_SIZE = 26;
+/** 그림의 세로/가로. y의 1%는 x의 1%보다 짧아서, 거리를 잴 때 이만큼 줄여 폭 기준으로 맞춘다. */
+const FRAME_ASPECT = 1086 / 1448;
+/**
+ * 돋보기 중심이 이 거리(그림 폭의 %) 안에 들어오면 찾은 것으로 친다. 렌즈 반지름보다 1만
+ * 작다: 렌즈 안에 보이는데 "없다"는 소리가 나면 판정이 인색하게 느껴진다. 예전에는 8이었고
+ * 세로를 줄여 재지도 않아, 렌즈 한가운데에 거의 정확히 놓아야만 잡혔다.
+ */
+const SPOT_RADIUS = LENS_SIZE / 2 - 1;
 /** 키보드로 렌즈를 옮기는 한 걸음 (%). */
 export const LENS_STEP = 4;
 /** 렌즈 배율. 이보다 낮으면 핏자국이 안 보이고, 높으면 어디를 보는지 모른다. */
@@ -46,7 +54,7 @@ export function spotAt(
   let nearest: { spot: WindowSpot; distance: number } | null = null;
   for (const spot of WINDOW_SPOTS) {
     if (found.includes(spot.id)) continue;
-    const distance = Math.hypot(spot.x - position.x, spot.y - position.y);
+    const distance = Math.hypot(spot.x - position.x, (spot.y - position.y) * FRAME_ASPECT);
     if (distance <= SPOT_RADIUS && (!nearest || distance < nearest.distance)) {
       nearest = { spot, distance };
     }
