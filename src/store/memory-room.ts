@@ -112,6 +112,8 @@ export type RemarkId =
   | "piano-done"
   // 안방 책상의 악보 조각을 집은 순간: 거실 피아노의 것임을 짚는다
   | "sheet-taken"
+  // 거꾸로 꽂힌 책에서 번호를 보고 내려놓은 순간: 찾았다는 것과, 쓸 데가 따로 있다는 것
+  | "code-found"
   | "parents-locked"
   // 캐비닛 위 탁상시계: 1막에는 멈춘 시각, 2막부터 다시 가는 초침
   | "clock-stopped"
@@ -1338,6 +1340,20 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
               activeClue: null,
               nameIntroPending: false,
               remark: { id: "badge-found", at: Date.now() },
+            };
+          /*
+           * 책 속 번호를 본 뒤 내려놓으면 한 줄. 쪽지를 봐도 화면에 아무 반응이 없어서, 찾았는지
+           * 그냥 넘겼는지 알 길이 없었다 (2026-10-05). 서랍을 열 때까지는 다시 봐도 같은 줄이 흐른다
+           */
+          if (
+            state.activeClue === "shelf-book" &&
+            state.discoveries.includes("drawer-code") &&
+            !state.solvedPuzzles.includes("drawer-dial")
+          )
+            return {
+              activeClue: null,
+              nameIntroPending: false,
+              remark: { id: "code-found", at: Date.now() },
             };
           if (!state.nameIntroPending || state.activePlayback)
             return { activeClue: null, nameIntroPending: false };

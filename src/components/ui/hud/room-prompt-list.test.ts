@@ -78,11 +78,14 @@ describe("화면 밖 목록의 상태는 3D 물건과 같은 진행을 본다", 
   });
 });
 
-describe("기억이 아닌 물건 (마개 · 협탁 서랍 · 배트 · 현관문)", () => {
+describe("기억이 아닌 물건 (마개 · 협탁 서랍 · 악보 조각 · 피아노 · 배트 · 현관문)", () => {
+  const PIANO_WAITING = { id: "piano", ready: false };
+
   it("협탁 서랍은 처음부터 오르지만 번호를 알기 전에는 못 연다. 마개는 화장실에 닿아야 오른다", () => {
-    const locked = [{ id: "nightstand-drawer", ready: false }];
-    expect(listedProps(at("p1"), ["room"])).toEqual(locked);
-    expect(listedProps(at("p2"), ["room", "living"])).toEqual(locked);
+    const locked = { id: "nightstand-drawer", ready: false };
+    expect(listedProps(at("p1"), ["room"])).toEqual([locked]);
+    // 거실에 닿으면 피아노도 오른다. 조각이 없어 아직 못 친다
+    expect(listedProps(at("p2"), ["room", "living"])).toEqual([locked, PIANO_WAITING]);
   });
 
   it("화장실에 닿으면 마개가 오르고, 책 속 번호를 보면 서랍을 열 수 있다", () => {
@@ -90,19 +93,25 @@ describe("기억이 아닌 물건 (마개 · 협탁 서랍 · 배트 · 현관�
     expect(listedProps(at("p3", { solvedPuzzles: [] }), reached)).toEqual([
       { id: "sink-plug", ready: true },
       { id: "nightstand-drawer", ready: false },
+      PIANO_WAITING,
     ]);
     const read = at("p3", { solvedPuzzles: [], discoveries: ["hero-name", "drawer-code"] });
     expect(listedProps(read, reached)).toContainEqual({ id: "nightstand-drawer", ready: true });
   });
 
-  it("물을 빼고 서랍을 열면 둘 다 빠진다", () => {
-    const props = listedProps(at("p4", { sinkDrained: true }), [
-      "room",
-      "living",
-      "bathroom",
-      "parents",
-    ]);
-    expect(props).toEqual([]);
+  it("안방에 닿으면 악보 조각이 오르고, 집으면 피아노를 칠 수 있다. 치고 나면 둘 다 빠진다", () => {
+    const reached = ["room", "living", "bathroom", "parents"] as const;
+    const p4 = at("p4", { sinkDrained: true });
+    expect(listedProps(p4, reached)).toEqual([{ id: "piano-sheet", ready: true }, PIANO_WAITING]);
+
+    const holding = { ...p4, inventory: [...p4.inventory, "piano-sheet"] } as typeof p4;
+    expect(listedProps(holding, reached)).toEqual([{ id: "piano", ready: true }]);
+
+    const played = {
+      ...holding,
+      solvedPuzzles: [...p4.solvedPuzzles, "piano-melody"],
+    } as typeof p4;
+    expect(listedProps(played, reached)).toEqual([]);
   });
 
   it("결심에 들어서면 배트와 현관문이 오른다. 문은 셋을 다 챙겨야 열린다", () => {

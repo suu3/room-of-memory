@@ -1533,6 +1533,20 @@ describe("방탈출 축 (임시): 물건과 문", () => {
       doorOpened: true,
     });
 
+  it("책에서 번호를 보고 내려놓으면 한 줄이 흐른다. 번호를 못 봤으면 조용하다", () => {
+    useMemoryRoomStore.setState({ activeClue: "shelf-book" });
+    useMemoryRoomStore.getState().closeClue();
+    expect(useMemoryRoomStore.getState().remark).toBeNull();
+
+    useMemoryRoomStore.setState({
+      activeClue: "shelf-book",
+      discoveries: ["hero-name", "drawer-code"],
+    });
+    useMemoryRoomStore.getState().closeClue();
+    expect(useMemoryRoomStore.getState().activeClue).toBeNull();
+    expect(useMemoryRoomStore.getState().remark?.id).toBe("code-found");
+  });
+
   it("악보 조각을 집으면 거실 피아노의 것임을 한 줄로 짚는다. 열쇠는 말이 없다", () => {
     useMemoryRoomStore.getState().takeItem("parents-key");
     expect(useMemoryRoomStore.getState().remark).toBeNull();

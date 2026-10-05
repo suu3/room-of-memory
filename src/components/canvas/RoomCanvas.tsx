@@ -36,6 +36,8 @@ import {
   pressFrontDoor,
   pressLightSwitch,
   pressNightstandDrawer,
+  pressPiano,
+  pressPianoSheet,
   pressSinkPlug,
 } from "@/lib/room-press";
 import { MemoryRoomScene } from "@/scenes/MemoryRoomScene";
@@ -102,6 +104,8 @@ const MEMORY_TARGETS = Object.values(MEMORY_PLACEMENTS);
 const PROP_PRESS = {
   "sink-plug": pressSinkPlug,
   "nightstand-drawer": pressNightstandDrawer,
+  "piano-sheet": pressPianoSheet,
+  piano: pressPiano,
   bat: pressBat,
   "front-door": pressFrontDoor,
 } as const satisfies Record<PromptPropId, () => void>;
@@ -346,6 +350,7 @@ export function RoomCanvas() {
       batTaken,
       endingStarted,
       solvedPuzzles,
+      inventory,
     }),
     [
       collected,
@@ -359,6 +364,7 @@ export function RoomCanvas() {
       batTaken,
       endingStarted,
       solvedPuzzles,
+      inventory,
     ],
   );
   const statuses = useMemo(() => memoryStatuses(progress), [progress]);
@@ -420,7 +426,7 @@ export function RoomCanvas() {
           },
         ]
       : [];
-    // 기억도 문간도 아닌데 눌러야 넘어가는 물건: 마개 · 협탁 서랍 · 배트 · 현관문
+    // 기억도 문간도 아닌데 눌러야 넘어가는 물건: 마개 · 협탁 서랍 · 악보 조각 · 피아노 · 배트 · 현관문
     const props = listedProps(progress, reached).map(
       ({ id, ready }): RoomPromptAction => ({
         id: `prop-${id}`,

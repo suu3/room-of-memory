@@ -25,6 +25,7 @@ export function ItemPickup({
   radius,
   beacon,
   beckon = false,
+  hitSize,
   children,
 }: {
   id: ItemId;
@@ -34,6 +35,12 @@ export function ItemPickup({
   beacon?: { position: Vec3Tuple; palette: RoomPalette };
   /** 표식을 켜는가. beacon이 있을 때만 뜻이 있다. */
   beckon?: boolean;
+  /**
+   * 부르는 동안 눌리는 범위 [가로, 높이, 세로]. 물건 위로 표식까지 감싸는 안 보이는 상자다.
+   * 종잇조각처럼 납작한 물건은 제 모양만으로는 거의 안 눌리고, 사람은 떠 있는 표식을 누른다.
+   * 부르지 않는 동안에는 두지 않는다: 옆 물건(책상 위 서류)의 클릭을 가로채면 안 된다.
+   */
+  hitSize?: Vec3Tuple;
   children: ReactNode;
 }) {
   const taken = useMemoryRoomStore((state) => state.inventory.includes(id));
@@ -68,6 +75,14 @@ export function ItemPickup({
             groundOffset={beacon.position[1]}
           />
         </group>
+      )}
+      {beacon && hitSize && active && beckon && (
+        <mesh
+          position={[beacon.position[0], beacon.position[1] + hitSize[1] / 2, beacon.position[2]]}
+        >
+          <boxGeometry args={hitSize} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
       )}
       <MemoryGlowSelection
         selectionKey={`item-${id}`}

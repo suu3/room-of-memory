@@ -58,6 +58,9 @@ const SHEET_SCRAP = [
 /** 조각 표식이 서는 자리: 조각 위, 책상 윗면 높이. */
 const SHEET_BEACON: Vec3Tuple = [...SHEET_SCRAP[0].position];
 
+/** 조각이 부르는 동안 눌리는 범위: 조각에서 떠 있는 표식까지 (ItemPickup의 hitSize). */
+const SHEET_HIT: Vec3Tuple = [0.5, 0.8, 0.45];
+
 /** 악보 조각에 다가서는 자리: 책상 앞 한 걸음. */
 const PAPERS_NEAR = {
   near: [(desk.minX + desk.maxX) / 2, desk.minZ - 0.5] as readonly [number, number],
@@ -142,6 +145,7 @@ export function ParentsRoomShell({ palette }: { palette: RoomPalette }) {
         radius={PAPERS_NEAR.interactionRadius}
         beacon={{ position: SHEET_BEACON, palette }}
         beckon={sheetBeckons}
+        hitSize={SHEET_HIT}
       >
         {SHEET_SCRAP.map((piece) => (
           <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />

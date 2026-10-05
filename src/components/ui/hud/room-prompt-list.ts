@@ -57,6 +57,7 @@ export type PromptProgress = Pick<
   | "batTaken"
   | "endingStarted"
   | "solvedPuzzles"
+  | "inventory"
 >;
 
 /** 기억마다의 상태: 버튼이 눌리는지와 이름 뒤에 붙는 이유가 여기서 나온다. */
@@ -68,7 +69,13 @@ export function memoryStatuses(state: PromptProgress): Record<MemoryId, HotspotS
 }
 
 /** 기억도 문간도 아니지만 눌러야 이야기가 넘어가는 물건. */
-export type PromptPropId = "sink-plug" | "nightstand-drawer" | "bat" | "front-door";
+export type PromptPropId =
+  | "sink-plug"
+  | "nightstand-drawer"
+  | "piano-sheet"
+  | "piano"
+  | "bat"
+  | "front-door";
 
 export interface PromptProp {
   id: PromptPropId;
@@ -77,7 +84,8 @@ export interface PromptProp {
 }
 
 /**
- * 목록에 올릴 물건. 마개는 화장실에 닿은 뒤, 협탁 서랍은 처음부터, 배트·현관문은 떠나기로 한 뒤
+ * 목록에 올릴 물건. 마개는 화장실에 닿은 뒤, 협탁 서랍은 처음부터, 악보 조각·피아노는 그 공간에
+ * 닿은 뒤, 배트·현관문은 떠나기로 한 뒤
  * (resolve)에만 오른다: 그 전에는 배경이고, 이름을 먼저 읽으면 스포일러다. 할 일을 다 한
  * 물건(빠진 물, 열린 서랍, 쥔 배트)은 열린 문처럼 빠진다.
  */
@@ -90,6 +98,17 @@ export function listedProps(state: PromptProgress, reached: readonly SpaceId[]):
   // 협탁 서랍은 내 방에 처음부터 있다. 번호를 알기 전에는 "아직 할 수 없음"으로 읽힌다
   if (!state.solvedPuzzles.includes("drawer-dial")) {
     props.push({ id: "nightstand-drawer", ready: selectDrawerCodeRead(state) });
+  }
+  /*
+   * 피아노는 액자 2차 앞의 자물쇠다 (room-clues의 VISIT_AFTER_PUZZLE). 조각을 집고 피아노를 쳐야
+   * 4페이즈가 넘어가는데, 둘 다 기억이 아니라 여기 없으면 걷지 못하는 사람은 거기서 막힌다.
+   * 조각은 안방에 닿은 뒤에, 피아노는 거실에 닿은 뒤에 오른다. 조각 없이도 피아노는 열리지만
+   * 칠 수는 없어서 "아직 할 수 없음"으로 읽힌다.
+   */
+  if (!state.solvedPuzzles.includes("piano-melody")) {
+    const hasSheet = state.inventory.includes("piano-sheet");
+    if (reached.includes("parents") && !hasSheet) props.push({ id: "piano-sheet", ready: true });
+    if (reached.includes("living")) props.push({ id: "piano", ready: hasSheet });
   }
   if (storyPhaseOf(state) === "resolve") {
     if (!state.batTaken) props.push({ id: "bat", ready: true });

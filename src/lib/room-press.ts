@@ -73,6 +73,22 @@ export function pressNightstandDrawer(): void {
   state.sayRemark("drawer-locked");
 }
 
+/** 안방 책상의 악보 조각을 집는다. 이미 집었으면 아무 일도 없다. */
+export function pressPianoSheet(): void {
+  const state = useMemoryRoomStore.getState();
+  if (state.inventory.includes("piano-sheet")) return;
+  playSound("collect");
+  state.takeItem("piano-sheet");
+}
+
+/** 거실 피아노를 연다. 조각이 없어도 열린다: 빈 마디를 봐야 조각을 찾으러 간다. */
+export function pressPiano(): void {
+  const state = useMemoryRoomStore.getState();
+  if (state.solvedPuzzles.includes("piano-melody")) return;
+  playSound("select");
+  state.openPuzzle("piano-melody");
+}
+
 /** 현관의 배트를 쥔다. 떠나기로 하기 전(resolve 전)이거나 이미 쥐었으면 아무 일도 없다. */
 export function pressBat(): void {
   const state = useMemoryRoomStore.getState();

@@ -112,6 +112,8 @@
     "prop": {
       "sink-plug": "세면대 마개 뽑기",
       "nightstand-drawer": "침대 옆 서랍 열기",
+      "piano-sheet": "안방 책상의 찢어진 악보 집기",
+      "piano": "거실 피아노 치기",
       "bat": "현관의 배트 챙기기",
       "front-door": "현관문 열고 나가기"
     },
@@ -718,6 +720,7 @@
     "drawerOpen": "…집 열쇠 꾸러미다. 이거면 안방도 열려.",
     "pianoDone": "…어릴 때 치던 거다. 손이 아직 기억하네.",
     "sheetTaken": "…악보 조각이네. 거실 피아노에서 떨어진 건가.",
+    "codeFound": "…세 자리 숫자. 어디에 쓰는 번호지.",
     "parentsLocked": "안방은 잠겨 있다.",
     "clockStopped": "4시 20분. …언제부터 멈춰 있었지.",
     "clockRunning": "…다시 간다. 맞는 시각인지는 모르겠지만.",

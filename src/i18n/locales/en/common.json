@@ -112,6 +112,8 @@
     "prop": {
       "sink-plug": "Pull the sink plug",
       "nightstand-drawer": "Open the bedside drawer",
+      "piano-sheet": "Pick up the torn sheet music on the desk in the Parents' Room",
+      "piano": "Play the living room piano",
       "bat": "Take the bat by the front door",
       "front-door": "Open the front door and leave"
     },
@@ -718,6 +720,7 @@
     "drawerOpen": "…The house keys. These will open their room, too.",
     "pianoDone": "…I used to play this as a kid. My hands still remember.",
     "sheetTaken": "…A scrap of sheet music. From the piano in the living room?",
+    "codeFound": "…Three digits. What are they for?",
     "parentsLocked": "Their room is locked.",
     "clockStopped": "4:20. …When did it stop?",
     "clockRunning": "…It's ticking again. Whether it's right, I can't tell.",

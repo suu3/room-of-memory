@@ -165,7 +165,7 @@ export function InspectView({
         />
       </div>
       <p
-        className={`pointer-events-none absolute inset-x-0 top-3 px-4 text-center text-xs text-fog transition-opacity duration-500 ${hintShown || hintPinned ? "opacity-100" : "opacity-0"}`}
+        className={`pointer-events-none absolute inset-x-0 top-3 whitespace-pre-line px-4 text-center text-xs text-fog transition-opacity duration-500 ${hintShown || hintPinned ? "opacity-100" : "opacity-0"}`}
       >
         {hint}
       </p>

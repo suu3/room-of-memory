@@ -29,6 +29,7 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen" | "needs-item">, CommonTextKe
   "drawer-open": "remark.drawerOpen",
   "piano-done": "remark.pianoDone",
   "sheet-taken": "remark.sheetTaken",
+  "code-found": "remark.codeFound",
   "parents-locked": "remark.parentsLocked",
   "clock-stopped": "remark.clockStopped",
   "clock-running": "remark.clockRunning",

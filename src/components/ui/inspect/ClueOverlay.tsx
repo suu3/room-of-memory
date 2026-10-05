@@ -52,10 +52,16 @@ function ClueKeyboardList() {
   const openClue = useMemoryRoomStore((state) => state.openClue);
   const doorOpened = useMemoryRoomStore((state) => state.doorOpened);
   const openedDoorways = useMemoryRoomStore((state) => state.openedDoorways);
+  const sinkDrained = useMemoryRoomStore((state) => state.sinkDrained);
+  const endingStarted = useMemoryRoomStore((state) => state.endingStarted);
   const clues = useMemo(
-    () => listedClues(reachableSpaces(openDoorwayIds({ doorOpened, openedDoorways }))),
-    [doorOpened, openedDoorways],
+    () => listedClues(reachableSpaces(openDoorwayIds({ doorOpened, openedDoorways })), sinkDrained),
+    [doorOpened, openedDoorways, sinkDrained],
   );
+
+  // 엔딩이 시작되면 방은 끝났다: 목록이 남으면 키보드·스크린리더가 엔딩 카드 뒤의 물건으로 간다
+  // (기억·물건 목록은 RoomCanvas가 같은 때 내린다)
+  if (endingStarted) return null;
 
   // sr-only를 감싼 div에 거는 것도 RoomInteractionPrompt와 같은 이유다: fieldset은
   // 1px로 눌러지지 않아서, 자르는 일은 바깥 div가 해야 한다
