@@ -471,7 +471,7 @@
       "title": "Drawer Lock",
       "help": "Drag the drums up or down to roll them\n↑/↓ to turn, ←/→ to change digit, Enter to open",
       "help_touch": "Roll the drums up or down with your finger, then tap Open",
-      "fails": "Wrong tries",
+      "rejected": "It won't open.",
       "up": "Turn digit {{index}} up",
       "down": "Turn digit {{index}} down",
       "open": "Open",

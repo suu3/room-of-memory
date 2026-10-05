@@ -14,7 +14,7 @@ import { DRAWER_DIAL_CODE } from "@/data/room-clues";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { MinigameProps } from "@/types/minigame";
-import { MinigameShell, MinigameStat, useOnceCompleter, useSkipEligible } from "../shell";
+import { MinigameShell, useOnceCompleter, useSkipEligible } from "../shell";
 
 /** 드럼은 Canvas라 클라이언트에서만 뜬다 (.claude/rules/r3f.md). */
 const DialDrums = dynamic(() => import("@/components/canvas/DialDrums"), { ssr: false });
@@ -27,6 +27,8 @@ const FAILS_BEFORE_SKIP = 4;
 const SKIP_AFTER_MS = 60_000;
 /** 맞춘 뒤 자물쇠가 풀린 모습으로 머무는 시간(ms). */
 const SETTLE_MS = 800;
+/** 틀렸을 때 "열리지 않는다"가 떠 있는 시간(ms). 그 전에 드럼을 돌리면 바로 걷힌다. */
+const REJECT_MS = 1800;
 
 /** 다이얼 한 칸을 한 눈금 돌린다. 0~9를 돌아서 순환한다. */
 export function turnDigit(value: number, step: 1 | -1): number {
@@ -49,6 +51,10 @@ export function dialMatches(digits: readonly number[], code: string = DRAWER_DIA
  * 3D 드럼 (v4.1): 숫자 원통을 세로로 끌어 굴린다. 끄는 동안 드럼이 손을 따라
  * 덜 넘어간 만큼 기울고, 한 눈금을 넘기면 딸깍 넘어간다. 아래로 끌면 +1.
  * 키보드: 칸을 고르고(←/→) 돌린다(↑/↓), Enter로 연다. 드럼 위아래 버튼으로도 된다.
+ *
+ * 틀려도 잃는 게 없다: 드럼이 한 번 흔들리고 한 줄이 떴다 사라질 뿐, 숫자는 그 자리에
+ * 남는다. 틀린 횟수는 화면에 세지 않는다 (기회가 줄어드는 것처럼 읽힌다). 스킵을
+ * 여는 데만 쓴다.
  */
 export function DrawerDialMinigame({ onComplete, onSettled }: MinigameProps) {
   const { t } = useTranslation();
@@ -66,6 +72,8 @@ export function DrawerDialMinigame({ onComplete, onSettled }: MinigameProps) {
   } | null>(null);
   const [focus, setFocus] = useState(0);
   const [fails, setFails] = useState(0);
+  const [rejected, setRejected] = useState(false);
+  const [shaking, setShaking] = useState(false);
   const [solved, setSolved] = useState(false);
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
 
@@ -73,6 +81,7 @@ export function DrawerDialMinigame({ onComplete, onSettled }: MinigameProps) {
     (index: number, step: 1 | -1) => {
       if (solved) return;
       playSound("select", { variation: 0.06 });
+      setRejected(false);
       setSteps((current) => current.map((value, i) => (i === index ? value + step : value)));
     },
     [solved],
@@ -88,7 +97,17 @@ export function DrawerDialMinigame({ onComplete, onSettled }: MinigameProps) {
     }
     playSound("deny");
     setFails((count) => count + 1);
+    setRejected(true);
+    setShaking(true);
   }, [digits, solved, onSettled]);
+
+  // fails가 키에 든다: 떠 있는 동안 또 틀리면 시간을 처음부터 다시 센다
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 위와 같다
+  useEffect(() => {
+    if (!rejected) return;
+    const timer = window.setTimeout(() => setRejected(false), REJECT_MS);
+    return () => window.clearTimeout(timer);
+  }, [rejected, fails]);
 
   useEffect(() => {
     if (!solved) return;
@@ -156,11 +175,6 @@ export function DrawerDialMinigame({ onComplete, onSettled }: MinigameProps) {
     <MinigameShell
       title={t("minigame.drawerDial.title")}
       help={hint("minigame.drawerDial.help")}
-      stats={
-        fails > 0 ? (
-          <MinigameStat label={t("minigame.drawerDial.fails")} value={fails} tone="warning" />
-        ) : undefined
-      }
       skipVisible={!solved && (fails >= FAILS_BEFORE_SKIP || skipByTime)}
       onSkip={() => complete({ cleared: true })}
     >
@@ -185,7 +199,10 @@ export function DrawerDialMinigame({ onComplete, onSettled }: MinigameProps) {
             onPointerMove={onPointerMove}
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
-            className="h-44 w-72 cursor-grab touch-none rounded-md border border-ink/10 bg-bone/25 active:cursor-grabbing sm:h-52 sm:w-80"
+            onAnimationEnd={() => setShaking(false)}
+            className={`h-44 w-72 cursor-grab touch-none rounded-md border border-ink/10 bg-bone/25 active:cursor-grabbing sm:h-52 sm:w-80 ${
+              shaking ? "animate-page-nudge" : ""
+            }`}
           >
             <DialDrums steps={steps} dragRef={dragRef} focus={focus} solved={solved} />
           </div>
@@ -207,6 +224,10 @@ export function DrawerDialMinigame({ onComplete, onSettled }: MinigameProps) {
           <LockSimpleOpenIcon size={16} weight="bold" />
           {t("minigame.drawerDial.open")}
         </button>
+        {/* 자리는 늘 잡아 둔다: 문구가 뜰 때 판이 밀리지 않게 */}
+        <p aria-live="polite" className="h-5 text-sm text-ember">
+          {rejected ? t("minigame.drawerDial.rejected") : ""}
+        </p>
       </div>
     </MinigameShell>
   );
