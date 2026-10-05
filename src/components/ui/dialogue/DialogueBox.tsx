@@ -62,8 +62,6 @@ export function DialogueBox() {
     playback && !playback.intro && !playback.holding ? playback.cuts[playback.cutIndex] : undefined;
   const bubbleCut = playbackCut?.page !== undefined;
   const playbackLine = bubbleCut ? undefined : playbackCut?.lines[playback?.lineIndex ?? 0];
-  /** 내레이션 컷 (CutsceneCut.narration): 오토를 켜지 않아도 저절로 넘어간다. */
-  const narration = playbackLine !== undefined && playbackCut?.narration === true;
 
   // 인트로 대사와 미니게임 결과 대사가 같은 창을 쓴다. 어느 쪽인지는 스토어가 들고 있다
   const script =
@@ -127,16 +125,14 @@ export function DialogueBox() {
   /*
    * 오토: 다 찍힌 줄을 잠깐 붙들었다 넘긴다. 로그가 떠 있는 동안은 멈춘다. 지나간 줄을
    * 읽는 중인데 밑에서 대사가 계속 흐르면 로그가 읽는 사이에 다시 밀린다.
-   * 내레이션 컷은 오토 설정과 무관하게 같은 박자로 흐른다.
    */
-  const flowing = autoPlay || narration;
   useEffect(() => {
-    if (!flowing || !done || !open || logOpen) return;
+    if (!autoPlay || !done || !open || logOpen) return;
     const wait = Math.min(AUTO_MAX_MS, AUTO_BASE_MS + text.length * AUTO_PER_CHAR_MS);
     const timer = window.setTimeout(() => autoAdvanceRef.current(), wait);
     return () => window.clearTimeout(timer);
     // 줄이 바뀌면 타자 연출이 다시 돌아 done이 false로 떨어졌다 올라온다: 그게 곧 타이머의 재시작이다
-  }, [flowing, done, open, logOpen, text]);
+  }, [autoPlay, done, open, logOpen, text]);
 
   /*
    * 화면 아무 데나 클릭하는 것 말고 Enter와 Space로도 넘어간다. VN의 관례라 셋 중

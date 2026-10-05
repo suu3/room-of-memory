@@ -101,7 +101,6 @@ function emitModule(content) {
       if (cut.page !== undefined) lines.push(`        page: ${cut.page},`);
       if (cut.ratio !== undefined) lines.push(`        ratio: ${JSON.stringify(cut.ratio)},`);
       if (cut.sfx !== undefined) lines.push(`        sfx: ${JSON.stringify(cut.sfx)},`);
-      if (cut.narration === true) lines.push("        narration: true,");
       if (cut.shake === true) lines.push("        shake: true,");
       if (cut.whispers !== undefined) {
         const keys = cut.whispers.map((_whisper, at) => `${cutKey}.whisper${at + 1}`);

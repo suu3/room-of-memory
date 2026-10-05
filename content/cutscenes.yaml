@@ -14,7 +14,6 @@
 #           칸이 번호순으로 떠오르고, 대사는 칸 안의 라디오 말풍선(한 줄)이다. 페이지 없는
 #           컷은 맨 뒤에만: 웹툰이 걷힌 뒤 방에서 대사창으로 흐르는 한마디다.
 #   ratio   웹툰 칸의 비율. "16:9"는 페이지 폭 한 줄, "3:4"는 둘이 나란히 한 줄.
-#   narration  true면 누르지 않아도 줄이 저절로 찍히고 다 찍히면 다음 컷 (과거편).
 #   shake   true면 그림이 서는 순간 판이 한 번 흔들린다 (덮쳐 오는 컷). 연달아 두지 않는다.
 #   sfx     컷이 뜨는 순간 한 번 나는 효과음 (schema.mjs의 CUT_SFX). radioSignOff는
 #           0.8초 치지직 뒤 끊김.
@@ -127,8 +126,8 @@ cutscenes:
   # 주파수를 잡은 라디오가 지직거리다 꺼지면(도입) 검정 화면 세 컷이 먼저 온다:
   # 노이즈뿐인 라디오 앞의 한 줄 → 정적 → 그날의 재난 방송. 방송이 흐르는 동안 화면 위
   # 혼잣말 자리에는 도해의 속말(whispers)이 번갈아 떴다 진다.
-  # 내레이션 컷(narration)은 누르지 않아도 줄마다 창을 비우고 타자기로 새로 찍히며, 다 찍히면
-  # 다음 컷으로 넘어간다. 얼어붙은 얼굴 컷만 말 없이 1.5초 정적이다.
+  # 과거편의 줄도 다른 대사처럼 눌러서 넘긴다 (오토를 켜면 저절로 흐른다). 덮쳐 오는 컷과
+  # 얼어붙은 얼굴 컷만 말 없이 정적이다.
   # 마지막 컷은 검정 화면(black): 그날의 회상이 끝나고 "그날 이후"를 대사창으로 말한다.
   # 끝나면 3D 방으로 돌아온다. 방은 가장 어둡고, BGM은 없고, 라디오는 빨갛게 깜빡인다.
   # 돌아와서 드는 혼잣말은 stages.yaml의 turn-bottom (라디오에 다른 신호가 잡힌다).
@@ -177,7 +176,6 @@ cutscenes:
           ja: …そうだ。あの日だった。
     # 교문 앞, 엄마 문자 미리보기
     - image: /assets/images/cutscene-day-1.webp?v=3
-      narration: true
       lines:
         - speaker: hero
           ko: 그날은 평범한 날이었다.
@@ -193,7 +191,6 @@ cutscenes:
           ja: 「今日は自習室に行かないで、まっすぐ帰ってきて。」…普段は言わないことだった。
     # 2컷: 단지 안, 문 열린 채 버려진 차
     - image: /assets/images/cutscene-day-2.webp?v=2
-      narration: true
       lines:
         - speaker: hero
           ko: 단지 안이 조용했다.
@@ -213,7 +210,6 @@ cutscenes:
           ja: それでも、家の前までは何事もなかった。
     # 3컷: 복도 끝에 서 있는 감염자
     - image: /assets/images/cutscene-day-3.webp?v=3
-      narration: true
       lines:
         - speaker: hero
           ko: 복도에 누가 서 있었다.
@@ -234,7 +230,6 @@ cutscenes:
       lines: []
     # 6컷: 복도를 달림
     - image: /assets/images/cutscene-day-6.webp?v=4
-      narration: true
       lines:
         - speaker: hero
           ko: 정신없이 달렸다.
@@ -246,7 +241,6 @@ cutscenes:
           ja: 後ろから聞こえる音は、人の声じゃなかった。
     # 7컷: 현관에 주저앉음
     - image: /assets/images/cutscene-day-7.webp?v=3
-      narration: true
       lines:
         - speaker: hero
           ko: 문을 잠갔다.
@@ -262,7 +256,6 @@ cutscenes:
           ja: さっきのことが嘘みたいに、静かだった。
     # 8컷: TV 불빛에 무표정
     - image: /assets/images/cutscene-day-8.webp
-      narration: true
       lines:
         - speaker: hero
           ko: TV를 켜니 뉴스가 나오고 있었다.
@@ -278,7 +271,6 @@ cutscenes:
           ja: 四方から悲鳴が聞こえた。耳をふさいだ。
     # 9컷: 검정 화면. 그날에서 지금으로 건너오는 두 줄
     - black: true
-      narration: true
       lines:
         - speaker: hero
           ko: 그날 이후로 나는 집 밖에 나가지 않았다.

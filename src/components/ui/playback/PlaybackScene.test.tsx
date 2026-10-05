@@ -171,10 +171,11 @@ describe("배트를 쥐는 두 줄의 화면", () => {
     }
   });
 
-  it("내레이션 컷은 누르지 않아도 줄마다 새로 찍히며 흐르고, 다 찍히면 다음 컷으로 간다", () => {
+  it("과거편의 줄은 오토를 따른다: 꺼 두면 기다리고, 켜면 줄마다 새로 찍히며 다음 컷으로 간다", () => {
     /*
-     * 분기점 과거편: 회상은 사람이 넘기는 대화가 아니다. 오토를 켜지 않아도 한 줄씩
-     * 새로 찍히고(앞 줄은 창에서 비워진다), 마지막 줄까지 읽을 틈을 준 뒤 다음 컷으로 넘어간다.
+     * 분기점 과거편도 다른 대사와 같은 규칙이다. 오토를 끈 사람에게 저절로 넘어가면
+     * 읽는 속도를 빼앗긴다. 켜면 한 줄씩 새로 찍히고(앞 줄은 창에서 비워진다), 마지막
+     * 줄까지 읽을 틈을 준 뒤 다음 컷으로 넘어간다.
      */
     vi.useFakeTimers();
     try {
@@ -193,13 +194,22 @@ describe("배트를 쥐는 두 줄의 화면", () => {
       );
       const playback = () => useMemoryRoomStore.getState().activePlayback;
       const first = playback()?.cuts[firstPicture];
-      expect(first?.narration).toBe(true);
       const count = first?.lines.length ?? 0;
       expect(count).toBeGreaterThan(1);
       const firstKey = first?.lines[0].textKey;
       if (!firstKey) throw new Error("첫 컷에 대사가 없다");
       const firstText = i18n.getFixedT(null, "memoryRoom")(firstKey);
 
+      // 오토가 꺼져 있으면 아무리 기다려도 첫 줄에 머문다
+      act(() => {
+        vi.advanceTimersByTime(12000);
+      });
+      expect(playback()?.cutIndex).toBe(firstPicture);
+      expect(playback()?.lineIndex).toBe(0);
+
+      act(() => {
+        useMemoryRoomStore.setState({ autoPlay: true });
+      });
       for (let line = 1; line < count; line++) {
         act(() => {
           vi.advanceTimersByTime(6000);

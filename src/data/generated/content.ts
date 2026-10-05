@@ -650,7 +650,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
       {
         image: "/assets/images/cutscene-day-1.webp?v=3",
-        narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut4.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut4.line2" },
@@ -659,7 +658,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
       {
         image: "/assets/images/cutscene-day-2.webp?v=2",
-        narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut5.line2" },
@@ -669,7 +667,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
       {
         image: "/assets/images/cutscene-day-3.webp?v=3",
-        narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut6.line2" },
@@ -688,7 +685,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
       {
         image: "/assets/images/cutscene-day-6.webp?v=4",
-        narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut9.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut9.line2" },
@@ -696,7 +692,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
       {
         image: "/assets/images/cutscene-day-7.webp?v=3",
-        narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut10.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut10.line2" },
@@ -705,7 +700,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
       {
         image: "/assets/images/cutscene-day-8.webp",
-        narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut11.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut11.line2" },
@@ -714,7 +708,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
       {
         black: true,
-        narration: true,
         lines: [
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut12.line1" },
           { speaker: "hero", textKey: "cutscenes.radio-blackout.cut12.line2" },
