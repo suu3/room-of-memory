@@ -26,13 +26,13 @@ describe("ComputerLogoMinigame", () => {
     act(() => {
       vi.advanceTimersByTime(2000);
     });
-    expect(screen.queryByText("Dohae's room, the shelf. Vol. 1.")).toBeNull();
+    expect(screen.queryByText("Full Count, Vol. 1")).toBeNull();
     expect(tile(/gate/i)).toHaveProperty("disabled", false);
 
     fireEvent.click(tile(/staff portal/i));
     act(() => {
       vi.advanceTimersByTime(2000);
     });
-    expect(screen.getByText("Dohae's room, the shelf. Vol. 1.")).toBeTruthy();
+    expect(screen.getByText("Full Count, Vol. 1")).toBeTruthy();
   });
 });

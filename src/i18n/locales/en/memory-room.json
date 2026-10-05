@@ -259,8 +259,8 @@
     },
     "computer-logo-found": {
       "line1": "Found it. Same logo as the one on the sanitizer bottle.",
-      "line2": "There's a memo Dad left. Dohae's room, the shelf, volume one.",
-      "line3": "…The shelves?"
+      "line2": "There's an order from the staff store. Full Count, volume one.",
+      "line3": "…That's the one on my shelf."
     },
     "research-note-intro": {
       "line1": "Papers are scattered across the desk.",
@@ -338,7 +338,7 @@
     "computer": {
       "title": "What Was Saved",
       "phase2": "It started near a research facility. First report: 3 p.m.",
-      "phase3": "Dad signed in to Laon from this computer. His memo: \"Dohae's room, the shelf. Vol. 1.\""
+      "phase3": "Dad signed in to Laon from this computer. In his orders: Full Count, Vol. 1."
     },
     "ampoule": {
       "title": "A Mysterious Ampoule",

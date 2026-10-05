@@ -466,21 +466,21 @@ scripts:
       en: That mark from the sanitizer bottle. I think I saw it somewhere on this computer.
       ja: 消毒液のボトルにあったあの印。このパソコンのどこかで見た気がする。
 
-  # 로고를 고른 뒤: 아빠가 이 컴퓨터로 들어갔던 임직원 포털의 메모가 선반의 책을 가리킨다
+  # 로고를 고른 뒤: 아빠가 이 컴퓨터로 들어갔던 임직원 포털의 복지몰 주문 내역이 선반의 책을 가리킨다
   computer-logo-found:
     - speaker: hero
       ko: 찾았다. 소독제 병에 있던 거랑 같은 로고야.
       en: Found it. Same logo as the one on the sanitizer bottle.
       ja: あった。消毒液のボトルにあったのと同じロゴだ。
     - speaker: hero
-      ko: 아빠가 남긴 메모가 있어. 도해 방 선반, 1권.
-      en: There's a memo Dad left. Dohae's room, the shelf, volume one.
-      ja: 父さんが残したメモがある。ドヘの部屋の棚、1巻。
+      ko: 복지몰 주문 내역이 있어. 풀카운트 1권.
+      en: There's an order from the staff store. Full Count, volume one.
+      ja: 福利厚生ストアの注文履歴がある。フルカウントの1巻。
     - speaker: hero
       expression: puzzled
-      ko: …선반?
-      en: …The shelves?
-      ja: …棚?
+      ko: …내 방 선반에 있는 그 책이잖아.
+      en: …That's the one on my shelf.
+      ja: …俺の部屋の棚にある、あの本だ。
 
   # ─────────────────────────────────────────────── 4페이즈 · 안방
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, NotePencilIcon, WifiSlashIcon } from "@phosphor-icons/react";
+import { CheckIcon, PackageIcon, WifiSlashIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
@@ -103,9 +103,9 @@ type Screen = "match" | "portal";
  * 로그인은 2차에서 이미 했으니 곧장 브라우저의 저장된 페이지 목록이 뜬다. 줄마다 그 사이트의
  * 그림이 붙은 넷. 견본은 옆에 세우지 않는다: 답을 옆에 두면 같은 그림 찾기라 너무 쉽다. 세면대
  * 바닥의 소독제 병에서 본 것을 떠올려 고른다. 라온생명과학연구소의 로고를 고르면 그 그림이 나온
- * 저장된 페이지가 열린다: 아빠가 이 컴퓨터로 들어갔던 임직원 포털이다. 메모는 포털 안에
- * 있지 않다: 회사 포털에 아들 방 선반을 적어 둘 리 없다. 아빠가 이 컴퓨터의 브라우저에 페이지를
- * 저장하며 붙여 둔 한 줄이고, 그것이 선반의 책을 가리킨다.
+ * 저장된 페이지가 열린다: 아빠가 이 컴퓨터로 들어갔던 임직원 포털이다. 포털에 남은 것은
+ * 회사 일뿐이다: 복지몰 주문 내역에 아빠가 사다 준 만화책 1권이 있고, 그것이 선반의 책을 가리킨다.
+ * 아빠가 도해에게 남긴 글이 아니다.
  * 이름과 직함은 싣지 않는다: 안방의 출입증에서 처음 나오는 정보다.
  *
  * 틀려도 끝나지 않는다. 세 번 틀리거나 시간이 지나면 스킵이 선다 (접근성 계약).
@@ -211,35 +211,33 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
             </ul>
           </div>
         ) : (
-          <div className="flex flex-col gap-4 p-5 text-paper">
-            <article className="flex flex-col gap-4 rounded-lg border border-bone/10 p-4">
-              {/* 포털 머리: 방금 맞춘 로고와 연구소 이름 (소독제 병에는 없던 이름이 여기서 처음 나온다) */}
-              <header className="flex items-center gap-3 border-b border-bone/10 pb-4">
-                <span className="size-12 flex-none text-memory">
-                  <Logo kind="laon" />
-                </span>
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <h3 className="break-ko text-lg font-bold">
-                    {t("minigame.computerLogo.portal.org")}
-                  </h3>
-                  <p className="text-[0.75rem] text-bone/50">
-                    {t("minigame.computerLogo.portal.title")}
-                  </p>
-                </div>
-              </header>
-              <p className="text-sm text-bone/60">{t("minigame.computerLogo.portal.lastLogin")}</p>
-            </article>
-            {/* 메모는 포털 안이 아니라 브라우저 쪽에 있다: 아빠가 이 페이지를 저장하며 붙여 둔 한 줄 */}
+          <article className="flex flex-col gap-4 p-5 text-paper">
+            {/* 포털 머리: 방금 맞춘 로고와 연구소 이름 (소독제 병에는 없던 이름이 여기서 처음 나온다) */}
+            <header className="flex items-center gap-3 border-b border-bone/10 pb-4">
+              <span className="size-12 flex-none text-memory">
+                <Logo kind="laon" />
+              </span>
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <h3 className="break-ko text-lg font-bold">
+                  {t("minigame.computerLogo.portal.org")}
+                </h3>
+                <p className="text-[0.75rem] text-bone/50">
+                  {t("minigame.computerLogo.portal.title")}
+                </p>
+              </div>
+            </header>
+            <p className="text-sm text-bone/60">{t("minigame.computerLogo.portal.lastLogin")}</p>
+            {/* 포털 안의 복지몰 주문 내역: 아빠가 회사 복지몰에서 사다 준 만화책이 선반의 책이다 */}
             <section className="flex flex-col gap-2 rounded-lg border border-bone/15 bg-scene-void/40 p-3">
               <p className="flex items-center gap-1.5 text-[0.75rem] text-bone/50">
-                <NotePencilIcon size={12} weight="bold" aria-hidden />
-                {t("minigame.computerLogo.portal.memoLabel")}
+                <PackageIcon size={12} weight="bold" aria-hidden />
+                {t("minigame.computerLogo.portal.orderLabel")}
               </p>
               <p className="break-ko text-pretty leading-relaxed">
-                {t("minigame.computerLogo.portal.memo")}
+                {t("minigame.computerLogo.portal.order")}
               </p>
             </section>
-          </div>
+          </article>
         )}
       </div>
 
