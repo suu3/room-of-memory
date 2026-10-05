@@ -3,7 +3,7 @@
 import { XIcon } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PROFILE_ROWS } from "@/data/notebook";
 import { ASSETS } from "@/lib/assets";
@@ -59,11 +59,18 @@ export function CharacterSheetModal() {
   const setTab = useMemoryRoomStore((state) => state.setCharacterSheetTab);
   // 평면도는 방문이 열린 뒤에만 있는 페이지다. 리셋 뒤 저장된 탭이 남아 있어도 안 편다
   const hasMap = useMemoryRoomStore(selectDoorOpened);
-  /* 소지품은 늘 있는 페이지다. 빈손이어도 빈 상태 한 줄이 서면 그만이고, 평면도와 달리
-     아직 안 가본 집을 미리 알려 주지도 않는다 */
-  const tabs: readonly CharacterSheetTab[] = hasMap
-    ? ["profile", "lore", "map", "items"]
-    : ["profile", "lore", "items"];
+  /* 소지품은 첫 물건을 손에 넣을 때 생기는 페이지다. 물건이 둘뿐이라 처음부터 세워 두면
+     게임의 절반을 "아무것도 없다"만 보여 준다. 한 번 생기면 다 쓴 뒤에도 남는다 */
+  const hasItems = useMemoryRoomStore((state) => state.inventory.length > 0);
+  const tabs = useMemo<readonly CharacterSheetTab[]>(
+    () => [
+      "profile",
+      "lore",
+      ...(hasMap ? (["map"] as const) : []),
+      ...(hasItems ? (["items"] as const) : []),
+    ],
+    [hasMap, hasItems],
+  );
   const tab = tabs.includes(stored) ? stored : "profile";
   const markRead = useMemoryRoomStore((state) => state.markNotebookRead);
   const unread = useMemoryRoomStore(selectUnreadNotebookTabs).split(",");

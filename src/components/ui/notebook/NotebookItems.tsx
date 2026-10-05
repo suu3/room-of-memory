@@ -24,15 +24,7 @@ export function NotebookItems() {
   /* 목록 순서는 주운 순서가 아니라 표(ITEM_IDS) 순서다. 열 때마다 카드가 자리를 바꾸지 않게 */
   const carried = ITEM_IDS.filter((id) => inventory.includes(id));
 
-  if (carried.length === 0) {
-    return (
-      /* 빈 페이지 한가운데. 수첩은 탭과 무관하게 화면 높이라 위에 붙이면 아래가 텅 빈다 */
-      <div className="flex h-full items-center justify-center text-center">
-        <p className="break-ko text-sm text-graphite">{t("characterSheet.itemsEmpty")}</p>
-      </div>
-    );
-  }
-
+  // 빈손일 때는 이 페이지가 아예 없다: 탭은 첫 물건과 함께 생긴다 (CharacterSheetModal)
   return (
     <div className="mx-auto max-w-2xl py-1">
       <ul className="flex flex-col gap-3">
