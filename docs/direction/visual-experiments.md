@@ -40,7 +40,7 @@
 | 조사 진행도 | 1막 `collected.length / MEMORY_TOTAL`, 2막 `actTwoProgress` (필수 체인만) | `selectCollectedCount`, `selectActTwoProgress` |
 | 오디오 열화값 | `musicCutoff(level)`·`musicReverb(level)`·`musicVolume(level)`. **밝기의 순수 함수**라 시각 쪽이 같은 함수를 부르면 같은 값이다 | `@/lib/audio`가 export |
 | 사건 (수집·라디오 각성) | `subscribeEventPulse` (0~1 세기) | `event-pulse.ts` |
-| 커서 | r3f `state.pointer`(NDC), `cursorTarget`(호버 오브젝트의 화면 좌표) | `DustMotes`가 이미 커서를 민다 |
+| 커서 | r3f `state.pointer`(NDC), `cursorTarget`(호버 오브젝트의 화면상 사각형) | `DustMotes`가 이미 커서를 민다 |
 | 커튼 열림 | `curtainPull.left/right` (0~1, 양쪽 따로) | `RoomCanvas` 상태 |
 | 튜닝 거리 | `staticLevel(position, bandLeft, bandWidth)` (`frequency-tune/difficulty.ts`) | 라디오 미니게임 안 |
 

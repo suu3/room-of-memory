@@ -1219,11 +1219,10 @@ body {
  * 이긴다. body의 인라인 cursor(useGlowHover)는 body 자신에게만 닿고, 실제로 손이
  * 얹히는 캔버스는 이 규칙이 덮는다.
  *
- * 점과 링은 difference 블렌드라 밝은 종이 위에서는 어둡게, 어두운 방에서는 밝게 선다.
+ * 평소의 점은 difference 블렌드라 밝은 종이 위에서는 어둡게, 어두운 방에서는 밝게 선다.
  * 블렌드는 점이 아니라 감싼 층(CustomCursor)에 건다. z-index 층 안쪽의 블렌드는 층 밖에 안 닿는다.
- * 링은 늘 원이고 자리·배율만 프레임마다 인라인으로 받는다 (버튼 위에서 조여들고
- * 오브젝트로 빨려든다: ui/cursor-ring.ts). 만질 수 있는 것 위에서 금빛이 되고, 누르는
- * 동안 한 번 더 조여든다.
+ * 만질 수 있는 것 위에서는 금빛 점이 그 자리를 넘겨받고, 3D 오브젝트 위에서는 꺾쇠 넷이
+ * 물건을 감싼다. 꺾쇠의 자리는 프레임마다 인라인으로 받는다 (ui/shell/cursor-brackets.ts).
  */
 .custom-cursor,
 .custom-cursor * {
@@ -1231,7 +1230,7 @@ body {
 }
 
 .cursor-dot,
-.cursor-ring {
+.cursor-dot-hot {
   position: absolute;
   top: 0;
   left: 0;
@@ -1241,11 +1240,6 @@ body {
   transition: opacity 150ms ease-out;
 }
 
-.cursor-dot[data-shown="true"],
-.cursor-ring[data-shown="true"] {
-  opacity: 1;
-}
-
 .cursor-dot {
   width: 6px;
   height: 6px;
@@ -1253,34 +1247,68 @@ body {
   background: var(--color-ivory);
 }
 
-.cursor-ring {
-  width: 28px;
-  height: 28px;
-  transform-origin: center;
-  border: 1px solid color-mix(in srgb, var(--color-ivory) 45%, transparent);
-  transition:
-    opacity 150ms ease-out,
-    border-color 150ms ease-out;
+.cursor-dot[data-shown="true"][data-hot="false"] {
+  opacity: 1;
 }
 
-.cursor-ring[data-hot="true"] {
-  border-color: var(--color-memory);
+/* 밝은 종이 위에서도 묻히지 않게 어두운 테를 한 겹 두른다 */
+.cursor-dot-hot {
+  width: 8px;
+  height: 8px;
+  margin: -4px;
+  background: var(--color-memory);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-night) 55%, transparent),
+    0 0 8px color-mix(in srgb, var(--color-memory) 60%, transparent);
 }
 
-/* 누르는 동안 조여든다. 링의 transform은 인라인이라 안쪽 가상 요소가 맡는다 */
-.cursor-ring::after {
-  content: "";
+.cursor-dot-hot[data-shown="true"][data-hot="true"] {
+  opacity: 1;
+}
+
+/*
+ * 꺾쇠 한 모서리. 틀의 꼭짓점에 제 꼭짓점이 오도록 모서리마다 팔 길이만큼 당겨 놓는다.
+ * 어두운 그림자 한 겹은 밝은 벽지 위에서 1px 금선이 묻히지 않게 하는 것이다.
+ */
+.cursor-bracket {
   position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  border: 1px solid transparent;
-  transform: scale(1);
-  transition: transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  top: 0;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border: 0 solid var(--color-memory);
+  will-change: transform;
+  opacity: 0;
+  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--color-night) 70%, transparent));
+  transition: opacity 180ms ease-out;
 }
 
-.cursor-ring[data-down="true"]::after {
-  transform: scale(0.85);
-  border-color: inherit;
+.cursor-bracket[data-live="true"] {
+  opacity: 1;
+}
+
+.cursor-bracket[data-corner="tl"] {
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.cursor-bracket[data-corner="tr"] {
+  margin-left: -9px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+
+.cursor-bracket[data-corner="bl"] {
+  margin-top: -9px;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+
+.cursor-bracket[data-corner="br"] {
+  margin-top: -9px;
+  margin-left: -9px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
 }
 
 /* 누르는 순간 손 자리에서 한 번 번지는 파문. 클래스를 뗐다 붙여 다시 돈다 (CustomCursor) */

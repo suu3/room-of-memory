@@ -3,18 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import { usePointerKind } from "@/i18n/control-hint";
 import { cursorTarget } from "@/scenes/memory-room/camera/cursor-target";
-import { damp, RING_SIZE, ringGoal } from "./cursor-ring";
+import { bracketGoal, damp } from "./cursor-brackets";
 
 /**
- * 링이 따라붙는 속도(1/초). 점은 손에 바로 붙는다. 점까지 늦으면 커서 자체가 굼뜨게
- * 느껴진다. 링만 살짝 늦어 손의 속도를 그린다.
+ * 꺾쇠가 물건을 감싸거나 손 자리로 모이는 속도(1/초). 점은 손에 바로 붙는다. 점까지
+ * 늦으면 커서 자체가 굼뜨게 느껴진다. 꺾쇠만 살짝 늦어 "착" 하고 자리를 잡는다.
  */
-const RING_LAMBDA = 32;
-/** 링이 조여들거나 오브젝트로 빨려드는 속도 */
-const MORPH_LAMBDA = 26;
+const BRACKET_LAMBDA = 22;
+
+/** 꺾쇠 넷. 순서가 곧 모서리다: 왼쪽 위, 오른쪽 위, 왼쪽 아래, 오른쪽 아래 */
+const CORNERS = ["tl", "tr", "bl", "br"] as const;
 
 /**
- * 링이 조여드는 DOM. 화면 전체를 덮는 대사 넘기기 버튼은 뺀다. 화면 어디서나 조여 있게 된다.
+ * 점이 금빛이 되는 DOM. 화면 전체를 덮는 대사 넘기기 버튼은 뺀다. 화면 어디서나 금빛이 된다.
  * 3D 쪽은 cursor-target이 말한다.
  */
 const TOUCHABLE_SELECTOR =
@@ -24,25 +25,24 @@ const TOUCHABLE_SELECTOR =
 const OFFSCREEN = -100;
 
 /**
- * 마우스를 따라오는 점과 그 뒤를 늦게 따라오는 링.
+ * 마우스를 따라오는 점 하나와, 만질 수 있는 물건을 감싸는 네 모서리 꺾쇠.
  *
- * 네이티브 커서를 숨기고(.custom-cursor) 점이 그 자리를 맡는다. 링은 조금 늦게 따라와
- * 손의 속도를 그린다. 만질 수 있는 것 위에서는 두 가지로 반응한다 (cursor-ring.ts).
- * - DOM 버튼: 링이 손 자리에서 금빛으로 조여든다. 버튼을 감싸지는 않는다.
- * - 3D 오브젝트: 링이 물건 가운데로 빨려들며 사라지고, 그 순간 물건의 윤곽선이
- *   한 번 밝아진다 (MemoryOutlineGlow). 커서가 물건의 빛으로 옮겨 간 그림이다.
- * 커서가 곧 "여기 만질 수 있다"는 신호라, 3D 오브젝트의 호버(useGlowHover)와 DOM
- * 버튼이 같은 언어로 말하게 된다.
+ * 네이티브 커서를 숨기고(.custom-cursor) 점이 그 자리를 맡는다. 평소에는 점뿐이다.
+ * 만질 수 있는 것 위에서는 두 가지로 반응한다 (cursor-brackets.ts).
+ * - DOM 버튼: 점이 금빛이 된다. 버튼을 감싸지는 않는다.
+ * - 3D 오브젝트: 금빛 꺾쇠 넷이 손 자리에서 벌어져 물건을 감싸고, 그 순간 물건의
+ *   윤곽선이 한 번 밝아진다 (MemoryOutlineGlow). 꺾쇠가 "어디"를, 윤곽선이 "무엇"을 말한다.
  *
- * 마우스에서만 산다. 손가락에는 커서가 없고, 모션을 끈 사람에게는 뒤늦게 따라오는
- * 링이 곧 어지러움이라 네이티브 커서를 그대로 둔다. 자리는 프레임마다 ref로 직접
+ * 마우스에서만 산다. 손가락에는 커서가 없고, 모션을 끈 사람에게는 벌어졌다 모이는
+ * 꺾쇠가 곧 어지러움이라 네이티브 커서를 그대로 둔다. 자리는 프레임마다 ref로 직접
  * 옮긴다. 상태로 굴리면 mousemove마다 리렌더다.
  */
 export function CustomCursor() {
   const pointerKind = usePointerKind();
   const [active, setActive] = useState(false);
   const dotRef = useRef<HTMLSpanElement>(null);
-  const ringRef = useRef<HTMLSpanElement>(null);
+  const hotDotRef = useRef<HTMLSpanElement>(null);
+  const bracketRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const rippleRef = useRef<HTMLSpanElement>(null);
 
   // 첫 마우스 이동에서 켠다. 마우스가 붙은 태블릿은 hover 미디어 쿼리로는 못 가른다
@@ -70,7 +70,7 @@ export function CustomCursor() {
     root.classList.add("custom-cursor");
 
     const pointer = { x: OFFSCREEN, y: OFFSCREEN, shown: false, down: false };
-    const ring = { x: OFFSCREEN, y: OFFSCREEN, scale: 1 };
+    const box = { left: OFFSCREEN, top: OFFSCREEN, right: OFFSCREEN, bottom: OFFSCREEN };
     /** 손이 얹힌 만질 수 있는 DOM. 패널이 닫혀 사라지면 놓는다 */
     let touchable: Element | null = null;
 
@@ -124,24 +124,33 @@ export function CustomCursor() {
       const delta = last === null ? 0 : Math.min(0.1, Math.max(0, (now - last) / 1000));
       last = now;
       const dotEl = dotRef.current;
-      const ringEl = ringRef.current;
-      if (!dotEl || !ringEl) return;
+      const hotDotEl = hotDotRef.current;
+      if (!dotEl || !hotDotEl) return;
 
       if (touchable && !touchable.isConnected) touchable = null;
-      const hot = touchable !== null;
-      const absorb = cursorTarget.object ? cursorTarget.screen : null;
-      const goal = ringGoal(pointer, hot, absorb);
-      // 자리는 손을 늦게 따라오고, 조여들거나 빨려드는 건 그보다 조금 빠르다
-      const lambda = absorb ? MORPH_LAMBDA : RING_LAMBDA;
-      ring.x = damp(ring.x, goal.x, lambda, delta);
-      ring.y = damp(ring.y, goal.y, lambda, delta);
-      ring.scale = damp(ring.scale, goal.scale, MORPH_LAMBDA, delta);
+      const target = cursorTarget.object ? cursorTarget.screen : null;
+      const hot = touchable !== null || cursorTarget.object !== null;
+      const goal = bracketGoal(pointer, target, pointer.down, {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+      box.left = damp(box.left, goal.left, BRACKET_LAMBDA, delta);
+      box.top = damp(box.top, goal.top, BRACKET_LAMBDA, delta);
+      box.right = damp(box.right, goal.right, BRACKET_LAMBDA, delta);
+      box.bottom = damp(box.bottom, goal.bottom, BRACKET_LAMBDA, delta);
 
-      dotEl.style.transform = `translate3d(${pointer.x}px, ${pointer.y}px, 0)`;
-      ringEl.style.transform = `translate3d(${ring.x - RING_SIZE / 2}px, ${ring.y - RING_SIZE / 2}px, 0) scale(${ring.scale})`;
-      dotEl.dataset.shown = ringEl.dataset.shown = String(pointer.shown);
-      ringEl.dataset.hot = String(hot || absorb !== null);
-      ringEl.dataset.down = String(pointer.down);
+      const at = `translate3d(${pointer.x}px, ${pointer.y}px, 0)`;
+      dotEl.style.transform = hotDotEl.style.transform = at;
+      dotEl.dataset.shown = hotDotEl.dataset.shown = String(pointer.shown);
+      dotEl.dataset.hot = hotDotEl.dataset.hot = String(hot);
+      const live = String(pointer.shown && target !== null);
+      bracketRefs.current.forEach((el, index) => {
+        if (!el) return;
+        const x = index % 2 === 0 ? box.left : box.right;
+        const y = index < 2 ? box.top : box.bottom;
+        el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        el.dataset.live = live;
+      });
     };
     frame = window.requestAnimationFrame(tick);
 
@@ -160,20 +169,30 @@ export function CustomCursor() {
   if (!active) return null;
 
   // 네이티브 커서가 전부 숨어 있어서 이 층은 무엇보다 위여야 한다. 개발 패널(z-[99999])보다도.
-  // 점과 링은 층 자체가 difference로 섞인다. z-index를 가진 층은 쌓임 맥락이라 안쪽 요소의
+  // 평소의 점은 층 자체가 difference로 섞인다. z-index를 가진 층은 쌓임 맥락이라 안쪽 요소의
   // 블렌드는 층 밖(페이지)에 닿지 않는다. 그러면 상아색 점이 수첩 종이(거의 같은 색) 위에서
-  // 사라졌다. 파문은 금빛 그대로 보여야 해서 따로 둔다
+  // 사라졌다. 파문·꺾쇠·금빛 점은 금빛 그대로 보여야 해서 따로 둔다
   return (
     <>
       <div aria-hidden className="pointer-events-none fixed inset-0 z-[100000]">
         <span ref={rippleRef} className="cursor-ripple" />
+        {CORNERS.map((corner, index) => (
+          <span
+            key={corner}
+            ref={(el) => {
+              bracketRefs.current[index] = el;
+            }}
+            className="cursor-bracket"
+            data-corner={corner}
+          />
+        ))}
+        <span ref={hotDotRef} className="cursor-dot-hot" />
       </div>
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 z-[100000] mix-blend-difference"
       >
         <span ref={dotRef} className="cursor-dot" />
-        <span ref={ringRef} className="cursor-ring" />
       </div>
     </>
   );

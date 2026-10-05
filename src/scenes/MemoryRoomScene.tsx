@@ -539,7 +539,7 @@ export function MemoryRoomScene({
         movementInputRef={movementInputRef}
         curtainPull={curtainPull}
       />
-      {/* 커서가 얹힌 오브젝트의 화면 자리. 캔버스 밖 커서가 그리로 빨려든다 */}
+      {/* 커서가 얹힌 오브젝트의 화면 자리. 캔버스 밖 커서의 꺾쇠가 그것을 감싼다 */}
       <CursorTargetProjector />
       {/* 재구성 전환: 라디오 재점화와 새 공간 첫 진입에 방이 선으로 풀렸다 채워진다 */}
       <WireframeReveal enabled={cheapEffects} />
