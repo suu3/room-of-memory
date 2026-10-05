@@ -384,6 +384,10 @@
           "date": "October 19, 21:52",
           "b1": "The army said tonight that the outer perimeter"
         }
+      },
+      "photos": {
+        "tea": "Mom and Dad’s hands holding cups",
+        "shadows": "Mom and Dad’s shadows side by side"
       }
     },
     "photoPuzzle": {
@@ -443,7 +447,7 @@
       "wrong": "…Not this one.",
       "found": "Raon Life Science Institute. Same as the one on Dad's badge.",
       "source": {
-        "hotel": "Mail attachment IMG_2183.jpg",
+        "hotel": "Saved accommodation guide",
         "badge": "Mail attachment IMG_2190.jpg",
         "health": "Cached news: health authority briefing",
         "gate": "Cached news: research facility gate"

@@ -5,10 +5,10 @@ import {
   CheckIcon,
   EnvelopeSimpleIcon,
   GlobeIcon,
-  ImageIcon,
   UserCircleIcon,
   WifiSlashIcon,
 } from "@phosphor-icons/react";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { KeyHint } from "@/components/ui/shared/Keycap";
@@ -346,16 +346,25 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                       ))}
                     </div>
 
-                    {/* 첨부 사진: 파일은 없고 빈 판이 자리를 지킨다 (컷씬과 같은 규칙) */}
+                    {/* 메일과 함께 저장된 사진이라 오프라인에서도 보인다. */}
                     {page.attachments ? (
-                      <div className="mt-5 flex flex-wrap gap-3">
-                        {page.attachments.map((name) => (
+                      <div className="mt-5 grid max-w-lg grid-cols-2 gap-3">
+                        {page.attachments.map(({ name, src, altKey }) => (
                           <figure
                             key={name}
-                            className="flex h-24 w-32 flex-col items-center justify-center gap-1.5 rounded-md border border-ink/12 bg-screen-chrome"
+                            className="overflow-hidden rounded-md border border-ink/12 bg-screen-chrome"
                           >
-                            <ImageIcon size={22} className="text-ink/30" aria-hidden />
-                            <figcaption className="text-[0.625rem] text-ink/45">{name}</figcaption>
+                            <Image
+                              src={src}
+                              alt={t(altKey)}
+                              width={1448}
+                              height={1086}
+                              unoptimized
+                              className="aspect-[4/3] h-auto w-full object-cover"
+                            />
+                            <figcaption className="px-2 py-1.5 text-center text-[0.625rem] text-ink/45">
+                              {name}
+                            </figcaption>
                           </figure>
                         ))}
                       </div>

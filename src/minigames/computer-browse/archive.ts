@@ -10,6 +10,7 @@
  * (그래서 세상이 멈췄다). 순서가 곧 도해가 알게 되는 순서다.
  */
 
+import { ASSETS } from "@/lib/assets";
 import type { CommonTextKey } from "@/types/minigame";
 
 /** 어느 앱으로 열린 사본인가. 창 제목줄이 이 값을 따라 바뀐다. */
@@ -23,11 +24,8 @@ export interface ArchivePage {
   /** 보낸/저장된 날짜 표기. */
   dateKey: CommonTextKey;
   bodyKeys: readonly CommonTextKey[];
-  /**
-   * 첨부 사진 파일명. 실제 이미지는 없다. 회색 판이 자리를 지킨다
-   * (컷씬 일러스트와 같은 규칙). 파일명은 번역하지 않는다.
-   */
-  attachments?: readonly string[];
+  /** 통신이 끊기기 전에 메일과 함께 저장된 첨부 사진. */
+  attachments?: readonly { name: string; src: string; altKey: CommonTextKey }[];
   /** 저장이 중간에 끊긴 페이지: 본문 뒤에 "여기서 저장이 끊겼다"가 붙는다. */
   truncated?: boolean;
 }
@@ -47,7 +45,18 @@ const MAIL_PAGES: readonly ArchivePage[] = [
     dateKey: "minigame.computerBrowse.mail.m1.date",
     bodyKeys: ["minigame.computerBrowse.mail.m1.b1", "minigame.computerBrowse.mail.m1.b2"],
     // IMG_2190은 여기 없다: 그 사진은 16일의 "잔소리" 메일에 붙어 있다 (computer-logo)
-    attachments: ["IMG_2183.jpg", "IMG_2184.jpg"],
+    attachments: [
+      {
+        name: "IMG_2183.jpg",
+        src: ASSETS.images.mgMailParentsTea,
+        altKey: "minigame.computerBrowse.photos.tea",
+      },
+      {
+        name: "IMG_2184.jpg",
+        src: ASSETS.images.mgMailParentsShadows,
+        altKey: "minigame.computerBrowse.photos.shadows",
+      },
+    ],
   },
   {
     id: "mail-return",
