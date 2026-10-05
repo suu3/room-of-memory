@@ -372,9 +372,9 @@ memories:
         en: "It started near a research facility. First report: 3 p.m."
         ja: 騒ぎは研究施設の近くで始まった。最初の報道は午後3時。
       phase3:
-        ko: 아빠는 이 컴퓨터로 라온에 접속했다. 주문 내역엔 풀카운트 1권.
-        en: "Dad signed in to Laon from this computer. In his orders: Full Count, Vol. 1."
-        ja: 父さんはこのパソコンでラオンに接続していた。注文履歴にはフルカウントの1巻。
+        ko: 떠나기 전날 밤, 아빠가 이 컴퓨터로 라온에 접속했다. 내 방에 있었다.
+        en: "The night before they left, Dad signed in to Laon from this computer. He was in my room."
+        ja: 出発の前の晩、父さんはこのパソコンでラオンに接続していた。俺の部屋にいたんだ。
     phase2:
       script: computer-power-on
       minigame: computer-browse

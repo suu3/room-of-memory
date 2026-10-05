@@ -1981,7 +1981,7 @@ export const selectCollectedCount = (state: MemoryRoomState) => state.collected.
 export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.length;
 
 /**
- * 협탁 서랍 번호를 알았는가 (v4.1의 dadHintRead). 아빠의 포털 주문 내역(풀카운트 1권)를 읽고,
+ * 협탁 서랍 번호를 알았는가 (v4.1의 dadHintRead). 아빠의 포털 접속 기록(떠나기 전날 밤)을 보고,
  * 거꾸로 꽂힌 책을 넘겨 끼워 둔 쪽지의 번호를 본 순간 선다 (discoveries의 drawer-code).
  */
 /** 피아노의 지워진 마디를 봤는가: 안방 악보 조각의 표식이 이걸로 켜진다. */

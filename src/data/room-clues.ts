@@ -135,8 +135,8 @@ export const VISIT_AFTER_DISCOVERY = {
 } as const satisfies Record<string, { visit: 1 | 2 | 3; discovery: DiscoveryId }>;
 
 /**
- * 조사를 마쳐야 비로소 만질 수 있게 되는 단서. 거꾸로 꽂힌 책은 아빠의 포털 주문 내역
- * (풀카운트 1권, 컴퓨터 3차)를 읽기 전에는 그냥 선반의 책이다.
+ * 조사를 마쳐야 비로소 만질 수 있게 되는 단서. 거꾸로 꽂힌 책은 아빠의 포털 접속 기록
+ * (떠나기 전날 밤, 컴퓨터 3차)을 보기 전에는 그냥 선반의 책이다.
  */
 export const CLUE_AFTER_VISIT = {
   "shelf-book": { id: "computer", visit: 3 },

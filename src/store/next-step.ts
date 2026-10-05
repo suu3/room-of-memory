@@ -80,7 +80,7 @@ export function nextStep(state: NextStepState): NextStep | null {
   );
   if (doorway !== undefined) return { kind: "doorway", doorway, to: DOORWAY_BETWEEN[doorway][1] };
 
-  // 안방 열쇠: 세면대의 물 → 소독제 병 → 컴퓨터 3차(아빠의 포털 주문 내역 "풀카운트 1권") →
+  // 안방 열쇠: 세면대의 물 → 소독제 병 → 컴퓨터 3차(아빠의 포털 접속 기록 "10월 16일 밤, 이 컴퓨터") →
   // 거꾸로 꽂힌 책의 쪽지 → 협탁 서랍
   if (state.doorOpened && !state.inventory.includes("parents-key")) {
     // 화장실에 들어선 뒤, 소독제 병을 보기 전: 마개를 뽑는 것이 다음 할 일이다. 뽑은 뒤의 소독제 병은

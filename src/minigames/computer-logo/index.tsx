@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, PackageIcon, WifiSlashIcon } from "@phosphor-icons/react";
+import { CheckIcon, WifiSlashIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
@@ -103,9 +103,9 @@ type Screen = "match" | "portal";
  * 로그인은 2차에서 이미 했으니 곧장 브라우저의 저장된 페이지 목록이 뜬다. 줄마다 그 사이트의
  * 그림이 붙은 넷. 견본은 옆에 세우지 않는다: 답을 옆에 두면 같은 그림 찾기라 너무 쉽다. 세면대
  * 바닥의 소독제 병에서 본 것을 떠올려 고른다. 라온생명과학연구소의 로고를 고르면 그 그림이 나온
- * 저장된 페이지가 열린다: 아빠가 이 컴퓨터로 들어갔던 임직원 포털이다. 포털에 남은 것은
- * 회사 일뿐이다: 복지몰 주문 내역에 아빠가 사다 준 만화책 1권이 있고, 그것이 선반의 책을 가리킨다.
- * 아빠가 도해에게 남긴 글이 아니다.
+ * 저장된 페이지가 열린다: 아빠가 이 컴퓨터로 들어갔던 임직원 포털이다. 포털에는 메모도
+ * 힌트도 없다: 마지막 접속이 떠나기 전날 밤이고 접속 기기가 이 컴퓨터라는 기록뿐이다. 그 밤 아빠가
+ * 이 방에 있었다는 데서 도해가 선반의 거꾸로 꽂힌 책을 스스로 떠올린다 (computer-logo-found).
  * 이름과 직함은 싣지 않는다: 안방의 출입증에서 처음 나오는 정보다.
  *
  * 틀려도 끝나지 않는다. 세 번 틀리거나 시간이 지나면 스킵이 선다 (접근성 계약).
@@ -227,16 +227,8 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
               </div>
             </header>
             <p className="text-sm text-bone/60">{t("minigame.computerLogo.portal.lastLogin")}</p>
-            {/* 포털 안의 복지몰 주문 내역: 아빠가 회사 복지몰에서 사다 준 만화책이 선반의 책이다 */}
-            <section className="flex flex-col gap-2 rounded-lg border border-bone/15 bg-scene-void/40 p-3">
-              <p className="flex items-center gap-1.5 text-[0.75rem] text-bone/50">
-                <PackageIcon size={12} weight="bold" aria-hidden />
-                {t("minigame.computerLogo.portal.orderLabel")}
-              </p>
-              <p className="break-ko text-pretty leading-relaxed">
-                {t("minigame.computerLogo.portal.order")}
-              </p>
-            </section>
+            {/* 어느 기기에서 들어왔는가: 떠나기 전날 밤 아빠가 이 방에 있었다는 것만 남는다 */}
+            <p className="text-sm text-bone/60">{t("minigame.computerLogo.portal.device")}</p>
           </article>
         )}
       </div>

@@ -26,13 +26,13 @@ describe("ComputerLogoMinigame", () => {
     act(() => {
       vi.advanceTimersByTime(2000);
     });
-    expect(screen.queryByText("Full Count, Vol. 1")).toBeNull();
+    expect(screen.queryByText("Device: this computer")).toBeNull();
     expect(tile(/gate/i)).toHaveProperty("disabled", false);
 
     fireEvent.click(tile(/staff portal/i));
     act(() => {
       vi.advanceTimersByTime(2000);
     });
-    expect(screen.getByText("Full Count, Vol. 1")).toBeTruthy();
+    expect(screen.getByText("Device: this computer")).toBeTruthy();
   });
 });
