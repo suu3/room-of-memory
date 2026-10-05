@@ -161,7 +161,7 @@
       "title": "주파수 맞추기",
       "help": "바늘이 밝은 구간을 지나는 순간 Space",
       "help_touch": "바늘이 밝은 구간을 지날 때 화면 터치",
-      "fail": "…지직. 아직 안 잡히네."
+      "fail": "아직 안 잡히네."
     },
     "photoWipe": {
       "title": "사진 닦기",
@@ -174,8 +174,8 @@
       "help_touch": "공이 네모 틀 안에 들어올 때 화면을 터치해 배트를 휘두르세요",
       "prompt": "SPACE",
       "prompt_touch": "터치",
-      "early": "빨랐어",
-      "late": "늦었어",
+      "early": "빨랐다",
+      "late": "늦었다",
       "hits": "안타 {{value}} / {{goal}}",
       "chances": "남은 기회",
       "fail": "아직 폼이 안 돌아왔네.",
