@@ -80,7 +80,7 @@ export function nextStep(state: NextStepState): NextStep | null {
   );
   if (doorway !== undefined) return { kind: "doorway", doorway, to: DOORWAY_BETWEEN[doorway][1] };
 
-  // 안방 열쇠: 세면대의 물 → 배지 → 컴퓨터 3차(아빠 메일 "선반 정리 좀 해라.") →
+  // 안방 열쇠: 세면대의 물 → 배지 → 컴퓨터 3차(아빠의 포털 메모 "도해 방 선반. 1권.") →
   // 거꾸로 꽂힌 책의 쪽지 → 협탁 서랍
   if (state.doorOpened && !state.inventory.includes("parents-key")) {
     // 화장실에 들어선 뒤, 배지를 보기 전: 마개를 뽑는 것이 다음 할 일이다. 뽑은 뒤의 배지는

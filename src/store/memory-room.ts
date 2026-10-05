@@ -280,7 +280,7 @@ export interface MemoryRoomState {
   /**
    * 피아노 악보의 지워진 마디를 봤는가: 악보 조각 없이 피아노 판을 연 순간. 곁가지
    * 피아노의 표식은 이걸 기준으로 켜진다. 무엇을 찾는지 안 뒤에야 안방의 조각이 부른다
-   * (선반 책이 아빠 메일 뒤에 부르는 것과 같은 문법). 저장한다.
+   * (선반 책이 아빠 메모 뒤에 부르는 것과 같은 문법). 저장한다.
    */
   pianoGapSeen: boolean;
   /**
@@ -1981,7 +1981,7 @@ export const selectCollectedCount = (state: MemoryRoomState) => state.collected.
 export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.length;
 
 /**
- * 협탁 서랍 번호를 알았는가 (v4.1의 dadHintRead). 아빠 메일("선반 정리 좀 해라.")을 읽고,
+ * 협탁 서랍 번호를 알았는가 (v4.1의 dadHintRead). 아빠의 포털 메모("도해 방 선반. 1권.")를 읽고,
  * 거꾸로 꽂힌 책을 넘겨 끼워 둔 쪽지의 번호를 본 순간 선다 (discoveries의 drawer-code).
  */
 /** 피아노의 지워진 마디를 봤는가: 안방 악보 조각의 표식이 이걸로 켜진다. */

@@ -56,10 +56,10 @@ export function ClueProp({
   clue: ClueId;
   near: readonly [number, number];
   radius: number;
-  /** false면 만질 수도 빛날 수도 없다 (아빠 메일을 읽기 전의 선반 책). */
+  /** false면 만질 수도 빛날 수도 없다 (아빠의 포털 메모를 읽기 전의 선반 책). */
   enabled?: boolean;
   /**
-   * 가까이 가지 않아도 기억처럼 금빛으로 부른다. 조사가 가리키는 다음 자리(아빠 메일 뒤의
+   * 가까이 가지 않아도 기억처럼 금빛으로 부른다. 조사가 가리키는 다음 자리(아빠 메모 뒤의
    * 거꾸로 꽂힌 책)에만 준다. 찾고 나면 부르는 쪽이 끈다.
    */
   beckon?: boolean;
@@ -163,8 +163,8 @@ export function TouchProp({
  * 여기서 다시 그리면 같은 책이 두 권 서게 된다.
  */
 export function ShelfBookClue({ children }: { children: ReactNode }) {
-  // 아빠 메일("선반 정리 좀 해라.")을 읽기 전에는 그냥 선반의 책이다. 읽은 뒤에는 "11"을
-  // 찾을 때까지 금빛으로 부른다 (v4.1 3장: 메일 → 선반 금빛 → 책)
+  // 아빠의 포털 메모("도해 방 선반. 1권.")를 읽기 전에는 그냥 선반의 책이다. 읽은 뒤에는 "11"을
+  // 찾을 때까지 금빛으로 부른다 (v4.1 3장: 메모 → 선반 금빛 → 책)
   const unlocked = useMemoryRoomStore((state) => clueUnlocked(state, "shelf-book"));
   const found = useMemoryRoomStore(selectDrawerCodeRead);
   return (

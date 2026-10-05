@@ -19,20 +19,20 @@ describe("ComputerLogoMinigame", () => {
     vi.useRealTimers();
   });
 
-  it("틀린 그림은 붉게 떴다 돌아오고, 라온 로고를 고르면 메일이 열린다", () => {
+  it("틀린 그림은 붉게 떴다 돌아오고, 라온 로고를 고르면 임직원 포털의 저장된 페이지가 열린다", () => {
     render(<ComputerLogoMinigame onComplete={() => {}} />);
 
     fireEvent.click(tile(/gate/i));
     act(() => {
       vi.advanceTimersByTime(2000);
     });
-    expect(screen.queryByText("Tidy up your shelf.")).toBeNull();
+    expect(screen.queryByText("Dohae's room, the shelf. Vol. 1.")).toBeNull();
     expect(tile(/gate/i)).toHaveProperty("disabled", false);
 
-    fireEvent.click(tile(/IMG_2190/));
+    fireEvent.click(tile(/staff portal/i));
     act(() => {
       vi.advanceTimersByTime(2000);
     });
-    expect(screen.getByText("Tidy up your shelf.")).toBeTruthy();
+    expect(screen.getByText("Dohae's room, the shelf. Vol. 1.")).toBeTruthy();
   });
 });

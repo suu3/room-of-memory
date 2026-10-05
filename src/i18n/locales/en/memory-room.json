@@ -255,11 +255,11 @@
       "line1": "Mom and Dad left this behind. I'm taking it with me."
     },
     "computer-logo-intro": {
-      "line1": "Laon Life Science Institute. I think that logo was in one of Dad's emails."
+      "line1": "Laon Life Science Institute. I think I saw that logo somewhere on this computer."
     },
     "computer-logo-found": {
       "line1": "Found it. Same logo as the one on Dad's badge.",
-      "line2": "Tidy up the shelves a bit, will you?",
+      "line2": "There's a memo Dad left. Dohae's room, the shelf, volume one.",
       "line3": "…The shelves?"
     },
     "research-note-intro": {
@@ -338,7 +338,7 @@
     "computer": {
       "title": "What Was Saved",
       "phase2": "It started near a research facility. First report: 3 p.m.",
-      "phase3": "Dad's email: the Laon logo, and one line. \"Tidy up the shelves.\""
+      "phase3": "Dad signed in to Laon from this computer. His memo: \"Dohae's room, the shelf. Vol. 1.\""
     },
     "ampoule": {
       "title": "A Mysterious Ampoule",

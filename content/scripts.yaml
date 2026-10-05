@@ -462,20 +462,20 @@ scripts:
   computer-logo-intro:
     - speaker: hero
       expression: puzzled
-      ko: 라온생명과학연구소. 아빠 메일에 그 로고가 있었던 것 같은데.
-      en: Laon Life Science Institute. I think that logo was in one of Dad's emails.
-      ja: ラオン生命科学研究所。父さんのメールにあのロゴがあった気がする。
+      ko: 라온생명과학연구소. 이 컴퓨터 어딘가에서 그 로고를 본 것 같은데.
+      en: Laon Life Science Institute. I think I saw that logo somewhere on this computer.
+      ja: ラオン生命科学研究所。このパソコンのどこかで、あのロゴを見た気がする。
 
-  # 로고를 고른 뒤: 아빠 메일 속 협탁 서랍 힌트
+  # 로고를 고른 뒤: 아빠가 이 컴퓨터로 들어갔던 임직원 포털의 메모가 선반의 책을 가리킨다
   computer-logo-found:
     - speaker: hero
       ko: 찾았다. 아빠 출입증에 있던 거랑 같은 로고야.
       en: Found it. Same logo as the one on Dad's badge.
       ja: あった。父さんの入館証にあったのと同じロゴだ。
-    - speaker: dad
-      ko: 선반 정리 좀 해라.
-      en: Tidy up the shelves a bit, will you?
-      ja: 棚の整理ぐらいしろ。
+    - speaker: hero
+      ko: 아빠가 남긴 메모가 있어. 도해 방 선반, 1권.
+      en: There's a memo Dad left. Dohae's room, the shelf, volume one.
+      ja: 父さんが残したメモがある。ドヘの部屋の棚、1巻。
     - speaker: hero
       expression: puzzled
       ko: …선반?

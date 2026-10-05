@@ -359,7 +359,7 @@ memories:
   # 컴퓨터: 1페이즈에는 꺼진 배경이다 (누르면 혼잣말 한 줄: RemarkId computer-off).
   # 2차 (2페이즈): 로그인 0812(로그인 화면의 힌트 + 달력 동그라미) → 아빠 메일 + 캐시 뉴스(첫 보도 시각).
   # 3차 (3페이즈): 세면대 바닥의 출입증 배지(단서 laon-badge)에서 이름을 읽은 뒤 다시 켠다 → 라온 로고 고르기
-  #   → 아빠 메일 속 협탁 서랍 힌트. 배지를 보기 전에는 열리지 않는다 (src/data/room-clues.ts의 VISIT_AFTER_DISCOVERY).
+  #   → 아빠가 접속했던 임직원 포털의 메모(선반의 책 힌트). 배지를 보기 전에는 열리지 않는다 (src/data/room-clues.ts의 VISIT_AFTER_DISCOVERY).
   - id: computer
     icon: Desktop
     lore:
@@ -372,9 +372,9 @@ memories:
         en: "It started near a research facility. First report: 3 p.m."
         ja: 騒ぎは研究施設の近くで始まった。最初の報道は午後3時。
       phase3:
-        ko: 아빠 메일엔 라온 로고와 "선반 정리 좀 해라" 한 줄.
-        en: "Dad's email: the Laon logo, and one line. \"Tidy up the shelves.\""
-        ja: 父さんのメールにはラオンのロゴと「棚の整理ぐらいしろ」の一行。
+        ko: 아빠는 이 컴퓨터로 라온에 접속했다. 메모엔 "도해 방 선반. 1권."
+        en: "Dad signed in to Laon from this computer. His memo: \"Dohae's room, the shelf. Vol. 1.\""
+        ja: 父さんはこのパソコンでラオンに接続していた。メモには「ドヘの部屋の棚。1巻。」
     phase2:
       script: computer-power-on
       minigame: computer-browse

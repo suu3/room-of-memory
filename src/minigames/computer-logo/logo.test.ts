@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { LOGO_CANDIDATES, matchesLabel } from ".";
 
 describe("computer-logo", () => {
-  it("라온 로고는 하나뿐이다: 아빠 메일 첨부의 출입증 사진", () => {
+  it("라온 로고는 하나뿐이다: 아빠가 접속했던 임직원 포털의 저장된 페이지", () => {
     const matching = LOGO_CANDIDATES.filter(matchesLabel);
-    expect(matching.map((candidate) => candidate.id)).toEqual(["badge"]);
-    expect(matching[0]?.sourceKey).toBe("minigame.computerLogo.source.badge");
+    expect(matching.map((candidate) => candidate.id)).toEqual(["portal"]);
+    expect(matching[0]?.sourceKey).toBe("minigame.computerLogo.source.portal");
   });
 
   it("틀린 그림이 셋이다: 고르는 판이다", () => {

@@ -28,7 +28,7 @@
 | --- | --- | --- |
 | `heardSurvivorBroadcast` | `selectHeardSurvivorBroadcast` | 라디오 2차 |
 | `momChatRead` | `selectMomChatRead` | 폰 2차 |
-| `logoMatched`, `dadHintRead` | `selectDrawerCodeRead` | 컴퓨터 3차 (라온 로고 고르기 → 메일이 한 화면). 컴퓨터 3차 자체는 세면대 바닥의 배지(`selectBadgeSeen`) 뒤에 열린다 |
+| `logoMatched`, `dadHintRead` | `selectDrawerCodeRead` | 컴퓨터 3차 (라온 로고 고르기 → 임직원 포털의 저장된 페이지가 한 화면). 컴퓨터 3차 자체는 세면대 바닥의 배지(`selectBadgeSeen`) 뒤에 열린다 |
 | `stillBeatDone` | `selectStillBeatDone` | resolve 도달 |
 | `deadline` | `selectDeadline` | p2 이후 = 4. 방송부터 현관까지 하루 안의 일이라 줄지 않는다 |
 
@@ -139,8 +139,9 @@ v4.1이 v4보다 우선한다. 바뀐 것만 적는다.
 ### 톤
 
 부모님 대사·문자·메일에서 물결과 이모지를 뺐다. 웃음은 "하하하!"로 쓴다. 엄마 7:12 문자는
-"도해야 오늘 학교 끝나면 독서실 가지 말고 바로 집에 와. 딴 데 가지 말고", 아빠 메일(컴퓨터
-3차)은 "선반 정리 좀 해라."다. 서랍 자물쇠 번호를 메일이 직접 말하지 않는다.
+"도해야 오늘 학교 끝나면 독서실 가지 말고 바로 집에 와. 딴 데 가지 말고", 컴퓨터 3차에서
+열리는 것은 아빠가 보낸 메일이 아니라 아빠가 이 컴퓨터로 들어갔던 임직원 포털의 저장된 페이지이고,
+거기 남긴 메모는 "도해 방 선반. 1권."이다. 서랍 자물쇠 번호를 메모가 직접 말하지 않는다.
 
 ### 3D 인스펙트
 

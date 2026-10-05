@@ -452,17 +452,15 @@
       "found": "라온생명과학연구소. 아빠 출입증에 있던 거랑 같아.",
       "source": {
         "hotel": "저장된 숙소 안내",
-        "badge": "메일 첨부 IMG_2190.jpg",
+        "portal": "저장된 페이지: 임직원 포털",
         "health": "캐시 뉴스: 보건 당국 브리핑",
         "gate": "캐시 뉴스: 연구시설 정문"
       },
-      "mail": {
-        "date": "10월 16일",
-        "subject": "잔소리",
-        "b1": "선반 정리 좀 해라.",
-        "b2": "아빠가.",
-        "attachment": "첨부 1개",
-        "file": "IMG_2190.jpg"
+      "portal": {
+        "title": "임직원 포털",
+        "lastLogin": "마지막 접속: 10월 16일",
+        "memoLabel": "메모",
+        "memo": "도해 방 선반. 1권."
       }
     },
     "drawerDial": {

@@ -452,17 +452,15 @@
       "found": "Laon Life Science Institute. Same as the one on Dad's badge.",
       "source": {
         "hotel": "Saved accommodation guide",
-        "badge": "Mail attachment IMG_2190.jpg",
+        "portal": "Saved page: staff portal",
         "health": "Cached news: health authority briefing",
         "gate": "Cached news: research facility gate"
       },
-      "mail": {
-        "date": "October 16",
-        "subject": "A word from Dad",
-        "b1": "Tidy up your shelf.",
-        "b2": "Dad.",
-        "attachment": "1 attachment",
-        "file": "IMG_2190.jpg"
+      "portal": {
+        "title": "Staff Portal",
+        "lastLogin": "Last sign-in: October 16",
+        "memoLabel": "Memo",
+        "memo": "Dohae's room, the shelf. Vol. 1."
       }
     },
     "drawerDial": {

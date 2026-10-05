@@ -134,8 +134,8 @@ export const VISIT_AFTER_DISCOVERY = {
 } as const satisfies Record<string, { visit: 1 | 2 | 3; discovery: DiscoveryId }>;
 
 /**
- * 조사를 마쳐야 비로소 만질 수 있게 되는 단서. 거꾸로 꽂힌 책은 아빠 메일("선반 정리
- * 좀 해라.", 컴퓨터 3차)을 읽기 전에는 그냥 선반의 책이다.
+ * 조사를 마쳐야 비로소 만질 수 있게 되는 단서. 거꾸로 꽂힌 책은 아빠의 포털 메모("도해 방
+ * 선반. 1권.", 컴퓨터 3차)를 읽기 전에는 그냥 선반의 책이다.
  */
 export const CLUE_AFTER_VISIT = {
   "shelf-book": { id: "computer", visit: 3 },

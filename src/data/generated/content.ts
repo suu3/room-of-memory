@@ -540,7 +540,7 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "computer-logo-found",
     lines: [
       { speaker: "hero", textKey: "scripts.computer-logo-found.line1" },
-      { speaker: "dad", textKey: "scripts.computer-logo-found.line2" },
+      { speaker: "hero", textKey: "scripts.computer-logo-found.line2" },
       { speaker: "hero", textKey: "scripts.computer-logo-found.line3", expression: "puzzled" },
     ],
   },
