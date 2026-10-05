@@ -182,6 +182,26 @@ describe("ComputerBrowseMinigame", () => {
     expect(results).toEqual([{ cleared: true }]);
   });
 
+  it("앞 장으로 돌아갈 수 있다: 첫 장에는 이전 버튼이 없고, 버튼과 ←가 한 장씩 되짚는다", () => {
+    render(<ComputerBrowseMinigame onComplete={() => {}} />);
+    runBoot();
+    typeCode(COMPUTER_PASSCODE);
+    finishSignIn();
+
+    expect(screen.queryByRole("button", { name: /Back/ })).toBeNull();
+    nextPage();
+    nextPage();
+    expect(screen.getByText(i18n.t(ARCHIVE_PAGES[2].titleKey))).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /Back/ }));
+    expect(screen.getByText(i18n.t(ARCHIVE_PAGES[1].titleKey))).toBeTruthy();
+    fireEvent.keyDown(window, { code: "ArrowLeft" });
+    expect(screen.getByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeTruthy();
+    // 첫 장에서 더 물러나지 않는다
+    fireEvent.keyDown(window, { code: "ArrowLeft" });
+    expect(screen.getByText(i18n.t(ARCHIVE_PAGES[0].titleKey))).toBeTruthy();
+  });
+
   it("결과 대사 단계에서는 입력이 죽는다. 닫는 버튼도 없다", () => {
     render(<ComputerBrowseMinigame stage="result" onComplete={() => {}} />);
 
