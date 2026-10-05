@@ -47,7 +47,8 @@ describe("PhotoWipeMinigame", () => {
   it("tells keyboard players how to wipe, next to the mouse hint", () => {
     render(<PhotoWipeMinigame onComplete={() => {}} />);
 
-    expect(screen.getByText(/Drag, or move the cloth with the arrow keys/)).toBeTruthy();
+    expect(screen.getByText(/Drag, or move the cloth with/)).toBeTruthy();
+    expect(screen.getByText("↑↓←→").tagName).toBe("KBD");
     expect(screen.getByText("Space").tagName).toBe("KBD");
   });
 });

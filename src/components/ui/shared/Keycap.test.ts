@@ -21,7 +21,7 @@ describe("splitKeyTokens", () => {
     expect(keys("WASD로 걷기")).toEqual(["WASD"]);
     expect(keys("Spaceで取り、↑/↓で動かす")).toEqual(["Space", "↑/↓"]);
     expect(keys("E · click")).toEqual(["E", "click"]);
-    expect(keys("방향키로 이동 · Z X C로 공격")).toEqual(["Z", "X", "C"]);
+    expect(keys("↑↓←→로 이동 · Z X C로 공격")).toEqual(["↑↓←→", "Z", "X", "C"]);
     expect(keys("クリック · WASD")).toEqual(["クリック", "WASD"]);
     expect(keys("Type the password and press Enter")).toEqual(["Enter"]);
     expect(keys("Open Mom's chat")).toEqual([]);

@@ -65,10 +65,10 @@ export function MinigameStat({
 }
 
 /** 안내문 끝에 붙는 키 이름. 이것만 키캡으로 떼어내 조작법이 한눈에 잡히게 한다. */
-const KEY_TOKEN = /^(?:Space|Enter|Esc|Shift|Tab|[←→↑↓])$/;
+const KEY_TOKEN = /^(?:Space|Enter|Esc|Shift|Tab|↑↓←→|↑\/↓|←\/→|[←→↑↓])$/;
 
 /**
- * "…휘두르세요: Space" / "…지나는 순간 Space" / "…넘겨보세요: ← →" 에서 키를 뗀다.
+ * "…휘두르세요: Space" / "…지나는 순간 Space" / "…넘겨보세요: ←/→" 에서 키를 뗀다.
  * 키가 아닌 말이 섞인 꼬리("1 공격 · 2 방어")는 그대로 둔다. 문장이지 키캡이 아니다.
  */
 function splitHelpKeys(help: string): { text: string; keys: string[] } {

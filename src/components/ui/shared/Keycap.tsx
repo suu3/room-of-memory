@@ -22,8 +22,11 @@ export function Keycap({ children, className }: { children: React.ReactNode; cla
 /**
  * 문장 속 키 이름. 앞뒤가 라틴 글자면 낱말의 일부라 키가 아니다 ("Enter"의 E, "Tab"의 a).
  * 한글·가나 조사가 바로 붙는 건 허용한다 ("WASD로", "Spaceで").
+ *
+ * 방향키는 말("방향키", "arrow keys")로 쓰지 않고 기호로 쓴다: 네 방향 전부는 "↑↓←→",
+ * 한 축은 "↑/↓" · "←/→", 한 방향은 "→". 말로 쓰면 그 키만 캡이 안 된다.
  */
-const KEY_SOURCE = String.raw`(?<![A-Za-z])(?:WASD|Space|SPACE|Enter|Esc|Shift|Tab|[EZXC]|↑\/↓|←\/→|[←→↑↓])(?![A-Za-z])`;
+const KEY_SOURCE = String.raw`(?<![A-Za-z])(?:WASD|Space|SPACE|Enter|Esc|Shift|Tab|[EZXC]|↑↓←→|↑\/↓|←\/→|[←→↑↓])(?![A-Za-z])`;
 
 /**
  * 조작 이름으로서의 "클릭". 나열 속에 홀로 선 것만 ("클릭 · WASD", "Next page: click · Space").

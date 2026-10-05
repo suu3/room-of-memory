@@ -165,7 +165,7 @@
     },
     "photoWipe": {
       "title": "Wipe the Photo",
-      "help": "Drag, or move the cloth with the arrow keys, to wipe the dust away\nWipe in place: Space",
+      "help": "Drag, or move the cloth with ↑↓←→, to wipe the dust away\nWipe in place: Space",
       "help_touch": "Swipe with a finger to wipe the dust away"
     },
     "ballCatch": {
@@ -184,7 +184,7 @@
     },
     "fighterDuel": {
       "title": "The Fighting Game",
-      "help": "Arrows to move · Z X C to attack",
+      "help": "↑↓←→ to move · Z X C to attack",
       "help_touch": "Use the buttons below to move and attack",
       "rules": {
         "triangle": "Throw beats guard, guard beats strike, strike beats throw"
@@ -221,7 +221,7 @@
     "labelClarity": "Clarity",
     "calendarFlip": {
       "title": "Flipping the calendar",
-      "help": "Flip through the calendar: ← →",
+      "help": "Flip through the calendar: ←/→",
       "help_touch": "Flip through the calendar with the arrow buttons",
       "month": "{{value}}",
       "prev": "Previous month",
@@ -257,7 +257,7 @@
       "title": "Outside",
       "help": "Open the curtain and look outside",
       "close": "Close the curtain",
-      "lookHelp": "Move the lens over the view\nMouse · arrow keys · Enter",
+      "lookHelp": "Move the lens over the view\nMouse · ↑↓←→ · Enter",
       "lookHelp_touch": "Touch the view to look closer",
       "spotsLabel": "What you found outside",
       "spot": {
@@ -397,7 +397,7 @@
     },
     "photoPuzzle": {
       "title": "Piece It Together",
-      "help": "Pick pieces with the arrow keys and press Enter on two to swap them and rebuild the photo",
+      "help": "Pick pieces with ↑↓←→ and press Enter on two to swap them and rebuild the photo",
       "help_touch": "Tap two pieces in turn to swap them and rebuild the photo",
       "moves": "Swaps",
       "tile": "Piece {{value}}"
