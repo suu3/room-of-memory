@@ -835,7 +835,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [
           { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line1" },
           { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line2" },
-          { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line3" },
         ],
       },
     ],
@@ -848,7 +847,10 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [],
       },
       {
-        lines: [{ speaker: "hero", textKey: "cutscenes.still-beat.cut2.line1" }],
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.still-beat.cut2.line1" },
+          { speaker: "hero", textKey: "cutscenes.still-beat.cut2.line2" },
+        ],
       },
     ],
   },

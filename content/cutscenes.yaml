@@ -416,8 +416,9 @@ cutscenes:
 
   #
   # 4페이즈 서류와 출입증을 마친 뒤: 라디오의 "치료할 방법"과 앰플이 이어진다.
-  # 이어서 각오를 한 번 더 다진다: 부모님의 진실 → 앰플 → 기한 안에 체육관. 목적을 잊지 않게.
-  # 이 줄이 끝나면 방의 액자에 금빛이 돈다.
+  # 깨달음에서 멈춘다. "가자"는 여기서 말하지 않는다: 이 뒤에 악보 조각과 피아노, 액자가
+  # 남아 있어서, 결심을 먼저 말하면 그 걸음들이 딴짓이 된다 (2026-10-05에 still-beat로 옮겼다).
+  # 이 줄이 끝나면 안방 책상의 악보 조각에 금빛이 돈다.
   p4-close:
     - lines:
         - speaker: hero
@@ -428,18 +429,19 @@ cutscenes:
           ko: 엄마 아빠는 이걸 지키려고 간 거였어. 여행이 아니었던 거야.
           en: Mom and Dad left to protect this. It was never a trip.
           ja: 父さんと母さんは、これを守るために行ったんだ。旅行じゃなかったんだ。
-        - speaker: hero
-          ko: 앰플을 들고, 나흘 안에 은강고 체육관으로 가자.
-          en: Take the ampoule and get to the Eungang High gym within four days.
-          ja: アンプルを持って、四日以内に銀江高の体育館へ行こう。
 
   #
   # 정적 비트: 액자 2차(얼굴이 돌아온 사진) 직후. BGM이 멎고 카메라가 머문 채
-  # 몇 초가 흐른 뒤 한 줄. 액자를 세워 두는 연출이다. 끝나면 현관 배트에 금빛이 돈다.
+  # 몇 초가 흐른 뒤, 가족사진 앞에서 결심을 말한다: 진실(서류) → 어릴 때 치던 곡(피아노)
+  # → 사진 → 가자. 액자를 세워 두는 연출이다. 끝나면 현관 배트에 금빛이 돈다.
   still-beat:
     - holdMs: 2600
       lines: []
     - lines:
+        - speaker: hero
+          ko: 앰플을 들고, 나흘 안에 은강고 체육관으로 가자.
+          en: Take the ampoule and get to the Eungang High gym within four days.
+          ja: アンプルを持って、四日以内に銀江高の体育館へ行こう。
         - speaker: hero
           ko: …갔다 올게.
           en: …I'll be back.
