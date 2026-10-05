@@ -64,3 +64,5 @@ next-env.d.ts
 
 # Impeccable 디자인 스킬의 로컬 컨텍스트 (전체 기준은 DESIGN.md)
 /.impeccable.md
+
+.playwright-mcp
