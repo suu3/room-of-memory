@@ -18,7 +18,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "기억의 방: Room of Memory",
     short_name: "기억의 방",
-    description: "닫힌 방에 흩어진 기억을 하나씩 되찾는 짧은 비주얼 노벨.",
+    description: "닫힌 방에 흩어진 기억을 하나씩 되찾는 짧은 3D 퍼즐 어드벤처.",
     start_url: "/",
     scope: "/",
     display: "standalone",

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   // 기준 언어(ko)의 이름. 방 페이지(/ · /en · /ja)는 제 언어의 메타데이터로 덮는다
   // (site-meta.ts). 게임 안에서 언어를 고르면 I18nProvider가 탭 제목을 바꿔 단다
   title: "기억의 방",
-  description: "3D 기반 짧은 비주얼 노벨",
+  description: "3D 방을 돌아다니며 푸는 짧은 내러티브 퍼즐 어드벤처",
   appleWebApp: {
     capable: true,
     title: "기억의 방",
