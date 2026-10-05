@@ -8,7 +8,7 @@
  *
  * 입력은 reweight-player-hips 보정이 끝난, 아직 옆선을 보수하지 않은 모델이다.
  * 조끼의 떠 있는 덮개를 제거하고 실제 경계를 공유하는 면으로 닫는다.
- * UV 경계에 묻은 흰색을 제거하기 위해 조끼 색만 정점에 굽는다. 얼굴 텍스처는 보존한다.
+ * 조끼의 흰 번짐과 바지의 찢김 같은 음영을 정리해 정점 색으로 굽는다. 얼굴 텍스처는 보존한다.
  * 바지 위쪽·조끼·소매는 이동량을 3~12mm로 제한해 스무딩하고 각도 가중 법선을 만든다.
  * 바지 무릎 아래, 옷깃·손목·발목 경계, 본·애니메이션·눈꺼풀은 보존한다.
  */
@@ -108,11 +108,25 @@ const { data: pixels, info: pixelInfo } = await sharp(
   .removeAlpha()
   .raw()
   .toBuffer({ resolveWithObject: true });
-function colorAt(uv) {
-  const x = Math.max(0, Math.min(pixelInfo.width - 1, Math.round(uv[0] * (pixelInfo.width - 1)))),
-    y = Math.max(0, Math.min(pixelInfo.height - 1, Math.round(uv[1] * (pixelInfo.height - 1))));
+const pantsMaterial = j.materials.find((m) => m.name === "tripo_part_1_material");
+const pantsTexture = j.textures[pantsMaterial.pbrMetallicRoughness.baseColorTexture.index];
+const pantsView =
+  j.bufferViews[
+    j.images[pantsTexture.extensions?.EXT_texture_webp?.source ?? pantsTexture.source].bufferView
+  ];
+const pantsPixels = await sharp(
+  chunks[0].subarray(pantsView.byteOffset ?? 0, (pantsView.byteOffset ?? 0) + pantsView.byteLength),
+)
+  .removeAlpha()
+  .raw()
+  .toBuffer({ resolveWithObject: true });
+function colorAt(uv, pants = false) {
+  const data = pants ? pantsPixels.data : pixels,
+    info = pants ? pantsPixels.info : pixelInfo;
+  const x = Math.max(0, Math.min(info.width - 1, Math.round(uv[0] * (info.width - 1)))),
+    y = Math.max(0, Math.min(info.height - 1, Math.round(uv[1] * (info.height - 1))));
   return [0, 1, 2].map((c) => {
-    const v = pixels[(y * pixelInfo.width + x) * pixelInfo.channels + c] / 255;
+    const v = data[(y * info.width + x) * info.channels + c] / 255;
     return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
   });
 }
@@ -279,6 +293,45 @@ gltf.scene.traverse((mesh) => {
       return original[id].clone().add(delta);
     });
     positions.splice(0, positions.length, ...next);
+  }
+  if (pants) {
+    // 골반을 굽히면 아주 얇게 겹친 면의 뒷면이 겉면보다 앞에 올 수 있다.
+    // 닫힌 바지에는 양면 렌더링이 필요 없다. 겉면이 뒤집힌 면을 덮도록 한다.
+    j.materials[prim.material].doubleSided = false;
+    const colors = t.groups.map((group) => {
+      const sum = [0, 0, 0];
+      for (const i of group)
+        colorAt([uv.getX(i), uv.getY(i)], true).forEach((v, k) => {
+          sum[k] += v / group.length;
+        });
+      return sum;
+    });
+    // UV 섬을 가로질러 연결된 실제 표면에서 색을 평균한다. 텍스처에 구워진
+    // 검은 주머니/찢김과 발목의 흰 번짐만 완화하고 조명은 런타임 법선으로 받는다.
+    let smooth = colors.map((c) => c.slice());
+    for (let n = 0; n < 100; n++)
+      smooth = smooth.map((c, id) => {
+        const neighbors = [...t.adj[id]];
+        if (!neighbors.length) return c;
+        return c.map(
+          (v, k) =>
+            v * 0.25 +
+            (neighbors.reduce((sum, o) => sum + smooth[o][k], 0) / neighbors.length) * 0.75,
+        );
+      });
+    const data = new Float32Array(t.ids.length * 3);
+    for (let i = 0; i < t.ids.length; i++) {
+      const id = t.ids[i],
+        p = original[id];
+      const ramp = Math.max(0, Math.min(1, (p.y - 0.36) / 0.08));
+      const blend = 0.85 + 0.15 * ramp * ramp * (3 - 2 * ramp);
+      data.set(
+        colors[id].map((v, k) => v * (1 - blend) + smooth[id][k] * blend),
+        i * 3,
+      );
+    }
+    prim.attributes.COLOR_0 = append(data, "VEC3", 5126);
+    delete j.materials[prim.material].pbrMetallicRoughness.baseColorTexture;
   }
   const local = positions.map((p, id) => {
     const index = t.groups[id][0],

@@ -613,6 +613,9 @@ export function RoomCanvas() {
     let drag: { pointerId: number; x: number; angle: number } | null = null;
     let swallowClick = false;
     const handlePointerDown = (event: PointerEvent) => {
+      // 손가락으로 끈 뒤에는 click이 아예 오지 않는다. 삼키려고 세운 표시가 남아 있으면
+      // 다음 탭(전혀 다른 물건을 누른 것)이 대신 삼켜진다. 새 누름은 늘 깨끗이 시작한다
+      swallowClick = false;
       if (drag !== null || event.button !== 0 || isInteractiveTarget(event.target)) {
         drag = null;
         return;

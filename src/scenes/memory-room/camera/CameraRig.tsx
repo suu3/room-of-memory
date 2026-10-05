@@ -11,6 +11,7 @@ import { CAMERA_PRESETS } from "../world/layout";
 import { followLimits, spaceCenter } from "../world/spaces";
 import type { Aabb2 } from "../world/types";
 import { CRANE_SHOT, craneZoomFor } from "./crane-shot";
+import { FOLLOW_INSET, followInsetFor } from "./follow-inset";
 
 const cameraPositionGoal = new Vector3();
 const cameraTargetGoal = new Vector3();
@@ -25,13 +26,6 @@ const roomTarget = CAMERA_PRESETS.room.target;
 const FOLLOW_TARGET_Y = 1.5;
 
 /**
- * 타깃이 방 밖으로 나가지 않게 하는 여유. 플레이어가 방 모서리에 붙으면 화면
- * 아래쪽에 방 바깥(받침·배경)이 크게 들어오므로, 타깃을 방 안쪽으로 붙들어 둔다.
- * 카메라는 여전히 플레이어 쪽으로 따라가되 모서리에서만 조금 덜 따라간다.
- */
-const FOLLOW_INSET = 1.6;
-
-/**
  * 추적 한계는 열린 문간 목록에서 나온다 (spaces.ts의 followLimits): 닿을 수 있는 공간들의
  * 합집합 상자다. 공간별로 한계를 갈라 문턱에서 스위치하면 목표점이 한 번에 수 유닛을
  * 건너뛰어 카메라가 출렁인다. 합집합이면 목표점이 플레이어를 따라 연속으로 미끄러진다.
@@ -41,17 +35,26 @@ const FOLLOW_INSET = 1.6;
 const limitsCache: {
   doorOpened: boolean | null;
   openedDoorways: readonly string[] | null;
+  inset: number;
   limits: Aabb2;
-} = { doorOpened: null, openedDoorways: null, limits: followLimits([], FOLLOW_INSET) };
+} = {
+  doorOpened: null,
+  openedDoorways: null,
+  inset: FOLLOW_INSET.wide,
+  limits: followLimits([], FOLLOW_INSET.wide),
+};
 // 열쇠는 값이 아니라 참조다 (Player의 walkableFor와 같은 이유): 문자열로 엮으면 그게 쓰레기다
-function followLimitsFor(state: Parameters<typeof openDoorwayIds>[0]): Aabb2 {
+// 여유(inset)는 화면 폭에서 나온다 (follow-inset.ts). 창 크기가 바뀔 때만 달라진다
+function followLimitsFor(state: Parameters<typeof openDoorwayIds>[0], inset: number): Aabb2 {
   if (
     limitsCache.doorOpened !== state.doorOpened ||
-    limitsCache.openedDoorways !== state.openedDoorways
+    limitsCache.openedDoorways !== state.openedDoorways ||
+    limitsCache.inset !== inset
   ) {
     limitsCache.doorOpened = state.doorOpened;
     limitsCache.openedDoorways = state.openedDoorways;
-    limitsCache.limits = followLimits(openDoorwayIds(state), FOLLOW_INSET);
+    limitsCache.inset = inset;
+    limitsCache.limits = followLimits(openDoorwayIds(state), inset);
   }
   return limitsCache.limits;
 }
@@ -228,7 +231,9 @@ export function CameraRig({
       // 자유 이동 중: 방 한가운데 고정이 아니라 플레이어를 따라본다.
       const player = playerPositionRef.current;
       const store = useMemoryRoomStore.getState();
-      const limits = followLimitsFor(store);
+      // 사용자 배율은 뺀 기본 구도의 폭으로 잰다. 휠·핀치마다 한계가 출렁이면 안 된다
+      const baseZoom = zoomScale > 0 ? roomZoom / zoomScale : roomZoom;
+      const limits = followLimitsFor(store, followInsetFor(state.size.width / baseZoom));
       const center = spaceCenter(store.space);
       const toCenter = zoomOutAmount(zoomScale);
       cameraTargetGoal.set(

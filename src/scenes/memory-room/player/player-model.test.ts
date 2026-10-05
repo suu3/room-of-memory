@@ -154,6 +154,16 @@ describe("shipped player GLB", () => {
         .applyMatrix4(trousers.matrixWorld);
       if (point.y > 0.535) waistband.push({ index, relative: hips.worldToLocal(point) });
     }
+    // 불투명한 바지의 겹친 뒷면이 검은 찢김처럼 보이지 않아야 한다.
+    const pantsMaterial = asset.materials.find(
+      (material: { name: string }) => material.name === "tripo_part_1_material",
+    );
+    expect(pantsMaterial.doubleSided, "pants must render the outer cloth surface").not.toBe(true);
+    const pantsColors = trousers.geometry.getAttribute("color");
+    expect(
+      pantsColors,
+      "painted dark rips must be replaced by continuous cloth color",
+    ).toBeDefined();
     expect(waistband.length).toBeGreaterThan(100);
     for (const sitting of [0.5, 1, 0]) {
       updatePlayerRig(blinkRig, 0, 0, 0, sitting);
@@ -166,6 +176,27 @@ describe("shipped player GLB", () => {
         drift = Math.max(drift, hips.worldToLocal(point).distanceTo(relative));
       }
       expect(drift, `waistband must stay under the shirt at sit=${sitting}`).toBeLessThan(0.005);
+      // 양면 렌더링을 끈 뒤에도 양쪽 골반에 겉면이 남아 있어야 한다.
+      // 실제 앉기 전환을 통과한 표면에 광선을 쏘아 빈틈을 검사한다.
+      const hipPosition = hips.getWorldPosition(new Vector3());
+      trousers.computeBoundingSphere();
+      const surfaceRay = new Raycaster();
+      for (const side of [-1, 1]) {
+        for (const dy of [-0.02, 0, 0.02]) {
+          for (const dz of [0.01, 0.025, 0.04]) {
+            surfaceRay.set(
+              new Vector3(side, hipPosition.y + dy, hipPosition.z + dz),
+              new Vector3(-side, 0, 0),
+            );
+            const hit = surfaceRay.intersectObject(trousers)[0];
+            expect(
+              hit,
+              `outer hip coverage side=${side}, sit=${sitting}, ${dy}, ${dz}`,
+            ).toBeDefined();
+            expect(hit.point.x * side).toBeGreaterThan(0.06);
+          }
+        }
+      }
     }
     blinkRig.blink.next = 2.8;
     updatePlayerRig(blinkRig, 0, 0, 2.89);
@@ -234,7 +265,7 @@ describe("shipped player GLB", () => {
           expect(mean).toBeLessThan(0.9);
           expect(Math.max(...red) - Math.min(...red)).toBeGreaterThan(0.05);
         } else if (
-          materialName === "tripo_part_3_material" &&
+          ["tripo_part_1_material", "tripo_part_3_material"].includes(materialName) &&
           !asset.materials[primitive.material].pbrMetallicRoughness?.baseColorTexture
         ) {
           // 조끼 옆선의 흰 텍스처 번짐을 없앤 색은 정점에 구워 둔다.
@@ -244,7 +275,7 @@ describe("shipped player GLB", () => {
           );
           // 옷 안쪽의 검은 그림자는 보존하되, 색상 레이어 전체가 검게 초기화되면 잡는다.
           const mean = brightness.reduce((sum, value) => sum + value, 0) / brightness.length;
-          expect(mean).toBeGreaterThan(0.03);
+          expect(mean).toBeGreaterThan(materialName === "tripo_part_1_material" ? 0.005 : 0.03);
           expect(mean).toBeLessThan(0.7);
         } else if (colors) {
           // Blender joins parts without color layers as black unless explicitly whitened.

@@ -84,9 +84,9 @@ stages:
 
   p4-enter:
     monologue:
-      ko: 부모님이 쓰시던 안방. 그날 이후로 처음 들어온다.
-      en: Mom and Dad's bedroom. First time I've been in here since that day.
-      ja: 父さんと母さんが使っていた寝室。あの日以来、初めて入る。
+      ko: 부모님이 쓰시던 안방. 그날 이후로 처음 열어 본다.
+      en: Mom and Dad's bedroom. First time I've opened it since that day.
+      ja: 父さんと母さんが使っていた寝室。あの日以来、初めて開ける。
 
   resolve:
     monologue:

@@ -100,14 +100,20 @@ export function hasNote(month: number, day: number | null): boolean {
 
 export type FlipDirection = "next" | "prev";
 
+/*
+ * 날짜 계산은 전부 UTC로 한다. 달력의 요일은 보는 사람의 시간대와 무관한 사실인데, 로컬
+ * 시각(new Date(y, m, 1).getDay())으로 세면 브라우저의 시간대 처리에 기댄다. 플레이 테스트의
+ * 한 환경에서 8월이 통째로 한 칸 왼쪽으로 밀려, 금빛 동그라미가 12일이 아니라 11일에 섰다
+ * (2026-10-05). 동그라미가 비밀번호의 유일한 출처라 한 칸이 곧 막힘이다.
+ */
 export function daysInMonth(year: number, month: number): number {
   // Date의 0일은 전달 마지막 날: 윤년까지 알아서 맞는다.
-  return new Date(year, month, 0).getDate();
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
 
 /** 1일이 무슨 요일인지 (0=일요일). */
 function firstWeekday(year: number, month: number): number {
-  return new Date(year, month - 1, 1).getDay();
+  return new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
 }
 
 /**

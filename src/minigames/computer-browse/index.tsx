@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CaretLeftIcon,
   CaretRightIcon,
   CheckIcon,
   EnvelopeSimpleIcon,
@@ -205,6 +206,16 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
     });
   }, [frozen]);
 
+  /** 앞 장으로 돌아간다. 메일은 다시 읽는 글이다: 지나친 줄을 되짚을 길이 있어야 한다. */
+  const prevPage = useCallback(() => {
+    if (frozen) return;
+    setPageIndex((current) => {
+      if (current <= 0) return current;
+      playSound("select");
+      return current - 1;
+    });
+  }, [frozen]);
+
   /*
    * 키보드 경로. 잠금 화면은 입력칸이 스스로 키를 받으므로 여기서 가로채지 않는다.
    * 창을 훑는 키(Space·→)만 읽는 화면의 몫이다.
@@ -220,11 +231,14 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
       if (event.code === "Space" || event.code === "Enter" || event.code === "ArrowRight") {
         event.preventDefault();
         nextPage();
+      } else if (event.code === "ArrowLeft") {
+        event.preventDefault();
+        prevPage();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [screen, frozen, skipBoot, nextPage]);
+  }, [screen, frozen, skipBoot, nextPage, prevPage]);
 
   const AppIcon = page.app === "mail" ? EnvelopeSimpleIcon : GlobeIcon;
   const bootProgress = Math.min(1, bootLine / BOOT_LINES.length);
@@ -435,16 +449,28 @@ export function ComputerBrowseMinigame({ onComplete, stage = "play" }: MinigameP
                   </div>
                 </div>
 
-                {/* 하단: 몇 장째인지와 다음 장 */}
-                <div className="flex shrink-0 items-center justify-between border-t border-ink/10 bg-screen-chrome/70 px-3.5 py-2">
-                  <span className="text-[0.6875rem] tabular-nums text-ink/40">
+                {/* 하단: 앞 장 · 몇 장째인지 · 다음 장. 세 칸 격자라 버튼이 없어도 쪽수는 가운데다 */}
+                <div className="grid shrink-0 grid-cols-3 items-center border-t border-ink/10 bg-screen-chrome/70 px-3.5 py-2">
+                  {pageIndex > 0 && !frozen ? (
+                    <button
+                      type="button"
+                      onClick={prevPage}
+                      className="flex cursor-pointer items-center gap-1 justify-self-start rounded-full px-3 py-1 text-[0.8125rem] font-bold text-ink/70 transition-colors hover:bg-ink/8 hover:text-ink"
+                    >
+                      <CaretLeftIcon size={14} weight="bold" aria-hidden />
+                      {t("minigame.computerBrowse.prev")}
+                    </button>
+                  ) : (
+                    <span />
+                  )}
+                  <span className="justify-self-center text-[0.6875rem] tabular-nums text-ink/40">
                     {pageIndex + 1} / {ARCHIVE_PAGES.length}
                   </span>
                   {!lastPage && !frozen ? (
                     <button
                       type="button"
                       onClick={nextPage}
-                      className="flex cursor-pointer items-center gap-1 rounded-full px-3 py-1 text-[0.8125rem] font-bold text-ink/70 transition-colors hover:bg-ink/8 hover:text-ink"
+                      className="flex cursor-pointer items-center gap-1 justify-self-end rounded-full px-3 py-1 text-[0.8125rem] font-bold text-ink/70 transition-colors hover:bg-ink/8 hover:text-ink"
                     >
                       {t("minigame.computerBrowse.next")}
                       <CaretRightIcon size={14} weight="bold" aria-hidden />
