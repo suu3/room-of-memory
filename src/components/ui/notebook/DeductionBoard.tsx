@@ -22,8 +22,8 @@ import { loreBodyKey, loreTitleKey } from "./lore-text";
  *
  * 수첩 모달이 아니라 **무대**다. 방이 어두워지고, 위에 누군가의 말 한 줄이 찍히고, 그 아래
  * 빈 사진 자리 둘이 선으로 매달린다. 책상에는 수첩에서 꺼낸 기록 사진들이 흩어져 있다.
- * 사진을 누르면 자리로 올라가고, 둘이 차면 한 박자 뒤에 판정이 난다: 맞으면 선이 금빛으로
- * 이어지고, 어긋나면 한 번 흔들리고 사진이 책상으로 돌아온다.
+ * 사진을 누르면 자리로 올라가고, 둘이 차면 한 박자 뒤에 판정이 난다: 맞으면 초록 빛줄기가
+ * 선을 타고 내려가 두 사진에 닿고, 어긋나면 한 번 흔들리고 사진이 책상으로 돌아온다.
  * 처음엔 종이 패널 안의 카드 격자였는데, 그건 웹 페이지의 선택 폼으로 읽혔다
  * (DESIGN.md Overview: "전부 같은 네이비 사각 패널이면 웹 모달로 읽힌다").
  *
@@ -57,6 +57,21 @@ const WEIGH_MS = 650;
 const RETURN_MS = 1300;
 
 type Verdict = "hit" | "miss";
+
+/**
+ * 맞았을 때 선을 타고 내려가는 빛줄기. 선의 색만 바꾸면 "이어졌다"가 아니라 "색이 변했다"로
+ * 읽혀 심심했다. 말에서 출발해 줄기 → 가로대 → 두 가닥 순으로 위에서 아래로 그어지고, 닿는
+ * 순간 두 사진의 테가 같은 빛으로 켜진다 (LIT_CARD의 지연이 마지막 가닥과 맞는다).
+ *
+ * 색은 scene-leaf다. 금빛은 힌트 테와 "계속"이 이미 쓰고 있어서, 맞은 순간만의 색이 따로 선다.
+ */
+const LIT = "absolute inset-0 bg-scene-leaf shadow-[0_0_10px_1px_var(--color-scene-leaf)]";
+const LIT_STEP = [
+  { animationDuration: "180ms" },
+  { animationDuration: "220ms", animationDelay: "160ms" },
+  { animationDuration: "180ms", animationDelay: "360ms" },
+] as const;
+const LIT_CARD = "border-scene-leaf shadow-[0_0_14px_var(--color-scene-leaf)] delay-500";
 
 function Board({ id }: { id: DeductionId }) {
   const { t } = useTranslation();
@@ -118,7 +133,9 @@ function Board({ id }: { id: DeductionId }) {
   /* 도해의 한 줄. 판정이 없을 때는 지금 무엇을 할 차례인지를 도해의 말로 짚는다 */
   const line =
     verdict === "hit"
-      ? t("deduction.joined")
+      ? // 맞은 뒤에는 **왜** 안 맞는지를 말한다 (수첩의 추리 장에 남는 그 한 줄). "이 둘은 그 말과
+        // 안 맞는다"만 뜨면 무엇이 어긋나는지는 끝내 플레이어 몫으로 남았다
+        t(`deduction.notes.${id}`)
       : verdict === "miss" || (picked.length === 0 && misses > 0)
         ? t(MISS_LINES[(Math.max(misses, 1) - 1) % MISS_LINES.length])
         : picked.length === 1
@@ -127,8 +144,9 @@ function Board({ id }: { id: DeductionId }) {
             ? ""
             : t("deduction.prompt");
 
-  // 선의 색: 판정 전에는 헤어라인, 맞으면 금빛, 어긋나면 벽돌빛
-  const thread = verdict === "hit" ? "bg-memory" : verdict === "miss" ? "bg-ember" : "bg-ivory/25";
+  // 선의 색: 판정 전에는 헤어라인, 어긋나면 벽돌빛. 맞으면 그 위로 초록 빛줄기가 내려간다 (LIT)
+  const thread = verdict === "miss" ? "bg-ember" : "bg-ivory/25";
+  const lit = verdict === "hit";
 
   return (
     <div className="absolute inset-0 z-30 overflow-clip">
@@ -151,10 +169,8 @@ function Board({ id }: { id: DeductionId }) {
       >
         {/* 모순을 찾을 말. 상자 없이 장면 위에 찍힌다 (혼잣말과 같은 문법) */}
         <header className="flex-none text-center">
-          <p aria-hidden className="font-pixel text-ash text-xs tracking-[0.12em]">
-            {t("deduction.title")}
-          </p>
-          <p className="mt-3 text-[13px] font-medium text-memory">
+          {/* "모순 찾기"라는 이름표는 세우지 않는다 (aria-label에만 남는다). 무대에 제목이 붙으면 다시 화면이 된다 */}
+          <p className="text-[13px] font-medium text-memory">
             {tRoom(DEDUCTIONS[id].claimantKey as ParseKeys<"memoryRoom">)}
           </p>
           <blockquote className="monologue-text mt-1 min-h-[1.5em] break-ko text-balance font-pixel text-ivory text-monologue leading-normal">
@@ -169,14 +185,28 @@ function Board({ id }: { id: DeductionId }) {
         */}
         <div aria-hidden className="flex w-full max-w-md flex-none flex-col items-center">
           <span
-            className={`h-5 w-px animate-rule-draw-y transition-colors duration-200 ${thread}`}
-          />
+            className={`relative h-5 w-px animate-rule-draw-y transition-colors duration-200 ${thread}`}
+          >
+            {lit && (
+              <span className={`origin-top animate-rule-draw-y ${LIT}`} style={LIT_STEP[0]} />
+            )}
+          </span>
           <span
-            className={`h-px w-1/2 animate-rule-draw transition-colors duration-200 ${thread}`}
-          />
+            className={`relative h-px w-1/2 animate-rule-draw transition-colors duration-200 ${thread}`}
+          >
+            {lit && <span className={`animate-rule-draw ${LIT}`} style={LIT_STEP[1]} />}
+          </span>
           <span className="flex w-1/2 justify-between">
-            <span className={`h-4 w-px transition-colors duration-200 ${thread}`} />
-            <span className={`h-4 w-px transition-colors duration-200 ${thread}`} />
+            {[0, 1].map((side) => (
+              <span
+                key={side}
+                className={`relative h-4 w-px transition-colors duration-200 ${thread}`}
+              >
+                {lit && (
+                  <span className={`origin-top animate-rule-draw-y ${LIT}`} style={LIT_STEP[2]} />
+                )}
+              </span>
+            ))}
           </span>
         </div>
 
@@ -207,7 +237,7 @@ function Board({ id }: { id: DeductionId }) {
                 </div>
               );
             }
-            const { title, still } = cardOf(card);
+            const { title, body, still } = cardOf(card);
             return (
               <button
                 key={slot}
@@ -215,23 +245,41 @@ function Board({ id }: { id: DeductionId }) {
                 disabled={full}
                 onClick={() => press(card)}
                 aria-label={t("deduction.putBack", { title })}
-                className={`w-[calc(50%-0.5rem)] animate-fade-rise cursor-pointer rounded-sm border bg-card p-1.5 text-left transition-colors duration-200 disabled:cursor-default ${FOCUS_RING} ${
+                className={`w-[calc(50%-0.5rem)] animate-fade-rise cursor-pointer rounded-sm border bg-card p-1.5 text-left transition-[border-color,box-shadow] duration-200 disabled:cursor-default ${FOCUS_RING} ${
                   verdict === "hit"
-                    ? "border-memory"
+                    ? LIT_CARD
                     : verdict === "miss"
                       ? "border-ember"
                       : "border-ink/20"
                 }`}
               >
                 <LoreStill id={card} name={title} unlocked wide still={still} />
-                <span className="mt-1 block truncate text-ink text-xs font-medium">{title}</span>
+                <span className="mt-1 block truncate text-graphite text-xs font-medium tracking-[0.06em]">
+                  {title}
+                </span>
+                {/*
+                  기록의 문장까지 같이 올라온다. 제목("끊긴 연락")만 올라오면 말과 무엇이
+                  어긋나는지(아침 7시 12분의 문자)가 판 위에 없어, 맞히고도 왜 모순인지 몰랐다
+                */}
+                <span className="mt-0.5 block break-ko text-pretty text-ink text-xs leading-normal">
+                  {body}
+                </span>
               </button>
             );
           })}
-          {/* 맞았다: 두 사진 사이에 한 단어. 튀어나오지 않고 떠오른다 */}
+          {/*
+            맞았다: 두 사진 사이에 한 단어. 튀어나오지 않고 떠오른다. 사진 두 장의 경계에 걸쳐
+            서므로 어두운 받침을 깐다: 받침 없이는 글자가 밝은 사진 위에서 반씩 묻혔다.
+            바깥 span이 자리를 잡고 안쪽이 떠오른다 (fade-rise의 transform이 가운데 맞춤을 덮지 않게).
+          */}
           {verdict === "hit" && (
-            <span className="-translate-x-1/2 -translate-y-1/2 monologue-text absolute top-1/2 left-1/2 animate-fade-rise font-pixel text-[1.75rem] text-memory">
-              {t("deduction.verdict")}
+            <span className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2">
+              <span
+                className="block animate-fade-rise whitespace-nowrap rounded-md bg-scene-void/85 px-3 py-1 font-pixel text-memory text-xl shadow-chip"
+                style={{ animationDelay: "520ms" }}
+              >
+                {t("deduction.verdict")}
+              </span>
             </span>
           )}
         </div>
@@ -261,7 +309,7 @@ function Board({ id }: { id: DeductionId }) {
 
         {/* 책상 위의 기록들. 자리로 올라간 사진은 빈 자국만 남는다 */}
         <ul className="flex min-h-0 w-full flex-1 flex-wrap content-start justify-center gap-x-3 gap-y-4 overflow-y-auto overscroll-contain px-1 pt-2 pb-3 sm:gap-x-4">
-          {boardCards(revisited).map((card, index) => {
+          {boardCards(id, revisited).map((card, index) => {
             const { title, body, still } = cardOf(card);
             const lifted = picked.includes(card);
             const hint = !lifted && verdict !== "hit" && hinted.includes(card);

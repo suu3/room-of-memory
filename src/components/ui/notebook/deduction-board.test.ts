@@ -1,12 +1,24 @@
 import { describe, expect, it } from "vitest";
+import { DEDUCTION_IDS, DEDUCTIONS } from "@/data/deductions";
 import { MEMORY_IDS } from "@/data/memory-room";
-import { boardCards, hintedCards, pickCard } from "./deduction-board";
+import { BOARD_CARD_LIMIT, boardCards, hintedCards, pickCard } from "./deduction-board";
 
 describe("추리 판", () => {
   it("카드는 2차 조사를 마친 기록만, 수첩에 실린 순서대로 놓인다", () => {
-    const cards = boardCards(["shoes", "radio", "fridge"]);
+    const cards = boardCards("trip-doubt", ["shoes", "radio", "fridge"]);
     expect(cards).toHaveLength(3);
     expect(cards).toEqual(MEMORY_IDS.filter((id) => cards.includes(id)));
+  });
+
+  it("여덟 장을 넘으면 덜어 내되 답과 단서는 남기고, 순서는 수첩 그대로다", () => {
+    // 4페이즈: 2차 조사가 있는 기억을 전부 마쳤다
+    const all = [...MEMORY_IDS];
+    for (const id of DEDUCTION_IDS) {
+      const cards = boardCards(id, all);
+      expect(cards, id).toHaveLength(BOARD_CARD_LIMIT);
+      for (const memory of DEDUCTIONS[id].needs) expect(cards, id).toContain(memory);
+      expect(cards, id).toEqual(MEMORY_IDS.filter((memory) => cards.includes(memory)));
+    }
   });
 
   it("어긋날수록 답을 한 장, 또 두 장 짚어 준다. 이지는 더 일찍 짚는다", () => {
