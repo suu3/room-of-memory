@@ -759,8 +759,10 @@ export function RoomCanvas() {
 
       {/* 엔딩이 시작되면 방은 끝났다: 화면 밖 목록이 남으면 키보드·스크린리더가 엔딩 카드 뒤의 물건으로 간다 */}
       {!endingStarted && (
+        // 걸음이 잠긴 동안(단서·대사·미니게임·메뉴)은 "E로 조사" 칩을 내린다. 위를 덮은
+        // 판의 흐린 배경 아래로 뭉개진 칩만 비쳐 보였다
         <RoomInteractionPrompt
-          nearbyMemoryId={nearbyMemoryId}
+          nearbyMemoryId={inputLocked ? null : nearbyMemoryId}
           nearbyLabel={nearbyLabel}
           legend={t("hud.scattered")}
           labels={memoryButtonLabels}

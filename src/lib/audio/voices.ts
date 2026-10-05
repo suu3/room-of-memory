@@ -187,13 +187,14 @@ export const VOICES: Record<VoiceId, Voice> = {
    * 원래는 A3(220Hz) 사인 한 줄이었다. 그 높이의 짧은 사인은 음정이 아니라 "뚝"으로
    * 뭉개지고, 연타하면 모터처럼 들렸다. 한 옥타브 올려 나무 건반처럼 만든다: 삼각파
    * 몸통 + 금방 사라지는 3배음(말렛이 닿는 반짝임) + 아주 짧은 마찰(자음의 "톡").
+   * 올린 뒤 BGM 아래로 묻힌다고 해서 세 층을 같은 비율(×1.5)로 키웠다.
    */
   type: {
     tones: [
-      { from: A4, to: 415, waveform: "triangle", delay: 0, duration: 0.05, gain: 0.105 },
-      { from: A4 * 3, waveform: "sine", delay: 0, duration: 0.018, gain: 0.018 },
+      { from: A4, to: 415, waveform: "triangle", delay: 0, duration: 0.05, gain: 0.16 },
+      { from: A4 * 3, waveform: "sine", delay: 0, duration: 0.018, gain: 0.027 },
     ],
-    noise: { delay: 0, duration: 0.012, gain: 0.035, highpass: 2600, lowpass: 7000 },
+    noise: { delay: 0, duration: 0.012, gain: 0.05, highpass: 2600, lowpass: 7000 },
   },
   /**
    * 라디오 너머의 목소리(broadcast·signal)가 찍히는 틱. 사람이 아니라 전파라 음정이
@@ -252,7 +253,10 @@ export const VOICES: Record<VoiceId, Voice> = {
     tones: [{ from: 180, to: 90, waveform: "triangle", delay: 0, duration: 0.11, gain: 0.26 }],
     noise: { delay: 0, duration: 0.09, gain: 0.34, highpass: 2400 },
   },
-  /** 헛스윙: 맞은 소리가 아니라 지나간 소리. 부풀었다 사그라드는 바람만 남긴다. */
+  /**
+   * 헛스윙: 맞은 소리가 아니라 지나간 소리. 부풀었다 사그라드는 바람만 남긴다.
+   * 실제로 울리는 건 파일이다 (ASSETS.sfx.swingMiss). 이 합성은 파일을 못 받았을 때의 대역.
+   */
   swingMiss: {
     tones: [{ from: 140, to: 110, waveform: "sine", delay: 0, duration: 0.18, gain: 0.07 }],
     noise: { delay: 0, duration: 0.22, gain: 0.2, highpass: 900, lowpass: 5200, attack: 0.08 },

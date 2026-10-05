@@ -291,12 +291,11 @@
         "j2": "u got nothing to do anyway",
         "y1": "guys suneung is in a month",
         "j3": "u really think a month of studying changes anything for me?",
-        "y2": "lol",
+        "y2": "lmao",
         "m1": "lol",
-        "m2": "k",
-        "y3": "lol",
-        "y4": "ok actually i wanna come too",
-        "j4": "lesgo",
+        "m2": "k lets go tmrw",
+        "y3": "count me in too hehe",
+        "j4": "lol",
         "members": "Yunho, Juwan, me"
       },
       "callsSubtitle": "No answer",
@@ -306,7 +305,8 @@
         "mom": "Mom",
         "dad": "Dad",
         "yunho": "Yunho",
-        "juwan": "Juwan"
+        "juwan": "Juwan",
+        "spam": "070-xxxx-xxxx"
       },
       "helpFamily": "Open the family chat too",
       "family": {
@@ -315,8 +315,8 @@
         "date": "October 17",
         "f1": "Dohae, Mom and Dad are off for three days.",
         "f2": "Fridge is stocked. Don't starve.",
-        "f3": "Eat properly, and go easy on the games.",
-        "f4": "We'll send pictures, so hold down the fort.",
+        "f3": "Okay, eat properly, and go easy on the games!",
+        "f4": "We'll send pictures, so hold down the fort~",
         "f5": "Write back for once.",
         "f6": "Okay."
       },
@@ -718,7 +718,7 @@
     "parentsLocked": "Their room is locked.",
     "clockStopped": "4:20. …When did it stop?",
     "clockRunning": "…It's ticking again. Whether it's right, I can't tell.",
-    "aircon": "It's gotten cold. No reason to turn the AC on.",
+    "aircon": "It's cold now. No reason to turn the AC on anymore.",
     "sinkDrained": "…Something's sunk to the bottom.",
     "badgeFound": "…It was on the ampoule."
   }

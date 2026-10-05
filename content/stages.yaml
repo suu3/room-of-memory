@@ -24,7 +24,7 @@
 stages:
   p0-dark:
     monologue:
-      ko: …또 잠들었었나. 어둡다.
+      ko: …또 잠들었나. 어둡다.
       en: …Did I fall asleep again? It's dark.
       ja: …また寝てたのか。暗い。
 
@@ -60,7 +60,7 @@ stages:
   # "그럴 리가 없는데"는 꺼 둔 라디오라서 선다.
   turn-bottom:
     monologue:
-      ko: …그럴 리가 없는데. 라디오에 다른 신호가 잡힌다.
+      ko: …그럴 리가 없는데. 라디오에 다른 신호가 잡혀.
       en: …That can't be right. The radio's picking up a different signal.
       ja: …そんなはずないのに。ラジオが別の信号を拾ってる。
 

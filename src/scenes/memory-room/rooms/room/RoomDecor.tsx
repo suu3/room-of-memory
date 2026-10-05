@@ -155,8 +155,8 @@ const WALL_POSTER = {
  * 포스터. 색면 장식(DecorBox)과 달리 텍스처가 붙어서 별도 메쉬로 선다.
  *
  * 그림이 아직 안 왔거나 파일이 없으면 종이색 판이 그 자리를 지킨다 (useCoverTexture의
- * 계약). 색(linen)은 map에 곱해져 인쇄물 위에 옅은 종이 베일로 남는다: 액자 사진과
- * 같은 처리이고, 바랜 이 방의 톤에서 포스터만 쨍하게 뜨지 않게 한다.
+ * 계약). 원화 자체를 회청색·바랜 적갈색 인쇄물로 보정했다. 여기에 linen을 곱해
+ * 주변 종이 소품과 톤을 맞추며, 별도의 채도 보정 없이 방 조명을 그대로 따른다.
  */
 function WallPoster({ palette }: { palette: RoomPalette }) {
   const print = useCoverTexture(

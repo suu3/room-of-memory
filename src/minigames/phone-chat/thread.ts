@@ -5,7 +5,8 @@
  * i18n 키만 담고 ko/en/ja는 common.json이 갖는다.
  *
  * 친구 단톡방은 그 전날 밤까지 평범하게 떠들다가 거기서 멈춘다. 무슨 일이 있었는지는
- * 아무도 입에 올리지 않는다. 통화 기록은 도해가 건 전화만 줄줄이 보여준다.
+ * 아무도 입에 올리지 않는다. 통화 기록은 도해가 건 전화를 줄줄이 보여준다 (맨 위 한 줄만
+ * 낮에 걸려 온 스팸 부재중이다).
  */
 
 import type { CommonTextKey } from "@/types/minigame";
@@ -33,6 +34,8 @@ export interface OutgoingCall {
   count: number;
   /** 그 시점 이후의 전화: 초록 대신 빨강으로 선다. */
   urgent?: boolean;
+  /** 걸려 온 부재중 전화: 도해가 건 것이 아니다. 회색으로 서고, 건 횟수(탭 배지)에는 안 낀다. */
+  incoming?: boolean;
 }
 
 /** 친구 둘. 이름은 i18n이 갖고, 코드는 이 키로만 가리킨다 (docs/story/story.md 친구 설정). */
@@ -74,7 +77,7 @@ export function startsRun(messages: readonly ChatMessage[], index: number): bool
  * 친구들 단톡방: 셋이 쓰는 방(윤호·주완·나). 방 이름은 "대학 포기한 고삼들의 모임".
  *
  * 수능 한 달 전 밤의 평범한 수다다. 주완이 내일 놀자고 조르고, 윤호가 핀잔을 주다
- * 끼워 달라고 하고, 마지막 줄은 주완의 "ㄱㄱ"다. 그 뒤로는 아무 말도 없다.
+ * 끼워 달라고 하고, 마지막 줄은 주완의 "ㅋ"다. 그 뒤로는 아무 말도 없다.
  * 무슨 일이 있었는지, 둘이 어디 있는지는 한 줄도 적지 않는다.
  *
  * 재난을 입에 올리는 줄은 한 줄도 넣지 않는다. 세계관을 여는 반전은
@@ -126,13 +129,6 @@ export const GROUP_CHAT: ChatMessage[] = [
     time: "21:21",
   },
   {
-    id: "y4",
-    side: "them",
-    fromKey: FRIEND.yunho,
-    textKey: "minigame.phoneChat.chat.y4",
-    time: "21:21",
-  },
-  {
     id: "j4",
     side: "them",
     fromKey: FRIEND.juwan,
@@ -145,8 +141,12 @@ export const GROUP_CHAT: ChatMessage[] = [
  * 도해가 건 전화. 아무도 받지 않았다.
  * 처음엔 친구들에게 건 평범한 발신(초록)이다가, 어느 시점부터는 부모님께 거푸 건
  * 전화(빨강)로 바뀐다. 뒤로 갈수록 다시 거는 횟수가 늘어난다.
+ *
+ * 맨 위의 한 줄만 걸려 온 전화다: 수업 중에 온 스팸 번호의 부재중 두 통. 그날 낮까지는
+ * 폰이 평범했다는 표시다.
  */
 export const OUTGOING_CALLS: OutgoingCall[] = [
+  { id: "c0", toKey: "minigame.phoneChat.contact.spam", time: "11:08", count: 2, incoming: true },
   { id: "c1", toKey: FRIEND.yunho, time: "16:41", count: 1 },
   { id: "c2", toKey: FRIEND.juwan, time: "16:58", count: 2 },
   { id: "c3", toKey: "minigame.phoneChat.contact.dad", time: "19:12", count: 4, urgent: true },
@@ -212,7 +212,7 @@ export const CHAT_ROOMS: ChatRoomId[] = ["friends", "family"];
 
 /** 건 전화 총 횟수: 탭 배지에 쓴다. */
 export function totalOutgoingCalls(calls: readonly OutgoingCall[] = OUTGOING_CALLS): number {
-  return calls.reduce((sum, call) => sum + call.count, 0);
+  return calls.reduce((sum, call) => sum + (call.incoming ? 0 : call.count), 0);
 }
 
 /**
@@ -231,6 +231,25 @@ export function isThreadComplete(revealed: number, seenCalls: boolean, seenFamil
  */
 export function revealNext(revealed: number): number {
   return Math.min(GROUP_CHAT.length, revealed + 1);
+}
+
+/** 스크롤로 넘기는 줄 사이의 최소 간격(ms). 트랙패드는 한 번만 쓸어도 휠 이벤트가 수십 개 온다. */
+const SCROLL_READ_GAP_MS = 180;
+
+/** 손가락이 이만큼 위로 움직이면 한 줄 (px). */
+const SWIPE_READ_STEP = 44;
+
+/**
+ * 이 휠 이벤트가 다음 줄을 여는가. 아래로 굴릴 때만, 그리고 앞 줄을 연 지 조금 지났을 때만.
+ * 간격을 두지 않으면 트랙패드의 관성 스크롤이 대화를 한 번에 끝까지 쏟는다.
+ */
+export function scrollReads(deltaY: number, now: number, lastReadAt: number): boolean {
+  return deltaY > 0 && now - lastReadAt >= SCROLL_READ_GAP_MS;
+}
+
+/** 터치로 쓸어 올린 거리가 한 줄만큼 되는가. fromY는 앞 줄을 연 자리, toY는 지금 손가락 자리. */
+export function swipeReads(fromY: number, toY: number): boolean {
+  return fromY - toY >= SWIPE_READ_STEP;
 }
 
 /**

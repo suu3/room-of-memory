@@ -199,12 +199,12 @@ export const ASSETS = {
    */
   textures: {
     /**
-     * 책상 위 벽에 붙은 고교야구대회 포스터 (512×768, 사용자 제공). 방에서
+     * 책상 위 벽에 붙은 고교야구대회 포스터 (512×768, 사용자 제공 원화의 저채도 편집본). 방에서
      * 유일하게 그림이 실린 벽면이다. 2:3이라 가로만 2의 제곱이다: WebGL2는
      * 밉맵이 붙는 NPOT 텍스처를 그대로 받고, 비율을 맞추려 늘리면 포스터가
      * 찌그러진다 (.claude/rules/assets.md의 2048px·2MB 한도는 지킨다).
      */
-    roomPosterBaseball: "/assets/textures/room-poster-baseball.webp",
+    roomPosterBaseball: "/assets/textures/room-poster-baseball-muted.webp?v=20260927",
   },
   /**
    * 바퀴마다 한 곡. 값은 **후보 목록**이고 앞에서부터 받아 처음 성공한 것을 튼다
@@ -261,6 +261,11 @@ export const ASSETS = {
     doorOpen: "/assets/audio/sfx/sfx-door-open.ogg",
     /** 벽 스위치 딸깍. 게임의 첫 조작이라 실물 소리로. 딸-깍 두 번 닿는 0.29초만 잘랐다. */
     lightSwitch: "/assets/audio/sfx/sfx-light-switch.ogg",
+    /**
+     * 야구 미니게임의 헛스윙. 합성 바람은 "쉭"이 아니라 "솨"로 퍼져서 배트가 가르는
+     * 실물 소리로 바꿨다. 앞뒤 무음을 자르고 휙 한 번인 0.15초만 남겼다.
+     */
+    swingMiss: "/assets/audio/sfx/sfx-swing-whoosh.ogg",
   } as Partial<Record<VoiceId, string>>,
   /**
    * 녹음된 말소리 (src/lib/audio/speech.ts). 게임에서 사람 목소리가 나는 자리는 여기뿐이다:

@@ -128,12 +128,12 @@
   "scripts": {
     "report-card-intro": {
       "line1": "This is my September mock exam report.",
-      "line2": "It was the last mock exam before the real one, and my scores weren't great.",
+      "line2": "It was the last mock exam before the real one, and my scores were a mess.",
       "line3": "The evening I showed it to them.",
       "line4": "Maybe we should look into a math tutor?",
-      "line5": "Studying isn't the only answer in life, you know.",
+      "line5": "Studying isn't everything in life, you know.",
       "line6": "…That's supposed to be comforting, right?",
-      "line7": "Once the baseball tournament was over, all that was left was the entrance exam.",
+      "line7": "I wasn't good enough to get drafted. All that was left was the entrance exam.",
       "line8": "If things were normal, the exam would be… a month away."
     },
     "ball-intro": {
@@ -141,34 +141,34 @@
       "line2": "Nationals round of 16, against Eungang High. Bottom of the ninth, two outs, and I was the last batter.",
       "line3": "Yunho called out from the on-deck circle. \"You can hit it, Do-hae!\"",
       "line4": "Their catcher slapped his palm against his mitt twice, thwack thwack, and crouched down.",
-      "line5": "He looked so sure of himself, like he'd catch anything no matter how I swung.",
-      "line6": "Full count. The ball came off my bat and popped up high behind the plate.",
+      "line5": "Like he'd catch anything, no matter how I hit it.",
+      "line6": "Full count. I got under it, and the ball popped up high behind the catcher.",
       "line7": "He tossed his mask, ran it down, and caught it. That was it.",
-      "line8": "That was my last baseball game."
+      "line8": "That was my last game."
     },
     "ball-alone": {
-      "line1": "Even when I swing again, I don't feel that rush in my blood like I used to."
+      "line1": "Even when I swing again, my blood doesn't run hot the way it did back then."
     },
     "console-intro": {
       "line1": "Haven't played in a while. One round?",
-      "line2": "Juwan and I used to play for bets all the time. He lost more often than not, though."
+      "line2": "Juwan and I always played for bets. He was the one losing, almost every time."
     },
     "console-alone": {
       "line1": "I won.",
-      "line2": "…What's the point of winning by myself?"
+      "line2": "…What's the point of winning alone?"
     },
     "console-echo": {
       "line1": "Both controllers are still here.",
       "line2": "We said we'd swap characters next time.",
-      "line3": "When all this is over, let's play again."
+      "line3": "When it's all over, let's play again."
     },
     "frame-photo": {
-      "line1": "This is from the youth baseball tournament, the day we placed.",
-      "line2": "Yunho was probably next to me. We've played baseball together since then.",
-      "line3": "…My parents' faces are blurry."
+      "line1": "This photo's from the day we placed at the youth tournament.",
+      "line2": "Yunho was probably next to me. We've been together ever since then.",
+      "line3": "…My parents' faces are the only thing I can't see."
     },
     "phone-stopped": {
-      "line1": "The group chat ends on the night of October 18.",
+      "line1": "The group chat stopped on the night of October 18.",
       "line2": "The calls I made on the 19th. No one picked up."
     },
     "window-silence": {
@@ -176,11 +176,11 @@
       "line2": "Now… there's no sound at all."
     },
     "calendar-intro": {
-      "line1": "The calendar stopped there too. October 19."
+      "line1": "The calendar stopped too, on October 19."
     },
     "calendar-tally": {
       "line1": "How many tally marks is that now…",
-      "line2": "I stopped counting. Counting makes it feel longer."
+      "line2": "I stopped counting. The more I count, the longer it feels."
     },
     "radio-intro": {
       "line1": "Maybe I'll try the radio.",
@@ -197,15 +197,15 @@
       "line2": "…And the glove."
     },
     "fridge-open": {
-      "line1": "If I'm going out, I should take something. Let's check the fridge.",
+      "line1": "If I'm going out, I should take something. Let's start with the fridge.",
       "line2": "I've been eating for a month and it's still half full.",
       "line3": "Two nights, they said. So why stock this much?"
     },
     "shoes-open": {
       "line1": "It's been ages since I opened the shoe cabinet.",
       "line2": "Dad's hiking boots are still here.",
-      "line3": "We're keeping this trip light. Just a little sightseeing close by!",
-      "line4": "They said light, but they definitely took two suitcases.",
+      "line3": "We're keeping it light this time. Just a little loop around nearby!",
+      "line4": "Light, he said, and yet they left with two whole suitcases.",
       "line5": "…The spot where the suitcases go is empty."
     },
     "cards-intro": {
@@ -220,7 +220,7 @@
     "computer-power-on": {
       "line1": "Not like the internet works even if I turn it on.",
       "line2": "…I'll at least look at what's saved.",
-      "line3": "I press the power button on the dust-covered tower."
+      "line3": "…Look how much dust has piled up."
     },
     "computer-archive": {
       "line1": "Dad's email. He sounds so excited about the trip.",
@@ -228,7 +228,7 @@
       "line3": "The first report was at 3 p.m."
     },
     "phone-mom-intro": {
-      "line1": "My chat with Mom. I skipped past it on purpose earlier.",
+      "line1": "My chat with Mom. I've kept it closed on purpose all this time.",
       "line2": "The last message is from that morning.",
       "line3": "…"
     },
@@ -260,7 +260,7 @@
       "line1": "Raon Life Science Institute. I think that logo was in one of Dad's emails."
     },
     "computer-logo-found": {
-      "line1": "Raon Life Science Institute. Same as the one on Dad's badge.",
+      "line1": "Found it. Same logo as the one on Dad's badge.",
       "line2": "Tidy up the shelves a bit, will you?",
       "line3": "…The shelves?"
     },
@@ -269,22 +269,22 @@
       "line2": "Mom's handwriting. Each piece has a date on it."
     },
     "research-note-read": {
-      "line1": "So this is what they were working on. Raon Life Science Institute.",
+      "line1": "So this is what they were working on at Raon.",
       "line2": "It wasn't a trip. They were called in to the institute.",
-      "line3": "RX-11. A candidate cure. …They made two, and one slot was empty."
+      "line3": "RX-11. A candidate cure. …They made two, but there was only one in the case."
     },
     "id-card-look": {
       "line1": "Dad's badge. Mom's badge. They left both behind."
     },
     "id-card-found": {
       "line1": "Raon Life Science Institute. Dad's name, Mom's name.",
-      "line2": "Held up to the light, a logo shows over the photo. It's the one from the ampoule label."
+      "line2": "Hold it up to the light and a logo appears over the photo. It's the one from the ampoule label."
     }
   },
   "lore": {
     "report-card": {
       "title": "September Mock Exam",
-      "phase1": "Bad scores. Mom said tutor. Dad said it was fine."
+      "phase1": "My scores were a mess. Mom said to look for a tutor. Dad said it was fine."
     },
     "console": {
       "title": "Not fun anymore",
@@ -308,7 +308,7 @@
     },
     "calendar": {
       "title": "October 19",
-      "phase1": "To count the days that went by, I just kept making tally marks."
+      "phase1": "I was counting the days with tally marks, then I stopped."
     },
     "window": {
       "title": "Outside",
@@ -317,7 +317,7 @@
     "radio": {
       "title": "That Broadcast",
       "phase1": "I'm afraid to face what's really out there.",
-      "phase2": "Survivors at the Eungang High gym. I've heard that voice somewhere.",
+      "phase2": "Survivors at the Eungang High gym. They leave after four nights. I've heard that voice somewhere.",
       "phase2Title": "Eungang High"
     },
     "duffel": {
@@ -327,7 +327,7 @@
     },
     "fridge": {
       "title": "What They Stocked",
-      "phase2": "Why did our home have a month's worth of food?"
+      "phase2": "A month of eating, and half is still left. Why this much for two nights?"
     },
     "shoes": {
       "title": "The Boots They Left",
@@ -344,7 +344,7 @@
     },
     "ampoule": {
       "title": "An Unmarked Ampoule",
-      "phase2": "One ampoule in the case, the next slot empty. A faded logo on the label.",
+      "phase2": "One ampoule in the case, the next slot empty. A half-worn logo on the label.",
       "phase3": "I took the ampoule. The one that might be a cure."
     },
     "research-note": {
@@ -359,32 +359,32 @@
   "cutscenes": {
     "workbook-name": {
       "cut1": {
-        "line1": "Past entrance-exam questions. Han Do-hae. That's my handwriting.",
-        "line2": "I played my last season with the baseball team in the summer, and after that it was back to senior-year life.",
-        "line3": "I bought this back then, too. Trying to play the part of a test-taker."
+        "line1": "Past entrance-exam questions. …Han Do-hae. That's my handwriting.",
+        "line2": "I retired from the baseball team after the summer tournament. After that, I went back to being just another senior.",
+        "line3": "I bought this back then, too. Figured I'd at least act like a test-taker."
       }
     },
     "console-flashback": {
       "cut1": {
-        "line1": "I used to play games a lot with Juwan, a friend from my class.",
-        "line2": "The week exams ended, he'd come over and we'd play fighting games in two-player mode.",
-        "line3": "I think I won a little more often.",
+        "line1": "Juwan was in my class. He wasn't even on the baseball team, but he's the one I hung out with most.",
+        "line2": "The week exams ended, he'd come over to my place and we'd play fighting games in two-player mode.",
+        "line3": "Whenever he lost, he'd always ask for just one more round.",
         "line4": "We said we'd swap characters next time.",
         "line5": "…I can't remember the last time we played."
       }
     },
     "ball-flashback": {
       "cut1": {
-        "line1": "I'd played baseball for years, so I went to Cheongseo High, a school known for baseball.",
-        "line2": "In this year's nationals round of 16, we faced Eungang High, a nearby school and our baseball rival.",
-        "line3": "I played second base, and I psyched myself up with my best friend Yunho, our catcher.",
-        "line4": "We lost the game. I still remember the sound of Eungang's catcher slapping his palm against his mitt.",
+        "line1": "I'd done nothing but baseball since I was a kid, so I went to Cheongseo High, a baseball powerhouse.",
+        "line2": "Eungang High is just one neighborhood over. They were a tough matchup every time we met.",
+        "line3": "I play second base, Yunho catches. We've been a pair since youth league.",
+        "line4": "Losing stung, but strangely, the only thing that stuck with me was the sound of that catcher slapping his mitt.",
         "line5": "I wonder what Yunho's doing now."
       }
     },
     "radio-blackout": {
       "cut1": {
-        "line1": "Listening to the radio, nothing but noise, the memory of that day comes back."
+        "line1": "Nothing but noise, as expected. …That day, there was a broadcast coming out of this thing."
       },
       "cut2": {},
       "cut3": {
@@ -399,17 +399,17 @@
       "cut4": {
         "line1": "It was an ordinary day.",
         "line2": "After extra classes, I checked my phone and there was a text from Mom.",
-        "line3": "\"Skip the study room today and come straight home.\" …That was a strange thing to say."
+        "line3": "\"Skip the study room today and come straight home.\" …Not something she usually said."
       },
       "cut5": {
         "line1": "The apartment complex was quiet.",
         "line2": "A car sitting there with its door open. No one around.",
         "line3": "…Sirens wailed in the distance.",
-        "line4": "All the way to my door, everything was the same as always."
+        "line4": "Still, nothing happened all the way to my door."
       },
       "cut6": {
         "line1": "Someone was standing in the hallway.",
-        "line2": "Something felt off."
+        "line2": "…Something about the way they stood was off."
       },
       "cut7": {},
       "cut8": {},
@@ -419,16 +419,16 @@
       },
       "cut10": {
         "line1": "I locked the door.",
-        "line2": "Mom and Dad were away on their trip, so there was no one home.",
-        "line3": "Silence settled in, as if none of the panic had been real."
+        "line2": "Mom and Dad were away on their trip. There was no one home.",
+        "line3": "It was so quiet that what had just happened felt like a lie."
       },
       "cut11": {
-        "line1": "The news was still on.",
-        "line2": "Infection, spread, evacuation. The anchor was shouting unfamiliar words in a panic.",
+        "line1": "I turned on the TV, and the news was on.",
+        "line2": "Infection, spread, evacuation. The anchor was rattling off unfamiliar words in a panic.",
         "line3": "Screams came from every direction. I covered my ears."
       },
       "cut12": {
-        "line1": "Ever since that day, I've been shut in at home.",
+        "line1": "Ever since that day, I haven't set foot outside.",
         "line2": "Because I was afraid of what I'd have to face out there."
       }
     },
@@ -437,7 +437,7 @@
       "cut2": {},
       "cut3": {},
       "cut4": {
-        "line1": "Hey, anyone out there? …Is this even going out?"
+        "line1": "Ah, ah. Anyone out there? …Is this thing even going out."
       },
       "cut5": {
         "line1": "We've got survivors gathered here at the Eungang High gym."
@@ -447,39 +447,39 @@
         "line1": "I hooked a transmitter up to the broadcast room gear, so it won't reach far. You'll hear it around here, though."
       },
       "cut8": {
-        "line1": "After four nights, we're moving out. We got word a helicopter's coming."
+        "line1": "After four nights, we're leaving here. Word is a helicopter's coming."
       },
       "cut9": {
-        "line1": "So if anyone's listening, get to the Eungang High gym. …Don't be late."
+        "line1": "So if anyone's listening, come to the Eungang High gym. …Don't be late."
       },
       "cut10": {},
       "cut11": {
         "line1": "Eungang High…? That guy from back then…?",
-        "line2": "…That voice sounds kind of familiar."
+        "line2": "…I've heard that voice somewhere."
       }
     },
     "trip-doubt": {
       "cut1": {
         "line1": "I've been eating from the fridge for a month, and it's still half full.",
-        "line2": "They took two suitcases, but Dad's hiking boots are still at home.",
-        "line3": "They said two nights, but they packed for a month."
+        "line2": "They took two whole suitcases, but left Dad's hiking boots behind.",
+        "line3": "They said two nights. …That wasn't two nights' worth of luggage."
       }
     },
     "p2-close": {
       "cut1": {
-        "line1": "It wasn't a trip. They both knew something."
+        "line1": "…Was it not a trip at all? They both knew something."
       }
     },
     "p4-close": {
       "cut1": {
-        "line1": "…This might be the answer.",
-        "line2": "Mom and Dad left to protect this. It was never a trip."
+        "line1": "…That ampoule might be the answer.",
+        "line2": "Mom and Dad called it a trip to protect me. …And they left that behind."
       }
     },
     "still-beat": {
       "cut1": {},
       "cut2": {
-        "line1": "Take the ampoule and get to the Eungang High gym within four days.",
+        "line1": "I'm taking the ampoule and getting to the Eungang High gym within four nights.",
         "line2": "…I'll be back."
       }
     },

@@ -62,9 +62,9 @@ memories:
         en: September Mock Exam
         ja: 9月の模試
       phase1:
-        ko: 성적은 나빴다. 엄마는 과외를, 아빠는 괜찮다고 했다.
-        en: Bad scores. Mom said tutor. Dad said it was fine.
-        ja: 成績は悪かった。母さんは家庭教師を、父さんは大丈夫だと言った。
+        ko: 점수는 엉망이었다. 엄마는 과외를 알아보자고, 아빠는 괜찮다고 했다.
+        en: My scores were a mess. Mom said to look for a tutor. Dad said it was fine.
+        ja: 点数はひどかった。母さんは家庭教師を探そうと、父さんは大丈夫だと言った。
     # 미니게임 없이 책상 위 성적표를 둘러보고 대사만 흐른다
     phase1:
       script: report-card-intro
@@ -210,9 +210,9 @@ memories:
         en: October 19
         ja: 10月19日
       phase1:
-        ko: 지나간 날들을 세려고 正자만 그었다.
-        en: "To count the days that went by, I just kept making tally marks."
-        ja: "過ぎた日を数えようと、正の字だけを書いた。"
+        ko: 지나간 날을 正자로 세다가 그만뒀다.
+        en: "I was counting the days with tally marks, then I stopped."
+        ja: "過ぎた日を正の字で数えていたが、やめた。"
     # phone 뒤에만 열린다. 진입 대사가 폰 결과 대사의 날짜(전화가 닿지 않은 10월 19일)를 이어받는다.
     phase1:
       script: calendar-intro
@@ -256,9 +256,9 @@ memories:
         en: Eungang High
         ja: 銀江高
       phase2:
-        ko: 은강고 체육관에 생존자가 있다. 어디서 들어 본 목소리다.
-        en: Survivors at the Eungang High gym. I've heard that voice somewhere.
-        ja: 銀江高の体育館に生存者がいる。どこかで聞いたことのある声だ。
+        ko: 은강고 체육관에 생존자가 있다. 나흘 밤 뒤에 떠난다고 했다. 어디서 들어 본 목소리다.
+        en: Survivors at the Eungang High gym. They leave after four nights. I've heard that voice somewhere.
+        ja: 銀江高の体育館に生存者がいる。四晩たったら出ると言っていた。どこかで聞いたことのある声だ。
     # 1차 (관문): 나머지 일곱을 다 봐야 열린다. 반전은 한 번뿐이라 순서를 강제한다.
     # 진입 대사 → 튜닝 → 라디오가 꺼지고 재난방송이 떠오르는 컷씬(store가 radio-blackout을
     # 연다). 방송과 그날의 이미지 나열은 전부 그 컷씬 안에 있다.
@@ -288,7 +288,7 @@ memories:
         en: I repacked the bag. Almost left the glove, then put it back in.
         ja: バッグを詰め直した。グローブは置いていこうとして、やっぱり入れた。
       phase3:
-        ko: 싸 둔 가방을 멨다. 글러브도 들었다.
+        ko: 싸 둔 가방을 멨다. 글러브도 들어 있다.
         en: I shouldered the packed bag. The glove is in it.
         ja: 詰めておいたバッグを背負った。グローブも入っている。
     phase2:
@@ -305,13 +305,13 @@ memories:
     icon: Package
     lore:
       title:
-        ko: 채워둔 것들
+        ko: 채워 둔 것들
         en: What They Stocked
         ja: 詰めてあったもの
       phase2:
-        ko: 한 달 치 식량이 왜 우리 집에 있었을까.
-        en: "Why did our home have a month's worth of food?"
-        ja: "ひと月分の食料が、どうしてうちにあったんだろう。"
+        ko: 한 달을 먹고도 반이 남았다. 2박 3일에 왜 이만큼을.
+        en: "A month of eating, and half is still left. Why this much for two nights?"
+        ja: "ひと月食べても半分残っている。二泊三日に、なぜこんなに。"
     # 위칸만. 아래칸("손대지 마")은 3페이즈의 앰플이다.
     phase2:
       script: fridge-open
@@ -402,9 +402,9 @@ memories:
         en: An Unmarked Ampoule
         ja: 正体不明のアンプル
       phase2:
-        ko: 케이스에 앰플 하나, 옆 칸은 비었다. 라벨엔 지워진 로고.
-        en: One ampoule in the case, the next slot empty. A faded logo on the label.
-        ja: ケースにアンプルが一本、隣は空。ラベルには消えかけたロゴ。
+        ko: 케이스에 앰플 하나, 옆 칸은 비었다. 라벨엔 반쯤 지워진 로고.
+        en: One ampoule in the case, the next slot empty. A half-worn logo on the label.
+        ja: ケースにアンプルが一本、隣は空。ラベルには半分消えたロゴ。
       phase3:
         ko: 앰플을 챙겼다. 치료제일지도 모르는 하나.
         en: I took the ampoule. The one that might be a cure.
