@@ -54,6 +54,14 @@ const EXTRA_LIFT: Partial<Record<BeaconId, number>> = {
   ball: 0.14,
 };
 
+/**
+ * 물건마다 마름모를 벽에서 얼마나 앞으로 뺄지 (물건 원점의 +z). 창은 원점이 뒷벽에 있고
+ * 그 앞에 커튼(천 z≈-3.64)과 커튼봉(z=-3.6)이 걸려, 제자리에서 돌면 봉과 천 뒤로 들락거린다.
+ */
+const FORWARD: Partial<Record<BeaconId, number>> = {
+  window: 0.5,
+};
+
 export function MemoryBeacon({
   id,
   color,
@@ -81,6 +89,7 @@ export function MemoryBeacon({
   const spinRef = useRef(0);
 
   const lift = DIAMOND_LIFT + (EXTRA_LIFT[id] ?? 0);
+  const forward = FORWARD[id] ?? 0;
   // 상호작용 반경이 물건마다 달라도 고리 크기는 같게 둔다. 크기가 제각각이면
   // 고리가 "표식"이 아니라 물건의 일부처럼 보인다.
   const ringArgs = useMemo(() => [RING_INNER, RING_OUTER, 28] as const, []);
@@ -143,7 +152,7 @@ export function MemoryBeacon({
       </mesh>
 
       {/* 공중의 마름모 */}
-      <group ref={diamondRef} position={[0, lift, 0]}>
+      <group ref={diamondRef} position={[0, lift, forward]}>
         <mesh raycast={() => null}>
           <octahedronGeometry args={[DIAMOND_SIZE]} />
           <meshBasicMaterial
