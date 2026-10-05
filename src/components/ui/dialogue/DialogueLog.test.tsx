@@ -47,9 +47,7 @@ describe("지나간 대사 화면", () => {
     openLog();
 
     // 백드롭이 아니라 대사 한 줄을 정확히 누른다. 예전엔 여기서 닫히지 않았다
-    fireEvent.click(
-      screen.getByText("전국대회 16강, 은강고전. 9회 말 투아웃, 마지막 타석은 나였다."),
-    );
+    fireEvent.click(screen.getByText("나는 2루수, 윤호는 포수. 유소년 때부터 같이 뛴 단짝이다."));
     expect(useMemoryRoomStore.getState().dialogueLogOpen).toBe(false);
   });
 

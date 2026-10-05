@@ -94,32 +94,34 @@ cutscenes:
   # 16강이 끝난 직후 홈플레이트. 해가 포수 등 뒤에 있어 얼굴이 역광에 묻힌다.
   # 보이는 건 미트 낀 손뿐이다: 엔딩 합류 컷(얼굴 대신 미트)과 짝이다 (docs/story/story.md).
   # 손바닥으로 미트를 두드리던 버릇의 소리가 방송 첫 칸의 탁, 탁(mittTap)과 이어지는 포수 복선이다.
-  # 윤호의 생사·행방은 묻기만 하고 답하지 않는다.
+  # 학교·포지션·윤호 소개는 게임 전 대사(ball-intro)가 먼저 깐다. 여기서는 그 타석의 끝
+  # (은강고 포수가 뜬공을 잡아 경기가 끝난다)과 그 포수만 말한다.
+  # 같이 뛴 친구들의 생사·행방은 묻기만 하고 답하지 않는다.
   ball-flashback:
     - image: /assets/images/mg-cutscene-ball-flashback.webp?v=3
       holdMs: 1500
       lines:
         - speaker: hero
-          ko: 어릴 때부터 야구만 해 온 나는, 야구 명문 청서고에 진학했다.
-          en: I'd done nothing but baseball since I was a kid, so I went to Cheongseo High, a baseball powerhouse.
-          ja: 子どもの頃から野球ばかりやってきた俺は、野球の名門・青瑞高に進学した。
-        - speaker: hero
           ko: 은강고는 바로 옆 동네 학교다. 만날 때마다 껄끄러운 상대였다.
           en: Eungang High is just one neighborhood over. They were a tough matchup every time we met.
           ja: 銀江高はすぐ隣の町の学校だ。当たるたびに、やりにくい相手だった。
         - speaker: hero
-          expression: smile
-          ko: 나는 2루수, 윤호는 포수. 유소년 때부터 같이 뛴 단짝이다.
-          en: I play second base, Yunho catches. We've been a pair since youth league.
-          ja: 俺はセカンド、ユノはキャッチャー。少年野球の頃から一緒にやってきた相棒だ。
+          ko: 9회 말 풀카운트. 빗맞은 공이 은강고 포수 뒤로 높이 떴다.
+          en: Bottom of the ninth, full count. I got under it, and the ball popped up high behind Eungang's catcher.
+          ja: 九回裏、フルカウント。打ち損じた球が、銀江高のキャッチャーの後ろへ高く上がった。
+        - speaker: hero
+          expression: sad
+          ko: 그 녀석이 마스크를 벗어 던지고 달려가 잡았다. 그게 내 마지막 경기였다.
+          en: He tossed his mask, ran it down, and caught it. That was my last game.
+          ja: あいつがマスクを投げ捨てて走り、捕った。それが俺の最後の試合だった。
         - speaker: hero
           ko: 진 건 분했는데, 이상하게 그 포수가 미트를 탁탁 두드리던 소리만 귀에 남았다.
           en: Losing stung, but strangely, the only thing that stuck with me was the sound of that catcher slapping his mitt.
           ja: 負けたのは悔しかったのに、なぜかあのキャッチャーがミットをパンパンと叩く音だけが耳に残った。
         - speaker: hero
-          ko: 윤호는 지금 뭐 하고 있을까.
-          en: I wonder what Yunho's doing now.
-          ja: ユノは今、何をしてるんだろう。
+          ko: 그날 같이 뛴 애들은 지금 뭐 하고 있을까.
+          en: I wonder what the guys I played with that day are doing now.
+          ja: あの日一緒に戦ったみんなは今、何をしてるんだろう。
 
   #
   # 분기점 과거편 (docs/story/story.md 3장 분기점): 그날이 한 컷씩 지나간다.

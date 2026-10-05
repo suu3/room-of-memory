@@ -346,13 +346,11 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     id: "ball-intro",
     lines: [
       { speaker: "hero", textKey: "scripts.ball-intro.line1" },
-      { speaker: "hero", textKey: "scripts.ball-intro.line2" },
-      { speaker: "hero", textKey: "scripts.ball-intro.line3", expression: "smile" },
-      { speaker: "hero", textKey: "scripts.ball-intro.line4" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line2", expression: "smile" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line3" },
+      { speaker: "hero", textKey: "scripts.ball-intro.line4", expression: "smile" },
       { speaker: "hero", textKey: "scripts.ball-intro.line5" },
       { speaker: "hero", textKey: "scripts.ball-intro.line6" },
-      { speaker: "hero", textKey: "scripts.ball-intro.line7", expression: "sad" },
-      { speaker: "hero", textKey: "scripts.ball-intro.line8", expression: "puzzled" },
     ],
   },
   "ball-alone": {
@@ -616,7 +614,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [
           { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line1" },
           { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line2" },
-          { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line3", expression: "smile" },
+          { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line3", expression: "sad" },
           { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line4" },
           { speaker: "hero", textKey: "cutscenes.ball-flashback.cut1.line5" },
         ],

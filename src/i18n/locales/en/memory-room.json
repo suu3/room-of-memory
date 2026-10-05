@@ -137,14 +137,12 @@
       "line8": "If things were normal, the exam would be… a month away."
     },
     "ball-intro": {
-      "line1": "Three years on the baseball team. It was my last summer.",
-      "line2": "Nationals round of 16, against Eungang High. Bottom of the ninth, two outs, and I was the last batter.",
-      "line3": "Yunho called out from the on-deck circle. \"You can hit it, Do-hae!\"",
-      "line4": "Their catcher slapped his palm against his mitt twice, thwack thwack, and crouched down.",
-      "line5": "Like he'd catch anything, no matter how I hit it.",
-      "line6": "Full count. I got under it, and the ball popped up high behind the catcher.",
-      "line7": "He tossed his mask, ran it down, and caught it. That was it.",
-      "line8": "That was my last game."
+      "line1": "I'd done nothing but baseball since I was a kid, so I went to Cheongseo High, a baseball powerhouse.",
+      "line2": "I play second base, Yunho catches. We've been a pair since youth league.",
+      "line3": "Summer of my senior year. Nationals round of 16, against Eungang High. Bottom of the ninth, two outs, and I was the last batter.",
+      "line4": "Yunho called out from the on-deck circle. \"You can hit it, Do-hae!\"",
+      "line5": "Their catcher slapped his palm against his mitt twice, thwack thwack, and crouched down.",
+      "line6": "Like he'd catch anything, no matter how I hit it."
     },
     "ball-alone": {
       "line1": "Even when I swing again, my blood doesn't run hot the way it did back then."
@@ -375,11 +373,11 @@
     },
     "ball-flashback": {
       "cut1": {
-        "line1": "I'd done nothing but baseball since I was a kid, so I went to Cheongseo High, a baseball powerhouse.",
-        "line2": "Eungang High is just one neighborhood over. They were a tough matchup every time we met.",
-        "line3": "I play second base, Yunho catches. We've been a pair since youth league.",
+        "line1": "Eungang High is just one neighborhood over. They were a tough matchup every time we met.",
+        "line2": "Bottom of the ninth, full count. I got under it, and the ball popped up high behind Eungang's catcher.",
+        "line3": "He tossed his mask, ran it down, and caught it. That was my last game.",
         "line4": "Losing stung, but strangely, the only thing that stuck with me was the sound of that catcher slapping his mitt.",
-        "line5": "I wonder what Yunho's doing now."
+        "line5": "I wonder what the guys I played with that day are doing now."
       }
     },
     "radio-blackout": {

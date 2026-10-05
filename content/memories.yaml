@@ -120,7 +120,7 @@ memories:
         en: I'd forgotten what a swing feels like. Once I'm out, I'll hit again.
         ja: 振る感覚を忘れていた。外に出たら、また打つ。
     # 1차: 전국대회 16강 회상(재하 복선, 대기 타석의 윤호) → 스윙 → "혼자 휘둘러도 그때 같지 않다"
-    # → 역광 속 은강고 포수의 미트, 윤호를 떠올림(ball-flashback)
+    # → 역광 속 은강고 포수의 미트, 그 타석의 끝, 같이 뛴 친구들을 떠올림(ball-flashback)
     phase1:
       script: ball-intro
       minigame: ball-catch
