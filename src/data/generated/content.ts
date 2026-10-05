@@ -168,7 +168,7 @@ export const MEMORIES: MemoryItem[] = [
         resultScriptId: "calendar-tally",
       },
       unlockAfter: [{ id: "phone", visit: 1 }],
-      replayStill: "/assets/images/mg-calendar-flip-10.webp",
+      replayStill: "/assets/images/mg-calendar-flip-11.webp",
     },
   },
   {
