@@ -838,6 +838,17 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
     ],
   },
+  "time-gap": {
+    id: "time-gap",
+    cuts: [
+      {
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.time-gap.cut1.line1", expression: "puzzled" },
+          { speaker: "hero", textKey: "cutscenes.time-gap.cut1.line2", expression: "sad" },
+        ],
+      },
+    ],
+  },
   "p2-close": {
     id: "p2-close",
     cuts: [
@@ -851,8 +862,9 @@ export const CUTSCENES: Record<string, Cutscene> = {
     cuts: [
       {
         lines: [
-          { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line1" },
+          { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line1", expression: "puzzled" },
           { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line2" },
+          { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line3" },
         ],
       },
     ],

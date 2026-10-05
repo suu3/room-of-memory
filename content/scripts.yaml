@@ -456,13 +456,14 @@ scripts:
       en: …
       ja: …
 
-  # 엄마 문자를 읽은 뒤. 시각 비교를 한 번 짚는다
+  # 엄마 문자를 읽은 뒤. 시각은 읽기만 하고 결론은 말하지 않는다: 뉴스의 시각과 견주는
+  # 일은 이 뒤에 서는 추리 판(time-gap)에서 플레이어가 한다
   phone-mom-read:
     - speaker: hero
       expression: puzzled
-      ko: …7시 12분? 뉴스는 오후였는데.
-      en: …7:12? The news didn't come out until the afternoon.
-      ja: …7時12分? ニュースは午後だったのに。
+      ko: 아침 7시 12분에 온 문자다.
+      en: It came at 7:12 that morning.
+      ja: 朝の7時12分に届いたメッセージだ。
     - speaker: hero
       expression: sad
       ko: …그게 마지막이었어.

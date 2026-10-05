@@ -16,6 +16,7 @@ import {
   CUTSCENE_P4_CLOSE,
   CUTSCENE_PIANO_FLASHBACK,
   CUTSCENE_RADIO_BLACKOUT,
+  CUTSCENE_TIME_GAP,
   CUTSCENE_TRIP_DOUBT,
   CUTSCENE_WORKBOOK_NAME,
   CUTSCENES,
@@ -892,8 +893,9 @@ function p4FinalReached(state: MemoryRoomState): boolean {
  *   1. 1차를 다 모았다 = 라디오 재난방송이 막 끝났다 → 이미지 나열 (radio-blackout)
  *   2. 조사 자체에 붙은 컷씬 (생존자 방송 · 정적 비트: memories.yaml의 cutscene)
  *   3. 캐리어 개수 추리가 방금 맞물렸다 → trip-doubt (추리 판을 먼저 거친다: startQueue)
- *   4. 2페이즈를 방금 마쳤다 → p2-close
- *   5. 4페이즈의 마지막 칸(액자 2차) 앞의 조사를 방금 다 마쳤다 → p4-close
+ *   4. 엄마 문자의 시각 추리가 방금 맞물렸다 → time-gap (역시 추리 판을 먼저 거친다)
+ *   5. 2페이즈를 방금 마쳤다 → p2-close
+ *   6. 4페이즈의 마지막 칸(액자 2차) 앞의 조사를 방금 다 마쳤다 → p4-close (추리 판을 먼저 거친다)
  */
 function cutscenesAfter(
   before: MemoryRoomState,
@@ -907,6 +909,8 @@ function cutscenesAfter(
   const own = phaseConfigOf(id, visit)?.cutscene;
   if (own) queue.push(openCutscene(own));
   if (tripDoubted(after) && !tripDoubted(before)) queue.push(openCutscene(CUTSCENE_TRIP_DOUBT));
+  if (deductionReady("time-gap", after.revisited) && !deductionReady("time-gap", before.revisited))
+    queue.push(openCutscene(CUTSCENE_TIME_GAP));
   const was = storyPhaseOf(before);
   const now = storyPhaseOf(after);
   if (was === "p2" && now === "p3") queue.push(openCutscene(CUTSCENE_P2_CLOSE));

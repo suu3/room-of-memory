@@ -83,6 +83,8 @@ export const CUTSCENE_RADIO_BLACKOUT = "radio-blackout";
 export const CUTSCENE_WORKBOOK_NAME = "workbook-name";
 /** 캐리어 개수 추리가 맞물린 순간의 결론 한 줄 (v4.1 3장, store의 tripDoubted). */
 export const CUTSCENE_TRIP_DOUBT = "trip-doubt";
+/** 엄마 문자의 시각 추리가 맞물린 순간의 결론 (v4 3-4, src/data/deductions.ts의 time-gap). */
+export const CUTSCENE_TIME_GAP = "time-gap";
 /** 2페이즈 필수 조사를 다 마친 순간의 한 줄 (v4 3-4). */
 export const CUTSCENE_P2_CLOSE = "p2-close";
 /** 4페이즈 안방 서류를 다 본 순간의 한 줄. 끝나면 방의 액자가 금빛으로 돈다 (v4 3-6). */

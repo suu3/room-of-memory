@@ -41,5 +41,8 @@ describe("추리 표", () => {
     expect(pairSolves("trip-doubt", ["fridge", "computer"])).toBe(false);
     expect(pairSolves("trip-doubt", ["fridge"])).toBe(false);
     expect(pairSolves("trip-doubt", ["fridge", "fridge"])).toBe(false);
+    expect(pairSolves("time-gap", ["phone", "computer"])).toBe(true);
+    expect(pairSolves("ampoule-origin", ["ampoule", "cards"])).toBe(true);
+    expect(pairSolves("ampoule-origin", ["ampoule", "research-note"])).toBe(false);
   });
 });

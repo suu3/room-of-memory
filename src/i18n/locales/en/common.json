@@ -583,20 +583,22 @@
   "deduction": {
     "title": "Find the Contradiction",
     "prompt": "Something doesn't fit with this.",
-    "help": "Pick the two records that contradict this",
+    "help": "Pick the two records that don't fit with this",
     "one": "There's one more.",
-    "miss1": "That doesn't contradict it.",
+    "miss1": "Nothing odd about these two.",
     "miss2": "No. Let me look again.",
-    "miss3": "These two don't make a contradiction.",
+    "miss3": "These add up fine.",
     "hint": "The record ringed in gold is bothering me.",
     "hinted": "Hint",
-    "joined": "Both records contradict it.",
+    "joined": "These two don't fit with it.",
     "continue": "Continue",
     "verdict": "CONTRADICTION",
     "slotEmpty": "Empty photo slot",
     "putBack": "Put back {{title}}",
     "claims": {
-      "trip-doubt": "Two nights, keeping it light. Just a little loop around nearby."
+      "trip-doubt": "Two nights, keeping it light. Just a little loop around nearby.",
+      "time-gap": "Mom's text was just her usual nagging.",
+      "ampoule-origin": "Two RX-11 ampoules produced. Keep refrigerated. Not to leave the facility."
     }
   },
   "titleScreen": {

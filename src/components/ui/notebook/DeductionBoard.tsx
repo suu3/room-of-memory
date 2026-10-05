@@ -155,7 +155,7 @@ function Board({ id }: { id: DeductionId }) {
             {t("deduction.title")}
           </p>
           <p className="mt-3 text-[13px] font-medium text-memory">
-            {tRoom(`characters.${DEDUCTIONS[id].claimant}.name` as ParseKeys<"memoryRoom">)}
+            {tRoom(DEDUCTIONS[id].claimantKey as ParseKeys<"memoryRoom">)}
           </p>
           <blockquote className="monologue-text mt-1 min-h-[1.5em] break-ko text-balance font-pixel text-ivory text-monologue leading-normal">
             <span className="sr-only">{t(`deduction.claims.${id}`)}</span>

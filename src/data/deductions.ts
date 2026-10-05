@@ -1,4 +1,9 @@
-import { CUTSCENE_TRIP_DOUBT, type MemoryId } from "./memory-room";
+import {
+  CUTSCENE_P4_CLOSE,
+  CUTSCENE_TIME_GAP,
+  CUTSCENE_TRIP_DOUBT,
+  type MemoryId,
+} from "./memory-room";
 
 /**
  * 추리: 도해가 결론을 말하기 전에 플레이어가 수첩 기록 두 장을 직접 잇는 자리.
@@ -10,15 +15,15 @@ import { CUTSCENE_TRIP_DOUBT, type MemoryId } from "./memory-room";
  * 꼴은 "모순 찾기"다: 누군가의 말 한 줄이 서고, 그 말과 어긋나는 기록 두 장을 찾는다.
  * 변종은 표에 한 줄을 더하는 것으로 는다.
  */
-export const DEDUCTION_IDS = ["trip-doubt"] as const;
+export const DEDUCTION_IDS = ["trip-doubt", "time-gap", "ampoule-origin"] as const;
 export type DeductionId = (typeof DEDUCTION_IDS)[number];
 
 interface Deduction {
   /**
-   * 누구의 말에서 모순을 찾는가 (characters.<id>.name). 그 말 자체는 i18n의
-   * `deduction.claims.<id>`에 있다.
+   * 누구의(무엇의) 말에서 모순을 찾는가: memoryRoom 번역의 키. 사람이면 `characters.<id>.name`,
+   * 문서면 그 기록의 제목(`lore.<id>.title`)이다. 그 말 자체는 i18n의 `deduction.claims.<id>`에 있다.
    */
-  claimant: "dad" | "mom";
+  claimantKey: string;
   /** 이 기억들의 2차 조사를 다 마쳐야 물음이 선다. 답이 되는 두 장은 반드시 여기 든다. */
   needs: readonly MemoryId[];
   /** 이어야 하는 두 장 (순서 없음). */
@@ -34,10 +39,33 @@ export const DEDUCTIONS: Record<DeductionId, Deduction> = {
    * 냉장고도 조건에 든다: 결론의 첫 줄이 냉장고라, 열어 보기 전에 서면 본 적 없는 것을 말한다.
    */
   "trip-doubt": {
-    claimant: "dad",
+    claimantKey: "characters.dad.name",
     needs: ["fridge", "shoes", "computer"],
     answer: ["fridge", "shoes"],
     cutscene: CUTSCENE_TRIP_DOUBT,
+  },
+  /*
+   * 엄마 문자의 시각 (v4 3-4). 판 위에 서는 것은 도해가 그날 그렇게 넘겼던 생각이다:
+   * "평소 같은 잔소리였다." 문자는 아침 7시 12분(폰 2차)이고 첫 보도는 오후 3시(컴퓨터 2차)라,
+   * 두 기록을 나란히 놓으면 잔소리가 아니었다는 것이 선다.
+   */
+  "time-gap": {
+    claimantKey: "characters.hero.name",
+    needs: ["computer", "phone"],
+    answer: ["computer", "phone"],
+    cutscene: CUTSCENE_TIME_GAP,
+  },
+  /*
+   * 앰플이 어디서 왔는가 (4페이즈). 연구 일지의 "반출 금지"가 판 위에 서고, 답은 그 말과
+   * 어긋나는 두 기록이다: 집 냉장고에 있던 앰플과, 두 개를 세어 둔 엄마의 쪽지("RX ||").
+   * 결론은 p4-close다. 조건의 네 기록 중 앰플·쪽지는 2·3페이즈 필수 조사라 안방 서류와
+   * 출입증을 마치는 순간(p4-close가 서는 순간)에는 반드시 다 차 있다.
+   */
+  "ampoule-origin": {
+    claimantKey: "lore.research-note.title",
+    needs: ["cards", "ampoule", "research-note", "id-card"],
+    answer: ["cards", "ampoule"],
+    cutscene: CUTSCENE_P4_CLOSE,
   },
 };
 

@@ -246,7 +246,7 @@
       "line3": "…"
     },
     "phone-mom-read": {
-      "line1": "…7:12? The news didn't come out until the afternoon.",
+      "line1": "It came at 7:12 that morning.",
       "line2": "…That was the last one."
     },
     "ball-echo": {
@@ -486,6 +486,12 @@
         "line3": "They said two nights. …That wasn't two nights' worth of luggage."
       }
     },
+    "time-gap": {
+      "cut1": {
+        "line1": "The text came at 7:12 in the morning. The first report was at 3 p.m.",
+        "line2": "It wasn't nagging. Mom knew before the news did."
+      }
+    },
     "p2-close": {
       "cut1": {
         "line1": "…Was it not a trip at all? They both knew something."
@@ -493,8 +499,9 @@
     },
     "p4-close": {
       "cut1": {
-        "line1": "…That ampoule might be the answer.",
-        "line2": "Mom and Dad called it a trip to protect me. …And they left that behind."
+        "line1": "The ampoules weren't supposed to leave the lab, and Mom brought them home. She left one here.",
+        "line2": "…That ampoule might be the answer.",
+        "line3": "Mom and Dad called it a trip to protect me. …And they left that behind."
       }
     },
     "piano-flashback": {

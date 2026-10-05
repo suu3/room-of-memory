@@ -5,6 +5,7 @@ import {
   CUTSCENE_P4_CLOSE,
   CUTSCENE_PIANO_FLASHBACK,
   CUTSCENE_RADIO_BLACKOUT,
+  CUTSCENE_TIME_GAP,
   CUTSCENE_TRIP_DOUBT,
   CUTSCENE_WORKBOOK_NAME,
   CUTSCENES,
@@ -743,7 +744,7 @@ describe("2페이즈: 거실과 컴퓨터 → 엄마 대화방", () => {
     expect(requiredVisits("p2").map((ref) => ref.id)).not.toContain("console");
   });
 
-  it("마지막 필수 조사를 마치는 순간 p2-close가 흐르고 3페이즈다", () => {
+  it("마지막 필수 조사(엄마 대화방)를 마치면 시각 추리 → 그 결론 → p2-close 순으로 흐르고 3페이즈다", () => {
     enterPhase("p2");
     const allButPhone = requiredVisits("p2").filter((ref) => ref.id !== "phone");
     useMemoryRoomStore.setState({
@@ -755,9 +756,17 @@ describe("2페이즈: 거실과 컴퓨터 → 엄마 대화방", () => {
     expect(useMemoryRoomStore.getState().activeInteraction?.scriptId).toBe("phone-mom-intro");
     finishInteraction("phone");
 
-    const state = useMemoryRoomStore.getState();
+    let state = useMemoryRoomStore.getState();
     expect(selectMomChatRead(state)).toBe(true);
     expect(storyPhase(state)).toBe("p3");
+    // 문자의 시각과 뉴스의 시각을 잇는 판이 먼저 선다
+    expect(state.activeDeduction).toBe("time-gap");
+    expect(state.activePlayback).toBeNull();
+
+    state.finishDeduction();
+    expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_TIME_GAP);
+    useMemoryRoomStore.getState().endPlayback();
+    state = useMemoryRoomStore.getState();
     expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_P2_CLOSE);
   });
 });
@@ -812,7 +821,7 @@ describe("v4.1 추리: 캐리어 개수와 컷씬 줄", () => {
     expect(selectDeductionResumable(state)).toBe(false);
   });
 
-  it("한 조사가 컷씬 둘을 부르면 줄을 서서 차례로 흐른다 (trip-doubt → p2-close)", () => {
+  it("한 조사가 컷씬 여럿을 부르면 줄을 서서 차례로 흐르고, 추리마다 판이 먼저 선다", () => {
     enterPhase("p2");
     const allButComputer = requiredVisits("p2").filter((ref) => ref.id !== "computer");
     useMemoryRoomStore.setState({
@@ -828,14 +837,21 @@ describe("v4.1 추리: 캐리어 개수와 컷씬 줄", () => {
     expect(useMemoryRoomStore.getState().activeDeduction).toBe("trip-doubt");
     expect(useMemoryRoomStore.getState().queuedPlaybacks.map((p) => p.cutsceneId)).toEqual([
       CUTSCENE_TRIP_DOUBT,
+      CUTSCENE_TIME_GAP,
       CUTSCENE_P2_CLOSE,
     ]);
     useMemoryRoomStore.getState().finishDeduction();
     expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_TRIP_DOUBT);
     expect(useMemoryRoomStore.getState().queuedPlaybacks.map((p) => p.cutsceneId)).toEqual([
+      CUTSCENE_TIME_GAP,
       CUTSCENE_P2_CLOSE,
     ]);
-    // 건너뛰어도 줄의 다음 것이 선다
+    // 건너뛰면 줄의 다음 것이 서는데, 그것도 추리의 결론이라 판이 먼저 선다
+    useMemoryRoomStore.getState().endPlayback();
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+    expect(useMemoryRoomStore.getState().activeDeduction).toBe("time-gap");
+    useMemoryRoomStore.getState().finishDeduction();
+    expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_TIME_GAP);
     useMemoryRoomStore.getState().endPlayback();
     expect(useMemoryRoomStore.getState().activePlayback?.cutsceneId).toBe(CUTSCENE_P2_CLOSE);
     useMemoryRoomStore.getState().endPlayback();
@@ -1025,7 +1041,7 @@ describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
   });
 
-  it("서류 순서와 출입증을 마치면 p4-close가 흐르고, 피아노를 풀어야 액자 2차가 열린다", () => {
+  it("서류 순서와 출입증을 마치면 앰플 추리를 거쳐 p4-close가 흐르고, 피아노를 풀어야 액자 2차가 열린다", () => {
     enterPhase("p4");
     expect(status("frame")).toBe("locked");
     useMemoryRoomStore.setState({
@@ -1035,6 +1051,11 @@ describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
     expect(selectIdCardFlipped(useMemoryRoomStore.getState())).toBe(false);
     useMemoryRoomStore.getState().beginInteraction("id-card");
     finishInteraction("id-card");
+
+    // 일지의 "반출 금지"와 어긋나는 기록을 잇는 판이 먼저 선다
+    expect(useMemoryRoomStore.getState().activeDeduction).toBe("ampoule-origin");
+    expect(useMemoryRoomStore.getState().activePlayback).toBeNull();
+    useMemoryRoomStore.getState().finishDeduction();
 
     const state = useMemoryRoomStore.getState();
     expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_P4_CLOSE);

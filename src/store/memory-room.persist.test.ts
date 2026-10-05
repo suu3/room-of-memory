@@ -24,7 +24,11 @@ function resolveSave() {
 describe("sanitizeProgress", () => {
   it("추리를 모르는 옛 저장본은 단서를 다 본 추리를 이은 것으로 본다. 아는 저장본은 적힌 대로다", () => {
     // 옛 저장본: 그때는 결론이 저절로 흘렀다. 다시 묻지 않는다
-    expect(sanitizeProgress(resolveSave()).deduced).toEqual(["trip-doubt"]);
+    expect(sanitizeProgress(resolveSave()).deduced).toEqual([
+      "trip-doubt",
+      "time-gap",
+      "ampoule-origin",
+    ]);
     // 판이 뜬 채로 끈 저장본: 아직 잇지 않았다
     expect(sanitizeProgress({ ...resolveSave(), deduced: [] }).deduced).toEqual([]);
     // 단서를 다 보지 않았으면 이었을 수 없다
