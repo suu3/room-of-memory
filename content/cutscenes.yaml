@@ -30,6 +30,7 @@
 #   trip-doubt          신발장 + 아빠 메일을 둘 다 본 순간 (store: tripDoubted)
 #   p2-close            2페이즈 필수 조사를 다 마친 순간 (store: STORY_CUTSCENES)
 #   p4-close            4페이즈 서류 순서 + 출입증을 마친 순간 (store: STORY_CUTSCENES)
+#   piano-flashback     거실 피아노를 끝까지 친 순간 (store의 finishPuzzle)
 #   still-beat          액자 2차 (memories.yaml의 cutscene)
 #   bat-grip            현관 배트를 쥔 순간 (store의 takeBat)
 #
@@ -427,6 +428,44 @@ cutscenes:
           ja: 父さんと母さんは、俺を守るために旅行だと言ったんだ。…そして、あれを残していった。
 
   #
+  # 거실 피아노(piano-melody)를 끝까지 친 순간. 그림 없이 방이 비친 채로 흐른다.
+  # 서류(진실)와 액자(얼굴) 사이에서, 연구원이 아닌 엄마 아빠가 한 번 선다. "끝까지만 쳐 봐"를
+  # 끝 줄 "…끝까지 쳤어요."가 받는다: 도해가 처음으로 부모님에게 건네는 말이고, 정적 비트의
+  # "…갔다 올게."로 이어진다. 그림을 붙인다면 부모님 얼굴은 넣지 않는다 (얼굴은 이 뒤의
+  # 액자 2차에서 돌아온다).
+  piano-flashback:
+    - lines:
+        - speaker: hero
+          ko: 어릴 때 치던 거다. 손이 아직 기억하네.
+          en: I used to play this as a kid. My hands still remember.
+          ja: 子供の頃に弾いてたやつだ。手がまだ覚えてる。
+        - speaker: hero
+          ko: 건반의 계이름 스티커는 엄마가 붙여 줬다.
+          en: Mom was the one who put the note stickers on the keys.
+          ja: 鍵盤のドレミのシールは、母さんが貼ってくれた。
+        - speaker: mom
+          ko: 틀려도 돼. 끝까지만 쳐 봐.
+          en: It's fine if you get it wrong. Just play it to the end.
+          ja: 間違えてもいいの。最後まで弾いてみて。
+        - speaker: hero
+          recall: true
+          ko: 또 틀렸어요.
+          en: I got it wrong again.
+          ja: また間違えました。
+        - speaker: dad
+          ko: 아빠는 방금 게 더 좋은데.
+          en: I liked that version better, actually.
+          ja: 父さんは今のほうが好きだけどな。
+        - speaker: hero
+          ko: 야구를 시작하고는 치지 않았다. 엄마는 악보를 치우지 않았다.
+          en: I stopped playing once I started baseball. Mom never put the sheet music away.
+          ja: 野球を始めてからは弾かなかった。母さんは楽譜を片づけなかった。
+        - speaker: hero
+          ko: …끝까지 쳤어요.
+          en: …I played it to the end.
+          ja: …最後まで弾きました。
+
+  #
   # 정적 비트: 액자 2차(얼굴이 돌아온 사진) 직후. BGM이 멎고 카메라가 머문 채
   # 몇 초가 흐른 뒤, 가족사진 앞에서 결심을 말한다: 진실(서류) → 어릴 때 치던 곡(피아노)
   # → 사진 → 간다. 액자를 세워 두는 연출이다. 끝나면 현관 배트에 금빛이 돈다.
@@ -453,6 +492,18 @@ cutscenes:
           ko: 3년 쓴 배트다. 이걸로 공만 쳤는데.
           en: Three years with this bat. All I ever hit with it was a ball.
           ja: 三年使ったバットだ。これで打ったのはボールだけだったのに。
+        # 문 앞에서 한 번 망설인다. 방송 뒤로 도해가 주저하는 유일한 자리다.
+        # "며칠"은 냉장고의 "며칠 치가 남았어"를 받는다: 남을 수 있는데도 나간다
+        - speaker: hero
+          expression: sad
+          ko: 이 문은 그날 잠근 뒤로 한 번도 열지 않았다.
+          en: I haven't opened this door once since I locked it that day.
+          ja: このドアは、あの日鍵をかけてから一度も開けていない。
+        - speaker: hero
+          expression: sad
+          ko: 방으로 돌아가면 며칠은 더 버틸 수 있다.
+          en: If I go back to my room, I could hold out a few more days.
+          ja: 部屋に戻れば、あと数日は持ちこたえられる。
         - speaker: hero
           ko: …이것도 가져간다.
           en: …This comes too.

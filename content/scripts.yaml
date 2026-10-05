@@ -249,6 +249,25 @@ scripts:
       ko: 글러브는 두고 갈까.
       en: Leave the glove behind?
       ja: グローブは置いていくか。
+    # 16강을 보러 온 부모님의 회상 (톤 가이드의 기준 대사). 끝 줄의 "혹시 모르니까"가
+    # 포수 복선에 더해 이 기억까지 두 겹으로 읽힌다
+    - speaker: hero
+      ko: 이 가방을 마지막으로 멘 게 16강이었다.
+      en: The last time I carried this bag was the round of 16.
+      ja: このバッグを最後に背負ったのは、ベスト16の日だった。
+    - speaker: dad
+      ko: 아빠 그날 연차 냈어. 아들 시합 보러 갈게.
+      en: I took that day off. I'm coming to watch my son play.
+      ja: 父さん、その日は有休取ったぞ。息子の試合、見に行くからな。
+    - speaker: hero
+      recall: true
+      ko: …안 와도 된다니까.
+      en: …I told you, you don't have to come.
+      ja: …来なくていいって言ってるのに。
+    - speaker: hero
+      ko: 두 분 다 왔다. 진 경기를 끝까지 보고 갔다.
+      en: They both came. They stayed to the end of a game we lost.
+      ja: 二人とも来た。負けた試合を最後まで見て帰った。
     - speaker: hero
       ko: …아니, 혹시 모르니까.
       en: …No. Just in case.
@@ -276,6 +295,31 @@ scripts:
       ko: 한 달을 먹었는데 아직도 며칠 치가 남았어.
       en: I've been eating for a month and there's still a few days' worth left.
       ja: ひと月食べてきたのに、まだ数日分残ってる。
+    # 장을 봐 와 채우던 엄마의 회상. 날짜는 못박지 않는다 ("떠나기 전에"): 사고·소집이
+    # 17일이라 "전날"이라고 쓰면 그 전부터 알고 있던 것이 된다. 엄마는 평소 잔소리처럼,
+    # "그래도."에서만 이유를 삼킨다
+    - speaker: hero
+      ko: 떠나기 전에 엄마는 장을 두 번이나 봐 왔다.
+      en: Before they left, Mom went grocery shopping twice.
+      ja: 出発の前、母さんは二度も買い出しに行ってきた。
+    - speaker: hero
+      recall: true
+      ko: 뭘 이렇게 많이 사 왔어요.
+      en: Why'd you buy this much?
+      ja: なんでこんなに買ってきたんですか。
+    - speaker: mom
+      ko: 너 혼자 두면 라면만 먹잖아. 국은 얼려 놨어.
+      en: Leave you on your own and you'll eat nothing but ramen. I froze some soup for you.
+      ja: あんた一人にしたらラーメンばっかりでしょ。スープは凍らせてあるから。
+    - speaker: hero
+      recall: true
+      ko: 이틀인데.
+      en: It's two days.
+      ja: 二日なのに。
+    - speaker: mom
+      ko: 그래도. 끼니 거르지 말고.
+      en: Even so. Don't skip meals.
+      ja: それでも。ご飯は抜かないでね。
     - speaker: hero
       expression: puzzled
       ko: 2박 3일 다녀온다고 하셨는데, 왜 이만큼이나 채워 놓으셨을까.
@@ -313,6 +357,34 @@ scripts:
       ko: 식탁 위에 쪽지가 있네.
       en: There's a note on the table.
       ja: 食卓の上にメモがある。
+    # 쪽지를 펴기 전, 이 식탁의 마지막 저녁. 쪽지가 암호이기 전에 엄마의 것으로 읽히게 한다.
+    # 아빠의 약속은 지켜지지 않았고, 엄마는 먹지 않았다: 이유는 말하지 않는다
+    - speaker: hero
+      ko: 여기 앉아 본 지도 오래됐다. 밥은 계속 방에서 먹었으니까.
+      en: It's been a long time since I sat here. I've been eating in my room.
+      ja: ここに座るのも久しぶりだ。ずっと部屋で食べてたから。
+    - speaker: hero
+      ko: 마지막으로 셋이 앉은 건 두 분이 떠나기 전날 저녁이었다.
+      en: The last time the three of us sat here was dinner, the night before they left.
+      ja: 最後に三人で座ったのは、二人が出発する前の晩の夕飯だった。
+    - speaker: dad
+      ko: 다녀오면 고기 먹으러 가자. 수능 전에 든든하게 먹어 둬야지.
+      en: When we're back, let's go out for barbecue. You need a proper meal before the exam.
+      ja: 帰ってきたら焼肉に行こう。試験の前にしっかり食べておかないとな。
+    - speaker: mom
+      ko: 도해야, 더 먹어.
+      en: Do-hae, have some more.
+      ja: ドヘ、もっと食べなさい。
+    - speaker: hero
+      recall: true
+      ko: …알았어요.
+      en: …Okay.
+      ja: …わかりました。
+    - speaker: hero
+      expression: sad
+      ko: 엄마는 그날 거의 먹지 않았다.
+      en: Mom barely ate that night.
+      ja: 母さんはあの晩、ほとんど食べなかった。
     - speaker: hero
       ko: 반으로 접혀 있다.
       en: It's folded in half.
@@ -473,9 +545,33 @@ scripts:
       en: Found it. Same logo as the one on the sanitizer bottle.
       ja: あった。消毒液のボトルにあったのと同じロゴだ。
     - speaker: hero
-      ko: 마지막 접속이 10월 16일 밤이야. 떠나기 전날, 아빠가 내 방에 있었어.
-      en: The last sign-in was the night of October 16. Dad was in my room the night before they left.
-      ja: 最終ログインは10月16日の夜だ。出発の前の晩、父さんは俺の部屋にいた。
+      ko: 마지막 접속이 10월 16일 밤. 떠나기 전날이다.
+      en: The last sign-in was the night of October 16. The night before they left.
+      ja: 最終ログインは10月16日の夜。出発の前の晩だ。
+    # 그 밤의 회상: 별일 없던 마지막 대화. 아빠가 선반의 책을 만지는 한 줄이 끝 줄의
+    # 거꾸로 꽂힌 책으로 이어진다. 왜 도해 컴퓨터였는지는 말하지 않는다
+    - speaker: hero
+      ko: 맞다. 그날 밤 아빠가 방에 들어왔었다.
+      en: Right. Dad came into my room that night.
+      ja: そうだ。あの晩、父さんが部屋に入ってきた。
+    - speaker: dad
+      ko: 아빠 컴퓨터 좀 쓰자. 금방 끝나.
+      en: Let me borrow your computer. Won't take long.
+      ja: ちょっとパソコン借りるぞ。すぐ終わる。
+    - speaker: hero
+      recall: true
+      ko: 응.
+      en: Sure.
+      ja: うん。
+    - speaker: dad
+      ko: 이 책은 사 준 지가 언젠데 아직도 새 책이네.
+      en: I bought you this book ages ago and it still looks brand new.
+      ja: この本、買ってやったのはいつだ。まだ新品じゃないか。
+    - speaker: hero
+      expression: sad
+      ko: 나는 문제집에서 고개도 들지 않았다.
+      en: I didn't even look up from my workbook.
+      ja: 俺は問題集から顔も上げなかった。
     - speaker: hero
       expression: puzzled
       ko: …그러고 보니 선반에 책 한 권이 거꾸로 꽂혀 있었지.
@@ -490,6 +586,20 @@ scripts:
       ko: 책상 위에 서류가 흩어져 있다.
       en: Papers are scattered across the desk.
       ja: 机の上に書類が散らばっている。
+    # 서류를 만지기 전, 이 책상의 기억. 안방에 정보가 아닌 엄마가 한 번 선다
+    - speaker: hero
+      ko: 어릴 때 이 책상은 만지면 안 되는 자리였다.
+      en: When I was a kid, this desk was off limits.
+      ja: 子どもの頃、この机は触っちゃいけない場所だった。
+    - speaker: mom
+      ko: 도해야, 그건 엄마 일하는 거야. 손대지 마.
+      en: Do-hae, that's Mom's work. Don't touch it.
+      ja: ドヘ、それは母さんの仕事なの。触らないで。
+    - speaker: hero
+      expression: sad
+      ko: 이제는 말릴 사람이 없다.
+      en: There's no one to stop me now.
+      ja: もう止める人はいない。
     - speaker: hero
       ko: 엄마 글씨다. 조각마다 날짜가 적혀 있네.
       en: Mom's handwriting. Each piece has a date on it.

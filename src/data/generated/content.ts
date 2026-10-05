@@ -426,6 +426,10 @@ export const SCRIPTS: Record<string, DialogueScript> = {
       { speaker: "hero", textKey: "scripts.duffel-pack.line2" },
       { speaker: "hero", textKey: "scripts.duffel-pack.line3" },
       { speaker: "hero", textKey: "scripts.duffel-pack.line4" },
+      { speaker: "dad", textKey: "scripts.duffel-pack.line5" },
+      { speaker: "hero", textKey: "scripts.duffel-pack.line6", recall: true },
+      { speaker: "hero", textKey: "scripts.duffel-pack.line7" },
+      { speaker: "hero", textKey: "scripts.duffel-pack.line8" },
     ],
   },
   "duffel-take": {
@@ -440,7 +444,12 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.fridge-open.line1" },
       { speaker: "hero", textKey: "scripts.fridge-open.line2", expression: "puzzled" },
-      { speaker: "hero", textKey: "scripts.fridge-open.line3", expression: "puzzled" },
+      { speaker: "hero", textKey: "scripts.fridge-open.line3" },
+      { speaker: "hero", textKey: "scripts.fridge-open.line4", recall: true },
+      { speaker: "mom", textKey: "scripts.fridge-open.line5" },
+      { speaker: "hero", textKey: "scripts.fridge-open.line6", recall: true },
+      { speaker: "mom", textKey: "scripts.fridge-open.line7" },
+      { speaker: "hero", textKey: "scripts.fridge-open.line8", expression: "puzzled" },
     ],
   },
   "shoes-open": {
@@ -458,6 +467,12 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.cards-intro.line1" },
       { speaker: "hero", textKey: "scripts.cards-intro.line2" },
+      { speaker: "hero", textKey: "scripts.cards-intro.line3" },
+      { speaker: "dad", textKey: "scripts.cards-intro.line4" },
+      { speaker: "mom", textKey: "scripts.cards-intro.line5" },
+      { speaker: "hero", textKey: "scripts.cards-intro.line6", recall: true },
+      { speaker: "hero", textKey: "scripts.cards-intro.line7", expression: "sad" },
+      { speaker: "hero", textKey: "scripts.cards-intro.line8" },
     ],
   },
   "cards-memo": {
@@ -541,7 +556,12 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.computer-logo-found.line1" },
       { speaker: "hero", textKey: "scripts.computer-logo-found.line2" },
-      { speaker: "hero", textKey: "scripts.computer-logo-found.line3", expression: "puzzled" },
+      { speaker: "hero", textKey: "scripts.computer-logo-found.line3" },
+      { speaker: "dad", textKey: "scripts.computer-logo-found.line4" },
+      { speaker: "hero", textKey: "scripts.computer-logo-found.line5", recall: true },
+      { speaker: "dad", textKey: "scripts.computer-logo-found.line6" },
+      { speaker: "hero", textKey: "scripts.computer-logo-found.line7", expression: "sad" },
+      { speaker: "hero", textKey: "scripts.computer-logo-found.line8", expression: "puzzled" },
     ],
   },
   "research-note-intro": {
@@ -549,6 +569,9 @@ export const SCRIPTS: Record<string, DialogueScript> = {
     lines: [
       { speaker: "hero", textKey: "scripts.research-note-intro.line1" },
       { speaker: "hero", textKey: "scripts.research-note-intro.line2" },
+      { speaker: "mom", textKey: "scripts.research-note-intro.line3" },
+      { speaker: "hero", textKey: "scripts.research-note-intro.line4", expression: "sad" },
+      { speaker: "hero", textKey: "scripts.research-note-intro.line5" },
     ],
   },
   "research-note-read": {
@@ -834,6 +857,22 @@ export const CUTSCENES: Record<string, Cutscene> = {
       },
     ],
   },
+  "piano-flashback": {
+    id: "piano-flashback",
+    cuts: [
+      {
+        lines: [
+          { speaker: "hero", textKey: "cutscenes.piano-flashback.cut1.line1" },
+          { speaker: "hero", textKey: "cutscenes.piano-flashback.cut1.line2" },
+          { speaker: "mom", textKey: "cutscenes.piano-flashback.cut1.line3" },
+          { speaker: "hero", textKey: "cutscenes.piano-flashback.cut1.line4", recall: true },
+          { speaker: "dad", textKey: "cutscenes.piano-flashback.cut1.line5" },
+          { speaker: "hero", textKey: "cutscenes.piano-flashback.cut1.line6" },
+          { speaker: "hero", textKey: "cutscenes.piano-flashback.cut1.line7" },
+        ],
+      },
+    ],
+  },
   "still-beat": {
     id: "still-beat",
     cuts: [
@@ -855,7 +894,9 @@ export const CUTSCENES: Record<string, Cutscene> = {
       {
         lines: [
           { speaker: "hero", textKey: "cutscenes.bat-grip.cut1.line1" },
-          { speaker: "hero", textKey: "cutscenes.bat-grip.cut1.line2" },
+          { speaker: "hero", textKey: "cutscenes.bat-grip.cut1.line2", expression: "sad" },
+          { speaker: "hero", textKey: "cutscenes.bat-grip.cut1.line3", expression: "sad" },
+          { speaker: "hero", textKey: "cutscenes.bat-grip.cut1.line4" },
         ],
       },
     ],

@@ -89,6 +89,8 @@ export const CUTSCENE_P2_CLOSE = "p2-close";
 export const CUTSCENE_P4_CLOSE = "p4-close";
 /** 현관의 배트를 쥔 순간의 두 줄. 끝나면 스토어가 배트를 쥔 것으로 적는다 (takeBat). */
 export const CUTSCENE_BAT_GRIP = "bat-grip";
+/** 거실 피아노를 끝까지 친 순간의 회상 (store의 finishPuzzle). */
+export const CUTSCENE_PIANO_FLASHBACK = "piano-flashback";
 
 /**
  * 4페이즈의 마지막 칸: 방의 액자 2차. 안방 서류를 다 보면 이 칸이 열리는데, 열리는

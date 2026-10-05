@@ -6,6 +6,7 @@ import {
   CUTSCENE_BAT_GRIP,
   CUTSCENE_P2_CLOSE,
   CUTSCENE_P4_CLOSE,
+  CUTSCENE_PIANO_FLASHBACK,
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENE_TRIP_DOUBT,
   CUTSCENE_WORKBOOK_NAME,
@@ -720,6 +721,15 @@ function endingReady(state: StateSnapshot): boolean {
  */
 function batGripEnding(state: Pick<MemoryRoomState, "activePlayback" | "batTaken">): boolean {
   return state.activePlayback?.cutsceneId === CUTSCENE_BAT_GRIP && !state.batTaken;
+}
+
+/**
+ * 피아노를 끝까지 친 순간: 어릴 때의 회상(piano-flashback)이 흐른다. 컷씬 데이터가
+ * 없으면(등록 누락) 혼잣말 한 줄이 대신 선다. 진행이 먼저다.
+ */
+function pianoReward(): Partial<MemoryRoomState> {
+  const playback = openCutscene(CUTSCENE_PIANO_FLASHBACK);
+  return playback ? { activePlayback: playback } : { remark: { id: "piano-done", at: Date.now() } };
 }
 
 /**
@@ -1545,7 +1555,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
                   cameraHold: "nightstand-drawer" as const,
                 }
               : solved === "piano-melody"
-                ? { remark: { id: "piano-done", at: Date.now() } }
+                ? pianoReward()
                 : {};
           return {
             activePuzzle: null,

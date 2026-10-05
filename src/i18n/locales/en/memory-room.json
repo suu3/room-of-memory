@@ -188,7 +188,11 @@
       "line1": "Let's empty out my baseball bag.",
       "line2": "Water, canned food, a flashlight. That should do it.",
       "line3": "Leave the glove behind?",
-      "line4": "…No. Just in case."
+      "line4": "The last time I carried this bag was the round of 16.",
+      "line5": "I took that day off. I'm coming to watch my son play.",
+      "line6": "…I told you, you don't have to come.",
+      "line7": "They both came. They stayed to the end of a game we lost.",
+      "line8": "…No. Just in case."
     },
     "duffel-take": {
       "line1": "Water, canned food, a flashlight. It's all in.",
@@ -197,7 +201,12 @@
     "fridge-open": {
       "line1": "If I'm going out, I should take something. Let's start with the fridge.",
       "line2": "I've been eating for a month and there's still a few days' worth left.",
-      "line3": "Two nights, they said. So why stock this much?"
+      "line3": "Before they left, Mom went grocery shopping twice.",
+      "line4": "Why'd you buy this much?",
+      "line5": "Leave you on your own and you'll eat nothing but ramen. I froze some soup for you.",
+      "line6": "It's two days.",
+      "line7": "Even so. Don't skip meals.",
+      "line8": "Two nights, they said. So why stock this much?"
     },
     "shoes-open": {
       "line1": "It's been ages since I opened the shoe cabinet.",
@@ -208,7 +217,13 @@
     },
     "cards-intro": {
       "line1": "There's a note on the table.",
-      "line2": "It's folded in half."
+      "line2": "It's been a long time since I sat here. I've been eating in my room.",
+      "line3": "The last time the three of us sat here was dinner, the night before they left.",
+      "line4": "When we're back, let's go out for barbecue. You need a proper meal before the exam.",
+      "line5": "Do-hae, have some more.",
+      "line6": "…Okay.",
+      "line7": "Mom barely ate that night.",
+      "line8": "It's folded in half."
     },
     "cards-memo": {
       "line1": "…It's Mom's handwriting.",
@@ -259,12 +274,20 @@
     },
     "computer-logo-found": {
       "line1": "Found it. Same logo as the one on the sanitizer bottle.",
-      "line2": "The last sign-in was the night of October 16. Dad was in my room the night before they left.",
-      "line3": "…Come to think of it, one book on the shelf was in upside down."
+      "line2": "The last sign-in was the night of October 16. The night before they left.",
+      "line3": "Right. Dad came into my room that night.",
+      "line4": "Let me borrow your computer. Won't take long.",
+      "line5": "Sure.",
+      "line6": "I bought you this book ages ago and it still looks brand new.",
+      "line7": "I didn't even look up from my workbook.",
+      "line8": "…Come to think of it, one book on the shelf was in upside down."
     },
     "research-note-intro": {
       "line1": "Papers are scattered across the desk.",
-      "line2": "Mom's handwriting. Each piece has a date on it."
+      "line2": "When I was a kid, this desk was off limits.",
+      "line3": "Do-hae, that's Mom's work. Don't touch it.",
+      "line4": "There's no one to stop me now.",
+      "line5": "Mom's handwriting. Each piece has a date on it."
     },
     "research-note-read": {
       "line1": "So this is what they were working on at Laon.",
@@ -474,6 +497,17 @@
         "line2": "Mom and Dad called it a trip to protect me. …And they left that behind."
       }
     },
+    "piano-flashback": {
+      "cut1": {
+        "line1": "I used to play this as a kid. My hands still remember.",
+        "line2": "Mom was the one who put the note stickers on the keys.",
+        "line3": "It's fine if you get it wrong. Just play it to the end.",
+        "line4": "I got it wrong again.",
+        "line5": "I liked that version better, actually.",
+        "line6": "I stopped playing once I started baseball. Mom never put the sheet music away.",
+        "line7": "…I played it to the end."
+      }
+    },
     "still-beat": {
       "cut1": {},
       "cut2": {
@@ -484,7 +518,9 @@
     "bat-grip": {
       "cut1": {
         "line1": "Three years with this bat. All I ever hit with it was a ball.",
-        "line2": "…This comes too."
+        "line2": "I haven't opened this door once since I locked it that day.",
+        "line3": "If I go back to my room, I could hold out a few more days.",
+        "line4": "…This comes too."
       }
     }
   }

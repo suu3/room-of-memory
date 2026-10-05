@@ -3,6 +3,7 @@ import {
   CUTSCENE_BAT_GRIP,
   CUTSCENE_P2_CLOSE,
   CUTSCENE_P4_CLOSE,
+  CUTSCENE_PIANO_FLASHBACK,
   CUTSCENE_RADIO_BLACKOUT,
   CUTSCENE_TRIP_DOUBT,
   CUTSCENE_WORKBOOK_NAME,
@@ -1372,7 +1373,8 @@ describe("미궁 문제: 피아노 멜로디 자물쇠", () => {
     expect(state.puzzleCleared).toBe(false);
     expect(state.activePuzzle).toBeNull();
     expect(state.solvedPuzzles).toContain("piano-melody");
-    expect(state.remark?.id).toBe("piano-done");
+    // 끝까지 친 순간 어릴 때의 회상이 흐른다
+    expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_PIANO_FLASHBACK);
   });
 
   it("다른 화면이 떠 있으면 문제가 열리지 않는다", () => {
