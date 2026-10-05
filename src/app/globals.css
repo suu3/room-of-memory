@@ -1221,8 +1221,8 @@ body {
  *
  * 평소의 점은 difference 블렌드라 밝은 종이 위에서는 어둡게, 어두운 방에서는 밝게 선다.
  * 블렌드는 점이 아니라 감싼 층(CustomCursor)에 건다. z-index 층 안쪽의 블렌드는 층 밖에 안 닿는다.
- * 만질 수 있는 것 위에서는 금빛 점이 그 자리를 넘겨받고, 3D 오브젝트 위에서는 꺾쇠 넷이
- * 물건을 감싼다. 꺾쇠의 자리는 프레임마다 인라인으로 받는다 (ui/shell/cursor-brackets.ts).
+ * 꺾쇠 넷은 평소 점 둘레에 모여 상아색 네모를 이루고, 3D 오브젝트 위에서 금빛으로 벌어져
+ * 물건을 감싼다. DOM 버튼 위에서는 네모가 물러나고 금빛 점만 남는다. 꺾쇠의 자리는 프레임마다 인라인으로 받는다 (ui/shell/cursor-brackets.ts).
  */
 .custom-cursor,
 .custom-cursor * {
@@ -1276,14 +1276,22 @@ body {
   left: 0;
   width: 9px;
   height: 9px;
-  border: 0 solid var(--color-memory);
+  border: 0 solid var(--color-ivory);
   will-change: transform;
   opacity: 0;
   filter: drop-shadow(0 0 1px color-mix(in srgb, var(--color-night) 70%, transparent));
-  transition: opacity 180ms ease-out;
+  transition:
+    opacity 180ms ease-out,
+    border-color 180ms ease-out;
 }
 
+/* 평소의 네모는 점보다 물러나 있다. 물건을 감쌀 때만 금빛으로 또렷해진다 */
 .cursor-bracket[data-live="true"] {
+  opacity: 0.55;
+}
+
+.cursor-bracket[data-live="true"][data-wrap="true"] {
+  border-color: var(--color-memory);
   opacity: 1;
 }
 
@@ -1319,7 +1327,6 @@ body {
   width: 36px;
   height: 36px;
   margin: -18px;
-  border-radius: 9999px;
   border: 1px solid var(--color-memory);
   opacity: 0;
   will-change: transform, opacity;

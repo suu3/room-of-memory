@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   BRACKET_EDGE,
+  BRACKET_IDLE,
   BRACKET_MAX,
   BRACKET_MIN,
   BRACKET_PAD,
@@ -13,13 +14,16 @@ const pointer = { x: 100, y: 200 };
 const viewport = { width: 1280, height: 900 };
 
 describe("bracketGoal", () => {
-  it("얹힌 물건이 없으면 손 자리의 한 점으로 모인다", () => {
+  it("얹힌 물건이 없으면 손 둘레의 작은 네모다. 누르면 그 네모도 조여든다", () => {
+    const half = BRACKET_IDLE / 2;
     expect(bracketGoal(pointer, null, false, viewport)).toEqual({
-      left: 100,
-      top: 200,
-      right: 100,
-      bottom: 200,
+      left: 100 - half,
+      top: 200 - half,
+      right: 100 + half,
+      bottom: 200 + half,
     });
+    const pressed = bracketGoal(pointer, null, true, viewport);
+    expect(pressed.right - pressed.left).toBe(BRACKET_IDLE - BRACKET_PRESS_INSET * 2);
   });
 
   it("물건을 숨만큼 띄워 감싼다. 손이 물건 안 어디에 있든 같은 자리다", () => {

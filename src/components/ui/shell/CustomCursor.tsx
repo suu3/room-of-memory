@@ -6,10 +6,15 @@ import { cursorTarget } from "@/scenes/memory-room/camera/cursor-target";
 import { bracketGoal, damp } from "./cursor-brackets";
 
 /**
- * 꺾쇠가 물건을 감싸거나 손 자리로 모이는 속도(1/초). 점은 손에 바로 붙는다. 점까지
- * 늦으면 커서 자체가 굼뜨게 느껴진다. 꺾쇠만 살짝 늦어 "착" 하고 자리를 잡는다.
+ * 꺾쇠가 물건을 감싸는 속도(1/초). 점은 손에 바로 붙는다. 점까지 늦으면 커서 자체가
+ * 굼뜨게 느껴진다. 꺾쇠만 살짝 늦어 "착" 하고 자리를 잡는다.
  */
-const BRACKET_LAMBDA = 22;
+const WRAP_LAMBDA = 22;
+/**
+ * 평소의 네모가 손을 따르는 속도. 거의 붙어 다닌다. 눈에 띄게 늦으면 예전의 따라오는
+ * 링처럼 웹사이트의 커서로 읽힌다.
+ */
+const IDLE_LAMBDA = 60;
 
 /** 꺾쇠 넷. 순서가 곧 모서리다: 왼쪽 위, 오른쪽 위, 왼쪽 아래, 오른쪽 아래 */
 const CORNERS = ["tl", "tr", "bl", "br"] as const;
@@ -25,12 +30,13 @@ const TOUCHABLE_SELECTOR =
 const OFFSCREEN = -100;
 
 /**
- * 마우스를 따라오는 점 하나와, 만질 수 있는 물건을 감싸는 네 모서리 꺾쇠.
+ * 마우스를 따라오는 점과 그 둘레의 작은 네모. 네모는 꺾쇠 넷이 모인 것이다.
  *
- * 네이티브 커서를 숨기고(.custom-cursor) 점이 그 자리를 맡는다. 평소에는 점뿐이다.
- * 만질 수 있는 것 위에서는 두 가지로 반응한다 (cursor-brackets.ts).
- * - DOM 버튼: 점이 금빛이 된다. 버튼을 감싸지는 않는다.
- * - 3D 오브젝트: 금빛 꺾쇠 넷이 손 자리에서 벌어져 물건을 감싸고, 그 순간 물건의
+ * 네이티브 커서를 숨기고(.custom-cursor) 점이 그 자리를 맡는다. 만질 수 있는 것
+ * 위에서는 두 가지로 반응한다 (cursor-brackets.ts).
+ * - DOM 버튼: 네모가 물러나고 점이 금빛이 된다. 버튼을 감싸지는 않는다. UI 위에서까지
+ *   네모가 따라다니면 메뉴를 조준하는 그림이 된다.
+ * - 3D 오브젝트: 네모가 금빛으로 벌어져 물건을 감싸고, 그 순간 물건의
  *   윤곽선이 한 번 밝아진다 (MemoryOutlineGlow). 꺾쇠가 "어디"를, 윤곽선이 "무엇"을 말한다.
  *
  * 마우스에서만 산다. 손가락에는 커서가 없고, 모션을 끈 사람에게는 벌어졌다 모이는
@@ -134,22 +140,25 @@ export function CustomCursor() {
         width: window.innerWidth,
         height: window.innerHeight,
       });
-      box.left = damp(box.left, goal.left, BRACKET_LAMBDA, delta);
-      box.top = damp(box.top, goal.top, BRACKET_LAMBDA, delta);
-      box.right = damp(box.right, goal.right, BRACKET_LAMBDA, delta);
-      box.bottom = damp(box.bottom, goal.bottom, BRACKET_LAMBDA, delta);
+      const lambda = target ? WRAP_LAMBDA : IDLE_LAMBDA;
+      box.left = damp(box.left, goal.left, lambda, delta);
+      box.top = damp(box.top, goal.top, lambda, delta);
+      box.right = damp(box.right, goal.right, lambda, delta);
+      box.bottom = damp(box.bottom, goal.bottom, lambda, delta);
 
       const at = `translate3d(${pointer.x}px, ${pointer.y}px, 0)`;
       dotEl.style.transform = hotDotEl.style.transform = at;
       dotEl.dataset.shown = hotDotEl.dataset.shown = String(pointer.shown);
       dotEl.dataset.hot = hotDotEl.dataset.hot = String(hot);
-      const live = String(pointer.shown && target !== null);
+      const wrap = String(target !== null);
+      const live = String(pointer.shown && (target !== null || touchable === null));
       bracketRefs.current.forEach((el, index) => {
         if (!el) return;
         const x = index % 2 === 0 ? box.left : box.right;
         const y = index < 2 ? box.top : box.bottom;
         el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
         el.dataset.live = live;
+        el.dataset.wrap = wrap;
       });
     };
     frame = window.requestAnimationFrame(tick);

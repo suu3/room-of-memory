@@ -183,7 +183,7 @@ N8AO → 잔상(1인칭, heavy) → 빛기둥(엔딩, heavy) → 틸트 시프�
 
 | 연출 | 수치 · 게이트 | 구현 |
 |---|---|---|
-| 커스텀 커서 | 점 하나. DOM 버튼 위에서 금빛이 되고, 3D 물건 위에서는 네 모서리 꺾쇠가 물건을 감싼다. 마우스만 | `ui/shell/CustomCursor.tsx`, `cursor-brackets.ts` |
+| 커스텀 커서 | 점 + 둘레의 작은 네모(꺾쇠 넷). DOM 버튼 위에서는 네모가 물러나고 점이 금빛이 되며, 3D 물건 위에서는 네모가 벌어져 물건을 감싼다. 마우스만 | `ui/shell/CustomCursor.tsx`, `cursor-brackets.ts` |
 | 대사 타자기 · 타자 틱 | 70ms/글자, 두 글자에 한 틱. 화자마다 음높이가 다르고 전파 화자는 따로 | `lib/use-typewriter.ts`, `dialogue-sfx.ts` |
 | 화자 라벨 교체 · 혼잣말 글자 퇴장 · 한 줄 혼잣말 | 0.22초 / 글자당 260ms / fade-rise | `globals.css`, `Monologue.tsx`, `RemarkLine.tsx` |
 | BGM 덕킹 | 대사 0.72, 미니게임 0.42 | `audio/index.ts` |
