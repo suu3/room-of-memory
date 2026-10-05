@@ -5,6 +5,7 @@ import type { ParseKeys } from "i18next";
 import Image from "next/image";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { ICON_BUTTON_PAPER } from "@/components/ui/shared/ui-classes";
 import { PROFILE_ROWS } from "@/data/notebook";
 import { ASSETS } from "@/lib/assets";
 import {
@@ -189,7 +190,7 @@ export function CharacterSheetModal() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label={t("characterSheet.close")}
-              className="flex-none cursor-pointer pb-1.5 text-graphite transition-colors hover:text-ink active:text-ink/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory"
+              className={`-mr-1.5 mb-0.5 flex-none ${ICON_BUTTON_PAPER}`}
             >
               <XIcon size={18} weight="bold" />
             </button>

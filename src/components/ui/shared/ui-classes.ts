@@ -31,6 +31,8 @@ export const BUTTON_QUIET = `${BUTTON_BASE} border-line bg-transparent px-4 py-2
 export const BUTTON_DESTRUCTIVE = `${BUTTON_BASE} border-ember bg-ember px-4 py-2.5 text-scene-void hover:border-ember/85 hover:bg-ember/85 active:bg-ember/75`;
 /** 종이 위의 조용한 버튼 (수첩·종이 단서). */
 export const BUTTON_QUIET_PAPER = `${BUTTON_BASE} border-ink/15 bg-transparent px-3 py-1.5 text-graphite hover:border-ink/40 hover:text-ink active:bg-ink/5`;
+/** 종이 위의 아이콘 버튼 (수첩 닫기). 테 없이 서고 hover에서만 동그란 바탕이 깔린다. */
+export const ICON_BUTTON_PAPER = `grid size-8 cursor-pointer place-items-center rounded-full text-graphite transition-colors duration-150 hover:bg-ink/8 hover:text-ink active:bg-ink/12 ${FOCUS_RING}`;
 /** 어두운 패널 위의 돌리기 아이콘 버튼 (거울 속 캐릭터). */
 export const TURN_BUTTON_DARK = `cursor-pointer rounded-sm border border-line bg-surface p-1.5 text-fog transition-colors hover:text-ivory active:bg-surface-strong ${FOCUS_RING}`;
 
