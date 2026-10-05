@@ -43,7 +43,8 @@
 #   from          이 페이즈부터 열린다 (turning/p2/p3/p4). 2차 이후에 필수
 #   side          곁가지: true면 페이즈를 넘기는 데 필요 없다
 #   cutscene      이 조사를 마치는 순간 트는 컷씬 (cutscenes.yaml의 id)
-#   replayStill   다시보기에서 대사 뒤에 세우는 정지 그림 (public 기준 경로).
+#   replayStill   다시보기에서 대사 뒤에 세우는 정지 그림 (public 기준 경로). 글자가 언어마다 다른
+#                 그림은 파일 이름에 {lng}를 쓴다: ko·en·ja 세 파일이 다 있어야 한다.
 #                 아직 비어 있는 칸과 거기에 무엇을 그릴지는 docs/story/replay-stills.md
 #
 # 대사·미니게임·컷씬이 다 없으면 클릭 즉시 완료된다.
@@ -188,7 +189,7 @@ memories:
       minigame: phone-chat
       resultScript: phone-stopped
       unlockAfter: [console, ball]
-      replayStill: /assets/images/still-phone.webp
+      replayStill: /assets/images/still-phone.webp?v=2
     # 2차 (2페이즈): 1막 내내 미뤄 둔 엄마 대화방을 다시 연다. 그날 이미 읽은 마지막 문자다. 잠금은 없다.
     # 컴퓨터를 기다리는 이유: 캐시 뉴스의 첫 보도 시각(오후)을 먼저 봐야
     # 엄마 문자의 7시 12분이 이상하게 읽힌다 (v4 3-4).
@@ -199,7 +200,7 @@ memories:
       resultMusic: title
       from: p2
       unlockAfter: [computer]
-      replayStill: /assets/images/still-phone.webp
+      replayStill: /assets/images/still-phone.webp?v=2
 
   # ─────────────────────────────────────────────── 1페이즈 · 강도 3
   - id: calendar
@@ -353,6 +354,7 @@ memories:
       minigame: card-flip
       resultScript: cards-memo
       from: p2
+      replayStill: /assets/images/still-cards-{lng}.webp
 
   # 컴퓨터: 1페이즈에는 꺼진 배경이다 (누르면 혼잣말 한 줄: RemarkId computer-off).
   # 2차 (2페이즈): 로그인 0812(로그인 화면의 힌트 + 달력 동그라미) → 아빠 메일 + 캐시 뉴스(첫 보도 시각).
@@ -414,6 +416,7 @@ memories:
       minigame: ampoule-case
       resultScript: ampoule-found
       from: p3
+      replayStill: /assets/images/still-ampoule-vial.webp
     # 3페이즈에 들여다보고 내려놓았던 앰플을, 떠나기 전에 서랍에서 집어 든다 (ampoule-pickup:
     # 씬 안에서 서랍이 밀려 나오고 앰플이 손에 들린다). 챙길 것 셋 중 하나
     phase3:
@@ -461,3 +464,4 @@ memories:
       minigame: id-card-flip
       resultScript: id-card-found
       from: p4
+      replayStill: /assets/images/still-id-card-{lng}.webp

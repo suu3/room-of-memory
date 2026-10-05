@@ -144,7 +144,7 @@ export const MEMORIES: MemoryItem[] = [
         { id: "console", visit: 1 },
         { id: "ball", visit: 1 },
       ],
-      replayStill: "/assets/images/still-phone.webp",
+      replayStill: "/assets/images/still-phone.webp?v=2",
     },
     phase2: {
       interaction: {
@@ -154,7 +154,7 @@ export const MEMORIES: MemoryItem[] = [
         resultMusic: "title",
       },
       unlockAfter: [{ id: "computer", visit: 2 }],
-      replayStill: "/assets/images/still-phone.webp",
+      replayStill: "/assets/images/still-phone.webp?v=2",
       from: "p2",
     },
   },
@@ -246,6 +246,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "card-flip",
         resultScriptId: "cards-memo",
       },
+      replayStill: "/assets/images/still-cards-{lng}.webp",
       from: "p2",
     },
   },
@@ -281,6 +282,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "ampoule-case",
         resultScriptId: "ampoule-found",
       },
+      replayStill: "/assets/images/still-ampoule-vial.webp",
       from: "p3",
     },
     phase3: {
@@ -314,6 +316,7 @@ export const MEMORIES: MemoryItem[] = [
         minigameId: "id-card-flip",
         resultScriptId: "id-card-found",
       },
+      replayStill: "/assets/images/still-id-card-{lng}.webp",
       from: "p4",
     },
   },
@@ -769,7 +772,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [{ speaker: "signal", textKey: "cutscenes.survivor-broadcast.cut7.line1" }],
       },
       {
-        image: "/assets/images/cutscene-survivor-8.webp?v=5",
+        image: "/assets/images/cutscene-survivor-8.webp?v=6",
         page: 3,
         ratio: "16:9",
         sfx: "radioStatic",

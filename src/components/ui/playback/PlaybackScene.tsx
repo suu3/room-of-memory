@@ -4,13 +4,12 @@ import type { ParseKeys } from "i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CUTSCENE_RADIO_BLACKOUT, CUTSCENE_WORKBOOK_NAME } from "@/data/memory-room";
-import { ASSETS } from "@/lib/assets";
+import { ASSETS, localizeAsset } from "@/lib/assets";
 import { playSound, preloadSpeech, type Speech, startNoiseBed, startSpeech } from "@/lib/audio";
 import { useEffectEnabled } from "@/lib/effects/effect-budget";
 import { blurBackdrop } from "@/lib/image-blur";
 import { selectActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 import { selectLocale, useSettingsStore } from "@/store/settings";
-import { useStillStore, WORKBOOK_STILL_KEY } from "@/store/stills";
 import { broadcastAiring, carriesBroadcast } from "./broadcast-voice";
 import { CutDissolve } from "./CutDissolve";
 import { CutWhispers } from "./CutWhispers";
@@ -142,12 +141,12 @@ function SignalVisual({ tone }: { tone: "dying" | "alive" }) {
  * 다시보기는 이미 지나간 것을 들춰 보는 것뿐이라 방이 뒤에 비쳐야 한다.
  */
 /**
- * 그림 없는 컷씬 중 방금 집어 본 물건 위에 흐르는 것: 그 물건을 내려놓던 순간 찍어 둔
- * 한 장(store/stills)을 판 크기 그대로 세운다. 문제집의 이름 대사가 뒤표지 위에 흐른다.
+ * 그림 없는 컷씬 중 방금 집어 본 물건 위에 흐르는 것: 그 물건을 찾을 것을 본 자세로
+ * 찍어 둔 한 장을 판 크기 그대로 세운다. 문제집의 이름 대사가 뒤표지 위에 흐른다.
  * 미니게임의 결과 대사가 판 위에 흐르는 것과 같은 모양이다.
  */
 const CUTSCENE_AFTERIMAGE: Partial<Record<string, string>> = {
-  [CUTSCENE_WORKBOOK_NAME]: WORKBOOK_STILL_KEY,
+  [CUTSCENE_WORKBOOK_NAME]: ASSETS.stills.workbook,
 };
 
 export function PlaybackScene() {
@@ -188,12 +187,12 @@ export function PlaybackScene() {
     [playbackKey],
   );
   const cut = active?.cuts[active.cutIndex];
-  const afterimageKey =
+  const locale = useSettingsStore(selectLocale);
+  const afterimage = localizeAsset(
     active?.kind === "cutscene" && active.cutsceneId
       ? CUTSCENE_AFTERIMAGE[active.cutsceneId]
-      : undefined;
-  const afterimage = useStillStore((state) =>
-    afterimageKey ? state.stills[afterimageKey] : undefined,
+      : undefined,
+    locale,
   );
 
   /*
@@ -283,7 +282,6 @@ export function PlaybackScene() {
    * 녹음은 대사 언어를 따라간다. 컷씬이 열릴 때 미리 받아 둔다: 방송 컷은 도입과 정적
    * 뒤에 오므로 그 사이에 다 받아진다.
    */
-  const locale = useSettingsStore(selectLocale);
   const broadcastSrc = ASSETS.voice.broadcast[locale];
   const hasBroadcast = active?.cuts.some(carriesBroadcast) === true;
   useEffect(() => {
@@ -355,9 +353,9 @@ export function PlaybackScene() {
   // 생존자 방송: 페이지 단위 웹툰은 제 뷰어가 통째로 맡는다 (칸·말풍선·페이지 넘김)
   if (webtoon) return <WebtoonViewer active={active} />;
 
-  const image = cut?.image;
+  const image = localizeAsset(cut?.image, locale);
   const showImage = stage === "cuts" && image !== undefined && !missing.includes(image);
-  const morphFrom = cut?.morphFrom;
+  const morphFrom = localizeAsset(cut?.morphFrom, locale);
   const morphKey = showImage && morphFrom !== undefined ? `${playbackKey}:${cutIndex}:morph` : null;
   const morphing = dissolveEnabled && morphKey !== null && morphedKey !== morphKey;
   /**

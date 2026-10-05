@@ -1,9 +1,9 @@
 "use client";
 
 import { CheckIcon } from "@phosphor-icons/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { InspectCapture, InspectObject } from "@/components/canvas/InspectTurntable";
+import type { InspectObject } from "@/components/canvas/InspectTurntable";
 import { inspectControlOf } from "@/components/canvas/InspectTurntable";
 import {
   ampouleCaseObject,
@@ -58,8 +58,6 @@ function InspectMinigame({
   const skipByTime = useSkipEligible(SKIP_AFTER_MS);
   const current = stages[index];
   const last = index >= stages.length - 1;
-  /** 내려놓는 순간의 판을 찍는다: 결과 대사 동안 판 대신 서고 수첩 카드에도 남는다. */
-  const captureRef = useRef<InspectCapture | null>(null);
 
   const onFound = useCallback(() => {
     playSound("flip", { variation: 0.05 });
@@ -68,7 +66,7 @@ function InspectMinigame({
 
   const next = useCallback(() => {
     if (last) {
-      complete({ cleared: true, still: captureRef.current?.() ?? undefined });
+      complete({ cleared: true });
       return;
     }
     playSound("select");
@@ -90,8 +88,8 @@ function InspectMinigame({
   return (
     <div className="flex w-[min(34rem,94vw)] animate-fade-rise flex-col items-center gap-4">
       {/*
-        결과 대사 동안은 판이 돌지 않는다: 내려놓던 순간의 한 장으로 굳는다. 찍지 못했으면
-        (WebGL을 읽을 수 없는 환경) 예전처럼 판이 그대로 남는다.
+        결과 대사 동안은 판이 돌지 않는다: 찾을 것을 본 자세로 찍어 둔 한 장으로 굳는다
+        (그 조사의 replayStill). 스틸이 없는 조사는 판이 그대로 남는다.
       */}
       {frozen && still ? (
         <InspectStill src={still} alt={current.alt} className="w-full" />
@@ -103,7 +101,6 @@ function InspectMinigame({
           alt={current.alt}
           hint={hint(HELP_KEY[inspectControlOf(current.object).kind])}
           onFound={onFound}
-          captureRef={captureRef}
           className="w-full"
         />
       )}

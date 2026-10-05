@@ -109,7 +109,7 @@ export const ASSETS = {
     cutsceneSurvivor5: "/assets/images/cutscene-survivor-5.webp?v=2",
     cutsceneSurvivor6: "/assets/images/cutscene-survivor-6.webp?v=3",
     cutsceneSurvivor7: "/assets/images/cutscene-survivor-7.webp?v=2",
-    cutsceneSurvivor8: "/assets/images/cutscene-survivor-8.webp?v=5",
+    cutsceneSurvivor8: "/assets/images/cutscene-survivor-8.webp?v=6",
     cutsceneSurvivor9: "/assets/images/cutscene-survivor-9.webp?v=2",
     cutsceneSurvivor10: "/assets/images/cutscene-survivor-10.webp?v=3",
     /** '뒤집으면 보인다' 조사 에셋. */
@@ -271,6 +271,13 @@ export const ASSETS = {
    * 녹음된 말소리 (src/lib/audio/speech.ts). 게임에서 사람 목소리가 나는 자리는 여기뿐이다:
    * 다른 화자는 전부 타자 틱이 목소리를 대신한다.
    */
+  stills: {
+    /**
+     * 문제집 뒤표지 (3D 인스펙트를 찍어 둔 한 장). 이름 대사가 이 위에 흐른다. 이름표의
+     * 글자가 언어마다 달라 `{lng}` 자리에 언어가 들어간다 (localizeAsset).
+     */
+    workbook: "/assets/images/still-workbook-{lng}.webp",
+  },
   voice: {
     /**
      * 그날의 재난 방송 (radio-blackout의 방송 세 줄을 이어 읽은 한 편, 18~20초).
@@ -283,3 +290,12 @@ export const ASSETS = {
     } satisfies Record<Locale, string>,
   },
 } as const;
+
+/**
+ * 언어마다 다른 파일을 가진 에셋의 경로를 지금 언어의 것으로 바꾼다 (`{lng}` 자리).
+ * 3D 인스펙트 스틸이 쓴다: 쪽지·출입증·문제집은 판에 적힌 글자가 언어를 따라간다
+ * (src/app/admin/stills에서 찍는다). 자리가 없는 경로는 그대로 돌려준다.
+ */
+export function localizeAsset<T extends string | undefined>(path: T, locale: Locale): T {
+  return (path === undefined ? path : path.replace("{lng}", locale)) as T;
+}

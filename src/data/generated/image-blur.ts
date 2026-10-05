@@ -35,7 +35,7 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-survivor-7.webp":
     "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAQAgCdASoQAAkAAsBMJaACsAEQN5G1OroAAP74gJjt9MfvfWcIP04tPva7CoV1zKcP8t0EP1vi0QxA4CPl7QFvt70cSVATkdY34JkTrIj7ZE+AAAA=",
   "/assets/images/cutscene-survivor-8.webp":
-    "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACwAQCdASoQAAkAAsBMJZQAAlHxipXAAP74YRxx9Pv6w36jQ5nbOaL7WIBsN8aMI/U7GWuqdGNvJTM9OL93o/IFUJl33sgYfAA=",
+    "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAABwAQCdASoQAAkAAsBMJQAANH6CFAD++JRPgIl+yapeqbjX3+q0ux/lPEfF8f9C8mlz3IEbOQltQ4yNfpftsIT60Qq48+XHU1vcl/AAAAA=",
   "/assets/images/cutscene-survivor-9.webp":
     "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADwAQCdASoMABAAAsBMJQBOgCKUl19kMwAA/vfLw2ftj14LjUbGX3+D0+x+bjEzhnAJyqbaTorDrTzbDLE7GiatypEs8F5XP36wAA==",
   "/assets/images/mg-ball-catch-sunset-field.webp":
@@ -60,20 +60,40 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
     "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAABQAgCdASoQAA0AAsBMJZQCdAYv/v1oVXMyaUAA/vCvTP7Up0QZFSzRPmmGpDkfOpemUKxyvlBtnbMxwgqE5J9bwBoU+zt2ju0UB61YF6Iiv9WFtqFCy5Iq5uqm8mh7dd3JK1g6vdKjQAAA",
   "/assets/images/mg-window-view-outside.webp":
     "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAQCdASoQAAwAAsBMJYwCdAEN3TNJwAAA/cefZT24KgmisaWhLKnDtTbHJb7cJ5tiPITjBBihr5ts1vDc3BG9D11NpOo3BWdp/ud9nHQvNiLn/aTlAAAA",
+  "/assets/images/still-ampoule-vial.webp":
+    "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAACwAQCdASoQAAkAAsBMJZQCdADdExnAAP73mA2pKWS44clSR6e1Ksc0CskEZfi//hIhM789A7MQP+AA",
   "/assets/images/still-ampoule.webp":
     "data:image/webp;base64,UklGRjwAAABXRUJQVlA4IDAAAADwAQCdASoQAAwAAsBMJZwAAqH0x0F+pgAA/uv76+p9wdmR1UAtQ6PUphmPChxYEAA=",
+  "/assets/images/still-cards-en.webp":
+    "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAkAAsBMJZQCdAEXeZCfWAAA/veXyT9m3qshrVPte/3/v/HbQ34pxVhv3lVLu8dAZtGC/XZ3B0XJ7+dUjgAA",
+  "/assets/images/still-cards-ja.webp":
+    "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAAAQAgCdASoQAAkAAsBMJZQCdAEXgPvRCOAAAP73l8k/Zt6rD3XduC1I+i4+ffBJnadnxtHots/yGl+uzuDouT3+QH4eMAAA",
+  "/assets/images/still-cards-ko.webp":
+    "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAABQAgCdASoQAAkAAsBMJZQCdEf/gfhd+L/NmAAA/veXyT9m5nrG6XC/QQUm0y0ny6qPyCVUFS64XdN1UHnGcTYg7jYzalogAAA=",
   "/assets/images/still-computer.webp":
     "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQAgCdASoQAAwAAsBMJQBOgB8oCv9F6rx4AP7c+weYEJpwJzOjJao7kH0R9CFyG8DnjuIt0bmoOZesF+6qfrx+8ShjxTleWWTsotH0esbAAA==",
   "/assets/images/still-duffel.webp":
     "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACQAQCdASoQAAwAAsBMJZwAAVQeQAAA/vDfE75Xns2P7K7yxSaGdLo0Yl/OkfHGog4GY6XEoe4n7EONMRXJ/sQQQ3M+pl8AAAA=",
   "/assets/images/still-fridge.webp":
     "data:image/webp;base64,UklGRjIAAABXRUJQVlA4ICYAAADQAQCdASoQAAwAAsBMJaQAAudVnl2eAAD+6MVGJ+xJbsrUEbAAAA==",
+  "/assets/images/still-id-card-en.webp":
+    "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAADQAQCdASoQAAkAAsBMJZwCdAEDH4cjQAD+95fJPdaEYz0veBVeokG8nLzGGefKNFWFKsJ4HG5WTFez4UAAAA==",
+  "/assets/images/still-id-card-ja.webp":
+    "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAADQAQCdASoQAAkAAsBMJZwCdAEDH4cjQAD+95fJPdcdr/JMeckD6fgKJfetzmOCOTdvA6GoMNHKz2NUP10eAA==",
+  "/assets/images/still-id-card-ko.webp":
+    "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAAAQAgCdASoQAAkAAsBMJZwCdAYqNnMyZtgAAP73l8k91yC2xCWjNqTX5TA69zGF6nyOObYsKrEjxkyc++ddHgAA",
   "/assets/images/still-phone.webp":
-    "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAADwAQCdASoQAAwAAsBMJZACdAEKz3x+EAAA/qvZU8z63l5U4a8KvnMTpEG4DLppfG2Dwwc0AAA=",
+    "data:image/webp;base64,UklGRkgAAABXRUJQVlA4IDwAAACwAQCdASoQAAwAAsBMJZgCdACovOQAAP6CrvFoCl6/zOaPsDV6BZ/ZbaQT4J+db3kg5zGJVWOw8fhpwAA=",
   "/assets/images/still-report-card.webp":
     "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQAgCdASoQAAwAAsBMJYwCdADxLn+yG6AAAP7vYylw1jzbw/JEdqz7SILnbWoJ+G/nK5GBR8/Ni5thIblNo894G9qwzAVuEOYog84AAAA=",
   "/assets/images/still-shoes.webp":
     "data:image/webp;base64,UklGRjwAAABXRUJQVlA4IDAAAACQAQCdASoQAAwAAsBMJZwAAp1BVwAA/u9TLIV/fy9Az9cOmPd99m8byRJCz6lgQAA=",
+  "/assets/images/still-workbook-en.webp":
+    "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAD2PJ9S/AAA/veWh/Hibmf6zQjrIUx4Jc5yyC+Z1tIxf8+XqdwAAA==",
+  "/assets/images/still-workbook-ja.webp":
+    "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAD0igpvgAAA/veWh/Hibmf6zmjR259GUDTNky/saGf16LV+jdRAAA==",
+  "/assets/images/still-workbook-ko.webp":
+    "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAD2PJ9S/AAA/veWh/Hibmf6zQjrJiHYGAV/0v8oqssFJ/O+hPgAAA==",
   "/assets/images/ui-ending-thanks.webp":
     "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAADwAQCdASoMABAAAsBMJaQAD5MvsleeYbAA/vqs+W0WGP3EKyBk0RPxHPHDB1Y8cQJub/AXFvIC+1D1L43aEQoeiDkP34K1Y1QjZPjRq1wAAA==",
 };
@@ -96,7 +116,7 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-survivor-5.webp": "0da865ff809e5652",
   "/assets/images/cutscene-survivor-6.webp": "71becc72e8e4fcdd",
   "/assets/images/cutscene-survivor-7.webp": "3cdee308333f6461",
-  "/assets/images/cutscene-survivor-8.webp": "f0dc679055ff465b",
+  "/assets/images/cutscene-survivor-8.webp": "30e50b18d9c1e13b",
   "/assets/images/cutscene-survivor-9.webp": "547178e36d01ecb2",
   "/assets/images/mg-ball-catch-sunset-field.webp": "497d229997c49505",
   "/assets/images/mg-calendar-flip-07.webp": "571d51b0d28e7e07",
@@ -109,12 +129,22 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/mg-photo-wipe-phase-1.webp": "a5acd491e3187079",
   "/assets/images/mg-photo-wipe-phase-2.webp": "75f444cc26a7337a",
   "/assets/images/mg-window-view-outside.webp": "bda481270abe7e5e",
+  "/assets/images/still-ampoule-vial.webp": "f5ffa1e5c839aa3b",
   "/assets/images/still-ampoule.webp": "e2cc1c53bf533d1b",
+  "/assets/images/still-cards-en.webp": "f5f591646cb4d70e",
+  "/assets/images/still-cards-ja.webp": "91965a2e5400f29d",
+  "/assets/images/still-cards-ko.webp": "e6c7f34303f5a06b",
   "/assets/images/still-computer.webp": "e2df1d675e7e9446",
   "/assets/images/still-duffel.webp": "b6d4ff5448e91bbf",
   "/assets/images/still-fridge.webp": "84bd4db1513559ab",
-  "/assets/images/still-phone.webp": "3470352ece4151b5",
+  "/assets/images/still-id-card-en.webp": "d3c9be6e3507b3e7",
+  "/assets/images/still-id-card-ja.webp": "722046f6f0fd81e7",
+  "/assets/images/still-id-card-ko.webp": "cdbd4bb444a7216a",
+  "/assets/images/still-phone.webp": "ba201f52b2b55413",
   "/assets/images/still-report-card.webp": "ecc45e7ad3ebd770",
   "/assets/images/still-shoes.webp": "4b91396506966f62",
+  "/assets/images/still-workbook-en.webp": "c9474551e95d414a",
+  "/assets/images/still-workbook-ja.webp": "ad78391d83fb479a",
+  "/assets/images/still-workbook-ko.webp": "63e187a15d6619d7",
   "/assets/images/ui-ending-thanks.webp": "65314fe34dd80fc7",
 };

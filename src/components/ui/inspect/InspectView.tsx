@@ -13,7 +13,6 @@ import {
 } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import {
-  type MutableRefObject,
   type PointerEvent as ReactPointerEvent,
   type WheelEvent as ReactWheelEvent,
   useCallback,
@@ -23,7 +22,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import type { InspectCapture, InspectObject } from "@/components/canvas/InspectTurntable";
+import type { InspectObject } from "@/components/canvas/InspectTurntable";
 import { inspectControlOf } from "@/components/canvas/InspectTurntable";
 import { clampPage, swipeStep, UNFOLD_PX } from "@/components/canvas/inspect-math";
 import { playSound } from "@/lib/audio";
@@ -67,7 +66,6 @@ export function InspectView({
   hint,
   hintPinned = false,
   onFound,
-  captureRef,
   className = "",
 }: {
   object: InspectObject;
@@ -83,8 +81,6 @@ export function InspectView({
   hintPinned?: boolean;
   /** 찾을 것을 읽었을 때 한 번. */
   onFound: () => void;
-  /** 판을 한 장으로 찍는 함수가 걸리는 자리 (InspectTurntable). */
-  captureRef?: MutableRefObject<InspectCapture | null>;
   className?: string;
 }) {
   const { t } = useTranslation();
@@ -166,7 +162,6 @@ export function InspectView({
           dragYRef={dragYRef}
           pageRef={pageRef}
           onFound={onFound}
-          captureRef={captureRef}
         />
       </div>
       <p

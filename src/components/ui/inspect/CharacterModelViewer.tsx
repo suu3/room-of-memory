@@ -77,7 +77,6 @@ export function CharacterModelViewer() {
             </button>
           ))}
         </div>
-        <span className="w-full text-xs text-ash">{t("clue.mirror.hint")}</span>
       </figcaption>
     </figure>
   );

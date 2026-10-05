@@ -52,7 +52,6 @@ import {
   visitDone,
   visitOpen,
 } from "@/data/story-phase";
-import { stillKeyOf, useStillStore } from "@/store/stills";
 import type { CurtainSide } from "@/types/curtain";
 import type { CutsceneCut, DialogueScriptLine, ResultMusic } from "@/types/interaction";
 import type { MinigameResult } from "@/types/minigame";
@@ -744,16 +743,11 @@ export function openCutscene(id: string, { intro = false } = {}): ActivePlayback
  * 이미 푼 판을 다시 풀리는 것은 되짚기가 아니라 재도전이다. 기억 패널과 수첩은
  * "무엇을 봤는지"를 다시 보여주는 자리라, 손을 다시 쓰게 만들면 안 된다.
  *
- * 대사를 통째로 다시 틀지 않는다. 예전에는 진입·결과 대사를 이어 붙여 사인볼이 11줄,
+ * 대사를 통째로 다시 틀지 않는다. 예전에는 진입·결과 대사를 이어 붙여 야구공이 11줄,
  * 성적표가 8줄이었다. 되짚기는 한 번 본 장면을 다시 읽는 게 아니라 무엇이었는지를
  * 떠올리는 자리라, 그때 수첩에 남긴 기록(lore) 한 문단이면 된다 (2026-09-27).
  */
-export function buildMemoryReplay(
-  id: MemoryId,
-  gamePhase: Visit,
-  /** 3D로 집어 본 판을 그때 찍어 둔 한 장 (store/stills). 미리 그린 replayStill이 앞선다. */
-  captured?: string,
-): ActivePlayback | null {
+export function buildMemoryReplay(id: MemoryId, gamePhase: Visit): ActivePlayback | null {
   const config = phaseConfigOf(id, gamePhase);
   if (!config) return null;
 
@@ -768,7 +762,7 @@ export function buildMemoryReplay(
    */
   const earlier = gamePhase > 1 ? phaseConfigOf(id, 1)?.replayStill : undefined;
   // 밀림은 그림이 **둘 다** 있고 서로 다를 때만 성립한다. 2막에 그림이 없는 기억
-  // (사인볼)은 앞 그림만 실리면 갈 곳 없는 밀림이 된다
+  // (야구공)은 앞 그림만 실리면 갈 곳 없는 밀림이 된다
   const morphFrom =
     earlier && config.replayStill && earlier !== config.replayStill ? earlier : undefined;
   const morphWithin = morphFrom ? REPLAY_MORPH_WITHIN[id] : undefined;
@@ -776,9 +770,7 @@ export function buildMemoryReplay(
   return {
     kind: "replay",
     memoryId: id,
-    cuts: [
-      { image: config.replayStill ?? captured, fit: "contain", morphFrom, morphWithin, lines },
-    ],
+    cuts: [{ image: config.replayStill, fit: "contain", morphFrom, morphWithin, lines }],
     cutIndex: 0,
     lineIndex: 0,
     // 다시보기에는 도입이 없다. 라디오가 꺼지는 비트는 그 컷씬만의 것이다
@@ -1088,7 +1080,7 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
 
 export const useMemoryRoomStore = create<MemoryRoomState>()(
   persist<MemoryRoomState, [], [], Partial<PersistedProgress>>(
-    (set, get) => ({
+    (set) => ({
       collected: [],
       revisited: [],
       rechecked: [],
@@ -1224,14 +1216,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
               }
             : state,
         ),
-      finishMinigame: (result) => {
-        // 판이 찍어 넘긴 한 장: 결과 대사·수첩 카드·다시보기가 같이 쓴다 (store/stills)
-        const live = get().activeInteraction;
-        if (live?.phase === "minigame" && result.cleared && result.still) {
-          useStillStore
-            .getState()
-            .putStill(stillKeyOf(live.memoryId, live.gamePhase), result.still);
-        }
+      finishMinigame: (result) =>
         set((state) => {
           const active = state.activeInteraction;
           if (active?.phase !== "minigame") return state;
@@ -1259,8 +1244,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
            */
           if (!result.cleared) return { activeInteraction: null };
           return complete(state, active.memoryId, active.gamePhase);
-        });
-      },
+        }),
       cancelMinigame: () =>
         set((state) =>
           state.activeInteraction?.phase === "minigame" ? { activeInteraction: null } : state,
@@ -1273,8 +1257,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           // 여러 차수를 본 기억이면 마지막으로 본 차수를 되돌려준다
           const gamePhase = lastVisitDone(state, id);
           if (gamePhase === undefined) return state;
-          const captured = useStillStore.getState().stills[stillKeyOf(id, gamePhase)];
-          const playback = buildMemoryReplay(id, gamePhase, captured);
+          const playback = buildMemoryReplay(id, gamePhase);
           return playback ? { activePlayback: playback } : state;
         }),
       setUiLock: (id, locked) =>
@@ -1575,8 +1558,6 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           packedForExit(state) && !selectSceneInputLocked(state) ? { endingStarted: true } : state,
         ),
       reset: () => {
-        // 찍어 둔 그림도 지난 판의 것이다
-        useStillStore.getState().clearStills();
         set((state) => ({
           collected: [],
           revisited: [],
@@ -1670,6 +1651,17 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
        * (2→3에서 실제로 그랬다). 걸러내는 것은 어차피 sanitizeProgress의 몫이다.
        */
       migrate: (persisted) => persisted as Partial<PersistedProgress>,
+      /*
+       * 예전에는 3D로 집어 본 판을 플레이 중에 찍어 `rom-stills`에 쌓았다 (장당 수십 KB).
+       * 지금은 미리 찍은 파일을 쓰므로, 남아 있는 옛 덩어리를 한 번 치운다.
+       */
+      onRehydrateStorage: () => () => {
+        try {
+          localStorage.removeItem("rom-stills");
+        } catch {
+          // 저장소를 못 쓰는 환경이면 치울 것도 없다
+        }
+      },
     },
   ),
 );

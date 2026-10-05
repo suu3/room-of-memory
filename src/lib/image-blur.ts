@@ -6,7 +6,7 @@ import { IMAGE_BLUR } from "@/data/generated/image-blur";
  *
  * 그림이 받아지기 전 빈 칸 대신 흐린 판을 세운다. 서비스 워커가 한 번 받은 그림은
  * 캐시에서 바로 읽으므로 실제로 보이는 건 대개 첫 방문뿐이다. 구워 둔 게 없는 경로
- * (작은 그림, 찍어 둔 스틸의 data URL)는 undefined라 아무것도 깔지 않는다.
+ * (작은 그림)는 undefined라 아무것도 깔지 않는다.
  */
 export function blurDataUrlOf(src: string | undefined): string | undefined {
   if (!src) return undefined;

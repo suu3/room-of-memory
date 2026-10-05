@@ -141,15 +141,18 @@ describe("다시보기", () => {
 
   it("다시보기 스틸은 리포에 실제로 있는 파일을 가리킨다", () => {
     const stills = MEMORIES.flatMap((memory) =>
-      [memory.phase1?.replayStill, memory.phase2?.replayStill].filter(
+      [memory.phase1?.replayStill, memory.phase2?.replayStill, memory.phase3?.replayStill].filter(
         (path): path is string => path !== undefined,
       ),
     );
 
     expect(stills.length).toBeGreaterThan(0);
     for (const path of stills) {
-      const filePath = path.split(/[?#]/, 1)[0];
-      expect(existsSync(`public${filePath}`), path).toBe(true);
+      // 글자가 든 스틸({lng})은 세 언어의 파일이 다 있어야 한다
+      for (const locale of path.includes("{lng}") ? ["ko", "en", "ja"] : [""]) {
+        const filePath = path.replace("{lng}", locale).split(/[?#]/, 1)[0];
+        expect(existsSync(`public${filePath}`), filePath).toBe(true);
+      }
     }
   });
 });

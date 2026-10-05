@@ -7,9 +7,10 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MEMORY_BY_ID, MEMORY_IDS, type MemoryId } from "@/data/memory-room";
 import { anyVisitDone, lastVisitDone, visitConfig, visitsOf } from "@/data/story-phase";
+import { localizeAsset } from "@/lib/assets";
 import { blurDataUrlOf } from "@/lib/image-blur";
 import { useMemoryRoomStore } from "@/store/memory-room";
-import { stillKeyOf, useStillStore } from "@/store/stills";
+import { selectLocale, useSettingsStore } from "@/store/settings";
 import { STAGGER_CLASS, staggerStyle } from "../shared/stagger";
 import { BUTTON_QUIET_PAPER } from "../shared/ui-classes";
 import { BlurredValue } from "./BlurredValue";
@@ -48,8 +49,7 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
   const revisited = useMemoryRoomStore((state) => state.revisited);
   const rechecked = useMemoryRoomStore((state) => state.rechecked);
   const replayMemory = useMemoryRoomStore((state) => state.replayMemory);
-  /** 3D로 집어 본 물건을 그때 찍어 둔 한 장. 미리 그린 스틸이 없는 칸을 채운다. */
-  const captured = useStillStore((state) => state.stills);
+  const locale = useSettingsStore(selectLocale);
 
   // 모바일도 두 칸: 한 칸이면 카드가 화면을 통째로 먹어 스크랩북이 아니라 피드가 된다
   return (
@@ -96,7 +96,8 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
                   id={id}
                   name={name}
                   unlocked={unlocked}
-                  still={phase?.replayStill ?? captured[stillKeyOf(id, visit)]}
+                  // 글자가 든 스틸(쪽지·출입증)은 언어마다 한 장씩 있다
+                  still={localizeAsset(phase?.replayStill, locale)}
                 />
 
                 {/*
@@ -188,11 +189,10 @@ export function LoreEntries({ onReplay }: { onReplay?: () => void }) {
  * 칸)다. 아이콘조차 넣지 않는 이유는, 무엇이 들어올 자리인지까지 알려주면
  * "아직 모르는 물건"이라는 상태가 사라지기 때문이다.
  *
- * 3D로 집어 본 물건(쪽지·출입증·앰플)은 내려놓던 순간 찍은 한 장이 들어온다
- * (store/stills). 결과 대사 동안 판 대신 섰던 바로 그 그림이다.
+ * 3D로 집어 본 물건(쪽지·출입증·앰플)은 찾을 것을 본 자세로 미리 찍어 둔 한 장이
+ * 들어온다 (src/app/admin/stills). 결과 대사 동안 판 대신 섰던 바로 그 그림이다.
  *
- * 그림이 없는 칸은 아이콘 판으로 대신한다. 지금은 모든 칸에 그림이 있거나 3D 캡처가
- * 들어오므로, 캡처가 없는 저장본(쪽지·서류·출입증·앰플을 집어 본 적 없는 판)에서만 선다.
+ * 그림이 없는 칸은 아이콘 판으로 대신한다. 지금은 연구 노트 2차 하나다.
  * 칸별 그림은 docs/story/replay-stills.md.
  */
 function LoreStill({
@@ -239,7 +239,6 @@ function LoreStill({
     );
   }
 
-  // 다시보기 스틸 파일만 흐린 판이 있다. 찍어 둔 스틸(data URL)은 이미 손에 있다
   const blur = blurDataUrlOf(still);
   return (
     <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2px] bg-bone/40">

@@ -538,9 +538,13 @@ function validateAssetPath(value, where, issues) {
     issues.push(`${where}: 에셋 경로는 /assets/ 로 시작해야 한다 (${JSON.stringify(value)}).`);
     return;
   }
-  const filePath = value.split(/[?#]/, 1)[0];
-  if (!existsSync(path.join(REPO_ROOT, "public", filePath))) {
-    issues.push(`${where}: public${value} 파일이 리포에 없다.`);
+  // 언어마다 다른 그림({lng})은 세 언어의 파일이 다 있어야 한다
+  const locales = value.includes("{lng}") ? LOCALES : [""];
+  for (const locale of locales) {
+    const filePath = value.replace("{lng}", locale).split(/[?#]/, 1)[0];
+    if (!existsSync(path.join(REPO_ROOT, "public", filePath))) {
+      issues.push(`${where}: public${filePath} 파일이 리포에 없다.`);
+    }
   }
 }
 

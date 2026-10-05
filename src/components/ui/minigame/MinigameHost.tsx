@@ -6,12 +6,13 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { phaseConfigOf } from "@/data/memory-room";
 import { useControlHint } from "@/i18n/control-hint";
+import { localizeAsset } from "@/lib/assets";
 import { playSound, startOverlayMusic, stopOverlayMusic } from "@/lib/audio";
 import { getMinigame } from "@/minigames";
 import { liveMinigameOf, selectCanvasPuzzle } from "@/minigames/active";
 import { MinigameHelp } from "@/minigames/shell";
 import { selectActiveInteraction, useMemoryRoomStore } from "@/store/memory-room";
-import { stillKeyOf, useStillStore } from "@/store/stills";
+import { selectLocale, useSettingsStore } from "@/store/settings";
 import type { MinigameResult } from "@/types/minigame";
 import { KeyHint } from "../shared/Keycap";
 import {
@@ -169,10 +170,11 @@ export function MinigameHost() {
   const finishMinigame = useMemoryRoomStore((state) => state.finishMinigame);
   const cancelMinigame = useMemoryRoomStore((state) => state.cancelMinigame);
   // 난이도는 판 안의 수치(대역·속도·피해량)로만 들어간다. 스킵 게이트는 shell이 따로 본다
-  /** 결과 대사 동안 판 대신 세울 그 순간의 한 장 (3D 인스펙트만 찍는다). */
-  const still = useStillStore((state) =>
-    active ? state.stills[stillKeyOf(active.memoryId, active.gamePhase)] : undefined,
-  );
+  const locale = useSettingsStore(selectLocale);
+  /** 결과 대사 동안 판 대신 세울 한 장: 그 조사의 다시보기 스틸 (3D 인스펙트만 쓴다). */
+  const still = active
+    ? localizeAsset(phaseConfigOf(active.memoryId, active.gamePhase)?.replayStill, locale)
+    : undefined;
   /** 시작 버튼을 누른 인터랙션 키: 인터랙션이 바뀌면 자연히 시작 카드로 돌아간다. */
   const [startedKey, setStartedKey] = useState<string | null>(null);
   /**

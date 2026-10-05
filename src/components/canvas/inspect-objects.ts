@@ -441,7 +441,7 @@ export function shelfBookObject(title: string, number: string): InspectObject {
  */
 const ID_CARD_SEAL = { x: 0.535, y: 0.297, width: 0.186, height: 0.383 };
 /** 씰의 로고가 떠오르는 각도: 윗변을 살짝 뒤로 눕히고(빛을 받게) 조금 돌린 자리. */
-const ID_CARD_SPOT = { pitch: -0.45, yaw: 0.35 };
+export const ID_CARD_SPOT = { pitch: -0.45, yaw: 0.35 };
 
 export interface IdCardLabels {
   org: string;
