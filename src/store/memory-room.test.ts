@@ -50,6 +50,7 @@ import {
   selectSceneInputLocked,
   selectSheetBeckons,
   selectSignalSilenceRunning,
+  selectSinkPlugReady,
   selectStillBeatDone,
   selectViewpoint,
   storyPhase,
@@ -832,6 +833,15 @@ describe("3페이즈: 앰플 → 로고 → 협탁 서랍 → 안방 열쇠", ()
     useMemoryRoomStore.getState().openClue("laon-sanitizer");
     expect(useMemoryRoomStore.getState().activeClue).toBeNull();
 
+    // 앰플을 보기 전에는 뽑히지 않는다: 화장실은 2페이즈부터 열려 있어서, 먼저 뽑히면
+    // 본 적 없는 앰플을 두고 "앰플에 있던 거다"라고 말하게 된다
+    expect(selectSinkPlugReady(useMemoryRoomStore.getState())).toBe(false);
+    useMemoryRoomStore.getState().drainSink();
+    expect(useMemoryRoomStore.getState().sinkDrained).toBe(false);
+    useMemoryRoomStore.setState({
+      revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
+    });
+
     useMemoryRoomStore.getState().drainSink();
     expect(useMemoryRoomStore.getState().sinkDrained).toBe(true);
     // 물이 빠지는 순간 한 줄이 시선을 대야 바닥으로 끈다
@@ -849,7 +859,12 @@ describe("3페이즈: 앰플 → 로고 → 협탁 서랍 → 안방 열쇠", ()
 
   it("마개는 다른 화면이 떠 있는 동안에는 뽑히지 않고, 새 게임이면 물이 다시 고인다", () => {
     enterPhase("p3");
+    // 판이 뜬 채로 앰플을 본 것으로 친다: 남는 가드는 입력 잠금뿐이다
     useMemoryRoomStore.getState().beginInteraction("ampoule");
+    expect(useMemoryRoomStore.getState().activeInteraction).not.toBeNull();
+    useMemoryRoomStore.setState({
+      revisited: [...useMemoryRoomStore.getState().revisited, "ampoule"],
+    });
     useMemoryRoomStore.getState().drainSink();
     expect(useMemoryRoomStore.getState().sinkDrained).toBe(false);
     useMemoryRoomStore.setState({ activeInteraction: null });

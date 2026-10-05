@@ -727,6 +727,7 @@
     "clockStopped": "4:20. …When did it stop?",
     "clockRunning": "…It's ticking again. Whether it's right, I can't tell.",
     "aircon": "It's cold now. No reason to turn the AC on anymore.",
+    "sinkStill": "…Stagnant water. I'd rather not touch it.",
     "sinkDrained": "…Something's sunk to the bottom.",
     "sanitizerFound": "…It was on the ampoule."
   }

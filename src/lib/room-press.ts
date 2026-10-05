@@ -8,6 +8,7 @@ import {
   selectDoorwayReady,
   selectDrawerCodeRead,
   selectExitReady,
+  selectSinkPlugReady,
   useMemoryRoomStore,
 } from "@/store/memory-room";
 
@@ -52,10 +53,18 @@ export function pressLightSwitch(): void {
   useMemoryRoomStore.getState().toggleLights();
 }
 
-/** 세면대 마개를 뽑는다. 이미 뽑았으면 아무 일도 없다. */
+/**
+ * 세면대 마개를 뽑는다. 이미 뽑았으면 아무 일도 없다. 앰플을 보기 전에는 한 줄뿐이다:
+ * 아무 반응이 없으면 "클릭이 안 된다"로 읽힌다. 거절음은 내지 않는다. 잠긴 게 아니라
+ * 아직 손댈 이유가 없는 물이다.
+ */
 export function pressSinkPlug(): void {
   const state = useMemoryRoomStore.getState();
   if (state.sinkDrained) return;
+  if (!selectSinkPlugReady(state)) {
+    state.sayRemark("sink-still");
+    return;
+  }
   playSound("drawer");
   state.drainSink();
 }

@@ -14,6 +14,7 @@ import {
   type MemoryRoomState,
   selectDrawerCodeRead,
   selectSanitizerSeen,
+  selectSinkPlugReady,
 } from "./memory-room";
 
 /**
@@ -83,10 +84,11 @@ export function nextStep(state: NextStepState): NextStep | null {
   // 안방 열쇠: 세면대의 물 → 소독제 병 → 컴퓨터 3차(아빠의 포털 접속 기록 "10월 16일 밤, 이 컴퓨터") →
   // 거꾸로 꽂힌 책의 쪽지 → 협탁 서랍
   if (state.doorOpened && !state.inventory.includes("parents-key")) {
-    // 화장실에 들어선 뒤, 소독제 병을 보기 전: 마개를 뽑는 것이 다음 할 일이다. 뽑은 뒤의 소독제 병은
+    // 앰플을 본 뒤 화장실에 들어섰고, 소독제 병을 보기 전: 마개를 뽑는 것이 다음 할 일이다. 뽑은 뒤의 소독제 병은
     // 물건 자체가 금빛으로 부르니 따로 짚지 않는다
     if (
       state.openedDoorways.includes("living-bathroom") &&
+      selectSinkPlugReady(state) &&
       !selectSanitizerSeen(state) &&
       !state.sinkDrained
     ) {

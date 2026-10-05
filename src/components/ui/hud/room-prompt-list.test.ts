@@ -88,13 +88,16 @@ describe("기억이 아닌 물건 (마개 · 협탁 서랍 · 악보 조각 · �
     expect(listedProps(at("p2"), ["room", "living"])).toEqual([locked, PIANO_WAITING]);
   });
 
-  it("화장실에 닿으면 마개가 오르고, 책 속 번호를 보면 서랍을 열 수 있다", () => {
+  it("화장실에 닿으면 마개가 오르되 앰플을 본 뒤에야 뽑을 수 있고, 책 속 번호를 보면 서랍을 열 수 있다", () => {
     const reached = ["room", "living", "bathroom"] as const;
-    expect(listedProps(at("p3", { solvedPuzzles: [] }), reached)).toEqual([
-      { id: "sink-plug", ready: true },
+    const p3 = at("p3", { solvedPuzzles: [] });
+    expect(listedProps(p3, reached)).toEqual([
+      { id: "sink-plug", ready: false },
       { id: "nightstand-drawer", ready: false },
       PIANO_WAITING,
     ]);
+    const sawAmpoule = { ...p3, revisited: [...p3.revisited, "ampoule" as const] };
+    expect(listedProps(sawAmpoule, reached)).toContainEqual({ id: "sink-plug", ready: true });
     const read = at("p3", { solvedPuzzles: [], discoveries: ["hero-name", "drawer-code"] });
     expect(listedProps(read, reached)).toContainEqual({ id: "nightstand-drawer", ready: true });
   });

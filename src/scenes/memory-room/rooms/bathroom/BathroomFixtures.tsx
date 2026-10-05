@@ -6,6 +6,7 @@ import { pressSinkPlug } from "@/lib/room-press";
 import {
   clueUnlocked,
   selectSanitizerSeen,
+  selectSinkPlugReady,
   selectViewpoint,
   useMemoryRoomStore,
 } from "@/store/memory-room";
@@ -155,6 +156,8 @@ const BASIN_HIT: HitBox = { position: [0, 0.8, 0], size: [0.44, 0.12, 0.36] };
 
 function SinkPlug({ palette }: { palette: RoomPalette }) {
   const drained = useMemoryRoomStore((state) => state.sinkDrained);
+  // 앰플을 보기 전에는 부르지 않는다: 표식도 금빛도 없는 배경이다 (selectSinkPlugReady)
+  const ready = useMemoryRoomStore(selectSinkPlugReady);
   const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
   const near = useNearPlayer(SINK_NEAR[0], SINK_NEAR[1], SINK_RADIUS);
   return (
@@ -169,18 +172,18 @@ function SinkPlug({ palette }: { palette: RoomPalette }) {
         position={PLUG_BEACON}
         onClick={(event) => {
           event.stopPropagation();
-          if (!drained && !firstPerson) pressSinkPlug();
+          if (ready && !drained && !firstPerson) pressSinkPlug();
         }}
       >
         <MemoryBeacon
           id="sink-plug"
           color={palette.memory}
-          active={!drained && !firstPerson}
+          active={ready && !drained && !firstPerson}
           near={near}
           groundOffset={SINK_MOUNT.position[1] + PLUG_BEACON[1]}
         />
       </group>
-      <SinkPlugProp palette={palette} drained={drained} />
+      <SinkPlugProp palette={palette} drained={drained} ready={ready} />
     </>
   );
 }
@@ -188,15 +191,23 @@ function SinkPlug({ palette }: { palette: RoomPalette }) {
 /** 대야 한가운데, 물 위. 표식의 마름모는 여기서 조금 더 뜬다 (MemoryBeacon의 DIAMOND_LIFT). */
 const PLUG_BEACON: Vec3Tuple = [0, 0.8, 0];
 
-function SinkPlugProp({ palette, drained }: { palette: RoomPalette; drained: boolean }) {
+function SinkPlugProp({
+  palette,
+  drained,
+  ready,
+}: {
+  palette: RoomPalette;
+  drained: boolean;
+  ready: boolean;
+}) {
   return (
     <TouchProp
       name="sink-plug"
       near={SINK_NEAR}
       radius={SINK_RADIUS}
       enabled={!drained}
-      // 뽑을 때까지 금빛으로 부른다
-      beckon={!drained}
+      // 앰플을 본 뒤부터 뽑을 때까지 금빛으로 부른다
+      beckon={ready && !drained}
       hitBox={BASIN_HIT}
       onPress={pressSinkPlug}
     >

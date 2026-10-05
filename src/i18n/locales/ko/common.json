@@ -727,6 +727,7 @@
     "clockStopped": "4시 20분. …언제부터 멈춰 있었지.",
     "clockRunning": "…다시 간다. 맞는 시각인지는 모르겠지만.",
     "aircon": "이젠 추워져서 에어컨 틀 일이 없다.",
+    "sinkStill": "…물이 고여 있다. 굳이 손대고 싶지 않아.",
     "sinkDrained": "…바닥에 뭐가 가라앉아 있어.",
     "sanitizerFound": "…앰플에 있던 거다."
   }

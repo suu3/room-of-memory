@@ -12,6 +12,7 @@ import {
   hotspotStatus,
   type MemoryRoomState,
   selectDrawerCodeRead,
+  selectSinkPlugReady,
 } from "@/store/memory-room";
 
 /*
@@ -93,7 +94,8 @@ export function listedProps(state: PromptProgress, reached: readonly SpaceId[]):
   if (state.endingStarted) return [];
   const props: PromptProp[] = [];
   if (reached.includes("bathroom") && !state.sinkDrained) {
-    props.push({ id: "sink-plug", ready: true });
+    // 앰플을 보기 전의 마개는 "아직 할 수 없음"이다 (selectSinkPlugReady)
+    props.push({ id: "sink-plug", ready: selectSinkPlugReady(state) });
   }
   // 협탁 서랍은 내 방에 처음부터 있다. 번호를 알기 전에는 "아직 할 수 없음"으로 읽힌다
   if (!state.solvedPuzzles.includes("drawer-dial")) {

@@ -49,6 +49,7 @@ import {
   signalSilence,
   storyPhaseOf,
   type Visit,
+  type VisitProgress,
   visitDone,
   visitOpen,
 } from "@/data/story-phase";
@@ -122,6 +123,8 @@ export type RemarkId =
   | "clock-running"
   // 천장 에어컨 (쉼표 비트): 11월이라 틀 일이 없다. 진행에 아무것도 남기지 않는다
   | "aircon"
+  // 앰플을 보기 전의 세면대: 고인 물을 굳이 건드리지 않는다 (selectSinkPlugReady)
+  | "sink-still"
   // 세면대 마개를 뽑아 물이 빠진 순간: 시선을 대야 바닥(소독제 병)으로 끈다
   | "sink-drained"
   // 세면대 바닥의 손 소독제 병을 들여다보고 내려놓은 순간: 앰플 라벨의 조각과 이어진다
@@ -1393,10 +1396,10 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
               },
         ),
       // 마개는 씬의 클릭이다 (openRoomDoor와 같은 가드). 화장실에 들어서야 닿는 물건이라
-      // 그 문이 열렸는지는 다시 묻지 않는다
+      // 그 문이 열렸는지는 다시 묻지 않는다. 앰플을 보기 전에는 뽑히지 않는다
       drainSink: () =>
         set((state) =>
-          state.sinkDrained || selectSceneInputLocked(state)
+          state.sinkDrained || !selectSinkPlugReady(state) || selectSceneInputLocked(state)
             ? state
             : { sinkDrained: true, remark: { id: "sink-drained", at: Date.now() } },
         ),
@@ -1994,6 +1997,13 @@ export const selectSheetBeckons = (state: MemoryRoomState) =>
   !state.solvedPuzzles.includes("piano-melody") && (state.pianoGapSeen || p4FinalReached(state));
 export const selectDrawerCodeRead = (state: Pick<MemoryRoomState, "discoveries">) =>
   state.discoveries.includes("drawer-code");
+/**
+ * 세면대 마개를 뽑을 때가 됐는가: 앰플을 들여다본 뒤다 (3페이즈의 순서: 앰플 → 세면대 →
+ * 컴퓨터 로고). 화장실은 2페이즈부터 열려 있어서, 이 가드가 없으면 앰플을 보기도 전에
+ * 소독제 병을 건져 "앰플에 있던 거다"라고 말하게 된다. 그 전의 마개는 배경이다.
+ */
+export const selectSinkPlugReady = (state: VisitProgress) => visitDone(state, "ampoule", 2);
+
 /** 세면대 바닥의 손 소독제 병을 봤는가: 컴퓨터 3차(로고 고르기)가 이것 뒤에 열린다. */
 export const selectSanitizerSeen = (state: Pick<MemoryRoomState, "discoveries">) =>
   state.discoveries.includes("laon-sanitizer");

@@ -36,6 +36,7 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen" | "needs-item">, CommonTextKe
   "clock-running": "remark.clockRunning",
   aircon: "remark.aircon",
   locked: "remark.locked",
+  "sink-still": "remark.sinkStill",
   "sink-drained": "remark.sinkDrained",
   "sanitizer-found": "remark.sanitizerFound",
 };
