@@ -129,9 +129,9 @@ scripts:
       ja: 勝った。
     - speaker: hero
       expression: sad
-      ko: …혼자 이겨서 뭐 하냐.
+      ko: …혼자 이겨서 뭐 하지.
       en: …What's the point of winning alone?
-      ja: …一人で勝って、どうすんだよ。
+      ja: …一人で勝って、どうするんだろ。
 
   # 2차 (곁가지)
   console-echo:
