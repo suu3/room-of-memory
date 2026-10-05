@@ -21,8 +21,13 @@ export const MAX_MISSES = 3;
  * 난이도별 다이얼. 대역 폭은 %(다이얼 전체 20MHz 기준: 5% = 1MHz), 주기는 바늘이
  * 한 번 왕복하는 시간이다.
  *
- * 이지: 4MHz(20%)에서 시작해 2.8MHz까지, 바늘은 보통의 60% 속도. 보통: 3MHz(15%)에서
+ * 이지: 5.6MHz(28%)에서 시작해 5MHz까지, 바늘은 보통의 60% 속도. 보통: 3MHz(15%)에서
  * 2MHz까지. 예전의 14%→8%는 "이지"라는 이름으로 보통보다 어려운 판이었다.
+ *
+ * 이지의 폭은 2026-10-05에 20%→28%로 넓혔다. 게임이 실제로 내려주는 난이도는 이지뿐인데,
+ * 마지막 판(17%, 주기 3.9초)은 바늘이 가장 빠른 한가운데에서 대역을 0.21초 만에 지나갔다.
+ * 처음 하는 사람이 못 맞추고 스킵으로 넘어가는 폭이다. 어느 판이든 0.3초는 준다
+ * (passWindowMs, 테스트가 지킨다).
  *
  * 주기는 2026-09-16에 전부 3분의 1쯤 줄였다. 바늘이 한 번 왕복하는 데 7초가 걸리니
  * 조준이 어려운 게 아니라 **기다리는 게 지루했다**. 좁히는 건 대역이 맡고, 주기는
@@ -40,7 +45,7 @@ export interface DialTuning {
 }
 
 export const DIAL_TUNINGS: Record<MinigameDifficulty, DialTuning> = {
-  easy: { bandMax: 20, bandMin: 14, periodMax: 4500, periodMin: 3000 },
+  easy: { bandMax: 28, bandMin: 25, periodMax: 4500, periodMin: 3000 },
   normal: { bandMax: 15, bandMin: 10, periodMax: 2700, periodMin: 1800 },
 };
 
@@ -96,6 +101,19 @@ export function needlePeriodAt(
 ): number {
   const tuning = DIAL_TUNINGS[difficulty];
   return Math.max(tuning.periodMin, tuning.periodMax - hits * NEEDLE_SPEEDUP_MS);
+}
+
+/**
+ * 바늘이 대역을 지나는 데 걸리는 시간 (ms) 중 가장 짧은 경우. 바늘은 사인으로 움직여
+ * 한가운데에서 가장 빠르다 (초당 100π/주기 %).
+ */
+export function passWindowMs(
+  hits: number,
+  bandBonus = 0,
+  difficulty: MinigameDifficulty = DEFAULT_DIFFICULTY,
+): number {
+  const peakSpeed = (100 * Math.PI) / needlePeriodAt(hits, difficulty);
+  return bandWidthAt(hits, bandBonus, difficulty) / peakSpeed;
 }
 
 /** 다이얼 양 끝에 붙지 않는 위치로 목표 대역을 놓는다. */

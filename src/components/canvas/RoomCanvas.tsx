@@ -757,16 +757,19 @@ export function RoomCanvas() {
         </CanvasErrorBoundary>
       )}
 
-      <RoomInteractionPrompt
-        nearbyMemoryId={nearbyMemoryId}
-        nearbyLabel={nearbyLabel}
-        legend={t("hud.scattered")}
-        labels={memoryButtonLabels}
-        statuses={statuses}
-        memoryIds={listedMemoryIds}
-        onInteract={interact}
-        actions={promptActions}
-      />
+      {/* 엔딩이 시작되면 방은 끝났다: 화면 밖 목록이 남으면 키보드·스크린리더가 엔딩 카드 뒤의 물건으로 간다 */}
+      {!endingStarted && (
+        <RoomInteractionPrompt
+          nearbyMemoryId={nearbyMemoryId}
+          nearbyLabel={nearbyLabel}
+          legend={t("hud.scattered")}
+          labels={memoryButtonLabels}
+          statuses={statuses}
+          memoryIds={listedMemoryIds}
+          onInteract={interact}
+          actions={promptActions}
+        />
+      )}
       {pointerKind === "touch" && (
         <MovementJoystick
           inputRef={movementInputRef}

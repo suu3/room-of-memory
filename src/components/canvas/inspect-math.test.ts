@@ -34,7 +34,7 @@ describe("hologramVisibility", () => {
   const spot = { pitch: -0.45, yaw: 0.35 };
   it("정확히 그 각도에서 1, 정면·뒷면에서는 거의 0", () => {
     expect(hologramVisibility(spot.pitch, spot.yaw, spot)).toBeCloseTo(1, 5);
-    expect(hologramVisibility(0, 0, spot)).toBeLessThan(0.05);
+    expect(hologramVisibility(0, 0, spot)).toBeLessThan(0.1);
     expect(hologramVisibility(0, Math.PI, spot)).toBeLessThan(0.001);
   });
   it("회전각은 한 바퀴를 돌아도 같은 각이다", () => {
@@ -49,6 +49,14 @@ describe("hologramVisibility", () => {
     for (const yaw of [spot.yaw - 0.4, spot.yaw + 0.4]) {
       expect(hologramVisibility(spot.pitch, yaw, spot)).toBeGreaterThan(HOLOGRAM_READ);
     }
+  });
+  it("처음 쥔 자세에서 뒤로 눕히면 짙어지고 앞으로 숙이면 옅어진다 (어느 쪽인지 알려 준다)", async () => {
+    const { HOLOGRAM_READ } = await import("./inspect-math");
+    const front = hologramVisibility(0, 0, spot);
+    expect(front).toBeGreaterThan(0.05);
+    expect(front).toBeLessThan(HOLOGRAM_READ);
+    expect(hologramVisibility(-0.15, 0, spot)).toBeGreaterThan(front);
+    expect(hologramVisibility(0.15, 0, spot)).toBeLessThan(front);
   });
   it("각도에서 멀어질수록 단조롭게 어두워진다", () => {
     const near = hologramVisibility(spot.pitch + 0.1, spot.yaw, spot);

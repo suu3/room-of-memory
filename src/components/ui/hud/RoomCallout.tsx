@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { hotspotStatus, useMemoryRoomStore } from "@/store/memory-room";
 
@@ -31,17 +31,25 @@ export function RoomCallout() {
    */
   const frameReady = useMemoryRoomStore((state) => hotspotStatus(state, "frame") === "available");
   const armed = frameReady && awayFromRoom;
-  const [shown, setShown] = useState(false);
+  const shownRef = useRef(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     // 한 번만 뜬다. 거실에 드나들 때마다 다시 뜨면 재촉이 된다.
-    if (!armed || shown) return;
-    setShown(true);
+    if (!armed || shownRef.current) return;
+    shownRef.current = true;
     setVisible(true);
+  }, [armed]);
+
+  /*
+   * 끄는 타이머는 따로 건다. 띄우는 effect 안에서 걸면 "떴다"는 표시가 바뀌는 순간 그
+   * effect의 cleanup이 타이머를 지워, 한 줄이 엔딩까지 화면에 남았다 (2026-10-05).
+   */
+  useEffect(() => {
+    if (!visible) return;
     const timer = window.setTimeout(() => setVisible(false), SHOW_MS);
     return () => window.clearTimeout(timer);
-  }, [armed, shown]);
+  }, [visible]);
 
   if (!visible) return null;
 

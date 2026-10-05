@@ -53,6 +53,16 @@ export interface HologramSpot {
 const SPOT_SIGMA_PITCH = 0.18;
 const SPOT_SIGMA_YAW = 0.45;
 
+/**
+ * 멀리서도 비치는 옅은 기운. 읽히는 폭(위)만으로는 그 각도 근처에 가기 전까지 아무 반응이
+ * 없어서, 어느 쪽으로 기울여야 하는지 모른 채 전부 돌려 봐야 했다 (2026-10-05). 처음 쥔
+ * 자세에서 로고가 흐릿하게(< 0.1) 비치고, 뒤로 눕힐수록 짙어지고 앞으로 숙이면 사라진다.
+ * 읽은 것으로 치는 문턱(HOLOGRAM_READ)에는 못 미친다: 기운만으로는 풀리지 않는다.
+ */
+const HALO_PEAK = 0.3;
+const HALO_SIGMA_PITCH = 0.3;
+const HALO_SIGMA_YAW = 0.9;
+
 /** 홀로그램 로고가 이만큼 떠올라야 읽은 것으로 친다. */
 export const HOLOGRAM_READ = 0.5;
 
@@ -63,12 +73,18 @@ function angleGap(a: number, b: number): number {
 
 /**
  * 지금 각도에서 홀로그램 로고가 얼마나 보이는가 (0~1). 빛을 받는 한 점을 중심으로 한
- * 종 모양이라, 그 각도를 지나칠 때 로고가 잠깐 떠올랐다 사라진다. 뒷면(yaw π)은 0이다.
+ * 종 모양이라, 그 각도를 지나칠 때 로고가 잠깐 떠올랐다 사라진다. 그 둘레로 옅은 기운이
+ * 넓게 깔려 다가가는 방향을 알려 준다. 뒷면(yaw π)은 0이다.
  */
 export function hologramVisibility(pitch: number, yaw: number, spot: HologramSpot): number {
-  const dp = (pitch - spot.pitch) / SPOT_SIGMA_PITCH;
-  const dy = angleGap(yaw, spot.yaw) / SPOT_SIGMA_YAW;
-  return Math.exp(-0.5 * (dp * dp + dy * dy));
+  const pitchGap = pitch - spot.pitch;
+  const yawGap = angleGap(yaw, spot.yaw);
+  const bell = (sigmaPitch: number, sigmaYaw: number) =>
+    Math.exp(-0.5 * ((pitchGap / sigmaPitch) ** 2 + (yawGap / sigmaYaw) ** 2));
+  return Math.max(
+    bell(SPOT_SIGMA_PITCH, SPOT_SIGMA_YAW),
+    HALO_PEAK * bell(HALO_SIGMA_PITCH, HALO_SIGMA_YAW),
+  );
 }
 
 /** 가로로 끈 거리(px)로 장을 몇 장 넘길지. 왼쪽으로 끌면 다음 장(+1). */

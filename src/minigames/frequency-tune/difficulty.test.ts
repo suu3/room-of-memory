@@ -11,6 +11,7 @@ import {
   NEEDLE_PERIOD_MAX_MS,
   NEEDLE_PERIOD_MIN_MS,
   needlePeriodAt,
+  passWindowMs,
   randomBandLeft,
   staticLevel,
 } from "./difficulty";
@@ -40,6 +41,14 @@ describe("needlePeriodAt", () => {
   it("never gets faster than reaction time allows", () => {
     expect(needlePeriodAt(GOAL_HITS - 1)).toBeGreaterThanOrEqual(NEEDLE_PERIOD_MIN_MS);
     expect(needlePeriodAt(100)).toBe(NEEDLE_PERIOD_MIN_MS);
+  });
+});
+
+describe("passWindowMs", () => {
+  it("gives a first-time player at least 0.3s on every round of the difficulty the game uses", () => {
+    for (let hits = 0; hits < GOAL_HITS; hits++) {
+      expect(passWindowMs(hits)).toBeGreaterThanOrEqual(300);
+    }
   });
 });
 
@@ -75,11 +84,11 @@ describe("staticLevel", () => {
 });
 
 describe("난이도별 다이얼", () => {
-  it("이지는 보통보다 넓고 느리다 (대역 20%, 주기는 보통의 1/0.6배)", () => {
+  it("이지는 보통보다 넓고 느리다 (대역 28%, 주기는 보통의 1/0.6배)", () => {
     expect(bandWidthAt(0, 0, "easy")).toBeGreaterThan(bandWidthAt(0, 0, "normal"));
     expect(needlePeriodAt(0, "easy")).toBeGreaterThan(needlePeriodAt(0, "normal"));
-    // 이지: 4MHz(20%) 대역, 보통의 60% 속도(주기 1/0.6배)
-    expect(bandWidthAt(0, 0, "easy")).toBe(20);
+    // 이지: 5.6MHz(28%) 대역, 보통의 60% 속도(주기 1/0.6배)
+    expect(bandWidthAt(0, 0, "easy")).toBe(28);
     expect(needlePeriodAt(0, "easy")).toBeCloseTo(needlePeriodAt(0, "normal") / 0.6, -2);
     // 보통: 3MHz(15%) 대역
     expect(bandWidthAt(0, 0, "normal")).toBe(15);
