@@ -89,9 +89,9 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/still-shoes.webp":
     "data:image/webp;base64,UklGRjwAAABXRUJQVlA4IDAAAACQAQCdASoQAAwAAsBMJZwAAp1BVwAA/u9TLIV/fy9Az9cOmPd99m8byRJCz6lgQAA=",
   "/assets/images/still-workbook-en.webp":
-    "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAD2PJ9S/AAA/veWh/Hibmf6zQjrIUx4Jc5yyC+Z1tIxf8+XqdwAAA==",
+    "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAEWTCocOAAA/veXOny4Jgz22pl05G2lqwhSLVoZ8qETT6NZNm24AA==",
   "/assets/images/still-workbook-ja.webp":
-    "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAQAgCdASoQAAkAAsBMJZQCdAEWaW1nFVQAAP73l2L+zrosx5DS+RnmtFUTHjSvnZQIpGyLEJ+0kgAA",
+    "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAEWTCocOAAA/veXOn3apykJc0aRCy8MphjRcXgExuVrWJac7DCoAA==",
   "/assets/images/still-workbook-ko.webp":
     "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADwAQCdASoQAAkAAsBMJZQCdAD2PJ9S/AAA/veWh/Hibmf6zQjrJiHYGAV/0v8oqssFJ/O+hPgAAA==",
   "/assets/images/ui-ending-thanks.webp":
@@ -143,8 +143,8 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/still-phone.webp": "ba201f52b2b55413",
   "/assets/images/still-report-card.webp": "ecc45e7ad3ebd770",
   "/assets/images/still-shoes.webp": "4b91396506966f62",
-  "/assets/images/still-workbook-en.webp": "2764e4b426c5cd76",
-  "/assets/images/still-workbook-ja.webp": "23ecc8af3c8f04df",
+  "/assets/images/still-workbook-en.webp": "8dd371fdbe8c273b",
+  "/assets/images/still-workbook-ja.webp": "fd3bf3fe19c58681",
   "/assets/images/still-workbook-ko.webp": "a5d3d39e29a48ad9",
   "/assets/images/ui-ending-thanks.webp": "65314fe34dd80fc7",
 };

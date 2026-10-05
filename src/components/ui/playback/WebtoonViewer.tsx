@@ -1,5 +1,6 @@
 "use client";
 
+import { CaretDownIcon } from "@phosphor-icons/react";
 import type { ParseKeys } from "i18next";
 import { type CSSProperties, Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +11,7 @@ import { useTypewriterState } from "@/lib/use-typewriter";
 import { type ActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 import type { CutsceneCut } from "@/types/interaction";
 import { typeTick } from "../dialogue/dialogue-sfx";
+import { autoAdvanceWaitMs } from "../shared/auto-advance";
 import {
   buildWebtoonPages,
   pageGap,
@@ -22,8 +24,6 @@ import {
 const PANEL_IN_MS = 400;
 /** 페이지가 밀려 넘어가는 시간(ms) (globals의 webtoon-page-in/out). */
 const PAGE_TURN_MS = 500;
-/** 말풍선이 다 찍힌 뒤 다음 칸까지. */
-const AFTER_LINE_MS = 600;
 /** 웹툰이 걷히는 시간(ms). */
 const FADE_OUT_MS = 500;
 
@@ -35,8 +35,8 @@ const FADE_OUT_MS = 500;
  * 대사창이 아니라 칸 안의 라디오 말풍선으로 찍힌다. 앞 칸의 말풍선은 제 칸에 남는다.
  * 페이지가 바뀌면 옛 페이지가 왼쪽으로 밀려 나가고 새 페이지가 오른쪽에서 들어온다.
  *
- * 대사 없는 칸은 PlaybackScene의 정적 타이머(holdMs)가 넘기고, 말풍선 칸은 다 찍힌 뒤
- * 0.6초에 여기서 넘긴다. 누르면 찍는 중인 말풍선을 채우고, 한 번 더 누르면 다음 칸.
+ * 대사 없는 칸은 PlaybackScene의 정적 타이머(holdMs)가 넘긴다. 말풍선 칸은 대사창과 같다:
+ * 누르면 찍는 중인 말풍선을 채우고, 한 번 더 누르면 다음 칸. 오토일 때만 다 찍힌 뒤 저절로 넘어간다.
  *
  * 페이지 없는 컷(웹툰 뒤의 한마디)에 들어서면 웹툰은 걷히고 방이 드러난다. 그 줄은
  * 대사창(DialogueBox)이 받는다.
@@ -117,12 +117,14 @@ export function WebtoonViewer({ active }: { active: ActivePlayback }) {
     logDialogue({ speaker: line.speaker, textKey: line.textKey });
   }, [typing, line, logDialogue]);
 
-  // 다 찍힌 말풍선은 0.6초 붙들었다 다음 칸으로
+  // 오토: 다 찍힌 말풍선을 잠깐 붙들었다 다음 칸으로. 오토가 아니면 누를 때까지 기다린다 (대사창과 같다)
+  const autoPlay = useMemoryRoomStore((state) => state.autoPlay);
+  const logOpen = useMemoryRoomStore((state) => state.dialogueLogOpen);
   useEffect(() => {
-    if (!lineDone) return;
-    const timer = window.setTimeout(advancePlayback, AFTER_LINE_MS);
+    if (!autoPlay || !lineDone || logOpen) return;
+    const timer = window.setTimeout(advancePlayback, autoAdvanceWaitMs(lineText.length));
     return () => window.clearTimeout(timer);
-  }, [lineDone, advancePlayback]);
+  }, [autoPlay, lineDone, logOpen, lineText, advancePlayback]);
 
   /**
    * 누르면: 말풍선이 덜 찼으면 (찍는 중이든, 칸이 아직 뜨는 중이든) 한 번에 다 채우고,
@@ -199,6 +201,7 @@ export function WebtoonViewer({ active }: { active: ActivePlayback }) {
               current={ended ? -1 : active.cutIndex}
               typed={typed}
               typing={typing}
+              waiting={lineDone && !autoPlay}
               gap={gap}
               width={width}
               fontSize={fontSize}
@@ -251,6 +254,7 @@ function PageRow({
   current,
   typed,
   typing,
+  waiting,
   gap,
   width,
   fontSize,
@@ -261,6 +265,7 @@ function PageRow({
   current: number;
   typed: string;
   typing: boolean;
+  waiting: boolean;
   gap: number;
   width: number;
   fontSize: number;
@@ -281,6 +286,7 @@ function PageRow({
             speaking={index === current}
             typed={typed}
             typing={typing}
+            waiting={waiting && index === current}
             pageWidth={width}
             fontSize={fontSize}
           />
@@ -310,6 +316,7 @@ function Panel({
   speaking,
   typed,
   typing,
+  waiting,
   pageWidth,
   fontSize,
 }: {
@@ -320,6 +327,8 @@ function Panel({
   speaking: boolean;
   typed: string;
   typing: boolean;
+  /** 다 찍혀서 누르기를 기다리는 중 (오토가 아닐 때). 말풍선에 넘김 화살표가 선다. */
+  waiting: boolean;
   pageWidth: number;
   fontSize: number;
 }) {
@@ -377,6 +386,7 @@ function Panel({
           speaker={tRoom(`characters.${line.speaker}.name` as ParseKeys<"memoryRoom">)}
           text={bubbleText}
           fullText={tRoom(line.textKey)}
+          waiting={waiting}
           fontSize={fontSize}
           place={bubblePlace}
         />
@@ -399,12 +409,14 @@ function RadioBubble({
   speaker,
   text,
   fullText,
+  waiting,
   fontSize,
   place,
 }: {
   speaker: string;
   text: string;
   fullText: string;
+  waiting: boolean;
   fontSize: number;
   place: CSSProperties;
 }) {
@@ -435,6 +447,15 @@ function RadioBubble({
           );
         })}
       </p>
+      {/* 대사창의 넘김 화살표와 같은 신호: 다 찍혔고, 누르면 넘어간다 */}
+      {waiting && (
+        <span
+          aria-hidden
+          className="absolute bottom-[0.55em] left-1/2 -ml-[0.4em] animate-bob-arrow text-ink/70"
+        >
+          <CaretDownIcon size="0.8em" weight="fill" />
+        </span>
+      )}
     </div>
   );
 }

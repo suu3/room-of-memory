@@ -151,6 +151,15 @@ const paintWorkbookFront: FacePainter = (ctx, { width, height }, palette, font) 
   handwrite(ctx, "수능 D-30", width - 108, 96, 30, font, palette.clay, 0.06);
 };
 
+/** 이름표의 이름 글자(px). 테 안쪽 오른쪽 끝은 x = 178이다. */
+const NAME_TAG_SIZE = 54;
+/** 짧은 이름(한도해)이 서는 자리와 그 자리에 드는 폭. */
+const NAME_TAG_SHORT_X = -40;
+const NAME_TAG_SHORT_WIDTH = 200;
+/** 긴 이름이 서는 자리와 폭: 라벨 오른쪽에서 테 안쪽 끝 앞까지. */
+const NAME_TAG_LONG_X = -96;
+const NAME_TAG_LONG_WIDTH = 256;
+
 function paintWorkbookBack(labels: WorkbookLabels): FacePainter {
   return (ctx, { width, height }, palette, font) => {
     ctx.fillStyle = palette.fabric;
@@ -168,8 +177,14 @@ function paintWorkbookBack(labels: WorkbookLabels): FacePainter {
     ctx.font = `500 22px ${font}`;
     ctx.fillText(labels.tagLabel, -158, -18);
     ctx.fillStyle = palette.frame;
-    ctx.font = `italic 700 54px ${font}`;
-    ctx.fillText(labels.name, -40, 34);
+    ctx.font = `italic 700 ${NAME_TAG_SIZE}px ${font}`;
+    // 긴 이름(Han Do-hae · ハン・ドヘ)은 테 밖으로 삐져나간다: 왼쪽으로 당기고, 그래도 넘치면 글자를 줄인다
+    const measured = ctx.measureText(labels.name).width;
+    const long = measured > NAME_TAG_SHORT_WIDTH;
+    if (measured > NAME_TAG_LONG_WIDTH) {
+      ctx.font = `italic 700 ${(NAME_TAG_SIZE * NAME_TAG_LONG_WIDTH) / measured}px ${font}`;
+    }
+    ctx.fillText(labels.name, long ? NAME_TAG_LONG_X : NAME_TAG_SHORT_X, 34);
     ctx.restore();
 
     ctx.fillStyle = palette.linen;

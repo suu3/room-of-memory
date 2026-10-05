@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useControlHint } from "@/i18n/control-hint";
 import { playSound } from "@/lib/audio";
 import type { CommonTextKey, MinigameProps } from "@/types/minigame";
-import { useOnceCompleter, useSkipEligible } from "../shell";
+import { MinigameHelp, useOnceCompleter, useSkipEligible } from "../shell";
 
 /** 몇 번 틀리면 스킵을 내주는가. 시간 경과 쪽이 먼저 오면 그쪽이 이긴다. */
 const MISSES_BEFORE_SKIP = 3;
@@ -39,17 +39,13 @@ export const LOGO_CANDIDATES: readonly LogoCandidate[] = [
   { id: "gate", logo: "harbor", sourceKey: "minigame.computerLogo.source.gate" },
 ];
 
-/** 라온생명과학연구소의 로고인가 (앰플 라벨의 조각 · 세면대 바닥의 배지와 같은 그림). */
+/** 라온생명과학연구소의 로고인가 (세면대 바닥의 배지와 같은 그림). */
 export function matchesLabel(candidate: LogoCandidate): boolean {
   return candidate.logo === "raon";
 }
 
-/**
- * 로고 그림. 색은 currentColor 하나라 부르는 쪽의 글자색(토큰)을 따른다.
- * `half`면 왼쪽 반만 남는다: 앰플 라벨이 반쯤 지워진 조각이다.
- */
-export function Logo({ kind, half = false }: { kind: LogoKind; half?: boolean }) {
-  const clipId = `logo-half-${kind}`;
+/** 로고 그림. 색은 currentColor 하나라 부르는 쪽의 글자색(토큰)을 따른다. */
+function Logo({ kind }: { kind: LogoKind }) {
   return (
     <svg
       aria-hidden="true"
@@ -62,14 +58,7 @@ export function Logo({ kind, half = false }: { kind: LogoKind; half?: boolean })
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {half ? (
-        <defs>
-          <clipPath id={clipId}>
-            <rect x={-50} y={-50} width={50} height={100} />
-          </clipPath>
-        </defs>
-      ) : null}
-      <g clipPath={half ? `url(#${clipId})` : undefined}>
+      <g>
         {kind === "raon" ? (
           <>
             {/* 라온: 둥근 테 안, 수평선 위로 떠오르는 해와 빛살 셋 (ui-raon-logo.svg와 같은 도형) */}
@@ -111,8 +100,9 @@ type Screen = "match" | "mail";
 /**
  * 컴퓨터 3차 (v4 3-5): 세면대 바닥의 배지에서 읽은 이름을 들고 다시 켠 컴퓨터.
  *
- * 로그인은 2차에서 이미 했으니 곧장 저장된 그림들이 뜬다. 왼�두에 라벨 조각, 오른쪽에
- * 메일 첨부와 캐시 뉴스에서 건진 그림 넷. 라온생명과학연구소의 로고를 고르면 그것이
+ * 로그인은 2차에서 이미 했으니 곧장 저장된 그림들이 뜬다. 메일 첨부와 캐시 뉴스에서 건진
+ * 그림 넷. 견본은 옆에 세우지 않는다: 답을 옆에 두면 같은 그림 찾기라 너무 쉽다. 세면대
+ * 바닥의 배지에서 본 것을 떠올려 고른다. 라온생명과학연구소의 로고를 고르면 그것이
  * 아빠 출입증 사진이었다는 게 드러나고, 그 첨부가 달린 아빠 메일이 열린다. 메일 끝에
  * 협탁 서랍 번호의 힌트가 있다.
  *
@@ -198,17 +188,8 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
         </div>
 
         {screen === "match" ? (
-          <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center">
-            {/* 앰플 라벨 조각 */}
-            <figure className="flex flex-col items-center gap-2 sm:w-40">
-              <div className="size-28 rounded-lg border border-dashed border-bone/30 bg-paper p-3 text-ink">
-                <Logo kind="raon" half />
-              </div>
-              <figcaption className="break-ko text-center text-[0.75rem] text-bone/55">
-                {t("minigame.computerLogo.label")}
-              </figcaption>
-            </figure>
-            <ul className="grid flex-1 grid-cols-2 gap-3">
+          <div className="p-5">
+            <ul className="grid grid-cols-2 gap-3">
               {LOGO_CANDIDATES.map((candidate) => (
                 <li key={candidate.id}>
                   <button
@@ -281,14 +262,17 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
           </div>
         ) : (
           <>
-            <p
-              aria-live="polite"
-              className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50"
-            >
-              {verdict === "wrong"
-                ? t("minigame.computerLogo.wrong")
-                : hint("minigame.computerLogo.help")}
-            </p>
+            {/* aria-live는 바깥에: 안내와 "틀렸다"가 한 자리에서 갈린다. 안내 끝의 "클릭"은 키캡으로 선다 */}
+            <div aria-live="polite">
+              <MinigameHelp
+                help={
+                  verdict === "wrong"
+                    ? t("minigame.computerLogo.wrong")
+                    : hint("minigame.computerLogo.help")
+                }
+                className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50"
+              />
+            </div>
             {skipVisible ? (
               <button
                 type="button"

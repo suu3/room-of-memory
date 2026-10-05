@@ -5,7 +5,7 @@ import { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CUTSCENES } from "@/data/memory-room";
 import { i18n } from "@/i18n/config";
-import type { ActivePlayback } from "@/store/memory-room";
+import { type ActivePlayback, useMemoryRoomStore } from "@/store/memory-room";
 import { WebtoonViewer } from "./WebtoonViewer";
 
 const CUTS = CUTSCENES["survivor-broadcast"].cuts;
@@ -48,6 +48,7 @@ describe("웹툰 컷씬의 누르기", () => {
     cleanup();
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    useMemoryRoomStore.getState().reset();
   });
 
   it("찍히는 중에 누르면 말풍선이 한 번에 다 찬다", () => {
@@ -70,5 +71,33 @@ describe("웹툰 컷씬의 누르기", () => {
     fireEvent.keyDown(window, { key: " ", code: "Space" });
     expect(container.querySelector("p span.invisible")).not.toBeNull();
     expect(unprinted(container)).toBe(0);
+  });
+
+  it("오토가 아니면 다 찍힌 말풍선이 누를 때까지 기다린다", () => {
+    const advancePlayback = vi.fn();
+    useMemoryRoomStore.setState({ autoPlay: false, advancePlayback });
+    const { container } = render(<WebtoonViewer active={playbackAt(SPOKEN)} />);
+    fireEvent.keyDown(window, { key: " ", code: "Space" });
+    act(() => {
+      vi.advanceTimersByTime(20_000);
+    });
+    expect(advancePlayback).not.toHaveBeenCalled();
+    // 다 찍혔다는 신호: 넘김 화살표
+    expect(container.querySelector(".animate-bob-arrow")).not.toBeNull();
+
+    fireEvent.keyDown(window, { key: " ", code: "Space" });
+    expect(advancePlayback).toHaveBeenCalledTimes(1);
+  });
+
+  it("오토면 다 찍힌 말풍선이 저절로 넘어간다", () => {
+    const advancePlayback = vi.fn();
+    useMemoryRoomStore.setState({ autoPlay: true, advancePlayback });
+    const { container } = render(<WebtoonViewer active={playbackAt(SPOKEN)} />);
+    fireEvent.keyDown(window, { key: " ", code: "Space" });
+    expect(container.querySelector(".animate-bob-arrow")).toBeNull();
+    act(() => {
+      vi.advanceTimersByTime(6_000);
+    });
+    expect(advancePlayback).toHaveBeenCalledTimes(1);
   });
 });

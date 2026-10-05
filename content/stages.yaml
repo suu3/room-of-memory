@@ -78,9 +78,9 @@ stages:
 
   p3-enter:
     monologue:
-      ko: 엄마가 숨긴 게 더 있어.
-      en: Mom was hiding something else.
-      ja: 母さんが隠したものが、まだある。
+      ko: 부모님이 숨긴 게 더 있어.
+      en: My parents were hiding something else.
+      ja: 父さんと母さんが隠したものが、まだある。
 
   p4-enter:
     monologue:

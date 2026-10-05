@@ -232,6 +232,47 @@ function SinkPlugProp({ palette, drained }: { palette: RoomPalette; drained: boo
   );
 }
 
+/** 대야 윗부분: 받침 위의 몸통, 네 테두리, 오목한 바닥. 칫솔컵(BathroomShell)은 +x 테두리에 앉는다. */
+function BasinTop({ palette }: { palette: RoomPalette }) {
+  return (
+    <>
+      <Box
+        position={[0, 0.7, 0]}
+        size={[0.8, 0.12, 0.46]}
+        color={palette.linen}
+        radius={0.05}
+        roughness={0.22}
+      />
+      <Box
+        position={[0, 0.765, 0]}
+        size={[0.45, 0.018, 0.29]}
+        color={palette.trim}
+        radius={0.007}
+        roughness={0.3}
+      />
+      {[-0.31, 0.31].map((x) => (
+        <Box
+          key={x}
+          position={[x, 0.8, 0]}
+          size={[0.24, 0.1, 0.52]}
+          color={palette.linen}
+          radius={0.045}
+          roughness={0.2}
+        />
+      ))}
+      {[-0.22, 0.22].map((z) => (
+        <Box
+          key={z}
+          position={[0, 0.8, z]}
+          size={[0.44, 0.1, 0.08]}
+          color={palette.linen}
+          roughness={0.2}
+        />
+      ))}
+    </>
+  );
+}
+
 /**
  * 물 밑에 깔려 있던 아빠의 출입증 배지: 둥근 판에 끈이 달린 채 대야 바닥에 엎어져 있다.
  * 물을 빼기 전에는 물 판이 덮어 보이지 않고 만져지지도 않는다 (store의 clueUnlocked).
@@ -249,6 +290,11 @@ function SinkBadge({ palette }: { palette: RoomPalette }) {
       beckon={unlocked && !seen}
       hitBox={BASIN_HIT}
     >
+      {/*
+        윤곽선은 배지 조각이 아니라 대야 윗부분 전체에 선다: 배지는 손톱만 해서 제 윤곽만으로는
+        멀리서 안 보인다. 그래서 대야 윗부분이 이 단서의 글로우 안에 들어와 있다
+      */}
+      <BasinTop palette={palette} />
       <group name="raon-badge" position={[0.12, 0.774, -0.05]} rotation={[0, -0.5, 0]}>
         <Cylinder position={[0, 0, 0]} radius={0.058} height={0.006} color={palette.linen} />
         <mesh position={[0, 0.0035, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -293,40 +339,6 @@ function Sink({ palette }: { palette: RoomPalette }) {
         height={0.64}
         color={palette.linen}
       />
-      {/* A recessed basin with four rounded rims. The toothbrush cup (BathroomShell) sits on the +x rim. */}
-      <Box
-        position={[0, 0.7, 0]}
-        size={[0.8, 0.12, 0.46]}
-        color={palette.linen}
-        radius={0.05}
-        roughness={0.22}
-      />
-      <Box
-        position={[0, 0.765, 0]}
-        size={[0.45, 0.018, 0.29]}
-        color={palette.trim}
-        radius={0.007}
-        roughness={0.3}
-      />
-      {[-0.31, 0.31].map((x) => (
-        <Box
-          key={x}
-          position={[x, 0.8, 0]}
-          size={[0.24, 0.1, 0.52]}
-          color={palette.linen}
-          radius={0.045}
-          roughness={0.2}
-        />
-      ))}
-      {[-0.22, 0.22].map((z) => (
-        <Box
-          key={z}
-          position={[0, 0.8, z]}
-          size={[0.44, 0.1, 0.08]}
-          color={palette.linen}
-          roughness={0.2}
-        />
-      ))}
       <Cylinder
         position={[0, 0.78, 0]}
         radius={0.035}
@@ -334,7 +346,7 @@ function Sink({ palette }: { palette: RoomPalette }) {
         color={palette.frame}
         metalness={0.8}
       />
-      {/* 물 밑의 배지는 물보다 먼저 그린다: 물 판이 투명해지며 걷힐 때 그 아래가 보여야 한다 */}
+      {/* 대야 윗부분과 물 밑의 배지. 배지는 물보다 먼저 그린다: 물 판이 투명해지며 걷힐 때 그 아래가 보여야 한다 */}
       <SinkBadge palette={palette} />
       {/* 30일 고인 물. 열쇠를 집는 순간 파문 하나가 번진다. 마개를 뽑으면 빠진다 (SinkWater) */}
       <SinkWater palette={palette} />

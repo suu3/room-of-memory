@@ -278,7 +278,7 @@ export const ASSETS = {
      * 문제집 뒤표지 (3D 인스펙트를 찍어 둔 한 장). 이름 대사가 이 위에 흐른다. 이름표의
      * 글자가 언어마다 달라 `{lng}` 자리에 언어가 들어간다 (localizeAsset).
      */
-    workbook: "/assets/images/still-workbook-{lng}.webp",
+    workbook: "/assets/images/still-workbook-{lng}.webp?v=2",
   },
   voice: {
     /**

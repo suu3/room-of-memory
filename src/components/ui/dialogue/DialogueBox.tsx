@@ -14,21 +14,11 @@ import {
   selectHeroNameKnown,
   useMemoryRoomStore,
 } from "@/store/memory-room";
+import { autoAdvanceWaitMs } from "../shared/auto-advance";
 import { FOCUS_RING, PANEL_DIALOGUE } from "../shared/ui-classes";
 import { CharacterPortrait } from "./CharacterPortrait";
 import { hasPortrait } from "./character-portrait";
 import { typeTick } from "./dialogue-sfx";
-
-/**
- * 오토가 한 줄을 붙들고 있는 시간(ms) = 기본 + 글자당.
- *
- * 길이와 무관하게 같은 시간을 주면 긴 줄은 읽다 말고 넘어가고 짧은 줄은 늘어진다.
- * 한국어 기준 한 글자에 60ms면 소리 내어 읽는 속도보다 조금 빠르다. 위로 한 번 자른다:
- * 여덟 줄짜리 대사에서 7초를 기다리면 오토가 아니라 멈춘 화면이다.
- */
-const AUTO_BASE_MS = 900;
-const AUTO_PER_CHAR_MS = 60;
-const AUTO_MAX_MS = 5200;
 
 /**
  * 화면 전체를 덮는 넘기기 버튼의 표식. Enter 핸들러가 "이건 내 버튼"이라고
@@ -128,7 +118,7 @@ export function DialogueBox() {
    */
   useEffect(() => {
     if (!autoPlay || !done || !open || logOpen) return;
-    const wait = Math.min(AUTO_MAX_MS, AUTO_BASE_MS + text.length * AUTO_PER_CHAR_MS);
+    const wait = autoAdvanceWaitMs(text.length);
     const timer = window.setTimeout(() => autoAdvanceRef.current(), wait);
     return () => window.clearTimeout(timer);
     // 줄이 바뀌면 타자 연출이 다시 돌아 done이 false로 떨어졌다 올라온다: 그게 곧 타이머의 재시작이다
