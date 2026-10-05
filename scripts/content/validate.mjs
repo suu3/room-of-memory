@@ -194,6 +194,9 @@ export function validateContent(content, { minigameIds = [] } = {}) {
       if (cut.narration !== undefined && typeof cut.narration !== "boolean") {
         issues.push(`${where}.narration: true/false여야 한다.`);
       }
+      if (cut.shake !== undefined && typeof cut.shake !== "boolean") {
+        issues.push(`${where}.shake: true/false여야 한다.`);
+      }
       if (cut.black !== undefined && typeof cut.black !== "boolean") {
         issues.push(`${where}.black: true/false여야 한다.`);
       }

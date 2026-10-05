@@ -678,6 +678,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
       {
         image: "/assets/images/cutscene-day-4.webp?v=3",
         holdMs: 1200,
+        shake: true,
         lines: [],
       },
       {

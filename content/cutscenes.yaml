@@ -15,6 +15,7 @@
 #           컷은 맨 뒤에만: 웹툰이 걷힌 뒤 방에서 대사창으로 흐르는 한마디다.
 #   ratio   웹툰 칸의 비율. "16:9"는 페이지 폭 한 줄, "3:4"는 둘이 나란히 한 줄.
 #   narration  true면 누르지 않아도 줄이 저절로 찍히고 다 찍히면 다음 컷 (과거편).
+#   shake   true면 그림이 서는 순간 판이 한 번 흔들린다 (덮쳐 오는 컷). 연달아 두지 않는다.
 #   sfx     컷이 뜨는 순간 한 번 나는 효과음 (schema.mjs의 CUT_SFX). radioSignOff는
 #           0.8초 치지직 뒤 끊김.
 #   holdMs  대사가 끝난 뒤 대사창 없이 그림만 남기는 시간(ms). 대사가 없는 컷
@@ -224,6 +225,7 @@ cutscenes:
           ja: …立ち方が、どこかおかしかった。
     # 4컷: 손을 뻗으며 덮쳐 오는 감염자. 말 없이 정적
     - image: /assets/images/cutscene-day-4.webp?v=3
+      shake: true
       holdMs: 1200
       lines: []
     # 5컷: 놀란 얼굴. 말 없이 정적

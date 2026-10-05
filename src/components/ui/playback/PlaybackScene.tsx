@@ -398,6 +398,9 @@ export function PlaybackScene() {
           {showPlate && (
             <div
               className={`relative max-h-full w-full ${
+                // 덮쳐 오는 컷 (CutsceneCut.shake): 그림이 서는 순간 판이 한 번 흔들린다
+                cut?.shake ? "animate-cut-shake" : ""
+              } ${
                 /*
                  * 컷씬 판은 16:9를 지킨다. 높이까지 꽉 채우면(h-full) 가로세로가 둘 다 정해져
                  * aspect가 무시되고, 세로로 든 폰에서 판이 화면만큼 길어져 그림의 가운데 띠만

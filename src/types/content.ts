@@ -83,6 +83,8 @@ export interface ContentCut {
   sfx?: string;
   /** 내레이션 컷: 줄이 저절로 한 줄씩 새로 찍히고, 다 찍히면 다음 컷으로. */
   narration?: boolean;
+  /** 그림이 서는 순간 판을 한 번 흔든다. */
+  shake?: boolean;
   /** 속말: 컷이 서 있는 동안 화면 위 혼잣말 자리에 번갈아 떴다 지는 줄들. */
   whispers?: LocalizedText[];
   lines: ContentLine[];

@@ -114,6 +114,7 @@ export const CUT_KEYS = [
   "ratio",
   "sfx",
   "narration",
+  "shake",
   "whispers",
   "lines",
 ];
