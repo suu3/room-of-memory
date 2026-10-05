@@ -16,7 +16,7 @@ const WRONG_HOLD_MS = 520;
 /** 맞는 칸이 금빛으로 선 뒤 메일로 넘어가기까지(ms). */
 const MATCH_HOLD_MS = 900;
 
-export type LogoKind = "raon" | "hotel" | "health" | "harbor";
+export type LogoKind = "laon" | "hotel" | "health" | "harbor";
 
 export interface LogoCandidate {
   id: string;
@@ -27,21 +27,21 @@ export interface LogoCandidate {
 
 /**
  * 고를 수 있는 그림 넷. 라온 로고는 하나뿐이다: 아빠 메일에 첨부된 출입증 사진.
- * 화장실 세면대 바닥에서 건진 배지(단서 raon-badge)에 로고와 이름이 같이 있어서,
+ * 화장실 세면대 바닥에서 건진 배지(단서 laon-badge)에 로고와 이름이 같이 있어서,
  * "라온생명과학연구소의 로고"를 고를 수 있다. 전에는 같은 로고 둘(첨부 · 뉴스의 정문)을
  * 다 고르는 판이었는데 "같은 그림 찾기"라 시시했다 (2026-10-01). 셋은 비슷한 결의 틀린
  * 그림이다: 둥근 테·수평선·해 같은 요소를 하나씩 나눠 가져 한눈에 고르지는 못하게.
  */
 export const LOGO_CANDIDATES: readonly LogoCandidate[] = [
   { id: "hotel", logo: "hotel", sourceKey: "minigame.computerLogo.source.hotel" },
-  { id: "badge", logo: "raon", sourceKey: "minigame.computerLogo.source.badge" },
+  { id: "badge", logo: "laon", sourceKey: "minigame.computerLogo.source.badge" },
   { id: "health", logo: "health", sourceKey: "minigame.computerLogo.source.health" },
   { id: "gate", logo: "harbor", sourceKey: "minigame.computerLogo.source.gate" },
 ];
 
 /** 라온생명과학연구소의 로고인가 (세면대 바닥의 배지와 같은 그림). */
 export function matchesLabel(candidate: LogoCandidate): boolean {
-  return candidate.logo === "raon";
+  return candidate.logo === "laon";
 }
 
 /** 로고 그림. 색은 currentColor 하나라 부르는 쪽의 글자색(토큰)을 따른다. */
@@ -59,9 +59,9 @@ function Logo({ kind }: { kind: LogoKind }) {
       strokeLinejoin="round"
     >
       <g>
-        {kind === "raon" ? (
+        {kind === "laon" ? (
           <>
-            {/* 라온: 둥근 테 안, 수평선 위로 떠오르는 해와 빛살 셋 (ui-raon-logo.svg와 같은 도형) */}
+            {/* 라온: 둥근 테 안, 수평선 위로 떠오르는 해와 빛살 셋 (ui-laon-logo.svg와 같은 도형) */}
             <circle r={40} />
             <line x1={-25} y1={9.6} x2={25} y2={9.6} />
             <path d="M-15.4 9.6 A15.4 15.4 0 0 1 15.4 9.6" />
@@ -233,7 +233,7 @@ export function ComputerLogoMinigame({ onComplete, stage = "play" }: MinigamePro
               </p>
               <figure className="flex w-28 flex-col items-center gap-1.5 rounded-lg border border-memory/40 bg-scene-void/40 p-2">
                 <span className="size-14 text-memory">
-                  <Logo kind="raon" />
+                  <Logo kind="laon" />
                 </span>
                 <figcaption className="w-full truncate text-center text-[0.75rem] text-bone/60">
                   {t("minigame.computerLogo.mail.file")}

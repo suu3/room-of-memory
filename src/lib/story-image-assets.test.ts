@@ -57,8 +57,8 @@ describe("story image assets", () => {
     );
   });
 
-  it("ships the reusable Raon logo as an SVG", () => {
-    const path = "public/assets/images/ui-raon-logo.svg";
+  it("ships the reusable Laon logo as an SVG", () => {
+    const path = "public/assets/images/ui-laon-logo.svg";
     expect(existsSync(path)).toBe(true);
     const logo = readFileSync(path, "utf8");
     expect(logo).toContain("<svg");
@@ -68,13 +68,13 @@ describe("story image assets", () => {
 
   it("registers every new image in the shared asset map", () => {
     const paths = Object.values(ASSETS.images);
-    for (const name of [...Object.keys(WEBP_ASSETS), "ui-raon-logo.svg"]) {
+    for (const name of [...Object.keys(WEBP_ASSETS), "ui-laon-logo.svg"]) {
       expect(
         paths.some(
           (path) => typeof path === "string" && path.split("?")[0] === `/assets/images/${name}`,
         ),
       ).toBe(true);
     }
-    expect(ASSETS.images.raonLogo).toBe("/assets/images/ui-raon-logo.svg?v=2");
+    expect(ASSETS.images.laonLogo).toBe("/assets/images/ui-laon-logo.svg?v=2");
   });
 });

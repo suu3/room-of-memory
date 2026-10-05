@@ -6,12 +6,12 @@ describe("화면 밖 목록에 오르는 단서", () => {
     const clues = listedClues(["room"]);
     expect(clues).toContain("workbook");
     expect(clues).toContain("mirror");
-    expect(clues).not.toContain("raon-badge");
+    expect(clues).not.toContain("laon-badge");
   });
 
   it("화장실에 닿아도 물을 빼기 전에는 배지가 오르지 않는다. 빼면 더해진다", () => {
     const reached = ["room", "living", "bathroom"] as const;
-    expect(listedClues(reached)).not.toContain("raon-badge");
-    expect(listedClues(reached, true)).toContain("raon-badge");
+    expect(listedClues(reached)).not.toContain("laon-badge");
+    expect(listedClues(reached, true)).toContain("laon-badge");
   });
 });

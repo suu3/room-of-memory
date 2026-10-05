@@ -276,14 +276,14 @@ function BasinTop({ palette }: { palette: RoomPalette }) {
 /**
  * 물 밑에 깔려 있던 아빠의 출입증 배지: 둥근 판에 끈이 달린 채 대야 바닥에 엎어져 있다.
  * 물을 빼기 전에는 물 판이 덮어 보이지 않고 만져지지도 않는다 (store의 clueUnlocked).
- * 빠지면 금빛으로 부르고(beckon), 누르면 확대 화면이 펼쳐진다 (ClueOverlay의 RaonBadgeZoom).
+ * 빠지면 금빛으로 부르고(beckon), 누르면 확대 화면이 펼쳐진다 (ClueOverlay의 LaonBadgeZoom).
  */
 function SinkBadge({ palette }: { palette: RoomPalette }) {
-  const unlocked = useMemoryRoomStore((state) => clueUnlocked(state, "raon-badge"));
+  const unlocked = useMemoryRoomStore((state) => clueUnlocked(state, "laon-badge"));
   const seen = useMemoryRoomStore(selectBadgeSeen);
   return (
     <ClueProp
-      clue="raon-badge"
+      clue="laon-badge"
       near={SINK_NEAR}
       radius={SINK_RADIUS}
       enabled={unlocked}
@@ -295,7 +295,7 @@ function SinkBadge({ palette }: { palette: RoomPalette }) {
         멀리서 안 보인다. 그래서 대야 윗부분이 이 단서의 글로우 안에 들어와 있다
       */}
       <BasinTop palette={palette} />
-      <group name="raon-badge" position={[0.12, 0.774, -0.05]} rotation={[0, -0.5, 0]}>
+      <group name="laon-badge" position={[0.12, 0.774, -0.05]} rotation={[0, -0.5, 0]}>
         <Cylinder position={[0, 0, 0]} radius={0.058} height={0.006} color={palette.linen} />
         <mesh position={[0, 0.0035, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.036, 0.05, 24]} />

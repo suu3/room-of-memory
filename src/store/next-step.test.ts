@@ -20,7 +20,7 @@ const P3_DONE = {
   inventory: [],
   solvedPuzzles: [],
   sinkDrained: true,
-  discoveries: ["hero-name", "raon-badge"],
+  discoveries: ["hero-name", "laon-badge"],
 };
 
 describe("이지 모드의 다음 할 일", () => {
@@ -60,14 +60,14 @@ describe("이지 모드의 다음 할 일", () => {
   it("안방 열쇠 매듭: 선반의 책 → 협탁 서랍 → 안방 문", () => {
     expect(stepAt("p4", P3_DONE)).toEqual({ kind: "shelf-book" });
     expect(
-      stepAt("p4", { ...P3_DONE, discoveries: ["hero-name", "raon-badge", "drawer-code"] }),
+      stepAt("p4", { ...P3_DONE, discoveries: ["hero-name", "laon-badge", "drawer-code"] }),
     ).toEqual({
       kind: "drawer-dial",
     });
     expect(
       stepAt("p4", {
         ...P3_DONE,
-        discoveries: ["hero-name", "raon-badge", "drawer-code"],
+        discoveries: ["hero-name", "laon-badge", "drawer-code"],
         solvedPuzzles: ["drawer-dial"],
         inventory: ["parents-key"],
       }),

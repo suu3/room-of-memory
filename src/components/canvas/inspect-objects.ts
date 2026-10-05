@@ -21,7 +21,7 @@ const ink = (palette: RoomPalette) => palette.frame;
  * 라온생명과학연구소 로고: 둥근 테 안에 떠오르는 해 하나. 앰플 라벨·출입증 뒷면·
  * 컴퓨터 로고 매칭(computer-logo의 Logo)이 같은 모양이다. `half`면 왼쪽 반만 남는다.
  */
-function paintRaonLogo(
+function paintLaonLogo(
   ctx: CanvasRenderingContext2D,
   cx: number,
   cy: number,
@@ -37,7 +37,7 @@ function paintRaonLogo(
   }
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
-  // ui-raon-logo.svg와 같은 도형: 둥근 테, 수평선, 떠오르는 해, 빛살 셋 (테 반지름 96 기준 비율)
+  // ui-laon-logo.svg와 같은 도형: 둥근 테, 수평선, 떠오르는 해, 빛살 셋 (테 반지름 96 기준 비율)
   const u = radius / 96;
   ctx.lineWidth = 12 * u;
   ctx.lineCap = "round";
@@ -524,7 +524,7 @@ export function idCardObject(labels: IdCardLabels): InspectObject {
     ctx.fillRect(0, 0, 1024, 640);
     ctx.fillStyle = palette.coal;
     ctx.fillRect(0, 0, 1024, 117);
-    paintRaonLogo(ctx, 73, 60, 32, palette.memory);
+    paintLaonLogo(ctx, 73, 60, 32, palette.memory);
     // 이미지 로딩 전에도 같은 배치를 쓴다. 글자는 overlay에서 한 번만 그린다.
     ctx.fillStyle = palette.trim;
     ctx.fillRect(66, 191, 186, 244);
@@ -534,12 +534,12 @@ export function idCardObject(labels: IdCardLabels): InspectObject {
   const paintBack: FacePainter = (ctx, { width, height }, palette) => {
     ctx.fillStyle = palette.coal;
     ctx.fillRect(0, 0, width, height);
-    paintRaonLogo(ctx, width / 2, height * 0.438, height * 0.214, palette.memory);
+    paintLaonLogo(ctx, width / 2, height * 0.438, height * 0.214, palette.memory);
   };
   // 씰의 로고: 투명 바탕에 금빛 선. 씰 크기에 맞춰 세로의 6할
   const paintSeal: FacePainter = (ctx, { width, height }, palette) => {
     ctx.clearRect(0, 0, width, height);
-    paintRaonLogo(ctx, width / 2, height / 2, Math.min(width, height) * 0.36, palette.memory);
+    paintLaonLogo(ctx, width / 2, height / 2, Math.min(width, height) * 0.36, palette.memory);
   };
   return {
     shape: "box",

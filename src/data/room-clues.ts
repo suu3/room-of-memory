@@ -63,7 +63,7 @@ export const DRAWER_DIAL_CODE = "407";
  * 안방 책상 위 서류는 v4에서 단서가 아니라 기억(research-note · id-card)이
  * 됐다. 4페이즈의 필수 조사라 대사와 기록이 남는다 (content/memories.yaml).
  *
- * raon-badge는 화장실 세면대의 고인 물을 빼면 대야 바닥에 드러나는 아빠의 출입증 배지다.
+ * laon-badge는 화장실 세면대의 고인 물을 빼면 대야 바닥에 드러나는 아빠의 출입증 배지다.
  * 누르면 확대 화면에 로고와 "라온생명과학연구소"가 뜨고, 내려놓는 순간 한 줄이 흐른다.
  * 컴퓨터 3차(로고 고르기)가 이것을 본 뒤에 열린다 (VISIT_AFTER_DISCOVERY).
  */
@@ -72,7 +72,7 @@ export const CLUE_IDS = [
   "shelf-book",
   "workbook",
   "mirror",
-  "raon-badge",
+  "laon-badge",
 ] as const;
 export type ClueId = (typeof CLUE_IDS)[number];
 
@@ -87,7 +87,7 @@ export type ClueId = (typeof CLUE_IDS)[number];
  * 이름을 알기 전까지 수첩의 이름 칸과 나이 칸은 흐리고, 대사창의 화자는 "나"다.
  * 저장된다 (store의 discoveries).
  */
-export const DISCOVERY_IDS = ["hero-name", "drawer-code", "raon-badge"] as const;
+export const DISCOVERY_IDS = ["hero-name", "drawer-code", "laon-badge"] as const;
 export type DiscoveryId = (typeof DISCOVERY_IDS)[number];
 
 /**
@@ -105,7 +105,7 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
   "wall-calendar": "room",
   "shelf-book": "room",
   workbook: "room",
-  "raon-badge": "bathroom",
+  "laon-badge": "bathroom",
 };
 
 /**
@@ -121,7 +121,7 @@ export const CLUE_SPACE: Partial<Record<ClueId, string>> = {
 export const CLUE_DISCOVERY = {
   workbook: "hero-name",
   "shelf-book": "drawer-code",
-  "raon-badge": "raon-badge",
+  "laon-badge": "laon-badge",
 } as const satisfies Partial<Record<ClueId, DiscoveryId>>;
 
 /**
@@ -130,7 +130,7 @@ export const CLUE_DISCOVERY = {
  * 보고 컴퓨터를 켜면 넷 중 무엇이 라온인지 알 길이 없다 (store의 hotspotStatus).
  */
 export const VISIT_AFTER_DISCOVERY = {
-  computer: { visit: 3, discovery: "raon-badge" },
+  computer: { visit: 3, discovery: "laon-badge" },
 } as const satisfies Record<string, { visit: 1 | 2 | 3; discovery: DiscoveryId }>;
 
 /**

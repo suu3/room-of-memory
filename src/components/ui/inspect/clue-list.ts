@@ -18,6 +18,6 @@ export function listedClues(
     (id) =>
       (reached as readonly string[]).includes(CLUE_SPACE[id] ?? "room") &&
       // 화장실 문만 열어도 이름이 먼저 읽히고, 눌러도 아무 일이 없었다
-      (id !== "raon-badge" || sinkDrained),
+      (id !== "laon-badge" || sinkDrained),
   );
 }

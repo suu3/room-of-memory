@@ -285,7 +285,7 @@ export interface MemoryRoomState {
   pianoGapSeen: boolean;
   /**
    * 세면대의 고인 물을 뺐는가: 마개를 뽑은 순간. 물이 빠지면 대야 바닥의 출입증 배지
-   * (단서 raon-badge)가 드러난다. 물은 다시 차지 않는다. 저장한다.
+   * (단서 laon-badge)가 드러난다. 물은 다시 차지 않는다. 저장한다.
    */
   sinkDrained: boolean;
   /** 엔딩이 시작됐는가: 거실 끝 현관문을 연 순간. */
@@ -676,7 +676,7 @@ export const selectDeadline = (state: MemoryRoomState) => deadlineOf(storyPhaseO
  */
 export function clueUnlocked(state: StateSnapshot, id: ClueId): boolean {
   // 세면대 바닥의 배지는 물 밑에 있다. 물을 빼기 전에는 보이지도 만져지지도 않는다
-  if (id === "raon-badge" && state.sinkDrained !== true) return false;
+  if (id === "laon-badge" && state.sinkDrained !== true) return false;
   const owner = Object.entries(CLUE_AFTER_MEMORY).find(([, clue]) => clue === id)?.[0];
   if (owner !== undefined && !state.collected.includes(owner as MemoryId)) return false;
   // 조사를 마쳐야 만질 수 있는 단서 (거꾸로 꽂힌 책 = 아빠 메일 뒤)
@@ -1017,7 +1017,7 @@ export function sanitizeProgress(raw: unknown): Partial<PersistedProgress> {
     (id) =>
       savedHas(saved.discoveries, id) &&
       // 배지는 물 밑에 있었다. 물을 안 뺀 저장본이 봤을 리 없다
-      (id !== "raon-badge" || sinkDrained),
+      (id !== "laon-badge" || sinkDrained),
   );
   const inventory = Array.isArray(saved.inventory)
     ? ITEM_IDS.filter((id) => (saved.inventory as unknown[]).includes(id))
@@ -1328,7 +1328,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
                   ? state.cluesSeen
                   : [...state.cluesSeen, id],
                 // 배지는 펼치는 순간이 발견이다: 뒤집을 면이 없다 (CLUE_DISCOVERY 주석)
-                ...(id === "raon-badge" && !state.discoveries.includes(CLUE_DISCOVERY[id])
+                ...(id === "laon-badge" && !state.discoveries.includes(CLUE_DISCOVERY[id])
                   ? { discoveries: [...state.discoveries, CLUE_DISCOVERY[id]] }
                   : {}),
               },
@@ -1337,7 +1337,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) => {
           if (!state.activeClue) return state;
           // 배지를 내려놓는 순간 한 줄: 확대 화면 위에 대사창을 겹치지 않는다 (문제집과 같은 문법)
-          if (state.activeClue === "raon-badge")
+          if (state.activeClue === "laon-badge")
             return {
               activeClue: null,
               nameIntroPending: false,
@@ -1996,7 +1996,7 @@ export const selectDrawerCodeRead = (state: Pick<MemoryRoomState, "discoveries">
   state.discoveries.includes("drawer-code");
 /** 세면대 바닥의 출입증 배지를 봤는가: 컴퓨터 3차(로고 고르기)가 이것 뒤에 열린다. */
 export const selectBadgeSeen = (state: Pick<MemoryRoomState, "discoveries">) =>
-  state.discoveries.includes("raon-badge");
+  state.discoveries.includes("laon-badge");
 
 /** 엄마 대화방의 "1"을 열었는가 (v4 1-3의 momChatRead): 폰 2차 조사. */
 export const selectMomChatRead = (state: Pick<MemoryRoomState, "revisited">) =>

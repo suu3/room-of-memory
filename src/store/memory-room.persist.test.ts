@@ -23,10 +23,10 @@ function resolveSave() {
 
 describe("sanitizeProgress", () => {
   it("세면대의 물은 화장실 문이 열린 저장본에서만 빠져 있고, 배지는 물이 빠진 뒤에만 봤다", () => {
-    const base = { ...resolveSave(), sinkDrained: true, discoveries: ["raon-badge"] };
+    const base = { ...resolveSave(), sinkDrained: true, discoveries: ["laon-badge"] };
     const bathroom = sanitizeProgress({ ...base, openedDoorways: ["living-bathroom"] });
     expect(bathroom.sinkDrained).toBe(true);
-    expect(bathroom.discoveries).toEqual(["raon-badge"]);
+    expect(bathroom.discoveries).toEqual(["laon-badge"]);
 
     const living = sanitizeProgress({ ...base, openedDoorways: [] });
     expect(living.sinkDrained).toBe(false);

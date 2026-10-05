@@ -91,7 +91,7 @@ export const ASSETS = {
     /** 지원사업 CI (경기청년 갭이어 흰색 가로형 워드마크, 720×120). 어두운 판 위에만 올린다. */
     gapYearLogo: "/assets/images/ui-gapyear-logo.webp",
     /** 라온생명과학연구소 공통 심볼. 출입증·앰플·컴퓨터 화면에서 같은 도형을 쓴다. */
-    raonLogo: "/assets/images/ui-raon-logo.svg?v=2",
+    laonLogo: "/assets/images/ui-laon-logo.svg?v=2",
     /** 라디오 반전에서 번지는 '그날' 8연작 (분기점 과거편, content/cutscenes.yaml의 radio-blackout). */
     cutsceneDay1: "/assets/images/cutscene-day-1.webp?v=4",
     cutsceneDay2: "/assets/images/cutscene-day-2.webp?v=3",
