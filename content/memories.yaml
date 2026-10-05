@@ -447,6 +447,7 @@ memories:
       minigame: papers-order
       resultScript: research-note-read
       from: p4
+      replayStill: /assets/images/still-research-note.webp
 
   - id: id-card
     icon: IdentificationCard

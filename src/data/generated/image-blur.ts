@@ -17,7 +17,7 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
   "/assets/images/cutscene-day-7.webp":
     "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAwAgCdASoQAAkAAsBMJYwC7AELz8weJGLhgAD++xgp5lhvcz4+lF3PBxYBih6a0PEH8TRgT9yS/T6gpJ7fndPYxlLYLNQS730bXkRksPg5dMCbAAA=",
   "/assets/images/cutscene-day-8.webp":
-    "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAwAgCdASoQAAkAAsBMJbACdAYtpt9UohzuIAD+9u3qxxWRrhMgLn0eWjseBzV6gdj2xVw4oy/JKT+QDbAQd8nt5O9n4FJejCOx5PxUgOSLaC+RnsUCldD7W7MpAfUXDdggEAAA",
+    "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAwAgCdASoQAAkAAsBMJbACdAYtpt9UohzuIAD+9u3qxxWRrhMgLn0eWjseBzV6gdj2xVw4oy/JKT+QDbAQd8nt5O9n4FJejCOx5PxUgOSLaC+SS24bSuh9rdmUgPqLhuwQCAAA",
   "/assets/images/cutscene-piano-flashback.webp":
     "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAQCdASoQAAkAAsBMJQBOgCPv+E4RqmAA/PqV40S4K1x40iRtSVtmb7e1VJbX8RrwX9CGf5sKp0+eTyhpdpmhjDN1CCwoHUmMY9Z2BFjvSXQtg2T+zAAA",
   "/assets/images/cutscene-survivor-1.webp":
@@ -88,6 +88,8 @@ export const IMAGE_BLUR: Readonly<Record<string, string>> = {
     "data:image/webp;base64,UklGRkgAAABXRUJQVlA4IDwAAACwAQCdASoQAAwAAsBMJZgCdACovOQAAP6CrvFoCl6/zOaPsDV6BZ/ZbaQT4J+db3kg5zGJVWOw8fhpwAA=",
   "/assets/images/still-report-card.webp":
     "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQAgCdASoQAAwAAsBMJYwCdADxLn+yG6AAAP7vYylw1jzbw/JEdqz7SILnbWoJ+G/nK5GBR8/Ni5thIblNo894G9qwzAVuEOYog84AAAA=",
+  "/assets/images/still-research-note.webp":
+    "data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAADwAQCdASoQAAwAAsBMJZQAAxf78M5ouAAA/vV8NtQQko0D78NbGCsxFHu39QgA",
   "/assets/images/still-shoes.webp":
     "data:image/webp;base64,UklGRjwAAABXRUJQVlA4IDAAAACQAQCdASoQAAwAAsBMJZwAAp1BVwAA/u9TLIV/fy9Az9cOmPd99m8byRJCz6lgQAA=",
   "/assets/images/still-workbook-en.webp":
@@ -145,6 +147,7 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/still-id-card-ko.webp": "cdbd4bb444a7216a",
   "/assets/images/still-phone.webp": "ba201f52b2b55413",
   "/assets/images/still-report-card.webp": "ecc45e7ad3ebd770",
+  "/assets/images/still-research-note.webp": "93048e256a098b65",
   "/assets/images/still-shoes.webp": "4b91396506966f62",
   "/assets/images/still-workbook-en.webp": "8dd371fdbe8c273b",
   "/assets/images/still-workbook-ja.webp": "fd3bf3fe19c58681",

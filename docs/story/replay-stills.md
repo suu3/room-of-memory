@@ -18,7 +18,7 @@
 | `duffel` | | 3D 캡처 (러그 위 가방) | 같은 그림 |
 | `fridge` · `shoes` | | 3D 캡처 | |
 | `cards` · `id-card` | | 인스펙트 캡처 (언어별 세 장, `still-<id>-{lng}.webp`) | |
-| `research-note` | | (없음: 아이콘 판) | |
+| `research-note` | | 3D 캡처 (안방 책상) | |
 | `computer` | | 3D 캡처 (책상) | 같은 그림 |
 | `ampoule` | | 인스펙트 캡처 (`still-ampoule-vial.webp`) | 3D 캡처 (냉장고) |
 
