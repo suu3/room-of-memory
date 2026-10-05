@@ -278,4 +278,32 @@ describe("저장본 불러오기", () => {
       useMemoryRoomStore.setState({ soundMuted: false });
     }
   });
+
+  it("엔딩까지 간 저장본은 타이틀에서 기다리다가 이어하기에서 엔딩을 다시 연다", async () => {
+    localStorage.setItem(
+      "rom-progress",
+      JSON.stringify({
+        version: 2,
+        state: { ...resolveSave(), batTaken: true, endingStarted: true },
+      }),
+    );
+    try {
+      await useMemoryRoomStore.persist.rehydrate();
+      expect(useMemoryRoomStore.getState().endingStarted).toBe(false);
+      expect(useMemoryRoomStore.getState().endingPending).toBe(true);
+
+      // 타이틀에서 다른 것이 저장돼도(소리 토글 등) 엔딩까지 간 판이라는 사실은 남는다
+      useMemoryRoomStore.setState({ soundMuted: true });
+      const stored = JSON.parse(localStorage.getItem("rom-progress") ?? "{}");
+      expect(stored.state.endingStarted).toBe(true);
+
+      useMemoryRoomStore.getState().startGame();
+      expect(useMemoryRoomStore.getState().endingStarted).toBe(true);
+      expect(useMemoryRoomStore.getState().endingPending).toBe(false);
+    } finally {
+      localStorage.removeItem("rom-progress");
+      useMemoryRoomStore.getState().reset();
+      useMemoryRoomStore.setState({ soundMuted: false });
+    }
+  });
 });

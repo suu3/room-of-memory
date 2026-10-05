@@ -268,7 +268,7 @@ export function EndingScreen() {
               <div className="flex flex-wrap items-center justify-center gap-3">
                 {/*
                 영상 모아보기(/films · /en/films · /ja/films)는 새 탭으로 연다. 같은 탭에서 떠나면 캔버스가 내려가고,
-                돌아왔을 때 저장된 엔딩이 문턱부터 다시 돈다. 카드는 이 탭에 그대로 둔다.
+                돌아왔을 때는 타이틀이고, 이어하기를 눌러야 엔딩이 문턱부터 다시 돈다. 카드는 이 탭에 그대로 둔다.
               */}
                 <Link
                   href={filmsPath(locale)}

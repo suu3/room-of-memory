@@ -285,6 +285,12 @@ export interface MemoryRoomState {
   /** 엔딩이 시작됐는가: 거실 끝 현관문을 연 순간. */
   endingStarted: boolean;
   /**
+   * 엔딩까지 간 저장본을 불러왔고, 아직 이어하기를 누르지 않았는가. 저장본의 엔딩은
+   * 불러오는 순간이 아니라 타이틀에서 이어하기를 고른 순간에 다시 열린다 (startGame).
+   * 곧장 켜면 타이틀 위로 문이 열리고 영상이 덮였다. 저장할 때는 endingStarted로 적힌다.
+   */
+  endingPending: boolean;
+  /**
    * 플레이어가 지금 서 있는 공간. 저장하지 않는다. 위치에서 파생되는 값이고,
    * 새로고침하면 방에서 다시 시작한다. 스토어에 드는 이유는 공유벽 컬링과 카메라가
    * Canvas 트리 곳곳에서 이 사실을 봐야 해서다 (Player가 문턱을 넘을 때만 갱신).
@@ -1086,6 +1092,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
       pianoGapSeen: false,
       sinkDrained: false,
       endingStarted: false,
+      endingPending: false,
       space: "room",
       openedDoorways: [],
       inventory: [],
@@ -1268,9 +1275,15 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         }),
       setContactOpen: (open) => set({ contactOpen: open }),
       setFeedbackOpen: (open) => set({ feedbackOpen: open }),
-      // 새 게임은 불 꺼진 방에서 시작한다 (인트로). 인트로를 지난 저장본은 불을 건드리지 않는다
+      // 새 게임은 불 꺼진 방에서 시작한다 (인트로). 인트로를 지난 저장본은 불을 건드리지 않는다.
+      // 엔딩까지 간 저장본은 여기서 엔딩이 다시 열린다 (endingPending)
       startGame: () =>
-        set((state) => ({ started: true, lightsOn: state.introDone ? state.lightsOn : false })),
+        set((state) => ({
+          started: true,
+          lightsOn: state.introDone ? state.lightsOn : false,
+          endingStarted: state.endingStarted || state.endingPending,
+          endingPending: false,
+        })),
       setRoomLoadProgress: (progress) =>
         set((state) =>
           progress > state.roomLoadProgress ? { roomLoadProgress: progress } : state,
@@ -1553,6 +1566,7 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
           pianoGapSeen: false,
           sinkDrained: false,
           endingStarted: false,
+          endingPending: false,
           space: "room",
           openedDoorways: [],
           inventory: [],
@@ -1595,7 +1609,8 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         discoveries: state.discoveries,
         notebookOpened: state.notebookOpened,
         notebookRead: state.notebookRead,
-        endingStarted: state.endingStarted,
+        // 이어하기를 누르기 전에 다시 저장돼도 엔딩까지 간 판이라는 사실은 남는다
+        endingStarted: state.endingStarted || state.endingPending,
         soundMuted: state.soundMuted,
         difficulty: state.difficulty,
         lightsOn: state.lightsOn,
@@ -1606,7 +1621,16 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         cluesSeen: state.cluesSeen,
         autoPlay: state.autoPlay,
       }),
-      merge: (persisted, current) => ({ ...current, ...sanitizeProgress(persisted) }),
+      merge: (persisted, current) => {
+        const saved = sanitizeProgress(persisted);
+        // 저장본의 엔딩은 타이틀 뒤에서 바로 돌지 않고 이어하기를 기다린다 (endingPending)
+        return {
+          ...current,
+          ...saved,
+          endingStarted: false,
+          endingPending: saved.endingStarted === true,
+        };
+      },
       /*
        * 버전이 다른 저장본도 버리지 않고 merge(sanitizeProgress)로 넘긴다. migrate가 없으면
        * zustand가 그 저장본을 통째로 버려서, 버전을 올리는 순간 모든 진행이 새 게임이 됐다
