@@ -1,6 +1,6 @@
 "use client";
 
-import { selectPianoGapSeen, useMemoryRoomStore } from "@/store/memory-room";
+import { selectSheetBeckons, useMemoryRoomStore } from "@/store/memory-room";
 import { ItemPickup } from "../../memory/ItemPickup";
 import { InteriorSurface } from "../../shared/InteriorPrimitives";
 import { CulledWall } from "../../world/CulledWall";
@@ -91,7 +91,7 @@ function Box({
  * 벽은 차분한 세이지, 바닥은 거실과 같은 마루. 부모님이 꾸민 공간이라 방(네이비)과 다르다.
  */
 export function ParentsRoomShell({ palette }: { palette: RoomPalette }) {
-  const pianoGapSeen = useMemoryRoomStore(selectPianoGapSeen);
+  const sheetBeckons = useMemoryRoomStore(selectSheetBeckons);
   return (
     <group name="parents-room-shell">
       {PLINTH.map((part, index) => (
@@ -135,13 +135,13 @@ export function ParentsRoomShell({ palette }: { palette: RoomPalette }) {
 
       <ParentsRoomFurniture palette={palette} />
       {/* 책상 위 서류·출입증과 침대 위 봉투는 기억이다 (MemoryObjects의 안방 몫) */}
-      {/* 피아노의 빈 마디를 본 뒤부터 조각이 부른다. 그 전에는 책상 위의 종잇조각일 뿐이다 */}
+      {/* 피아노의 빈 마디를 봤거나 안방 조사를 다 마친 뒤부터 조각이 부른다. 그 전에는 책상 위의 종잇조각일 뿐이다 */}
       <ItemPickup
         id="piano-sheet"
         near={PAPERS_NEAR.near}
         radius={PAPERS_NEAR.interactionRadius}
         beacon={{ position: SHEET_BEACON, palette }}
-        beckon={pianoGapSeen}
+        beckon={sheetBeckons}
       >
         {SHEET_SCRAP.map((piece) => (
           <Box key={piece.position.join(":")} part={piece} color={palette[piece.color]} />

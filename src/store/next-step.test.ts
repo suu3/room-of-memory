@@ -78,4 +78,17 @@ describe("이지 모드의 다음 할 일", () => {
     // 분기점의 정적 구간: 라디오가 아직 말하지 않는다
     expect(stepAt("turning", { signalCaught: false })).toBeNull();
   });
+
+  it("안방의 조사를 다 마치면 액자 앞의 피아노를 짚는다: 조각 → 피아노 → 액자", () => {
+    const p4 = progressAt("p4");
+    const revisited = [...p4.revisited, "research-note", "id-card"];
+
+    expect(stepAt("p4", { revisited })).toEqual({ kind: "piano-sheet" });
+    expect(stepAt("p4", { revisited, inventory: [...p4.inventory, "piano-sheet"] })).toEqual({
+      kind: "piano",
+    });
+    expect(
+      stepAt("p4", { revisited, solvedPuzzles: [...p4.solvedPuzzles, "piano-melody"] }),
+    ).toMatchObject({ kind: "memory", memory: "frame" });
+  });
 });

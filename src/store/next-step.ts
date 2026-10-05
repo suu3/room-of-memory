@@ -100,15 +100,16 @@ export function nextStep(state: NextStepState): NextStep | null {
     }
   }
 
-  if (memory !== undefined) return { kind: "memory", memory, space: MEMORY_SPACE[memory] };
-
-  // 곁가지 피아노: 안방이 열린 뒤에만 짚는다. 그 전에는 조각을 가지러 갈 수 없다
+  // 피아노: 액자 2차 앞의 자물쇠다 (VISIT_AFTER_PUZZLE). 안방의 필수 조사를 다 본 뒤에 짚고,
+  // 곁가지 조사보다는 먼저다. 안방이 열리기 전에는 조각을 가지러 갈 수 없다
   if (
     state.openedDoorways.includes("living-parents") &&
     !state.solvedPuzzles.includes("piano-melody")
   ) {
     return state.inventory.includes("piano-sheet") ? { kind: "piano" } : { kind: "piano-sheet" };
   }
+
+  if (memory !== undefined) return { kind: "memory", memory, space: MEMORY_SPACE[memory] };
 
   return null;
 }

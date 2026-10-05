@@ -6,6 +6,8 @@ import { hotspotStatus, useMemoryRoomStore } from "@/store/memory-room";
 
 /** 한 줄이 떠 있는 시간(ms). RemarkLine과 같은 박자: 스치는 혼잣말이다. */
 const SHOW_MS = 4200;
+/** 혼잣말 한 줄(RemarkLine, 3.2초 남짓)이 지나가고 한 박자 쉬는 시간(ms). */
+const AFTER_REMARK_MS = 4000;
 
 /**
  * 거실에 있는 동안 방의 물건이 켜졌다고 알리는 한 줄
@@ -31,15 +33,22 @@ export function RoomCallout() {
    */
   const frameReady = useMemoryRoomStore((state) => hotspotStatus(state, "frame") === "available");
   const armed = frameReady && awayFromRoom;
+  // 액자는 피아노를 푼 순간 열린다. 그때는 같은 자리에 "어릴 때 치던 거다"가 흐르고 있다
+  const remarkAt = useMemoryRoomStore((state) => state.remark?.at ?? 0);
   const shownRef = useRef(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     // 한 번만 뜬다. 거실에 드나들 때마다 다시 뜨면 재촉이 된다.
     if (!armed || shownRef.current) return;
-    shownRef.current = true;
-    setVisible(true);
-  }, [armed]);
+    // 방금 흐른 혼잣말(RemarkLine)이 지나간 뒤에 잇는다. 둘이 한자리에 겹치지 않게
+    const wait = Math.max(0, remarkAt + AFTER_REMARK_MS - Date.now());
+    const timer = window.setTimeout(() => {
+      shownRef.current = true;
+      setVisible(true);
+    }, wait);
+    return () => window.clearTimeout(timer);
+  }, [armed, remarkAt]);
 
   /*
    * 끄는 타이머는 따로 건다. 띄우는 effect 안에서 걸면 "떴다"는 표시가 바뀌는 순간 그

@@ -47,6 +47,7 @@ import {
   selectRadioSignaling,
   selectResultMusic,
   selectSceneInputLocked,
+  selectSheetBeckons,
   selectSignalSilenceRunning,
   selectSinkHintRead,
   selectStillBeatDone,
@@ -967,7 +968,7 @@ describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
     expect(selectMusicPlaying(useMemoryRoomStore.getState())).toBe(true);
   });
 
-  it("서류 순서와 출입증을 마치면 p4-close가 흐르고 액자 2차가 열린다", () => {
+  it("서류 순서와 출입증을 마치면 p4-close가 흐르고, 피아노를 풀어야 액자 2차가 열린다", () => {
     enterPhase("p4");
     expect(status("frame")).toBe("locked");
     useMemoryRoomStore.setState({
@@ -980,6 +981,10 @@ describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
 
     const state = useMemoryRoomStore.getState();
     expect(state.activePlayback?.cutsceneId).toBe(CUTSCENE_P4_CLOSE);
+    // 액자는 거실 피아노 뒤에 선다 (room-clues의 VISIT_AFTER_PUZZLE). 그때부터 조각이 부른다
+    expect(status("frame")).toBe("locked");
+    expect(selectSheetBeckons(state)).toBe(true);
+    useMemoryRoomStore.setState({ solvedPuzzles: ["sink-dial", "piano-melody"] });
     expect(status("frame")).toBe("available");
   });
 
@@ -987,6 +992,7 @@ describe("4페이즈: 안방 → 액자 → 정적 비트", () => {
     enterPhase("p4");
     useMemoryRoomStore.setState({
       revisited: [...useMemoryRoomStore.getState().revisited, "research-note", "id-card"],
+      solvedPuzzles: ["sink-dial", "piano-melody"],
     });
     useMemoryRoomStore.getState().beginInteraction("frame");
     finishInteraction("frame");
@@ -1526,6 +1532,14 @@ describe("방탈출 축 (임시): 물건과 문", () => {
       revisited: ["radio"],
       doorOpened: true,
     });
+
+  it("악보 조각을 집으면 거실 피아노의 것임을 한 줄로 짚는다. 열쇠는 말이 없다", () => {
+    useMemoryRoomStore.getState().takeItem("parents-key");
+    expect(useMemoryRoomStore.getState().remark).toBeNull();
+
+    useMemoryRoomStore.getState().takeItem("piano-sheet");
+    expect(useMemoryRoomStore.getState().remark?.id).toBe("sheet-taken");
+  });
 
   it("물건은 한 번만 집히고, 새 게임에서 사라진다", () => {
     useMemoryRoomStore.getState().takeItem("parents-key");

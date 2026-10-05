@@ -31,6 +31,7 @@ import {
   PUZZLE_IDS,
   type PuzzleId,
   VISIT_AFTER_DISCOVERY,
+  VISIT_AFTER_PUZZLE,
 } from "@/data/room-clues";
 import { DOORWAY_IDS, type DoorwayId, type SpaceId } from "@/data/spaces";
 import {
@@ -110,6 +111,8 @@ export type RemarkId =
   | "sink-locked"
   | "sink-open"
   | "piano-done"
+  // 안방 책상의 악보 조각을 집은 순간: 거실 피아노의 것임을 짚는다
+  | "sheet-taken"
   | "parents-locked"
   // 캐비닛 위 탁상시계: 1막에는 멈춘 시각, 2막부터 다시 가는 초침
   | "clock-stopped"
@@ -554,6 +557,7 @@ type StateSnapshot = Pick<MemoryRoomState, "collected" | "revisited" | "doorOpen
       | "notebookOpened"
       | "signalCaught"
       | "sinkDrained"
+      | "solvedPuzzles"
     >
   >;
 
@@ -636,7 +640,15 @@ export function hotspotStatus(state: StateSnapshot, id: MemoryId): HotspotStatus
     after !== undefined &&
     after.visit === visit &&
     !(state.discoveries ?? []).includes(after.discovery);
-  if (!waitingDiscovery && visitOpen(progress, id, visit)) {
+  // 미궁 문제를 풀어야 열리는 차수 (액자 2차 = 거실 피아노 뒤)
+  const gate = (VISIT_AFTER_PUZZLE as Partial<Record<string, { visit: Visit; puzzle: PuzzleId }>>)[
+    id
+  ];
+  const waitingPuzzle =
+    gate !== undefined &&
+    gate.visit === visit &&
+    !(state.solvedPuzzles ?? []).includes(gate.puzzle);
+  if (!waitingDiscovery && !waitingPuzzle && visitOpen(progress, id, visit)) {
     // 문제집을 뒤집어 보기 전에는 강도 1도 잠가 둔다 (onboardingStep)
     return onboardingStep(state) === "workbook" ? "locked" : "available";
   }
@@ -828,6 +840,11 @@ export function tripDoubted(state: Pick<MemoryRoomState, "revisited">): boolean 
   return TRIP_CLUES.every((id) => state.revisited.includes(id));
 }
 
+/** 4페이즈의 마지막 칸(액자 2차)에 닿았는가: 앞선 조사를 다 마쳤다. */
+function p4FinalReached(state: MemoryRoomState): boolean {
+  return nextVisit(state, P4_FINAL_MEMORY) === 2 && visitOpen(state, P4_FINAL_MEMORY, 2);
+}
+
 /**
  * 조사를 마친 순간 곧장 트는 컷씬들, 트는 순서대로. 방을 한 바퀴 더 둘러보게 두면
  * 그 순간의 밀도가 흩어진다. 한 번에 여럿이 걸리면 차례로 이어서 흐른다
@@ -837,7 +854,7 @@ export function tripDoubted(state: Pick<MemoryRoomState, "revisited">): boolean 
  *   2. 조사 자체에 붙은 컷씬 (생존자 방송 · 정적 비트: memories.yaml의 cutscene)
  *   3. 캐리어 개수 추리가 방금 맞물렸다 → trip-doubt
  *   4. 2페이즈를 방금 마쳤다 → p2-close
- *   5. 4페이즈의 마지막 칸(액자 2차)이 방금 열렸다 → p4-close
+ *   5. 4페이즈의 마지막 칸(액자 2차) 앞의 조사를 방금 다 마쳤다 → p4-close
  */
 function cutscenesAfter(
   before: MemoryRoomState,
@@ -854,11 +871,9 @@ function cutscenesAfter(
   const was = storyPhaseOf(before);
   const now = storyPhaseOf(after);
   if (was === "p2" && now === "p3") queue.push(openCutscene(CUTSCENE_P2_CLOSE));
-  if (
-    now === "p4" &&
-    hotspotStatus(after, P4_FINAL_MEMORY) === "available" &&
-    hotspotStatus(before, P4_FINAL_MEMORY) !== "available"
-  )
+  // 액자 2차의 조사 조건(서류·출입증)이 방금 찼다. 피아노 자물쇠(VISIT_AFTER_PUZZLE)는 안 본다:
+  // 이 줄은 안방에서 본 것에 대한 대답이지 액자가 열렸다는 알림이 아니다
+  if (now === "p4" && p4FinalReached(after) && !p4FinalReached(before))
     queue.push(openCutscene(CUTSCENE_P4_CLOSE));
   return queue.filter((playback): playback is ActivePlayback => playback !== null);
 }
@@ -1356,7 +1371,12 @@ export const useMemoryRoomStore = create<MemoryRoomState>()(
         set((state) =>
           state.inventory.includes(id) || selectSceneInputLocked(state)
             ? state
-            : { inventory: [...state.inventory, id] },
+            : {
+                inventory: [...state.inventory, id],
+                // 조각만 집으면 어디 쓰는 물건인지 알 길이 없다: 피아노를 먼저 보지 않은 사람도
+                // 여기서 둘이 이어진다 (2026-10-05)
+                ...(id === "piano-sheet" ? { remark: { id: "sheet-taken", at: Date.now() } } : {}),
+              },
         ),
       // 마개는 씬의 클릭이다 (openRoomDoor와 같은 가드). 화장실에 들어서야 닿는 물건이라
       // 그 문이 열렸는지는 다시 묻지 않는다
@@ -1942,8 +1962,13 @@ export const selectRevisitedCount = (state: MemoryRoomState) => state.revisited.
  * 거꾸로 꽂힌 책을 넘겨 끼워 둔 쪽지의 번호를 본 순간 선다 (discoveries의 sink-code).
  */
 /** 피아노의 지워진 마디를 봤는가: 안방 악보 조각의 표식이 이걸로 켜진다. */
-export const selectPianoGapSeen = (state: Pick<MemoryRoomState, "pianoGapSeen">) =>
-  state.pianoGapSeen;
+/**
+ * 안방 책상의 악보 조각이 부르는가. 피아노의 빈 마디를 본 뒤(pianoGapSeen)이거나, 안방의
+ * 조사를 다 마쳐 액자 앞에 피아노만 남았을 때다. 뒤쪽이 없으면 피아노를 한 번도 안 눌러 본
+ * 사람은 다음에 무엇을 해야 하는지 알 길이 없다 (액자는 피아노 뒤에 선다: VISIT_AFTER_PUZZLE).
+ */
+export const selectSheetBeckons = (state: MemoryRoomState) =>
+  !state.solvedPuzzles.includes("piano-melody") && (state.pianoGapSeen || p4FinalReached(state));
 export const selectSinkHintRead = (state: Pick<MemoryRoomState, "discoveries">) =>
   state.discoveries.includes("sink-code");
 /** 세면대 바닥의 출입증 배지를 봤는가: 컴퓨터 3차(로고 고르기)가 이것 뒤에 열린다. */

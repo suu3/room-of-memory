@@ -63,10 +63,12 @@ describe("화면 밖 목록의 상태는 3D 물건과 같은 진행을 본다", 
     expect(statuses["id-card"]).toBe("available");
   });
 
-  it("안방의 둘을 마치면 액자가 다시 열린다 (조사 완료로 읽히지 않는다)", () => {
+  it("안방의 둘을 마치고 피아노를 풀면 액자가 다시 열린다 (조사 완료로 읽히지 않는다)", () => {
     const p4 = at("p4");
     const revisited = [...p4.revisited, "research-note", "id-card"] as MemoryId[];
-    expect(memoryStatuses({ ...p4, revisited }).frame).toBe("available");
+    expect(memoryStatuses({ ...p4, revisited }).frame).toBe("locked");
+    const solvedPuzzles = [...p4.solvedPuzzles, "piano-melody"] as typeof p4.solvedPuzzles;
+    expect(memoryStatuses({ ...p4, revisited, solvedPuzzles }).frame).toBe("available");
   });
 
   it("떠나기 전에는 가방과 앰플이 다시 열린다", () => {

@@ -19,7 +19,7 @@
 | turning → p2 | `doorOpened` (라디오 2차 = 생존자 방송 뒤에만 열린다) |
 | p2 → p3 | `from: p2`이고 곁가지가 아닌 조사 전부 |
 | p3 → p4 | 안방 문(`living-parents`)이 열림 |
-| p4 → resolve | `from: p4` 필수 조사 전부 (연구 일지 · 출입증 · 액자 2차) |
+| p4 → resolve | `from: p4` 필수 조사 전부 (연구 일지 · 출입증 · 액자 2차). 액자 2차는 피아노(`piano-melody`)를 풀어야 열린다 |
 | resolve → ending | `endingStarted` (가방·앰플·배트를 다 챙긴 뒤 현관문. `angle-turn` 잠금은 뺐다) |
 
 설계서 1-3의 플래그는 전부 파생값이다 (`src/store/memory-room.ts`):
@@ -44,12 +44,16 @@
 | turning | 빨간 라디오 → 생존자 방송 컷씬 → 방문 금빛 | 라디오 `phase2.cutscene` |
 | p2 | 가방·냉장고 위칸·신발장·카드·컴퓨터(로그인 0812) → 폰 2차(엄마 대화방) | `from: p2` |
 | p3 | 앰플 → 세면대 마개를 뽑아 물 빼기(`sinkDrained`) → 바닥의 출입증 배지(단서 `raon-badge`: 확대 화면 + 한 줄) → 컴퓨터 3차(라온 로고 고르기 · 아빠 메일 힌트) → 거꾸로 꽂힌 책 → 하부장 다이얼 407 → 안방 열쇠 | `from: p3`, `VISIT_AFTER_DISCOVERY`, 퍼즐 `sink-dial` |
-| p4 | 연구 일지(서류 순서 맞추기. 소집 공지는 그 조각 하나다) · 출입증 → p4-close → 액자 2차 → 정적 비트 | `from: p4`, 액자 `phase2.cutscene` |
+| p4 | 연구 일지(서류 순서 맞추기. 소집 공지는 그 조각 하나다) · 출입증 → p4-close → 책상의 악보 조각 → 거실 피아노 → 액자 2차 → 정적 비트 | `from: p4`, 퍼즐 `piano-melody`(`VISIT_AFTER_PUZZLE`), 액자 `phase2.cutscene` |
 | resolve | 챙길 것 셋이 동시에 금빛(순서 자유): 가방 3차(`duffel-take`) · 앰플 3차(`ampoule-pickup`) · 배트(`bat-grip`) → 셋 다 챙기면 혼잣말 "나가자." → 현관문 | `from: resolve`, `packedForExit` |
 
 - 1페이즈의 닫힌 방문과 꺼진 컴퓨터, 화장실 칫솔컵, 힌트 전의 하부장은 누르면 혼잣말
   한 줄이 흐른다 (`RemarkLine`, 스토어의 `remark`).
-- 게임기·공의 2차는 곁가지(`side: true`)로 남겼다. 피아노도 곁가지이고 풀면 한 줄이 흐른다.
+- 게임기·공의 2차는 곁가지(`side: true`)로 남겼다.
+- 피아노는 필수다 (2026-10-05, 곁가지에서). 풀어야 액자 2차가 열린다
+  (`src/data/room-clues.ts`의 `VISIT_AFTER_PUZZLE`). 물건을 가져와 푸는 자물쇠 꼴인데 풀어도
+  아무것도 안 열려서, 해 본 사람마다 왜 있는지 물었다. p4-close는 액자가 열릴 때가 아니라
+  서류·출입증을 마친 순간에 흐른다. 그 뒤로 악보 조각이 스스로 부른다 (`selectSheetBeckons`).
 - `farewell` 컷씬, `radio-voice`, 폰 1019 잠금(`phone-lock` 미니게임째)은 삭제했다.
 - 거실은 부엌과 현관 홈까지 한 공간(`living`)이다 (2026-10-01 확장). 왜 그 배치인지는
   `docs/models/living-room.md`.

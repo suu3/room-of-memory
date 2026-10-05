@@ -267,6 +267,7 @@ export function progressAt(phase: EnterablePhase) {
         ? ["living-bathroom"]
         : [],
     inventory: passed("p3") ? ["parents-key"] : [],
-    solvedPuzzles: passed("p3") ? ["sink-dial"] : [],
+    // 피아노는 액자 2차(4페이즈의 마지막 필수 조사) 앞의 자물쇠다 (room-clues의 VISIT_AFTER_PUZZLE)
+    solvedPuzzles: passed("p4") ? ["sink-dial", "piano-melody"] : passed("p3") ? ["sink-dial"] : [],
   };
 }

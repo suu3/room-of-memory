@@ -26,6 +26,7 @@ describe("RoomCallout", () => {
   it("방 밖에서 한 줄이 떴다가 스스로 사라지고, 다시 뜨지 않는다", () => {
     act(() => useMemoryRoomStore.setState({ space: "living" }));
     const { container } = render(<RoomCallout />);
+    act(() => vi.advanceTimersByTime(0));
     expect(container.querySelector("p")).not.toBeNull();
 
     act(() => vi.advanceTimersByTime(5000));
@@ -34,5 +35,20 @@ describe("RoomCallout", () => {
     act(() => useMemoryRoomStore.setState({ space: "room" }));
     act(() => useMemoryRoomStore.setState({ space: "living" }));
     expect(container.querySelector("p")).toBeNull();
+  });
+
+  it("방금 흐른 혼잣말이 지나간 뒤에 뜬다 (피아노를 푼 직후)", () => {
+    act(() =>
+      useMemoryRoomStore.setState({
+        space: "living",
+        remark: { id: "piano-done", at: Date.now() },
+      }),
+    );
+    const { container } = render(<RoomCallout />);
+    act(() => vi.advanceTimersByTime(3000));
+    expect(container.querySelector("p")).toBeNull();
+
+    act(() => vi.advanceTimersByTime(1500));
+    expect(container.querySelector("p")).not.toBeNull();
   });
 });

@@ -28,6 +28,7 @@ const REMARK_TEXT: Record<Exclude<RemarkId, "seen" | "needs-item">, CommonTextKe
   "sink-locked": "remark.sinkLocked",
   "sink-open": "remark.sinkOpen",
   "piano-done": "remark.pianoDone",
+  "sheet-taken": "remark.sheetTaken",
   "parents-locked": "remark.parentsLocked",
   "clock-stopped": "remark.clockStopped",
   "clock-running": "remark.clockRunning",

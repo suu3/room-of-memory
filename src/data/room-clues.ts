@@ -150,12 +150,26 @@ export const CLUE_AFTER_VISIT = {
  *
  * piano-melody는 거실 피아노의 멜로디 자물쇠다. 악보의 한 마디가 지워져 있고 그 마디는
  * 안방 책상의 찢어진 조각이 들고 있다: 이쪽 공간의 단서를 저쪽에서 찾는 축의 첫 매듭이다.
+ * 풀면 방의 액자 2차가 열린다 (VISIT_AFTER_PUZZLE).
  *
  * 현관 잠금(angle-turn, 시계 각도 미궁)은 뺐다. 30일 만에 나가는 문 앞에서 산수를
  * 시키면 결심의 순간이 퍼즐에 묻힌다. 현관은 배트를 쥐면 바로 열린다.
  */
 export const PUZZLE_IDS = ["piano-melody", "sink-dial"] as const;
 export type PuzzleId = (typeof PUZZLE_IDS)[number];
+
+/**
+ * 미궁 문제를 풀어야 열리는 조사 차수. 액자 2차는 거실 피아노를 친 뒤에 연다
+ * (store의 hotspotStatus).
+ *
+ * 피아노는 처음에 곁가지였다. 그런데 물건을 가져와 푸는 자물쇠 꼴은 본편과 같으면서
+ * 풀어도 아무것도 안 열리니, 해 본 사람마다 "이게 뭐였지"가 됐다 (2026-10-05). 그래서
+ * 4페이즈의 마지막 직면 앞에 세운다: 안방에서 조각을 집고, 거실에서 어릴 때 치던 곡을
+ * 치고, 그 손으로 방의 가족사진을 다시 본다.
+ */
+export const VISIT_AFTER_PUZZLE = {
+  frame: { visit: 2, puzzle: "piano-melody" },
+} as const satisfies Record<string, { visit: 1 | 2 | 3; puzzle: PuzzleId }>;
 
 /**
  * 조사를 마친 뒤 배경 오브젝트로 다시 열리는 기억. 달력이 유일하다. 1바퀴에
