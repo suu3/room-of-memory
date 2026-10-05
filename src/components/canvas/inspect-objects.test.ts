@@ -32,7 +32,7 @@ describe("손이 하는 일이 물건마다 갈린다 (뒤집기는 문제집 �
   });
 
   it("책은 장을 넘긴다: 앞표지 한 장 + 본문 넉 장, 찾을 쪽은 세 장 넘긴 오른쪽", () => {
-    const book = shelfBookObject("야구 규칙 해설", "407");
+    const book = shelfBookObject("풀카운트 1", "407");
     expect(inspectControlOf(book)).toEqual({ kind: "pages", sheets: 5 });
     if (book.shape !== "book") throw new Error("book expected");
     expect(book.pages).toHaveLength(10);

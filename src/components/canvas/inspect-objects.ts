@@ -13,6 +13,7 @@
 import { ASSETS } from "@/lib/assets";
 import type { RoomPalette } from "@/scenes/memory-room/world/palette";
 import type { FacePainter, InspectFace, InspectObject } from "./InspectTurntable";
+import { type MangaPanel, mangaPanels } from "./manga-panels";
 
 /** 방의 기억 색 대신 쓰는 손글씨 잉크. 팔레트의 가장 짙은 색. */
 const ink = (palette: RoomPalette) => palette.frame;
@@ -290,8 +291,11 @@ const SHELF_BOOK_SHEETS = 5;
 /** 찾을 쪽의 `pages` 인덱스: 낱장 3의 앞면. */
 const SHELF_BOOK_TARGET = 6;
 
-/** 인쇄된 본문 흉내: 글줄을 회색 막대로 놓는다. 읽을 글이 아니라 "글이 있다"는 결이다. */
-function paintPrintedPage(pageNumber: number, onRight: boolean): FacePainter {
+/**
+ * 만화책 본문 흉내: 칸을 나누고 칸마다 실루엣·집중선·톤 중 하나를 놓는다. 읽을 그림이
+ * 아니라 "만화 칸이 있다"는 결이다. 칸 나누기는 manga-panels가 쪽 번호에서 정한다.
+ */
+function paintMangaPage(pageNumber: number, onRight: boolean): FacePainter {
   return (ctx, { width, height }, palette, font) => {
     ctx.fillStyle = palette.linen;
     ctx.fillRect(0, 0, width, height);
@@ -308,24 +312,105 @@ function paintPrintedPage(pageNumber: number, onRight: boolean): FacePainter {
     ctx.fillRect(0, 0, width, height);
     const left = width * (onRight ? 0.16 : 0.1);
     const right = width * (onRight ? 0.9 : 0.84);
-    ctx.fillStyle = palette.trim;
-    ctx.globalAlpha = 0.75;
-    // 소제목 한 줄과 문단 셋. 줄 길이는 쪽 번호에서 정해져 늘 같다 (리렌더에 흔들리지 않는다)
-    ctx.fillRect(left, height * 0.1, (right - left) * 0.42, height * 0.022);
-    let y = height * 0.16;
-    for (let line = 0; line < 22; line++) {
-      const seed = Math.sin(pageNumber * 7.1 + line * 3.3) * 0.5 + 0.5;
-      const endOfParagraph = line % 8 === 7;
-      const length = endOfParagraph ? 0.35 + seed * 0.4 : 0.92 + seed * 0.08;
-      ctx.fillRect(left, y, (right - left) * length, height * 0.013);
-      y += height * (endOfParagraph ? 0.05 : 0.033);
+    const top = height * 0.07;
+    const bottom = height * 0.9;
+    for (const panel of mangaPanels(pageNumber)) {
+      paintMangaPanel(
+        ctx,
+        {
+          x: left + panel.x * (right - left),
+          y: top + panel.y * (bottom - top),
+          width: panel.width * (right - left),
+          height: panel.height * (bottom - top),
+        },
+        panel,
+        palette,
+      );
     }
-    ctx.globalAlpha = 1;
     ctx.fillStyle = palette.frame;
     ctx.font = `500 ${Math.round(height * 0.028)}px ${font}`;
     ctx.textAlign = onRight ? "right" : "left";
     ctx.fillText(String(pageNumber), onRight ? right : left, height * 0.95);
   };
+}
+
+/** 만화 한 칸: 테두리 안에 내용 하나, 그 위에 말풍선. 내용은 칸 밖으로 새지 않는다. */
+function paintMangaPanel(
+  ctx: CanvasRenderingContext2D,
+  box: { x: number; y: number; width: number; height: number },
+  panel: MangaPanel,
+  palette: RoomPalette,
+) {
+  const { x, y, width, height } = box;
+  const unit = Math.min(width, height);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, width, height);
+  ctx.clip();
+  ctx.fillStyle = palette.daylight;
+  ctx.fillRect(x, y, width, height);
+  if (panel.kind === "tone") {
+    // 톤 깔린 배경: 아래로 갈수록 짙어지는 땅과 그 위의 낮은 지평선
+    ctx.fillStyle = palette.trim;
+    ctx.globalAlpha = 0.35;
+    ctx.fillRect(x, y + height * 0.55, width, height * 0.45);
+    ctx.globalAlpha = 0.6;
+    ctx.fillRect(x, y + height * 0.8, width, height * 0.2);
+  } else if (panel.kind === "speed") {
+    // 집중선: 칸 한쪽의 한 점으로 모인다. 공이 날아가는 칸
+    const focusX = x + width * 0.72;
+    const focusY = y + height * 0.42;
+    ctx.strokeStyle = ink(palette);
+    ctx.globalAlpha = 0.5;
+    ctx.lineWidth = Math.max(1, unit * 0.012);
+    const reach = Math.hypot(width, height);
+    for (let line = 0; line < 18; line++) {
+      const angle = (line / 18) * Math.PI * 2 + 0.2;
+      ctx.beginPath();
+      ctx.moveTo(focusX + Math.cos(angle) * unit * 0.22, focusY + Math.sin(angle) * unit * 0.22);
+      ctx.lineTo(focusX + Math.cos(angle) * reach, focusY + Math.sin(angle) * reach);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = palette.daylight;
+    ctx.beginPath();
+    ctx.arc(focusX, focusY, unit * 0.09, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  } else {
+    // 인물 실루엣: 머리 하나와 칸 아래로 잘리는 어깨
+    const centerX = x + width * 0.58;
+    ctx.fillStyle = palette.trim;
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    ctx.arc(centerX, y + height * 0.5, unit * 0.17, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(centerX, y + height * 1.05, unit * 0.42, height * 0.36, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  if (panel.bubble) {
+    // 말풍선: 글 대신 짧은 막대 둘
+    const bubbleX = x + width * 0.26;
+    const bubbleY = y + height * 0.27;
+    const radiusX = Math.min(width * 0.2, unit * 0.34);
+    const radiusY = Math.min(height * 0.17, unit * 0.22);
+    ctx.fillStyle = palette.daylight;
+    ctx.strokeStyle = ink(palette);
+    ctx.lineWidth = Math.max(1, unit * 0.014);
+    ctx.beginPath();
+    ctx.ellipse(bubbleX, bubbleY, radiusX, radiusY, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = palette.trim;
+    ctx.fillRect(bubbleX - radiusX * 0.5, bubbleY - radiusY * 0.3, radiusX, radiusY * 0.16);
+    ctx.fillRect(bubbleX - radiusX * 0.5, bubbleY + radiusY * 0.14, radiusX * 0.7, radiusY * 0.16);
+  }
+  ctx.restore();
+  ctx.strokeStyle = ink(palette);
+  ctx.lineWidth = Math.max(2, unit * 0.018);
+  ctx.strokeRect(x, y, width, height);
 }
 
 /** 귀 접힌 쪽: 오른쪽 위 귀퉁이가 안으로 접혀 있다. 그림 파일이 덮인 뒤에도 위에 남는다. */
@@ -355,7 +440,7 @@ const paintDogEar: FacePainter = (ctx, { width }, palette) => {
 };
 
 /**
- * 책장 사이에 끼워 둔 쪽지. 인쇄된 본문 위에 비스듬히 얹힌 작은 종이에 손글씨로
+ * 책장 사이에 끼워 둔 쪽지. 만화 칸 위에 비스듬히 얹힌 작은 종이에 손글씨로
  * 번호 세 자리. 쪽에 바로 적힌 글씨가 아니라 끼워 둔 종이라야 "남기고 간 것"으로 읽힌다.
  */
 function paintTuckedSlip(
@@ -394,7 +479,7 @@ function paintTuckedSlip(
 }
 
 /**
- * 선반의 책: 앞표지는 야구 규칙 해설서. 장을 넘기면 세 장째 오른쪽, 귀 접힌 쪽에
+ * 선반의 책: 앞표지는 아빠가 사다 준 야구 만화 1권. 장을 넘기면 세 장째 오른쪽, 귀 접힌 쪽에
  * 쪽지가 끼워져 있고 손으로 쓴 번호가 적혀 있다. 거꾸로 꽂아 둔 건 이 쪽을 찾으라는 표시였다.
  */
 export function shelfBookObject(title: string, number: string): InspectObject {
@@ -416,7 +501,7 @@ export function shelfBookObject(title: string, number: string): InspectObject {
     ctx.strokeRect(0, 0, width, height);
   };
   const paintMarked: FacePainter = (ctx, { width, height }, palette, font) => {
-    paintPrintedPage(SHELF_BOOK_TARGET - 1, true)(ctx, { width, height }, palette, font);
+    paintMangaPage(SHELF_BOOK_TARGET - 1, true)(ctx, { width, height }, palette, font);
     paintTuckedSlip(ctx, { width, height }, palette, font, number);
   };
   const pages: InspectFace[] = [];
@@ -428,10 +513,10 @@ export function shelfBookObject(title: string, number: string): InspectObject {
         ? { paint: paintCover }
         : frontIndex === SHELF_BOOK_TARGET
           ? { paint: paintMarked, overlay: paintDogEar }
-          : { paint: paintPrintedPage(frontIndex - 1, true) },
+          : { paint: paintMangaPage(frontIndex - 1, true) },
     );
     pages.push(
-      sheet === 0 ? { paint: paintEndpaper } : { paint: paintPrintedPage(backIndex - 1, false) },
+      sheet === 0 ? { paint: paintEndpaper } : { paint: paintMangaPage(backIndex - 1, false) },
     );
   }
   return {
