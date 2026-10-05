@@ -248,10 +248,11 @@ export const VOICES: Record<VoiceId, Voice> = {
    * 배트가 공을 맞히는 순간. 나무 몸통(빠르게 떨어지는 낮은 톤)과 크랙(짧고 밝은
    * 노이즈)을 겹친다. 진짜 나무 소리는 합성으로 끝까지 못 가지만, 이 게임의 배트는
    * 실사가 아니라 도트 스프라이트라 여기서 멈추는 편이 오히려 맞는다.
+   * 헛스윙(파일)보다 작게 들려서 톤과 크랙을 같은 비율로 약 1.5배 올렸다: 맞힌 쪽이 묻히면 안 된다.
    */
   batHit: {
-    tones: [{ from: 180, to: 90, waveform: "triangle", delay: 0, duration: 0.11, gain: 0.26 }],
-    noise: { delay: 0, duration: 0.09, gain: 0.34, highpass: 2400 },
+    tones: [{ from: 180, to: 90, waveform: "triangle", delay: 0, duration: 0.11, gain: 0.4 }],
+    noise: { delay: 0, duration: 0.09, gain: 0.52, highpass: 2400 },
   },
   /**
    * 헛스윙: 맞은 소리가 아니라 지나간 소리. 부풀었다 사그라드는 바람만 남긴다.
