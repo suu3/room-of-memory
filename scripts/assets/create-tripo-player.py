@@ -791,7 +791,15 @@ for v in mesh.data.vertices:
     allowed = ALLOWED[vertex_part[v.index]]
     weights = {name: w for name, w in weights.items() if name in allowed}
     part = vertex_part[v.index]
-    if part == 3:
+    if part == 1 and weights:
+        # Keep the waistband on the pelvis when thighs rotate 90 degrees for Sit.
+        # Match reweight-player-hips.mjs: blend over upper thigh, preserve knees/feet.
+        t = max(0, min(1, (v.co.z - 0.42) / 0.11))
+        pelvis = t * t * (3 - 2 * t)
+        total = sum(weights.values())
+        weights = {name: w * (1 - pelvis) for name, w in weights.items()}
+        weights["hips"] = weights.get("hips", 0) + pelvis * total
+    elif part == 3:
         # The generated vest shared skinning with the lowered arms. Keep the torso cloth
         # on the torso; otherwise raising an arm pulls a long web of vest up with it.
         t = max(0, min(1, (v.co.z - 0.59) / 0.17))

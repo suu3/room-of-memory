@@ -132,6 +132,41 @@ describe("shipped player GLB", () => {
       "",
     );
     const blinkRig = createPlayerRig(gltf.scene, gltf.animations);
+    // 허리띠가 허벅지를 따라 접히면 조끼 아래가 벌어지고 엉덩이에 뾰족한 면이 생긴다.
+    // 실제 바지 윗부분이 앉는 중에도 골반 기준 자리를 지키는지 확인한다.
+    let trousersName = "";
+    gltf.scene.traverse((object) => {
+      const association = gltf.parser.associations.get(object);
+      if (association?.meshes === undefined || association.primitives === undefined) return;
+      const primitive = asset.meshes[association.meshes].primitives[association.primitives];
+      if (asset.materials[primitive.material]?.name === "tripo_part_1_material")
+        trousersName = object.name;
+    });
+    const trousers = blinkRig.root.getObjectByName(trousersName) as SkinnedMesh;
+    const hips = blinkRig.root.getObjectByName("hips");
+    if (!trousers?.isSkinnedMesh || !hips) throw new Error("Missing trousers or hips");
+    updatePlayerRig(blinkRig, 0, 0, 0);
+    blinkRig.root.updateMatrixWorld(true);
+    const waistband: { index: number; relative: Vector3 }[] = [];
+    for (let index = 0; index < trousers.geometry.attributes.position.count; index++) {
+      const point = trousers
+        .getVertexPosition(index, new Vector3())
+        .applyMatrix4(trousers.matrixWorld);
+      if (point.y > 0.535) waistband.push({ index, relative: hips.worldToLocal(point) });
+    }
+    expect(waistband.length).toBeGreaterThan(100);
+    for (const sitting of [0.5, 1, 0]) {
+      updatePlayerRig(blinkRig, 0, 0, 0, sitting);
+      blinkRig.root.updateMatrixWorld(true);
+      let drift = 0;
+      for (const { index, relative } of waistband) {
+        const point = trousers
+          .getVertexPosition(index, new Vector3())
+          .applyMatrix4(trousers.matrixWorld);
+        drift = Math.max(drift, hips.worldToLocal(point).distanceTo(relative));
+      }
+      expect(drift, `waistband must stay under the shirt at sit=${sitting}`).toBeLessThan(0.005);
+    }
     blinkRig.blink.next = 2.8;
     updatePlayerRig(blinkRig, 0, 0, 2.89);
     for (const part of ["EyelidLeft", "EyelidRight", "EyeHighlightLeft", "EyeHighlightRight"]) {
