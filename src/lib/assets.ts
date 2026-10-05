@@ -190,9 +190,9 @@ export const ASSETS = {
      * 영상에는 굽지 않는다: 한 편으로 세 언어를 낸다.
      */
     sideStoryThatSummerSubtitles: {
-      ko: "/assets/video/side-story-that-summer.ko.vtt?v=20261004",
-      en: "/assets/video/side-story-that-summer.en.vtt?v=20261004",
-      ja: "/assets/video/side-story-that-summer.ja.vtt?v=20261004",
+      ko: "/assets/video/side-story-that-summer.ko.vtt?v=20261005c",
+      en: "/assets/video/side-story-that-summer.en.vtt?v=20261005c",
+      ja: "/assets/video/side-story-that-summer.ja.vtt?v=20261005c",
     },
   },
   /**
