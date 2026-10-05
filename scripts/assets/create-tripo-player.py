@@ -13,7 +13,8 @@ What it does, in order:
 4. Fits blink eyelids and subtle retracting catchlights over the painted eyes.
 5. Authors Idle/Walk/Sit/SitDown/StandUp exactly like scripts/assets/create-chibi-player.py.
 6. Exports player-chibi.glb and saves the .blend. After `pnpm model:prep`, decode with
-   `gltf-transform copy`, run `repair-player-clothing.mjs`, and Meshopt-compress again.
+   `gltf-transform copy`, run `repair-player-clothing.mjs`, then
+   `round-player-clothing.mjs` (Blender worker), and Meshopt-compress again.
    This closes the vest's side seams and smooths clothing without changing the rig.
 
 The curtain-pull clips are carried over separately: scripts/assets/retarget-curtain-clips.mjs.

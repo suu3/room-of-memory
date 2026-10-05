@@ -332,6 +332,15 @@ describe("shipped player GLB", () => {
         count === 1 && [a, b].every((p) => Math.abs(p.x) > 0.1 && p.y > 0.59 && p.y < 0.8),
     );
     expect(openSides, "vest side seams must share the garment boundary").toHaveLength(0);
+    const sideEdges = [...edgeCounts.values()].filter(({ a, b }) =>
+      [a, b].every((p) => Math.abs(p.x) > 0.1 && p.y > 0.59 && p.y < 0.8),
+    );
+    expect(sideEdges.length).toBeGreaterThan(100);
+    expect(
+      Math.max(...sideEdges.map(({ a, b }) => a.distanceTo(b))),
+      "knit sides must use small surface triangles, not long folded repair fans",
+    ).toBeLessThan(0.04);
+
     const resting = new Map<number, Vector3>();
     for (let index = 0; index < vest.geometry.attributes.position.count; index += 17) {
       resting.set(index, vest.getVertexPosition(index, new Vector3()));
