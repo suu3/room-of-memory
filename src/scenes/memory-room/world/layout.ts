@@ -836,7 +836,9 @@ export const CAMERA_PRESETS = {
   radio: { position: [-1.1, 2.5, 2.1], target: [-4.05, 1.31, 0.1] },
   // 라디오와 같은 통로에서 책상 안쪽(모니터)을 비스듬히 본다
   computer: { position: [-0.9, 2.7, 1.1], target: [-4.6, 1.5, -0.95] },
-  phone: { position: [6.75, 2.65, 6.25], target: [4.3, 0.95, 3.6] },
+  // 침대는 +x·+z 구석이라, 카메라가 그 두 벽 안쪽에 서면 벽이 걷히지 않고 화면 양옆을 막는다
+  // (wall-culling의 cameraBeyondWall). 직교 카메라라 시선을 따라 물러나도 구도는 그대로다
+  phone: { position: [8.47, 3.84, 8.1], target: [4.3, 0.95, 3.6] },
   // 달력이 z로 옮겨간 만큼 카메라도 같이 옮긴다. 둘을 같은 값만큼 밀어야 보는 각이 그대로다
   calendar: { position: [-1.1, 3.6, 2.92], target: [-5.75, 2.5, 0.62] },
   ball: { position: [-1.4, 2.1, 6.6], target: [-5.1, 0.19, 3.75] },
