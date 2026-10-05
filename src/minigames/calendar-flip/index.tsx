@@ -110,11 +110,19 @@ interface Leaving {
 }
 
 /**
- * 달력 판의 폭. 화면 높이에 맞춰 최대한 크게 잡되, 좌우 화살표 자리와 아래 장 번호 줄,
+ * 달력 판의 폭. 화면 높이에 맞춰 최대한 크게 잡되, 좌우 화살표 자리(--sheet-gutter)와 아래 장 번호 줄,
  * 호스트가 뒤에 까는 패널의 안쪽 여백(사방 1.5rem)은 남긴다. 그림 비율(1080×1600)이라
  * 높이 기준 폭은 높이의 0.675배다.
  */
-const SHEET_WIDTH = "min(calc(100vw - 11rem), calc((100dvh - 10rem) * 0.675), 36rem)";
+const SHEET_WIDTH =
+  "min(calc(100vw - var(--sheet-gutter)), calc((100dvh - var(--sheet-chrome)) * 0.675), 36rem)";
+/**
+ * 폰에서는 화살표를 장 아래 줄로 내린다. 양옆에 세우면 폭 390px 화면에서 장이 214px로
+ * 줄어, 그림 폭에 비례하는 메모 글씨(PageImage의 cqw)가 6px대로 떨어져 안 읽혔다. 아래로
+ * 내리면 장이 화면 폭을 거의 다 쓴다. 대신 세로로 화살표 줄만큼 더 남긴다.
+ */
+const SHEET_ROOM =
+  "[--sheet-gutter:4rem] [--sheet-chrome:13rem] sm:[--sheet-gutter:11rem] sm:[--sheet-chrome:10rem]";
 
 /**
  * 벽에 걸린 달력을 한 장씩 넘겨본다.
@@ -179,47 +187,50 @@ export function CalendarFlipMinigame({ onComplete }: MinigameProps) {
   }, [turn]);
 
   return (
-    <div className="flex animate-fade-rise flex-col items-center gap-3">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          aria-label={t("minigame.calendarFlip.prev")}
-          onClick={() => turn("prev")}
-          disabled={month === FIRST_MONTH}
-          className="cursor-pointer rounded-full border border-bone/25 p-2 text-bone/70 transition-all hover:border-bone/60 hover:text-paper disabled:cursor-default disabled:opacity-20"
-        >
-          <CaretLeftIcon size={22} weight="bold" />
-        </button>
+    <div
+      className={`grid animate-fade-rise grid-cols-[auto_1fr_auto] items-center justify-items-center gap-3 ${SHEET_ROOM}`}
+    >
+      <button
+        type="button"
+        aria-label={t("minigame.calendarFlip.prev")}
+        onClick={() => turn("prev")}
+        disabled={month === FIRST_MONTH}
+        className="order-2 cursor-pointer rounded-full sm:order-1 border border-bone/25 p-2 text-bone/70 transition-all hover:border-bone/60 hover:text-paper disabled:cursor-default disabled:opacity-20"
+      >
+        <CaretLeftIcon size={22} weight="bold" />
+      </button>
 
-        {/*
+      {/*
           벽걸이 달력 한 장. 새 장은 흐름을 따라가는 보통 요소라 높이를 정하고,
           떠나는 장만 그 위에 절대배치로 겹친다. 그래야 판 높이가 바뀔 때마다 흔들리지 않는다.
         */}
-        <div className="relative" style={{ width: SHEET_WIDTH }}>
-          <CalendarSheet month={month} />
-          {leaving && (
-            <div
-              key={`leaving-${leaving.key}`}
-              aria-hidden
-              className="animate-calendar-fade pointer-events-none absolute inset-0"
-            >
-              <CalendarSheet month={leaving.month} />
-            </div>
-          )}
-        </div>
-
-        <button
-          type="button"
-          aria-label={t("minigame.calendarFlip.next")}
-          onClick={() => turn("next")}
-          disabled={month === LAST_MONTH}
-          className="cursor-pointer rounded-full border border-bone/25 p-2 text-bone/70 transition-all hover:border-bone/60 hover:text-paper disabled:cursor-default disabled:opacity-20"
-        >
-          <CaretRightIcon size={22} weight="bold" />
-        </button>
+      <div
+        className="relative order-1 col-span-3 sm:order-2 sm:col-span-1"
+        style={{ width: SHEET_WIDTH }}
+      >
+        <CalendarSheet month={month} />
+        {leaving && (
+          <div
+            key={`leaving-${leaving.key}`}
+            aria-hidden
+            className="animate-calendar-fade pointer-events-none absolute inset-0"
+          >
+            <CalendarSheet month={leaving.month} />
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      <button
+        type="button"
+        aria-label={t("minigame.calendarFlip.next")}
+        onClick={() => turn("next")}
+        disabled={month === LAST_MONTH}
+        className="order-4 cursor-pointer rounded-full sm:order-3 border border-bone/25 p-2 text-bone/70 transition-all hover:border-bone/60 hover:text-paper disabled:cursor-default disabled:opacity-20"
+      >
+        <CaretRightIcon size={22} weight="bold" />
+      </button>
+
+      <div className="order-3 flex flex-wrap items-center justify-center gap-3 sm:order-4 sm:col-span-3">
         <p className="text-xs tracking-widest text-bone/50">
           {t("minigame.calendarFlip.pageOf", {
             value: month - FIRST_MONTH + 1,

@@ -195,7 +195,9 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
               onClick={() => pickRef.current(index)}
               // 조각에도 바탕을 깔아 둔다. 사진이 붙기 전에 빈 칸으로 비지 않게
               className={`relative bg-bone transition-[opacity,transform,filter] duration-150 ${
-                movable && !lifted ? "brightness-75" : ""
+                // 안 맞은 조각은 눈에 띄게 가라앉힌다. 75%로는 아랫줄 좌우(둘 다 옷자락)가
+                // 바뀐 채로도 다 맞춘 사진처럼 보였다
+                movable && !lifted ? "brightness-50 saturate-50" : ""
               } ${
                 lifted ? "z-10 -translate-y-1 scale-[1.03]" : ""
               } ${movable ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"} focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-memory`}

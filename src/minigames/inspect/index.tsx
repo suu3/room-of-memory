@@ -104,7 +104,11 @@ function InspectMinigame({
           className="w-full"
         />
       )}
-      <div className="flex min-h-9 flex-col items-center gap-2">
+      {/*
+        찾은 뒤에 서는 한 줄과 버튼의 자리를 처음부터 비워 둔다. 판은 화면 가운데에 놓이므로
+        (MinigameHost) 아래가 늦게 자라면 물건과 돌리기 버튼이 통째로 위로 밀려 올라갔다.
+      */}
+      <div className="flex min-h-24 flex-col items-center gap-2">
         {found ? (
           <p
             aria-live="polite"

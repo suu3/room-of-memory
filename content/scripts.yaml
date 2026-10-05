@@ -628,9 +628,9 @@ scripts:
   # 출입증을 집어 든다: 3D로 기울여 보는 판(id-card-flip) 앞
   id-card-look:
     - speaker: hero
-      ko: 아빠 출입증, 엄마 출입증. 둘 다 두고 갔네.
-      en: Dad's badge. Mom's badge. They left both behind.
-      ja: 父さんの入館証、母さんの入館証。二人とも置いていったんだ。
+      ko: 출입증이다. 아빠랑 엄마가 한 장에 같이 있다. 두고 갔네.
+      en: An access badge. Dad and Mom, both on the one card. They left it behind.
+      ja: 入館証だ。父さんと母さんが一枚に並んでいる。置いていったんだ。
 
   # 홀로그램의 로고를 본 뒤
   id-card-found:
