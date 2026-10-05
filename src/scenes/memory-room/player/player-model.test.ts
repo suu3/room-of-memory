@@ -233,6 +233,19 @@ describe("shipped player GLB", () => {
           expect(mean).toBeGreaterThan(0.1);
           expect(mean).toBeLessThan(0.9);
           expect(Math.max(...red) - Math.min(...red)).toBeGreaterThan(0.05);
+        } else if (
+          materialName === "tripo_part_3_material" &&
+          !asset.materials[primitive.material].pbrMetallicRoughness?.baseColorTexture
+        ) {
+          // 조끼 옆선의 흰 텍스처 번짐을 없앤 색은 정점에 구워 둔다.
+          expect(colors).toBeDefined();
+          const brightness = used.map(
+            (index) => (colors.getX(index) + colors.getY(index) + colors.getZ(index)) / 3,
+          );
+          // 옷 안쪽의 검은 그림자는 보존하되, 색상 레이어 전체가 검게 초기화되면 잡는다.
+          const mean = brightness.reduce((sum, value) => sum + value, 0) / brightness.length;
+          expect(mean).toBeGreaterThan(0.03);
+          expect(mean).toBeLessThan(0.7);
         } else if (colors) {
           // Blender joins parts without color layers as black unless explicitly whitened.
           for (const index of used) {
@@ -259,6 +272,35 @@ describe("shipped player GLB", () => {
     }
     const vest = blinkRig.root.getObjectByName(vestName) as SkinnedMesh;
     blinkRig.root.updateMatrixWorld(true);
+    // 떨어진 덮개로 가리지 않는다. 팔을 들면 드러나는 조끼 양옆은 닫힌 표면이어야 한다.
+    const edgeCounts = new Map<string, { count: number; a: Vector3; b: Vector3 }>();
+    const vestPoints = Array.from({ length: vest.geometry.attributes.position.count }, (_, i) =>
+      vest.getVertexPosition(i, new Vector3()).applyMatrix4(vest.matrixWorld),
+    );
+    const keys = vestPoints.map((p) =>
+      p
+        .toArray()
+        .map((n) => Math.round(n * 100_000))
+        .join(","),
+    );
+    const triangles = vest.geometry.index;
+    if (!triangles) throw new Error("Missing vest indices");
+    for (let i = 0; i < triangles.count; i += 3) {
+      for (let side = 0; side < 3; side++) {
+        const a = triangles.getX(i + side);
+        const b = triangles.getX(i + ((side + 1) % 3));
+        if (keys[a] === keys[b]) continue;
+        const key = [keys[a], keys[b]].sort().join("|");
+        const edge = edgeCounts.get(key);
+        if (edge) edge.count++;
+        else edgeCounts.set(key, { count: 1, a: vestPoints[a], b: vestPoints[b] });
+      }
+    }
+    const openSides = [...edgeCounts.values()].filter(
+      ({ count, a, b }) =>
+        count === 1 && [a, b].every((p) => Math.abs(p.x) > 0.1 && p.y > 0.59 && p.y < 0.8),
+    );
+    expect(openSides, "vest side seams must share the garment boundary").toHaveLength(0);
     const resting = new Map<number, Vector3>();
     for (let index = 0; index < vest.geometry.attributes.position.count; index += 17) {
       resting.set(index, vest.getVertexPosition(index, new Vector3()));
