@@ -13,6 +13,7 @@
     "scattered": "Memories scattered around the room",
     "round": "Round {{value}}",
     "memoryCount": "Memories",
+    "packCount": "Packed",
     "inventory": "Carrying",
     "contact": "Credits",
     "reset": "Reset",
@@ -35,7 +36,7 @@
         "doorway": "{{space}}: open the door",
         "sink-drain": "Pull the plug in the bathroom sink and drain the water",
         "shelf-book": "Look at the upside-down book on the shelf in your room",
-        "drawer-dial": "Open the lock on the drawer beside my bed",
+        "drawer-dial": "Open the lock on the drawer beside your bed",
         "piano-sheet": "Pick up the torn sheet music on the desk in the Parents' Room",
         "piano": "Take the torn sheet music to the living room piano and play it"
       }
@@ -212,7 +213,7 @@
         "forward": "Step in",
         "jump": "Jump"
       },
-      "fail": "Lost. …One more round and I'd have him."
+      "fail": "Lost. …I'll just go again."
     },
     "labelSuccess": "HITS",
     "labelMiss": "MISS",
@@ -246,14 +247,14 @@
         "schoolStart": "School starts",
         "mockExam": "Mock exam",
         "birthday": "Birthday",
-        "dday60": "CSAT D-60",
+        "dday60": "CSAT in 60 days",
         "trip": "Mom & Dad away on a trip",
         "nationals": "Nationals vs Eungang High"
       }
     },
     "windowView": {
       "title": "Outside",
-      "help": "Draw the curtain and look outside",
+      "help": "Open the curtain and look outside",
       "close": "Close the curtain",
       "lookHelp": "Move the lens over the view\nMouse · arrow keys · Enter",
       "lookHelp_touch": "Touch the view to look closer",
@@ -266,7 +267,7 @@
       "line": {
         "smoke": "Smoke rising far away. I've lost count of the days.",
         "stain": "Dark red marks on the road. …I decided not to think about what they are.",
-        "dark": "Every window across the street is dark. Is nobody there either."
+        "dark": "Every window across the street is dark. Is nobody there either?"
       },
       "allFound": "…Enough. Let's stop looking."
     },
@@ -289,9 +290,9 @@
       "chat": {
         "date": "October 18",
         "room": "Seniors Who Gave Up on College",
-        "j1": "yo Dohae after school tmrw?",
+        "j1": "yo Do-hae after school tmrw?",
         "j2": "u got nothing to do anyway",
-        "y1": "guys suneung is in a month",
+        "y1": "guys the CSAT is in a month",
         "j3": "u really think a month of studying changes anything for me?",
         "y2": "lmao",
         "m1": "lol",
@@ -315,7 +316,7 @@
         "room": "Home",
         "members": "Mom, Dad, me",
         "date": "October 17",
-        "f1": "Dohae, Mom and Dad are off for three days.",
+        "f1": "Do-hae, Mom and Dad will be away for two nights.",
         "f2": "Fridge is stocked. Don't starve.",
         "f3": "Okay, eat properly, and go easy on the games!",
         "f4": "We'll send pictures, so hold down the fort~",
@@ -359,7 +360,7 @@
         "m1": {
           "subject": "We made it",
           "date": "October 17",
-          "b1": "Your mom and I got here safe. We'll rest up for three days.",
+          "b1": "Your mom and I got here safe. We'll rest up for two nights.",
           "b2": "Your mom told me to send pictures, so here are a few. Make sure you eat."
         },
         "m2": {
@@ -389,8 +390,8 @@
         }
       },
       "photos": {
-        "tea": "Mom and Dad’s hands holding cups",
-        "shadows": "Mom and Dad’s shadows side by side"
+        "tea": "Mom and Dad's hands holding cups",
+        "shadows": "Mom and Dad's shadows side by side"
       }
     },
     "photoPuzzle": {
@@ -439,16 +440,16 @@
       "listTitle": "Chats",
       "listSubtitle": "1 chat",
       "roomSubtitle": "Direct message",
-      "message": "Dohae, come straight home after school today. Skip the study room. Don't go anywhere else"
+      "message": "Do-hae, come straight home after school today. Skip the study room. Don't go anywhere else"
     },
     "computerLogo": {
       "title": "Saved Images",
-      "help": "Pick the logo of Raon Life Science Institute: click",
-      "help_touch": "Tap the logo of Raon Life Science Institute",
+      "help": "Pick the logo of Laon Life Science Institute: click",
+      "help_touch": "Tap the logo of Laon Life Science Institute",
       "app": "Photos · Saved pages",
       "label": "What's left of the ampoule label",
       "wrong": "…Not this one.",
-      "found": "Raon Life Science Institute. Same as the one on Dad's badge.",
+      "found": "Laon Life Science Institute. Same as the one on Dad's badge.",
       "source": {
         "hotel": "Saved accommodation guide",
         "badge": "Mail attachment IMG_2190.jpg",
@@ -467,7 +468,7 @@
     "drawerDial": {
       "solved": "The drawer opened.",
       "title": "Drawer Lock",
-      "help": "Drag the drums up or down to roll them\n↑/↓ to turn, ←/→ to switch, Enter to open",
+      "help": "Drag the drums up or down to roll them\n↑/↓ to turn, ←/→ to change digit, Enter to open",
       "help_touch": "Roll the drums up or down with your finger, then tap Open",
       "fails": "Wrong tries",
       "up": "Turn digit {{index}} up",
@@ -476,7 +477,7 @@
       "alt": "{{count}} number drums. Currently {{value}}"
     },
     "inspect": {
-      "help": "Drag to turn it · wheel or buttons to zoom",
+      "help": "Drag to turn it",
       "help_touch": "Drag with your finger to turn it",
       "putDown": "Put it down",
       "next": "Next",
@@ -574,9 +575,9 @@
     "mapHere": "You are here",
     "mapClue": "Clue found",
     "mapHint": "One more room is drawn in each time a door opens.",
-    "mapAlt": "Floor plan of the flat, showing the rooms opened so far and where you are",
-    "tabItems": "Carrying",
-    "itemsHint": "What you pick up stays here. It is used on its own where it belongs.",
+    "mapAlt": "Floor plan of the home, showing the rooms opened so far and where you are",
+    "tabItems": "Items",
+    "itemsHint": "What you pick up stays here. It gets used automatically in the right place.",
     "mapTravelHint": "Tap a room to go there."
   },
   "titleScreen": {
@@ -604,7 +605,7 @@
   },
   "ending": {
     "eyebrow": "THE DOOR OPENS",
-    "line": "He opens the door and steps outside.",
+    "line": "I open the door and step outside.",
     "congrats": "Congratulations. You have reached the ending.",
     "again": "Back to the start",
     "replay": "Watch the film again",
@@ -612,7 +613,7 @@
     "saveImage": "Save the drawing",
     "feedback": "Share your thoughts",
     "films": "Watch the films",
-    "thanksAlt": "Dohae holding a bat, saying Thank you!"
+    "thanksAlt": "Do-hae holding a bat, saying Thank you!"
   },
   "films": {
     "eyebrow": "FILMS",
@@ -652,7 +653,7 @@
     "workbook": {
       "title": "Workbook on the Desk",
       "alt": "3D workbook: drag to turn it",
-      "hint": "Drag or use the buttons to turn it over. Scroll or use the buttons to zoom",
+      "hint": "Drag or use the buttons to turn it over.",
       "tagLabel": "Name",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
@@ -665,7 +666,7 @@
     },
     "raonBadge": {
       "title": "ID Badge",
-      "name": "Raon Life Science Institute",
+      "name": "Laon Life Science Institute",
       "alt": "A round badge fished from the drained sink. A logo of a rising sun",
       "caption": "Dad always had this around his neck. …Why is it here?"
     }
@@ -684,7 +685,7 @@
     "label": "Difficulty",
     "guided": "Easy",
     "normal": "Normal",
-    "guidedHint": "Tells you where to go and what to do next. Skip also unlocks if you get stuck.",
+    "guidedHint": "You are shown where to go and what to do next. Skip also unlocks if you get stuck.",
     "normalHint": "Find your own way. Skip unlocks after a while if you get stuck."
   },
   "feedback": {

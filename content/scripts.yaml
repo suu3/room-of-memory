@@ -83,7 +83,7 @@ scripts:
       expression: smile
       ko: 대기 타석에서 윤호가 소리쳤다. "칠 수 있어, 도해야!"
       en: 'Yunho called out from the on-deck circle. "You can hit it, Do-hae!"'
-      ja: ネクストバッターズサークルからユノが叫んだ。「打てるよ、ドヘ!」
+      ja: ネクストバッターズサークルからユノが叫んだ。「打てるぞ、ドヘ!」
     - speaker: hero
       ko: 상대 포수가 손바닥으로 미트를 탁탁, 두 번 두드리고 앉았다.
       en: Their catcher slapped his palm against his mitt twice, thwack thwack, and crouched down.
@@ -251,7 +251,7 @@ scripts:
       ja: 野球バッグを空けよう。
     - speaker: hero
       ko: 물, 통조림, 손전등. 이 정도면 되겠지.
-      en: Water, cans, a flashlight. That should do it.
+      en: Water, canned food, a flashlight. That should do it.
       ja: 水、缶詰、懐中電灯。これくらいでいいか。
     - speaker: hero
       ko: 글러브는 두고 갈까.
@@ -302,7 +302,7 @@ scripts:
       ja: 父さんの登山靴がそのまま残ってる。
     - speaker: dad
       ko: 이번엔 가볍게, 근교만 돌다 올 거야.
-      en: We're keeping it light this time. Just a little loop around nearby!
+      en: We're keeping it light this time. Just a little loop around nearby.
       ja: 今回は軽めに、近場をぐるっと回ってくるだけだよ。
     # 캐리어 개수 추리의 단서 하나 (v4.1 3장). 옷장 옷걸이는 이 한 줄로 합쳤다
     - speaker: hero
@@ -471,7 +471,7 @@ scripts:
     - speaker: hero
       expression: puzzled
       ko: 라온생명과학연구소. 아빠 메일에 그 로고가 있었던 것 같은데.
-      en: Raon Life Science Institute. I think that logo was in one of Dad's emails.
+      en: Laon Life Science Institute. I think that logo was in one of Dad's emails.
       ja: ラオン生命科学研究所。父さんのメールにあのロゴがあった気がする。
 
   # 로고를 고른 뒤: 아빠 메일 속 협탁 서랍 힌트
@@ -509,7 +509,7 @@ scripts:
   research-note-read:
     - speaker: hero
       ko: 두 분이 라온에서 하던 연구가 이거였어.
-      en: So this is what they were working on at Raon.
+      en: So this is what they were working on at Laon.
       ja: 二人がラオンでやってた研究は、これだったんだ。
     - speaker: hero
       expression: surprised
@@ -533,7 +533,7 @@ scripts:
   id-card-found:
     - speaker: hero
       ko: 라온생명과학연구소. 아빠 이름, 엄마 이름.
-      en: Raon Life Science Institute. Dad's name, Mom's name.
+      en: Laon Life Science Institute. Dad's name, Mom's name.
       ja: ラオン生命科学研究所。父さんの名前、母さんの名前。
     - speaker: hero
       expression: surprised

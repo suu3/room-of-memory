@@ -122,7 +122,7 @@
       "monologue": "Bag, ampoule. The bat's by the front door."
     },
     "resolve-ready": {
-      "monologue": "Let's go out."
+      "monologue": "Time to go."
     }
   },
   "scripts": {
@@ -188,7 +188,7 @@
     },
     "duffel-pack": {
       "line1": "Let's empty out my baseball bag.",
-      "line2": "Water, cans, a flashlight. That should do it.",
+      "line2": "Water, canned food, a flashlight. That should do it.",
       "line3": "Leave the glove behind?",
       "line4": "…No. Just in case."
     },
@@ -204,7 +204,7 @@
     "shoes-open": {
       "line1": "It's been ages since I opened the shoe cabinet.",
       "line2": "Dad's hiking boots are still here.",
-      "line3": "We're keeping it light this time. Just a little loop around nearby!",
+      "line3": "We're keeping it light this time. Just a little loop around nearby.",
       "line4": "Light, he said, and yet they left with two whole suitcases.",
       "line5": "…The spot where the suitcases go is empty."
     },
@@ -257,7 +257,7 @@
       "line1": "Mom and Dad left this behind. I'm taking it with me."
     },
     "computer-logo-intro": {
-      "line1": "Raon Life Science Institute. I think that logo was in one of Dad's emails."
+      "line1": "Laon Life Science Institute. I think that logo was in one of Dad's emails."
     },
     "computer-logo-found": {
       "line1": "Found it. Same logo as the one on Dad's badge.",
@@ -269,7 +269,7 @@
       "line2": "Mom's handwriting. Each piece has a date on it."
     },
     "research-note-read": {
-      "line1": "So this is what they were working on at Raon.",
+      "line1": "So this is what they were working on at Laon.",
       "line2": "It wasn't a trip. They were called in to the institute.",
       "line3": "RX-11. A candidate cure. …They made two, but there was only one in the case."
     },
@@ -277,7 +277,7 @@
       "line1": "Dad's badge. Mom's badge. They left both behind."
     },
     "id-card-found": {
-      "line1": "Raon Life Science Institute. Dad's name, Mom's name.",
+      "line1": "Laon Life Science Institute. Dad's name, Mom's name.",
       "line2": "Hold it up to the light and a logo appears over the photo. It's the one from the ampoule label."
     }
   },
@@ -298,7 +298,7 @@
     },
     "frame": {
       "title": "My Parents",
-      "phase1": "Wiped clean, and still I can't see their two faces.",
+      "phase1": "I wiped it clean, and still theirs are the only faces I can't see.",
       "phase2": "I pictured my parents' faces and stood the frame back up."
     },
     "phone": {
@@ -340,10 +340,10 @@
     "computer": {
       "title": "What Was Saved",
       "phase2": "It started near a research facility. First report: 3 p.m.",
-      "phase3": "Dad's email: the Raon logo, and one line. \"Tidy up the shelves.\""
+      "phase3": "Dad's email: the Laon logo, and one line. \"Tidy up the shelves.\""
     },
     "ampoule": {
-      "title": "An Unmarked Ampoule",
+      "title": "A Mysterious Ampoule",
       "phase2": "One ampoule in the case, the next slot empty. A half-worn logo on the label.",
       "phase3": "I took the ampoule. The one that might be a cure."
     },
@@ -353,7 +353,7 @@
     },
     "id-card": {
       "title": "Access Badges",
-      "phase2": "Raon access badges. The hologram bears the logo from the ampoule label."
+      "phase2": "Laon access badges. The hologram bears the logo from the ampoule label."
     }
   },
   "cutscenes": {
@@ -437,7 +437,7 @@
       "cut2": {},
       "cut3": {},
       "cut4": {
-        "line1": "Ah, ah. Anyone out there? …Is this thing even going out."
+        "line1": "Testing, testing. Anyone out there? …Is this thing even transmitting?"
       },
       "cut5": {
         "line1": "We've got survivors gathered here at the Eungang High gym."

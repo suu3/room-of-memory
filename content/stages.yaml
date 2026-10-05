@@ -74,7 +74,7 @@ stages:
     monologue:
       ko: 나흘 밤 안에 가야 해.
       en: I have to get there within four nights.
-      ja: 四晩のうちに行かないと。
+      ja: 四日のうちに行かないと。
 
   p3-enter:
     monologue:
@@ -97,5 +97,5 @@ stages:
   resolve-ready:
     monologue:
       ko: 나가자.
-      en: Let's go out.
+      en: Time to go.
       ja: 出よう。

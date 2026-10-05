@@ -115,10 +115,10 @@ describe("컴퓨터 비밀번호 단서", () => {
     // 배지에 적힌 이름이 로고 고르기의 답이다: 셋 다 같은 이름을 쓴다
     for (const [locale, resource] of Object.entries(LOCALES)) {
       expect(resource.clue.raonBadge.name, locale).toContain(
-        locale === "ko" ? "라온" : locale === "en" ? "Raon" : "ラオン",
+        locale === "ko" ? "라온" : locale === "en" ? "Laon" : "ラオン",
       );
       expect(resource.minigame.computerLogo.help, locale).toContain(
-        locale === "ko" ? "라온" : locale === "en" ? "Raon" : "ラオン",
+        locale === "ko" ? "라온" : locale === "en" ? "Laon" : "ラオン",
       );
     }
   });

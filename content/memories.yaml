@@ -147,7 +147,7 @@ memories:
       # 안 보인다. "흐릿하다"처럼 이유를 지어내는 말도 쓰지 않는다.
       phase1:
         ko: 다 닦았는데도 두 사람 얼굴만 보이지 않는다.
-        en: Wiped clean, and still I can't see their two faces.
+        en: I wiped it clean, and still theirs are the only faces I can't see.
         ja: 拭き終えても、二人の顔だけが見えない。
       phase2:
         ko: 부모님 얼굴을 떠올리고, 액자를 다시 세워 두었다.
@@ -259,7 +259,7 @@ memories:
       phase2:
         ko: 은강고 체육관에 생존자가 있다. 나흘 밤 뒤에 떠난다고 했다. 어디서 들어 본 목소리다.
         en: Survivors at the Eungang High gym. They leave after four nights. I've heard that voice somewhere.
-        ja: 銀江高の体育館に生存者がいる。四晩たったら出ると言っていた。どこかで聞いたことのある声だ。
+        ja: 銀江高の体育館に生存者がいる。四日後の夜に出ると言っていた。どこかで聞いたことのある声だ。
     # 1차 (관문): 나머지 일곱을 다 봐야 열린다. 반전은 한 번뿐이라 순서를 강제한다.
     # 진입 대사 → 튜닝 → 라디오가 꺼지고 재난방송이 떠오르는 컷씬(store가 radio-blackout을
     # 연다). 방송과 그날의 이미지 나열은 전부 그 컷씬 안에 있다.
@@ -373,7 +373,7 @@ memories:
         ja: 騒ぎは研究施設の近くで始まった。最初の報道は午後3時。
       phase3:
         ko: 아빠 메일엔 라온 로고와 "선반 정리 좀 해라" 한 줄.
-        en: "Dad's email: the Raon logo, and one line. \"Tidy up the shelves.\""
+        en: "Dad's email: the Laon logo, and one line. \"Tidy up the shelves.\""
         ja: 父さんのメールにはラオンのロゴと「棚の整理ぐらいしろ」の一行。
     phase2:
       script: computer-power-on
@@ -401,7 +401,7 @@ memories:
     lore:
       title:
         ko: 정체불명의 앰플
-        en: An Unmarked Ampoule
+        en: A Mysterious Ampoule
         ja: 正体不明のアンプル
       phase2:
         ko: 케이스에 앰플 하나, 옆 칸은 비었다. 라벨엔 반쯤 지워진 로고.
@@ -457,7 +457,7 @@ memories:
         ja: 入館証
       phase2:
         ko: 라온 출입증. 홀로그램에 앰플 라벨의 그 로고가 있다.
-        en: Raon access badges. The hologram bears the logo from the ampoule label.
+        en: Laon access badges. The hologram bears the logo from the ampoule label.
         ja: ラオンの入館証。ホログラムにアンプルのラベルのあのロゴがある。
     phase2:
       script: id-card-look

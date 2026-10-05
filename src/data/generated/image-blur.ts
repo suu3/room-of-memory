@@ -138,7 +138,7 @@ export const IMAGE_BLUR_SOURCES: Readonly<Record<string, string>> = {
   "/assets/images/still-duffel.webp": "b6d4ff5448e91bbf",
   "/assets/images/still-fridge.webp": "84bd4db1513559ab",
   "/assets/images/still-id-card-en.webp": "d3c9be6e3507b3e7",
-  "/assets/images/still-id-card-ja.webp": "722046f6f0fd81e7",
+  "/assets/images/still-id-card-ja.webp": "6f2e91633d1b12e5",
   "/assets/images/still-id-card-ko.webp": "cdbd4bb444a7216a",
   "/assets/images/still-phone.webp": "ba201f52b2b55413",
   "/assets/images/still-report-card.webp": "ecc45e7ad3ebd770",

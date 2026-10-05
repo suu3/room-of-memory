@@ -314,7 +314,7 @@ cutscenes:
       lines:
         - speaker: signal
           ko: 아, 아. 거기 누구 없어? …이거 나가긴 하는 건가.
-          en: Ah, ah. Anyone out there? …Is this thing even going out.
+          en: Testing, testing. Anyone out there? …Is this thing even transmitting?
           ja: あー、あー。誰かいないか? …これ、ちゃんと届いてんのかな。
     # 2페이지
     - image: /assets/images/cutscene-survivor-5.webp?v=2
@@ -349,7 +349,7 @@ cutscenes:
         - speaker: signal
           ko: 나흘 밤 지나면 우린 여기 떠나. 헬기가 뜬다는 얘기가 있어.
           en: After four nights, we're leaving here. Word is a helicopter's coming.
-          ja: 四晩たったら、俺たちはここを出る。ヘリが飛ぶって話がある。
+          ja: 四日後の夜、俺たちはここを出る。ヘリが飛ぶって話がある。
     - image: /assets/images/cutscene-survivor-9.webp?v=2
       page: 3
       ratio: "3:4"
@@ -435,7 +435,7 @@ cutscenes:
         - speaker: hero
           ko: 앰플을 들고, 나흘 밤 안에 은강고 체육관으로 간다.
           en: I'm taking the ampoule and getting to the Eungang High gym within four nights.
-          ja: アンプルを持って、四晩のうちに銀江高の体育館へ行く。
+          ja: アンプルを持って、四日のうちに銀江高の体育館へ行く。
         - speaker: hero
           ko: …갔다 올게.
           en: …I'll be back.
