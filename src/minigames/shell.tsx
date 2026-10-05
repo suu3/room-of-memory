@@ -93,7 +93,8 @@ function splitHelpKeys(help: string): { text: string; keys: string[] } {
 export function MinigameHelp({ help, className }: { help: string; className?: string }) {
   const { text, keys } = splitHelpKeys(help);
   return (
-    <p className={className}>
+    // 안내문의 줄바꿈(\n)을 살린다: 마우스 조작과 키 조작을 두 줄로 가르는 데 쓴다
+    <p className={`whitespace-pre-line ${className ?? ""}`}>
       <KeyHint text={text} />
       {keys.map((key) => (
         <Keycap key={key} className="ml-2">
