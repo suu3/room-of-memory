@@ -162,7 +162,7 @@
     },
     "photoWipe": {
       "title": "Wipe the Photo",
-      "help": "Drag, or move the cloth with the arrow keys, to wipe the dust away · wipe in place: Space",
+      "help": "Drag, or move the cloth with the arrow keys, to wipe the dust away\nWipe in place: Space",
       "help_touch": "Swipe with a finger to wipe the dust away"
     },
     "ballCatch": {
@@ -253,7 +253,7 @@
       "title": "Outside",
       "help": "Draw the curtain and look outside",
       "close": "Close the curtain",
-      "lookHelp": "Move the lens over the view: mouse · arrow keys · Enter",
+      "lookHelp": "Move the lens over the view\nMouse · arrow keys · Enter",
       "lookHelp_touch": "Touch the view to look closer",
       "spotsLabel": "What you found outside",
       "spot": {
@@ -275,8 +275,8 @@
     },
     "phoneChat": {
       "title": "The phone",
-      "help": "Read the thread from the top: scroll down · Space",
-      "help_touch": "Read the thread from the top: swipe down · tap",
+      "help": "Read the thread from the top\nScroll down · Space",
+      "help_touch": "Read the thread from the top\nSwipe down · tap",
       "helpCalls": "Open the call log tab too",
       "date": "October 19",
       "close": "Turn the screen off",

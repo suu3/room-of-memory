@@ -217,7 +217,7 @@ export function WindowViewMinigame({ onComplete }: MinigameProps) {
             : ""}
       </p>
 
-      <p className="max-w-[86vw] break-ko text-pretty text-center text-xs tracking-widest text-bone/55">
+      <p className="max-w-[86vw] whitespace-pre-line break-ko text-pretty text-center text-xs tracking-widest text-bone/55">
         <KeyHint
           text={allFound ? t("minigame.windowView.help") : hint("minigame.windowView.lookHelp")}
         />

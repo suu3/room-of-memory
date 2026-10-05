@@ -450,7 +450,7 @@ export function PhoneChatMinigame({ onComplete }: MinigameProps) {
           </button>
         ) : (
           helpKey && (
-            <p className="break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
+            <p className="whitespace-pre-line break-ko text-pretty px-4 text-center text-sm tracking-widest text-bone/50">
               <KeyHint text={hint(helpKey)} />
             </p>
           )

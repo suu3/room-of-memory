@@ -78,10 +78,11 @@ function splitHelpKeys(help: string): { text: string; keys: string[] } {
     if (words.every((word) => KEY_TOKEN.test(word))) return { text: dashed[0], keys: words };
     return { text: help, keys: [] };
   }
-  const words = help.trim().split(/\s+/);
-  const last = words.at(-1);
-  if (words.length > 1 && last && KEY_TOKEN.test(last)) {
-    return { text: words.slice(0, -1).join(" "), keys: [last] };
+  // 줄바꿈을 지키려고 낱말로 쪼개 다시 잇지 않는다. "스크롤 · Space"처럼 구분점 뒤의 키는
+  // 문장 속 키라 떼지 않는다 (떼면 "·"만 남는다)
+  const tail = help.trimEnd().match(/^([\s\S]*\S)\s+(\S+)$/);
+  if (tail && KEY_TOKEN.test(tail[2]) && !/[·・]$/.test(tail[1])) {
+    return { text: tail[1], keys: [tail[2]] };
   }
   return { text: help, keys: [] };
 }
