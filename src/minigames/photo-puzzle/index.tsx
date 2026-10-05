@@ -171,8 +171,16 @@ export function PhotoPuzzleMinigame({ onComplete, onSettled }: MinigameProps) {
     >
       <div
         // gap 없이 맞대어 깐다. 틈은 조각 안쪽의 TILE_SEAM이 그린다
-        className="mx-auto grid w-[min(100%,calc(52svh*0.92))] overflow-hidden rounded-md bg-ivory/10"
-        style={{ gridTemplateColumns: `repeat(${PUZZLE_SIZE}, minmax(0, 1fr))` }}
+        className="mx-auto grid overflow-hidden rounded-md bg-ivory/10"
+        style={{
+          gridTemplateColumns: `repeat(${PUZZLE_SIZE}, minmax(0, 1fr))`,
+          /*
+           * 판의 폭을 다 쓰되 세로로 화면의 60%를 넘지 않는다. 높이 한도를 폭으로 바꾸려면
+           * 사진 비율이 필요해서 클래스가 아니라 여기서 잰다. 예전에는 비율을 0.92로 박아
+           * 두어, 가로로 긴 사진(1.25:1)이 넓은 화면에서 판의 절반만 채웠다.
+           */
+          width: `min(100%, calc(60svh * ${aspect}))`,
+        }}
       >
         {board.map((tile, index) => {
           const position = tileBackgroundPosition(tile);
