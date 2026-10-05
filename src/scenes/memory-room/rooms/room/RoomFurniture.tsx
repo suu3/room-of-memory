@@ -23,7 +23,7 @@ import {
 } from "@/store/memory-room";
 import { MemoryGlowSelection } from "../../effects/MemoryOutlineGlow";
 import { useGlowHover } from "../../effects/use-glow-hover";
-import { TouchProp } from "../../memory/RoomClues";
+import { type HitBox, TouchProp } from "../../memory/RoomClues";
 import { useSideCue } from "../../memory/side-cue";
 import { useNearPlayer } from "../../player/use-near-player";
 import { usePrefersReducedMotion, useSeat, useSeatPull } from "../../player/use-seat";
@@ -164,6 +164,13 @@ const NIGHTSTAND_DRAWER = [
   { size: [0.72, 0.28, 0.06], position: [6.8, 0.72, 1.16], color: "wood" },
   { size: [0.16, 0.08, 0.05], position: [6.8, 0.72, 1.225], color: "trim" },
 ] as const satisfies readonly BoxPart[];
+
+/**
+ * 서랍이 눌리는 범위: 협탁 몸통 전체. 서랍 앞판은 좁은 화면에서 손톱만 해서(390px에서 약
+ * 30×45px), 조금만 빗나가도 탭이 뒤의 침대·바닥으로 넘어가 몸이 걸어가 버렸다. 사람은 서랍이
+ * 아니라 협탁을 누른다 (세면대의 BASIN_HIT와 같은 이유).
+ */
+const NIGHTSTAND_HIT: HitBox = { position: [6.8, 0.5, 0.78], size: [0.94, 1, 0.9] };
 
 const SHELF_PARTS = [
   { size: [0.5, 0.12, 2.1], position: [-5.65, 2.95, -1.4], color: "wood" },
@@ -392,6 +399,7 @@ function Nightstand({ palette }: FurnitureProps) {
         radius={FURNITURE_NEAR_RADIUS}
         enabled={!solved}
         beckon={codeRead && !solved}
+        hitBox={NIGHTSTAND_HIT}
         onPress={pressNightstandDrawer}
       >
         <group ref={drawerRef} name="nightstand-drawer">
