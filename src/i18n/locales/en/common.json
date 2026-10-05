@@ -684,7 +684,7 @@
     "label": "Difficulty",
     "guided": "Easy",
     "normal": "Normal",
-    "guidedHint": "The objective line tells you where to go and what to do next. Skip also unlocks if you get stuck.",
+    "guidedHint": "Tells you where to go and what to do next. Skip also unlocks if you get stuck.",
     "normalHint": "Find your own way. Skip unlocks after a while if you get stuck."
   },
   "feedback": {
@@ -715,7 +715,7 @@
     "computerOff": "No internet anyway, even if I turn it on.",
     "locked": "…Not yet.",
     "toothbrush": "Three toothbrushes. …Only one is wet.",
-    "rabbitDoll": "A stuffed rabbit that has been in this house for a long time.",
+    "rabbitDoll": "A stuffed rabbit that's been in this house since I was little.",
     "drawerLocked": "Locked. I'll need the number to open it.",
     "drawerOpen": "…The house keys. These will open their room, too.",
     "pianoDone": "…I used to play this as a kid. My hands still remember.",
