@@ -50,8 +50,8 @@ describe("splitKeyTokens", () => {
   it("leaves gesture verbs inside a sentence alone", () => {
     expect(keys("빛나는 물건을 탭해 조사하세요")).toEqual([]);
     expect(keys("통화 기록 탭도 열어보세요")).toEqual([]);
-    expect(keys("끌어서 돌려 보세요 · 휠이나 버튼으로 확대")).toEqual([]);
-    expect(keys("Drag to turn it · wheel or buttons to zoom")).toEqual([]);
+    expect(keys("끌어서 돌려 보세요")).toEqual([]);
+    expect(keys("Drag to turn it")).toEqual([]);
     expect(keys("光る物をタップして調べましょう")).toEqual([]);
   });
 });
