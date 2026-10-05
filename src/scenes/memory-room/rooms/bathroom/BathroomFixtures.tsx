@@ -3,8 +3,14 @@
 import { useEffect } from "react";
 import { Vector2 } from "three";
 import { pressSinkPlug } from "@/lib/room-press";
-import { clueUnlocked, selectBadgeSeen, useMemoryRoomStore } from "@/store/memory-room";
+import {
+  clueUnlocked,
+  selectBadgeSeen,
+  selectViewpoint,
+  useMemoryRoomStore,
+} from "@/store/memory-room";
 import { MirrorReflection } from "../../effects/MirrorReflection";
+import { MemoryBeacon } from "../../memory/MemoryBeacon";
 import { ClueProp, type HitBox, TouchProp } from "../../memory/RoomClues";
 import { idleFacing } from "../../player/idle-facing";
 import { useNearPlayer } from "../../player/use-near-player";
@@ -149,12 +155,40 @@ const BASIN_HIT: HitBox = { position: [0, 0.8, 0], size: [0.44, 0.12, 0.36] };
 
 function SinkPlug({ palette }: { palette: RoomPalette }) {
   const drained = useMemoryRoomStore((state) => state.sinkDrained);
+  const firstPerson = useMemoryRoomStore(selectViewpoint) !== null;
+  const near = useNearPlayer(SINK_NEAR[0], SINK_NEAR[1], SINK_RADIUS);
+  return (
+    <>
+      {/*
+        마개는 안방 열쇠로 가는 길의 첫 고리인데 손톱만 하고 물 밑이라, 글로우만으로는 눌러야
+        하는 물건인지 알 수 없었다. 물을 뺄 때까지 기억처럼 표식을 세운다 (MemoryBeacon의 BeaconId)
+      */}
+      <group position={PLUG_BEACON}>
+        <MemoryBeacon
+          id="sink-plug"
+          color={palette.memory}
+          active={!drained && !firstPerson}
+          near={near}
+          groundOffset={SINK_MOUNT.position[1] + PLUG_BEACON[1]}
+        />
+      </group>
+      <SinkPlugProp palette={palette} drained={drained} />
+    </>
+  );
+}
+
+/** 대야 한가운데, 물 위. 표식의 마름모는 여기서 조금 더 뜬다 (MemoryBeacon의 DIAMOND_LIFT). */
+const PLUG_BEACON: Vec3Tuple = [0, 0.8, 0];
+
+function SinkPlugProp({ palette, drained }: { palette: RoomPalette; drained: boolean }) {
   return (
     <TouchProp
       name="sink-plug"
       near={SINK_NEAR}
       radius={SINK_RADIUS}
       enabled={!drained}
+      // 뽑을 때까지 금빛으로 부른다
+      beckon={!drained}
       hitBox={BASIN_HIT}
       onPress={pressSinkPlug}
     >
