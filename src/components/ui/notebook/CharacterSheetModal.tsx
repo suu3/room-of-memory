@@ -18,6 +18,7 @@ import {
 } from "@/store/memory-room";
 import { BlurredValue } from "./BlurredValue";
 import { LoreEntries } from "./LoreEntries";
+import { NotebookDeductions } from "./NotebookDeductions";
 import { NotebookItems } from "./NotebookItems";
 import { NotebookMap } from "./NotebookMap";
 
@@ -41,6 +42,7 @@ import { NotebookMap } from "./NotebookMap";
 const TAB_LABEL = {
   profile: "characterSheet.tabProfile",
   lore: "characterSheet.tabLore",
+  deductions: "characterSheet.tabDeductions",
   map: "characterSheet.tabMap",
   items: "characterSheet.tabItems",
 } as const satisfies Record<CharacterSheetTab, string>;
@@ -63,14 +65,17 @@ export function CharacterSheetModal() {
   /* 소지품은 첫 물건을 손에 넣을 때 생기는 페이지다. 물건이 둘뿐이라 처음부터 세워 두면
      게임의 절반을 "아무것도 없다"만 보여 준다. 한 번 생기면 다 쓴 뒤에도 남는다 */
   const hasItems = useMemoryRoomStore((state) => state.inventory.length > 0);
+  // 추리도 같다: 첫 모순을 이은 순간 생기는 페이지다. 미리 세워 두면 빈 종이가 추리가 있다고 흘린다
+  const hasDeductions = useMemoryRoomStore((state) => state.deduced.length > 0);
   const tabs = useMemo<readonly CharacterSheetTab[]>(
     () => [
       "profile",
       "lore",
+      ...(hasDeductions ? (["deductions"] as const) : []),
       ...(hasMap ? (["map"] as const) : []),
       ...(hasItems ? (["items"] as const) : []),
     ],
-    [hasMap, hasItems],
+    [hasDeductions, hasMap, hasItems],
   );
   const tab = tabs.includes(stored) ? stored : "profile";
   const markRead = useMemoryRoomStore((state) => state.markNotebookRead);
@@ -208,6 +213,8 @@ export function CharacterSheetModal() {
               <NotebookMap />
             ) : tab === "items" ? (
               <NotebookItems />
+            ) : tab === "deductions" ? (
+              <NotebookDeductions />
             ) : tab === "lore" ? (
               /* 갤러리는 3열까지 벌어진다. 프로필처럼 2xl로 묶으면 카드가 눌린다 */
               <div className="mx-auto max-w-4xl py-1">

@@ -13,6 +13,13 @@ const EMPTY: NotebookSource = {
 };
 
 describe("수첩의 안 읽은 알림", () => {
+  it("추리를 이으면 추리 페이지에 새 글이 선다", () => {
+    const state = { ...EMPTY, deduced: ["trip-doubt" as const], notebookRead: [] };
+    expect(notebookEntries(state).deductions).toEqual(["deduction:trip-doubt"]);
+    expect(unreadNotebookTabs(state)).toEqual(["deductions"]);
+    expect(unreadNotebookTabs({ ...state, notebookRead: ["deduction:trip-doubt"] })).toEqual([]);
+  });
+
   it("아무것도 안 적힌 수첩에는 알림이 없다", () => {
     expect(unreadNotebookTabs({ ...EMPTY, notebookRead: [] })).toEqual([]);
   });

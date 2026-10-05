@@ -1,3 +1,4 @@
+import type { DeductionId } from "@/data/deductions";
 import type { ItemId } from "@/data/items";
 import { MEMORY_IDS } from "@/data/memory-room";
 import type { DiscoveryId } from "@/data/room-clues";
@@ -5,7 +6,7 @@ import type { DoorwayId } from "@/data/spaces";
 import { type VisitProgress, visitDone, visitsOf } from "@/data/story-phase";
 
 /** 수첩의 페이지(위쪽 종이 인덱스 탭). 순서가 곧 탭 순서다. */
-const NOTEBOOK_TABS = ["profile", "lore", "map", "items"] as const;
+const NOTEBOOK_TABS = ["profile", "lore", "deductions", "map", "items"] as const;
 export type NotebookTabId = (typeof NOTEBOOK_TABS)[number];
 
 /**
@@ -28,6 +29,8 @@ export interface NotebookSource extends VisitProgress {
   inventory: readonly ItemId[];
   doorOpened: boolean;
   openedDoorways: readonly DoorwayId[];
+  /** 이어 낸 추리. 옛 저장본·테스트 스냅샷에는 없을 수 있다 */
+  deduced?: readonly DeductionId[];
 }
 
 /**
@@ -49,6 +52,8 @@ export function notebookEntries(state: NotebookSource): Record<NotebookTabId, st
         .filter((visit) => visitDone(state, id, visit))
         .map((visit) => `lore:${id}@${visit}`),
     ),
+    // 추리 페이지는 첫 추리를 이은 순간 생기고, 이을 때마다 한 칸이 는다
+    deductions: (state.deduced ?? []).map((id) => `deduction:${id}`),
     // 평면도는 방문이 열린 순간 한 장이 늘어난다. 그 뒤로는 문이 하나 열릴 때마다 새 칸
     map: state.doorOpened ? ["map", ...state.openedDoorways.map((id) => `door:${id}`)] : [],
     items: state.inventory.map((id) => `item:${id}`),
