@@ -250,6 +250,24 @@ describe("shipped player GLB", () => {
         face.morphTargetInfluences?.fill(0);
         expect(movement, "painted eyes must stay fixed while eyelids close").toBeLessThan(0.00005);
       }
+      if (["tripo_part_4_material", "tripo_part_5_material"].includes(materialName)) {
+        const sleeve = object as SkinnedMesh;
+        const index = sleeve.geometry.index;
+        if (!index) throw new Error("Missing sleeve triangles");
+        const edges = new Map<string, number>();
+        for (let i = 0; i < index.count; i += 3) {
+          for (let side = 0; side < 3; side++) {
+            const a = index.getX(i + side),
+              b = index.getX(i + ((side + 1) % 3));
+            const key = a < b ? `${a},${b}` : `${b},${a}`;
+            edges.set(key, (edges.get(key) ?? 0) + 1);
+          }
+        }
+        expect(
+          [...edges.values()].every((n) => n === 2),
+          `${materialName} must be a continuous sleeve with no torn edges`,
+        ).toBe(true);
+      }
       if (materialName === "tripo_part_3_material") vestName = object.name;
       if (materialName === "tripo_part_6_material") collarName = object.name;
       if (materialName.startsWith("tripo_part_")) {
@@ -267,9 +285,13 @@ describe("shipped player GLB", () => {
           expect(mean).toBeLessThan(0.9);
           expect(Math.max(...red) - Math.min(...red)).toBeGreaterThan(0.05);
         } else if (
-          ["tripo_part_1_material", "tripo_part_3_material", "tripo_part_6_material"].includes(
-            materialName,
-          ) &&
+          [
+            "tripo_part_1_material",
+            "tripo_part_3_material",
+            "tripo_part_6_material",
+            "tripo_part_4_material",
+            "tripo_part_5_material",
+          ].includes(materialName) &&
           !asset.materials[primitive.material].pbrMetallicRoughness?.baseColorTexture
         ) {
           // 조끼 옆선의 흰 텍스처 번짐을 없앤 색은 정점에 구워 둔다.

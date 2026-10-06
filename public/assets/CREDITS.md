@@ -80,3 +80,5 @@
 | ../vendor/mindar-1.2.5/ (mindar-image.prod.js, controller-mGt1s8dJ.js, ui-fBadYuor.js) | https://github.com/hiukim/mind-ar-js (v1.2.5 브라우저 배포 번들). /ar의 이미지 타깃 인식과 /ar/compile의 타깃 굽기에 쓴다. npm 패키지는 네이티브 canvas 때문에 설치가 깨져 번들만 리포에 둔다. controller 번들에는 TensorFlow.js(https://github.com/tensorflow/tfjs)가 들어 있다 | hiukim (MindAR) · Google LLC (TensorFlow.js) | MindAR: MIT (전문: ../vendor/mindar-1.2.5/LICENSE) · TensorFlow.js: Apache 2.0 (전문: ../vendor/mindar-1.2.5/LICENSE-APACHE-2.0) |
 
 앞 목둘레 보수(2026-10-06): `--collar` 후처리에 니트 앞 목둘레의 제한된 곡면 완화를 더해 거친 V자 경계를 둥글게 정리했다. 셔츠 앞판을 넓혀 니트 안으로 이어 붙이고 깊이 차이를 줄여 벌어진 틈과 거친 음영을 줄였다.
+
+소매 보수(2026-10-06): `round-player-clothing.mjs --sleeves`로 양쪽 소매의 열린 가장자리를 닫고 두께를 가진 표면으로 재구성했다. 고른 곡면에 기존 스킨 가중치를 옮기고 원본 흰색을 정점 색으로 구워 갈라진 듯한 텍스처 자국을 제거했다. 얼굴·목깃·니트·본·애니메이션은 보존했다.

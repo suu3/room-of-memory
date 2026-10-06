@@ -19,7 +19,8 @@ hem_back = min(point[2] for point in pants_source["positions"]) - 0.006 if pants
 for source in sources:
     is_knit = source["name"] == "tripo_part_3_material"
     is_collar = source["name"] == "tripo_part_6_material"
-    is_shirt = is_collar
+    is_sleeve = source["name"] in ("tripo_part_4_material", "tripo_part_5_material")
+    is_shirt = is_collar or is_sleeve
     refine_neckline = source.get("refineNeckline", False)
     points = [Vector(p) for p in source["positions"]]
     faces = [source["indices"][i:i + 3] for i in range(0, len(source["indices"]), 3)]
@@ -66,17 +67,17 @@ for source in sources:
         bpy.ops.object.modifier_apply(modifier=thickness.name)
         remesh = obj.modifiers.new("Continuous cloth", "REMESH")
         remesh.mode = "VOXEL"
-        remesh.voxel_size = 0.0025 if is_collar else 0.007
+        remesh.voxel_size = 0.0025 if is_collar else 0.0035 if is_sleeve else 0.007
         remesh.use_smooth_shade = True
         bpy.ops.object.modifier_apply(modifier=remesh.name)
         smooth = obj.modifiers.new("Round cloth", "SMOOTH")
         smooth.factor = 0.3 if is_collar else 0.65
-        smooth.iterations = 3 if is_collar else 8
+        smooth.iterations = 3 if is_collar else 12 if is_sleeve else 8
         bpy.ops.object.modifier_apply(modifier=smooth.name)
         decimate = obj.modifiers.new("Mobile mesh", "DECIMATE")
         if is_shirt:
             triangles = sum(len(face.vertices) - 2 for face in obj.data.polygons)
-            decimate.ratio = min(1, 1700 / triangles)
+            decimate.ratio = min(1, (1700 if is_collar else 1750) / triangles)
         else:
             decimate.ratio = 0.14 if is_knit else 0.20
         bpy.ops.object.modifier_apply(modifier=decimate.name)

@@ -4,7 +4,8 @@
  * repair-player-clothing 적용 후 Meshopt를 푼 GLB를 입력한다.
  * node scripts/assets/round-player-clothing.mjs <decoded.glb> <rounded.glb>
  * BLENDER_BIN으로 Blender 실행 경로를 지정할 수 있다.
- * --collar 모드는 목깃과 니트 앞 목둘레를 후처리한다. 얼굴·본·애니메이션은 보존한다.
+ * --collar 모드는 목깃과 니트 앞 목둘레, --sleeves 모드는 양쪽 소매를 후처리한다.
+ * 얼굴·본·애니메이션은 보존한다.
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -17,7 +18,10 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const [input, output, mode] = process.argv.slice(2);
 const collarMode = mode === "--collar";
-if (mode && !collarMode) throw new Error("지원하지 않는 모드");
+const sleeveMode = mode === "--sleeves";
+const colorMode = collarMode || sleeveMode;
+const marker = sleeveMode ? "roundedSleeves" : collarMode ? "roundedCollar" : "roundedClothing";
+if (mode && !colorMode) throw new Error("지원하지 않는 모드");
 if (!input || !output)
   throw new Error("usage: round-player-clothing.mjs <decoded.glb> <rounded.glb>");
 const bytes = readFileSync(input),
@@ -25,7 +29,7 @@ const bytes = readFileSync(input),
 const asset = JSON.parse(bytes.subarray(20, 20 + jsonLength));
 if (asset.extensionsUsed?.includes("EXT_meshopt_compression"))
   throw new Error("먼저 gltf-transform copy로 Meshopt를 푼다");
-if (asset.asset.extras?.[collarMode ? "roundedCollar" : "roundedClothing"])
+if (asset.asset.extras?.[marker])
   throw new Error("이미 곡면을 재구성한 모델에는 다시 적용하지 않는다");
 const stripped = structuredClone(asset);
 stripped.images = [];
@@ -59,9 +63,12 @@ const meshes = [];
 gltf.scene.traverse((mesh) => {
   if (
     mesh.isSkinnedMesh &&
-    (collarMode ? /^tripo_part_[36]_material$/ : /^tripo_part_[13]_material$/).test(
-      mesh.material.name,
-    )
+    (sleeveMode
+      ? /^tripo_part_[45]_material$/
+      : collarMode
+        ? /^tripo_part_[36]_material$/
+        : /^tripo_part_[13]_material$/
+    ).test(mesh.material.name)
   )
     meshes.push(mesh);
 });
@@ -83,10 +90,10 @@ async function texturePixels(mesh) {
 const sources = await Promise.all(
   meshes.map(async (mesh) => {
     const attrs = mesh.geometry.attributes;
-    if (!attrs.color && !collarMode)
+    if (!attrs.color && !colorMode)
       throw new Error("먼저 repair-player-clothing으로 의복 색을 굽는다");
     const pixels =
-      collarMode && mesh.material.name === "tripo_part_6_material"
+      sleeveMode || (collarMode && mesh.material.name === "tripo_part_6_material")
         ? await texturePixels(mesh)
         : null;
     const colors = Array.from({ length: attrs.position.count }, (_, i) => {
@@ -267,7 +274,7 @@ for (const mesh of meshes) {
   );
   primitive.indices = append(new Uint32Array(result.indices), "SCALAR", 5125);
   asset.materials[primitive.material].doubleSided = false;
-  if (collarMode && result.name === "tripo_part_6_material")
+  if (sleeveMode || (collarMode && result.name === "tripo_part_6_material"))
     delete asset.materials[primitive.material].pbrMetallicRoughness.baseColorTexture;
   geometry.dispose();
 }
@@ -280,7 +287,7 @@ const triangleCount = asset.meshes.reduce(
 if (triangleCount >= 60000) throw new Error(`삼각형 예산 초과: ${triangleCount}`);
 asset.asset.extras = {
   ...asset.asset.extras,
-  [collarMode ? "roundedCollar" : "roundedClothing"]: true,
+  [marker]: true,
 };
 const combined = Buffer.concat(chunks);
 asset.buffers[0].byteLength = combined.length;
