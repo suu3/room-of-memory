@@ -121,6 +121,13 @@ for source in sources:
             vertex.co.x *= 1 + 0.35 * bib
             vertex.co.y -= 0.028 * bib
             vertex.co.z += 0.004 * bib
+            # Cover the side notch beneath the folded collar: the shirt must
+            # overlap the shoulder neckline as well as the front bib and back.
+            side = max(0, min(1, (abs(vertex.co.x) - 0.04) / 0.025))
+            edge = max(0, min(1, (0.94 - vertex.co.y) / 0.025))
+            allowance = side * edge * (1 - rear) * (1 - bib)
+            vertex.co.y -= 0.012 * allowance
+            vertex.co.x += (1 if vertex.co.x > 0 else -1) * 0.005 * allowance
     if is_knit and not refine_neckline:
         # Level the scanned shirt hem before cutting the color boundary.
         for vertex in bm.verts:

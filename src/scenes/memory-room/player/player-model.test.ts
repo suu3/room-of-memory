@@ -336,6 +336,21 @@ describe("shipped player GLB", () => {
         `shirt must continue beneath the front neckline at ${x}`,
       ).toBeGreaterThan(0);
     }
+    // The folded side collar needs an underlap: a closed mesh alone can still
+    // stop above the knit neckline and leave a visible notch.
+    for (const side of [-1, 1]) {
+      for (const [y, z] of [
+        [0.895, 0.025],
+        [0.895, 0.03],
+        [0.9, 0.015],
+      ]) {
+        shirtRay.set(new Vector3(side, y, z), new Vector3(-side, 0, 0));
+        expect(
+          shirtRay.intersectObject(collar).length,
+          `collar side underlap at ${side}, ${y}, ${z}`,
+        ).toBeGreaterThan(0);
+      }
+    }
     const collarEdges = new Map<string, number>();
     const collarIndex = collar.geometry.index;
     if (!collarIndex) throw new Error("Missing collar surface");
