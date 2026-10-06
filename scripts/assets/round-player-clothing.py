@@ -128,6 +128,33 @@ for source in sources:
             allowance = side * edge * (1 - rear) * (1 - bib)
             vertex.co.y -= 0.012 * allowance
             vertex.co.x += (1 if vertex.co.x > 0 else -1) * 0.005 * allowance
+    if is_collar:
+        # Lift only the low outer tips, retaining the closed side underlap.
+        for vertex in bm.verts:
+            x, y, z = vertex.co
+            outer = max(0, min(1, (abs(x) - 0.035) / 0.025))
+            tip = max(0, min(1, (0.89 - y) / 0.025))
+            front = max(0, min(1, (z - 0.04) / 0.025))
+            above_bib = max(0, min(1, (y - 0.825) / 0.02))
+            lift = outer * tip * front * above_bib
+            vertex.co.y += 0.008 * lift
+            vertex.co.z += 0.004 * lift
+    if refine_neckline:
+        # Even the sleeve-opening contour while preserving the fitted neckline.
+        selected = [v for v in bm.verts if v.co.y > 0.80 and abs(v.co.x) > 0.10]
+        original = {v: v.co.copy() for v in selected}
+        for _ in range(16):
+            updates = {}
+            for v in selected:
+                if not v.link_edges:
+                    continue
+                mean = sum((e.other_vert(v).co for e in v.link_edges), Vector()) / len(v.link_edges)
+                delta = v.co.lerp(mean, 0.4) - original[v]
+                if delta.length > 0.005:
+                    delta *= 0.005 / delta.length
+                updates[v] = original[v] + delta
+            for v, point in updates.items():
+                v.co = point
     if is_knit and not refine_neckline:
         # Level the scanned shirt hem before cutting the color boundary.
         for vertex in bm.verts:
