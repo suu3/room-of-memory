@@ -220,7 +220,11 @@ describe("shipped player GLB", () => {
     // Match the original primitive/material through loader associations. The Node loader
     // skips images above, but the skin and the generator's material partition are real.
     let vestName = "";
+    let collarName = "";
     let repairedCheek = false;
+    let cleanHair = false;
+    let hairName = "";
+    let cleanEars = false;
     let forehead: SkinnedMesh | undefined;
     gltf.scene.traverse((object) => {
       const association = gltf.parser.associations.get(object);
@@ -249,13 +253,61 @@ describe("shipped player GLB", () => {
         face.morphTargetInfluences?.fill(0);
         expect(movement, "painted eyes must stay fixed while eyelids close").toBeLessThan(0.00005);
       }
+      if (["tripo_part_4_material", "tripo_part_5_material"].includes(materialName)) {
+        const sleeve = object as SkinnedMesh;
+        const index = sleeve.geometry.index;
+        if (!index) throw new Error("Missing sleeve triangles");
+        const edges = new Map<string, number>();
+        for (let i = 0; i < index.count; i += 3) {
+          for (let side = 0; side < 3; side++) {
+            const a = index.getX(i + side),
+              b = index.getX(i + ((side + 1) % 3));
+            const key = a < b ? `${a},${b}` : `${b},${a}`;
+            edges.set(key, (edges.get(key) ?? 0) + 1);
+          }
+        }
+        expect(
+          [...edges.values()].every((n) => n === 2),
+          `${materialName} must be a continuous sleeve with no torn edges`,
+        ).toBe(true);
+      }
       if (materialName === "tripo_part_3_material") vestName = object.name;
+      if (materialName === "tripo_part_6_material") collarName = object.name;
       if (materialName.startsWith("tripo_part_")) {
         const geometry = (object as SkinnedMesh).geometry;
         const colors = geometry.getAttribute("color");
         const indices = geometry.getIndex();
         const used = indices ? Array.from(new Set(indices.array)) : [];
-        if (materialName.endsWith("Repair")) {
+        if (materialName === "tripo_part_0_material") {
+          cleanHair = true;
+          hairName = object.name;
+          expect(
+            asset.materials[primitive.material].pbrMetallicRoughness.baseColorTexture,
+          ).toBeUndefined();
+          expect(colors, "hair must not retain white UV bleed").toBeDefined();
+          for (const index of used) {
+            const mean = (colors.getX(index) + colors.getY(index) + colors.getZ(index)) / 3;
+            expect(mean, "white paint on dark hair").toBeLessThan(0.11);
+            expect(mean).toBeGreaterThan(0.001);
+          }
+        } else if (materialName === "tripo_part_2_material_EarClean") {
+          cleanEars = true;
+          expect(used.length).toBeGreaterThan(100);
+          const sides = new Set<number>();
+          for (const index of used) {
+            expect(
+              (colors.getX(index) + colors.getY(index) + colors.getZ(index)) / 3,
+              "ear skin must not contain black paint",
+            ).toBeGreaterThan(0.25);
+            expect(colors.getX(index)).toBeGreaterThan(colors.getZ(index));
+            const p = (object as SkinnedMesh)
+              .getVertexPosition(index, new Vector3())
+              .applyMatrix4(object.matrixWorld);
+            expect(Math.abs(p.x)).toBeGreaterThan(0.225);
+            sides.add(Math.sign(p.x));
+          }
+          expect([...sides].sort()).toEqual([-1, 1]);
+        } else if (materialName.endsWith("Repair")) {
           if (materialName.endsWith("_CheekRepair")) repairedCheek = true;
           expect(colors, "repaired skin must retain its blended colors").toBeDefined();
           expect(used.length).toBeGreaterThan(0);
@@ -265,7 +317,13 @@ describe("shipped player GLB", () => {
           expect(mean).toBeLessThan(0.9);
           expect(Math.max(...red) - Math.min(...red)).toBeGreaterThan(0.05);
         } else if (
-          ["tripo_part_1_material", "tripo_part_3_material"].includes(materialName) &&
+          [
+            "tripo_part_1_material",
+            "tripo_part_3_material",
+            "tripo_part_6_material",
+            "tripo_part_4_material",
+            "tripo_part_5_material",
+          ].includes(materialName) &&
           !asset.materials[primitive.material].pbrMetallicRoughness?.baseColorTexture
         ) {
           // 조끼 옆선의 흰 텍스처 번짐을 없앤 색은 정점에 구워 둔다.
@@ -287,6 +345,8 @@ describe("shipped player GLB", () => {
         }
       }
     });
+    expect(cleanHair).toBe(true);
+    expect(cleanEars).toBe(true);
     expect(vestName).not.toBe("");
     expect(repairedCheek).toBe(true);
     if (!forehead) throw new Error("Missing continuous forehead beneath the hair");
@@ -299,6 +359,55 @@ describe("shipped player GLB", () => {
           skinRay.intersectObject(forehead).length,
           `forehead coverage at ${x}, ${y}`,
         ).toBeGreaterThan(0);
+      }
+    }
+    const collar = blinkRig.root.getObjectByName(collarName) as SkinnedMesh;
+    const shirtRay = new Raycaster();
+    for (const x of [-0.02, 0, 0.02]) {
+      shirtRay.set(new Vector3(x, 0.806, 1), new Vector3(0, 0, -1));
+      expect(
+        shirtRay.intersectObject(collar).length,
+        `shirt must continue beneath the front neckline at ${x}`,
+      ).toBeGreaterThan(0);
+    }
+    // The folded side collar needs an underlap: a closed mesh alone can still
+    // stop above the knit neckline and leave a visible notch.
+    for (const side of [-1, 1]) {
+      for (const [y, z] of [
+        [0.895, 0.025],
+        [0.895, 0.03],
+        [0.9, 0.015],
+      ]) {
+        shirtRay.set(new Vector3(side, y, z), new Vector3(-side, 0, 0));
+        expect(
+          shirtRay.intersectObject(collar).length,
+          `collar side underlap at ${side}, ${y}, ${z}`,
+        ).toBeGreaterThan(0);
+      }
+    }
+    const collarEdges = new Map<string, number>();
+    const collarIndex = collar.geometry.index;
+    if (!collarIndex) throw new Error("Missing collar surface");
+    for (let i = 0; i < collarIndex.count; i += 3) {
+      for (let side = 0; side < 3; side++) {
+        const a = collarIndex.getX(i + side);
+        const b = collarIndex.getX(i + ((side + 1) % 3));
+        const key = a < b ? `${a},${b}` : `${b},${a}`;
+        collarEdges.set(key, (collarEdges.get(key) ?? 0) + 1);
+      }
+    }
+    expect(
+      [...collarEdges.values()].every((count) => count === 2),
+      "collar rim must have thickness and no torn boundary",
+    ).toBe(true);
+    const collarSkin = collar.geometry.attributes;
+    for (let i = 0; i < collarSkin.position.count; i++) {
+      for (let slot = 0; slot < 4; slot++) {
+        if (collarSkin.skinWeight.getComponent(i, slot) < 0.001) continue;
+        const bone = collar.skeleton.bones[collarSkin.skinIndex.getComponent(i, slot)];
+        expect(bone.name, "collar must not follow raised arms").not.toMatch(
+          /shoulder|upper_arm|forearm/,
+        );
       }
     }
     const vest = blinkRig.root.getObjectByName(vestName) as SkinnedMesh;
@@ -369,6 +478,25 @@ describe("shipped player GLB", () => {
     const bounds = new Box3().setFromObject(gltf.scene, true);
     expect(bounds.max.y - bounds.min.y).toBeCloseTo(PLAYER_TARGET_HEIGHT, 2);
     expect(bounds.min.y).toBeCloseTo(0, 2);
+    // The inner edge of the temple lock used to reveal skin through a ragged slit.
+    mixer.setTime(0.2);
+    gltf.scene.updateMatrixWorld(true);
+    const templeHair = gltf.scene.getObjectByName(hairName) as SkinnedMesh;
+    templeHair.computeBoundingSphere();
+    const hairRay = new Raycaster();
+    for (const direction of [
+      [-0.2595996752, -0.0971657011, -0.9608157134],
+      [-0.2601628099, -0.1030871604, -0.9600460144],
+      [-0.2564041635, -0.1090010862, -0.9604039088],
+    ]) {
+      hairRay.set(new Vector3(0.35, 1.18, 0.85), new Vector3(...direction));
+      const hit = hairRay.intersectObject(templeHair)[0];
+      expect(hit, "temple strand must cover the torn inner slit").toBeDefined();
+      expect(
+        hit.point.z,
+        "the front lock must cover the slit, not the back of the head",
+      ).toBeGreaterThan(0.135);
+    }
     idle.stop();
     const walk = mixer.clipAction(walkClip);
     walk.play();

@@ -116,9 +116,9 @@ memories:
         en: Swinging the bat alone. I wonder what the guys I played with are doing now.
         ja: 一人で振るバット。あの頃一緒にやっていた連中は、今ごろ何をしているんだろう。
       phase2:
-        ko: 휘두르는 감각을 잊고 있었다. 나가면 다시 친다.
-        en: I'd forgotten what a swing feels like. Once I'm out, I'll hit again.
-        ja: 振る感覚を忘れていた。外に出たら、また打つ。
+        ko: 휘두르는 감각을 잊고 있었다. 다시 칠 날이 올까.
+        en: I'd forgotten what a swing feels like. Will I ever get to swing again?
+        ja: 振る感覚を忘れていた。また打てる日が来るのかな。
     # 1차: 전국대회 16강 회상(재하 복선, 대기 타석의 윤호) → 스윙 → "혼자 휘둘러도 그때 같지 않다"
     # → 역광 속 은강고 포수의 미트, 그 타석의 끝, 같이 뛴 친구들을 떠올림(ball-flashback)
     phase1:
@@ -428,9 +428,9 @@ memories:
 
   # ─────────────────────────────────────────────── 4페이즈 · 안방 (순서 자유)
   #
-  # 사태 이후 처음 들어가는 공간. 서류 순서 맞추기와 출입증 기울이기를 마치면 "…이게 답일지도
-  # 몰라." 한 줄 뒤에 방의 액자가 금빛으로 돈다 (frame 2차). 여행이 아니었다는 소집 공지는
-  # v4.1에서 서류 조각 하나로 합쳤다 (not-a-trip 삭제).
+  # 사태 이후 처음 들어가는 공간. 서류 순서 맞추기와 출입증 기울이기 뒤, 쪽지와 앰플의 단서를
+  # 잇는 추리(ampoule-origin)가 끝나면 p4-close가 흐른다. 책상 악보 조각 → 피아노 → 액자 2차
+  # → 정적 비트 순서로 나간다. 여행이 아니었다는 소집 공지는 서류 조각 하나로 합쳤다.
   - id: research-note
     icon: FileText
     lore:

@@ -823,6 +823,13 @@ export const CUTSCENES: Record<string, Cutscene> = {
             expression: "surprised",
           },
           { speaker: "hero", textKey: "cutscenes.survivor-broadcast.cut11.line2" },
+          {
+            speaker: "hero",
+            textKey: "cutscenes.survivor-broadcast.cut11.line3",
+            expression: "puzzled",
+          },
+          { speaker: "hero", textKey: "cutscenes.survivor-broadcast.cut11.line4" },
+          { speaker: "hero", textKey: "cutscenes.survivor-broadcast.cut11.line5" },
         ],
       },
     ],
@@ -865,7 +872,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [
           { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line1", expression: "puzzled" },
           { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line2" },
-          { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line3" },
         ],
       },
     ],
@@ -900,6 +906,7 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [
           { speaker: "hero", textKey: "cutscenes.still-beat.cut2.line1" },
           { speaker: "hero", textKey: "cutscenes.still-beat.cut2.line2" },
+          { speaker: "hero", textKey: "cutscenes.still-beat.cut2.line3" },
         ],
       },
     ],

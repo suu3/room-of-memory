@@ -67,12 +67,12 @@ type BatKey = Omit<BatMotion, "stage">;
  * 수평각은 load → drop → contact → follow로 한 방향(+)으로만 늘어난다. 방향 벡터를 그냥 섞으면
  * 뒤→앞처럼 반대쪽으로 갈 때 가운데서 길이가 0이 되어 배트가 뒤집힌다: 그래서 각도로 섞는다.
  * 모델은 팔이 짧다(어깨에서 주먹 한가운데까지 0.35). 손잡이는 그 안에서 몸 앞으로 최대한
- * 빼고(z 0.22~0.27) 몸 가운데 쪽에 둔다: 몸 가까이 두면 팔이 조끼(니트)를 파고든다.
+ * 빼고(z 0.27~0.29) 몸 가운데 쪽에 둔다: 몸 가까이 두면 팔이 조끼(니트)를 파고든다.
  */
 const BAT_READY: BatKey = {
   gripX: -0.07,
   gripY: 0.75,
-  gripZ: 0.26,
+  gripZ: 0.28,
   yaw: -118 * DEG,
   pitch: 54 * DEG,
   turn: -0.2,
@@ -80,7 +80,7 @@ const BAT_READY: BatKey = {
 const BAT_LOAD: BatKey = {
   gripX: -0.1,
   gripY: 0.78,
-  gripZ: 0.22,
+  gripZ: 0.27,
   yaw: -138 * DEG,
   pitch: 46 * DEG,
   turn: -0.42,
@@ -88,7 +88,7 @@ const BAT_LOAD: BatKey = {
 const BAT_DROP: BatKey = {
   gripX: -0.06,
   gripY: 0.7,
-  gripZ: 0.25,
+  gripZ: 0.27,
   yaw: -105 * DEG,
   pitch: 0,
   turn: -0.15,
@@ -96,7 +96,7 @@ const BAT_DROP: BatKey = {
 const BAT_CONTACT: BatKey = {
   gripX: 0.02,
   gripY: 0.7,
-  gripZ: 0.26,
+  gripZ: 0.28,
   yaw: 40 * DEG,
   pitch: -8 * DEG,
   turn: 0.3,
@@ -104,7 +104,7 @@ const BAT_CONTACT: BatKey = {
 const BAT_FOLLOW: BatKey = {
   gripX: 0.07,
   gripY: 0.76,
-  gripZ: 0.24,
+  gripZ: 0.27,
   yaw: 145 * DEG,
   pitch: 40 * DEG,
   turn: 0.55,
@@ -116,7 +116,7 @@ const BAT_FOLLOW: BatKey = {
 const BAT_LOWERED: BatKey = {
   gripX: 0,
   gripY: 0.68,
-  gripZ: 0.27,
+  gripZ: 0.29,
   yaw: 10 * DEG,
   pitch: -35 * DEG,
   turn: 0.1,

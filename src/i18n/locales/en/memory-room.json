@@ -110,7 +110,7 @@
       "monologue": "The Eungang High gym, they said."
     },
     "p2-enter": {
-      "monologue": "I have to get there within four nights."
+      "monologue": "Four nights. Can I bring myself to leave by then?"
     },
     "p3-enter": {
       "monologue": "My parents were hiding something else."
@@ -185,8 +185,8 @@
       "line2": "…Not that it'll pick up anything but noise."
     },
     "duffel-pack": {
-      "line1": "Let's empty out my baseball bag.",
-      "line2": "Water, canned food, a flashlight. That should do it.",
+      "line1": "Let's get my things ready to go.",
+      "line2": "Water, canned food, a flashlight. I'll need them if I do leave.",
       "line3": "Leave the glove behind?",
       "line4": "The last time I carried this bag was the round of 16.",
       "line5": "I took that day off. I'm coming to watch my son play.",
@@ -251,7 +251,7 @@
     },
     "ball-echo": {
       "line1": "…I'd forgotten what swinging feels like.",
-      "line2": "Once I'm out of here, I'm hitting again."
+      "line2": "Will I ever get to swing again?"
     },
     "ampoule-note": {
       "line1": "There's a note stuck on the fridge's bottom drawer.",
@@ -315,7 +315,7 @@
     "ball": {
       "title": "Swinging Alone",
       "phase1": "Swinging the bat alone. I wonder what the guys I played with are doing now.",
-      "phase2": "I'd forgotten what a swing feels like. Once I'm out, I'll hit again."
+      "phase2": "I'd forgotten what a swing feels like. Will I ever get to swing again?"
     },
     "frame": {
       "title": "My Parents",
@@ -420,7 +420,7 @@
       "cut4": {
         "line1": "It was an ordinary day.",
         "line2": "After extra classes, I checked my phone and there was a text from Mom.",
-        "line3": "\"Skip the study room today and come straight home.\" …Not something she usually said."
+        "line3": "\"Do-hae, come straight home after school today. Don’t go to the study room or anywhere else.\" …Not something she usually said."
       },
       "cut5": {
         "line1": "The apartment complex was quiet.",
@@ -476,7 +476,10 @@
       "cut10": {},
       "cut11": {
         "line1": "Eungang High…? That guy from back then…?",
-        "line2": "…I've heard that voice somewhere."
+        "line2": "…I've heard that voice somewhere.",
+        "line3": "…Could there really be people still alive?",
+        "line4": "I'm still scared of what's outside. But if I let this chance slip away…",
+        "line5": "…I'll get things ready first. Then I'll see if I can leave."
       }
     },
     "trip-doubt": {
@@ -500,8 +503,7 @@
     "p4-close": {
       "cut1": {
         "line1": "The ampoules weren't supposed to leave the lab, and Mom brought them home. She left one here.",
-        "line2": "…That ampoule might be the answer.",
-        "line3": "Mom and Dad called it a trip to protect me. …And they left that behind."
+        "line2": "Mom and Dad called it a trip to protect me. …And they left that behind."
       }
     },
     "piano-flashback": {
@@ -520,8 +522,9 @@
     "still-beat": {
       "cut1": {},
       "cut2": {
-        "line1": "I'm taking the ampoule and getting to the Eungang High gym within four nights.",
-        "line2": "…I'll be back."
+        "line1": "It won't reach anyone if I leave it here. I have to take it to them.",
+        "line2": "I'm taking the ampoule and getting to the Eungang High gym within four nights.",
+        "line3": "…I'll be back."
       }
     },
     "bat-grip": {

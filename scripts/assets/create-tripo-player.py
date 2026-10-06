@@ -14,10 +14,13 @@ What it does, in order:
 5. Authors Idle/Walk/Sit/SitDown/StandUp exactly like scripts/assets/create-chibi-player.py.
 6. Exports player-chibi.glb and saves the .blend. After `pnpm model:prep`, decode with
    `gltf-transform copy`, run `repair-player-clothing.mjs`, then
-   `round-player-clothing.mjs` (Blender worker), and Meshopt-compress again.
+   `round-player-clothing.mjs` (Blender worker), then run it with `--collar`
+   on the rounded output, then `--sleeves`, and Meshopt-compress again.
    This closes the vest's side seams and smooths clothing without changing the rig.
 
 The curtain-pull clips are carried over separately: scripts/assets/retarget-curtain-clips.mjs.
+Detail cleanup after garment repair: decode the GLB, run
+`scripts/assets/cleanup-player-details.mjs`, then compress with Meshopt.
 """
 
 import argparse

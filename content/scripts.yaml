@@ -235,16 +235,16 @@ scripts:
 
   # ─────────────────────────────────────────────── 2페이즈 · 거실
 
-  # 짐 싸기. 글러브를 두고 가려다 다시 챙긴다
+  # 떠날 결심 전의 준비. 글러브를 두고 가려다 다시 챙긴다
   duffel-pack:
     - speaker: hero
-      ko: 야구 가방 비우자.
-      en: Let's empty out my baseball bag.
-      ja: 野球バッグを空けよう。
+      ko: 나갈 짐부터 챙기자.
+      en: Let's get my things ready to go.
+      ja: 出るための荷物からまとめよう。
     - speaker: hero
-      ko: 물, 통조림, 손전등. 이 정도면 되겠지.
-      en: Water, canned food, a flashlight. That should do it.
-      ja: 水、缶詰、懐中電灯。これくらいでいいか。
+      ko: 물, 통조림, 손전등. 나가게 되면 필요할 테니까.
+      en: Water, canned food, a flashlight. I'll need them if I do leave.
+      ja: 水、缶詰、懐中電灯。出ることになったら、必要だから。
     - speaker: hero
       ko: 글러브는 두고 갈까.
       en: Leave the glove behind?
@@ -479,9 +479,9 @@ scripts:
       ja: "…振る感覚を忘れてた。"
     - speaker: hero
       expression: smile
-      ko: 나가면 다시 치는 거야.
-      en: "Once I'm out of here, I'm hitting again."
-      ja: "外に出たら、また打つんだ。"
+      ko: 다시 칠 날이 올까.
+      en: Will I ever get to swing again?
+      ja: また打てる日が来るのかな。
 
   # ─────────────────────────────────────────────── 3페이즈 · 앰플
 

@@ -191,9 +191,9 @@ cutscenes:
           en: After extra classes, I checked my phone and there was a text from Mom.
           ja: 補習が終わってスマホを見ると、母さんからメッセージが来ていた。
         - speaker: hero
-          ko: '"오늘은 독서실 가지 말고 바로 집에 와." …평소엔 안 하던 말이었다.'
-          en: '"Skip the study room today and come straight home." …Not something she usually said.'
-          ja: 「今日は自習室に行かないで、まっすぐ帰ってきて。」…普段は言わないことだった。
+          ko: '"도해야, 오늘 학교 끝나면 독서실 가지 말고 바로 집에 와. 딴 데 가지 말고." …평소엔 안 하던 말이었다.'
+          en: '"Do-hae, come straight home after school today. Don’t go to the study room or anywhere else." …Not something she usually said.'
+          ja: 「ドヘ、今日は学校が終わったら自習室に行かず、まっすぐ帰ってきて。寄り道もしないで。」…普段は言わないことだった。
     # 2컷: 단지 안, 문 열린 채 버려진 차
     - image: /assets/images/cutscene-day-2.webp?v=2
       lines:
@@ -383,6 +383,19 @@ cutscenes:
           ko: …어디서 들어 본 목소리인데.
           en: …I've heard that voice somewhere.
           ja: …どこかで聞いたことのある声だな。
+        - speaker: hero
+          expression: puzzled
+          ko: …정말 사람이 살아 있는 걸까.
+          en: …Could there really be people still alive?
+          ja: …本当に、まだ生きている人がいるのかな。
+        - speaker: hero
+          ko: 밖은 아직 무서워. 그래도 이대로 방송을 놓치면…
+          en: I'm still scared of what's outside. But if I let this chance slip away…
+          ja: 外はまだ怖い。でも、このままこの機会を逃したら…
+        - speaker: hero
+          ko: …일단 챙겨 두자. 나갈 수 있을지는 그다음에.
+          en: …I'll get things ready first. Then I'll see if I can leave.
+          ja: …ひとまず準備しておこう。外に出られるかは、そのあとで。
 
   #
   # 캐리어 개수 추리의 결론 (v4.1 3장). 냉장고·신발장·아빠 메일("2박 3일")을 다 보면 추리 판이
@@ -446,10 +459,6 @@ cutscenes:
           en: The ampoules weren't supposed to leave the lab, and Mom brought them home. She left one here.
           ja: 持ち出し禁止のアンプルを、母さんは家に持ち帰った。一本はここに残して。
         - speaker: hero
-          ko: …그 앰플이 답일지도 몰라.
-          en: …That ampoule might be the answer.
-          ja: …あのアンプルが答えかもしれない。
-        - speaker: hero
           ko: 엄마 아빠는 나를 지키려고 여행이라고 한 거였어. …그리고 그걸 남기고 갔어.
           en: Mom and Dad called it a trip to protect me. …And they left that behind.
           ja: 父さんと母さんは、俺を守るために旅行だと言ったんだ。…そして、あれを残していった。
@@ -505,6 +514,10 @@ cutscenes:
     - holdMs: 2600
       lines: []
     - lines:
+        - speaker: hero
+          ko: 여기 두면 아무한테도 닿지 않아. 내가 가져가야 해.
+          en: It won't reach anyone if I leave it here. I have to take it to them.
+          ja: ここに置いていたら、誰にも届かない。俺が持っていかないと。
         - speaker: hero
           ko: 앰플을 들고, 나흘 밤 안에 은강고 체육관으로 간다.
           en: I'm taking the ampoule and getting to the Eungang High gym within four nights.

@@ -201,17 +201,37 @@ function ShelfBookInspect() {
 function LaonSanitizerZoom() {
   const { t } = useTranslation();
   return (
-    <div className={`flex flex-col items-center px-6 py-8 sm:py-10 ${PANEL_PAPER}`}>
-      {/* 펌프: 옆으로 뻗은 주둥이 → 누름대 → 병목의 마개. 위에서 아래로 넓어진다 */}
-      <div aria-hidden className="flex flex-col items-center">
-        <div className="mr-8 h-2.5 w-14 rounded-l-full rounded-r-sm bg-ink/70" />
-        <div className="h-5 w-2.5 bg-ink/55" />
-        <div className="h-4 w-12 rounded-t-sm bg-ink/70" />
+    <div
+      className={`relative isolate flex flex-col items-center overflow-hidden px-6 py-10 sm:py-12 ${PANEL_PAPER}`}
+    >
+      {/* 부드러운 접지 그림자. 병의 윤곽과 라벨이 배경에서 떨어져 보이게 한다. */}
+      <div aria-hidden className="absolute bottom-8 h-6 w-44 rounded-full bg-ink/20 blur-xl" />
+      <div aria-hidden className="relative z-10 flex flex-col items-center">
+        <div className="relative mr-8 h-3 w-20 rounded-t-lg rounded-bl-sm border-t border-card/40 bg-linear-to-b from-graphite to-ink">
+          <div className="absolute -bottom-1 left-0 h-2 w-3 rounded-b-sm bg-ink" />
+        </div>
+        <div className="h-5 w-3 border-x border-ink/20 bg-linear-to-r from-graphite via-bone to-graphite" />
+        <div className="h-5 w-14 rounded-t-md border-t border-card/40 bg-linear-to-r from-ink via-graphite to-ink" />
+        <div className="h-2 w-16 rounded-sm border-y border-ink/20 bg-linear-to-r from-graphite via-fog to-graphite" />
       </div>
-      {/* 몸통: 어깨가 둥근 반투명 병. 안에 든 것이 비쳐 보이는 색이다 */}
-      <div className="flex h-56 w-36 flex-col items-center justify-center rounded-t-4xl rounded-b-xl border-2 border-ink/15 bg-scene-sage/25 px-3 shadow-panel sm:h-64 sm:w-40">
-        {/* 라벨: 병 가운데 붙은 흰 종이. 로고는 작게, 그 밑에 쓰임새 한 줄 */}
-        <div className="flex w-full flex-col items-center gap-2 rounded-sm bg-card px-2 py-4">
+      {/* 반투명 용기: 안쪽 액면·흡입관과 바깥쪽 반사를 분리해 두께를 만든다. */}
+      <div className="relative flex h-56 w-36 items-center justify-center overflow-hidden rounded-t-4xl rounded-b-2xl border border-scene-sage/40 bg-linear-to-r from-scene-sage/30 via-card/65 to-scene-sage/40 px-3 shadow-lg shadow-ink/15 sm:h-64 sm:w-40">
+        <div
+          aria-hidden
+          className="absolute inset-x-2 bottom-2 h-3/4 rounded-t-lg rounded-b-xl border-t border-card/80 bg-linear-to-b from-scene-sage/10 to-scene-sage/35"
+        />
+        <div
+          aria-hidden
+          className="absolute top-0 bottom-5 left-1/2 w-1 -translate-x-1/2 rotate-3 rounded-full bg-card/45"
+        />
+        <div
+          aria-hidden
+          className="absolute top-6 bottom-5 left-2 w-2 rounded-full bg-linear-to-b from-card/80 via-card/35 to-transparent"
+        />
+        <div aria-hidden className="absolute top-9 right-2 bottom-6 w-1 rounded-full bg-card/40" />
+        <div aria-hidden className="absolute inset-x-5 bottom-2 h-1 rounded-full bg-card/50" />
+        {/* 로고는 다른 퍼즐과 같은 원본을 사용하고, 연구소 이름은 노출하지 않는다. */}
+        <div className="relative mt-2 flex w-full flex-col items-center gap-3 rounded-sm border border-bone/60 bg-linear-to-br from-card via-card to-paper px-2 py-5 shadow-sm shadow-ink/10">
           {/* SVG는 최적화 파이프라인을 안 탄다 (next/image의 svg 금지): 그대로 내려 그린다 */}
           <Image
             src={ASSETS.images.laonLogo}
@@ -221,8 +241,8 @@ function LaonSanitizerZoom() {
             unoptimized
             className="size-14 sm:size-16"
           />
-          {/* 라벨의 글은 쓰임새뿐이다. 연구소 이름은 여기 없다 */}
-          <p className="break-ko text-center text-xs font-medium tracking-widest text-graphite">
+          <div aria-hidden className="h-px w-8 bg-memory/50" />
+          <p className="break-ko text-center text-xs font-medium leading-relaxed tracking-wide text-ink/80">
             {t("clue.laonSanitizer.label")}
           </p>
         </div>
