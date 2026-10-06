@@ -83,6 +83,13 @@ for source in sources:
         bpy.ops.object.modifier_apply(modifier=decimate.name)
     bm = bmesh.new()
     bm.from_mesh(obj.data)
+    if is_sleeve:
+        # Smoothing contracts the arm surface. Restore a small clothing allowance
+        # so the knit cannot poke through a bent sleeve during the batting swing.
+        bm.normal_update()
+        for vertex in bm.verts:
+            cuff = max(0, min(1, (vertex.co.y - 0.53) / 0.06))
+            vertex.co += vertex.normal * (0.006 * cuff)
     if refine_neckline:
         # Smooth both sides of the thick neckline together; leave the hem and
         # arm openings intact. Bounded motion retains the original V-neck depth.
