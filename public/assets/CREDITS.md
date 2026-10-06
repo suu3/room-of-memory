@@ -78,3 +78,5 @@
 | audio/sfx/sfx-radio-broadcast-ko.mp3, sfx-radio-broadcast-en.mp3, sfx-radio-broadcast-ja.mp3 | 그날의 재난 방송 목소리(18~20초, mp3 128kbps 모노, 2026-10-02). 사용자가 ElevenLabs로 대본의 방송 세 줄을 언어마다 이어 읽혀 만든 음성. 받은 그대로 담았다 (라디오 대역 필터는 재생할 때 건다) | ElevenLabs (음성 생성) · suu3 | 서비스 이용약관에 따른 사용자 생성물 |
 | ar/ar-target-hero.mind | 웹 AR 이미지 타깃(2026-09-28, 2026-09-29 재생성). 주문한 포토카드 앞면 그림을 /ar/compile(MindAR)로 컴파일한 파생물. 원화는 프로젝트의 캐릭터 그림 | 프로젝트 원화 · MindAR 컴파일 | 프로젝트 파생 에셋 |
 | ../vendor/mindar-1.2.5/ (mindar-image.prod.js, controller-mGt1s8dJ.js, ui-fBadYuor.js) | https://github.com/hiukim/mind-ar-js (v1.2.5 브라우저 배포 번들). /ar의 이미지 타깃 인식과 /ar/compile의 타깃 굽기에 쓴다. npm 패키지는 네이티브 canvas 때문에 설치가 깨져 번들만 리포에 둔다. controller 번들에는 TensorFlow.js(https://github.com/tensorflow/tfjs)가 들어 있다 | hiukim (MindAR) · Google LLC (TensorFlow.js) | MindAR: MIT (전문: ../vendor/mindar-1.2.5/LICENSE) · TensorFlow.js: Apache 2.0 (전문: ../vendor/mindar-1.2.5/LICENSE-APACHE-2.0) |
+
+앞 목둘레 보수(2026-10-06): `--collar` 후처리에 니트 앞 목둘레의 제한된 곡면 완화를 더해 거친 V자 경계를 둥글게 정리했다. 셔츠 앞판을 넓혀 니트 안으로 이어 붙이고 깊이 차이를 줄여 벌어진 틈과 거친 음영을 줄였다.

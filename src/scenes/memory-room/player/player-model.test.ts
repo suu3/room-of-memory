@@ -306,6 +306,14 @@ describe("shipped player GLB", () => {
       }
     }
     const collar = blinkRig.root.getObjectByName(collarName) as SkinnedMesh;
+    const shirtRay = new Raycaster();
+    for (const x of [-0.02, 0, 0.02]) {
+      shirtRay.set(new Vector3(x, 0.806, 1), new Vector3(0, 0, -1));
+      expect(
+        shirtRay.intersectObject(collar).length,
+        `shirt must continue beneath the front neckline at ${x}`,
+      ).toBeGreaterThan(0);
+    }
     const collarEdges = new Map<string, number>();
     const collarIndex = collar.geometry.index;
     if (!collarIndex) throw new Error("Missing collar surface");

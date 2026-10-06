@@ -4,7 +4,7 @@
  * repair-player-clothing 적용 후 Meshopt를 푼 GLB를 입력한다.
  * node scripts/assets/round-player-clothing.mjs <decoded.glb> <rounded.glb>
  * BLENDER_BIN으로 Blender 실행 경로를 지정할 수 있다.
- * --collar 모드는 목깃만 후처리한다. 얼굴·본·애니메이션은 보존한다.
+ * --collar 모드는 목깃과 니트 앞 목둘레를 후처리한다. 얼굴·본·애니메이션은 보존한다.
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -59,11 +59,13 @@ const meshes = [];
 gltf.scene.traverse((mesh) => {
   if (
     mesh.isSkinnedMesh &&
-    (collarMode ? /^tripo_part_6_material$/ : /^tripo_part_[13]_material$/).test(mesh.material.name)
+    (collarMode ? /^tripo_part_[36]_material$/ : /^tripo_part_[13]_material$/).test(
+      mesh.material.name,
+    )
   )
     meshes.push(mesh);
 });
-if (meshes.length !== (collarMode ? 1 : 2)) throw new Error("의복 표면을 찾지 못했다");
+if (meshes.length !== 2) throw new Error("의복 표면을 찾지 못했다");
 async function texturePixels(mesh) {
   const a = gltf.parser.associations.get(mesh);
   const primitive = asset.meshes[a.meshes].primitives[a.primitives];
@@ -83,7 +85,10 @@ const sources = await Promise.all(
     const attrs = mesh.geometry.attributes;
     if (!attrs.color && !collarMode)
       throw new Error("먼저 repair-player-clothing으로 의복 색을 굽는다");
-    const pixels = collarMode ? await texturePixels(mesh) : null;
+    const pixels =
+      collarMode && mesh.material.name === "tripo_part_6_material"
+        ? await texturePixels(mesh)
+        : null;
     const colors = Array.from({ length: attrs.position.count }, (_, i) => {
       if (!pixels) return [attrs.color.getX(i), attrs.color.getY(i), attrs.color.getZ(i)];
       const { info, data } = pixels;
@@ -102,6 +107,7 @@ const sources = await Promise.all(
     });
     return {
       name: mesh.material.name,
+      refineNeckline: collarMode && mesh.material.name === "tripo_part_3_material",
       positions: Array.from({ length: attrs.position.count }, (_, i) =>
         mesh.getVertexPosition(i, new Vector3()).applyMatrix4(mesh.matrixWorld).toArray(),
       ),
@@ -261,7 +267,8 @@ for (const mesh of meshes) {
   );
   primitive.indices = append(new Uint32Array(result.indices), "SCALAR", 5125);
   asset.materials[primitive.material].doubleSided = false;
-  if (collarMode) delete asset.materials[primitive.material].pbrMetallicRoughness.baseColorTexture;
+  if (collarMode && result.name === "tripo_part_6_material")
+    delete asset.materials[primitive.material].pbrMetallicRoughness.baseColorTexture;
   geometry.dispose();
 }
 const triangleCount = asset.meshes.reduce(

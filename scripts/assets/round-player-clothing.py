@@ -20,6 +20,7 @@ for source in sources:
     is_knit = source["name"] == "tripo_part_3_material"
     is_collar = source["name"] == "tripo_part_6_material"
     is_shirt = is_collar
+    refine_neckline = source.get("refineNeckline", False)
     points = [Vector(p) for p in source["positions"]]
     faces = [source["indices"][i:i + 3] for i in range(0, len(source["indices"]), 3)]
     tree = BVHTree.FromPolygons(points, faces, all_triangles=True)
@@ -33,9 +34,9 @@ for source in sources:
     bm = bmesh.new()
     bm.from_mesh(mesh)
     bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=0.00002)
-    if not is_collar:
+    if not is_collar and not refine_neckline:
         bmesh.ops.holes_fill(bm, edges=[e for e in bm.edges if e.is_boundary], sides=0)
-    else:
+    elif is_collar:
         # Relax only the scan's boundary noise; retain the collar's pointed folds.
         rim = [v for v in bm.verts if v.is_boundary]
         original = {v: v.co.copy() for v in rim}
@@ -46,8 +47,9 @@ for source in sources:
                 if len(adjacent) != 2:
                     continue
                 delta = v.co.lerp((adjacent[0] + adjacent[1]) / 2, 0.5) - original[v]
-                if delta.length > 0.003:
-                    delta *= 0.003 / delta.length
+                limit = 0.012 if original[v].y < 0.89 and original[v].z > 0.025 else 0.003
+                if delta.length > limit:
+                    delta *= limit / delta.length
                 updates[v] = original[v] + delta
             for v, co in updates.items():
                 v.co = co
@@ -55,37 +57,63 @@ for source in sources:
     bm.to_mesh(mesh)
     bm.free()
 
-    # Thin, open source cloth has no reliable voxel volume. Give it inward
-    # thickness first; remove inner surfaces and artificial caps after remeshing.
-    thickness = obj.modifiers.new("Cloth thickness", "SOLIDIFY")
-    thickness.thickness = 0.006 if is_shirt else 0.009
-    thickness.offset = 0 if is_collar else -1
-    bpy.ops.object.modifier_apply(modifier=thickness.name)
-    remesh = obj.modifiers.new("Continuous cloth", "REMESH")
-    remesh.mode = "VOXEL"
-    remesh.voxel_size = 0.0025 if is_collar else 0.007
-    remesh.use_smooth_shade = True
-    bpy.ops.object.modifier_apply(modifier=remesh.name)
-    smooth = obj.modifiers.new("Round cloth", "SMOOTH")
-    smooth.factor = 0.3 if is_collar else 0.65
-    smooth.iterations = 3 if is_collar else 8
-    bpy.ops.object.modifier_apply(modifier=smooth.name)
-    decimate = obj.modifiers.new("Mobile mesh", "DECIMATE")
-    if is_shirt:
-        triangles = sum(len(face.vertices) - 2 for face in obj.data.polygons)
-        decimate.ratio = min(1, 1700 / triangles)
-    else:
-        decimate.ratio = 0.14 if is_knit else 0.20
-    bpy.ops.object.modifier_apply(modifier=decimate.name)
+    if not refine_neckline:
+        # Thin, open source cloth has no reliable voxel volume. Give it inward
+        # thickness first; remove inner surfaces and artificial caps after remeshing.
+        thickness = obj.modifiers.new("Cloth thickness", "SOLIDIFY")
+        thickness.thickness = 0.006 if is_shirt else 0.009
+        thickness.offset = 0 if is_collar else -1
+        bpy.ops.object.modifier_apply(modifier=thickness.name)
+        remesh = obj.modifiers.new("Continuous cloth", "REMESH")
+        remesh.mode = "VOXEL"
+        remesh.voxel_size = 0.0025 if is_collar else 0.007
+        remesh.use_smooth_shade = True
+        bpy.ops.object.modifier_apply(modifier=remesh.name)
+        smooth = obj.modifiers.new("Round cloth", "SMOOTH")
+        smooth.factor = 0.3 if is_collar else 0.65
+        smooth.iterations = 3 if is_collar else 8
+        bpy.ops.object.modifier_apply(modifier=smooth.name)
+        decimate = obj.modifiers.new("Mobile mesh", "DECIMATE")
+        if is_shirt:
+            triangles = sum(len(face.vertices) - 2 for face in obj.data.polygons)
+            decimate.ratio = min(1, 1700 / triangles)
+        else:
+            decimate.ratio = 0.14 if is_knit else 0.20
+        bpy.ops.object.modifier_apply(modifier=decimate.name)
     bm = bmesh.new()
     bm.from_mesh(obj.data)
+    if refine_neckline:
+        # Smooth both sides of the thick neckline together; leave the hem and
+        # arm openings intact. Bounded motion retains the original V-neck depth.
+        selected = [v for v in bm.verts if v.co.y > 0.77 and v.co.z > 0.055 and abs(v.co.x) < 0.105]
+        original = {v: v.co.copy() for v in selected}
+        for _ in range(32):
+            updates = {}
+            for v in selected:
+                if not v.link_edges:
+                    continue
+                mean = sum((e.other_vert(v).co for e in v.link_edges), Vector()) / len(v.link_edges)
+                blend = min(1, (v.co.y - 0.77) / 0.025) * min(1, (v.co.z - 0.055) / 0.015)
+                delta = v.co.lerp(mean, 0.5 * blend) - original[v]
+                if delta.length > 0.020:
+                    delta *= 0.020 / delta.length
+                updates[v] = original[v] + delta
+            for v, point in updates.items():
+                v.co = point
     if is_collar:
         # Tuck the lower rear rim under the knit neckline to cover the scan gap.
         for vertex in bm.verts:
             lower = max(0, min(1, (0.94 - vertex.co.y) / 0.04))
             rear = max(0, min(1, (0.015 - vertex.co.z) / 0.045))
             vertex.co.y -= 0.012 * lower * rear
-    if is_knit:
+            # The shirt bib continues underneath the vest, rather than ending
+            # at the scanned jagged V-neck boundary.
+            front = max(0, min(1, (vertex.co.z - 0.025) / 0.035))
+            bib = max(0, min(1, (0.90 - vertex.co.y) / 0.035)) * front
+            vertex.co.x *= 1 + 0.35 * bib
+            vertex.co.y -= 0.028 * bib
+            vertex.co.z += 0.004 * bib
+    if is_knit and not refine_neckline:
         # Level the scanned shirt hem before cutting the color boundary.
         for vertex in bm.verts:
             y = vertex.co.y
@@ -107,7 +135,7 @@ for source in sources:
         near, normal, index, distance = tree.find_nearest(face.calc_center_median())
         if (
             distance is not None and (
-                (is_knit and face.calc_center_median().y > 0.84 and distance > 0.014)
+                (is_knit and not refine_neckline and face.calc_center_median().y > 0.84 and distance > 0.014)
                 or (not is_knit and not is_shirt and distance > 0.001 and face.normal.dot(normal) < -0.2)
             )
         ):
