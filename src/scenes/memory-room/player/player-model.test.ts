@@ -220,6 +220,7 @@ describe("shipped player GLB", () => {
     // Match the original primitive/material through loader associations. The Node loader
     // skips images above, but the skin and the generator's material partition are real.
     let vestName = "";
+    let collarName = "";
     let repairedCheek = false;
     let forehead: SkinnedMesh | undefined;
     gltf.scene.traverse((object) => {
@@ -250,6 +251,7 @@ describe("shipped player GLB", () => {
         expect(movement, "painted eyes must stay fixed while eyelids close").toBeLessThan(0.00005);
       }
       if (materialName === "tripo_part_3_material") vestName = object.name;
+      if (materialName === "tripo_part_6_material") collarName = object.name;
       if (materialName.startsWith("tripo_part_")) {
         const geometry = (object as SkinnedMesh).geometry;
         const colors = geometry.getAttribute("color");
@@ -265,7 +267,9 @@ describe("shipped player GLB", () => {
           expect(mean).toBeLessThan(0.9);
           expect(Math.max(...red) - Math.min(...red)).toBeGreaterThan(0.05);
         } else if (
-          ["tripo_part_1_material", "tripo_part_3_material"].includes(materialName) &&
+          ["tripo_part_1_material", "tripo_part_3_material", "tripo_part_6_material"].includes(
+            materialName,
+          ) &&
           !asset.materials[primitive.material].pbrMetallicRoughness?.baseColorTexture
         ) {
           // 조끼 옆선의 흰 텍스처 번짐을 없앤 색은 정점에 구워 둔다.
@@ -299,6 +303,32 @@ describe("shipped player GLB", () => {
           skinRay.intersectObject(forehead).length,
           `forehead coverage at ${x}, ${y}`,
         ).toBeGreaterThan(0);
+      }
+    }
+    const collar = blinkRig.root.getObjectByName(collarName) as SkinnedMesh;
+    const collarEdges = new Map<string, number>();
+    const collarIndex = collar.geometry.index;
+    if (!collarIndex) throw new Error("Missing collar surface");
+    for (let i = 0; i < collarIndex.count; i += 3) {
+      for (let side = 0; side < 3; side++) {
+        const a = collarIndex.getX(i + side);
+        const b = collarIndex.getX(i + ((side + 1) % 3));
+        const key = a < b ? `${a},${b}` : `${b},${a}`;
+        collarEdges.set(key, (collarEdges.get(key) ?? 0) + 1);
+      }
+    }
+    expect(
+      [...collarEdges.values()].every((count) => count === 2),
+      "collar rim must have thickness and no torn boundary",
+    ).toBe(true);
+    const collarSkin = collar.geometry.attributes;
+    for (let i = 0; i < collarSkin.position.count; i++) {
+      for (let slot = 0; slot < 4; slot++) {
+        if (collarSkin.skinWeight.getComponent(i, slot) < 0.001) continue;
+        const bone = collar.skeleton.bones[collarSkin.skinIndex.getComponent(i, slot)];
+        expect(bone.name, "collar must not follow raised arms").not.toMatch(
+          /shoulder|upper_arm|forearm/,
+        );
       }
     }
     const vest = blinkRig.root.getObjectByName(vestName) as SkinnedMesh;

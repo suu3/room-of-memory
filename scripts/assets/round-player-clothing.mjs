@@ -4,17 +4,20 @@
  * repair-player-clothing 적용 후 Meshopt를 푼 GLB를 입력한다.
  * node scripts/assets/round-player-clothing.mjs <decoded.glb> <rounded.glb>
  * BLENDER_BIN으로 Blender 실행 경로를 지정할 수 있다.
- * 얼굴·본·애니메이션·소매의 원본 바이트는 보존한다.
+ * --collar 모드는 목깃만 후처리한다. 얼굴·본·애니메이션은 보존한다.
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 import { BufferGeometry, Float32BufferAttribute, Matrix4, Vector3 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-const [input, output] = process.argv.slice(2);
+const [input, output, mode] = process.argv.slice(2);
+const collarMode = mode === "--collar";
+if (mode && !collarMode) throw new Error("지원하지 않는 모드");
 if (!input || !output)
   throw new Error("usage: round-player-clothing.mjs <decoded.glb> <rounded.glb>");
 const bytes = readFileSync(input),
@@ -22,7 +25,7 @@ const bytes = readFileSync(input),
 const asset = JSON.parse(bytes.subarray(20, 20 + jsonLength));
 if (asset.extensionsUsed?.includes("EXT_meshopt_compression"))
   throw new Error("먼저 gltf-transform copy로 Meshopt를 푼다");
-if (asset.asset.extras?.roundedClothing)
+if (asset.asset.extras?.[collarMode ? "roundedCollar" : "roundedClothing"])
   throw new Error("이미 곡면을 재구성한 모델에는 다시 적용하지 않는다");
 const stripped = structuredClone(asset);
 stripped.images = [];
@@ -54,32 +57,65 @@ const gltf = await new GLTFLoader().parseAsync(
 gltf.scene.updateMatrixWorld(true);
 const meshes = [];
 gltf.scene.traverse((mesh) => {
-  if (mesh.isSkinnedMesh && /^tripo_part_[13]_material$/.test(mesh.material.name))
+  if (
+    mesh.isSkinnedMesh &&
+    (collarMode ? /^tripo_part_6_material$/ : /^tripo_part_[13]_material$/).test(mesh.material.name)
+  )
     meshes.push(mesh);
 });
-if (meshes.length !== 2) throw new Error("바지와 니트 두 표면이 필요하다");
-const sources = meshes.map((mesh) => {
-  const attrs = mesh.geometry.attributes;
-  if (!attrs.color) throw new Error("먼저 repair-player-clothing으로 의복 색을 굽는다");
-  return {
-    name: mesh.material.name,
-    positions: Array.from({ length: attrs.position.count }, (_, i) =>
-      mesh.getVertexPosition(i, new Vector3()).applyMatrix4(mesh.matrixWorld).toArray(),
-    ),
-    indices: Array.from(mesh.geometry.index.array),
-    colors: Array.from({ length: attrs.position.count }, (_, i) => [
-      attrs.color.getX(i),
-      attrs.color.getY(i),
-      attrs.color.getZ(i),
-    ]),
-    joints: Array.from({ length: attrs.position.count }, (_, i) =>
-      [0, 1, 2, 3].map((k) => attrs.skinIndex.getComponent(i, k)),
-    ),
-    weights: Array.from({ length: attrs.position.count }, (_, i) =>
-      [0, 1, 2, 3].map((k) => attrs.skinWeight.getComponent(i, k)),
-    ),
-  };
-});
+if (meshes.length !== (collarMode ? 1 : 2)) throw new Error("의복 표면을 찾지 못했다");
+async function texturePixels(mesh) {
+  const a = gltf.parser.associations.get(mesh);
+  const primitive = asset.meshes[a.meshes].primitives[a.primitives];
+  const textureIndex =
+    asset.materials[primitive.material].pbrMetallicRoughness?.baseColorTexture?.index;
+  if (textureIndex === undefined) return null;
+  const texture = asset.textures[textureIndex];
+  const image = asset.images[texture.extensions?.EXT_texture_webp?.source ?? texture.source];
+  const view = asset.bufferViews[image.bufferView];
+  return sharp(binary.subarray(view.byteOffset ?? 0, (view.byteOffset ?? 0) + view.byteLength))
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+}
+const sources = await Promise.all(
+  meshes.map(async (mesh) => {
+    const attrs = mesh.geometry.attributes;
+    if (!attrs.color && !collarMode)
+      throw new Error("먼저 repair-player-clothing으로 의복 색을 굽는다");
+    const pixels = collarMode ? await texturePixels(mesh) : null;
+    const colors = Array.from({ length: attrs.position.count }, (_, i) => {
+      if (!pixels) return [attrs.color.getX(i), attrs.color.getY(i), attrs.color.getZ(i)];
+      const { info, data } = pixels;
+      const x = Math.max(
+        0,
+        Math.min(info.width - 1, Math.round(attrs.uv.getX(i) * (info.width - 1))),
+      );
+      const y = Math.max(
+        0,
+        Math.min(info.height - 1, Math.round(attrs.uv.getY(i) * (info.height - 1))),
+      );
+      return [0, 1, 2].map((k) => {
+        const c = data[(y * info.width + x) * info.channels + k] / 255;
+        return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+      });
+    });
+    return {
+      name: mesh.material.name,
+      positions: Array.from({ length: attrs.position.count }, (_, i) =>
+        mesh.getVertexPosition(i, new Vector3()).applyMatrix4(mesh.matrixWorld).toArray(),
+      ),
+      indices: Array.from(mesh.geometry.index.array),
+      colors,
+      joints: Array.from({ length: attrs.position.count }, (_, i) =>
+        [0, 1, 2, 3].map((k) => attrs.skinIndex.getComponent(i, k)),
+      ),
+      weights: Array.from({ length: attrs.position.count }, (_, i) =>
+        [0, 1, 2, 3].map((k) => attrs.skinWeight.getComponent(i, k)),
+      ),
+    };
+  }),
+);
 const temp = mkdtempSync(join(tmpdir(), "round-player-"));
 let results;
 try {
@@ -225,6 +261,7 @@ for (const mesh of meshes) {
   );
   primitive.indices = append(new Uint32Array(result.indices), "SCALAR", 5125);
   asset.materials[primitive.material].doubleSided = false;
+  if (collarMode) delete asset.materials[primitive.material].pbrMetallicRoughness.baseColorTexture;
   geometry.dispose();
 }
 const triangleCount = asset.meshes.reduce(
@@ -234,7 +271,10 @@ const triangleCount = asset.meshes.reduce(
   0,
 );
 if (triangleCount >= 60000) throw new Error(`삼각형 예산 초과: ${triangleCount}`);
-asset.asset.extras = { ...asset.asset.extras, roundedClothing: true };
+asset.asset.extras = {
+  ...asset.asset.extras,
+  [collarMode ? "roundedCollar" : "roundedClothing"]: true,
+};
 const combined = Buffer.concat(chunks);
 asset.buffers[0].byteLength = combined.length;
 writeFileSync(output, pack(asset, combined));
