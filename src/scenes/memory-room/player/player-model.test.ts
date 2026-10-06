@@ -222,6 +222,8 @@ describe("shipped player GLB", () => {
     let vestName = "";
     let collarName = "";
     let repairedCheek = false;
+    let cleanHair = false;
+    let cleanEars = false;
     let forehead: SkinnedMesh | undefined;
     gltf.scene.traverse((object) => {
       const association = gltf.parser.associations.get(object);
@@ -275,7 +277,35 @@ describe("shipped player GLB", () => {
         const colors = geometry.getAttribute("color");
         const indices = geometry.getIndex();
         const used = indices ? Array.from(new Set(indices.array)) : [];
-        if (materialName.endsWith("Repair")) {
+        if (materialName === "tripo_part_0_material") {
+          cleanHair = true;
+          expect(
+            asset.materials[primitive.material].pbrMetallicRoughness.baseColorTexture,
+          ).toBeUndefined();
+          expect(colors, "hair must not retain white UV bleed").toBeDefined();
+          for (const index of used) {
+            const mean = (colors.getX(index) + colors.getY(index) + colors.getZ(index)) / 3;
+            expect(mean, "white paint on dark hair").toBeLessThan(0.11);
+            expect(mean).toBeGreaterThan(0.001);
+          }
+        } else if (materialName === "tripo_part_2_material_EarClean") {
+          cleanEars = true;
+          expect(used.length).toBeGreaterThan(100);
+          const sides = new Set<number>();
+          for (const index of used) {
+            expect(
+              (colors.getX(index) + colors.getY(index) + colors.getZ(index)) / 3,
+              "ear skin must not contain black paint",
+            ).toBeGreaterThan(0.25);
+            expect(colors.getX(index)).toBeGreaterThan(colors.getZ(index));
+            const p = (object as SkinnedMesh)
+              .getVertexPosition(index, new Vector3())
+              .applyMatrix4(object.matrixWorld);
+            expect(Math.abs(p.x)).toBeGreaterThan(0.225);
+            sides.add(Math.sign(p.x));
+          }
+          expect([...sides].sort()).toEqual([-1, 1]);
+        } else if (materialName.endsWith("Repair")) {
           if (materialName.endsWith("_CheekRepair")) repairedCheek = true;
           expect(colors, "repaired skin must retain its blended colors").toBeDefined();
           expect(used.length).toBeGreaterThan(0);
@@ -313,6 +343,8 @@ describe("shipped player GLB", () => {
         }
       }
     });
+    expect(cleanHair).toBe(true);
+    expect(cleanEars).toBe(true);
     expect(vestName).not.toBe("");
     expect(repairedCheek).toBe(true);
     if (!forehead) throw new Error("Missing continuous forehead beneath the hair");

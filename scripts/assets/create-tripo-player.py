@@ -19,6 +19,8 @@ What it does, in order:
    This closes the vest's side seams and smooths clothing without changing the rig.
 
 The curtain-pull clips are carried over separately: scripts/assets/retarget-curtain-clips.mjs.
+Detail cleanup after garment repair: decode the GLB, run
+`scripts/assets/cleanup-player-details.mjs`, then compress with Meshopt.
 """
 
 import argparse
