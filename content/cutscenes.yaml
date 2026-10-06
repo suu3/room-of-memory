@@ -191,9 +191,9 @@ cutscenes:
           en: After extra classes, I checked my phone and there was a text from Mom.
           ja: 補習が終わってスマホを見ると、母さんからメッセージが来ていた。
         - speaker: hero
-          ko: '"오늘은 독서실 가지 말고 바로 집에 와." …평소엔 안 하던 말이었다.'
-          en: '"Skip the study room today and come straight home." …Not something she usually said.'
-          ja: 「今日は自習室に行かないで、まっすぐ帰ってきて。」…普段は言わないことだった。
+          ko: '"도해야, 오늘 학교 끝나면 독서실 가지 말고 바로 집에 와. 딴 데 가지 말고." …평소엔 안 하던 말이었다.'
+          en: '"Do-hae, come straight home after school today. Don’t go to the study room or anywhere else." …Not something she usually said.'
+          ja: 「ドヘ、今日は学校が終わったら自習室に行かず、まっすぐ帰ってきて。寄り道もしないで。」…普段は言わないことだった。
     # 2컷: 단지 안, 문 열린 채 버려진 차
     - image: /assets/images/cutscene-day-2.webp?v=2
       lines:

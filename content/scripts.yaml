@@ -238,9 +238,9 @@ scripts:
   # 떠날 결심 전의 준비. 글러브를 두고 가려다 다시 챙긴다
   duffel-pack:
     - speaker: hero
-      ko: 야구 가방 비우자.
-      en: Let's empty out my baseball bag.
-      ja: 野球バッグを空けよう。
+      ko: 나갈 짐부터 챙기자.
+      en: Let's get my things ready to go.
+      ja: 出るための荷物からまとめよう。
     - speaker: hero
       ko: 물, 통조림, 손전등. 나가게 되면 필요할 테니까.
       en: Water, canned food, a flashlight. I'll need them if I do leave.
