@@ -165,8 +165,8 @@ export function CharacterSheetModal() {
               <div
                 role="tablist"
                 aria-label={t("characterSheet.title")}
-                // 그래도 넘치면(긴 번역 · 더 좁은 폰) 탭 줄만 옆으로 민다
-                className="relative z-10 -mb-px flex max-w-full flex-none gap-1 overflow-x-auto [scrollbar-width:none]"
+                // 모바일은 항상 이름 아래 한 줄을 쓴다. 넘치는 탭만 옆으로 민다
+                className="relative z-10 -mb-px flex w-full max-w-full flex-none gap-1 overflow-x-auto [scrollbar-width:none] sm:w-auto"
               >
                 {tabs.map((id) => (
                   <button

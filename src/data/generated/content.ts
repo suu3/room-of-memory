@@ -872,7 +872,6 @@ export const CUTSCENES: Record<string, Cutscene> = {
         lines: [
           { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line1", expression: "puzzled" },
           { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line2" },
-          { speaker: "hero", textKey: "cutscenes.p4-close.cut1.line3" },
         ],
       },
     ],

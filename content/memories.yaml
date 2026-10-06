@@ -116,9 +116,9 @@ memories:
         en: Swinging the bat alone. I wonder what the guys I played with are doing now.
         ja: 一人で振るバット。あの頃一緒にやっていた連中は、今ごろ何をしているんだろう。
       phase2:
-        ko: 휘두르는 감각을 잊고 있었다. 나가면 다시 친다.
-        en: I'd forgotten what a swing feels like. Once I'm out, I'll hit again.
-        ja: 振る感覚を忘れていた。外に出たら、また打つ。
+        ko: 휘두르는 감각을 잊고 있었다. 다시 칠 날이 올까.
+        en: I'd forgotten what a swing feels like. Will I ever get to swing again?
+        ja: 振る感覚を忘れていた。また打てる日が来るのかな。
     # 1차: 전국대회 16강 회상(재하 복선, 대기 타석의 윤호) → 스윙 → "혼자 휘둘러도 그때 같지 않다"
     # → 역광 속 은강고 포수의 미트, 그 타석의 끝, 같이 뛴 친구들을 떠올림(ball-flashback)
     phase1:

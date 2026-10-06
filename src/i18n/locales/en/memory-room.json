@@ -251,7 +251,7 @@
     },
     "ball-echo": {
       "line1": "…I'd forgotten what swinging feels like.",
-      "line2": "Once I'm out of here, I'm hitting again."
+      "line2": "Will I ever get to swing again?"
     },
     "ampoule-note": {
       "line1": "There's a note stuck on the fridge's bottom drawer.",
@@ -315,7 +315,7 @@
     "ball": {
       "title": "Swinging Alone",
       "phase1": "Swinging the bat alone. I wonder what the guys I played with are doing now.",
-      "phase2": "I'd forgotten what a swing feels like. Once I'm out, I'll hit again."
+      "phase2": "I'd forgotten what a swing feels like. Will I ever get to swing again?"
     },
     "frame": {
       "title": "My Parents",
@@ -503,8 +503,7 @@
     "p4-close": {
       "cut1": {
         "line1": "The ampoules weren't supposed to leave the lab, and Mom brought them home. She left one here.",
-        "line2": "…That ampoule might help the people at the gym.",
-        "line3": "Mom and Dad called it a trip to protect me. …And they left that behind."
+        "line2": "Mom and Dad called it a trip to protect me. …And they left that behind."
       }
     },
     "piano-flashback": {
