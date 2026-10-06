@@ -110,7 +110,7 @@
       "monologue": "The Eungang High gym, they said."
     },
     "p2-enter": {
-      "monologue": "I have to get there within four nights."
+      "monologue": "Four nights. Can I bring myself to leave by then?"
     },
     "p3-enter": {
       "monologue": "My parents were hiding something else."
@@ -186,7 +186,7 @@
     },
     "duffel-pack": {
       "line1": "Let's empty out my baseball bag.",
-      "line2": "Water, canned food, a flashlight. That should do it.",
+      "line2": "Water, canned food, a flashlight. I'll need them if I do leave.",
       "line3": "Leave the glove behind?",
       "line4": "The last time I carried this bag was the round of 16.",
       "line5": "I took that day off. I'm coming to watch my son play.",
@@ -476,7 +476,10 @@
       "cut10": {},
       "cut11": {
         "line1": "Eungang High…? That guy from back then…?",
-        "line2": "…I've heard that voice somewhere."
+        "line2": "…I've heard that voice somewhere.",
+        "line3": "…Could there really be people still alive?",
+        "line4": "I'm still scared of what's outside. But if I let this chance slip away…",
+        "line5": "…I'll get things ready first. Then I'll see if I can leave."
       }
     },
     "trip-doubt": {
@@ -500,7 +503,7 @@
     "p4-close": {
       "cut1": {
         "line1": "The ampoules weren't supposed to leave the lab, and Mom brought them home. She left one here.",
-        "line2": "…That ampoule might be the answer.",
+        "line2": "…That ampoule might help the people at the gym.",
         "line3": "Mom and Dad called it a trip to protect me. …And they left that behind."
       }
     },
@@ -520,8 +523,9 @@
     "still-beat": {
       "cut1": {},
       "cut2": {
-        "line1": "I'm taking the ampoule and getting to the Eungang High gym within four nights.",
-        "line2": "…I'll be back."
+        "line1": "It won't reach anyone if I leave it here. I have to take it to them.",
+        "line2": "I'm taking the ampoule and getting to the Eungang High gym within four nights.",
+        "line3": "…I'll be back."
       }
     },
     "bat-grip": {

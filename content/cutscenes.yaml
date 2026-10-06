@@ -383,6 +383,19 @@ cutscenes:
           ko: …어디서 들어 본 목소리인데.
           en: …I've heard that voice somewhere.
           ja: …どこかで聞いたことのある声だな。
+        - speaker: hero
+          expression: puzzled
+          ko: …정말 사람이 살아 있는 걸까.
+          en: …Could there really be people still alive?
+          ja: …本当に、まだ生きている人がいるのかな。
+        - speaker: hero
+          ko: 밖은 아직 무서워. 그래도 이대로 방송을 놓치면…
+          en: I'm still scared of what's outside. But if I let this chance slip away…
+          ja: 外はまだ怖い。でも、このままこの機会を逃したら…
+        - speaker: hero
+          ko: …일단 챙겨 두자. 나갈 수 있을지는 그다음에.
+          en: …I'll get things ready first. Then I'll see if I can leave.
+          ja: …ひとまず準備しておこう。外に出られるかは、そのあとで。
 
   #
   # 캐리어 개수 추리의 결론 (v4.1 3장). 냉장고·신발장·아빠 메일("2박 3일")을 다 보면 추리 판이
@@ -446,9 +459,9 @@ cutscenes:
           en: The ampoules weren't supposed to leave the lab, and Mom brought them home. She left one here.
           ja: 持ち出し禁止のアンプルを、母さんは家に持ち帰った。一本はここに残して。
         - speaker: hero
-          ko: …그 앰플이 답일지도 몰라.
-          en: …That ampoule might be the answer.
-          ja: …あのアンプルが答えかもしれない。
+          ko: …그 앰플이면, 체육관에 있는 사람들을 도울 수 있을지도 몰라.
+          en: …That ampoule might help the people at the gym.
+          ja: …あのアンプルなら、体育館にいる人たちを助けられるかもしれない。
         - speaker: hero
           ko: 엄마 아빠는 나를 지키려고 여행이라고 한 거였어. …그리고 그걸 남기고 갔어.
           en: Mom and Dad called it a trip to protect me. …And they left that behind.
@@ -505,6 +518,10 @@ cutscenes:
     - holdMs: 2600
       lines: []
     - lines:
+        - speaker: hero
+          ko: 여기 두면 아무한테도 닿지 않아. 내가 가져가야 해.
+          en: It won't reach anyone if I leave it here. I have to take it to them.
+          ja: ここに置いていたら、誰にも届かない。俺が持っていかないと。
         - speaker: hero
           ko: 앰플을 들고, 나흘 밤 안에 은강고 체육관으로 간다.
           en: I'm taking the ampoule and getting to the Eungang High gym within four nights.

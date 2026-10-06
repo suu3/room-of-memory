@@ -10,7 +10,7 @@
 #   turn-silence turning, 신호가 잡히기 전. 과거편에서 돌아온 방, 라디오를 끄고 가라앉는 한 줄
 #   turn-bottom  turning, 생존자 방송 전. 신호가 잡혀 빨갛게 깜빡이는 라디오 앞의 한 줄
 #   turn-signal  turning, 방송을 들은 뒤 문이 열리기 전
-#   p2-enter     p2 진입. 기한 "나흘 밤 안에 가야 해."
+#   p2-enter     p2 진입. 기한은 알지만, 아직 나갈 자신은 없다
 #   p3-enter     p3 진입. 엄마가 숨긴 것을 쫓는다
 #   p4-enter     p4 진입. 사태 이후 처음 들어서는 안방
 #   resolve      정적 비트 뒤. 챙길 것 셋(가방·앰플·배트)을 부른다
@@ -72,9 +72,9 @@ stages:
 
   p2-enter:
     monologue:
-      ko: 나흘 밤 안에 가야 해.
-      en: I have to get there within four nights.
-      ja: 四日のうちに行かないと。
+      ko: 나흘 밤. 그 안에 나갈 수 있을까.
+      en: Four nights. Can I bring myself to leave by then?
+      ja: 四日。その間に、外に出られるだろうか。
 
   p3-enter:
     monologue:
