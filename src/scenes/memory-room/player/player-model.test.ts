@@ -223,6 +223,7 @@ describe("shipped player GLB", () => {
     let collarName = "";
     let repairedCheek = false;
     let cleanHair = false;
+    let hairName = "";
     let cleanEars = false;
     let forehead: SkinnedMesh | undefined;
     gltf.scene.traverse((object) => {
@@ -279,6 +280,7 @@ describe("shipped player GLB", () => {
         const used = indices ? Array.from(new Set(indices.array)) : [];
         if (materialName === "tripo_part_0_material") {
           cleanHair = true;
+          hairName = object.name;
           expect(
             asset.materials[primitive.material].pbrMetallicRoughness.baseColorTexture,
           ).toBeUndefined();
@@ -476,6 +478,25 @@ describe("shipped player GLB", () => {
     const bounds = new Box3().setFromObject(gltf.scene, true);
     expect(bounds.max.y - bounds.min.y).toBeCloseTo(PLAYER_TARGET_HEIGHT, 2);
     expect(bounds.min.y).toBeCloseTo(0, 2);
+    // The inner edge of the temple lock used to reveal skin through a ragged slit.
+    mixer.setTime(0.2);
+    gltf.scene.updateMatrixWorld(true);
+    const templeHair = gltf.scene.getObjectByName(hairName) as SkinnedMesh;
+    templeHair.computeBoundingSphere();
+    const hairRay = new Raycaster();
+    for (const direction of [
+      [-0.2595996752, -0.0971657011, -0.9608157134],
+      [-0.2601628099, -0.1030871604, -0.9600460144],
+      [-0.2564041635, -0.1090010862, -0.9604039088],
+    ]) {
+      hairRay.set(new Vector3(0.35, 1.18, 0.85), new Vector3(...direction));
+      const hit = hairRay.intersectObject(templeHair)[0];
+      expect(hit, "temple strand must cover the torn inner slit").toBeDefined();
+      expect(
+        hit.point.z,
+        "the front lock must cover the slit, not the back of the head",
+      ).toBeGreaterThan(0.135);
+    }
     idle.stop();
     const walk = mixer.clipAction(walkClip);
     walk.play();

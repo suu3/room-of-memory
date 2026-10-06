@@ -7,7 +7,7 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import sharp from "sharp";
-import { BufferGeometry, Float32BufferAttribute, Matrix4, Vector3 } from "three";
+import { BufferGeometry, Float32BufferAttribute, MathUtils, Matrix4, Vector3 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const [input, output] = process.argv.slice(2);
@@ -219,6 +219,22 @@ for (const mesh of meshes) {
       const tucked = nearest.clone();
       tucked.x = Math.sign(p.x) * (Math.abs(nearest.x) - 0.006);
       positions[ids[group[0]]].copy(tucked);
+    }
+  }
+  if (hair) {
+    // Close the ragged slit by overlapping the existing temple lock. No detached
+    // patch or double-sided sheet: retain the strand topology and its head weights.
+    for (const p of positions) {
+      if (!(p.x > 0.145 && p.x < 0.23 && p.y > 1.075 && p.y < 1.24 && p.z > 0.055 && p.z < 0.19))
+        continue;
+      const fade =
+        MathUtils.smoothstep(p.y, 1.075, 1.11) *
+        (1 - MathUtils.smoothstep(p.y, 1.2, 1.24)) *
+        (1 - MathUtils.smoothstep(p.x, 0.21, 0.23)) *
+        MathUtils.smoothstep(p.z, 0.055, 0.07) *
+        (1 - MathUtils.smoothstep(p.z, 0.175, 0.19));
+      p.x -= 0.008 * fade;
+      p.z += 0.006 * fade;
     }
   }
   const local = points.map((_, i) => {
