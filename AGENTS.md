@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # room-of-memory
 
-3D 기반 짧은 비주얼 노벨 게임 + 인터랙션 사이트. 정적인 페이지가 아니라 "플레이되는" 웹사이트가 목표.
+3D 기반 짧은 내러티브 콘텐츠 + 인터랙션 사이트. 정적인 페이지가 아니라 "플레이되는" 웹사이트가 목표.
 
 ## Stack
 
@@ -68,7 +68,7 @@ Git 훅(husky): pre-commit = staged 파일 Biome 검사 + 25MB 초과 파일 차
 세부 규칙은 `.claude/rules/`에 분리되어 있음:
 - `r3f.md`: react-three-fiber 성능/구조 규칙
 - `assets.md`: 에셋 포맷, 용량 한도, 커밋 규칙
-- `visual-novel.md`: 시나리오 데이터 작성 규칙
+- `narrative-content.md`: 시나리오 데이터 작성 규칙
 - `minigames.md`: 미니게임 구조/디자인/성능 규칙
 - `code-style.md`: TypeScript/Biome 컨벤션
 - `architecture.md`: 계층 방향 (아래 계층은 위를 모른다)과 폴더 규칙. `src/architecture.test.ts`가 지킨다

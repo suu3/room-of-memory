@@ -7,7 +7,7 @@ import { parseDependency, resolveDependencyVisit } from "./validate.mjs";
  *
  * 두 갈래로 나간다:
  *   1. src/data/generated/content.ts: 흐름 데이터. 본문은 안 들어가고 textKey만 담는다
- *      (.claude/rules/visual-novel.md: 대사 본문은 시나리오 데이터에 넣지 않는다).
+ *      (.claude/rules/narrative-content.md: 대사 본문은 시나리오 데이터에 넣지 않는다).
  *   2. src/i18n/locales/<lng>/memory-room.json: 본문. 손으로 쓰는 부분(characters,
  *      memories 이름)은 같은 폴더의 memory-room.base.json에서 그대로 얹는다.
  *

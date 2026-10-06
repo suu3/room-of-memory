@@ -10,7 +10,7 @@
   ],
   // css를 넣어야 `@import "tailwindcss"`가 보인다
   "project": ["src/**/*.{ts,tsx,css}", "scripts/**/*.mjs", ".github/scripts/*.mjs"],
-  // 아직 쓰이지 않는 다중 챕터용 스키마 (.claude/rules/visual-novel.md)
+  // 아직 쓰이지 않는 다중 챕터용 스키마 (.claude/rules/narrative-content.md)
   "ignore": ["src/types/scenario.ts"],
   // pnpm audio:bgm이 쓰는 시스템 도구
   "ignoreBinaries": ["ffmpeg", "ffprobe"],

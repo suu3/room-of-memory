@@ -26,7 +26,7 @@ describe("locale parity", () => {
 });
 
 /**
- * 대사는 세 언어를 함께 쓰는 것이 규칙이라(.claude/rules/visual-novel.md), 스토리
+ * 대사는 세 언어를 함께 쓰는 것이 규칙이라(.claude/rules/narrative-content.md), 스토리
  * 네임스페이스도 공용 UI와 같은 잣대로 본다. 컷씬·재조사 대사처럼 한 번에 여러 줄이
  * 늘어나는 자리에서 한 언어만 빠뜨리기 쉽다.
  */

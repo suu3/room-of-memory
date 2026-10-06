@@ -1,7 +1,7 @@
 /**
  * 스마트폰 미니게임의 데이터. 순수 값만 두어 브라우저 없이 검증한다.
  *
- * 대사 본문은 여기 넣지 않는다. 시나리오 규칙(.claude/rules/visual-novel.md)대로
+ * 대사 본문은 여기 넣지 않는다. 시나리오 규칙(.claude/rules/narrative-content.md)대로
  * i18n 키만 담고 ko/en/ja는 common.json이 갖는다.
  *
  * 친구 단톡방은 그 전날 밤까지 평범하게 떠들다가 거기서 멈춘다. 무슨 일이 있었는지는

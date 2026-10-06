@@ -22,5 +22,5 @@ description: 새 챕터(3D 씬 + 시나리오 데이터 + 씬 레지스트리 �
 
 ## 규칙
 
-- `.claude/rules/r3f.md`와 `.claude/rules/visual-novel.md`를 준수.
+- `.claude/rules/r3f.md`와 `.claude/rules/narrative-content.md`를 준수.
 - 시나리오 본문을 길게 채우지 않는다. 구조만 만들고, 본문은 사용자와 별도로 작업한다.
